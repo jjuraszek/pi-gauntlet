@@ -1,24 +1,35 @@
 {
   "sample": "quote-integrity-drift",
   "arm": "candidate",
-  "skillSha": "ff8889aa811e9ec8f2f76f589970eba4eff0343faab40e4f129ded01c270fbc7",
+  "skillSha": "8cd421b321d4d72aaa0fa04400eefa0833d125c68071ef45d031a61651ac6818",
   "inputSha": "01107074ec36125942609f656c7d4b35e4e6a99080ac091a9c4446df1cba55b3",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration: plan_check FAIL through the closing line\n\n**Already done before this point:** `start brainstorm`, `skip brainstorm` (reason `resume: /work/app/.worktrees/config-loader/doc/specs/2026-03-02-config-loader.md`), and `start plan`. Tool results 1–2 recorded the plan as **tracked and clean**: `ls-files --error-unmatch` exited 0 and `status --porcelain` printed nothing. So no temp copy is needed.\n\n---\n\n**1. Call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\n→ FAIL with 5 findings, all `quote-integrity`.\n\nThis sends the restore to `## Plan repair`.\n\n- **Baseline routing:** there is no `baseline-line` finding and no substantive `open-questions` finding, so baseline continuation is skipped.\n- **Citation repair classification:** I classify every finding before any write. Each is the row `quote-integrity`, task-owned. Its evidence holds because every anchor already resolves. The prescribed edit is to add the missing backtick literal to the owning task's body, without replacing or removing any task text.\n\n**2. Edits** (round 1) to `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`:\n\n| Task | Literals added to the task body |\n|---|---|\n| Task 1 | `load_config` and `ConfigError` |\n| Task 2 | `schema.json` |\n| Task 3 | `--config` and `CONFIG_PATH` |\n\n**3. Call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\n→ PASS.\n\n**4. Call:** the plan was tracked and clean before the loop, so I commit the plan alone:\n```bash\ngit -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 5 findings\" -- doc/plans/2026-03-02-config-loader.md\n```\n→ exit 0.\n\n**5.** Return to the call table at `skip plan R`:\n- **Call:** `phase_tracker skip plan`, reason `resume: pasted brief`\n- **Call:** `phase_tracker start implement`. The brief shows no substep on `→ implement`, so there is no `substep` call.\n\n**6.** Feasibility check before `init`:\n- The single `○` task trails every non-pending task.\n- Not all tasks are complete or skipped, so the auto-complete edge does not apply.\n\n**Call:**\n```\nplan_tracker init({ tasks: [\n  { name: \"W1: Parse config file\",  status: \"complete\" },\n  { name: \"W1: Validate schema\",    status: \"complete\" },\n  { name: \"W2: Wire CLI flag\",      status: \"in_progress\" },\n  { name: \"W3: Document the loader\", status: \"pending\" }\n] })\n```\n→ succeeds.\n\n**7. Printed lines:**\n```\nRepaired plan: 5 findings (quote-integrity)\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\nAfter this, the `Standing grant active: …` or `No standing grant.` line from check 6 follows. The handoff then goes to subagent-driven-development, which re-runs `W2: Wire CLI flag`'s `Tests:` first, without its reset-bearing entry. No approval or gate history is inferred.\n",
+      "words": 353,
+      "wallMs": 19494,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: FAIL with the five supplied `quote-integrity` findings.\n\n2. Classify all five findings as task-owned `quote-integrity` repairs. Every row’s anchor resolves. The preceding git results establish that the plan was tracked and clean, so no temporary snapshot is needed.\n\n3. Edit `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`:\n   - Add backtick literals `load_config` and `ConfigError` to Task 1’s body.\n   - Add backtick literal `schema.json` to Task 2’s body.\n   - Add backtick literals `--config` and `CONFIG_PATH` to Task 3’s body.\n\n   Preserve existing task text, names, count, order, wave membership, and statuses; change nothing else.\n\n4. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: PASS.\n\n5. Run:\n   ```bash\n   git -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 5 findings\" -- doc/plans/2026-03-02-config-loader.md\n   ```\n   Result: exit 0.\n\n6. Call:\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n   ```\n\n7. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n8. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Parse config file\", status: \"complete\" },\n       { name: \"W1: Validate schema\", status: \"complete\" },\n       { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n       { name: \"W3: Document the loader\", status: \"pending\" }\n     ]\n   })\n   ```\n\n9. Print:\n   ```text\n   Repaired plan: 5 findings (quote-integrity)\n   Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n   ```\n",
-      "words": 197,
-      "wallMs": 16580,
+      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: FAIL with five `quote-integrity` findings.\n\n2. Classify all five findings as task-owned `quote-integrity` repairs. Every row’s anchor already resolves. The previously observed git results establish that the plan was tracked and clean before repair.\n\n   Edit only the plan, adding these missing backtick literals to the existing owning task bodies:\n   - Task 1: `load_config`, `ConfigError`\n   - Task 2: `schema.json`\n   - Task 3: `--config`, `CONFIG_PATH`\n\n   Preserve all existing task text, names, order, statuses, wave membership, and ownership.\n\n3. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: PASS.\n\n4. Call:\n   ```bash\n   git -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 5 findings\" -- doc/plans/2026-03-02-config-loader.md\n   ```\n   Result: exit 0.\n\n5. Call:\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n   ```\n\n6. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n7. Validate the saved snapshot: the pending task trails all non-pending tasks, and the in-progress task prevents implement auto-completion. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Parse config file\", status: \"complete\" },\n       { name: \"W1: Validate schema\", status: \"complete\" },\n       { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n       { name: \"W3: Document the loader\", status: \"pending\" }\n     ]\n   })\n   ```\n\n8. Print:\n   ```text\n   Repaired plan: 5 findings (quote-integrity)\n   Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n   ```\n",
+      "words": 204,
+      "wallMs": 13693,
       "mechanical": {
         "f2": "holds",
         "f4": "holds"
@@ -26,12 +37,12 @@
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "0b0204ed71a67cd72bcb7ae93f4cc4ba64efacff1067e5ed33d838e049d69dc9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "baselineOutputSha": "fee9bb0531be99cc59821d14e454c21b8f627041f70e3b620d88b42cdc9483f1",
-      "candidateOutputSha": "05e045dc1bc6eafbf7472daef6b241c2cf491da89b1a90503b00cf3ab7a85394",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "a7471ef4343ce48e030d285e3505ae20b22c4f6bfab8421addc2db1a5bf4caff",
+      "candidateOutputSha": "09b05172f73b4fc2a415b5b756a25b79627cf24cf14d2de3583d600d0eff76e7",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,8 +75,50 @@
           "label": "held"
         }
       },
-      "feedback": "No listed fact moved: After preserves the five task-specific literal additions, the check-before-commit sequence, the ordered tracker calls with the exact saved statuses, and automatic continuation without a stop or human question. Its “change nothing else” wording keeps the repair narrowly scoped. Retain that wording and the explicit call sequence; apply question markers and nonrecoverable-stop wording only to branches that actually ask or stop, leaving this successful repair path without a terminal marker.",
-      "wallMs": 5158,
+      "feedback": "No fact moved on this case. After preserves everything Before did: the five literals are added only to the owning task bodies (Task 1 load_config/ConfigError, Task 2 schema.json, Task 3 --config/CONFIG_PATH) with no other plan edit, plan_check is re-run after the edits and before the commit, and after PASS the sequence skip plan → start implement → plan_tracker init with the exact four tasks/statuses is kept, with no stop, human ask, or Repair stopped line. The additions in After — the 'Already done before this point' preamble recapping brainstorm/plan phase calls and tool results 1–2, and the closing standing-grant/handoff note stating no approval or gate history is inferred — are consistent with the Change (continue automatically without a terminal marker, don't infer approval) and don't contradict any fact. One minor caution: the preamble asserts calls (`start brainstorm`, `skip brainstorm`, `start plan`) that the input did not list among tool results; keeping that recap clearly labeled as prior-state context rather than narrated calls, as After does, avoids any reading that extra tracker calls occur after the PASS.",
+      "wallMs": 10115,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0b0204ed71a67cd72bcb7ae93f4cc4ba64efacff1067e5ed33d838e049d69dc9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "4853e8f2eb23d28a55d00e8203141b54238935169a95769ae29dd785da17c6e4",
+      "candidateOutputSha": "40cffe74f97918b52140d2d5521c29badd12a10b483ea9677f1a546b03b41f9c",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved in this case: both outputs name exactly the five literals added to the task bodies the findings name (and no other plan edit), re-run plan_check after the edits and before the commit, then call skip plan, start implement, and plan_tracker init with the four snapshot tasks and statuses in that order, and neither stops or asks the human. After's only differences are cosmetic — it restructures the literal list by task, adds a snapshot-validation sentence before init, and drops the explicit 'Result: succeeds' lines on steps 5–7 — none of which affect the facts. If you want After to be strictly no worse than Before on narration completeness, keep the 'Result: succeeds' lines on the tracker calls (tool result 5 says they succeed); otherwise this case is unaffected by the Change and the wording is fine as is.",
+      "wallMs": 9043,
       "verdict": "unchanged"
     }
   },
@@ -196,5 +249,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bc949e322867c82caca62b4a8333d18ae3c985e7"
 }

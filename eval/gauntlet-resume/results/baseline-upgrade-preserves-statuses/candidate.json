@@ -1,34 +1,42 @@
 {
   "sample": "baseline-upgrade-preserves-statuses",
   "arm": "candidate",
-  "skillSha": "ff8889aa811e9ec8f2f76f589970eba4eff0343faab40e4f129ded01c270fbc7",
+  "skillSha": "8cd421b321d4d72aaa0fa04400eefa0833d125c68071ef45d031a61651ac6818",
   "inputSha": "48ff8f59f9329c92ca141355f5d8b98268f2d7a66a4e22e80eb1117a989f8e39",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration: verify-stage brief, task plan, from the first `plan_check`\n\n**State on entry.** The flow is armed: `start brainstorm` and `skip brainstorm` with reason `resume: /work/demo/.worktrees/options/doc/specs/options.md` have run, and `start plan` has run. Phase `plan` is in_progress. The saved task snapshot is two tasks, both `✓`, and `Active task: none`.\n\n---\n\n**Tool call 1.** `plan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })`\n\nResult: **FAIL**, 2 findings:\n- `baseline-line`: Task 1: command `node --test test/parse.test.mjs` has no baseline: bullet\n- `baseline-line`: Task 2: command `node --test test/validate.test.mjs` has no baseline: bullet\n\nOn FAIL the verify row of the call table sends me to `## Plan repair`. Both findings are `baseline-line`, so they go to **Baseline continuation**, not the citation table.\n- No landed fix is named, so there is no rebase or merge. I go straight to the rerun.\n- I keep the brief's task snapshot (names, order, statuses) verbatim.\n- I take no fresh-plan initialization.\n\n**Tool call 2.** I dispatch a fresh foreground plan-writer:\n\n```\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/demo/.worktrees/options\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: <writing-plans step 3 fixed task template, filled with the five absolute paths:\n         worktree  /work/demo/.worktrees/options\n         spec      /work/demo/.worktrees/options/doc/specs/options.md\n         plan      /work/demo/.worktrees/options/doc/plans/options.md\n         writing-plans SKILL.md               <installed absolute path>/skills/writing-plans/SKILL.md\n         writing-plans reference/plan-contract.md  <installed absolute path>/skills/writing-plans/reference/plan-contract.md>\n        followed by the appended line:\n        Findings: rerun baseline\n})\n```\n\nResult: `PLAN WRITTEN`.\n- The writer ran Baseline itself and generated the baseline bullets.\n- The parent synthesizes no SHAs or runs.\n- The reply is synchronous and the plan is present, so no stop applies.\n\n**Tool call 3.** `plan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })`\n\nResult: **PASS**.\n\nThis is the `PLAN WRITTEN` + `PASS` row: the Open Questions section is absent or exactly `- none`. I return to the originating restore at `skip plan R`, with `R = resume: pasted brief`.\n- This is Baseline continuation, not Citation repair, so I make no repair commit and run no `git add`.\n\n**Tool call 4.** `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })`\n\n**Tool call 5.** `phase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: pasted brief\" })`\n- `start implement` is never called for a verify brief.\n\n**Tool call 6.** `phase_tracker({ action: \"start\", phase: \"verify\" })`\n- The brief shows no substep, so there is no `substep` call.\n\n**Feasibility check before `init`:**\n- **Pending-suffix order:** holds, since there are no `○` tasks.\n- **Implement auto-complete edge:** does not apply, because the target phase is verify, not implement.\n\n**Tool call 7.** I initialize the tracker from the saved snapshot, not the regenerated plan:\n\n```\nplan_tracker({ action: \"init\", tasks: [\n  { name: \"W1: Parse options\",    status: \"complete\" },\n  { name: \"W1: Validate options\", status: \"complete\" }\n] })\n```\n\n**Printed lines:**\n\n```\nRepaired plan: 2 findings (baseline-line)\nGate history not restored; re-validating `none` before any stage advance\n```\n\n`<task>` is `none` because `Active task: none` and no task is in progress, so the re-validation covers the whole deliverable.\n\nThe `Standing grant active: …` or `No standing grant.` line comes next, from check 6. Continuation then proceeds in `verification-before-completion`, which runs the full conformance gate with nothing carried over.\n",
+      "words": 473,
+      "wallMs": 22507,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call `plan_check`:\n   ```json\n   {\"planPath\":\"/work/demo/.worktrees/options/doc/plans/options.md\"}\n   ```\n   Result: **FAIL**\n   - `baseline-line`: Task 1: command `node --test test/parse.test.mjs` has no `baseline:` bullet.\n   - `baseline-line`: Task 2: command `node --test test/validate.test.mjs` has no `baseline:` bullet.\n\n2. Enter **Baseline continuation**, preserving the brief’s task names, order, and statuses. No landed fix is named, so proceed directly to the baseline rerun.\n\n   Dispatch `plan-writer`:\n   ```json\n   {\n     \"agent\": \"plan-writer\",\n     \"context\": \"fresh\",\n     \"async\": false,\n     \"cwd\": \"/work/demo/.worktrees/options\",\n     \"phase\": \"plan-write\",\n     \"acceptance\": {\n       \"level\": \"none\",\n       \"reason\": \"the parent plan_check owns acceptance\"\n     },\n     \"task\": \"Worktree: /work/demo/.worktrees/options\\nSpec: /work/demo/.worktrees/options/doc/specs/options.md\\nPlan: /work/demo/.worktrees/options/doc/plans/options.md\\nWriting-plans skill: <scratch>/skills/writing-plans/SKILL.md\\nPlan contract: <scratch>/skills/writing-plans/reference/plan-contract.md\\n\\nFindings: rerun baseline\"\n   }\n   ```\n   Result: `PLAN WRITTEN`. The writer ran both commands and generated passing baseline bullets without changing task identities or order.\n\n3. Call `plan_check`:\n   ```json\n   {\"planPath\":\"/work/demo/.worktrees/options/doc/plans/options.md\"}\n   ```\n   Result: **PASS**.\n\n4. Call `phase_tracker`:\n   ```json\n   {\"action\":\"skip\",\"phase\":\"plan\",\"reason\":\"resume: pasted brief\"}\n   ```\n   Result: success.\n\n5. Call `phase_tracker`:\n   ```json\n   {\"action\":\"skip\",\"phase\":\"implement\",\"reason\":\"resume: pasted brief\"}\n   ```\n   Result: success. Do not call `start implement`.\n\n6. Call `phase_tracker`:\n   ```json\n   {\"action\":\"start\",\"phase\":\"verify\"}\n   ```\n   Result: success.\n\n7. Call `plan_tracker` with the saved brief snapshot—not a fresh task list from the writer:\n   ```json\n   {\n     \"action\": \"init\",\n     \"tasks\": [\n       {\"name\":\"W1: Parse options\",\"status\":\"complete\"},\n       {\"name\":\"W1: Validate options\",\"status\":\"complete\"}\n     ]\n   }\n   ```\n   Result: success.\n\nPrint:\n```text\nRepaired plan: 2 findings (baseline-line)\nGate history not restored; re-validating `none` before any stage advance\n```\n",
-      "words": 186,
-      "wallMs": 13252,
+      "text": "The input does not supply the installed absolute paths or fixed task template for `writing-plans`. Below, `WRITING_PLANS_SKILL` and `PLAN_CONTRACT` denote those resolved absolute paths; they must not be guessed.\n\n1. Call:\n   ```text\n   plan_check({\n     planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\"\n   })\n   ```\n   Result: FAIL:\n   - `baseline-line`: Task 1: command `node --test test/parse.test.mjs` has no baseline: bullet.\n   - `baseline-line`: Task 2: command `node --test test/validate.test.mjs` has no baseline: bullet.\n\n2. Enter **Baseline continuation**, preserving this task snapshot unchanged:\n   ```json\n   [\n     {\"name\":\"W1: Parse options\",\"status\":\"complete\"},\n     {\"name\":\"W1: Validate options\",\"status\":\"complete\"}\n   ]\n   ```\n   No landed fix is named, so make no worktree-update call. Do not enter citation repair.\n\n3. Dispatch `plan-writer` with:\n   ```text\n   agent: \"plan-writer\"\n   context: \"fresh\"\n   async: false\n   cwd: \"/work/demo/.worktrees/options\"\n   phase: \"plan-write\"\n   acceptance: {\n     level: \"none\",\n     reason: \"the parent plan_check owns acceptance\"\n   }\n   task: <writing-plans step 3 fixed task template populated with:\n     worktree = /work/demo/.worktrees/options\n     spec = /work/demo/.worktrees/options/doc/specs/options.md\n     plan = /work/demo/.worktrees/options/doc/plans/options.md\n     writing-plans SKILL.md = WRITING_PLANS_SKILL\n     reference/plan-contract.md = PLAN_CONTRACT\n   >\n   ```\n   Append to that task:\n   ```text\n   Findings: rerun baseline\n   ```\n   Result: `PLAN WRITTEN`; the writer generated passing baseline bullets. The parent does not run either test or invent baseline SHAs.\n\n4. Call:\n   ```text\n   plan_check({\n     planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\"\n   })\n   ```\n   Result: PASS. Return to the verify restore sequence using the saved task snapshot, not a generated task list.\n\n5. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: pasted brief\"\n   })\n   ```\n\n6. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"implement\",\n     reason: \"resume: pasted brief\"\n   })\n   ```\n\n7. Call:\n   ```text\n   phase_tracker({\n     action: \"start\",\n     phase: \"verify\"\n   })\n   ```\n\n8. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       {\"name\":\"W1: Parse options\",\"status\":\"complete\"},\n       {\"name\":\"W1: Validate options\",\"status\":\"complete\"}\n     ]\n   })\n   ```\n\n9. Print:\n   ```text\n   Repaired plan: 2 findings (baseline-line)\n   Gate history not restored; re-validating `none` before any stage advance\n   ```\n",
+      "words": 249,
+      "wallMs": 18195,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "466f32778d2b2d9b4417a26f05dadcae72a56b3788a5b7692922bf8a289b742a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "baselineOutputSha": "88c6760ab836d1dd3f3ebd991e7611de5c04075d8ff35348f845929aa528e9a1",
-      "candidateOutputSha": "5883afabc0c6181affc6ec6c6a69604c80b588e266a09a371dc6a7431d72f037",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "5e0e4c1a8b4f34fc5915c2a37d8cd3737fa803aab89449e98239465ae4c144f8",
+      "candidateOutputSha": "c4a7d3dfcede9954ab94e1a80be8191c1f173f2a71bd36d0322c69fd8f60afd5",
       "facts": {
         "rerun": {
           "before": "holds",
@@ -46,8 +54,35 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No listed fact moved: both outputs dispatch a fresh foreground writer for baseline regeneration, recheck the absolute plan path in the parent, and restore verify using the exact completed-task snapshot. After makes the dispatch and tracker sequence more explicit without changing those facts. Retain that sequence, but label the skill and contract paths as unresolved placeholders rather than implying that <scratch> is a supplied location, and explicitly retain Before’s prohibition on parent-run baseline commands or synthesized SHAs. This preserves the existing facts while delivering the baseline-continuation change.",
-      "wallMs": 7220,
+      "feedback": "Nothing moved: both outputs dispatch a fresh, synchronous plan-writer with cwd set to the resolved worktree, phase plan-write, acceptance level none, the five absolute paths and the appended `Findings: rerun baseline`, both explicitly leave baseline evidence to the writer, both re-run `plan_check` on the absolute plan path in the parent after `PLAN WRITTEN` and before any further tracker call, and both then skip plan and implement with `resume: pasted brief`, start verify, and init the tracker from the two-task complete snapshot in order while never calling `start implement` or taking fresh-plan initialization. After is slightly tighter (it states 'I take no fresh-plan initialization' and names each tracker call as a numbered tool call with explicit action/phase/reason payloads), which makes the snapshot fact easier to verify; keep that explicit payload form and the 'from the saved snapshot, not the regenerated plan' sentence in any further rewording, and keep the `context: \"fresh\"` / `async: false` / `Findings: rerun baseline` triple spelled out literally so the rerun fact stays verifiable rather than implied.",
+      "wallMs": 10344,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "466f32778d2b2d9b4417a26f05dadcae72a56b3788a5b7692922bf8a289b742a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "4f961669299f5c62b43ac3550d0fb4c7d5db01579e491c9e1b9143f28f33ac54",
+      "candidateOutputSha": "d01ff846dd632879a64d62a4d87bd821427d79a97e42513d6f62e87a10faff0d",
+      "facts": {
+        "rerun": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "parent-check": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved on this case: Before and After both dispatch plan-writer fresh/foreground with the resolved worktree cwd, phase plan-write, acceptance level none, the five worktree/spec/plan/skill/contract paths (both using placeholders for the uninstalled skill and contract paths) and the appended `Findings: rerun baseline`, both run the parent plan_check on the absolute plan path after `PLAN WRITTEN` and before continuing, and both skip plan and implement with resume reasons, start verify, and init plan_tracker with exactly the two complete W1 tasks in order without any fresh-plan initialization or implement start. After's additions (the explicit JSON snapshot in step 2, the statement that the parent runs no tests and invents no SHAs, and the named WRITING_PLANS_SKILL/PLAN_CONTRACT placeholders instead of `<scratch>/...`) are clarifications that neither gain nor lose any fact here; since the Expected-to-move list claims these three went fails -> holds, the author should recheck the baseline for this sample, because the Before text already satisfies all three facts and no wording change was needed to keep them.",
+      "wallMs": 13481,
       "verdict": "unchanged"
     }
   },
@@ -148,5 +183,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bc949e322867c82caca62b4a8333d18ae3c985e7"
 }

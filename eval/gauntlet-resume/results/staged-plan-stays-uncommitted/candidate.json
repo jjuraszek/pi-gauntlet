@@ -1,36 +1,46 @@
 {
   "sample": "staged-plan-stays-uncommitted",
   "arm": "candidate",
-  "skillSha": "ff8889aa811e9ec8f2f76f589970eba4eff0343faab40e4f129ded01c270fbc7",
+  "skillSha": "8cd421b321d4d72aaa0fa04400eefa0833d125c68071ef45d031a61651ac6818",
   "inputSha": "e4b982ac3001a934261e93db0b886734dd0988e60ee9e6c5b06ee9637880c248",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration: implement with task plan, from tool result 3 to the closing line\n\n**Tool result 3: `plan_check` returns FAIL (5 findings)**\n\nThe call-table row is \"implement with task plan\". On FAIL it routes to `## Plan repair`.\n\n1. **Pre-routing check.** No `baseline-line` or substantive `open-questions` finding is present. All five findings go to the citation table.\n\n2. **Pre-write plan state, from results 1 and 2.**\n   - The plan is tracked, because `ls-files --error-unmatch` exited 0.\n   - Porcelain output is non-empty (`M  doc/plans/2026-03-02-config-loader.md`, a staged-only edit). The plan is therefore **dirty**, even though the working copy equals HEAD.\n   - So I take the saved-copy path, not `git checkout`:\n     - Tool call: `cp /work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md /tmp/gauntlet-resume-plan-snapshot-2026-03-02-config-loader.md`\n\n3. **Classification, before any write.**\n   - Every finding is `quote-integrity` on a task-owned row.\n   - Every anchor already resolves, which satisfies the evidence requirement.\n   - The row's edit is to add the missing backtick literal to the owning task's body. No task text is replaced or removed. Task names, order, waves and owners stay unchanged.\n\n4. **Round 1 edits** (writes to `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`):\n   - Edit Task 1 body: add `` `load_config` `` and `` `ConfigError` ``.\n   - Edit Task 2 body: add `` `schema.json` ``.\n   - Edit Task 3 body: add `` `--config` `` and `` `CONFIG_PATH` ``.\n\n5. **Re-check.**\n   - Tool call: `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\n   - Result 4: **PASS**, in round 1 of a maximum of 3.\n\n6. **Landing the repair.**\n   - The plan was dirty before the loop, so the repair stays in the working copy.\n   - I run no `git add`, no repair commit, and no restore of the saved copy.\n\n**Return to the call table from `skip plan R`**\n\n7. Tool call: `phase_tracker skip plan`, reason `resume: pasted brief`\n8. Tool call: `phase_tracker start implement`\n   - The brief shows no substep (`→ implement`), so there is no `substep` call.\n9. **Feasibility check before `init`.**\n   - The single `○` task trails all non-pending tasks.\n   - Not all tasks are complete or skipped, so the auto-complete edge is not hit.\n10. Tool call: `plan_tracker init` with the brief's snapshot, kept verbatim:\n    - `{ name: \"W1: Parse config file\", status: \"complete\" }`\n    - `{ name: \"W1: Validate schema\", status: \"complete\" }`\n    - `{ name: \"W2: Wire CLI flag\", status: \"in_progress\" }`\n    - `{ name: \"W3: Document the loader\", status: \"pending\" }`\n\n**Printed lines, in order:**\n\n```\nRepaired plan: 5 findings (quote-integrity)\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\nThe next line comes from entry check 6's grant decoding. Its result is not in the input, so I print exactly one of these, matching that recorded result:\n\n```\nStanding grant active: <sentence>\n```\n\nor\n\n```\nNo standing grant.\n```\n\nThen I state: the citation repair to `doc/plans/2026-03-02-config-loader.md` stays in the working copy and lands with the next task commit. No `git add` or repair commit was run, because the plan had a staged edit (dirty) before repair.\n\n**Continuation:** I hand off to `subagent-driven-development` without its reset-bearing entry.\n- First, re-validate `W2: Wire CLI flag` by re-running its `Tests:` command.\n- Then run the task loop from the first non-complete task.\n\nNo approval is inferred, and no gate history, closure-review evidence or fix rounds are restored.\n",
+      "words": 485,
+      "wallMs": 23945,
+      "mechanical": {
+        "f4": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: FAIL with the five supplied `quote-integrity` findings.\n\n2. Preserve the brief’s task snapshot unchanged. The earlier porcelain result, `M  doc/plans/2026-03-02-config-loader.md`, makes this a dirty plan even though the working copy equals HEAD. Before editing, call:\n   ```bash\n   cp /work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md /tmp/config-loader-plan-before-citation-repair.md\n   ```\n\n3. Read the plan’s owning task bodies and citation rows:\n   ```bash\n   cat /work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\n   ```\n   All five findings qualify for task-owned `quote-integrity` repair: their anchors already resolve.\n\n4. Edit `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`, adding only these missing backtick literals to the existing owning task bodies:\n   - Task 1: `load_config`, `ConfigError`\n   - Task 2: `schema.json`\n   - Task 3: `--config`, `CONFIG_PATH`\n\n   Preserve all existing task text, names, order, statuses, wave membership, and citation ownership.\n\n5. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: PASS. Do not run `git add` or make a repair commit.\n\n6. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: pasted brief\"\n   })\n   ```\n\n7. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n8. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Parse config file\", status: \"complete\" },\n       { name: \"W1: Validate schema\", status: \"complete\" },\n       { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n       { name: \"W3: Document the loader\", status: \"pending\" }\n     ]\n   })\n   ```\n\n9. Print:\n   ```text\n   The citation repair stays in the working copy and lands with the next task commit.\n   Repaired plan: 5 findings (quote-integrity)\n   Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n   ```\n",
-      "words": 218,
-      "wallMs": 18447,
+      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: FAIL with five `quote-integrity` findings. All anchors resolve, and all five findings qualify for task-owned literal additions.\n\n2. The recorded porcelain output is nonempty (`M  doc/plans/2026-03-02-config-loader.md`), so the plan is dirty despite its working copy equaling HEAD. Before editing, call:\n   ```bash\n   cp /work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md /tmp/config-loader-plan.before-citation-repair.md\n   ```\n\n3. Edit `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`, making only these additions to the existing task bodies:\n   - Task 1: add backtick literals `load_config` and `ConfigError`.\n   - Task 2: add backtick literal `schema.json`.\n   - Task 3: add backtick literals `--config` and `CONFIG_PATH`.\n\n   Preserve all existing task text, names, order, statuses, wave membership, and owner cells.\n\n4. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: PASS.\n\n5. Print:\n   ```text\n   The citation repair stays in the working copy and lands with the next task commit.\n   ```\n\n6. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: pasted brief\"\n   })\n   ```\n\n7. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n8. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Parse config file\", status: \"complete\" },\n       { name: \"W1: Validate schema\", status: \"complete\" },\n       { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n       { name: \"W3: Document the loader\", status: \"pending\" }\n     ]\n   })\n   ```\n\n9. Print:\n   ```text\n   Repaired plan: 5 findings (quote-integrity)\n   Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n   ```\n",
+      "words": 199,
+      "wallMs": 15605,
       "mechanical": {
         "f4": "holds"
       }
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "f24b3c4e17cfe86a7777b53f30697ceaf570e0028fbd8118544ed7b786b65a93",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "baselineOutputSha": "f5a1dd2a8d31fe68984257c35e4f783cbf1746bcdc984c7313045ceef6f56024",
-      "candidateOutputSha": "71886ea7adb5175c00090c1957095f713c785695973897fd9266dcc04f875f5b",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "22aa6de1835db3d5eaea4bb0db07b1183c327e9d19cf1a2a4dbcd58854f0256a",
+      "candidateOutputSha": "9f61ea373eb1a24c919999f705f01a2c0dc46363fa5ac1cef64604919df69297",
       "facts": {
         "f1": {
           "before": "holds",
@@ -53,8 +63,40 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all three facts; none moved. It explicitly treats the staged change as dirty, saves an external snapshot, prohibits git add and a repair commit, and states that the repair remains in the working copy for the next task commit. It also retains the ordered plan-skip, implement-start, and tracker initialization with all four original task statuses. Keep those statements and calls unchanged; successful restoration already continues automatically without an approval ask or terminal marker, as requested by the Change.",
-      "wallMs": 5110,
+      "feedback": "Nothing moved on this case: both outputs classify the staged-only porcelain line as dirty, copy the plan outside the worktree, make no commit and no git add after PASS, state the repair lands with the next task commit, and continue skip plan → start implement → plan_tracker init with the four-task snapshot unchanged. After is slightly stronger in that it names `git add` explicitly and repeats the no-commit statement after the printed lines, which Before only implied by omission; if you want to keep that explicitness across other restore narrations, keep the dedicated 'Landing the repair' step that lists the three negatives (no git add, no repair commit, no restore of saved copy) directly under the PASS rather than only in the closing summary, so the fact is anchored to the loop exit even if the closing text is trimmed by the Change's new continuation wording.",
+      "wallMs": 9406,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f24b3c4e17cfe86a7777b53f30697ceaf570e0028fbd8118544ed7b786b65a93",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "e016592d8b3ed92320e919804c97ba772254384dd7cc3d6e275ba3cf04308463",
+      "candidateOutputSha": "f2f9d0d5abf980d530906069ddadef761e69b5917f14e825619652c299c13af4",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case. Both outputs classify the plan as dirty from the nonempty porcelain line, copy it to /tmp before editing, make no git add or commit after the PASS while stating the repair stays in the working copy for the next task commit, and then run skip plan, start implement, and plan_tracker init with the four brief tasks and statuses unchanged. After is slightly more explicit (quotes the porcelain line, prints the working-copy statement as its own step, bans git mutation implicitly by omission rather than the Before's explicit 'do not commit it now'); if you want f2 to be unambiguous in After, keep Before's explicit 'do not commit it now; no git add' wording alongside the printed line, since the Change text's new tracker-chain and ledger requirements are untouched by this ordinary-brief citation-repair path.",
+      "wallMs": 6356,
       "verdict": "unchanged"
     }
   },
@@ -231,5 +273,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bc949e322867c82caca62b4a8333d18ae3c985e7"
 }

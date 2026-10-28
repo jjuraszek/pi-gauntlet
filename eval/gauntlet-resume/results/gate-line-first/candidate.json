@@ -1,36 +1,46 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "d907a4519c528cb264027d000df1d7a499a523bf28e7615eba1d4b830e1f162e",
+  "skillSha": "de4d5e3a45a17abb561a926decbf85b772417b1e9e265ed186a9ee0b43c56e8c",
   "inputSha": "ce1d8ab809d2bd911a60b029791e86eda1286129912e9082b5c3fa3fae699947",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\n\nBare-worktree restore of `/work/app/.worktrees/run`: no `## Process state` to restore from, and no brief context is available.\n\nI found exactly one spec candidate and no plan or ledger:\n\n- Spec: `/work/app/.worktrees/run/doc/specs/run.md`\n\nA spec file on disk does not mean it was approved, so I need you to tell me its status. Nothing is armed and no tracker call has been made yet.\n\nIs this spec approved, or do you want to hand it to `/skill:brainstorming` as an unapproved draft?\n\n1. **Approved:** I continue the restore from this spec. Before arming anything, I re-run entry check 6 on it. Then I read its `**Engine:**` line and take the matching route: loop-implementation for `loop`, or writing-plans for `waves`/absent.\n2. **Hand off as draft:** I invoke `/skill:brainstorming` with this spec as the draft and arm nothing. The existing worktree is reused and no new one is created.\n\nA plain \"not approved\" doesn't count as choosing option 2. If you want the brainstorming handoff, please select it explicitly.\n",
+      "words": 164,
+      "wallMs": 7358,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\n\nSpec: `/work/app/.worktrees/run/doc/specs/run.md`\n\nNo brief context available.\n\nIs this spec approved, or do you select `/skill:brainstorming` with this unapproved spec as the draft?\n\n1. **Approved** — resume from the approved spec.\n2. **Select `/skill:brainstorming`** — use this unapproved spec as the draft.\n",
-      "words": 41,
-      "wallMs": 5091,
+      "text": "gauntlet: question\n\nSpec: `/work/app/.worktrees/run/doc/specs/run.md`\n\nBare worktree; no brief context available.\n\nIs this spec approved, or do you select `/skill:brainstorming` with this unapproved spec as the draft?\n\n1. **Approved** — resume using the spec’s configured engine.\n2. **Select `/skill:brainstorming`** — continue with this spec as an unapproved draft.\n",
+      "words": 45,
+      "wallMs": 4414,
       "mechanical": {
         "first-line": "holds"
       }
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "dde3abbd10e8bb73124ccc35fd7c22987629623fa1f57aa0c1a63df7fe072f24",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "baselineOutputSha": "91b76664e7e14ef73fd58364d349fd0d10e62aed5a8ff7c9e093b60f1de57654",
-      "candidateOutputSha": "15252b379384542b64c4765611029a6123d97a21b05e7255fc48438b100a1a58",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "475e683052c2e84aff28c8483e0b9873d28c75c3f2d9349443324bbdf1104005",
+      "candidateOutputSha": "685e5b6d06bb0e0614b88f389f31599b8e4cf787362cbff0471ee5ba0bc28a00",
       "facts": {
         "approval": {
           "before": "holds",
@@ -43,10 +53,32 @@
           "label": "intended change"
         }
       },
-      "feedback": "After preserves the approval-or-explicit-brainstorming question without inferring approval or showing tracker mutations, while adding the shared `gauntlet: question` marker before prose. No listed fact changed: approval holds in both outputs. Keep the marker first, the explicit spec path, and the question presenting approval and brainstorming with an unapproved draft as alternatives; the numbered choices can remain.",
-      "wallMs": 3697,
+      "feedback": "Both outputs satisfy the approval fact: each asks the explicit approved-vs-brainstorming question, requires an explicit brainstorming selection (a plain \"not approved\" is not a handoff), and states that no tracker call has been made and nothing is armed. After additionally makes the non-inference explicit (\"A spec file on disk does not mean it was approved\"), adds the `gauntlet: question` marker first, and uses numbered options, which delivers the Change without moving the fact. One small drift worth watching: Before stated that the entry checks (including deferred-header admission) had already passed, while After only mentions re-running check 6 after approval; to keep every detail Before carried, consider adding one line in After noting the read-only entry checks passed before the question, keeping the marker, the explicit-selection sentence, and the no-mutation sentence as they are.",
+      "wallMs": 8272,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "dde3abbd10e8bb73124ccc35fd7c22987629623fa1f57aa0c1a63df7fe072f24",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "62dfae43e71dd26ec0055a3e2a9abe8611b45ea9c5392773d6008b5c7ec7321e",
+      "candidateOutputSha": "6b5f873925df07cdc5fa1a63fba5f2df3f21dc5ae738a5989bd1ef4dc3a5baca",
+      "facts": {
+        "approval": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both outputs ask the approval-or-brainstorming question without inferring approval or mutating any tracker, so the approval fact holds in Before and After. After adds the `gauntlet: question` marker as the first line, the resolved spec path, and a two-option numbered menu, which delivers the Change (marked ask before prose, shared menu layout) without moving the fact; the only wording to watch is that option 1's trailer (\"resume using the spec's configured engine\") describes what happens after an answer and must not read as already proceeding — keeping it phrased as a consequence of the human's pick, as it is here, preserves the no-inference guarantee.",
+      "wallMs": 5897,
       "verdict": "improved"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bc949e322867c82caca62b4a8333d18ae3c985e7"
 }

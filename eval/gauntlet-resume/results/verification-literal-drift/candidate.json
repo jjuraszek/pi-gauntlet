@@ -1,24 +1,35 @@
 {
   "sample": "verification-literal-drift",
   "arm": "candidate",
-  "skillSha": "ff8889aa811e9ec8f2f76f589970eba4eff0343faab40e4f129ded01c270fbc7",
+  "skillSha": "8cd421b321d4d72aaa0fa04400eefa0833d125c68071ef45d031a61651ac6818",
   "inputSha": "ccbdb78c3de88c2fc2497a3ab06cb7a2ce6b1b45f37bf29998fff6981f590eb1",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration: plan_check through closing line\n\n**Tool call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\n\nResult:\n\n```\nFAIL (1 findings)\nquote-integrity @ line 130: verification header does not contain the required verbatim literal `--check`\n```\n\nThe call table's `implement with task plan` row sends a FAIL to `## Plan repair`.\n\n## Plan repair\n\n**Pre-check.** There is no `baseline-line` finding and no substantive `open-questions` finding, so the baseline continuation does not apply. This goes to citation repair. The task snapshot stays exactly as the brief gives it.\n\n**Plan state, recorded before any write** (from tool results 1–2):\n\n- `git -C /work/app/.worktrees/config-loader ls-files --error-unmatch -- doc/plans/2026-03-02-config-loader.md` exited 0.\n- `git -C /work/app/.worktrees/config-loader status --porcelain -- doc/plans/2026-03-02-config-loader.md` printed nothing.\n- The plan is tracked and clean, so no temp copy is needed.\n\n**Classification:**\n\n- **Finding:** `quote-integrity`, Verification-owned row.\n- **Evidence:** the row's anchor already resolves, since there is no `anchor-resolution` finding to repair first.\n- **Edit:** add the missing literal to the header `**Verification:**` line, without replacing or removing anything.\n\n**Round 1 write** to `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`, header line:\n\n- Before: `` **Verification:** `npm test` ``\n- After: `` **Verification:** `npm test` `--check` ``\n\n**Tool call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` returned PASS.\n\n**Commit.** The result is PASS and the plan was tracked and clean before the loop, so the plan is committed alone:\n\n```bash\ngit -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 1 findings\" -- doc/plans/2026-03-02-config-loader.md\n```\n\nThe commit exited 0.\n\n## Back to the call table from `skip plan R`\n\n1. `phase_tracker skip plan`, reason `resume: pasted brief`\n2. `phase_tracker start implement`\n   - The current `plan_check` stamp is present.\n   - The brief shows no substep, so there is no `substep` call.\n3. Feasibility check before init:\n   - Pending tasks trail all non-pending tasks.\n   - Not every task is complete or skipped, so implement will not auto-complete.\n4. `plan_tracker init` with tasks, in order:\n   - `{ name: \"W1: Parse config file\", status: \"complete\" }`\n   - `{ name: \"W1: Validate schema\", status: \"complete\" }`\n   - `{ name: \"W2: Wire CLI flag\", status: \"in_progress\" }`\n   - `{ name: \"W3: Document the loader\", status: \"pending\" }`\n\n## Printed lines\n\n```\nRepaired plan: 1 findings (quote-integrity)\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n",
+      "words": 332,
+      "wallMs": 20324,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result:\n   ```text\n   FAIL (1 findings)\n   quote-integrity @ line 130: verification header does not contain the required verbatim literal `--check`\n   ```\n\n2. Apply the `Verification`-owned citation repair: add the missing literal to the header, preserving the existing command:\n   ```diff\n   -**Verification:** `npm test`\n   +**Verification:** `npm test`; `--check`\n   ```\n\n3. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result:\n   ```text\n   PASS\n   ```\n\n4. The plan was tracked and clean before repair. Run:\n   ```bash\n   git -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 1 findings\" -- doc/plans/2026-03-02-config-loader.md\n   ```\n\n5. Call:\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n   ```\n\n6. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n7. Call, retaining the brief’s task names, order, and statuses:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Parse config file\", status: \"complete\" },\n       { name: \"W1: Validate schema\", status: \"complete\" },\n       { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n       { name: \"W3: Document the loader\", status: \"pending\" }\n     ]\n   })\n   ```\n\n8. Print:\n   ```text\n   Repaired plan: 1 findings (quote-integrity)\n   Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n   ```\n",
-      "words": 170,
-      "wallMs": 17889,
+      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result:\n   ```text\n   FAIL (1 findings)\n   quote-integrity @ line 130: verification header does not contain the required verbatim literal `--check`\n   ```\n\n2. Classify the finding as `quote-integrity`, `Verification`-owned. The row’s anchor already resolves; add the missing literal to the verification header. The earlier git checks established that the plan was tracked and clean, so no temporary copy is needed.\n\n3. Edit `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`, replacing:\n   ```markdown\n   **Verification:** `npm test`\n   ```\n   with:\n   ```markdown\n   **Verification:** `npm test` `--check`\n   ```\n\n4. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result:\n   ```text\n   PASS\n   ```\n\n5. Run:\n   ```bash\n   git -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 1 findings\" -- doc/plans/2026-03-02-config-loader.md\n   ```\n   Result: exit 0.\n\n6. Call:\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n   ```\n   Result: success.\n\n7. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n   Result: success.\n\n8. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Parse config file\", status: \"complete\" },\n       { name: \"W1: Validate schema\", status: \"complete\" },\n       { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n       { name: \"W3: Document the loader\", status: \"pending\" }\n     ]\n   })\n   ```\n   Result: success.\n\nPrint:\n```text\nRepaired plan: 1 findings (quote-integrity)\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n",
+      "words": 189,
+      "wallMs": 13228,
       "mechanical": {
         "f2": "holds",
         "f4": "holds"
@@ -26,12 +37,12 @@
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "1b0bd9af54763b966359d0387d8eb1638ebb461ed86feb1b616c1dcd255e8df8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "baselineOutputSha": "33c2e8401fbee395cd129358ffef9a930473a903091bc9f01673dff6af5a7974",
-      "candidateOutputSha": "397897024d982d1efb4ea2dfbfb486d94154af5b1dd7498e359f2d286f30a2ed",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "c3317d708fb78502bf8677c0f991c1dcdacf330bded76cca060b13aeadea1c59",
+      "candidateOutputSha": "baf333922339d3d81a9a4606050865aeabe095cec5ac2b28e71a4c16af7209c8",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,8 +65,40 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: After still repairs only the Verification header by adding `--check`, then skips plan, starts implement, and initializes the four tasks with unchanged names, order, and statuses. The added semicolon does not affect either fact. Keep this narrowly scoped repair and automatic continuation without an approval ask or terminal marker; no further wording change is needed for these facts.",
-      "wallMs": 4682,
+      "feedback": "Both outputs keep both facts. Each edits only the header `**Verification:**` line by appending the `--check` literal without touching any task body, and each proceeds through `skip plan` (reason `resume: pasted brief`), `start implement`, no substep call, the feasibility check, and `plan_tracker init` with the brief's four tasks in the same order and statuses. After is tighter and adds the `plan_check` stamp observation before `start implement`, which is consistent with the Change; nothing in After moved a fact. One minor drift to watch: After drops Before's explicit statement that all subsequent git/tracker calls succeed (tool result 5), so if a future fact checks that the narration confirms call success, consider restoring a closing line such as 'All of these calls succeed' before the printed lines.",
+      "wallMs": 5157,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "1b0bd9af54763b966359d0387d8eb1638ebb461ed86feb1b616c1dcd255e8df8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "0507d3eb1ab3984c1c7d7aa1bb9f560cb229a32c1adbd10bad9b06423abb9b57",
+      "candidateOutputSha": "a84a191e6303fa19b1a0845e9360dd2cfce996b30a188c9d3ca7a5296a610ff3",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved. Both outputs edit only the plan header line `**Verification:** \\`npm test\\`` to append `\\`--check\\`` and touch no task body (f1), and both continue with `skip plan` (reason `resume: pasted brief`), `start implement`, and `plan_tracker init` carrying the brief's four tasks with unchanged names and statuses (f3). After's changes are purely presentational: structured tool-call syntax, explicit `Result: success.` lines, and a separate classification step before the edit. None of this alters the restore behavior for this case, so the After wording preserves everything Before kept; no further adjustment is needed for these facts.",
+      "wallMs": 8164,
       "verdict": "unchanged"
     }
   },
@@ -166,5 +209,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bc949e322867c82caca62b4a8333d18ae3c985e7"
 }

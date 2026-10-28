@@ -1,34 +1,42 @@
 {
   "sample": "baseline-fails-on-resume",
   "arm": "candidate",
-  "skillSha": "ff8889aa811e9ec8f2f76f589970eba4eff0343faab40e4f129ded01c270fbc7",
+  "skillSha": "8cd421b321d4d72aaa0fa04400eefa0833d125c68071ef45d031a61651ac6818",
   "inputSha": "f5d7dd1632c43665f43393a13da51e02f3e1435af0b0904e5f2366b61883a947",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Result 1: parent `plan_check`\n\n**Tool call:** `plan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })`\n\n**Observed:** `FAIL (1 findings): open-questions: plan has open questions: - Task 1: \\`node --test test/parse.test.mjs\\` fails on abc1234 (exit 1): expected valid options.`\n\nThis is a substantive baseline-form `open-questions` finding. It goes to `## Plan repair` → \"Baseline continuation\", not the citation table.\n\nNo landed fix is named, so there is no `/skill:using-git-worktrees` rebase or merge. I go straight to the rerun.\n\nI keep the brief's task snapshot exactly as given: `→ [0] W1: Parse options`, in_progress. I make no tracker call and do not initialize a fresh plan.\n\n## Result 2: `plan-writer` rerun dispatch\n\n**Dispatch:**\n- `agent: \"plan-writer\"`\n- `context: \"fresh\"`\n- `async: false`\n- `cwd: \"/work/demo/.worktrees/options\"`\n- `phase: \"plan-write\"`\n- `acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" }`\n- task: the fixed task template from `/skill:writing-plans` \"Author the plan\" step 3, filled with these five absolute paths:\n  - worktree `/work/demo/.worktrees/options`\n  - spec `/work/demo/.worktrees/options/doc/specs/options.md`\n  - plan `/work/demo/.worktrees/options/doc/plans/options.md`\n  - the resolved absolute path of `writing-plans/SKILL.md`\n  - the resolved absolute path of `writing-plans/reference/plan-contract.md`\n  - followed by the line `Findings: rerun baseline`\n\n**Observed:** `OPEN QUESTIONS /work/demo/.worktrees/options/doc/plans/options.md`\n\nThis was a foreground reply with a non-empty plan, so there was no dispatch error. I do not author any fallback in the parent.\n\n## Result 3: parent `plan_check` after the child reply\n\n**Tool call:** `plan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })`\n\n**Observed:** `FAIL (1 findings): open-questions: plan has open questions: - Task 1: \\`node --test test/parse.test.mjs\\` fails on abc1234 (exit 1): expected valid options.`\n\nThis matches the `- Task N: ... fails on <sha>` row, so I present the failure and writing-plans step 6's three options.\n\n**Printed:**\n\n```\nBaseline failure: Task 1 (W1: Parse options)\nCommand: node --test test/parse.test.mjs\nBase SHA: abc1234\nExit code: 1 (expected valid options)\n```\n\n```\n**fix-first** - run /skill:shape-ticket for the base failure (its gate applies), then pause this restore.\n**narrow** - you supply a filter or path text; I re-dispatch plan-writer with `Findings: Task 1 Tests: narrow to <text>`.\n**amend** - amend the spec through brainstorming's reference/amendment-surface.md section 5.\nRecommendation: fix-first - the task's own test command already fails on the base commit abc1234, and the rerun reproduced it, so the base failure should be ticketed and fixed before W1 builds on it.\n```\n\n## End of turn\n\nI am waiting for your selection.\n- Phase `plan` stays in_progress.\n- There has been no `skip plan`, no `start implement`, and no `plan_tracker init`.\n- The plan was tracked and clean, but this route made no citation-repair edits, so there is no commit and no receipt.\n- The task snapshot (W1: Parse options, in_progress) is kept for the eventual return.\n\n**Tracker mutations this turn:** none. **Dispatches this turn:** one (the `plan-writer` baseline rerun).\n",
+      "words": 414,
+      "wallMs": 17826,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call `plan_check`:\n   ```json\n   {\"planPath\":\"/work/demo/.worktrees/options/doc/plans/options.md\"}\n   ```\n   Result: FAIL — `open-questions`:\n   ```text\n   - Task 1: `node --test test/parse.test.mjs` fails on abc1234 (exit 1): expected valid options.\n   ```\n\n2. Enter **Baseline continuation**, preserving the brief’s task snapshot unchanged:\n   ```text\n   → [0] W1: Parse options\n   ```\n   No landed fix is named, so make no worktree-update call.\n\n3. Dispatch `plan-writer` with:\n   ```text\n   agent: \"plan-writer\"\n   context: \"fresh\"\n   async: false\n   cwd: \"/work/demo/.worktrees/options\"\n   phase: \"plan-write\"\n   acceptance: {\n     level: \"none\",\n     reason: \"the parent plan_check owns acceptance\"\n   }\n   ```\n   Use writing-plans’ fixed task template with these bindings:\n   ```text\n   worktree: /work/demo/.worktrees/options\n   spec: /work/demo/.worktrees/options/doc/specs/options.md\n   plan: /work/demo/.worktrees/options/doc/plans/options.md\n   writing-plans SKILL.md: its installed absolute path\n   reference/plan-contract.md: its installed absolute path\n   ```\n   Append exactly:\n   ```text\n   Findings: rerun baseline\n   ```\n   Result:\n   ```text\n   OPEN QUESTIONS /work/demo/.worktrees/options/doc/plans/options.md\n   ```\n   The failure row remains unchanged.\n\n4. Call parent `plan_check` again:\n   ```json\n   {\"planPath\":\"/work/demo/.worktrees/options/doc/plans/options.md\"}\n   ```\n   Result: FAIL — the same `open-questions` finding.\n\n5. Print:\n   ```text\n   Task 1: W1: Parse options\n   Command: node --test test/parse.test.mjs\n   Base SHA: abc1234\n   Exit code: 1\n   Failure: expected valid options.\n\n   fix-first — /skill:shape-ticket for the base failure (its gate applies), then pause.\n   narrow — supply filter or path text; re-dispatch with Findings: Task 1 Tests: narrow to <text>.\n   amend — brainstorming’s reference/amendment-surface.md section 5.\n   Recommendation: fix-first, because the baseline rerun reproduced the same failure on abc1234.\n   Which option do you select?\n   ```\n\nNo tracker mutations are made. Leave `plan` in progress, retain the original task snapshot, and wait for the human’s selection. No citation repair, tracker initialization, restore-closing line, or implementation continuation occurs this turn.\n",
-      "words": 229,
-      "wallMs": 19959,
+      "text": "1. Parent call:\n   ```text\n   plan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })\n   ```\n   Result:\n   ```text\n   FAIL (1 findings)\n   open-questions: plan has open questions: - Task 1: `node --test test/parse.test.mjs` fails on abc1234 (exit 1): expected valid options.\n   ```\n\n2. Enter **Baseline continuation**, preserving the brief’s task snapshot unchanged:\n   ```text\n   → [0] W1: Parse options\n   ```\n   No landed fix is named, so proceed directly to the baseline rerun.\n\n3. Dispatch:\n   ```text\n   agent: \"plan-writer\"\n   context: \"fresh\"\n   async: false\n   cwd: \"/work/demo/.worktrees/options\"\n   phase: \"plan-write\"\n   acceptance: {\n     level: \"none\",\n     reason: \"the parent plan_check owns acceptance\"\n   }\n   task: <writing-plans “Author the plan” step 3 fixed template, filled with:\n     worktree: /work/demo/.worktrees/options\n     spec: /work/demo/.worktrees/options/doc/specs/options.md\n     plan: /work/demo/.worktrees/options/doc/plans/options.md\n     writing-plans SKILL.md: its resolved absolute path\n     writing-plans reference/plan-contract.md: its resolved absolute path\n   >\n   Findings: rerun baseline\n   ```\n   The two skill-file absolute paths and fixed template are not supplied in the input; I cannot reproduce their literal bytes without inventing them.\n\n   Result:\n   ```text\n   OPEN QUESTIONS /work/demo/.worktrees/options/doc/plans/options.md\n   ```\n   The same Task 1 baseline failure remains.\n\n4. Parent call:\n   ```text\n   plan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })\n   ```\n   Result:\n   ```text\n   FAIL (1 findings)\n   open-questions: plan has open questions: - Task 1: `node --test test/parse.test.mjs` fails on abc1234 (exit 1): expected valid options.\n   ```\n\n5. Print:\n   ```text\n   Task 1 — W1: Parse options\n   Command: node --test test/parse.test.mjs\n   Base SHA: abc1234\n   Exit code: 1\n   Failure: expected valid options.\n\n   fix-first — /skill:shape-ticket for the base failure (its gate applies), then pause.\n   narrow — supply filter or path text; re-dispatch with Findings: Task 1 Tests: narrow to <text>.\n   amend — brainstorming’s reference/amendment-surface.md section 5.\n   Recommendation: fix-first, because the baseline rerun reproduced the same failure and no narrower test scope or contract amendment has been supplied.\n   Which option do you select?\n   ```\n\nNo tracker mutations are made. Phase `plan` remains `in_progress`; the saved task snapshot remains unchanged, with no tracker initialization. The turn ends awaiting selection, without a successful-restore closing line or standing-grant announcement.\n",
+      "words": 287,
+      "wallMs": 14080,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "2c1cf3ce1466359f695a8a01fe03586a4d17738e0beebdad827f7411b214e052",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "baselineOutputSha": "16d33e97ebfb3a1d123a0aaf53c1827d514a2badf2c88f0a08bda00f285eb9b3",
-      "candidateOutputSha": "7b3a4228534de25aa1d2e1127e7029a96a7707cb2dce4111281e00a6a786ae90",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "ea28f744efaeeb969e49a6f1182ecd665de6cf5cf42496bb9f034a0e4fcd7fe4",
+      "candidateOutputSha": "16b86b38dd3a58254b41be11e05f080bc1659be9dbdbb91047c049dd1b0b4b9c",
       "facts": {
         "rerun": {
           "before": "holds",
@@ -46,8 +54,35 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all three facts; none moved. It retains the fresh foreground writer rerun, parent recheck, complete three-option menu, and paused plan state without tracker initialization or citation repair. The separated command, base, and exit fields make the failure details explicit. To deliver the applicable marker change while preserving these facts, place the shared question marker before the menu’s prose, keeping the Recommendation line and explicit wait for human selection.",
-      "wallMs": 6155,
+      "feedback": "Nothing moved: both outputs dispatch the fresh foreground plan-writer with `Findings: rerun baseline`, run the parent `plan_check` after the `OPEN QUESTIONS` reply without authoring evidence, present Task 1's command, base abc1234 and exit 1 followed by fix-first/narrow/amend and a Recommendation line, then end the turn with `plan` in_progress and no tracker init, implement start, or citation repair. After adds explicit 'Result N' headers, names the finding as 'substantive baseline-form', and closes with a counted dispatch/mutation summary, which supports the Change's routing language without weakening any fact. One caution for the After wording: the printed menu is split into two fenced blocks and the option names are bolded; that still reads as one three-option menu here, but keeping the failure summary and the three options in a single printed block (as Before does) removes any risk that a reader sees the options as detached from the presented failure, and the end-of-turn line should keep stating that the human selects and the agent does not pick for them.",
+      "wallMs": 11854,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "2c1cf3ce1466359f695a8a01fe03586a4d17738e0beebdad827f7411b214e052",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "eacad7ac41fbade712cf7c8afa7cd45cd0688eab205473d6f67a803d7b480002",
+      "candidateOutputSha": "bd9f95201c547b7d1bc8ea23a7baecaa4ca25941432ddb2b8ab9a2e10f4c4c2d",
+      "facts": {
+        "rerun": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "paused": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved between Before and After for this case: both outputs re-dispatch a fresh foreground plan-writer with `Findings: rerun baseline`, run the parent plan_check after `OPEN QUESTIONS`, present Task 1's command/base/exit with the fix-first/narrow/amend menu plus a Recommendation line, and end the turn with plan in_progress, no tracker initialization, and no citation repair. The After wording is slightly looser in one spot that could become a regression on harder cases: step 3 declines to render the dispatch body literally ('I cannot reproduce their literal bytes without inventing them') where Before confidently used `<scratch>/...` placeholders for the two skill-file paths; if the Change intends dispatches to be reproducible, keep an instruction that unresolved skill paths are rendered as explicit `<scratch>/skills/writing-plans/...` placeholders rather than hedged in prose. Otherwise the added 'Baseline continuation' entry step and the structured Task 1 block (Command / Base SHA / Exit code) are compatible with every fact and deliver the Change's rerun-before-classification routing.",
+      "wallMs": 13355,
       "verdict": "unchanged"
     }
   },
@@ -148,5 +183,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bc949e322867c82caca62b4a8333d18ae3c985e7"
 }

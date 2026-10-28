@@ -1,34 +1,42 @@
 {
   "sample": "clean-pass-unchanged",
   "arm": "candidate",
-  "skillSha": "ff8889aa811e9ec8f2f76f589970eba4eff0343faab40e4f129ded01c270fbc7",
+  "skillSha": "8cd421b321d4d72aaa0fa04400eefa0833d125c68071ef45d031a61651ac6818",
   "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Restore continues from the call table's **implement with task plan** row. The earlier calls in that row have already run: `start brainstorm`, `skip brainstorm S` and `start plan`.\n\n**Tool result 1:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` returned **PASS**.\n- `## Plan repair` does not run.\n- No repair receipt is printed.\n- No commit is made.\n\n**Call:** `phase_tracker skip` with phase `plan` and reason `resume: pasted brief`.\n- The input gives no brief file path, so R uses the `\"pasted brief\"` form.\n\n**Call:** `phase_tracker start` with phase `implement`.\n- The current `plan_check` stamp admits this call.\n\n**No substep call.**\n- The brief shows `→ implement` with no `(substep)`.\n\n**Feasibility check before `init`:**\n- **Pending-suffix order:** the only `○` task is the last one, `[4]`. It trails every non-pending task, so this passes.\n- **Implement auto-complete edge:** not every task is `complete` or `skipped`, because `[3]` is in progress and `[4]` is pending. The brief is feasible as stated.\n\n**Call:** `plan_tracker init`, restoring the task list verbatim:\n```\n[\n  { name: \"W1: Parse config file\",     status: \"complete\" },\n  { name: \"W1: Validate schema\",       status: \"complete\" },\n  { name: \"W2: Wire CLI flag\",         status: \"in_progress\" },\n  { name: \"W3: Document the loader\",   status: \"pending\" }\n]\n```\n\n**Printed (closing line):**\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\nAfter the closing line comes one line from entry check 6:\n- `Standing grant active: <sentence>` or `No standing grant.`\n- Check 6's result is not given in the input, so I am not filling that line in here.\n\nControl then hands off automatically to subagent-driven-development, without its reset-bearing entry. It first re-validates `W2: Wire CLI flag` by re-running its `Tests:`, then resumes the task loop from the first non-complete task.\n",
+      "words": 265,
+      "wallMs": 12872,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`.\n2. Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })` → succeeds.\n3. Call `phase_tracker({ action: \"start\", phase: \"implement\" })` → succeeds.\n4. Call `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Parse config file\", status: \"complete\" }, { name: \"W1: Validate schema\", status: \"complete\" }, { name: \"W2: Wire CLI flag\", status: \"in_progress\" }, { name: \"W3: Document the loader\", status: \"pending\" }] })` → succeeds.\n5. Print:\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
-      "words": 75,
-      "wallMs": 8474,
+      "text": "1. Call `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`.\n2. Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })` → succeeds.\n3. Call `phase_tracker({ action: \"start\", phase: \"implement\" })` → succeeds.\n4. Call:\n   ```json\n   plan_tracker({\n     \"action\": \"init\",\n     \"tasks\": [\n       { \"name\": \"W1: Parse config file\", \"status\": \"complete\" },\n       { \"name\": \"W1: Validate schema\", \"status\": \"complete\" },\n       { \"name\": \"W2: Wire CLI flag\", \"status\": \"in_progress\" },\n       { \"name\": \"W3: Document the loader\", \"status\": \"pending\" }\n     ]\n   })\n   ```\n   → succeeds.\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
+      "words": 74,
+      "wallMs": 7878,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "baselineOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
-      "candidateOutputSha": "24245c828ce0cda3a6a745b600cacc5112e403f54b165b4bcc73b9b8920ba92b",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "cc265737a28c371e7165dd4d97d7f737bc5607a3f100f581a6e5b6b12ebfe6c8",
+      "candidateOutputSha": "e55b9e09efb7bc6849c6eb95ae40333901998924d27041099ace242a27c6253b",
       "facts": {
         "f1": {
           "before": "holds",
@@ -46,8 +54,35 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all three facts: it prints no Repaired plan receipt, makes no commit or file edit, and retains the ordered tracker calls, unchanged task names and statuses, and closing line. Only the formatting of the plan_tracker call changed; no fact moved. Keep this ordinary successful-resume sequence unchanged, and scope the new discovery markers, stop handling, and specialized restore rules to their applicable cases without adding a terminal marker or approval request here.",
-      "wallMs": 4705,
+      "feedback": "Nothing moved: both outputs skip plan repair with no receipt, make no commit and edit nothing, and run skip plan → start implement → plan_tracker init with the four tasks and statuses verbatim before printing the exact closing line. After's only notable additions are the opening sentence asserting that start brainstorm / skip brainstorm / start plan already ran (narration outside the requested range from tool result 1, and a mild risk if a reader takes it as new calls — consider dropping it or phrasing it as context only) and the explicit note that handoff to subagent-driven-development is automatic without a terminal marker, which delivers the Change's 'successful resume continues automatically' intent without disturbing any fact. Keep the explicit 'No repair receipt is printed. No commit is made.' bullets and the verbatim init list as-is.",
+      "wallMs": 8765,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "db56708bf2604bd2cd56030fd1190198d4501efdb95aae6ec92ccb23eadf860f",
+      "baselineOutputSha": "24245c828ce0cda3a6a745b600cacc5112e403f54b165b4bcc73b9b8920ba92b",
+      "candidateOutputSha": "8697002b679d109f51f52208b605d8a2312f4b3a2af1b75439bdf26f602f8579",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved on this case: both outputs run plan_check, skip plan with the pasted-brief reason, start implement, init the tracker with the brief's four tasks and unchanged statuses, make no commits or edits, print no Repaired plan receipt, and end with the gate-history closing line. The only difference in After is cosmetic — the plan_tracker init is rendered as a fenced JSON block and the explicit numbered `5. Print:` step was dropped, leaving the closing line as a bare trailing paragraph. That still reads as the closing line, but it is slightly less explicit that it is an emitted step rather than narration; keeping a numbered `Print:` step (or an equivalent 'then print' marker) before the closing line would make f3's 'then prints the closing line' unambiguous while still delivering the Change, which this case does not otherwise exercise.",
+      "wallMs": 8569,
       "verdict": "unchanged"
     }
   },
@@ -148,5 +183,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bc949e322867c82caca62b4a8333d18ae3c985e7"
 }
