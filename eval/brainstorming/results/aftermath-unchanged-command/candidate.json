@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0b49ab8cf8f9f32239dea5cc50fa21673adab7577d48ed92ca05998e5e746b76",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "9d6e9aadbf8b26691e855add32d586cbdc02a7e50f5bb578b5234ce5286d1c7e",
       "candidateOutputSha": "d120f46c333bb3b2ce673bdeaeda402a004d74eb5718a13aa8da62008c10fc55",
       "facts": {
@@ -50,8 +50,8 @@
         },
         "dirty": {
           "before": "fails",
-          "after": "holds",
-          "label": "unplanned improvement"
+          "after": "fails",
+          "label": "intended but unchanged"
         },
         "writer": {
           "before": "holds",
@@ -64,14 +64,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved nothing backward and fixed three facts Before only named rather than rendered: Before's F, B and D said the finding \"takes the original step-6 exit, as read\" without quoting `FAIL (1 findings)` / `Tests segment requires a Test: path token`, without the fix-first/narrow/amend menu, recommendation and pause, and without the commit/discard/move hand-off for `eval/report-runner/report.md`; After renders each exit in full with the verbatim FAIL lines, the baseline menu and recommendation, the dirty-path menu with preserved `parser.log` and `In-flight:` paths, and explicit no-restore/no-re-dispatch statements, while M still partitions line 40 from line 25 and applies only the line-40 item under the grant. One small gap to close in the After wording: Trace D's attribution bullets explain the unchanged command and the outside-amend anchor but do not restate (as F and W do) that the shifted line number and Task 1 membership alone never suffice; adding that one sentence to D's classify step would satisfy the dirty fact on its own text instead of relying on the shared preamble and Trace F.",
-      "wallMs": 25505,
+      "feedback": "After improves on Before by actually rendering the step-6 exits: F quotes `FAIL (1 findings)`, the `command-contract @ line 24: Tests segment requires a Test: path token` line and the unchanged Tests command verbatim, B lists Task 1, the command, SHA 3a8fad8c, exit 1, 'parser rejects empty input', the fix-first/narrow/amend options, a recommendation and a pause, and M partitions line 40 into the item while rendering line 25's exit separately; Before only named these exits without rendering their contents, which is why fail, baseline and dirty fail there. The one fact After still misses is dirty: trace D correctly hands `eval/report-runner/report.md` to the human as commit/discard/move without restoring, preserves `parser.log` and the In-flight paths, and attributes non-causation to the unchanged command and the `#design-parser` anchor outside the amended sections, but it never states that the shifted line number and Task 1 membership alone cannot attribute the row — that sentence appears only in F and W. Add to D's attribution step (as F step 3 does) a line such as 'Line 24's shifted number and Task 1's unchanged membership prove nothing', and D will hold while every other fact keeps its current rendering.",
+      "wallMs": 35116,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0b49ab8cf8f9f32239dea5cc50fa21673adab7577d48ed92ca05998e5e746b76",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "b88e9d9c694ce48e7dd604096dc7577632e510fc693a25634b1a2a656223973b",
       "candidateOutputSha": "a1bd4f5c48f806d805a451293ac75b0c77cd13ef13de8641c404d4def3ecf21e",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before never actually took any step-6 exit: every trace ended in a 'Blocking stop' claiming the writing-plans reference was unavailable, so F and W did not quote 'FAIL (1 findings)' / 'command-contract @ line 24' / 'missing baseline: bullet' verbatim as open questions, B offered no fix-first/narrow/amend menu or recommendation, D never handed eval/report-runner/report.md to the human to commit/discard/move, and M only described a partition without forming the Task 2 item or rendering Task 1's exit. After fixes all five by rendering each rejected outcome's exit in full with the exact FAIL lines, the three options and a recommendation, pausing without restoring, and in M admitting only the line-40 replay lines into the aftermath item while keeping line 25 on step 6. Two things to tighten so the facts stay robust: in D, the non-attribution explanation cites only the unchanged command and out-of-amend anchor — add the explicit sentence (as F already has) that a shifted line number and Task 1 membership alone never suffice, since the dirty fact names that clause; and in F, consider stating that the fix-first/narrow/amend menu is the step-6 open-question rendering rather than a new retry, so a reader does not mistake the options for re-opening the consumed Findings retry. Otherwise the wording that delivers the Change (classify before any tracked-path/restoration check, render exits verbatim without restoring, partition mixed FAILs by exact finding line) is sound and keeps every fact.",
-      "wallMs": 29159,
+      "feedback": "Before never actually took any step-6 exit: every trace ended in a 'Blocking stop: the writing-plans reference is unavailable', so F and W did not quote the FAIL lines, B had no fix-first/narrow/amend menu or recommendation, D never handed the dirty path to the human for commit/discard/move, and M only described which line could qualify without forming the item or rendering the unrelated exit. After fixes all of this by rendering each exit in full from the supplied observations: F and W quote the FAIL verbatim and refuse another retry, B and D name task/command/SHA/exit/cause with the three options and a recommendation then pause, D preserves artifacts and both In-flight paths without restoring, and M forms the aftermath item from only line 40 plus the replay command, re-reads the grant, and keeps line 25 on the original exit. Two things to tighten in After: F and W append the fix-first/narrow/amend menu that belongs to the base-failure exit, whereas the second-identical-FAIL exit is just the verbatim FAIL as an open question plus pause—drop the menu there so the two exits stay distinguishable; and D should restate within its own trace (not only in F/W) that Task 1 membership and the shifted line number never suffice for attribution and that Task 1's Spec owner is Design / parser, so the dirty fact's explanation clause is satisfied locally.",
+      "wallMs": 31680,
       "verdict": "improved"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

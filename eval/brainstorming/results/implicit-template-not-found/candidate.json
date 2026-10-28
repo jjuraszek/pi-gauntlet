@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "c667fdfc8f81a0d5e5377a14a72d7814a296033c84eab27da5a9333a80a589d7",
       "candidateOutputSha": "4488a0a7bba326a63a377a063700929e4bdeb29bd7f7c794b916f97aade647fa",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs name `templates/deck.pptx` from the generator's `load_presentation` call, state it is absent from the `templates/` directory listing (README.md and chart.pptx only) in the premise note, restate it with the lookup named before the approaches, record it in the spec ## Problem, and proceed to approaches without asking where the file is. Before already satisfied all five facts here, so the expected fails->holds on premise/approaches/problem is not visible in this pair. The After wording is sharper (it opens the premise note with the correction and ties the lookup to the guide explicitly), which is the Change's intent. One caution on the replay fact: After's phrasing \"I checked it with the lookup...\" and \"That listing returned only...\" edges toward describing a performed lookup; Before's \"I used the repository guide's lookup, a listing of templates/, which shows only...\" has the same tendency. To keep the replay fact robust, prefer wording like \"the supplied `templates/` listing (which the guide names as the template lookup) shows only...\" so the output clearly reads the fixed observation as evidence rather than narrating a live filesystem call, while retaining the explicit missing-file statement in all three surfaces.",
-      "wallMs": 17427,
+      "feedback": "After moved nothing on this case: both outputs name `templates/deck.pptx` from the retained loader, cite the repository guide's `templates/` directory listing as the lookup, state the file is missing in the premise note, restate it ahead of the approaches, record it in `## Problem`, and proceed to approaches without asking where the file is. After is tighter in delivering the Change (it explicitly calls the listing 'complete', labels the dependency 'implicit', and restates the lookup 'from the premise note' before the approaches), so the wording works as intended here. One thing to watch for the replay fact: After's 'I checked it with the lookup...' and 'That listing returned only...' read closer to a live call than Before's 'the guide's listing (result: deck.pptx absent)'; phrasing like 'the supplied `templates/` listing shows only...' or 'per the recorded listing' would keep the evidence framing unambiguous while still carrying the lookup name and result through all three surfaces.",
+      "wallMs": 18054,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "2bc9cdf40a446c1a35872b576d88db3cc60ffaeff15ee4b7a9ac7628b13daa4d",
       "candidateOutputSha": "10114e46e64b5300a042d236720d1d59ce7aa77af2bc9f116051ba09c77a93fd",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs name templates/deck.pptx from the generator's loader, report it absent from the supplied complete templates/ listing in the first message, the approaches message, and the spec Problem, continue to approaches without asking where the file is, and frame the listing as a supplied observation rather than a live lookup. The one soft spot in After is the approaches opener, which says 'the documented templates/ lookup does not contain templates/deck.pptx' — it names the lookup only indirectly, whereas Before said 'the guide's prescribed directory listing was supplied in full and did not contain it'. To keep the approaches fact robust across runs, have the After wording require the approaches restatement to repeat both the asset and the phrase 'supplied templates/ directory listing' explicitly (e.g. 'templates/deck.pptx was not found in the supplied templates/ directory listing'), which still delivers the Change's premise-note/approaches/Problem carry-through without depending on the reader inferring what 'documented lookup' refers to.",
-      "wallMs": 13824,
+      "feedback": "Nothing moved: both outputs name `templates/deck.pptx` from the generator's loader, state in the first message that it is absent from the supplied/complete `templates/` listing (`README.md`, `chart.pptx` only), restate the missing file and the listing lookup at the top of the approaches message, record the same in the spec Problem, continue to approaches without asking where the template is, and speak of a supplied listing rather than a live lookup. The Expected-to-move list marks Before as failing premise/approaches/problem, but the Before text here already satisfies all three, so this case shows the change as intended-but-unchanged rather than a repair. After is slightly tighter wording-wise: its approaches lead-in says 'the documented `templates/` lookup' rather than 'directory listing'; if the approaches fact is read strictly on the phrase 'directory listing', consider having the approaches lead-in echo 'the supplied `templates/` directory listing' verbatim, as the first message and Problem excerpt already do, to keep that fact robustly held while delivering the Change.",
+      "wallMs": 16967,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

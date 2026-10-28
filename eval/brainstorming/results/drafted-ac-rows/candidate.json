@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2605a85220a2ef88ff6faf826257053a55100fe1eb1f116cf10bc342b2140e7e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "de34583f7424ee3fc29b7b966a7edef3ff56d3e40fc56672f0f9a75660d12c49",
       "candidateOutputSha": "44e6e79453918f8d48043cb2fc3e506a0a1899bcd1184bc14bb91ad69e0a1508",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs satisfy all five facts, so the Expected-to-move entries for drafted-ac-rows (fails -> holds) are not borne out by Before's text, which already uses the exact provenance lines, the verbatim ticket row with in-scope, the untouched not-fetched sentinel, a verbatim gate copy under `Drafted acceptance criteria (approval ratifies):` with options 4 and 5, and a tenant-isolation outcome row for the unbound PR. After keeps every one of these; its only wording differences are tighter row text (dropping the Given/when setup from the export and tenant rows), splitting the Empty-ticket gate into two code blocks, adding the funding-suffix line after option 5, and noting the not-fetched zero-row gate as options 1-3 only. Those are all consistent with the Change and harmless to the facts. If you want After to be more robustly aligned, keep the gate block and option rows in a single contiguous block (as Before did) so a strict 'copied verbatim under the heading' reading cannot stumble on the split, and consider retaining the setup/action/result phrasing in drafted rows since the integrity narration claims it even though the shortened row text no longer shows it.",
-      "wallMs": 13977,
+      "feedback": "Nothing moved: both outputs keep every fact. All five branches carry the correct provenance line (drafted-no-ticket, Ticket #42 verbatim, not-fetched sentinel, drafted-#43-no-ACs, drafted-no-ticket for the unbound PR), each drafted row is an unchecked observable outcome with in-scope disposition rather than a mechanism, the #42 row is preserved character-for-character with no design-derived additions, the Not-fetched body is the exact sentinel with no invented rows, and Empty-ticket renders `Drafted acceptance criteria (approval ratifies):` with the row copied verbatim plus options 4 and 5. The only stylistic shift in After is splitting the Empty-ticket gate into two fenced blocks and appending the fund-N-fix-rounds suffix line; that is fine, but if you want the gate to look like one rendered unit, keep the drafted block and the option rows in a single fence as Before did. The After rows are also shorter paraphrases of the design (dropping the Given/setup framing); they still satisfy the facts, but retaining the setup/action/result phrasing from Before would make the behavioral-binary integrity check more visibly satisfied without costing anything the Change asks for.",
+      "wallMs": 13736,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2605a85220a2ef88ff6faf826257053a55100fe1eb1f116cf10bc342b2140e7e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "3cdd8106f683f8bed9a7306b0bcc3faac3b6fad032ec8aca0f1c4cbaa3552dd0",
       "candidateOutputSha": "7ebc1e941c2e7c3dc92f76fb64480c3a51a468ab2d90dbfcc508ea8d8bb1d145",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: After keeps every provenance line, the verbatim #42 row, the exact not-fetched sentinel, the #43 drafted section with the gate block and options 4/5 copied verbatim, and a design-derived isolation row for the unbound PR. The only drift worth watching is the Unbound-PR row, which After rephrased from Before's direct 'a tenant never receives another tenant's cached result' to 'When tenants share the other cache-key values, a request never receives another tenant's cached result' — still an isolation outcome a careful reader accepts, but the subject shift from 'a tenant' to 'a request' and the odd 'share the other cache-key values' precondition is one more rewording away from a fail. To keep this fact robust under the enlarged amendment-surface assembly, have the drafting rule say the row states the approved outcome in the design's own subject terms (the tenant) rather than restating the mechanism (cache-key composition) as a precondition; otherwise the After wording delivers the Change without regressing any of the five facts.",
-      "wallMs": 13482,
+      "feedback": "No fact moved: both outputs render the correct provenance lines, the verbatim #42 row, the exact not-fetched sentinel, the #43 drafted block copied verbatim at the gate with options 4 and 5, and a design-derived tenant-isolation row for the unbound PR. The one risk in After is the Unbound-PR row itself: Before's `a tenant never receives another tenant's cached result` names the tenant as the subject and states the pure outcome, while After rewrote it to `When tenants share the other cache-key values, a request never receives another tenant's cached result`, which leaks the cache-key mechanism into the row's precondition and shifts the subject to `a request`; a careful reader still gets the isolation outcome, so it holds, but a stricter judge could read the conditional as narrowing the scope or as mechanism-bearing. Keep After's good additions (the up-front disclaimer that nothing is executed, the explicit branch names, the instruction to keep tenantId key changes in Design) but restore Before's row wording for the tenant-isolation outcome so every row stays an unconditional observable about the tenant. Also consider restoring Before's Not-fetched gate note (options 1–3 only with the loop-unavailable explanation), which After softened to a generic 'affordance to paste rows' sentence; it isn't judged here but is the kind of detail the enlarged assembly tends to drop.",
+      "wallMs": 17321,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

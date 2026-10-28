@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2255b8e3687d4a15fa4cd42265bc2fd81419c7f5b392b60d07a369cd245e662c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "6470598243abb99db9e15eb60ce1245f66ebfc6a26610de85bb80a308f839526",
       "candidateOutputSha": "6471aea6778667ed1974c85fad4625dc7330302968730e63c95b95624ee5c134",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved. Both outputs record the mailer row as `elsewhere: acme/mailer` and neither raises a question about it (After even states explicitly that it is recorded as a decision, not asked), so f1 and f2 hold on both sides. f3 fails on both sides for the same reason: each output says the *ticket* groups its rows by repo, but neither says anything about how the *spec's* Acceptance criteria section is laid out, so a reader cannot conclude it is flat with no repo heading inside it. If the author wants f3 to start holding, the After wording for the elsewhere-row sentence should add one line stating the spec outcome, e.g. 'The spec's Acceptance criteria section lists the three in-scope rows and the elsewhere row flat, with no `### acme/...` headings inside it'; that is additive and would not disturb f1 or f2 or the amendment-surface section 5 change this edit is actually about.",
-      "wallMs": 13397,
+      "feedback": "After keeps f1 and f2 exactly as Before did: the mailer row is recorded as `elsewhere: acme/mailer` and explicitly marked as a stated decision rather than a question, so the amendment-surface section 5 insertion did not disturb the ticket-attribution behavior. Neither output satisfies f3, and this is unchanged by the edit: both describe the *ticket* as grouping rows by repo but never describe the *spec's* Acceptance criteria section at all, let alone as flat with no repo heading inside it. If f3 is meant to be demonstrable from this slice, the After wording (or the ticket-acceptance slice that follows the section 4/5 insertion) should instruct the model to state, when it records an elsewhere row, that the spec's Acceptance criteria section lists rows flat with the `elsewhere:` annotation and carries no `### repo` headings — e.g. a one-line rule such as \"when recording rows, say that the spec's Acceptance criteria section is flat; repo headings exist only in the ticket\" — placed in the ticket-handling slice so it survives the enlarged assembly without touching the amendment menu grammar.",
+      "wallMs": 14503,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2255b8e3687d4a15fa4cd42265bc2fd81419c7f5b392b60d07a369cd245e662c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "48fe9f418ebaa529bce97d04a0cfa16173cbee3334077ebddf0c85059bc39b90",
       "candidateOutputSha": "1d4ffdd6028dbdfee96c50137f32299aae9f930dea75c8e5a9b0bdd134b27054",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved between Before and After on this case: both outputs record the email-delivery row as `elsewhere: acme/mailer` and neither asks a question about it (the only question in each is button placement), so f1 and f2 hold in both. f3 fails in both because neither output says anything about how the spec's Acceptance criteria section is laid out; they talk about which rows are in scope and where the mailer row is assigned, but never describe the section as flat or state that no repo heading appears inside it. The After wording (amendment-surface section 5 insertion) did not cause this, so no repair is needed to deliver the Change; if you want f3 to hold, the wording that drives this sample's first message would need to make the spec-shape statement explicit, e.g. \"The spec's Acceptance criteria section lists the three acme/widgets rows as a flat list with no repo heading; the mailer row is recorded as `elsewhere: acme/mailer` rather than appearing under its own heading\" — that keeps f1 and f2 intact while giving a careful reader the flat/no-heading claim f3 keys on.",
-      "wallMs": 13442,
+      "feedback": "After preserves both facts that Before kept: the email-delivery row is explicitly assigned `elsewhere: acme/mailer` in the first message, and the only question asked is the button-placement questionary, so nothing about the mailer row is put to the human. Neither output describes the spec's Acceptance criteria section at all, let alone as flat with no repo heading, so f3 fails in both and is unchanged by the edit; this matches the expected fails -> fails. If the author wants f3 to hold without disturbing f1/f2, the brainstorming wording should have the first message state that the in-scope `acme/widgets` rows will be written as a single flat Acceptance criteria list (no `### acme/widgets` heading carried into the spec) alongside the existing `elsewhere: acme/mailer` sentence — that addition sits in the ticket-attribution slice, not in the amendment-surface section 5 this change adds, so it is independent follow-up rather than a regression caused by After.",
+      "wallMs": 10598,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

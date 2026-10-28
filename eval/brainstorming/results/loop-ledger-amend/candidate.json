@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "c0f834b3e689b780299f2edf35551eeca271bac5049906a35fe6418651cc15d2",
       "candidateOutputSha": "2669181dc4f0aab833b769b331fe03c613f289fb4fbb73a928c4392794625501",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this continuation: After keeps every fact Before kept. Trace A still sends the row-2 deferral and the row-3 re-bounding to the human while only the evidence-backed path correction goes through a fresh amendment-review dispatch; Trace B still skips prefilter/reviewer/menu and applies each item's recommended choice under the persisted option-2 grant, with explicit `granted` audit records and the grant sentence quoted as one physical line; both traces reconcile row 2 to `cut` with `deferred: #90`, leave row 1 untouched, reopen row 3 with `reopened by amendment`, preserve attempts 2/3/1 and iterations 9, and skip plan-writer/plan_check/plan_tracker before committing spec and ledger under `loop: amend`; Trace C stops on the redraw despite the grant, clears plan_tracker, resets/starts phase_tracker, deletes plan and ledger, resumes at step 4, and requires a fresh step-12 gate that the old grant cannot satisfy. The After wording is in fact slightly tighter on the review-before-approval sequencing (it narrates the already-completed prefilter/reviewer pass as the reason the batch reached the human), and it correctly decodes the no-token grant as amend-only. If you want to harden it further, keep the explicit `Recorded:` echo and the A-step-9 reconciliation table style from Before, since those make the attempts/iterations preservation easiest for a reader to verify, but no change is needed to retain these four facts.",
-      "wallMs": 14761,
+      "feedback": "Nothing moved on this case: both outputs satisfy all four facts. Before and After each route the row-2 deferral and row-3 re-bound to the human under option 4's `none` grant and send only the evidence-backed path correction to a fresh `spec-council-member` amendment-review dispatch; both have option 5 skip prefilter/reviewer/menu and apply each item's `recommended` choice while stating the grant never covers a redraw. Both reconcile row 2 to `cut` with `deferred: #90`, row 3 to `open` with `reopened by amendment`, keep row 1 preserved, attempts 2/3/1, iterations 9, and leave AC texts untouched; both skip plan-writer/plan_check/plan_tracker, commit spec and ledger together as `loop: amend` with a per-item audit and `granted` records plus the quoted grant sentence for B; both have C stop despite the grant, clear/reset trackers, delete plan and ledger, resume at step 4, and demand a fresh gate the old grant cannot satisfy. After is actually slightly tighter (it explicitly says the grant is never consulted for classification and names the step-4 digest reading `granted` records), so the Change's section-5 insertion did not disturb this sample; the only thing worth keeping an eye on is After's B3 statement that decoding finds no funding token — it is correct for a bare option-2 description, but if a future fixture persists a funded value the wording should branch on the token rather than assert its absence.",
+      "wallMs": 20847,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "504b4504c4197acc56b481f6c05d9fb0996db1f90dc6c375809b32951f6c10ff",
       "candidateOutputSha": "7c9fcc02a57dc6f9d636c42eb457a851e1bb2e5cb18f77dd1192a395d2b32824",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs satisfy all four facts. Before and After each explain that A's `Amend-grant: none` sends the row-2 deferral and row-3 re-bounding to the human while only an evidence-backed, scope-neutral factual correction can clear a fresh reviewer; that B's persisted option-2 grant applies prepared recommended choices without reviewer dispatch or human batch yet never substitutes for redraw approval; both reconcile the ledger to done/2, cut/3 (`deferred: #90`), open/1 (`reopened by amendment`) with iterations 9 and immutable AC text; both commit spec plus ledger as `loop: amend` with `granted` records and the quoted grant sentence while bypassing plan-writer/plan_check/plan_tracker; and both have C stop as a redraw, clear/reset trackers, delete plan and ledger, resume step 4, and require full fresh approval without carrying the grant. The After wording's main additions are the explicit section-5 required-read narration and unreadable-stop handling, which deliver the Change without disturbing any fact. One wording nit in After B step 2, \"including the disposition-only change to immutable AC text,\" reads as though a disposition change touches AC text; rephrasing to \"the disposition-only cut (which leaves the AC row text immutable)\" would avoid a reader momentarily doubting the never-edit-AC-text fact, which the sentence otherwise affirms.",
-      "wallMs": 17434,
+      "feedback": "After keeps all four facts: A still routes the deferral and re-bound to the human and the factual correction to an evidence-requiring fresh reviewer, B applies recommended choices under the persisted grant without reviewer or menu and records them as `granted` with the quoted grant sentence, both reconcile the ledger to done/2, cut/3 `deferred: #90`, open/1 `reopened by amendment` with iterations 9 and no AC text edits, and C classifies the addition as a redraw, resets trackers, deletes plan and ledger, resumes step 4 and refuses to let the grant approve the replacement spec. Two wording risks to tighten: B step 2 in After says the batch includes 'the disposition-only change to immutable AC text', which a reader could misread as an AC-text edit even though the same sentence then forbids rewriting rows — phrase it as 'the disposition-only change to row 2 (its AC text stays immutable)' as Before did; and After C drops Before's explicit sentence that the new brainstorm writes `Amend-grant: none`, which is the clearest statement that the grant is not carried — restore that line alongside the new ordered tracker/delete narration and the added section-5 required-read, which otherwise deliver the Change cleanly.",
+      "wallMs": 19782,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

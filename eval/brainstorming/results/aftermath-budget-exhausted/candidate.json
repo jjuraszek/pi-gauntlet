@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0f88bbc1d971065cb171658315dd4f5c9095773b4a05ae3dc9d044333b8cc8b6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "c4d71f9724dffed8338dda8e3945616847f20f65c1fd1f4bee959f4933e16068",
       "candidateOutputSha": "0fddbcbf20a413830077dc6526172d207dbe7fa035887e97b3b918764d110be8",
       "facts": {
@@ -64,21 +64,21 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept and gains no-restore: Before only said it would 'report the existing step-6 exit' and list the three paths and cause, without ever rendering that exit or offering the human the commit/discard/move decision, so a reader could not confirm the paths were actually taken to the human on those terms. After renders the step-6 dirtied-tracked-source exit in full with all three paths, the `node eval/run.mjs report-runner summary` cause, an explicit per-path commit/discard/move request, and a clear statement that no checkout/restore runs because the bound is checked first. Trace B in After likewise renders the exit with the verbatim FAIL and only its own `replay` item, with no leak of A's `records` item. The wording that made this work is the ordering clause (bound and repeat checks before tracked-membership/restore) plus 'render rejected outcomes' step-6 exits in full'; keep both, and keep the 'two independent traces, not a shared ledger' phrasing so B's single-item listing stays isolated from A.",
-      "wallMs": 15692,
+      "feedback": "After keeps every fact Before kept and fixes no-restore: Before merely noted \"no restore\" and said the third outcome would be reported, but never rendered the step-6 dirtied-tracked-source exit or offered the human the commit/discard/move decision, whereas After explicitly states no checkout/restore runs, renders the exit in full with all three paths and the `node eval/run.mjs report-runner summary` cause, asks for commit/discard/move per path, and lists both applied items with their distinct verbatim evidence without counting the third outcome. Trace B in After stays independent (one `replay` item, verbatim audit FAIL including `command-contract @ line 24` and the quoted Tests command, no borrowed records item, explicit stop before the two-item limit with the grant not authorizing a retry). The ordering wording—bound and repeat checks before the tracked-membership/restore step, then a full step-6 render without restoration—is exactly what delivers the Change; keep that order explicit and keep the \"recorded, not acted on\" framing for the `ls-files` observations so the eligible-but-not-restored distinction stays visible.",
+      "wallMs": 14691,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0f88bbc1d971065cb171658315dd4f5c9095773b4a05ae3dc9d044333b8cc8b6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "5aaf9d588f6bcd7ef1cc9d1880d48af27dea889087ab021dae946b424230d10c",
       "candidateOutputSha": "908724bd415b0b0bcb12e8016f7585394bce3ac2647faff44f158f964a716209",
       "facts": {
         "stop": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "no-restore": {
           "before": "fails",
@@ -101,10 +101,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves stop and no-restore to holds: Trace A checks the two-item bound before any restoration, explicitly says 'do not restore them', names all three tracked paths and the `node eval/run.mjs report-runner summary` cause, and hands the paths to the human to commit, discard, or move with no third apply or writer dispatch; Before only stopped generically 'at the two-item maximum' without rendering the dirtied-tracked-source exit or offering commit/discard/move. Both traces keep their distinct inventories and verbatim evidence (A's audit FAIL plus the Task 2 record-old row; B's single audit FAIL), and B stops on repetition below the numeric limit without leaking A's count. One wording risk: After wraps commit/discard/move inside a fix-first/narrow/amend menu, which is the baseline-failing-command exit's shape rather than the dirtied-tracked-source exit's; a reader could read that as the wrong step-6 exit. To keep every fact while delivering the Change, render the rejected dirty-row outcome's exit verbatim as the step-6 dirtied-tracked-source block (paths, cause, commit/discard/move) and use fix-first/narrow/amend only for Trace B's repeated command-contract failure.",
-      "wallMs": 20179,
+      "feedback": "After keeps every fact Before kept and additionally satisfies no-restore: Before stopped Trace A at the two-item bound and inventoried both applied items correctly, but never rendered the dirtied-tracked-source exit as a human decision — it quoted the three paths and cause only as the writer's OPEN QUESTIONS and offered no commit/discard/move route — whereas After's step 6 explicitly preserves the three paths without restoration, restates the cause command, and presents fix-first (commit, discard, or move the named paths)/narrow/amend before pausing. Trace B in both outputs stops on repeated evidence with one applied item, quotes the audit FAIL verbatim including `command-contract @ line 24`, lists only the replay item, and does not import A's records item. The After wording that delivers the Change is the ordering in A step 5→6 (bound check first, then 'eligibility does not authorize restoration at this exit') plus the explicit commit/discard/move exit; keep that, and keep each trace's inventory confined to its own applied items as After already does.",
+      "wallMs": 18904,
       "verdict": "improved"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

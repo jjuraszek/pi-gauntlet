@@ -44,6 +44,7 @@ Admit a leading ordered list of same-base PRs, stop invalid membership before pr
 - aftermath-retry-grant/dispatch: fails -> holds - Re-dispatch with Amend-only quoted evidence and spec/plan In-flight paths.
 - aftermath-retry-grant/commit: fails -> holds - After PASS read the plan, update tracker and record retries in one revertible amend audit commit.
 - aftermath-retry-grant/protected: fails -> holds - Route untracked or protected row variants to step 6 with no partial restore.
+- aftermath-retry-grant/redraw: fails -> holds - Route a redraw-class aftermath finding to commit-as-is and step 6 before any restore, then the redraw path.
 - aftermath-retry-no-grant/menu: fails -> holds - Use the existing amendment prefilter/reviewer/numbered-letter menu rather than commit/discard/move.
 - aftermath-retry-no-grant/pause: fails -> holds - Pause without applying, re-dispatching or committing for none, budget-only and absent grants.
 - aftermath-unchanged-command/fail: holds -> holds - Preserve the verbatim second-identical-FAIL exit for unchanged text.

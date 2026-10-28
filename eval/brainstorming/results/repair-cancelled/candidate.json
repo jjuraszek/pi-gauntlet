@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "85d9650198051139ac0b5cde1588e1ab6c9f86361d0d2bd2bddc6ef4fa165ffb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "0c88b1a112a6bedcb11c33e3b06d0ce53114ab9851f22ad4d07b183f832cc6e9",
       "candidateOutputSha": "98bb8ab7b13e2e182398e1dac20e4b7843f868dbcfae76e76aeaa231faf07038",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs block the approaches message, re-render the cut question in full after the cancelled repair with the ticket row still reading \"The export includes the owner column.\", and neither marks the row deviates or deferred. After still carries some drift worth tightening: on the re-ask it rewrites option A's text (\"adds an owner column on top of the table's columns, reading owner from the report records\") instead of re-rendering the options verbatim, flips the recommendation from D to A without new evidence, and defers the premise note (\"I'll write the full premise note\" after the answer) rather than stating it in message 1 as Before does. To keep the re-ask contract robust under the section-4 scoping sentence, say explicitly that a re-ask after a cancelled repair re-renders the question with the same row text and the same option lines as first asked, and that the premise note is still delivered in the first message rather than postponed behind the blocked cut question.",
-      "wallMs": 14069,
+      "feedback": "Both facts survive in After: the cut question is re-asked after the cancelled repair with the row explicitly \"unchanged\"/\"stands as written\", and the row is never marked deviates or deferred. The risk is in how After re-renders it. Before re-asks with the same four option texts and the same recommendation (D), stating the evidence hasn't changed. After rewrites option A (\"the export adds an owner column on top of the table's columns, reading owner from the report records\") and B, flips the recommendation from D to A, and in the first message already commits the design to \"treat owner as something the export must add\" — so a stricter reader could argue the question is not re-rendered in full as originally asked and that the author has pre-decided the row as in-scope before the human answers. To keep every fact Before kept while still delivering the scoping-sentence extension, make the re-ask rule say the cut question is re-rendered verbatim (same lead-in evidence, same option text, same recommendation unless new evidence appeared), and keep the premise note neutral on the row's disposition (state the contradiction and that the row remains unchanged pending the human's answer, rather than declaring the export 'must add' owner).",
+      "wallMs": 16456,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "85d9650198051139ac0b5cde1588e1ab6c9f86361d0d2bd2bddc6ef4fa165ffb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "5be7974418950dbd4f15fce6afe7cfbb13511681578305f6b8fe4e2f47c205bb",
       "candidateOutputSha": "2ce8b3c5fe1cdf5271eb90d6dd0a1cd68104296673c8ff3d3f164036efd44f36",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs re-render the full cut question with the owner-column row verbatim and unchanged after the cancelled repair, and neither marks the row deviates or deferred (Before recommends D, After recommends A). After does differ in substance — it switches the recommendation from repairing the ticket to in-scope, and it adds unsupported hedging (\"does not prove that adding owner data is impossible\", the 10k-row timing not being verified) that is not grounded in the fixture, which only shows the two-column contract. If the Change's intent is merely to require the re-ask to render in full with the row unchanged, the current After wording already delivers that; to avoid drifting the recommendation away from the evidence-backed contradiction, keep the scoping-sentence extension focused on 're-render the cut question in full with the row unchanged' and add nothing that invites the model to reweigh the ticket row against speculative possibilities beyond the gathered evidence.",
-      "wallMs": 11022,
+      "feedback": "Neither fact moved: both outputs re-render the cut question in full with the owner-column row unchanged after the cancelled repair, and neither marks the row deviates or deferred (Before recommends D, After recommends A; both leave the decision to the human). After actually reproduces the recorded question wording more faithfully than Before, which satisfies the scoping-sentence extension on re-asking after a cancelled repair. One drift worth watching though not a fact here: After flips the recommendation from D to A and adds unsolicited commentary about the 10k-row timing and owner-data source, which the recorded evidence does not support; if you want the re-ask to stay neutral, add a line to the scoping-sentence extension that the re-rendered cut question keeps its original recommendation unless new evidence is cited, and keep the lead-in to the recorded evidence only.",
+      "wallMs": 8958,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

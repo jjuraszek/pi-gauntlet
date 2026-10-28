@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "235200d687589b4605d71858ade8fa6003293d4cec14039f715d4f9e52f86612",
       "candidateOutputSha": "f8d3f8ff02ef946c17ca4cc81da8337f72ab53b767a52a9f39c8fc12d737970c",
       "facts": {
@@ -49,20 +49,20 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "In After the recap still carries both inventory lines (`Remove: the inline fetch ... in jobs/report.ts` and `Add: one optional channel parameter on lib/notify.ts#post`) but they are flat bullets with no `Design imperatives` label, which is the wording the carry-forward fact keys on; Before kept that fact only because it nested the two lines under an explicit `Design imperatives:` bullet. The test-per-observable fact survives in After because the spec `## Tests` block with all three `<observable> - <test>` lines is reproduced verbatim (inside a fenced block, but the text is present), so I report it as holding on the text even though the author expected it to fail. To keep carry-forward while still delivering the amendment-surface section 5 change, add to the step-6 recap instruction a sentence such as 'In the recap, render the chosen inventory under a literal `Design imperatives:` label with `Remove:` and `Add:` lines, and reproduce the `## Tests` mapping as a real heading, not a run-in or code fence'; that pins the two labels the facts depend on without touching the amendment menu grammar or widening any other sample's contract.",
-      "wallMs": 17681,
+      "feedback": "After keeps the inventory content (Remove: the inline fetch in `jobs/report.ts`; Add: one optional `channel` parameter on `lib/notify.ts#post`) but lists them as loose recap bullets and drops the literal `Design imperatives` label that the carry-forward fact keys on, so that fact fails on After while Before, which nested the two items under `Design imperatives:`, holds. The test-per-observable fact still holds on After: the literal `## Tests` spec block with all three `<observable> - <test name>` mappings is present (inside a fenced markdown block, which a careful reader still recognises as the spec mapping), so it did not actually degrade despite the accepted-variance note. To keep carry-forward while still delivering the section-5 amendment-surface change, add a sentence to the brainstorming step-6 recap rule (or wherever the recap is assembled) stating that the continuation recap must render the chosen inventory under a `Design imperatives` label with `Remove:` and `Add:` lines verbatim from the chosen approach, and that this label is required even when the recap is otherwise compressed; the amendment-surface section-5 text itself does not need to change, since the drift came from the enlarged assembly loosening the recap format rather than from any new instruction.",
+      "wallMs": 15970,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "30ada077f72f4262d1b7a0eee17bf2e2c050a1e1e7129d788a4bceab8ac35843",
       "candidateOutputSha": "6ae01dfd9fd6ba5438fac842eed0fe47bbe1fd7a93da32255ad03f1395324db5",
       "facts": {
         "carry-forward": {
-          "before": "holds",
-          "after": "holds",
+          "before": "fails",
+          "after": "fails",
           "label": "intended but unchanged"
         },
         "test-per-observable": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "In this pair nothing moved: After, like Before, recaps the chosen inventory under a 'Chosen design commitments' heading with a bolded Remove/Add pair (After's Remove actually names the inline fetch in `jobs/report.ts` more literally than Before's 'inline delivery logic'), and both outputs keep a real `## Tests` heading mapping requested channel → `post_uses_requested_channel`, omitted channel → `post_keeps_default_channel`, empty channel → `post_rejects_empty_channel`. The accepted-variance note describes a run where the `Design imperatives:` label was dropped and `## Tests` became a run-in, but neither occurs in this After text, so I report holds for both. Note that neither Before nor After uses the literal `Design imperatives:` label — both rely on the Remove/Add inventory under the commitments heading to satisfy the fact — so if you want to make this robust under the enlarged assembly, have brainstorming section 6 (not amendment-surface section 5) require the recap to open with the literal line `Design imperatives:` followed by `Remove:`/`Add:` items and to emit `## Tests` as a heading; that would deliver the Change while pinning the labels the facts implicitly key on.",
-      "wallMs": 21601,
+      "feedback": "Neither output renders the recap under the literal `Design imperatives` label the fact keys on: both put bold `Remove:`/`Add:` lines under a \"Chosen design commitments\" heading, and both pad the Add inventory beyond \"one optional parameter on post\" (validation, delegation call, tests), while Before's Remove line says \"inline delivery logic\" rather than \"the inline fetch\" (After actually names the inline fetch). So carry-forward fails on both texts as written, not only in After. The `## Tests` heading with three `observable — test` bullets survives in both outputs, so test-per-observable holds in After despite the accepted-variance note; the amendment-surface section 5 addition did not demote it here. To make carry-forward hold while keeping the section 5 change, have the round-two recap rule in brainstorming section 6 require the literal line `Design imperatives:` immediately followed by `Remove: the inline fetch in jobs/report.ts` and `Add: one optional parameter on post` copied verbatim from the chosen approach's Removes/Adds inventory (backticks permitted), with any extra items (validation, tests) listed separately rather than folded into the Add line; keep the existing `## Tests` heading requirement unchanged since After already satisfies it.",
+      "wallMs": 24831,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "48b40e45976d0622c67832450cc84a8dac226606268aa804222f2292b32df8f2",
       "candidateOutputSha": "e562b60377445e6cf487319cb9e732e5e161276177fbd45a0f84a6de1456c0db",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs trace the dump restore through fixtures/search.sql:1-2 to demo_vector, name the installed-extension listing as the guide's lookup, report plpgsql-only so demo_vector is not installed, carry the same lookup and result into the approaches preamble and the ## Problem excerpt, keep the installed/available distinction explicit, and go on to present approaches without asking the user to verify the extension. After is actually tighter on the replay fact — 'These are fixed observations from the supplied state. I made no live database calls.' sits right next to the lookup claim, whereas Before's 'I ran that lookup' could momentarily read as a live call before the later disclaimer corrects it; if you want the premise note to be robust, keep After's phrasing ('I checked the repo guide's capability lookup, the installed-extension listing' + the supplied-state sentence) and avoid 'ran'. Also keep After's habit of naming the lookup and its result in the same sentence in all three surfaces (note, approaches lead-in, ## Problem), since that is what lets each fact be satisfied on the surface it keys on. The Before→After expectation of fails→holds is not visible in these two texts; both already hold, so the Change delivers no regression here and no further wording is needed for these facts.",
-      "wallMs": 19039,
+      "feedback": "Nothing moved on this case: both outputs trace the dump restore through fixtures/search.sql:1-2 to demo_vector, report it missing from the installed-extension listing (only plpgsql) in the premise note, restate that lookup and result at the top of the approaches message, carry it into the spec ## Problem as the corrected premise, continue to approaches without asking the user to verify the extension, and keep 'not installed' separate from 'not available to install'. After is actually sturdier on the replay fact: Before's 'I ran that lookup' briefly reads like a live call before being walked back by 'no live database lookup was possible', whereas After says outright 'fixed observations from the supplied state. I made no live database calls' and repeats 'no live database was queried' in the spec. Keep that explicit supplied-observation phrasing in the After wording; the one thing to watch is After's added inference that the `<->` operator 'comes from that extension', which goes slightly beyond the supplied observations - attributing it to the column type at fixtures/search.sql:2 rather than asserting operator provenance would keep the trace strictly grounded without weakening any of the five facts.",
+      "wallMs": 24817,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "b131374cd4fa314ae59a18acb052490ae54ec0a242bc7d5f941f3b1bcbeb5ae0",
       "candidateOutputSha": "4f6145b211136d1b2cc6d30f2db68b27bff6ffb36560b99b2dce575ac65b9c60",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved no fact on this case: the first message traces fixtures/search.sql:1-3 to demo_vector and reports it absent from the supplied installed-extension listing while explicitly separating 'not installed' from 'unavailable to install'; the approaches message restates the missing dependency and names the guide's installed-extension lookup before presenting A/B; and the ## Problem excerpt retains both the dependency and the lookup result. The only risk After introduces is the questionary block at the end of the first message (A–D, Recommendation A) re-asking a decision the Recorded answers already settled ('Provision the local environment during implementation. Do not stop brainstorming for provisioning'); it does not ask the user to locate or verify the extension, so 'continues' still holds, but a stricter reader could see it as pausing on provisioning. To keep every Before fact safely while still delivering the traced-dependency premise note, have the premise note acknowledge the recorded provisioning decision directly ('Adopting your recorded answer: provision during implementation; brainstorming continues') instead of re-rendering a labeled question, and keep the explicit 'no live database lookup was possible; these are supplied observations' sentence that Before carried, which After only implies.",
-      "wallMs": 21157,
+      "feedback": "Nothing moved: both outputs trace fixtures/search.sql to demo_vector, name the installed-extension listing as the lookup, state the extension is missing from that listing in the premise note, again at the top of the separate approaches message, and in the spec Problem, and both keep 'not installed' distinct from 'unavailable to install' while avoiding any live-lookup claim. The After wording actually tightens the premise note by leading with the traced dependency and citing the exact fixture lines, which is the intended Change. Two cautions for the author: After's first message re-asks a questionary block (A–D, Recommendation: A) about how to handle the missing dependency even though the recorded answers already settle it; the 'continues' fact still holds because the output proceeds to approaches and the question is about handling rather than locating/verifying the extension, but option B ('make provisioning and baseline measurement prerequisites before continuing') edges toward the exact behavior the fact forbids, so either drop that question when a recorded answer exists or phrase it as confirming the recorded decision. Also, After silently dropped Before's observation that the supplied CREATE TABLE lacks the `id` column the benchmark selects; no tracked fact keys on it, but the implicit-dependency tracing rule should carry every repro discrepancy found, so keep that paragraph alongside the demo_vector finding.",
+      "wallMs": 20851,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

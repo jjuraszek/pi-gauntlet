@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "7476cf4b95cfc2ad57afe538b375268e2d86fe1f354061dcbe02511a6a0d9109",
       "candidateOutputSha": "f6089d009eb67755a6668c9516a848c61c43343b6fd340f711d084afe4f1b3e0",
       "facts": {
@@ -83,14 +83,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept, and neither output moves on the one failing fact: in both, the paged scout keyword term list carries `src/export-target.ts` but omits `418` (Before ends with `source lines`, After with `source`), so `terms` fails on both sides for the same reason. The Change asked to carry every Reporter-note term into scout search terms; the After wording that produced `the path is kept intact` is not enough, since it only protects the path token. Add an explicit instruction that numeric values from notes (e.g. the line count) are literal terms too, something like `Scout terms include every path, identifier and number quoted in a Reporter note, verbatim`, so the rendered list becomes `... move src/export-target.ts source 418`. Two smaller things in After worth watching though they did not move facts: the draft blocks prefix each note with `- `, which still reads as a verbatim quote but is one step away from a trim/format edit tripping `verbatim`, and the incomplete branch now adds `comments: 50 fetched, 1 page` beneath the incomplete heading, which is fine for `degraded` but should stay subordinate to the `comments incomplete after page 1 (timeout)` line. Paging independence in After is stated only as `Scout: separate comment read ... pages the comments the same way`; keeping Before's explicit `each fetch comments on their own, in pages of 50, until a short page` sentence would make `paging` more robust.",
-      "wallMs": 26863,
+      "feedback": "After keeps every fact Before kept: both scout and context-builder page independently with the 50-per-page short-page stop, the Reporter note is quoted verbatim (now as a bullet, which is fine) under the heading with `comments: 52 fetched, 2 pages`, the three-author notes are in creation order with the contradiction left unresolved, ACs stay body-only, and the no-path/whole-ticket branches emit the `none - ticket not fetched (...)` line with the paste affordance while comments-failed/incomplete carry the body-only gate line. The one fact neither output satisfies is terms: both scout term lists carry `src/export-target.ts` but drop `418` (Before renders it as `source lines`, After as `source`), so the wording that tells scout to lift terms from Reporter notes needs to say explicitly that numeric values in the note (e.g. the 418 line count) are search terms too, not just identifiers and paths. Two minor hardenings worth adding so the After wording does not drift: say `no new stop` explicitly in the no-path and whole-ticket-failed gate lines (Before had `No stop at gather time`; After relies on the reader inferring it), and in the paged branch have the scout step restate `page 1 (50), page 2 (2, short page, stop)` rather than `pages the comments the same way`, so independence and page size are shown in the scout trace itself rather than borrowed from the context-builder's.",
+      "wallMs": 27231,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
       "baselineOutputSha": "6de7bc1c4cfb4f0372a0b43680eb674125cfa31e7e960885f27dd3c0dc18a352",
       "candidateOutputSha": "77048d0761b078473ed504e247708713c7579f4fb9769e920e61aed315c993e1",
       "facts": {
@@ -135,10 +135,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: both outputs narrate independent scout and context-builder two-page reads that stop on the short page 2, carry src/export-target.ts and 418 into the scout terms, quote the Reporter note verbatim under ## Reporter notes (verbatim) with `comments: 52 fetched, 2 pages`, quote all three notes in creation order with the contradiction left unresolved, keep AC rows body-only, and render the `none - ticket not fetched (...)` line plus the adjacent body-only gate warning without a new stop. After is actually slightly stronger on the Change's intent by stating explicitly that page 2 is read because page 1 is full and that the context-builder does not rely on scout's fetch. The one regression risk worth watching is that After drops the `Author, creation time N:` labels Before placed above each quoted note; the multiple fact's creation-order and author-coverage requirements are still readable from the text and the step-4 prose, but a terser future output could lose that evidence. To stay safe while still delivering the Change, keep After's wording and restore the per-note author/creation-time label line above each verbatim `Reporter note:` quote so order and author coverage remain visible in the draft block itself, not only in the surrounding narration.",
-      "wallMs": 24171,
+      "feedback": "No fact moved: both outputs narrate independent two-page scout and context-builder reads stopping on the short page 2, carry src/export-target.ts and 418 into the scout terms, quote the Reporter notes verbatim under the required heading with the 52 fetched / 2 pages accounting and the Overlap evidence excluded, order the three multiple-branch notes by creation time while recording the Casey/Sam contradiction unresolved, keep AC rows body-only, and render the none - ticket not fetched sentinel plus the body-only gate warnings with the exact reasons. The one visible regression in After is cosmetic but worth noting: the Reporter notes blocks drop the per-note author/creation-time labels that Before printed (Sam, creation time 1:), so attribution now lives only in the prose of the gate stage; since the multiple fact keys on notes from different authors in creation order, a stricter judge could ask where the order is evidenced in the block itself. To keep every Before fact robustly while delivering the Change, add a sentence to the draft-block rule such as 'prefix each quoted note with its author and creation time' so the verbatim block carries its own ordering evidence, and keep the explicit 'without a new stop' phrasing in the no-path and whole-ticket-failed gate steps rather than relying on the paste-rows affordance to imply it.",
+      "wallMs": 23451,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }
