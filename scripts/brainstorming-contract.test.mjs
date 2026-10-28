@@ -410,8 +410,8 @@ test('section 3 asks the framing question once, with a named alternative, after 
   assert.equal(good.length, 2, 'both Good examples use fenced text blocks');
   assert.ok(framing, 'framing template uses a fenced text block');
   const preserved = [
-    'The two ACs name a path that moved; the spec keeps them in-scope with the new path as a Design clause. Which surface owns the refresh? A) the extension B) a new bin C) the existing skill step. Recommendation: A - the extension already holds the poll loop, so no new entrypoint.',
-    'The ask adds a second settings path beside the resolver that already owns every setting (settings/resolver.ts:11). A) as framed B) pivot: a key under the existing resolver - one read path, no new boundary C) smaller or none: document the default and ship no setting. Recommendation: B - the owning schema already exists.',
+    'gauntlet: question The two ACs name a path that moved; the spec keeps them in-scope with the new path as a Design clause. Which surface owns the refresh? A) the extension B) a new bin C) the existing skill step. Recommendation: A - the extension already holds the poll loop, so no new entrypoint.',
+    'gauntlet: question The ask adds a second settings path beside the resolver that already owns every setting (settings/resolver.ts:11). A) as framed B) pivot: a key under the existing resolver - one read path, no new boundary C) smaller or none: document the default and ship no setting. Recommendation: B - the owning schema already exists.',
   ];
   for (const [index, example] of good.entries()) {
     assert.equal(example.replace(/\n/g, ' '), preserved[index], 'preserve example wording');
