@@ -10,7 +10,7 @@
  */
 
 import { existsSync, globSync, readdirSync, readFileSync, readFileSync as readFileBytes } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
@@ -996,9 +996,10 @@ export default function (pi: ExtensionAPI) {
           const overridesPath = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
           const overrides = overridesPath ? readFileSync(overridesPath, "utf8") : "";
           const section = /^## shape-ticket\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(overrides)?.[1] ?? "";
-          const siblings = [...section.matchAll(/^- sibling: (.+)$/gm)].map(m => resolve(primary, m[1].trim()));
+          const siblings = [...section.matchAll(/^- sibling: (.+)$/gm)].map(m => resolve(primary, m[1].trim())).filter(path => path !== primary);
           for (const leg of ownership.legs.slice(1)) {
-            const candidates = siblings.filter(path => {
+            const matching = siblings.filter(path => basename(path).toLowerCase() === basename(leg.repo).toLowerCase());
+            const candidates = (matching.length ? matching : siblings).filter(path => {
               if (!existsSync(path)) return false;
               const remote = gitSync(["remote", "get-url", "origin"], path);
               const repo = remote.stdout.trim().replace(/\.git$/, "").replace(/^.*[:/]([^/:]+\/[^/]+)$/, "$1").toLowerCase();

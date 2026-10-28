@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { after, test } from "node:test";
-import { execFileSync } from "node:child_process";
+import { after, mock, test } from "node:test";
+import childProcess, { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync, realpathSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -2454,14 +2456,16 @@ for (const event of ["session_start", "session_switch", "session_fork", "session
 
 for (const { pattern, identity } of [
   { pattern: ".worktrees/<name>", identity: "origin" },
+  { pattern: ".worktrees/<name>", identity: "matched-origin" },
   { pattern: "../companion-<name>", identity: "origin" },
   { pattern: ".worktrees/<name>", identity: "overrides" },
   { pattern: ".worktrees/<name>", identity: "basename" },
 ]) test(`plan_check resolves selected companion roots with ${pattern} and ${identity}`, async () => {
   const primary = gitPrimary().primary;
   const companion = gitPrimary().primary;
-  const repo = identity === "basename" ? companion.split("/").at(-1)! : identity === "overrides" ? "acme/widgets" : "team/repo-b";
-  if (identity === "origin") execFileSync("git", ["remote", "add", "origin", "https://example.test/team/repo-b.git"], { cwd: companion });
+  const unselected = identity === "matched-origin" ? gitPrimary().primary : undefined;
+  const repo = identity === "matched-origin" ? `team/${companion.split("/").at(-1)!.toUpperCase()}` : identity === "basename" ? companion.split("/").at(-1)! : identity === "overrides" ? "acme/widgets" : "team/repo-b";
+  if (identity === "origin" || identity === "matched-origin") execFileSync("git", ["remote", "add", "origin", `https://example.test/${repo}.git`], { cwd: companion });
   else {
     mkdirSync(join(companion, ".pi"), { recursive: true });
     writeFileSync(join(companion, ".pi/gauntlet-overrides.md"), `## Issue tracker\n${identity === "overrides" ? "- repo: Acme/Widgets\n" : "- provider: github\n"}## Other\n- repo: wrong/repo\n`);
@@ -2471,7 +2475,7 @@ for (const { pattern, identity } of [
   execFileSync("git", ["worktree", "add", "-b", branch, companionRoot], { cwd: companion, stdio: "pipe" });
   if (pattern.startsWith("..")) tempDirs.push(companionRoot);
   mkdirSync(join(primary, ".pi"), { recursive: true });
-  writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${companion}\n- sibling: /missing-unselected\n`);
+  writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${companion}\n- sibling: ${unselected ?? "/missing-unselected"}\n`);
   const { planPath } = writePlanFixture(primary, {
     mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\nbranch: ${branch}\ncontract: home: ${pattern}\n`,
     mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo.toUpperCase()}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),
@@ -2481,8 +2485,31 @@ for (const { pattern, identity } of [
   const h = harness({ cwd: primary });
   await h.emit("session_start");
   const tool = h.tools.find(t => t.name === "plan_check")!;
-  const result = await tool.execute("legs", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
-  assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
+  const probes: string[] = [];
+  const spies: { mock: { restore(): void } }[] = [];
+  if (unselected) {
+    for (const method of ["existsSync", "realpathSync", "statSync", "readFileSync", "readdirSync"] as const) {
+      const original = fs[method];
+      spies.push(mock.method(fs, method, (...args: any[]) => {
+        if (String(args[0]).startsWith(unselected)) probes.push(`${method}: ${args[0]}`);
+        return (original as Function)(...args);
+      }));
+    }
+    const original = childProcess.execFileSync;
+    spies.push(mock.method(childProcess, "execFileSync", (...args: any[]) => {
+      if (String(args[2]?.cwd).startsWith(unselected)) probes.push(`git: ${args[2].cwd}`);
+      return (original as Function)(...args);
+    }));
+    syncBuiltinESMExports();
+  }
+  try {
+    const result = await tool.execute("legs", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
+    assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
+    assert.deepEqual(probes, [], "unselected sibling must receive no filesystem or Git probes");
+  } finally {
+    for (const spy of spies) spy.mock.restore();
+    syncBuiltinESMExports();
+  }
   const originalPlan = readFileSync(planPath, "utf8");
   const foreignSpec = join(companionRoot, "foreign-spec.md");
   writeFileSync(foreignSpec, readFileSync(join(primary, "doc/specs/spec.md")));
