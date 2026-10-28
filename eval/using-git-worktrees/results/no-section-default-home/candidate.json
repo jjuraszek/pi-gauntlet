@@ -1,7 +1,7 @@
 {
   "sample": "no-section-default-home",
   "arm": "candidate",
-  "skillSha": "3ad1c501dddfa42fee1852ce78b9452a7bed4af8ab0d28223bdba1b77af30dcd",
+  "skillSha": "d9d494aa0f35d34dc0f270ef2b9571bfd3221d41a3255d6a968f60f515b09bd9",
   "inputSha": "efeee0765767952f818554f37704dff3b22dbc92c5ef77cfcbf057ee7b0076cb",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nNo caller `$ROOT` was supplied. `$BRANCH=login-copy` is the requested feature branch.\n\n1. **cwd `/work/acme-web`:** `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - Result: `GIT_DIR=/work/acme-web/.git`, `GIT_COMMON=/work/acme-web/.git`\n   - Resolved: `ROOT=$(dirname /work/acme-web/.git)` = `/work/acme-web`\n2. **cwd `/work/acme-web`:** `git -C /work/acme-web branch --show-current`\n   - Result: `CURRENT_BRANCH=main`\n3. **cwd `/work/acme-web`:** `git -C /work/acme-web rev-parse --show-superproject-working-tree`\n   - Result: empty output, so this is not a submodule.\n\n`GIT_DIR == GIT_COMMON`, so this is the primary checkout. I proceed to Step 1.\n\n## Step 1: Announce\n\nThis is real feature work and no consent exception applies:\n\n> \"Setting up an isolated worktree at `/work/acme-web/.worktrees/login-copy` on branch `login-copy` for this work.\"\n\nNo caller root was supplied, so the explicit-caller-root preflight does not apply.\n\n## Step 1a: Read the contract\n\n- I checked for overrides at `/work/acme-web/.pi/gauntlet-overrides.md`, `/work/acme-web/gauntlet-overrides.md` and `/work/acme-web/doc/gauntlet-overrides.md`. None exists.\n- `/work/acme-web/.pi/settings.json` provides no checkout configuration.\n- There is no `## using-git-worktrees` section, so this is the **legacy path**.\n\n## Step 1b: Native tool or wrapper\n\n- No native worktree tool is available.\n- No wrapper exists. AGENTS.md names none, and there is no `worktree` script in the repo root, `script/` or `bin/`.\n- I fall back to Step 2.\n\n## Step 2a: Location\n\n- `NAME=login-copy` (the branch name contains no `/`).\n- Target: `/work/acme-web/.worktrees/login-copy`\n\n## Step 3: Clean-base check (before Step 2b)\n\n1. **cwd `/work/acme-web`:** `git -C /work/acme-web status --porcelain`\n   - Result: empty output, exit 0, so the base is **clean**.\n2. **cwd `/work/acme-web`:** `git -C /work/acme-web symbolic-ref --short refs/remotes/origin/HEAD`\n   - Result: `origin/main`, so the default branch is `main`.\n   - The source branch is also `main`, so no provenance note is needed.\n\n## Step 2b: Create\n\n1. **cwd `/work/acme-web`:** `git -C /work/acme-web worktree list --porcelain`\n   - Result: empty output, so `worktree /work/acme-web/.worktrees/login-copy` is not listed and I continue.\n2. **cwd `/work/acme-web`:** `git -C /work/acme-web check-ignore -q .worktrees`\n   - Result: exit 1, so `.worktrees` is not ignored yet.\n3. I append `.worktrees/` to `/work/acme-web/.gitignore`.\n4. **cwd `/work/acme-web`:** `git -C /work/acme-web add .gitignore`\n5. **cwd `/work/acme-web`:** `git -C /work/acme-web commit -m \"Ignore .worktrees/\" -- .gitignore`\n6. **cwd `/work/acme-web`:** `git -C /work/acme-web worktree add /work/acme-web/.worktrees/login-copy -b login-copy`\n7. Resolved: `WORKTREE=/work/acme-web/.worktrees/login-copy`. The process cwd stays `/work/acme-web`.\n\n## Step 2c: Project setup\n\nI ran the setup checks in a subshell inside `/work/acme-web/.worktrees/login-copy`. The case describes no `pnpm-lock.yaml`, `yarn.lock`, `package.json`, `Cargo.toml`, `pyproject.toml`, `Gemfile` or `go.mod`, so no install ran.\n\n## Step 4: Verification\n\n1. **cwd `/work/acme-web`:** `git -C /work/acme-web worktree list --porcelain`\n   - Result: lists `worktree /work/acme-web/.worktrees/login-copy`. This check passes.\n2. **cwd `/work/acme-web`:** `git -C /work/acme-web/.worktrees/login-copy branch --show-current`\n   - Result: the case does not describe this command, so it succeeds with **empty output**.\n   - Empty output does not equal `$BRANCH=login-copy`, so this check fails.\n\n**STOP: branch mismatch.**\n\n- Repo: `/work/acme-web`\n- Requested branch: `login-copy`\n- Actual branch: empty (none reported)\n\nPreserved created legs: /work/acme-web login-copy /work/acme-web/.worktrees/login-copy\n\nThe newly created tree is left intact and nothing is removed. Because of the mismatch, I do not emit a \"Worktree ready\" report.\n",
-      "words": 463,
-      "wallMs": 27096,
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nNo caller `$ROOT` was supplied. `$BRANCH` is the requested `login-copy`.\n\n1. In cwd `/work/acme-web`, run `git rev-parse --path-format=absolute --git-dir --git-common-dir`.\n   - It prints `/work/acme-web/.git` for both values.\n   - `GIT_DIR` = `GIT_COMMON` = `/work/acme-web/.git`.\n   - `ROOT=$(dirname \"$GIT_COMMON\")` = `/work/acme-web`.\n2. Run `git -C /work/acme-web branch --show-current`.\n   - `CURRENT_BRANCH=main`.\n3. Run the submodule guard: `git -C /work/acme-web rev-parse --show-superproject-working-tree`.\n   - Output is empty, so this is not a submodule.\n   - `GIT_DIR == GIT_COMMON`, so this is the primary checkout. Proceed to Step 1.\n4. Run the detached HEAD check: `git -C /work/acme-web symbolic-ref -q HEAD`.\n   - HEAD is attached (`refs/heads/main`), so there is nothing to ask.\n\n## Step 1: Announce\n\n> \"Setting up an isolated worktree at `/work/acme-web/.worktrees/login-copy` on branch `login-copy` for this work.\"\n\nNone of the consent exceptions apply, so I proceed without asking.\n\n## Step 1a: Overrides contract\n\n- I check the overrides ladder:\n  - `/work/acme-web/.pi/gauntlet-overrides.md`: absent.\n  - `/work/acme-web/gauntlet-overrides.md`: absent.\n  - `/work/acme-web/doc/gauntlet-overrides.md`: absent.\n- No overrides file exists, so there is no `## using-git-worktrees` section. This is the **legacy path**.\n- I read `/work/acme-web/.pi/settings.json` by file. It contains no checkout configuration that changes anything.\n\n## Step 1b: Native tool or wrapper\n\n- No native worktree tool is available.\n- I find no `worktree` script in the repo root, `script/` or `bin/`.\n- `AGENTS.md` names no wrapper.\n- So I fall back to Step 2.\n\n## Step 2: Manual creation\n\n**2a. Resolve values**\n- `NAME=login-copy` (the branch has no `/` to replace).\n- Home: `/work/acme-web/.worktrees/login-copy`.\n\n**Step 3 clean-base check (before creation)**\n- Run `git -C /work/acme-web status --porcelain`.\n- Output is empty with exit 0, so the base is **clean**.\n\n**2b. Create the worktree**\n1. Run `git -C /work/acme-web worktree list --porcelain`.\n   - Before any add, the output has no line `worktree /work/acme-web/.worktrees/login-copy`, so I proceed to create.\n2. Run `git -C /work/acme-web check-ignore -q .worktrees`.\n   - It exits 1, so `.worktrees` is not ignored yet.\n3. Append `.worktrees/` to `/work/acme-web/.gitignore`.\n4. Run `git -C /work/acme-web add .gitignore`.\n5. Run `git -C /work/acme-web commit -m \"Ignore .worktrees/\" -- .gitignore`.\n   - This commits on `main`.\n6. Run `git -C /work/acme-web worktree add /work/acme-web/.worktrees/login-copy -b login-copy`.\n   - The new branch `login-copy` starts at `main`'s new HEAD.\n7. `WORKTREE=/work/acme-web/.worktrees/login-copy`.\n   - The process cwd stays `/work/acme-web`. I do not `cd` into the worktree.\n\n**2c. Project setup**\n- I run `(cd /work/acme-web/.worktrees/login-copy && { ...manifest checks... })` as a subshell.\n- The case describes no `pnpm-lock.yaml`, `yarn.lock`, `package.json`, `Cargo.toml`, `pyproject.toml`, `Gemfile` or `go.mod`, so no install step runs.\n\n**Provenance note**\n- `git -C /work/acme-web symbolic-ref --short refs/remotes/origin/HEAD` prints `origin/main`. Stripping the prefix gives the default branch `main`.\n- The source branch from `git -C /work/acme-web branch --show-current` is `main`.\n- They match, so I add no note.\n\n## Step 4: Verify and report\n\n1. Run `git -C /work/acme-web worktree list --porcelain`.\n   - It lists `worktree /work/acme-web/.worktrees/login-copy`, so the path matches.\n2. Run `git -C /work/acme-web/.worktrees/login-copy branch --show-current`.\n   - The case doesn't describe it, so its output is empty. I treat that as unobserved, not a mismatch.\n\nThere is no observed mismatch:\n\n```\nWorktree ready at /work/acme-web/.worktrees/login-copy\nBranch: login-copy\nBase: main (clean)\nReady to implement login-copy\n```\n",
+      "words": 485,
+      "wallMs": 22192,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n1. **Resolve the supplied inputs and isolation state**\n   - `ROOT=/work/acme-web`\n   - `BRANCH=login-copy`\n   - Current branch: `main`\n   - The supplied facts establish `GIT_DIR == GIT_COMMON`, no submodule, and attached HEAD. This is the primary checkout; no existing linked worktree is reused.\n   - No overrides file exists, so the default home applies.\n   - `NAME=login-copy`\n   - Resolved home: `/work/acme-web/.worktrees/login-copy`\n\n   These facts are supplied directly; no discovery commands are needed to establish them.\n\n2. **Announce creation intent**\n\n   Setting up an isolated worktree at `/work/acme-web/.worktrees/login-copy` on branch `login-copy` for this work.\n\n3. **Begin the required explicit-caller-root collision preflight**\n\n   **cwd:** `/work/acme-web`\n\n   **Command:**\n   ```bash\n   git -C /work/acme-web show-ref --verify refs/heads/login-copy\n   ```\n\n   **Result:** exit status `0`, empty output. The case does not otherwise describe this command, so its stipulated default behavior applies.\n\n   **Resolved value:** `refs/heads/login-copy` already exists. Successful `show-ref --verify` establishes a branch collision even though its output is empty.\n\n4. **Stop**\n\n   Repository `/work/acme-web` already has the requested branch `login-copy`. The explicit-root collision rule requires stopping rather than suffixing the branch or reusing an unrelated tree.\n\n   No further commands run. No `.gitignore` changes, commits, dependency setup, or worktree creation occur. No Step 4 ready report is emitted.\n\n   **Preserved created legs: none.**\n",
-      "words": 195,
-      "wallMs": 25822,
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below run with **cwd `/work/acme-web`**. I never change the process cwd.\n\n### 1. Detect existing isolation\n\n1. Run:\n   ```bash\n   git rev-parse --path-format=absolute --git-dir --git-common-dir\n   ```\n   Resolve:\n   - `GIT_DIR=/work/acme-web/.git`\n   - `GIT_COMMON=/work/acme-web/.git`\n   - `ROOT=/work/acme-web`\n\n   These directories are equal: this is the primary checkout.\n\n2. Run:\n   ```bash\n   git -C /work/acme-web rev-parse --show-superproject-working-tree\n   ```\n   Output is empty: this is not a submodule.\n\n3. Run:\n   ```bash\n   git -C /work/acme-web branch --show-current\n   ```\n   Resolve `CURRENT_BRANCH=main`. HEAD is attached, as stipulated.\n\nResolve the requested branch and its canonical home:\n- `BRANCH=login-copy`\n- `NAME=login-copy` — replacing `/` with `-` changes nothing.\n- Proposed `WORKTREE=/work/acme-web/.worktrees/login-copy`\n\nSetting up an isolated worktree at `/work/acme-web/.worktrees/login-copy` on branch `login-copy` for this work.\n\n### 2. Check configuration and creation tools\n\n4. Run this ordered overrides-file lookup:\n   ```bash\n   for file in /work/acme-web/.pi/gauntlet-overrides.md /work/acme-web/gauntlet-overrides.md /work/acme-web/doc/gauntlet-overrides.md; do\n     if [ -f \"$file\" ]; then\n       printf '%s\\n' \"$file\"\n       cat \"$file\"\n       break\n     fi\n   done\n   ```\n   No overrides file exists, so there is no output and no keyed contract. Use the legacy path.\n\n5. Run:\n   ```bash\n   cat /work/acme-web/.pi/settings.json\n   ```\n   Under the case’s command-result rule, this succeeds with empty output. No checkout configuration is supplied.\n\n6. Run:\n   ```bash\n   cat /work/acme-web/AGENTS.md\n   ```\n   No wrapper instruction is supplied.\n\n7. Run:\n   ```bash\n   find /work/acme-web /work/acme-web/script /work/acme-web/bin -maxdepth 1 -type f -print\n   ```\n   This produces empty output under the stipulated rule. No wrapper is discovered. No native worktree tool is available.\n\nUse manual creation at the canonical home.\n\n### 3. Verify the source is clean and create the worktree\n\n8. Run:\n   ```bash\n   git -C /work/acme-web status --porcelain\n   ```\n   This succeeds with empty output. The source checkout is clean; no consent prompt is needed.\n\n9. Run:\n   ```bash\n   git -C /work/acme-web symbolic-ref --short refs/remotes/origin/HEAD\n   ```\n   Output:\n   ```text\n   origin/main\n   ```\n   Resolve `DEFAULT_BRANCH=main`. The source branch is also `main`, so no provenance note is required.\n\n10. Run:\n    ```bash\n    git -C /work/acme-web worktree list --porcelain\n    ```\n    Before creation this produces empty output under the case’s rule. The target path is not listed.\n\n11. Run:\n    ```bash\n    git -C /work/acme-web check-ignore -q .worktrees\n    ```\n    Exit status is `1`. The worktree parent must be ignored before creation.\n\n12. Run:\n    ```bash\n    printf '%s\\n' '.worktrees/' >> /work/acme-web/.gitignore\n    ```\n\n13. Run:\n    ```bash\n    git -C /work/acme-web add .gitignore\n    ```\n\n14. Run:\n    ```bash\n    git -C /work/acme-web commit -m \"Ignore .worktrees/\" -- .gitignore\n    ```\n    The ignore change is committed on `main`.\n\n15. Run:\n    ```bash\n    git -C /work/acme-web worktree add /work/acme-web/.worktrees/login-copy -b login-copy\n    ```\n    Creation succeeds.\n\nResolve:\n- `WORKTREE=/work/acme-web/.worktrees/login-copy`\n- Base ref: `main`, including the ignore commit.\n\n### 4. Check setup requirements and read back creation\n\n16. Run:\n    ```bash\n    find /work/acme-web/.worktrees/login-copy -maxdepth 1 -type f \\( -name pnpm-lock.yaml -o -name yarn.lock -o -name package.json -o -name Cargo.toml -o -name pyproject.toml -o -name Gemfile -o -name go.mod \\) -print\n    ```\n    This succeeds with empty output under the case’s rule. No setup manifests are discovered, so no dependency-install or build command is run. No tests are run.\n\n17. Run:\n    ```bash\n    git -C /work/acme-web worktree list --porcelain\n    ```\n    The output lists:\n    ```text\n    worktree /work/acme-web/.worktrees/login-copy\n    ```\n    The requested path is verified.\n\n18. Run:\n    ```bash\n    git -C /work/acme-web/.worktrees/login-copy branch --show-current\n    ```\n    This command has no specified output in the case, so it succeeds with empty output. The branch read-back is **unobserved**, not an observed mismatch. Step 4 explicitly permits reporting successful creation in that situation; I do not stop.\n\n### Step 4 report\n\n```text\nWorktree ready at /work/acme-web/.worktrees/login-copy\nBranch: login-copy\nBase: main (clean)\nReady to implement login-copy\n```\n",
+      "words": 532,
+      "wallMs": 27400,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
       "baselineOutputSha": "77435c052c3b7660cb58b84f1ea31083d2600494402a5d593b8187022a36dbd4",
-      "candidateOutputSha": "1ff6eb5c00c1800c542a3d4a2e0749cb57bfbc98fa9b44ff5dd474669ba931e7",
+      "candidateOutputSha": "479a01df76164fa7d1f82aa1d340aa31f5da447e525c84a79518f5e6abd56db0",
       "facts": {
         "d1": {
           "before": "holds",
@@ -50,93 +50,41 @@
         },
         "d3": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         }
       },
-      "feedback": "After keeps the gitignore-then-commit ordering (d1) and the `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy` call (d2), but it loses d3: the new Step 4 verification runs `git -C <worktree> branch --show-current`, and because the case text does not describe that command's output, the narration assumes it 'succeeds with empty output', declares a branch mismatch, STOPs, and explicitly refuses to print `Worktree ready at ...`. The problem is the rule for undescribed commands — treating an unspecified result as empty rather than as the result implied by the preceding successful `worktree add -b login-copy`. To keep d3 while still delivering the ROOT/BRANCH preflight and the explicit `git -C <worktree>` targeting, word the verification so that it only STOPs on a described contradiction (e.g. 'if the case states the checked-out branch differs from $BRANCH, STOP'), and otherwise treat `git worktree add ... -b $BRANCH` as establishing that the worktree is on `$BRANCH` (the case already guarantees `worktree list --porcelain` lists the path), then emit the `Worktree ready at /work/acme-web/.worktrees/login-copy` report as Before did.",
-      "wallMs": 10295,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nNo caller `$ROOT` was supplied, so I derive the primary checkout. `$BRANCH` is the requested `login-copy`. This is not a PR-head caller, so I use the generic path.\n\n1. cwd `/work/acme-web`: `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - `GIT_DIR=/work/acme-web/.git`\n   - `GIT_COMMON=/work/acme-web/.git`\n   - `ROOT=$(dirname /work/acme-web/.git)` gives `/work/acme-web`\n2. `git -C /work/acme-web branch --show-current` returns `main`, so `CURRENT_BRANCH=main`.\n3. Submodule guard: `git -C /work/acme-web rev-parse --show-superproject-working-tree` returns empty, so this is not a submodule.\n4. `GIT_DIR == GIT_COMMON`, so this is the primary checkout. Continue to Step 1.\n5. Detached-HEAD check: `git -C /work/acme-web symbolic-ref -q HEAD` returns `refs/heads/main`. HEAD is attached.\n\n## Step 1: Announce\n\n> \"Setting up an isolated worktree at `/work/acme-web/.worktrees/login-copy` on branch `login-copy` for this work.\"\n\nNone of the consent exceptions apply, so I proceed.\n\n## Step 1a: Overrides contract\n\n- `.pi/gauntlet-overrides.md`, `/work/acme-web/gauntlet-overrides.md` and `/work/acme-web/doc/gauntlet-overrides.md` are all absent. There is no `## using-git-worktrees` section, so this is the **legacy path**.\n- `/work/acme-web/.pi/settings.json` has no checkout configuration.\n\n## Step 1b: Native tool or wrapper\n\n- No native worktree tool is available.\n- No `worktree` script exists in the root, `script/` or `bin/`, and `AGENTS.md` names no wrapper.\n- Fall back to Step 2.\n\n## Step 2a: Location\n\n- `NAME=login-copy` (the branch has no `/` to replace).\n- `WORKTREE=/work/acme-web/.worktrees/login-copy`\n\n## Step 3: Clean base (before creation)\n\n1. `git -C /work/acme-web status --porcelain` exits 0 with empty output, so the base is **clean**.\n2. Provenance: `git -C /work/acme-web symbolic-ref --short refs/remotes/origin/HEAD` returns `origin/main`.\n   - Default branch: `main`\n   - Current branch: `main`\n   - They match, so there is no provenance note.\n\n## Step 2b: Create\n\n1. `git -C /work/acme-web worktree list --porcelain` does not list `worktree /work/acme-web/.worktrees/login-copy`, so the tree does not exist yet.\n2. `git -C /work/acme-web check-ignore -q .worktrees` exits 1, so `.worktrees` is not ignored yet:\n   - Append `.worktrees/` to `/work/acme-web/.gitignore`.\n   - `git -C /work/acme-web add .gitignore`\n   - `git -C /work/acme-web commit -m \"Ignore .worktrees/\" -- .gitignore`\n3. `git -C /work/acme-web worktree add /work/acme-web/.worktrees/login-copy -b login-copy`\n\n## Step 2c: Project setup\n\n- I run the manifest checks in a subshell: `(cd /work/acme-web/.worktrees/login-copy && …)`.\n- No lockfile or manifest is present (`pnpm-lock.yaml`, `yarn.lock`, `package.json`, `Cargo.toml`, `pyproject.toml`, `Gemfile`, `go.mod`), so nothing installs.\n- The process cwd stays `/work/acme-web`.\n\n## Step 4: Verify and report\n\n1. `git -C /work/acme-web worktree list --porcelain` prints `worktree /work/acme-web/.worktrees/login-copy`. Confirmed.\n2. `git -C /work/acme-web/.worktrees/login-copy branch --show-current` returns `login-copy`, which equals `$BRANCH`. Confirmed.\n\n```\nWorktree ready at /work/acme-web/.worktrees/login-copy\nBranch: login-copy\nBase: main (clean)\nReady to implement login-copy\n```\n",
-        "words": 391,
-        "wallMs": 20421,
-        "mechanical": {},
-        "judgeWallMs": 4741,
-        "facts": {
-          "d1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "d2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "d3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After preserves all three facts: it appends `.worktrees/` to .gitignore, stages and commits it before `git worktree add` (d1), runs `git -C /work/acme-web worktree add /work/acme-web/.worktrees/login-copy -b login-copy` (d2), and reports `Worktree ready at /work/acme-web/.worktrees/login-copy` (d3). The new Step 0 wording about caller `$ROOT`/`$BRANCH` and the non-PR-head routing note delivers the Change without displacing any provisioning step; the added Step 4 verification commands are harmless extras. No wording adjustment is needed for this case — keep the explicit ordering of the gitignore commit ahead of worktree add, as After already does."
-      }
+      "feedback": "After preserves all three facts: it appends `.worktrees/` to .gitignore, stages it and commits it (steps 3–5) before `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy` (step 6), and reports `Worktree ready at /work/acme-web/.worktrees/login-copy`. The new wording correctly notes that no caller `$ROOT` was supplied and that `$BRANCH` is the requested `login-copy`, and it keeps the process cwd unchanged while targeting the worktree with `git -C`. One minor wobble worth tightening: the Step 4 verification runs `git -C <worktree> branch --show-current` and then says its output is empty because the case didn't describe it, which reads as an unobserved command being invented; either omit that check for unprovided fixture data or phrase it as 'the case does not specify its output, so I rely on `worktree list` alone'. Nothing in After moved a fact.",
+      "wallMs": 6086,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0ee0c9ce40344d38f27f8601fa91e91d7cf84bf489fef2ccef1f87ab9ec01934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
       "baselineOutputSha": "fa8d90eb01808bb0d650f9560b4c9b06f0c7d9392b41ce3d8404e3d2c234ed14",
-      "candidateOutputSha": "3d11d18e98ae113fd13e7aac6ab8082b5e08cc5b9c46c544e52feb0a2bb6d842",
+      "candidateOutputSha": "c634dfcbe18e3060d9b8fca6073de6652528185ca3e1ebf34af594106edf8839",
       "facts": {
         "d1": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "d2": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "d3": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         }
       },
-      "feedback": "After introduces an \"explicit-caller-root collision preflight\" that runs `git show-ref --verify refs/heads/login-copy`, applies the case's empty-output/success default to it, and concludes the branch already exists, stopping before the .gitignore commit, the `git worktree add`, and the ready report — so every fact that Before kept now fails. The case stipulates nothing about `login-copy` existing; the only branch facts are that the checkout is on `main` and the requested branch is `login-copy`, and `worktree list --porcelain` only lists a path after `worktree add`. To deliver the Change (honoring explicit ROOT/BRANCH for keyed legs) without moving these facts, scope the collision preflight to the keyed/overrides contract only, and in the legacy single-member path treat a branch that the case does not say exists as absent — e.g. word it as \"if the case states that refs/heads/$BRANCH exists, stop; otherwise proceed with `git worktree add <ROOT>/.worktrees/<BRANCH> -b <BRANCH>`\" — rather than letting the generic empty-output-success default manufacture a collision that aborts provisioning.",
-      "wallMs": 6854,
-      "verdict": "regressed",
-      "confirmation": {
-        "status": "ok",
-        "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n1. **Starting values**\n   - Process cwd: `/work/acme-web`, the primary checkout specified in the case.\n   - Requested branch: `login-copy`.\n   - No caller-supplied `$ROOT` or `$BRANCH` environment variables are specified.\n\n2. **Resolve Git metadata for Step 0**\n\n   Cwd: `/work/acme-web`\n\n   Exact command:\n   ```bash\n   git rev-parse --path-format=absolute --git-dir --git-common-dir\n   ```\n\n   The case does not specify this command’s output. Under the explicit rule that an undescribed command succeeds with empty output, it exits successfully but prints nothing.\n\n   Consequently:\n   - `GIT_DIR`: unresolved.\n   - `GIT_COMMON`: unresolved.\n   - Primary root derived from `GIT_COMMON`: unresolved.\n\n3. **Stop**\n\n   I stop because Step 0 did not return the paths required for isolation detection and root derivation. The stated equality `GIT_DIR == GIT_COMMON` establishes the checkout type, but does not supply those missing path values.\n\n   No further commands run. No files, branches, or worktrees are created, and no Step 4 readiness report is emitted.\n",
-        "words": 145,
-        "wallMs": 29056,
-        "mechanical": {},
-        "judgeWallMs": 7471,
-        "facts": {
-          "d1": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "d2": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "d3": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          }
-        },
-        "feedback": "After loses all three facts because it treats the case's empty-output rule for undescribed commands as applying to `git rev-parse --git-dir --git-common-dir`, concludes GIT_DIR/GIT_COMMON/ROOT are unresolved, and stops before ignoring `.worktrees/`, running `git worktree add`, or emitting the readiness report. Before derives the same values from the stated repository state (primary checkout at /work/acme-web, no submodule) and proceeds. The new wording about honoring an explicit primary ROOT and shared BRANCH for keyed legs appears to have made the model think ROOT must come from an environment variable or literal command output, and absent that it halts. To deliver the Change without regressing single-member provisioning, state that when no caller-supplied `$ROOT`/`$BRANCH` is given, ROOT is derived from the git-common-dir resolution (and, in narration, may be inferred from a case that names the primary checkout path and says it is a clean primary checkout), and that the empty-output convention does not render metadata queries unresolvable when the case already fixes the repository location; the override path should only apply when explicit ROOT/BRANCH values are actually supplied, with the legacy flow otherwise unchanged."
-      }
+      "feedback": "No fact moved between Before and After on this single-member case. After still appends `.worktrees/` to .gitignore (step 12), stages and commits it (steps 13–14) before the `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy` in step 15, and ends with the verbatim `Worktree ready at /work/acme-web/.worktrees/login-copy` report, so d1–d3 all hold in both outputs. The restructuring into numbered steps, the explicit ROOT/BRANCH resolution, the per-command `git -C /work/acme-web` targeting, and the post-creation `worktree list` read-back are all consistent with the Change and do not disturb the legacy provisioning facts. One caution for future wording: step 18's branch read-back returning 'empty output' is reasoned past as 'unobserved'; if the skill text ever tightens that read-back into a hard verification, d3 could fail on fixtures that do not specify `branch --show-current` output, so keep the 'unobserved is not a mismatch' allowance explicit in Step 4 or drop the read-back from the required path.",
+      "wallMs": 10173,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "08f42be9d8ee4fc2fa7c2e4f9bcad36a1a5660df"
 }

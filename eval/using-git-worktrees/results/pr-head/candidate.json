@@ -1,7 +1,7 @@
 {
   "sample": "pr-head",
   "arm": "candidate",
-  "skillSha": "a7cf6888a0fef908c09ad1798acc4bedd609c7ef29c2e5939ff111a800f94ebf",
+  "skillSha": "9939a2d1a2e08230f681a3ad22c24e1c93f7c1786e19d0d0a21de25475213968",
   "inputSha": "a7419adf6ab5296bb7049778f3b3c2ae6a6447dacf913ce9602a0c881a4abbb9",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# PR-head provisioning: acme/widget#82, N=1\n\n## Legend\n\n**Aliases**\n- ROOT=/work/widget\n- W=/work/widget/.worktrees/fix-retry (name: `fix/retry` → `fix-retry`)\n- A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n- B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n- C=cccccccccccccccccccccccccccccccccccccccc\n- D=dddddddddddddddddddddddddddddddddddddddd\n\n**Rules**\n- The caller passed PR values, so [reference/pr-head.md](reference/pr-head.md) replaces Steps 0 and 1. A linked session tree is never adopted unless it is W on `fix/retry`.\n- The process cwd never changes. It is ROOT, or `.worktrees/other` in the linked row. Every command targets ROOT or W through `-C`.\n\n**Discovery (D1–D9), in order**\n\n| # | Command | Result |\n|---|---|---|\n| D1 | `git rev-parse --path-format=absolute --git-dir --git-common-dir` | common=/work/widget/.git, so ROOT=/work/widget |\n| D2 | `git -C ROOT rev-parse --show-superproject-working-tree` | empty: not a submodule |\n| D3 | Read overrides ladder (`.pi/gauntlet-overrides.md`, `gauntlet-overrides.md`, `doc/gauntlet-overrides.md`), `ROOT/.pi/settings.json`, and wrapper discovery (`AGENTS.md`, root, `script/`, `bin/`) | none, so home=W |\n| D4 | `git -C ROOT fetch origin` | ok |\n| D5 | `git -C ROOT rev-parse --verify -q A^{commit}` | A |\n| D5 | `git -C ROOT rev-parse origin/fix/retry` | A |\n| D6 | `git -C ROOT rev-parse origin/main` | BASE_SHA=B |\n| D7 | Fork check on caller values | isCrossRepository=false |\n| D8 | `git -C ROOT worktree list --porcelain` | no `fix/retry` |\n| D9 | `git -C ROOT show-ref --verify refs/heads/fix/retry` | exit 1: no local branch |\n\n**Pre-write gate (G)**\n- `git -C ROOT status --porcelain` returns empty, so the base is clean.\n- `git -C ROOT check-ignore -q .worktrees` exits 0, so it is already ignored and nothing is committed.\n- `git -C ROOT symbolic-ref --short refs/remotes/origin/HEAD` returns empty, so no provenance note.\n\n**Success tail (S)**\n1. `git -C ROOT worktree list --porcelain` shows `worktree W`.\n2. `git -C W rev-parse HEAD` returns A, which matches.\n3. `git -C W branch --show-current` returns `fix/retry`.\n4. Capture PRE_REWORK_HEAD=A and BASE_SHA=B.\n5. `git -C W merge --no-ff --no-edit origin/main` is already up to date. Record `merge: no-op - head contains origin/main` (no commit).\n6. `git -C W merge-base --is-ancestor A HEAD` exits 0.\n\n**Report (R)**\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#82\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/main\nReady to implement PR #82 rework\n```\n\n**DWIM vs caller `-b`**\n- **X (fresh checkout):** `git -C ROOT worktree add W fix/retry`. No `-b` is passed. Git's unique-remote DWIM performs `--track -b fix/retry W origin/fix/retry` itself. The generic `-b <branch>` creation path is never used.\n\n## Provisioning rows\n\n| Row | Delta from legend | Outcome |\n|---|---|---|\n| linked | D1 is run from cwd `/work/widget/.worktrees/other` and shows git-dir `/work/widget/.git/worktrees/other`. That tree is on `other`, not W on `fix/retry`, so it is not reused and nothing is nested. ROOT is still /work/widget, and G runs against ROOT. Then X and S. | R |\n| primary | D1 shows git-dir equals common. Then D2–D9, G, X, S. | R |\n| ancestor | D9 shows C. `git -C ROOT merge-base --is-ancestor fix/retry origin/fix/retry` exits 0. G runs, then `git -C ROOT update-ref refs/heads/fix/retry origin/fix/retry` (never `branch -f`), then `git -C ROOT worktree add W fix/retry` on the existing branch (no DWIM). Then S. | R |\n| reuse | D8 lists W on `fix/retry`, which is the selected home, not \"elsewhere\". D9 shows C and ancestry exits 0. `git -C W status --porcelain` is empty, so there is no dirty ask. `git -C W merge --ff-only origin/fix/retry` succeeds. No `worktree add`. S steps 2–6 run, with HEAD=A. | R |\n| fork | D7 sees isCrossRepository=true. | **Stop:** `PR #82's head lives on fork contributor/widget; rework needs an in-repo branch.` Boundary: after D4–D6 (fetch and reads only); no file or worktree write. |\n| elsewhere | D8 lists `fix/retry` at `/work/widget/.worktrees/pr-82`. | **Stop:** `branch fix/retry is checked out at /work/widget/.worktrees/pr-82; finish or remove that worktree first.` Boundary: pre-write; G never runs. |\n| unreachable | D5's `--verify` fails and origin/fix/retry is D. | **Stop:** `PR #82 head aaaaaaa is not reachable (origin/fix/retry is at ddddddd); the branch moved.` Boundary: after fetch, before D6. |\n| moved | D5's `--verify` returns A, but origin/fix/retry is D, not A. | **Stop:** same text as unreachable, at the same boundary. |\n| ahead | D9 shows C. `git -C ROOT merge-base --is-ancestor fix/retry origin/fix/retry` exits 1. | **Stop:** `local branch fix/retry is at ccccccc, not an ancestor of origin/fix/retry (aaaaaaa); rework needs the PR head.` Boundary: pre-write; no update-ref and no reset. |\n| diverged | Same as ahead. | Same stop and boundary. |\n| override | D3 finds the first overrides file, with `## using-git-worktrees` containing `- create: helper create -b <branch> <name>`. `home:` is absent, so home=W. The template contains `-b`, so it is not executed. G, then built-in X, then S. | R, plus the line `create: override skipped (contains -b)` |\n| race | G and X run, then S step 1 passes. `git -C W rev-parse HEAD` returns D, not A. | **Stop:** head race. Tree left intact at `/work/widget/.worktrees/fix-retry`; HEAD D, expected A. Boundary: post-create; no report, no base merge, no reset or clean. |\n\n## History\n\n- **Boundary:** PRE_REWORK_HEAD=A. Every commit reachable from A is preserved.\n- **Allowed:** advancing only by merge, both now (no-op) and later by keeping current through `git -C W merge origin/main`.\n- **Forbidden at or below A:** never `rebase`, and no `reset` or `commit --amend` that replaces such a commit.\n- **Kept flow exceptions, unchanged:**\n  - The appended-spec approval `git commit --amend --no-edit` (spec-finalization). It amends only the new spec commit above A.\n  - The appended-wave fold `git reset --soft \"$WAVE_BASE_SHA\"`, which requires WAVE_BASE_SHA to descend from A.\n",
-      "words": 813,
-      "wallMs": 50269,
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Aliases\n\n| Alias | Value |\n|---|---|\n| ROOT | `/work/widget` |\n| W | `/work/widget/.worktrees/fix-retry` (`<name>` = `fix-retry`, from `fix/retry` with `/` → `-`) |\n| A | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` (headRefOid, short `aaaaaaa`) |\n| B | `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` (origin/main, short `bbbbbbb`) |\n| C | `cccccccccccccccccccccccccccccccccccccccc` (short `ccccccc`) |\n| D | `dddddddddddddddddddddddddddddddddddddddd` (short `ddddddd`) |\n\nThe caller passed PR values, so this run follows `reference/pr-head.md` instead of Steps 0 and 1. The process cwd never changes, and every command targets a path with `-C`.\n\n## Shared discovery (D1–D9)\n\n| # | Command | Result |\n|---|---|---|\n| D1 | `git rev-parse --path-format=absolute --git-dir --git-common-dir` (session cwd) | Common dir is `/work/widget/.git`, so ROOT = ROOT |\n| D2 | `git -C ROOT rev-parse --show-superproject-working-tree` | Empty, so not a submodule |\n| D3 | Overrides ladder: `ROOT/.pi/gauntlet-overrides.md`, `ROOT/gauntlet-overrides.md`, `ROOT/doc/gauntlet-overrides.md`; read `ROOT/.pi/settings.json` | No file except in the override row. No native tool or wrapper, so home = W |\n| D4 | `git -C ROOT fetch origin` | Succeeds |\n| D5 | `git -C ROOT rev-parse --verify -q A^{commit}`, then `git -C ROOT rev-parse origin/fix/retry` | Commit exists; remote branch = A |\n| D6 | `git -C ROOT rev-parse origin/main` | BASE_SHA = B |\n| D7 | Fork check: is `isCrossRepository` true? | false |\n| D8 | `git -C ROOT worktree list --porcelain` | `fix/retry` is not checked out elsewhere |\n| D9 | `git -C ROOT show-ref --verify refs/heads/fix/retry` | No local branch (default) |\n\n## Shared success tail (S1–S6, legend R)\n\n| # | Command | Result |\n|---|---|---|\n| S1 | `git -C ROOT worktree list --porcelain` | Contains `worktree W` |\n| S2 | `git -C W branch --show-current` | `fix/retry` |\n| S3 | `git -C W rev-parse HEAD` | A. Capture PRE_REWORK_HEAD = A and BASE_SHA = B |\n| S4 | `git -C W merge --no-ff --no-edit origin/main` | Already up to date. Record `merge: no-op - head contains origin/main` (no commit) |\n| S5 | `git -C W merge-base --is-ancestor A HEAD` | Exit 0 |\n| S6 | Provenance note | Skipped on all rows. Fresh rows: `git -C ROOT symbolic-ref --short refs/remotes/origin/HEAD` returns empty, so the note is skipped silently. Reuse row: Step 0-like path, so no note applies |\n\n**Report R:**\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#82\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/main\nReady to implement PR #82 rework\n```\n\n**Fresh-creation clean check (FC):** `git -C ROOT status --porcelain` returns empty with exit 0, so the base is clean.\n\n## Provisioning rows\n\n| Row | Delta from the shared legend |\n|---|---|\n| linked | D1 is run from `/work/widget/.worktrees/other`, but the common dir still yields ROOT. The session tree `other` is not the selected home on `fix/retry`, so I neither adopt it nor nest a tree inside it. Steps: D2–D9, FC, then `git -C ROOT worktree add W fix/retry`. Git's unique-remote DWIM performs `--track -b fix/retry W origin/fix/retry`; the caller supplies no `-b`. Then S1–S6 and R. |\n| primary | Identical to linked, with D1 run from ROOT. |\n| ancestor | D9 finds a local branch at C. `git -C ROOT merge-base --is-ancestor fix/retry origin/fix/retry` exits 0. After FC, run `git -C ROOT update-ref refs/heads/fix/retry origin/fix/retry`, never `branch -f`. Then `git -C ROOT worktree add W fix/retry` checks out the existing branch (no DWIM, no `-b`). Then S1–S6 and R. |\n| reuse | D8 lists W on `fix/retry`. This is the selected home, so it is not a stop. The ancestry check at C exits 0. Step 3 runs `git -C W status --porcelain`, which is clean. Then `git -C W merge --ff-only origin/fix/retry` and `git -C W rev-parse HEAD` returns A. No creation and no FC. Then S4–S6 and R. |\n| fork | Stops at D7: `PR #82's head lives on fork contributor/widget; rework needs an in-repo branch.` Boundary: after the D4–D6 reads, before FC and before any file or worktree write. |\n| elsewhere | Stops at D8: `branch fix/retry is checked out at /work/widget/.worktrees/pr-82; finish or remove that worktree first.` Boundary: pre-write, before FC. |\n| unreachable | D5 verification fails: `PR #82 head aaaaaaa is not reachable (origin/fix/retry is at ddddddd); the branch moved.` Boundary: right after fetch, before D6 and before any write. |\n| moved | The commit verifies, but `origin/fix/retry` is D. The stop text is identical to unreachable, with the same boundary. |\n| ahead / diverged | Two runs, same result. D9 finds the branch at C, and the ancestry check exits 1: `local branch fix/retry is at ccccccc, not an ancestor of origin/fix/retry (aaaaaaa); rework needs the PR head.` Boundary: before FC, `update-ref`, or `worktree add`. |\n| override | D3 finds `create: helper create -b <branch> <name>`, which contains `-b`, so the override is skipped. After FC, run the built-in `git -C ROOT worktree add W fix/retry` (DWIM). Then S1–S6, and R gains `create: override skipped (contains -b)` after the PR block. |\n| race | After FC, `git -C ROOT worktree add W fix/retry` runs. S1 and S2 pass, but S3 returns D. The tree is left intact. Stop: `worktree /work/widget/.worktrees/fix-retry is at D, not PR #82 head A; the head raced after creation.` Nothing is merged and no R report is emitted. |\n\n## History\n\nAll advances are merges, including later `git -C W merge origin/main` to keep the tree current. I never use `rebase`, and never use `reset` or `commit --amend` on a commit at or below A.\n\nTwo flow steps stay allowed:\n- The appended-spec approval `commit --amend --no-edit`.\n- The appended-wave fold `reset --soft \"$WAVE_BASE_SHA\"`, provided WAVE_BASE_SHA descends from A.\n\nBoth operate only above PRE_REWORK_HEAD.\n",
+      "words": 823,
+      "wallMs": 42679,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "| Shared notation | Definition |\n|---|---|\n| Announcement | “I'm using the using-git-worktrees skill to set up an isolated workspace.” |\n| Paths | `R=/work/widget`; `W=/work/widget/.worktrees/fix-retry`; `O=/work/widget/.worktrees/other`. |\n| Full SHAs | `A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; `B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; `C=cccccccccccccccccccccccccccccccccccccccc`; `D=dddddddddddddddddddddddddddddddddddddddd`. |\n| Command notation | Aliases expand to their full values as single arguments. Every command’s process cwd is `R`, except **linked**, where it remains `O`. `git -C` explicitly selects the repository; no process-cwd change occurs. |\n\n| Ordered discovery/preflight legend | Commands and resolved values |\n|---|---|\n| D1: repository | `git -C R rev-parse --path-format=absolute --git-dir --git-common-dir`; `git -C R rev-parse --show-superproject-working-tree`. Common directory resolves to `/work/widget/.git`; root is `R`. Linked session isolation does not select the PR home. |\n| D2: configuration discovery | From `R`: `for f in .pi/gauntlet-overrides.md gauntlet-overrides.md doc/gauntlet-overrides.md; do if [ -f \"$f\" ]; then cat \"$f\"; break; fi; done`; `if [ -f .pi/settings.json ]; then cat .pi/settings.json; fi`; `if [ -f AGENTS.md ]; then cat AGENTS.md; fi`; `find . -maxdepth 1 -type f -print`; `find script bin -maxdepth 2 -type f -print`. Resolve the stated absence of native tools/wrappers and overrides, except **override**. `BRANCH=fix/retry`, `NAME=fix-retry`, home=`W`. |\n| D3: fetched observations | `git -C R fetch origin`; `git -C R rev-parse --verify -q A^{commit}`; `git -C R rev-parse origin/fix/retry`; `git -C R rev-parse origin/main`. Record reachability, remote equality, and full `BASE_SHA=B`; apply the ordered stops below. |\n| D4: ordered gates | Fork gate first; then `git -C R worktree list --porcelain` and elsewhere gate; then reachability/equality gate; then `git -C R show-ref --verify refs/heads/fix/retry`. If local branch exists: `git -C R rev-parse refs/heads/fix/retry`; `git -C R merge-base --is-ancestor fix/retry origin/fix/retry`; enforce ancestry gate. |\n\n| Shared successful provisioning/report legend | Ordered commands or records |\n|---|---|\n| F: fresh-tree preparation | Announce “Setting up an isolated worktree at `/work/widget/.worktrees/fix-retry` on branch `fix/retry` for this work.” Run `git -C R status --porcelain` → clean. Before checkout, `git -C R check-ignore -q .worktrees` succeeds: parent already ignored. |\n| Q: post-checkout verification | `git -C R worktree list --porcelain` contains `worktree W`; `git -C W branch --show-current` → `fix/retry`; `git -C W rev-parse HEAD` → `A`. Capture full `PRE_REWORK_HEAD=A`, `BASE_SHA=B`. |\n| M: base/history proof | `git -C W merge --no-ff --no-edit origin/main` → already ancestor; `git -C W merge-base --is-ancestor A HEAD` → 0. |\n| Step 4 report, shared by successful rows | `Worktree ready at /work/widget/.worktrees/fix-retry`<br>`Branch: fix/retry`<br>`Base: fix/retry @ aaaaaaa`<br>`PR: acme/widget#82`<br>`Pre-rework head: A`<br>`Base SHA: bbbbbbb`<br>`merge: no-op - head contains origin/main`<br>`Ready to implement PR #82 rework`<br>Here `A` prints its **full SHA**, not the alias letter. No provenance note. |\n\n| Independent run | Delta from the shared legends, in execution order |\n|---|---|\n| **linked** | D1 observes session git directory `/work/widget/.git/worktrees/other`, common directory `/work/widget/.git`; session branch `other` is not adopted. D2–D4; F; `git -C R worktree add W fix/retry`; Q; M; shared report. Git DWIM creates/tracks `fix/retry` from `origin/fix/retry`; caller supplies no `-b`. |\n| **primary** | D1–D4; F; `git -C R worktree add W fix/retry` (Git DWIM, no caller `-b`); Q; M; shared report. |\n| **ancestor** | D4 resolves local tip `C`, ancestry 0. F; `git -C R update-ref refs/heads/fix/retry origin/fix/retry`; `git -C R worktree add W fix/retry` checks out the existing branch; Q; M; shared report. |\n| **reuse** | D4 finds selected home on `fix/retry`, local tip `C`, ancestry 0. `git -C W status --porcelain` → clean; `git -C W merge --ff-only origin/fix/retry` → `A`; Q; M; shared report. No checkout or fresh-source preparation. |\n| **fork** | After D3, stop at first D4 gate: **“PR #82's head lives on fork contributor/widget; rework needs an in-repo branch.”** No primary/worktree file writes, checkout, or branch update; fetch alone has updated repository metadata. |\n| **elsewhere** | D4 list identifies `/work/widget/.worktrees/pr-82`. Stop: **“branch fix/retry is checked out at /work/widget/.worktrees/pr-82; finish or remove that worktree first.”** Before any provisioning write. |\n| **unreachable** | D3 records failed commit verification and remote `D`. At reachability gate stop: **“PR #82 head aaaaaaa is not reachable (origin/fix/retry is at ddddddd); the branch moved.”** Before any provisioning write. |\n| **moved** | D3 verifies `A`, but remote is `D`. Same exact stop: **“PR #82 head aaaaaaa is not reachable (origin/fix/retry is at ddddddd); the branch moved.”** Before any provisioning write. |\n| **ahead** | D4 resolves `C`, ancestry exits 1. Stop: **“local branch fix/retry is at ccccccc, not an ancestor of origin/fix/retry (aaaaaaa); rework needs the PR head.”** Before any provisioning write. |\n| **diverged** | Independent run: same D4 observations and exact **ahead** error; same pre-provisioning-write boundary. |\n| **override** | D2 resolves default home and `create='helper create -b <branch> <name>'`. Skip this creator: it contains `-b`. D3–D4; F; `git -C R worktree add W fix/retry` (DWIM); Q; M; shared report plus `create: override skipped (contains -b)`. |\n| **race** | D1–D4; F; `git -C R worktree add W fix/retry`; Q’s HEAD command returns `D`. Stop: **“worktree /work/widget/.worktrees/fix-retry HEAD dddddddddddddddddddddddddddddddddddddddd does not equal PR #82 head aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.”** Checkout already wrote; preserve tree. No merge or ready report. |\n\n| History constraint | Record |\n|---|---|\n| Successful runs | Preserve every commit reachable from full `PRE_REWORK_HEAD=A`; advance rework by merges, not rebase or replacement of boundary history. Appended-spec `commit --amend --no-edit` and appended-wave `reset --soft \"$WAVE_BASE_SHA\"` remain permitted under their owning flow; `WAVE_BASE_SHA` must descend from `A`. No helper, thread, review, test, or push commands run here. |\n",
-      "words": 792,
-      "wallMs": 54655,
+      "text": "| Shared aliases and notation | Value |\n|---|---|\n| Paths | `ROOT=/work/widget`; `W=/work/widget/.worktrees/fix-retry` |\n| Full SHAs | `A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; `B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; `C=cccccccccccccccccccccccccccccccccccccccc`; `D=dddddddddddddddddddddddddddddddddddddddd` |\n| Execution | Commands below execute in listed order, with cwd `ROOT`, including linked. Variables expand to these exact values; labels expand to their complete command sequences. No tools actually run. |\n| Announcement | “I'm using the using-git-worktrees skill to set up an isolated workspace.” |\n\n| Shared discovery / success legend | Exact commands or records |\n|---|---|\n| **D1: isolation** | `git -C \"$ROOT\" rev-parse --path-format=absolute --git-dir --git-common-dir`; `git -C \"$ROOT\" rev-parse --show-superproject-working-tree`. Resolve both directories to `/work/widget/.git`; superproject empty. Caller’s PR routing selects `W`, never session isolation. |\n| **D2: configuration** | `for f in \"$ROOT/.pi/gauntlet-overrides.md\" \"$ROOT/gauntlet-overrides.md\" \"$ROOT/doc/gauntlet-overrides.md\"; do if [ -f \"$f\" ]; then cat \"$f\"; break; fi; done`; `for f in \"$ROOT/.pi/settings.json\" \"$ROOT/AGENTS.md\"; do if [ -f \"$f\" ]; then cat \"$f\"; fi; done`; `find \"$ROOT\" \"$ROOT/script\" \"$ROOT/bin\" -maxdepth 1 -type f -iname '*worktree*' -print`. Resolve default home `W`, name `fix-retry`; no native tool/wrapper. |\n| **F: read-only preflight** | `git -C \"$ROOT\" fetch origin`; `git -C \"$ROOT\" rev-parse --verify -q \"${A}^{commit}\"`; `git -C \"$ROOT\" rev-parse origin/fix/retry`; `git -C \"$ROOT\" rev-parse origin/main`; `git -C \"$ROOT\" worktree list --porcelain`; `git -C \"$ROOT\" for-each-ref --format='%(objectname)' refs/heads/fix/retry`; `test -e \"$W\"`. Resolve remote head `A`, `BASE_SHA=B`, absent local branch/home unless overridden. Apply fork, elsewhere, reachability/equality gates before writes. |\n| **L: local ancestry** | `git -C \"$ROOT\" merge-base --is-ancestor fix/retry origin/fix/retry` |\n| **P: fresh preparation** | Announce “Setting up an isolated worktree at `/work/widget/.worktrees/fix-retry` on branch `fix/retry` for this work.” Run `git -C \"$ROOT\" status --porcelain`; `git -C \"$ROOT\" check-ignore -q .worktrees`. Clean; ignore check succeeds, so no ignore edit. |\n| **V: verification** | `git -C \"$ROOT\" worktree list --porcelain`; `git -C \"$W\" branch --show-current`; `git -C \"$W\" rev-parse HEAD`. Home matches; no observed branch mismatch; require HEAD `A`. Capture `PRE_REWORK_HEAD=A`, retain `BASE_SHA=B`. |\n| **M: merge-forward** | `git -C \"$W\" merge --no-ff --no-edit origin/main`; `git -C \"$W\" merge-base --is-ancestor \"$A\" HEAD` |\n| **R: Step 4 report** | `Worktree ready at /work/widget/.worktrees/fix-retry`<br>`Branch: fix/retry`<br>`Base: fix/retry @ aaaaaaa`<br>`PR: acme/widget#82`<br>`Pre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`<br>`Base SHA: bbbbbbb`<br>`merge: no-op - head contains origin/main`<br>`Ready to implement PR #82 rework` |\n\n| Independent run | Ordered delta from legend; stop and write boundary |\n|---|---|\n| **linked** | D1–D2 → F → P → `git -C \"$ROOT\" worktree add \"$W\" fix/retry` → V → M → R. Session `/work/widget/.worktrees/other`, branch `other`, is not adopted. Git DWIM creates/tracks `fix/retry` from `origin/fix/retry`; caller supplies no `-b`. First worktree write: checkout. |\n| **primary** | D1–D2 → F → P → `git -C \"$ROOT\" worktree add \"$W\" fix/retry` → V → M → R. Same DWIM, no caller `-b`; first worktree write is checkout. |\n| **ancestor** | D1–D2 → F resolves local `C` → L exits 0 → P → `git -C \"$ROOT\" update-ref refs/heads/fix/retry origin/fix/retry` → `git -C \"$ROOT\" worktree add \"$W\" fix/retry` → V → M → R. Existing branch; no DWIM or `-b`. First provisioning write: update-ref. |\n| **reuse** | D1–D2 → F resolves selected home/local `C` → L exits 0 → `git -C \"$W\" status --porcelain` → `git -C \"$W\" merge --ff-only origin/fix/retry` → V → M → R. Clean; ff-only reaches `A`. No checkout command. First provisioning write: ff-only. |\n| **fork** | D1–D2 → F; resolve fork=true, repository `contributor/widget`. Stop: “PR #82's head lives on fork contributor/widget; rework needs an in-repo branch.” Before any primary/worktree file write or provisioning; fetch has already run. |\n| **elsewhere** | D1–D2 → F finds branch at `/work/widget/.worktrees/pr-82`. Stop: “branch fix/retry is checked out at /work/widget/.worktrees/pr-82; finish or remove that worktree first.” Before any primary/worktree file write or provisioning; fetch has already run. |\n| **unreachable** | D1–D2 → F: commit verification fails, remote head=`D`. Stop: “PR #82 head aaaaaaa is not reachable (origin/fix/retry is at ddddddd); the branch moved.” Before any primary/worktree file write or provisioning; fetch has already run. |\n| **moved** | D1–D2 → F: commit exists, remote head=`D`. Stop: “PR #82 head aaaaaaa is not reachable (origin/fix/retry is at ddddddd); the branch moved.” Same pre-write boundary as unreachable. |\n| **ahead** | D1–D2 → F resolves local `C` → L exits 1. Stop: “local branch fix/retry is at ccccccc, not an ancestor of origin/fix/retry (ddddddd); rework needs the PR head.” **Correction to remote substitution:** the exact stop uses **`(aaaaaaa)`**, since this run’s remote is `A`. Before provisioning writes. |\n| **diverged** | D1–D2 → F resolves local `C` → L exits 1. Stop: “local branch fix/retry is at ccccccc, not an ancestor of origin/fix/retry (aaaaaaa); rework needs the PR head.” Before any primary/worktree file write or provisioning; fetch has already run. |\n| **override** | D2 reads `create='helper create -b <branch> <name>'`. D1–D2 → F → P → `git -C \"$ROOT\" worktree add \"$W\" fix/retry` → V → M → R, adding `create: override skipped (contains -b)`. Helper never runs; built-in uses DWIM, not caller `-b`. |\n| **race** | D1–D2 → F → P → `git -C \"$ROOT\" worktree add \"$W\" fix/retry` → V observes `D`. Stop: “worktree /work/widget/.worktrees/fix-retry HEAD is dddddddddddddddddddddddddddddddddddddddd, expected aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.” Post-checkout boundary: preserve tree; no merge or Step 4 success report. |\n\n| History constraint | Record |\n|---|---|\n| Preservation | Advance by merge; preserve everything reachable from `PRE_REWORK_HEAD=A`. No rebase or replacement of commits at/below that boundary. The flow’s appended-spec `commit --amend --no-edit` and appended-wave `reset --soft \"$WAVE_BASE_SHA\"` remain permitted; require `WAVE_BASE_SHA` to descend from `A`. No history-changing commands beyond those listed are run. |\n",
+      "words": 784,
+      "wallMs": 51591,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
       "baselineOutputSha": "f03bfb38ad023a6bbc441f192507aa8a435ab222064d47a25a088271e6c29c43",
-      "candidateOutputSha": "a9c709261f60ed9beaa8176d48c911303eecfe9f90dff511bf4c11f339b83463",
+      "candidateOutputSha": "da8cdad53161b83dc34ee27263d8fca59031312a39d815441c7fe79226a4f6f6",
       "facts": {
         "routing": {
           "before": "holds",
@@ -69,8 +69,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: Before already routed through reference/pr-head.md, refused to adopt `other`, and kept merge-forward history, so the expected fails-to-holds on routing and history are not visible in these texts; After preserves all six. The one place After weakened the record is the race row: Before quoted the exact one-line error (`worktree /work/widget/.worktrees/fix-retry HEAD dddd... differs from PR #82 head aaaa...; the branch raced after checkout.`), while After replaces it with the paraphrase `Stop: head race. Tree left intact ...; HEAD D, expected A.` This still names home and both SHAs via aliases so override-race holds, but it drops the exact stop text the case demands for every stop and relies on aliases instead of the full SHAs in the quoted error. To keep the row airtight while delivering the Change, restore the quoted one-liner in the race row (full SHAs inside the quote, aliases only in the surrounding delta) and keep the rest of After's structure, which otherwise matches Before fact-for-fact; the tightened `moved` row (`same text as unreachable`) is acceptable but quoting it verbatim would be safer for the stops fact.",
-      "wallMs": 20658,
+      "feedback": "No fact moved: both outputs route the resolved PR values through reference/pr-head.md before linked reuse, keep the linked run on W without adopting or nesting under `other`, use DWIM `worktree add W fix/retry` with no caller -b, do update-ref (never branch -f) on proven ancestry, check dirt before ff-only, require HEAD == A, emit the Base/PR/Pre-rework/Base SHA/merge report, give the five exact pre-write stop texts after fetch, skip the -b override with the required line, and keep merge-forward history with the amend and fold allowances. Two things in After are worth tightening so they don't slip under stricter reading: the race stop text now reads `is at D, not PR #82 head A` using aliases, whereas Before quoted both full SHAs literally — since the row must quote the exact one-line error, write the full `dddd…`/`aaaa…` SHAs in that message (aliases are fine in commands, but the quoted error should be verbatim). Also After's opening sentence (\"I'm using the using-git-worktrees skill to set up an isolated workspace\") is generic; keep the Before-style first line that names acme/widget#82 and states that pr-head.md replaces Steps 0 and 1 so the routing fact is visible before the alias table. Otherwise the After wording delivers the change (explicit ROOT via common dir, shared branch, -C-targeted commands) without losing any single-member provisioning fact.",
+      "wallMs": 28743,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -78,7 +78,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
       "baselineOutputSha": "0bd70ce3ec50e8f266780106baa0b7b5fa5ec799766ebbac8c525634cd872d98",
-      "candidateOutputSha": "d9c8535beabb6ca90d4cbc0e6e4fc64321c1280eb518f2cba985a9b8fe2afd02",
+      "candidateOutputSha": "ce03cf616e5fe628f860ff19cc4cda32975408d46d2642aed759b6362a8dbad9",
       "facts": {
         "routing": {
           "before": "holds",
@@ -97,8 +97,8 @@
         },
         "stops": {
           "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "after": "fails",
+          "label": "regression"
         },
         "override-race": {
           "before": "holds",
@@ -111,146 +111,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: every fact that Before kept, After also keeps, and nothing the Expected-to-move list anticipated (routing, history) actually changed state, because Before already routed PR values ahead of linked reuse ('PR routing selects W, never the unrelated session tree') and already advanced history by merge. Note that neither output names reference/pr-head.md explicitly — both satisfy routing only on substance (D1 'Linked session isolation does not select the PR home' / 'session branch other is not adopted'); if you want the Change to land visibly, add one clause in D1 such as 'route resolved PR values through reference/pr-head.md; select home W on BRANCH before any linked-worktree reuse', so the Step 0 hook is stated rather than implied. Two After edits are harmless now but risky for exactness: the race error was reworded from 'HEAD is D, expected A; the PR head changed during provisioning' to 'HEAD D does not equal PR #82 head A' (still names home and both SHAs, but drifts from the reference phrasing), and the report line 'Pre-rework head: A' relies on a footnote to mean the full SHA — print the 40-character value inline as Before did. The new D2 config-discovery block and the appended 'rework' on the ready line add words without serving any fact; keep the shared BRANCH/NAME/ROOT bindings (which do serve the Change) but drop the shell loops to stay inside the discovery budget.",
-      "wallMs": 27963,
-      "verdict": "unchanged"
-    }
-  },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "pr-head",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "402709de509fc58127b9900d781ee275b33ba2cfcf622b6d00692159b93cf2c1",
-      "candidateSkillSha": "ca5d35e22759917183e0b7c26b1a21de31c759b8af7f1f07e3fcbcc306380467",
-      "inputSha": "a7419adf6ab5296bb7049778f3b3c2ae6a6447dacf913ce9602a0c881a4abbb9",
-      "factsSha": "ec0cacac125da5de5df63e0a08a5514cfba4a2520ef4bdfc2e176f897b81436f",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-      "models": {
-        "replay": [
-          "anthropic/claude-opus-5-5",
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "anthropic-fable/claude-fable-5-1"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "anthropic/claude-opus-5-5": {
-            "baselineOutputSha": "fb599f07a8165f9ded7acd90c060accb587097c2d09894a561a08bff2447f935",
-            "payloadSha": "bd554cff02c6daa8344b3ccdb8ecb6988d2c1373799d059ce0f109610ef6bc7f"
-          },
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "6e2916edc271cbab04c02a5b5a6fb16d1ee172049f226af30ead47c778d2f3bb",
-            "payloadSha": "ec7839be89d5782f1f9e16f33e5ee4d03c8a38a951acae5a940b72cdc27ba0f6"
-          }
-        },
-        "candidate": {
-          "anthropic/claude-opus-5-5": {
-            "candidateOutputSha": "f03bfb38ad023a6bbc441f192507aa8a435ab222064d47a25a088271e6c29c43",
-            "payloadSha": "818bcac365fc8780e0a8e3802f8e16a457f207da94b592917f1ae6302543aece"
-          },
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "0bd70ce3ec50e8f266780106baa0b7b5fa5ec799766ebbac8c525634cd872d98",
-            "payloadSha": "841e213f378748086a432602f1d50a5ffa6038c131eb20807ce5e755397bb44e"
-          }
-        }
-      }
-    },
-    "previous": {
-      "anthropic/claude-opus-5-5": {
-        "factsSha": "ec0cacac125da5de5df63e0a08a5514cfba4a2520ef4bdfc2e176f897b81436f",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-        "baselineOutputSha": "fb599f07a8165f9ded7acd90c060accb587097c2d09894a561a08bff2447f935",
-        "candidateOutputSha": "f03bfb38ad023a6bbc441f192507aa8a435ab222064d47a25a088271e6c29c43",
-        "facts": {
-          "routing": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "checkout": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "report": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "stops": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "override-race": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "history": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Both outputs route resolved PR values through reference/pr-head.md ahead of generic linked reuse, keep the linked run from adopting or nesting inside `other`, use plain `worktree add W fix/retry` with DWIM explained and no caller -b, do update-ref (never branch -f) for the ancestor row, check dirt before ff-only on reuse, emit the exact stop lines, skip the -b override with the required note, and leave the raced tree intact, so routing, checkout, stops, override-race and history already hold in Before and continue to hold in After. The one regression is the report block: After prints `Base: fix/retry @ aaaaaaa (clean)` instead of the exact `Base: fix/retry @ aaaaaaa` field that the fact requires, so the Base line no longer matches as written; drop the `(clean)` suffix (the cleanliness is already proven by S1 and needs no report decoration). Two smaller drifts worth tightening without affecting the facts: After moves the head-verify/`origin/fix/retry` comparison (D5) ahead of the fork and elsewhere stops (D7, D8), reversing the reference's S1–S4 order, and the race line is now a different sentence from Before's `head race: ... tree left intact.`; if the reference fixes those strings and that order, mirror them verbatim so the rows stay stable across future wording changes.",
-        "wallMs": 29178,
-        "verdict": "inconclusive",
-        "confirmation": {
-          "status": "ok",
-          "text": "# PR-head provisioning narration for acme/widget#82\n\n## Legend\n\n**Aliases**\n\n| Alias | Value |\n|---|---|\n| ROOT | /work/widget |\n| W | /work/widget/.worktrees/fix-retry |\n| A | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa |\n| B | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb |\n| C | cccccccccccccccccccccccccccccccccccccccc |\n| D | dddddddddddddddddddddddddddddddddddddddd |\n\nThe caller passed resolved PR values, so `reference/pr-head.md` replaces Steps 0 and 1. All commands below run with the process cwd unchanged and target paths with `-C`.\n\n**Discovery (every row, in order)**\n\n1. Run `git rev-parse --path-format=absolute --git-common-dir`. Its parent directory gives ROOT.\n2. Run `git rev-parse --show-superproject-working-tree`. Output is empty, so this is not a submodule.\n3. Read the overrides ladder. No file exists except in the override row.\n4. Resolve the home as W, with `<name>`=fix-retry.\n5. **Fetch:** `git -C ROOT fetch origin`.\n6. **Reachability:** `git -C ROOT rev-parse --verify -q A^{commit}`, then `git -C ROOT rev-parse origin/fix/retry`, which must equal A.\n7. **BASE_SHA:** `git -C ROOT rev-parse origin/main` returns B.\n8. **Ordered stops:**\n   - fork check;\n   - `git -C ROOT worktree list --porcelain`;\n   - local branch probe `git -C ROOT rev-parse --verify -q refs/heads/fix/retry`;\n   - if the branch exists, `git -C ROOT merge-base --is-ancestor fix/retry origin/fix/retry`.\n9. **Clean base:** `git -C ROOT status --porcelain` returns empty with exit 0. This is the fresh-creation clean-base check.\n\n**Success legend (fresh creation)**\n\n| Step | Command and result |\n|---|---|\n| Checkout (DWIM) | `git -C ROOT worktree add W fix/retry`. Git's unique-remote DWIM performs `--track -b fix/retry W origin/fix/retry`. It is not a caller `-b`. |\n| Post-create check | `git -C ROOT worktree list --porcelain` shows `worktree W`. |\n| Head check | `git -C W rev-parse HEAD` returns A. |\n| Project setup | No manifests, so nothing runs. |\n| Captures | PRE_REWORK_HEAD=A, BASE_SHA=B. |\n| Base merge | `git -C W merge --no-ff --no-edit origin/main` reports already up to date. Record: `merge: no-op - head contains origin/main`. |\n| Ancestry proof | `git -C W merge-base --is-ancestor A HEAD` exits 0. |\n| Provenance | Skipped: this checks out the existing PR branch rather than branching from the source checkout. |\n\n**Report R**\n\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#82\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/main\nReady to implement rework on PR #82\n```\n\n## Provisioning rows\n\n| Row | Delta from legend |\n|---|---|\n| linked | The session tree /work/widget/.worktrees/other (branch `other`) is not adopted, because it is not the home on fix/retry. ROOT comes from the common dir, so creation runs from the primary, not nested. The clean check runs in ROOT. Then the full success legend runs, producing report R. |\n| primary | Identical to linked: full success legend, report R. |\n| ancestor | The branch probe finds C, and the ancestry check exits 0. After the clean check, run `git -C ROOT update-ref refs/heads/fix/retry origin/fix/retry`. Then run `git -C ROOT worktree add W fix/retry` on the existing branch, with no DWIM and no `-b`. `branch -f` is never used. The rest of the legend runs, producing report R. |\n| reuse | The worktree list shows fix/retry at W, which is the selected home, not \"another path\". The ancestry check exits 0. The dirty-tree ask (`git -C W status --porcelain`) is clean. Run `git -C W merge --ff-only origin/fix/retry`. `git -C W rev-parse HEAD` returns A. There is no `worktree add`. The rest of the legend runs, producing report R. |\n| fork | Stops at fork check after fetch, reachability, and BASE_SHA, before any write. Stop text: `PR #82's head lives on fork contributor/widget; rework needs an in-repo branch.` |\n| elsewhere | The worktree list shows fix/retry at /work/widget/.worktrees/pr-82. Stops before any write. Stop text: `branch fix/retry is checked out at /work/widget/.worktrees/pr-82; finish or remove that worktree first.` |\n| unreachable | The `--verify` check fails after fetch, and origin/fix/retry=ddddddd. Stops at reachability, before BASE_SHA and before any write. Stop text: `PR #82 head aaaaaaa is not reachable (origin/fix/retry is at ddddddd); the branch moved.` |\n| moved | The `--verify` check passes, but origin/fix/retry ≠ A. Same boundary and the same stop text as unreachable. |\n| ahead | The branch probe finds C, and the ancestry check exits 1. Stops before the clean check and before any write. Stop text: `local branch fix/retry is at ccccccc, not an ancestor of origin/fix/retry (aaaaaaa); rework needs the PR head.` |\n| diverged | Separate run, same probe result and the same stop text and boundary as ahead. |\n| override | `.pi/gauntlet-overrides.md` has a `## using-git-worktrees` section with `- create: helper create -b <branch> <name>`. The home is unset, so it defaults to W. The create command contains `-b`, so it is skipped and the built-in DWIM checkout runs. The legend runs, producing report R, with `create: override skipped (contains -b)` added after the `merge:` line. |\n| race | The DWIM checkout succeeds and the post-create list check passes. `git -C W rev-parse HEAD` returns D. This is a post-write stop: W is left intact, with no reset or clean. PRE_REWORK_HEAD is not captured, no merge runs, and no report is produced. Stop text: `worktree /work/widget/.worktrees/fix-retry is at D, not headRefOid A; head moved after checkout.` |\n\n## History (successful rows)\n\n- Advance only by merge, for example `git -C W merge --no-ff --no-edit origin/main` to stay current.\n- Never `rebase`, and never use `reset` or `commit --amend` on commits reachable from PRE_REWORK_HEAD=A.\n- Two flow steps stay allowed: the appended-spec approval `commit --amend --no-edit` and the appended-wave fold `reset --soft \"$WAVE_BASE_SHA\"`.\n  - Both are allowed only when WAVE_BASE_SHA descends from A.\n  - They rewrite only commits above A.\n",
-          "words": 840,
-          "wallMs": 42326,
-          "mechanical": {},
-          "judgeWallMs": 29278,
-          "facts": {
-            "routing": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "checkout": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            },
-            "report": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            },
-            "stops": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            },
-            "override-race": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            },
-            "history": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            }
-          },
-          "feedback": "No fact moved: After still routes resolved PR values through reference/pr-head.md ahead of linked reuse, keeps the DWIM-vs-caller -b distinction, the ancestry-then-update-ref path, the dirt check before ff-only, the full-SHA captures and report lines, the exact one-line stops after fetch, the override skip record, and the intact-tree race stop, and it keeps history merge-forward with both flow exceptions. Two wording choices are fragile, though. First, the race stop text now reads `is at D, not headRefOid A`, substituting aliases inside a quoted error line; a stricter reader could say the stop no longer names the SHAs, so keep Before's literal form (`is at ddddddd, expected aaaaaaa; tree left intact.`) even while using aliases elsewhere. Second, the history bullet says `Both are allowed only when WAVE_BASE_SHA descends from A`, which wrongly gates the appended-spec amend on a variable it never uses; split them as Before did (amend allowed as the flow's spec-finalization step; fold allowed when `merge-base --is-ancestor A \"$WAVE_BASE_SHA\"` exits 0) so the amend-preservation half of the history fact cannot be read as conditional."
-        },
-        "judgeModel": null,
-        "thinking": null
-      },
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "ec0cacac125da5de5df63e0a08a5514cfba4a2520ef4bdfc2e176f897b81436f",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-        "baselineOutputSha": "6e2916edc271cbab04c02a5b5a6fb16d1ee172049f226af30ead47c778d2f3bb",
-        "candidateOutputSha": "0bd70ce3ec50e8f266780106baa0b7b5fa5ec799766ebbac8c525634cd872d98",
+      "feedback": "After keeps routing, checkout, report, override-race and history intact, but it loses the stops fact on the ahead row: the row first quotes a wrong one-line error with `(ddddddd)` for a run whose remote resolves to `A`, then appends a prose \"Correction to remote substitution\" saying the real stop uses `(aaaaaaa)`. A careful reader cannot take that row as giving the reference's exact case-specific one-line error, whereas Before quotes the single correct error in both ahead and diverged and states the write boundary in one line. To deliver the Change without this regression, write the ahead row exactly like the diverged row (one quoted error with `(aaaaaaa)`, then the pre-write boundary) and drop the correction note entirely; keeping the row-level discipline that every stop row carries one verbatim error, the pre-write boundary, and the fetch-already-ran note is what preserves the stops fact. Optionally restore the race stop's trailing clause \"the PR head changed during provisioning\" and keep the full `Ready to implement PR #82` line unchanged so the report text matches the reference verbatim.",
+      "wallMs": 21494,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "| Shared notation | Definition |\n|---|---|\n| Paths / branch | `R=/work/widget`; `W=/work/widget/.worktrees/fix-retry`; `H=fix/retry`; `NAME=fix-retry`. |\n| Full SHA aliases | `A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; `B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; `C=cccccccccccccccccccccccccccccccccccccccc`; `D=dddddddddddddddddddddddddddddddddddddddd`. |\n| Cwd | Every command runs with unchanged cwd `R`, except **linked**, whose cwd is `/work/widget/.worktrees/other`. Aliases below denote their exact expanded arguments. |\n| Announcement | “I'm using the using-git-worktrees skill to set up an isolated workspace.” |\n\n| Ordered discovery / success legend | Exact commands, resolutions, records |\n|---|---|\n| **D1: locate primary** | `git rev-parse --path-format=absolute --git-dir --git-common-dir`; `git rev-parse --show-superproject-working-tree`. Common directory resolves to `/work/widget/.git`, hence `ROOT=R`; no superproject. Normally git directory equals common directory; linked differs. PR routing selects `W`, never the unrelated session tree. |\n| **D2: configuration discovery** | `for p in .pi/gauntlet-overrides.md gauntlet-overrides.md doc/gauntlet-overrides.md; do if [ -f \"$R/$p\" ]; then cat \"$R/$p\"; break; fi; done`; `if [ -f \"$R/.pi/settings.json\" ]; then cat \"$R/.pi/settings.json\"; fi`; `if [ -f \"$R/AGENTS.md\" ]; then cat \"$R/AGENTS.md\"; fi`; `find \"$R\" \"$R/script\" \"$R/bin\" -maxdepth 1 -type f -print`. Resolve no native tool/wrapper; default home `W`. Override row supplies its stated contract. |\n| **D3: fetched preflight** | `git -C R fetch origin`; `git -C R rev-parse --verify -q A^{commit}`; `git -C R rev-parse origin/fix/retry`; `git -C R rev-parse origin/main`. Normally resolve `A`, `A`, `BASE_SHA=B`. Then `git -C R worktree list --porcelain`; `git -C R branch --list fix/retry`. Apply fork/path stops before local ancestry checks. |\n| **L: local check** | `git -C R rev-parse refs/heads/fix/retry` → `C`; `git -C R merge-base --is-ancestor fix/retry origin/fix/retry`. |\n| **F: fresh safety** | Announce “Setting up an isolated worktree at `/work/widget/.worktrees/fix-retry` on branch `fix/retry` for this work.” Run `git -C R status --porcelain`; `test -e W`; `git -C R check-ignore -q .worktrees`. Resolve clean source, absent home, ignored parent. |\n| **V: verify** | `git -C R worktree list --porcelain`; `git -C W branch --show-current`; `git -C W rev-parse HEAD`. Resolve selected path, no observed branch mismatch, HEAD `A` unless race. Capture `PRE_REWORK_HEAD=A`; retain full `BASE_SHA=B`. |\n| **M: merge/report** | `git -C W merge --no-ff --no-edit origin/main`; `git -C W merge-base --is-ancestor A HEAD` → exit 0. Report fields: `Worktree ready at W`; `Branch: fix/retry`; `Base: fix/retry @ aaaaaaa`; `PR: acme/widget#82`; `Pre-rework head: A`; `Base SHA: bbbbbbb`; `merge: no-op - head contains origin/main`; `Ready to implement PR #82 rework`. |\n\n| Independent run | Ordered delta from legend; stop and write boundary |\n|---|---|\n| **linked** | D1–D3, F; `git -C R worktree add W fix/retry`; V, M. Git DWIM tracks `origin/fix/retry`; caller supplies neither `-b` nor `-B`. Creates the primary-owned PR tree, not a nested tree. |\n| **primary** | D1–D3, F; `git -C R worktree add W fix/retry`; V, M. Same DWIM checkout, no caller `-b`. |\n| **ancestor** | D1–D3, L → exit 0, F; `git -C R update-ref refs/heads/fix/retry origin/fix/retry`; `git -C R worktree add W fix/retry`; V, M. Existing branch checkout, not DWIM creation. |\n| **reuse** | D1–D3, L → exit 0; `git -C W status --porcelain` → clean; `git -C W merge --ff-only origin/fix/retry` → `A`; V, M. No worktree creation or `update-ref`; selected existing checkout reused. |\n| **fork** | D1–D3; stop: “PR #82's head lives on fork contributor/widget; rework needs an in-repo branch.” Boundary: fetch completed; no checkout, primary-file, or worktree-file writes. |\n| **elsewhere** | D1–D3; stop: “branch fix/retry is checked out at /work/widget/.worktrees/pr-82; finish or remove that worktree first.” Same pre-write boundary. |\n| **unreachable** | D1–D3: verification fails, remote resolves `D`; stop: “PR #82 head aaaaaaa is not reachable (origin/fix/retry is at ddddddd); the branch moved.” Fetch only; before worktree/file writes. |\n| **moved** | D1–D3: object exists, remote resolves `D`; stop: “PR #82 head aaaaaaa is not reachable (origin/fix/retry is at ddddddd); the branch moved.” Fetch only; before worktree/file writes. |\n| **ahead** | D1–D3, L → exit 1; stop: “local branch fix/retry is at ccccccc, not an ancestor of origin/fix/retry (aaaaaaa); rework needs the PR head.” Before `update-ref`, checkout, or file writes. |\n| **diverged** | Independently D1–D3, L → exit 1; stop: “local branch fix/retry is at ccccccc, not an ancestor of origin/fix/retry (aaaaaaa); rework needs the PR head.” Same pre-write boundary. |\n| **override** | D1–D3, F; skip `helper create -b <branch> <name>`; run `git -C R worktree add W fix/retry`; V, M. Add report: `create: override skipped (contains -b)`. Built-in DWIM, no caller `-b`. |\n| **race** | D1–D3, F; `git -C R worktree add W fix/retry`; V observes `D`. Stop: “worktree /work/widget/.worktrees/fix-retry HEAD dddddddddddddddddddddddddddddddddddddddd does not equal PR #82 head aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.” Checkout crossed write boundary; leave tree intact. No merge or Step 4 success report. |\n\n| History constraint | Record |\n|---|---|\n| Successful runs | Preserve every commit reachable from `PRE_REWORK_HEAD=A`; advance by merge, not rebase or replacement of boundary history. Appended-spec `commit --amend --no-edit` and appended-wave `reset --soft \"$WAVE_BASE_SHA\"` remain permitted under their flow rules, with `WAVE_BASE_SHA` descending from `A`. No helper, thread, review, or push commands run here. |\n",
+        "words": 724,
+        "wallMs": 31915,
+        "mechanical": {},
+        "judgeWallMs": 27598,
         "facts": {
           "routing": {
             "before": "holds",
@@ -283,103 +153,9 @@
             "label": "intended but unchanged"
           }
         },
-        "feedback": "After keeps every fact Before kept and is cleaner in two places: the ahead/diverged stop line is quoted once correctly (Before quoted “(ddddddd)” and then self-corrected to “(aaaaaaa)”, which a reader has to untangle), and the race stop expands both full SHAs and the home path literally rather than via aliases. Nothing moved from holds to fails, but a few After edits are worth tightening so the routing and history facts are unmistakable rather than inferred: neither output names reference/pr-head.md — add a clause in the D row such as “Resolved PR values route through reference/pr-head.md before any linked-worktree reuse” so the routing fact is stated, not implied by “PR routing selects W”; keep the Step 4 closing line as “Ready to implement PR #82 rework” to match the shared record (After drops “rework”); and avoid renaming the C alias to L while also using C for cwd, since the ancestor/reuse rows now read “local L” against a legend where C was the SHA in Before — pick distinct, stable letters (e.g., keep C for the SHA and use S for cwd). Otherwise the ordering text (fork stop first, then location/reachability after fetch, then local ancestry before update-ref) and the history boundary wording (merge-forward, amend and reset --soft preserved, WAVE_BASE_SHA descends from PRE_REWORK_HEAD) deliver the Change without losing any Before fact.",
-        "wallMs": 30237,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "anthropic/claude-opus-5-5": {
-        "factsSha": "ec0cacac125da5de5df63e0a08a5514cfba4a2520ef4bdfc2e176f897b81436f",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-        "baselineOutputSha": "fb599f07a8165f9ded7acd90c060accb587097c2d09894a561a08bff2447f935",
-        "candidateOutputSha": "f03bfb38ad023a6bbc441f192507aa8a435ab222064d47a25a088271e6c29c43",
-        "facts": {
-          "routing": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "checkout": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "report": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "stops": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "override-race": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "history": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "After keeps every fact that Before kept: pr-head.md is named as replacing Steps 0 and 1 before the linked/primary rows, the linked row refuses to adopt or nest under other, S2 separates Git's DWIM from a caller -b, ancestor uses proven ancestry then update-ref with no branch -f, reuse checks dirt before ff-only, every stop quotes a case-specific one-line error with branch/path/repo and SHAs and states its pre-write boundary after fetch, the override line and race stop are present with the tree left intact, and history stays merge-forward while allowing the appended-spec amend and the WAVE_BASE_SHA fold. Two wording choices in After are the closest to moving a fact and are worth tightening. First, the report line became `Base: fix/retry @ aaaaaaa (clean)`; the `(clean)` suffix is not in the required field and a strict reader comparing exact report fields could count it as a deviation, so drop it and keep `Base: fix/retry @ aaaaaaa` exactly as Before had it (the S1 clean result is already in the table). Second, After reorders the checks so head verification (D5) and BASE_SHA (D6) run before the fork and elsewhere stops (D7, D8); the fact only requires ordering after fetch, so it still holds, but Before's order (fork, elsewhere, verify, local-branch) matches the reference's stop numbering and avoids the fork row having to explain why reads D5-D6 ran; restoring that order and keeping the race text's full-SHA form would deliver the Change with no risk to the report or stops facts.",
-        "wallMs": 30235,
-        "verdict": "unchanged",
-        "judgeModel": "anthropic-fable/claude-fable-5-1",
-        "thinking": "medium"
-      },
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "ec0cacac125da5de5df63e0a08a5514cfba4a2520ef4bdfc2e176f897b81436f",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-        "baselineOutputSha": "6e2916edc271cbab04c02a5b5a6fb16d1ee172049f226af30ead47c778d2f3bb",
-        "candidateOutputSha": "0bd70ce3ec50e8f266780106baa0b7b5fa5ec799766ebbac8c525634cd872d98",
-        "facts": {
-          "routing": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "checkout": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "report": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "stops": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "override-race": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "history": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Nothing regressed: After keeps every fact Before kept. Both outputs state PR routing selects W before any session-tree reuse (After moves that statement into the shared discovery step, which reads more clearly as a pre-reuse hook), both use `git worktree add \"$W\" fix/retry` with explicit no-`-b` DWIM, update-ref after proven ancestry, status-before-ff-only reuse, full-SHA captures, the correct report field order with the no-op merge line, the exact fork/elsewhere/unreachable/moved/ahead/diverged stops after fetch, the `create: override skipped (contains -b)` line, an intact tree on race, and merge-forward history with the amend/fold exceptions. After is actually tighter than Before on the ahead row (Before quoted a wrong `(ddddddd)` line and then self-corrected to `(aaaaaaa)`, which a reader must untangle) and on the race stop (After names the full path and full SHAs). Two things worth tightening in After: neither output names `reference/pr-head.md` as the routing authority, so if the routing fact is meant to be literally about that reference, add one phrase in the discovery row such as 'PR routing per reference/pr-head.md runs before linked-worktree reuse'; and After changed the final report line from `Ready to implement PR #82 rework` to `Ready to implement PR #82`, which no fact checks but which silently diverges from the Before record—keep the Before wording unless the reference changed it.",
-        "wallMs": 33720,
-        "verdict": "unchanged",
-        "judgeModel": "anthropic-fable/claude-fable-5-1",
-        "thinking": "medium"
+        "feedback": "After keeps every fact Before kept: linked/primary still select /work/widget/.worktrees/fix-retry via DWIM with no caller -b/-B, ancestor still proves ancestry then update-ref, reuse still checks dirt before ff-only, the six stop rows carry the same exact one-line errors after fetch, the override line and race stop name home and both full SHAs with the tree left intact, and history remains merge-forward with the amend/fold allowed from PRE_REWORK_HEAD. Two things are worth tightening rather than any regression: the race stop text drifted from Before's phrasing ('...HEAD is D, expected A; the PR head changed during provisioning') to a new sentence, so if the reference fixes that string the After wording risks failing an exact-error check—keep Before's sentence verbatim; and the new `H=fix/retry` alias is defined but never used (commands still spell `fix/retry`), so the Change's 'shared BRANCH' intent is not actually visible—either use `H` consistently in worktree add/update-ref/merge-base commands or drop it to stay within the alias-once rule. The added D2 config-discovery loop is fine for the override row but costs words against the 300-word discovery budget; a one-line 'read override files under R; none found except override row' would preserve the same facts more cheaply."
       }
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "08f42be9d8ee4fc2fa7c2e4f9bcad36a1a5660df"
 }
