@@ -1,34 +1,42 @@
 {
   "sample": "no-recommendation-execute",
   "arm": "candidate",
-  "skillSha": "1b3c80ee2b0f9ba7f7fd76684cc40b04506c351cf74ff9b0aeb23b43d848d0bf",
+  "skillSha": "0520d3c0b96de923e1884d225da8a91aebc913143e9fc7edf77c33876e7daa8d",
   "inputSha": "3a38f50e21fd29525066724ac74383e69ddc8ee663722cfd04d13e8fb4612c3e",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\n**Disposition record:** `G1 - Integrity manifest is missing: custom(append the sha256 table from the build log to the release notes)`. This is a user-supplied custom choice, not a recommendation.\n\n**Normalized custom effect.** The effect is concrete and executable as given, so no clarification is needed. It is state-changing because it edits a code/doc deliverable, not the spec.\n\n- **Operation:** append the complete integrity table from `build.log` to `release-notes.md`, below the existing `# Lantern release` heading.\n\n  ```markdown\n  | Artifact | sha256 |\n  |---|---|\n  | release.zip | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa |\n  ```\n- **Ownership:** `release-notes.md` is the touched file. `build.log` is read-only.\n\n**Scheduled execution.** All items are now decided. Nothing has executed yet. The execute order runs once, in this order:\n\n1. **Normalize:** done above.\n2. **Spec edits:** none. No accept or rescope was chosen, and the spec is unchanged.\n3. **Re-audit for a spec change:** skipped, because step 2 changed nothing.\n4. **Code-changing custom:** the main session appends the table to `release-notes.md` and commits the change.\n   - Run the project's tests on the change.\n   - Dispatch `code-reviewer` (foreground, `async: false`) on the delta.\n   - Re-run Step 1's canonical tests.\n   - Stop and surface the result if any of these fail.\n5. **Re-audit after state-changing work:** a fresh foreground `conformance-reviewer` dispatch, with `model:` injected per `closureReview.model`. Its inputs are:\n   - the spec\n   - the verbatim prompt\n   - the full diff\n   - the prior report\n\n   This regenerates the `## Closure / conformance` block with a new `audited-base`. Fresh decisions are requested only if the refreshed inventory differs from this approved one.\n6. **Follow-up:** none.\n7. **Non-state-changing custom:** none.\n8. **Revert:** none requested.\n9. **Re-enter Step 3.5** with the re-audited block if any concern remains open. On a clean `status: CONFORMS (0 open)` handoff, proceed through the freshness precondition to Step 4.\n\nThe closure summary and Step 4 options will follow once these steps and their checks have actually run and passed.\n",
+      "words": 307,
+      "wallMs": 14134,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\nG1 - Integrity manifest is missing: custom — append the complete sha256 table from `build.log` to `release-notes.md`, preserving its existing heading.\n\nApproved execution:\n1. Append the existing table without changing the spec.\n2. Run the project’s canonical tests and a code review of the change.\n3. Re-audit conformance and refresh the closure block before returning to shipping options.\n\nNo edits or checks have run in this tool-free replay. No further clarification is needed.\n",
-      "words": 84,
-      "wallMs": 5638,
+      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\nG1 - Integrity manifest is missing: approved custom action is to append the complete sha256 table from `build.log` to `release-notes.md`, preserving its existing heading. No further clarification is needed.\n\nExecution is scheduled to:\n1. Append the supplied table and verify it matches `build.log` exactly.\n2. Run the project’s canonical tests and obtain a code review of the documentation delta.\n3. Commit the change and re-audit conformance against the unchanged manifest requirement.\n\nNothing has been edited or checked in this tool-free replay. The concern remains open pending execution and verification; Step 4 is not yet available.\n",
+      "words": 107,
+      "wallMs": 6558,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "6e95572198c9597284b59ea1e0479b7da1fa4936abb34f7599ae23f96035028e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
-      "baselineOutputSha": "9abb7917adeb72a9e716690202a0893236387d03bff33e079a3cff925b6774e0",
-      "candidateOutputSha": "6732dedc219da0f3cd6e11d3a9f92d52d9e7ffc75b756dc09f46d8e91999822a",
+      "baselineOutputSha": "0ece06d9e653fadf511e5bbc8cfe77c3b80d7f0db1e55c5c1ec414d6a12c7847",
+      "candidateOutputSha": "59468384e6b11ee64c95020f9888e61322f13a0ddd90c179f592a540c0917500",
       "facts": {
         "f1": {
           "before": "holds",
@@ -51,10 +59,42 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves all four facts: it accepts the custom answer, records its text verbatim, schedules re-auditing after the edit and before shipping options, and confines handle-assignment syntax to the record. No fact moved. Keep the explicit re-audit ordering and pending-check language; for extra clarity, say that no CONFORMS claim or Step 4 menu will appear until the re-audit completes.",
-      "wallMs": 3593,
+      "feedback": "No fact moved between Before and After on this case: both outputs accept the numbered free-text reply as item 1's custom disposition without reprompting, both open with the same verbatim `Recorded: manifest=custom(append the sha256 table from the build log to the release notes)` line (so f2 already held in Before, contrary to the expected fails->holds), both schedule the code-changing append, tests, code-reviewer pass, and a fresh conformance-reviewer re-audit before any CONFORMS claim or Step 4 menu, and both confine the `handle=choice` form to the record line with no operator-facing question using it. After's additions - the explicit 'All items are now decided' statement, the numbered nine-step execute order with step 5's re-audit inputs, and the closing sentence deferring the closure summary and Step 4 options until checks have run - strengthen f3 without introducing any prompt-facing handle assignment, so the current After wording is safe to keep; if you tighten further, keep the Recorded line as the first line and keep the final sentence that defers Step 4 until the re-audit completes, since those two anchors are what pin f2 and f3.",
+      "wallMs": 10949,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6e95572198c9597284b59ea1e0479b7da1fa4936abb34f7599ae23f96035028e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "0d47a9fbbddcd3d6976f38fd9a7f26452b40a02ed8b3d943845be77fc6d3461f",
+      "candidateOutputSha": "2cbe297da8ae6cf4358829876d0b770e8b51dff272f360220bd23e17c6056856",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: the free-text answer is accepted as item 1's custom disposition with no reprompt, the Recorded line echoes the user's text verbatim inside custom(...), the re-audit is explicitly scheduled before any conformance claim and Step 4 is stated as unavailable, and the handle=choice form appears only in the Recorded line. Note that Before already echoed the text verbatim, so f2 does not actually transition in this case despite the Expected-to-move entry. One wording caution for the scheduled-execution list: step 3 says 'Commit the change and re-audit conformance', which reads as committing before the re-audit; to make the execute-order barrier unambiguous, order it as 'Re-audit conformance against the manifest requirement, then commit' (or split re-audit into its own step before any commit/Step 4 mention). Otherwise the numbered execution schedule plus the explicit 'Step 4 is not yet available' line is a clear improvement over Before's prose and delivers the Change without moving any fact.",
+      "wallMs": 12121,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
 }

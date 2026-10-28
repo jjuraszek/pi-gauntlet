@@ -1,34 +1,42 @@
 {
   "sample": "directional-dependency",
   "arm": "candidate",
-  "skillSha": "1b3c80ee2b0f9ba7f7fd76684cc40b04506c351cf74ff9b0aeb23b43d848d0bf",
+  "skillSha": "0520d3c0b96de923e1884d225da8a91aebc913143e9fc7edf77c33876e7daa8d",
   "inputSha": "e3f0acb4b55eb61d34186d18066ff28064318fb96e765ffc423a606316e69a12",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\n\nauto-applied fix commits: none\n\nwhole-diff minors: none\n```\n\n---\n\n**Step 3.5 → Step 4, as the operator sees it:**\n\n```\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n```\n",
+      "words": 82,
+      "wallMs": 12982,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n\n---\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n",
-      "words": 106,
-      "wallMs": 10634,
+      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nwhole-diff minors: not recorded\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
+      "words": 70,
+      "wallMs": 7831,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "d656fb8baea796ebfecb16817e20d534451d68144e7695f39c5456a0e93c08cc",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
-      "baselineOutputSha": "1a6a9bc5c2f8f25736509e128295d3419a84bfa0e4c5276801dc10c5e0597ec3",
-      "candidateOutputSha": "bb421c48927bce73ffe65c83b73f0e73b8b79ae7688ae8a6afdc23d5353eb307",
+      "baselineOutputSha": "d865ec7e7edfaf22d436a0f36333835ab2b1f425fe5be14f4e8229a8b39c496c",
+      "candidateOutputSha": "a886e83e5b491f3cc6fcd79d16a0ef3fa61ffd27fafd72caaeb727620f05fd96",
       "facts": {
         "f1": {
           "before": "holds",
@@ -61,10 +69,52 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all six facts: it names acme/widgets#46 as the recorded deferral, introduces no gap decisions for the delivered disabled-button dependency, and reaches Step 4. No listed fact changes. The explicit Step 4 gate marker before the closure summaries and the complete five-option menu deliver the relevant wording change without losing Before's conformance facts. Retain that structure and keep the closure options distinct from unresolved-gap decision items.",
-      "wallMs": 6901,
+      "feedback": "No fact moved: both outputs record the settled AC3/AC5 deferrals to acme/widgets#46 on the Deferred/deviates line, report CONFORMS with 0 open and no decision items, and reach Step 4's first line ('Implementation complete. What would you like to do?'). After correctly adds the Step 4 gate marker ('gauntlet: gate=finishing-a-development-branch/step-4') ahead of the summaries, which is what the Change asked for on clean closure. However, After truncates the Step 4 menu after item 1, while the Change explicitly requires the zero-gap CONFORMS fall-through to render Step 4's menu in full, options included, and Before rendered all five options plus 'Which option?'. To keep every Before fact and fully deliver the Change, keep the gate marker and summaries as in After but continue the render through items 1–5 and the closing 'Which option?' line rather than stopping at the first option.",
+      "wallMs": 13403,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d656fb8baea796ebfecb16817e20d534451d68144e7695f39c5456a0e93c08cc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "e24cab4f63aed61eadaee5bfe4109473eb95fcde7e10d3a07b2785cdd6b58546",
+      "candidateOutputSha": "9f4ff23bb5694645c227ac56ca4c28f23538a53f213b446644a695b743a1886c",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs record the AC3/AC5 deferrals to acme/widgets#46, report 0 open with no decision items, and reach the first Step 4 line (After additionally shows the gate=finishing-a-development-branch/step-4 marker before the Step 4 summary, as the Change intends). However, After truncates the Step 4 menu after option 1 — Before rendered all five options and the 'Which option?' prompt — which runs directly against the Change's own requirement that the zero-gap CONFORMS fall-through 'render Step 4's menu in full, options included'. That truncation happens not to touch any fact in this case, but it is the exact behavior the deviates/f5 strengthening was meant to eliminate and would fail a full-menu fact elsewhere. Keep the gate marker placement, but ensure the assembly emits the complete option list (1–5) and the closing question after the marker; also consider dropping the duplicated 'Closure / conformance' block so the Step 3.5 summary appears once before the marker and the Step 4 summary once after it.",
+      "wallMs": 16090,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
 }

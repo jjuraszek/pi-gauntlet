@@ -1,36 +1,46 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "1b3c80ee2b0f9ba7f7fd76684cc40b04506c351cf74ff9b0aeb23b43d848d0bf",
+  "skillSha": "0520d3c0b96de923e1884d225da8a91aebc913143e9fc7edf77c33876e7daa8d",
   "inputSha": "4525f666e41ce19b754fc83ea9849d1d4b700b8ee2176a23deae2f3e3434c265",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=verification-before-completion/step-6\n\nConformance fix loop hit its cap: both funded rounds (`maxFixRounds: 2`) ran, and G1 - Required CSV header is still open. Verification stays **incomplete**. Nothing has shipped and nothing further has been dispatched.\n\n**G1 - Required CSV header is missing**\n- verdict: PARTIAL\n- recommended: fix\n- touched-files: `src/export.ts` (named-branch conformance worktree)\n- round history:\n  - R1 - PARTIAL: wrong delimiter\n  - R2 - PARTIAL: header still absent\n\nThe loop cannot continue without your explicit approval. Do you want to fund more fix rounds for G1 - Required CSV header?\n\n1. Fund more rounds. Reply with a number, e.g. `1. 2` for two more rounds. I record your approval with `grant_fix_rounds` in your words, then resume at fix-wave step 2 for G1.\n2. Fund nothing. The escalation stays terminal, verification stays incomplete, and G1 - Required CSV header stays open and unshipped.\n\nRecommended: 1 - The fix is narrow and owned by a single file. R2 fixed the delimiter, so one funded round targeting only the missing header has a clear path to `CONFORMS`.\n\nReply with `1. <N>` or `2`.\n",
+      "words": 169,
+      "wallMs": 7989,
+      "mechanical": {
+        "gate-first": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=verification-before-completion/step-6\nThe conformance fix loop has exhausted both funded rounds (maxFixRounds: 2). Verification remains incomplete.\n\n**G1 — Required CSV header is missing** remains **PARTIAL** in `src/export.ts`.\n- Round 1: PARTIAL — wrong delimiter.\n- Round 2: PARTIAL — header still absent.\n- Recommended remediation: fix the export to include the required CSV header.\n\nDo you approve funding additional fix rounds? If so, specify how many. No further fixes or shipping will proceed without your approval.\n",
-      "words": 70,
-      "wallMs": 4166,
+      "text": "gauntlet: gate=verification-before-completion/step-6\nThe conformance fix loop has exhausted both funded rounds (2/2). Verification remains incomplete.\n\n**G1 — Required CSV header missing** remains **PARTIAL**.\n- Round 1: PARTIAL — wrong delimiter.\n- Round 2: PARTIAL — required header still absent.\n- Remediation: add the required CSV header in `src/export.ts` in the named-branch worktree, then test and re-audit.\n\nFurther fixes require explicit funding. How many additional fix rounds do you approve? No further round will run without your approval.\n",
+      "words": 71,
+      "wallMs": 6644,
       "mechanical": {
         "gate-first": "holds"
       }
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "35760effc333a81b77ab94f67f76b0b814ea3515dfb629b6483f70ebe0dd6e30",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
-      "baselineOutputSha": "12954bd3a282fc1192239f6325f4af66a45c41b08b422a8900121d153143d59a",
-      "candidateOutputSha": "2d2043d5070f5bb7126898bc4bb56612a027729dc1b812590d18e8ace7a747a9",
+      "baselineOutputSha": "db1c56a63074e808889c940265dc1031ad294df824261ffe98f96044d1e032ca",
+      "candidateOutputSha": "591df54d4c411faa98864080a087eab8fa23e2f92ae42e30db9ceed0058084e8",
       "facts": {
         "funding": {
           "before": "holds",
@@ -48,10 +58,37 @@
           "label": "intended change"
         }
       },
-      "feedback": "After preserves both facts: it names G1 and both round outcomes, requests explicit funding without granting or dispatching it, and keeps verification incomplete without a terminal marker or finishing menu. It also adds the step-6 gate marker first. To deliver the requested problem-first structure more literally, put “G1 — Required CSV header is missing — remains PARTIAL” immediately after the marker, then state the exhausted funding and round trail. Retain Before’s named-branch worktree attribution and the explicit approval requirement.",
-      "wallMs": 4318,
+      "feedback": "After keeps both facts: it opens with the step-6 gate marker, states the unresolved G1 gap immediately after it, carries the R1/R2 trail, asks for explicit funding with numbered replies, and only records grant_fix_rounds after the user answers, while verification is explicitly left incomplete with no done/stuck marker and no Step 4 finishing menu. Two small wording risks worth tightening so the decision brief is not misread as a closure menu: option 2's phrase 'the escalation stays terminal' and the step name 'fix-wave step 2' (Before said 'Fix loop step 2') — prefer 'the loop stays stopped and verification remains incomplete' and keep the step name consistent with the skill's Fix loop vocabulary. Otherwise the numbered brief with a single lettered/numbered recommendation and the `1. <N>` / `2` reply instruction delivers the Change without moving either fact.",
+      "wallMs": 11626,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "35760effc333a81b77ab94f67f76b0b814ea3515dfb629b6483f70ebe0dd6e30",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "cfeedfea7a8e6cd7969b77141102b1233653af62542a2eb002e9fc6c18136d9c",
+      "candidateOutputSha": "c83fece6f723fd61203da81e31c041b99d72d51ff096096d55bafd57f90ca62a",
+      "facts": {
+        "funding": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "nonterminal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gate-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Nothing moved: After still names G1 with its two-round PARTIAL trail, asks for an explicit count of additional rounds, records no grant, dispatches nothing, states verification is incomplete, and emits no done/stuck marker or finishing menu; the added step-6 gate line delivers the Change without touching either fact. Two small wording points to keep it that clean: Before's standalone 'Recommendation: fix' line and the 'if any' qualifier in the question were dropped — restoring 'Reviewer recommendation: fix' as its own bullet and asking 'How many additional fix rounds, if any, do you approve?' keeps the reviewer disposition visible and makes zero an explicit option, and phrasing the remediation bullet as 'Planned fix (not started):' avoids any reading of 'then test and re-audit' as work already scheduled before funding.",
+      "wallMs": 9205,
       "verdict": "improved"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
 }

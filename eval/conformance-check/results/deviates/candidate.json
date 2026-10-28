@@ -1,34 +1,42 @@
 {
   "sample": "deviates",
   "arm": "candidate",
-  "skillSha": "1b3c80ee2b0f9ba7f7fd76684cc40b04506c351cf74ff9b0aeb23b43d848d0bf",
+  "skillSha": "0520d3c0b96de923e1884d225da8a91aebc913143e9fc7edf77c33876e7daa8d",
   "inputSha": "cfbba37b0dacb8910de51657e5c11a966916158e56d20cd346264f5493062611",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n---\n\ngauntlet: gate=finishing-a-development-branch/step-4\n\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n",
+      "words": 113,
+      "wallMs": 16390,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
-      "words": 82,
-      "wallMs": 10223,
+      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nwhole-diff minors: not recorded\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
+      "words": 78,
+      "wallMs": 6813,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "35578e980f4c52bc88ff73d6a2aca63fa79154db9b4dd9d0733ff4cdd8a307be",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
-      "baselineOutputSha": "27525a1b1463886c2e7b6efee17ceb8f75063f88350e759796108e5afdff0380",
-      "candidateOutputSha": "2f857da38c04e88fa3d3f4c7a43412a35a34379aee0dfea87d6bebfca32109d9",
+      "baselineOutputSha": "9251b646f305fc9eeef44d520d78fa3982c0bc91b0b97276cc4cd8744a9cbb84",
+      "candidateOutputSha": "49aec63cd2fe968d44700a4df60838f8051345d2660e7053dfc56803f8cabe3d",
       "facts": {
         "f1": {
           "before": "holds",
@@ -56,8 +64,45 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No listed fact changes: both outputs treat AC2 as a recorded deviation without decision items, fix dispatch, or re-audit, and both reach the Step 4 options menu. After adds the Step 4 gate marker before the closure summaries, as requested, but truncates the menu after option 1. Keep that marker placement and the deviation wording, and restore options 2–5 and the final choice prompt from Before to deliver the requested full-menu fall-through.",
-      "wallMs": 14107,
+      "feedback": "Nothing moved on this case: both outputs record AC2 as a single Deferred/deviates line naming the row and the 12 visible-by-default columns, neither emits a decision item, fix dispatch, or re-audit for it, and both reach the Step 4 options menu with all five options listed. The Expected list predicted f5 fails -> holds, but this Before sample already renders the full option list through 'Which option?', so the zero-gap fall-through strengthening is not observable here as a transition - the regenerated baseline you are comparing against may differ from the one the expectation was written for. After's visible differences are the added 'gauntlet: gate=finishing-a-development-branch/step-4' marker placed before the closure summary and the Step 4 menu, and the collapse of the explanatory requirement list and fenced blocks into a single status block; both are consistent with the Change (clean closure uses the Step 4 marker before summaries) and keep every fact. If you want the marker's position to be unambiguous, keep it as the first line after the separator, exactly as After does, and keep the Deferred/deviates line verbatim so f2/f3 continue to hold.",
+      "wallMs": 12198,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "35578e980f4c52bc88ff73d6a2aca63fa79154db9b4dd9d0733ff4cdd8a307be",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "241e13ab01560de2682102e5cd2bb696ab3ba3fd290c2aba71dcf295b767084c",
+      "candidateOutputSha": "3953a7631a2d5ff0cb89e5b114dc2eb3fedd576d31ccb9b4393c041f087dbcbd",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After preserves everything Before had: AC2 is still named on the Deferred/deviates per spec line with the 12-default-columns explanation, no decision items or fix/re-audit are produced, and the render reaches the Step 4 menu — now explicitly tagged with gate=finishing-a-development-branch/step-4 and with the happy-path line carried into both blocks, which is an improvement. However, the Change promised the zero-gap CONFORMS fall-through would render Step 4's menu 'in full, options included', and After still shows only option 1 (Push and create a Pull Request), identical to Before; both reach the menu, so f5 holds in each, but the claimed fails->holds transition is not visible in the text. To actually deliver the strengthening, the After wording should instruct the renderer to emit the complete Step 4 option list (e.g. push/PR, merge locally, keep branch, discard) after the question line rather than stopping after the first numbered item, while keeping the gate marker and the unchanged deviates line as it already does.",
+      "wallMs": 18029,
       "verdict": "unchanged"
     }
   },
@@ -178,5 +223,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
 }

@@ -1,34 +1,42 @@
 {
   "sample": "no-dispositions",
   "arm": "candidate",
-  "skillSha": "1b3c80ee2b0f9ba7f7fd76684cc40b04506c351cf74ff9b0aeb23b43d848d0bf",
+  "skillSha": "0520d3c0b96de923e1884d225da8a91aebc913143e9fc7edf77c33876e7daa8d",
   "inputSha": "a7f170837dfc174e240824392d8d33a838e93ee8b3d0b89439428b01a009e454",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n---\n\n```\ngauntlet: gate=finishing-a-development-branch/step-4\n\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n```\n",
+      "words": 51,
+      "wallMs": 9511,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nwhole-diff minors: not recorded\n\n---\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
-      "words": 48,
-      "wallMs": 9575,
+      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nwhole-diff minors: not recorded\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
+      "words": 36,
+      "wallMs": 9661,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "468891d80c1566b6cd8f5e9f39fe285e34374c35346e1832d709ae38ce733e08",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
-      "baselineOutputSha": "cd21aef654f43ac92f3d1b045503146e06b1a59f4895a72c103f9b7f3135f2f7",
-      "candidateOutputSha": "76da6584fd19da1b5dd7ac184fc56ed4961637d4746115230f846cc7575958a3",
+      "baselineOutputSha": "4deec8289e5cf41d370d29cd116327b6325a6156012562dcce806b6e5f284988",
+      "candidateOutputSha": "ae1024745fe37ecaf501a57e2d136c8e0b8e804fc17c64eaf346ef12684743b2",
       "facts": {
         "f1": {
           "before": "holds",
@@ -36,9 +44,9 @@
           "label": "held"
         },
         "f2": {
-          "before": "fails",
-          "after": "fails",
-          "label": "pre-existing"
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         },
         "f3": {
           "before": "holds",
@@ -56,10 +64,47 @@
           "label": "held"
         }
       },
-      "feedback": "After introduces the Step 4 gate marker before the closure summaries without changing any listed fact. Both outputs omit gap cards, but neither explicitly reports every requirement row as delivered, so f2 fails in both. After also truncates the Step 4 menu after option 1, contrary to the requested full-menu fall-through. Keep the new marker placement and restore options 2–5 and the final reply prompt from Before. To satisfy f2 as well, explicitly report R1–R8 as DELIVERED while retaining zero decision items and avoiding fix dispatch or re-audit.",
-      "wallMs": 8481,
+      "feedback": "No fact moved: both outputs skip the Deferred/deviates line, report CONFORMS (0 open) with no gap card, produce zero decision items, trigger no fix or re-audit, and reach Step 4. After correctly adds the `gauntlet: gate=finishing-a-development-branch/step-4` marker before the summaries, which is what the Change asked for on clean closure. However, After truncates the Step 4 menu after item 1, dropping options 2–5 and the `Which option?` line, which directly contradicts the Change's own requirement that the zero-gap CONFORMS fall-through 'render Step 4's menu in full, options included' — Before rendered all five options. The wording likely over-applied the 'replay only the next response' continuation rule (or an 'include the re-ask clause / stop at the focused re-ask' instruction) to the clean-closure case. To keep every Before fact and still deliver the Change, scope the truncation rules explicitly to continuation samples (no-recommendation-reask / no-recommendation-execute) and state for the zero-gap path: 'emit the step-4 gate marker, then the closure summary lines, then the complete Step 4 menu (all five numbered options followed by the question line), without stopping early.'",
+      "wallMs": 14163,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "468891d80c1566b6cd8f5e9f39fe285e34374c35346e1832d709ae38ce733e08",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "d5715d4d2d1d8bdfcba10ebdc17885f090c3a792a17501764365c09a810248a8",
+      "candidateOutputSha": "5198c5208d3458aedb557169290fcf746b9d76fabd1c0afa06ea311ed01f0f7b",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both renders print no Deferred/deviates line, report CONFORMS (0 open) with no gap card, produce zero decision items, dispatch no fix or re-audit, and reach Step 4 (After even adds the gate=finishing-a-development-branch/step-4 marker before the summaries, as the Change asks). However, After regresses on the Change's own stated goal of rendering Step 4's menu in full: it stops after option 1, omitting options 2–5 and the 'Which option?' prompt that Before printed, and it also drops the 'auto-applied fix commits: none' line that made f4 explicit. To keep every fact Before kept while delivering the Change, keep the gate marker placement and single-block closure summary, but retain the 'auto-applied fix commits: none' line and render the complete five-option menu followed by 'Which option?' rather than truncating after the first item.",
+      "wallMs": 13095,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
 }
