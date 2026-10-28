@@ -1,4 +1,4 @@
-for: 0b4805feb26a9935553523a0e3543600354b256cd037c8b9c448d67c756382be
+for: cacc7cd5e8078a10e603cae3c8d995f0c7589ffa7881adbd83f2911cc831a44c
 
 ## Change
 Feed attributable plan-aftermath failures back into the same amendment batch, restore only an entirely eligible dirtied-source row, honor amend permission independently of funding, and stop at two applied retry items or repeated evidence. Add amendment-surface section 5 immediately after section 4 in the headed assembly, retaining wordCap 1400, the denylist and existing bundle drops (a path drop removes both slices). This changes whole-target assembly cost: parent verification reseeds the baseline with `node eval/run.mjs brainstorming --baseline-only`, then runs the full `node eval/run.mjs brainstorming` on both models and produces report/records; the four additions alone are not the replay scope. Keep replays outside task Tests because the runner CLI cannot satisfy its file-token contract; add no Replays contract or selective bundle machinery.
