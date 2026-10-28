@@ -30,6 +30,21 @@ export function lintBriefGrammar(files) {
     }
     if (!inContract) findings.push({ rule: "grammar-missing", file: CONTRACT_FILE, text: pattern.source });
   }
+  const legLine = /^(?:legs:|  - repo: .+|    (?:worktree|branch|HEAD|dirty|receipt): .+)\s*$/gm;
+  for (const { rel, text } of files) {
+    if (rel !== CONTRACT_FILE) {
+      for (const match of text.matchAll(legLine)) findings.push({ rule: "grammar-outside-contract", file: rel, text: match[0].trim() });
+      continue;
+    }
+    for (const match of text.matchAll(/^legs:\n((?:  .+\n)+)/gm)) {
+      const entries = match[1].split(/(?=  - repo: )/).filter(Boolean);
+      const entry = /^  - repo: .+\n    worktree: (?:missing|\/[^\n]+|<[^\n]+>)\n    branch: .+\n    HEAD: .+\n    dirty: .+\n(?:    receipt: .+\n)?$/;
+      const tail = text.slice(match.index + match[0].length);
+      if (entries.length < 2 || entries.some(value => !entry.test(value)) || !tail.startsWith("Gate history not restored - re-validate before advancing.")) {
+        findings.push({ rule: "legs-layout", file: rel, text: match[0].trim() });
+      }
+    }
+  }
   for (const rel of CITING_SKILLS) {
     const f = files.find((x) => x.rel === rel);
     if (!f || !f.text.includes(CITE)) findings.push({ rule: "cite-missing", file: rel, text: CITE });

@@ -65,6 +65,54 @@ for (const telemetry of [".pi/gauntlet/telemetry", "records/custom telemetry"]) 
 }
 
 // Wording checks pin the finish-owned contract, not a live GitHub boundary.
+const legsPath = new URL("../skills/finishing-a-development-branch/reference/legs.md", import.meta.url);
+const legs = () => readFileSync(legsPath, "utf8");
+
+for (const [name, pattern] of [
+  ["all-leg verification before menu", /Before Step 4[\s\S]*every leg's recorded verification[\s\S]*owned AC/],
+  ["changed-leg freshness", /audited head and tree[\s\S]*re-verify and re-review/],
+  ["companion-first delivery", /companions in declared sibling order, then home/],
+  ["durable receipt shape", /receipts\/<spec filename>\/<repo>[\s\S]*attempted-head:[\s\S]*delivered:[\s\S]*verification: passed/],
+  ["PR retry validation", /state,headRefOid[\s\S]*attempted head[\s\S]*update the existing PR/],
+  ["squash retry validation", /reachable from the primary's default branch[\s\S]*rerun verification, not squash/],
+  ["complete home seal", /complete companion results[\s\S]*strip[\s\S]*--leg[\s\S]*Never seal partial/],
+  ["stripped-plan retry", /stripped plan[\s\S]*every companion has a receipt/],
+  ["one discard confirmation", /branch, commit count, and worktree[\s\S]*one typed `discard`/],
+  ["recorded cleanup", /recorded `## cleanup`[\s\S]*`destroy:`[\s\S]*teardown hook[\s\S]*owned built-in/],
+  ["cleanup refusal", /`failed`[\s\S]*leave the tree intact[\s\S]*remaining report lines/],
+  ["failure reporting", /Shipped: <repo> <sha\|pr>[\s\S]*Not shipped: <repo>/],
+]) {
+  test(`coordinated finish: ${name}`, () => assert.match(legs(), pattern));
+}
+
+test("coordinated retry verifies and delivers unlanded home without the removed companion checkout", () => {
+  const text = legs();
+  const receipts = text.indexOf('## Durable receipts');
+  const verification = text.indexOf('## Verification and closure');
+  assert.ok(receipts < verification, 'validate receipts before checkout-based fan-out');
+  assert.match(text.slice(verification), /Exempt a leg with a validated receipt and a missing worktree from checkout-based verification and conformance/);
+  assert.match(text.slice(verification), /Run fresh checks for every unlanded leg/);
+  assert.match(text, /rerun verification, not squash, against the delivered primary state/);
+  const members = [
+    { repo: 'companion', validatedReceipt: true, treeExists: false },
+    { repo: 'home', validatedReceipt: false, treeExists: true },
+  ];
+  const actions = [];
+  for (const member of members) {
+    if (member.validatedReceipt && !member.treeExists) continue;
+    assert.ok(member.treeExists, 'verification must not touch a removed checkout');
+    actions.push(`verify ${member.repo}`, `conformance ${member.repo}`);
+  }
+  for (const member of members) {
+    actions.push(`${member.validatedReceipt ? 'skip' : 'deliver'} ${member.repo}`);
+  }
+  assert.deepEqual(actions, ['verify home', 'conformance home', 'skip companion', 'deliver home']);
+});
+
+test("finish routes coordinated mechanics once and retains legacy cleanup", () => {
+  assert.equal((skill.match(/\]\(reference\/legs\.md\)/g) ?? []).length, 1);
+  assert.match(skill, /recorded `contract:` lines[\s\S]*legacy spec without `## Legs`/);
+});
 for (const [name, pattern] of [
   ["ordered record pairs", /every top-level `PR:`\/`Pre-rework head:` pair, home first/],
   ["all original heads", /\| Merge \| For every recorded original head, home first, `git merge-base --is-ancestor <PRE_REWORK_HEAD> HEAD`/],
@@ -91,7 +139,7 @@ test("finish preserves rendered template whitespace and the skill line budget", 
   ]) {
     assert.ok(skill.includes(fragment), `missing preserved template: ${fragment}`);
   }
-  assert.ok(skill.trimEnd().split("\n").length <= 500);
+  assert.ok(skill.trimEnd().split("\n").length < 500);
 });
 
 test("PR-list close question follows body edit and precedes completion", () => {

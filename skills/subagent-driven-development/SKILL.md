@@ -118,6 +118,14 @@ Implementer prompt templates must instruct subagents to return one of these stat
 - Omit `model:` when `closureReview.model` or `specCouncil.chair` is `undefined`; pass an `implModel` string verbatim, and stop with a note when `implModel` is `undefined` (Fix-Loop Rounds).
 - Apply suffix edits such as `:low` only to a runtime-resolved string, never to a name the skill wrote; never write a provider or model name, tier tasks by cost, or swap a pinned model for a cheaper or stronger one.
 
+## Leg routing
+
+Read `## Legs` in the home spec and [the leg contract](../brainstorming/reference/legs.md). Admit task `Leg:` through `plan_check`; absent means home. Repair `leg-unknown` in the plan, never membership. Keep the existing flat tracker and task indices.
+
+Require leg-homogeneous waves. Split a mixed wave into consecutive single-leg waves preserving dependencies before dispatch. Select its owning worktree before capturing `WAVE_BASE_SHA`; use that root for isolation, dispatch `cwd`, `git -C`, snapshots, integration, scoped tests, in-place repair and wave commit. In the following recipes, substitute that root for every implementation worktree placeholder. Keep authoritative spec reads at the absolute home spec path, including companion SR snapshots.
+
+Carry `Leg:` and combined spec/task `Rules:` as additive task context to every implementer, spec-reviewer and code-reviewer, including repairs and re-reviews; require reading those files before acting. Resolve rules from the owning checkout, not home. Keep dispatch and acceptance shapes unchanged.
+
 ## Dispatch
 
 For the fan-out + worktree + patch-integration + conflict mechanics, see `dispatching-parallel-agents`.
@@ -325,6 +333,8 @@ Record its review tree per [Fix delta](#fix-delta) before every parent-dispatche
 - Lower quality gates (skip reviews) because a task is "almost done"
 
 ## After All Tasks Complete
+
+For a coordinated run, execute verification and the following reviews for every leg in its own checkout against its owned original ACs and recorded verification contract, under home flow policy. Keep freshness per leg and route repairs to their owning checkout; repeat invalidated gates there. After every leg passes, finish the coordinated run once from home. Keep legacy and single-member execution free of companion loops, leg files, `legs:` briefs and `--leg` arguments.
 
 0. Call `phase_tracker({ action: "start", phase: "verify" })`. (The `implement` phase was started at execution start and auto-completes from `plan_tracker` once all tasks are done; this flow runs its own verify gate instead of `/skill:verification-before-completion`, so it must mark verify itself.)
 1. **Parent full verification.** Run the complete plan-header `**Verification:**` command set foreground in the worktree via `(cd "<worktree>" && <command>)`: tests plus every declared lint, type, format, and build check. A failure must be repaired and the full set rerun successfully before the next step. Before dispatching a verification repair, reopen (`in_progress`) every existing plan-task index whose `Files:` ownership includes its touched files; leave unowned cross-cutting repair work in the verification report. Those indices stay `in_progress` through the successful full rerun **and** step 2's whole-diff review accepting the repair — that acceptance is their completion point, not the passing rerun. Commit any verification-produced tracked changes; use the resulting `HEAD_SHA` in the review task and include the commands/results in its existing `DESCRIPTION`.
