@@ -545,6 +545,12 @@ test('PR-head provisioning validates and recovers admitted member heads before b
     'status --porcelain --untracked-files=all', 'manual recovery before rerunning',
     'Never reset or clean',
   ]) assert.ok(text.includes(marker), marker);
+  const ancestryRow = text.split('\n').find((line) => line.startsWith('| Local branch exists'));
+  assert.match(ancestryRow, /N=1 without a rework-base ref, with or without a worktree/);
+  assert.match(ancestryRow, /local branch <headRefName> is at <sha7>, not an ancestor of origin\/<headRefName> \(<sha7>\); rework needs the PR head\./);
+  const probe = text.split('\n').find((line) => line.startsWith('Before the local-branch ancestry stop'));
+  assert.match(probe, /observed exit status 0 and a nonempty commit id/);
+  assert.match(probe, /exit 1 means no active rebase/);
   const recoveryRow = text.split('\n').find((line) => line.startsWith('| Recovery validated'));
   for (const marker of ['git -C "$ROOT" worktree add "$WORKTREE" <headRefName>', 'git -C "$WORKTREE" rev-parse HEAD', 'validated local tip', 'Never use update-ref, -b, reset, clean, or deletion']) assert.ok(recoveryRow.includes(marker), marker);
   assert.ok(text.indexOf('every admitted PR') < text.indexOf('## Provision'));
@@ -606,7 +612,12 @@ test('leading PR lists admit in order and keep every retained contract', () => {
   const gather = read('skills/brainstorming/gatherer.md');
   for (const marker of ['### PR #<N>', 'Member replay:', 'own changed paths', 'home']) assert.ok(gather.includes(marker), marker);
   assert.ok(!gather.includes('or threads: not fetched'));
-  assert.match(gather, /> Member replay: [^\n]*preserve merge outcomes in merge mode/);
+  assert.match(gather, /> Supply `Member replay:` lines in rebase mode or `Member merge:` lines in merge mode as scout inputs only/);
+  const record = subject.slice(subject.indexOf('## Record in the spec'));
+  assert.match(record, /Put rebase `Member replay:` outcomes in listed order/);
+  assert.match(record, /Retain merge `Member merge:` outcomes in Step 4 and scout inputs only, not in the record/);
+  assert.match(subject, /Supply base-SHA constraint documents, `Member replay:` lines in rebase mode or `Member merge:` lines in merge mode/);
+  assert.doesNotMatch(record, /retain member merge outcomes for merge mode/);
   assert.match(gather, /> contract exceptions, scoped test results[^\n]*Rework base after a complete rebase/);
   assert.ok(!gather.includes('> Preserve merge outcomes in merge mode; carry optional Rework base after a complete rebase.'));
   const lint = read('skills/brainstorming/reference/spec-finalization.md');

@@ -137,7 +137,7 @@ from `reference/pr-subject.md` (keep scout unconditional):
 > Combined changed paths: `git diff --name-only <BASE_SHA>...HEAD` output, after the
 > member replays and base sync. Read `git diff <BASE_SHA>...HEAD` from the worktree.
 > Preserve PRE_REWORK_HEAD for home's Before provenance, not scout's code input.
-> Member replay: `<per-member outcome lines>` (preserve merge outcomes in merge mode); Sync result: `<base sync line,
+> Supply `Member replay:` lines in rebase mode or `Member merge:` lines in merge mode as scout inputs only; Sync result: `<base sync line,
 > contract exceptions, scoped test results>`; carry optional Rework base after a complete rebase.
 > Authoritative base-HEAD constraints: `<git show <BASE_SHA>:<path> texts for
 > AGENTS.md, first-found overrides, REVIEW.md, and all cited constraint documents;
@@ -231,7 +231,7 @@ convention; slug minted from the initial prompt):
 
 ## PR under rework
 <rework PR subject only: every per-PR scout subsection, ordered original heads, threads,
-member-carried spec paths, and supplied Member replay/base values per
+member-carried spec paths, and supplied Member replay or Member merge/base values per
 reference/pr-subject.md; retain these values even when scout failed>
 
 ## External context
