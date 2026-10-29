@@ -1,36 +1,101 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "ee7d1855929f08686507097c6a2b7b4473c91b2ff46757c8f36772899005d592",
+  "skillSha": "a75d969897e3b91f0f31ada155add282d22f39b29f615374051f15ef6dc894a8",
   "inputSha": "a1a3f0fc2fce24982ddce157aca8b97f6c714d605dd237ea0057dee2ed1857a0",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nThe loop child for row 1 made one commit but left uncommitted changes in the implementation worktree. The commit was not validated or accepted, and the ledger was not read from it. The branch, the commit and the uncommitted changes are untouched.\n\nProblem: row 1 evidence reads `check parser: expected colon, got comma`. The last decision line reads `row 1 failed | delimiter still wrong | retry`.\n\nPreserve every row's attempts and the total iteration cap.\n\nChoose one:\n\n1. **Authorize discard and reset, then retry row 1.** This throws away the uncommitted changes and resets the branch to the last valid commit, before this iteration's child commit. The consumed dispatch still counts: `iterations` becomes the restored HEAD's value + 1 before the next normal bump. Row 1 keeps its attempts. You may add a hint for the retry.\n2. **Amend.** Change or re-bound row 1 through the brainstorming amendment surface. A row is cut only through an approved disposition amendment.\n3. **Stop.** Leave implement active and the branch exactly as it is, including the dirty tree and the unvalidated commit.\n\nReply with 1, 2 (with your amendment) or 3. For option 1, you can add an optional hint.\n",
+      "words": 204,
+      "wallMs": 13821,
+      "mechanical": {
+        "question-first": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty.\n\nProblem: The child returned one commit but left uncommitted changes. Row 1 evidence: “check parser: expected colon, got comma”. Last decision: “row 1 failed | delimiter still wrong | retry”.\n\nPreserve every row's attempts and the total iteration cap.\n\n1. Authorize discarding uncommitted changes and resetting to the last valid commit, then resume with the consumed dispatch count preserved.\n2. Stop and preserve the branch and working tree unchanged.\n\nNo cleanup or reset has been performed.\n",
-      "words": 83,
-      "wallMs": 6857,
+      "text": "gauntlet: question\nStopped: the child returned one commit with a dirty working tree.\n\nRow 1 remains open, attempts 1.\nProblem: “check parser: expected colon, got comma”\nLast decision: “row 1 failed | delimiter still wrong | retry”\n\nPreserve every row's attempts and the total iteration cap.\n\nAuthorize discarding uncommitted changes and resetting to the last valid commit before retrying row 1? The consumed dispatch count will be preserved; iterations will not reset, and cap remains 9.\n\n1. Authorize discard/reset and retry row 1, optionally with a hint.\n2. Stop and preserve the current branch state.\n\nNo cleanup or retry has run.\n",
+      "words": 99,
+      "wallMs": 9675,
       "mechanical": {
         "question-first": "holds"
       }
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "05bacdfb77f11ea0d0e5b421bfbea86b817c7280c6f1528790e7f2103f71aa5a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "16e80dabd6e4df063bc29f070b6ed5ba032f57612b02fceb24c77d5a4009a069",
+      "baselineOutputSha": "8f4920ced4d173a490b4f4bee961426e557927c5ad1cb361755e5d42b9deded8",
+      "candidateOutputSha": "042337f32d18e0ef91cfa40e07940ad6e82daef4e32445c7e2d297aa7e0a2069",
+      "facts": {
+        "authorization": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "preserved": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "question-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs carry the `gauntlet: question` prefix and both ask for explicit authorization before discarding or resetting, with no cap grant offered, so the authorization boundary survived the change. What moved is the ledger state: Before renders `Ledger: iterations 2, cap 9.` alongside the attempts count, so a reader can see the consumed iterations and the total cap are carried through the stop untouched; After drops that line entirely and only mentions 'iteration 2' in the header and a generic 'Preserve every row's attempts and the total iteration cap' sentence, so a careful reader cannot confirm the cap (9) or consumed iterations (2) are preserved rather than lost. The Change explicitly asks for the question prefix 'while preserving ledger state', so the After wording should keep the Before structure and simply add back the explicit ledger line—e.g. 'Row 1 is open with 1 attempt. Ledger: iterations 2, cap 9.'—before the options; the rest of After (untouched tree, implement stays active in option 3, no done/stuck marker, authorize-discard phrasing) is fine and can stay as written.",
+      "wallMs": 16172,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nThe loop child for row 1 made one commit but left uncommitted changes. Nothing has been discarded or reset. Its commit and the dirty changes are both preserved. The ledger was not read from HEAD because the boundary check failed.\n\nProblem: row 1 evidence `check parser: expected colon, got comma`; last decision `row 1 failed | delimiter still wrong | retry`.\n\nPreserve every row's attempts and the total iteration cap.\n\nLedger state: row 1 open, attempts 1; iterations 2, cap 9.\n\nChoose one:\n\n1. **Authorize discard and reset, then retry with a hint.** This discards the uncommitted changes and resets to the last valid commit.\n   - Iterations become the restored HEAD's value +1 before the next normal bump.\n   - Attempts are never reset.\n   - Reply `discard` and add your hint for row 1.\n2. **Amend the spec.** This goes through the brainstorming amendment surface. Row 1 can be cut only by an approved disposition amendment.\n3. **Stop.** Implement stays active, and the branch, its commit and the dirty working tree remain as they are.\n",
+        "words": 178,
+        "wallMs": 13039,
+        "mechanical": {
+          "question-first": "holds"
+        },
+        "judgeWallMs": 14100,
+        "facts": {
+          "authorization": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "preserved": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "question-first": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After keeps both facts: it still carries the gauntlet: question prefix, still asks the human to authorize before any discard/reset (option 1 is explicitly labelled 'Authorize discard and reset', and the text states nothing has been discarded or reset), offers no cap grant, and still preserves attempts 1, iterations 2 / cap 9, the commit and dirty tree, with implement active and no done/stuck marker. Two small drifts are worth tidying though they do not move a fact: After makes the hint sound mandatory ('retry with a hint', 'add your hint for row 1') where Before kept it optional ('You can add a hint'), and After drops the closing 'Reply with 1, 2 or 3' line while introducing a different reply token (`discard`) only for option 1, so the reply protocol is now inconsistent across options. Keeping Before's final 'Reply with 1, 2 or 3. For 1, you can add a hint.' and wording option 1 as 'Authorize discard and reset, then retry (optional hint)' would deliver the gauntlet: question prefix and preserved ledger/authorization boundary without narrowing the human's choices."
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "05bacdfb77f11ea0d0e5b421bfbea86b817c7280c6f1528790e7f2103f71aa5a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1861e2a50a838581f2dd0a0d44451cf05a387965acbcf5bf2b0f18c3b4e120f1",
-      "baselineOutputSha": "a34003baa4008ada0b5d97a76588e71590b9e9c1c89610d581f5076f111b43d1",
-      "candidateOutputSha": "9413fe1f101fe4ff1458d5886c86509e7cc68bd66b01f9aaf01bdc73c9681c12",
+      "intentSha": "16e80dabd6e4df063bc29f070b6ed5ba032f57612b02fceb24c77d5a4009a069",
+      "baselineOutputSha": "9049f53e25edfcefbfa5ce1c0e5074b253716652a774c09e666721985711ada0",
+      "candidateOutputSha": "cd61d3e32eb248e8d6e37a06f2f3a91a1f1e51b1152fbd1f5a9498c6611f0643",
       "facts": {
         "authorization": {
           "before": "holds",
@@ -43,15 +108,15 @@
           "label": "held"
         },
         "question-first": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After adds the requested leading `gauntlet: question` marker while retaining both listed facts: explicit discard/reset authorization without a cap grant, and preservation of attempts, consumed dispatches, cap, and the untouched tree without a done or stuck marker. To make that preservation unambiguous, replace the potentially misleading `iteration 1` heading with a row-based heading and explicitly state: `Row 1 remains open; attempts:1; iterations:2; cap:9; implement remains active. No cleanup or reset is authorized or performed pending your explicit authorization.`",
-      "wallMs": 7445,
-      "verdict": "improved"
+      "feedback": "Nothing moved between Before and After: both carry the gauntlet: question prefix, both ask explicitly for authorization to discard uncommitted changes and reset to the last valid commit, neither offers a cap grant, and both keep attempts, the consumed iteration count and the cap intact with no done/stuck marker and no action taken on the tree. After is actually slightly stronger on the preservation fact because it states 'Row 1 remains open, attempts 1' and 'cap remains 9' explicitly and closes with 'No cleanup or retry has run', which makes the untouched-tree state unambiguous. If you want it tighter still, echo the consumed count numerically ('iterations 2 of cap 9 consumed; neither resets') rather than only 'iterations will not reset', so a reader can verify the ledger state without inferring it; otherwise the After wording delivers the Change while keeping every fact Before kept.",
+      "wallMs": 12073,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "3ffa2f0701ca648ff212f5571520ed3acc5880c0"
 }

@@ -1,4 +1,4 @@
-for: dabf68a4866eb3ffcabe33c4fe049fbe80da3764e09ce2cc4f97711775254a12
+for: a75d969897e3b91f0f31ada155add282d22f39b29f615374051f15ef6dc894a8
 
 ## Change
 Prefix every human stop, including discard/reset authorization, with gauntlet: question while preserving ledger state and the authorization boundary.
