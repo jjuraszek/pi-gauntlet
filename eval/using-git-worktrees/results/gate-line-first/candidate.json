@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "1786ebb359087b828c79db22f37f400c55d2d9e94aee60971e8ae9f6ee7e7479",
+  "skillSha": "2d7286b00d7bc705d9ba7858e775fc347ef550b9812e82013f1dcc29ab6f8ccc",
   "inputSha": "9f0c2cf26e59997582707aad9bcaf0612140208bea5b7be00665f94b3187e47e",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\n\nHEAD in the primary checkout `/work/app` is detached at `def5678`, so I haven't created a worktree yet. Which base should the new timeout-work branch start from?\n\n1. **Current commit:** branch from `def5678`, the detached HEAD.\n2. **`main`:** branch from `main`.\n\nReply with 1 or 2, or name a different base. You can include a branch name too. Once I have your choice, I'll run the clean-base check and create the worktree.\n",
-      "words": 73,
-      "wallMs": 4449,
+      "text": "gauntlet: question\nHEAD in `/work/app` is detached at `def5678`, so I haven't created the worktree for the timeout work yet. Which base should the new feature branch start from?\n\n1. **Current commit**: branch from `def5678`, the detached HEAD.\n2. **`main`**: branch from `main`.\n\nReply with 1 or 2, or name another base ref.\n",
+      "words": 53,
+      "wallMs": 4505,
       "mechanical": {
         "first-line": "holds"
       }
@@ -28,7 +28,7 @@
       "status": "ok",
       "text": "gauntlet: question\nHEAD is detached at `def5678`. Should I create the timeout-work branch from the current commit (`def5678`) or from `main`?\n",
       "words": 21,
-      "wallMs": 2640,
+      "wallMs": 2277,
       "mechanical": {
         "first-line": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b4edfd0f5facbf0d34a45cf2ce23a923fa9ff214f579e7e3d62570292b88ea8e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
-      "baselineOutputSha": "1291ba4e7e31da7226d6c916b286e2e3677ed6b6963bbf4ff0137596f71e6e3b",
-      "candidateOutputSha": "3f8f149b7c23a5d14ffb4236dd188a349ac4ab890b9121dc29f3c5cdeba4660f",
+      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "baselineOutputSha": "9724c10d309bd6a8461edd5819e4a5a9d669715e705c09d7a589c48272831a45",
+      "candidateOutputSha": "12b1319ded963a9f500f23a16a4677c0fc9d2fb86f22baee47c316a8cd0ad8c6",
       "facts": {
         "choice": {
           "before": "holds",
@@ -53,15 +53,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After still presents exactly the two options (branch from the detached commit def5678 or from main), states the worktree has not been created, and explicitly defers worktree creation until the user replies, so the choice fact holds in both outputs. The additions in After — \"Reply with 1 or 2, or name a different base\" and the note that the clean-base check runs after the choice — are compatible with the fact and with the Change's clean-tree/fetched-base requirements; keep them. If anything, keep the phrasing \"I haven't created a worktree yet\" and \"Once I have your choice\" verbatim, since those are the lines that make the awaiting-before-creating part of the fact unambiguous, and avoid any wording that implies the clean-base check or worktree creation has already started.",
-      "wallMs": 7055,
+      "feedback": "Nothing moved in this case: both Before and After stop at Detached HEAD, present exactly the two bases (current commit def5678 vs main), explicitly state no worktree has been created, and wait for the user's reply, so the choice fact holds in each. The After wording is slightly leaner (it drops the symbolic-ref evidence line and the project-naming-convention note) and swaps Before's 'name a branch for the work' for 'name another base ref', which broadens the escape hatch from branch-name to base-choice; neither change affects the fact, but if you want to keep the diagnostic transparency Before had, retain a short parenthetical like '(`git symbolic-ref -q HEAD` returned nothing)' while keeping After's tighter two-option prompt. The Expected-to-move items in the Change (rebase/replay/recovery behaviors) are not exercised by this input, so this case offers no evidence for or against them.",
+      "wallMs": 8724,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b4edfd0f5facbf0d34a45cf2ce23a923fa9ff214f579e7e3d62570292b88ea8e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
-      "baselineOutputSha": "bf564d8f9362867da28f4fa4b3ccacff9c86993e4663b1eefb1fe04f0f2830ba",
+      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "baselineOutputSha": "53620e6f299d2a75319f747f3d4a8c654d1512576b09807c8fdd9810bba2d4f1",
       "candidateOutputSha": "53620e6f299d2a75319f747f3d4a8c654d1512576b09807c8fdd9810bba2d4f1",
       "facts": {
         "choice": {
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs stop at the Detached HEAD question and offer exactly the two bases (the current commit `def5678` or `main`) without creating a worktree or narrating commands, so the fact holds on both sides. After's rewording from \"the timeout worktree from this commit\" to \"the timeout-work branch from the current commit (`def5678`)\" makes the base choice more explicit and ties it to branch creation, which is consistent with the Change's provisioning emphasis; nothing moved. If you want to keep it tightly aligned with the worktree framing of Before while retaining After's clarity, a wording like \"Should I create the timeout worktree on a new branch from the current commit (`def5678`) or from `main`?\" preserves both the isolated-workspace intent and the explicit two-option base question.",
-      "wallMs": 6378,
+      "feedback": "Before and After are textually identical: both ask whether to create the timeout-work branch from the current commit def5678 or from main, and both stop there without creating a worktree, so the choice fact holds in each. The Change's PR-subject provisioning rewording did not touch the detached-HEAD question path at all, which is fine for this case; keep the detached-HEAD branch of the skill phrased as it is (single question naming def5678 and main, no command narration, wait for the answer) and confine the --no-rebase-merges/replay-order edits to the sync and recovery sections so this unrelated output stays stable.",
+      "wallMs": 4737,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "c15f0daad9dcdb2c78a79935df219ae3711e44a7"
+  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
 }
