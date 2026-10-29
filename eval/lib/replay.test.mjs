@@ -283,7 +283,7 @@ test("SDD assembly keeps completion and runner with candidate late read", () => 
   assert.ok(candidate.includes("## After All Tasks Complete"));
   assert.ok(candidate.includes("Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)"));
   assert.ok(candidate.includes("<!-- happy-path-shell -->"));
-  assert.ok(!candidate.includes("## When a Subagent Fails"));
+  assert.ok(candidate.includes("## When a Subagent Fails") && candidate.includes("under amend permission follow [Implementer-failure stops](reference/fix-loop.md#implementer-failure-stops) for one escalated attempt; otherwise STOP and report."));
   assert.ok(candidate.includes("reference/happy-path-run.md` at its absolute path"));
   assert.ok(candidate.includes("On an unreadable reference, stop with a blocking error"));
 });
