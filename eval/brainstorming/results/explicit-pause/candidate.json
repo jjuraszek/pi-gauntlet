@@ -1,7 +1,7 @@
 {
   "sample": "explicit-pause",
   "arm": "candidate",
-  "skillSha": "46230ac73e4c7b5113a163f24e5ccaa63fb52be65622b5210b286d3ec2351e00",
+  "skillSha": "66b3e9000af1c594c7c663c5b004cda619dc465f206315981c1b7b539fa865cb",
   "inputSha": "3d8c5f29b04e988b1925cd5a3b31cea4953518aae9c28a11f4ea00ada7becb63",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Paused. Recorded: settings ownership uses the existing resolver (`settings/resolver.ts:12`), with `ui/report-view.ts:30` consuming the resolved value. No view-local settings object.\n\nWhether report filters reset on a workspace change is still open. When you've checked, reply with what you found, or just say \"continue.\" I'll take it from there with the next question, then move on to approaches. Nothing past this point is decided or approved yet.\n",
-      "words": 65,
-      "wallMs": 5614,
+      "text": "Recorded: the report-view setting will use the existing settings resolver (`settings/resolver.ts:12`), which `ui/report-view.ts:30` already reads.\n\nPausing here at step 4, before approaches. Whether report filters reset on a workspace change is still open, so I'll pick it up with your findings when you're back.\n",
+      "words": 44,
+      "wallMs": 4994,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Paused here. We’ll reuse the existing settings resolver; reset behavior on workspace changes remains undecided. We won’t move to approaches or design until you’re ready.\n",
-      "words": 25,
-      "wallMs": 3763,
+      "text": "Paused here. We’ll reuse the existing settings resolver. Whether report filters reset on workspace changes remains undecided; I won’t advance until you’re ready.\n",
+      "words": 23,
+      "wallMs": 3996,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
       "baselineOutputSha": "d0f4aca6b468a355f338651885746e632a8462c4e506ad86c61e28d148fdbbf4",
-      "candidateOutputSha": "cd792efa9f8d7ba8ed073d2b734b41e4cc866bfec4ac64fff8139b6a4f8afe23",
+      "candidateOutputSha": "0fe04de27979e2b85dc034dc3d2b96249ca7d3c44e1d3a28713a07d525e4b306",
       "facts": {
         "f1": {
           "before": "holds",
@@ -44,16 +44,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs honor the pause: each records the resolver choice (settings/resolver.ts:12 feeding ui/report-view.ts:30), names the still-open filter-reset item without resolving it, asks no new question, proposes no approaches, and states nothing is approved. After keeps f1 and additionally leads with the explicit 'Paused.' marker, which makes the state clearer than Before's second-paragraph placement. The one spot worth watching in After is the resumption instruction 'reply with what you found, or just say \"continue.\"' — it is an instruction rather than a question, so it does not move f1, but a reader could see it as nudging the user forward during a pause they requested; Before's 'When you're back, tell me what you found' is the lower-risk phrasing. If you want to keep the 'Paused.' lead and the resumption options, phrase them as what will happen on return ('When you're back, share what you found and I'll resume with the next question') rather than as a reply prompt, and keep 'Nothing past this point is decided or approved yet' as the closing line.",
-      "wallMs": 10245,
+      "feedback": "Both outputs honor the pause: each records the chosen A ownership, states it is stopping at step 4, asks no new question, presents no approaches, and advances no design. After trims Before's explicit \"No approaches or design have been proposed, and nothing is approved\" sentence and the \"tell me what you found\" prompt; neither removal moves f1, since the remaining text still names the open filter-reset item without asking about it and defers approaches until the human returns. If you want extra safety against a reader treating \"I'll pick it up with your findings\" as an implicit request, keep Before's declarative state line (\"nothing is approved\") while retaining After's shorter framing; no other wording change is needed to deliver the Change.",
+      "wallMs": 6500,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
       "baselineOutputSha": "ff2a1f5620183a15968aa591f71f008d3ecb3ea2cdc9558429da0167cc770d92",
-      "candidateOutputSha": "f46ef94553295fef4bb70d326921813ce36e31c115b6ee577ab16d6fa6408cbf",
+      "candidateOutputSha": "ff2a1f5620183a15968aa591f71f008d3ecb3ea2cdc9558429da0167cc770d92",
       "facts": {
         "f1": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs honor the explicit pause: each records the chosen option A, leaves the reset behavior undecided, asks no new question, presents no approaches, and advances no design. After's only real difference is naming the next stages (\"approaches or design\") in its promise not to proceed, which merely describes what is being withheld rather than delivering it, so f1 still holds; no wording in After moved the fact, and the current phrasing is safe to keep as long as it continues to avoid listing options or questions while paused.",
-      "wallMs": 4223,
+      "feedback": "Before and After are textually identical: both acknowledge the pause, record the chosen option A, note the undecided reset behavior without resolving it, and ask no new question, present no approaches, and advance no design, so f1 holds in both. Nothing in After moved the fact; the wording change did not alter this continuation's output. No rewording is needed for this case — keep the pause acknowledgment, the recorded choice, and the explicit deferral of the undecided item exactly as they are.",
+      "wallMs": 3477,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
+  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
 }

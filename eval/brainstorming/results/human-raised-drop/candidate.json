@@ -1,7 +1,7 @@
 {
   "sample": "human-raised-drop",
   "arm": "candidate",
-  "skillSha": "46230ac73e4c7b5113a163f24e5ccaa63fb52be65622b5210b286d3ec2351e00",
+  "skillSha": "66b3e9000af1c594c7c663c5b004cda619dc465f206315981c1b7b539fa865cb",
   "inputSha": "ef2a533acdc8413125441da13b20c9ab316d57925678233e824f464c6fa1185b",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nI've recorded your approach: reuse the existing CSV serializer and paging, with the button beside the report title. Before the design round, I need your decision on the third ticket row, \"The export of a 10k-row report completes in under 60s.\" The gather draft found nothing showing that row is wrong or impossible. That means the ticket contract still stands until you choose otherwise. How should the spec carry that row?\n\nA) in-scope - the row stays a requirement as written. The reused serializer and paging path gets one timing test that exports a 10k-row report and asserts it finishes in under 60s. No new streaming or job machinery is added unless that test fails.\nB) deviates: the 60s bound for 10k rows is beyond this sprint's need, so the export ships without a performance guarantee.\nC) deferred: <the follow-up tracker ref, spec path, or URL you name> - the bound moves to that destination and is listed as a scope cut at the gate.\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row 3 (\"10k-row export under 60s\") - you consider the row the wrong requirement, so you would fix the ticket itself.\n\nRecommendation: A - the chosen reuse approach adds no new machinery for this row, so keeping it costs only one timing test. That test also guards the exact risk the row names.\n",
-      "words": 222,
-      "wallMs": 11509,
+      "text": "gauntlet: question\nYou chose to reuse the existing CSV serializer and paging; that is recorded as the approach. Your reply also asks to drop ticket row 3. That row is in the ticket's acceptance-criteria contract, and the gather draft found no code or contract showing it is wrong or impossible. What should happen to `- [ ] The export of a 10k-row report completes in under 60s.`?\nA) in-scope - the row ships as written; the design includes a timed test that exports a 10k-row fixture through the reused serializer and paging and asserts completion under 60s\nB) deviates: the 10k-row/60s target is not needed this sprint - the export ships without a performance guarantee and the spec records the cut under Out of scope\nC) deferred: <tracker ref, spec path, or URL where the performance row will be delivered, e.g. a new acme/widgets issue>\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row 3: the reporter considers the 10k-row/60s target out of scope for this sprint; no code evidence makes it wrong\nRecommendation: A - The row is part of the ticket contract, and the paging you chose is the likely way to meet the target, so one timed test can verify it at small cost. Choose D instead if the ticket itself should stop requiring it.\n",
+      "words": 210,
+      "wallMs": 11428,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nThe ticket includes “The export of a 10k-row report completes in under 60s.” Your request to drop it changes the ticket’s acceptance contract. How should we handle that row?\nA) in-scope - retain the 10k-row, under-60s requirement and verify it with the reuse-based implementation.\nB) deviates: omit the 10k-row, under-60s requirement because it exceeds this sprint’s needs.\nC) deferred: move the performance requirement to a follow-up; include a tracker reference, spec path, or URL in your answer.\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 to revise this row because you’ve identified it as beyond this sprint’s needs.\nRecommendation: D - align the ticket with your intended scope before approving the design.\n",
-      "words": 110,
-      "wallMs": 10157,
+      "text": "gauntlet: question\nTicket acme/widgets#77 includes this acceptance criterion: “The export of a 10k-row report completes in under 60s.” You’ve asked to drop it from this sprint; choosing the reuse approach does not itself change that ticket requirement. How should we treat this row?\nA) in-scope - retain the 10k-row, under-60s requirement and verify it using the existing CSV serializer and paging.\nB) deviates: the 10k-row performance requirement exceeds this sprint’s needs - ship without that guarantee.\nC) deferred: acme/widgets#77 - keep the performance requirement tracked there, outside this sprint’s delivery.\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77` to revise the performance row based on your reduced sprint requirement.\nRecommendation: A - it preserves the ticket’s stated outcome and verifies whether the selected reuse approach meets it.\n",
+      "words": 121,
+      "wallMs": 11936,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
       "baselineOutputSha": "3094d567f91ff5249afbb41daab328bec7bbe682c22ad11d0d7867359db114e1",
-      "candidateOutputSha": "b334d778316d788dacea74240723dd2054eda97dbfc0daf482afd2cbed507bcb",
+      "candidateOutputSha": "81de6996f493f186669b5f4db083e2375697ddc3607a99be909687df83c2e766",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved in this continuation: After still opens with a lead-in, renders the cut question for the 60s row with options A, B, C, D each on their own line in that order, puts Recommendation: A on its own final line, and marks the row neither deferred nor deviates before the user answers (B and C remain offered options, not applied states). The After wording even tightens the layout by separating the recommendation line with a blank line and rendering D with the explicit row reference, both of which fit the questionary layout rule in the Change. The only drift worth watching is that After's recommendation drops Before's secondary mention of D as the at-source repair; keeping a short clause like \"if the bound should not be in this ticket, D fixes it at the source\" would preserve that guidance without affecting any of the three facts.",
-      "wallMs": 7943,
+      "feedback": "Nothing moved in this case: After still asks the cut question for the 60s row with A, B, C, D in that order, still recommends A (with D as the only named alternative), and leaves the row unmarked while it waits for the answer - option B's mention of recording a cut under Out of scope is an option consequence, not an applied marking. Two small risks worth tightening in the After wording so it stays robust under the enlarged assembly: the lead-in runs straight into the `A)` line with no blank line, which is fine for these facts but is the kind of layout drift the questionary-option-lines contract keys on, and option C dropped Before's explicit 'listed as a scope cut' consequence, so a reader gets a thinner picture of what deferral costs. Keeping Before's structure (question paragraph, blank line, one labeled option per line each with its one-line consequence, then `Recommendation:` on its own final line) while adopting After's verbatim row quote and sharper D justification would deliver the change without touching any of f1-f3.",
+      "wallMs": 10958,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
       "baselineOutputSha": "e5578bbf56d2d63a9194c2eef38fa6cd248a924184ff891eadc2dfc81bfaff13",
-      "candidateOutputSha": "9f3ea42975d7cbb0ad20f429bc8748ce45a2b70c05f5fa8b39ab43c176e5e16d",
+      "candidateOutputSha": "f6fa2d777408bc14e52965eef66680f52b070dd3280e6fedb41b2c1c9f0f31e4",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs ask the cut question for the 60s row with A, B, C, D in order, both recommend D, and neither marks the row deferred or deviates before the user answers. Two small regressions in After are worth noting even though no fact keys on them: option B dropped Before's clause 'retain the ticket row verbatim and record the scope cut', which is the wording that makes the deviates option safe against silently rewriting the ticket contract, and the `/skill:shape-ticket acme/widgets#77` command lost its code formatting and the 'through its confirmation gate' phrase. After also dropped Before's lead-in recap of the chosen approach (reuse serializer/paging, button beside title), which Before used to confirm the completed step-5 selections before pivoting. To keep every Before property while delivering the Change, keep After's structure but restore the verbatim-row/record-the-cut wording in B, the backticked command plus confirmation-gate mention in D, and a one-clause recap of the selected approach in the lead-in.",
-      "wallMs": 10411,
+      "feedback": "No fact moved: both outputs render the cut question for the 60s row with options A, B, C, D in order, recommend a permitted letter (Before D, After A), and leave the row unmarked pending the human's answer. One wording weakness in After worth fixing without affecting the facts: option C names acme/widgets#77 itself as the deferral destination, which is the ticket the row already lives in, so it is not a real 'move to a follow-up' choice; Before's placeholder form ('<follow-up ticket, spec path, or URL you provide>') is the safer template because it keeps C a genuine deferral destination the human supplies. Likewise After's B ('ship without that guarantee') drops Before's explicit 'retain the ticket row verbatim and record the scope cut', which is the wording that makes the deviates option legible as a recorded deviation rather than a silent drop; restoring that clause keeps the contract clear while still delivering the Change.",
+      "wallMs": 8570,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
+  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
 }

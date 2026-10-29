@@ -1,7 +1,7 @@
 {
   "sample": "nested-rules",
   "arm": "candidate",
-  "skillSha": "0e0afaae17484f4cd7217062de735e7042e80070bb6e3b08d49be9928972ecfe",
+  "skillSha": "eccfa26e4d044ba7f0ef3f2aafcd9e55d1e7ffd9830512025418fb5547d0c7f1",
   "inputSha": "916bc1d0796b974c143e65b18165005043fa08a2496212ff16edc80bb78a871f",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Gather: per-leg scout dispatch and `Rules:` walk\n\nThis narrates the prescribed gather actions using the supplied observations as results. No tools were run. Worktree paths were not supplied, so they appear as placeholders.\n\n## Run 1: touched paths known\n\n**Setup**\n1. Mint `GATHER_DIR=$(mktemp -d)` outside both worktrees.\n2. Set the substep: `phase_tracker({ action: \"substep\", phase: \"brainstorm\", substep: \"gather\" })`.\n3. Make one foreground parallel `subagent` call with `async: false` and no `model:`. It contains one scout per leg, home first. Each scout uses absolute `output:` paths.\n\n| # | agent | cwd | output | Owning leg / touched paths |\n|---|---|---|---|---|\n| 1 | scout | `<abs repo-a worktree>` | `<GATHER_DIR>/scout-1.md` | repo-a / `pkg-x/src/parser.ts` |\n| 2 | scout | `<abs repo-b worktree>` | `<GATHER_DIR>/scout-2.md` | repo-b / `lib/reader.ts` |\n\nContext-builder is not added, because no URL, tracker ID or GitHub ref was given.\n\n**Leg repo-a**\n\nThe walk covers root → `pkg-x` → `pkg-x/src`, collecting `AGENTS.md` and `CLAUDE.md` at each level.\n\n- **Root `AGENTS.md`:** collected.\n- **Root `CLAUDE.md`:** a symlink to `AGENTS.md`. Deduped by `realpath`, so it counts once and gets no separate line.\n- **Root `AGENTS.md` table link `doc/root.md`:** one hop, resolved relative to root. It exists, so it is collected.\n- **`pkg-x/AGENTS.md`:** collected. Its links resolve relative to `pkg-x/`:\n  - the bullet link becomes `pkg-x/doc/conventions.md`, which exists, so it is collected;\n  - the table link becomes `pkg-x/doc/parser.md`, which exists, so it is collected.\n- **`pkg-x/doc/conventions.md` → `second-hop.md`:** not followed. Linked documents contribute no further links, even though the file exists.\n- **`pkg-x/CLAUDE.md`:** collected. Its link `../outside.md` resolves to `/work/repo-a/outside.md`. That path is inside the leg but does not exist, so it is recorded as missing. Its contents are never invented.\n- **`pkg-x/src/`:** no rules files.\n- **`pkg-y/AGENTS.md`:** excluded, because `pkg-y` is untouched.\n\n```\nRules: AGENTS.md\nRules: doc/root.md\nRules: pkg-x/AGENTS.md\nRules: pkg-x/doc/conventions.md\nRules: pkg-x/doc/parser.md\nRules: pkg-x/CLAUDE.md\nRules: missing: outside.md\n```\n\n**Leg repo-b**\n\nThe walk covers root → `lib`. Only the root `AGENTS.md` exists, and it has no links. There is no `CLAUDE.md` and no `lib/AGENTS.md`.\n\n```\nRules: AGENTS.md\n```\n\n**Finish**\n1. Wait for the batch to finish.\n2. Read `scout-1.md` and then `scout-2.md`, in member order. Keep each leg's repo identifier, `Rules:` lines, recon and degraded status separate.\n3. Write the draft with line 1 reading `# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing`.\n4. Run `rm -rf \"$GATHER_DIR\"`.\n5. Clear the substep with `substep: null`.\n\n## Run 2 (independent): touched paths not yet known\n\nThe scout dispatch is the same: same cwd values, `scout-1.md` and `scout-2.md`, home first. Each task now states `touched paths in this leg: unresolved`.\n\nRoot rules are kept, and each leg emits the unresolved marker. The plan-writer's touched-path walk fills in the rest later. No `pkg-x` or `pkg-y` files are walked, so `outside.md` is never reached.\n\n**repo-a**\n\nThe root `CLAUDE.md` symlink is deduped, and `doc/root.md` is the one-hop link from the root `AGENTS.md`.\n\n```\nRules: AGENTS.md\nRules: doc/root.md\nRules: root only - paths unresolved\n```\n\n**repo-b**\n\n```\nRules: AGENTS.md\nRules: root only - paths unresolved\n```\n\nEvery leg block carries at least one `Rules:` line. None has an omitted key or a deferral note.\n",
-      "words": 473,
-      "wallMs": 22770,
+      "text": "# Gather: scout dispatch and Rules lines\n\nThis narrates the prescribed actions using the supplied observations. It does not record live tool calls.\n\n## Run 1: touched paths known\n\n**Dispatch.** Set `phase_tracker` substep to `gather`. Then make one foreground parallel `subagent` call (`async: false`, no `model:`). It has one scout per leg, home first, and each output path is an absolute path under `GATHER_DIR` outside the worktrees.\n\n| # | Leg | `cwd` | `output` | Touched paths in task |\n|---|---|---|---|---|\n| 1 | repo-a (home) | repo-a's `Worktree ready at` path (default home `/work/repo-a/.worktrees/<name>`) | `<GATHER_DIR>/scout-1.md` | `pkg-x/src/parser.ts` |\n| 2 | repo-b | repo-b's `Worktree ready at` path (primary `/work/repo-b`, same shared `<name>`) | `<GATHER_DIR>/scout-2.md` | `lib/reader.ts` |\n\n**repo-a walk.** The scout walks root → `pkg-x` → `pkg-x/src` and collects `AGENTS.md` and `CLAUDE.md` along that path. It follows one hop of links and dedupes files by `realpath`.\n\n- **Root:** `AGENTS.md` is collected. `CLAUDE.md` is a symlink to `AGENTS.md`, so the `realpath` dedupe counts it once and it gets no separate line.\n- **Root link:** the table link `doc/root.md` is collected as a first hop, even though it appears in a table.\n- **`pkg-x/AGENTS.md`:** collected.\n- **Its links:** both resolve relative to the linking file.\n  - The bullet link becomes `pkg-x/doc/conventions.md`.\n  - The table link becomes `pkg-x/doc/parser.md`.\n- **Second hop:** `second-hop.md` is linked from `conventions.md`. Linked documents contribute no further links, so it is not followed.\n- **`pkg-x/CLAUDE.md`:** collected.\n- **Its link `../outside.md`:** this resolves to `/work/repo-a/outside.md`. That path is inside the leg but does not exist, so it becomes a `missing` line and its contents are not invented.\n- **`pkg-x/src`:** no rule files are on this part of the path.\n- **`pkg-y/AGENTS.md`:** excluded because `pkg-y` is untouched.\n\n```\n### Leg: repo-a\nRules: AGENTS.md\nRules: doc/root.md\nRules: pkg-x/AGENTS.md\nRules: pkg-x/doc/conventions.md\nRules: pkg-x/doc/parser.md\nRules: pkg-x/CLAUDE.md\nRules: missing: outside.md\n```\n\n**repo-b walk.** The walk covers root → `lib`. Only the root `AGENTS.md` exists, with no local documentation links reported, and `lib` has no rule files.\n\n```\n### Leg: repo-b\nRules: AGENTS.md\n```\n\n**Assembly.** The draft is assembled by reading `scout-1.md` and then `scout-2.md`. Each leg keeps its repo identifier, Rules lines, recon and degraded status separately. Afterwards, run `rm -rf \"$GATHER_DIR\"` and clear the substep.\n\n## Run 2 (independent): touched paths not yet known\n\nThe dispatch shape is the same: two scouts, the same cwds and outputs, and `touched paths in this leg: unresolved`. Without touched paths, each scout keeps the root rules, including their one-hop links, and emits the unresolved marker. The plan-writer's touched-path walk fills in task rules later. No `pkg-x` or `pkg-y` files are walked.\n\n```\n### Leg: repo-a\nRules: AGENTS.md\nRules: doc/root.md\nRules: root only - paths unresolved\n```\n\n```\n### Leg: repo-b\nRules: AGENTS.md\nRules: root only - paths unresolved\n```\n\nNo blocking stop occurs in either run. The missing `outside.md` is recorded as `Rules: missing:` and is not a stop.\n",
+      "words": 435,
+      "wallMs": 24987,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Touch-aware run\n\nThese are narrated outcomes from the supplied observations, not live tool calls. Scout working directories must be the respective resolved worktrees; their absolute paths were not supplied.\n\n### Repo-a scout\n**cwd:** `<repo-a worktree>`\n\nRead root `AGENTS.md` and its table-linked `doc/root.md`. Root `CLAUDE.md` resolves to the same file as `AGENTS.md`, so deduplicate it by realpath.\n\nWalk the touched path through `pkg-x/src/parser.ts`. Read `pkg-x/AGENTS.md`, both its bullet-linked conventions document and table-linked parser document, and `pkg-x/CLAUDE.md`. The latter’s `../outside.md` resolves to the missing root-level `outside.md`; record it without inventing contents.\n\n```text\nRules: AGENTS.md\nRules: doc/root.md\nRules: pkg-x/AGENTS.md\nRules: pkg-x/doc/conventions.md\nRules: pkg-x/doc/parser.md\nRules: pkg-x/CLAUDE.md\nRules: missing: outside.md\n```\n\nDo not follow `second-hop.md`: linked documents contribute no further links. Do not read untouched `pkg-y/AGENTS.md`. The missing documentation target produces a missing-rule entry, not a blocking stop.\n\n### Repo-b scout\n**cwd:** `<repo-b worktree>`\n\nRead root `AGENTS.md` and walk toward `lib/reader.ts`. The observations identify no additional rules files or documentation links.\n\n```text\nRules: AGENTS.md\n```\n\n## Independent run: touched paths unresolved\n\nRun a separate scout in each member’s resolved worktree. Retain root rules and their first-hop documentation links, but do not select package-specific rules before touched paths are known.\n\n### Repo-a scout\n**cwd:** `<repo-a worktree>`\n\nRoot `CLAUDE.md` again deduplicates to `AGENTS.md`.\n\n```text\nRules: AGENTS.md\nRules: doc/root.md\nRules: root only - paths unresolved\n```\n\n### Repo-b scout\n**cwd:** `<repo-b worktree>`\n\n```text\nRules: AGENTS.md\nRules: root only - paths unresolved\n```\n",
-      "words": 223,
-      "wallMs": 20789,
+      "text": "### Run 1 — Known touched paths\n\n**Repo-a scout — `cwd: /work/repo-a`**\n\n```text\nRules: AGENTS.md\nRules: doc/root.md\nRules: pkg-x/AGENTS.md\nRules: pkg-x/doc/conventions.md\nRules: pkg-x/doc/parser.md\nRules: pkg-x/CLAUDE.md\nRules: missing: outside.md\n```\n\nRoot `CLAUDE.md` resolves to root `AGENTS.md`, so it is counted once. The walk includes both bullet and table links, resolved relative to their linking files. It excludes `second-hop.md` because linked documents contribute no further links, and excludes untouched `pkg-y/AGENTS.md`.\n\nThe missing `outside.md` is recorded, not reconstructed; it does not block this rules walk.\n\n**Repo-b scout — `cwd: /work/repo-b`**\n\n```text\nRules: AGENTS.md\n```\n\nThe touched path is `lib/reader.ts`; the supplied observations identify no additional rules files along that path.\n\n### Independent run — Touched paths unresolved\n\n**Repo-a scout — `cwd: /work/repo-a`**\n\n```text\nRules: AGENTS.md\nRules: doc/root.md\nRules: root only - paths unresolved\n```\n\nRoot `CLAUDE.md` is again deduplicated against `AGENTS.md`. No package-level rules or their links are included before touched paths are known.\n\n**Repo-b scout — `cwd: /work/repo-b`**\n\n```text\nRules: AGENTS.md\nRules: root only - paths unresolved\n```\n\nThe plan-writer’s later touched-path walk fills in directory-specific rules.\n",
+      "words": 161,
+      "wallMs": 15769,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a3ccb87ff55c91db8e48722f6d0577efc4b433cea6b1acc49b4a638647720295",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
-      "baselineOutputSha": "3b72e02b04bd23fd82af76f1b8b8e6b3b45b8fc9099b9cecedc9b40176e0de97",
-      "candidateOutputSha": "a4ca0f55837a1da310287a072f0ceb82e90a62cb162e612837c4f283637d6f85",
+      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "baselineOutputSha": "a4ca0f55837a1da310287a072f0ceb82e90a62cb162e612837c4f283637d6f85",
+      "candidateOutputSha": "7c84d1fa0b2b10670bccc9493b85b23c9829f4c36d36763c58517b88f8d87951",
       "facts": {
         "walk": {
           "before": "holds",
@@ -54,21 +54,21 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs run each scout with its own worktree as cwd, list the five expected repo-a Rules lines plus pkg-x/CLAUDE.md and the missing outside.md line, keep repo-b's single root AGENTS.md separate, dedupe the root CLAUDE.md symlink by realpath, exclude pkg-y/AGENTS.md and second-hop.md, and emit `Rules: root only - paths unresolved` for the independent unknown-paths run while deferring task walks to the plan-writer. After is slightly more explicit on each point (resolved /work/repo-a/outside.md path, 'contents are never invented', 'none has an omitted key or a deferral note'), which only strengthens the bounded and unresolved facts; keep that explicit phrasing in the nested-rules wording and you retain every fact Before kept while delivering the coordinated-leg gather change.",
-      "wallMs": 9129,
+      "feedback": "Nothing moved: both outputs dispatch one scout per leg with the leg's own worktree as cwd, list the five repo-a Rules lines plus a separate repo-b block, dedupe the root CLAUDE.md symlink by realpath, exclude pkg-y/AGENTS.md and second-hop.md, record outside.md as `Rules: missing:` without inventing contents, and in the independent run emit `Rules: root only - paths unresolved` while retaining root rules and deferring task path walks to the plan-writer. After improves on Before by naming concrete `Worktree ready at` worktree paths instead of `<abs repo-a worktree>` placeholders and by adding `### Leg:` headers, which makes the per-leg separation explicit; it also drops Before's explicit `mktemp -d` setup step and draft-line-1 note, which no fact keys on. If you want to keep After tighter still, retain the explicit `GATHER_DIR=$(mktemp -d)` mint and the `# CONTEXT DRAFT` first-line requirement from Before, since those are the only prescribed actions After omits, but none of the three facts here depend on them.",
+      "wallMs": 10587,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a3ccb87ff55c91db8e48722f6d0577efc4b433cea6b1acc49b4a638647720295",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
-      "baselineOutputSha": "17ea1e681b272e8a9ae55c30aafb7e37c6b851548158646b8b825eb925cc6522",
-      "candidateOutputSha": "a6af4fd15a4e58c16d71084e7f20cbcbfbefa95cb7fcf5706e85d38a632ceec3",
+      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "baselineOutputSha": "a6af4fd15a4e58c16d71084e7f20cbcbfbefa95cb7fcf5706e85d38a632ceec3",
+      "candidateOutputSha": "ca08e5147b1739768982d0c4b4100c67183686b7ee00b54d4a8c0e667bf1ae1a",
       "facts": {
         "walk": {
           "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "after": "fails",
+          "label": "regression"
         },
         "bounded": {
           "before": "holds",
@@ -76,26 +76,26 @@
           "label": "intended but unchanged"
         },
         "unresolved": {
-          "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "After keeps walk and bounded intact: both scouts are placed in their own worktrees (as `<repo-a worktree>`/`<repo-b worktree>` placeholders rather than Before's concrete `/work/repo-a` paths, which still satisfies the fact), repo-a emits all five required Rules lines with repo-b separate, root CLAUDE.md is deduped by realpath, second-hop.md and pkg-y/AGENTS.md are excluded, and missing outside.md is recorded without invented contents. The unresolved fact moved because After's independent run emits `Rules: root only - paths unresolved` but drops Before's closing sentence that explicitly defers touched-directory expansion to the plan-writer; it only says package-specific rules are not selected 'before touched paths are known', never naming who performs the later walk. To keep every fact while still delivering the worktree-resolved cwd framing, add one line after the unresolved blocks such as 'Defer touched-directory rule walks to the plan-writer's rules walk; these observations contain no unreadable required reference that mandates a blocking stop', and consider supplying the actual resolved worktree path (or stating it is the leg's supplied checkout) rather than a bare placeholder so the cwd requirement reads concretely.",
-      "wallMs": 15035,
-      "verdict": "inconclusive",
+      "feedback": "After fixed the unresolved fact by adding the explicit handoff sentence (\"The plan-writer's later touched-path walk fills in directory-specific rules\"), which Before lacked, and it keeps bounded intact (CLAUDE.md counted once by resolution, pkg-y and second-hop.md excluded, outside.md recorded not reconstructed). What moved is walk: After renders the scout cwd as `/work/repo-a` and `/work/repo-b`, which per the input are the repo roots (outside.md is checked at `/work/repo-a/outside.md`), and it never says the scouts run in worktrees, so the first clause of walk is no longer shown. Before handled this by stating that scout cwds must be the resolved worktrees and rendering a `<repo-a worktree>` placeholder because the absolute paths were not supplied. To keep walk while delivering the Change, have After print the cwd line as the member's resolved worktree (e.g. `cwd: <repo-a worktree>` or a path the observations actually name as a worktree) and keep one sentence stating scouts run in their own worktrees, rather than substituting the primary checkout path; keep the new plan-writer handoff sentence as-is.",
+      "wallMs": 20793,
+      "verdict": "regressed",
       "confirmation": {
         "status": "ok",
-        "text": "## Run 1 — touched paths known\n\nScout cwd is each leg’s resolved **worktree**, not its primary checkout. Using `/work/repo-a` and `/work/repo-b` as the observed worktree roots:\n\n### repo-a\n\n`cwd: /work/repo-a`\n\nThe rules walk reads root `AGENTS.md`; root `CLAUDE.md` resolves to the same file and is deduplicated by realpath. It then reads `pkg-x/AGENTS.md` and `pkg-x/CLAUDE.md`, plus their first-hop local documentation links—including links in tables.\n\n```text\nRules: AGENTS.md\nRules: doc/root.md\nRules: pkg-x/AGENTS.md\nRules: pkg-x/doc/conventions.md\nRules: pkg-x/doc/parser.md\nRules: pkg-x/CLAUDE.md\nRules: missing: outside.md\n```\n\n`pkg-x/CLAUDE.md`’s `../outside.md` resolves to `/work/repo-a/outside.md`, which is observed missing. This produces a missing-rule entry, not a blocking stop.\n\nThe walk does not follow `second-hop.md`: linked documents contribute no further links. It does not read untouched `pkg-y/AGENTS.md`.\n\n### repo-b\n\n`cwd: /work/repo-b`\n\nThe rules walk for `lib/reader.ts` finds only the observed root rules file.\n\n```text\nRules: AGENTS.md\n```\n\n## Independent run — touched paths unresolved\n\nEach scout retains root rules and their first-hop documentation links. It does not walk speculative touched directories.\n\n### repo-a\n\n`cwd: /work/repo-a`\n\nRoot `CLAUDE.md` is again deduplicated against `AGENTS.md`.\n\n```text\nRules: AGENTS.md\nRules: doc/root.md\nRules: root only - paths unresolved\n```\n\n### repo-b\n\n`cwd: /work/repo-b`\n\n```text\nRules: AGENTS.md\nRules: root only - paths unresolved\n```\n\nThe plan-writer’s later touched-path walk fills in directory-specific rules once paths are known.\n",
-        "words": 197,
-        "wallMs": 16134,
+        "text": "## 1. First message to the user\n\nThe supplied observations establish the rules below; these are narrated results, not live tool calls.\n\n### Trace A — Known touched paths\n\n**Repo-a scout cwd:** `/work/repo-a`\n\nFor `pkg-x/src/parser.ts`, the rules walk includes root and touched-directory rules plus exactly one hop of their local documentation links:\n\n```text\nRules: AGENTS.md\nRules: doc/root.md\nRules: pkg-x/AGENTS.md\nRules: pkg-x/doc/conventions.md\nRules: pkg-x/doc/parser.md\nRules: pkg-x/CLAUDE.md\nRules: missing: outside.md\n```\n\n- Root `CLAUDE.md` resolves to the same real file as root `AGENTS.md`, so it contributes no duplicate entry.\n- Table links count, including `doc/root.md` and `pkg-x/doc/parser.md`.\n- `pkg-x/CLAUDE.md` links to `../outside.md`, resolving to `/work/repo-a/outside.md`; the observations say that target is missing.\n- `pkg-x/doc/conventions.md` is a linked document, so its link to `second-hop.md` is not followed—even though that file exists.\n- Untouched `pkg-y/AGENTS.md` is excluded.\n\n**Repo-b scout cwd:** `/work/repo-b`\n\nFor `lib/reader.ts`, the supplied observations identify only root rules:\n\n```text\nRules: AGENTS.md\n```\n\n### Trace B — Independent run, touched paths unresolved\n\n**Repo-a scout cwd:** `/work/repo-a`\n\nRetain root rules and their first-hop documentation, deduplicating the root symlink:\n\n```text\nRules: AGENTS.md\nRules: doc/root.md\nRules: root only - paths unresolved\n```\n\nDo not walk `pkg-x` or `pkg-y` without resolved touched paths.\n\n**Repo-b scout cwd:** `/work/repo-b`\n\n```text\nRules: AGENTS.md\nRules: root only - paths unresolved\n```\n\nThe plan-writer’s touched-path walk fills in directory-specific rules once paths are known.\n\n## 2. Approaches message\n\nUse the prescribed **touched-path rules walk with one-hop documentation expansion and realpath deduplication**. The observations settle its output; no design question is needed.\n\nRecursive documentation traversal is not a viable alternative: it would improperly include `second-hop.md`. A repository-wide rules scan is also not viable: it would improperly include untouched `pkg-y/AGENTS.md`.\n\nThe missing `outside.md` target is recorded as a missing rule, not reconstructed. It does not create a blocking stop under the supplied rules-walk contract.\n",
+        "words": 283,
+        "wallMs": 18753,
         "mechanical": {},
-        "judgeWallMs": 15121,
+        "judgeWallMs": 22412,
         "facts": {
           "walk": {
-            "before": "fails",
-            "after": "holds",
-            "label": "intended change"
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
           },
           "bounded": {
             "before": "holds",
@@ -103,14 +103,14 @@
             "label": "intended but unchanged"
           },
           "unresolved": {
-            "before": "holds",
+            "before": "fails",
             "after": "holds",
-            "label": "intended but unchanged"
+            "label": "intended change"
           }
         },
-        "feedback": "After moves walk to holds by stating that scout cwd is each leg's resolved worktree rather than its primary checkout, where Before only said \"each leg's supplied checkout\" and never named a worktree; the Rules lines for repo-a (root AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md, pkg-x/doc/parser.md) and the separate repo-b block are identical in both. Nothing regressed: After still dedupes root CLAUDE.md by realpath, excludes pkg-y/AGENTS.md and second-hop.md, records outside.md as missing without contents, and the independent run keeps root-only rules with the exact `Rules: root only - paths unresolved` line while deferring directory walks to the plan-writer. To keep this stable, retain the explicit \"resolved worktree, not primary checkout\" sentence and the per-leg `cwd:` lines, and keep the second-hop/pkg-y exclusion and missing-outside.md sentences adjacent to the Rules block so the bounded fact stays visible even if the narration is shortened."
+        "feedback": "After gains the unresolved fact by naming the plan-writer's touched-path walk as the owner of directory-specific rules once paths are known, and it keeps every bounded element (realpath dedupe of root CLAUDE.md, exclusion of pkg-y/AGENTS.md and second-hop.md, outside.md recorded as missing without reconstruction). But it loses the walk fact's first clause: Before states that scout working directories must be the respective resolved worktrees and leaves the unsupplied absolute paths as placeholders, whereas After asserts `/work/repo-a` and `/work/repo-b` as scout cwds with no mention of worktrees at all, so a reader sees scouts running in the repositories' plain checkouts, not in their own legs' worktrees, and the cwd values are invented rather than taken from the observations. To keep walk while delivering the change, have the After wording say the scout cwd is each member's resolved worktree (e.g. `<repo-a worktree>` or `/work/repo-a` only if the input supplies it as the worktree path) and explicitly state that scouts run in their own worktrees, while retaining the new sentence that the plan-writer's touched-path walk fills in directory-specific rules."
       }
     }
   },
-  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
+  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
 }

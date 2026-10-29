@@ -1,4 +1,4 @@
-for: f2bd711827967fdcba2c2b829693b055b9e006ab8cdb05a81247fc896e9890f1
+for: 6098be34c8e4cde45340174f7566a53222aaaca70b7afb04fb51f3e0b8df8cf4
 
 ## Change
 
@@ -51,6 +51,8 @@ Require the first line of the new gate-line-first replay to classify the waiting
 
 Cover selected-sibling activation, primary-rooted provisioning, partial-creation failures, bounded nested rules and portable home/companion spec materialization. Preserve every legacy fact and its bundle selection. These are intended fact movements, not observed model results. Parent verification runs the full target; this task runs deterministic structural and assembly checks only.
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
+
+The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged.
 
 ## Expected to move
 - spec-pr-unmarked/provision: fails -> holds - Provision via pr-head with no thread fetch on the unmarked route.
