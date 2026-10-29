@@ -67,8 +67,8 @@ for (const telemetry of [".pi/gauntlet/telemetry", "records/custom telemetry"]) 
 // Wording checks pin the finish-owned contract, not a live GitHub boundary.
 for (const [name, pattern] of [
   ["ordered record pairs", /every top-level `PR:`\/`Pre-rework head:` pair, home first/],
-  ["all original heads", /first proof for every recorded original head, home first/],
-  ["per-PR refs", /update-ref[^\n]+\n[^\n]*```\n[^\n]*every recorded PR/],
+  ["all original heads", /\| Merge \| For every recorded original head, home first, `git merge-base --is-ancestor <PRE_REWORK_HEAD> HEAD`/],
+  ["per-PR refs", /Then probe each recorded PR with its own number using `git -C "\$WORKTREE" rev-parse -q --verify refs\/gauntlet\/pre-rework\/pr-<N>`; only when absent, run `git -C "\$WORKTREE" update-ref refs\/gauntlet\/pre-rework\/pr-<N> <PRE_REWORK_HEAD>` with that PR's original SHA/],
   ["home-only push", /Push only home/],
   ["body prerequisite", /Only after a successful push and successful home body edit/],
   ["member eligibility", /--json state,headRefOid/],
