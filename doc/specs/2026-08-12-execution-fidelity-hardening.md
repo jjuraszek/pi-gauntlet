@@ -1,5 +1,7 @@
 # Execution Fidelity Hardening
 
+> **Superseded by:** [External child interrupt teardown and review completion](https://github.com/jjuraszek/pi-cohort/blob/main/doc/specs/2026-10-29-gh-36-interrupt-child-teardown.md) - completed cadence only: exact-agent, zero-exit children with no explicit interruption earn per-child credit in live results and branch replay. Attempted-work fix budgets, grants, nudges, telemetry, and all unrelated scopes remain unchanged.
+
 > **Superseded by:** [doc/specs/2026-08-21-execution-latency-review-scoping.md](./2026-08-21-execution-latency-review-scoping.md) - the TDD out-of-scope decision only ("`skills/test-driven-development/SKILL.md` changes ... out of scope")
 > **Superseded by:** [doc/specs/2026-09-22-finish-stage-verification-scoping.md](./2026-09-22-finish-stage-verification-scoping.md) - the "ship-time re-run accepted, out of scope" note only (the `finishing-a-development-branch` Out of scope bullet and the tier-boundary paragraph's closing sentence)
 > **Superseded by:** [doc/specs/2026-10-18-gh-69-fresh-planner-child.md](./2026-10-18-gh-69-fresh-planner-child.md) - "Change 1: Plan-time recon in writing-plans" only (the `scout` recon dispatch, the `# CONTEXT DRAFT - NOT A PLAN` marker, and the parent's read-then-full-replacement write)

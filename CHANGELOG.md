@@ -5,6 +5,7 @@
 ### Changed
 
 - Coordinated draft-PR handoff publishes companion branches before opening one home draft PR, with no brief or companion PRs. `brainstorming #N` reconstructs recorded companions from origin and re-gates. Header-linked finish rows 1/2 deliver companions in order before one home seal carrying every companion PR, then push home and apply readiness; companion URLs stay in the shipped summary, not the home PR body.
+- Clarify the released interrupted-completion exclusion alongside pi-cohort's paused cleanup/recovery contract: closure-review and cadence credit require an exact-agent, zero-exit child with no explicit interruption, per child in live results and replay. Interrupted attempted work still spends fix rounds and grants and contributes to nudges and telemetry. Pi-cohort's cleanup warning is diagnostic, not completion credit; explicit resume starts a new child. Core actual-process tests with fake backends do not establish live cmux behavior or companion retention compliance: the live runtime and reporter's installed adapter version remain unavailable, so no live reproduction is claimed. (jjuraszek/pi-cohort#36)
 
 ## v7.41.0 - 2026-10-29
 

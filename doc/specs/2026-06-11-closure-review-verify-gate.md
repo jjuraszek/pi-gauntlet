@@ -1,5 +1,7 @@
 # Spec: closure-review gate on verify completion
 
+> **Superseded by:** [External child interrupt teardown and review completion](https://github.com/jjuraszek/pi-cohort/blob/main/doc/specs/2026-10-29-gh-36-interrupt-child-teardown.md) - `Qualifying dispatch` only: completion requires the exact agent, zero exit, and no explicit interruption, per child in live results and branch replay. All other predecessor scopes remain unchanged.
+
 ## Context
 
 All three verify-owning skills (`subagent-driven-development`, `executing-plans`, `verification-before-completion`) mandate a `conformance-reviewer` dispatch — the closing loop — before the verify phase completes. Compliance is prompt-level only: `phase_tracker({ action: "complete", phase: "verify" })` accepts unconditionally.
