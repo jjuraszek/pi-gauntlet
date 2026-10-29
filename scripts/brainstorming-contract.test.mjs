@@ -608,7 +608,7 @@ test('leading PR lists admit in order and keep every retained contract', () => {
   assert.match(main(), /ordered per-PR array \(home first\)/);
   const exception = "the base sync (rebase or merge) and each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests";
   for (const path of ['skills/brainstorming/SKILL.md', 'skills/using-git-worktrees/reference/pr-head.md']) assert.ok(read(path).includes(exception), path);
-  assert.ok(read('README.md').includes("the base merge, each admitted member-head merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests"), 'README.md');
+  assert.ok(read('README.md').includes("the base sync (rebase or merge), each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests"), 'README.md');
   const gather = read('skills/brainstorming/gatherer.md');
   for (const marker of ['### PR #<N>', 'Member replay:', 'own changed paths', 'home']) assert.ok(gather.includes(marker), marker);
   assert.ok(!gather.includes('or threads: not fetched'));
