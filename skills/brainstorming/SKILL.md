@@ -18,7 +18,7 @@ You **may** read code/docs, run the existing system to observe current behavior,
 
 You may **not** write outside the resolved spec dirs; build, deploy, validate, or exercise the proposed change; run implementation skills; commit the spec on `main`; or start `/skill:writing-plans`.
 
-For a PR subject, the base merge and each admitted member-head merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests in `using-git-worktrees/reference/pr-head.md` are the sole pre-approval writes and runs outside the spec dirs; nothing else moves.
+For a PR subject, the base sync (rebase or merge) and each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests in `using-git-worktrees/reference/pr-head.md` are the sole pre-approval writes and runs outside the spec dirs; nothing else moves.
 
 The line: current-system observation is research; exercising the proposed change waits for approval.
 

@@ -1,0 +1,80 @@
+{
+  "sample": "pr-subject-rebase-withheld",
+  "arm": "candidate",
+  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "inputSha": "48519c5c9b25409f8321ff949a467da5a2040ff4cbedb2b5bccac3230eaad35c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finishing preflight: PR acme/widget#12, rework (rebase mode)\n\nThe worktree is `/work/widget/.worktrees/retry` on branch `retry`, targeting `main`. The record carries `Rework base:`, so finishing uses **rebase mode**.\n\n**SHA legend**\n\n| Short | Full / meaning |\n|---|---|\n| `aaaaaaa` | PRE_REWORK_HEAD, the original home #12 head |\n| `ccccccc` | Original member #13 head |\n| `ddddddd` | Rework base `dddddddddddddddddddddddddddddddddddddddd` |\n| `eeeeeee` | Local HEAD `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` |\n| `9999999` | Moved origin tip in variants B and C |\n\n## Shared proof commands\n\nAny exit status other than 0 or 1 stops with that command's output.\n\n```bash\ngit -C \"$WORKTREE\" fetch origin\ngit -C \"$WORKTREE\" merge-base --is-ancestor dddddddddddddddddddddddddddddddddddddddd HEAD   # 0: history intact\ngit -C \"$WORKTREE\" rev-parse origin/retry                                                   # compare with aaaa…\ngit -C \"$WORKTREE\" merge-base --is-ancestor dddddddddddddddddddddddddddddddddddddddd origin/retry\ngit -C \"$WORKTREE\" merge-base --is-ancestor origin/retry HEAD\n```\n\nOn this repeat finish, `origin/retry` is never `aaaa…`, because the earlier lease push already moved it. The lease form therefore cannot be selected in any variant.\n\n| Variant | origin/retry | Descends from `ddddddd` | Ancestor of HEAD | Decision |\n|---|---|---|---|---|\n| A | ≠ `aaaaaaa` | 0 | 0 | Offer a non-force push as row 1 |\n| B | `9999999` | 1 | 0 | Withhold row 1 |\n| C | `9999999` | 0 | 1 | Withhold row 1 |\n\n## A: selected push\n\n```bash\ngit -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/retry\n```\n\nBoth `refs/gauntlet/pre-rework/pr-12` (→ `aaaa…`) and `pr-13` (→ `cccc…`) already exist. They are preserved and no `update-ref` runs.\n\nThread-fix naming commits are counted over `dddddddddddddddddddddddddddddddddddddddd..HEAD`, which is the Rework base through `eeeeeee`. Threads: none.\n\n## B / C: withheld menu (shared)\n\n```\nImplementation complete. What would you like to do?\n\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWithheld: push - push withheld: origin/retry moved past aaaaaaa\n\nWhich option?\n```\n\n**Bare replies**\n\n- **`1`**: this asks \"Row 1 is withheld on this menu. Which option: 2, 3, 4, 5, or 6?\" and nothing runs.\n- **`5`**: \"Keeping branch retry. Worktree preserved at /work/widget/.worktrees/retry.\" Nothing is pushed or removed.\n- **`6`**: this shows the confirmation below and waits for that exact word.\n\n  ```\n  This will permanently delete:\n  - Branch retry\n  - All commits: main..retry (rebased commits through eeeeeee)\n  - Worktree at /work/widget/.worktrees/retry\n\n  Type 'discard' to confirm.\n  ```\n\n  On confirmation, Step 6 cleanup runs and then `git -C \"$PRIMARY\" branch -D retry` removes the local branch only. `origin/retry` and PR #12 are untouched; no remote branch deletion runs.\n\n## Returning to the menu\n\nEach return recomputes the preflight: fetch origin, then re-run all the proofs above. If origin now descends from `ddddddd` and is an ancestor of HEAD, row 1 reappears with the non-force push. Otherwise row 1 stays withheld with the same reason line.\n\nThere is no retry, no reset, and no new approval gate.\n",
+      "words": 471,
+      "wallMs": 22427,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Rework push preflight — independent variants\n\nThis is the existing preflight checkpoint only; no commands are executed. Gates have passed. Home PR acme/widget#12 is OPEN on `retry`, targeting `main`.\n\n### Shared SHA legend\n\n| Symbol | Full SHA / meaning |\n|---|---|\n| `P` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` — original home head |\n| `M` | `cccccccccccccccccccccccccccccccccccccccc` — original #13 head |\n| `R` | `dddddddddddddddddddddddddddddddddddddddd` — recorded Rework base |\n| `H` | `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` — current HEAD |\n| `X` | `9999999999999999999999999999999999999999` — B/C origin tip |\n| `O` | Full SHA resolved from `origin/retry` after fetching |\n\nThe record selects **rebase mode**. HEAD contains `R`, not `P`; original-home ancestry is therefore not a required proof. The previous successful lease push does not authorize another lease push automatically.\n\n### Shared proof commands\n\nUsing the legend’s full SHA values:\n\n```bash\ngit -C \"/work/widget/.worktrees/retry\" fetch origin\ngit -C \"/work/widget/.worktrees/retry\" merge-base --is-ancestor \"$R\" HEAD\ngit -C \"/work/widget/.worktrees/retry\" rev-parse origin/retry\ngit -C \"/work/widget/.worktrees/retry\" merge-base --is-ancestor \"$R\" \"$O\"\ngit -C \"/work/widget/.worktrees/retry\" merge-base --is-ancestor \"$O\" HEAD\n```\n\nFetch or resolution failure stops preflight. For ancestry proofs, exit 0 means yes, exit 1 means no; any other exit is a command error and stops with its output. The `R → HEAD` proof runs once per preflight.\n\n| Variant | Origin vs `P` | `R → O` | `O → HEAD` | Decision |\n|---|---|---:|---:|---|\n| A | Different | 0 | 0 | Offer non-force push |\n| B | `O = X`, different | 1 | 0 | Withhold push |\n| C | `O = X`, different | 0 | 1 | Withhold push |\n\n### A — selected push command\n\n```bash\ngit -C \"/work/widget/.worktrees/retry\" push --no-follow-tags origin HEAD:refs/heads/retry\n```\n\nPreserve both existing original refs unchanged: `refs/gauntlet/pre-rework/pr-12 = P` and `refs/gauntlet/pre-rework/pr-13 = M`; the thread-fix commit range is `R..HEAD`, not `P..HEAD` (`Threads: none` is recorded).\n\n### B/C — shared withheld menu\n\nExact reason: `push withheld: origin/retry moved past aaaaaaa`\n\nImplementation complete. What would you like to do?\n\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWithheld: push - origin/retry moved past aaaaaaa\n\nWhich option?\n\n- **Bare `1`:** No action. “Push is withheld. Which option: 2, 3, 4, 5, or 6?”\n- **Bare `5`:** “Keeping branch retry. Worktree preserved at /work/widget/.worktrees/retry.” Nothing is pushed.\n- **Bare `6`:** Present the warning with the actual commit list:\n\n  ```text\n  This will permanently delete:\n  - Branch retry\n  - All commits: <commit-list>\n  - Worktree at /work/widget/.worktrees/retry\n\n  Type 'discard' to confirm.\n  ```\n\n  Wait for exact `discard`; cleanup remains ownership-gated. Never delete origin’s branch. Member PR #13 remains open.\n\nOn returning to the menu after origin changes, fetch and recompute preflight; do not reuse the previous push decision.\n",
+      "words": 436,
+      "wallMs": 17732,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f9ccaaa19903264bce06eed9b922cea7a0bdca6027b94094f219eec7f6a440f6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "19fb1a13294574364622afec75ba9fc50863fbef6f29db31c191d8ee89dd9979",
+      "candidateOutputSha": "f152f0e34affed93ccd019345cf3cb8f0095530bceffaa9f45d238610cd00c16",
+      "facts": {
+        "later": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "moved": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moved both facts from fails to holds by switching the preflight from merge-mode original-home ancestry (which stopped at the H proof and never reached a push or menu) to rebase-mode proofs: it checks Rework base ancestry of HEAD and origin/retry, checks origin/retry as an ancestor of HEAD, and only then selects the non-force `--no-follow-tags origin HEAD:refs/heads/retry` push while preserving both `refs/gauntlet/pre-rework/pr-12`/`pr-13` and naming the `dddddddddddddddddddddddddddddddddddddddd..HEAD` thread range; B/C share one withheld menu with the exact reason line, rows 2-6, a bare `1` clarification naming 2-6, `5` keeping the worktree, and `6` showing the ordinary discard confirmation with no origin deletion, and the return-to-menu section recomputes fetch and proofs each time. Nothing Before held was lost, since Before held neither fact. To keep this tight within the budget, retain the explicit statement that the lease form is never selectable on a repeat finish and the single shared A/B/C decision table; avoid reintroducing any original-home `--is-ancestor aaaa… HEAD` stop in rebase mode, as that was what caused Before to fail both facts.",
+      "wallMs": 11515,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f9ccaaa19903264bce06eed9b922cea7a0bdca6027b94094f219eec7f6a440f6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "7562e9454433d596c22621b73bda31850fb25822f89b972f2eeb86be743bf2f8",
+      "candidateOutputSha": "d03296876b13e96f96d165545ccd78e378cc139d103b400323bffa0e03a9558a",
+      "facts": {
+        "later": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "moved": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before treated the record as a merge record and stopped every variant at the original-home ancestry proof, so neither the A push command nor the B/C withheld menu was ever reached; After correctly detects rebase mode (HEAD contains R, not P), runs the R→O and O→HEAD proofs for A, emits the non-force `--no-follow-tags origin HEAD:refs/heads/retry` push, keeps both pre-rework refs at P and M, names the `R..HEAD` thread range, and for B/C renders the exact withheld reason once with surviving rows 2-6, a bare-1 clarification naming 2–6, a bare-5 keep, and a bare-6 discard warning/confirmation that never touches origin, plus a fetch-and-recompute rule on menu return. Nothing regressed. To make the 'moved' fact more airtight, consider adding an explicit clause under the B/C menu that no lease, reset, or push is attempted while withheld, and under the return-to-menu line say that both the proofs and the push form are recomputed, so the 'push form' half of the 'later' fact is stated rather than implied.",
+      "wallMs": 11907,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

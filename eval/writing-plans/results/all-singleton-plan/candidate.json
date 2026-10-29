@@ -1,7 +1,7 @@
 {
   "sample": "all-singleton-plan",
   "arm": "candidate",
-  "skillSha": "a247f7678bb4af0afd4fcbb88734a5a9342803c0a3bde63870f93e3055728a48",
+  "skillSha": "142d5965599d6cd698d3e856cc5ed26852ea36161d3432a819184162b1d57560",
   "inputSha": "33f45ead68d8fcab81328adfb599d84734d593cd5c110338068bfa2eed8d40d0",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Parent narration: /skill:writing-plans, plan phase\n\n**Phase status.** `plan` is already `in_progress`, so the Overview's `phase_tracker` start is skipped. No plan exists at `/workspace/project/doc/plans/numbers.md`, so this is not a restored-plan entry.\n\n**Scope check.**\n- There is no overrides file, so no `## Deployment` topology is documented. That fails closed: no deployment-driven split.\n- No review-risk isolation reason applies.\n- Decision: one plan. That is three small linear tasks, one PR's worth of work.\n\n## Step 1: set the substep\n\n```\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })\n```\n\n## Step 2: resolve the five absolute paths\n\n- Worktree: `/workspace/project`\n- Spec: `/workspace/project/doc/specs/numbers.md`\n- Plan: `/workspace/project/doc/plans/numbers.md`\n- Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`\n- Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`\n\n## Step 3: dispatch the writer\n\n```\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/workspace/project`. Spec: `/workspace/project/doc/specs/numbers.md`. Plan path: `/workspace/project/doc/plans/numbers.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n})\n```\n\n- The dispatch has no `output:` and no `model:`.\n- There is no `Findings:` or `Amend:` block, since this is a first dispatch.\n- I compose nothing beyond the fixed template.\n\n**Constraints the writer follows** (from the contract it reads; the parent does not author them):\n- **Wave grouping.** The three tasks form a pure dependency chain: Format needs Parse's summary, and Label needs Format's. So each gets its own wave: Wave 1 is Task 1 Parse integers, Wave 2 is Task 2 Format integers, Wave 3 is Task 3 Label integers.\n  - Wave 2 states \"Depends on Wave 1\".\n  - Wave 3 states \"Depends on Wave 2\".\n  - Singleton waves need no extra marker, so there are no Solo lines.\n- **File ownership.** Each task's `**Files:**` block declares its own pair, for example `Create: src/parse.mjs` plus `Create:`/`Test: tests/parse.test.mjs`. The pairs are pairwise disjoint.\n- **Tests.** Each code task has a `**Tests:**` block, for example `` `node --test tests/parse.test.mjs` ``, anchored to its `Test:` path.\n  - The block carries exactly one `- baseline:` bullet from the Baseline procedure: either `skipped - <path> created by this task` for a newly created test file, or executed `pass` evidence.\n  - It also carries `- via:` when the spec names the seam.\n- **Header.** The full-suite command appears only in `**Verification:**`. Task steps use scoped commands only.\n- **Task steps.** Each task follows the template: red, green, scoped fmt/lint, then a bare-`git` commit.\n- **Coverage and checks.** `## Spec coverage` comes last and is built extraction-first. The writer runs `plan_check` itself and repairs any findings before replying.\n\n**Result:** `PLAN WRITTEN /workspace/project/doc/plans/numbers.md`\n\n## Step 4: confirm the dispatch landed\n\nThe dispatch did not error and did not return an async handle. The plan path now exists. Continue.\n\n## Step 5: parent stamping check\n\n```\nplan_check({ planPath: \"/workspace/project/doc/plans/numbers.md\" })\n```\n\n**Result:** `PASS - plan verified and stamped for implement-start.`\n\n## Step 6: branch\n\nThe pair is (`PLAN WRITTEN`, `PASS`), which goes to step 7. No `gauntlet: question` is needed and there is no human pause.\n\n## Step 7: clear the substep, read once, hand off\n\n```\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: null })\n```\n\n**Single read of the plan:**\n- Wave 1 contains Task 1: Parse integers.\n- Wave 2 contains Task 2: Format integers.\n- Wave 3 contains Task 3: Label integers.\n- There are no Solo lines and no Open Questions section.\n\nThis is consistent with the approved linear scope.\n\n**Execution Handoff:**\n\n```\nphase_tracker({ action: \"complete\", phase: \"plan\" })\n```\n\n```\nplan_tracker({ action: \"init\", tasks: [\n  \"W1: Parse integers\",\n  \"W2: Format integers\",\n  \"W3: Label integers\"\n] })\n```\n\nEntries are in wave order, each named `W<k>: <title>`. This is the single initialization of the execution list; it will not be re-initialized on continuation.\n\nNo confirmation is requested, because the spec gate already happened and the plan is a mechanical derivative. Auto-invoking in this session:\n\n```\n/skill:subagent-driven-development\n```\n",
-      "words": 585,
-      "wallMs": 18082,
+      "text": "## Scope check\n\n- **Deployment split:** None. The overrides file is absent, so no `## Deployment` topology is documented. The check fails closed, so there is no deployment-driven split.\n- **Review-risk isolation:** None. The three tasks are a small linear chain (parse → format → label) with no large mechanical rename to isolate.\n- **Decision:** One plan, about one PR of work. File count is not a split signal.\n\n## Author the plan\n\n**Step 1. Substep.** Phase `plan` is already `in_progress`, so the Overview skipped `start`. I set the substep:\n\n```\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })\n```\n\n**Step 2. Resolve the five absolute paths.**\n- Worktree: `/workspace/project`\n- Spec: `/workspace/project/doc/specs/numbers.md`\n- Plan: `/workspace/project/doc/plans/numbers.md`\n- Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`\n- Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`\n\n**Step 3. Entry branch.** No plan exists at the plan path, and this is not a restored flow, so I dispatch a fresh writer:\n\n```\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/workspace/project`. Spec: `/workspace/project/doc/specs/numbers.md`. Plan path: `/workspace/project/doc/plans/numbers.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n})\n```\n\nThe dispatch deliberately leaves some things out:\n- No `output:` field.\n- No `model:` field.\n- No `Findings:` or `Amend:` block, since this is a first write.\n- Nothing composed beyond the fixed template.\n\n**Constraints the writer follows** (from the contract sections it reads; I do not author them):\n\n- **Wave grouping.**\n  - A pure dependency chain goes one task per wave.\n  - Task 1 \"Parse integers\" is in Wave 1, Task 2 \"Format integers\" in Wave 2, and Task 3 \"Label integers\" in Wave 3.\n  - Waves 2 and 3 each state their dependency on the prior wave, because each consumes the previous task's summary.\n  - Files are pairwise disjoint per wave.\n  - There are no `Solo` lines; that is not contract grammar.\n- **Task template.** Each task carries:\n  - A TDD scenario.\n  - A `**Spec:**` line with `§` anchors.\n  - `**Files:**` with `Create:` entries for `src/<name>.mjs` and `tests/<name>.test.mjs`. Each new test file is listed as both `Create:` and `Test:`.\n  - A `**Tests:**` block with `node --test tests/<name>.test.mjs`, followed by exactly one baseline bullet. Each test file is a `Create:` anchor, so this is the `skipped - … created by this task` form, with the shared BASE SHA.\n  - The red → green → fmt/lint → commit checkbox steps, using bare `git`.\n- **Header and coverage.**\n  - The full suite appears only in the header `**Verification:**` line.\n  - The plan ends with an extraction-first `## Spec coverage` table that closes over Tasks 1–3.\n  - No placeholders and no paraphrased literals.\n- **Self-check.** The writer runs Baseline and its own `plan_check`, then replies.\n\n**Step 4. Dispatch result.** The dispatch did not error and did not return async. The reply is `PLAN WRITTEN /workspace/project/doc/plans/numbers.md`, and the plan path exists.\n\n**Step 5. Stamping check in the parent.**\n\n```\nplan_check({ planPath: \"/workspace/project/doc/plans/numbers.md\" })\n```\n\nResult: `PASS - plan verified and stamped for implement-start.`\n\n**Step 6. Branch.** The pair is `PLAN WRITTEN` + `PASS`, so I go to step 7. No re-dispatch and no open questions.\n\n**Step 7. Clear the substep.**\n\n```\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: null })\n```\n\nI read the plan once. It contains:\n- Wave 1 with Task 1: Parse integers.\n- Wave 2 with Task 2: Format integers.\n- Wave 3 with Task 3: Label integers.\n\nThere are no Solo lines and no Open Questions section, which matches the singleton-wave chain.\n\n## Execution handoff\n\n```\nphase_tracker({ action: \"complete\", phase: \"plan\" })\n```\n\nI initialize the tracker once, in wave order, naming each entry `W<k>: <title>`:\n\n```\nplan_tracker({ action: \"init\", tasks: [\n  \"W1: Parse integers\",\n  \"W2: Format integers\",\n  \"W3: Label integers\"\n] })\n```\n\nThis is the execution list, and it is not re-initialized on continuation. The spec gate has already passed and the plan is a mechanical derivative, so I do not ask for confirmation. Any remaining pauses (`BLOCKED`/`NEEDS_CONTEXT` stops and the end gate) belong to the executor.\n\nInvoking `/skill:subagent-driven-development`.\n",
+      "words": 608,
+      "wallMs": 18800,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. **Scope check:** Keep one plan. No documented deployment topology permits a deployment-driven split, and no review-risk isolation reason is given. The three tasks form a dependency chain, so the writer must use three singleton waves—not separate plans.\n\n2. Set the planning substep:\n   ```text\n   phase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })\n   ```\n   The phase is already `in_progress`; do not start it again.\n\n3. Resolve the five absolute paths:\n   - Worktree: `/workspace/project`\n   - Spec: `/workspace/project/doc/specs/numbers.md`\n   - Plan: `/workspace/project/doc/plans/numbers.md`\n   - Skill: `/opt/pi/skills/writing-plans/SKILL.md`\n   - Contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`\n\n   No plan exists, so take the fresh-writer entry branch.\n\n4. Dispatch the writer in the foreground:\n   ```text\n   subagent({\n     agent: \"plan-writer\",\n     context: \"fresh\",\n     async: false,\n     cwd: \"/workspace/project\",\n     phase: \"plan-write\",\n     acceptance: {\n       level: \"none\",\n       reason: \"the parent plan_check owns acceptance\"\n     },\n     task: \"Write the implementation plan for the approved spec. Worktree: `/workspace/project`. Spec: `/workspace/project/doc/specs/numbers.md`. Plan path: `/workspace/project/doc/plans/numbers.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n   })\n   ```\n\n   No `output`, `model`, Findings, or additional task instructions are supplied. The writer reads the skill and contract and owns recon, plan authoring, baseline execution, checker repairs, and Self-Review.\n\n   Its required grouping is:\n   - Wave 1: Task 1 — Parse integers.\n   - Wave 2: Task 2 — Format integers; depends on Task 1 and consumes its summary.\n   - Wave 3: Task 3 — Label integers; depends on Task 2 and consumes its summary.\n\n   Disjoint files do not remove these ordering dependencies. No Solo lines are added. Each task follows the contract’s task template, declares its corresponding source and test paths, anchors its scoped `node --test tests/<name>.test.mjs` command to its `Test:` path, and records baseline evidence obtained under the baseline procedure. The writer supplies checkbox steps, spec anchors, coverage, and required self-review; the parent writes none of these.\n\n   Observed reply:\n   ```text\n   PLAN WRITTEN /workspace/project/doc/plans/numbers.md\n   ```\n\n5. Run the parent’s stamping check:\n   ```text\n   plan_check({ planPath: \"/workspace/project/doc/plans/numbers.md\" })\n   ```\n   Observed result:\n   ```text\n   PASS - plan verified and stamped for implement-start\n   ```\n\n   Decision: `PLAN WRITTEN` plus `PASS` advances directly to handoff; no repair dispatch or human question is needed.\n\n6. Clear the substep:\n   ```text\n   phase_tracker({ action: \"substep\", phase: \"plan\", substep: null })\n   ```\n\n7. Read the finished plan once:\n   ```text\n   read({ path: \"/workspace/project/doc/plans/numbers.md\" })\n   ```\n   Observed: Task 1, Parse integers, is in Wave 1; Task 2, Format integers, is in Wave 2; Task 3, Label integers, is in Wave 3. There are no Solo lines or Open Questions. Use this wave order for the execution list.\n\n8. Complete planning:\n   ```text\n   phase_tracker({ action: \"complete\", phase: \"plan\" })\n   ```\n\n9. Initialize the execution tracker once:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       \"W1: Parse integers\",\n       \"W2: Format integers\",\n       \"W3: Label integers\"\n     ]\n   })\n   ```\n\n10. Direct execution handoff, without a confirmation prompt:\n    ```text\n    /skill:subagent-driven-development\n    ```\n",
-      "words": 411,
-      "wallMs": 9703,
+      "text": "1. **Scope check:** Keep one plan. No documented deployment topology permits a deployment-driven split, and no review-risk isolation reason is given. The three tasks form a dependency chain, so they belong in three singleton waves—not separate plans.\n\n2. Set the planning substep:\n\n   ```text\n   phase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })\n   ```\n\n   The phase is already `in_progress`; do not start it again.\n\n3. Resolve the five absolute paths and dispatch one fresh writer, synchronously, with this exact object:\n\n   ```text\n   subagent({\n     agent: \"plan-writer\",\n     context: \"fresh\",\n     async: false,\n     cwd: \"/workspace/project\",\n     phase: \"plan-write\",\n     acceptance: {\n       level: \"none\",\n       reason: \"the parent plan_check owns acceptance\"\n     },\n     task: \"Write the implementation plan for the approved spec. Worktree: `/workspace/project`. Spec: `/workspace/project/doc/specs/numbers.md`. Plan path: `/workspace/project/doc/plans/numbers.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n   })\n   ```\n\n   No `output`, `model`, or extra task instructions are supplied. No plan exists, so the restored-plan branch does not apply.\n\n   **Writer constraints:** The writer performs recon, authors the plan, runs Baseline and its own checker, repairs findings, and performs Self-Review. The linear dependencies require:\n   - Wave 1: Task 1, **Parse integers**\n   - Wave 2: Task 2, **Format integers**, dependent on Task 1 and requiring its summary\n   - Wave 3: Task 3, **Label integers**, dependent on Task 2 and requiring its summary\n\n   Disjoint files do not remove ordering dependencies. Each wave is a singleton, with no Solo lines. Each task uses the prescribed task template, declares its corresponding source and test paths, anchors its scoped `node --test tests/<name>.test.mjs` command, and records baseline evidence obtained under the Baseline procedure. The writer—not the parent—authors the steps and coverage table.\n\n   Observed reply:\n\n   ```text\n   PLAN WRITTEN /workspace/project/doc/plans/numbers.md\n   ```\n\n4. Run the parent’s stamping check regardless of the writer’s success reply:\n\n   ```text\n   plan_check({ planPath: \"/workspace/project/doc/plans/numbers.md\" })\n   ```\n\n   Observed result:\n\n   ```text\n   PASS - plan verified and stamped for implement-start\n   ```\n\n   **Decision:** `PLAN WRITTEN` plus `PASS` advances to handoff; no repair dispatch or human pause is needed.\n\n5. Clear the substep:\n\n   ```text\n   phase_tracker({ action: \"substep\", phase: \"plan\", substep: null })\n   ```\n\n6. Read the finished plan once:\n\n   ```text\n   read({ path: \"/workspace/project/doc/plans/numbers.md\" })\n   ```\n\n   The read confirms the three singleton waves and task titles above, with no Solo lines and no Open Questions.\n\n7. Complete the planning phase:\n\n   ```text\n   phase_tracker({ action: \"complete\", phase: \"plan\" })\n   ```\n\n8. Initialize the execution list once, in wave order:\n\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       \"W1: Parse integers\",\n       \"W2: Format integers\",\n       \"W3: Label integers\"\n     ]\n   })\n   ```\n\n9. **Direct execution handoff:** No approval prompt or parent-written implementation. Invoke:\n\n   ```text\n   /skill:subagent-driven-development\n   ```\n",
+      "words": 387,
+      "wallMs": 9731,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4c0dd45fc9f224f8973396aa6bacc650764157e2631f632e8d2a1090c19c4161",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-      "baselineOutputSha": "4bccffc8ef0bb47596e60561dfba2806536fc5a07f8786d01c0b861d3e87cf9d",
-      "candidateOutputSha": "a897e2113ed90499474d28e9dd3da323ded7a1b1ec666674cb4b4eb2dab55b28",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
+      "baselineOutputSha": "b976205414c02014af40077bf375cd4f3de73a2d5f5c9693a52ddeeaeb12fff3",
+      "candidateOutputSha": "de6bbad981fc8f07a0b0e8fda0ad292a7cd1b214ae20668257ab2a7de1dc6b88",
       "facts": {
         "singleton-template": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs already satisfy all three facts, so nothing moved here. Before treats the three singleton waves as a plain dependency chain with no Solo lines, no Parallel-safe line, and no execution mode in the grouping or template; dispatches one fresh async:false plan-writer with acceptance level none and all five paths; runs its own plan_check on PASS before the single plan read; and initializes W1/W2/W3 in wave order then invokes /skill:subagent-driven-development without any mode question. After preserves every one of these (its 'Singleton waves need no extra marker, so there are no Solo lines' and the 'Wave grouping / File ownership / Tests / Header' breakdown are equally free of mode language, and the handoff is identical). The Expected-to-move list anticipated singleton-template and ordered-handoff flipping from fails to holds, but the Before text already holds them for this input, so the author should not count this sample as behavior-changing evidence for those two facts; the After wording is safe as written, and no adjustment is needed to keep Before's facts while delivering the Change.",
-      "wallMs": 13791,
+      "feedback": "Nothing moved between Before and After on these three facts: both outputs treat the three singleton waves as ordinary one-task-per-wave groups with an explicit statement that `Solo` lines are not contract grammar, neither mentions a plan-time Parallel-safe line or any execution mode in the grouping/template, both dispatch a single fresh `async: false` plan-writer with `acceptance: { level: \"none\" }` and all five paths, run the parent's `plan_check` after `PLAN WRITTEN` and before the single plan read, and both initialize `plan_tracker` with W1/W2/W3 in wave order before invoking `/skill:subagent-driven-development` without a mode prompt. The Expected-to-move list anticipated singleton-template and ordered-handoff flipping from fails to holds, but the Before text already satisfied them, so the After wording is a safe no-regression rewrite. The one After addition worth keeping is the explicit 'Files are pairwise disjoint per wave' bullet, which documents the wave-file-disjointness rule that replaced the solo-line check without introducing any mode or Parallel-safe language; keep that phrasing and continue to avoid any wording like 'in-place' or 'parallel' in the singleton grouping section so the template fact stays clean.",
+      "wallMs": 12205,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4c0dd45fc9f224f8973396aa6bacc650764157e2631f632e8d2a1090c19c4161",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
       "baselineOutputSha": "f466c6fb1c517538e844091fbd16d4c9d1066141a4c28d10937d0db1b2173a38",
-      "candidateOutputSha": "b088128e5a75b8ac98cf9df0e12f95bac22c0d1f9262bf072563ca42ad3367ae",
+      "candidateOutputSha": "82423c8f35e38ab21cd128864a20e91bb10187a199efb38cfe7b621ab7a090a7",
       "facts": {
         "singleton-template": {
           "before": "holds",
@@ -81,107 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both Before and After dispatch one fresh async:false plan-writer with acceptance level none and the worktree/spec/plan paths, run the parent's plan_check after PLAN WRITTEN and before the single read of the finished plan, describe the three singleton waves as ordinary groups with no Solo lines and no Parallel-safe or execution-mode template lines, initialize plan_tracker with W1/W2/W3 in wave order, and hand off directly to /skill:subagent-driven-development without any mode selection or confirmation. After's only substantive additions are the explicit 'Disjoint files do not remove these ordering dependencies' and 'anchors its scoped command to its Test: path' sentences and the 'Use this wave order for the execution list' note, all of which reinforce the facts rather than disturb them. The Expected-to-move entries for this sample predicted fails -> holds, but Before already satisfied all three facts, so the After wording is safe here; no changes are needed to retain them while delivering the Change.",
-      "wallMs": 12673,
+      "feedback": "No fact moved on this case. Both outputs dispatch a single fresh, async:false plan-writer with acceptance level none and the spec/plan/worktree paths, run the parent's plan_check after PLAN WRITTEN and before the single read, initialize plan_tracker in wave order, and hand off directly to /skill:subagent-driven-development with no mode selection. Both also treat the three singleton waves as ordinary groups with no Solo lines, no Parallel-safe line, and no execution-mode language in the grouping or template. The After wording is slightly tighter (it merges path resolution and dispatch and explicitly says disjoint files do not remove ordering dependencies), which is fine; just make sure any future wording about `in-place` marking for rebase-form tasks stays scoped to that scenario and does not leak an execution-mode line into ordinary singleton-wave guidance, which would put singleton-template at risk.",
+      "wallMs": 8637,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "all-singleton-plan",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "36494548afbe88d6f941384c120f668b921fd079899858a11098947d6de0268d",
-      "candidateSkillSha": "cce0c20a9a296ce47a1f1f9b61c280297272f9d40ad6545db762fff72e2601c6",
-      "inputSha": "33f45ead68d8fcab81328adfb599d84734d593cd5c110338068bfa2eed8d40d0",
-      "factsSha": "4c0dd45fc9f224f8973396aa6bacc650764157e2631f632e8d2a1090c19c4161",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "f466c6fb1c517538e844091fbd16d4c9d1066141a4c28d10937d0db1b2173a38",
-            "payloadSha": "3183d00507b1ef5ea98a8bc3686509b99c5f7eeb57a4fa4f2fe4fd886c5e44a3"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "fe00941fd4363691fe0b662d226c47453a49879a8d47581f1544895a197538a8",
-            "payloadSha": "9e48792d219f0c12e1620ba38e4bcc5b00e03c8494d9b63f9e4d37110cbfe85e"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "4c0dd45fc9f224f8973396aa6bacc650764157e2631f632e8d2a1090c19c4161",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-        "baselineOutputSha": "f466c6fb1c517538e844091fbd16d4c9d1066141a4c28d10937d0db1b2173a38",
-        "candidateOutputSha": "fe00941fd4363691fe0b662d226c47453a49879a8d47581f1544895a197538a8",
-        "facts": {
-          "singleton-template": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "parent-check": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "ordered-handoff": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Nothing moved in this case: both outputs treat the three singleton waves as ordinary groups with no Solo lines, no plan-time Parallel-safe line, and no execution mode in the grouping or template; both dispatch one fresh, async:false plan-writer with acceptance level none and all five paths, run the parent's plan_check after PLAN WRITTEN and before the single read; and both initialize plan_tracker with W1/W2/W3 in wave order and hand off directly to /skill:subagent-driven-development without any mode selection. The only observable drift is cosmetic: After's step 10 describes the handoff in prose ('Auto-invoke ... in this session') rather than showing the literal invocation line as Before does, and After's writer-constraints prose adds 'derives evidence through the prescribed procedure, not invention' (a Change-aligned addition that does not touch these facts). To keep the handoff fact unambiguous while delivering the Change, keep the explicit `/skill:subagent-driven-development` invocation as the final line (as Before did) and put the baseline-provenance language in the writer-constraints paragraph only, so the grouping/template and tracker/handoff steps remain free of mode or evidence conditionals.",
-        "wallMs": 11780,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "4c0dd45fc9f224f8973396aa6bacc650764157e2631f632e8d2a1090c19c4161",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-        "baselineOutputSha": "f466c6fb1c517538e844091fbd16d4c9d1066141a4c28d10937d0db1b2173a38",
-        "candidateOutputSha": "fe00941fd4363691fe0b662d226c47453a49879a8d47581f1544895a197538a8",
-        "facts": {
-          "singleton-template": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "parent-check": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "ordered-handoff": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "After preserves all three facts: singleton waves remain ordinary groups without Solo or Parallel-safe requirements, the fresh writer dispatch precedes the parent's successful check and single plan read, and tracker initialization leads directly to execution without mode selection. No fact moved. The added instruction to derive baseline evidence rather than invent it supports the Change, but does not explicitly establish base provenance or the failure stop. Strengthen that sentence to require task-command evidence at the recorded base before handoff and, on baseline failure, preserve the paused planning state and offer fix-first, narrow, or amend without fabricating passing evidence. Retain the existing grouping, check/read order, and direct handoff.",
-        "wallMs": 7302,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "50dd29dfd3066c986f17ea1dfffbf4e54fc40ebd"
+  "repoSha": "ec4e5ab500837b12d497f879be151dc2c392a188"
 }

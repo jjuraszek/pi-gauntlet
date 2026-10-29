@@ -1,7 +1,7 @@
 {
   "sample": "deferred-spec-stop",
   "arm": "baseline",
-  "skillSha": "8d3428ff1ed87a02c7eabdf6b43d83b0e9e956fce56fff45213c70b09891f5ed",
+  "skillSha": "a11b19c6764807e27206f565f71eb1e296274d9e6c5e7656f4fea854accc330b",
   "inputSha": "a7c844de34ef64d58cd4c781f6869fc854e7223713c19fbb8c1029ce3a628633",
   "kind": "text",
   "assembly": "concat",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Variant 1: `**PR:** acme/widget#42` present, `Amend-grant: none`\n\n**Input step: narrated, not live**\n\n1. The worktree argument is present: `/work/widget/.worktrees/spec-export`.\n2. Derive the variables:\n   - `WORKTREE=/work/widget/.worktrees/spec-export`\n   - `PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")` gives `/work/widget`\n   - `FEATURE=$(git -C \"$WORKTREE\" branch --show-current)`\n3. The selected run spec is resolved: `doc/specs/export.md`. This path is carried, so no second discovery happens.\n4. Read the spec header before announcing or starting ship. The header contains:\n   - `# Export receipts`\n   - `**Amend-grant:** none`\n   - `**Engine:** deferred`\n   - `**PR:** acme/widget#42`\n5. The exact `**Engine:** deferred` line sits before the first `##`, so the deferred-engine stop fires. It fires before the header-linked PR reference is consulted, and no `gh pr view` runs.\n\nPrinted output:\n\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nNone of the following happened:\n- the announcement\n- `phase_tracker({ action: \"start\", phase: \"ship\" })`\n- a phase change\n- the clean-checkout and test-all verification\n- the plan strip\n- the telemetry seal\n- a push or `gh pr ready`\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`; nothing was announced, started, verified, stripped, sealed, or pushed.\n\n## Variant 2: no `**PR:**` header, known subject #42\n\n**Input step: narrated**\n\n1. Derive the same `WORKTREE`, `PRIMARY`, and `FEATURE`.\n2. Use the same resolved spec, `doc/specs/export.md`.\n3. Read the header: `# Export receipts`, `**Amend-grant:** none`, `**Engine:** deferred`. There is no `**PR:**` line and no Rework record.\n4. `**Engine:** deferred` appears before the first `##`, so the run stops.\n\nPrinted output:\n\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nThere was no announcement, no ship start, no verification, no strip, no seal, and no push. The PR-route checks are moot.\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`; no ship side effects.\n\n## Variant 3: `**Amend-grant:** all` (with `**PR:** acme/widget#42`)\n\n**Input step: narrated**\n\n1. Derive the same `WORKTREE`, `PRIMARY`, and `FEATURE`.\n2. Use the same spec, `doc/specs/export.md`.\n3. Read the header: `# Export receipts`, `**Amend-grant:** all`, `**Engine:** deferred`, `**PR:** acme/widget#42`.\n4. The amendment grant does not lift the deferred-engine stop. The `**Engine:** deferred` line before the first `##` still halts the run.\n\nPrinted output:\n\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nThere was no announcement, no ship start, no verification, no strip, no seal, no push, and no ready call.\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`; `Amend-grant: all` changes nothing.\n",
-      "words": 377,
-      "wallMs": 14749,
+      "text": "# Finish entry: deferred spec\n\n**Common entry.** All three variants are the same up to this point.\n\n1. The `<worktree-path>` argument is present: `/work/widget/.worktrees/spec-export`. The missing-path stop does not apply.\n2. Derive the checkout context once:\n   ```bash\n   WORKTREE=/work/widget/.worktrees/spec-export\n   PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")   # -> /work/widget\n   FEATURE=$(git -C \"$WORKTREE\" branch --show-current)\n   ```\n3. Resolve the selected run spec to `doc/specs/export.md` (carried path). Read its header before announcing.\n\nNothing reached any of these steps in any variant:\n- the \"I'm using the finishing-a-development-branch skill…\" announcement\n- `phase_tracker({ action: \"start\", phase: \"ship\" })`\n- Step 1 verification (`test-all` is never run, and the clean checkout is never relied on)\n- the plan strip\n- the telemetry seal\n- any push or gh call\n\n---\n\n**Variant 1: `**PR:** acme/widget#42` present, `Amend-grant: none`, no Rework record**\n\nThe header shows exactly `**Engine:** deferred` before the first `##`. The deferred check runs first, so the `**PR:**` header-linked route and its `gh pr view 42 -R acme/widget` identity check are never reached.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nOutcome: stopped at Input on the deferred engine. There was no phase change, verification, strip, seal, or push, and PR #42 was untouched.\n\n---\n\n**Variant 2: `**PR:**` absent, known subject #42**\n\nThe header still shows exactly `**Engine:** deferred` before the first `##`. There is no PR route to consider anyway.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nOutcome: stopped at Input on the deferred engine. Nothing was announced, started, verified, stripped, sealed, or pushed.\n\n---\n\n**Variant 3: `Amend-grant: all` (otherwise as Variant 1)**\n\nThe amend grant governs amendment handling, not the engine gate. `**Engine:** deferred` before the first `##` still triggers the stop, ahead of any PR check.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nOutcome: stopped at Input on the deferred engine. The `all` grant does not lift the handoff-only stop, and there was no phase change, verification, strip, seal, or push.\n",
+      "words": 306,
+      "wallMs": 13346,
       "mechanical": {
         "notice": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "- PR `acme/widget#42`, grant `none`: spec approved for handoff only - run brainstorming #42\n- PR header absent, known subject #42, grant `none`: spec approved for handoff only - run brainstorming #42\n- Grant `all`: spec approved for handoff only - run brainstorming #42\n",
-      "words": 38,
-      "wallMs": 5564,
+      "text": "- PR header present, `Amend-grant: none`: spec approved for handoff only - run brainstorming #42\n- PR header absent, known subject #42: spec approved for handoff only - run brainstorming #42\n- `Amend-grant: all`: spec approved for handoff only - run brainstorming #42\n",
+      "words": 37,
+      "wallMs": 4478,
       "mechanical": {
         "notice": "holds"
       }
     }
   },
-  "repoSha": "8e1bd9e43e3f55fed6120d98e7c3d37e1ebb7669"
+  "repoSha": "696cf14803d78e1b2594d2d7971df43a69f7944a"
 }

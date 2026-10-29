@@ -1,0 +1,120 @@
+{
+  "sample": "pr-subject-sync-repair",
+  "arm": "candidate",
+  "skillSha": "c66bb8024a41e8b511a66f5fb03c75a10cb56cd5d9312a91d6bd9d6d1ac40eea",
+  "inputSha": "84a54c7b89b792b3a231c6d2864b34383b9b820206bf5794dd64d4724c498093",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# writing-plans: rework plan for acme/widget#12 (variants A, B, C)\n\n## Parent sequence (shared)\n\n1. Announce: \"I'm using the writing-plans skill to create the implementation plan.\"\n2. Call `phase_tracker({action:\"status\"})`. If `plan` is not `in_progress`, call `phase_tracker({action:\"start\", phase:\"plan\"})`.\n3. Scope check: there is no documented deployment split and no review-risk isolation reason, so this is one plan.\n4. Call `phase_tracker({action:\"substep\", phase:\"plan\", substep:\"plan-write\"})`.\n5. Dispatch the writer:\n   - Call: `subagent({agent:\"plan-writer\", context:\"fresh\", async:false, cwd:\"<abs worktree>\", phase:\"plan-write\", acceptance:{level:\"none\", reason:\"the parent plan_check owns acceptance\"}, task:…})`\n   - Task text: \"Write the implementation plan for the approved spec. Worktree: `<abs worktree>`. Spec: `<abs>/doc/specs/retry.md`. Plan path: `<abs>/doc/plans/retry.md`. Plan skill: `<abs SKILL.md>`. Plan contract: `<abs reference/plan-contract.md>`.\"\n   - The dispatch has no `model:` and no `output:`.\n6. Call `plan_check({planPath:\"<abs>/doc/plans/retry.md\"})`. This is the stamping call.\n7. If the result is PLAN WRITTEN + PASS: clear the substep, read the plan once, call `phase_tracker complete plan`, call `plan_tracker init`, then invoke `/skill:subagent-driven-development`.\n8. If the result is FAIL: re-dispatch once with the verbatim FAIL output as `Findings:`.\n\n## Plan shape the writer must produce (shared)\n\n**Header**\n- PR subject is detected from the `## Rework record`.\n- `**Verification:** \\`npm run lint\\``: the documented lint only, with no format command and no tests.\n- At verify, the command set is the union of the task `Tests:` commands plus `npm run lint`.\n\n**Thread tasks** (exactly one task per `fix` thread, with the thread id in the title)\n\n| Task | Files | Tests | via |\n|---|---|---|---|\n| \"HOME_fix: retry timeout\" | Modify `src/retry.mjs`; Test `test/retry.test.mjs` | `node --test test/retry.test.mjs` | `retryRequest()` |\n| \"MEMBER_fix: delay bound\" | Modify `src/delay.mjs`; Test `test/delay.test.mjs` | `node --test test/delay.test.mjs` | `retryDelay()` |\n\n- Both Tests commands carry `- baseline: 1234567 pass`.\n- KEEP (`keep open`) and DECLINE (`decline: API rewrite out of scope`) remain recorded dispositions. They get no tasks.\n- The two thread tasks are file-disjoint and use separate test files, so they may share a wave.\n- Any task overlapping a Task 1 file waits for a later wave.\n- Thread-task waves run through nested-worktree patch integration, the scoped test gate, SR, wave CR, and the `reset --soft WAVE_BASE_SHA` fold.\n- `## Spec coverage` closes over every task.\n\n## Variant A: home sync unresolved\n\n**Task 1:** \"rebase onto origin/main and resolve src/retry.mjs\"\n- Command: `git rebase --no-rebase-merges origin/main`.\n- Start from the restored saved home tip `dddddddd…`, not the original `aaaaaaaa…`.\n- Wave 1, alone, marked `in-place`. It runs in the branch checkout: no patch integration and no fold. The implementer's commit is the wave commit. The test gate, SR and CR still run.\n\nBefore Task 1 can finish:\n1. Replay pending #13, then #14, in listed order, using pr-head's replay, conflict-check and abort contract.\n2. Run `git update-ref refs/gauntlet/rework-base/pr-12 HEAD` at `eeeeeeee…`.\n3. Persist `Rework base: eeeeeeee…` plus the actual final `Member replay:` outcomes through the amendment path. No outcome is invented.\n\n**Wave 2:** HOME_fix + MEMBER_fix. Its WAVE_BASE must descend from the rework base.\n\n**Tracker:** `[\"W1: rebase onto origin/main…\", \"W2: HOME_fix…\", \"W2: MEMBER_fix…\"]`\n\n## Variant B: home rebased, #13 unresolved\n\n**Task 1:** \"replay #13 onto home and resolve src/delay.mjs\"\n- Wave 1, alone, `in-place`, running in the branch checkout as in A.\n- The `Base … rebased: aaaaaaa..ddddddd` line already stands. It is not redone.\n\nBefore Task 1 can finish:\n1. Replay pending #14.\n2. Run `git update-ref refs/gauntlet/rework-base/pr-12 HEAD` at `eeeeeeee…`.\n3. Amend the spec with `Rework base: eeeeeeee…` and the final #13 and #14 outcomes.\n\n**Wave 2:** HOME_fix + MEMBER_fix. MEMBER_fix overlaps `src/delay.mjs`, so it must wait for Task 1 regardless.\n\n**Tracker:** `[\"W1: replay #13…\", \"W2: HOME_fix…\", \"W2: MEMBER_fix…\"]`\n\n## Variant C: legacy merge unresolved\n\n**Task 1:** \"merge origin/main and resolve src/retry.mjs\"\n- Preserves the original commits.\n- It is an ordinary wave task: no `in-place` marker and patch integration.\n- The members were already merged, so there are no replays.\n- Merge mode never writes a rework-base ref and needs no `Rework base:` amendment.\n- WAVE_BASE descends from PRE_REWORK_HEAD `aaaaaaaa…`.\n\n**Wave 1:** Task 1 + MEMBER_fix (file-disjoint).\n\n**Wave 2:** HOME_fix, which overlaps `src/retry.mjs`.\n\n**Tracker:** `[\"W1: merge origin/main…\", \"W1: MEMBER_fix…\", \"W2: HOME_fix…\"]`\n\n## Spec transition approval path (A and B)\n\n- The orchestrator is the spec's only writer.\n- It runs brainstorming's \"Amending an approved spec\" in place.\n- **With amend permission on `**Amend-grant:**`:**\n  - It applies the amendment without stopping and prints `amended the spec: …`.\n  - It completes the plan-writer `Amend:` re-dispatch, then `plan_check`, the tracker update, and one `amend:` commit.\n- **Without permission:** the amendment surface's menu and escalation routing applies.\n- Thread repairs (Wave 2) and finishing come only after the ref and the spec record are persisted.\n",
+      "words": 710,
+      "wallMs": 38907,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Shared planning and execution rules\n\nThis is a **structure-and-ordering narration only**; no dispatch, check, repair, or amendment is claimed to have occurred.\n\nOne plan is appropriate: the case supplies neither a documented independently deployable intermediate state nor a review-risk isolation reason for separate PRs.\n\nA fresh `plan-writer`, not the parent, must author the plan, resolve exact file ownership and spec anchors, run its baseline procedure and checker, and self-review. The parent then runs its own stamping `plan_check` and reads the finished plan once. Only after a passing check and resolution of substantive Open Questions does it clear the planning substep, complete phase `plan`, and initialize the tracker with every `W<k>: <title>` in wave order. Absolute dispatch paths are not supplied here, so none are invented.\n\n### Thread tasks, waves, and commands\n\n- Exactly one repair task titled with `HOME_fix`: implement the retry-timeout request at `retryRequest()`, owning `src/retry.mjs` and its necessary test edits; scoped command: `node --test test/retry.test.mjs`, with `via: retryRequest()`.\n- Exactly one repair task titled with `MEMBER_fix`: implement the delay-bound request at `retryDelay()`, owning `src/delay.mjs` and its necessary test edits; scoped command: `node --test test/delay.test.mjs`, with `via: retryDelay()`.\n- `KEEP` remains **keep open**; `DECLINE` remains **decline: API rewrite out of scope**. Neither becomes a repair task.\n- Task 1 runs alone in Wave 1. Both thread repairs wait until its sync/merge and required record transition finish. They can share Wave 2 only with pairwise-disjoint ownership and no shared mutable runtime resource; otherwise sequence them. Any later overlapping task waits for its owner’s earlier wave.\n- Each code task carries anchored `Tests:`, TDD-shaped checkbox steps, scoped format/lint, and commit steps. The header is **`Verification: npm run lint`** only. Scoped tests stay out of that header; PR-subject verification later runs their union plus header lint.\n- The observed clean, passing baseline at `1234567` is usable evidence, not permission to fabricate later evidence. On Findings/Amend re-dispatch, apply the baseline tree-equivalence/rerun rules.\n\n## Variant A — unresolved home sync\n\n**Task 1:** “Rebase home onto `origin/main`, resolve `src/retry.mjs`, and replay pending members.”\n\nWave 1 is **`in-place`**, executing in the branch checkout—not through worker-patch integration. Use the existing PR-head sync/helper contract, starting from the actual restored saved home tip `dddddddddddddddddddddddddddddddddddddddd`, **not** resetting to original `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n\nRun the prescribed `git rebase --no-rebase-merges origin/main`, resolve through the existing helper/completion assertions, then consume #13 and #14 in that order. On any failure, restoration must be proved against the appropriate saved last-good tip.\n\n## Variant B — unresolved member replay\n\n**Task 1:** “Replay #13 onto home, resolve `src/delay.mjs`, then replay pending #14.”\n\nWave 1 is likewise **`in-place`**, in the branch checkout. Preserve the already-rebased home; do not restart from its original head. Follow the existing member replay recipe using the fetched base SHA, home-ref update/checkout steps, conflict assertions, and saved-last-good restoration checks. Finish #13 before attempting #14.\n\n### A/B persistent transition\n\nAfter successful completion, final HEAD is the supplied `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`. Task 1 must run:\n\n`git update-ref refs/gauntlet/rework-base/pr-12 HEAD`\n\nBefore Task 1 finishes, persist `Rework base: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` and final ordered member replay outcomes in the approved spec through brainstorming’s existing amendment path. Do not invent replay ranges. That path owns review/approval and plan reconciliation: a valid amend grant permits its prescribed automatic amendment; without permission, retain its human approval/escalation gate. Do not silently edit the spec.\n\n## Variant C — unresolved legacy merge\n\n**Task 1:** “Merge `origin/main`, resolve `src/retry.mjs`, and preserve original commits.”\n\nWave 1 is an **ordinary wave task**, using an isolated worker, spec review, patch integration, scoped gate, and wave review/commit—not the `in-place` rebase exception.\n\nMembers are already merged; do not replay or merge them again. No rework-base ref is introduced merely for merge mode. Task 1 must complete the unresolved merge before overlapping thread repairs proceed. Any approved-spec record update uses the same amendment path. No successful merge SHA or completed operation is supplied for C, so none is claimed.\n",
+      "words": 629,
+      "wallMs": 27340,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "db703930d467b0064e2b325b6f75dac65688c466f06612f91bafab8320a0d583",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
+      "baselineOutputSha": "a1fe35377a795aaee504fcabd711091fa588e196cbfe97fa7d9ff2245bd1416a",
+      "candidateOutputSha": "249ed0a67cf0d85096de9bc9729ddc8cd7739545a7939697a88161913e2895aa",
+      "facts": {
+        "home-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "member-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "inplace-wave": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "persistence": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "merge-control": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "threads": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves all four rebase-mode facts from fails to holds without regressing the two that Before kept: A now names `git rebase --no-rebase-merges origin/main`, resolves src/retry.mjs, starts from the restored tip dddd… and replays #13 then #14 before Wave 2; B replays #13, resolves src/delay.mjs, consumes #14 and reuses A's pr-head replay/abort contract; both update refs/gauntlet/rework-base/pr-12 to eeee… and amend the approved record with the full Rework base plus final member outcomes via the brainstorming amendment surface before finishing; both rebase Task 1s sit alone in Wave 1 marked `in-place`, while C's merge Task 1 remains an ordinary patch-integration wave task with no rework-base ref. Thread mapping, KEEP/DECLINE dispositions, baseline lines, fresh writer, plan_check stamping, lint-only header and union verify are all retained. One wording risk to watch: in Variant C After places MEMBER_fix in Wave 1 beside the merge Task 1 on a file-disjointness claim, whereas Before kept Task 1 alone; since the input says changes touch both src/retry.mjs and src/delay.mjs and later overlapping tasks must wait, it would be safer to keep merge-form Task 1 alone in Wave 1 (still unmarked, ordinary) and both thread tasks in Wave 2, which preserves the 'overlapping paths wait' clause without weakening the in-place/ordinary distinction the Change asks for.",
+      "wallMs": 21611,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "db703930d467b0064e2b325b6f75dac65688c466f06612f91bafab8320a0d583",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
+      "baselineOutputSha": "889da7cf7d18dfc0139d33e5e719c0b058dceede182b931fffd8afedfc4d74de",
+      "candidateOutputSha": "422069d5f2caaf7864faf4c59ef378cd491c24e42dca47a149b975c79a86ad90",
+      "facts": {
+        "home-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "member-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "inplace-wave": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "persistence": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "merge-control": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "threads": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: Variants A and B now get a concrete rebase-form Task 1 (git rebase --no-rebase-merges origin/main / replay #13 then #14 in record order, starting from the saved tip dddd… rather than the original head, reusing the existing pr-head sync/helper/restoration contract), placed alone in Wave 1 marked in-place in the branch checkout, while Variant C keeps the legacy merge Task 1 as an ordinary isolated-worker/patch-integration wave task with no rework-base ref. The A/B transition section explicitly runs git update-ref refs/gauntlet/rework-base/pr-12 HEAD and persists Rework base eeee… plus ordered member outcomes through brainstorming's amendment path with its grant/approval gate, which flips persistence to holds without weakening merge-control. Nothing Before kept was lost: thread task mapping, via seams, KEEP/DECLINE dispositions, overlapping-wave waiting, baseline/checker/fresh-writer/parent-stamping gates, and the lint-only header all survive, and After additionally states the verification union (scoped tests plus header lint) more explicitly than Before did, which strengthens the threads fact. One minor caution: the phrase \"Use the existing PR-head sync/helper contract\" and \"Do not invent replay ranges\" lean on wording the reader cannot verify from the narration; keep them but avoid implying any replay or amendment actually ran, which After already guards with its opening no-live-writes disclaimer.",
+      "wallMs": 20883,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "ec4e5ab500837b12d497f879be151dc2c392a188"
+}

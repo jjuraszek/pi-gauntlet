@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "13b5e2f8a828bf2506aaa371cd8f72c98c455445b15a7c84714091e116b4eb4c",
+  "skillSha": "1786ebb359087b828c79db22f37f400c55d2d9e94aee60971e8ae9f6ee7e7479",
   "inputSha": "9f0c2cf26e59997582707aad9bcaf0612140208bea5b7be00665f94b3187e47e",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nHEAD in `/work/app` is detached at `def5678`, so I haven't created the worktree for the timeout work yet.\n\nWhich base should the new branch start from?\n\n1. **The current commit `def5678`**: the worktree starts exactly where HEAD is now.\n2. **`main`**: the worktree starts from the default branch.\n\nIf you want a specific branch name, include it. Otherwise I'll pick one for the timeout work.\n",
-      "words": 67,
-      "wallMs": 3310,
+      "text": "gauntlet: question\n\nHEAD in the primary checkout `/work/app` is detached at `def5678`, so I haven't created a worktree yet. Which base should the new timeout-work branch start from?\n\n1. **Current commit:** branch from `def5678`, the detached HEAD.\n2. **`main`:** branch from `main`.\n\nReply with 1 or 2, or name a different base. You can include a branch name too. Once I have your choice, I'll run the clean-base check and create the worktree.\n",
+      "words": 73,
+      "wallMs": 4449,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nHEAD is detached at `def5678`. Should I create the timeout worktree from this commit or from `main`?\n",
-      "words": 19,
-      "wallMs": 2220,
+      "text": "gauntlet: question\nHEAD is detached at `def5678`. Should I create the timeout-work branch from the current commit (`def5678`) or from `main`?\n",
+      "words": 21,
+      "wallMs": 2640,
       "mechanical": {
         "first-line": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b4edfd0f5facbf0d34a45cf2ce23a923fa9ff214f579e7e3d62570292b88ea8e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
-      "baselineOutputSha": "44b1d342e69fd6ce1d44ebc72058a5de3f4ff890f04b071dd1edb60f6fcf7360",
-      "candidateOutputSha": "1291ba4e7e31da7226d6c916b286e2e3677ed6b6963bbf4ff0137596f71e6e3b",
+      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
+      "baselineOutputSha": "1291ba4e7e31da7226d6c916b286e2e3677ed6b6963bbf4ff0137596f71e6e3b",
+      "candidateOutputSha": "3f8f149b7c23a5d14ffb4236dd188a349ac4ab890b9121dc29f3c5cdeba4660f",
       "facts": {
         "choice": {
           "before": "holds",
@@ -48,21 +48,21 @@
           "label": "held"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs ask whether the new branch should start from def5678 or main and neither creates a worktree, so the choice fact holds in both; After additionally places a question marker on its first line as the Change intends. The only risk in After is the trailing sentence offering to pick a branch name itself: it does not move the fact, since the base choice is still clearly awaited, but to keep the question tightly scoped you could drop that sentence or fold it into the ask (e.g. 'Which base should the new branch start from, and do you want a specific branch name?') so the output ends on the awaited choice rather than on a unilateral default.",
-      "wallMs": 7094,
-      "verdict": "improved"
+      "feedback": "Nothing moved: After still presents exactly the two options (branch from the detached commit def5678 or from main), states the worktree has not been created, and explicitly defers worktree creation until the user replies, so the choice fact holds in both outputs. The additions in After — \"Reply with 1 or 2, or name a different base\" and the note that the clean-base check runs after the choice — are compatible with the fact and with the Change's clean-tree/fetched-base requirements; keep them. If anything, keep the phrasing \"I haven't created a worktree yet\" and \"Once I have your choice\" verbatim, since those are the lines that make the awaiting-before-creating part of the fact unambiguous, and avoid any wording that implies the clean-base check or worktree creation has already started.",
+      "wallMs": 7055,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b4edfd0f5facbf0d34a45cf2ce23a923fa9ff214f579e7e3d62570292b88ea8e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
-      "baselineOutputSha": "e9c8434aa15a0beb0f614c47cb0e9c8e7f3e6c3653bc151bc1aae1617ab15116",
-      "candidateOutputSha": "bf564d8f9362867da28f4fa4b3ccacff9c86993e4663b1eefb1fe04f0f2830ba",
+      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
+      "baselineOutputSha": "bf564d8f9362867da28f4fa4b3ccacff9c86993e4663b1eefb1fe04f0f2830ba",
+      "candidateOutputSha": "53620e6f299d2a75319f747f3d4a8c654d1512576b09807c8fdd9810bba2d4f1",
       "facts": {
         "choice": {
           "before": "holds",
@@ -70,15 +70,15 @@
           "label": "held"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "After keeps the fact: it still asks the user to pick def5678 or main as the base and stops there, now with the `gauntlet: question` marker at column zero on the first line, which is exactly the Change. The only drift is wording: Before asks about creating the 'timeout-work branch' from the commit, while After asks about creating the 'timeout worktree' from it, which blurs the branch/base choice into a worktree-creation choice and could invite a reader to think the worktree is about to be made regardless. Safer wording that keeps the marker and preserves the fact verbatim: `gauntlet: question` on line one, then 'HEAD is detached at `def5678`. Should I create the timeout-work branch (and its worktree) from this commit or from `main`?' — i.e. keep Before's sentence intact under the marker rather than rephrasing it.",
-      "wallMs": 8334,
-      "verdict": "improved"
+      "feedback": "Both outputs stop at the Detached HEAD question and offer exactly the two bases (the current commit `def5678` or `main`) without creating a worktree or narrating commands, so the fact holds on both sides. After's rewording from \"the timeout worktree from this commit\" to \"the timeout-work branch from the current commit (`def5678`)\" makes the base choice more explicit and ties it to branch creation, which is consistent with the Change's provisioning emphasis; nothing moved. If you want to keep it tightly aligned with the worktree framing of Before while retaining After's clarity, a wording like \"Should I create the timeout worktree on a new branch from the current commit (`def5678`) or from `main`?\" preserves both the isolated-workspace intent and the explicit two-option base question.",
+      "wallMs": 6378,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "b7c3d572aca72072a07f83e0793b9421cd327c78"
+  "repoSha": "c15f0daad9dcdb2c78a79935df219ae3711e44a7"
 }

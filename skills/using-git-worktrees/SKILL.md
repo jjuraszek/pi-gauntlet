@@ -181,7 +181,7 @@ If `git symbolic-ref -q HEAD` returns nothing, you're on a detached HEAD. Do not
 
 ## Keeping a Worktree Current
 
-For a PR-subject branch, follow [reference/pr-head.md](reference/pr-head.md): merge `origin/<baseRefName>`; never rebase it. For other longer-running work the base branch advances:
+For a PR-subject branch, follow [reference/pr-head.md](reference/pr-head.md): sync per that reference. For other longer-running work the base branch advances:
 
 ```bash
 git -C "$WORKTREE" fetch origin

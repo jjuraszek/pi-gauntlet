@@ -1,0 +1,110 @@
+{
+  "sample": "pr-head-rebase-conflict-unresolved",
+  "arm": "candidate",
+  "skillSha": "d9a9d5c1340f3949e7ec332f72d723acb125c81a33125a826ef595001482f9af",
+  "inputSha": "5677d77521aa4a0584aba512fe0fd2b31c4e5d7e03a540eff80abd1ce6d6d762",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# using-git-worktrees: PR-head path for acme/widget#12, #13 and #14\n\nI'm using the using-git-worktrees skill to set up an isolated workspace. The caller passed resolved PR values, so I follow `reference/pr-head.md` and skip Steps 0 and 1.\n\n## Resolve and fetch (cwd unchanged)\n\n1. Run `git rev-parse --path-format=absolute --git-dir --git-common-dir`. The two paths are equal, and `--show-superproject-working-tree` prints nothing. ROOT=/work/widget.\n2. Resolve the values:\n   - Home is #12 with `headRefName` fix/retry and PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.\n   - MEMBER_HEADS is #13 (fix/cap @ bbbbbbb) and #14 (fix/docs @ ccccccc).\n   - `<name>` is fix-retry. The home is the default, W=/work/widget/.worktrees/fix-retry.\n   - SYNC=rebase.\n3. Run `git -C /work/widget fetch origin`.\n4. For each PR N in {12, 13, 14}, run `git -C /work/widget rev-parse --verify -q <headRefOid>^{commit}`. Each resolves, and each `origin/<headRefName>` equals its `headRefOid`.\n5. Run `git -C /work/widget rev-parse origin/main`. BASE_SHA=dddddddddddddddddddddddddddddddddddddddd.\n6. Check the stops in order:\n   - No PR is cross-repository.\n   - `git -C /work/widget worktree list --porcelain` does not list fix/retry.\n   - No local branch exists.\n   - No rework-base ref exists, so there is no recovery.\n\n## Provision\n\n7. Run `git -C /work/widget status --porcelain`. It exits 0 with empty output, so the source is clean.\n8. No worktree and no local branch exist. Run `git -C /work/widget worktree add \"/work/widget/.worktrees/fix-retry\" fix/retry`. Git's unique-remote DWIM tracks origin/fix/retry.\n9. Run `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD`. It prints aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, which matches home.\n10. Write the pre-rework refs:\n    - `git -C W update-ref refs/gauntlet/pre-rework/pr-12 aaaa…aaaa`\n    - `git -C W update-ref refs/gauntlet/pre-rework/pr-13 bbbb…bbbb`\n    - `git -C W update-ref refs/gauntlet/pre-rework/pr-14 cccc…cccc`\n\n    All three succeed.\n\n## Sync: home rebase\n\n11. Set last-good=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.\n12. Run `git -C W rebase --no-rebase-merges origin/main`. It stops with a conflict.\n13. Snapshot `git -C W status --porcelain`.\n14. Run `git -C W diff --name-only --diff-filter=U`. It prints src/retry.ts.\n15. Run `git -C /work/widget show dddddddddddddddddddddddddddddddddddddddd:<overrides path>`. The PR gate has the file-scoped runner `node --test <files>` with `requires credentials: false`. SCOPED_TEST_COMMANDS=`node --test test/retry.test.mjs`.\n16. Capture the patch with `git -C W rebase --show-current-patch`.\n17. Dispatch one fresh foreground `implementer` with `cwd: W` and `async: false`. Its payload is:\n    - the file list src/retry.ts\n    - fetched base origin/main @ ddddddd\n    - the scoped command\n    - the current patch\n\n    It must resolve while preserving both sides' intent and run `git -C W add` on src/retry.ts. It must not commit, `--continue`, `--abort`, `--skip`, or edit outside the list.\n18. The helper returns `done`.\n19. Completion check: run `git -C W diff --name-only --diff-filter=U`. It still lists src/retry.ts, so the unmerged index is not empty. This is a completion failure. I do not run `rebase --continue`.\n\n## Abort and prove restoration\n\n20. Run `git -C /work/widget/.worktrees/fix-retry rebase --abort`. It exits 0.\n21. Run `git -C W rev-parse HEAD`. It prints aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, which equals last-good.\n22. Run `git -C W branch --show-current`. It prints fix/retry, which equals home.\n23. Run `git -C W status --porcelain --untracked-files=all`. It exits 0 with empty output, so the tree is clean.\n24. All checks pass, so restoration holds. Validate the \"home rebase aborted\" outcome: HEAD equals the saved pre-attempt last-good aaaa…aaaa, which is correct.\n\n## Records\n\n- `Base: main @ ddddddd - sync: unresolved - src/retry.ts`\n- `Member replay: #13 pending`\n- `Member replay: #14 pending`\n- No member replay was attempted.\n- `refs/gauntlet/rework-base/pr-12` is not written.\n- No `Rework base:` line is printed.\n\nWork continues on fix/retry @ aaaaaaa. The spec's Design opens with **Task 1: rebase onto origin/main and resolve src/retry.ts**. Task 1 must also:\n\n- replay #13, then #14, in listed order, each with `rebase --no-rebase-merges --onto HEAD dddd… <member head>`, followed by `update-ref refs/heads/fix/retry HEAD` and `checkout fix/retry`;\n- write `refs/gauntlet/rework-base/pr-12` once the replay completes;\n- record the durable `Rework base: <sha>` before finishing.\n\nThe sync, the helper's edits to src/retry.ts, and the scoped test are the only preapproval exception. No other tests run, no reviewer is dispatched, and nothing is pushed.\n\n25. Fetch unresolved review threads with the paginated `gh api graphql` query for #12, #13 and #14 before gather.\n\n## Step 4 report\n\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nBase SHA: ddddddd\nBase: main @ ddddddd - sync: unresolved - src/retry.ts\nMember replay: #13 pending\nMember replay: #14 pending\nReady to implement PR #12 rework (Task 1: rebase onto origin/main and resolve src/retry.ts, then replay #13, #14 and persist Rework base)\n```\n\n## Restore-failure variant\n\nSteps 1–19 run as above. Then:\n\n- Run `git -C /work/widget/.worktrees/fix-retry rebase --abort`. It exits 1.\n- `git -C W rev-parse HEAD` prints aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.\n- `git -C W branch --show-current` prints fix/retry.\n- `git -C W status --porcelain --untracked-files=all` prints `UU src/retry.ts`, so the tree is not empty.\n\n**Stop:**\n\n> Rebase of home PR acme/widget#12 onto origin/main could not be restored.\n> - Conflicted files: src/retry.ts.\n> - Worktree: /work/widget/.worktrees/fix-retry.\n> - Observed `branch --show-current`: `fix/retry`. Observed `rev-parse HEAD`: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n> - `rebase --abort` exit status: 1.\n> - Remaining status: `UU src/retry.ts`.\n> - Saved last-good SHA: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa. No members were replayed.\n>\n> Recover this worktree manually before rerunning the same list.\n\nRestoration is not claimed. I do not run `reset`, `clean`, branch deletion, or worktree removal. I record no sync or member outcome, write no Rework base, attempt no member, run no spec or plan, and push nothing.\n",
+      "words": 825,
+      "wallMs": 34259,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nThis is a synthetic narration; no tools are called. Every command below has **cwd `/work/widget`**. The process cwd never changes.\n\n### 1. Resolve the supplied context\n\nThe PR-head procedure replaces generic Steps 0–1.\n\nResolved values:\n\n- `ROOT=/work/widget`\n- `WORKTREE=/work/widget/.worktrees/fix-retry`\n- Home: `acme/widget#12`, branch `fix/retry`\n- `PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- Members, in order: #13 `fix/cap` at `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; #14 `fix/docs` at `cccccccccccccccccccccccccccccccccccccccc`\n- Base: `main`; `SYNC=rebase`\n- No overrides, native tools, wrappers, existing local branches, or dirt.\n- Fetched-base constraints remain authoritative.\n- Supplied file-scoped test command: `node --test test/retry.test.mjs`; credentials not required.\n\nSetting up the selected worktree at `/work/widget/.worktrees/fix-retry` on existing remote branch `fix/retry`.\n\n### 2. Fetch and validate before writes\n\nCommands, in order:\n\n```sh\ngit -C /work/widget fetch origin\ngit -C /work/widget rev-parse --verify -q 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}'\ngit -C /work/widget rev-parse origin/fix/retry\ngit -C /work/widget rev-parse --verify -q 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb^{commit}'\ngit -C /work/widget rev-parse origin/fix/cap\ngit -C /work/widget rev-parse --verify -q 'cccccccccccccccccccccccccccccccccccccccc^{commit}'\ngit -C /work/widget rev-parse origin/fix/docs\ngit -C /work/widget rev-parse origin/main\ngit -C /work/widget worktree list --porcelain\n```\n\nEvery original head is reachable; each remote head equals its supplied full SHA. All PRs are same-repository. No conflicting checkout or recovery state exists.\n\n`BASE_SHA=dddddddddddddddddddddddddddddddddddddddd`.\n\n### 3. Provision and record the exact home head\n\n```sh\ngit -C /work/widget status --porcelain\ngit -C /work/widget check-ignore -q .worktrees\ngit -C /work/widget worktree add /work/widget/.worktrees/fix-retry fix/retry\ngit -C /work/widget worktree list --porcelain\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\n```\n\nSource status succeeds empty; `.worktrees` is ignored. Git’s remote DWIM provisions `fix/retry`. The listing confirms the selected path. HEAD equals `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; the new checkout is clean.\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/pre-rework/pr-12 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ngit -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/pre-rework/pr-13 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ngit -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/pre-rework/pr-14 cccccccccccccccccccccccccccccccccccccccc\n```\n\nAll writes succeed. Save last-good SHA as the original home SHA.\n\n### 4. Attempt home rebase; reject incomplete resolution\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry rebase --no-rebase-merges origin/main\ngit -C /work/widget/.worktrees/fix-retry status --porcelain\ngit -C /work/widget/.worktrees/fix-retry diff --name-only --diff-filter=U\ngit -C /work/widget/.worktrees/fix-retry rebase --show-current-patch\n```\n\nRebase conflicts in exactly `src/retry.ts`.\n\nNarrated dispatch: fresh foreground `implementer`, `cwd=/work/widget/.worktrees/fix-retry`, `async=false`. Payload contains the status snapshot, current patch, exact conflicted file, fetched base SHA and authoritative constraints. Require preserving both sides’ intent, running exactly `node --test test/retry.test.mjs`, staging the resolved file, and returning `done` or a contract exception. Forbid outside-file edits, commits, and rebase continue/abort/skip.\n\nThe helper returns `done`. I verify:\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry diff --name-only --diff-filter=U\n```\n\nOutput remains `src/retry.ts`. **Completion fails: the unmerged index is not empty.** I do not continue the rebase or attempt a member.\n\n### 5. Abort and prove restoration before continuation\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry rebase --abort\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\ngit -C /work/widget/.worktrees/fix-retry branch --show-current\ngit -C /work/widget/.worktrees/fix-retry status --porcelain --untracked-files=all\n```\n\nAssertions:\n\n- Abort exit status is **0**.\n- HEAD is `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, exactly saved last-good.\n- Branch is `fix/retry`, exactly the home branch.\n- Status exits **0**, output empty: index and checkout are clean.\n\nThis also validates the home-rebase-aborted outcome.\n\n### Step 4 report\n\n```text\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nBase SHA: ddddddd\nsync: unresolved - src/retry.ts\nMember replay: #13 pending\nMember replay: #14 pending\nReady to continue into Design with the required sync repair\n```\n\nDesign **Task 1: `rebase onto origin/main and resolve src/retry.ts`**. It must then complete pending replays #13 followed by #14, replaying from `BASE_SHA`, and persist the successful final tip in `refs/gauntlet/rework-base/pr-12` before finishing. No successful Rework base is written now.\n\n### Independent restore-failure variant\n\nReplace the abort outcome above with exit **1**; run the same three inspection commands. Observed HEAD is `\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"`, branch `\"fix/retry\"`, and status contains `\"UU src/retry.ts\"`.\n\n**Stop for manual recovery:** PR #12’s home rebase failed in `src/retry.ts`; selected worktree `/work/widget/.worktrees/fix-retry`; abort exit **1**; observed branch and HEAD as quoted above; residual unmerged path `src/retry.ts`; saved last-good SHA `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; no earlier members merged or replayed.\n\nNo restoration claim, reset, clean, member attempt, successful Rework-base write, or Design continuation follows.\n",
+      "words": 638,
+      "wallMs": 51722,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "63fdd27c165d9f4813d8163fc082b8993d03969df15dd5a26dc37901cf3e821e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
+      "baselineOutputSha": "a7294cbd58c13223acfba3a733bfa380f8c9af1deb73a523ecf2988b966b1a14",
+      "candidateOutputSha": "6e949c232e3f2968371b0be7781fa463ec47a0c2b6046b2cf1f49a1b071afa9e",
+      "facts": {
+        "abort": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "record": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "task": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "failed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "boundaries": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "The After wording delivers the Change cleanly: Before refused SYNC=rebase and fell back to `merge --no-ff`, so it used `merge --abort` (abort fails), recorded `merge: unresolved` / `Member merge:` lines (record fails), opened Design with `merge origin/main` (task fails), and gave the helper no stopped patch and only merge-level prohibitions (boundaries fails). After runs `rebase --no-rebase-merges origin/main`, proves restoration with the four checks on the selected worktree before claiming it, records `sync: unresolved - src/retry.ts` and `Member replay: #13/#14 pending` without writing a Rework base, states Task 1 as `rebase onto origin/main and resolve src/retry.ts` with ordered member replay and durable Rework base persistence, and scopes the helper to file list + fetched base + current patch + scoped command with no commit/continue/abort/skip. The restore-failure variant retains everything Before had (PR, paths, worktree, abort exit code, observed branch/HEAD/status, last-good SHA, manual stop, no reset/clean, no restoration claim), so nothing moved against the author. One minor tightening for future robustness: step 25 says review threads are fetched before gather after an unresolved sync; if the skill intends gather to be deferred until Task 1 completes, make that ordering explicit so it cannot be read as proceeding past the unresolved sync.",
+      "wallMs": 20225,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "63fdd27c165d9f4813d8163fc082b8993d03969df15dd5a26dc37901cf3e821e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
+      "baselineOutputSha": "728c8f7de89b1043a6192f36283e889fbf12446533baf612b7b2414d03712df8",
+      "candidateOutputSha": "d80d1c56e89a0bc8ebb447d155168a9abac60236a42516e12447ebe64c1ff750",
+      "facts": {
+        "abort": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "record": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "task": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "failed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "boundaries": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before refused the whole scenario because the old wording made PR-subject branches merge-only (member-then-base merges, never rebase), so it ran no abort, wrote no unresolved/pending records, defined no Task 1, never reached the restore-failure variant, and never dispatched a helper; every fact failed on that text. After, under the new default-rebase wording, delivers the full sequence: a scoped helper dispatch with exact conflict path, fetched base, current patch and the supplied command (no commit/rebase control), a rejected completion on the still-unmerged index, a selected-worktree `rebase --abort` with explicit exit-0, HEAD-equals-saved-tip, branch-equals-home and empty `--untracked-files=all` status assertions before any restoration claim, the `sync: unresolved - src/retry.ts` and both `Member replay: #N pending` lines without touching members or writing a Rework base, a Design Task 1 of `rebase onto origin/main and resolve src/retry.ts` plus pending replays and the durable `refs/gauntlet/rework-base/pr-12` requirement, and an actual-state manual stop for the exit-1 variant (PR, path, worktree, abort error, observed branch/HEAD/status, last-good SHA, no reset/clean/restoration claim). No fact regressed, so the Change wording is doing what was intended; keep the explicit 'failures abort and prove restoration against the actual saved pre-attempt home tip' and 'unresolved and pending outcomes deferred to Task 1' phrasing, since those are the clauses that unlocked the abort, record, task and failed facts without loosening helper scope.",
+      "wallMs": 15216,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "ae57c89cbd9a2b891aae3ff7061d7ec54e94ee6b"
+}

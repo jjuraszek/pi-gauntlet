@@ -1,0 +1,4 @@
+- leading: judged: A removes only the leading intent token merge-forward after parsing the #12/#13 reference run and performs normal ordered admission, carries keep retry limits as intent, and selects merge mode on fix/retry rather than a new branch.
+- merge-path: judged: A preserves original heads, merges member #13 before origin/main with canonical member provenance, reports merge outcomes and no Rework base, rather than rebasing.
+- nonleading: judged: B does not enable merge mode from its nonleading token and retains it as intent on the #12 PR path; C remains free text with #12 context, not PR provisioning.
+- spec-only: judged: D keeps the unmarked spec-only path, does not promote the spec-only PR to rework merely because merge-forward is present, and creates no Rework record; existing admission, relatedness and no-thread-fetch controls remain.

@@ -1,7 +1,7 @@
 {
   "sample": "baseline-equivalent-restamp",
   "arm": "candidate",
-  "skillSha": "a247f7678bb4af0afd4fcbb88734a5a9342803c0a3bde63870f93e3055728a48",
+  "skillSha": "142d5965599d6cd698d3e856cc5ed26852ea36161d3432a819184162b1d57560",
   "inputSha": "605bc343f872926d33191d21abded87ebc6342cf14009a7200a5386a2bed87b8",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Scenario 1: equivalence holds\n\n```markdown\n# Hook validation plan\n\n**Spec:** doc/specs/hook.md\n**Verification:** `npm test`\n\n## Baseline provenance\n\n- Original: BASE abc1234, initial inventory empty.\n- Current: BASE def5678. Initial inventory ` M doc/specs/hook.md`. Admitted: `doc/specs/hook.md` (spec path and `In-flight:`).\n- retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans\n\n## Wave 1 — Validation\n\n### Task 1: Validate hook\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: def5678 pass\n- via: `validateHook`\n\n- [ ] **Step 1:** Add the test `rejects invalid config` to `tests/hook.test.ts`. It passes invalid hook config to `validateHook` and asserts rejection.\n- [ ] **Step 2:** Run `node --test tests/hook.test.ts`. Expected: FAIL.\n- [ ] **Step 3:** In `src/hook.ts`, route hook config through the existing `validateHook`.\n- [ ] **Step 4:** Run `node --test tests/hook.test.ts`. Expected: PASS.\n- [ ] **Step 5:** Run `git add src/hook.ts tests/hook.test.ts && git commit -m \"Validate hook config via validateHook\"`.\n\n### Task 2: Validate other\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L14-L16\n\n**Files:**\n- Modify: `src/other.ts`\n- Modify: `tests/other.test.ts`\n- Test: `tests/other.test.ts`\n\n**Tests:**\n- `node --test tests/other.test.ts`\n- baseline: def5678 pass\n- via: `validateOther`\n\n- [ ] **Step 1:** Add the test `rejects invalid other config` to `tests/other.test.ts`. It passes invalid config to `validateOther` and asserts rejection.\n- [ ] **Step 2:** Run `node --test tests/other.test.ts`. Expected: FAIL.\n- [ ] **Step 3:** In `src/other.ts`, call the existing `validateOther` on other config.\n- [ ] **Step 4:** Run `node --test tests/other.test.ts`. Expected: PASS.\n- [ ] **Step 5:** Run `git add src/other.ts tests/other.test.ts && git commit -m \"Validate other config via validateOther\"`.\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | validate hook config via `validateHook` | Task 1 |\n| § \"Design\" L14-L16 | validate other config via `validateOther` | Task 2 |\n```\n\nHow the baseline was settled:\n- **Equivalence held.** The diff from abc1234 to def5678 outside the spec and plan directories exited 0 with empty output. The only admitted in-flight path is inside `doc/specs/`.\n- **Task 1 kept its evidence.** Its command text did not change, so the bullet was kept and re-stamped to def5678. Its step edits do not force a rerun.\n- **Task 2 ran unchanged.** Its anchor is an existing `Test:` path with no added selectors. It exited 0 with `tests 1, pass 1, fail 0`.\n- **No contamination.** Status and HEAD were unchanged after the run.\n- **Checks.** `plan_check` passes and there are no Open Questions.\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n\n## Scenario 2: equivalence fails\n\n```markdown\n# Hook validation plan\n\n**Spec:** doc/specs/hook.md\n**Verification:** `npm test`\n\n## Baseline provenance\n\n- Original: BASE abc1234, initial inventory empty.\n- Current: BASE def5678. Initial inventory ` M doc/specs/hook.md`. Admitted: `doc/specs/hook.md` (spec path and `In-flight:`).\n\n## Wave 1 — Validation\n\n### Task 1: Validate hook\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: def5678 pass\n- via: `validateHook`\n\n- [ ] **Step 1:** Add the test `rejects invalid config`. It calls `validateHook` with invalid hook config and asserts rejection.\n- [ ] **Step 2:** Run `node --test tests/hook.test.ts`. Expected: FAIL.\n- [ ] **Step 3:** In `src/hook.ts`, route hook config through the existing `validateHook`.\n- [ ] **Step 4:** Rerun the same command. Expected: PASS.\n- [ ] **Step 5:** Run `git add src/hook.ts tests/hook.test.ts && git commit -m \"Validate hook config via validateHook\"`.\n\n### Task 2: Validate other\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L14-L16\n\n**Files:**\n- Modify: `src/other.ts`\n- Modify: `tests/other.test.ts`\n- Test: `tests/other.test.ts`\n\n**Tests:**\n- `node --test tests/other.test.ts`\n- baseline: def5678 pass\n- via: `validateOther`\n\n- [ ] **Step 1:** Add the test `rejects invalid other config`. It calls `validateOther` with invalid config and asserts rejection.\n- [ ] **Step 2:** Run `node --test tests/other.test.ts`. Expected: FAIL.\n- [ ] **Step 3:** In `src/other.ts`, call the existing `validateOther` on other config.\n- [ ] **Step 4:** Rerun the same command. Expected: PASS.\n- [ ] **Step 5:** Run `git add src/other.ts tests/other.test.ts && git commit -m \"Validate other config via validateOther\"`.\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | validate hook config via `validateHook` | Task 1 |\n| § \"Design\" L14-L16 | validate other config via `validateOther` | Task 2 |\n```\n\nHow the baseline was settled:\n- **Equivalence failed.** The diff exited 1 because `src/hook.ts` changed between abc1234 and def5678.\n- **Nothing was retained.** Task 1's old bullet was dropped, with no retained-provenance line and no Open Questions finding for the failed proof.\n- **Both commands reran unchanged.** Each exited 0 on def5678 with `tests 1, pass 1, fail 0`. Status and HEAD were unchanged afterwards.\n- **Checks.** `plan_check` passes and there are no Open Questions.\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n",
-      "words": 688,
-      "wallMs": 27906,
+      "text": "## Scenario 1\n\n**Baseline:**\n- BASE is `def5678`.\n- The initial status is ` M doc/specs/hook.md`. That is the admitted `In-flight:` path, and it lies inside `doc/specs/`.\n- The `abc1234` → `def5678` diff outside `doc/specs/` and `doc/plans/` exits 0 with empty stdout, so the trees are equivalent.\n- Task 1's command text is unchanged, so its evidence is kept and re-stamped to `def5678`.\n- Task 2 had no evidence, so I ran its command: exit 0, `tests 1, pass 1, fail 0`. Status and HEAD are unchanged afterwards.\n\n```markdown\n# Hook validation plan\n\n**Spec:** doc/specs/hook.md\n**Verification:** `npm test`\n\nBaseline provenance: BASE def5678; initial inventory ` M doc/specs/hook.md` (admitted in-flight: doc/specs/hook.md). retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans\n\n## Wave 1 — Validation\n\n### Task 1: Validate hook\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: def5678 pass\n- via: `validateHook()`\n\n- [ ] **Step 1:** Add test `rejects invalid config` calling `validateHook()` with an invalid hook config; expect rejection.\n- [ ] **Step 2:** Run `node --test tests/hook.test.ts`. Expected: FAIL on `rejects invalid config`.\n- [ ] **Step 3:** In `src/hook.ts`, route hook config through existing `validateHook()`.\n- [ ] **Step 4:** Run `node --test tests/hook.test.ts`. Expected: PASS.\n- [ ] **Step 5:** Run `npx prettier --check src/hook.ts tests/hook.test.ts`. Expected: no diff.\n- [ ] **Step 6:** `git add src/hook.ts tests/hook.test.ts && git commit -m \"Validate hook config via validateHook\"`\n\n### Task 2: Validate other\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L14-L16\n\n**Files:**\n- Modify: `src/other.ts`\n- Modify: `tests/other.test.ts`\n- Test: `tests/other.test.ts`\n\n**Tests:**\n- `node --test tests/other.test.ts`\n- baseline: def5678 pass\n- via: `validateOther()`\n\n- [ ] **Step 1:** Add test `rejects invalid other config` calling `validateOther()` with an invalid config; expect rejection.\n- [ ] **Step 2:** Run `node --test tests/other.test.ts`. Expected: FAIL on `rejects invalid other config`.\n- [ ] **Step 3:** In `src/other.ts`, route other config through existing `validateOther()`.\n- [ ] **Step 4:** Run `node --test tests/other.test.ts`. Expected: PASS.\n- [ ] **Step 5:** Run `npx prettier --check src/other.ts tests/other.test.ts`. Expected: no diff.\n- [ ] **Step 6:** `git add src/other.ts tests/other.test.ts && git commit -m \"Validate other config via validateOther\"`\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | validate hook config via `validateHook` | Task 1 |\n| § \"Design\" L14-L16 | validate other config via `validateOther` | Task 2 |\n```\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n\n## Scenario 2\n\nThis scenario starts again from the original saved plan.\n\n**Baseline:**\n- BASE is `def5678`.\n- The admitted in-flight path is `doc/specs/hook.md`.\n- The equivalence diff exits 1 because `src/hook.ts` changed, so the proof fails. I keep no prior evidence, add no \"retained\" line and raise no Open Questions row.\n- I reran both commands. Each exited 0 with `tests 1, pass 1, fail 0`. Status and HEAD are unchanged afterwards.\n\n```markdown\n# Hook validation plan\n\n**Spec:** doc/specs/hook.md\n**Verification:** `npm test`\n\nBaseline provenance: BASE def5678; initial inventory ` M doc/specs/hook.md` (admitted in-flight: doc/specs/hook.md).\n\n## Wave 1 — Validation\n\n### Task 1: Validate hook\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: def5678 pass\n- via: `validateHook()`\n\n- [ ] **Step 1:** Add test `rejects invalid config` calling `validateHook()` with an invalid hook config; expect rejection.\n- [ ] **Step 2:** Run `node --test tests/hook.test.ts`. Expected: FAIL.\n- [ ] **Step 3:** In `src/hook.ts`, route hook config through existing `validateHook()`.\n- [ ] **Step 4:** Run `node --test tests/hook.test.ts`. Expected: PASS.\n- [ ] **Step 5:** Run `npx prettier --check src/hook.ts tests/hook.test.ts`. Expected: no diff.\n- [ ] **Step 6:** `git add src/hook.ts tests/hook.test.ts && git commit -m \"Validate hook config via validateHook\"`\n\n### Task 2: Validate other\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L14-L16\n\n**Files:**\n- Modify: `src/other.ts`\n- Modify: `tests/other.test.ts`\n- Test: `tests/other.test.ts`\n\n**Tests:**\n- `node --test tests/other.test.ts`\n- baseline: def5678 pass\n- via: `validateOther()`\n\n- [ ] **Step 1:** Add test `rejects invalid other config` calling `validateOther()` with an invalid config; expect rejection.\n- [ ] **Step 2:** Run `node --test tests/other.test.ts`. Expected: FAIL.\n- [ ] **Step 3:** In `src/other.ts`, route other config through existing `validateOther()`.\n- [ ] **Step 4:** Run `node --test tests/other.test.ts`. Expected: PASS.\n- [ ] **Step 5:** Run `npx prettier --check src/other.ts tests/other.test.ts`. Expected: no diff.\n- [ ] **Step 6:** `git add src/other.ts tests/other.test.ts && git commit -m \"Validate other config via validateOther\"`\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | validate hook config via `validateHook` | Task 1 |\n| § \"Design\" L14-L16 | validate other config via `validateOther` | Task 2 |\n```\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n",
+      "words": 666,
+      "wallMs": 27468,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Scenario 1\n\n# Hook configuration validation\n\n**Spec:** /work/app/doc/specs/hook.md  \n**Plan:** /work/app/doc/plans/hook.md  \n**Verification:** `npm test`\n\n## Baseline provenance\n\nOriginal BASE: `abc1234`; initial inventory: empty. Amendment BASE: `def5678`; initial inventory: ` M doc/specs/hook.md`. Admitted exactly `doc/specs/hook.md`.\n\nEndpoint-tree comparison outside `doc/specs/` and `doc/plans/` exited 0 with empty stdout.\n\nretained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans\n\nTask 2’s command ran on `def5678`: exit 0; `tests 1, pass 1, fail 0`. Post-run inventory and HEAD were unchanged.\n\n## Wave 1 — Configuration validation\n\n### Task 1: Validate hook\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** /work/app/doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: def5678 pass\n- via: `validateHook`\n\n- [ ] Run the scoped test command before changes.\n- [ ] Add `rejects invalid config`; run the command and confirm failure.\n- [ ] Validate hook config through existing `validateHook` in `src/hook.ts`; rerun and confirm pass.\n- [ ] Format and lint both owned files with repository tooling.\n- [ ] Commit: `git add src/hook.ts tests/hook.test.ts && git commit -m \"Validate hook config\"`\n\n### Task 2: Validate other\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** /work/app/doc/specs/hook.md § \"Design\" L14-L16\n\n**Files:**\n- Modify: `src/other.ts`\n- Modify: `tests/other.test.ts`\n- Test: `tests/other.test.ts`\n\n**Tests:**\n- `node --test tests/other.test.ts`\n- baseline: def5678 pass\n- via: `validateOther`\n\n- [ ] Run the scoped test command before changes.\n- [ ] Add `rejects invalid other config`; run and confirm failure.\n- [ ] Call existing `validateOther` in `src/other.ts`; rerun and confirm pass.\n- [ ] Format and lint both owned files with repository tooling.\n- [ ] Commit: `git add src/other.ts tests/other.test.ts && git commit -m \"Validate other config\"`\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | Validate hook config through `validateHook` | Task 1 |\n| § \"Design\" L14-L16 | Validate other config through `validateOther` | Task 2 |\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n\n## Scenario 2\n\n# Hook configuration validation\n\n**Spec:** /work/app/doc/specs/hook.md  \n**Plan:** /work/app/doc/plans/hook.md  \n**Verification:** `npm test`\n\n## Baseline provenance\n\nOriginal BASE: `abc1234`; initial inventory: empty. Amendment BASE: `def5678`; initial inventory: ` M doc/specs/hook.md`. Admitted exactly `doc/specs/hook.md`.\n\nEndpoint-tree comparison outside `doc/specs/` and `doc/plans/` exited 1 because `src/hook.ts` changed. No prior evidence was retained. Both task commands ran on `def5678`; each exited 0 with `tests 1, pass 1, fail 0`. After each run, inventory and HEAD were unchanged.\n\n## Wave 1 — Configuration validation\n\n### Task 1: Validate hook\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** /work/app/doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: def5678 pass\n- via: `validateHook`\n\n- [ ] Run the scoped test command before changes.\n- [ ] Add `rejects invalid config`; run the command and confirm failure.\n- [ ] Validate hook config through existing `validateHook` in `src/hook.ts`; rerun and confirm pass.\n- [ ] Format and lint both owned files with repository tooling.\n- [ ] Commit: `git add src/hook.ts tests/hook.test.ts && git commit -m \"Validate hook config\"`\n\n### Task 2: Validate other\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** /work/app/doc/specs/hook.md § \"Design\" L14-L16\n\n**Files:**\n- Modify: `src/other.ts`\n- Modify: `tests/other.test.ts`\n- Test: `tests/other.test.ts`\n\n**Tests:**\n- `node --test tests/other.test.ts`\n- baseline: def5678 pass\n- via: `validateOther`\n\n- [ ] Run the scoped test command before changes.\n- [ ] Add `rejects invalid other config`; run and confirm failure.\n- [ ] Call existing `validateOther` in `src/other.ts`; rerun and confirm pass.\n- [ ] Format and lint both owned files with repository tooling.\n- [ ] Commit: `git add src/other.ts tests/other.test.ts && git commit -m \"Validate other config\"`\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | Validate hook config through `validateHook` | Task 1 |\n| § \"Design\" L14-L16 | Validate other config through `validateOther` | Task 2 |\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n",
-      "words": 522,
-      "wallMs": 22391,
+      "text": "## Scenario 1\n\n# Hook config validation plan\n\n**Spec:** doc/specs/hook.md\n**Plan:** /work/app/doc/plans/hook.md\n**Verification:** `npm test`\n\n## Baseline provenance\n\nOriginal BASE abc1234; initial inventory empty.\n\nAmend BASE def5678; initial inventory: ` M doc/specs/hook.md`. Admitted exactly `doc/specs/hook.md`, the dispatched spec and supplied in-flight path.\n\nEndpoint comparison:\n`git -C \"/work/app\" diff --quiet abc1234 def5678 -- . ':!doc/specs/' ':!doc/plans/'`\nexited 0 with empty stdout.\n\nretained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans\n\nTask 2’s command executed on def5678: exit 0; `tests 1, pass 1, fail 0`. Post-run inventory and HEAD unchanged.\n\n## Wave 1 — Independent validation\n\nTasks own disjoint files and share no mutable runtime resource.\n\n### Task 1: Validate hook\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: def5678 pass\n- via: `validateHook`\n\n- [ ] Run the scoped tests before changes.\n- [ ] Add `rejects invalid config`; run the scoped command and confirm failure.\n- [ ] Validate hook config through existing `validateHook` in `src/hook.ts`.\n- [ ] Rerun the scoped command; expect PASS.\n- [ ] Commit: `git add src/hook.ts tests/hook.test.ts && git commit -m \"Validate hook config\"`\n\n### Task 2: Validate other\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L14-L16\n\n**Files:**\n- Modify: `src/other.ts`\n- Modify: `tests/other.test.ts`\n- Test: `tests/other.test.ts`\n\n**Tests:**\n- `node --test tests/other.test.ts`\n- baseline: def5678 pass\n- via: `validateOther`\n\n- [ ] Run the scoped tests before changes.\n- [ ] Add `rejects invalid other config`; confirm failure.\n- [ ] Validate other config through existing `validateOther` in `src/other.ts`.\n- [ ] Rerun the scoped command; expect PASS.\n- [ ] Commit: `git add src/other.ts tests/other.test.ts && git commit -m \"Validate other config\"`\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | Validate hook config through `validateHook` | Task 1 |\n| § \"Design\" L14-L16 | Validate other config through `validateOther` | Task 2 |\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n\n## Scenario 2\n\n# Hook config validation plan\n\n**Spec:** doc/specs/hook.md\n**Plan:** /work/app/doc/plans/hook.md\n**Verification:** `npm test`\n\n## Baseline provenance\n\nOriginal BASE abc1234; initial inventory empty.\n\nAmend BASE def5678; initial inventory: ` M doc/specs/hook.md`. Admitted exactly `doc/specs/hook.md`, the dispatched spec and supplied in-flight path.\n\nEndpoint comparison:\n`git -C \"/work/app\" diff --quiet abc1234 def5678 -- . ':!doc/specs/' ':!doc/plans/'`\nexited 1: `src/hook.ts` changed. Retained no evidence; reran both commands.\n\nEach command exited 0 on def5678 with `tests 1, pass 1, fail 0`. After each run, inventory and HEAD remained unchanged.\n\n## Wave 1 — Independent validation\n\nTasks own disjoint files and share no mutable runtime resource.\n\n### Task 1: Validate hook\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: def5678 pass\n- via: `validateHook`\n\n- [ ] Run the scoped tests before changes.\n- [ ] Add `rejects invalid config`; run the scoped command and confirm failure.\n- [ ] Validate hook config through existing `validateHook` in `src/hook.ts`.\n- [ ] Rerun the scoped command; expect PASS.\n- [ ] Commit: `git add src/hook.ts tests/hook.test.ts && git commit -m \"Validate hook config\"`\n\n### Task 2: Validate other\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L14-L16\n\n**Files:**\n- Modify: `src/other.ts`\n- Modify: `tests/other.test.ts`\n- Test: `tests/other.test.ts`\n\n**Tests:**\n- `node --test tests/other.test.ts`\n- baseline: def5678 pass\n- via: `validateOther`\n\n- [ ] Run the scoped tests before changes.\n- [ ] Add `rejects invalid other config`; confirm failure.\n- [ ] Validate other config through existing `validateOther` in `src/other.ts`.\n- [ ] Rerun the scoped command; expect PASS.\n- [ ] Commit: `git add src/other.ts tests/other.test.ts && git commit -m \"Validate other config\"`\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | Validate hook config through `validateHook` | Task 1 |\n| § \"Design\" L14-L16 | Validate other config through `validateOther` | Task 2 |\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n",
+      "words": 536,
+      "wallMs": 17099,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "be7eed055f621ad84b47ab8f084389637ea487b77a5e332d3e38fe751b2a392d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-      "baselineOutputSha": "706829237c89adcbd70735a44ee0214bc2442a05d3a1072e97465faf2c39a0e5",
-      "candidateOutputSha": "13847e39ec66dcd47705ee20ec5b35d6cb9c26f784f6921f24e789e14f60d726",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
+      "baselineOutputSha": "a1e2100efd02495a24c59a694b30ad42424a817dd428b5bf46c6478cb743c9f4",
+      "candidateOutputSha": "bfd4448669c93120fbfd42658d64a4a6889e2f61190552956bddd5c611bdb834",
       "facts": {
         "restamp": {
           "before": "holds",
@@ -44,9 +44,9 @@
           "label": "intended but unchanged"
         },
         "provenance": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "fresh-evidence": {
           "before": "holds",
@@ -69,16 +69,16 @@
           "label": "held"
         }
       },
-      "feedback": "After moved provenance to holds by writing the retained line verbatim (`retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans`) inside the Baseline provenance note; Before wrote `doc/specs/, doc/plans/` with trailing slashes, so the mandated string was not present as written. Everything else is unchanged between the two: Task 1's bullet is kept and re-stamped to def5678 without a rerun in scenario 1, Task 2 gets fresh def5678 evidence from the supplied observation, scenario 2 reruns both commands at def5678 with no retained line and no Open Questions finding, and both scenarios end with PLAN WRITTEN. One caution for the After wording: the new `Original: BASE abc1234` provenance line is fine because it is not a `baseline:` bullet, but keep that distinction explicit in the skill text so writers do not start stamping abc1234 into Tests bullets; otherwise the current wording keeps every fact Before kept while delivering the retention-provenance change.",
-      "wallMs": 15397,
-      "verdict": "improved"
+      "feedback": "No fact moved: both Before and After retain Task 1's evidence re-stamped to def5678 in scenario 1, append the exact `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` string to the existing Baseline provenance note (not a task or audit field), give Task 2 fresh def5678 pass evidence, use def5678 on every bullet, end with PLAN WRITTEN, and in scenario 2 rerun both commands with no retained line and no Open Questions row. After additionally narrates the equivalence decision and the reruns in a Baseline preamble, which makes the retention/rerun behavior explicit rather than inferable from the plan alone — that is an improvement for the restamp, fresh-evidence and rerun-all facts. One caution unrelated to the listed facts: After injects a `npx prettier --check` step into every task although the case states 'No other requirements' and documents no lint/format command; the Change says to use documented lint/format only in the header or the non-command sentinel, so the After wording should not invite plan-writers to invent style steps inside task bodies. Dropping that step would keep the task steps concise and faithful to the amend while preserving all six facts.",
+      "wallMs": 15843,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "be7eed055f621ad84b47ab8f084389637ea487b77a5e332d3e38fe751b2a392d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
       "baselineOutputSha": "31284fc8bd7184c9f0d08571f3649af05c76d57cef20901042474b1dcf835f38",
-      "candidateOutputSha": "bcd3015df97ff26d8c079b01fb96c8494c70496cc2aa97c2b2e93e1d41ecb003",
+      "candidateOutputSha": "68337e5416fcfca87b36ca13930496014c4f751cdde1aef71952e3df29c5987d",
       "facts": {
         "restamp": {
           "before": "holds",
@@ -111,137 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs retain Task 1's unchanged command across the planning-only commits in scenario 1 (bullet restamped to def5678, retained line placed inside the existing Baseline provenance section, Task 2 given fresh def5678 evidence from the supplied observation, PLAN WRITTEN terminator present), and both rerun both commands in scenario 2 with no retained-provenance line and no Open Questions finding. After's only visible differences are cosmetic and orthogonal to the facts — absolute spec/plan paths in headers, a dropped 'disjoint files' wave sentence, and replacing the concrete `git diff --check` step with a generic 'Format and lint with repository tooling' step. One mild risk for future cases: After's scenario-1 provenance paragraph no longer states explicitly that Task 1's evidence was retained without rerunning (it relies on the `retained 1 bullets` line plus the fact that only Task 2 is listed as run); keeping a short clause like Before's 'Task 1's unchanged command retains its evidence despite the step amendment' would make the restamp fact unambiguous while still delivering the Change.",
-      "wallMs": 12364,
+      "feedback": "Nothing moved: both Before and After keep every fact. In scenario 1 both outputs restamp Task 1's unchanged `node --test tests/hook.test.ts` bullet to def5678 without rerunning it (After records only Task 2's command executing), append the exact `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` line inside the Baseline provenance section rather than a task or new audit field, give Task 2 fresh def5678 evidence from the supplied observation, use def5678 on every baseline bullet, and end with PLAN WRITTEN. In scenario 2 both state the equivalence diff exited 1 due to src/hook.ts, retain nothing, rerun both commands with def5678 passes, omit any retained line, and raise no Open Questions finding. After's one minor difference — dropping the explicit sentence that Task 1's evidence was retained despite the step change — is still inferable from the retained-bullets line, but keeping a short clause like Before's 'Task 1's unchanged command retains its evidence despite the step amendment' would make the restamp fact unambiguous to a careful reader while still delivering the Change.",
+      "wallMs": 11962,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "baseline-equivalent-restamp",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "36494548afbe88d6f941384c120f668b921fd079899858a11098947d6de0268d",
-      "candidateSkillSha": "cce0c20a9a296ce47a1f1f9b61c280297272f9d40ad6545db762fff72e2601c6",
-      "inputSha": "605bc343f872926d33191d21abded87ebc6342cf14009a7200a5386a2bed87b8",
-      "factsSha": "be7eed055f621ad84b47ab8f084389637ea487b77a5e332d3e38fe751b2a392d",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "31284fc8bd7184c9f0d08571f3649af05c76d57cef20901042474b1dcf835f38",
-            "payloadSha": "8524a90d0d73645c991fc59563fc014936c5f54f62b4002b04bcd0248a026208"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "38c754a04b376b8edef9e07bddf6572634e6342e1dc225595cd815d47af51ad4",
-            "payloadSha": "3e36fed85e4b2952797b9253e4e39f6554909c741af6c1293b1da99487d4985e"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "be7eed055f621ad84b47ab8f084389637ea487b77a5e332d3e38fe751b2a392d",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-        "baselineOutputSha": "31284fc8bd7184c9f0d08571f3649af05c76d57cef20901042474b1dcf835f38",
-        "candidateOutputSha": "38c754a04b376b8edef9e07bddf6572634e6342e1dc225595cd815d47af51ad4",
-        "facts": {
-          "restamp": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "provenance": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "fresh-evidence": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "one-sha": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "rerun-all": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "no-retained": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "No fact moved between Before and After: both outputs already retain Task 1's evidence in scenario 1 and restamp its bullet to def5678, both append the verbatim `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` line inside the Baseline provenance section (not in a task or new audit field), both give Task 2 fresh def5678 evidence from the supplied observation, both end with PLAN WRITTEN, and in scenario 2 both rerun the two commands and write no retained-provenance line or Open Questions finding. After's only real differences are cosmetic: it prints the literal `git diff --quiet ... ':!doc/specs/' ':!doc/plans/'` command instead of the prose 'exit 0, empty stdout', collapses 'Retained no baseline evidence' into 'No baseline evidence was retained', and shortens task steps (dropping the explicit 'expect PASS' on the first scoped run and replacing the `git diff --check` step with 'Format/lint the owned files'). Those are fine for the facts here, but if the author wants After to stay strictly aligned with the retention/rerun rationale, keep the explicit equivalence proof wording ('proved: exit 0, empty stdout' / 'failed: exit 1 because src/hook.ts changed') next to the literal command so a reader can see both the command and its result, and keep the scenario-2 sentence phrased as a non-retention statement rather than anything resembling a `retained N bullets` line.",
-        "wallMs": 14839,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "be7eed055f621ad84b47ab8f084389637ea487b77a5e332d3e38fe751b2a392d",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-        "baselineOutputSha": "31284fc8bd7184c9f0d08571f3649af05c76d57cef20901042474b1dcf835f38",
-        "candidateOutputSha": "38c754a04b376b8edef9e07bddf6572634e6342e1dc225595cd815d47af51ad4",
-        "facts": {
-          "restamp": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "provenance": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "fresh-evidence": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "one-sha": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "rerun-all": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "no-retained": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "No listed fact moved: Before already satisfies all six, and After preserves them. After explicitly retains Task 1’s unchanged-command evidence despite changed steps, keeps the exact retention line in Baseline provenance, records fresh evidence for Task 2, and reruns both commands after failed equivalence without creating an Open Questions finding. Preserve these statements and the def5678 baseline bullets; no corrective wording is needed for these facts.",
-        "wallMs": 6938,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "50dd29dfd3066c986f17ea1dfffbf4e54fc40ebd"
+  "repoSha": "ec4e5ab500837b12d497f879be151dc2c392a188"
 }

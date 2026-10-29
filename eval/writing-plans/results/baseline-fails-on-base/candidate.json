@@ -1,7 +1,7 @@
 {
   "sample": "baseline-fails-on-base",
   "arm": "candidate",
-  "skillSha": "a247f7678bb4af0afd4fcbb88734a5a9342803c0a3bde63870f93e3055728a48",
+  "skillSha": "142d5965599d6cd698d3e856cc5ed26852ea36161d3432a819184162b1d57560",
   "inputSha": "8cd76c8d087b1172e355a1653c1c7937f0308205485ed17c4a6778427e1d5077",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Hook config validation Implementation Plan\n\n**Spec:** `doc/specs/hook.md`\n**Verification:** `npm test`\n\nBaseline provenance: initial `git status --porcelain --untracked-files=all` inventory was empty, BASE `abc1234`, and no paths were admitted. Status was reread after the run and was still empty. HEAD stayed at `abc1234`.\n\n## Open Questions\n\n- Task 1: `node --test tests/hook.test.ts` fails on abc1234 (exit 1): existing config resolution failed\n  ```\n  tests 1, pass 0, fail 1: existing config resolution failed\n  ```\n\n## Wave 1 — Validation\n\n### Task 1: Validate hook config\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- via: hook config loading in `src/hook.ts`\n\n- [ ] **Step 1: Write the failing test**\n\n  Add the test `rejects invalid config` to `tests/hook.test.ts`. It passes a malformed hook config to the config entry point in `src/hook.ts` and asserts that the call throws.\n\n- [ ] **Step 2: Run test, confirm failure**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: FAIL in `rejects invalid config`, because no validation exists yet.\n\n- [ ] **Step 3: Write minimal implementation**\n\n  In `src/hook.ts`, validate the hook config before it is used, and throw on invalid input.\n\n- [ ] **Step 4: Run test, confirm pass**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: PASS for `rejects invalid config` and for the existing test.\n\n- [ ] **Step 5: Format & lint the task's files**\n\n  Run the project's scoped format and lint commands on `src/hook.ts` and `tests/hook.test.ts`.\n  Expected: no diff after a re-run, and 0 offenses.\n\n- [ ] **Step 6: Commit**\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts\n  git commit -m \"Validate hook config\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | validate hook config | Task 1 |\n\nThe baseline run of Task 1's unchanged command exited 1 on `abc1234`. The failing test is an existing test, not the proposed one. I recorded no passing baseline bullet, because that evidence would be false. I stopped for the parent and spent no repair rounds on the failure.\n\nOPEN QUESTIONS /work/app/doc/plans/hook.md\n",
-      "words": 306,
-      "wallMs": 15708,
+      "text": "## Open Questions\n\n- Task 1: `node --test tests/hook.test.ts` fails on abc1234 (exit 1): tests 1, pass 0, fail 1: existing config resolution failed\n  ```\n  tests 1, pass 0, fail 1: existing config resolution failed\n  ```\n\n# Hook config validation: implementation plan\n\n**Spec:** /work/app/doc/specs/hook.md\n**Verification:** `npm test`\n\nBaseline provenance: BASE abc1234. The initial `git status --porcelain --untracked-files=all` inventory was empty, so no in-flight paths were admitted. Status was still empty after the run, and HEAD stayed at abc1234. The command ran unchanged because it has no created anchor and no introduced selector. It exited 1 on an existing test, not the proposed `rejects invalid config` test, so it gets no passing baseline bullet.\n\n## Wave 1: Validation\n\n### Task 1: Validate hook config\n\n**TDD scenario:** Modifying tested code. Run the existing tests first.\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n\n- [ ] **Step 1: Write the failing test**\n\n  Add the test `rejects invalid config` to `tests/hook.test.ts`. It passes a hook config that violates the spec's Design L10-L12 rules and asserts that loading the config throws a validation error.\n\n- [ ] **Step 2: Run test, confirm failure**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: `rejects invalid config` FAILS because no validation error is thrown.\n\n- [ ] **Step 3: Write minimal implementation**\n\n  Add config validation to `src/hook.ts` as specified at Design L10-L12. Invalid config is rejected with an error before the hook is used.\n\n- [ ] **Step 4: Run test, confirm pass**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: PASS\n\n- [ ] **Step 5: Format & lint the task's files**\n\n  Run the project's scoped format/lint command on `src/hook.ts tests/hook.test.ts`.\n  Expected: no diff on re-run and 0 offenses.\n\n- [ ] **Step 6: Commit**\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts\n  git commit -m \"Validate hook config\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | validate hook config | Task 1 |\n\nOPEN QUESTIONS /work/app/doc/plans/hook.md\n",
+      "words": 291,
+      "wallMs": 14100,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Open Questions\n\n- Task 1: `node --test tests/hook.test.ts` fails on abc1234 (exit 1): existing config resolution failed\n  ```text\n  tests 1, pass 0, fail 1: existing config resolution failed\n  ```\n\n# Hook configuration validation\n\n**Spec:** /work/app/doc/specs/hook.md\n**Worktree:** /work/app\n**Verification:** `npm test`\n\n## Baseline provenance\n\nInitial HEAD: `abc1234`. Initial per-file status inventory: empty. The plan and spec paths are permitted workflow edits; no dirty paths required admission.\n\nExecuted `node --test tests/hook.test.ts` on the base. It exited 1 because an existing config-resolution test failed, not because of the proposed `rejects invalid config` test. Status remained empty after execution, and HEAD remained `abc1234`. No passing baseline evidence is available. Planning is paused pending resolution of the baseline failure.\n\n## Wave 1 — Hook configuration validation\n\n### Task 1: Validate hook configuration\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** /work/app/doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n\n- [ ] **Step 1: Resolve the existing baseline failure before implementation**\n\n  The command above currently fails on `abc1234` with `existing config resolution failed`. Do not attribute this failure to the new test or treat it as the intended red phase. Resume only after the baseline disposition is resolved.\n\n- [ ] **Step 2: Add the regression test**\n\n  In `tests/hook.test.ts`, add a test named `rejects invalid config` exercising the invalid hook configuration required by Design L10-L12.\n\n- [ ] **Step 3: Confirm the new test fails**\n\n  Run: `node --test tests/hook.test.ts`\n\n  Expected: the new `rejects invalid config` test fails because configuration validation is absent; existing tests pass after baseline resolution.\n\n- [ ] **Step 4: Implement configuration validation**\n\n  Modify `src/hook.ts` to validate hook configuration as required by Design L10-L12.\n\n- [ ] **Step 5: Confirm the scoped tests pass**\n\n  Run: `node --test tests/hook.test.ts`\n\n  Expected: all tests pass, including `rejects invalid config` and the existing config-resolution test.\n\n- [ ] **Step 6: Format and lint the task files**\n\n  Establish the repository's documented scoped formatting and lint commands before execution, and apply them to `src/hook.ts` and `tests/hook.test.ts`. No command has been supplied or observed for this step.\n\n- [ ] **Step 7: Commit**\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts\n  git commit -m \"Validate hook configuration\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | Validate hook configuration | Task 1 |\n\nOPEN QUESTIONS /work/app/doc/plans/hook.md\n",
-      "words": 350,
-      "wallMs": 14802,
+      "text": "# Hook config validation\n\n## Open Questions\n\n- Task 1: `node --test tests/hook.test.ts` fails on abc1234 (exit 1): existing config resolution failed\n  ```text\n  tests 1, pass 0, fail 1: existing config resolution failed\n  ```\n\n## Overview\n\n**Spec:** /work/app/doc/specs/hook.md  \n**Worktree:** /work/app  \n**Plan:** /work/app/doc/plans/hook.md  \n**Verification:** `npm test`\n\nValidate hook config as required by Design L10-L12.\n\n## Baseline provenance\n\nInitial HEAD: `abc1234`. Initial per-file status inventory: empty. The spec and plan paths are allowed workflow edits; no dirty paths required admission.\n\nExecuted `node --test tests/hook.test.ts` unchanged against the base. It exited 1 because an existing config-resolution test failed, not because of the proposed `rejects invalid config` test. Status remained empty and HEAD remained `abc1234` after execution. No passing baseline evidence is available. Execution is blocked pending resolution of the baseline finding.\n\n## Wave 1 — Hook config validation\n\n### Task 1: Validate hook config\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** /work/app/doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n\n- [ ] **Step 1: Resolve the baseline blocker**\n\n  The existing config-resolution test must have an accepted disposition before implementation proceeds. Do not treat its failure as the expected red result for the new test.\n\n- [ ] **Step 2: Add the regression test**\n\n  Add `rejects invalid config` to `tests/hook.test.ts`, exercising the hook-config validation required by Design L10-L12.\n\n- [ ] **Step 3: Confirm the new test fails**\n\n  Run: `node --test tests/hook.test.ts`\n\n  Expected: the new `rejects invalid config` test fails because validation is missing, with the existing tests passing.\n\n- [ ] **Step 4: Implement validation**\n\n  Modify `src/hook.ts` to validate hook config according to Design L10-L12.\n\n- [ ] **Step 5: Confirm the scoped tests pass**\n\n  Run: `node --test tests/hook.test.ts`\n\n  Expected: exit 0, with `rejects invalid config` and the existing tests passing.\n\n- [ ] **Step 6: Format and lint the task files**\n\n  Apply the repository’s documented scoped formatting and linting commands to `src/hook.ts` and `tests/hook.test.ts`. These commands have not been supplied; establish them during resumed reconnaissance before execution.\n\n- [ ] **Step 7: Commit**\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts\n  git commit -m \"Validate hook config\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | Validate hook config | Task 1 |\n\nOPEN QUESTIONS /work/app/doc/plans/hook.md\n",
+      "words": 337,
+      "wallMs": 13461,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f2bb79333df2efe53ad1115460a9ddc5c3220347f39f2ad480fb4c0fa99b28c1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-      "baselineOutputSha": "a88f513aa784272a207c7bbff5b4a588187efd19c4f147c49682ddddf2d0008c",
-      "candidateOutputSha": "a8b8646734376d06129ad248a5646321dda5aebc9657156f22213f76b863bd1c",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
+      "baselineOutputSha": "b010c479ce072baff0003c95923584d06dd748a963cf695716541437761b426a",
+      "candidateOutputSha": "79f38067dd7160372ab331a0064e5075d030123082c21a21da40da90a7a7bbda",
       "facts": {
         "original-command": {
           "before": "holds",
@@ -59,16 +59,16 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the Tests command is unchanged (the extra `via:` bullet is additive, not a narrowing), the Open Questions row still names Task 1, the command, abc1234, exit 1 and the existing-failure summary, no baseline bullet is recorded, no repair rounds are spent, and the reply ends on the OPEN QUESTIONS line. Two things are worth tightening so this stays robust: (1) After moved the baseline-provenance paragraph above the Open Questions header and added a second narrative paragraph after Spec coverage, so provenance is now split across two places; keeping it as a single paragraph directly under the Open Questions row (as Before does) makes the 'top row + provenance' reading unambiguous. (2) Step 4's expectation 'PASS ... and for the existing test' quietly presumes the existing baseline failure will be resolved by this task, which brushes against inventing evidence for a failure the plan explicitly does not fix; phrase it as 'PASS for `rejects invalid config`' only, or note that the existing failure is tracked in Open Questions and out of scope, so the plan never implies the baseline failure was repaired.",
-      "wallMs": 12256,
+      "feedback": "No fact moved: both outputs keep the Tests command `node --test tests/hook.test.ts` unnarrowed, both open with an Open Questions row naming Task 1, the command, abc1234, exit 1 and the existing-config-resolution failure, neither records a passing baseline bullet or adds repair rounds, and both end with the OPEN QUESTIONS line. Two drifts in After are worth tightening even though they did not cost a fact: the Open Questions block now sits above the `# Hook config validation` title, which reads as a mis-ordered document (keep the title/Spec/Verification header first and put Open Questions as the first section, as Before did), and `tests/hook.test.ts` appears under both `Modify:` and `Test:`, which blurs the Create/Test path admission rule the Change introduces — list it once under `Test:`. After's Step 4 `Expected: PASS` (without claiming the pre-existing failing test will pass) and its explicit sentence 'it gets no passing baseline bullet' are good, clearer wording for the stop-on-existing-failure behavior and should stay.",
+      "wallMs": 14392,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f2bb79333df2efe53ad1115460a9ddc5c3220347f39f2ad480fb4c0fa99b28c1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
       "baselineOutputSha": "0ac088d5ed28d0ebb303ee22c981d8d8265e05100a4059612190351929cf55b5",
-      "candidateOutputSha": "54c2aab871f6e490bca89b483f89b49c210d641d46d5c97cce2cb690e6d3fac5",
+      "candidateOutputSha": "f76540235a24305c4deefd1fb334968eab478809d349d97e5f686f284c527e1a",
       "facts": {
         "original-command": {
           "before": "holds",
@@ -91,117 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs keep the Tests command `node --test tests/hook.test.ts` unnarrowed, both carry a single Open Questions row naming Task 1, the command, abc1234, exit 1 and the `existing config resolution failed` summary, both state that no passing baseline evidence exists without a baseline bullet or any repair/fix attempt (Step 1 pauses instead), and both end with `OPEN QUESTIONS /work/app/doc/plans/hook.md`. The only visible differences in After are hoisting the Open Questions section above the title block and trimming 'in an existing test' from the row (the detail survives in the provenance paragraph and Step 1). Both are safe; if you want the row to be self-contained for a reader who stops at the top, keep the 'in an existing test' qualifier in the row itself as Before did, since it is what distinguishes the base failure from the proposed red test.",
-      "wallMs": 14605,
+      "feedback": "After moved nothing: Task 1 still lists the unchanged `node --test tests/hook.test.ts` command, the top Open Questions row still names Task 1, the command, abc1234, exit 1 and the existing config-resolution failure summary, the Baseline provenance section is prose with no baseline bullet and explicitly says no passing evidence exists, Step 1 pauses rather than repairing or fixing the existing failure, and the final line is the OPEN QUESTIONS reply. Two small wording risks worth tightening without losing anything: Step 3's expectation 'with the existing tests passing' presumes a specific disposition of the baseline blocker (Before said 'independently of the resolved baseline failure', which avoids asserting an outcome), and Step 6's 'establish them during resumed reconnaissance' is fine but could be phrased to make clear no commands are invented now. Keeping the provenance as a paragraph that states 'No passing baseline evidence is available' and keeping Step 1 as a stop-and-dispose step is exactly what preserves no-evidence-fiction while delivering the stop-on-existing-failure behavior from the Change.",
+      "wallMs": 12529,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "baseline-fails-on-base",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "36494548afbe88d6f941384c120f668b921fd079899858a11098947d6de0268d",
-      "candidateSkillSha": "cce0c20a9a296ce47a1f1f9b61c280297272f9d40ad6545db762fff72e2601c6",
-      "inputSha": "8cd76c8d087b1172e355a1653c1c7937f0308205485ed17c4a6778427e1d5077",
-      "factsSha": "f2bb79333df2efe53ad1115460a9ddc5c3220347f39f2ad480fb4c0fa99b28c1",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "0ac088d5ed28d0ebb303ee22c981d8d8265e05100a4059612190351929cf55b5",
-            "payloadSha": "b66e8710c7553fb407bd84db6e6fbc2b760480e10eedb4003916519f6f10a8fd"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "d162476e1dfd3a2b531a9fc49db8633b8e1cf2abfc647937930f198763c21316",
-            "payloadSha": "c58ecacc694c4a5acb986a5ba0c89f6cfbb6d06b19c8c2bea89e4557f9708331"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "f2bb79333df2efe53ad1115460a9ddc5c3220347f39f2ad480fb4c0fa99b28c1",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-        "baselineOutputSha": "0ac088d5ed28d0ebb303ee22c981d8d8265e05100a4059612190351929cf55b5",
-        "candidateOutputSha": "d162476e1dfd3a2b531a9fc49db8633b8e1cf2abfc647937930f198763c21316",
-        "facts": {
-          "original-command": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "failure-row": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "no-evidence-fiction": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "reply": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "No fact moved: both outputs keep the Tests command unchanged, both record a top Open Questions row naming Task 1, the command, abc1234, exit 1 and the existing config resolution failure, neither adds a baseline bullet or attempts repair, and both end with the required OPEN QUESTIONS line. After actually strengthens failure-row by placing Open Questions as the very first section before the title, which is a safer reading of 'top' than Before's placement after the header block. Two minor cautions for the After wording: Step 1's 'then rerun the baseline procedure' edges toward instructing repair rounds inside the plan — phrasing it as 'pause until the human disposes of the baseline failure' (as Before did) keeps no-evidence-fiction unambiguous; and the Open Questions bullet dropped Before's 'in an existing test' qualifier, which some readers may want to see in the row itself rather than only in the provenance paragraph. Keeping the first-section placement while restoring 'in an existing test' and the explicit pause wording would deliver the Change with no risk to any fact.",
-        "wallMs": 13046,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "f2bb79333df2efe53ad1115460a9ddc5c3220347f39f2ad480fb4c0fa99b28c1",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-        "baselineOutputSha": "0ac088d5ed28d0ebb303ee22c981d8d8265e05100a4059612190351929cf55b5",
-        "candidateOutputSha": "d162476e1dfd3a2b531a9fc49db8633b8e1cf2abfc647937930f198763c21316",
-        "facts": {
-          "original-command": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "failure-row": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "no-evidence-fiction": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "reply": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After preserves all four facts: the unchanged command, the top Open Questions entry with failure provenance, the absence of fabricated passing evidence or actual repair attempts, and the required final line. Moving Open Questions to the beginning makes the blocker more prominent. However, Step 1’s instruction to resolve the baseline question and rerun the procedure could imply child-owned recovery. To make the intended terminal pause explicit while preserving these facts, say: “Stop here; do not repair or rerun the existing failure in this child. Retain the paused plan for the parent to offer fix-first, narrow, or amend.”",
-        "wallMs": 9213,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "50dd29dfd3066c986f17ea1dfffbf4e54fc40ebd"
+  "repoSha": "ec4e5ab500837b12d497f879be151dc2c392a188"
 }

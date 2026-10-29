@@ -1,0 +1,34 @@
+{
+  "sample": "pr-subject-rebase-preflight-stops",
+  "arm": "baseline",
+  "skillSha": "a4b02355cdac62efa7701161770c59746a506c0825453aa472993fe1e09cc5ee",
+  "inputSha": "43526d1142c5a3e71f79811e8f11f01db15a440a22444b7a3893186ecf687b0d",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finishing: pre-menu checkpoints (synthetic, nothing executed)\n\n**Subject:** `/work/widget/.worktrees/retry`, branch `retry`, rework PR subject `acme/widget#12`.\n\nStep 1 confirmed the home PR: OPEN, `headRefName` is `retry`, `baseRefName` is `main`.\n\n**SHA aliases**\n\n| Alias | SHA | Role |\n|---|---|---|\n| A | `aaaaaaa` | Home #12 pre-rework head (`PRE_REWORK_HEAD`) |\n| C | `ccccccc` | Member #13 pre-rework head |\n| D | `ddddddd` | Recorded \"Rework base\" |\n| E | `eeeeeee` | Worktree HEAD |\n\n**Preflight rule (Step 4).** Run `git -C \"$WORKTREE\" fetch origin` first. Then run `git merge-base --is-ancestor <head> HEAD` for every recorded original head, home first. The first exit 1 stops with the table's exact message, naming that PR's SHA.\n\nThis skill reads no `Rework base:` field and has no rebase mode. Only the `Pre-rework head:` pairs and the combined `Base:` line count. History must advance by merge, so `rebased: aaaaaaa..ddddddd` means A is no longer reachable from E.\n\n## Stops\n\n| # | Variant | Proof that fails | Exact stop |\n|---|---|---|---|\n| 1 | Recorded Rework base D is not an ancestor of HEAD | Home A → E exits 1. D itself is never tested, because the field is not read. | `PR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |\n| 2 | `Base:` says `sync: unresolved`, members pending, no Rework base | Home A → E: exit 0 if the history was merged, not rebased. Member C → E exits 1 because #13 was never merged. | `PR branch history was rewritten: ccccccc is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |\n| 3 | Home sync completed, member #13 unresolved/pending, no Rework base | Home A → E exits 0. Member C → E exits 1. | `PR branch history was rewritten: ccccccc is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |\n| 4 | `Base:` rebased, Rework base absent | Home A → E exits 1. The absent field changes nothing. | `PR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |\n\nAn exit code other than 0 or 1 is a command error. In that case, stop with the command's output instead.\n\n## Outcome (all four variants)\n\n- **Menu:** not reached. The stop fires before the six-row menu renders, so no row is offered, not even Keep or Discard. Preflight runs again if the flow returns to the menu.\n- **Push:** not reached. The origin-ancestry proof is never run, there is no `Withheld:` line, and nothing is pushed or force-pushed.\n- **Strip/seal:** not run.\n- **`refs/gauntlet/pre-rework/pr-*` refs:** none written.\n- **PR #12 description:** not fetched or edited.\n- **Merge mode:**\n  - Squash-merge (row 4) is unavailable because the menu never renders.\n  - The only allowed recovery is merge-based. Re-merge the original heads into the branch with `git merge --no-ff <head>`, using A for home and C for #13. For #13, keep the canonical subject `merge PR #13 head ccccccc into PR #12`. After that, both A and C prove as ancestors of HEAD.\n  - Rebase, reset or amend below A, and force-push are all forbidden.\n- **Member #13:** stays open. The closure question requires a successful push and a successful home body edit, and neither happens here. **Member PRs #13 left open.**\n- **Phase:** ship is not marked complete.\n",
+      "words": 506,
+      "wallMs": 30381,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "SHA aliases: `HOME=aaaaaaa`, `MEMBER13=ccccccc`, `REWORK_BASE=ddddddd`, `HEAD=eeeeeee` (each represents the supplied full SHA).\n\nThe supplied skill does **not** define `Rework base`, `sync: unresolved`, or a rebased-Base preflight. Those rules cannot be reconstructed as exact stops from the provided context. Its defined ancestry boundary is each recorded **`Pre-rework head:`**, home first—not a separately named Rework base.\n\n| Independent checkpoint | Stop supported by the supplied contract | Menu / push | Merge mode |\n|---|---|---|---|\n| Recorded Rework base `ddddddd` is not an ancestor of HEAD | No exact stop is specified for this field alone. If `dddd…` is actually the recorded `Pre-rework head:`, the exact stop is: `PR branch history was rewritten: ddddddd is not an ancestor of HEAD; the rework must be re-merged, not rebased.` | Not reached on that failed ancestry proof. | Re-merging is the prescribed recovery; no merge is executed by this preflight. |\n| Base says `sync: unresolved`, members pending, no Rework base | No exact stop for this combination appears in the supplied text. Pending member merges must be resolved before proceeding through the PR-head preparation flow. | Not established as reachable; no push is authorized here. | Member recovery must preserve original heads and use merges, not rebase. |\n| Home sync completed; #13 unresolved/pending; no Rework base | No exact stop for this metadata combination appears in the supplied text. The member-conflict stop requires additional facts, including conflicted paths and the last-good home SHA. | Preparation cannot proceed past an unresolved member merge. No menu or push here. | Manual member merge is permitted as recovery, preserving the canonical subject and original member head. |\n| Rebased Base; Rework base absent | No exact missing-Rework-base stop appears in the supplied text. If original home ancestry fails, the exact stop is: `PR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.` If home passes but #13 fails, substitute `ccccccc`. | Not reached on either ancestry failure. The Base summary’s `0 stop(s)` does not replace these proofs. | Re-merging is prescribed; rebasing across the original-head boundary is prohibited. |\n\n**#13 remains open in every checkpoint.** No push, description edit, closure question, or PR close occurs.\n\nExact stop strings for the metadata-specific cases require the missing reference that defines those fields; supplying them here would invent contract text.\n",
+      "words": 364,
+      "wallMs": 16640,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

@@ -135,13 +135,13 @@ from `reference/pr-subject.md` (keep scout unconditional):
 > `<that PR's BASE_SHA...headRefOid file list>`; full comment threads
 > `<in order, with ids and locations from using-git-worktrees/reference/pr-head.md>`.
 > Combined changed paths: `git diff --name-only <BASE_SHA>...HEAD` output, after the
-> member merges and base merge. Read `git diff <BASE_SHA>...HEAD` from the worktree.
+> member replays and base sync. Read `git diff <BASE_SHA>...HEAD` from the worktree.
 > Preserve PRE_REWORK_HEAD for home's Before provenance, not scout's code input.
-> Member merge: `<per-member outcome lines>`; Merge result: `<base merge line,
-> contract exceptions, scoped test results>`.
+> Supply `Member replay:` lines in rebase mode or `Member merge:` lines in merge mode as scout inputs only; Sync result: `<base sync line,
+> contract exceptions, scoped test results>`; carry optional Rework base after a complete rebase.
 > Authoritative base-HEAD constraints: `<git show <BASE_SHA>:<path> texts for
 > AGENTS.md, first-found overrides, REVIEW.md, and all cited constraint documents;
-> explicit missing-document results>`. These govern on every merge outcome,
+> explicit missing-document results>`. These govern on every sync outcome,
 > including clean; worktree policy edits are proposals under `changes:` or
 > `dropped claims:`, never constraints.
 > Treat the combined state as the starting state, not the target. Judge every
@@ -151,7 +151,7 @@ from `reference/pr-subject.md` (keep scout unconditional):
 > each with `keeps:`, `changes:`, `dropped claims:`, and one proposed disposition per
 > unresolved thread: `fix | keep open | decline: <reason>`. Render
 > `constraints added since fork:` once for home, one line per base rule absent at its
-> fork point. Carry merge contract exceptions into `changes:`. List member-carried
+> fork point. Carry sync contract exceptions into `changes:`. List member-carried
 > spec paths under each PR in Problem for resume.
 
 Context-builder (conditional):
@@ -231,7 +231,7 @@ convention; slug minted from the initial prompt):
 
 ## PR under rework
 <rework PR subject only: every per-PR scout subsection, ordered original heads, threads,
-member-carried spec paths, and supplied Member merge/base values per
+member-carried spec paths, and supplied Member replay or Member merge/base values per
 reference/pr-subject.md; retain these values even when scout failed>
 
 ## External context

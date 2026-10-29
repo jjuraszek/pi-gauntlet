@@ -1,0 +1,2 @@
+- later: judged: A proves both origin descendant of Rework base and origin ancestor of HEAD, selects non-force --no-follow-tags origin HEAD:refs/heads/retry and retains original refs and Rework-base thread range. Recomputes preflight proofs and push form on every menu return.
+- moved: judged: B and C each withhold row 1 with push withheld: origin/retry moved past aaaaaaa, retain rows 2-6 and do not lease/reset/push. Bare 1 requires clarification naming 2-6; 5 keeps workspace; 6 requires ordinary discard warning/confirmation and never mutates origin.

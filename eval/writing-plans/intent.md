@@ -1,6 +1,8 @@
-for: a247f7678bb4af0afd4fcbb88734a5a9342803c0a3bde63870f93e3055728a48
+for: 142d5965599d6cd698d3e856cc5ed26852ea36161d3432a819184162b1d57560
 
 ## Change
+
+Rebase-mode unresolved home/member synchronization becomes Task 1 before thread repairs. Consume pending members in record order, update the home rework-base ref and amend the approved record with final full Rework base/member outcomes before finishing. Retain legacy merge Task 1, scoped thread tests, wave/checker/baseline and approval gates. The synthetic pr-subject-sync-repair sample narrates these transitions without live writes; every new candidate fact must hold, with no regression acceptance.
 
 Establish task-command base provenance before handoff, stop on existing failures without inventing baseline evidence, and derive boundary decisions from source rather than asking the human. The parent offers fix-first, narrow, and amend for baseline failures, retaining the paused planning state. Admit recorded disposable artifacts on Findings re-entry while excluding Create:/Test: paths, preserve their suffixes on retained and replacement evidence by merging still-untracked recorded paths with newly generated artifacts on reruns, and inventory individual untracked files for exact plan-path admission and generated-source contamination.
 
@@ -10,9 +12,10 @@ PR-subject behavior uses preparatory baseline `1b0f7dd2bbbf926a8ff65109414d05aa9
 
 All-or-nothing endpoint equivalence outside the dispatched spec and plan directories permits retaining valid unchanged-command evidence across planning-only commits and re-stamping it to BASE, even when task steps change. Any failed proof reruns all commands, and the explicit forced-rerun override always wins. The baseline-equivalent-restamp supplied-observation scenarios exercise retention plus fresh evidence for an added task, and rerun-all after a source diff. The existing provenance note records retained evidence.
 
-Require the first line of the new gate-line-first replay to classify the waiting question while preserving its existing choices and pause.
+Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-form Task 1 as an ordinary wave task. The pr-subject-sync-repair sample bundles subagent-driven-development to exercise this execution distinction.
 
 ## Expected to move
+- pr-subject-sync-repair/inplace-wave: fails -> holds - Place rebase Task 1 alone in Wave 1 marked in-place while retaining ordinary merge-task wave placement.
 - baseline-equivalent-restamp/restamp: fails -> holds - Retain unchanged commands across planning-only commits.
 - baseline-equivalent-restamp/provenance: fails -> holds - Record tree-equivalent retention in the existing provenance note.
 - pr-subject-threads/merge-first: fails -> holds - Resolve the outstanding base merge as Task 1.
@@ -36,5 +39,3 @@ Require the first line of the new gate-line-first replay to classify the waiting
 - fresh-child-authors-plan/f6: fails -> holds - Tracker initialization now ends in direct execution handoff without selecting an execution mode.
 - all-singleton-plan/singleton-template: fails -> holds - Singleton waves require no Solo justification or mode-specific template lines.
 - all-singleton-plan/ordered-handoff: fails -> holds - The parent initializes all three singleton tasks in wave order then directly invokes execution without mode selection.
-
-- gate-line-first/first-line: fails -> holds - Put the question marker at column zero before any mandated prose.

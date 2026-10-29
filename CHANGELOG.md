@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- PR rework rebases home onto the fetched base and replays members in listed order by default; `merge-forward` keeps the merge path. Finishing lease-pushes the rebased branch (non-force for `merge:` records) and retains original-head provenance in local pre-rework refs.
+
 ## v7.40.0 - 2026-10-28
 
 ### Added

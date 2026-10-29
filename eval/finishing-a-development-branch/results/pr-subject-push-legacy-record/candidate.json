@@ -1,0 +1,110 @@
+{
+  "sample": "pr-subject-push-legacy-record",
+  "arm": "candidate",
+  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "inputSha": "8c5d91a0ae86465279c5dad0fa9cfed78546e4564cb2dd7c04d84a5542c221a5",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Route.** The `**PR:**` header and Rework record select the PR-subject route. The record has no `Rework base:`, and `Base:` is in `merge:` form, so this is **merge mode**. It stays merge mode: no conversion to rebase, no `Rework base` write, no lease. `PRE_REWORK_HEAD=aaaa…` (home). `gh pr view 12` confirms the PR is OPEN with headRefName `retry` and base `main`. `<base-branch>=main`. The gates passed and the Step 3.5 closure handoff is clean.\n\n**Preflight (after `git fetch origin`)**\n1. `merge-base --is-ancestor aaaa… HEAD` exits 0. This is home, checked first.\n2. `merge-base --is-ancestor bbbb… HEAD` exits 0. This is the member.\n3. Home only: `merge-base --is-ancestor origin/retry HEAD` exits 0, so a **non-force push** is offered. Row 1 is shown and nothing is withheld.\n\nThe six-row menu is rendered and you chose **row 1**.\n\n**Row 1 sequence**\n1. **Capture evidence before the strip.**\n   - The scoped set is `test-retry`.\n   - Threads are refetched for #12 and #13 using the paginated pr-head query. Both return empty, so the result is `Threads: none`.\n   - No commits need counting. The thread range would be the first value present: Rework base (absent), then merge-sha → `ccccccc..HEAD`.\n2. **Strip and seal.** Run `gauntlet-telemetry-seal.mjs --option pr --base origin/main --spec <spec>`. This measures the whole PR, not just the rework. Its output is printed verbatim.\n3. **Refs.**\n   - `rev-parse -q --verify refs/gauntlet/pre-rework/pr-12` succeeds, so the existing ref is **preserved**.\n   - pr-13 is absent, so run `update-ref refs/gauntlet/pre-rework/pr-13 bbbb…`.\n4. **Push home only:**\n   `git -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/retry`\n   It succeeds; the saved pushed head is `eeee…`.\n5. **Body.**\n   - `gh pr view 12 -R acme/widget --json body` is decoded with no trimming.\n   - A scratch file is created by `mktemp` outside the repo.\n   - Its bytes are `Original description\\n` + `\\n` + the block below.\n   - `gh pr edit 12 --body-file <scratch>` runs with no extra approval and succeeds.\n   ```\n   ## Rework\n\n   Before: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout)\n   Absorbs: #13 (<url>)\n   Spec: <spec path> at eeeeeee\n   Keeps: retry API\n   Changes: delay repair\n   Dropped claims: none\n   Verification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\n   Threads: none\n   ```\n6. **Closure check for #13.**\n   - The refresh shows `OPEN` with head `bbbb…`, already local.\n   - Merge-mode proof: `merge-base --is-ancestor bbbb… eeee…` exits 0, so #13 is eligible.\n   - The question shows #13 with the merge comment. You replied **2**, so nothing is closed.\n7. Call `phase_tracker complete ship`. Report: `Member PRs #13 left open.` The worktree is kept.\n\n**Proof boundaries**\n- Ancestry of the original heads is checked in preflight only.\n- Push form comes from origin/retry ancestry.\n- Closure eligibility is decided by the member's current head being an ancestor of the pushed head.\n- Refs are never used as proof. Home's first-parent history is never used as proof of a member's fix.\n\n**Variants (each independent)**\n\n| Variant | Boundary | Result |\n|---|---|---|\n| aaaa… not an ancestor | Preflight check 1 | **Stop** before the menu: `PR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.` No strip, seal, ref, push, body edit or closure. |\n| bbbb… not an ancestor | Preflight check 2 (home passed) | **Stop**, same message naming `bbbbbbb`. Nothing is written. No repair. |\n| pr-13 ref = 9999… | Ref step | **Continue.** The ref exists, so it is preserved with no `update-ref`, rewrite or retry. It feeds no proof or body field; `Before:` cites only pr-12. Push, body and closure proceed unchanged. The mismatch is reported, not repaired. |\n\n**Legacy record without merge-sha** (e.g. `merge: no-op` or `unresolved`):\n- The thread commit-count range falls to `PRE_REWORK_HEAD`: `aaaa…..HEAD`.\n- The ordinary record uses `ccccccc..HEAD`.\n- The wider range can also count member-merge and base-merge commits naming a thread id. Zero or multiple naming commits are reported as `fixed (task … complete; no single commit names …)` rather than a guessed SHA.\n- This case has `Threads: none`, so neither range is evaluated.\n- The mode stays merge; the missing SHA is not synthesized.\n",
+      "words": 634,
+      "wallMs": 29977,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### 1. Mode and preflight\n\nThis legacy record selects **merge mode** through `Base: ... - merge: ccccccc`. The absence of `Rework base:` does **not** convert it to rebase mode or trigger the rebase-only incomplete-sync stop.\n\nThe verification and conformance gates have passed. After a successful origin fetch, prove, home first:\n\n- Original #12 head `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` is an ancestor of HEAD.\n- Original #13 head `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` is an ancestor of HEAD.\n- `origin/retry` is an ancestor of HEAD.\n\nAll pass here, so row 1 admits a **non-force push**. An unexpected Git exit other than 0 or 1 stops with its output.\n\n### 2. Evidence, strip/seal, and refs\n\nBefore stripping the plan, capture the executable scoped verification set (`test-retry`) and accepted-complete task/thread evidence. Refresh threads per recorded PR using the prescribed paginated query. Successful empty results yield `Threads: none`; the legacy record alone is not a fresh fetch.\n\nFor home-thread naming-commit evidence, the ordinary boundary is:\n\n```bash\ngit -C \"$WORKTREE\" log --first-parent --format=%h \\\n  --grep '<thread id>' ccccccc..HEAD\n```\n\nFor a legacy merge record **without a merge SHA**, fall back to:\n\n```bash\ngit -C \"$WORKTREE\" log --first-parent --format=%h \\\n  --grep '<thread id>' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..HEAD\n```\n\nThese are naming-commit search boundaries, not independent completion proof. Member fixes cannot be proved using home’s first-parent history.\n\nStrip the ephemeral plan, then seal with `--option pr --base origin/main` and the selected spec. Both succeed. Preserve the seal’s actual stdout for the completion report.\n\nNext probe each pre-rework ref:\n\n- Existing `refs/gauntlet/pre-rework/pr-12`: preserve unchanged.\n- Missing member ref: create it with:\n\n```bash\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-13 \\\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n```\n\nAny ref-command error stops before pushing.\n\n### 3. Push, then description\n\nRun exactly:\n\n```bash\ngit -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/retry\n```\n\nIt succeeds; save the pushed home HEAD. No force or lease is needed.\n\nOnly afterward, fetch home’s description fresh. In a scratch file outside the repository, preserve the decoded bytes `Original description\\n`, then append one blank line and:\n\n```markdown\n## Rework\n\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13)\nSpec: <selected spec path> at eeeeeee\nKeeps: retry API\nChanges: delay repair\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads: none\n```\n\nDo not add “supersedes the description above”: no original claims were dropped. The body edit succeeds.\n\n### 4. Member closure and completion\n\nRefresh #13 after the body edit. Its live head remains OPEN and is contained in the saved pushed home HEAD, so offer:\n\n> Close #13 with: “Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as bbbbbbb.”  \n> 1 - yes, close #13  \n> 2 - no, leave it open\n\nThe user declines. Perform no close operation. Mark ship complete; report **Member PR #13 left open**, the actual seal stdout, and that the worktree remains preserved.\n\n### Independent variants\n\n- **Home original not ancestral:** stop at home’s preflight proof: `PR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.`\n- **Member original not ancestral:** home passes, then stop with the same message naming `bbbbbbb`. Neither variant reaches strip/seal, refs, push, body editing, or closure.\n- **Existing member ref points to `9999...`:** finish preserves existing refs; its probe does not validate or repair their identities. Continue without overwriting it. Ancestry and closure proofs still use the recorded original and refreshed live head—not that ref. No provenance repair or retry.\n",
+      "words": 548,
+      "wallMs": 19762,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ec8600c08125873e70893b855db34a547b5021c848bce6a88997b0a09a4363d0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "07bf813c13b9cc5aba6bdaaa57c6948f81bce17b78260d2258474fe7550acf53",
+      "candidateOutputSha": "a10cdff58d8a7eb92cc4460431dcd6aee3aba08015549dcbfa0d750a2020d713",
+      "facts": {
+        "legacy": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "refs": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "body": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "original-proof": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "range": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and additionally fixes refs: Before's variant row overwrote the mismatched pr-13 ref (9999… → bbbb…) and asserted \"the skill writes each ref to its recorded original\", whereas After checks `rev-parse -q --verify` first and preserves any existing ref, creating only the missing pr-13 and stating the mismatch is reported, not repaired. Merge mode is now named explicitly from the missing `Rework base:` plus `merge:` form, the three preflight proofs run home-first with the origin/retry ancestry deciding the non-force push form, the ancestry stops still quote the sha7 and the re-merged-not-rebased remedy, the body path keeps the untrimmed fetch, outside-repo mktemp and the full-SHA/ref `Before:` line, and the range narration falls from merge-sha to the original home prehead with no local-before boundary. No wording changes are needed to retain these; one optional tightening would be to state in the ref step that the pr-12 preservation branch applies identically to a mismatched member ref so the variant row is a direct consequence rather than a separate assertion.",
+      "wallMs": 13440,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ec8600c08125873e70893b855db34a547b5021c848bce6a88997b0a09a4363d0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "f159b864ba252795f9aee1ca2899297490c20b71155db81d2d1b6f2e9ab42987",
+      "candidateOutputSha": "751444847e78428a4eea878c7c66278ab9879cb0deacb7b00d5e3e3c91c9a1c3",
+      "facts": {
+        "legacy": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "refs": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "body": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "original-proof": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "range": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before held and additionally fixes `refs`: Before ran an unconditional `update-ref` on both pre-rework refs and, in the 9999… variant, explicitly replaced the mismatched member ref with bbbb…, whereas After probes each ref, preserves the existing pr-12 ref, creates only the missing pr-13 ref, and continues without overwriting the 9999… ref while noting ancestry/closure proofs use the recorded original rather than that ref. The legacy mode selection is now stated explicitly (`Base: ... - merge: ccccccc` selects merge mode; no `Rework base:` needed, no incomplete-sync stop), the three ancestry proofs still precede the single non-force home push, the fresh `Original description\n` bytes plus full-SHA/ref provenance are preserved in the outside-repo scratch after push, both ancestry-failure variants stop with the sha7-naming re-merged message, and the thread range falls back from ccccccc..HEAD to aaaa…..HEAD with no local-before boundary. One minor tightening: After's body section should keep the Before phrasing that the SHA is the portable handle that stays on origin because the push was not forced, and the closure section could state explicitly that no branch deletion occurs alongside worktree preservation, so the `body` fact's 'without branch deletion' clause rests on explicit text rather than absence.",
+      "wallMs": 14318,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

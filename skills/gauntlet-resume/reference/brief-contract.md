@@ -27,7 +27,7 @@ Headings, fixed order. A consumer keys on headings, never prose.
 | `## Repo state` | one field per line: `toplevel`, `worktree: yes <path>` or `worktree: no`, `branch` (`detached` when none), `HEAD`, `base` (`unknown` when no remote resolves), `dirty: <porcelain>` or `dirty: clean`, `diff-stat` (`unavailable` when base unknown), `test cmd`; any field `unavailable` when its command failed; heading `## Repo state: not a git repo` outside git | always |
 | `## Decisions` | bullets; rejected alternatives marked `rejected:` | always |
 | `## Skills loaded` | frontmatter `name`s; `## Skills loaded: none` when none | always |
-| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; optional one or more consecutive `PR: <owner/repo#N>` / `Pre-rework head: <40-char sha>` pairs, one per record group, home first, in record order, only for a PR subject; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
+| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; optional one or more consecutive `PR: <owner/repo#N>` / `Pre-rework head: <40-char sha>` pairs, one per record group, home first, in record order, only for a PR subject; optional single `Rework base: <40-char sha>` after all PR pairs; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
 
 For a loop ledger (line 1 exactly `# Ledger - loop engine`), replace `Active task` with these two fields, retaining both tracker status outputs and the gate-history line:
 
@@ -53,9 +53,9 @@ one blank line, the heading on its own line, a blank line, the `phase_tracker st
 output verbatim, a blank line, the `plan_tracker status` output verbatim, a blank line,
 `Active task: <name|none>`, then, only for a PR subject, one or more consecutive
 `PR: <owner/repo#N>` / `Pre-rework head: <40-char sha>` pairs, one per record group,
-home first, in record order, then the gate-history line after the last pair -
+home first, in record order, then optional single `Rework base: <40-char sha>` after all PR pairs and before the gate-history line -
 unfenced, nothing after.
-For a task plan, set `Active task` to the first `→` task name, else `none` (also for `No plan active.`). For a line-1 ledger, read its path and last decision and use the loop alternative above, retaining the optional PR pairs before the gate-history line. Copy only top-level record pairs, without titles; `Threads:` and record `### PR #<N>` subsections are not brief fields. For N=1 emit one pair; without a Rework record use the ordinary layout.
+For a task plan, set `Active task` to the first `→` task name, else `none` (also for `No plan active.`). For a line-1 ledger, read its path and last decision and use the loop alternative above, retaining the optional PR pairs and rework base before the gate-history line. Copy the full rework base only from the top-level record when present; never invent a boundary for incomplete sync. Copy only top-level record pairs, without titles; `Threads:` and record `### PR #<N>` subsections are not brief fields. For N=1 emit one pair; without a Rework record use the ordinary layout.
 
 Example appended block (the fence is documentation; the brief carries no fence):
 
@@ -126,8 +126,8 @@ Read the worktree spec's `## Rework record` and compare its top-level `PR:` iden
 `brief lists <brief order>, record lists <record order>`, substituting both observed
 ordered lists, before any tracker call. Resolve the spec through reconstruction's
 candidate rules below before this comparison; artifact presence supplies no approval.
-Carry all paired full pre-rework heads downstream in their original order;
-reconstruction uses the first pair's head as its scan base. Without optional pairs,
+Carry all paired full pre-rework heads downstream in their original order.
+Carry the optional full rework base downstream; reconstruction prefers it over the first pair's head as its scan base. Without optional pairs,
 retain ordinary restoration.
 Preserve the entry checks, standing-grant validation, plan repair, and task snapshot;
 PR identity implies no approval or gate evidence.

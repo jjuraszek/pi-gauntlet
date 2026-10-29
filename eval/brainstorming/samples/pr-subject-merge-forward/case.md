@@ -1,0 +1,7 @@
+bundle+: skills/brainstorming/reference/pr-subject.md
+bundle+: skills/using-git-worktrees/reference/pr-head.md
+# Fixed observations
+Use synthetic observations only, no tools or writes. Independent authorized entries with readable resources, acme/widget tracker and origin. Each PR is OPEN, in-repo, targets main. #12 head fix/retry at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; #13 head fix/delay at bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb. Per-PR diffs show related retry changes; all admission checks pass. No bound ticket. Fetched origin/main is cccccccccccccccccccccccccccccccccccccccc. Home original commits remain ancestors after merges; member merge produces ddddddd, base merge eeeeeee, no conflicts. Thread lists empty, scoped node --test test/retry.test.mjs passes. No actual writes occur.
+Entries: A `#12 #13 merge-forward keep retry limits`; B `#12 keep merge-forward retry limits`; C `repair retry merge-forward like #12`; D `#12 merge-forward`, whose diff adds only doc/specs/retry.md; the carried spec is unmarked and already approved. D's existing PR is #12; selected branch fix/retry is clean.
+# Narrated read actions
+For A show classification, provisioning sync order and the compact Rework record fields for original heads, Base and member outcomes. For B/C show first-token handling and resulting subject path, not a second full record. For D show route and whether the intent token changes its spec-only route or creates a Rework record. Preserve ordinary admission, relatedness and spec-only controls. Under 700 words; do not perform forge actions.

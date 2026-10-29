@@ -1,0 +1,34 @@
+{
+  "sample": "pr-list-rebase-push-and-close",
+  "arm": "baseline",
+  "skillSha": "a4b02355cdac62efa7701161770c59746a506c0825453aa472993fe1e09cc5ee",
+  "inputSha": "ffb2f750f6d7f598c258b6b04bc885b148691c1ac9905b530879b41db72452b9",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n```\nphase_tracker({ action: \"start\", phase: \"ship\" })\n```\n\n**SHA aliases**\n\n| Alias | Full SHA |\n|---|---|\n| A (#12 pre-rework) | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |\n| B (#13 pre-rework) | `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` |\n| C (#14 pre-rework) | `cccccccccccccccccccccccccccccccccccccccc` |\n| E (final HEAD) | `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` |\n\n## Preparation (in order)\n\n1. **Input**\n   ```bash\n   WORKTREE=/work/widget/.worktrees/retry\n   PRIMARY=/work/widget\n   FEATURE=retry\n   ```\n   The spec `doc/specs/rework.md` has a `## Rework record`, so this is the rework PR subject.\n\n2. **Step 1: read the record.**\n   - Pairs, home first: #12→A, #13→B, #14→C.\n   - `PRE_REWORK_HEAD=A`.\n   - Keeps: retry API. Changes: repair retry. Dropped claims: none. Scoped tests: `test-retry`.\n   - Confirm home:\n     ```bash\n     gh pr view 12 --json number,url,headRefName,baseRefName,state -R acme/widget\n     ```\n     Result: OPEN, headRefName `retry` = `$FEATURE`, baseRefName `main`.\n   - Verification gate: passed.\n\n3. **Step 3:** `<base-branch>` = `main`, taken from baseRefName. No common-base probe.\n\n4. **Step 3.5:** Conformance passed.\n\n5. **Step 4 preflight**\n   ```bash\n   git -C \"/work/widget/.worktrees/retry\" fetch origin\n   git -C \"/work/widget/.worktrees/retry\" merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD\n   ```\n   This exits **1**. HEAD is E, and the record shows the branch was rebased (`aaaaaaa..2222222`), so original head A is not in E's history.\n\n## Result: STOP\n\n```\nPR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.\n```\n\nProofs run in order, home first, and the first exit 1 ends the step. That means:\n\n- The #13 (B) and #14 (C) ancestry proofs are not run.\n- The `origin/retry` proof is not run.\n\n**Row 1 cannot be executed, so the requested artifacts are not produced.** None of the following happen:\n\n- the six-row menu\n- the `refs/gauntlet/pre-rework/pr-N` writes\n- the strip-and-seal block\n- `git push --no-follow-tags origin HEAD:refs/heads/retry`\n- the `gh pr view 12 --json body` fetch and `gh pr edit 12 --body-file` edit\n- the `## Rework` block\n\nHere is why the skill refuses rather than improvising:\n\n- **The push could only land by force.** `origin/retry` equals A, which is not an ancestor of E, so a non-force push is rejected. Force-pushing a PR-subject rework is a Red Flag.\n- **The Rework block would be false.** Its required `Before: aaaa… (… stays on origin because the push was not forced)` line could not hold.\n- **The record's \"rebased\" contract conflicts with this recipe.** The record carries `Rework base` and `Member replay` fields, but the skill reads only merge-based records. It requires every pre-rework head to stay reachable from HEAD.\n- **Patch-equivalence is not ancestry.** The `git cherry` result for #14 (all `-` lines) does not substitute for the ancestry proof.\n\n## State left\n\n- **Worktree:** preserved at `/work/widget/.worktrees/retry` on `retry` @ `eeeeeee`.\n- **Pull requests:** nothing pushed. PR #12's description is unchanged (`Original description\\n`).\n- **Member PRs:** #13 and #14 are left open.\n- **Phase:** the ship phase is **not** marked complete.\n- **Telemetry:** the record is unsealed (untracked, in_progress).\n\n**To recover:**\n\n1. Rebuild the rework so A stays in history. Branch from A in the home worktree (`retry`), then merge B and C as `merge PR #<N> head <sha7> into PR #12` commits. Then merge `origin/main` and re-apply the \"repair retry\" change on top.\n2. Update the spec's Rework record to the merge-based form.\n3. Re-run `/skill:finishing-a-development-branch /work/widget/.worktrees/retry`.\n\nAfter the rebuild, preflight passes and row 1 becomes available. The Rework block would then carry:\n\n- `Before: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref refs/gauntlet/pre-rework/pr-12 …)`\n- `Absorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)`\n- `Threads:` lists labeled by PR:\n  - `#12:` HOME still open\n  - `#13:` MEMBER13 fix retained, NEW13 still open\n  - `#14:` MEMBER14 still open\n",
+      "words": 528,
+      "wallMs": 24461,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Preflight runs before plan stripping, telemetry sealing, or pushing. At `/work/widget/.worktrees/retry`:\n\n```bash\ngit -C \"/work/widget/.worktrees/retry\" fetch origin\ngit -C \"/work/widget/.worktrees/retry\" merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD\n```\n\nThe ancestry proof for home PR #12 exits **1**.\n\nPR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.\n\nStop here. The rework-base and replay SHAs do not replace the recorded original heads for this proof; existing preservation refs do not satisfy ancestry either. No member proofs, strip/seal, push, description fetch, or body edit run.\n\nMember PRs #13, #14 left open.\n",
+      "words": 94,
+      "wallMs": 9896,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

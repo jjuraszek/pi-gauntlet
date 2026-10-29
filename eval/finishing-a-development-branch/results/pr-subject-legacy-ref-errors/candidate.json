@@ -1,0 +1,80 @@
+{
+  "sample": "pr-subject-legacy-ref-errors",
+  "arm": "candidate",
+  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "inputSha": "95a879b3895c7ffa1dfee7c08f4184e02b2fe5dde986c3799ee04e632a86afe7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# PR-subject row 1: pre-rework ref provisioning stop\n\n**Context:** home PR acme/widget#12, member #13, merge record (`Base: main @ 1234567 - merge: ccccccc`), no `Rework base`. Gates, merge-mode preflight, evidence capture and strip/seal have already completed.\n\n## Operation boundary\n\nThe probes run in record order, home first, after the strip/seal and before the push.\n\n1. **#12 (home).** The probe `refs/gauntlet/pre-rework/pr-12` succeeds and points to `aaaaaaa…`. The ref is preserved as is, with no `update-ref`.\n2. **#13 (member).** The failure occurs here. The stop happens before `git -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/<home headRefName>`. That non-force push was the form preflight selected for this merge record.\n\n### Case A: probe command error\n\n```\n$ git -C \"$WORKTREE\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-13\nfatal: cannot read ref: permission denied\n(exit 128)\n```\n\n- With `-q --verify`, only exit 1 means the ref is absent.\n- Exit 128 is a command error, not an absence. The ref's state is unknown.\n- The flow stops at the probe, and `update-ref` is never attempted.\n- Whatever exists at `pr-13` is left untouched, not overwritten.\n\n> Stopped: probing `refs/gauntlet/pre-rework/pr-13` failed (exit 128): `fatal: cannot read ref: permission denied`. Nothing was written to that ref.\n\n### Case B: probe absent, then update-ref fails\n\n```\n$ git -C \"$WORKTREE\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-13\n(exit 1 - absent)\n$ git -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-13 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nfatal: update_ref failed: permission denied\n(exit 1)\n```\n\n- The probe correctly returned absent, so the ref was created from #13's own recorded original, `bbbbbbb…`.\n- The write failed, so the flow stops at `update-ref`.\n- The flow does not retry, does not substitute home's SHA, and does not use another ref.\n\n> Stopped: `update-ref refs/gauntlet/pre-rework/pr-13 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` failed (exit 1): `fatal: update_ref failed: permission denied`. The member's pre-rework provenance is not recorded.\n\n## Where the stop sits (both cases)\n\n| Step | State |\n|---|---|\n| Evidence capture | done |\n| Strip plan + seal telemetry (`--option pr --base origin/main`) | done; commits stay on the branch and are not reverted or reset |\n| `pr-12` ref | already existed and correct; preserved |\n| `pr-13` ref | **stop** (A: probe error / B: update-ref failure) |\n| Push to `origin/<headRefName>` | **not run** |\n| `gh pr view 12 --json body` / `gh pr edit` | **not run** |\n| Closure question for #13 | **not rendered** |\n| `gh pr close 13` | **not run** |\n| `phase_tracker complete ship` | **not called** |\n\n## Outcome\n\n- **No push.** The local HEAD `eeeeeee…` plus the strip/seal commits remain unpushed. Origin and PR #12's description are unchanged.\n- **No closure is offered.** Member PR #13 is left open.\n- **Worktree preserved** at `/work/widget/.worktrees/retry`, still on the feature branch.\n- **No repair attempted.** There was no provenance repair, no ref overwrite, no reset, no retry and no force.\n\n**Next step:** fix the permission problem on `.git/refs/gauntlet/` (or the packed-refs lock) by hand. Then rerun finishing on this worktree. Strip/seal is idempotent on rerun (`already sealed`), and `pr-12` will be probed and preserved again.\n",
+      "words": 446,
+      "wallMs": 18034,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A — Member-ref probe fails\n\nOperation:\n```bash\ngit -C \"$WORKTREE\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-13\n```\n\nExit: `128`\n```text\nfatal: cannot read ref: permission denied\n```\n\n**Stop at the probe.** This is a command error, not proof that the ref is absent. Do not run `update-ref`.\n\nThe existing, correct home ref `refs/gauntlet/pre-rework/pr-12` remains unchanged. The member ref’s existence and identity are unknown; leave it untouched.\n\n### B — Member ref is absent, but creation fails\n\nThe probe reports the member ref absent, so the next operation is:\n```bash\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-13 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n```\n\nExit: `1`\n```text\nfatal: update_ref failed: permission denied\n```\n\n**Stop at the failed `update-ref`.** Do not retry or claim that the member’s original head has been recorded successfully.\n\nThe existing, correct home ref `refs/gauntlet/pre-rework/pr-12` remains unchanged. Existing refs are preserved, not overwritten.\n\n### Boundary and downstream effects — both checkpoints\n\nEvidence capture and plan stripping / telemetry sealing have already succeeded. Those completed steps remain in place; neither failure rolls them back.\n\nThe stop is **after strip/seal and before the push**. Although merge-mode preflight passed, ref provisioning must succeed before the admitted non-force push can run:\n```bash\ngit -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/retry\n```\n\nIn either case:\n\n- **No push occurs.**\n- **No home PR body fetch or edit occurs.**\n- **No absorbed-PR closure question is offered.**\n- **No PR close occurs.**\n- The worktree and branch are preserved; ship is not marked complete.\n- No provenance repair, overwrite, reset, or retry is performed.\n\nMember PRs #13 left open.\n",
+      "words": 237,
+      "wallMs": 8351,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "85dd8ae2428d5d7375e96b1068986a03b1f671b4eeef8bd41ead58ad64b525f1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "0d1c2a6aae1389f8eb17af80f4c6630b11b9605d2c8650a4a6704a1520710a92",
+      "candidateOutputSha": "d20a5120c240cb3d322c0843bde7c3f11acac4fda9510fda811f56acbd007c04",
+      "facts": {
+        "refs": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: After keeps both facts Before kept. Case A still classifies exit 128 as a command error (not absence), quotes `fatal: cannot read ref: permission denied`, stops at the probe and never reaches `update-ref`; Case B still shows `update-ref refs/gauntlet/pre-rework/pr-13 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` with the full recorded member SHA, quotes `fatal: update_ref failed: permission denied` and stops; the existing `pr-12` ref is preserved untouched in both, and the Outcome section explicitly rules out repair, overwrite, reset, retry and force. The step table and Outcome section also place the stop after the completed strip/seal and before the non-force push, and state no push, no `gh pr view`/`gh pr edit`, no closure question and no `gh pr close 13`, with #13 left open. The only cosmetic risk is the prose abbreviation `bbbbbbb…` in Case B's bullets; since the command block carries the full SHA this is fine, but keeping the full 40-char SHA in the narration too would remove any ambiguity about which original was used.",
+      "wallMs": 10635,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "85dd8ae2428d5d7375e96b1068986a03b1f671b4eeef8bd41ead58ad64b525f1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "d55b04d58e69ddee9914fd52b4a1f898da5635872a47b0ea7158ebede0bb144c",
+      "candidateOutputSha": "2add3011b20cd916af419ac8f667e8625973f8a50e48e9ba9270c3f0b112da5b",
+      "facts": {
+        "refs": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: After keeps both facts intact. Checkpoint A still treats exit 128 as a command error rather than absence, stops before any update-ref, and leaves the correct home ref untouched; checkpoint B still runs update-ref only after the probe reports absence, uses the recorded member original bbbbbbbb…, reports the update_ref permission-denied failure and stops with no retry, overwrite, reset or repair; the boundary section places both stops after the admitted strip/seal and before the push, and explicitly denies any push, body fetch/edit, closure question or close while leaving #13 open. Two cosmetic points worth tightening so a careful reader is not distracted: After substitutes `$WORKTREE` for the literal `/work/widget/.worktrees/retry` path the case specifies (Before printed the literal), and the closing line reads 'Member PRs #13' (plural) where 'Member PR #13' is meant. Keeping the literal worktree path in the command blocks and fixing the plural would deliver the Change wording (non-force push preview, missing-only ref creation, provenance preserved on refusal) without any risk to either fact.",
+      "wallMs": 13222,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

@@ -1,0 +1,90 @@
+{
+  "sample": "pr-subject-rebase-push",
+  "arm": "candidate",
+  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "inputSha": "72e14926328aca3de13a7dfcd2d25254aee260bb2f1a8670b22bbedbac88f31b",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n`phase_tracker({ action: \"start\", phase: \"ship\" })`\n\n**Aliases:** A = `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` (PRE_REWORK_HEAD), B = `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` (Rework base), C = `cccccccccccccccccccccccccccccccccccccccc` (HEAD), P = the pushed home head after strip and seal.\n\n## Shared preparation\n\n- **Gates:** verification, conformance and the clean-tree check passed. The PR is `OPEN`, `headRefName=fix-timeout` matches `$FEATURE`, and `baseRefName=main`.\n- **Mode:** the record carries `Rework base:`, so this is rebase mode. `git -C \"$WORKTREE\" fetch origin` succeeded.\n- **Rework base proof:** `git -C \"$WORKTREE\" merge-base --is-ancestor B HEAD` exits 0.\n- **Origin proof:** `git -C \"$WORKTREE\" rev-parse origin/fix-timeout` returns A, which equals PRE_REWORK_HEAD. That selects the lease push. C does not contain A, as expected after a rebase.\n\nMenu, with all six rows shown and none withheld:\n1. Push to the PR branch (PR #42, fix-timeout; appends the rework block to its description)\n2–6. As listed in Step 4.\n\n**Reply: 1**\n\n## Row 1 execution order\n\n1. **Capture evidence.** The scoped set is `test-timeout`, with no header commands. T1's task was accepted by spec and code review and is complete.\n2. **Refetch T1.** I used the paginated single-`$n` query for #42. T1 is still unresolved, so it stays in the list.\n3. **Count naming commits.** Range `B..HEAD`:\n   `git -C \"$WORKTREE\" log --first-parent --format=%h --grep 'T1' bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb..HEAD`\n   This returns exactly one commit, `ddddddd`, so T1 resolves to `fixed in ddddddd`.\n4. **Strip the plan**, using the guarded block.\n5. **Seal the telemetry record:**\n   `node <bin>/gauntlet-telemetry-seal.mjs --worktree \"$WORKTREE\" --option pr --base origin/main --spec doc/specs/rework.md`\n   Output: `sealed .pi/gauntlet/telemetry/doc/specs/rework.yaml`\n6. **Pre-rework ref.** `git -C \"$WORKTREE\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-42` shows the ref already exists and points to A. I preserved it and ran no update-ref.\n7. **Push home only:**\n   `git -C \"$WORKTREE\" push --no-follow-tags --force-with-lease=fix-timeout:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa origin HEAD:refs/heads/fix-timeout`\n   The push succeeded and I saved P.\n\n## Body update (only after the push)\n\n- **Fetch:** `gh pr view 42 --json body -R acme/widget`. The JSON decodes to the bytes `Original description\\n`, with no trimming.\n- **Scratch file:** `SCRATCH=$(mktemp)`, which lands under the system temp directory, outside the repo. I wrote the exact original bytes, then one blank line, then the block below.\n- **Edit:** `gh pr edit 42 --body-file \"$SCRATCH\" -R acme/widget`\n\nResulting body:\n\n```markdown\nOriginal description\n\n## Rework\n\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-42` in the rework checkout)\nSpec: doc/specs/rework.md at <P7>\nKeeps: retry behavior\nChanges: repair timeout\nDropped claims: none\nVerification: scoped - test-timeout; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n- <T1 path>:<line> - fixed in ddddddd\n```\n\nN=1, so there is no `Absorbs:` line, no `#42:` label on the threads list, and no member closure question.\n\n## Independent checkpoint: every original claim dropped\n\nThe original bytes `Original description\\n` and the blank line stay unchanged. The block changes in two places:\n\n```markdown\n## Rework\nsupersedes the description above\n\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-42` in the rework checkout)\nSpec: doc/specs/rework.md at <P7>\nKeeps: retry behavior\nChanges: repair timeout\nDropped claims:\nNo longer true: <original claim 1>\nNo longer true: <original claim n>\nVerification: scoped - test-timeout; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n- <T1 path>:<line> - fixed in ddddddd\n```\n\nThe description is never replaced by the block alone.\n\n## Completion\n\nNothing else was touched: no thread replies, no PR merge, no member closure, no ticket change. The worktree is preserved.\n\n`phase_tracker({ action: \"complete\", phase: \"ship\" })`\n\nSeal output: `sealed .pi/gauntlet/telemetry/doc/specs/rework.yaml`\n",
+      "words": 544,
+      "wallMs": 26808,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n**Synthetic checkpoints only; nothing is executed.** Row 1 is selected; no menu is repeated.\n\n### Shared preparation\n\n`WORKTREE=/work/widget/.worktrees/fix-timeout`, `PRIMARY=/work/widget`, `FEATURE=fix-timeout`.\n\nFull-SHA aliases:\n- `A` denotes the original prehead printed literally in the `Before:` line below.\n- `B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n- `C=cccccccccccccccccccccccccccccccccccccccc`\n\nAll verification, conformance, and clean-tree gates passed. Start ship tracking. Before stripping anything, retain `test-timeout`, accepted-complete task evidence, thread attribution, and the artifact’s path-only Spec header: `doc/specs/rework.md`.\n\n### Checkpoint: rebase push proof and threads\n\nRun the following proofs before landing:\n\n```bash\ngit -C \"$WORKTREE\" fetch origin\ngit -C \"$WORKTREE\" merge-base --is-ancestor \"$B\" HEAD\ngit -C \"$WORKTREE\" rev-parse origin/fix-timeout\n```\n\nThe ancestry proof passes at `C`; origin equals `A`, so select the **lease push**. Original-prehead ancestry is not required for this rebase route.\n\nRefresh PR #42’s threads using the prescribed paginated thread/comment queries. T1 remains open. Count its naming commits over the **rework-base range**, not the original-prehead range:\n\n```bash\ngit -C \"$WORKTREE\" log --first-parent --format=%h \\\n  --grep 'T1' \"$B\"..HEAD\n```\n\nExactly one match, `ddddddd`, plus the accepted-complete task evidence yields **`fixed in ddddddd`**. Do not mark the GitHub thread resolved or reply to it.\n\n### Checkpoint: strip → seal → push → body\n\n1. Remove tracked paired task-plan and ledger candidates, committing removals; preserve the spec and telemetry.\n2. Seal before pushing:\n\n```bash\nnode <bin>/gauntlet-telemetry-seal.mjs \\\n  --worktree \"$WORKTREE\" --option pr \\\n  --base origin/main --spec doc/specs/rework.md\n```\n\nSeal succeeds. Retain its actual stdout verbatim for completion. Preserve the existing `refs/gauntlet/pre-rework/pr-42`; it already equals `A`.\n\n3. Push with exactly these flags:\n\n```bash\ngit -C \"$WORKTREE\" push --no-follow-tags \\\n  --force-with-lease=fix-timeout:\"$A\" \\\n  origin HEAD:refs/heads/fix-timeout\n```\n\nSave the successfully pushed full HEAD. Below, `<pushed HEAD7>` means its seven-character abbreviation, captured **after** strip/seal—not automatically `ccccccc`.\n\n4. **Only after successful push**, fetch the current body:\n\n```bash\ngh pr view 42 -R acme/widget --json body\n```\n\nDecode JSON without trimming or shell command substitution. Create an outside-repository scratch file with `mktemp`; write the original bytes `Original description\\n` unchanged, append one blank line, then this block:\n\n```markdown\n## Rework\n\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-42` in the rework checkout)\nSpec: doc/specs/rework.md at <pushed HEAD7>\nKeeps: retry behavior\nChanges: repair timeout\nDropped claims: none\nVerification: scoped - test-timeout; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n- T1 - fixed in ddddddd\n```\n\nNo thread location was supplied; none is invented.\n\nEdit using that complete scratch body:\n\n```bash\ngh pr edit 42 -R acme/widget --body-file \"$scratch\"\n```\n\n### Independent checkpoint: every original claim dropped\n\nRetain `Original description\\n` byte-for-byte. Change the block’s second line to:\n\n```text\nsupersedes the description above\n```\n\nReplace `Dropped claims: none` with `Dropped claims:` followed by one `No longer true: <claim>` line per actual dropped claim; claim text was not supplied.\n\nAfter successful body edit, complete ship tracking and report the seal stdout. No thread replies, merges, member closure, ticket changes, or worktree cleanup.\n",
+      "words": 452,
+      "wallMs": 26474,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "1a1976fd39de766fb4581316a291c076d710f02c7e26d99944da781b41696276",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "31e8433f9e866ea1f9f1cf77a17b196869bc6f50d463fce711a06dfe9a9d9a46",
+      "candidateOutputSha": "215c6991a9a5f9cc91ae112c204e967936a97ea76141010b7e485cc29d8960a2",
+      "facts": {
+        "rebase-push": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "range": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "body": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before stops at the merge-mode proof (`merge-base --is-ancestor PRE HEAD` exits 1), declares `Rework base:` unread, never offers row 1, and so never captures evidence, counts `B..HEAD`, pushes, or edits the body; every fact fails there. After delivers the Change: it detects rebase mode from `Rework base:`, proves `B` ancestry, checks `origin/fix-timeout == A` before selecting the exact `--no-follow-tags --force-with-lease=fix-timeout:A origin HEAD:refs/heads/fix-timeout` push, preserves the existing pre-rework ref without update-ref, captures accepted-complete evidence before strip/seal, counts first-parent `B..HEAD` to `ddddddd`, seals `--option pr --base origin/main`, fetches the body after push with `gh pr view 42 --json body`, writes exact bytes plus blank line plus block to an outside-repo mktemp scratch, edits with `--body-file \"$SCRATCH\"`, and renders the full-SHA/local-ref Before line plus the supersedes/No-longer-true variant without replacing original bytes. Two wording nits to tighten so the body fact is matched literally rather than by alias: spell the repo flag as `--repo acme/widget` (not `-R`) on both the FETCH and EDIT invocations, and render the Spec head as the concrete pushed SHA alias (e.g. `at P`) rather than the `<P7>` placeholder so the spec/head conjunct is unambiguous; otherwise the After wording keeps everything Before kept (provenance, no replies/merge/closure/ticket changes, preserved worktree and ref) while adding the rebase-mode landing.",
+      "wallMs": 17965,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "1a1976fd39de766fb4581316a291c076d710f02c7e26d99944da781b41696276",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "57245807cce92b7adb024a27f5aae833758cc9aedd69a1b5ed8eebb18e783f94",
+      "candidateOutputSha": "06f9d84f2e084710ead94af7c3ca6433530f4b28122b0cc012de98eca2d9a65d",
+      "facts": {
+        "rebase-push": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "range": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "body": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moves all three facts to holds: it proves `merge-base --is-ancestor $B HEAD` instead of original-prehead ancestry, leaves `refs/gauntlet/pre-rework/pr-42` untouched, conditions the `--force-with-lease=fix-timeout:<A>` push on `origin/fix-timeout == A`, counts T1 on first-parent `B..HEAD`, and renders the fetch/edit calls with `-R acme/widget` plus a literal full-SHA Before line. Before failed because its preflight demanded A-ancestry (exit 1, stop), counted T1 over `A..HEAD`, and its edit call omitted the repo selector. Two wording wobbles in After worth tightening so a strict reader never hesitates: define `A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` directly in the alias list (rather than pointing at the Before line) and spell the lease flag with the literal SHA, since the fact quotes the exact flag text; and use `--repo acme/widget` and `\"$SCRATCH\"` verbatim instead of `-R`/`\"$scratch\"` so the FETCH/EDIT invocations match the required strings character-for-character.",
+      "wallMs": 24648,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

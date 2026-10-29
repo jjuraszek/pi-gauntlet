@@ -1,0 +1,100 @@
+{
+  "sample": "pr-subject-merge-preflight",
+  "arm": "candidate",
+  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "inputSha": "d1b4402f375da9fc05d60ed29b07253d99aee2af4a0259d4ea8507e3964a580c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finishing preflight: acme/widget#42 (`fix-timeout`)\n\nI'm using the finishing-a-development-branch skill to complete this work.\n\n**Legend:** W=`/work/widget/.worktrees/fix-timeout`; PRE=`aaaaaaa…`; HEAD=`ccccccc…`; ORIGIN=`9999999…`; `anc X Y` = `git -C W merge-base --is-ancestor X Y`\n\n## Verification (Step 1)\n\n| Subject | Set | Result |\n|---|---|---|\n| Rework PR (`## Rework record`) | Union of task `Tests:` (test-timeout, test-retry) plus header lint and format | Skipped |\n| Ordinary spec (control) | Header `**Verification:**` test-all | Run, unless the skip rule holds |\n\n- **Skip evidence.** The set passed on clean commit ccccccc. Both telemetry-excluding checks are clean:\n  - `git diff --quiet ccccccc -- . ':!.pi/gauntlet/telemetry'` exits 0.\n  - `status --porcelain --untracked-files=all` prints nothing.\n- **Sentinel comparison.** A header of `none - PR subject, scoped` would contribute no header commands. The set would then be test-timeout and test-retry only. It is never an empty task union.\n\nThen:\n\n`gh pr view 42 --json number,url,headRefName,baseRefName,state` → OPEN, branch fix-timeout, base main.\n\nThe record is in merge mode, so the original head and origin are both checked with `anc` against HEAD. Both exit 0.\n\n## Menus\n\n**PR menu (rework subject):**\n\n```\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #42, fix-timeout; appends the rework block to its description)\n2. Push and create a Pull Request (PR #42 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #42 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #42 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\n\n**Control menu (ordinary spec):** shown after test-all passes. The ordinary menu applies even though a PR is already open on the branch.\n\n```\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n## Stops\n\nEvery stop below happens before the menu. None of them strips the plan, seals the record, edits the body or pushes.\n\n| Variant | Diagnostic |\n|---|---|\n| Missing pre-head | Stop, naming `doc/specs/rework.md` |\n| PR closed | `PR #42 is CLOSED; the rework cannot be pushed to it.` |\n| Wrong head branch | Stop, naming `<headRefName>` and `fix-timeout` |\n| `anc PRE HEAD` exits 1 | `PR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |\n| Any ancestry check exits 128 | Command error: stop and print the fatal output |\n\n## Divergence\n\n`anc ORIGIN HEAD` exits 1, so row 1 is omitted. Rows 2–6 are listed unchanged, and this line goes under the list:\n\n```\nWithheld: push - push withheld: origin/fix-timeout is at 9999999, local HEAD at ccccccc; a non-force push cannot land\n```\n\nA separate proof, `anc PRE ORIGIN`, decides whether origin advance can be claimed:\n\n| `anc PRE ORIGIN` | Effect on the withheld line |\n|---|---|\n| Exit 0 | Append ` (origin moved past the rework's base aaaaaaa)` |\n| Exit 1 | Append nothing; divergence alone proves no advance |\n\n## Bare replies on the withheld menu\n\n| Reply | Effect |\n|---|---|\n| `1` | Clarifying question: \"Row 1 is withheld; choose 2, 3, 4, 5 or 6.\" |\n| `5` | Runs Keep: \"Keeping branch fix-timeout. Worktree preserved at W.\" Nothing is pushed, and the record stays unsealed. |\n| `6` | Shows the confirmation below. After the exact `discard`, Step 6 cleanup removes the worktree and deletes the local branch only. origin/fix-timeout and PR #42 are untouched. |\n\nThe confirmation for `6`:\n\n```\nThis will permanently delete:\n- Branch fix-timeout\n- All commits: <commit-list>\n- Worktree at /work/widget/.worktrees/fix-timeout\n\nType 'discard' to confirm.\n```\n",
+      "words": 583,
+      "wallMs": 36097,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Shared command/SHA legend\n\nAll Git commands target the named checkout explicitly; ancestry proofs use `git -C \"$WORKTREE\" merge-base --is-ancestor <older> <newer>`.\n\n- `WORKTREE=/work/widget/.worktrees/fix-timeout`\n- `FEATURE=fix-timeout`; base: `main`; spec: `doc/specs/rework.md`\n- `A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` — pre-rework head\n- `C=cccccccccccccccccccccccccccccccccccccccc` — verified HEAD\n- `R=9999999999999999999999999999999999999999` — divergent origin head\n\n### Verification\n\n| Subject | Selected commands |\n|---|---|\n| Rework record | `test-timeout`, `test-retry`, `lint`, `format` |\n| Rework header `none - PR subject, scoped` | `test-timeout`, `test-retry`; no header commands |\n| Ordinary-spec control | Full header verification: `test-all`; an existing open PR does not select the rework route |\n\nRework verification is skipped: this set passed at clean commit C in this session’s verify phase. Both `git -C \"$WORKTREE\" diff --quiet \"$C\" -- . ':!.pi/gauntlet/telemetry'` and `git -C \"$WORKTREE\" status --porcelain --untracked-files=all -- . ':!.pi/gauntlet/telemetry'` succeeded; status output was empty. The control requires its own `test-all` evidence.\n\n### Rework menu\n\nClosure / conformance: CONFORMS  \nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #42, fix-timeout; appends the rework block to its description)\n2. Push and create a Pull Request (PR #42 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #42 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #42 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n\n### Ordinary-spec control\n\nClosure / conformance: CONFORMS  \nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n### Independent stops\n\n| Variant | Diagnostic; boundary |\n|---|---|\n| Missing prehead | `doc/specs/rework.md: missing Pre-rework head for PR #42`; before verification. |\n| CLOSED | `PR #42 is CLOSED; the rework cannot be pushed to it.`; before verification. |\n| Wrong head | `PR #42 headRefName <observed> does not match feature branch fix-timeout.`; before verification. |\n| A not ancestor | `PR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.`; before menu. |\n| Ancestry exit 128 | Print fatal Git output; command error, stop before menu—not an ancestry-negative result. |\n\n### Divergence and replies\n\nWith R not ancestral to C, omit row 1; retain rows **2–6 unchanged**. Under them print:\n\n`Withheld: push - origin/fix-timeout is at 9999999, local HEAD at ccccccc; a non-force push cannot land`\n\nAppend `(origin moved past the rework's base aaaaaaa)` only if the separate A→R proof succeeds; exit 1 adds nothing.\n\n- **1:** admitted menu selects push; withheld menu asks for **2–6**. No push/body work here.\n- **5:** keep branch/worktree; nothing pushed.\n- **6:** warn of permanent branch, commit-list, and worktree deletion; require exact `discard`. Origin’s PR branch remains untouched. Cleanup ownership rules still apply.\n",
+      "words": 463,
+      "wallMs": 16978,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4b79f9b6bbdc9cefe28029a31bffb58aaf6c5fb54974fbc6d7b7827b6bb382ce",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "ac5b7be1e75de507e30bba837060199193749f60edd47934a744ceae9ca72d10",
+      "candidateOutputSha": "c46c71e140fe017c410707643f3b8acfd77b8b2c1b765e4e87362b0021615f53",
+      "facts": {
+        "menus": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "guards": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "divergence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: the six-row PR menu and five-row ordinary control (now with an explicit sentence that the ordinary menu applies despite the open PR), the task-union-plus-header verification with the sentinel comparison and skip evidence, all five stop variants framed as pre-menu errors in merge mode, and the withheld-row-1 treatment with both SHAs, the separate `anc PRE ORIGIN` proof gating the suffix, and the 1/5/6 replies with confirmation and no origin mutation. Two small drifts to watch: the second skip-evidence command is written as `status --porcelain --untracked-files=all` without the `':!.pi/gauntlet/telemetry'` pathspec even though the prose calls it telemetry-excluding (keep the pathspec on both commands to match the case), and the proof table dropped Before's 'other exit → command error, stop' row, which is harmless here but worth retaining so the 128 handling stays uniform between the preflight ancestry checks and the origin-advance proof. The `anc X Y` legend and the compact tables deliver the Change's compaction without losing any checkpoint detail.",
+      "wallMs": 19960,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4b79f9b6bbdc9cefe28029a31bffb58aaf6c5fb54974fbc6d7b7827b6bb382ce",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "acb9a1115a14b780aacc13c39c3d3fb093e965a72fc5b6ae4f9c042d6102f46e",
+      "candidateOutputSha": "555a59c7640fdd6e3c8783d72acf8fec54e25e93753ef88c50b129d5a63a683d",
+      "facts": {
+        "menus": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "guards": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "divergence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "No fact moved: both outputs render the identical six-row PR-subject menu with PR consequences and the five-row ordinary control, select the task-union plus lint/format (task commands retained under the `none` sentinel, full `test-all` for the control) and justify the skip with the verified commit C plus the two telemetry-excluding checks, stop on missing prehead/CLOSED/wrong head/rewritten ancestry/exit 128 as errors rather than fallback or divergence, and on divergence withhold row 1 with both SHAs, keep rows 2–6, gate the 'origin moved past' suffix on a separate successful A→R proof, refuse bare `1` with a 2–6 question, keep branch/worktree on `5`, and require the `discard` confirmation on `6` without touching origin. The Change's expected fails→holds for pr-subject-merge-preflight is not visible in this pair because Before already satisfies every fact as written; the After wording is a slight tightening (explicit wrong-head diagnostic, 'not an ancestry-negative result' on exit 128, 'cleanup ownership rules still apply' on `6`) and loses only the opening skill-attribution line. If you want After to demonstrate the full-skill PR-subject contract more distinctly, keep this text and add the explicit echo-before-acting note for a mapped numeric pick and name the provenance/non-force landing proof in the row-1 reply, without altering the menu rows, verification table, or stop boundaries that both arms already carry.",
+      "wallMs": 16870,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

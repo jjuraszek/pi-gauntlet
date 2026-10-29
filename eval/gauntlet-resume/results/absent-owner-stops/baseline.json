@@ -1,7 +1,7 @@
 {
   "sample": "absent-owner-stops",
   "arm": "baseline",
-  "skillSha": "c0ac8dff1171f583aed01cfc7ef2736f848610594508ab969b98e5d7e3cbe43d",
+  "skillSha": "8cd421b321d4d72aaa0fa04400eefa0833d125c68071ef45d031a61651ac6818",
   "inputSha": "64883867a392a4f6302de48b977ba876a6c861e7971db20d963f47e816ce734c",
   "kind": "text",
   "assembly": "headed",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Resume narration from tool result 3: plan_check FAIL, citation repair stops\n\n**Tool result 3:** `plan_check({ planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })` returns `FAIL (1 findings)`. The finding is `table-closure @ line 98: row owner Task 3: no such task exists`.\n\nThe `implement with task plan` call-table row says that on FAIL I run `## Plan repair`. I do not call `skip plan`, `start implement` or `plan_tracker init`.\n\n**Enter `## Plan repair`**\n\n- **Inputs:**\n  - the one finding above\n  - the brief's task snapshot, kept verbatim: `✓ [1] W1: Emit the rate-limit header`, `→ [2] W2: Read the header in the client`\n- **Baseline continuation check:** The finding is not `baseline-line` and not a substantive `open-questions` row. So I go to Citation repair.\n\n**Citation repair**\n\n- **Pre-write plan state:** The plan is tracked and clean.\n  - `ls-files --error-unmatch` exited 0.\n  - `status --porcelain` printed nothing.\n  - So I need no temp copy.\n- **Classification:** The `check` is `table-closure` and the reason is \"row owner Task 3: no such task exists\".\n  - The only `table-closure` row requires evidence that \"the owner cell names an existing task whose body does the row's requirement\".\n  - Here the owner cell names Task 3, but the plan has only two tasks. That evidence cannot hold, and the owner cell never changes.\n  - So this finding has no row.\n- **Outcome:** One finding with no row means I stop before any write.\n  - Nothing was written, so I run no git command (no checkout, no restore).\n  - No repair round runs, `plan_check` is not re-run, and no commit is made.\n\n**Printed lines, in order:**\n\n```\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\n**State left behind**\n\n- Phase `plan` stays in_progress, with brainstorm ⊘ (resume: /work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md).\n- `plan_tracker init` is not called.\n- Implement is not started.\n\nThe restore did not succeed, so I print none of these:\n\n- the `Gate history not restored; re-validating ...` closing line\n- a `Repaired plan:` receipt\n- a `Standing grant` / `No standing grant.` line\n\nI do not continue into subagent-driven-development.\n",
-      "words": 339,
-      "wallMs": 14348,
+      "text": "# Restore narration from tool result 3\n\n**Tool result 3:** `plan_check` returned FAIL with one finding:\n`table-closure @ line 98: row owner Task 3: no such task exists`\n\nThis failure sends the restore from the call table's `implement with task plan` row into `## Plan repair`.\n\n**Plan repair inputs**\n- The finding above.\n- The brief's task snapshot, read for evidence only and never rewritten:\n  - `✓ [1] W1: Emit the rate-limit header`\n  - `→ [2] W2: Read the header in the client`\n\n**Baseline continuation check**\nThe finding is not a `baseline-line` finding or a substantive `open-questions` finding. It goes to citation repair.\n\n**Citation repair: record the plan's state**\nTool results 1 and 2 already did this. `ls-files --error-unmatch` exited 0, and `status --porcelain` printed nothing. The plan is tracked and clean, so no temp copy is needed.\n\n**Classification**\n- The only `table-closure` row covers one reason: the row's anchor is not in the owner's `**Spec:**` set. Its evidence requires that the owner cell names an existing task.\n- This finding's reason is that the owner cell names Task 3, which does not exist. The plan has exactly two tasks.\n- That reason is not listed, so the finding has no row.\n- Changing the owner cell is also forbidden (\"the owner column ... never change\").\n\nThis is the no-row stop, reached before any write. Because nothing was written, no `git checkout` or restore runs, and no git command runs at all.\n\n**Lines printed**\n\n```\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\n**State left behind**\n- Phase `plan` stays in_progress. The earlier `start brainstorm` → `skip brainstorm resume: /work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md` → `start plan` calls stand.\n- Resume makes no `skip plan`, no `start implement`, and no `plan_tracker init`.\n- The plan file is untouched and no commit is made.\n- Nothing else is printed:\n  - The restore did not succeed, so there is no `Gate history not restored; re-validating ...` closing line.\n  - Repair did not complete, so there is no `Repaired plan:` receipt.\n  - There is no `Standing grant` line and no handoff to subagent-driven-development.\n- The turn ends.\n",
+      "words": 356,
+      "wallMs": 13935,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "table-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n",
+      "text": "table-closure @ line 98: row owner Task 3: no such task exists\n\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n",
       "words": 40,
-      "wallMs": 5464,
+      "wallMs": 4670,
       "mechanical": {
         "f1": "holds"
       }
     }
   },
-  "repoSha": "bc949e322867c82caca62b4a8333d18ae3c985e7"
+  "repoSha": "0dcac9779f68598e1724c9f6ed2783659a94e958"
 }

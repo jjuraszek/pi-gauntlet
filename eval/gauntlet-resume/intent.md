@@ -1,8 +1,10 @@
-for: ab9628b9fb547ee3db1307e89f15b969aafd22893337d088eaafb8bc2e3e8959
+for: 6ca35c209072f7f73504f67a8568d95033e7cae666cad100cccea438426feb7f
 
 ## Change
 
-Mark resume discovery and approval/continuation asks before prose; mark inventoried nonrecoverable stops without mutating brief state or inferring approval. Successful resume continues automatically without a terminal marker.
+Recover the active base-tracked spec/plan pair through the brief's PR identities in its Rework record despite an empty added-file diff; use Rework base as the tracked plan's evidence boundary, retaining exclusions and human confirmation.
+
+Carry an optional full Rework base after all consecutive ordered PR/head pairs and use it as reconstruction scan base when present. Keep the first-home-head fallback and ordinary no-pair behavior, home-only branch validation, ordered identity/member-spec exclusion and task/gate restoration. Extend the single/list brief samples without weakening their stable facts; synthetic narration is not live restoration evidence and no failed candidate must-hold is accepted.
 
 Restore cap from every admitted ledger at one shared boundary before implement or verify/ship continuation, without re-resolving loopEngine settings. Stop even completed legacy ledgers there; a durable grant resumes the original phase. Render cap, iterations, attempts, funding/retry allowances and decision history, distinguishing operational row decisions. New durable-cap and legacy-cap-brief samples are baseline-skipped: new sample, no pre-edit sample evidence; the runner still generates genuine baseline and candidate evidence.
 
@@ -19,7 +21,8 @@ Carry all PR/head pairs consecutively in record order, home first, while retaini
 Add deferred-spec-stop with sample-local entry-check instructions and an explicit before-check-6 replay override. Cover bare tree, brief, process state, seed and incomplete brainstorm after push/create failure; grant exemptions do not bypass admission. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated behavior, not live tracker restoration or before/after improvement. Every new candidate fact must hold regardless of aggregate verdict; retain existing facts and authorized directions. Task 1 retains the original-base deterministic red/green proof.
 
 ## Expected to move
-- gate-line-first/first-line: fails -> holds - The spec approval-or-brainstorm question starts with the shared question marker.
+- pr-subject-rebase-repair-brief/candidates: fails -> holds - Resolve the base-tracked active pair by Rework record identity and route to Spec with plan.
+- pr-subject-rebase-repair-brief/evidence: fails -> holds - Use Rework base as the tracked plan commit and derive task status from post-base evidence.
 - pr-list-brief/producer: fails -> holds - Carry all three ordered pairs home first, preserving tracker output, Active task and terminal gate history; N=1 and no-record remain intact.
 - pr-list-brief/binding: fails -> holds - Validate only home's live branch identity against the actual worktree before tracker calls, preserving downstream entry and grant checks.
 - pr-list-brief/mismatch: fails -> holds - Stop pr-list-brief-mismatch with both observed branch names and no tracker writes.

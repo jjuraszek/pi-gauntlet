@@ -1,0 +1,70 @@
+{
+  "sample": "pr-subject-merge-fix-minors",
+  "arm": "candidate",
+  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "inputSha": "5ef596364cadbd8d57283207822e87600ff932c7350b84a6771dff581ae84a6a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Fix-minors checkpoints: rework PR subject (acme/widget#42)\n\nThis is a synthetic walkthrough. Nothing is executed, no menu is rendered, and nothing is pushed.\n\n**Context.** Finishing starts from `/work/widget/.worktrees/retry`. The selected spec `doc/specs/rework.md` has a `## Rework record` whose header-linked PR is `acme/widget#42`. That makes it a rework PR subject.\n\n- `PRE_REWORK_HEAD` is `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n- The record says `Base: main @ 1234567 - merge: bbbbbbb`. Because it is in merge form, merge mode applies.\n- Step 1 captured the scoped set before any plan strip.\n\n**Reply under test:** `fix minors F3`. F3 repairs the timeout code. The rendered `whole-diff minors` line lists F3, and the closure block has no `whole-diff minors fix:` line, so the reply is accepted.\n\n## Checkpoint 1: Dispatch\n\nOne `implementer` round is dispatched with:\n\n- `cwd`: `/work/widget/.worktrees/retry`\n- task: the F3 finding line, verbatim\n- `SCOPED_TEST_COMMANDS`: the executable scoped union captured in Step 1:\n  1. `test-timeout` (task `Tests:`)\n  2. `test-retry` (task `Tests:`)\n  3. `lint` (header `**Verification:**`)\n  4. `format` (header `**Verification:**`)\n\n**Sentinel variant.** Suppose the header had read `**Verification:** none - PR subject, scoped`.\n\n- The sentinel would contribute no commands.\n- It would also not be passed as a command.\n- The union would be only `test-timeout` and `test-retry`, and it would still not be empty.\n\n**Ordinary-spec contrast.** For a spec with no Rework record or `**PR:**` line, the dispatch passes only the plan-header verification set: `lint` and `format`. Task `Tests:` commands are not unioned in.\n\n## Checkpoint 2: Fresh evidence gate\n\nAfter the fix, every supplied command needs fresh successful evidence from this round.\n\n| Evidence after fix | Result |\n|---|---|\n| `test-timeout` ✓, `test-retry` ✓, `lint` ✓, `format` ✓ | Proceed to Checkpoint 3 |\n| `test-retry` fails (others pass) | **Stop.** Do not return to Step 3.5 or the menu, and do not commit. Show the failing output. |\n| Any command has no evidence (e.g. `test-retry` not run, or its result is not reported) | **Stop.** This is treated the same as a failure, and there is no return to the menu. |\n| Evidence from before the fix | Not accepted; this counts as missing evidence and stops. |\n\nA partial pass is not success. For example, `test-timeout`, `lint` and `format` passing while `test-retry` is missing still stops the round.\n\n## Checkpoint 3: Commit and re-enter Step 3.5 (full success only)\n\n1. Commit the fix as `whole-diff minors fix`.\n2. Return to Step 3.5. The working tree no longer matches `audited-base`, so the freshness rule triggers a fresh conformance audit, as for any working-tree change.\n3. The closure block is replaced. The regenerated block records the spent round as `whole-diff minors fix: <full SHA of the commit>`.\n4. No code review follows this round. The whole-diff review was an unscoped first review, so its Minors stay graded Minors.\n5. Step 4 then re-renders. That rendering is out of scope here.\n\n**Second request.** The new block now carries `whole-diff minors fix:`. A later `fix minors` reply, for this or any subset, is refused with \"minors round already spent\". Any numbered choice ships without the remaining minors.\n\n## Comparison summary\n\n| Path | Commands dispatched | Gate before Step 3.5 |\n|---|---|---|\n| Rework PR, header `lint`/`format` | test-timeout, test-retry, lint, format | All four succeed, with fresh evidence |\n| Rework PR, header sentinel | test-timeout, test-retry | Both succeed, with fresh evidence |\n| Ordinary spec | lint, format (header only) | Header set succeeds |\n| `test-retry` fails or has no evidence | n/a | Stop; no commit, no return to Step 3.5 or the menu |\n",
+      "words": 538,
+      "wallMs": 16926,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Rework PR #42: fix minors F3\n\nFor each independent checkpoint, dispatch one `implementer` round with:\n- **cwd:** `/work/widget/.worktrees/retry`\n- **task:** F3’s finding text verbatim, repairing the timeout code.\n- **SCOPED_TEST_COMMANDS:** the full applicable set below—not just the timeout test.\n\n| Rework header Verification | Dispatch commands |\n|---|---|\n| `lint` and `format` | `lint`, `format`, `test-timeout`, `test-retry` |\n| `none - PR subject, scoped` | `test-timeout`, `test-retry` |\n\nThe sentinel contributes no header commands; it does **not** erase the union of task `Tests:` commands. F3 touching only timeout code does not narrow that union. Neither `Pre-rework head` nor the recorded merge changes this command selection.\n\n### Fresh evidence and return path\n\n**Lint/format-header checkpoint — full success requires post-fix evidence for all four commands:**\n```text\nlint: passed after the F3 fix\nformat: passed after the F3 fix\ntest-timeout: passed after the F3 fix\ntest-retry: passed after the F3 fix\n```\n\n**Sentinel-header checkpoint — full success requires post-fix evidence for both task commands:**\n```text\ntest-timeout: passed after the F3 fix\ntest-retry: passed after the F3 fix\n```\n\nFor either checkpoint:\n- **`test-retry` fails:** stop before returning to Step 3.5 or the shipping menu. A successful timeout test is insufficient.\n- **`test-retry` evidence is missing:** stop likewise; absence of evidence is not a pass.\n- **Any other supplied command fails or lacks successful evidence:** stop likewise.\n- **Every supplied command has fresh successful evidence:** commit as `whole-diff minors fix`, then return to Step 3.5.\n\nAt Step 3.5, the code change makes the prior conformance handoff stale. Re-audit conformance and regenerate the durable closure block, recording:\n```text\nwhole-diff minors fix: <full fix-commit SHA>\n```\n\nOnly after the refreshed conformance gate is satisfied can Step 4 return to its menu. Any carried-open gaps require explicit dispositions first. No additional code review follows this Minor fix round.\n\n### Independent ordinary-spec comparison\n\nFor an ordinary, non-PR subject with a task plan whose header Verification is `lint` and `format`, dispatch:\n```text\nSCOPED_TEST_COMMANDS:\nlint\nformat\n```\n\nDo **not** add task-level `test-timeout` or `test-retry` to this ordinary-spec dispatch. Require fresh successful evidence for the supplied header commands, then use the same fix-commit → Step 3.5 freshness re-audit → eligible menu-return path.\n\nThese are prescribed checkpoint outcomes only; nothing is executed, no menu is rendered, and nothing is pushed.\n",
+      "words": 350,
+      "wallMs": 10708,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "17d2522942908a14792b98a8be879acb832e2eba26ba0fb67c1146b6bece6b9d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "c2f9413002270efd13aa18eab86c81ac28504ff4143e2278aa6d6754cac83313",
+      "candidateOutputSha": "d418732b5128f5a906f733ca81a5ab5f2a98a1349fe7a6751d586c8b30e70e7f",
+      "facts": {
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the migrated verification fact in full: each dispatches lint, format, test-timeout and test-retry under the lint/format header, reduces to test-timeout and test-retry under the sentinel while stating the sentinel is never passed as a command, demands fresh post-fix success for every supplied command before the Step 3.5/menu return, stops on a failed test-retry or on missing evidence, and keeps the ordinary-spec header-only (lint, format) dispatch. The Expected-to-move entry predicts fails -> holds, but Before already carried all these conjuncts, so the After wording did not move this fact — it only tightened presentation (numbered union, explicit 'evidence from before the fix counts as missing', comparison summary row for the failure path). If the author wants the migration to show a measurable change, the new checkpoint's fact should target something Before genuinely lacked (e.g. the explicit stale-evidence rejection or the 'any numbered choice ships without remaining minors' consequence) rather than re-asserting conjuncts Before already satisfied; otherwise keep After as is, since it preserves every Before conjunct while delivering the Change.",
+      "wallMs": 9933,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "17d2522942908a14792b98a8be879acb832e2eba26ba0fb67c1146b6bece6b9d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "8c993fdd3b962fe112786ac4dd8ec68c23c6190890060d6e20f861ef37b56f89",
+      "candidateOutputSha": "5096f4d21baa54e791d138cace5ca0c9338b9919f11bfdf1ded137a9fa75e2ba",
+      "facts": {
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy every conjunct of the verification fact as written: both dispatch lint, format, test-timeout and test-retry under the lint/format header and only test-timeout and test-retry under the sentinel (neither passes the sentinel string itself as a command and both say it supplies no header commands), both require fresh successful post-fix evidence for every supplied command before Step 3.5/menu return, both stop on a failed test-retry or missing evidence, and both keep the ordinary-spec dispatch to the plan-header set only. The After wording is tighter (a table for the header/sentinel split, an explicit 'any other supplied command fails or lacks evidence' stop rule, and the note that Pre-rework head and merge record do not alter selection), so nothing was lost; the Expected-to-move entry predicting fails->holds is not borne out because Before already held. If the author wants After to visibly carry the migrated checkpoint identity, the only addition worth making is naming the checkpoint (pr-subject-merge-fix-minors) and keeping the ordinary-spec block's cwd/task lines that Before included, so the three dispatches remain fully parallel without changing any required conjunct.",
+      "wallMs": 10775,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}
