@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import test from 'node:test';
+import { lintTarget } from '../eval/lib/lint.mjs';
 import { STAGE_SKILL_DIRS, lintStageSkillDirs } from './stage-skill-lint.mjs';
 const root = new URL('../', import.meta.url);
 test('driver dispatch matches fresh persona and durable ledger contract', () => {
@@ -19,7 +20,7 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   const continuation = driver.slice(driver.indexOf('## After the loop'));
   assert.ok(driver.indexOf('action: "complete", phase: "implement"') < driver.indexOf('## After the loop'));
   assert.ok(continuation.indexOf('whole-diff `code-reviewer`') < continuation.indexOf('separate fresh `conformance-reviewer`'));
-  for (const fact of ['3 + funded N', 'latest `row <n> retry`', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'Exactly one NEW', 'spent < N', 'no reopening and no automatic rerun', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
+  for (const fact of ['3 + funded N', 'latest `row <n> retry`', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'Exactly one NEW', 'spent < N', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
   assert.match(driver, /Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit\. Funding alone resets neither window\. Preserve every row's attempts and the total iteration cap\./);
   assert.match(driver, /Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row survives on the branch, independently of `iterations`/);
   assert.match(driver, /Validate by dispatched `target`, not iteration number/);
@@ -31,9 +32,20 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   assert.ok(persona.includes('semicolons'));
   assert.ok(persona.includes('Escape pipes'));
   assert.ok(driver.split('\n').length < 500);
-  assert.doesNotMatch(driver, /plan_tracker\(.*init|worktree: true|model:\s/);
+  assert.doesNotMatch(driver, /plan_tracker\(.*init|worktree: true/);
   assert.ok(STAGE_SKILL_DIRS.includes('skills/loop-implementation'));
   assert.deepEqual(lintStageSkillDirs(root.pathname, ['skills/loop-implementation']), []);
+});
+
+test('amend permission bounds row escalation and one exit repair', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  for (const token of ['attempts >= allowance', 'row <n> escalated | implModel round | allowed attempts <attempts + 1>', 'loop: escalate row <n>', 'escalated round for row <n>', 'max(0, min(attempts, 3 + N) - 3)', 'model: <implModel>', 'gauntlet_setting({ key: "escalationLoop" })', 'rules 3-4', 'starts no new window', 'unrecoverable means spent', 'loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun that command once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
+  assert.match(driver, /Omit the model override except on an escalated round/);
+  assert.match(driver, /no permission or spent identity: no reopening and no automatic rerun/);
+  assert.match(driver, /empty parent marker/);
+  assert.match(driver, /once per flow, not per failing leg/);
+  assert.ok(Buffer.byteLength(driver) < 50000);
+  assert.deepEqual(lintTarget(new URL('eval/loop-implementation', root).pathname), []);
 });
 
 test('coordinated loop owns stable mappings, attributed returns and pending recovery', () => {

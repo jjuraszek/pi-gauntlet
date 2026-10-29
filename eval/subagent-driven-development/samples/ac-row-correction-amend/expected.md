@@ -1,0 +1,3 @@
+- amend: judged: Classifies the implementer-evidenced drafted-row text correction as an amend, quotes the worker evidence, applies the recommended heartbeat correction without a human menu/reviewer/confirmation, and prints amended the spec: with the correction.
+- aftermath: judged: Performs section 5 plan-writer amend dispatch, plan_check and tracker update, then one amend: commit with the row correction and evidence in a granted audit entry.
+- redraw: judged: Ticket rows, reviewer-only taste without implementer evidence, row add/remove, changed problem statement and component changes remain redraw stops even under permission, with no auto-application.

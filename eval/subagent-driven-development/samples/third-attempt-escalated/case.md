@@ -1,0 +1,6 @@
+bundle+: skills/brainstorming/reference/amendment-surface.md
+# Third execution attempt
+
+Task 3 "Frame parser" in /workspace/project has failed two ordinary implementer attempts, not review fixes. It remains in_progress with its prior isolated patch. Spec `**Amend-grant:** auto-apply amends`. The latest return is BLOCKED with a failing parser assertion and no named in-task repair. gauntlet_setting escalationLoop returns implModel `<resolved-model>` (a runtime value). Show the announcement and actual third-attempt dispatch with the existing task, patch, complete report, spec anchors, status protocol and SCOPED_TEST_COMMANDS. Preserve the task's worktree isolation. No review funded rounds have run.
+
+Then handle each independent result: DONE; BLOCKED recommending a named correction of the approved parser rule (no boundary change); dispatch error with Recommendation: none; BLOCKED recommending more attempts. The amendment branch's plan writer and plan_check succeed. Also handle independent resume scenes: the task's exact escalation announcement exists; only a sibling announcement exists and task history is missing; settings tool fails; implModel is undefined; header is budget-only. An explicit retry and a newly written grant do not provide new execution escalation. Show next actions, not a fourth unnamed repair.
