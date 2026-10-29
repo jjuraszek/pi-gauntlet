@@ -1,7 +1,7 @@
 {
   "sample": "no-recommendation-reask",
   "arm": "candidate",
-  "skillSha": "077c5f37cbf277c19f227f9be2c003b1bdca6ef1a5765c4fe8bcf82488ed0213",
+  "skillSha": "0520d3c0b96de923e1884d225da8a91aebc913143e9fc7edf77c33876e7daa8d",
   "inputSha": "ea9ebb4bda5fd428e259b648cd85636e2319af87e025f3c305e736c4e18b507b",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Bare `1` applies every recommendation, but item 1 has none, so it still needs your decision. Nothing has executed yet.\n\n1. Integrity manifest is missing - pick one:\n   A) accept - Ratify the current published behavior in the spec.\n   B) rescope - Remove or defer the manifest requirement from this workflow.\n   C) follow-up - Keep the requirement valid and transfer it to separately owned work.\n   Custom: <your own answer> - Supply another concrete effect, such as appending the build log's sha256 table to the release notes.\n   Not available: fix-now - file ownership has not been established.\n\nReply: `1. <letter or free text>`\n",
-      "words": 96,
-      "wallMs": 6791,
+      "text": "```text\ngauntlet: gate=finishing-a-development-branch/carried-open\n1. Integrity manifest is missing - item 1 has no recommendation, so bare \"1\" could not decide it; it needs your pick.\n   A) accept - Ratify the current published behavior in the spec.\n   B) rescope - Remove or defer the manifest requirement from this workflow.\n   C) follow-up - Keep the requirement valid and transfer it to separately owned work.\n   Custom: <your own answer> - Supply another concrete effect, such as appending the build log's sha256 table to the release notes.\n   Not available: fix-now - file ownership has not been established.\n\nReply: 1. <letter or free text>\n```\n",
+      "words": 93,
+      "wallMs": 9335,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Integrity manifest is missing — this item has no recommendation, so bare `1` leaves it undecided. Choose A) accept, B) rescope, C) follow-up, or supply a concrete custom instruction.\n\nReply: `1. <letter or free text>`, for example: `1. Append the build log’s sha256 table to the release notes.`\n",
-      "words": 48,
-      "wallMs": 8063,
+      "text": "gauntlet: gate=finishing-a-development-branch/carried-open\n1. Integrity manifest is missing - the release notes lack the required sha256 table, leaving artifact integrity undocumented.\n   The spec requires the manifest, but implementation is incomplete and fix ownership is unknown; bare “1” cannot decide an item with no recommendation.\n   A) accept - Ratify the current published behavior in the spec.\n   B) rescope - Remove or defer the manifest requirement from this workflow.\n   C) follow-up - Keep the requirement valid and transfer it to separately owned work.\n   Custom: <your own answer> - Supply a concrete effect, such as appending the build log's sha256 table to the release notes.\n   No recommendation - pick one\n   Not available: fix-now - file ownership has not been established.\n\nReply: `1. A`, `1. B`, `1. C`, or `1. <concrete custom instruction>`.\n",
+      "words": 121,
+      "wallMs": 10332,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "93c624d0e66c093366ab9fc591f2d86749d94aa986da9a4425a7c1f7dd94125b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "81b41003ef06554c816e6a11c08152c72c0e9d9bb3383bcdb09b59f45949ff4f",
-      "baselineOutputSha": "4e856952f98edad884a6ca09d2402c5d4113e0edd65708f97a9ea1a498e15b8d",
-      "candidateOutputSha": "59da64dd9cf21dab055ddfc9b4f5d65577d89378a4bed95057e1b62e3d8a7be6",
+      "intentSha": "7022b5222bf601036354fb3dcc156b192fb56b98837f2c9e75326a8c7cb4bb0f",
+      "baselineOutputSha": "56152d0fa30ff222db66fa9079910316c0f94c34de52b0253ccac805790c0cbd",
+      "candidateOutputSha": "1ac5b4aa3fc6e27f2e6ea8d1937f5533aff0e9767674687d571cebce4bf5f0c9",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved between Before and After for this continuation. Both outputs re-ask item 1 with lettered options A/B/C plus a free-text custom path, neither rejects the bare `1` reply nor claims item 1 is withheld, neither executes anything or advances to Step 4, and both use the numbered `1. <letter or free text>` reply form rather than any <handle>=<choice> assignment. After delivers the Change cleanly: it restates the bare-1 rule as an explanation rather than a rejection, promotes the inline options into the full numbered decision brief with per-letter consequences, keeps the Custom line numberless, and names the unavailable fix-now rather than silently dropping it. The only wording to watch is the opening sentence - keep it framed as 'bare 1 applies every recommendation, but item 1 has none' (as After does) rather than Before's 'applied nothing', which a stricter reader could hear as rejection; After's phrasing is the safer one to keep.",
-      "wallMs": 10501,
+      "feedback": "No fact moved: After re-asks item 1 with lettered options A/B/C plus a Custom line, executes nothing, stays off Step 4, and uses the numbered reply form rather than any <handle>=<choice> assignment. The After wording delivers the Change well (gate marker before item 1, problem stated first, consequences per letter, Not available line named). Two small cautions for the author: the phrase \"bare \"1\" could not decide it\" reads close to a rejection; Before's \"a bare 1 leaves it undecided\" is safer phrasing for f1 and still conveys the re-ask reason. Also, Before explicitly states \"Nothing has run yet\"; After relies on absence of execution text to satisfy f2, which is fine but an explicit one-line no-execution note before the item would make f2 unambiguous to a careful reader without changing the menu shape.",
+      "wallMs": 11576,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "93c624d0e66c093366ab9fc591f2d86749d94aa986da9a4425a7c1f7dd94125b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "81b41003ef06554c816e6a11c08152c72c0e9d9bb3383bcdb09b59f45949ff4f",
-      "baselineOutputSha": "61cfda7291062e7842e1055cabc248adbdd7f1189a6064e17a756ffc6207e47d",
-      "candidateOutputSha": "2dc3b9b6554b352a6c563ab6225fb5ce6a38269c6b1c430e7dc11d712882e092",
+      "intentSha": "7022b5222bf601036354fb3dcc156b192fb56b98837f2c9e75326a8c7cb4bb0f",
+      "baselineOutputSha": "e53f9f60e4b429968dd4f8e31a5fec19c94c9f0c4d8294b6463565d7d5101a7c",
+      "candidateOutputSha": "570b0aca59a0849395ff6c078ea22144f0f9eb14b17b642120357aae2ff0a78c",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs re-ask item 1 by number with its lettered options, execute nothing, stay out of Step 4, and use the `1. <letter or free text>` reply form rather than any handle assignment. After does deliver the Change's focused re-ask and the explanatory clause about bare `1` leaving a no-recommendation item undecided, but it compresses the options to bare labels (A) accept, B) rescope, C) follow-up) and drops the one-line consequences, the Custom line, and the `Not available: fix-now` note that Before kept; while f1 only requires the lettered options to be present, a reader deciding the item loses the consequence text that makes the letters meaningful. Safer wording would keep Before's full brief block (problem line, lettered options with consequences, numberless Custom line, `No recommendation - pick one`, `Not available` line) and add After's short preface sentence and the worked `1. Append the build log's sha256 table to the release notes.` example to the Reply instruction, so the focused re-ask gains the clarification without shedding content.",
-      "wallMs": 13910,
+      "feedback": "No fact moved: both outputs re-ask item 1 with its full A/B/C list plus Custom, neither executes anything or advances to Step 4, and neither renders a <handle>=<choice> assignment. After correctly adds the carried-open gate marker before item 1 and places the problem statement immediately after it, delivering the Change. The one wording risk is the clause 'bare “1” cannot decide an item with no recommendation', which a stricter reader could hear as rejecting the reply rather than explaining the focused re-ask; Before's 'bare `1` did not select a disposition. Nothing has executed.' is slightly safer because it frames the re-ask as a neutral status and explicitly preserves f2. Consider phrasing it as 'bare 1 applied no recommendation here, so item 1 is re-asked; nothing has executed' to keep f1 unambiguous while retaining the gate marker and problem-first ordering.",
+      "wallMs": 11483,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "a3b62b92fa14318743644aeb1e49cf7994538d92"
 }
