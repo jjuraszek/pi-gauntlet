@@ -9,7 +9,7 @@
  * Use phase_tracker for "what stage am I in?", plan_tracker for "which task?".
  */
 
-import { existsSync, globSync, readdirSync, readFileSync, readFileSync as readFileBytes } from "node:fs";
+import { existsSync, realpathSync, globSync, readdirSync, readFileSync, readFileSync as readFileBytes } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
@@ -990,26 +990,55 @@ export default function (pi: ExtensionAPI) {
         if (ownership.legs.length) roots.set(ownership.legs[0].repo, root);
         if (ownership.legs.length > 1) {
           const inputFailure = (reason: string) => fail([{ check: "input", line: 0, text: "", reason }], planAbs);
-          const common = gitSync(["rev-parse", "--path-format=absolute", "--git-common-dir"], root);
-          if (common.code !== 0) return inputFailure("cannot resolve home primary");
-          const primary = dirname(common.stdout.trim());
+          const worktrees = gitSync(["worktree", "list", "--porcelain"], root);
+          const primary = /^worktree (.+)$/m.exec(worktrees.stdout)?.[1];
+          if (worktrees.code !== 0 || !primary) return inputFailure("cannot resolve home primary");
           const overridesPath = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
           const overrides = overridesPath ? readFileSync(overridesPath, "utf8") : "";
           const section = /^## shape-ticket\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(overrides)?.[1] ?? "";
-          const siblings = [...section.matchAll(/^- sibling: (.+)$/gm)].map(m => resolve(primary, m[1].trim())).filter(path => path !== primary);
+          const parseClone = (value: string) => {
+            let host: string, path: string;
+            if (/^(ssh|https?|git):\/\//.test(value)) {
+              try {
+                const url = new URL(value);
+                host = url.hostname;
+                path = url.pathname.slice(1);
+                if (url.search || url.hash) return undefined;
+              } catch { return undefined; }
+            } else {
+              if (value.includes("://")) return undefined;
+              const scp = /^(?:[^@/:\s]+@)?([^/:\s]+):([^\s]+)$/.exec(value);
+              if (!scp) return undefined;
+              [, host, path] = scp;
+            }
+            path = path.replace(/\/+$/, "").replace(/\.git$/, "");
+            const name = path.split("/").at(-1);
+            if (!host || !name || host === "." || host === ".." || name === "." || name === "..") return undefined;
+            return { name, identity: `${host}/${path}`.toLowerCase() };
+          };
+          const siblings = [...section.matchAll(/^- sibling:([^\n]*)$/gm)].map(m => ({ line: m[0], parsed: parseClone(m[1].trim()) }));
           for (const leg of ownership.legs.slice(1)) {
-            const matching = siblings.filter(path => basename(path).toLowerCase() === basename(leg.repo).toLowerCase());
-            const candidates = (matching.length ? matching : siblings).filter(path => {
-              if (!existsSync(path)) return false;
+            const identifier = leg.repo.toLowerCase();
+            const byIdentity = siblings.filter(s => s.parsed?.identity.split("/").slice(-2).join("/") === identifier);
+            const matching = byIdentity.length ? byIdentity : siblings.filter(s => s.parsed?.name.toLowerCase() === basename(identifier));
+            const candidates: string[] = [];
+            for (const sibling of matching.length ? matching : siblings) {
+              const reject = (reason: string) => inputFailure(`${sibling.line}: ${reason}`);
+              if (!sibling.parsed) return reject("invalid configuration");
+              const path = join(dirname(primary), sibling.parsed.name);
+              if (!existsSync(path)) return reject(`PATH not found: ${path}`);
+              if (realpathSync(path) === realpathSync(primary)) return reject("PATH equals home primary");
+              const top = gitSync(["rev-parse", "--show-toplevel"], path);
+              if (top.code !== 0 || top.stdout.trim() !== realpathSync(path)) return reject("not a checkout");
+              const origin = gitSync(["config", "--get", "remote.origin.url"], path);
+              if (origin.code !== 0) return reject("no origin");
+              const parsedOrigin = parseClone(origin.stdout.trim());
+              if (!parsedOrigin) return reject("unparseable origin");
+              if (parsedOrigin.identity !== sibling.parsed.identity) return reject("wrong repo");
               const remote = gitSync(["remote", "get-url", "origin"], path);
               const repo = remote.stdout.trim().replace(/\.git$/, "").replace(/^.*[:/]([^/:]+\/[^/]+)$/, "$1").toLowerCase();
-              if (remote.code === 0) return repo === leg.repo;
-              const memberOverridesPath = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"].map(p => resolve(path, p)).find(p => existsSync(p));
-              const memberOverrides = memberOverridesPath ? readFileSync(memberOverridesPath, "utf8") : "";
-              const tracker = /^## Issue tracker\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(memberOverrides)?.[1] ?? "";
-              const documentedRepo = /^- repo:\s*(\S+)\s*$/m.exec(tracker)?.[1];
-              return (documentedRepo ?? path.split("/").at(-1))?.toLowerCase() === leg.repo;
-            });
+              if (remote.code === 0 && repo === identifier) candidates.push(path);
+            }
             if (candidates.length !== 1) return inputFailure(`cannot resolve selected sibling ${leg.repo}`);
             const branch = /^branch:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
             const home = /^(?:contract:\s*)?(?:-\s*)?home:\s*(\S+)\s*$/m.exec(leg.body)?.[1];

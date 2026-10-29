@@ -2454,28 +2454,20 @@ for (const event of ["session_start", "session_switch", "session_fork", "session
   }
 }
 
-for (const { pattern, identity } of [
-  { pattern: ".worktrees/<name>", identity: "origin" },
-  { pattern: ".worktrees/<name>", identity: "matched-origin" },
-  { pattern: "../companion-<name>", identity: "origin" },
-  { pattern: ".worktrees/<name>", identity: "overrides" },
-  { pattern: ".worktrees/<name>", identity: "basename" },
-]) test(`plan_check resolves selected companion roots with ${pattern} and ${identity}`, async () => {
+for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_check resolves clone URL companions with ${pattern}`, async () => {
   const primary = gitPrimary().primary;
   const companion = gitPrimary().primary;
-  const unselected = identity === "matched-origin" ? gitPrimary().primary : undefined;
-  const repo = identity === "matched-origin" ? `team/${companion.split("/").at(-1)!.toUpperCase()}` : identity === "basename" ? companion.split("/").at(-1)! : identity === "overrides" ? "acme/widgets" : "team/repo-b";
-  if (identity === "origin" || identity === "matched-origin") execFileSync("git", ["remote", "add", "origin", `https://example.test/${repo}.git`], { cwd: companion });
-  else {
-    mkdirSync(join(companion, ".pi"), { recursive: true });
-    writeFileSync(join(companion, ".pi/gauntlet-overrides.md"), `## Issue tracker\n${identity === "overrides" ? "- repo: Acme/Widgets\n" : "- provider: github\n"}## Other\n- repo: wrong/repo\n`);
-  }
+  const unselected = gitPrimary().primary;
+  const name = companion.split("/").at(-1)!;
+  const repo = `team/${name}`;
+  const cloneUrl = `git@example.test:${repo}.git`;
+  execFileSync("git", ["config", "remote.origin.url", `https://example.test/${repo}.git`], { cwd: companion });
   const branch = "feature/legs";
   const companionRoot = join(companion, pattern.replace("<name>", "feature-legs"));
   execFileSync("git", ["worktree", "add", "-b", branch, companionRoot], { cwd: companion, stdio: "pipe" });
   if (pattern.startsWith("..")) tempDirs.push(companionRoot);
   mkdirSync(join(primary, ".pi"), { recursive: true });
-  writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${companion}\n- sibling: ${unselected ?? "/missing-unselected"}\n`);
+  writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${cloneUrl}\n- sibling: git@example.test:other/${unselected.split("/").at(-1)!}.git\n`);
   const { planPath } = writePlanFixture(primary, {
     mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\nbranch: ${branch}\ncontract: home: ${pattern}\n`,
     mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo.toUpperCase()}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),
@@ -2506,6 +2498,14 @@ for (const { pattern, identity } of [
     const result = await tool.execute("legs", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
     assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
     assert.deepEqual(probes, [], "unselected sibling must receive no filesystem or Git probes");
+    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: https://user@example.test:7999/${repo}.git/\n`);
+    const https = await tool.execute("https", { planPath }, undefined, undefined, h.ctx) as { details: { status: string } };
+    assert.equal(https.details.status, "pass");
+    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), "## shape-ticket\n- sibling: ../viewer\n");
+    const invalid = await tool.execute("invalid", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings: { check: string; reason: string }[] } };
+    assert.equal(invalid.details.status, "fail");
+    assert.ok(invalid.details.findings.some(f => f.check === "input" && f.reason.includes("- sibling: ../viewer") && f.reason.includes("invalid configuration")));
+    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${cloneUrl}\n`);
   } finally {
     for (const spy of spies) spy.mock.restore();
     syncBuiltinESMExports();

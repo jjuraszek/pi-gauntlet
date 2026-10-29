@@ -175,7 +175,7 @@ Home overrides and `.pi/settings.json#piGauntlet` govern flow policy (council, c
 
 | Overrides declaration | Readers | Default | Effect |
 |---|---|---|---|
-| `## shape-ticket` `- sibling: <path relative to the repo root>` | shape-ticket (audit), brainstorming (membership), gauntlet-resume, finishing-a-development-branch | single-repo audit and run | audit siblings and eligible run companions; only companions explicitly selected by the ask or ticket join the run |
+| `## shape-ticket` `- sibling: <clone url>` | shape-ticket (audit), brainstorming (membership), gauntlet-resume, finishing-a-development-branch | single-repo audit and run | audit siblings and eligible run companions; only companions explicitly selected by the ask or ticket join the run |
 
 Discovery and the full headings table are in [Project-specific overrides](../README.md#project-specific-overrides). The [leg contract](../skills/brainstorming/reference/legs.md) records each leg's resolved `contract:` in the home spec's `## Legs`. Those recorded lines govern later stages, including finish and cleanup, for one-member and coordinated specs alike; amend the home block and affected companion file before using a changed contract. Overrides are not reread to replace recorded contracts. A legacy spec without `## Legs` is home-only and retains the finish-time reread.
 

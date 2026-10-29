@@ -7,11 +7,13 @@ Keep tracker and dispatch APIs unchanged.
 
 Read the home primary's first-found overrides file: `.pi/gauntlet-overrides.md`,
 `gauntlet-overrides.md`, `doc/gauntlet-overrides.md`. Treat `## shape-ticket`
-`- sibling:` declarations as eligibility, not membership.
+`- sibling: <clone url>` declarations as eligibility, not membership. Parse selected values
+with shape-ticket's [shared parser](../../shape-ticket/reference/repo-audit.md);
+use `PATH` = `<home PRIMARY parent>/<NAME>` as each companion primary.
 
-Match only companions explicitly selected by the ask (repo identifier, basename,
-or declared sibling path) or the ticket's repo-group headings. Compare
-case-insensitively, identifier before basename. Derive the portable identifier
+Match only companions explicitly selected by the ask (repo identifier, `NAME`,
+or declared clone URL) or the ticket's repo-group headings. Compare
+case-insensitively, trailing `owner/name` of `IDENTITY` before `NAME`. Derive the portable identifier
 from `git -C <primary> remote get-url origin`'s `owner/name`, stripping `.git`;
 without origin use `repo:` from that member's own first-found overrides
 `## Issue tracker` section; without that value use the member's primary directory basename. Use the same identifier
@@ -20,18 +22,20 @@ ask once before any creation; never guess. Order members home first, then select
 An existing PR alone never activates membership; PR home provisioning still uses
 `using-git-worktrees/reference/pr-head.md`.
 
-Never resolve or validate unselected sibling paths. With no selected companion,
+Match identifiers before any filesystem or git probe; probe only matching siblings,
+or remaining declarations when nothing matches. Never probe unselected siblings. With no selected companion,
 keep the single-member flow. Validate every selected declaration before creating
-any tree: missing, not a git repository, or equal to home stops naming the line.
-Resolve selected paths against the home primary, canonicalizing before the home
-comparison. Keep these machine paths in working state and briefs, never in committed blocks.
+any tree: invalid configuration, missing `PATH`, not a checkout, no origin,
+unparseable origin, wrong repo, or `PATH` equal to home stops naming the line.
+Read origins with `git -C <PATH> config --get remote.origin.url` and compare the
+full parsed `IDENTITY`; canonicalize paths before the home comparison. Keep these machine paths in working state and briefs, never in committed blocks.
 
 ## Resolve each member
 
 | Field | Contract |
 |---|---|
 | `repo` | Portable identifier above; preserve one spelling everywhere |
-| `primary` | Home checkout at brainstorm start, or selected sibling resolved against home; machine-local |
+| `primary` | Home checkout at brainstorm start, or selected sibling clone URL parsed to `<home PRIMARY parent>/<NAME>`; machine-local |
 | `worktree` | Absolute `Worktree ready` result; machine-local |
 | `branch` | One full caller `BRANCH` shared by all members |
 | `name` | Shared `NAME`, derived from `BRANCH` by replacing `/` with `-` |
