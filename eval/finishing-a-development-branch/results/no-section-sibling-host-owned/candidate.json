@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
       "baselineOutputSha": "127980cfb64924ac6e76fa5a979c1deaff481a6c011ef88fa2591516e3945b46",
       "candidateOutputSha": "127980cfb64924ac6e76fa5a979c1deaff481a6c011ef88fa2591516e3945b46",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical for this case (no-section sibling host-owned path): both report the worktree at /work/acme-api-worktrees/rate-limit as host-owned, state that no git worktree remove/prune ran, skip git -C /work/acme-api branch -D rate-limit, and say the host-owned worktree still holds rate-limit, so s1 holds in both. Nothing moved; the After wording preserves the legacy three-homes decision for the no-section case unchanged, which is what the Change requires. If the author wants the sibling-host-owned narration to be more clearly tied to the new contract rules, they could add a line noting that no keyed home: contract exists to match $WORKTREE against, but the current After text already satisfies the fact without any regression.",
-      "wallMs": 5197,
+      "feedback": "Before and After are byte-identical for this case, so nothing moved. Both outputs report the worktree at /work/acme-api-worktrees/rate-limit as host-owned, explicitly state that no `git worktree remove`/`prune` ran, skip `git -C /work/acme-api branch -D rate-limit`, and state in the report that the host-owned worktree still holds branch `rate-limit` — exactly what s1 requires. The After wording therefore preserves s1; the no-section legacy three-homes path is unchanged as the Change intends. One note: the skip rationale ('the branch is still checked out in the worktree and deleting it would fail') is a mechanical justification rather than the ownership rationale; if you want the narration to track the Change more tightly, phrase the skip as 'host-owned worktree still holds rate-limit, so the branch is kept' without adding any remove/prune or destroy attempt, which keeps s1 intact.",
+      "wallMs": 4784,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
       "baselineOutputSha": "d294c558df3f322907dc954a215325412363aae91cf6ee5a892ad37573f64484",
       "candidateOutputSha": "d294c558df3f322907dc954a215325412363aae91cf6ee5a892ad37573f64484",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical: both report the sibling worktree as host-owned, state that nothing is removed, skip branch deletion, and say the host-owned worktree still holds rate-limit, so s1 holds in both arms and nothing moved. The After wording is fine as-is for this case; it preserves the legacy no-section three-homes decision exactly as the Change requires (no overrides section, no worktree script, so a sibling path stays host-owned), and no adjustment is needed to keep this fact while delivering the keyed-contract behavior elsewhere.",
-      "wallMs": 3712,
+      "feedback": "Before and After are textually identical: both report the worktree at /work/acme-api-worktrees/rate-limit as host-owned, leave it intact (removing nothing), skip branch deletion, and state that the host-owned worktree still holds rate-limit, so s1 holds in both arms and nothing moved. The After wording correctly preserves the no-section legacy behavior for a sibling path; no change is needed here, though if the author wants the output to visibly reflect the new keyed-contract logic, a short clause like 'no `## using-git-worktrees` section exists, so the legacy three homes decide' would make the provenance of the host-owned judgment explicit without risking s1.",
+      "wallMs": 4988,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "250b723ec3014a04744469c2be7679da58b79a2736fee5b3a9500f3f90c4331a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "ffc293bcd24030f130f66b66db0fb322ed8f7e9f4620a04e1d4c20caf77eac15",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "acfb3df53f0bbb214b3b128a58ff26f53264c9515beb282ec6e5f874ba097444",
       "candidateOutputSha": "acfb3df53f0bbb214b3b128a58ff26f53264c9515beb282ec6e5f874ba097444",
       "facts": {
         "f1": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs reproduce the briefing body verbatim, print `Council: 0 applied, 0 deferred, 0 rejected`, keep row 3 among six menu rows, carry no per-cluster Applied/Deferred/Rejected line, and read `approve` as option 1 with no grant. Two things in After are worth tightening. First, After drops the `## Briefing` heading that Before kept; f1 still holds because the briefing text itself is verbatim, but a stricter reader could treat the heading as part of the source, so keep it. Second, After silently omits the `Drafted acceptance criteria (approval ratifies):` block and the explanatory note that Before carried; since this case supplies no `## Acceptance criteria` section, the omission is defensible under the ticket-row rule, but the Change wants that block rendered verbatim between Scope cuts: and Council: whenever drafted rows exist, so a wording like 'Scope cuts: none' followed by the drafted block (or an explicit one-line note that it is omitted because rows have ticket provenance) would deliver the Change more visibly while preserving every fact Before kept.",
-      "wallMs": 14336,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: the briefing is reproduced verbatim, the single `Council: 0 applied, 0 deferred, 0 rejected` line is present with no per-cluster Applied/Deferred/Rejected lines, row 3 remains in the six-row menu, and the `approve` reply is narrated as option 1 with no grant. The only thing worth noting for the author is that the `Scope cuts:` line still renders the template placeholder `<rendered from the spec's ... or \\`none\\`>` rather than a concrete value; since this case supplies no `## Acceptance criteria` / `## Spec acceptance criteria` section, that is arguably the honest 'unknown' rendering, but if the Change intends the gate to show literal `none` (or a concrete cut list) in samples, the wording should instruct the skill to substitute a value when the section is absent (e.g. 'render `none` when the spec supplies no cut rows; otherwise list each row verbatim') rather than echo the instruction text, which would keep every fact here while making the Scope cuts facts in the sibling cases observable.",
+      "wallMs": 11042,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "250b723ec3014a04744469c2be7679da58b79a2736fee5b3a9500f3f90c4331a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "ca343ed5ba6ae92cce16298791d6f3b1d0bccba72d4376dfe32edcf05f74d7c1",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "e19175566c189e463ae0c392c1094afb69c70dd8a8534c6ec71dc35c89b796d4",
       "candidateOutputSha": "e19175566c189e463ae0c392c1094afb69c70dd8a8534c6ec71dc35c89b796d4",
       "facts": {
         "f1": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs reproduce the briefing verbatim, carry the single `Council: 0 applied, 0 deferred, 0 rejected` line with no per-cluster disposition lines, keep row 3 in a six-row menu, and treat `approve` as option 1 with `**Amend-grant:** none`. After's edits are cosmetic (\"cannot be verified\" vs \"cannot determine\", a \"Gate metadata limitation:\" label, a `---` separator before the continuation, and an explicit \"selects option 1\"), none of which touch the facts. The only thing worth tightening is the Scope cuts line: both arms hedge because the case supplies no `## Spec acceptance criteria` section, so neither demonstrates the `Scope cuts: none` nor the drafted-block omission the Change describes; keep the verbatim briefing, the audit counts line, and the option-1 narration exactly as they are, and if you want the sample to exercise the new wording, supply the acceptance-criteria section in the case so the gate can render `Scope cuts: none` between the committed-to line and Council rather than a cannot-verify note.",
-      "wallMs": 11738,
+      "feedback": "After is byte-identical to Before, so no fact moved: both reproduce the briefing verbatim, state `Council: 0 applied, 0 deferred, 0 rejected`, keep row 3 as show-council-dispositions, carry no per-cluster disposition line, and treat the bare `approve` as option 1 with `**Amend-grant:** none`. The Change's intended additions are not visible here either: the Scope cuts line reads `cannot be verified without the applied spec's acceptance-criteria section` rather than `none`, and no `Drafted acceptance criteria (approval ratifies):` block appears, because this case supplies no `## Spec acceptance criteria` section. If you want this case to exercise the new wording, either add that section to case.md (so Scope cuts resolves and the drafted/ticket block decision is determined) or instruct the gate to render `Scope cuts: none` when no acceptance-criteria rows are supplied; neither change would disturb f1–f5, since the briefing, Council counts, menu rows, and reply handling are independent of that block.",
+      "wallMs": 8815,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3d95fb33758faf76184c11854690d860c4893a3f"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

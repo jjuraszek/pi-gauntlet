@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f6dc17d7eca1633708f31964eb8e953e6f3b9793e6771ca966be2c431afa6bbb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "49a02131d466cee7962419e545f38a7ce842c044fbbdbfb7c2f0d0c486421fb7",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "195f77715be3084633b721803668c798bb235b2f196e4ecc4172c7a7a3795478",
       "candidateOutputSha": "195f77715be3084633b721803668c798bb235b2f196e4ecc4172c7a7a3795478",
       "facts": {
         "f1": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both renders reproduce the briefing verbatim, carry no `Council:` counts line, present exactly rows 1, 2, 4, 5, 6 with no row 3, offer no council-disposition row, and narrate reply `1` as plain approval leading to `**Amend-grant:** none` / `**Engine:** waves` and `/skill:writing-plans`. The After wording changes are cosmetic (`<spec filename>` placeholder instead of `<filename>`, a `**User reply: `1`**` heading instead of `**Reply: `1`.**`, and a compressed continuation sentence) and none of them touch the facts under test. The drafted block is correctly omitted for this ticket-row gate and `Scope cuts: none` sits in the right position after the commit line. If you want the continuation to stay maximally explicit, consider keeping the Before phrase \"with no grant and the waves engine\" so the chosen engine is stated in the approval sentence rather than only in the field being written, but this is not required for any listed fact.",
-      "wallMs": 10245,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both reproduce the briefing verbatim, both carry the Scope cuts: none line with no Council: counts line, both render exactly rows 1, 2, 4, 5, 6 (no row 3, since the single in-scope ticket row makes 4/5 appear and no council dispositions exist), neither row offers council dispositions, and both narrate reply 1 as plain approval with Amend-grant none and Engine waves. The After wording correctly omits the Drafted acceptance criteria block for this ticket-provenance gate; keep that conditional strictly keyed on provenance so ticket-row cases continue to skip the block while drafted-row cases render it between Scope cuts: and Council:.",
+      "wallMs": 7144,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f6dc17d7eca1633708f31964eb8e953e6f3b9793e6771ca966be2c431afa6bbb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "714623d2b65fd9b294b8c789adf39470e929d1af899f3fd57436c091e58bedbd",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "7ec212dad3ed37e00830c393ff2e46ade03bdcaee8a52569bfe5394a71deacf3",
       "candidateOutputSha": "7ec212dad3ed37e00830c393ff2e46ade03bdcaee8a52569bfe5394a71deacf3",
       "facts": {
         "f1": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both outputs reproduce the briefing verbatim, carry a `Scope cuts: none` line with no `Council:` counts line, present exactly rows 1, 2, 4, 5, 6 with no row 3 and no council-disposition row, and treat the reply `1` as plain approval (Amend-grant none, Engine waves, proceed to writing-plans). The only differences in After are cosmetic: the commit line is rephrased from `Spec commit: \"…\" (spec path and worktree were not provided)` to `Spec committed as \"…\" (spec and worktree paths not supplied)`, and the reply narration is split into `**Reply received: 1**` plus an `Approved; next I …` sentence with `immediately invoke`. Neither change affects the ticket-row omission of the drafted block or the five-option menu, so the After wording is safe as written; if you want it to read closer to the Change paragraph, keep the `Spec commit:` label stable across the paired sample so diffs against the drafted-row cases isolate only the new block rather than incidental rewording.",
-      "wallMs": 10583,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both reproduce the briefing verbatim, both omit any `Council:` counts line (the critique return supplied no audit counts, so neither output invents one), both render exactly five rows 1, 2, 4, 5, 6 with no row 3 and no council-disposition row, and both treat the reply `1` as plain approval with `**Amend-grant:** none` and `**Engine:** waves`. The After wording correctly omits the Drafted acceptance criteria block because the single row has ticket provenance, and renders `Scope cuts: none` for an in-scope-only ledger, exactly where the Change asks (after the commit line, before where Council would go). Nothing needs changing for this case; if you want the sample to exercise the new drafted-row block or the Scope cuts list, add a separate case with a drafted-provenance or deferred row rather than altering this one.",
+      "wallMs": 10722,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3d95fb33758faf76184c11854690d860c4893a3f"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

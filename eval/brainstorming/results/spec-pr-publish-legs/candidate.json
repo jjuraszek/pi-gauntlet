@@ -1,0 +1,150 @@
+{
+  "sample": "spec-pr-publish-legs",
+  "arm": "candidate",
+  "skillSha": "c600d114cde3ddd1a36b53166cc769dcdd265cd440f3623b0db9d036d7201452",
+  "inputSha": "8f42a4dd981f1948ab8c2bb39072ce68c418fc1a512f810408d847faa3448134",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated publication checkpoints - option 6, coordinated Legs\n\nEvery checkpoint below is narrated from fixed observations. No command is claimed as live.\n\n## Shared legend\n\n**Worktrees.** The primaries are `/work/<n>`, so:\n\n- `Wh` = `/work/widget/.worktrees/spec-export`\n- `Wl` = `/work/helper/.worktrees/spec-export`\n- `Wc` = `/work/codec/.worktrees/spec-export`\n\n**Commands.**\n\n- **AMEND** - edit the home header, then commit and verify:\n  - Edit the home header to `**Amend-grant:** none`, with exactly one `**Engine:** deferred` directly below it.\n  - Commit with `git -C Wh add -- doc/specs/export.md` then `git -C Wh commit --amend --no-edit -q`.\n  - Verify with `git -C Wh show HEAD:doc/specs/export.md`.\n- **DEF(r)** - resolve the default branch:\n  - Companions use `DEFAULT=$(gh repo view <r> --json defaultBranchRef -q .defaultBranchRef.name)` with the repo passed positionally. The value must be nonempty.\n  - Home runs the same command without a repo argument, in `Wh`.\n- **FET(w)** - `git -C <w> fetch origin \"$DEFAULT\"`.\n- **SHAPE(w,dir)** - check the diff shape:\n  - Run `git -C <w> diff --name-status origin/main...HEAD`.\n  - Inspect hunks with `git -C <w> diff origin/main...HEAD -- <dir>/old.md`.\n  - Apply the shared predicate. Exactly one `A <dir>/export.md` is allowed. Any other entry must be an `M` under `<dir>` that is a banner-only, title-adjacent `> **Superseded by:**` insertion with adjacent blanks and nothing removed.\n- **PROBE(w)** - `git -C <w> ls-remote --exit-code --heads origin spec-export`.\n- **READBACK(w)** - `git -C <w> fetch origin spec-export`, then read the full SHAs of `origin/spec-export` and `HEAD`.\n- **PUSH(w)** - `git -C <w> push -u origin spec-export`.\n- **CREATE** - run in `Wh`:\n  ```\n  gh pr create --draft --head spec-export --base main --title \"Export receipts\" --body-file - <<'EOF'\n  Export retries retain receipts\n  EOF\n  ```\n- **DESTROY(p,w)** - the recorded destroy, run from primary `p` with `<home>`=`w`:\n  - `git -C p worktree remove w && git -C p worktree prune`\n  - No `branch -D` follows, ever.\n\n**Common opening P0** (all checkpoints):\n\n1. Reply `6` is clean: not hidden, not funded, no `3`, no change request.\n2. Read `spec-pr.md` (observed readable).\n3. Run AMEND. HEAD is `1111111111111111111111111111111111111111`, and the readback shows both lines.\n4. Read `legs.md` (observed readable).\n5. Read the committed `## Legs` in order. The home is acme/widget, followed by the companions (acme/helper, and acme/codec when present), so N>1 and the coordinated passes run.\n6. Companion files are left unamended.\n7. Read `superseding.md` for the banner rule (observed readable; default syntax).\n\n**Companion spec dirs.**\n\n- Each companion's specDirs come from its own `.pi/settings.json`, read by file.\n  - helper resolves `[doc/specs]`.\n  - codec resolves `[docs/specs]`.\n- The session `gauntlet_setting` is never used for companions.\n- Home uses `gauntlet_setting({ key: \"flowGuards\" })` and resolves `[doc/specs]`.\n\n**Standard preflight block PF(member):** DEF, FET, SHAPE, then PROBE.\n\n## A - Two-leg success\n\n**Preflight**\n\n1. **helper:**\n   - DEF(acme/helper) returns `main`, and FET(Wl) succeeds.\n   - SHAPE(Wl, doc/specs) shows `A doc/specs/export.md` and `M doc/specs/old.md` (banner-only), so it passes.\n   - PROBE(Wl) exits 2 with empty stdout, meaning **absent**. No branch fetch is attempted.\n2. **home (last):**\n   - DEF returns `main`, and FET(Wh) succeeds.\n   - SHAPE(Wh, doc/specs) passes.\n\n**Publication**\n\n1. Helper is absent, so PUSH(Wl) runs. helper is recorded as published.\n2. PUSH(Wh) succeeds.\n3. CREATE succeeds.\n\n**Printed**\n```\npushed: acme/helper origin/spec-export\nhttps://github.com/acme/widget/pull/42\n```\nThen `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })` runs.\n\n**Cleanup** (helper, then home)\n\n1. Read finishing Step 6 for its ownership test and wrapper selection only.\n2. **helper:** `realpath Wl` matches `/work/helper/.worktrees/<name>`, so NAME=`spec-export`. The recorded built-in destroy preserves the branch. DESTROY(/work/helper, Wl) succeeds.\n3. **home:** the same check matches, and DESTROY(/work/widget, Wh) succeeds.\n4. Branches are kept everywhere.\n\n**Not produced:** no plan, loop, receipt, companion PR, telemetry, or brief.\n\n## B - Companion shape failure\n\n1. P0 completes.\n2. **helper preflight:**\n   - DEF(acme/helper) returns `main`, and FET(Wl) succeeds.\n   - SHAPE(Wl) prints:\n     ```\n     A\tdoc/specs/export.md\n     M\tdoc/specs/old.md\n     M\tsrc/export.ts\n     ```\n3. The predicate fails on `M src/export.ts`, which is a non-spec path:\n   ```\n   acme/helper: not spec-only against origin/main\n   M\tsrc/export.ts\n   ```\n4. The amended home spec and all checkouts are retained. **Nothing has been pushed anywhere.**\n5. The gate is redrawn with the summary, `Scope cuts: none`, AC 1, and rows 1, 2, 4, 5. Under the list:\n   ```\n   Withheld: draft PR - acme/helper diff against origin/main is not spec-only (src/export.ts)\n   ```\n\n## C - Three-leg, home-last shape failure\n\n1. P0 completes.\n2. **helper:** PF passes (doc/specs), and PROBE exits 2 (absent).\n3. **codec:**\n   - DEF(acme/codec) returns `main`, and FET(Wc) succeeds.\n   - SHAPE(Wc, docs/specs) shows `A docs/specs/export.md` and `M docs/specs/old.md` (banner-only), so it passes.\n   - PROBE exits 2 (absent).\n4. **home (last):** SHAPE(Wh) prints an additional `M\t.gitignore`, so the predicate fails:\n   ```\n   acme/widget: not spec-only against origin/main\n   M\t.gitignore\n   ```\n5. Preflight ends before any push. **No companion is pushed.**\n6. Every checkout and the amended spec are retained.\n7. The gate is redrawn with rows 1, 2, 4, 5 and:\n   ```\n   Withheld: draft PR - acme/widget diff against origin/main is not spec-only (.gitignore)\n   ```\n\n## D - Three-leg rejection, then retry\n\n**Pass 1, preflight:**\n\n- helper PF passes, and PROBE exits 2.\n- codec PF passes, and PROBE exits 2.\n- home shape passes.\n\n**Pass 1, publication:**\n\n- PUSH(Wl) succeeds.\n- PUSH(Wc) exits 1:\n  ```\n  acme/codec push rejected:\n  remote: permission denied\n  Already published: acme/helper origin/spec-export\n  Retained: /work/widget/.worktrees/spec-export, /work/helper/.worktrees/spec-export, /work/codec/.worktrees/spec-export\n  ```\n- Home is not pushed.\n- The gate is re-presented with rows 1, 2, 4, 5 and **6 retryable**.\n\n**Retry `6` (clean):**\n\n- The header already carries both lines, and `show HEAD` verifies them.\n- Both passes rerun.\n\n**Pass 2, preflight:**\n\n- **helper:**\n  - PF shape passes.\n  - PROBE exits 0, meaning present.\n  - READBACK(Wl) shows `origin/spec-export` = `2222222222222222222222222222222222222222` and HEAD = `2222222222222222222222222222222222222222`, which are equal.\n- **codec:** PF passes, and PROBE exits 2 (absent).\n- **home:** shape passes.\n\n**Pass 2, publication:**\n\n1. helper prints `acme/helper: already published` and is included in the published inventory.\n2. PUSH(Wc) succeeds.\n3. PUSH(Wh) and CREATE succeed:\n   ```\n   pushed: acme/helper origin/spec-export\n   pushed: acme/codec origin/spec-export\n   https://github.com/acme/widget/pull/42\n   ```\n4. Brainstorm completes.\n5. Cleanup runs helper, codec, then home: each DESTROY succeeds and branches are kept.\n\n## E - Foreign head on codec\n\n**Preflight:**\n\n- **helper:** PF passes. PROBE exits 0, and READBACK shows `2222…2222` equal to HEAD.\n- **codec:** PF passes. PROBE exits 0. READBACK(Wc) shows:\n  - `origin/spec-export` = `4444444444444444444444444444444444444444`\n  - HEAD = `3333333333333333333333333333333333333333`\n- **home:** shape passes.\n\n**Publication:**\n\n1. helper prints `acme/helper: already published` (inventoried).\n2. codec has a different full SHA, so publication stops:\n   ```\n   acme/codec: origin/spec-export 4444444444444444444444444444444444444444 differs from HEAD 3333333333333333333333333333333333333333\n   Already published: acme/helper origin/spec-export\n   Retained checkouts: /work/widget/.worktrees/spec-export, /work/helper/.worktrees/spec-export, /work/codec/.worktrees/spec-export\n   ```\n3. There is no force and no reconcile. Codec and home are not pushed.\n4. The gate is re-presented with rows 1, 2, 4, 5 and **6 retryable after you resolve codec by hand**.\n\n## F - Independent preflight errors\n\nEach trace stops before any push. None is diagnosed as absence or as a shape failure, so no Withheld row is drawn. Checkouts are retained.\n\n- **F1:** DEF(acme/helper) exits 1:\n  ```\n  stopped: acme/helper - gh repo view acme/helper --json defaultBranchRef exited 1: GraphQL: denied\n  ```\n- **F2:** codec FET(Wc) exits 128:\n  ```\n  stopped: acme/codec - git fetch origin main exited 128: fatal: unreachable\n  ```\n- **F3:** helper PROBE exits 128. This is a command failure, not absence:\n  ```\n  stopped: acme/helper - git ls-remote --exit-code --heads origin spec-export exited 128: fatal: no access\n  ```\n\n## G - Home failures after both companions pushed\n\n**G1 - home push rejected.** PUSH(Wl) and PUSH(Wc) succeed, then PUSH(Wh) exits 1:\n```\nacme/widget push rejected: remote: protected\nPublished companions: acme/helper origin/spec-export, acme/codec origin/spec-export\nRetained: all three worktrees and the amended home spec\n```\n- There is no rollback.\n- The gate is re-presented with **6 retryable**.\n\n**G2 - create fails after push.** PUSH(Wh) succeeds, then CREATE exits 1:\n```\ngh pr create failed: GraphQL: unavailable\nPushed: acme/widget origin/spec-export\nPublished companions: acme/helper origin/spec-export, acme/codec origin/spec-export\n```\n- Brainstorm stays incomplete, and all trees are preserved.\n- Only these rows are offered:\n  ```\n  6 - retry opening the draft PR\n  Withheld: implementation approvals - the handoff commit is published; an approval would amend it\n  ```\n\n**Retry `6` (create-only):**\n\n1. `git -C Wh fetch origin spec-export` succeeds.\n2. `git -C Wh rev-parse origin/spec-export` returns `1111111111111111111111111111111111111111`, equal to HEAD `1111111111111111111111111111111111111111`.\n3. CREATE runs alone. There is no AMEND, no push in any member, and no rerun of the publication passes.\n4. Printed:\n   ```\n   pushed: acme/helper origin/spec-export\n   pushed: acme/codec origin/spec-export\n   https://github.com/acme/widget/pull/42\n   ```\n5. Brainstorm completes, then cleanup runs.\n\n## H - Cleanup after a three-leg success\n\nCleanup runs in declared order: helper, codec, then home. All remaining cleanups are attempted.\n\n**H1 - mixed outcomes.**\n\n- **helper:** ownership matches (NAME=`spec-export`). The recorded destroy is `workspace destroy <name>`. Reading the wrapper source shows it deletes the local branch, so the wrapper is refused, with no native fallback:\n  ```\n  acme/helper: refused wrapper `workspace destroy 'spec-export'` - deletes the local branch; /work/helper/.worktrees/spec-export and branch spec-export retained\n  ```\n- **codec:** DESTROY(/work/codec, Wc) fails. The `worktree remove` step exits 1, so prune does not run:\n  ```\n  acme/codec: removal failed at /work/codec/.worktrees/spec-export: worktree is locked; branch spec-export retained\n  ```\n- **home:** DESTROY(/work/widget, Wh) succeeds, and branch `spec-export` is retained.\n- **Note:** a later `brainstorming #42` will hit pr-head's checked-out-at-another-path stop until the helper and codec checkouts are gone.\n\n**H2 - host-owned helper.**\n\n- **helper:** `realpath /work/host/spec-export` matches no recorded `home:`:\n  ```\n  acme/helper: host-owned worktree /work/host/spec-export still holds spec-export; nothing removed\n  ```\n  The same pr-head stop note applies to this checkout.\n- **codec and home:** DESTROY succeeds for both. Branches are kept.\n\n**Not produced in either case:** no receipts, companion PR, telemetry, or brief.\n",
+      "words": 1412,
+      "wallMs": 87492,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "All checkpoints below are independent narrations from the fixed observations—not live tool calls.\n\n## Shared command legend\n\nSubstitute member `r` with `widget`, `helper`, or `codec`:\n\n- `W(r) = /work/r/.worktrees/spec-export`\n- `P(r) = /work/r`\n- `S(widget/helper) = doc/specs/export.md`\n- `S(codec) = docs/specs/export.md`\n\n**Select handoff — home only, once per independent checkpoint.** Clean reply `6` approves content without granting amendments. Edit home to contain exactly:\n```markdown\n**Amend-grant:** none\n**Engine:** deferred\n```\nThen prescribe:\n```sh\ngit -C W(widget) add -- doc/specs/export.md\ngit -C W(widget) commit --amend --no-edit -q\ngit -C W(widget) show HEAD:doc/specs/export.md\n```\nConfirm both header fields. Companion files remain unchanged.\n\n**Preflight `PF(r)`:**\n```sh\nDEFAULT=$(gh repo view acme/r --json defaultBranchRef -q .defaultBranchRef.name)\ngit -C W(r) fetch origin \"$DEFAULT\"\ngit -C W(r) diff --name-status origin/$DEFAULT...HEAD\n```\nThe default is `main`. Resolve home spec directories through home settings; companion directories through each companion’s own settings file. Validate the entire pinned diff: exactly one added recorded spec, with other entries restricted to append-only, title-adjacent active supersession banners. Prescribe reading the supersession reference before validating those banners; no additional reference contents are inferred here.\n\n**Remote discovery `RD(r)` — companions only:**\n```sh\ngit -C W(r) ls-remote --exit-code --heads origin spec-export\n```\nExit `2` means absent: **do not fetch that branch**. Exit `0` requires:\n```sh\ngit -C W(r) fetch origin spec-export\ngit -C W(r) rev-parse origin/spec-export\ngit -C W(r) rev-parse HEAD\n```\nOther exits are errors.\n\n**Publish `PUB(r)`:**\n```sh\ngit -C W(r) push -u origin spec-export\n```\n\n**Create home PR**, executed in the home repository:\n```sh\ngh pr create --draft --head spec-export --base main \\\n  --title \"Export receipts\" --body-file - <<'EOF'\nExport retries retain receipts.\nEOF\n```\n\n**Success sequence:** print companion publication lines, then the home URL; complete brainstorm; prescribe reading finishing Step 6 for ownership and wrapper selection; clean companions in declared order, then home. Native cleanup:\n```sh\ngit -C P(r) worktree remove W(r)\ngit -C P(r) worktree prune\n```\nAll local branches remain. Any destroy wrapper must first be verified not to delete its branch.\n\n**Shape-failure gate:** re-present the summary, AC 1 and ordinary approvals:\n```text\n1 - approve: proceed to planning\n2 - approve, auto-apply amends\n4 - approve, loop engine (experimental)\n5 - approve, loop engine, auto-apply amends\n```\nReplace option `6` with the checkpoint’s withheld line. No council option exists.\n\n## A — Two-leg success\n\n1. Select handoff on home.\n2. Run `PF(helper)` and `RD(helper)`. The valid diff is:\n   ```text\n   A\tdoc/specs/export.md\n   M\tdoc/specs/old.md\n   ```\n   Remote discovery exits `2`, empty stdout. No helper branch fetch follows.\n3. Run `PF(widget)` last; its corresponding diff is valid. All preflight finishes before any push.\n4. Run `PUB(helper)`, then `PUB(widget)`, then create the single home draft PR.\n5. Print:\n   ```text\n   pushed: acme/helper origin/spec-export\n   https://github.com/acme/widget/pull/42\n   ```\n6. Complete brainstorm. Read the cleanup reference as prescribed; ownership matches and native removal/prune succeeds for helper, then widget. Preserve both branches. Start no implementation engine.\n\n## B — Companion shape failure\n\n1. Select handoff; run `PF(helper)`.\n2. Print the invalid diff against `origin/main`:\n   ```text\n   A\tdoc/specs/export.md\n   M\tdoc/specs/old.md\n   M\tsrc/export.ts\n   ```\n3. Stop preflight; push nowhere. Retain both amended-home and unchanged-companion checkouts.\n4. Re-present the shape-failure gate with approvals `1/2/4/5` and:\n   ```text\n   Withheld: draft PR - acme/helper diff against origin/main is not spec-only (src/export.ts)\n   ```\n\n## C — Three-leg, home-last shape failure\n\n1. Select handoff.\n2. Run `PF(helper)`, `RD(helper)`, then `PF(codec)`, `RD(codec)`. Both shapes pass using their own directories; both probes exit `2`. Fetch neither absent branch.\n3. Run `PF(widget)` last. Print:\n   ```text\n   A\tdoc/specs/export.md\n   M\tdoc/specs/old.md\n   M\t.gitignore\n   ```\n4. Push nothing, including companions. Retain all three trees.\n5. Re-present approvals `1/2/4/5` with:\n   ```text\n   Withheld: draft PR - acme/widget diff against origin/main is not spec-only (.gitignore)\n   ```\n\n## D — Three-leg rejection and retry\n\n1. Select handoff. Preflight helper and codec, including absent probes; preflight home last. Everything passes.\n2. `PUB(helper)` succeeds. `PUB(codec)` exits `1`:\n   ```text\n   remote: permission denied\n   ```\n3. Report helper already published; retain all three trees. Offer `6` to retry publication; never roll back or force.\n4. On retry, repeat both passes: `PF(helper)` and `RD(helper)` now return present; fetch/readback confirms:\n   ```text\n   origin/spec-export = HEAD = 2222222222222222222222222222222222222222\n   ```\n5. Run `PF(codec)` and `RD(codec)`; codec remains absent. Run `PF(widget)` last.\n6. Publication prints `acme/helper: already published`, inventories helper, then pushes codec and home and creates the PR.\n7. Print both companion `pushed:` lines, then the URL. Complete brainstorm; clean helper, codec, home, preserving branches.\n\n## E — Foreign companion head\n\n1. Select handoff; finish all preflight, home last.\n2. Helper’s fetched remote equals its HEAD: skip publication and inventory it as already published.\n3. Codec’s present remote fetch confirms:\n   ```text\n   acme/codec remote: 4444444444444444444444444444444444444444\n   acme/codec HEAD:   3333333333333333333333333333333333333333\n   ```\n4. Stop publication without force or reconciliation. Report helper already published; home not pushed.\n5. Retain:\n   ```text\n   /work/widget/.worktrees/spec-export\n   /work/helper/.worktrees/spec-export\n   /work/codec/.worktrees/spec-export\n   ```\n   Offer retryable `6` after by-hand resolution.\n\n## F — Independent preflight errors\n\nEach trace starts with home handoff selection and stops before any push:\n\n- **F1:** helper default lookup exits `1`: `GraphQL: denied`. Stop naming `acme/helper` and the failed lookup.\n- **F2:** helper preflight succeeds; codec’s main fetch exits `128`: `fatal: unreachable`. Stop naming `acme/codec` and its fetch.\n- **F3:** helper shape passes; remote discovery exits `128`: `fatal: no access`. Stop naming `acme/helper` and `ls-remote`.\n\nNone is classified as absence or shape failure. Preserve every checkout; complete no phase.\n\n## G — Home failures after companion publication\n\nBoth independent traces first finish all preflight and successfully publish helper and codec.\n\n**G1 — Push rejection:** home push exits `1`, `remote: protected`. Report both published companions and all retained paths from E. No rollback or PR creation; re-present `6` as retryable.\n\n**G2 — Create failure:** home push succeeds; create exits `1`, `GraphQL: unavailable`. Report all three published branches and retained paths. Brainstorm stays incomplete. Offer only:\n```text\n6 - retry opening the draft PR\nWithheld: implementation approvals - the handoff commit is published; an approval would amend it\n```\n\nOn clean retry `6`, refresh home’s remote branch and compare full SHAs. Observed equality:\n```text\norigin/spec-export = HEAD = 1111111111111111111111111111111111111111\n```\nRun create only—no amendment, push, or publication passes anywhere. Print companion publication lines and URL; complete brainstorm and clean up normally.\n\n## H — Cleanup after three-leg success\n\nAfter publication lines, URL and brainstorm completion, prescribe the cleanup-reference read.\n\n**H1 — Unsafe wrapper and locked codec:**\n\n1. Helper ownership matches, but inspecting `workspace destroy <name>` shows branch deletion. Refuse it; no native fallback. Report retained `/work/helper/.worktrees/spec-export` and branch `spec-export`.\n2. Attempt codec native removal: exit `1`, `worktree is locked`. Report retained `/work/codec/.worktrees/spec-export` and branch; do not prune after failed removal.\n3. Still remove/prune home successfully; retain its branch.\n\n**H2 — Host-owned helper:**\n\n1. `/work/host/spec-export` matches no recorded home. Remove nothing; report it still holds `spec-export`.\n2. Continue successful codec and home cleanup; retain every branch.\n\nFor retained checkouts, explain that later `brainstorming #42` encounters the checked-out-at-another-path stop until they are removed. Produce no receipts, companion PRs, telemetry, or handoff brief.\n",
+      "words": 1077,
+      "wallMs": 30212,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "50475dd11e8ff300b99981eba709cbfa10509ee6313844359108c89cf7a17737",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "baselineOutputSha": "17864eb8d4cfd0b7e328e27cbcdac00ff9bcee4065ec2eecc14fbcb7e2b85f10",
+      "candidateOutputSha": "11e58bd3247ad6b41fa3ea675af9abb9e3e84e50054397071ac804df6ddbaf01",
+      "facts": {
+        "contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "success": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "companion-shape": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "home-last": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "retry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "foreign": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "errors": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "home-failure": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "cleanup": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and repairs the four Before failures, so nothing regressed. Before lost `success` by resolving the companion default with `(cd W && gh repo view --json ...)` instead of the positional `gh repo view acme/helper ...`, by preflighting widget before helper, and by never printing `pushed: acme/helper origin/spec-export` ahead of the URL; After's DEF(r) legend, explicit helper-then-home order and the Printed block fix all three. Before lost `home-last` because its C withheld row omitted `acme/widget`; After prints the exact text. Before lost `retry` by not listing retained paths, abbreviating the compared SHAs to `2222…2222`, never printing `acme/helper: already published`, and omitting the two pushed lines before the URL; After's rejection block, full-SHA READBACK, and Pass 2 output cover each. Before lost `home-failure` because the G2 create-only retry printed only the URL; After prints both companion published lines first. Keep After's structure; the only polish worth considering is restoring the trailing period in the CREATE body (`Export retries retain receipts.`) to match the Summary verbatim and keeping the companion-first preflight order and `pushed:` lines as fixed printed artifacts rather than prose, since those are the wording elements that carried the moved facts.",
+      "wallMs": 35989,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "50475dd11e8ff300b99981eba709cbfa10509ee6313844359108c89cf7a17737",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "baselineOutputSha": "f711070d4576e700a37d7b92b0c4e8c108856758b667904b99a31c03c29682d5",
+      "candidateOutputSha": "9aa3ab6c7ad2313ecd4c05a5b6d03cb26cc769811f4e307dc399249d1d8ee99b",
+      "facts": {
+        "contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "success": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "companion-shape": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "home-last": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "retry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "foreign": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "errors": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "home-failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "cleanup": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved success, companion-shape, home-last and retry from fails to holds and kept every fact Before held. The decisive wording changes were: the legend's positional `gh repo view acme/r --json defaultBranchRef -q .defaultBranchRef.name` (Before used `cd $W && gh repo view` without the repo argument); the explicit `pushed: acme/helper origin/spec-export` line printed before the PR URL in A, the `acme/helper: already published` inventory line and 'both companion pushed: lines, then the URL' in D, and 'Print companion publication lines and URL' on the G create-only retry (Before printed only the URL in all three); and the exact withheld strings `Withheld: draft PR - acme/helper diff against origin/main is not spec-only (src/export.ts)` and `... acme/widget ... (.gitignore)` (Before put the member name after a semicolon inside the parentheses). Keep those exact strings and the pushed/already-published lines verbatim; the remaining soft spots to tighten are listing the three retained worktree paths by name inside D and G rather than saying 'retain all three trees' or 'retained paths from E', and naming `acme/helper`/`acme/codec` explicitly beside each H cleanup path, so the retry, home-failure and cleanup facts hold on text rather than inference.",
+      "wallMs": 32430,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "fb3171a83ae08e2a2c0eb307cfdc57008ce48e78"
+}

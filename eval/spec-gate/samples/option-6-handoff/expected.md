@@ -2,6 +2,7 @@ anonymized: true
 - menu: judged: Success renders initial zero-row gate with 1,2,3,6 and no loop rows 4/5, then accepts bare 6.
 - persistence: judged: Success writes Amend-grant none with Engine deferred directly below, stages and amends no-edit, and checks both lines in git show HEAD before publication; 6 grants nothing.
 - publication: judged: Success resolves default main once and fetches/proves the sole added spec against origin/main before push, never staging; then push -u origin spec-export precedes gh pr create --draft with explicit head/base, H1 title and quoted-heredoc summary body.
+- single-member: judged: Exactly one recorded Leg keeps the existing one push, one home draft PR and one cleanup recipe; no companion loop or pushed: prefix line.
 - completion: judged: Success prints the PR URL before complete brainstorm and then native owned removal/prune, retains the local branch, and starts no plan/loop or brief.
 - replies: judged: Funded is malformed and writes nothing; Change revises and re-presents without approval; Audit prints audit and re-presents without approval.
 - invalid: judged: Both invalid diffs print offending name-status paths and origin/main, retain amended commit/checkout, withhold draft PR row and allow implementation approvals, without push.

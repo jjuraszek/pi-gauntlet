@@ -24,7 +24,7 @@ primary as `$ROOT`; never reuse session isolation as another leg. Create a fresh
 member tree even when the session is linked. Without caller inputs, derive the
 primary as below and choose the feature branch by the existing convention.
 
-For a caller passing resolved PR values for home, read [reference/pr-head.md](reference/pr-head.md) now and follow it instead of Steps 0 and 1, before generic linked-worktree reuse. For every other caller, check whether you are **already** inside an isolated worktree. Creating a worktree inside another worktree, or inside a submodule, produces silent corruption.
+For a caller passing resolved PR values for home, read [reference/pr-head.md](reference/pr-head.md) now and follow it instead of Steps 0 and 1, before generic linked-worktree reuse. For a caller passing `$ROOT`, `$BRANCH`, and `REMOTE_BRANCH=existing`, read the same reference now and follow companion mode instead of Steps 0, 1, and 1a; bypass the fresh-branch collision check and new-branch creator. Keep fresh coordinated callers on the existing `-b` path. For every other caller, check whether you are **already** inside an isolated worktree. Creating a worktree inside another worktree, or inside a submodule, produces silent corruption.
 
 ```bash
 CALLER_ROOT=${ROOT:-}

@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6f13a9590259e99e0d65f11b0bde86c1015e5be9f24db5ad475817d59674353b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "d7121f7f5fc93c17cfda7f11a1ed85d325888368faf1c6c84855646c87c2a4fd",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "7c1c163ae03b27d1b9ba3eb3c657e3dbaffc489c5d413f35364ae8e310fb7737",
       "candidateOutputSha": "7c1c163ae03b27d1b9ba3eb3c657e3dbaffc489c5d413f35364ae8e310fb7737",
       "facts": {
         "f1": {
@@ -48,15 +48,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "The Facts section for this case is empty, so there is nothing to report per fact id; the Expected to move entries (scope-cuts-listed/*, scope-cuts-none/f1, drafted-rows-block/*) name facts that were not supplied under Facts, so they cannot be scored here. Reading both outputs anyway: Before and After are textually identical through the gate render - both carry the verbatim briefing, `Scope cuts: none` directly after the committed-to line and before `Council:`, the `Drafted acceptance criteria (approval ratifies):` block with both in-scope rows rendered verbatim, `Council: 11 applied, 0 deferred, 0 rejected`, and six menu rows 1-6. The only difference is the reply-1 continuation, which After compresses from a five-item bullet list into one prose sentence ('Approved with no grant. Next I write ... confirm both fields at HEAD ...'), dropping the explicit `--no-edit` flag and the `HEAD:<spec path>` check phrasing. If any fact depends on those concrete details (the `--no-edit` amend or the `HEAD:<spec path>` verification), keep Before's bulleted continuation verbatim; the Scope cuts and drafted-rows additions do not require touching the post-reply narration at all, so the safest After wording is Before's gate render plus Before's reply continuation unchanged.",
-      "wallMs": 8449,
+      "feedback": "The Facts section for this case is empty, so there is nothing to report per fact; note that Before and After are byte-identical here, both already rendering the Scope cuts: none line between the commit line and Council, the Drafted acceptance criteria (approval ratifies) block with both in-scope rows verbatim, the Council audit counts, all six menu rows, and the reply-1 continuation. If facts are later attached to this case (e.g. scope-cuts-listed/*, scope-cuts-none/f1, drafted-rows-block/*), the author should be aware that Before already satisfies them, so this pair cannot demonstrate a fails -> holds move; to show the Change actually moving those facts, the Before arm would need to be captured from the pre-change wording that omits the Scope cuts line and the drafted block, while After keeps exactly the current text.",
+      "wallMs": 7241,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6f13a9590259e99e0d65f11b0bde86c1015e5be9f24db5ad475817d59674353b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "a3b06f63233adb21b4291ce5afcb91ffc03ac20553c0838f7583e0e6c87a344e",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "5e0a8566e700e185aaeb2d87135c178a8da491e5ac68b7feefc1b72ffa805078",
       "candidateOutputSha": "5e0a8566e700e185aaeb2d87135c178a8da491e5ac68b7feefc1b72ffa805078",
       "facts": {
         "f1": {
@@ -65,10 +65,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "The Facts section for this case is empty, so there is nothing to score; reading the two outputs against the Change anyway: both Before and After already render `Scope cuts: none` after the commit line and before `Council:`, so none of the scope-cuts facts actually move between them, and neither output renders a `Drafted acceptance criteria (approval ratifies)` block even though the case supplies two in-scope rows with no ticket provenance stated (if those rows are drafted rather than ticket rows, After should list them verbatim with their dispositions under that heading between Scope cuts and Council; if they are ticket rows, say so in the fixture so omission is provably correct). The only substantive difference After introduces is a new line, `New predecessor candidates at spec-writing: not supplied.`, inserted between Council and the option menu, which the Change never authorizes and which risks breaking any fact that pins the exact ordering of commit line, Scope cuts, Council, then options; drop that line. The reworded commit line (`Spec committed; the spec path and worktree path were not supplied.`) and the restructured reply-1 continuation (`**Your reply: 1 — approved.**`) are cosmetic and keep the same content (standing grants, `**Amend-grant:** none`, `**Engine:** waves`, council audit preserved, `/skill:writing-plans`), so they are safe, but keeping Before's exact phrasing would reduce drift against verbatim-render facts.",
-      "wallMs": 11410,
+      "feedback": "The Facts section for this case is empty, so there is nothing to report per fact; note also that Before and After are byte-identical, so no fact could have moved here regardless. Both renders already carry `Scope cuts: none` placed after the commit line and before `Council:`, which matches the scope-cuts-listed/scope-cuts-none intent for a spec with only in-scope rows, and both omit the Drafted acceptance criteria block, which is consistent with ticket-row gates. If the author intended this case to exercise the drafted-rows-block facts, the case's `## Spec acceptance criteria` rows need explicit drafted provenance (the two in-scope rows here state no provenance, so a reader cannot tell whether omission of the block is the ticket-row path or a missed render); if the author intended it to exercise scope cuts, the case needs at least one deferred/deviates/venue row so the line renders something other than `none`. As written, the After wording delivers the Change without regressing any visible menu, persistence, retry, or reply-1 continuation content, but this input does not discriminate Before from After.",
+      "wallMs": 9890,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3d95fb33758faf76184c11854690d860c4893a3f"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

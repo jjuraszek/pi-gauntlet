@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "61b0613b1fd2479359ba66bc189d6a1550951f63797b1c4da06e63c43b9db4db",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "ee6924338ca28f1a1a6768866d8b4ad350a5e27847a1b6d83dca41ac4ec0da36",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "470b075dceb838f435a6b1dca4e2eb019a6624a27f6c58d98798b45a009c73fa",
       "candidateOutputSha": "470b075dceb838f435a6b1dca4e2eb019a6624a27f6c58d98798b45a009c73fa",
       "facts": {
         "f1": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact: the full audit (11 Applied, Deferred: none, Rejected: none) is printed verbatim, the gate is re-presented with the briefing body, Scope cuts: none, the Council 11/0/0 line, and exactly six rows 1-6, and the text says nothing in the spec or commit changed. Two wording drifts are worth tightening so this stays robust rather than inferred: After dropped the explicit sentence 'This is not an approval.' from the reply-3 narration (f3 now rests on row 3's own text and the 'To approve, reply with…' hint), and that hint lists only 1, 2, 4, or 5, omitting row 6 which is also an approval; restore 'Reply `3` is not an approval' verbatim and either list 1, 2, 4, 5, or 6 or say 'pick an approving row'. After also dropped the '## Briefing' heading that Before rendered above the briefing body in both renders; since the Change only adds the Scope cuts line and the ticket-row omission of the drafted block, keep the briefing render byte-identical to Before (heading included) so 'verbatim source briefing' cannot be contested while still delivering the Scope cuts line and omitted drafted block.",
-      "wallMs": 16356,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both print all eleven Applied lines plus `Deferred: none` and `Rejected: none` verbatim inside a fenced block, both state that nothing in the spec or commit changed and that `3` is not an approval (directing the user to a plain 1/2/4/5 for approval), and both re-present the gate with the verbatim briefing, `Scope cuts: none`, the `Council: 11 applied, 0 deferred, 0 rejected` line, and exactly six rows 1-6 in the expected order (approve, approve+auto-apply, show council dispositions, loop engine, loop engine+auto-apply, draft-PR handoff). The After wording correctly omits the Drafted acceptance criteria block since this case's single row is ticket-provenance, which is consistent with the Change. No wording adjustment is needed for this case; the rewording of f2 to six rows is satisfied because the `## Spec acceptance criteria` section supplies a row, so rows 4/5 render.",
+      "wallMs": 10694,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "61b0613b1fd2479359ba66bc189d6a1550951f63797b1c4da06e63c43b9db4db",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "5f10c6e7217ffcff8894559a91a5b20c7444a7dab1989ab8b1e88b5750101d1f",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "ad89d9f846b2450d9d6f5913b2c59e2a4b207882fc79b0bb99ff97075b3f5027",
       "candidateOutputSha": "ad89d9f846b2450d9d6f5913b2c59e2a4b207882fc79b0bb99ff97075b3f5027",
       "facts": {
         "f1": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still prints all eleven Applied lines plus Deferred: none and Rejected: none verbatim, states explicitly that reply 3 is not an approval and that no spec or commit changes are made, and re-presents the gate with the verbatim briefing, the unchanged 'Council: 11 applied, 0 deferred, 0 rejected' line, and exactly six rows 1-6; the drafted-acceptance block is correctly omitted for this ticket-row gate and Scope cuts: none sits after the commit line and before Council, matching the Change. Two incidental drifts are worth tightening: After inserts an extra 'New predecessor candidates at spec-writing: not supplied.' line between Council and the menu and drops the blank line before Council, and it renames 'spec path' to 'spec filename'; neither breaks a fact here, but to keep the re-presented gate byte-identical to the prior render and avoid a reader questioning 'the same gate', either drop the predecessor line when it is not part of the specified gate layout or document it as a fixed field, and keep the original 'spec path' wording and the blank line before Council so the only visible delta from Before is the Change itself.",
-      "wallMs": 12390,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both print all eleven Applied lines plus 'Deferred: none' and 'Rejected: none' verbatim from the critique pass return, both state 'This is not an approval' and 'No spec or commit changes are made', and both re-present the gate with the verbatim briefing, 'Council: 11 applied, 0 deferred, 0 rejected', and exactly six rows 1-6 (approve, approve auto-apply, show council dispositions, loop engine, loop engine auto-apply, draft-PR handoff). The After wording correctly omits the Drafted acceptance criteria block because the supplied acceptance row has ticket provenance, and 'Scope cuts: none' sits between the committed-to line and the Council line as the Change requires. No wording adjustment is needed for this case; the author should simply confirm that the drafted-row block rendering is exercised in the drafted-provenance cases, since this ticket-row case cannot show it.",
+      "wallMs": 9701,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3d95fb33758faf76184c11854690d860c4893a3f"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

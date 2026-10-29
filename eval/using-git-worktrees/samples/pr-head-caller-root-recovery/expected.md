@@ -1,0 +1,7 @@
+anonymized: true
+
+- root: judged: Routes ROOT=/work/helper, BRANCH=spec-export, REMOTE_BRANCH=existing through Step 0 to companion mode before fresh collision/-b logic or session-linked reuse; fetch/default/base/config commands target acme/helper and /work/helper, never /work/widget; gh repo view uses positional acme/helper, nonempty trunk and full BASE_SHA=B.
+- identity: judged: Resolves ORIGINAL_HEAD=O from origin/spec-export; supplies no companion PR array, headRefOid, MEMBER_HEADS, PRE_REWORK_HEAD, PR:/Pre-rework head: report, pre-rework refs or thread fetch.
+- readback: judged: Validates O ancestry after merge and requires successful worktree list --porcelain path and branch --show-current=spec-export before Worktree ready at /work/helper/.worktrees/spec-export; no-op recorded on successful contained-base runs.
+- recovery: judged: Only coordinated marked home or companion admits base-sync recovery: actual local branch tip, O ancestry, nonempty first-parent %H %P walk with exactly two parents per entry and every second parent ancestral to fetched trunk, clean existing tree; recover-tree and recover-add reuse R without reset/update-ref/-b, merge no-op and report Base sync recovered: ddddddd; no-tree recovery uses existing-branch add.
+- invalid: judged: Linear, off-base second parent and dirty recovery stop naming repo before writes, preserve trees and never reset; ordinary singleton PR control retains its local-branch ancestry stop despite the base-merge proof, with PR report/ref behavior unchanged on normal successful home paths.

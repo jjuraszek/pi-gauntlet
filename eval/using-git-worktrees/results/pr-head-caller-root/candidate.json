@@ -1,0 +1,150 @@
+{
+  "sample": "pr-head-caller-root",
+  "arm": "candidate",
+  "skillSha": "354d2c6dd046f7444272e55519d0c1f4140bf3dccdd6853b7ee36a87de1bcac6",
+  "inputSha": "bc64e33d9ad60d5174df9d65d06a528f56f074f997bd4842578d2f39a3fe3225",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# using-git-worktrees: companion `acme/helper`, existing branch `spec-export`\n\nI'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Shared legends\n\n**Mode and authority.** The caller supplied `ROOT=/work/helper`, `BRANCH=spec-export` and `REMOTE_BRANCH=existing`. This selects companion mode from `reference/pr-head.md`, which replaces Steps 0, 1 and 1a.\n- I use `ROOT` exactly as supplied. I ignore the session tree `/work/widget/.worktrees/other` and the widget common directory.\n- No PR fields are used: no headRefOid, MEMBER_HEADS, PR refs or threads.\n- The home tree `/work/widget/.worktrees/spec-export` is never touched.\n\n**Aliases.**\n- O = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n- B = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n- A = cccccccccccccccccccccccccccccccccccccccc\n- X = eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n- R is unused in every run.\n- WT = /work/helper/.worktrees/spec-export\n\n**Commands.** Unless stated, cwd is the process cwd and every command targets a path with `-C`.\n\n| Code | Command → result |\n|---|---|\n| S1 | `git -C /work/helper rev-parse --show-superproject-working-tree` → empty (not a submodule) |\n| S2 | `git -C /work/helper fetch origin` → exit 0 |\n| S3 | `git -C /work/helper ls-remote --exit-code --heads origin refs/heads/spec-export` → exit 0 |\n| S4 | `git -C /work/helper rev-parse origin/spec-export` → O, so ORIGINAL_HEAD=O |\n| S5 | `gh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name` → `trunk` |\n| S6 | `git -C /work/helper rev-parse origin/trunk` → BASE_SHA=B |\n| S7 | Read `/work/helper/.pi/settings.json` by file (defaults) and helper's overrides (`home: .worktrees/<name>`). NAME=`spec-export`, WORKTREE=WT. |\n| S8 | `git -C /work/helper worktree list --porcelain` → spec-export not checked out elsewhere |\n| S9 | `git -C /work/helper status --porcelain` → empty (source is clean) |\n| C | `git -C /work/helper worktree add /work/helper/.worktrees/spec-export spec-export`. This is existing-branch DWIM tracking `origin/spec-export`, never `-b`/`-B`. |\n| H | `git -C WT rev-parse HEAD` → O |\n| M | `git -C WT merge --no-ff --no-edit origin/trunk` → `merge: no-op - head contains origin/trunk` |\n| P | `git -C WT merge-base --is-ancestor O HEAD` → exit 0 |\n| RB | `git -C /work/helper worktree list --porcelain` prints `worktree WT`, and `git -C WT branch --show-current` prints exactly `spec-export` |\n\nNo provenance note is emitted, because this checks out an existing branch rather than a fresh base.\n\n**Ready report (RDY):**\n```\nWorktree ready at /work/helper/.worktrees/spec-export\nBranch: spec-export\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/trunk\n```\n\n**Preserved inventory (PL):** `Preserved created legs:` followed by `acme/widget spec-export /work/widget/.worktrees/spec-export`.\n\n## Runs\n\n| Run | Narration |\n|---|---|\n| absent | S1–S9 pass. There is no local branch or tree, so recovery does not apply. Row \"no worktree, no local branch\" → C. Then H, M, P, RB → **RDY**. |\n| ancestor | S1–S9 pass. Local branch is at A. `git -C /work/helper merge-base --is-ancestor O refs/heads/spec-export` → 1, so the tip has nothing beyond O and recovery does not apply. `git -C /work/helper merge-base --is-ancestor refs/heads/spec-export origin/spec-export` → 0. Row \"no worktree, local branch exists\": `git -C /work/helper update-ref refs/heads/spec-export origin/spec-export`, then C. Then H, M, P, RB → **RDY**. |\n| reuse | S1–S8 pass. Rebase guard: `git -C WT rev-parse --path-format=absolute --git-path rebase-merge` and `… --git-path rebase-apply` → neither is a directory. Tip A is not beyond O, so no recovery. The ancestry check exits 0. Row \"selected home on branch\": `git -C WT status --porcelain` → clean, then `git -C WT merge --ff-only origin/spec-export` → HEAD=O. Then M, P, RB → **RDY**. |\n| wrapper | S1–S9 pass. The `create: helper create -b <branch> <name>` template contains `-b`, so the wrapper is skipped. C runs instead. Then H, M, P, RB → **RDY**, plus the line `create: override skipped (contains -b)`. |\n| race | S1–S9 pass, then C succeeds. `git -C WT rev-parse HEAD` → X, not O. **STOP** for acme/helper, spec-export: tree WT left intact; expected O, actual X. No ready line is emitted. PL plus `acme/helper branch unverified /work/helper/.worktrees/spec-export`. |\n| elsewhere | S1–S7 pass. S8 shows spec-export at `/work/helper/.worktrees/foreign`. **STOP before any write**: \"acme/helper: branch spec-export is checked out at /work/helper/.worktrees/foreign; finish or remove that worktree first.\" PL only. |\n| missing | S1 and S2 pass. S3 exits 2. I stop even though the stale `origin/spec-export` still resolves, and I do not run S4. **STOP**: \"origin/spec-export is missing in acme/helper; on the machine that ran option 6, push spec-export from that companion's checkout, then rerun brainstorming #N.\" On that machine, first verify `git log -1 --format=%H refs/heads/spec-export -- <spec-dir>/<home spec filename>` shows the leg-file commit, without checking out or modifying the primary. Then run `git push -u origin spec-export`. If that commit exists on no machine, continuation stops and nothing is regenerated. PL only. |\n| lookup-error | S1 and S2 pass. S3 exits 128. **STOP**: acme/helper spec-export lookup failed: \"fatal: unable to access origin\". I make no absence diagnosis and run no S4. PL only. |\n| unresolved | S1–S9, C and H pass. M conflicts. Conflict handling: <br>• Snapshot with `git -C WT status --porcelain`. <br>• `git -C WT diff --name-only --diff-filter=U` → `lib/a.ts`. <br>• Read overrides from the base: `git -C /work/helper show B:<overrides path>`. This gives SCOPED_TEST_COMMANDS=`node --test lib/a.test.mjs` (credential-free). <br>• Dispatch a fresh foreground implementer: cwd WT, `async: false`, file list `lib/a.ts`, base `origin/trunk`, that runner. Commits and aborts are forbidden to it. <br>• The helper fails, so `git -C WT merge --abort` → exit 0, HEAD=O, clean. P → exit 0. <br>Record `merge: unresolved - lib/a.ts`. **Returned to the coordinated caller** for its by-hand stop; no ready line. PL plus `acme/helper spec-export /work/helper/.worktrees/spec-export`. |\n\n## Closing records\n\n- **Ready:** absent, ancestor, reuse and wrapper reach RDY only after RB matches.\n- **Stopped:**\n  - race and unresolved stop after a write; the helper tree is kept.\n  - elsewhere, missing and lookup-error stop before any write.\n  - Every stop names acme/helper and spec-export and prints PL.\n- **Never removed or touched:** the home tree `/work/widget/.worktrees/spec-export` and the session tree `/work/widget/.worktrees/other`.\n- **Never created:** `-b` branches, resets or update-refs on the recovery path, `refs/gauntlet/*`, PR fields, `Pre-rework head:`, or thread fetches.\n",
+      "words": 861,
+      "wallMs": 52931,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n### Shared command/record legend\n\nAliases expand literally, including inside arguments:\n\n```text\nO=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nB=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nA=cccccccccccccccccccccccccccccccccccccccc\nR=dddddddddddddddddddddddddddddddddddddddd\nX=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\nH=/work/helper/.worktrees/spec-export\nG=git -C /work/helper\nW=git -C /work/helper/.worktrees/spec-export\n```\n\nEvery command’s cwd is `<scratch>`; cwd never changes. Sequences below execute left-to-right. Reads and filesystem inspections are read-only.\n\n**I — identity, live remote:**  \n`G rev-parse --path-format=absolute --git-dir --git-common-dir` → both `/work/helper/.git`; `G rev-parse --show-superproject-working-tree` → empty; `G fetch origin`; `G ls-remote --exit-code --heads origin refs/heads/spec-export`. Caller ROOT wins; session isolation is irrelevant.\n\n**D — resolution:**  \n`G rev-parse origin/spec-export` → O; `gh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name` → trunk; `G rev-parse origin/trunk` → B. Read companion overrides and `.pi/settings.json` by file, not session settings: defaults, keyed home `.worktrees/<name>`. NAME=`spec-export`; WORKTREE=H. `G worktree list --porcelain`; inspect H’s existence.\n\n**L — existing-local checks:**  \n`G rev-parse refs/heads/spec-export` → A; `G merge-base --is-ancestor O refs/heads/spec-export` fails: no recovery; `G merge-base --is-ancestor refs/heads/spec-export origin/spec-export` succeeds.\n\n**F — fresh provisioning:**  \n`G status --porcelain` → clean; `G check-ignore -q .worktrees` succeeds; `G worktree add H spec-export`; `G worktree list --porcelain` confirms H; `W rev-parse HEAD` → O. No `-b`, reset, or deletion.\n\n**S — sync/read-back:**  \n`W merge --no-ff --no-edit origin/trunk` → contained/no-op; `W merge-base --is-ancestor O HEAD` succeeds; `G worktree list --porcelain` confirms H; `W branch --show-current` → `spec-export`.\n\nNo PR reads, pre-rework refs, thread fetching, tests outside conflict handling, or pushes occur. R is unused.\n\n### Independent runs\n\n| Run | Ordered execution and boundary |\n|---|---|\n| absent | I → D: no branch/tree. Announce H on `spec-export`. F uses Git’s unique-remote DWIM to create the tracking branch and tree. S → ready report below. |\n| ancestor | I → D → L. Announce H. `G status --porcelain`; `G check-ignore -q .worktrees`; **first write:** `G update-ref refs/heads/spec-export origin/spec-export`; `G worktree add H spec-export`; `G worktree list --porcelain`; `W rev-parse HEAD` → O. S → ready. |\n| reuse | I → D finds selected H on `spec-export`. Resolve rebase paths using `W rev-parse --path-format=absolute --git-path rebase-merge` and corresponding `rebase-apply`: neither directory exists. `W status --porcelain` clean; L. **First write:** `W merge --ff-only origin/spec-export` → O; `W rev-parse HEAD` verifies O. S → ready; no creation. |\n| wrapper | I → D reads `create: helper create -b <branch> <name>`. Record `create: override skipped (contains -b)`; never execute it. Announce H; F uses existing-branch DWIM, not generic fresh-branch creation. S → ready, with skip record. |\n| race | I → D → F through successful add/path verification; `W rev-parse HEAD` instead returns X. **Stop:** acme/helper `spec-export`, H has X, expected O. No merge or ready report. Preserve home and newly created H; inventory below. |\n| elsewhere | I → D finds `spec-export` at `/work/helper/.worktrees/foreign`. **Stop before checkout writes:** branch `spec-export` is checked out there; finish or remove that worktree first. Name acme/helper; no ready report. Preserve home and foreign tree. |\n| missing | I stops at live lookup exit 2. Stale tracking O is not authority. **No checkout writes:** `origin/spec-export is missing in acme/helper; on the machine that ran option 6, push spec-export from that companion's checkout, then rerun brainstorming #N`. Preserve home; inventory below. |\n| lookup-error | I stops at live lookup exit 128: `fatal: unable to access origin`. Report acme/helper, `spec-export`, and failing lookup command/output. Do not diagnose branch absence or resolve stale O. No checkout writes or ready report; preserve home. |\n| unresolved | I → D → F. Base merge conflicts; execute conflict sequence below. Abort restores O clean; original-head ancestry succeeds. Record `merge: unresolved - lib/a.ts`; return unresolved for coordinated by-hand stop. No ready report, review, or push. Preserve home and H. |\n\n### Conflict sequence and final records\n\nFor unresolved, run in order:\n\n```text\nW merge --no-ff --no-edit origin/trunk\nW status --porcelain\nW diff --name-only --diff-filter=U\nG show B:.pi/gauntlet-overrides.md\n```\n\nDispatch foreground `implementer`, cwd H, `async: false`: only `lib/a.ts`; preserve both intents; stage that file; run exactly `node --test lib/a.test.mjs`; no commits/aborts/outside edits. Helper fails. Run:\n\n```text\nW merge --abort\nW rev-parse HEAD\nW branch --show-current\nW status --porcelain --untracked-files=all\nW merge-base --is-ancestor O HEAD\n```\n\nResults: success, O, `spec-export`, clean, success.\n\n**Ready report** for absent, ancestor, reuse, wrapper:\n\n```text\nWorktree ready at /work/helper/.worktrees/spec-export\nBranch: spec-export\nBase: spec-export @ aaaaaaa\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/trunk\nReady to implement companion work\n```\n\n**Failure inventory:**\n\n```text\nPreserved created legs:\nacme/widget spec-export /work/widget/.worktrees/spec-export\n```\n\nRace/unresolved additionally list:\n\n```text\nacme/helper spec-export /work/helper/.worktrees/spec-export\n```\n",
+      "words": 671,
+      "wallMs": 37459,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ad9bac356d1e1a23c738592ed5ccc58b4b0b4cd0a10a49ae7f31b0cd69e5b5e5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
+      "baselineOutputSha": "a26b155376cf29a2db7366f9ddd2ced91549f5977d95e2bea8701516dbb41ffc",
+      "candidateOutputSha": "1077b955e6f4d2e252676a855cd96a7018af22d3944cafdf2e282f129023753a",
+      "facts": {
+        "root": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "identity": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "rows": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ownership": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "race": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "merge": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "readback": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "missing": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "lookup-error": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and repairs two. In Before the unresolved run reported `Worktree ready` and carried a generic Task 1 \"merge origin/trunk and resolve lib/a.ts\" home, which contradicts the required stop-for-caller without ready line; After's \"Returned to the coordinated caller for its by-hand stop; no ready line\" with the tree listed under `Preserved created legs:` fixes that. Before's missing-remote stop said \"recreate or rerun without this leg\" rather than the required option-6-machine push recovery; After names acme/helper, tells the user to push spec-export from that companion checkout and rerun brainstorming #N, and skips S4 so the stale O is never trusted. Minor things to watch so nothing regresses next time: After's ancestor row adds an odd `is-ancestor O refs/heads/spec-export → 1` check before the real A-ancestry proof (harmless but noisy), the race preserved-leg entry is labelled `branch unverified` instead of the plain `acme/helper spec-export <path>` form used elsewhere, and the unresolved row should state the orchestrator's staging/unmerged-index/contained-delta checks explicitly (even as \"not reached because the helper failed\") so the merge fact stays visibly satisfied.",
+      "wallMs": 26861,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ad9bac356d1e1a23c738592ed5ccc58b4b0b4cd0a10a49ae7f31b0cd69e5b5e5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
+      "baselineOutputSha": "f1cd5ed97503d1b627295f87e72c1d86e6a73339dfc2ff6d1e858f5a1a01bfb0",
+      "candidateOutputSha": "5ca2dff1f07c0e84efbc92b0ddef3c000f8df11284179fc5ba9fe3f9a0fb3da1",
+      "facts": {
+        "root": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "identity": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ownership": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "race": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "merge": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "readback": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "missing": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "lookup-error": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before refused companion mode entirely (declared the caller-root procedure 'generic', ran no fetch, gh repo view, ls-remote, ancestry, or merge, executed the -b wrapper, and used worktree add -b from HEAD), so every fact failed there; After's wording routes ROOT/BRANCH/REMOTE_BRANCH=existing to companion mode with the live ls-remote check, positional gh repo view, origin/trunk base, DWIM existing-branch add, ancestor/reuse/race/elsewhere boundaries, scoped helper with abort and 'merge: unresolved - lib/a.ts', and the full read-back before the ready line, so all nine facts now hold and nothing regressed. Two small hardening points for the After wording: the ready report prints 'Base SHA: bbbbbbb' (7 chars) rather than the full B alias the instructions ask for, and the merge row shows staging/unmerged-index checks only before dispatch—adding an explicit post-helper 'W diff --cached --name-only' / unmerged check on the success path would make the orchestrator-owned completion unambiguous even when the helper fails.",
+      "wallMs": 19993,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "fb3171a83ae08e2a2c0eb307cfdc57008ce48e78"
+}

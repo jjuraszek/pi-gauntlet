@@ -21,6 +21,8 @@ Extend rework finishing to ordered PR lists: prove every original head before no
 
 Add spec-pr-menu and deferred-spec-stop using sample-local full finishing and header-PR instructions, without changing target-wide assembly. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated call ordering, not live verification/delivery or before/after improvement. Every new candidate fact must hold regardless of aggregate verdict; retain existing fact IDs and authorized directions. Task 1 retains the original-base deterministic red/green proof.
 
+Compose the header-linked N>1 finish with checkout-local coordinated verification and companion-first delivery. Reconcile live receipt draft status with ready/draft selection, seal home once with every companion URL, push/readify the existing home handle last and keep its body byte-for-byte. Extend spec-pr-menu with one-member and legacy controls and pr-subject-push with header/rework precedence. Keep target-wide assembly, word cap and historical accepted variance unchanged. New spec-pr-menu-legs facts must all hold; narrated fixtures and deterministic lint are not behavioral model evidence. Full-target verification belongs to the parent.
+
 ## Expected to move
 - pr-subject-lease-refused/lease: fails -> holds - Rebase landing proves the recorded Rework base and uses an explicit original-head lease only when fetched origin equals that original head; preserve provenance on refusal.
 - pr-list-rebase-close-outcomes/rebase-members: fails -> holds - Rebase closure uses live-head equality and recorded range ancestry or empty-result cherry equivalence, rather than merge-mode original ancestry alone.
@@ -101,3 +103,25 @@ Add spec-pr-menu and deferred-spec-stop using sample-local full finishing and he
 - legs-verify/fresh: fails -> holds - Enforce the new coordinated-flow must-hold fact: Runs every recorded command and conformance with own cwd, Rules and original scoped AC rows before one menu, with home policy and leg-local settings merged by file; home successful flag cannot stand for companion evidence.
 
 - legs-verify/changed: fails -> holds - Enforce the new coordinated-flow must-hold fact: Compares audited HEAD/tree including staged, unstaged and untracked state immediately before delivery and reruns verification/conformance for changed repo-b before it ships, with repairs committed there.
+
+- spec-pr-menu-legs/verification: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/ready: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/draft: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/retry-ready: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/retry-draft: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/seal: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/companion-failures: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/seal-failure: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/home-failures: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/body-summary: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
+
+- spec-pr-menu-legs/controls: fails -> holds - Compose the header-linked handle with coordinated delivery and its failure boundaries.
