@@ -71,6 +71,10 @@ Every inventoried path was parent-supplied In-flight; the dispatched plan and sp
 
 Post-Wave-1 rerun provenance: BASE `ab71c12f`; initial per-file inventory ` M doc/plans/2026-10-28-multi-repo-coordinated-flow.md`, admitted as the dispatched plan and sole parent-supplied In-flight path. The dispatched spec path was also admitted but clean; no source edits were present. Before execution, `git -C "/Users/jacek/repos/pi-gauntlet/.worktrees/multi-repo-flow" diff --quiet d24c8c8f ab71c12f -- . ':!doc/specs/' ':!doc/plans/'` exited 1. Retained no evidence; `Findings: rerun baseline` also required every command to rerun. Tasks 1, 2, 4, 5, 6, 7 ran their unchanged commands: 46, 358, 16, 1, 37, 45 tests respectively, all exit 0. Task 3's mixed-anchor derivation still drops its declared Create anchor and ran 63 tests, exit 0; its full unchanged command was also executed now that Wave 1 committed that file, running 65 tests, exit 0. Its bullet records the contract-required derived evidence. After each of these eight runs, HEAD was `ab71c12f` and the inventory was exactly the same admitted modified plan path. No command dirtied source, created a repository artifact, or moved HEAD. Every baseline bullet below comes from this execution; the previous blocked row is resolved. No header verification ran.
 
+Anchor-repair baseline provenance: BASE `bc8794fd`; initial per-file inventory ` M doc/specs/2026-10-28-multi-repo-coordinated-flow.md`, admitted as the dispatched spec and sole parent-supplied In-flight path. The dispatched plan path is also admitted. No source edits were present. `git -C "/Users/jacek/repos/pi-gauntlet/.worktrees/multi-repo-flow" diff --quiet ab71c12f bc8794fd -- . ':!doc/specs/' ':!doc/plans/'` exited 1, so Baseline required fresh execution instead of retaining the old bullets. Tasks 1, 2, 4, 5, 6, 7 ran their unchanged commands with 46, 359, 20, 1, 51, 47 tests respectively; Task 3's existing-anchor derived command ran 68 tests. All seven commands exited 0. After each run, HEAD remained `bc8794fd` and the inventory remained exactly the admitted modified spec path. No source or repository artifact changed; no header command ran. The seven bullets below record these executions. After the anchor write, status contained only the admitted modified plan and spec, HEAD remained `bc8794fd`, and the same-SHA directory-excluding proof exited 0; retain the seven unchanged commands at BASE for the contract-question write.
+
+Eval-owner resolution provenance: BASE `bc8794fd`; initial per-file inventory ` M doc/plans/2026-10-28-multi-repo-coordinated-flow.md` and ` M doc/specs/2026-10-28-multi-repo-coordinated-flow.md`, both admitted as the dispatched paths and parent-supplied In-flight paths. No source edits were present. `git -C "/Users/jacek/repos/pi-gauntlet/.worktrees/multi-repo-flow" diff --quiet bc8794fd HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 0. Retained 7 bullets verbatim at `bc8794fd`, tree-equivalent outside `doc/specs`, `doc/plans`; every task command is unchanged and no task or header command reran.
+
 ## Wave 1 - Independent foundations
 
 Tasks own disjoint files and independently allocated temporary repositories. Shared bin outputs are rebuilt only in Task 7.
@@ -78,7 +82,7 @@ Tasks own disjoint files and independently allocated temporary repositories. Sha
 ### Task 1: Define membership, leg artifacts, and rooted provisioning
 
 **TDD scenario:** Modifying tested code - run existing tests first.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Problem" L22, § "Acceptance criteria" L28-L37, § "Acceptance criteria" L48-L49, § "Design" L57-L64, § "Configuration" L68-L85, § "Brainstorming" L89-L93, § "Implement engines" L104, § "Errors and edge cases" L129-L137
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Problem" L22, § "Acceptance criteria" L28-L37, § "Acceptance criteria" L48-L49, § "Design" L57-L64, § "Configuration" L68-L85, § "Brainstorming" L89-L93, § "Implement engines" L104, § "Errors and edge cases" L130-L138
 **Files:**
 - Create: `skills/brainstorming/reference/legs.md`
 - Modify: `skills/brainstorming/SKILL.md:69-99`
@@ -91,7 +95,7 @@ Tasks own disjoint files and independently allocated temporary repositories. Sha
 - Test: `scripts/brainstorming-contract.test.mjs`
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: ab71c12f pass
+- baseline: bc8794fd pass
 - via: `/skill:using-git-worktrees`, Worktree First, gather, spec-writing, amendments
 
 Decision: use the new reference as the sole portable leg grammar; retain existing tracker and dispatch APIs. Resolve leg identity origin-first per spec L57 and shape-ticket's `repo-audit.md:81`; without origin use that member's own overrides `## Issue tracker` `repo:` value, else its primary directory basename. `reference/ticket-acceptance.md:7` establishes the documented-name source for "this repo", not a change to the spec's origin-first precedence. Retain its existing ticket-group handling.
@@ -120,7 +124,7 @@ Decision: `scope:` declares original AC ownership, not ledger state, per spec L1
 ### Task 2: Make plan and ledger admission leg-aware
 
 **TDD scenario:** Modifying tested code - run existing tests first.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L48-L49, § "Writing-plans and plan_check" L97-L98, § "Implement engines" L104, § "Errors and edge cases" L141-L142, § "Tests" L162
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L48-L49, § "Writing-plans and plan_check" L97-L98, § "Implement engines" L104, § "Errors and edge cases" L142-L143, § "Tests" L163
 **Files:**
 - Modify: `extensions/lib/plan-check.ts`
 - Modify: `extensions/lib/plan-check.test.ts`
@@ -130,7 +134,7 @@ Decision: `scope:` declares original AC ownership, not ledger state, per spec L1
 - Test: `extensions/phase-tracker.test.ts`
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/plan-check.test.ts extensions/phase-tracker.test.ts`
-- baseline: ab71c12f pass
+- baseline: bc8794fd pass
 - via: `plan_check`, `checkPlan`, `FsPort`, ledger admission
 
 Decision: extend `FsPort.exists(path, leg?)` and `FsPort.glob(pattern, leg?)` with an optional normalized repo argument, retaining one-argument callers. Parse membership in the pure checker, resolve roots only in the phase-tracker port, and preserve `checkPlan(planText, specText, fs)`.
@@ -154,7 +158,7 @@ Decision: extend `checkLedger` in `extensions/lib/plan-check.ts:1137-1176` only 
 ### Task 3: Scope verification advisory and telemetry seals by leg
 
 **TDD scenario:** Modifying tested code - run existing tests first.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L46-L49, § "Finishing" L113, § "Finishing" L119, § "Errors and edge cases" L148-L149, § "Tests" L169
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L46-L49, § "Finishing" L113, § "Finishing" L119, § "Errors and edge cases" L149-L150, § "Tests" L170
 **Files:**
 - Modify: `extensions/verify-before-ship.ts`
 - Modify: `extensions/verify-before-ship.test.ts`
@@ -168,7 +172,7 @@ Decision: extend `checkLedger` in `extensions/lib/plan-check.ts:1137-1176` only 
 - Test: `src/bins/gauntlet-telemetry-seal.test.mjs`
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs src/bins/gauntlet-telemetry-seal.test.mjs`
-- baseline: ab71c12f pass via `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs`
+- baseline: bc8794fd pass via `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs`
 - via: `serializeRecord`, `parseRecord`, `--leg`, seal retry, advisory
 
 Decision: add source-CLI cases at the named src path and retain bundled regressions in bin. Add optional top-level `legs` to schema 1, not a schema version. New tests invoke source; Task 7 rebuilds bundles.
@@ -189,7 +193,7 @@ Depends on Wave 1: consume Task 1's grammar, Task 2's admission model and Task 3
 ### Task 4: Route planning and both implementation engines through legs
 
 **TDD scenario:** Modifying tested code - run existing tests first.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L48-L49, § "Writing-plans and plan_check" L97-L98, § "Implement engines" L102-L104, § "Implement engines" L104, § "Errors and edge cases" L136, § "Errors and edge cases" L141-L143, § "Tests" L163-L164
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L48-L49, § "Writing-plans and plan_check" L97-L98, § "Implement engines" L102-L104, § "Implement engines" L104, § "Errors and edge cases" L137, § "Errors and edge cases" L142-L144, § "Tests" L164-L165
 **Files:**
 - Modify: `skills/writing-plans/SKILL.md`
 - Modify: `skills/writing-plans/reference/plan-contract.md`
@@ -206,7 +210,7 @@ Depends on Wave 1: consume Task 1's grammar, Task 2's admission model and Task 3
 - Test: `scripts/loop-engine-contract.test.mjs`
 **Tests:**
 - `node --test scripts/wave-review.test.mjs scripts/loop-engine-contract.test.mjs`
-- baseline: ab71c12f pass
+- baseline: bc8794fd pass
 - via: `/skill:subagent-driven-development`, `/skill:loop-implementation`, writer and loop personas
 
 Decision: keep flat tracker and numeric ledger entry IDs; implement the coordinated grammar from spec L104 and Task 2 in the loop driver's Entry, Dispatch and Validate the return sections. Preserve `agents/loop-implementer.md:14-63` one-commit child boundary and bounded result format: for companions the child's commit carries the result and the parent alone writes the home ledger. Keep legacy/single-member bytes and persona frontmatter byte-identical; Rules inputs are additive. Use `reference/legs.md` from Task 1 as the skill grammar owner for `scope:`; admit ownership through Task 2's checker and never infer it from `design:` prose. Personas consume the mapped original AC and leg from the caller, not a second ownership grammar.
@@ -235,7 +239,7 @@ Decision: reuse the driver's existing `target` and `iteration` inputs and the pe
 ### Task 5: Produce and restore one home-bound multi-leg brief
 
 **TDD scenario:** Modifying tested code - run existing tests first.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L40-L43, § "Acceptance criteria" L48-L49, § "Handoff and resume" L108-L109, § "Errors and edge cases" L138-L140, § "Errors and edge cases" L143-L145, § "Tests" L165-L166
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L40-L43, § "Acceptance criteria" L48-L49, § "Handoff and resume" L108-L109, § "Errors and edge cases" L139-L141, § "Errors and edge cases" L144-L146, § "Tests" L166-L167
 **Files:**
 - Modify: `skills/gauntlet-handoff/SKILL.md`
 - Modify: `skills/gauntlet-resume/SKILL.md`
@@ -247,7 +251,7 @@ Decision: reuse the driver's existing `target` and `iteration` inputs and the pe
 - Test: `scripts/brief-contract-lint.test.mjs`
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs`
-- baseline: ab71c12f pass
+- baseline: bc8794fd pass
 - via: `/skill:gauntlet-handoff`, `/skill:gauntlet-resume`, `legs:`, entry checks 3/3b/4
 
 Decision: extend only the existing brief contract, not cohort's six-heading core. Receipt transport is not proof; Task 6's live validation governs. Recover Task 4's pending loop boundary before dispatch.
@@ -264,7 +268,7 @@ Decision: extend only the existing brief contract, not cohort's six-heading core
 ### Task 6: Fan out one finish choice with validated receipts
 
 **TDD scenario:** Modifying tested code - run existing tests first.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L30-L31, § "Acceptance criteria" L44-L45, § "Acceptance criteria" L48-L49, § "Configuration" L85, § "Finishing" L113, § "Finishing" L114-L120, § "Errors and edge cases" L146-L151, § "Tests" L158, § "Tests" L167-L168
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L30-L31, § "Acceptance criteria" L44-L45, § "Acceptance criteria" L48-L49, § "Configuration" L85, § "Finishing" L113, § "Finishing" L114-L120, § "Errors and edge cases" L147-L152, § "Tests" L159, § "Tests" L168-L169
 **Files:**
 - Create: `skills/finishing-a-development-branch/reference/legs.md`
 - Modify: `skills/finishing-a-development-branch/SKILL.md`
@@ -272,7 +276,7 @@ Decision: extend only the existing brief contract, not cohort's six-heading core
 - Test: `scripts/finish-verification.test.mjs`
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs`
-- baseline: ab71c12f pass
+- baseline: bc8794fd pass
 - via: finish Steps 1/3.5/4/5/6, receipts, home strip-and-seal
 
 Decision: new finish reference owns coordinated mechanics; gate calls it once. `## Legs` uses recorded `contract:` lines; legacy no-section retains rereading. Receipts are untracked flow artifacts, not telemetry or approval evidence.
@@ -295,7 +299,7 @@ Depends on Waves 1-2: all behavior surfaces exist. This task alone owns eval ass
 ### Task 7: Add coordinated-flow eval coverage and regenerate bundles
 
 **TDD scenario:** New feature - red/green structural fixtures, unchanged legacy facts.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L48-L49, § "Documentation and evals" L124-L125, § "Tests" L155-L171, § "Errors and edge cases" L151, § "Out of scope" L180-L186
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L48-L49, § "Documentation and evals" L124-L125, § "Documentation and evals" L126, § "Tests" L156-L172, § "Errors and edge cases" L152, § "Out of scope" L181-L187
 **Files:**
 - Modify: `scripts/ci.mjs`
 - Modify: `bin/gauntlet-telemetry-seal.mjs`
@@ -366,10 +370,12 @@ Depends on Waves 1-2: all behavior surfaces exist. This task alone owns eval ass
 - Test: `bin/gauntlet-telemetry-seal.test.mjs`
 **Tests:**
 - `node --test eval/lib/lint.test.mjs bin/gauntlet-telemetry-seal.test.mjs`
-- baseline: ab71c12f pass
+- baseline: bc8794fd pass
 - via: `lintAll`, `plan_check`, changed instruction assemblies, built CLI
 
 Decision: use text replay cases with embedded synthetic file/tool observations as existing targets do, not another harness. Broad Modify globs permit only needed assembly/intent repairs and single-member spec-body expectation changes from the all-target run.
+
+Require every affected target's committed full-target `report.md` to carry no regressed, inconclusive, or error cell, with spec-body expectations updated only for the new `## Legs` section.
 
 - [ ] Run scoped tests; add new target without required case and observe lint red. Fill target/replay/README/intent and samples from eval/_template patterns. Pin must-hold facts before accepting output.
 - [ ] Populate provisioning cases: `repo-a` keyed `home:`/`create:`, `repo-b` wrapper, `repo-c` defaults; no/basename activation, linked session, mismatch, collision, dirty decline, ambiguity and bad/matching-home sibling.
@@ -390,7 +396,7 @@ Depends on Waves 1-3: document implemented contracts. Cross-cutting docs are del
 ### Task 8: Document multi-repo operation and contract authority
 
 **TDD scenario:** Trivial change - documentation review.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Documentation impact" L175-L176
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Documentation impact" L176-L177
 **Files:**
 - Modify: `README.md:59-94`
 - Modify: `README.md:315-345`
@@ -474,59 +480,60 @@ Depends on Waves 1-3: document implemented contracts. Cross-cutting docs are del
 | § "Finishing" L119 | Home-only telemetry and complete-set retry | Task 3 |
 | § "Finishing" L114-L120 | Recorded teardown and receipt retention | Task 6 |
 | § "Documentation and evals" L124-L125 | Assemble approved surfaces/evals; remove nothing | Task 7 |
-| § "Errors and edge cases" L129-L137 | Bad selected path stops, unselected untouched | Task 1 |
-| § "Errors and edge cases" L129-L137 | Ambiguous token asks before creation | Task 1 |
-| § "Errors and edge cases" L129-L137 | Dirty decline preserves created legs | Task 1 |
-| § "Errors and edge cases" L129-L137 | Collision stops without suffix | Task 1 |
-| § "Errors and edge cases" L129-L137 | Wrapper mismatch names branch | Task 1 |
-| § "Errors and edge cases" L129-L137 | Linked session never substitutes a leg | Task 1 |
-| § "Errors and edge cases" L129-L137 | Unresolved wrapper argument asks per leg | Task 1 |
-| § "Errors and edge cases" L129-L137 | Unknown touched paths explicit | Task 1 |
-| § "Errors and edge cases" L129-L137 | Missing links explicit; no second hop | Task 1 |
-| § "Errors and edge cases" L136 | Planner fills unresolved rule paths | Task 4 |
-| § "Errors and edge cases" L138-L140 | Home tuple mismatch stops | Task 5 |
-| § "Errors and edge cases" L138-L140 | Membership mismatch stops | Task 5 |
-| § "Errors and edge cases" L138-L140 | Common-dir mismatch stops | Task 5 |
-| § "Errors and edge cases" L141-L142 | Unknown leg/wrong SHA rejected | Task 2 |
-| § "Errors and edge cases" L141-L142 | Mixed wave rejected | Task 2 |
-| § "Errors and edge cases" L141-L143 | Writer repairs wave; engine recovers code commit | Task 4 |
-| § "Errors and edge cases" L143-L145 | Resume re-records interrupted commit | Task 5 |
-| § "Errors and edge cases" L143-L145 | Home-only entry, identity stops and drift notices | Task 5 |
-| § "Errors and edge cases" L143-L145 | Missing tree needs receipt | Task 5 |
-| § "Errors and edge cases" L146-L151 | Partial failure and proven retry | Task 6 |
-| § "Errors and edge cases" L146-L151 | Stale PR re-push/squash verification-only retry | Task 6 |
-| § "Errors and edge cases" L148-L149 | Malformed CLI or differing sealed set fails | Task 3 |
-| § "Errors and edge cases" L146-L151 | Seal failure preserves delivered receipts | Task 6 |
-| § "Errors and edge cases" L146-L151 | Discard confirmation/refusal reporting | Task 6 |
-| § "Errors and edge cases" L151 | Single-member/legacy artifact identity | Task 7 |
-| § "Tests" L155-L171 | N worktrees/contracts/unselected sibling | Task 7 |
-| § "Tests" L155-L171 | Activation/basename/linked-session fixtures | Task 7 |
-| § "Tests" L155-L171 | Branch mismatch fixture | Task 7 |
-| § "Tests" L155-L171 | Teardown/discard/keep/draft fixtures | Task 7 |
-| § "Tests" L155-L171 | Nested Rules fixtures | Task 7 |
-| § "Tests" L155-L171 | Leg-file content facts | Task 7 |
-| § "Tests" L155-L171 | Bad sibling fixture | Task 7 |
-| § "Tests" L162 | Checker deterministic matrix | Task 2 |
-| § "Tests" L163-L164 | Engine contract tests | Task 4 |
-| § "Tests" L155-L171 | SDD leg-routing eval | Task 7 |
-| § "Tests" L155-L171 | Loop interrupted-iteration eval | Task 7 |
-| § "Tests" L165-L166 | Brief drift lint/restore scenarios | Task 5 |
-| § "Tests" L155-L171 | Handoff grammar eval | Task 7 |
-| § "Tests" L155-L171 | Resume admission evals | Task 7 |
-| § "Tests" L158 | Teardown/discard/keep/draft scenarios | Task 6 |
-| § "Tests" L167-L168 | Verification freshness/delivery scenarios | Task 6 |
-| § "Tests" L155-L171 | Finish freshness eval | Task 7 |
-| § "Tests" L155-L171 | Delivery/receipt retry evals | Task 7 |
-| § "Tests" L169 | Source CLI input/record/retry matrix | Task 3 |
-| § "Tests" L155-L171 | All existing targets preserve approved facts | Task 7 |
-| § "Tests" L155-L171 | No rollback test by decision | Task 7 |
-| § "Documentation impact" L175-L176 | README workflow/reader row | Task 8 |
-| § "Documentation impact" L175-L176 | Configuration authority/settings/telemetry | Task 8 |
-| § "Documentation impact" L175-L176 | AGENTS routing; changelog deferred to release | Task 8 |
-| § "Out of scope" L180-L186 | Preserve cohort handoff/core grammar | Task 7 |
-| § "Out of scope" L180-L186 | No companion-primary resume | Task 7 |
-| § "Out of scope" L180-L186 | No rollback/compensation | Task 7 |
-| § "Out of scope" L180-L186 | No whole-repo Rules scan | Task 7 |
-| § "Out of scope" L180-L186 | No companion telemetry | Task 7 |
-| § "Out of scope" L180-L186 | No multi-home | Task 7 |
-| § "Out of scope" L180-L186 | No automatic unselected fan-out | Task 7 |
+| § "Documentation and evals" L126 | Changed-bundle targets have passing committed full-target reports; preserve untouched results and single-member/legacy behavior | Task 7 |
+| § "Errors and edge cases" L130-L138 | Bad selected path stops, unselected untouched | Task 1 |
+| § "Errors and edge cases" L130-L138 | Ambiguous token asks before creation | Task 1 |
+| § "Errors and edge cases" L130-L138 | Dirty decline preserves created legs | Task 1 |
+| § "Errors and edge cases" L130-L138 | Collision stops without suffix | Task 1 |
+| § "Errors and edge cases" L130-L138 | Wrapper mismatch names branch | Task 1 |
+| § "Errors and edge cases" L130-L138 | Linked session never substitutes a leg | Task 1 |
+| § "Errors and edge cases" L130-L138 | Unresolved wrapper argument asks per leg | Task 1 |
+| § "Errors and edge cases" L130-L138 | Unknown touched paths explicit | Task 1 |
+| § "Errors and edge cases" L130-L138 | Missing links explicit; no second hop | Task 1 |
+| § "Errors and edge cases" L137 | Planner fills unresolved rule paths | Task 4 |
+| § "Errors and edge cases" L139-L141 | Home tuple mismatch stops | Task 5 |
+| § "Errors and edge cases" L139-L141 | Membership mismatch stops | Task 5 |
+| § "Errors and edge cases" L139-L141 | Common-dir mismatch stops | Task 5 |
+| § "Errors and edge cases" L142-L143 | Unknown leg/wrong SHA rejected | Task 2 |
+| § "Errors and edge cases" L142-L143 | Mixed wave rejected | Task 2 |
+| § "Errors and edge cases" L142-L144 | Writer repairs wave; engine recovers code commit | Task 4 |
+| § "Errors and edge cases" L144-L146 | Resume re-records interrupted commit | Task 5 |
+| § "Errors and edge cases" L144-L146 | Home-only entry, identity stops and drift notices | Task 5 |
+| § "Errors and edge cases" L144-L146 | Missing tree needs receipt | Task 5 |
+| § "Errors and edge cases" L147-L152 | Partial failure and proven retry | Task 6 |
+| § "Errors and edge cases" L147-L152 | Stale PR re-push/squash verification-only retry | Task 6 |
+| § "Errors and edge cases" L149-L150 | Malformed CLI or differing sealed set fails | Task 3 |
+| § "Errors and edge cases" L147-L152 | Seal failure preserves delivered receipts | Task 6 |
+| § "Errors and edge cases" L147-L152 | Discard confirmation/refusal reporting | Task 6 |
+| § "Errors and edge cases" L152 | Single-member/legacy artifact identity | Task 7 |
+| § "Tests" L156-L172 | N worktrees/contracts/unselected sibling | Task 7 |
+| § "Tests" L156-L172 | Activation/basename/linked-session fixtures | Task 7 |
+| § "Tests" L156-L172 | Branch mismatch fixture | Task 7 |
+| § "Tests" L156-L172 | Teardown/discard/keep/draft fixtures | Task 7 |
+| § "Tests" L156-L172 | Nested Rules fixtures | Task 7 |
+| § "Tests" L156-L172 | Leg-file content facts | Task 7 |
+| § "Tests" L156-L172 | Bad sibling fixture | Task 7 |
+| § "Tests" L163 | Checker deterministic matrix | Task 2 |
+| § "Tests" L164-L165 | Engine contract tests | Task 4 |
+| § "Tests" L156-L172 | SDD leg-routing eval | Task 7 |
+| § "Tests" L156-L172 | Loop interrupted-iteration eval | Task 7 |
+| § "Tests" L166-L167 | Brief drift lint/restore scenarios | Task 5 |
+| § "Tests" L156-L172 | Handoff grammar eval | Task 7 |
+| § "Tests" L156-L172 | Resume admission evals | Task 7 |
+| § "Tests" L159 | Teardown/discard/keep/draft scenarios | Task 6 |
+| § "Tests" L168-L169 | Verification freshness/delivery scenarios | Task 6 |
+| § "Tests" L156-L172 | Finish freshness eval | Task 7 |
+| § "Tests" L156-L172 | Delivery/receipt retry evals | Task 7 |
+| § "Tests" L170 | Source CLI input/record/retry matrix | Task 3 |
+| § "Tests" L156-L172 | All existing targets preserve approved facts | Task 7 |
+| § "Tests" L156-L172 | No rollback test by decision | Task 7 |
+| § "Documentation impact" L176-L177 | README workflow/reader row | Task 8 |
+| § "Documentation impact" L176-L177 | Configuration authority/settings/telemetry | Task 8 |
+| § "Documentation impact" L176-L177 | AGENTS routing; changelog deferred to release | Task 8 |
+| § "Out of scope" L181-L187 | Preserve cohort handoff/core grammar | Task 7 |
+| § "Out of scope" L181-L187 | No companion-primary resume | Task 7 |
+| § "Out of scope" L181-L187 | No rollback/compensation | Task 7 |
+| § "Out of scope" L181-L187 | No whole-repo Rules scan | Task 7 |
+| § "Out of scope" L181-L187 | No companion telemetry | Task 7 |
+| § "Out of scope" L181-L187 | No multi-home | Task 7 |
+| § "Out of scope" L181-L187 | No automatic unselected fan-out | Task 7 |
