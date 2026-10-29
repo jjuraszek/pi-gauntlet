@@ -41,7 +41,7 @@
       "factsSha": "1b0bd9af54763b966359d0387d8eb1638ebb461ed86feb1b616c1dcd255e8df8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "740064ee4d69f07e23237b11a6f1aafe47c19b6bbaea4260deedc91c8ce66d83",
+      "baselineOutputSha": "09670a970dbfa114050c4986958b5e62bb8e2ce1c0b8ed4cca6b0464c96333f4",
       "candidateOutputSha": "09670a970dbfa114050c4986958b5e62bb8e2ce1c0b8ed4cca6b0464c96333f4",
       "facts": {
         "f1": {
@@ -65,15 +65,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs add `--check` to the header `**Verification:**` line as the only edit and then run `skip plan`, `start implement`, and `plan_tracker init` with the four snapshot tasks verbatim. One softening to watch in After: Before states outright that \"No other text changes. Task names, count, order, waves, owner column and task bodies are untouched,\" whereas After only says \"No existing text is replaced or removed\" and shows the single header-line diff, leaving the no-task-body-edit claim implicit. It still reads as holding, but to keep f1 robust under stricter readers, restore an explicit sentence after the round-1 diff such as \"No other line changes; task bodies, names, order, waves and owner cells are untouched.\" After also hard-codes the skip reason as `resume: pasted brief` without noting the file-path alternative Before gave; that does not affect f3 here, but keeping the one-line conditional (\"file path if the brief was a file, otherwise `resume: pasted brief`\") would preserve the same precision while still delivering the more concrete call rendering the Change asks for.",
-      "wallMs": 11460,
+      "feedback": "Before and After are byte-identical for this case, so no fact moved: both add `--check` only to the `**Verification:**` header line with an explicit statement that no existing text is replaced and no task body is touched (f1), and both proceed through `skip plan`, `start implement`, and a `plan_tracker init` carrying the brief's four tasks with names, order and statuses unchanged (f3). The wording change delivers nothing observable on this citation-repair path, which is acceptable since this case is outside the intended movements (pr-list, loop-ledger, legs-*, baseline cases); keep the current repair narration as-is, and when adding the coordinated-flow, ledger-cap and PR-pair branches, scope them so the ordinary single-worktree quote-integrity repair still reaches the same skip/start/init chain and the same two printed lines without inserting branch/pair validation stops or extra tracker calls into this path.",
+      "wallMs": 7705,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1b0bd9af54763b966359d0387d8eb1638ebb461ed86feb1b616c1dcd255e8df8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "33c2e8401fbee395cd129358ffef9a930473a903091bc9f01673dff6af5a7974",
+      "baselineOutputSha": "3e65a0b93232989b6f996dc7462d0411cb20a6bd0c6dc6a09e7a25faeefa7689",
       "candidateOutputSha": "3e65a0b93232989b6f996dc7462d0411cb20a6bd0c6dc6a09e7a25faeefa7689",
       "facts": {
         "f1": {
@@ -97,10 +97,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs add `--check` only to the `**Verification:**` header line (After says \"Edit only the verification header\" and shows the single new line; Before shows the old/new pair) and both continue with the same skip-plan, start-implement, and plan_tracker init carrying the brief's four tasks with unchanged names, order, and statuses. After's only differences are explicit \"Result: exit 0 / succeeds\" annotations on the git and tracker calls, which match tool result 5 and do not affect either fact. If you want After to stay maximally robust for f1, consider keeping Before's explicit old/new pair alongside the \"edit only the verification header\" phrasing so a reader can see both that the literal was appended and that nothing else in the file changed; otherwise the After wording already preserves everything Before kept while delivering the Change's intent for this case.",
-      "wallMs": 8413,
+      "feedback": "After is byte-identical to Before, so nothing moved: both outputs repair only the `**Verification:**` header by appending `--check` (no task body touched), rerun plan_check to PASS, commit the plan, then continue with phase_tracker skip plan, start implement, and plan_tracker init carrying the brief's four tasks with unchanged names and statuses. The Change paragraph's new coordinated-flow, ledger-cap, and PR-pair behaviors are not exercised by this single-repo citation-repair input, so the wording change had no observable effect here; keep the citation-repair path's wording as-is (header-only edit, mechanical table, commit, then skip/start/init) so these facts continue to hold while the new branches apply only when a brief carries leg/ledger/PR records.",
+      "wallMs": 6856,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

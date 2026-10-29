@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Applier stage: snapshots, then dispatch\n\nThe member fan-out and chair synthesis are already complete, so I do not redo them. The chair at `/tmp/council-widgets/chair.md` passed the structural probe. I do not read or adjudicate its clusters, and I do not read findings in the member file.\n\n## 1. Snapshots, before the applier is dispatched\n\n```bash\ncp /tmp/acme/widgets-wt/doc/specs/job-status.md /tmp/council-widgets/spec.before.md\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.before\n```\n\n- **Expected before-set:** `doc/specs/job-status.md`, `doc/specs/predecessor.md`, `notes/user.txt`.\n- **Why it matters:** these paths are never touched by the post-applier cleanup. That protects the predecessor banner and the user's notes.\n- **Paths:** both commands use the explicit worktree path, not the parent launch directory `/tmp/acme/widgets-main`.\n\n## 2. Applier dispatch\n\n```js\nsubagent({\n  agent: \"spec-council-applier\",\n  async: false,\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  task: \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md. Chair report: /tmp/council-widgets/chair.md. Worktree: /tmp/acme/widgets-wt.\\n\" +\n        \"Member critiques (probe evidence only):\\n\" +\n        \"/tmp/council-widgets/member-0-alpha-core.md\\n\" +\n        \"Human input (verbatim; off-limits for over-spec):\\n```\\nReport job status without a wrapper layer.\\n```\\n\" +\n        \"External context fetched during brainstorming: acme/widgets#17 — body: \\\"Expose terminal job status; no wrapper layer.\\\" Comments: \\\"Retain existing status strings.\\\"\\n\" +\n        \"Coverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\n\" +\n        \"The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\\n\" +\n        \"Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Decide and apply the chair's clusters to the spec, then return the audit.\"\n})\n```\n\n**Dispatch notes:**\n- **No model or thinking pinned.** This lets `agentOverrides['spec-council-applier']` take effect; otherwise both inherit the main loop.\n- **Human input block.** It is the same block the members and chair received, with no drafted rows.\n- **Coverage line.** It is included because only 1 of 2 members reported.\n- **Amend-grant.** The applier is told the line is protected. The parent re-checks it after the apply in step 5.\n\n## Stopping point\n\nI stop here, at the dispatch.\n\nWhen the applier returns, the first action will be to reread the spec from disk. Only after that come:\n- storing the audit,\n- checking the three labels and the cluster count, and\n- the status-based cleanup against the before-set.\n",
-      "words": 401,
-      "wallMs": 19976,
+      "text": "# Applier stage: snapshots and dispatch\n\nThe active stage is the applier dispatch. Member fan-out, the targeted retry, and the chair are already settled:\n\n- **Usable chair:** `/tmp/council-widgets/chair.md`\n- **Usable member:** `/tmp/council-widgets/member-0-alpha-core.md`\n- **Coverage:** partial (1 of 2), so the applier task includes the coverage line.\n\nI do not read the chair report or the member findings. They go to the applier only.\n\n## 1. Snapshots, in this order, before dispatch\n\n```bash\ncp /tmp/acme/widgets-wt/doc/specs/job-status.md /tmp/council-widgets/spec.before.md\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.before\n```\n\n- **First command:** saves a copy of the spec so any later retry or abort can restore it.\n- **Second command:** records which paths are already dirty, compared by path. Per the supplied facts, this set contains:\n  - `doc/specs/job-status.md`\n  - `doc/specs/predecessor.md`\n  - `notes/user.txt`\n\n  These paths are protected and will never be reverted by the later cleanup.\n\n## 2. Applier dispatch (foreground, fresh context)\n\n- `cwd` is the worktree, not the launch directory `/tmp/acme/widgets-main`.\n- `model` and `thinking` are left unpinned, so `agentOverrides['spec-council-applier']` is honored. Otherwise the applier inherits the main loop.\n\n```\nsubagent({\n  agent: \"spec-council-applier\",\n  async: false,\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  task: \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md. Chair report: /tmp/council-widgets/chair.md. Worktree: /tmp/acme/widgets-wt.\\n\" +\n        \"Member critiques (probe evidence only):\\n/tmp/council-widgets/member-0-alpha-core.md\\n\" +\n        \"Human input (verbatim; off-limits for over-spec):\\n```\\nReport job status without a wrapper layer.\\nNo additional wrapper.\\n```\\n\" +\n        \"External context fetched during brainstorming: acme/widgets#17 — body: \\\"Expose terminal job status; no wrapper layer.\\\" Comments: \\\"Retain existing status strings.\\\"\\n\" +\n        \"Coverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\n\" +\n        \"The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\\n\" +\n        \"Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Decide and apply the chair's clusters to the spec, then return the audit.\"\n})\n```\n\n**What goes in the `Human input` block.** It carries the same verbatim block that was given to the members and the chair:\n\n- the original prompt;\n- the human scope answer.\n\n**What stays out of it.**\n\n- No drafted rows.\n- The ticket body and comment travel only in the `External context` line.\n- The guideline path is passed in the task text only and is not added to the spec.\n\n## Stop point\n\nThe case stops at dispatch. When the applier returns, the first action, before anything else, is to `read` the spec at `/tmp/acme/widgets-wt/doc/specs/job-status.md` from disk. After that, in order:\n\n1. **Store the audit** at `/tmp/council-widgets/audit.md`.\n2. **Check the labels and counts:**\n   - The three labels `Applied:`, `Deferred:` and `Rejected:` must all be present.\n   - The `raised-by:` count in the audit must equal the chair's count of `[blocker|major|minor]` cluster bullets.\n3. **Restore and retry if needed.** If the result is killed or unusable, restore the spec from the snapshot, then retry once.\n4. **Clean up by status comparison** against `status.before`.\n\nI am not adjudicating the chair's clusters.\n",
+      "words": 514,
+      "wallMs": 18079,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### 1. Snapshot before dispatch\n\nWould run these commands, preserving the supplied dirty paths (`doc/specs/job-status.md`, `doc/specs/predecessor.md`, and `notes/user.txt`):\n\n```bash\ncp \"/tmp/acme/widgets-wt/doc/specs/job-status.md\" \\\n   \"/tmp/council-widgets/spec.before.md\"\n\ngit -C \"/tmp/acme/widgets-wt\" status --porcelain --untracked-files=all \\\n  > \"/tmp/council-widgets/status.before\"\n```\n\n### 2. Dispatch the fresh-context applier\n\nLeave `model` and `thinking` unpinned so agent overrides, or otherwise main-loop inheritance, apply.\n\n```javascript\nsubagent({\n  agent: \"spec-council-applier\",\n  async: false,\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: {\n    needsAttentionAfterMs: 300000,\n    inFlightSilenceCeilingMs: 600000,\n    inFlightSilenceKillMs: 900000\n  },\n  task: `Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md. Chair report: /tmp/council-widgets/chair.md. Worktree: /tmp/acme/widgets-wt.\n\nMember critiques (probe evidence only):\n/tmp/council-widgets/member-0-alpha-core.md\n\nHuman input (verbatim; off-limits for over-spec):\n\\`\\`\\`\nReport job status without a wrapper layer.\n\nHuman answer:\nNo additional wrapper.\n\\`\\`\\`\n\nExternal context fetched during brainstorming:\nTicket: acme/widgets#17\nBody: \"Expose terminal job status; no wrapper layer.\"\nComments: \"Retain existing status strings.\"\n\nCoverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\n\nThe portable citation \\`reference/documentation-impact.md\\` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference.\n\nThe \\`**Amend-grant:**\\` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it. Preserve this supplied line:\n**Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n\nDrafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with \\`none\\`. Never draft new rows.\n\nEdit ONLY /tmp/acme/widgets-wt/doc/specs/job-status.md. Do not write code, run implementation skills, or land anything on main. Decide and apply the chair's clusters to the spec, then return the complete audit with Applied:, Deferred:, and Rejected: labels and every cluster's disposition and raised-by attribution.`\n})\n```\n\nStop at dispatch; no chair-cluster adjudication or post-applier checks at this stage.\n",
-      "words": 296,
-      "wallMs": 11908,
+      "text": "### 1. Snapshot before dispatch\n\nPrescribed commands, not executed:\n\n```bash\ncp /tmp/acme/widgets-wt/doc/specs/job-status.md /tmp/council-widgets/spec.before.md\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.before\n```\n\nThe supplied before-dirty path set is fixed: `doc/specs/job-status.md`, `doc/specs/predecessor.md`, and `notes/user.txt`.\n\n### 2. Dispatch the fresh-context applier\n\nLeave model and thinking unpinned so applier overrides are honored, otherwise inheriting the main loop.\n\n```javascript\nsubagent({\n  agent: \"spec-council-applier\",\n  async: false,\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: {\n    needsAttentionAfterMs: 300000,\n    inFlightSilenceCeilingMs: 600000,\n    inFlightSilenceKillMs: 900000\n  },\n  task:\n    \"Problem statement: expose job status. \" +\n    \"Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md. \" +\n    \"Chair report: /tmp/council-widgets/chair.md. \" +\n    \"Worktree: /tmp/acme/widgets-wt.\\n\" +\n    \"Member critiques (probe evidence only):\\n\" +\n    \"/tmp/council-widgets/member-0-alpha-core.md\\n\" +\n    \"Human input (verbatim; off-limits for over-spec):\\n\" +\n    \"```\\n\" +\n    \"Report job status without a wrapper layer.\\n\" +\n    \"Human answer: \\\"No additional wrapper.\\\"\\n\" +\n    \"```\\n\" +\n    \"External context fetched during brainstorming: acme/widgets#17\\n\" +\n    \"Body: \\\"Expose terminal job status; no wrapper layer.\\\"\\n\" +\n    \"Comments: \\\"Retain existing status strings.\\\"\\n\" +\n    \"Coverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\n\" +\n    \"The portable citation `reference/documentation-impact.md` in the spec is \" +\n    \"the pi-gauntlet guideline at \" +\n    \"/opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, \" +\n    \"not a consumer doc; do not flag it as an external reference.\\n\" +\n    \"The `**Amend-grant:**` header line is flow machinery owned by the \" +\n    \"brainstorming gate; never cut, shrink, flag, or edit it. Preserve it exactly:\\n\" +\n    \"**Amend-grant:** every later spec amendment applies without asking; \" +\n    \"redraw still stops; grant is not approval.\\n\" +\n    \"Drafted rows are spec requirements, not Human input; permit pre-approval \" +\n    \"rewrites only for integrity. Delete a drafted row only after its Design \" +\n    \"commitment is cut through the user's scope-decision procedure; quoting \" +\n    \"the row alone never permits deletion, and never replace the section \" +\n    \"with `none`. Never draft new rows.\\n\" +\n    \"Edit ONLY the spec at /tmp/acme/widgets-wt/doc/specs/job-status.md. \" +\n    \"Decide and apply the chair's clusters to the spec, then return only \" +\n    \"the complete audit with Applied:, Deferred:, and Rejected: labels \" +\n    \"and every cluster's disposition and raised-by attribution.\"\n})\n```\n\nStop at dispatch; no chair-cluster adjudication or post-applier checks are performed here.\n",
+      "words": 292,
+      "wallMs": 12497,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
       "baselineOutputSha": "31e326420eb7d5975c27fb12fb48555ed7b9bdbc7e90dbceea243f146b24154a",
-      "candidateOutputSha": "9bd5111a938c31ea719893170e82231d5f46ec188e27712e8bda013a1ed1489a",
+      "candidateOutputSha": "b702ce796d1c5c7890892c6884042b5d3194b535f87197daa0ed9b4af1184b4c",
       "facts": {
         "snapshots": {
           "before": "holds",
@@ -50,8 +50,8 @@
         },
         "full-context": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         },
         "protected-boundary": {
           "before": "holds",
@@ -59,49 +59,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps the snapshot commands, the unpinned fresh foreground dispatch with the 300000/600000/900000 controls, and the guideline/Amend-grant protections plus delegation of cluster adjudication intact, so snapshots, fresh-dispatch, and protected-boundary all still hold. The regression is in the Human input block of the task: Before contained both the verbatim prompt \"Report job status without a wrapper layer.\" and the human scope answer \"No additional wrapper.\", while After drops the answer line and then asserts the block \"is the same block the members and chair received\", which it can no longer be. Restore the answer as a second line inside the fenced Human input block (prompt, then answer, character for character as sent to members and chair) and keep the explicit sentence from Before that the block contains the original prompt and the human scope answer; everything else in After can stay as written and still delivers the file-only/fresh-applier change.",
-      "wallMs": 10960,
-      "verdict": "regressed",
-      "confirmation": {
-        "status": "ok",
-        "text": "# Applier dispatch for the acme/widgets council\n\nThis is step 3 of roasting-the-spec. The chair and member files passed their structural probes. I won't read or weigh their findings.\n\n## Step 3a: Snapshot before dispatch\n\nRun these two commands first, in this order:\n\n```bash\ncp /tmp/acme/widgets-wt/doc/specs/job-status.md /tmp/council-widgets/spec.before.md\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.before\n```\n\n- Both use absolute paths in the worktree, not the launch dir `/tmp/acme/widgets-main`.\n- From the supplied data, the before-set has three dirty paths:\n  - `doc/specs/job-status.md`\n  - `doc/specs/predecessor.md`\n  - `notes/user.txt`\n- Step 4 will never touch any of these three paths.\n\n## Step 3b: Applier dispatch\n\nThe dispatch below:\n\n- runs in the foreground (`async: false`);\n- does not set `model` or `thinking`, so agentOverrides or the main loop apply;\n- passes the worktree as `cwd`;\n- includes the coverage line because only 1 of 2 members reported.\n\n```\nsubagent({\n  agent: \"spec-council-applier\",\n  async: false,\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  task: \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md. Chair report: /tmp/council-widgets/chair.md. Worktree: /tmp/acme/widgets-wt.\\n\" +\n        \"Member critiques (probe evidence only):\\n/tmp/council-widgets/member-0-alpha-core.md\\n\" +\n        \"Human input (verbatim; off-limits for over-spec):\\n```\\nReport job status without a wrapper layer.\\n```\\n\" +\n        \"External context fetched during brainstorming: acme/widgets#17 — body: \\\"Expose terminal job status; no wrapper layer.\\\" Comments: \\\"Retain existing status strings.\\\"\\n\" +\n        \"Coverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\n\" +\n        \"The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\\n\" +\n        \"Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Decide and apply the chair's clusters to the spec, then return the audit.\"\n})\n```\n\nNotes on the dispatch:\n\n- **Human input block:** it matches the block given to the members and chair. It contains no drafted rows.\n- **Amend-grant line:** its text (\"every later spec amendment applies without asking; redraw still stops; grant is not approval\") is kept as is. The applier is told not to touch it.\n\n## Stop point\n\nI stop here, at the dispatch. When the applier returns, the first action is step 4: reread the spec from disk, before any audit validation, status comparison or retry. After that comes the label check and the cluster count check. I'm not adjudicating chair clusters at this stage.\n",
-        "words": 412,
-        "wallMs": 17195,
-        "mechanical": {},
-        "judgeWallMs": 10285,
-        "facts": {
-          "snapshots": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "fresh-dispatch": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "full-context": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "protected-boundary": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "After keeps the snapshots, the fresh foreground dispatch with unpinned model/thinking and the 300000/600000/900000 controls, and the guideline/Amend-grant protections intact, but it dropped the human scope answer from the task's Human input block: Before's block contains both \"Report job status without a wrapper layer.\" and \"No additional wrapper.\", while After's block contains only the original prompt, so the applier no longer receives the verbatim human answer and the block no longer matches what the members and chair received. To deliver the Change without losing full-context, keep the Human input fence exactly as Before had it (prompt line followed by the answer line) and, if you want to state the block's composition in prose, say it contains the original prompt and the human scope answer and no drafted rows, as Before did."
-      },
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "Nothing moved: After keeps every fact Before kept. Both outputs run the identical cp and git -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all snapshots before dispatch, dispatch spec-council-applier as a foreground (async: false) fresh-context single call with cwd /tmp/acme/widgets-wt, the 300000/600000/900000 controls and no model/thinking/output pins, and pass the same complete task text (problem, absolute spec/chair/worktree paths, member path marked probe evidence only, verbatim human prompt and answer in one block, the #17 body and comment, exact 1-of-2 coverage, the absolute guideline path with the not-external-reference instruction, and the Amend-grant never-cut/edit instruction) while explicitly declining to read or adjudicate the chair. The only drift worth watching in After is the expanded post-return section (audit path, label list, count rule, restore-then-retry, status-diff cleanup): the case said to stop at dispatch, and this detail is harmless here because it stays prescriptive and the cluster-count check is mechanical rather than a read of findings, but to keep the stop clean I would keep that section to the same brief ordered list Before used (reread spec first, then audit validation, status diff cleanup, placeholder/Amend-grant check, temp removal, gate handoff) rather than spelling out retry policy at this stage.",
+      "wallMs": 14775,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "699b1a9bab2b11df371e1adaf4fa5dedef3061d800cb14458777c4fdaad08a5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
       "baselineOutputSha": "78ddea6af9517df544031c05c65f5fe4f597acddfa8874a1328b17a210102e75",
-      "candidateOutputSha": "7fac7ebc773bde9906cd2cffcf24765372347ceac7083f19139862444162a0f6",
+      "candidateOutputSha": "6fc30f89b52ab22ec05ccc4b4c9f6ec9e5bffa6e45322e80646741a3142c6d79",
       "facts": {
         "snapshots": {
           "before": "holds",
@@ -124,258 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: both snapshot commands are prescribed with the exact paths and `--untracked-files=all`, the applier is dispatched as a single foreground fresh-context call with cwd /tmp/acme/widgets-wt and the 300000/600000/900000 controls with no model/thinking/output pins, and the task carries the problem, absolute spec/chair/worktree/member paths (probe evidence only), the verbatim human prompt and answer, the #17 body and comment, the 1-of-2 coverage line, the guideline absolute path with its not-external-reference protection, and the Amend-grant line preserved verbatim. The one regression risk is that After dropped Before's explicit sentence 'Do not read the chair report or member findings in the parent'; the delegation still reads as holding because the task tells the applier to decide and apply the clusters and the closing line forbids parent adjudication, but a stricter judge could treat the parent-read boundary as weakened. To deliver the Change (file-only chair/member outputs, direct chair reads from explicit paths) without loosening this, restore that sentence in section 2 — e.g. 'Parent does not read /tmp/council-widgets/chair.md or the member files; the applier reads them directly from these paths' — which also makes the direct-read-from-explicit-path contract explicit. Minor: After removed the quotation marks around the human answer inside the verbatim fence; keeping `Human answer: \"No additional wrapper.\"` makes the verbatim claim unambiguous.",
-      "wallMs": 18164,
-      "verdict": "unchanged",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "No fact moved: After keeps both snapshot commands, the fresh-context foreground single call with the correct cwd and 300000/600000/900000 controls and unpinned model/thinking, the full authoritative context (problem, absolute spec/chair/worktree/member paths marked probe-evidence-only, verbatim human prompt and answer, #17 body and comment, exact 1-of-2 coverage), and both protections (guideline path with not-external-reference, Amend-grant never cut/shrink/flag/edit) with cluster dispositions delegated to the applier. The one weakening is that After dropped Before's explicit sentence \"Do not read the chair report or member findings in the parent\" from section 2, so the parent-does-not-read-the-chair half of protected-boundary now rests only on the absence of a prescribed read and the closing \"no chair-cluster adjudication\" line; restore that sentence (e.g. right after the model/thinking note) so the boundary is stated rather than implied. The Amend-grant rewrite to quote the header verbatim and the \"return only the complete audit\" tightening are fine and consistent with the Change.",
+      "wallMs": 13349,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697",
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "applier-dispatch",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "aa8ace0c2d8b4fd80c1ce608805e7ccd6066f3829d41e29c81ff4c37d2f0bd87",
-      "candidateSkillSha": "aa8ace0c2d8b4fd80c1ce608805e7ccd6066f3829d41e29c81ff4c37d2f0bd87",
-      "inputSha": "ef4165a71874d8089d1e0d229e815aa082fc47c853af98d20ec4a9a8489d534f",
-      "factsSha": "699b1a9bab2b11df371e1adaf4fa5dedef3061d800cb14458777c4fdaad08a5d",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-      "models": {
-        "replay": [
-          "anthropic/claude-opus-5-5",
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "anthropic-fable/claude-fable-5-1"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "anthropic/claude-opus-5-5": {
-            "baselineOutputSha": "31e326420eb7d5975c27fb12fb48555ed7b9bdbc7e90dbceea243f146b24154a",
-            "payloadSha": "a154222e65b02d854a7b2938c9d4996fa65e0d70a2d5d79da73a541847dd2e29"
-          },
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "78ddea6af9517df544031c05c65f5fe4f597acddfa8874a1328b17a210102e75",
-            "payloadSha": "6df46e445fc16857cf10612fc791ccb33932c15858ad1b882ccb4f58cbeae0a2"
-          }
-        },
-        "candidate": {
-          "anthropic/claude-opus-5-5": {
-            "candidateOutputSha": "9bd5111a938c31ea719893170e82231d5f46ec188e27712e8bda013a1ed1489a",
-            "payloadSha": "9ba98ad04cc5150c670f28e29dd4899a990caa2ef7b6396a86216500d592b4f1"
-          },
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "7fac7ebc773bde9906cd2cffcf24765372347ceac7083f19139862444162a0f6",
-            "payloadSha": "fa9e09584f234fcde6ec684a08e0de368ec41869b33df37cb9f84b2ceccd789c"
-          }
-        }
-      }
-    },
-    "previous": {
-      "anthropic/claude-opus-5-5": {
-        "factsSha": "699b1a9bab2b11df371e1adaf4fa5dedef3061d800cb14458777c4fdaad08a5d",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-        "baselineOutputSha": "31e326420eb7d5975c27fb12fb48555ed7b9bdbc7e90dbceea243f146b24154a",
-        "candidateOutputSha": "9bd5111a938c31ea719893170e82231d5f46ec188e27712e8bda013a1ed1489a",
-        "facts": {
-          "snapshots": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "fresh-dispatch": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "full-context": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "protected-boundary": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "After keeps the snapshot commands, the unpinned foreground subagent call with the 300000/600000/900000 controls, and the guideline/Amend-grant protection and delegation language intact, but it drops the human scope answer \"No additional wrapper.\" from the Human input block, which Before passed verbatim alongside the original prompt. That omission breaks full-context, and it also makes the dispatch note \"It is the same block the members and chair received\" untrue since the members and chair were given both lines. Restore the two-line block (\"Report job status without a wrapper layer.\\nNo additional wrapper.\") exactly as in Before, and optionally keep Before's explicit \"(foreground, fresh context)\" label on the dispatch heading so the fresh-context nature of the call is stated rather than only implied by the subagent mechanism; the rest of After's restructured notes (expected before-set, path rooting, stopping point with reread-first) deliver the Change without harming the other facts.",
-        "wallMs": 14046,
-        "verdict": "inconclusive",
-        "confirmation": {
-          "status": "ok",
-          "text": "# Applier stage: pre-dispatch snapshots and dispatch\n\nThe active stage is **3: dispatch the applier**. The chair's report (`/tmp/council-widgets/chair.md`) passed the mechanical structural probe: it exists, is non-empty, and has `^consensus:` and `^lean:` lines. I don't read its clusters. The applier owns them.\n\n## Step A: Snapshots before dispatch\n\nRun these in this order. Every path is absolute and points at the worktree, not the parent launch directory `/tmp/acme/widgets-main`.\n\n```bash\ncp /tmp/acme/widgets-wt/doc/specs/job-status.md /tmp/council-widgets/spec.before.md\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.before\n```\n\nThe status snapshot should list these previously dirty paths:\n- `doc/specs/job-status.md`\n- `doc/specs/predecessor.md`\n- `notes/user.txt`\n\nThe later cleanup step never touches anything in this before-set.\n\n## Step B: Applier dispatch\n\n- The dispatch runs in the foreground.\n- `model` and `thinking` are left unpinned, so `agentOverrides['spec-council-applier']` is honored if set, and otherwise both inherit from the main loop.\n- `control` is a run-level field.\n- The coverage line is included because coverage is partial (1 of 2).\n\n```\nsubagent({\n  agent: \"spec-council-applier\",\n  async: false,\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  task: \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md. Chair report: /tmp/council-widgets/chair.md. Worktree: /tmp/acme/widgets-wt.\\n\" +\n        \"Member critiques (probe evidence only):\\n\" +\n        \"/tmp/council-widgets/member-0-alpha-core.md\\n\" +\n        \"Human input (verbatim; off-limits for over-spec):\\n```\\n\" +\n        \"Report job status without a wrapper layer.\\n\" +\n        \"Human answer: No additional wrapper.\\n\" +\n        \"```\\n\" +\n        \"External context fetched during brainstorming: acme/widgets#17 — body: \\\"Expose terminal job status; no wrapper layer.\\\" Comments: \\\"Retain existing status strings.\\\"\\n\" +\n        \"Coverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\n\" +\n        \"The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\\n\" +\n        \"Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Decide and apply the chair's clusters to the spec, then return the audit.\"\n})\n```\n\n## Constraints carried into the dispatch\n\n- **Human input block:** it must be the identical block already forwarded to the members and the chair. It holds only the original prompt and the human scope answer.\n  - The ticket body and comments go in the External-context line, not in Human input.\n  - No drafted rows are included.\n- **Amend-grant:** the `**Amend-grant:**` line (\"every later spec amendment applies without asking; redraw still stops; grant is not approval\") is protected through the flow-machinery instruction. The parent re-checks it once in step 5.\n\n## Stop point\n\nI stop here, at the dispatch. Once the applier returns, the first action is to `read` the spec from disk. Only after that come the following, in order:\n1. Store the audit at `/tmp/council-widgets/audit.md`.\n2. Check that the `Applied:`, `Deferred:` and `Rejected:` labels are present.\n3. Check that the `raised-by:` count equals the chair's cluster count.\n4. Compare status paths against `status.before` and clean up only newly dirty non-spec paths.\n\nNo chair clusters are adjudicated at this stage.\n",
-          "words": 500,
-          "wallMs": 18381,
-          "mechanical": {},
-          "judgeWallMs": 22053,
-          "facts": {
-            "snapshots": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "fresh-dispatch": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "full-context": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "protected-boundary": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            }
-          },
-          "feedback": "After keeps all four facts: the cp and git -C status --porcelain --untracked-files=all snapshots run before dispatch against the worktree root, the subagent call is a single foreground call with cwd /tmp/acme/widgets-wt, the 300000/600000/900000 controls, no model/thinking/output pins, the task carries the problem, absolute spec/chair/worktree/member paths, the ticket body and comment, exact coverage, the guideline path with the not-external-reference instruction and the Amend-grant protection, and the parent explicitly stops without reading clusters. Two drifts are worth tightening so the next wording change does not tip a fact: After inserts a `Human answer:` label inside the fenced block that is declared verbatim and required to match the members' and chair's block character for character — keep the block as the raw prompt line and the raw answer line (as Before did) and put any labeling outside the fence; and After dropped the words \"fresh context\" from the dispatch heading/bullets, leaving freshness only implied by the subagent call — restate \"fresh-context foreground single call\" in Step B. Optionally restore the full post-return list (placeholder scan, Amend-grant re-check, temp dir removal, gate handoff) that Before enumerated, since After's Stop point only lists four items while the Amend-grant bullet refers to a \"step 5\" that no longer exists."
-        },
-        "judgeModel": null,
-        "thinking": null
-      },
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "699b1a9bab2b11df371e1adaf4fa5dedef3061d800cb14458777c4fdaad08a5d",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-        "baselineOutputSha": "78ddea6af9517df544031c05c65f5fe4f597acddfa8874a1328b17a210102e75",
-        "candidateOutputSha": "7fac7ebc773bde9906cd2cffcf24765372347ceac7083f19139862444162a0f6",
-        "facts": {
-          "snapshots": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "fresh-dispatch": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "full-context": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "protected-boundary": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "No fact moved: After still prescribes the spec copy and full-untracked git status snapshot, dispatches spec-council-applier as a fresh-context foreground single call with cwd /tmp/acme/widgets-wt and the 300000/600000/900000 controls, omits model/thinking/output pins, and carries every piece of authoritative context (problem, absolute spec/chair/worktree/member paths flagged as probe evidence, verbatim prompt and answer, #17 body and comment, exact 1-of-2 coverage, guideline path with not-external-reference protection, and the Amend-grant line with its grant text) while delegating cluster decisions to the applier and stopping at dispatch. Two things drifted and are worth tightening so the protected-boundary fact stays robust: After dropped Before's explicit parent-side sentence 'Do not read the chair report or member findings in the parent', relying instead on the implicit delegation and the closing 'no chair-cluster adjudication'; restore that sentence in the §2 preamble (it costs nothing and makes the file-only/parent-does-not-read intent of the Change explicit). Second, the human answer lost its quotation marks inside the verbatim block ('Human answer:\\nNo additional wrapper.'), which still reads as verbatim but is slightly less clearly delimited than Before's 'Human answer: \"No additional wrapper.\"'; keep the quotes. The added 'Do not write code, run implementation skills, or land anything on main' line and the template-literal task are fine and consistent with the Change.",
-        "wallMs": 16809,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "anthropic/claude-opus-5-5": {
-        "factsSha": "699b1a9bab2b11df371e1adaf4fa5dedef3061d800cb14458777c4fdaad08a5d",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-        "baselineOutputSha": "31e326420eb7d5975c27fb12fb48555ed7b9bdbc7e90dbceea243f146b24154a",
-        "candidateOutputSha": "9bd5111a938c31ea719893170e82231d5f46ec188e27712e8bda013a1ed1489a",
-        "facts": {
-          "snapshots": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "fresh-dispatch": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "full-context": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "protected-boundary": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "After keeps the snapshot commands, the unpinned fresh foreground dispatch with the 300000/600000/900000 controls, and the guideline/Amend-grant protections plus delegation of cluster adjudication intact, so snapshots, fresh-dispatch, and protected-boundary all still hold. The regression is in the Human input block of the task: Before contained both the verbatim prompt \"Report job status without a wrapper layer.\" and the human scope answer \"No additional wrapper.\", while After drops the answer line and then asserts the block \"is the same block the members and chair received\", which it can no longer be. Restore the answer as a second line inside the fenced Human input block (prompt, then answer, character for character as sent to members and chair) and keep the explicit sentence from Before that the block contains the original prompt and the human scope answer; everything else in After can stay as written and still delivers the file-only/fresh-applier change.",
-        "wallMs": 10960,
-        "verdict": "regressed",
-        "confirmation": {
-          "status": "ok",
-          "text": "# Applier dispatch for the acme/widgets council\n\nThis is step 3 of roasting-the-spec. The chair and member files passed their structural probes. I won't read or weigh their findings.\n\n## Step 3a: Snapshot before dispatch\n\nRun these two commands first, in this order:\n\n```bash\ncp /tmp/acme/widgets-wt/doc/specs/job-status.md /tmp/council-widgets/spec.before.md\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.before\n```\n\n- Both use absolute paths in the worktree, not the launch dir `/tmp/acme/widgets-main`.\n- From the supplied data, the before-set has three dirty paths:\n  - `doc/specs/job-status.md`\n  - `doc/specs/predecessor.md`\n  - `notes/user.txt`\n- Step 4 will never touch any of these three paths.\n\n## Step 3b: Applier dispatch\n\nThe dispatch below:\n\n- runs in the foreground (`async: false`);\n- does not set `model` or `thinking`, so agentOverrides or the main loop apply;\n- passes the worktree as `cwd`;\n- includes the coverage line because only 1 of 2 members reported.\n\n```\nsubagent({\n  agent: \"spec-council-applier\",\n  async: false,\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  task: \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md. Chair report: /tmp/council-widgets/chair.md. Worktree: /tmp/acme/widgets-wt.\\n\" +\n        \"Member critiques (probe evidence only):\\n/tmp/council-widgets/member-0-alpha-core.md\\n\" +\n        \"Human input (verbatim; off-limits for over-spec):\\n```\\nReport job status without a wrapper layer.\\n```\\n\" +\n        \"External context fetched during brainstorming: acme/widgets#17 — body: \\\"Expose terminal job status; no wrapper layer.\\\" Comments: \\\"Retain existing status strings.\\\"\\n\" +\n        \"Coverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\n\" +\n        \"The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\\n\" +\n        \"Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Decide and apply the chair's clusters to the spec, then return the audit.\"\n})\n```\n\nNotes on the dispatch:\n\n- **Human input block:** it matches the block given to the members and chair. It contains no drafted rows.\n- **Amend-grant line:** its text (\"every later spec amendment applies without asking; redraw still stops; grant is not approval\") is kept as is. The applier is told not to touch it.\n\n## Stop point\n\nI stop here, at the dispatch. When the applier returns, the first action is step 4: reread the spec from disk, before any audit validation, status comparison or retry. After that comes the label check and the cluster count check. I'm not adjudicating chair clusters at this stage.\n",
-          "words": 412,
-          "wallMs": 17195,
-          "mechanical": {},
-          "judgeWallMs": 10285,
-          "facts": {
-            "snapshots": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "fresh-dispatch": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "full-context": {
-              "before": "holds",
-              "after": "fails",
-              "label": "regression"
-            },
-            "protected-boundary": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            }
-          },
-          "feedback": "After keeps the snapshots, the fresh foreground dispatch with unpinned model/thinking and the 300000/600000/900000 controls, and the guideline/Amend-grant protections intact, but it dropped the human scope answer from the task's Human input block: Before's block contains both \"Report job status without a wrapper layer.\" and \"No additional wrapper.\", while After's block contains only the original prompt, so the applier no longer receives the verbatim human answer and the block no longer matches what the members and chair received. To deliver the Change without losing full-context, keep the Human input fence exactly as Before had it (prompt line followed by the answer line) and, if you want to state the block's composition in prose, say it contains the original prompt and the human scope answer and no drafted rows, as Before did."
-        },
-        "judgeModel": "anthropic-fable/claude-fable-5-1",
-        "thinking": "medium"
-      },
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "699b1a9bab2b11df371e1adaf4fa5dedef3061d800cb14458777c4fdaad08a5d",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-        "baselineOutputSha": "78ddea6af9517df544031c05c65f5fe4f597acddfa8874a1328b17a210102e75",
-        "candidateOutputSha": "7fac7ebc773bde9906cd2cffcf24765372347ceac7083f19139862444162a0f6",
-        "facts": {
-          "snapshots": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "fresh-dispatch": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "full-context": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "protected-boundary": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "After keeps every fact Before kept: both snapshot commands are prescribed with the exact paths and `--untracked-files=all`, the applier is dispatched as a single foreground fresh-context call with cwd /tmp/acme/widgets-wt and the 300000/600000/900000 controls with no model/thinking/output pins, and the task carries the problem, absolute spec/chair/worktree/member paths (probe evidence only), the verbatim human prompt and answer, the #17 body and comment, the 1-of-2 coverage line, the guideline absolute path with its not-external-reference protection, and the Amend-grant line preserved verbatim. The one regression risk is that After dropped Before's explicit sentence 'Do not read the chair report or member findings in the parent'; the delegation still reads as holding because the task tells the applier to decide and apply the clusters and the closing line forbids parent adjudication, but a stricter judge could treat the parent-read boundary as weakened. To deliver the Change (file-only chair/member outputs, direct chair reads from explicit paths) without loosening this, restore that sentence in section 2 — e.g. 'Parent does not read /tmp/council-widgets/chair.md or the member files; the applier reads them directly from these paths' — which also makes the direct-read-from-explicit-path contract explicit. Minor: After removed the quotation marks around the human answer inside the verbatim fence; keeping `Human answer: \"No additional wrapper.\"` makes the verbatim claim unambiguous.",
-        "wallMs": 18164,
-        "verdict": "unchanged",
-        "judgeModel": "anthropic-fable/claude-fable-5-1",
-        "thinking": "medium"
-      }
-    }
-  }
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

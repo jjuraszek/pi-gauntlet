@@ -43,7 +43,7 @@
       "factsSha": "a7581f6c890ba01b039a9c8ac68a50007964718952f0af4bc150d267ad7dc864",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "96cbdb4c7e4b27bfcbcfd83e62846464686b494a9203371b83152f3cc1903e74",
+      "baselineOutputSha": "32f1dedad92a0edbdba95f7117bad8964341ca2fd8cf934408b25c49319894a2",
       "candidateOutputSha": "32f1dedad92a0edbdba95f7117bad8964341ca2fd8cf934408b25c49319894a2",
       "facts": {
         "f1": {
@@ -72,15 +72,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs state that all 400 `Modify:` rows under Task 2 and Task 3 are dropped on the strength of two pieces of evidence (both owning tasks are ✓ complete in the snapshot, and `git log --diff-filter=D` prints a hash for every path) and both explicitly say nothing else in the plan changes; After even enumerates what stays untouched (names, count, order, waves, owners, text), which strengthens f1 rather than weakening it. Both outputs call `plan_tracker init` with the five snapshot tasks and statuses verbatim, so f3 holds in both. The additions in After (the explicit pre-route check for baseline-line/open-questions findings, the `git checkout` restore point, the check-6 standing-grant line left unresolved rather than invented, and the handoff to subagent-driven-development) are consistent with the Change's intent and introduce no new plan edits or tracker mutations; keep that wording as is.",
-      "wallMs": 10065,
+      "feedback": "Before and After are textually identical for this case, so nothing moved. Both outputs satisfy f1: section 4 classifies every finding under the paths-exist row with the two required pieces of evidence (Task 2 and Task 3 both ✓ in the snapshot; git log --diff-filter=D prints a hash for each of the 400 paths), and section 5 drops only those 400 Modify rows while explicitly stating that task names, count, order, waves, owners and text are unchanged. Both satisfy f3: section 7 calls plan_tracker init with exactly the five tasks from the brief, in order, with statuses complete/complete/complete/in_progress/pending. Since this case exercises only the ordinary citation-repair restore and none of the new coordinated-flow, pr-list, loop-ledger or baseline-rerun branches named in the Change, the reworded skill produced the same narration here; keep the citation-repair and tracker-init wording as is, and confine the new coverage (leg/home/branch stops, ledger cap restoration, baseline-rerun dispatch) to branches gated on brief fields this input does not carry so that ordinary briefs continue to take this unchanged path.",
+      "wallMs": 8855,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a7581f6c890ba01b039a9c8ac68a50007964718952f0af4bc150d267ad7dc864",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "093a60f14673d6554878fdf438926bfc37bc8574eb5c9dda5237e70bc7ceb7ed",
+      "baselineOutputSha": "cc428f8d490e2e58a657a62027180ed67bdf60b5c26c77aa77a8dd9552ed6629",
       "candidateOutputSha": "cc428f8d490e2e58a657a62027180ed67bdf60b5c26c77aa77a8dd9552ed6629",
       "facts": {
         "f1": {
@@ -109,10 +109,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this case: both outputs justify dropping exactly the 400 dead `Modify:` rows by citing the deletion hash for each path and the `complete` status of owning Tasks 2 and 3, both state no other plan edit, and both call plan_tracker init with the five brief tasks and statuses unchanged. After's reorganization (folding the per-path git loop into the citation-repair step, naming the `Files:` blocks explicitly, and restating the preserved task names/order/statuses at the edit step) keeps every fact Before kept; the only cosmetic difference is that After omits the explicit 'Result: success' on the commit step, which the brief's tool result 6 already covers, so no wording change is needed here to deliver the Change.",
-      "wallMs": 7625,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both narrate the 400 paths-exist findings, confirm via per-path `git log --diff-filter=D` that every path was deleted and that the owning Task 2/Task 3 are complete in the snapshot, delete exactly those 400 `Modify:` rows with no other plan edit (f1), and call plan_tracker init with the five tasks and statuses verbatim from the brief (f3). The After wording preserved every fact Before kept; since this sample exercises the single-worktree citation-repair path rather than the coordinated-flow, PR-pair, or loop-ledger paths the Change targets, it is setup-only coverage here — no wording adjustment is needed to keep f1/f3 holding while delivering the Change.",
+      "wallMs": 7582,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

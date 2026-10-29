@@ -35,7 +35,7 @@
       "factsSha": "72caeb36bb0ccdf648c3d0e1460dfdad17ebcf9879fff763d43642b9816fb4a0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "37fc59bbc19773d28a9b9b45a0beaae9af7d0e2de2ca03015d1329bd48c48095",
+      "baselineOutputSha": "4744efbec6d6806bb889a2084e730bf4d634c563e56fb96a1f047ebd870fac4a",
       "candidateOutputSha": "4744efbec6d6806bb889a2084e730bf4d634c563e56fb96a1f047ebd870fac4a",
       "facts": {
         "rejection": {
@@ -49,15 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps both facts: Checkpoint 7 reports the rejection once, states no retry/force, no description fetch or edit, closure skipped, members #13/#14 left open, worktree preserved, and returns to the menu; the variants withhold row 1 on divergence, stop on the ccccccc rewritten-history message, treat exit 128 as a command error, and say rows 2-6 never close members with the exact `Member PRs #13, #14 left open.` line. Two spots are weaker than Before and could read as drift under a stricter judge: the post-rejection menu re-renders with row 1 still present (Before showed it withheld with an explicit note that no push retry is offered), and the worktree line drops the path. To keep the Change while removing that ambiguity, have Checkpoint 7 state that both ancestry proofs are rerun on return and that a rejected push implies origin advanced, so row 1 is withheld in the re-rendered menu (or at least add 'no push retry is offered'), and print the full worktree path in the preserved line.",
-      "wallMs": 15247,
+      "feedback": "The Before and After outputs are byte-identical, so no fact moved. Both already satisfy rejection: Checkpoint 7 reports the rejected push once, states it is not retried or forced, leaves the description unfetched/unedited with no scratch file, skips closure, says #13 and #14 are left open, preserves the worktree, and returns to the recomputed menu. Both satisfy guards: the divergence variant omits row 1 with the Withheld line and offers no closure; the #14 exit-1 variant stops before the menu with the exact `ccccccc is not an ancestor of HEAD` rewritten-history message; exit 128 is handled as a command error that stops and prints git output rather than being treated as divergence; and rows 2–6 never offer closure and end with `Member PRs #13, #14 left open.` The Expected-to-move entry predicted rejection going fails→holds, but the Before text already held it, so this case shows pre-existing coverage rather than an improvement. If the author wants After to visibly deliver the Change here, the ordered-PR-list wording would need to add something Before lacked (e.g., explicitly stating that members' live state was rechecked against their recorded heads and that the refresh/close step is gated on a successful body write), while keeping the single-rejection report, no-retry/no-force, skipped body edit, skipped close question, preserved worktree, and all four guard variants exactly as written.",
+      "wallMs": 10833,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "72caeb36bb0ccdf648c3d0e1460dfdad17ebcf9879fff763d43642b9816fb4a0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "a5ff66970a807bf1366391aa42ae113c1a4e28085ed81ffb39e7840e7e0c84d9",
+      "baselineOutputSha": "552562df33149b45ddc43614d7b8837243b774db3a5d08ce79a505cd99b79ed6",
       "candidateOutputSha": "552562df33149b45ddc43614d7b8837243b774db3a5d08ce79a505cd99b79ed6",
       "facts": {
         "rejection": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both facts survive in After. The rejection checkpoint is actually stronger in After: it now states the push command, says 'Preserve worktree and branch' explicitly (Before only implied it by never running cleanup), reports the rejection once with no retry/force, skips fetch/edit and closure, and prints 'Member PRs #13, #14 left open' before the menu. The guards section keeps the withheld-row-1 menu, the exact ccccccc rewritten-history message, and the exit-128 command-error stop. Two small weakenings to watch: After says exit 128 is 'a command error' but drops Before's explicit 'do not classify it as divergence', and the rows 2–6 closer now reads 'Every independent variant leaves members open' rather than naming '#13, #14' and stating 'none authorizes member closure' per row. Restoring the phrase 'not divergence' on the exit-128 line and 'Member PRs #13, #14 left open; none of rows 2–6 authorizes member closure' as the closing line would keep every guard fact unambiguous while retaining After's clearer push-command, worktree-preservation, and fresh-preflight wording.",
-      "wallMs": 21084,
+      "feedback": "Before and After are byte-identical for this case, so no fact moved. Both outputs already satisfy rejection (single rejection report, worktree preserved, no retry/force, description edit and close question skipped, explicit 'Member PRs #13, #14 left open', return to the menu) and guards (row 1 withheld on divergence with the exact message, exit 1 stop naming ccccccc with the rewritten-history wording, exit 128 treated as a command error, rows 2-6 enumerated with 'Every independent variant leaves members open'). The intended fails -> holds movement for pr-list-push-rejected/rejection is therefore not observable here because the baseline text already delivers it; if the author wants the Change to be visible on this sample, the Before arm would need to actually differ, or the facts would need to be sharpened (e.g., require the rejection output to name the pushed command and the specific refs preserved, or require rows 2-6 to each individually state members untouched) so that only the After wording can satisfy them. Nothing in After's wording should be altered to keep these facts; the current text keeps everything Before kept.",
+      "wallMs": 11558,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

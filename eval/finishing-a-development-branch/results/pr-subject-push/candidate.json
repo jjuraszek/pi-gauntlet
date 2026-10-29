@@ -35,7 +35,7 @@
       "factsSha": "86e409f4a235f5e9ab4f6621f69e27cd6ec0dc8bb3015f06ffb3d886162a9645",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "db9dd659b684ba2f4e22414e29dd85cb88c780b1217ca2f0fed4e02eab4deff2",
+      "baselineOutputSha": "665c244d424bf8237157e70cbee9d395c7ac320bdc524e65516fa09db9944a8c",
       "candidateOutputSha": "665c244d424bf8237157e70cbee9d395c7ac320bdc524e65516fa09db9944a8c",
       "facts": {
         "menus": {
@@ -44,9 +44,9 @@
           "label": "intended but unchanged"
         },
         "verification": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "guards": {
           "before": "holds",
@@ -79,15 +79,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept and adds the one Before lacked: the fix-minors checkpoint now states \"Every command needs success evidence\" before Step 3.5/menu return, which is what makes the verification fact hold (Before only implied it via \"All pass\" and never said missing evidence blocks). After also makes the origin-advance proof an explicit separate `merge-base --is-ancestor $A origin/fix-timeout` with exit-0/exit-1 outcomes, which is a cleaner reading of the divergence fact than Before's conditional prose. Two small things to watch so the menu fact stays robust: After's withheld-menu replies say \"Reply `5` keeps the branch\" without echoing the mapped option number the way Before did (\"`5`: Option 4 (Keep)\"); since the Change requires echoing a mapped legacy pick before acting, keep the \"Reply `5` -> Option 4 (Keep) / Reply `6` -> Option 5 (Discard)\" echo in that row. Also keep the explicit \"open PR on the branch does not make it a PR subject\" sentence (After has it; Before relied on the reader supplying the case setup) and the ordinary-spec `test-all` header-only dispatch in the F3 row, both of which After already does.",
-      "wallMs": 31766,
-      "verdict": "improved"
+      "feedback": "The After output is byte-for-byte identical to Before, so nothing moved: both render the exact six-row PR-subject menu with the ordinary-spec five-option fallback, the task-union-plus-header verification set with sentinel and F3 dispatch rules and the post-fix evidence gate, the prehead/closed/wrong-head/exit-128 stops, the withheld-row divergence handling with proof-gated origin-advance suffix and the 1/5/6 reply behaviors, the strip→seal→update-ref→non-force push order, pre-strip thread evidence with the T1–T9 dispositions and none/not-fetched renders, the fresh-fetch outside-repo scratch body append with the supersedes rule, and the push-rejected/body-edit-failed handling. Since the Expected-to-move list claims pr-subject-push facts go fails→holds but Before already satisfies all eight, this sample does not evidence the Change; if the author wants the After wording to show a difference here, it should surface something the Change adds that Before lacks (e.g., an explicit echo of a mapped legacy numeric pick before acting, or the keyed `## using-git-worktrees` destroy/branch -D continuation on the discard path) while leaving the shared shell sequence, menu text, legend, and delta rows untouched so every current fact keeps holding.",
+      "wallMs": 22926,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "86e409f4a235f5e9ab4f6621f69e27cd6ec0dc8bb3015f06ffb3d886162a9645",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "1fd5ea012db4e6989ad4a75152578e35d122df6839ba1b014a511508d7f9f3a8",
+      "baselineOutputSha": "594ce4d58f494c9732d24771e392dc9e45869e783ea3a675dc4f158133741c24",
       "candidateOutputSha": "594ce4d58f494c9732d24771e392dc9e45869e783ea3a675dc4f158133741c24",
       "facts": {
         "menus": {
@@ -131,10 +131,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: the six-row menu with consequences and the ordinary five-option mapping, the four-command scoped verification with V-based skip and sentinel/ordinary dispatch, all guard stops, the withheld row-1 treatment with separate ancestry proof and `1`/`5`/`6` replies, the pre-rework ref plus non-force --no-follow-tags push after strip and seal, pre-strip evidence capture with the T1–T9 resolutions, the fresh post-push body fetch with outside-repo scratch and the full Rework block, and the push/edit failure handling. Three wordings in After are weaker than Before and worth tightening without costing words: (1) \"Failure proves no advance\" misstates the rule — a failed ancestry proof only omits the suffix, it does not prove anything; use \"on failure omit the suffix\". (2) After drops Before's explicit \"count naming commits first-parent over M..HEAD\" and shows only outcomes; keep one clause stating the one-first-parent-commit rule so T1 vs T3 is derivable, not just asserted. (3) In checkpoint 5 restore \"failing test-retry or missing evidence stops\" so the missing-evidence block is explicit rather than implied by \"require successful evidence\". Otherwise the After structure (shared aliases, one exact menu, fetch/ancestry commands shown up front, body-write invocation after the block) delivers the Change cleanly.",
-      "wallMs": 35369,
+      "feedback": "The After output is byte-for-byte identical to Before, so no fact moved in either direction: both render the exact six-row menu with PR consequences, union the task tests with the lint/format header (sentinel removes only header commands), stop on missing prehead/CLOSED/wrong head/exit 128 as errors, withhold row 1 with both SHAs and the proof-gated suffix, save the pre-rework ref and push non-force after strip and seal, capture thread evidence before strip with the correct T1–T9 dispositions, write the fresh-fetched body via an outside-repo scratch and gh pr edit --body-file, and handle rejected push / failed edit without retry or body edit. Two soft spots the author may want to tighten regardless of the Change: (1) '2 Rows 2–6 map to Options 1–5' is the only hint that the ordinary spec keeps five options and the shared menu-layout reply rules (echoing a mapped legacy pick) are never stated — add one clause like 'ordinary spec: five-option menu; echo the mapped pick before acting'; (2) 'Failure proves no advance' is stronger than the fact ('failed proof omits that suffix') and could be read as inferring from a failed check — reword to 'Failed proof: omit the suffix; do not infer advance from divergence'. Since the Change's intended movements (per-leg flows, teardown contracts, menu-layout echo, PR-list handling) are all on other cases, the PR-subject wording can stay as is while adding those two clarifications.",
+      "wallMs": 26491,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

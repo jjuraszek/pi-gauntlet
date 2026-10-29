@@ -35,7 +35,7 @@
       "factsSha": "44fbaec8915683a30cdb4898a3bb3cd23f0427d8965e45e12714bf0c871a399c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "976f88d9e3af3e5af58bfaa0d9011f97a30a8273f621d2f3934f034651585859",
+      "baselineOutputSha": "5ee1e91a9d83a4ccf454ca9771119128529a4610f8bcd31a8ab321866c69f8f5",
       "candidateOutputSha": "5ee1e91a9d83a4ccf454ca9771119128529a4610f8bcd31a8ab321866c69f8f5",
       "facts": {
         "eligibility": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs refresh member state only after the push and `gh pr edit` succeed, fetch N9 before the `merge-base --is-ancestor` test, emit the exact `#14 skipped: head moved to 9999999, not in home` line, offer only #13 with the exact bbbbbbb/home-link comment and `1 - yes, close #13`, recheck #13 immediately before closing without `--delete-branch`, keep the contained-head variant eligible, ask no question when nothing is eligible, and prove the member fix on #13's own history rather than home's first-parent walk. The Expected-to-move entry predicted eligibility failing in Before, but Before already satisfied it, so the After wording delivers no observable movement here. After is slightly leaner than Before in ways that do not touch these facts but could matter for sibling cases: it drops the explicit `Base: main @ 1234567` combined field, the `phase_tracker start ship` call, and the PRIMARY/FEATURE bindings; if those are judged elsewhere, keep Before's CP0/CP1 lines in the After narration. Otherwise the After wording (explicit `fetch origin 9999…` then `merge-base --is-ancestor N9 E` as separate bullets, full close command quoted verbatim) is a clearer rendering of the same behavior and can stand.",
-      "wallMs": 14125,
+      "feedback": "The Before and After outputs are byte-for-byte identical, so nothing moved: both run the member-eligibility refresh only after the push and the successful `gh pr edit 12 ... --body-file \"$SCRATCH\"`, both fetch N9 before the `merge-base --is-ancestor N9 E` test against the saved pushed home head and report `#14 skipped: head moved to 9999999, not in home` without treating it as a closure error, both render the exact #13-only close question with the bbbbbbb comment and home link, recheck #13 immediately before `gh pr close 13 ... -R acme/widget` with no `--delete-branch`, and both keep the contained-head variant eligible, ask no question when no member is eligible, and disclaim home first-parent history as member-fix proof. The expected movement for `eligibility` (fails -> holds) is not observable here because the Before text already satisfies it; if the author intended After to differ, the sample does not show it, and no wording change is needed to retain the three facts as written.",
+      "wallMs": 10820,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "44fbaec8915683a30cdb4898a3bb3cd23f0427d8965e45e12714bf0c871a399c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "b7f501ff937c8699d78645e308f070c7bcff43ec3ce9b518335df4c9d5c19450",
+      "baselineOutputSha": "9679e9b6bc9f725c6fd7d13a2b766d181fb75f3e268da474f6fce7e2e22a7540",
       "candidateOutputSha": "9679e9b6bc9f725c6fd7d13a2b766d181fb75f3e268da474f6fce7e2e22a7540",
       "facts": {
         "eligibility": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After on this case: both outputs refresh #13/#14 only after the successful `gh pr edit`, test ancestry against the saved pushed head P, fetch X before the ancestry check, print the exact `#14 skipped: head moved to 9999999, not in home` line, render the eligible-only question naming only #13 with the bbbbbbb/home-link comment, recheck #13 immediately before closing without `--delete-branch`, and in the variants keep the contained advanced head eligible and ask nothing when no members qualify, with no home-history member-fix inference. After additionally gains the spec-header/plan-strip and seal-stdout wording the Change asked for without disturbing these facts. One mild regression in evidence quality rather than fact: After collapses the 'advanced #14 contained' variant into a prose delta ('Include #13 and #14 in the question, using ccccccc') instead of rendering the exact two-target question as Before did; since the Case asks to render the exact eligible-only question, consider keeping the full rendered question block for that variant (the Before form) so a stricter 'exact question' fact would not drift while the terse-delta style still applies to the no-eligible variant.",
-      "wallMs": 14776,
+      "feedback": "Before and After are byte-identical, so no fact moved. Both outputs already satisfy every fact: eligibility refresh happens only after the successful push and `gh pr edit` body write, #13 is checked for containment in the saved pushed home SHA P, X is fetched explicitly before the ancestry test, and `#14 skipped: head moved to 9999999, not in home` is printed without merging; the question offers only #13 with the exact comment carrying `bbbbbbb` and the #12 link, option 1 names only #13, an immediate #13 recheck precedes the close, and completion reports #13 closed and #14 left open; the contained-head variant keeps #14 eligible with `ccccccc`, the no-eligible variant asks no question, no `--delete-branch` is used, and member completion is not inferred from home's first-parent history. The Expected-to-move entry for this case claims eligibility went fails -> holds, but the Before text already held it, so the After wording delivers no observable change here; if the author intended a visible movement on this sample, the After wording would need to produce distinct text (e.g., an explicit statement that the ancestry test runs against the saved P rather than live HEAD, or an explicit note that an unfetched SHA is fetched rather than treated as a closure error) — otherwise the current wording is already sufficient and should simply be kept as is.",
+      "wallMs": 11661,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

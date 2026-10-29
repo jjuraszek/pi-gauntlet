@@ -35,7 +35,7 @@
       "factsSha": "429cfae8c727b764a5c21b29c9c8233b8f59dfdf7e93cbe4c91696626d0ebac4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "05084d729a286f850d9793d0341140400273ed83fd46e85cc84f27a7b3475311",
+      "baselineOutputSha": "336f5e95d4d4df296624527ad9d9fb3cb6aee9cbb42c35578da63bda4b009585",
       "candidateOutputSha": "336f5e95d4d4df296624527ad9d9fb3cb6aee9cbb42c35578da63bda4b009585",
       "facts": {
         "declared-floor": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved between Before and After: both derive the 7.4.3 floor from the installed pi-gauntlet package.json rather than a remembered threshold, both emit the exact `pi-cohort >= 7.4.3 required, found 7.3.1` diagnostic, both preserve the three independent alternative diagnostics verbatim with a stop-before-dispatch boundary and no invented recovery, and both decline any implementer/chain dispatch while reporting the error for human resolution. After additionally makes the 'fixed observations, no source reconstruction' stance explicit up front, which supports the Change. One small point to watch: Before explicitly names the one-entry `tasks` fallback as not dispatched, while After only says 'no fallback' generically; if you want the below-floor tasks-fallback prohibition to remain unambiguous, keep a line like 'No implementer chain or older-runtime one-entry `tasks` dispatch is sent' in the dispatch-boundary list. Otherwise the After wording keeps every fact Before kept.",
-      "wallMs": 8990,
+      "feedback": "The Before and After outputs are textually identical, so no fact moved. Both derive the 7.4.3 floor from the installed pi-gauntlet package.json rather than a hardcoded threshold and emit the exact `pi-cohort >= 7.4.3 required, found 7.3.1` diagnostic; both preserve the three independent guard diagnostics (`pi-cohort not installed`, `cannot read peer floor`, `cannot parse pi-cohort version unknown`) verbatim, each stopping before dispatch without inventing an install or substitute floor; and both explicitly refuse any implementer chain, spec review, integration, or older-runtime/tasks fallback, reporting for human resolution. Since the After wording delivers the Change's old-cohort-preflight-stops behavior without altering any of these facts, no rewording is needed for this case; the author should simply keep the package-derived floor statement, the verbatim diagnostic strings, and the explicit 'no worker dispatch, no fallback' boundary intact in any future edits.",
+      "wallMs": 7547,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "429cfae8c727b764a5c21b29c9c8233b8f59dfdf7e93cbe4c91696626d0ebac4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "9ff188e1e549600f783db2de6157bf9caab7493e076418c6b096f4b43ed02e61",
+      "baselineOutputSha": "dde7d460d8470d266be893922adbff3c2e95ebea048cf7b4b42abb75ae31fb4a",
       "candidateOutputSha": "dde7d460d8470d266be893922adbff3c2e95ebea048cf7b4b42abb75ae31fb4a",
       "facts": {
         "declared-floor": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs derive the floor from the installed pi-gauntlet peerDependencies and emit `pi-cohort >= 7.4.3 required, found 7.3.1`; both preserve the three independent guard diagnostics as stop cases with no retry sequencing; both dispatch nothing and assume no repair. After actually strengthens declared-floor by citing the package.json path and strengthens no-fallback with the explicit per-role dispatch boundary and the 'do not use repository metadata as a fallback' clause. The only softening worth tightening: After's imperative 'Correct the installed pi-cohort version' / 'Restore/install pi-cohort' reads as if the orchestrator might perform the fix, whereas Before's 'Have the environment corrected' makes human resolution unambiguous. Keep After's path citation and dispatch-boundary block but phrase remediation as 'report for the human to correct ... then rerun preflight' so the human-resolution element of no-fallback stays explicit under the new wording.",
-      "wallMs": 12572,
+      "feedback": "After is textually identical to Before, so no fact moved. Both outputs use the package-derived `>=7.4.3` floor from `/opt/pi/node_modules/pi-gauntlet/package.json` and emit the exact diagnostic `pi-cohort >= 7.4.3 required, found 7.3.1`; both preserve the three independent alternative diagnostics (`pi-cohort not installed`, `cannot read peer floor`, `cannot parse pi-cohort version unknown`) as blocking stops that defer to human correction rather than inventing a successful install or inferring a floor; and both state an explicit dispatch boundary with no implementer, chain, or older-runtime tasks fallback. For this case the After wording already delivers the Change's old-cohort-preflight-stops intent (fixed guard errors, package-derived floor, no source reconstruction) while keeping every Before fact; no wording adjustment is needed here, though if you want the output to more visibly reflect the Change you could add a short line noting that the guard resolved pi-gauntlet and pi-cohort by installed `package.json` name and that no tasks fallback for below-floor runtimes exists — without altering the diagnostics or the stop boundary.",
+      "wallMs": 8244,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

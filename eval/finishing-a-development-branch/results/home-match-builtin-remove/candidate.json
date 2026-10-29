@@ -39,7 +39,7 @@
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "57940c9159726a93088f11114888e56b24c2bdbe89f47cbfba72d02ac5e74453",
+      "baselineOutputSha": "82aa5328e0d26e8329fdb91b1799a99b15cb3908d0a7aae2d647c744bf29ccee",
       "candidateOutputSha": "82aa5328e0d26e8329fdb91b1799a99b15cb3908d0a7aae2d647c744bf29ccee",
       "facts": {
         "b1": {
@@ -58,15 +58,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both facts hold in both outputs: each resolves `../acme-api-worktrees/<name>` against `/work/acme-api`, matches `/work/acme-api-worktrees/rate-limit` with `NAME = rate-limit`, declares the worktree gauntlet-owned, and runs `worktree remove`, `worktree prune`, then `branch -D rate-limit` in that order from `/work/acme-api`. Nothing moved on this case. One observation for the author: Before explicitly stated the failure rule (`worktree remove` failure prints output, stops, keeps the branch, no `--force` retry), while After dropped it and presents the three commands as a single block with an unconditional 'the local branch is deleted' result. That omission is not graded here but is exactly what destroy-failure/f2 and the 'keeps the branch when destroy: fails' clause of the Change expect; consider keeping a short 'if removal fails, stop and keep the branch; never retry with --force' sentence after the command block so the explicit branch -D continuation remains conditioned on successful removal.",
-      "wallMs": 7954,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both narrate the keyed `home:` contract, canonicalize `../acme-api-worktrees/<name>` to `/work/acme-api-worktrees/*`, match `$WORKTREE` with `NAME` = `rate-limit`, declare the worktree gauntlet-owned (b1), and run `worktree remove`, then `worktree prune`, then `branch -D rate-limit` from `/work/acme-api` in that order (b2). The Expected to move list says b1/b2 should go fails -> holds, but Before already satisfies both here, so this sample shows no improvement attributable to the After wording; either the baseline bundle for this case already included the keyed-contract section, or the sample needs a true baseline run. No wording change is required to keep these facts; just make sure the After wording retains the explicit `branch -D` continuation after the built-in remove/prune and the one-segment `<name>` match rule, which this output demonstrates.",
+      "wallMs": 6071,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "214858bb008fc350ed7d609b3360261b902221073251c8581783a26505d7369d",
+      "baselineOutputSha": "570bc311732d406bd865ca6b8a22c7568a38daccd261a79dfb4e7cc22874eeff",
       "candidateOutputSha": "570bc311732d406bd865ca6b8a22c7568a38daccd261a79dfb4e7cc22874eeff",
       "facts": {
         "b1": {
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both facts hold in both outputs: each narration matches the worktree against the keyed `home:` pattern with NAME=rate-limit, treats it as gauntlet-owned, and runs remove, prune, then branch -D in order with `&&` chaining. The only drift in After is that it no longer spells out the resolved pattern `/work/acme-api-worktrees/<name>` or the literal `$WORKTREE` path at the match step, saying only 'matches this worktree'; a reader must rely on the command block to confirm which path was matched. To keep b1 unambiguously explicit while retaining the new 'remove and prune before deleting the branch' sentence, have After state the resolved home pattern and the matched path (e.g. 'The keyed `home:` resolves to `/work/acme-api-worktrees/<name>` and matches `/work/acme-api-worktrees/rate-limit` with NAME=rate-limit') before the no-`destroy:` fallback sentence.",
-      "wallMs": 8687,
+      "feedback": "Before and After are byte-identical for this case, so nothing moved: both outputs state that the keyed `home:` pattern matches the worktree with `NAME=rate-limit` and proceed to gauntlet-owned cleanup (b1), and both run `worktree remove`, then `worktree prune`, then `branch -D rate-limit` from the primary, in that order (b2). The expected fails->holds movement for b1/b2 is not observed because the Before text already satisfies both facts; if the intent was to demonstrate the new ownership-match and explicit `branch -D` continuation against a baseline that reports a sibling path host-owned, the Before sample supplied here is not that baseline. No wording change in After is needed to preserve these facts; the After wording already delivers the keyed match, built-in remove+prune, and explicit branch deletion required by the Change.",
+      "wallMs": 7063,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

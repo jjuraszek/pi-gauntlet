@@ -35,7 +35,7 @@
       "factsSha": "466f32778d2b2d9b4417a26f05dadcae72a56b3788a5b7692922bf8a289b742a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "5cee3f88260e3627d1e86399039e6ce5a6c12943d7f6123ac33b4cbbc0146388",
+      "baselineOutputSha": "d078e5dc4e0a01565b96c6d2348226acf1f021d955c0e21ae95c16c7f655b7b5",
       "candidateOutputSha": "d078e5dc4e0a01565b96c6d2348226acf1f021d955c0e21ae95c16c7f655b7b5",
       "facts": {
         "rerun": {
@@ -54,15 +54,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs dispatch a fresh, foreground plan-writer (cwd the resolved worktree, phase plan-write, acceptance none, all five paths plus `Findings: rerun baseline`) with the parent explicitly running no baseline commands and writing no SHAs; both re-run plan_check on the absolute plan path after `PLAN WRITTEN` and before any tracker call; and both skip plan and implement with resume reasons, start verify, never call `start implement`, and init plan_tracker from the exact two-task complete snapshot rather than a step-7 fresh-plan list. The Expected-to-move entries for baseline-upgrade-preserves-statuses listed fails -> holds, but Before already satisfied all three facts, so the After wording is a preservation rather than an improvement here. The After version is slightly tighter (it names the parent making no commit at all, and reads the task snapshot before the rerun), which is a good direction; if you want the facts more unambiguously visible, keep the explicit \"`start implement` is never called\" and \"initialized from the saved snapshot, not from a fresh-plan list\" lines, and consider stating that the recheck precedes every phase_tracker call so the ordering in parent-check cannot be read as incidental.",
-      "wallMs": 10473,
+      "feedback": "Before and After are byte-identical, so nothing moved: both narrate a fresh foreground plan-writer dispatch (context fresh, async false, cwd the resolved worktree, phase plan-write, acceptance level none, worktree/spec/plan/skill/contract paths, Findings: rerun baseline) with the parent running no baseline commands and writing no SHAs; both run plan_check on the absolute plan path immediately after PLAN WRITTEN and before any tracker call; and both, after PASS, skip plan and implement with resume reasons, start verify, and init plan_tracker from the saved snapshot with exactly the two W1 tasks complete in order, with no start-implement and an explicit rejection of fresh-plan initialization. The Expected-to-move list predicts fails->holds for all three, but the Before text already satisfied every fact, so this sample provides no evidence that the wording change had any effect on this case; if the author wants a measurable move here, the Before narration would need to have been generated under the old wording rather than reused, otherwise keep the After wording as-is since it preserves everything Before had.",
+      "wallMs": 9742,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "466f32778d2b2d9b4417a26f05dadcae72a56b3788a5b7692922bf8a289b742a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "88c6760ab836d1dd3f3ebd991e7611de5c04075d8ff35348f845929aa528e9a1",
+      "baselineOutputSha": "c770779e13a2683c2329dc2193a92ad22d49da2f43fa66718e7146e693a2a8af",
       "candidateOutputSha": "c770779e13a2683c2329dc2193a92ad22d49da2f43fa66718e7146e693a2a8af",
       "facts": {
         "rerun": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: the plan-writer is re-dispatched fresh and foreground with the resolved worktree cwd, phase plan-write, acceptance level none, the worktree/spec/plan/skill/contract paths and `Findings: rerun baseline`; the parent rechecks the absolute plan path after `PLAN WRITTEN` and before any tracker calls; and after PASS it skips plan and implement with resume reasons, starts verify, and initializes plan_tracker with the exact two-entry complete snapshot in order rather than a fresh plan list. The only regression in explicitness is that After drops Before's statement that the parent itself does not run the baseline commands or synthesize SHAs, and no longer says the writer ran both commands — keep a line such as 'The writer ran both commands; the parent does not execute baseline runs or invent SHAs' in step 2 so the 'rather than editing baseline evidence in the parent' half of the rerun fact stays stated rather than merely implied. The `<scratch>/skills/writing-plans/...` placeholders for the skill and contract paths are acceptable given the input supplies no absolute paths, but a note that they must be resolved before dispatch (as Before had) would be clearer.",
-      "wallMs": 11966,
+      "feedback": "Before and After are textually identical, so no fact moved on this case. Both dispatch a fresh, foreground (async false) plan-writer with cwd set to the resolved worktree, phase plan-write, acceptance level none, the worktree/spec/plan/skill/contract paths and `Findings: rerun baseline`, without editing baseline evidence in the parent; both rerun plan_check on the absolute plan path after `PLAN WRITTEN` and before restoration continues; and both skip plan and implement with resume reasons, start verify, then initialize plan_tracker with exactly the two-item complete snapshot in order, never falling into writing-plans step 7 or starting implement. The After wording preserved everything Before had here; since this case already held all facts, the expected fails->holds movements for baseline-upgrade-preserves-statuses are not demonstrated by this sample, and the author should confirm the intended movement on a case where Before actually failed rather than relying on this one.",
+      "wallMs": 7789,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

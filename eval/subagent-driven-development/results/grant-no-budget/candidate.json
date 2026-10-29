@@ -35,7 +35,7 @@
       "factsSha": "e2156c5b0db4824161fbfb7d78a4ebe0c4ac322fa4e6ea596fd2bfcf1d2abbff",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "2197df427a33969e8447d435e17fa1916c858cac30a1a28bfda2114437c16be6",
+      "baselineOutputSha": "9da1e9fc4f2de630f169a11e63996399a83f1b1a057430a07965eaaf0fc044c5",
       "candidateOutputSha": "9da1e9fc4f2de630f169a11e63996399a83f1b1a057430a07965eaaf0fc044c5",
       "facts": {
         "original-stop": {
@@ -54,15 +54,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. Both outputs stop immediately after the failed escalated CR re-review with no further implementer or reviewer dispatch, both omit a budget: line because the Amend-grant header decodes to amend permission with no round count, and both leave task 3 in_progress with no wave commit, tracker write, or phase change. After is slightly weaker in one place that does not touch a listed fact: it says it is inferring the grant decoding 'without having read amendment-surface.md', which reads as an admission of skipped lookup rather than a decoding step; the Change wording should make clear that Standing grants Value decoding is a mandatory read of the amendment surface (not an inference), so the model states the decoded result as grounded, e.g. 'Decoded via Standing grants Value decoding: amend permission only, no funded-round token.' Otherwise After preserves everything Before kept while adding the explicit commit-timing and state-retention language the Change asks for.",
-      "wallMs": 8902,
+      "feedback": "The After output is byte-identical to Before, so no fact moved in either direction. Both outputs stop immediately after the failed escalated CR re-review with no further implementer or reviewer dispatch, emit a stop note whose reply block contains no budget: line (correctly reasoning that `**Amend-grant:** auto-apply amends` carries no funded-round token), and explicitly leave task 3 in_progress with no plan_tracker write, no git add/reset, and no wave commit. All three facts hold in both arms; the Expected-to-move list anticipated fails -> holds for grant-no-budget, but Before already satisfied them, so the wording change is confirmed safe for this case rather than causing movement. One minor note for the author: the output says it infers the grant value 'without having read amendment-surface.md'—if the Change intends the amendment surface to be consulted before decoding, consider wording that makes the read explicit so the decode is grounded rather than inferred, which would not affect these three facts.",
+      "wallMs": 7650,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e2156c5b0db4824161fbfb7d78a4ebe0c4ac322fa4e6ea596fd2bfcf1d2abbff",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "6cff92a04e360c43c0adb49f4337405bc2fa936e61175eb6fc692a0fb32f060e",
+      "baselineOutputSha": "48503cf6ec6f3024973cb4b14f0d09bf898e6a790d8347e5f011a69d33927d13",
       "candidateOutputSha": "48503cf6ec6f3024973cb4b14f0d09bf898e6a790d8347e5f011a69d33927d13",
       "facts": {
         "original-stop": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. Both outputs stop immediately after the failed escalated re-review, dispatch no further worker or review, omit any budget: line, and leave task 3 in_progress with no wave commit or completion; the Expected-to-move entries listing these as fails -> holds are not borne out by Before, which already satisfied all three. After's wording is slightly more precise in distinguishing amendment permission from funded rounds and in naming the phase, and its fix options (authorize another repair / amend the contract) map more cleanly onto the supply-or-amend menu shape than Before's two code-level alternatives. If you want to keep every fact as-is while delivering the Change, retain After's explicit 'grants amendment permission, not funded fix rounds' sentence and the explicit no-commit / in_progress statement; the one thing to watch is that the stop note must still omit any budget: token when no funded-round grant exists, which After correctly does.",
-      "wallMs": 8060,
+      "feedback": "Before and After are textually identical, so no fact moved. Both outputs stop immediately after the failed escalated re-review with an explicit 'Dispatch no further worker or review; run no commit command', keep task 3 in_progress in the implement phase, and the stop note contains no 'budget:' line, correctly treating '**Amend-grant:** auto-apply amends' as amendment permission rather than a funded-round token. The After wording already satisfies grant-no-budget as intended; if you want to make the funded-round distinction more auditable without introducing a budget line, you could add a short clause like 'no funded-round token is present, so no funded repair applies' to the first paragraph, but this is optional and the current text keeps every fact Before kept.",
+      "wallMs": 5738,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

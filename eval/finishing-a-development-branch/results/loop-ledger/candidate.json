@@ -35,7 +35,7 @@
       "factsSha": "a4ce3f732131de016d30ee8ffc3b2b4e3288fb7746214b55169902591e15137c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "d0a8d2fd3247b6f4d2359fce211dc8cbc492a15b791f2eb251d869441e05402f",
+      "baselineOutputSha": "77120402623ec0aafab1245d8c93527891496699151eead0699ecd15aa51570c",
       "candidateOutputSha": "77120402623ec0aafab1245d8c93527891496699151eead0699ecd15aa51570c",
       "facts": {
         "verification": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this loop-ledger case: After still runs `node --test check.mjs` from the ledger's `verification:` line before the menu (no skip because no verified commit is known) and keeps the CONFORMS fast path; the digest table/bullets still match `amend:`, `loop: cut row 2`, and `loop: amend` (reading granted/auto-apply bodies) and explicitly exclude `loop: row 1 done`; the `**Spec:**` header is read before any removal and both tracked candidates are `git rm`'d and committed individually; the seal passes `--spec doc/specs/run.md` before any squash command, stops on nonzero, and the survival table keeps spec and telemetry while dropping both plans; the plain-jj section keeps the `root:`-anchored `jj restore` with no commit step. Two small drifts worth tightening in After so this sample stays aligned with the new Step 6 contract you're introducing elsewhere: the cleanup bullets describe the keyed `home:` match and `destroy:` but drop Before's explicit statement that a non-matching path is host-owned (nothing removed, branch kept) and that a successful keyed `destroy:` continues straight to `branch -D` without a built-in remove/prune; adding one bullet for each (e.g. 'No `home:` match: host-owned, nothing removed, branch kept' and 'After a successful `destroy:`, go directly to `git -C \"$PRIMARY\" branch -D \"$FEATURE\"`, no built-in remove or prune') would deliver the Change without touching any of the five facts above.",
-      "wallMs": 14004,
+      "feedback": "The Before and After outputs for this loop-ledger squash case are textually identical, so no fact moved: both run the ledger's `node --test check.mjs` in Step 1 and the conformance fast path in Step 3.5 before the menu; both grep `amend:`, `loop: cut row N` and `loop: amend` for `granted`/`auto-apply` records while excluding `loop: row 1 done`; both read the `**Spec:**` header before `git rm` + commit of `doc/plans/run.md` and `doc/plans/run-ledger.md`; both seal with `--spec doc/specs/run.md` before the squash, stop on nonzero exit, and leave spec and telemetry untouched; and both keep the plain-jj `restore --from` counterpart with no commit step. The wording change delivered none of the intended new material here (no keyed `## using-git-worktrees` finish-time read with `<name>` segment matching, no explicit `branch -D` continuation after a successful `destroy:` with no built-in remove/prune, no shared menu-layout contract with echoed mapped legacy pick), which is acceptable for this legacy slice since the Change says existing facts and legacy bundle selections are preserved; if the author wants the Step 6 and Step 4 additions to surface in this sample, add them as extra sentences in the cleanup bullet and before the menu without altering the strip/seal/jj paragraphs, which currently carry every must-hold fact.",
+      "wallMs": 11435,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a4ce3f732131de016d30ee8ffc3b2b4e3288fb7746214b55169902591e15137c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "b0e50ca87762720304d53e9bc6ac15df9765355e86043f1b0cd01c25f33743c3",
+      "baselineOutputSha": "b0a0c4f869cc43786ae5e72d7ccdc83cc11eff0196db7fd1a88499d9b947cfc5",
       "candidateOutputSha": "b0a0c4f869cc43786ae5e72d7ccdc83cc11eff0196db7fd1a88499d9b947cfc5",
       "facts": {
         "verification": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every fact: it runs `node --test check.mjs` from the ledger before offering the menu and again post-squash, surfaces the CONFORMS verdict, builds the digest from the body records of the ordinary `amend:` commit plus `loop: cut row 2` / `loop: amend` while excluding `loop: row 1 done`, reads the Spec value before removing and committing both tracked plans, seals with `--spec doc/specs/run.md` before any landing command with a stop on nonzero exit, and keeps the plain-jj `restore --from` counterpart with no Git commit. Nothing moved. Two small robustness notes for the wording: After dropped the explicit `git rm` verb and the exact `root:\"$PLAN_PATH\"` quoting form that Before showed, and it slightly strengthened the ordinary-amend inclusion from 'only if its body contains a qualifying record' to 'candidates … include their actual amendment records'; both still satisfy the facts, but keeping the explicit `git rm`/commit loop and the root-anchored quoted path in the narrated output would make the strip and jj facts less dependent on a reader inferring the mechanism, while the new Step 6 ownership/destroy-failure sentences deliver the Change without touching any gate.",
-      "wallMs": 13851,
+      "feedback": "The Before and After outputs are textually identical, so no fact moved: both run `node --test check.mjs` from the ledger's verification command before the menu with the fresh CONFORMS verdict rendered (verification); both scan `^(amend:|loop: cut row [0-9]+|loop: amend)` bodies, include the granted records from the ordinary amend and both loop commits, and explicitly exclude `loop: row 1 done` (digest); both retain the Spec value before removing and committing `doc/plans/run.md` and `doc/plans/run-ledger.md` (strip); both seal with `--spec doc/specs/run.md` before the squash, preserve spec/telemetry, and stop on nonzero exit (seal); and both give the `jj restore --from <base-branch>` counterpart with no Git commits (jj). Since this case is a legacy loop-ledger slice rather than one of the new coordinated-flow or PR-list cases, the Change's intended movements don't surface here, which is the desired outcome; the After wording preserved every fact Before kept. No wording adjustment is needed for this case — keep the existing Step 1–4 ordering and the explicit Spec-read-before-strip and `--spec` pass-through language as-is when layering in the per-leg verification, teardown contract, and PR-list additions, so that the single-ledger path continues to narrate unchanged.",
+      "wallMs": 11817,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

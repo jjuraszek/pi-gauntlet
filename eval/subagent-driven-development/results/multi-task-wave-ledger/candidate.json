@@ -35,7 +35,7 @@
       "factsSha": "6ff2f5ba87dc06fab8a64c69f399027fdc1cec82fb77da2ff95e669c29a20148",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "a2dc0cbbcfad125b386a2f270381e4d94ceb20f762c03777722f62190f7c0a2b",
+      "baselineOutputSha": "a7b41abc14994b5df45617b56e1aca43fb77eb6d8913354aa1443e028964dc79",
       "candidateOutputSha": "a7b41abc14994b5df45617b56e1aca43fb77eb6d8913354aa1443e028964dc79",
       "facts": {
         "both-ledgers": {
@@ -59,15 +59,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: it prints `funded round 1 of 1` for both task 3 and task 4 and states the round spends once from each touched ledger; it dispatches a single fresh, synchronous `<configured-impl-model>` implementer against the scoped union, runs SR for both owners before the CR re-review that carries the `## Previous review report` marker and the verbatim prior report; it stops before the second repair with per-task notes containing `budget: 1 of 1 spent` and explicitly says funding never re-arms the convergence exception; and it leaves both tasks `in_progress` with no `plan_tracker` write and no wave commit. Two things worth tightening so the wording does not drift under other cases: After's spec-reviewer dispatches drop `context: \"fresh\"` (Before had it) and split into two subagent calls rather than one `tasks:` array, and the SR fix-delta tree-before is now `<TREE_CR_E>` (the CR dispatch tree) rather than each task's prior SR tree, which is a different tree-capture rule than Before stated; if the Change intends the CR-tree baseline for SR re-reviews after an integrated repair, say so explicitly in the SR step, and restore `context: \"fresh\"` on the SR payloads so the fresh-context gate stays visible.",
-      "wallMs": 13800,
+      "feedback": "Before and After are textually identical for this case, so nothing moved. Both outputs print `funded round 1 of 1 for task 3` and `funded round 1 of 1 for task 4` and state the repair spends once from each owner's ledger; both dispatch one fresh (`context: \"fresh\"`, `async: false`, `<configured-impl-model>`) implementer over the scoped union, run SR for tasks 3 and 4 before the CR re-review that carries the `## Previous review report (re-review trigger)` marker with the verbatim prior report; both stop before the second repair with per-task notes containing `budget: 1 of 1 spent`, explicitly noting that funding is not reset and the convergence exception is not re-armed; and both keep tasks 3 and 4 `in_progress` with no `plan_tracker` write and no wave commit. The 'Expected to move' list anticipated fails -> holds, but the Before text already satisfied every fact, so the After wording preserves rather than introduces them. No wording change is needed to keep these facts; if the author wants After to visibly deliver the multi-task-ledger intent beyond Before, the only room would be adding an explicit sentence that the per-owner ledger debit is independent of a wave-level allowance, but the current text already makes that clear.",
+      "wallMs": 10317,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6ff2f5ba87dc06fab8a64c69f399027fdc1cec82fb77da2ff95e669c29a20148",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "06bc86c0ff31d8f96c6cf1811efdb5c5dec341569c901ad50bc64cf1c307f816",
+      "baselineOutputSha": "d02e3ee30a4fa2bed18daa8f6929d0665d91e0a1ed38bfff2575269cabe7931f",
       "candidateOutputSha": "d02e3ee30a4fa2bed18daa8f6929d0665d91e0a1ed38bfff2575269cabe7931f",
       "facts": {
         "both-ledgers": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: it prints `funded round 1 of 1` for both task 3 and task 4 and states explicitly that one credit is spent per task rather than per wave; it dispatches exactly one `implementer` with `model: \"<configured-impl-model>\"`, `context: \"fresh\"`, `async: false` and both scoped commands, then runs SR for both owners against the integrated checkout before a single CR carrying `## Previous review report (re-review trigger)` with the post-escalation report verbatim; it stops before the second repair with per-task notes containing `budget: 1 of 1 spent` and says CONVERGING does not replenish funding or re-arm task 3's used exception; and it keeps both tasks `in_progress` with no commit. The Change's additions (Leg/Rules context in payloads, per-task `cwd`, tree-capture before each review, `via:` seam evidence) are layered on without displacing the ledger, reroute, exhaustion or lifecycle language. One small hardening worth considering: After's SR payloads no longer tell the reviewer which Verdict values to report (Before did), which is not a graded fact here but is cheap to retain alongside the new Rules-reading instruction.",
-      "wallMs": 12952,
+      "feedback": "The After output is textually identical to Before, so no fact moved. Both outputs print `funded round 1 of 1 for task 3` and `funded round 1 of 1 for task 4` and state that one credit is spent from each task ledger rather than a shared wave credit (both-ledgers); both dispatch a single in-place implementer with `model: \"<configured-impl-model>\"`, `context: \"fresh\"`, `async: false` and both scoped commands, then run SR for tasks 3 and 4 before a single CR carrying the `Previous review report (re-review trigger)` marker with the post-escalation report verbatim (reroute); both stop before the second repair with per-task notes containing `budget: 1 of 1 spent` and explicitly say CONVERGING does not replenish funding or re-arm task 3's convergence exception (exhausted-owner); and both keep tasks in_progress with no commit (no-complete). Since the Expected-to-move list anticipated these facts moving from fails to holds but they already held in Before, the wording change neither helped nor hurt this case; if the author intended the After wording to add new material for this scenario (e.g. explicit Leg/Rules resolution in the owning checkout or per-repo WAVE_BASE_SHA capture), that content is not present here and should be added without disturbing the existing ledger printing, SR-before-CR ordering, the `budget: 1 of 1 spent` line placement after `Problem:`, and the no-commit/in_progress stop.",
+      "wallMs": 11272,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

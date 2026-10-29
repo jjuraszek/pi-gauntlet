@@ -35,7 +35,7 @@
       "factsSha": "4d753c0639a2518122d28f35fa9eb35764371bbb5e53788c6ad4653ce83152c9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "aaffec0ca088ac22c17b50adc67094e4939ba70f52118993e07ae6f2a69ae61b",
+      "baselineOutputSha": "1e4e37d4016cdcec9429e4c9ebedef0591dfe2cb0862827cca5f57044ba64849",
       "candidateOutputSha": "1e4e37d4016cdcec9429e4c9ebedef0591dfe2cb0862827cca5f57044ba64849",
       "facts": {
         "layout": {
@@ -49,15 +49,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs render the candidates as 1.-3. in checkpoint 1 and both open checkpoint 2 with the single sentence \"Taking 5 as option 2 - export paging\" before any simulated read. The only risk introduced by After is that it switched the discovery observations from bullets to an ordered 1.-3. list, so the separation now rests entirely on the intervening \"Pick one:\" prose paragraph (which does break the list in CommonMark); Before's bullet-form observations plus the prose line gave two independent separators. To keep the layout fact robust while still delivering the menu-layout contract, keep the observations as bullets (or add a horizontal rule) in addition to the prose lead-in, and retain the explicit mtime in the After's \"Selected brief\" line as Before did, since dropping it loses nothing for the facts but slightly weakens the resolution's self-containment.",
-      "wallMs": 10820,
+      "feedback": "Before and After are textually identical, so no fact moved. In both, Checkpoint 1 separates the three numbered observations from the candidate options with the prose line \"Pick one:\", and the options render as 1.-3., satisfying layout; in Checkpoint 2 the opening sentence \"Taking 5 as option 2 - export paging\" explicitly maps the raw reply to option 2 and names export paging before the simulated Read and entry checks, satisfying mapped-pick without acting on 5, picking another brief, or re-asking. Since the After wording changed nothing in this case's output, the expected fails->holds movements for menu-after-numbered-findings/layout and /mapped-pick are not demonstrated here as movements (both already held in Before); if the author wants observable evidence of the change, the case input would need a Before that lacks the separating prose line or the explicit mapping sentence, while the After wording should continue to require a prose/rule/bullet separator before the options and a single explicit resolution sentence naming the resolved option and brief.",
+      "wallMs": 8222,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4d753c0639a2518122d28f35fa9eb35764371bbb5e53788c6ad4653ce83152c9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "ad85c739c234e3677531f7a8599bc32e30526ef4d2a7f3988bfa55873cd77949",
+      "baselineOutputSha": "facb4bc0d2f745df6a97a88d27f8283678fe28c22ae1b14743e264ed9d344643",
       "candidateOutputSha": "facb4bc0d2f745df6a97a88d27f8283678fe28c22ae1b14743e264ed9d344643",
       "facts": {
         "layout": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. In both outputs the checkpoint 1 observations (1.-3.) are followed by the prose line \"Pick one:\" before the candidate options, so the options restart at 1.-3. rather than continuing to 4.-6., and no ordered list adjoins them through blank lines alone. In both outputs checkpoint 2 opens with \"Taking 5 as option 2 - export paging\", a single sentence that explicitly maps the raw reply 5 to option 2 and names the export paging brief before the simulated read step; neither acts on 5 directly, picks another brief, or re-asks. The only textual difference is that After dropped Before's clarifying sentence noting that the brief's file path was not supplied and that the worktree path is not the brief path; this is not covered by either fact, but if the Change intends to preserve accepted variance, keeping that disclaimer (or an equivalent note that the brief is read from its discovered file, not the worktree) would retain Before's precision without affecting layout or mapped-pick.",
-      "wallMs": 11535,
+      "feedback": "Before and After are byte-identical, so nothing moved. In both, checkpoint 1 renders the candidate options as 1.-3. after the observations list, with the prose line \"Pick one:\" separating the two ordered lists rather than a blank line alone, satisfying layout. In both, checkpoint 2 opens with \"Taking 5 as option 2 - export paging\", a single sentence that resolves the raw reply 5 to option 2 and names export paging before the simulated read and entry check, with no action on raw 5, no alternate brief, and no silent re-ask, satisfying mapped-pick. The After wording preserved every fact Before kept; if the author intends the Change to produce an observable difference in this menu-layout case, the output would need to show it (e.g., an explicit note that legacy 4.-6. numbering was remapped), but as judged, both facts already hold and no wording adjustment is required to keep them.",
+      "wallMs": 7655,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

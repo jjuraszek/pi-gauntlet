@@ -35,7 +35,7 @@
       "factsSha": "6a8c434b3587183a338456832c831e4556028bfcec3bb00a3293b1ecfc4d86ed",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "80c5b3d1eec713bc59ad9c6cb3d64ed45d2878111ada63c385a6e3b83975b2b8",
+      "baselineOutputSha": "8fca952b14d93d4372666292790e8c46f6ff14db59cae0e306dbf5c9620734bf",
       "candidateOutputSha": "8fca952b14d93d4372666292790e8c46f6ff14db59cae0e306dbf5c9620734bf",
       "facts": {
         "menu": {
@@ -54,15 +54,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: the first scene decodes the grant as budget-only, prefilters the Acceptance-criteria edit to the human batch, renders the A/B/C menu with Recommended C, and ends the turn without applying anything or calling a tracker; the continuation re-decodes the header, prints `funded round 1 of 2 for task 3` and dispatches without asking for round approval; the funded fix uses `<configured-impl-model>`, `context: \"fresh\"`, `async: false`, runs the scoped `node --test frame.test.mjs`, captures the Fix delta and runs the CR re-review before the `reset --soft` wave commit and the `plan_tracker` complete call. Two wording risks worth tightening so nothing drifts in other cases: the new 'Caution to surface, not resolve' paragraph about an `amend:` commit sitting above WAVE_BASE_SHA reads as a conditional human stop inserted between SHIP and the wave commit — if you keep it, state explicitly that it is a pre-commit check that does not gate the funded loop or re-request approval, or move it into a note after the commit so a reader cannot mistake it for a required pause; and the continuation's opening 'The recorded line was already printed… `Recorded: empty=alt-2`' asserts an output not in the fixed observations — phrase it as 'per the fixed observation the aftermath (including the Recorded line) completed' rather than claiming the line was printed.",
-      "wallMs": 13533,
+      "feedback": "The After output is byte-for-byte identical to Before, so no fact moved. Both outputs decode `2 more fix rounds` as a budget-only grant, route the acceptance-criteria edit to the human batch, print the amendment menu with the Recommended: C (alt-2) line, and end the turn without applying or inventing a reply (menu holds). The continuation prints `funded round 1 of 2 for task 3` immediately after the escalated re-review without asking the human for round approval (funds holds), and the funded implementer dispatch uses `model: \"<configured-impl-model>\"`, `context: \"fresh\"`, `async: false`, runs `node --test frame.test.mjs`, captures the Fix delta, dispatches the CR re-review with the previous report marker, and only after the SHIP verdict performs the wave commit followed by `plan_tracker` complete (gates holds). Since the wording change produced no observable difference here, the author should verify the After wording actually took effect in the sampled output; whatever wording is chosen for the Change should keep the budget-token-only decoding, the menu-then-stop first turn, the ledger-check-then-print `funded round 1 of 2` sequence, and the implModel/fresh/async-false/scoped-tests/CR-re-review-before-commit ordering shown in Before.",
+      "wallMs": 9648,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6a8c434b3587183a338456832c831e4556028bfcec3bb00a3293b1ecfc4d86ed",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "ae1fdd170098544e6d8903183cc8896f04f9f554e12a75157d332e6b8a5def3a",
+      "baselineOutputSha": "8d5c2b4e2f01742dad75e2d726a199ccc012912f8e722abda16373abef4c536d",
       "candidateOutputSha": "8d5c2b4e2f01742dad75e2d726a199ccc012912f8e722abda16373abef4c536d",
       "facts": {
         "menu": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps all three facts: the first scene presents the A/B/C/Custom menu with Recommended: C and ends the turn awaiting the human, the continuation prints `funded round 1 of 2 for task 3` with no round-approval request, and the funded fix dispatch carries model \"<configured-impl-model>\", context \"fresh\", async false, the scoped `node --test frame.test.mjs` gate, tree-capture Fix delta and a CR re-review with the re-review marker before the wave commit and plan_tracker completion. Two drifts in After are worth tightening even though they do not move these facts: the implementer payload now says \"Do not commit; the orchestrator commits the wave only after acceptance\", which contradicts the Change's requirement that the in-place repair payload carry no commit or staging instruction (Before's \"Give the worker no commit or staging instruction\" was correct and should be restored), and the reply-format line regressed to \"`1. A`, `2. <your own text>`\" with \"Bare `1` takes every recommendation\" for a single-item menu — keep Before's \"`1. A`, `1. B`, `1. C`, or `1. <your own text>`. Bare `1` takes the recommendation.\" Also, the `<existing AC text verbatim>` placeholder in Details should be phrased as a reference to the available verbatim contract (as Before did) rather than a note that the text \"was not included in this replay\", since the case states it is available.",
-      "wallMs": 13389,
+      "feedback": "Before and After are textually identical, so no fact moved. Both outputs present the amendment menu in Turn 1 and end the turn awaiting the human, explicitly stating the grant is budget-only and not amend permission; both print `funded round 1 of 2 for task 3` in the continuation and dispatch the funded fix without asking for round approval; and both show the funded implementer with `model: \"<configured-impl-model>\"`, `context: \"fresh\"`, `async: false`, the scoped `node --test frame.test.mjs` gate, a CR re-review carrying the full prior report and Fix delta, and only then the wave commit followed by `plan_tracker` completion. Since the After wording produced no observable difference on this case, the Change's intended movements for this scenario are already satisfied; keep the explicit budget-only framing, the funded-round ledger line printed before dispatch, and the ordered gate sequence (fix → scoped test → tree capture → CR re-review → commit → complete) in any further rewording.",
+      "wallMs": 8363,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

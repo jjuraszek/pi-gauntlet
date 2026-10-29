@@ -35,7 +35,7 @@
       "factsSha": "9698c502d649115c88d4cb3f3bfaca07df8c4afa02ef026f090d42797d0f69f3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "f008798df316e436d36b00c430a243cde1388efe93f3d55b0fbce24eee82cfb8",
+      "baselineOutputSha": "269596dc3856191a4595a6bc9ec948ff7fde96af691834fef06b8490092b62e0",
       "candidateOutputSha": "269596dc3856191a4595a6bc9ec948ff7fde96af691834fef06b8490092b62e0",
       "facts": {
         "producer": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps every fact Before kept. The producer still appends exactly the PR/Pre-rework head pair between Active task and the terminal gate-history line and omits both without a Rework record; the consumer still fetches headRefName and compares the live branch before any tracker call, stops verbatim with `brief names PR #42 on repair-parser, worktree is on unrelated`, scans from the full pre-rework SHA with original.md excluded and basename pairing plus untracked support intact, restores implement(W1) with the in_progress snapshot and the standard closing warning without fabricated approval or gate evidence, and the no-pair and bare-worktree sections keep merge-base selection, task evidence and human confirmation. Two small wording risks worth tightening so the producer fact stays unambiguous: After renders `○ verify` / `○ ship` as concrete glyphs while calling the block 'verbatim from phase_tracker status' even though those lines were not supplied (Before used placeholders for every non-active line) — prefer placeholders or an explicit 'inferred pending' note; and After alternates `<brief path>` / `<brief file>` in skip reasons where Before used one token. Otherwise the restructuring into numbered steps and headings is a clean carrier for the intended pr-list/coordinated-flow additions.",
-      "wallMs": 23848,
+      "feedback": "After is textually identical to Before, so no fact moved in either direction: both outputs show the producer appending exactly `PR: example/parser#42` and `Pre-rework head: 1111…` between `Active task:` and the terminal gate-history line (and neither line without a Rework record), the consumer fetching headRefName and comparing the live branch before any tracker call with the exact stop `brief names PR #42 on repair-parser, worktree is on unrelated`, candidate scans keyed on the full pre-rework SHA with original.md excluded and basename pairing plus untracked scan retained, restoration preserving implement W1 / in_progress and the standard re-validation warning without fabricated approval or gate history, and ordinary/bare-worktree paths keeping merge-base selection, task evidence and human confirmation. Since the Change targets coordinated-flow legs, loop ledgers, baseline rerouting, and multi-PR pair lists that this case's input never exercises, the single-PR wording here is already sufficient; keep it as-is and apply the new wording only in the leg/ledger/pr-list sections so the pr-subject behavior (first-pair head as scan base, exclusion of the PR's earlier spec, stop before tracker writes) remains verbatim.",
+      "wallMs": 12792,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9698c502d649115c88d4cb3f3bfaca07df8c4afa02ef026f090d42797d0f69f3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "c258b34f0109e4603eae5279adfc0cbc54a6b22f24a470aa5392a90048f08071",
+      "baselineOutputSha": "f737eb7b9315a8744031575a3ad25a774f80f84ac1e6a029f8a8a92fe4bdcb72",
       "candidateOutputSha": "f737eb7b9315a8744031575a3ad25a774f80f84ac1e6a029f8a8a92fe4bdcb72",
       "facts": {
         "producer": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the producer append is byte-identical in structure (verbatim tracker blocks, Active task, the PR/Pre-rework pair inserted before the terminal gate-history line, both omitted without a Rework record), branch binding happens before any tracker call with the exact mismatch stop and no writes, both candidate scans use the full SHA and exclude original.md, restoration preserves implement(W1)/in_progress and fabricates no approval, and the no-pair and bare-worktree paths fall back to merge-base, task evidence and human confirmation. Three small drifts in After are worth tightening even though they did not move a fact: (1) the substep call is rendered as `phase_tracker({ action: \"substep\", substep: \"W1\" })`, dropping `phase: \"implement\"` that Before carried — keep the full call shape; (2) After hard-codes `reason: \"resume: pasted brief\"` where Before correctly left `R = resume: <actual brief file>` or `pasted brief`, since the input never said the brief was pasted — restore that conditional; (3) After substitutes literal `doc/specs doc/plans` for the unsupplied flowGuards directories, which edges toward inventing observations — use a `<dirs>` placeholder as Before did. After also dropped Before's `plan predates base; no post-base task evidence` reconstruction case; reinstating it keeps the ordinary path complete. With those four wording fixes, After delivers the intended PR-list/coordinated-flow framing (member-spec exclusion carried through pairing, ordered identity comparison) without weakening any held fact.",
-      "wallMs": 16779,
+      "feedback": "Before and After are textually identical for this pr-subject-brief case, so no fact moved: the producer appends exactly the PR/Pre-rework pair between Active task and the terminal gate-history line and omits both without a Rework record; the consumer fetches headRefName and compares the live branch before any tracker call, proceeds on repair-parser, and stops with the exact `brief names PR #42 on repair-parser, worktree is on unrelated` line with no tracker write; both diff and ls-files scans use the full pre-rework SHA, select the rework pair by basename, and refuse to treat original.md as an added candidate; restoration keeps implement(W1) and the in_progress snapshot, routes through brainstorm/plan skips, plan_check PASS, grant check 6, and the standard re-validation warning without fabricating approval or gate history; and the no-pair and bare-worktree sections keep merge-base selection, per-task commit evidence, and human confirmation. The Expected-to-move entries for this target (producer/binding/candidates listed as fails -> holds) are not reflected here because Before already held them; the After wording delivers no change for this input. If the broader Change (PR-list ordering, coordinated-leg stops, loop-ledger admission) is meant to be exercised, the After output needs cases that actually surface those paths; for this single-PR rework input the current text already satisfies every fact and should be left as-is.",
+      "wallMs": 12659,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

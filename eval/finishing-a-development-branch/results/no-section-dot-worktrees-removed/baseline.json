@@ -1,7 +1,7 @@
 {
   "sample": "no-section-dot-worktrees-removed",
   "arm": "baseline",
-  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "skillSha": "abba3103fa48c7fc97e8643ca7bfb5575f5492cc1a1a289cf45c70e02be23ba2",
   "inputSha": "4c3410fe7e67ce36fc94b4584b4dd189037e0c6fb9d4310bcf585c1e465961f5",
   "kind": "text",
   "assembly": "concat",
@@ -15,15 +15,24 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Step 6: Cleanup Workspace (after squash-merge, option 3)\n\n**Contract source:** The state lists no `## Legs`, so there are no recorded `contract:` lines. I checked for a gauntlet overrides file and found none. That means there is no `## using-git-worktrees` section and no keyed contract, so the **legacy path** applies.\n\n**Ownership check:**\n- No project-native worktree script is involved.\n- `$WORKTREE` = `/work/acme-web/.worktrees/login-copy` sits under `$PRIMARY/.worktrees/`.\n- Gauntlet therefore created this worktree and owns its cleanup.\n\n**Cleanup**, run from the primary. The worktree is removed before the branch is deleted, because `git branch -D` fails while a worktree still references the branch:\n\n```bash\ngit -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"\ngit -C \"/work/acme-web\" worktree prune\ngit -C \"/work/acme-web\" branch -D \"login-copy\"\n```\n\n`-D` is used instead of `-d` because a squash-merge leaves `login-copy`'s commits unreachable from `main`, and `-d` would refuse to delete it.\n\n**Result:**\n- The worktree `/work/acme-web/.worktrees/login-copy` is removed and the worktree metadata is pruned.\n- The branch `login-copy` is deleted. Its changes now live on `main` as the single squash commit.\n- The primary `/work/acme-web` stays on `main`.\n\nIf `worktree remove` fails (for example, because of uncommitted or untracked files in the worktree), I stop at that point, print git's output, keep the `login-copy` branch, and do not retry with `--force`.\n",
+      "words": 203,
+      "wallMs": 6967,
+      "mechanical": {
+        "w2": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "No overrides file exists, so the legacy cleanup path applies. The worktree is under `$PRIMARY/.worktrees/`, so gauntlet owns cleanup.\n\nRun in order, stopping if a command fails:\n\n```bash\ngit -C /work/acme-web worktree remove /work/acme-web/.worktrees/login-copy &&\ngit -C /work/acme-web worktree prune &&\ngit -C /work/acme-web branch -D login-copy\n```\n",
-      "words": 45,
-      "wallMs": 3793,
+      "text": "No overrides file exists, and the worktree is under `$PRIMARY/.worktrees/`, so gauntlet owns cleanup. Run removal before branch deletion:\n\n```bash\ngit -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"\ngit -C \"/work/acme-web\" worktree prune\ngit -C \"/work/acme-web\" branch -D \"login-copy\"\n```\n\nProceed to each command only after the preceding command succeeds.\n",
+      "words": 47,
+      "wallMs": 3099,
       "mechanical": {
         "w2": "holds"
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

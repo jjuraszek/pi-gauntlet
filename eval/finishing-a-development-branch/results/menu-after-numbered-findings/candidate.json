@@ -35,7 +35,7 @@
       "factsSha": "1fc8add11acc987a8239b920628b45dc1ad0d3ec35ec428804c7fdf1df3f2cc6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "df362c8ed2b6de1b87b073ba83096603c2f812cdfad7755d75dbc37e0794b5fc",
+      "baselineOutputSha": "ddcdf22059fa232da676a52efd72e3cc6c21e88f5e3bb2665cea1bfa74e7750b",
       "candidateOutputSha": "ddcdf22059fa232da676a52efd72e3cc6c21e88f5e3bb2665cea1bfa74e7750b",
       "facts": {
         "layout": {
@@ -49,15 +49,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved in this sample: both outputs already keep both facts. In checkpoint 1, Before and After each place a prose line (\"Implementation complete. What would you like to do?\") between the three numbered observations and the options, so the options start a fresh CommonMark list at 1 rather than continuing at 4; Before additionally had the \"Closure / conformance: CONFORMS\" lines, but After's single prose separator is sufficient and is a clean application of the layout contract. In checkpoint 2, both outputs open with the one-sentence echo \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\" before any simulated step, and neither treats 6 as a raw option or re-asks. The After wording keeps every fact Before kept while delivering the Change; the only observation is that the Expected list anticipated layout failing in Before, which this baseline sample does not exhibit, so the After instruction is confirming existing behavior rather than correcting it here. No wording change is needed; if you want the separator to be unmistakable, the After text's prose line already satisfies the contract and could optionally be preceded by a horizontal rule, but that is not required for the fact to hold.",
-      "wallMs": 13105,
+      "feedback": "After is byte-identical to Before, so nothing moved. Both outputs already satisfy layout: the three numbered observations are followed by the prose line \"Implementation complete. What would you like to do?\" before the five options, which breaks the ordered list under CommonMark so the options render as 1-5 (not 4-8), and the five labels are unchanged. Both also satisfy mapped-pick: the first sentence of checkpoint 2 is \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\", naming number and label before the simulated squash sequence, with no raw-6 treatment, no other option, and no re-ask. The expected fails->holds movement for this case is not observed because the baseline output already applied the separator and echo; the After wording preserves that, so no rewording is needed here, though if the author wants the change to be visibly attributable, the generated gate could add an explicit horizontal rule or bullet-list observations in addition to the prose separator, and the echo sentence could cite the mapping rule (\"reply 6 minus 3 preceding items = option 3\") inline rather than in the parenthetical that follows.",
+      "wallMs": 9567,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1fc8add11acc987a8239b920628b45dc1ad0d3ec35ec428804c7fdf1df3f2cc6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "ddb5aab6385de9bf866fa0f9b3ab4b2736a17bc470ff7b352b7b7142fe4947f4",
+      "baselineOutputSha": "7a7d857f7809a09dd3b7bef69032b87ce1a98eec011d2d42f5dd3f52544fd474",
       "candidateOutputSha": "7a7d857f7809a09dd3b7bef69032b87ce1a98eec011d2d42f5dd3f52544fd474",
       "facts": {
         "layout": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy both facts, so the After wording moved nothing here. In Checkpoint 1 each output places the prose line \"Implementation complete. What would you like to do?\" between the three numbered observations and the five options, which under CommonMark terminates the first ordered list so the options render 1–5 rather than 4–8; the options are the unchanged five labels with main substituted. In Checkpoint 2 each output opens with a single sentence \"Taking 6 as option 3 — Squash-merge to main (no PR, no surviving branch)\" before the simulated action, never treats 6 as a raw option or re-asks. The only differences in After are cosmetic (checkpoint headings carry the case titles, an ASCII hyphen replaces the em dash, and the next-action sentence names fix-x explicitly); these are harmless. Because Before already held both facts, the expected fails→holds movement is not observed in this sample — if the author wants a sample that demonstrates the change, the Before baseline would need to be one that omits the prose separator or echoes the pick without naming the mapped label; the After wording itself is fine and should be kept as is.",
-      "wallMs": 9143,
+      "feedback": "Before and After are textually identical here, so nothing moved. In both, the three numbered observations are followed by the prose paragraph \"Implementation complete. What would you like to do?\" before the options, which closes the first ordered list under CommonMark so the generated menu renders 1 through 5 (layout holds), and checkpoint 2 opens with \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\" before the simulated action (mapped-pick holds). The expected fails->holds movement for this case is not visible in this sample because Before already satisfied both facts; the After wording preserves that behavior, so no wording change is needed for these facts — if the author wants the gate to be more robustly distinguishable from the legacy transcript, an explicit horizontal rule or bullets for the observations would also work, but the current prose separator already satisfies the contract.",
+      "wallMs": 8168,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

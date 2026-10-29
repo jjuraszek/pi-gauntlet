@@ -39,7 +39,7 @@
       "factsSha": "f24b3c4e17cfe86a7777b53f30697ceaf570e0028fbd8118544ed7b786b65a93",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "4cd4bbaa16d4d02ec83e731e92aa741217a0ccfd4637e93a4db2fe871113b11b",
+      "baselineOutputSha": "408655f14892c701e1ab047b4ff2bdbc6071f753df84b2596909f5a38f762f82",
       "candidateOutputSha": "408655f14892c701e1ab047b4ff2bdbc6071f753df84b2596909f5a38f762f82",
       "facts": {
         "f1": {
@@ -63,15 +63,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case. Both outputs classify the plan as dirty from the staged `M` porcelain line and copy it outside the worktree before any edit; both decline to commit or `git add` after PASS and state the repair lands with the next task commit; both continue with `skip plan R`, `start implement` and `plan_tracker init` carrying the four tasks with unchanged statuses. The After wording is in fact slightly more explicit (it echoes the task snapshot verbatim as a repair input and names the copy path), which is fine. The only incidental difference is the snapshot destination (`mktemp` in Before vs a fixed `/tmp/gauntlet-resume-plan-snapshot-...` in After); neither moves f1, but if the skill text prescribes a specific temp-file form, keep that form fixed in the After wording so this detail does not drift across samples. The large Change (pr-list/legs/loop-ledger coverage) does not touch this ordinary single-worktree case, so there is nothing to tighten here to preserve the facts.",
-      "wallMs": 6670,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both classify the plan as dirty from the staged `M ` status line and save a copy to /tmp outside the worktree (f1); both state after the PASS that there is no commit, run no git add, and that the repair stays in the working copy to land with the next task commit (f2); and both continue with `phase_tracker skip plan`, `phase_tracker start implement`, and `plan_tracker init` carrying the brief's four tasks with complete/complete/in_progress/pending statuses unchanged (f3). The After wording preserved everything Before kept here, which is the correct outcome for a legacy single-repo restore case that the coordinated-flow, pr-list-brief, loop-ledger and baseline changes are not meant to touch; the expected-to-move facts belong to other samples and are not exercised by this input, so nothing in this output's wording needs adjusting.",
+      "wallMs": 7275,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f24b3c4e17cfe86a7777b53f30697ceaf570e0028fbd8118544ed7b786b65a93",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "f5a1dd2a8d31fe68984257c35e4f783cbf1746bcdc984c7313045ceef6f56024",
+      "baselineOutputSha": "1554a955305a05674b6b04c81a2866958ef42de2d4f89c2ace1078bc6dd3710f",
       "candidateOutputSha": "1554a955305a05674b6b04c81a2866958ef42de2d4f89c2ace1078bc6dd3710f",
       "facts": {
         "f1": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After still classifies the plan as dirty from the nonempty porcelain output and copies it to /tmp before the repair write, still leaves the PASSed repair in the working copy with an explicit no-commit statement and no git add, and still issues the same skip plan / start implement / plan_tracker init with the four tasks and statuses intact. The only differences are cosmetic trims (After drops Before's 'do not use git checkout for this snapshot' caution and the note that the snapshot satisfies pending-suffix ordering and will not auto-complete implement); neither is required by any fact here, but if you want to keep those safeguards visible while delivering the coordinated-flow Change, retain a one-line 'snapshot by copy, never git checkout' note in step 2 and the auto-complete rationale in step 7 - they cost nothing and guard adjacent cases that test snapshot method and tracker init semantics.",
-      "wallMs": 11321,
+      "feedback": "Before and After are byte-identical for this case, so no fact moved: both classify the plan as dirty from the nonempty porcelain output and copy it to /tmp before repair (f1), both leave the repair uncommitted with no git add and state it lands with the next task commit (f2), and both run phase_tracker skip plan, start implement, and plan_tracker init with the four brief tasks at complete/complete/in_progress/pending (f3). This case is outside the surface the Change targets (coordinated legs, loop ledgers, PR pairs, baseline findings), so the After wording leaves it untouched; keep that isolation so the new leg/ledger/PR-pair branches stay gated on their own brief signals and never alter the dirty-plan classification, the no-commit rule after PASS, or the unchanged-status tracker init for ordinary pasted briefs like this one.",
+      "wallMs": 8502,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

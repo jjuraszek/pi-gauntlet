@@ -35,7 +35,7 @@
       "factsSha": "3a84e6f0654ce042dc742b81c9aaafee782b186385ca2566a60441a681a72104",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "2c54601e3b34315f2e76fdbc087ff6f1a1ca53bae00ec2c8441afbeb7e4388ef",
+      "baselineOutputSha": "e07f9a2036a80cea15552ffb6e86424cecc50a45c3b44d1620cc76032acee7b6",
       "candidateOutputSha": "e07f9a2036a80cea15552ffb6e86424cecc50a45c3b44d1620cc76032acee7b6",
       "facts": {
         "single-chain": {
@@ -54,9 +54,9 @@
           "label": "held"
         },
         "snapshot-rereview": {
-          "before": "fails",
-          "after": "fails",
-          "label": "pre-existing"
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         },
         "gated-code-review": {
           "before": "holds",
@@ -64,17 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep the single chain (implementer step with worktree:true and status stopOn, SRs on {outputs.impl_n.treePath}, outputSchema only on implementers), read statuses from ## Outputs and verdicts from the Verdict: lines of the known output files, repair only task 2 with its captured patch and full wave1-sr2.md, and gate CR behind COMPLIANT, git apply --index integration and the scoped union. The one regression is in snapshot-rereview: Before stated the setup-failure rule (\"stop and retain the directory and shell output\") at step 3 where the replacement patch is materialized, and named the procedure (worktree add --detach, apply --index). After moved that rule up into step 1, where it now governs only the throwaway tree-before reconstruction, and step 3 merely says \"running the snapshot block again\" with no failure handling and no mention of apply --index, so a careful reader cannot confirm the replacement snapshot stops and retains evidence on setup or tree-after capture failure (Before also treats this ambiguously after its removal of snapA, hence its own fail). To deliver the Change while keeping the fact, add to step 3: \"If the detached checkout, git apply --index, or tree-after capture fails, stop dispatch, retain the failed directory and shell output without cleanup; only a successful tree-after capture precedes the plain re-review,\" and keep the explicit --detach/--index wording. Minor: the fix dispatch in After dropped the implementer outputSchema; restore it so the DONE check for the replacement patch stays structured.",
-      "wallMs": 32583,
-      "verdict": "unchanged",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "The After output is textually identical to the Before output, so no fact moved in either direction: both describe exactly one chain call with worktree:true and the status stopOn on the implementer step, SR cwd bound to {outputs.impl_n.treePath}, outputSchema only on implementers, implementer statuses read from ## Outputs / ## Stop, SR verdicts read from the Verdict: lines in the known output files (with the file-only pointer explicitly dereferenced for SR 2), a task-2-only fresh implementer carrying the captured patch and the full SR report, a detached WAVE_BASE_SHA replacement snapshot with failure evidence retained, a plain non-chain re-review carrying the verbatim prior report under the re-review marker plus trajectory block and Fix delta, cleanup only after the saved report, and CR gated behind git apply --index integration and step 5 scoped tests with STAGNANT/round-4 escalation and tracker completion at the wave commit. One minor weakness shared by both arms: neither mentions OUT_OF_SCOPE_CHANGES when listing the SR vocabulary, and the replacement-snapshot step says only 'run the snapshot block again' rather than naming git apply --index explicitly; if the wording change is meant to deliver the leg-cwd/Leg/Rules routing or per-repo baseline behavior, this case shows no evidence of it, so the author should add explicit Leg/Rules carriage and per-repo WAVE_BASE_SHA capture language in the dispatch payloads without altering the chain shape, verdict-reading, repair, snapshot, or CR gating paragraphs that currently keep all five facts.",
+      "wallMs": 19852,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3a84e6f0654ce042dc742b81c9aaafee782b186385ca2566a60441a681a72104",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "2575e5672c29435be0e254ba368619569df3974c06a942bbd219b5f9429522ce",
+      "baselineOutputSha": "ced3492d1cd83cc93bd975c5c4d22936d7cac998e2c722e2720236179399c00a",
       "candidateOutputSha": "ced3492d1cd83cc93bd975c5c4d22936d7cac998e2c722e2720236179399c00a",
       "facts": {
         "single-chain": {
@@ -103,14 +101,12 @@
           "label": "held"
         }
       },
-      "feedback": "After kept every fact Before kept: one chained call with worktree:true and a /status stopOn on the implementer step only, SR cwd bound to {outputs.impl_n.treePath}, outputSchema on implementers only, statuses read from ## Outputs / ## Stop, SR verdicts read by cat-ing the known output reports, task-2-only repair from the captured step-0 patch plus the verbatim SR2 report, detached-base snapshot with git apply --index, stop-and-retain on setup/capture failure, plain (no worktree flag) re-review with the '## Previous review report (re-review trigger)' header and trajectory block, cleanup only after the saved report is read, and CR gated behind compliance, integration, union tests, and a single wave commit before tracker completion. Two small drifts to watch rather than failures: After dropped Before's explicit 'not a structured stop condition' sentence for NEEDS_REWORK (the chain config still shows no SR stopOn, so the fact survives, but an explicit line like 'NEEDS_REWORK completes the chain; it is a report verdict, not a stopOn value' is cheaper insurance), and neither arm names OUT_OF_SCOPE_CHANGES, so adding 'SR verdicts are COMPLIANT | NEEDS_REWORK | OUT_OF_SCOPE_CHANGES, read from the Verdict: line' next to the cat commands would make spec-gap-completes unambiguous. After's added 'Rules/Leg context' placeholder and 'soft-reset to the fixed base' commit step deliver the Change without moving any fact; keep them, but state that the soft-reset happens only after acceptance so gated-code-review's ordering stays explicit.",
-      "wallMs": 24199,
-      "verdict": "unchanged",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "The After output is textually identical to the Before output, so no fact moved in either direction: both keep the single initial chain (worktree:true and status stopOn on the implementer step, SR cwd bound to {outputs.impl_n.treePath}, outputSchema only on implementers, no pre-call parent snapshot), both let the chain complete on NEEDS_REWORK with statuses read from ## Outputs/## Stop and SR verdicts read from the prose report files, both withhold CR and dispatch a single task-2-only repair carrying the captured patch and the verbatim SR2 report from the known output file, both re-materialize the replacement with the same detached-checkout/apply --index snapshot block, stop and retain diagnostics on setup/capture failure, run one plain non-chain SR re-review with the '## Previous review report (re-review trigger)' header and trajectory block, and clean up only after the saved report is read, and both gate a single integrated CR behind all-COMPLIANT, git apply --index integration and the scoped union before one wave commit and tracker completion. Two minor softness points apply equally to both arms rather than to the Change: neither explicitly names the 'Verdict:' line or the OUT_OF_SCOPE_CHANGES value when describing how SR reports are read, and the repair task says 'Apply the original artifact patch' without restating the task-1-implementer.patch path inside the payload. If the author wants the After wording to actually deliver the Change (tree captures and Fix delta are already present here; checkout-local Leg/Rules routing, per-repo bases, funded-round ledgers and the lookup-before-ask behaviors are not), those additions must be written into the text — e.g. a sentence stating the Leg/Rules context is resolved in the owning checkout with the spec kept at its absolute home path, and the funded-round/STAGNANT stop rules under step 3 — while leaving the existing chain, snapshot, re-review and CR-gating sentences untouched so the five facts above keep holding.",
+      "wallMs": 22042,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697",
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881",
   "refresh": {
     "status": "complete",
     "identity": {

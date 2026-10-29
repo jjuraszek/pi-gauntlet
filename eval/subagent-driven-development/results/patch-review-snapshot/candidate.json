@@ -35,7 +35,7 @@
       "factsSha": "9bae67efc2cbc921d6078d1f8a53fffdb170f4307769f5ac5500648f753d3c62",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "1bd23b440e43d2d1d4a5e078694f1effabc63f50f3038e293ece6a9aeb976ed3",
+      "baselineOutputSha": "1c7576c7e59a86c41641aa2da71e711781184aa50574f3f3f21a49bc1905d370",
       "candidateOutputSha": "1c7576c7e59a86c41641aa2da71e711781184aa50574f3f3f21a49bc1905d370",
       "facts": {
         "applied-snapshot": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both materialize each accepted patch as a detached worktree on the recorded base in a mktemp directory before dispatch (added tests/parse.test.ts present, deleted src/legacy-format.ts absent with a git-show fallback), both set each reviewer's cwd to its snapshot with no worktree flag, both pass the spec only as the absolute /workspace/project path plus anchors, both leave the parent clean and defer CR/integration/commit until verdicts exist, both remove each snapshot only after its terminal report is saved and its Verdict: line read, and both use plain non-chained snapshot-backed SR dispatches (no stopOn, no outputSchema, no acceptance) while retaining Tasks 1 and 2 without re-chaining or rerunning. After is slightly stronger on reviewer-cwd because it drops the top-level cwd: \"/workspace/project\" that Before had on the subagent call (per-task cwd overrode it, but removing it removes the ambiguity); keep that. The added Leg/Rules context lines and the tree-before capture deliver the Change without touching these facts, and the explicit 'not read from the snapshot' sentence under Spec supply helpfully reinforces authority-and-isolation. Nothing in After needs rewording to preserve these facts.",
-      "wallMs": 15218,
+      "feedback": "Before and After are textually identical, so no fact moved. Both materialize each accepted patch via `git worktree add --detach` on base 1111…1111 plus `git apply --index` in a separate mktemp checkout before dispatch, give each spec-reviewer its own `<SNAP_n>` cwd with no `worktree` flag, read added `tests/parse.test.ts` from the snapshot and the deleted `src/legacy-format.ts` from the base, pass the spec only as the absolute `/workspace/project/doc/specs/feature.md` path, keep the parent clean with no integration or code review, remove snapshots only after each `wave<w>-srN.md` is saved and its `Verdict:` read, and use plain fan-out dispatches that retain Tasks 1 and 2 without re-chaining or rerunning implementers. If the After wording was meant to add the Change's new content (Leg/Rules per-checkout resolution, per-repo wave bases, tree-capture handling), it had no observable effect on this case; the existing `Leg/Rules context:` line and tree-capture step already satisfy the intended behavior here, so keep this structure and any further edits should only append per-leg checkout notes without altering the snapshot cwd, absolute spec path, or cleanup-after-saved-report ordering.",
+      "wallMs": 10347,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9bae67efc2cbc921d6078d1f8a53fffdb170f4307769f5ac5500648f753d3c62",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "2f159c8704b7c0e68ccd7f6b69c5263727afdd9171a10154d90361e6eefd896b",
+      "baselineOutputSha": "6c6accb1e3d45ea042e95c18146f40ef7b3420ff5ca41cf6062c81d210eac453",
       "candidateOutputSha": "6c6accb1e3d45ea042e95c18146f40ef7b3420ff5ca41cf6062c81d210eac453",
       "facts": {
         "applied-snapshot": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: each accepted patch is applied with `apply --index` onto a detached worktree at the recorded base in its own mktemp directory, both spec-reviewer tasks get the printed snapshot path as cwd with no `worktree` flag, the authoritative spec stays at the absolute /workspace/project path, the parent is untouched, code review and commit are deferred, snapshots survive until the terminal report is saved and read and only that snapshot is removed, and the dispatch is a plain fan-out with no implementer rerun. The Change additions (Leg/Rules carry-through, explicit absence of outputSchema/acceptance, retained failed-setup directory) land without moving anything. Two small wording risks worth tightening rather than fixing: After dropped Before's explicit '**not a chain**' phrase, leaving the stopped-chain fact to be inferred from the payload shape; restoring 'one ordinary parallel fan-out, not a chain' costs nothing and keeps that fact unambiguous. Likewise the split per-task shell blocks each end in `exit \"$FD_STATUS\"`, which is fine as standalone blocks but reads less clearly than Before's subshell-wrapped capture function; if you keep the split, add a one-line note that the tree-capture exit status is the block's result and the printed SHA must be recorded before proceeding.",
-      "wallMs": 15347,
+      "feedback": "The After output is textually identical to Before, so no fact moved in either direction. Both outputs materialize each accepted sibling patch with `git worktree add --detach` at the recorded base plus `git apply --index` in a separate mktemp checkout (so tests/parse.test.ts is present and src/legacy-format.ts is absent, with a `git show <base>:` fallback for its prior contents), give each spec-reviewer task its printed snapshot path as `cwd` with no `worktree` flag, keep the authoritative spec at the absolute /workspace/project/doc/specs/feature.md path, forbid applying to the parent or dispatching code review before verdicts, retain snapshots until each terminal report is saved and then remove only that snapshot via `git worktree remove`, and explicitly refuse to re-chain or rerun the sibling implementers after the BLOCKED stop. Since the Change paragraph describes broad skill rewording (Leg/Rules routing, budgets, lifecycle, floor migration) but this case exercises only the stopped-chain snapshot re-review path, the current wording already delivers everything this case checks; to keep it that way while landing the Change, leave the snapshot materialization/tree-capture block, the per-task `cwd` override, the absolute-spec-path instruction, and the cleanup-after-saved-report rule untouched, and confine new wording (Leg/Rules, per-repo bases, funded rounds) to additive clauses that do not alter the default single-repo snapshot flow.",
+      "wallMs": 12753,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

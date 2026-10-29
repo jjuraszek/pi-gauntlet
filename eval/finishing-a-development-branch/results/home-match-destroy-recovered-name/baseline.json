@@ -1,7 +1,7 @@
 {
   "sample": "home-match-destroy-recovered-name",
   "arm": "baseline",
-  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "skillSha": "abba3103fa48c7fc97e8643ca7bfb5575f5492cc1a1a289cf45c70e02be23ba2",
   "inputSha": "b97393bf65b1a1e44472bd81f9903a1f6872746945ba769cf9f9f7fba849b6ad",
   "kind": "text",
   "assembly": "concat",
@@ -15,15 +15,24 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (option 3, squash-merge)\n\n**Contract source:** The case does not mention `## Legs`, so I treat this as a legacy spec and read the cleanup contract from `## using-git-worktrees` in `/work/acme-mono/.pi/gauntlet-overrides.md`. That section has `home:`, `create:` and `destroy:` keys, so the **keyed contract** applies.\n\n**1. Resolve `home:`**\n- `../acme-mono-<name>` resolved against `$PRIMARY` (`/work/acme-mono`) gives `/work/acme-mono-<name>`.\n- `<name>` appears once, in the single segment `acme-mono-<name>`.\n- That segment has the prefix `acme-mono-` and no suffix, so the pattern is valid.\n\n**2. Ownership match**\n- `realpath` leaves both paths unchanged: `$WORKTREE` = `/work/acme-mono-fix-x`.\n- The pattern segment `acme-mono-*` matches `acme-mono-fix-x`, with `*` = `fix-x`.\n- This is a match, and `NAME` = `fix-x`.\n\n**3. Match and `destroy:` set:** I run the project's destroy command from `$PRIMARY`, with `<name>` replaced by `'fix-x'` as one single-quoted shell word:\n\n```bash\ncd /work/acme-mono && script/worktree destroy 'fix-x'\n```\n\nOutput:\n```\nremoved fix-x\n```\n\nIt exited 0, so destroy succeeded. Per the contract, I do **not** run `git worktree remove` or `git worktree prune`. I continue straight to branch deletion:\n\n```bash\ngit -C \"/work/acme-mono\" branch -D \"fix-x\"\n```\n\n**Result**\n- Worktree `/work/acme-mono-fix-x` was removed by the project-native `script/worktree destroy` (exit 0, \"removed fix-x\").\n- Feature branch `fix-x` was deleted from the primary checkout at `/work/acme-mono`. Its changes are already squash-merged into `main`.\n- I did not run any fallback `git worktree remove --force` or `prune`.\n",
+      "words": 211,
+      "wallMs": 9242,
+      "mechanical": {
+        "r4": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The keyed `home` pattern resolves to `/work/acme-mono-<name>` and matches `/work/acme-mono-fix-x`, recovering `NAME=fix-x`.\n\nFrom `/work/acme-mono`, the destroy command succeeded:\n```text\n$ script/worktree destroy 'fix-x'\nremoved fix-x\n```\n\nDo not run `git worktree remove` or `git worktree prune`. Next, delete the merged feature branch:\n```bash\ngit -C \"/work/acme-mono\" branch -D \"fix-x\"\n```\n",
-      "words": 47,
-      "wallMs": 4401,
+      "text": "The keyed `home:` pattern resolves to `/work/acme-mono-<name>` and matches the worktree, recovering `NAME=fix-x`.\n\nRun from `/work/acme-mono`:\n```sh\nscript/worktree destroy 'fix-x'\n```\n\nIt exits successfully:\n```text\nremoved fix-x\n```\n\nThen delete the merged feature branch:\n```sh\ngit -C \"/work/acme-mono\" branch -D \"fix-x\"\n```\n\nDo not run `git worktree remove` or `git worktree prune`; the project destroy command handled worktree cleanup.\n",
+      "words": 56,
+      "wallMs": 3104,
       "mechanical": {
         "r4": "holds"
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

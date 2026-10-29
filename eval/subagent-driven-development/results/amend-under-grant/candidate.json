@@ -35,7 +35,7 @@
       "factsSha": "7d9ccc8e5899c6a591eecb72c2c956e44f862772828a2599a3c308f919dca483",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "4d58c0face3dcc1c179a87fd1f00623c6a6193bccbdf35c97a936d8f30a70663",
+      "baselineOutputSha": "4392b04aaadc7dc386ed483a2f8296c15a27331c887ba6eae1721c0a39cbfde8",
       "candidateOutputSha": "4392b04aaadc7dc386ed483a2f8296c15a27331c887ba6eae1721c0a39cbfde8",
       "facts": {
         "recommended": {
@@ -59,15 +59,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: it classifies the finding as a non-redraw amendment batch, decodes the grant, applies alt-2 (not accept or alt-1) in the same turn with no reviewer, menu, confirmation or question, prints the required `amended the spec: Empty frame rule - ...` line, includes a concrete plan-writer `subagent` amend dispatch with Amend/In-flight/Rule sections, runs plan_check, updates the tracker, and makes exactly one `amend:` commit after the plan update before replying. The only fragility is in the dispatch payload: After opens the `task` string with a placeholder (`<writing-plans step-3 plan-writer payload: ...>`) in place of the literal first line Before spelled out (`Author the plan per writing-plans \"## Author the plan\" step 3, amend mode.` plus explicit `Spec:`/`Plan:` lines). A stricter reader could call that a reference to a payload rather than the payload itself, which would risk plan-dispatch. To keep the Change's coordinated-flow/`context: \"fresh\"` additions while staying safe, keep the literal step-3 opening line and explicit Spec/Plan lines in the task text and only use angle-bracket placeholders for paths, as Before did; also consider dropping the trailing period on the printed `amended the spec:` line so it matches the canonical format exactly.",
-      "wallMs": 14238,
+      "feedback": "Before and After are byte-identical, so no fact moved: both decode the grant, skip reviewer/menu/confirmation, apply the recommended alt-2 (not accept or alt-1), print the exact line \"amended the spec: Empty frame rule - reject empty payloads but permit the existing heartbeat marker.\", include a concrete plan-writer subagent amend payload with Amend/In-flight sections for the existing plan, run plan_check, update the tracker (task 3 stays in_progress, reopen affected completed tasks), and make a single amend: commit of spec plus plan after the plan update, replying in the same turn. The Expected-to-move list predicted fails -> holds for these four facts, but Before already held them, so the wording Change delivered no observable difference on this case. One minor softness in both arms is the placeholder `<writing-plans step-3 plan-writer payload...>` inside the task string; if you want plan-dispatch to be unambiguous, have the After wording require the dispatch to spell out the plan-writer instructions (spec path, plan path, amend-mode flag) literally rather than by reference, while keeping the Amend/In-flight structure and the same-turn commit-and-reply sequence intact.",
+      "wallMs": 10728,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7d9ccc8e5899c6a591eecb72c2c956e44f862772828a2599a3c308f919dca483",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "5ffeacd3a851655e4311878ba7aa0d8304e24566d11474ea343a84a644bbdbdf",
+      "baselineOutputSha": "5c619b476906f74cce6713e2f9ca07c28a1a41fbba4e6d307e53e530be11b9ab",
       "candidateOutputSha": "5c619b476906f74cce6713e2f9ca07c28a1a41fbba4e6d307e53e530be11b9ab",
       "facts": {
         "recommended": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: After still applies alt-2 (rejecting accept and alt-1), prints the `amended the spec: Empty frame rule - ...` line in step 2, dispatches a concrete plan-writer amend payload for the existing plan, runs plan_check, updates the tracker for Task 3, and makes a single `amend: 1 item(s) - Empty frame rule` commit after the plan update, all without reviewer, menu, confirmation or question. Two minor robustness notes: After drops the `amended the spec:` line from the final reply block (Before repeated it there), so a reader skimming only the reply could miss it—keep it in both the step-2 print and the final reply; and After rephrases the edit as 'retaining the existing heartbeat-marker exception' rather than the case's 'permit the existing heartbeat marker', which is semantically fine but using the alt-2 wording verbatim would make the match unambiguous. Otherwise the After wording delivers the Change's amendment-surface coverage while preserving every fact Before kept.",
-      "wallMs": 13051,
+      "feedback": "The Before and After outputs are textually identical, so no fact moved: both choose alt-2 and print the exact 'amended the spec: Empty frame rule - ...' line, both explicitly dispatch no reviewer/menu/confirmation and ask nothing of the human, both include a concrete plan-writer subagent payload (agent, context fresh, async false, cwd, full task text with in-flight paths), and both run plan_check, issue the plan_tracker update keeping task 3 in_progress, and make a single 'amend: 1 item(s)' commit after the plan update before replying. The Expected to move list anticipated these four facts going fails -> holds, but the Before text already satisfied all of them, so the After wording neither gained nor lost anything on this case; if the Change was meant to be visible here, the After output would need to differ (e.g., citing the amendment-surface recommended-alternative rule by name as the authority for auto-applying alt-2), while keeping the current same-turn application, explicit dispatch payload, plan_check/tracker/commit sequence intact.",
+      "wallMs": 9304,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

@@ -35,7 +35,7 @@
       "factsSha": "4b80d8bf277a2a50564554950e7912948ca6c52099914d519a837a190846f607",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "609822c4f36ea928df78a2461ca217506c1b04f4cc56c635a2fe415b874dfe0c",
+      "baselineOutputSha": "92b4306daf8a1bb89ffa63840988d188c88da29a1608480397a94fd9f0490084",
       "candidateOutputSha": "92b4306daf8a1bb89ffa63840988d188c88da29a1608480397a94fd9f0490084",
       "facts": {
         "stagnant-stop": {
@@ -54,15 +54,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. Both arms print `funded round 1 of 2 for task 3`, dispatch one in-place implementer with `model: \"<configured-impl-model>\"` resolved from escalationLoop.implModel, `context: \"fresh\"`, `async: false`, run `node --test frame.test.mjs`, capture the tree and Fix delta, re-review with the code-reviewer under `## Previous review report (re-review trigger)`, and then stop on the first funded STAGNANT verdict with no round 2, no new escalation, no commit and no tracker write; both stop notes carry `budget: 1 of 2 spent` directly after the `Problem:` paragraph and before the `src/frame.ts:21` finding. The After wording adds a `Leg/Rules context:` line to the implementer and reviewer payloads consistent with the Change, which is fine. One wording nit worth fixing in After: section 1 asserts \"The payload contains no commit or staging instruction\" but the payload body then says \"Do not commit or stage\" — that is itself a staging instruction and contradicts the integrated-repair payload rule the Change asks to preserve (payload carrying no commit or staging instruction); drop that sentence from the task text (as Before does) and keep the rule only in the surrounding prose. Otherwise the After wording keeps every fact Before kept.",
-      "wallMs": 10990,
+      "feedback": "Before and After are textually identical, so no fact moved. Both outputs already satisfy every fact: the funded fix dispatch uses the configured implModel with context fresh and async false, runs the scoped `node --test frame.test.mjs` gate, and the CR re-review carries the `## Previous review report (re-review trigger)` marker with the verbatim prior report and Fix delta; after the fixed STAGNANT observation the parent stops with no round 2 and no new escalation, and the stop note places `budget: 1 of 2 spent` directly after the Problem paragraph and before the `src/frame.ts:21` finding. The Expected-to-move list anticipated fails -> holds here, but Before already held on this case, so the After wording neither gained nor lost anything on this sample; no wording adjustment is needed for these facts, though the author should confirm the change actually alters output on the samples where movement was intended.",
+      "wallMs": 7720,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4b80d8bf277a2a50564554950e7912948ca6c52099914d519a837a190846f607",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "6866ad72cf7ecec05392ddbe823c54d73636f32281f3248c5debd21d123797a8",
+      "baselineOutputSha": "bb99db81305a76a84b33f4ec439e84b84f6a114f6f7de11e483ffcfd32c68db8",
       "candidateOutputSha": "bb99db81305a76a84b33f4ec439e84b84f6a114f6f7de11e483ffcfd32c68db8",
       "facts": {
         "stagnant-stop": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs dispatch exactly one funded round with model <configured-impl-model>, context fresh, async false, run `node --test frame.test.mjs`, re-review with the \"Previous review report (re-review trigger)\" marker and a tree-capture fix delta, then stop on the first STAGNANT with `budget: 1 of 2 spent` placed after Problem: and before the `src/frame.ts:21` finding, leaving task 3 in_progress with no commit or second dispatch. The one weakening in After is collapsing the implementer task body into an opaque `$FIX_PAYLOAD` variable with only two preserved fields listed; a judge reading for explicit task text, spec anchors, prior report and status protocol must trust the prose definition rather than see them in the payload. To keep the gate fact robust while still delivering the Change (Leg/Rules context, tree-capture delta, Behaviour-change: no → CR only), keep Before's inline `${...}` sections in the implementer task and simply add the Leg/Rules block and the `$CR_TREE_BEFORE`/`$CR_TREE_AFTER` naming on top.",
-      "wallMs": 10756,
+      "feedback": "Before and After are textually identical, so nothing moved. Both outputs dispatch exactly one funded fix (printing `funded round 1 of 2 for task 3`) with model `<configured-impl-model>`, `context: \"fresh\"`, `async: false`, run the scoped `node --test frame.test.mjs`, then a CR-only re-review carrying the `## Previous review report (re-review trigger)` marker, the complete prior report and a scratch-index Fix delta. On the fixed STAGNANT result both stop immediately with no second funded dispatch, no new escalation, no wave commit and task 3 left in_progress, and the stop note places `budget: 1 of 2 spent` after `Problem:` and before `src/frame.ts:21 - missing length guard`. The After wording preserves every fact Before kept; no further adjustment is needed for this case, though the Change's intended fact movements cannot be evidenced here since the outputs do not differ.",
+      "wallMs": 7479,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

@@ -39,7 +39,7 @@
       "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "8003d1e276a7cd05ae82fa9f366af1a9dcac4f4cc6a36791490563f77c8801e8",
+      "baselineOutputSha": "5482203d6b2cdae8a7a4345787c5c6d3b6f416812ce2a9878bcbaae03013e411",
       "candidateOutputSha": "5482203d6b2cdae8a7a4345787c5c6d3b6f416812ce2a9878bcbaae03013e411",
       "facts": {
         "w1": {
@@ -53,15 +53,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs narrate the exact three-command sequence in the required order — `worktree remove /work/acme-web/.worktrees/login-copy`, then `worktree prune`, then `branch -D login-copy`, all via `git -C /work/acme-web` — so w1 holds in Before as well as After; the quoting around paths and branch name does not alter the commands a careful reader sees. The Expected-to-move entry anticipated Before failing, but the Before text already carries the full legacy `.worktrees/` removal narration with the explicit `branch -D` continuation, so this case does not demonstrate a movement. After's consolidation of the three commands into one block and its added destroy-failure clause (stop, print git output, keep the branch, no `--force`) are consistent with the Change and keep w1 intact; no wording adjustment is needed to preserve the fact, though if the author wants this sample to evidence the Change, a different case (e.g., a keyed-contract or destroy-failure state) would be required rather than this legacy no-section state.",
-      "wallMs": 8021,
+      "feedback": "Before and After are byte-identical here, and both already narrate the exact legacy sequence the fact asks for: `git -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"`, then `git -C \"/work/acme-web\" worktree prune`, then `git -C \"/work/acme-web\" branch -D \"login-copy\"`, with the no-section/legacy-path reasoning and the keep-branch-on-remove-failure rule stated explicitly. So w1 holds on both arms and the expected fails -> holds movement for no-section-dot-worktrees-removed/w1 is not observed in this sample; it was a pre-existing pass, not an improvement the wording change produced. Nothing in After moved the fact, and no wording adjustment is needed to keep it; if the author wants this case to demonstrate the new explicit `branch -D` continuation, the After narration would need to differ from Before (e.g., name the continuation as the keyed-contract step that also settles the legacy path), otherwise the sample provides no evidence either way about the Change.",
+      "wallMs": 7491,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
-      "baselineOutputSha": "95bfe5bb4902f86d0156e5e43085121946ac13cc8954effa6765230aace84b18",
+      "baselineOutputSha": "81b03ce7b95a1cd5715919b1054431eb0ae9d70478ab57040fc56c1d59ca4569",
       "candidateOutputSha": "81b03ce7b95a1cd5715919b1054431eb0ae9d70478ab57040fc56c1d59ca4569",
       "facts": {
         "w1": {
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs run the exact three commands in the required order (worktree remove, worktree prune, branch -D) against /work/acme-web, so w1 holds in Before and After; the Expected-to-move entry predicting a fails -> holds shift is not borne out by the Before text, which already narrates the full legacy sequence with && chaining. After's only differences are quoting the paths and branch name and replacing the && chain with a trailing sentence about stopping on failure — a careful reader still sees the same commands in the same order, so nothing moved. To keep w1 stable while delivering the explicit branch -D continuation and quoting rule, the After wording is fine as is; if you want the stop-on-failure semantics to be unambiguous in the executable block itself, consider keeping the && chaining (or `set -e`) alongside the quoted arguments rather than relying only on prose.",
-      "wallMs": 8667,
+      "feedback": "Before and After are textually identical here: both narrate `git -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"`, then `worktree prune`, then `branch -D \"login-copy\"`, in that order, gated on each prior command succeeding, so w1 holds in both outputs regardless of the Expected-to-move note claiming Before fails. Nothing in After moved a fact. If the author wants this sample to demonstrate the new explicit `branch -D \"$FEATURE\"` continuation rule, the After wording would need to visibly reference the no-section legacy-homes decision and the continuation contract (e.g., 'No `## using-git-worktrees` section, so the legacy three homes decide; after built-in remove and prune succeed, continue to `git -C \"$PRIMARY\" branch -D \"$FEATURE\"`'), which would keep w1 holding while making the Change observable; as it stands the case is a no-op comparison and does not evidence the intended improvement.",
+      "wallMs": 6952,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

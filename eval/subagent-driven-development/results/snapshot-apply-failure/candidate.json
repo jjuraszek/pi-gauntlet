@@ -35,7 +35,7 @@
       "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "556abe6e3e72aaeb606e4b79b500dab2341475018bb35b0ed3c4ecca100b119f",
+      "baselineOutputSha": "6f7254a0b5b663be93afeab0cf0063ad48c4aa3b3d0a8884cf481baadb099a7d",
       "candidateOutputSha": "6f7254a0b5b663be93afeab0cf0063ad48c4aa3b3d0a8884cf481baadb099a7d",
       "facts": {
         "fail-closed": {
@@ -49,15 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs stop spec-review dispatch, refuse to point a reviewer at the unchanged /workspace/project or the deleted worker checkout, refuse integration, keep the tracker index in_progress, and explicitly retain /tmp/review-snapshot and its tree without running worktree remove. After's numbered Actions list actually makes the fail-closed chain (no SR verdict -> no integration -> no gate/CR/commit) more explicit than Before, and its verbatim shell-error report satisfies the 'reports the failed snapshot setup' clause. Two small things After dropped that Before had and that help a strict reader of evidence-retained: Before's report says outright that the parent 'remains at the wave base' and that the task's patch stays retained at its Artifacts path for diagnosis, whereas After only implies parent stability through 'do not integrate' and never mentions the returned patch's retention. Adding a line to After's report like 'parent /workspace/project unchanged at <WAVE_BASE_SHA>; task patch retained at its Artifacts path' would keep both facts unambiguous while still delivering the tighter stop-dispatch/no-cleanup wording the Change calls for.",
-      "wallMs": 13411,
+      "feedback": "Before and After are textually identical, so nothing moved for this case. Both outputs stop review dispatch, refuse to review the unchanged parent at WAVE_BASE_SHA, decline to treat the worker's DONE as acceptance (no integration, no SR verdict, no wave commit), and report the failed snapshot setup verbatim with the retained /tmp/review-snapshot location while explicitly skipping cleanup and keeping the tracker at in_progress. Since the After wording produced no change here, the current wording already preserves both facts; keep the explicit 'do no cleanup / retain directory and shell output' and 'keep in_progress, do not substitute another checkout' language as-is when extending the snapshot section for tree captures and chain-stop recovery, so that the failed-setup branch remains clearly separated from the successful tree-after-then-review path.",
+      "wallMs": 7199,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "86ba6ccc7fa312cc7adcf50aa48d0a1626206a1c8d2c8456e6b7f6da500d81e9",
+      "baselineOutputSha": "c309fb90583eed8cb73ef2a11029592e6757dcd2e9611c2422b7233dee1bc7e2",
       "candidateOutputSha": "c309fb90583eed8cb73ef2a11029592e6757dcd2e9611c2422b7233dee1bc7e2",
       "facts": {
         "fail-closed": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs stop dispatch, refuse to review /workspace/project or treat DONE as acceptance, retain the failed snapshot directory and shell output without cleanup, and keep the task in_progress with no commit or integration, so neither fact moved. After is slightly thinner than Before in two places that do not cross a fact boundary but could under stricter wording: it drops the explicit 'retain the returned patch' item and the explicit 'report the blocking setup error' line (After implies reporting by printing the error block, but says nothing about reporting it as a failure). To keep every Before fact robustly while delivering the Change's 'explicitly retain the failed directory and shell output without cleanup' requirement, restore the returned-patch retention bullet and add a one-line 'Report the failed snapshot setup as the blocking error' statement alongside the in_progress note.",
-      "wallMs": 6299,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both outputs stop review dispatch, refuse to read the unchanged parent or treat DONE as acceptance (fail-closed), and explicitly retain /tmp/review-snapshot/tree with its shell output while leaving the worktree untouched and the task in_progress (evidence-retained). The reworded skill preserved this failure path exactly; no wording adjustment is needed here, though if later edits touch the snapshot-failure branch, keep the explicit 'retain the failed directory and shell output without cleanup' and 'no reviewer, no fallback to the parent' phrasing that both arms currently produce.",
+      "wallMs": 4903,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

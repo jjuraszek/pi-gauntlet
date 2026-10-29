@@ -35,7 +35,7 @@
       "factsSha": "b354f34029eb6044ebdb041b206c98e90877cd16ae48b6eb720726c86c1a1f3b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "60895df8e033f172401feaaa83243385b1edbae63a8e565b225c663c3064377b",
+      "baselineOutputSha": "3cab2e9555450476a1793feed3f51565adb98b66f28bcbb674908083f22952f0",
       "candidateOutputSha": "3cab2e9555450476a1793feed3f51565adb98b66f28bcbb674908083f22952f0",
       "facts": {
         "two-rounds": {
@@ -59,15 +59,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: After still prints both `funded round N of 2 for task 3` lines and continues without a human stop, both implementer payloads carry `model: \"<configured-impl-model>\"`, `context: \"fresh\"`, `async: false`, a single in-place implementer with the same verbatim task text, `/workspace/project` isolation, `SCOPED_TEST_COMMANDS: node --test frame.test.mjs` and the complete prior CR report, both rounds run the scoped gate then a CR re-review under `## Previous review report (re-review trigger)` with a `## Fix delta` block, and the wave commit precedes `plan_tracker(... status: \"complete\")`. The Change's Leg/Rules routing lines and the explicit `gauntlet_setting({ key: \"escalationLoop\" })` resolution were added without displacing any of these. Two small wording risks worth tightening so a stricter reader does not drift: in round 2 the tree-after capture is summarized as \"the same Fix delta block\" rather than shown (the Case asked not to replace dispatches with \"repeat\" - keep the full block, as round 1 does), and the implementer task header dropped the round number (\"funded fix round\" vs Before's \"funded fix round 1 of 2\"); restoring \"funded fix round N of 2\" in the task string keeps the payload self-identifying while retaining every Leg/Rules addition.",
-      "wallMs": 14315,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both outputs print `funded round 1 of 2 for task 3` and `funded round 2 of 2 for task 3` and continue without a human stop; both funded fix dispatches use `model: \"<configured-impl-model>\"`, `context: \"fresh\"`, `async: false`, a single implementer with no fan-out, the same full task text, the same in-place `/workspace/project` isolation, the scoped `node --test frame.test.mjs` command and the complete verbatim prior CR report; both rounds run the scoped gate, capture tree-after, and dispatch a CR re-review carrying the full prior report under the `## Previous review report (re-review trigger)` marker plus a `## Fix delta` block; and after the second SHIP the wave is committed (`reset --soft` + `add -A` + `commit`) with a clean-tree check before `plan_tracker` marks task 3 complete. The Expected-to-move list says these facts should go fails -> holds, but Before already satisfies all four, so the After wording neither gained nor lost anything here; whatever wording you added for funded rounds is consistent with this output, and you can keep it as is while delivering the rest of the Change.",
+      "wallMs": 9683,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b354f34029eb6044ebdb041b206c98e90877cd16ae48b6eb720726c86c1a1f3b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "09af10158df3bc474554f7021c7a6ee0d6f1610f47e4745c5d10560e18b88138",
+      "baselineOutputSha": "5942b6240fd8bfb6052a9ede4b96c59ddbf8cec99ae281190128611e5a26d6be",
       "candidateOutputSha": "5942b6240fd8bfb6052a9ede4b96c59ddbf8cec99ae281190128611e5a26d6be",
       "facts": {
         "two-rounds": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: After still prints both funded-round ledger lines and continues without a human stop, both implementer dispatches carry model \"<configured-impl-model>\", context \"fresh\", async false, cwd /workspace/project with an explicit no-fan-out note, the same task text, scoped command, test contract and the complete prior CR report, both re-reviews run after the scoped gate with the \"## Previous review report (re-review trigger)\" marker and a \"## Fix delta\" built from recorded tree SHAs, and the wave commit against WAVE_BASE_SHA precedes plan_tracker completion of task 3. Two wording risks worth tightening so the Leg/Rules change does not later cost a fact: After interpolates `${LEG_AND_RULES_CONTEXT}` in every payload but never declares that binding in its bindings list (it only says to carry any existing Leg:/Rules: verbatim), so define it explicitly and state that it is empty when the task has no Leg/Rules, otherwise a reader may see an unresolved placeholder in the dispatch; and After dropped the explicit `output:` paths from all four dispatches while still saying to 'read and retain the complete returned report', so either restore the output path or say the report is read from the subagent's known output location to keep the 'complete prior report' chain unambiguous.",
-      "wallMs": 16032,
+      "feedback": "After is textually identical to Before, so no fact moved: both outputs print `funded round 1 of 2 for task 3` and `funded round 2 of 2 for task 3` and proceed without a human stop; both funded implementer dispatches carry model \"<configured-impl-model>\", context \"fresh\", async false, a single in-place worker in /workspace/project with the same task text, spec anchors, scoped command, test contract and the complete prior report (ESCALATED_CR_REPORT, then FUNDED_1_CR_REPORT); each fix is followed by the scoped test gate and a code-reviewer dispatch containing the full prior report under the \"Previous review report (re-review trigger)\" marker plus a \"## Fix delta\" section; and after the supplied SHIP the wave is folded into one commit from WAVE_BASE_SHA before plan_tracker marks task 3 complete. Since the Change paragraph expected these budget-continues facts to move fails -> holds but Before already satisfied them, the After wording needs no further adjustment for this case—keep the explicit funded-round print lines, the fully interpolated implementer/CR payloads, and the commit-before-completion ordering exactly as written.",
+      "wallMs": 9775,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

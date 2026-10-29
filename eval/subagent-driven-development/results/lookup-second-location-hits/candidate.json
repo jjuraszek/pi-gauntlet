@@ -35,7 +35,7 @@
       "factsSha": "dff86c73219980a8d4d5960fe54ffa32eba32baddeee93d95cbd646369938ba6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "8baa094684c508127c7e2f85d17e63ea6c040100497acecf15dc45d8e0b9264a",
+      "baselineOutputSha": "dfd69a7e8aed389e38eaca84fa1f9e039276bb333f7a9492009edc31161f409e",
       "candidateOutputSha": "dfd69a7e8aed389e38eaca84fa1f9e039276bb333f7a9492009edc31161f409e",
       "facts": {
         "ordered-lookups": {
@@ -54,15 +54,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs record the template-store miss then the repo hit in spec order, re-dispatch a single implementer with archive/templates/summary-frame.tpl in the task text alongside the original task, SCOPED_TEST_COMMANDS: none and TEST_CONTRACT: none: text-only wiring, emit no stop note or location question, and leave task 2 in_progress stopping before the worker returns. After additionally adds explicit `Searched:` trail lines, which is a clean fit for the Change. Two small wording risks in After worth tightening: the lookup lines inside the task text drop the directory prefixes (\"template-store collection summary-frames: summary-frame.tpl\" / \"repo archive/templates: summary-frame.tpl\") so a strict reader could say the full documented paths are only recorded in the parent narrative, not in what the worker sees — keep the full `summary-frames/summary-frame.tpl` and `archive/templates/summary-frame.tpl` forms there as Before did; and the injected \"Carry the task's Leg:/Rules: context if the plan declares any\" line is speculative for a plan with no legs — emit Leg/Rules context only when the plan actually declares it, so the re-dispatch payload carries only the task, its found location and its test scope.",
-      "wallMs": 14375,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both outputs record the template-store summary-frames/summary-frame.tpl miss before the repo archive/templates/summary-frame.tpl hit in a Searched trail in documented order, both re-dispatch a single implementer with the found path archive/templates/summary-frame.tpl in the task text while preserving the original task description, SCOPED_TEST_COMMANDS: none and TEST_CONTRACT: none: text-only wiring, and both explicitly decline a stop note or human location question, keep task 2 in_progress with no tracker write, and stop at the re-dispatch boundary pending the worker and the SR/CR gates. The Expected-to-move list predicted these facts would go from fails to holds, but Before already held them, so the After wording neither gained nor lost anything here; the lookup-handling wording (search each documented location once in order, stop at first hit, re-dispatch with hit and earlier misses) is already sufficient for this scenario and needs no adjustment to retain these facts.",
+      "wallMs": 7784,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "dff86c73219980a8d4d5960fe54ffa32eba32baddeee93d95cbd646369938ba6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "3dd639abff5efc9e756aa8ab22de34ac01f0bd60e44b13a3ca9149b92c4820e5",
+      "baselineOutputSha": "e4c5f3c03fd24422e434c27af941b7952cebcd5c3d1fa9894635e09032481ce7",
       "candidateOutputSha": "e4c5f3c03fd24422e434c27af941b7952cebcd5c3d1fa9894635e09032481ce7",
       "facts": {
         "ordered-lookups": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved between the arms: both outputs record the template-store summary-frames/summary-frame.tpl miss before the archive/templates/summary-frame.tpl hit in documented order, both re-dispatch the implementer with the found path embedded in the task text alongside the verbatim task description and the SCOPED_TEST_COMMANDS/TEST_CONTRACT lines, and neither emits a stop note or asks a human location question, keeping task 2 in_progress pending the worker and review gates. The After wording adds 'Searched:' lines for the recorded lookups and switches the dispatch to an isolated worktree with a tasks array and context: fresh, which the facts tolerate; the only soft risk is that After cites the template as the relative 'archive/templates/summary-frame.tpl from your isolated checkout' while the lookup record uses the absolute /workspace/project path — keep both forms (absolute observation plus checkout-relative read instruction) as After does, since that satisfies the found-location fact without implying a stale absolute read from the worktree. The intended fails->holds movements for this case were already held in Before, so the Change delivered conformance evidence without regressing anything.",
-      "wallMs": 10746,
+      "feedback": "Before and After are textually identical, so no fact moved: both record the template-store miss followed by the repo archive/templates hit in documented order, both re-dispatch only task 2 with archive/templates/summary-frame.tpl named in the task text alongside the verbatim task, SCOPED_TEST_COMMANDS: none and TEST_CONTRACT, and both keep task 2 in_progress with no stop note or location question (the closing 'Stop here' is the case-mandated halt before the worker returns, not a human stop). The Expected-to-move list anticipated these facts going from fails to holds, but Before already satisfied them, so the wording change neither gained nor lost anything on this case; if the author wants visible evidence of the Change here, consider having the re-dispatch explicitly cite the 'stop at first hit, carry earlier misses' rule, but the current After already preserves every fact Before kept.",
+      "wallMs": 8229,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

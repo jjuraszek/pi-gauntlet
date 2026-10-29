@@ -35,7 +35,7 @@
       "factsSha": "838ef414a211d7c72473482217dee4c69087cc65d74953dfc17f5c7871aa913c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "c057a80942fa2a3759af24bdf19a3672d5fb826ca6d266cf1846ff6f6c728111",
+      "baselineOutputSha": "e1fb95a98a5da5d31fa291bad0e1fa2eac89a8ea30f61b2921f2b73bbf9ce6cb",
       "candidateOutputSha": "e1fb95a98a5da5d31fa291bad0e1fa2eac89a8ea30f61b2921f2b73bbf9ce6cb",
       "facts": {
         "no-empty-wave": {
@@ -44,8 +44,8 @@
           "label": "intended but unchanged"
         },
         "clean-base-retry": {
-          "before": "holds",
-          "after": "holds",
+          "before": "fails",
+          "after": "fails",
           "label": "intended but unchanged"
         },
         "bounded-attempts": {
@@ -59,15 +59,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: it skips steps 5-7 with no empty-wave test gate, CR, or commit, explicitly refuses to reuse the stale COMPLIANT verdict as integration evidence, retries Task 1 from the verified clean WAVE_BASE_SHA via a fresh worktree implementer followed by a conditional snapshot SR (not a dirty-checkout repair or blind reapply), exhausts the two-attempt limit, stops and escalates, denies a budget reset via a new wave, and leaves Task 1 in_progress with HEAD at the base and no commit. Two small points for the author: (1) After says attempt 2 is 'identical apart from its output path', whereas Before fed attempt 1's visible diagnostic into the attempt-2 payload; keep that line so each failure is visibly diagnosed and carried forward rather than blindly repeated. (2) The new 'Leg/Rules context if any' placeholder in the task payload is harmless here, but it should be worded as resolved in the owning checkout so the leg-cwd routing in the Change is delivered without muddying which checkout the singleton retry runs in. Otherwise the wording delivers the Change without moving any of these facts.",
-      "wallMs": 17793,
+      "feedback": "Before and After are byte-identical, so nothing moved; the After wording produced no observable difference on this case. Both outputs correctly skip steps 5-7 with zero survivors, refuse to reuse the pre-integration COMPLIANT verdict as integration proof, carry the two-attempt limit across retries and refuse a fresh-wave budget reset, and keep Task 1 in_progress with HEAD at the unchanged wave base and no commit. The one fact both miss is clean-base-retry as written: the output explicitly dispatches the retry as a lone implementer ('one implementer, not a chain', 'Not re-run: a second chain in this wave') followed by a separate snapshot SR, and frames it as a recovery dispatch rather than an ordinary singleton wave; the fact requires the retry to be an ordinary singleton wave from the clean base with nested implementation and chain SR on the supported 7.4.3 runtime. To deliver the Change's 'bounded clean-base singleton retries' while keeping every other fact, reword the step-4 zero-survivor branch to say the retry re-enters the normal wave loop as a singleton wave from the observed clean WAVE_BASE_SHA, using the supported-runtime implementer-to-SR chain (worktree: true, outputSchema on the implementer only, SR verdict read from the prose Verdict: line, chain acceptance level none with a reason), while reserving the 'never re-chain' rule for chain stop/error cases and keeping the two-attempt counter carried over and the tracker/HEAD lifecycle unchanged.",
+      "wallMs": 19323,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "838ef414a211d7c72473482217dee4c69087cc65d74953dfc17f5c7871aa913c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "e43d31d8a14dfc22621f9a05fb3690ffb6e2172f3ccb57a55e52bd54ea889e32",
+      "baselineOutputSha": "44281cf6bb0c955bc5c07ca7bef765ed93fc30089397b8a7a9ff9ffadddb7328",
       "candidateOutputSha": "44281cf6bb0c955bc5c07ca7bef765ed93fc30089397b8a7a9ff9ffadddb7328",
       "facts": {
         "no-empty-wave": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. Both outputs skip the integrated test gate, CR and commit on zero integrated patches, keep the accepted COMPLIANT verdict as a record rather than as proof of integration, and still allow chain SR on a real retry patch; both retry Task 1 as a fresh singleton wave from the observed clean WAVE_BASE_SHA with a pi-cohort isolated checkout and nested implementer-to-SR chain, explicitly refusing in-place parent repair and blind reapplication of the rejected patch; both carry the two-attempt limit, read terminal results/reports before deciding, stop after attempt 2 and deny budget reset via a relabeled wave; both leave Task 1 in_progress with HEAD unchanged and no commit. After actually sharpens several points that are worth keeping: it names the retry's WAVE_BASE_SHA explicitly, states each retry is a separate recovery wave rather than a second chain inside the original wave, makes the D1 'in_progress pending human decision, not complete or automatically failed' lifecycle explicit, and adds the 'stop for diagnosis if either differs' precondition. The only loss relative to Before is minor hygiene (mktemp-allocated report dirs replaced by fixed /tmp/reports/recovery-k paths, and the SR payload no longer says 'Return the prescribed Verdict'); neither affects a listed fact, but restoring the explicit Verdict instruction in the SR task would keep the verdict-reading rule visible in the payload while retaining all of After's additions.",
-      "wallMs": 17109,
+      "feedback": "The After output is textually identical to Before, so no fact moved in either direction: both skip the integrated scoped-test gate, wave CR and wave commit with zero integrated patches while still routing any usable retry patch through chain SR on the implementer's materialized tree (and explicitly forbid reviewing an unchanged tree for a missing/unusable patch); both retry as a fresh singleton wave from the verified clean HEAD 1111111… with worktree-isolated implementation plus chain SR, rejecting in-place parent repair and blind reapplication; both carry the existing two-attempt limit, stop after attempt 2, and state that a newly labeled wave does not reset the budget; and both leave Task 1 in_progress, HEAD at the wave base, with no commit. Since the Change intends a rewording of the skill, the After wording as exercised here delivered no observable difference on this case; to make the intended movements visible without losing these four facts, keep the explicit pre-attempt status/rev-parse checks, the 'separate recovery singleton wave, not a second chain' sentence, the 'does not reset the two-attempt budget' line and the in_progress-pending-human terminal state, and only add (not replace) the new D1 lifecycle wording (pending→in_progress at fan-out, complete only at wave commit) alongside them.",
+      "wallMs": 11451,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

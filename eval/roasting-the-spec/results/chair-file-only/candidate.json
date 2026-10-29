@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Chair dispatch, structural check, and retry\n\n## Initial chair dispatch\n\nThe worktree goes in `cwd`. The parent launch directory (`/tmp/acme/widgets-main`) is never used. The child receives its single input path explicitly in the task text. Its output is delivered through `output` plus `outputMode: \"file-only\"`, so the harness injects the `**Output:**` instruction and the chair writes its complete report to that file.\n\n```js\nsubagent({\n  agent: \"spec-council-synthesizer\",\n  async: false,\n  model: \"gamma/chair\",\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  output: \"/tmp/council-widgets/chair.md\",\n  outputMode: \"file-only\",\n  task: \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md.\\n\" +\n        \"Human input (verbatim; off-limits for over-spec):\\n```\\nReport job status without a wrapper layer.\\n```\\n\" +\n        \"Member critiques (explicit usable paths; read these files directly):\\n\" +\n        \"/tmp/council-widgets/member-0-alpha-core.md\\n\" +\n        \"Coverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\n\" +\n        \"The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\\n\" +\n        \"Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Synthesize the single member critique. Do not discover critique files; the path above is your only member input. Write the complete report (not an acknowledgment or partial content) to the injected output path. Codebase access is permitted for contested-claim checks only, bounded per your hygiene rules (rg, explicit paths, timeout 30).\"\n})\n```\n\n**How each dispatch field is set:**\n- **Input:** the member path is listed explicitly, because single-mode dispatch ignores `reads`.\n- **Wording:** \"Synthesize the single member critique\" is used because only one member is usable.\n- **Coverage reason:** the line carries pi-cohort's kill diagnostic for beta.\n- **Silence kill:** the effective kill is max(900s, 600+300) = 900s.\n- **Waiting:** I wait for the foreground terminal result.\n\n## Check after the first attempt\n\n1. I ignore the tool's \"success\" text. Usability is judged by the file, not the label.\n2. I run the mechanical probe only. I do not read the report content.\n   - `test -s /tmp/council-widgets/chair.md` passes, because the file is non-empty.\n   - `grep -q '^consensus:' /tmp/council-widgets/chair.md`\n   - `grep -q '^lean:' /tmp/council-widgets/chair.md` fails, per the supplied facts.\n3. The result is **unusable**. The model was reachable, so this is an unusable-chair failure, and I retry once with the same model.\n\n## Same-model retry (the only retry)\n\nThe retry is the identical object, reused verbatim. It stays foreground, uses the same `control` block, and keeps the same task text. It writes to the same output path, so the applier's later `Chair report: /tmp/council-widgets/chair.md` reference stays valid.\n\n```js\nsubagent({\n  agent: \"spec-council-synthesizer\",\n  async: false,\n  model: \"gamma/chair\",\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  output: \"/tmp/council-widgets/chair.md\",\n  outputMode: \"file-only\",\n  task: /* identical task string to the initial dispatch above */\n})\n```\n\nI wait for the terminal result, then re-probe the file:\n- `test -s`, `grep -q '^consensus:'` and `grep -q '^lean:'` on `/tmp/council-widgets/chair.md` all pass, per the supplied facts.\n- The chair synthesis is **usable**. It goes to the applier by path only, and I never read or summarize its findings. The applier stage is outside this case, so I stop here.\n\n## Alternative branch: configured model unreachable\n\nIf the first attempt fails because `gamma/chair` cannot be reached, I retry once with the same object and task verbatim, but with the `model` field omitted so the chair inherits the parent model. All other fields stay the same: `async: false`, the same `control`, `cwd`, `output` and `outputMode`. I wait for the terminal result and apply the same three-part probe.\n\n## Second failure: abort\n\nIf the single retry (same-model or inherited) also produces a missing, empty, or header-deficient `chair.md`, or is killed:\n- I abort the council and tell the user plainly that the chair synthesis failed twice.\n- The applier is not dispatched, so the spec is unchanged. No restore is needed.\n- I return to brainstorming's user gate with the pre-council spec. There is no `Council:` counts line, no row-3 audit, and no fabricated counts.\n- I remove only this council's temp directory with `rm -rf /tmp/council-widgets`. Nothing council-related is staged.\n- The `**Amend-grant:**` header line and the `reference/documentation-impact.md` citation stay untouched throughout.\n",
-      "words": 703,
-      "wallMs": 21840,
+      "text": "# Chair Dispatch (single usable member, partial coverage)\n\nThe parent does not read `/tmp/council-widgets/member-0-alpha-core.md` or `chair.md`. It only dispatches the chair and checks the output file's structure.\n\n## Initial dispatch\n\n```js\nsubagent({\n  agent: \"spec-council-synthesizer\",\n  async: false,\n  model: \"gamma/chair\",\n  cwd: \"/tmp/acme/widgets-wt\",            // never the launch dir /tmp/acme/widgets-main\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  output: \"/tmp/council-widgets/chair.md\",\n  outputMode: \"file-only\",\n  task:\n    \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md.\\n\" +\n    \"Human input (verbatim; off-limits for over-spec):\\n```\\nReport job status without a wrapper layer.\\n```\\n\" +\n    \"Member critiques (explicit usable paths; read these files directly):\\n\" +\n    \"/tmp/council-widgets/member-0-alpha-core.md\\n\" +\n    \"Coverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\n\" +\n    \"Input: the member critique is NOT in this message. Obtain it only by reading the one path listed above. Do not run find/grep/ls to discover critique files, because that path is your complete input. Attribute raised-by from the filename slug (alpha-core).\\n\" +\n    \"Output: write the complete report (consensus:, lean:, clusters:, resolved:) to /tmp/council-widgets/chair.md. Do not write an acknowledgment or partial content there; the file is the deliverable.\\n\" +\n    \"The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\\n\" +\n    \"Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Synthesize the single member critique (lean: n = 1). Codebase access is permitted for contested-claim checks only, bounded per your hygiene rules (rg, explicit paths, timeout 30).\"\n})\n```\n\n- **Kill threshold:** the effective silence-kill is max(900, 600 + 300) = 900 s.\n- **Await:** wait for the terminal result in the foreground.\n- **Member file reads:** `reads` is not used. The explicit path in the task text is the chair's only input route.\n\n## Usability check after the first return\n\nJudge the file on disk, not the tool's \"success\" text:\n\n1. `test -s /tmp/council-widgets/chair.md` passes, because the file is non-empty.\n2. `grep -q '^consensus:' /tmp/council-widgets/chair.md` is required.\n3. `grep -q '^lean:' /tmp/council-widgets/chair.md` fails, per the supplied facts.\n\nThe file is therefore **unusable**, even though the tool reported success.\n\n## Retry (once, same model)\n\nAn unusable chair output means one retry on the same model:\n\n- Use the **identical object** above, with the complete task text reused verbatim.\n- Keep `model: \"gamma/chair\"`, `async: false`, the same `control`, `cwd`, `output: \"/tmp/council-widgets/chair.md\"`, and `outputMode: \"file-only\"`.\n- Await the terminal result.\n\nRe-run the same three checks. Per the supplied facts, the file is non-empty and has both `^consensus:` and `^lean:`, so it is **usable**.\n\nNext, the chair path goes to the applier stage (snapshot the spec and status, then dispatch the applier). That stage is outside this case. The report's contents are not read or reproduced here.\n\n## Fallback: configured chair model unreachable\n\nIf `gamma/chair` cannot be reached on the first dispatch, retry once with the same object and task text but **omit `model`**, so the chair inherits the parent model. Keep it foreground with `async: false` and await it. This substitution counts as that dispatch's single retry.\n\n## Second failure: abort and return to the gate\n\nIf the retry is also killed, unreachable, or unusable, there is no further retry:\n\n1. Abort the council and state that the chair synthesis failed twice.\n2. Return only the failure notice to brainstorming's user gate.\n3. The spec at `/tmp/acme/widgets-wt/doc/specs/job-status.md` stays as it was before the council, since no applier ran.\n4. Emit no `Council:` counts and no row-3 audit.\n5. Remove only `/tmp/council-widgets`.\n6. Stage nothing.\n",
+      "words": 602,
+      "wallMs": 21573,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### 1. Initial chair dispatch\n\nThe chair must read the explicitly named member artifact itself; its contents are not preloaded. Use this foreground dispatch, with `control` at the top level:\n\n```json\n{\n  \"agent\": \"spec-council-synthesizer\",\n  \"async\": false,\n  \"model\": \"gamma/chair\",\n  \"cwd\": \"/tmp/acme/widgets-wt\",\n  \"control\": {\n    \"needsAttentionAfterMs\": 300000,\n    \"inFlightSilenceCeilingMs\": 600000,\n    \"inFlightSilenceKillMs\": 900000\n  },\n  \"output\": \"/tmp/council-widgets/chair.md\",\n  \"outputMode\": \"file-only\",\n  \"task\": \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md.\\nHuman input (verbatim; off-limits for over-spec):\\n```\\nReport job status without a wrapper layer.\\n```\\nMember critiques (explicit usable paths; read this file directly):\\n/tmp/council-widgets/member-0-alpha-core.md\\nCoverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\nRead the spec and the explicitly supplied member critique file yourself; their contents are not preloaded. Do not discover other critique files with find, grep, or ls. Synthesize the single member critique and adjudicate any conflicts within the supplied testimony.\\nThe portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it. Preserve its supplied meaning: every later spec amendment applies without asking; redraw still stops; grant is not approval.\\nDrafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows.\\nCodebase access is permitted for contested-claim checks only: use rg over explicit non-root paths with --max-count and timeout/gtimeout capped at 30 seconds when available. Resolve checks that cannot be bounded or time out on testimony weight, noting them as unverified. Never probe merely to upgrade a suggested edit's grounded/hypothesis label.\\nAttribute raised-by using alpha-core from the member filename. Produce the complete synthesizer-template report with consensus:, lean:, clusters:, and resolved:, applying the synthesizer's consolidation, adjudication, and tagging rules. Do not invent report contents or decide what gets applied. Write the entire report to /tmp/council-widgets/chair.md, not an acknowledgment or partial report. Keep findings in that file; do not return them to the parent.\"\n}\n```\n\n### 2. Mechanically check the initial artifact\n\nAfter the dispatch reaches its terminal result, judge the artifact—not the tool’s success label. The parent would check only:\n\n```bash\ntest -s /tmp/council-widgets/chair.md &&\ngrep -q '^consensus:' /tmp/council-widgets/chair.md &&\ngrep -q '^lean:' /tmp/council-widgets/chair.md\n```\n\nDo not print or read report contents.\n\n**Supplied outcome:** the initial file is nonempty but lacks `lean:`. It is unusable despite the tool text saying success.\n\n### 3. Retry once with the same model\n\nDispatch the **exact initial object above again**, unchanged: same `gamma/chair` model, complete task verbatim, output path, foreground mode, worktree `cwd`, and all three control values. Await its terminal result, then repeat the same structural checks.\n\n**Supplied outcome:** the same-model retry artifact has both `consensus:` and `lean:`. With the nonempty-file check also required, this is the retry artifact to route onward; do not ingest its findings in the parent. This case stops at chair validation—no applier dispatch.\n\n### Alternative failure branches\n\n- **Configured model unreachable:** instead of a same-model retry, retry once with the inherited model by using the complete initial dispatch object with only the `model` field omitted. Keep the task verbatim and all other fields unchanged.\n- **Wedge-killed or structurally unusable chair:** retry once with the same configured model, as in this case.\n- **Second failure:** if that one retry is unusable, abort the council, report the failure, remove only `/tmp/council-widgets`, and return to brainstorming’s user gate. Do not dispatch an applier or fabricate council counts or an audit.\n",
-      "words": 580,
-      "wallMs": 16131,
+      "text": "## 1. Initial chair dispatch\n\nUse the supplied usable-member path directly; do not discover files or preload their contents. The parent must not read member findings or chair report contents.\n\nDefine the complete task once so every retry reuses it verbatim:\n\n```javascript\nconst chairTask = `Problem statement: expose job status.\nSpec: /tmp/acme/widgets-wt/doc/specs/job-status.md.\n\nHuman input (verbatim; off-limits for over-spec):\n\\`\\`\\`\nReport job status without a wrapper layer.\n\\`\\`\\`\n\nMember critiques (explicit usable paths; read this file directly):\n/tmp/council-widgets/member-0-alpha-core.md\n\nCoverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\n\nRead the spec and the explicitly listed member critique directly; their contents are not preloaded. Synthesize the single member critique. Do not run find/grep/ls to discover critique files.\n\nThe portable citation reference/documentation-impact.md in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference.\n\nThe **Amend-grant:** header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it. Preserve its supplied meaning: every later spec amendment applies without asking; redraw still stops; grant is not approval.\n\nDrafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with none. Never draft new rows.\n\nConsolidate and adjudicate the member critique under your chair instructions. Attribute raised-by using the alpha-core slug from the supplied filename. Codebase access is permitted for contested-claim checks only, bounded per your hygiene rules: rg, explicit paths, --max-count, and timeout 30 when available. Do not probe to upgrade suggested-edit evidence tags.\n\nWrite the entire report—not an acknowledgment or partial report—to /tmp/council-widgets/chair.md, the injected output path. Use your prescribed report format with consensus:, lean:, clusters:, and resolved:. Keep findings in that artifact; do not return their contents to the parent.`;\n\nconst initialDispatch = {\n  agent: \"spec-council-synthesizer\",\n  async: false,\n  model: \"gamma/chair\",\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: {\n    needsAttentionAfterMs: 300000,\n    inFlightSilenceCeilingMs: 600000,\n    inFlightSilenceKillMs: 900000\n  },\n  output: \"/tmp/council-widgets/chair.md\",\n  outputMode: \"file-only\",\n  task: chairTask\n};\n\n// Intended call:\n// subagent(initialDispatch)\n```\n\nAwait the terminal result before checking the file. Do not use the parent launch directory as `cwd`.\n\n## 2. Mechanically check the first output\n\nThe proposed check is only existence/non-emptiness and required headers:\n\n```bash\ntest -s /tmp/council-widgets/chair.md &&\ngrep -q '^consensus:' /tmp/council-widgets/chair.md &&\ngrep -q '^lean:' /tmp/council-widgets/chair.md\n```\n\nDo not print or read report contents, including any harness invitation to read the file.\n\n**Supplied outcome:** the first tool text says success, but the nonempty report lacks `lean:`. It is therefore unusable. Tool success does not override this structural failure.\n\n## 3. Retry once with the same model\n\nThis is an unusable-report retry, not an unreachable-model fallback. Reuse the complete task, output path, and control block:\n\n```javascript\nconst retryDispatch = {\n  agent: \"spec-council-synthesizer\",\n  async: false,\n  model: \"gamma/chair\",\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: {\n    needsAttentionAfterMs: 300000,\n    inFlightSilenceCeilingMs: 600000,\n    inFlightSilenceKillMs: 900000\n  },\n  output: \"/tmp/council-widgets/chair.md\",\n  outputMode: \"file-only\",\n  task: chairTask\n};\n\n// Intended call:\n// subagent(retryDispatch)\n```\n\nAwait its terminal result, then repeat the exact structural check above.\n\n**Supplied retry outcome:** the retry file has both `consensus:` and `lean:`. The mechanical check must also confirm it is nonempty. With those checks satisfied, the chair output is usable. Stop at this stage; do not ingest the report or dispatch the applier.\n\n## Alternative failure branches\n\n- **Configured model unreachable:** retry once using the inherited model by **omitting** `model`, preserving every other dispatch field and `chairTask` verbatim:\n  ```javascript\n  const inheritedModelRetry = { ...initialDispatch };\n  delete inheritedModelRetry.model;\n  // Intended call: subagent(inheritedModelRetry)\n  ```\n  This alternative does not apply to the supplied missing-`lean:` outcome.\n- **Wedge-killed or otherwise unusable chair:** retry once with the same configured model, as above.\n- **Second failure:** abort the council and return a failure notice to brainstorming’s user gate. Do not invent report contents, an audit, `Council:` counts, or a row-3 audit entry; do not proceed to the applier.\n",
+      "words": 618,
+      "wallMs": 22633,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
       "baselineOutputSha": "51dee342d2138c5da1d9309e9e2e451c6efe52dde03f09f27d3b918c8c998db1",
-      "candidateOutputSha": "bb715dac74fcd7770b302300bff460ec24b1ac9ea85a2411e56dade13e3dba54",
+      "candidateOutputSha": "39aab20623a6656469c87f4f08aa86d233a4eb049dd5b23a02630f8a14264b2a",
       "facts": {
         "chair-file-output": {
           "before": "holds",
@@ -64,18 +64,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: both dispatch objects pair output with outputMode file-only, omit reads, run foreground in the worktree with the 300000/600000/900000 controls; the task names only the alpha-core path, uses single-member wording, carries the coverage line and kill diagnostic, preserves the verbatim human input and the Amend-grant/documentation-impact protections; usability is judged by test -s plus the two header greps rather than tool text, with a same-model verbatim retry, an inherited-model fallback for an unreachable gamma/chair, and a second-failure abort to the gate with no counts line. Two spots were weakened though not broken: After dropped Before's explicit sentence 'The member critique contents are NOT included in this task' (leaving only 'the path above is your only member input'), and it dropped the 'consensus:, lean:, clusters:, resolved: template' enumeration from the output instruction, saying only 'complete report'. Restoring those two phrases in the task string costs nothing against the Change and makes direct-read-input and complete-report unambiguous for a child that does not share the parent's context.",
-      "wallMs": 21532,
-      "verdict": "unchanged",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "Nothing moved: both outputs pair output /tmp/council-widgets/chair.md with outputMode \"file-only\" on the initial and retry dispatches, omit reads, keep cwd on the worktree with the 300000/600000/900000 controls, tell the chair the member critique is not preloaded and must be read directly from the single explicit path without find/grep/ls, demand the complete consensus/lean/clusters/resolved report rather than an acknowledgment, judge usability by test -s plus the two grep header checks rather than tool success, retry once same-model with the task verbatim, fall back to an inherited-model retry when gamma/chair is unreachable, and abort to the gate on a second failure while naming only the usable member, the 1-of-2 coverage with the kill diagnostic, the verbatim human input, and the Amend-grant/documentation-impact protections. After's restructuring into explicit \"Input:\" and \"Output:\" lines inside the task is a clean way to deliver the direct-read and complete-report requirements; the only wording worth watching is the added \"(lean: n = 1)\" hint, which is harmless here but sits close to prescribing report contents, so prefer phrasing like \"synthesize the single usable critique\" and leave the lean value to the chair. Before's explicit \"per the injected Output instruction\" phrase is also slightly closer to the complete-report fact's wording than After's \"the file is the deliverable\"; keeping both phrases would be safest.",
+      "wallMs": 13740,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "425c20cbecc9061953303a81ebc54910fbc53362df0280fb005eae32e40480fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
       "baselineOutputSha": "1fd17798f9d9e1bf613d839cabf1a95dfe496d4740a94656b8d97bd91096ffdd",
-      "candidateOutputSha": "e338e0785b1ed694c6e573ad7a6008cc34fa95734eca4eff3b8020c494d57c1f",
+      "candidateOutputSha": "e4b99b60cefa6e1f04403d1d8d1b6bc0847ba365176db4813a67c0b9fad86755",
       "facts": {
         "chair-file-output": {
           "before": "holds",
@@ -103,252 +101,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved between Before and After: both dispatch objects pair output /tmp/council-widgets/chair.md with outputMode \"file-only\", omit reads, use the explicit worktree cwd with 300000/600000/900000 controls, tell the chair its inputs are not preloaded and must be read directly from the named member path with no find/grep/ls discovery, demand the entire consensus:/lean:/clusters:/resolved: report in the file, judge usability by test -s plus the two header greps rather than tool success text, retry once same-model with the task verbatim (inherited-model retry only for an unreachable configured model), abort to the existing gate on second failure, and keep findings out of the parent while preserving the 1-of-2 coverage line, the beta kill diagnostic, the verbatim human input, and the Amend-grant and documentation-impact protections. After's rendering as a literal JSON object rather than a JS variable is equivalent in content; the one tightening worth keeping in future revisions is Before's explicit note that the `/tmp/acme/widgets-main` parent cwd must not be inherited, which After only implies through the explicit cwd field—adding that sentence back would make the foreground-cwd requirement unambiguous without affecting any other fact.",
-      "wallMs": 14600,
-      "verdict": "unchanged",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "After moves no fact: both dispatch objects still pair output /tmp/council-widgets/chair.md with outputMode \"file-only\", omit reads, use the explicit worktree cwd and the 300000/600000/900000 controls; the task still tells the child that member contents are not preloaded and to read the single explicit member path directly without find/grep/ls; the complete-report instruction, the nonempty+consensus:+lean: file check overriding tool success, the one same-model verbatim retry, the omit-model inherited fallback for an unreachable configured model, and the second-failure abort to the gate are all retained, as are the partial-coverage line, the beta kill diagnostic, the verbatim human input, the Amend-grant and documentation-impact protections, and the parent's refusal to read findings. The refactor into named initialDispatch/retryDispatch objects with a spread-and-delete inherited retry actually makes the verbatim-reuse and omit-model requirements more explicit than Before. Two small things worth keeping an eye on: the Before version explicitly said the second-failure cleanup covers only /tmp/council-widgets and that the spec is unchanged — After drops that sentence, which does not affect any listed fact but would be worth restoring to stay aligned with the Change's attributable-cleanup goal; and After's \"Intended call\" comments are a reasonable way to prescribe without claiming execution, consistent with the Change.",
+      "wallMs": 12726,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697",
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "chair-file-only",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "aa8ace0c2d8b4fd80c1ce608805e7ccd6066f3829d41e29c81ff4c37d2f0bd87",
-      "candidateSkillSha": "aa8ace0c2d8b4fd80c1ce608805e7ccd6066f3829d41e29c81ff4c37d2f0bd87",
-      "inputSha": "051361ddd0f3ea1811a9d04d4d93226c952eb4e29e2b9e3c8ff765f531ef3dcb",
-      "factsSha": "425c20cbecc9061953303a81ebc54910fbc53362df0280fb005eae32e40480fa",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-      "models": {
-        "replay": [
-          "anthropic/claude-opus-5-5",
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "anthropic-fable/claude-fable-5-1"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "anthropic/claude-opus-5-5": {
-            "baselineOutputSha": "51dee342d2138c5da1d9309e9e2e451c6efe52dde03f09f27d3b918c8c998db1",
-            "payloadSha": "bfd6ac0c3c84445b4c08d600862c50894e9fbdb11bd0c13df18a21f7bd6fd98b"
-          },
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "1fd17798f9d9e1bf613d839cabf1a95dfe496d4740a94656b8d97bd91096ffdd",
-            "payloadSha": "be7b0706801a8c56bbf62c62d433b097f08f2171dcf77ee3528acbc8d9943521"
-          }
-        },
-        "candidate": {
-          "anthropic/claude-opus-5-5": {
-            "candidateOutputSha": "bb715dac74fcd7770b302300bff460ec24b1ac9ea85a2411e56dade13e3dba54",
-            "payloadSha": "63ba836f58fc2c0fa7a26f2280fc7b7b1eb02b3f59582fe8e5c08bcb0f0c4228"
-          },
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "e338e0785b1ed694c6e573ad7a6008cc34fa95734eca4eff3b8020c494d57c1f",
-            "payloadSha": "c3c31bcbd36e8939fd397a5bd8dd3926cadcfa4e48d59af3dca6cf7bd7dd6558"
-          }
-        }
-      }
-    },
-    "previous": {
-      "anthropic/claude-opus-5-5": {
-        "factsSha": "425c20cbecc9061953303a81ebc54910fbc53362df0280fb005eae32e40480fa",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-        "baselineOutputSha": "51dee342d2138c5da1d9309e9e2e451c6efe52dde03f09f27d3b918c8c998db1",
-        "candidateOutputSha": "bb715dac74fcd7770b302300bff460ec24b1ac9ea85a2411e56dade13e3dba54",
-        "facts": {
-          "chair-file-output": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "direct-read-input": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "complete-report": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "chair-retry": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "single-coverage": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "After keeps the file-only pairing, the explicit direct-read instruction, the same-model/inherited-model retry logic and the single-coverage protections, but it weakened the child's output instruction: Before told the chair to write 'the complete report (consensus:, lean:, clusters:, resolved: template) to /tmp/council-widgets/chair.md per the injected Output instruction', whereas After only says 'Write the complete report (not an acknowledgment or partial content) to the injected output path', dropping the section enumeration that the parent's own `^consensus:`/`^lean:` probe depends on. Restore the template list in the task text — e.g. 'Write the complete report (consensus:, lean:, clusters:, resolved: template), not an acknowledgment or partial content, to the injected output path' — and optionally restate that member contents are NOT in the task so the child reads the listed path; this keeps every Before fact while still delivering file-only transport, explicit-path chair reads, and the file-based usability judgment.",
-        "wallMs": 17309,
-        "verdict": "inconclusive",
-        "confirmation": {
-          "status": "ok",
-          "text": "# Chair Stage: Dispatch, Checks, Retry, and Abort Plan\n\nAll dispatches run from the worktree, `/tmp/acme/widgets-wt`. They never run from the launch directory, `/tmp/acme/widgets-main`. As the parent, I check only whether files exist and contain the required header lines. I never read or weigh what the member or chair files say.\n\n## 1. Initial chair dispatch (configured model `gamma/chair`)\n\n```js\nsubagent({\n  agent: \"spec-council-synthesizer\",\n  async: false,\n  model: \"gamma/chair\",\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  output: \"/tmp/council-widgets/chair.md\",\n  outputMode: \"file-only\",\n  task:\n    \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md.\\n\" +\n    \"Human input (verbatim; off-limits for over-spec):\\n```\\nReport job status without a wrapper layer.\\n```\\n\" +\n    \"Member critiques (explicit usable paths; read these files directly):\\n\" +\n    \"/tmp/council-widgets/member-0-alpha-core.md\\n\" +\n    \"Coverage: 1 of 2 members reported; beta-wide: Likely wedged in a tool call.\\n\" +\n    \"The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\\n\" +\n    \"Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Synthesize the single member critique. Codebase access is permitted for contested-claim checks only, bounded per your hygiene rules (rg, explicit paths, timeout 30).\\n\" +\n    \"Input: the member critique is not preloaded. Read /tmp/council-widgets/member-0-alpha-core.md yourself with the read tool at that exact path, and do not run find/ls/grep to discover critique files. Also read the spec at the path above.\\n\" +\n    \"Output: write the complete report in your template (consensus:, lean:, clusters:, resolved:) to /tmp/council-widgets/chair.md. Do not write an acknowledgment or partial file; that path is the only deliverable.\"\n})\n```\n\nNotes on this dispatch:\n- The wording is singular because only one member file is usable.\n- The coverage line uses pi-cohort's kill diagnostic for beta.\n- The member path is listed explicitly in the task, because single-mode dispatch ignores `reads`.\n- I wait for the dispatch to finish before taking any further action.\n\n## 2. Usability check after the initial chair returns\n\nI judge the file on disk, not the tool's \"success\" text:\n\n```bash\ntest -s /tmp/council-widgets/chair.md\ngrep -Eq '^consensus:' /tmp/council-widgets/chair.md\ngrep -Eq '^lean:'      /tmp/council-widgets/chair.md\n```\n\nGiven facts:\n- The file exists and is non-empty.\n- It has no `^lean:` line.\n\nThe chair result is therefore **unusable**, even though the tool reported success.\n\n## 3. Same-model retry (one retry only)\n\nThe configured model was reachable, so the retry uses the same model, `gamma/chair`. The dispatch object is identical to step 1:\n- `agent`, `async: false`, `model: \"gamma/chair\"`, `cwd`, and the full `control` block are unchanged.\n- `output: \"/tmp/council-widgets/chair.md\"` with `outputMode: \"file-only\"` overwrites the unusable file.\n- The `task` string is reused verbatim, including the explicit input path and output instructions.\n\nThe retry runs in the foreground and I wait for it to finish. Afterwards I re-run the same three checks:\n- Given fact: the retry file contains both `^consensus:` and `^lean:`.\n- The chair synthesis is therefore **usable**.\n\nThe next step would be to snapshot the spec and status, then dispatch the applier with `/tmp/council-widgets/chair.md` as its chair report. That is beyond this stage, so I stop here.\n\n## 4. Fallback if the configured model is unreachable\n\nIf `gamma/chair` cannot be reached on the initial dispatch, the single retry uses the inherited model instead:\n- **Omit `model:`** so the chair inherits the parent's model.\n- Keep everything else from step 1 verbatim: task, `cwd`, `control`, `output`, `outputMode: \"file-only\"`, and `async: false`.\n- Wait for it to finish, then apply the same three file checks.\n\n## 5. Second failure: abort and return to the gate\n\nIf the single retry is also killed, unusable, or missing its headers, I abort the council. The abort works as follows:\n\n1. **Announce the abort.** I state plainly that the council aborted because the chair synthesis failed twice.\n2. **Leave the spec untouched.** No applier has run, so the spec is still the pre-council version and needs no restore.\n3. **Skip the applier.** I do not dispatch it.\n4. **Clean up.** I remove only `/tmp/council-widgets` with `rm -rf`. Nothing council-related is staged.\n5. **Return to brainstorming's user gate.** I return only the failure notice, with:\n   - no `Council:` counts,\n   - no row-3 audit,\n   - the `**Amend-grant:**` header line preserved as is.\n",
-          "words": 713,
-          "wallMs": 27588,
-          "mechanical": {},
-          "judgeWallMs": 16133,
-          "facts": {
-            "chair-file-output": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "direct-read-input": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "complete-report": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "chair-retry": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "single-coverage": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            }
-          },
-          "feedback": "After keeps every fact Before kept: both initial and retry dispatches pair output /tmp/council-widgets/chair.md with outputMode \"file-only\", omit reads, run foreground from /tmp/acme/widgets-wt with the 300000/600000/900000 controls; the task tells the chair the member file is not preloaded and must be read directly from the exact listed path without find/ls/grep; the output instruction demands the full consensus/lean/clusters/resolved report rather than an acknowledgment; usability is judged by test -s plus the two header greps rather than tool success, with one same-model verbatim retry, an inherited-model retry for an unreachable configured model, and a second-failure abort that returns only the failure notice to the gate with Amend-grant intact; and the task names only alpha-core's path with singular synthesis wording, the 1-of-2 coverage line and kill diagnostic, verbatim human input, and the grant/guideline protections, while the parent states it never reads what the files say. Nothing moved. Minor drift worth restoring: After dropped the explicit 'ignore any harness Read-this-file invitation' sentence (the 'never read or weigh' line covers it but less directly), dropped the raised-by attribution-from-slug instruction, and dropped 'and adjudicate' from the synthesis instruction; re-adding those three phrases to the After task and preamble would make the direct-read and single-coverage intent as explicit as Before without affecting the file-only transport change."
-        },
-        "judgeModel": null,
-        "thinking": null
-      },
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "425c20cbecc9061953303a81ebc54910fbc53362df0280fb005eae32e40480fa",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-        "baselineOutputSha": "1fd17798f9d9e1bf613d839cabf1a95dfe496d4740a94656b8d97bd91096ffdd",
-        "candidateOutputSha": "e338e0785b1ed694c6e573ad7a6008cc34fa95734eca4eff3b8020c494d57c1f",
-        "facts": {
-          "chair-file-output": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "direct-read-input": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "complete-report": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "chair-retry": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "single-coverage": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "No fact moved: both outputs pair output /tmp/council-widgets/chair.md with outputMode file-only, omit reads, use cwd /tmp/acme/widgets-wt with the 300000/600000/900000 controls, tell the chair to read the explicit member path itself because contents are not preloaded, demand the complete consensus/lean/clusters/resolved report in the output file, judge usability by the nonempty file plus both headers rather than tool success, retry once same-model verbatim (inherited model only when configured model is unreachable), and abort to the gate on a second failure while keeping findings out of the parent. After is slightly tighter in places (bounded rg guidance, 'do not return them to the parent', 'decide what gets applied' kept out of the chair's remit) and relies on 'exact initial object above again' for the retry instead of repeating the object; that is acceptable, but if you want zero ambiguity for a checker, either restate the retry object or explicitly say 'including output and outputMode: file-only' in the retry sentence. Otherwise the After wording already delivers the Change for this case without losing anything Before kept.",
-        "wallMs": 15002,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "anthropic/claude-opus-5-5": {
-        "factsSha": "425c20cbecc9061953303a81ebc54910fbc53362df0280fb005eae32e40480fa",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-        "baselineOutputSha": "51dee342d2138c5da1d9309e9e2e451c6efe52dde03f09f27d3b918c8c998db1",
-        "candidateOutputSha": "bb715dac74fcd7770b302300bff460ec24b1ac9ea85a2411e56dade13e3dba54",
-        "facts": {
-          "chair-file-output": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "direct-read-input": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "complete-report": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "chair-retry": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "single-coverage": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "After keeps every fact Before kept: both dispatch objects pair output with outputMode file-only, omit reads, run foreground in the worktree with the 300000/600000/900000 controls; the task names only the alpha-core path, uses single-member wording, carries the coverage line and kill diagnostic, preserves the verbatim human input and the Amend-grant/documentation-impact protections; usability is judged by test -s plus the two header greps rather than tool text, with a same-model verbatim retry, an inherited-model fallback for an unreachable gamma/chair, and a second-failure abort to the gate with no counts line. Two spots were weakened though not broken: After dropped Before's explicit sentence 'The member critique contents are NOT included in this task' (leaving only 'the path above is your only member input'), and it dropped the 'consensus:, lean:, clusters:, resolved: template' enumeration from the output instruction, saying only 'complete report'. Restoring those two phrases in the task string costs nothing against the Change and makes direct-read-input and complete-report unambiguous for a child that does not share the parent's context.",
-        "wallMs": 21532,
-        "verdict": "unchanged",
-        "judgeModel": "anthropic-fable/claude-fable-5-1",
-        "thinking": "medium"
-      },
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "425c20cbecc9061953303a81ebc54910fbc53362df0280fb005eae32e40480fa",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
-        "baselineOutputSha": "1fd17798f9d9e1bf613d839cabf1a95dfe496d4740a94656b8d97bd91096ffdd",
-        "candidateOutputSha": "e338e0785b1ed694c6e573ad7a6008cc34fa95734eca4eff3b8020c494d57c1f",
-        "facts": {
-          "chair-file-output": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "direct-read-input": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "complete-report": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "chair-retry": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "single-coverage": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "No fact moved between Before and After: both dispatch objects pair output /tmp/council-widgets/chair.md with outputMode \"file-only\", omit reads, use the explicit worktree cwd with 300000/600000/900000 controls, tell the chair its inputs are not preloaded and must be read directly from the named member path with no find/grep/ls discovery, demand the entire consensus:/lean:/clusters:/resolved: report in the file, judge usability by test -s plus the two header greps rather than tool success text, retry once same-model with the task verbatim (inherited-model retry only for an unreachable configured model), abort to the existing gate on second failure, and keep findings out of the parent while preserving the 1-of-2 coverage line, the beta kill diagnostic, the verbatim human input, and the Amend-grant and documentation-impact protections. After's rendering as a literal JSON object rather than a JS variable is equivalent in content; the one tightening worth keeping in future revisions is Before's explicit note that the `/tmp/acme/widgets-main` parent cwd must not be inherited, which After only implies through the explicit cwd field—adding that sentence back would make the foreground-cwd requirement unambiguous without affecting any other fact.",
-        "wallMs": 14600,
-        "verdict": "unchanged",
-        "judgeModel": "anthropic-fable/claude-fable-5-1",
-        "thinking": "medium"
-      }
-    }
-  }
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }
