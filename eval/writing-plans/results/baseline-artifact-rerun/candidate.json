@@ -40,7 +40,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "aa2c1803b435cce73f0e85fb47fc4f99ba5770b5ed3f9659823e0a0a5b637a24",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "af5c85dc259f1d23512249b045f3f8c01978186ea795e7404d79f5483e25a48a",
       "candidateOutputSha": "562db3818e9edb08d6a7556d27fc74ee43c413d373b0ce27180b682c972ff14b",
       "facts": {
@@ -65,14 +65,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. In After, Re-entry 1 admits coverage/hook.json as a recorded artifact, runs the endpoint proof, retains the abc1234 bullet with its artifacts suffix, and ends in PLAN WRITTEN /work/app/doc/plans/hook.md with no dirty row or block, so `proceed` holds exactly as in Before. Re-entry 2 explicitly overrides retention, reruns the unchanged command, reports the observed pass, and replaces the bullet with `baseline: abc1234 pass - artifacts: coverage/hook.json, coverage/summary.json`, carrying the still-untracked recorded path and merging the new one, again with no `Baseline: worktree dirty` row, so `forced-rerun-artifacts` holds. The expanded multi-bullet provenance section is more verbose than Before's single line but does not change the evidence outcome. Unrelated drift to watch: After invents a `npx prettier --check` Step 5 where Before correctly noted no documented scoped lint/format command (the Change says to use documented commands only or the sentinel), and the test asserts on `command` rather than Before's `event`; keep Before's no-command sentinel in Step 5 to avoid regressions on header-style/sentinel facts in other cases while retaining the current provenance wording here.",
-      "wallMs": 12691,
+      "feedback": "Neither fact moved. In Re-entry 1, After retains the unchanged-command bullet `baseline: abc1234 pass - artifacts: coverage/hook.json`, records the endpoint proof and the `retained 1 bullets` line, admits `coverage/hook.json` as a recorded non-Create/Test artifact with no dirty row, and ends with `PLAN WRITTEN /work/app/doc/plans/hook.md`. In Re-entry 2, After explicitly overrides retention, narrates the rerun exiting 0 with `tests 1, pass 1, fail 0`, and replaces the bullet with `artifacts: coverage/hook.json, coverage/summary.json`, carrying the still-untracked recorded path alongside the new one without any `Baseline: worktree dirty` row or block. Two unrelated drifts worth tightening so they don't bleed into other cases: After's Step 5 invents a `npx prettier --check` command although the case documents no lint/format command (Before correctly says no command runs), and the provenance section's `Pass 1` bullet says `no paths were admitted` next to a description of an admitted artifact, which a reader could find contradictory; keep the rerun/merge narration as is, but restore Before's Step 5 wording and phrase Pass 1 as `initial inventory empty; artifact recorded after the run`.",
+      "wallMs": 14278,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "aa2c1803b435cce73f0e85fb47fc4f99ba5770b5ed3f9659823e0a0a5b637a24",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "b62beafc9a9a75a22634d6d4175874d2167fc2e24191d14cd8fe72d2e414c79e",
       "candidateOutputSha": "29fc14b2e78bcaf47ae3c5115fc7b0a7a915870e704bf1ac5819c6b8a555f592",
       "facts": {
@@ -97,10 +97,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs keep every fact: each first re-entry admits coverage/hook.json from the saved artifact suffix, retains the same-base unchanged-command evidence (`baseline: abc1234 pass - artifacts: coverage/hook.json`) and ends with PLAN WRITTEN /work/app/doc/plans/hook.md with no dirty row; each second re-entry honors `Findings: rerun baseline`, reruns the command, and replaces the bullet with `baseline: abc1234 pass - artifacts: coverage/hook.json, coverage/summary.json` without blocking. After's wording is slightly less precise in places that do not touch these facts but could matter under neighboring facts: it drops the explicit `git diff --check` command in Step 6 for a vague formatting/lint sentence, and the commit message no longer names validateHook. To keep all behavior stable while delivering the Change, keep After's provenance narration (it is clearer about 'no evidence is retained for this pass' and the explicit merge sentence) but restore a concrete, runnable Step 6 command and the helper-naming commit message from Before.",
-      "wallMs": 6324,
+      "feedback": "Neither fact moved: both outputs admit coverage/hook.json from the saved artifact suffix, retain the unchanged-command abc1234 -> abc1234 evidence on the ordinary re-entry and end with PLAN WRITTEN /work/app/doc/plans/hook.md, and on the forced rerun both replace the baseline bullet with `abc1234 pass - artifacts: coverage/hook.json, coverage/summary.json` with no dirty row or block. The After wording's provenance prose is slightly clearer about why retention is overridden and about merging artifacts, which is a mild improvement. Two incidental drifts in After are worth reverting to keep other facts stable even though they do not affect these two: Step 6 dropped the concrete `git diff --check -- src/hook.ts tests/hook.test.ts` command in favor of an unverifiable 'check against repository lint rules' instruction, which conflicts with the Change's intent to keep documented lint/format only in the header and could hurt step-concreteness facts, and the commit message lost the `validateHook` name; restoring the explicit whitespace-check command and the helper-naming commit message would preserve everything Before had while keeping After's clearer provenance narration.",
+      "wallMs": 12631,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }

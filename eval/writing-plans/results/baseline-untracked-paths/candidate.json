@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "ca5a03f43133a7af6238141a034e5151871f7b9f8eabe665eb7c1f0801f54da7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "2b2fff93f1399f47b0997a031b458fcb761d2b43d7e75a4358b67b34afa9d0d9",
       "candidateOutputSha": "e41e3c1662d863a7f55d4ad494a6394ba4b882946c224f24aa780b2ade77b693",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs inventory with `--untracked-files=all`, admit the exact `doc/plans/new/hook.md` entry, run `node --test tests/hook.test.ts`, identify the new `?? tests/generated/hook.test.ts` as a `Create:`/`Test:` path, record the Task 1 dirtied-tracked-source row naming it, write no baseline pass bullet or ` - artifacts:` suffix, and end with `OPEN QUESTIONS /work/app/doc/plans/new/hook.md`. After even adds a helpful note that the collapsed `?? doc/plans/new/` form is not used for matching. Two things in After are worth tightening so the contamination fact stays unambiguous: Before explicitly stated \"no baseline bullet was written\", whereas After only says \"It records no passing evidence\" right after reproducing `tests 1, pass 1, fail 0`, which a reader could mistake for retained passing evidence — keep the explicit \"no baseline bullet was written for this command\" sentence next to the result. Also, After's Step 4 runs `node --test tests/hook.test.ts tests/generated/hook.test.ts`, which diverges from the task's declared Tests command and the spec's stated command; keep the step runs aligned with the declared `Tests:` entry so provenance and task steps reference the same command.",
-      "wallMs": 17606,
+      "feedback": "Neither fact moved. Both outputs take the initial inventory with `--untracked-files=all`, admit the exact `doc/plans/new/hook.md` entry, and run `node --test tests/hook.test.ts`; both post-run inventories name `tests/generated/hook.test.ts`, classify it as a declared `Create:`/`Test:` path, write the Task 1 dirtied-tracked-source Open Questions row naming it, record no passing baseline bullet or ` - artifacts:` suffix, and end with `OPEN QUESTIONS /work/app/doc/plans/new/hook.md`. After actually strengthens the provenance by explicitly noting that the collapsed `?? doc/plans/new/` form is not used for matching and that the generated file was left untouched for the human, which fits the Change's per-file inventory intent. Two unrelated drifts in After worth watching since they could trip other fixtures: Step 4 runs `node --test tests/hook.test.ts tests/generated/hook.test.ts`, which no longer matches the task's declared Tests command, and the step/test wording shifts from `loadHook` to `validateHookConfig`, diverging from the input's stated steps; keep the step's Run line equal to the declared Tests command and keep the test exercising the spec's entry point to avoid regressions elsewhere.",
+      "wallMs": 13274,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ca5a03f43133a7af6238141a034e5151871f7b9f8eabe665eb7c1f0801f54da7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "8b6e607c863765e3b7eb0105a5e2b47af0677b9ab13e5302ab84eec31813e14c",
       "candidateOutputSha": "9aa20efc412faa39923c34cf4a7a42a7746786956ceb1fc75ffdd055f06724d1",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs run the initial inventory with --untracked-files=all, admit the exact path doc/plans/new/hook.md, run the Tests command, name tests/generated/hook.test.ts as a declared Create:/Test: path in the post-command inventory, record the single 'Task 1 ... dirtied tracked source on abc1234: tests/generated/hook.test.ts' row, record no passing baseline bullet or disposable-artifact suffix, and end with the OPEN QUESTIONS line. The only notable After difference is the indented explanatory continuation under the Open Questions row and the extra **Plan:** header line; neither breaks a fact, but if any consumer expects one-line dirtied-source rows, keep the explanation in the Baseline provenance section (where After already states it) rather than under the row, so the row stays an exact single-line entry while the richer prose about contamination and human disposition still delivers the Change.",
-      "wallMs": 9210,
+      "feedback": "Nothing moved. Both outputs run `git status --porcelain --untracked-files=all`, list the single entry `?? doc/plans/new/hook.md`, admit that exact path, and proceed to run `node --test tests/hook.test.ts`; both post-command inventories list `?? tests/generated/hook.test.ts` individually, record the `Task 1: ... dirtied tracked source on abc1234: tests/generated/hook.test.ts` open row, decline to record passing baseline evidence or any artifact suffix for the command, and end with `OPEN QUESTIONS /work/app/doc/plans/new/hook.md`. One minor fragility in After: the provenance section paraphrases the file as a 'declared creation and test anchor' rather than literally 'declared `Create:` and `Test:` path' (the literal wording survives only in the Open Questions bullet). Keeping the literal `Create:`/`Test:` labels in the provenance paragraph, as Before did, would make the contamination identification unambiguous in both places while still delivering the per-file inventory and exact-path admission the Change calls for.",
+      "wallMs": 9365,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "lookup-before-ask",
   "arm": "candidate",
-  "skillSha": "4886aca8bd5d1097cea6ff83b31237e5d07dfa2235441d5e28660a1361896394",
+  "skillSha": "aa4945144a48bdc9f63c9c2b27d4fe6bce3917724ba5a9a0bbf5ccefdf881574",
   "inputSha": "cb66bac3ac4ee88e763e7d2225f84d88bb9f6eab0beeadf1f541f7a6674fa709",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Task 2 \"Render a summary\": fact ask with its only documented location exhausted\n\n## Parent's next action\n\n1. **Classify the question.** The implementer asked \"Where is the summary-frame.tpl template required by the task?\" This asks where an artifact is, so it is a **fact ask**. It is not a decision and not an amendment batch, so the Amend-grant does not route it. Under [Implementer-failure stops](reference/fix-loop.md#implementer-failure-stops), \"permission never bypasses exhausted or inaccessible lookups.\"\n\n2. **Run the lookup per `stop-note.md`.** The spec, task and repo document exactly one location, so the parent does exactly one bounded lookup:\n   - template-store tool, collection `summary-frames`, key `summary-frame.tpl`.\n   - Fixed observation: `summary-frames/summary-frame.tpl - not found`.\n   - No other documented location exists. The parent does not search other stores and does not guess paths.\n\n3. **Decide whether to re-dispatch.** There is no found result to put in the task text, so the implementer is **not** re-dispatched.\n\n4. **Emit the stop note.** All documented locations are exhausted. Credentials are not the issue and the tool is available, so the `Searched:` line records a miss rather than \"not available.\"\n   - No escalated round ran. The bracketed header clause is omitted, and so are the file:line and test lines.\n   - There is no review history to quote.\n   - A `budget:` line would appear only if a budget token existed in the `**Amend-grant:**` header. None is in scope here, so it is omitted.\n\n5. **End the turn.**\n   - The phase stays `implement`.\n   - Task 2 stays `in_progress`, with no `plan_tracker` write.\n   - No further tasks start.\n   - No review is dispatched, because there are no edits to review.\n\n## Reply (inline; the turn ends here)\n\n```\ngauntlet: question\nStopped on task 2 (Render a summary).\n\nProblem: The task requires the summary-frame.tpl template, but its only documented location does not have it, so the implementer cannot render the summary (exhausted documented lookups).\nSearched: template-store summary-frames/summary-frame.tpl - not found\n\nFix options:\n  a) add summary-frame.tpl to the template-store collection summary-frames (or grant access to wherever it now lives), then I re-dispatch task 2 with it\n  b) amend the spec and plan task 2 to drop the summary-frame.tpl requirement and render the summary without that template\n\nPick one, or give another fix.\nRecommendation: a - supplying the template at its documented location keeps the approved spec and task 2 unchanged.\n```\n",
-      "words": 369,
-      "wallMs": 14905,
+      "text": "# Parent action for task 2 (\"Render a summary\")\n\n## 1. Classify the return\n\nThe implementer exited 0 with `Status: NEEDS_CONTEXT` and made no edits. It asks where an artifact is. A question about artifact location is a **fact ask**, not a decision. It is also not an amendment batch, because the question names no candidate spec or plan edits. So it goes through the lookup handling in `stop-note.md`.\n\n## 2. Bounded lookup\n\nThe spec documents exactly one location. That gives one lookup, in documented order, stopping at the first hit:\n\n- Tool: template-store (available, no credentials missing)\n- Collection: `summary-frames`\n- Key: `summary-frame.tpl`\n- Fixed observation: `summary-frames/summary-frame.tpl - not found`\n\nNo other location is documented in the spec, task, or repo. The lookup is therefore exhausted. I will not search undocumented stores or guess paths.\n\n## 3. Consequence\n\n- There is no found result to paste into the task text, so there is no implementer re-dispatch.\n- No escalated round runs. Fact-ask exhaustion is a direct stop-note trigger.\n- No shell commands, review, or fix round apply.\n- `plan_tracker` gets no write, so task 2 stays `in_progress`. The phase stays `implement`, and no further tasks start.\n- No budget token is in play, so the note has no `budget:` line.\n\n## 4. Reply (the turn ends here)\n\n```\ngauntlet: question\nStopped on task 2 (Render a summary).\n\nProblem: The task requires the summary-frame.tpl template, but the only documented location does not have it, so the implementer cannot proceed; no escalated round ran because the documented lookups are exhausted.\nSearched: template-store summary-frames/summary-frame.tpl - not found\n\nFix options:\n  a) add summary-frame.tpl to the template-store collection summary-frames (or supply its content), then I re-dispatch task 2 with it\n  b) amend the spec / plan task 2 to drop the summary-frame.tpl requirement and render the summary without that template\n\nPick one, or give another fix.\nRecommendation: a - the approved spec requires this template, so supplying it keeps the approved design intact.\n```\n\nThe turn ends. Task 2 remains `in_progress` until you reply.\n",
+      "words": 320,
+      "wallMs": 12561,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Parent’s next action is the single documented artifact lookup:\n\n```text\nTool: template-store\nOperation: lookup\nPayload: {\"collection\":\"summary-frames\",\"key\":\"summary-frame.tpl\"}\n```\n\nConsume the fixed observation: `summary-frames/summary-frame.tpl - not found`.\n\nThe documented lookup locations are exhausted. Do not search other stores, run shell commands, or re-dispatch the implementer. Keep task 2 `in_progress` in `/workspace/project`; no review or commit occurs.\n\nThe parent’s reply ends the turn:\n\n```text\ngauntlet: question\nStopped on task 2 (Render a summary).\n\nProblem: The required summary-frame.tpl template is missing, and the only documented lookup location is exhausted.\nSearched: template-store collection summary-frames, key summary-frame.tpl - not found\n\nFix options:\n  a) supply summary-frame.tpl in the documented template-store collection\n  b) amend the approved spec and task 2 to remove the template dependency and define the replacement rendering contract\n\nPick one, or give another fix.\nRecommendation: a - supplies the required artifact without changing the approved rendering contract.\n```\n",
-      "words": 138,
-      "wallMs": 11353,
+      "text": "Next parent action: make the single documented lookup using the available **template-store** tool:\n- Collection: `summary-frames`\n- Key: `summary-frame.tpl`\n\nThe supplied fixed observation is **not found**. That exhausts the documented locations; do not search elsewhere or re-dispatch the implementer without the artifact or an approved amendment. No shell command, review, or fix dispatch is warranted. Task 2 remains `in_progress` in `/workspace/project`.\n\nThe parent’s reply, ending the turn:\n\n```text\ngauntlet: question\nStopped on task 2 (Render a summary).\n\nProblem: The implementer needs summary-frame.tpl, but the only documented artifact lookup returned not found, so the task cannot proceed.\nSearched: template-store, collection summary-frames, key summary-frame.tpl - not found\n\nFix options:\n  a) supply summary-frame.tpl in the documented template-store collection so the implementer can retrieve it\n  b) amend the spec and task 2 to remove the template dependency and define the summary layout directly\n\nPick one, or give another fix.\nRecommendation: a - supplies the required artifact without changing the approved rendering contract.\n```\n",
+      "words": 154,
+      "wallMs": 14908,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "3c477d0460f3a27f78f856ad1df65b990ecbac4c026f74b850a3c38b94920a6b",
       "baselineOutputSha": "f63b573a50206b6f099d2dc61787d1edcf42caca38eb7054f75bbbc212cd4382",
-      "candidateOutputSha": "2465ca92493aac07a1c378022b76d927bc7fe673de25f063d8bb2231e52bea05",
+      "candidateOutputSha": "0638eb60b133caadefb014484e080345caaf75e51c22f50b3094cdeeeea21df8",
       "facts": {
         "searched": {
           "before": "holds",
@@ -49,8 +49,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs perform the single bounded template-store lookup, treat the fixed not-found observation as exhausting documented locations, and emit `Searched: template-store summary-frames/summary-frame.tpl - not found` directly under `Problem:`; both offer supply-or-amend options and neither poses a bare location question. After is actually the tighter of the two on supply-or-amend: Before's option (a) parenthetical \"point me at the store/collection that holds it\" edges toward asking the human where the template is, whereas After's \"grant access to wherever it now lives\" reads cleanly as an access grant. After also delivers the Change's additions (gauntlet: question prefix, trailing `Recommendation:` line, explicit no-re-dispatch/in_progress/no-review state) without disturbing the Searched placement. The only trade-off is that After dropped Before's option (c) (amend to have the task create the template); keeping that third actionable alternative alongside the Recommendation line would preserve the broadest supply-or-amend surface while still delivering the change.",
-      "wallMs": 15835,
+      "feedback": "Neither fact moved. Both outputs perform the single bounded template-store lookup, treat the fixed not-found observation as exhausting the documented locations, and emit a stop note with `Searched: template-store summary-frames/summary-frame.tpl - not found` directly under `Problem:`. Both offer supply options and spec/plan amendment options and end the turn without re-dispatching or asking a bare location question. After is actually slightly cleaner on supply-or-amend: it drops Before's parenthetical \"or point me at the store/collection that holds it\", which edges toward a location question and toward inventing other stores, replacing it with \"or supply its content\". After also adds the `Recommendation:` line and the `gauntlet: question` prefix the Change asks for while keeping the `Problem:`/`Searched:` ordering intact. One minor wording note: After's `Problem:` line folds the \"no escalated round ran\" clause into the problem sentence; keeping `Problem:` to the reason alone (as Before does) and leaving escalation status to the bracketed-clause slot would read more conformant without risking either fact.",
+      "wallMs": 13308,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -58,7 +58,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "3c477d0460f3a27f78f856ad1df65b990ecbac4c026f74b850a3c38b94920a6b",
       "baselineOutputSha": "2877057d5f37e58645a41e0ecd59a63ccf648ddace334a7d05cf3469e173e707",
-      "candidateOutputSha": "7ad9a44118c117301375d0472dd590f464df4cd41c3b383044c2dd3f8f5436c5",
+      "candidateOutputSha": "efd6837e0da1c6450c078f7611de7ab80879a3b92ea96e897d1d33d05fa1b98a",
       "facts": {
         "searched": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both arms perform the single bounded template-store lookup, consume the fixed not-found observation, place a Searched: line naming summary-frames/summary-frame.tpl with its not-found result directly under Problem:, and offer supply-or-amend options without asking the human where the template is. After additionally renders the explicit tool payload and closes the stop note with a Recommendation: line, which delivers the Change (gauntlet: question prefix preserved, stop note ends in Recommendation) while keeping the task in_progress and declining other stores or re-dispatch. The only wording nit is that After's Recommendation follows the 'Pick one, or give another fix.' prompt; keep it as the final line as written so the note ends in Recommendation, and keep the Searched: line immediately after Problem: as both arms already do.",
-      "wallMs": 7462,
+      "feedback": "Neither fact moved. Both outputs perform the single bounded template-store lookup, keep the stop note's Searched: line directly under Problem: with the collection/key and not-found result, offer a supply option and an amend option, and never ask the human where the template lives. After additionally delivers the intended change by ending the note with a Recommendation: line and by stating explicitly that no re-dispatch happens without the artifact or an approved amendment, which is consistent with the lookup-before-ask contract. The one small risk in After is the slightly longer Problem: sentence; keep it as a one-line summary so the Searched: line stays visibly adjacent, and keep the Recommendation: as the final line so the gauntlet: question prefix, Problem/Searched block, and options ordering remain exactly as in Before.",
+      "wallMs": 10101,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }

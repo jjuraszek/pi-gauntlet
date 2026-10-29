@@ -1,0 +1,100 @@
+{
+  "sample": "baseline-menu-under-grant",
+  "arm": "candidate",
+  "skillSha": "8eec8a501772812849100a9c82a3a00436600c9aedefe40e8ded92a07ee7ba25",
+  "inputSha": "fea8c36b3d148462376944e61a440f894d11f4d78626fd6cd1a35b4d198c648c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Common start (all variants).** The child replied `OPEN QUESTIONS /work/app/doc/plans/hook.md`. Step 5's stamping `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })` returned FAIL (open-questions, baseline-line). The reply is OPEN QUESTIONS, so the OPEN QUESTIONS branch governs, not the FAIL re-dispatch. I read `## Open Questions`. It has one substantive row of the form `- Task 1: ... fails on abc1234`, so I use the baseline-failure menu.\n\nThe message starts with `gauntlet: question` alone on line 1. It names Task 1, the command `node --test tests/hook.test.ts`, SHA abc1234, exit 1, and the summary \"existing config resolution failed\". It lists three options, one per line: `fix-first`, `narrow <filter>` and `amend`. Then comes the variant's `Recommendation:` line.\n\nBefore waiting, I resolve permission:\n- **Structural predicate:** the header block has exactly one `**Amend-grant:**` line, and its value `auto-apply amends` is not none, so the grant is active.\n- **Value decoding:** there is no `fund N fix rounds` token, so the non-empty remainder gives amend permission.\n\nPhase `plan` stays `in_progress` with substep `plan-write`. There is no stamp and no `plan_tracker` init in any variant here.\n\n**Variant A (narrow hook-config).** I print `took recommendation: narrow hook-config` and re-dispatch per step 3:\n- **Call:** `subagent({ agent: \"plan-writer\", context: \"fresh\", async: false, cwd: \"/work/app\", phase: \"plan-write\", acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" }, task: ... })`\n- **Task text:** \"Write the implementation plan for the approved spec. Worktree: `/work/app`. Spec: `/work/app/doc/specs/hook.md`. Plan path: `/work/app/doc/plans/hook.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n- **Appended block:** `Findings: Task 1 Tests: narrow to hook-config`.\n\nThe command text changes, so the child reruns Baseline. Then I run step 5's `plan_check` again and branch per step 6. I stop at that result; the tracker is not initialized yet.\n\n**Variant B (amend).** I print `took recommendation: amend` and enter amendment-surface section 5.\n1. The fix stays within the component, so it is amend-class, not a redraw.\n2. At the batch boundary I re-read the grant through the predicate and decoding. Amend permission is active, so I skip steps 2–4 and apply the recommended `accept` edit to the config requirement.\n3. I print `amended the spec: Config requirement correction - corrects the config requirement within its component`, recorded as `granted`.\n4. I re-read section 5 for the aftermath. A plan exists, so I run `git -C \"/work/app\" status --porcelain` and collect in-flight paths: the spec and plan.\n5. I dispatch plan-writer with the same object and template as Variant A, plus three additions:\n   - an `Amend:` block naming the amended config section;\n   - `In-flight: doc/specs/hook.md, doc/plans/hook.md`;\n   - the rule \"preserve every task title and wave position the amendment does not touch; edit only affected anchors and tasks\".\n6. The child runs the Baseline rerun rule. I then run parent `plan_check` and step 6.\n7. Only on PASS do I read the plan once, update the tracker as section 5 directs, and commit spec and plan together. The commit is one `amend: 1 item(s) - ...` with a `granted` record and the quoted sentence \"auto-apply amends\".\n\nThere is no `phase_tracker` call.\n\n**Variant C (fix-first).** I print `took recommendation: fix-first` and enter `/skill:shape-ticket` for the existing base failure. Its own gate is the only remaining stop. I report the plan as paused, with phase `plan` `in_progress` and substep `plan-write`, and end the turn.\n\nAfter fix-first lands, I will bring the advanced base in via `/skill:using-git-worktrees`. Then I re-dispatch per step 3 with `Findings: rerun baseline` and run step 5.\n\n**Variant D (none).** The menu shows `Recommendation: none - no justified route`. With no recommendation to take, the grant gives nothing to act on, and it never infers consent. I stop and wait for the human to pick fix-first, narrow with a filter, or amend.\n\n**Variant E (narrow, no filter).** The menu shows `Recommendation: narrow - no concrete filter known` and asks the human for the filter or path. A narrow with no concrete filter waits even under amend permission. I stop for the human's filter or a different choice.\n",
+      "words": 640,
+      "wallMs": 24290,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\n**Variant A.** Call `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })`; receive the supplied FAIL. Read `/work/app/doc/plans/hook.md`’s Open Questions section and `/work/app/doc/specs/hook.md`’s header. Task 1’s original command, `node --test tests/hook.test.ts`, failed on `abc1234`, exit 1: existing config resolution failed. Present:\n- `fix-first` - isolate the existing base failure through `/skill:shape-ticket`\n- `narrow hook-config` - restrict baseline coverage to config\n- `amend` - correct the config requirement through amendment section 5\n\nRecommendation: narrow hook-config - only config coverage is relevant\n\nThe header’s single `**Amend-grant:** auto-apply amends` passes the structural predicate and grants amend permission, with no fix-round funding. Print `took recommendation: narrow hook-config`. Dispatch:\n```js\nsubagent({\n  agent: \"plan-writer\", context: \"fresh\", async: false,\n  cwd: \"/work/app\", phase: \"plan-write\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent plan_check owns acceptance\"\n  },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app`. Spec: `/work/app/doc/specs/hook.md`. Plan path: `/work/app/doc/plans/hook.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\\n\\nFindings:\\nTask 1 Tests: narrow to `hook-config`\"\n})\n```\nThe child applies Baseline’s rerun rule. Next call `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })`. Its new result and the child reply are not supplied, so no successful handoff or tracker initialization can yet be narrated.\n\ngauntlet: question\n**Variant B.** Make the same parent check and reads; identify Task 1, command `node --test tests/hook.test.ts`, SHA `abc1234`, exit 1, and the config-resolution failure. Present `fix-first` (shape the base failure), `narrow <filter>` (request a concrete filter), and `amend` (correct the requirement), each on its own line. Print `Recommendation: amend - correct the config requirement within its component`. Validate and decode the header grant as above, then print `took recommendation: amend`. Read `/opt/pi/skills/brainstorming/reference/amendment-surface.md`, specifically section 5, before running that procedure. The grant permits the recommended amend without another approval prompt; the correction stays within its component, so it is not a redraw. However, the case supplies neither the exact requirement correction nor amended sections, so an exact amendment operation and subsequent `Amend:` dispatch cannot truthfully be filled in. Continue through section 5 once those are established; do not invent edits, claim PASS, or initialize the tracker.\n\ngauntlet: question\n**Variant C.** Make the same parent check and reads; report Task 1, `node --test tests/hook.test.ts`, `abc1234`, exit 1, and existing config resolution failed. Present `fix-first`, `narrow <filter>`, and `amend` on separate lines, with their prescribed meanings. Print `Recommendation: fix-first - isolate the existing base failure`. Validate and decode the grant, then print `took recommendation: fix-first`. Invoke `/skill:shape-ticket` for that base failure; its own gate is the only remaining stop. Report the hook plan paused, retain phase `plan` and substep `plan-write`, and end the turn. Do not initialize `plan_tracker`. No fix-first landing is supplied, so do not narrate advanced-base integration or a baseline rerun yet.\n\ngauntlet: question\n**Variant D.** Make the same parent check and reads; report Task 1, `node --test tests/hook.test.ts`, `abc1234`, exit 1, and existing config resolution failed. Present `fix-first`, `narrow <filter>`, and `amend` separately. Print `Recommendation: none - no justified route`. Validate and decode the active amend grant, but `none` explicitly waits: there is no named action to auto-take. Stop for the human’s choice, retaining phase `plan` and substep `plan-write`; do not redispatch or initialize the tracker.\n\ngauntlet: question\n**Variant E.** Make the same parent check and reads; report Task 1, `node --test tests/hook.test.ts`, `abc1234`, exit 1, and existing config resolution failed. Present `fix-first`, `narrow <filter>` (request the missing concrete filter), and `amend` separately. Print `Recommendation: narrow - no concrete filter known`. Validate and decode the active amend grant. A narrow recommendation without a concrete filter explicitly waits; do not invent a filter or dispatch an underspecified Findings block. Stop for the human to supply one, retaining phase `plan` and substep `plan-write`; do not initialize the tracker.\n",
+      "words": 587,
+      "wallMs": 24976,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "e63134b06233c30e8fd1717f649da8a9c0448f1e1beea3cfcb64f41d4f2643c0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
+      "baselineOutputSha": "8dbee6814d2892249740406f587d1fe8beb6e77fc36fd753014eed3eb1d6b645",
+      "candidateOutputSha": "54356406688145cb62d96e473014e68a6dcba83cba5fbc2be36a038ba17ced74",
+      "facts": {
+        "grant-narrow": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-amend": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-fix-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-wait": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the new permission-resolution step (structural predicate plus value decoding of `**Amend-grant:** auto-apply amends`) is what lets Variants A–C auto-continue, whereas Before treated the grant as waiving only per-diff review and so stopped at the menu in every variant. Variant A now prints `took recommendation: narrow hook-config`, copies `hook-config` verbatim into `Findings: Task 1 Tests: narrow to hook-config`, has the child rerun Baseline and then re-runs the parent `plan_check` without asking for the filter; Variant B acknowledges amend and runs section 5 with the parent applying the spec edit and plan-writer doing the plan repair, skipping the redundant approval stop; Variant C acknowledges fix-first and enters shape-ticket under only its own gate while leaving the plan paused. Variants D and E still wait, so grant-wait is retained. No fact regressed. One small wording caution: After's menu list says `narrow <filter>` while Before's used prose; keep the explicit note that narrow without a concrete filter waits 'even under amend permission' (as Variant E does), since that sentence is what keeps grant-wait from being undermined by the new auto-continue language.",
+      "wallMs": 11741,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "e63134b06233c30e8fd1717f649da8a9c0448f1e1beea3cfcb64f41d4f2643c0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
+      "baselineOutputSha": "dbed20376c2471e858617138333b1be47748d39da00ad78ef26d9b4dedb96fa6",
+      "candidateOutputSha": "4cc9ad05b1cd9db817c0d771e6c15e316242aa241fb4b823f013c534ad4586d1",
+      "facts": {
+        "grant-narrow": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-amend": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-fix-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-wait": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Before treated the Amend-grant as irrelevant to route selection and waited in every variant, so A, B and C all failed their grant facts; After decodes the header grant, prints `took recommendation: ...`, and acts: A redispatches plan-writer with `Findings: Task 1 Tests: narrow to \\`hook-config\\`` and reruns plan_check without asking for a filter, C invokes shape-ticket with only its own gate and no tracker init, and D/E still explicitly wait, so no regression. The weakest spot is Variant B: it reads section 5 and says the grant removes the approval prompt, but then hedges with 'continue through section 5 once those are established', which a strict reader could mistake for another pause, and it never states who owns which edits. Keep the acknowledgement and the no-extra-prompt sentence, but replace the hedge with an explicit sequence: the parent applies the component-scoped correction to `/work/app/doc/specs/hook.md` per section 5, then dispatches plan-writer with an `Amend:` Findings block limited to plan repair, noting only that the concrete edit text is not supplied by the case rather than deferring entry into the procedure.",
+      "wallMs": 20461,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+}

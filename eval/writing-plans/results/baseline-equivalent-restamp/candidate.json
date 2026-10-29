@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "be7eed055f621ad84b47ab8f084389637ea487b77a5e332d3e38fe751b2a392d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "a05fbd0ae6baf874231965b2c971ebe00e15bee0223fa3d9a2ce8c9f29823459",
       "candidateOutputSha": "833af264252b9ea8207d1a378448789d804a42df264fa8566748d5318b6e7911",
       "facts": {
@@ -69,14 +69,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs retain Task 1's unchanged-command bullet in scenario 1 and re-stamp it to def5678, run only the added Task 2 command with fresh def5678 evidence, append the exact `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` line directly under the baseline provenance note, end with PLAN WRITTEN, and in scenario 2 rerun both commands with def5678 evidence, no retained line and no Open Questions row. After actually improves on Before by writing scenario 2's plan in full rather than by reference. Two wording risks worth tightening so the provenance fact keeps holding under stricter readers: After dropped the `>` blockquote formatting of the provenance note, so the retained line sits as an adjacent plain paragraph line instead of visibly inside the note — keep the note as a single blockquote (or single paragraph) and append the retained line as its second line. Also After's Step 3 says 'Make `validateHook` ... reject' and introduces a specific `npx prettier` command, whereas the spec says to validate via the existing `validateHook` and the case gives no documented formatter; prefer 'route hook config through the existing `validateHook`' and a neutral 'run the project's scoped format/lint' to avoid inventing tooling.",
-      "wallMs": 19660,
+      "feedback": "No fact moved: After still retains Task 1's unchanged command, re-stamps its bullet to def5678 without rerunning despite the step edits, appends the exact `retained 1 bullets: ...` line to the Baseline provenance note (not a task or new field), runs Task 2 fresh from the supplied observation, stamps every bullet def5678, ends each scenario with PLAN WRITTEN, and in Scenario 2 reruns both commands with no retained line and no Open Questions row. Two small drifts worth watching so the next wording change doesn't tip them into failures: After drops the `>` blockquote so the retained line is only a continuation line of the provenance paragraph — keep an explicit marker (e.g. the blockquote or a `Baseline provenance:` prefix on the same paragraph) so a reader can't mistake it for a stray audit field; and After invents a concrete `npx prettier --write` command and rewords Task 1 Step 3 as 'make validateHook reject' rather than 'route hook config through existing validateHook', which the spec requires — keep steps aligned to the spec's existing-function routing and keep lint/format as the documented or scoped command rather than an undocumented one.",
+      "wallMs": 19655,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "be7eed055f621ad84b47ab8f084389637ea487b77a5e332d3e38fe751b2a392d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "d2eb8a47962075500aa4c92f0c29b4b8f21bc778fb87147cac772bbd56686432",
       "candidateOutputSha": "0cf6ca5467b5f540e3ae169b27ecdb0a6e884ad07945cac6286c08abd85ba87c",
       "facts": {
@@ -111,10 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps Task 1's retained evidence re-stamped to def5678 without a rerun, places the exact `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` line inside the Baseline provenance note, records Task 2's fresh def5678 run from the supplied observation, uses only def5678 in baseline bullets, reruns both commands in scenario 2, and writes neither a retained line nor an Open Questions finding there. Two drifts are worth tightening even though no listed fact caught them: After's scenario 1 provenance note drops the original `BASE abc1234; empty inventory` record that scenario 2 (and Before) still carry, so the retention line now points at a base the note no longer documents — keep the 'Original evidence: BASE abc1234' line in both scenarios so 'the existing provenance note records retained evidence' stays literally true; and After inserts a 'Format and lint owned files' step into both tasks that the Amend never requested, which risks the compact-plan budget and the no-invented-steps expectation — restrict new steps to what the Amend names (validateHook / validateOther) and leave the Change's lint/format policy in the header-only position the Change describes.",
-      "wallMs": 17058,
+      "feedback": "No fact moved: After still retains Task 1's unchanged-command evidence in scenario 1 without rerunning it, restamps its bullet to def5678, appends the exact `retained 1 bullets: ...` line inside the Baseline provenance note (not a task or audit field), gives Task 2 fresh def5678 evidence from the supplied observation, and in scenario 2 reruns both commands with no retained line and no Open Questions finding, ending each plan with PLAN WRITTEN. Two things worth tightening for consistency rather than correctness: After's scenario 1 provenance note dropped the `Original evidence: BASE abc1234; initial inventory empty` line that scenario 2 (and Before) keep, so the note no longer shows the prior BASE the retention references — restore that line so the `abc1234 -> def5678` retention reads against a recorded origin; and the added `Format and lint owned files using project conventions` step in every task is not required by the Change and costs words against the 350-word cap, so drop it or fold it into the commit step.",
+      "wallMs": 14243,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }

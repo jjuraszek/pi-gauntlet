@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "47319eecd2f838653f95f0a5243ce8311bfa97820d7c0f7c6b6396b7e284229c",
       "candidateOutputSha": "33199cf4c362bcb3593a43a9217fe93f9b588919f67cfb793bc3514521332d32",
       "facts": {
@@ -63,14 +63,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps all three control facts: it still names Task 1, `node --test tests/timeout.test.ts` and exit 1 against `def5678`; it still lists fix-first, narrow and amend one per line with a Recommendation line after them; and it still describes planning as paused awaiting the human with no tracker init, stamping or completion marking. Two wording choices are worth tightening so later facts stay robust: the narrow option now editorializes ('The output gives no basis for choosing one...') and drops Before's concrete re-dispatch form (`Task 1 Tests: narrow to <your text>`), which weakens the grant-narrow path you want to add - keep the option neutral and state exactly what text the human supplies and how it is copied into the writer Findings. Also consider restoring Before's explicit 'the plan stays paused with its current phase/substep' sentence so the pause fact does not depend on inference from 'the plan is paused'.",
-      "wallMs": 12140,
+      "feedback": "After preserves all three facts: it still names Task 1, `node --test tests/timeout.test.ts`, base `def5678` and exit 1 as the base failure; it lists fix-first, narrow and amend each on its own line and closes with a single Recommendation line; and it keeps the plan paused with no plan_tracker init, stamping or completion marking (the only rerun mentioned is conditional on a fix landing, which is future narration, not an action taken now). Two small wording risks worth tightening: the narrow option's aside that 'the output gives no basis for choosing one' edges toward disqualifying the option rather than offering it, so a reader could argue only two real routes are presented—keep narrow as a neutral offer and move the 'single test already fails' reasoning into the Recommendation line as Before did; and Before's explicit 'I re-dispatch the plan-writer with `Task 1 Tests: narrow to <your text>`' made the retained paused planning state and resumption path clearer, so restoring a short clause like that would make the pause/substep retention unambiguous while still delivering the Change's fix-first/narrow/amend menu.",
+      "wallMs": 10918,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "d4304b8c27a30dba99b9174a4539c355094de42d8a8fa7f3e5a54ca66554483d",
       "candidateOutputSha": "2f241a1c7e961d80bff25ab64c6bf356fa4bc9f82341a7862181531450ffd96a",
       "facts": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing regressed: both outputs name Task 1, `node --test tests/timeout.test.ts` and exit 1 on def5678 as the base failure, list fix-first, narrow and amend one per line followed by a Recommendation line, and leave planning paused in `plan-write` without initializing tracking or stamping. After actually strengthens the pause fact by stating `in_progress` and that execution has not been initialized, and it quotes the failure block verbatim. The only wording risk is the `narrow <filter>` label and the 'no safe narrower scope' clause: keep the option name a plain `narrow` token at line start so the menu stays recognizable, and phrase the scope note as 'supply a filter or path' rather than asserting none is available, which could read as the parent pre-deciding against that route before the human chooses.",
-      "wallMs": 8732,
+      "feedback": "Nothing moved: both outputs name Task 1, `node --test tests/timeout.test.ts` and exit 1 on def5678 as the base failure, list fix-first, narrow and amend one per line followed by a Recommendation line, and end by waiting for the human with planning paused at plan-write and no tracker init, stamping or completion. After actually strengthens pause by stating `in_progress` and that execution has not been initialized, and it quotes the failure block verbatim rather than paraphrasing it. Two small cautions so future wording keeps the menu fact crisply: the option label `narrow <filter>` is still recognizably the narrow route, but a stricter reader might want the bare label `narrow -` with the filter requirement described in the sentence, and the Recommendation line mixes an em dash in the options with a hyphen in the recommendation—pick one separator so the three options and the Recommendation line read as a uniform menu. Otherwise the After wording delivers the Change (no invented narrower scope, explicit paused state) without regressing any fact Before held.",
+      "wallMs": 11454,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }

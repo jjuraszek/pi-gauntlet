@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b4dff91e8d311b687093fa41d06630b42d0c5ed9d61032d8af9d80dca727a4eb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "12b9974a7831e6ab149f047fb27704e343994c49b5f8ee017975641325f4f513",
       "candidateOutputSha": "574153ed9c591642e0ffdd4c9a37bb5747b825f10065023de71ff0063cabb05b",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After keeps the Task 1 Decision that the host forwards callerDirectory unchanged with docs/harness.md:18 cited verbatim (and even restates it in Step 4), contains no Open Questions table or forwarding question, and ends on the exact PLAN WRITTEN /work/app/doc/plans/hook.md line. Two things in After are worth watching even though no listed fact catches them here: Step 6 runs `npx prettier --check` although the case supplies no documented lint/format command, which conflicts with the Change's rule that style commands come only from the header's documented lint/format or the non-command sentinel, so the wording should restrict per-task style steps to commands actually documented in the repo; and Step 1 re-runs the baseline inside the task steps, which duplicates the provenance note—keep the baseline line in Tests and let steps start at the failing test as Before did.",
-      "wallMs": 10812,
+      "feedback": "No fact moved: both outputs state a Task 1 Decision that the host forwards callerDirectory unchanged with docs/harness.md:18 as the source, neither contains an Open Questions row about forwarding, and both end with the exact PLAN WRITTEN line. After actually improves the decision's form (a bold Decision line placed before Files, with the exact harness quote and a note that src/hook.ts already receives the parameter), which matches the Change's intent to derive boundary decisions from source rather than asking the human. One caution for the After wording: it added a Step 6 running `npx prettier --check ...` even though the case supplies no documented lint/format command; the Change says to use documented lint/format only in the header or otherwise emit the non-command sentinel, so this invented command is drift the facts here do not catch but a stricter case would. Keep the Decision wording and the direct PLAN WRITTEN close, and drop or sentinel-ize the undocumented prettier step.",
+      "wallMs": 11269,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b4dff91e8d311b687093fa41d06630b42d0c5ed9d61032d8af9d80dca727a4eb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "c5a49f37a5b63f823a95f3d91fef74c41d80349cbf3bf9e70d0a75048f68e152",
       "candidateOutputSha": "d2c9dd2357c866eff902c78dd25739b7c142680aa0858070517a17e564d7e3eb",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs settle the host-boundary question inside Task 1 as a Decision quoting docs/harness.md:18 (\"The host passes callerDirectory unchanged to the hook\"), neither raises an Open Questions row about forwarding, and both end with the exact PLAN WRITTEN line. After relocates the Decision below Files/Tests rather than above them, which is fine for these facts but slightly buries the boundary resolution; keeping it directly under the Spec anchor as Before did makes the source-derived decision easier to find. Two After drifts are worth watching in other cases even though they don't touch these facts: Step 6 introduces `git diff --check` as a formatting command although the case supplies no lint/format command (Before explicitly declined to invent one, which matches the 'documented lint/format only, or the non-command sentinel' intent), and Step 2 drops Before's distinguishable working-directory config so the regression no longer proves the caller directory is preferred over cwd. Wording that preserves everything Before kept while delivering the Change: keep the Decision adjacent to the Spec anchor with the harness citation, keep the 'no scoped formatter supplied; do not invent one' sentence, and keep the two-location fixture in the regression test description.",
-      "wallMs": 12882,
+      "feedback": "Nothing moved in this case: both Before and After carry a Task 1 Decision line that settles the host-forwarding boundary from docs/harness.md:18 (quoting \"The host passes callerDirectory unchanged to the hook\"), neither plan has an Open Questions table or any row deferring the forwarding question to the human, and both end on the exact line PLAN WRITTEN /work/app/doc/plans/hook.md. After relocates the Decision below the Files/Tests blocks rather than directly under the Spec anchor and phrases the forwarding conclusion as a prohibition (\"do not introduce host forwarding changes\") instead of an affirmative statement that the host forwards callerDirectory unchanged; both readings still satisfy the fact because the quoted contract supplies the affirmative claim, but if you want the fact to remain unambiguous under stricter readers, keep the Decision's first clause as an explicit assertion (\"The host forwards callerDirectory unchanged, per docs/harness.md:18\") before the \"do not\" guidance. After's added `git diff --check` step in place of Before's \"do not invent a lint command\" note is outside these facts; it is a bare whitespace check rather than an invented project formatter, so it does not conflict with the header-style-only intent, but keep it clearly labelled as not a documented lint/format command.",
+      "wallMs": 9090,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }

@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "11ae8682181946f92d73d60301684a2587730dd68cc4f482c2d9ab18b58632f0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "51466f57cc1c492e7a1e39fba370b23eaf57e8ca8e3f2482cbada2228565653b",
       "candidateOutputSha": "15e37f2ce6af3148e406986043a4d64dacd977522ac31aa6ad476238dcde1a4d",
       "facts": {
@@ -63,14 +63,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this fixture. Both outputs dispatch a fresh, async-false plan-writer after result 2 with the two FAIL lines verbatim under a Findings: block and never touch the plan file themselves; both halt after the byte-identical second FAIL with no third dispatch, no plan_tracker init, and the FAIL lines surfaced to the human as a gauntlet question; neither calls resume/status or reads the plan body. The After wording's retry-and-halt rule (one re-dispatch per verbatim FAIL output, identical second FAIL becomes an open question) is rendered faithfully, so the parent-fail-redispatches-once fixture remains stable under the wave-file-disjointness finding. No wording adjustment is needed for these facts; keep the 'one verbatim Findings retry with identical second FAIL halting for the human' sentence intact as you extend the skill with the sync-repair, restamp, and baseline-failure branches, since the After narration shows that sentence still cleanly drives the parent's behavior here.",
-      "wallMs": 8768,
+      "feedback": "Nothing moved on this fixture. Both outputs re-dispatch plan-writer once after result 2 with context fresh, async false, and the two FAIL lines copied verbatim under a Findings: block, without the parent touching the plan; both stop after result 4 with no third dispatch, no plan_tracker init, no phase_tracker complete, and a gauntlet: question carrying the FAIL lines; neither calls resume or status or reads the plan body. The After wording changes only presentation (flattened step structure, a 'Why I stop' note, and a slightly different option list in the human-facing message), none of which touches the retry/halt facts, so the one-verbatim-Findings-retry and identical-second-FAIL halt behavior remains stable under the wave-file-disjointness rewrite of this fixture.",
+      "wallMs": 7161,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "11ae8682181946f92d73d60301684a2587730dd68cc4f482c2d9ab18b58632f0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "5e7aa6eb948df0ef4dc99a6cdd9a0323e188ebaa18e3c402769b6d6f0fad8d66",
       "candidateOutputSha": "1c62c120f1b7c8d026e3ef5af8b0ad74fecf8fd8f673ceef86dc9e67008cb2dc",
       "facts": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs dispatch the second plan-writer fresh with async false and the two FAIL lines verbatim under a Findings: block, explicitly decline to edit the plan, and after the byte-identical second FAIL stop without a further dispatch, without plan_tracker init, and present the collision to the human as an open question; neither calls resume or status or reads the plan body. After's restructuring into numbered sections and the slightly rephrased halt sentence (\"single repair attempt for that verbatim failure is exhausted; I present it as an open question rather than dispatching again\") preserves every fact Before held, so the retry/halt wording is stable under the Change; keep the explicit 'I do not edit the plan' and the enumerated list of things not done (clear substep, mark complete, initialize plan_tracker, invoke execution), since those sentences are what make f2 and f3 unambiguous to a reader.",
-      "wallMs": 9241,
+      "feedback": "Nothing moved on this fixture: After preserves the fresh, synchronous plan-writer repair dispatch with the two FAIL lines copied verbatim under a Findings: block after result 2, explicitly declines to edit the plan, and after the byte-identical result 4 it dispatches nothing further, performs no plan_tracker init, and surfaces the verbatim FAIL lines followed by an open question to the human; no resume, status, or plan-body read appears anywhere. The only drift is cosmetic—After's final paragraph says 'I do not clear the substep, mark planning complete, initialize plan_tracker, or invoke execution' and relies on the earlier 'rather than dispatching again' sentence for the no-redispatch commitment, whereas Before listed 'I do not dispatch again' in the same closing sentence. To keep the halt fact maximally unambiguous under the new wave-file-disjointness fixture, retain Before's enumerated closing list including 'dispatch again' alongside the other prohibited actions; otherwise the After wording delivers the Change's retained retry-once-then-halt behavior without regression.",
+      "wallMs": 10856,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }

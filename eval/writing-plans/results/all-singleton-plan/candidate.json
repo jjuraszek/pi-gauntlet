@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4c0dd45fc9f224f8973396aa6bacc650764157e2631f632e8d2a1090c19c4161",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "52f969bf3651adc7b661323229e70bafbbd089f4d80250c6bcc5a6692652a47b",
       "candidateOutputSha": "1de35bf2f3c5962ff9ba03489201a5d1968a260c7e0ecf64b9a4f7d43c8d60d5",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy all three facts, so nothing moved on this case: each treats the three singleton waves as ordinary dependency-chained groups with no Solo line, no Parallel-safe line and no execution mode mentioned in the grouping/template; each dispatches one fresh `async: false` plan-writer with `acceptance: { level: \"none\" }` and the spec/plan/worktree paths, runs the parent's own `plan_check` after `PLAN WRITTEN` and before the single read; and each initializes `plan_tracker` with W1/W2/W3 in wave order and hands off directly to `/skill:subagent-driven-development` without mode selection. Two minor points for the After wording: Step 4 describes the dispatch result only as 'returned synchronously with a reply' and defers the literal `PLAN WRITTEN` token to Step 6, so stating the token at Step 4 (as Before does) would make the parent-check ordering more legible; and the final invocation is rendered as prose ('Invoking `/skill:subagent-driven-development`.') rather than a bare fenced command, which still reads as the handoff but a code block would remove any ambiguity about the skill actually being invoked rather than merely described. Neither affects the holds verdicts here, and the Expected-to-move entries for all-singleton-plan already held in Before, so the Change is non-regressive on this sample.",
-      "wallMs": 12683,
+      "feedback": "After keeps all three facts: the wave grouping treats each singleton wave as an ordinary dependency-chain group with no Solo or Parallel-safe line and no execution-mode language; the dispatch is a fresh, async false plan-writer with acceptance level none carrying the spec, plan and worktree paths, followed by the parent's own PASS plan_check before the single read; and plan_tracker is initialized W1/W2/W3 in order before a direct handoff with no mode selection. Two small wording softenings are worth tightening so the facts stay unambiguous: Step 4 says only 'returned synchronously with a reply' rather than quoting the `PLAN WRITTEN <path>` reply (the pair is only named later in Step 6), so state the verbatim reply at Step 4 as Before did; and the closing 'Invoking `/skill:subagent-driven-development`.' reads as prose about invoking rather than the invocation itself—keep the bare `/skill:subagent-driven-development` line as the final output so the handoff is unmistakably direct.",
+      "wallMs": 13918,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4c0dd45fc9f224f8973396aa6bacc650764157e2631f632e8d2a1090c19c4161",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "15972595ba6cfc87dd5a95dc59d9b264ad1b2b20c49696317773fc276e7ac0ea",
       "candidateOutputSha": "390f766db1b58896e659622bd0cf296ef519d4693ddedc17224e43d8a196047f",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs treat the three singleton waves as ordinary groups with no Solo lines, no Parallel-safe line and no execution mode mentioned in the grouping or template; both dispatch one fresh async:false plan-writer with acceptance level none and all paths, run the parent's plan_check after PLAN WRITTEN and before the single read; and both init plan_tracker with W1/W2/W3 in wave order and invoke /skill:subagent-driven-development directly with no mode selection. After's wording is safe as written—the phrase 'summary dependencies prevent parallel grouping' concerns wave membership, not an execution mode, so it does not threaten singleton-template; keep that distinction and avoid adding any 'in-place'/parallel execution annotation to the singleton waves when porting the rebase-form in-place marker from the pr-subject-sync-repair sample into this all-singleton narration.",
-      "wallMs": 8968,
+      "feedback": "After keeps every fact Before kept: the three singleton waves are presented as ordinary groups with explicit 'no Solo lines', no Parallel-safe line, and no execution mode anywhere in the grouping or template description; the fresh async-false writer with acceptance level none and all five paths is dispatched, the parent's own plan_check runs after PLAN WRITTEN and before the single finished-plan read, and plan_tracker is initialized W1/W2/W3 in order before a direct /skill:subagent-driven-development invocation with no mode selection or approval prompt. The only wording to watch is 'the summary dependencies prevent parallel grouping' — it currently reads as a grouping rationale rather than an execution mode, which is fine, but phrasing it as 'the summary dependencies require sequential waves' would keep it unambiguously about wave membership. Likewise 'runs its own plan_check' for the writer is harmless because the parent's stamping check is still separately shown; keep both explicit so the parent-check fact stays clearly attributed to the parent.",
+      "wallMs": 9793,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "4886aca8bd5d1097cea6ff83b31237e5d07dfa2235441d5e28660a1361896394",
+  "skillSha": "aa4945144a48bdc9f63c9c2b27d4fe6bce3917724ba5a9a0bbf5ccefdf881574",
   "inputSha": "19ff200fc4ff128dd3ebcc461453aa4cbc49e9a3073a0f75bb74d8fa58f19e7b",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on task <n> (<title>).\n\nProblem: The required schema artifact is missing from both locations the spec documents, and the spec documents no other location, so the implementer cannot proceed.\nSearched: docs/schema.json - no file\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) add the schema artifact at docs/schema.json, or publish it to the artifact registry and grant access, then I re-dispatch the task\n  b) amend the spec and plan task <n> to drop the schema-artifact requirement\n\nPick one, or give another fix.\nRecommendation: a - supplying the artifact keeps the approved spec unchanged and unblocks the task directly.\n",
-      "words": 99,
-      "wallMs": 7300,
+      "text": "gauntlet: question\nStopped on task <n> (<title>).\n\nProblem: The implementer returned NEEDS_CONTEXT for the required schema artifact. Both locations documented by the spec were checked and neither has it, so the task cannot continue.\nSearched: docs/schema.json - no file\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) supply the schema artifact (commit it at docs/schema.json, or publish it to the artifact registry), then I re-dispatch the task with it\n  b) grant access or credentials if the registry entry exists but is not reachable from this run, then I re-dispatch the task\n  c) amend the spec and plan task <n> to drop the schema-artifact requirement, or to derive the schema from a named in-repo source\n\nPick one, or give another fix.\nRecommendation: a - the approved spec requires the artifact, and supplying it keeps the spec unchanged.\n",
+      "words": 134,
+      "wallMs": 6798,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on task (required schema artifact).\n\nProblem: The implementer needs the required schema artifact, and all documented lookup locations are exhausted.\nSearched: docs/schema.json - no file found\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) supply the required schema artifact\n  b) amend the spec and plan task to remove the schema-artifact requirement\n\nPick one, or give another fix.\nRecommendation: a - preserves the approved requirement and unblocks implementation.\n",
-      "words": 68,
-      "wallMs": 4529,
+      "text": "gauntlet: question\nStopped on the current task (required schema artifact).\n\nProblem: The implementer needs the required schema artifact, but all documented lookup locations are exhausted.\nSearched: docs/schema.json - no file found\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) supply the required schema artifact at docs/schema.json\n  b) restore registry access to the required schema artifact\n  c) amend the spec and plan to remove the schema-artifact requirement and define the replacement behavior\n\nPick one, or give another fix.\nRecommendation: a - supplies the required input without changing the approved requirements.\n",
+      "words": 87,
+      "wallMs": 6808,
       "mechanical": {
         "question-first": "holds"
       }
@@ -40,7 +40,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "3c477d0460f3a27f78f856ad1df65b990ecbac4c026f74b850a3c38b94920a6b",
       "baselineOutputSha": "221a63601512ded6546e01242b542018844c474a527a97f951daea4ed92384be",
-      "candidateOutputSha": "d445b60cd1de94f9f0ef1494f1ec2f7066445acfe41f3247d4d3c1ea5082baa5",
+      "candidateOutputSha": "a85da5d8b2d1655dee73e22f9cf40636fd3c6aa90660150ee33b09054e467eaa",
       "facts": {
         "actionable": {
           "before": "holds",
@@ -58,8 +58,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. After keeps the gauntlet: question prefix, the Problem line, both Searched lines in spec order (docs/schema.json then artifact registry), and still offers supply (add at docs/schema.json or publish to the registry), access (\"grant access\"), and amendment (spec and plan task <n>) without asking where the artifact lives; it also stays a pure stop note with no dispatch, no state change and no done/stuck marker, and the appended Recommendation line delivers the Change's requirement that every stop note end in Recommendation. The only wording risk is that After folded the separate 'access to another source' option into a) as 'and grant access', which a strict reader could see as narrowing access to the two documented locations; to keep it unambiguous while retaining the Recommendation ending, restore access as its own option (e.g. 'b) grant access to another source holding the schema artifact, then I re-dispatch with that result') and keep the amend option as c), leaving Recommendation as the final line.",
-      "wallMs": 11235,
+      "feedback": "After keeps every fact Before kept: the gauntlet: question prefix precedes the Problem summary, both ordered Searched lines sit directly under Problem, options a/b/c still cover supply, access, and amend without asking where the artifact lives, no dispatch is issued, and the task stays in_progress in implement with no done/stuck marker, while the new trailing Recommendation line delivers the Change. The only soft spot is the Problem wording 'so the task cannot continue', which a skeptical reader could mistake for a stuck verdict; phrasing it as 'so the task is waiting on a human decision' (as Before's 'the lookups are exhausted' did) would remove that ambiguity without losing anything. Option b's conditional 'if the registry entry exists' is fine but could be generalized to 'or another source' so access to a third location is clearly covered, matching Before's option b.",
+      "wallMs": 11483,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -67,7 +67,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "3c477d0460f3a27f78f856ad1df65b990ecbac4c026f74b850a3c38b94920a6b",
       "baselineOutputSha": "67d094849a3febf3ba54ea4623e42e696137b644d2e71a5c914405c844b0a429",
-      "candidateOutputSha": "0380a599f105940cbb4713a7105dbb6e1f82c3518aa07ae934bc5e21aa2f0c8a",
+      "candidateOutputSha": "3fb02a0d3ffdd1d799df4eefc7760fe3df561a01b3e1fa35c760a025506e0fce",
       "facts": {
         "actionable": {
           "before": "holds",
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact: it still carries Problem, both ordered Searched lines, supply-or-amend options with no location question, and no dispatch or terminal marker, while adding the gauntlet: question prefix and the trailing Recommendation line that the Change asks for. The one place it drifted is option (a), which was shortened from 'Supply the required schema artifact or restore access to it in the artifact registry' to just 'supply the required schema artifact' — the HTTP 404 on the registry makes 'restore access' a real, distinct remedy, and a stricter reading of 'supplying the schema artifact or access' could count its removal as a loss. Keep Before's full option (a) wording (and 'define the replacement contract' in (b), which tells the human what an amendment must contain) and simply append 'Recommendation: a - ...' after 'Pick one, or give another fix.'; also prefer 'the current task' over the bare 'task' so the active in-progress implement state is unambiguous.",
-      "wallMs": 15398,
+      "feedback": "Nothing moved on this case: After keeps the gauntlet: question prefix, the Problem line, both Searched lines in documented order (docs/schema.json then the registry), supply/access and amend options with no location question, and no dispatch or done/stuck marker, while adding the required trailing Recommendation line. The only drift to watch is splitting Before's single supply-or-restore option into a) and b); that is harmless here, but keep the amend option explicitly paired with 'define the replacement contract/behavior' and keep Recommendation last so the stop note still reads as a choice rather than an action taken.",
+      "wallMs": 8453,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }

@@ -40,7 +40,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "399c6bdbef70f126e6c3e53c7e7890838841bc6915d1d561b8d78ed322780451",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "f44891c008b03900d4afb6396dcbc88591549db0485c05f4b19983b8cfde2229",
       "candidateOutputSha": "2baf2ffb4d8da8b8be1b913948689d7c9d442a334102c0b9a46edd59192eeedd",
       "facts": {
@@ -75,14 +75,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved between Before and After on this case: both narrations dispatch one fresh, synchronous plan-writer with the acceptance-none line, no output field, and a task naming spec/plan/worktree (f3); both call plan_check on the plan path right after the child reply and before the single plan read and tracker init (f4); neither dispatches a scout, writes or edits a file, or reproduces plan body text beyond wave and task titles (f5); and both read the plan once, init plan_tracker with exactly the three W1/W1/W2 titles in order, and then invoke /skill:subagent-driven-development directly with no execution-mode choice (f6). Note that the Expected-to-move entry fresh-child-authors-plan/f6 anticipated Before failing, but the Before text here already omits any mode selection, so f6 holds on both. The After wording's 'Execution Handoff' step labeling and the explicit note that init runs once and the executor owns remaining STOPs are good and keep every fact; if you want f6 to be discriminating in future fixtures, the Before narration would need to actually include a mode-selection step for the change to show as a move.",
-      "wallMs": 11211,
+      "feedback": "Nothing moved between Before and After on this case: both narrations issue a single fresh, synchronous plan-writer dispatch with the acceptance-none line, no output field, and all five paths in the task text (f3); both call plan_check on the plan path immediately after the child reply and before the single plan read and tracker init (f4); neither dispatches a scout, writes a file, or leaks plan body text beyond task titles (f5); and both read the plan once, init plan_tracker with exactly the three W1/W1/W2 titles in order, and then directly auto-invoke /skill:subagent-driven-development without selecting an execution mode (f6). Note that the 'Expected to move' entry for f6 (fails -> holds) is not borne out by the text — Before already handed off directly with no mode selection, so the Change's removal of mode selection is a no-op for this output. The After wording is fine as-is; if you want this case to actually exercise the Change, the Before baseline would need to have contained a mode-selection step (e.g. a 'Solo vs Parallel' choice before the invocation) for the delta to be observable.",
+      "wallMs": 11160,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "399c6bdbef70f126e6c3e53c7e7890838841bc6915d1d561b8d78ed322780451",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "975dd6132911e6dcea859f505355f06b1a561f6ef6435d4ebb7797e70eb75a1e",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
       "baselineOutputSha": "56a0c6f9d10a96ef4641e57e206063774bae4899f7f5a1b09d0a2140bf032038",
       "candidateOutputSha": "8d3cd68f12a468792b7b71f0ae09c430e04f970e589d44a4178b2d891d788f11",
       "facts": {
@@ -117,10 +117,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs make a single fresh, synchronous plan-writer dispatch with acceptance level none, no output field, and spec/plan/worktree paths in the task text; both call plan_check on the plan path right after the child reply and before reading the plan or initializing the tracker; neither dispatches a scout, writes a file, or quotes plan body text; and both read the plan exactly once, init plan_tracker with the same three wave-ordered titles, and go straight to /skill:subagent-driven-development with no mode selection. Note that f6 was listed as expected to move fails->holds, but Before already satisfies it on its own text, so the After wording preserves rather than gains it. One small risk in After: it adds a `read` of the spec (step 3) that was not among the supplied tool results; this does not touch any fact here, but if a future fact counts tool calls or forbids unlisted reads it could regress, so consider keeping the scope check as reasoning over the already-known spec path rather than an explicit read call.",
-      "wallMs": 13565,
+      "feedback": "Nothing moved: both outputs make the single fresh/sync plan-writer dispatch with the acceptance level none line and all three paths, run plan_check on the plan path between the child reply and the plan read, dispatch no scout and write nothing, and read the plan once before initializing plan_tracker with exactly the three W1/W1/W2 titles in order and then invoking /skill:subagent-driven-development directly with no mode choice. Note that the Before text already satisfied f6 (step 9 invokes the executor immediately with no execution-mode selection), so the expected fails->holds move for fresh-child-authors-plan/f6 is not visible in this case. After's only substantive additions are an explicit `read` of the approved spec before dispatch (harmless for f4, which concerns the plan read) and a terser summary of the plan contents in step 7; both are compatible with every fact. If you want the Change's 'no mode selection' intent to be evidenced more explicitly, consider adding a short clause in step 10 such as 'singleton and multi-task waves are handed off alike; no Solo/Parallel mode is chosen here', which stays within f5 (no plan body text) and strengthens f6 without altering the tracker init or the read count.",
+      "wallMs": 14488,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
 }
