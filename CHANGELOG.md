@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Coordinated multi-repo runs: one brainstorm spans ordered repository legs under one shared branch, home spec, handoff brief, and ship choice. `- sibling:` clone URLs in the overrides file are the eligible companions; a run coordinates only the companions the ask or ticket selects, resolved beside the home primary by repo name. Each leg gets its own worktree, baseline, verification, review, and telemetry seal; `plan_check` admits leg-aware plans; both implement engines, resume, and finishing fan out per leg and ship through one choice with per-leg receipts for partial-ship retry. A single-member run finishes through its recorded `contract:` lines and carries a `Baseline <repo>:` plan header; legacy specs without `## Legs` read as home-only. (#99)
+
+### Changed
+
+- The phase tracker no longer credits an interrupted conformance-reviewer or cadence helper as a completed step. (jjuraszek/pi-cohort#36)
+- Eval reports may be per-sample partials of the samples a change's own hunks touch when a rebase onto the base branch re-stales samples the change never touched. (#99)
+
 ## v7.40.1 - 2026-10-29
 
 ### Changed
