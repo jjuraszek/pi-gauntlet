@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Coordinated draft-PR handoff publishes companion branches before opening one home draft PR, with no brief or companion PRs. `brainstorming #N` reconstructs recorded companions from origin and re-gates. Header-linked finish rows 1/2 deliver companions in order before one home seal carrying every companion PR, then push home and apply readiness; companion URLs stay in the shipped summary, not the home PR body.
+
 ## v7.41.0 - 2026-10-29
 
 ### Added
