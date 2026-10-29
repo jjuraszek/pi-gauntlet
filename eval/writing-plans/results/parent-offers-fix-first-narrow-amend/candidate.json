@@ -1,7 +1,7 @@
 {
   "sample": "parent-offers-fix-first-narrow-amend",
   "arm": "candidate",
-  "skillSha": "1b903b0fc90a6fcb36196ef2e6e7de4405a09df12df815dfe74ee22b508d3f76",
+  "skillSha": "9367e0eaead9aae0fec6b2237c9560ba58e9b45277d8ba160bb7cbef0f7524cc",
   "inputSha": "1c324896ccf850dc8d90cfd03e885e3af9a533d8180531bab4d6557eb5c77585",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Parent handling: plan-writer returned OPEN QUESTIONS on a base test failure\n\n## State so far\n\n1. **Substep is already set.** `phase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })` was called. Phase `plan` is `in_progress`.\n\n2. **Dispatch (step 3), already made:**\n   ```\n   subagent({ agent: \"plan-writer\", context: \"fresh\", async: false, cwd: \"/work/app\",\n     phase: \"plan-write\",\n     acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n     task: \"Write the implementation plan for the approved spec. Worktree: `/work/app`. Spec: `/work/app/doc/specs/hook.md`. Plan path: `/work/app/doc/plans/hook.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\" })\n   ```\n   Reply: `OPEN QUESTIONS /work/app/doc/plans/hook.md`.\n\n3. **Step 4 check passes.** The dispatch did not error and was not async. The plan file exists and is not empty, so there is no stop.\n\n4. **Step 5, already made:** `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })` returned FAIL. It named an `open-questions` finding for the row and a `baseline-line` finding for the missing bullet.\n\n## Step 6: choosing the branch\n\n- **The `OPEN QUESTIONS` branch applies, whatever the check result.** The FAIL is not grounds for a Findings re-dispatch. Both findings come from the unresolved baseline row: the row exists, and the task has no passing baseline bullet. Baseline findings can only be repaired through Baseline, so the human must resolve the row first.\n- **The row is substantive.** The section holds more than `- none`.\n- **It matches the `- Task N: ... fails on <sha>` form,** so it gets the three-option menu.\n\n## Holding state\n\n- I make no `phase_tracker` complete or substep-clear call. Phase `plan` stays `in_progress` with substep `plan-write`.\n- I make no execution stamp and no `plan_tracker` init.\n\n## Message to the human\n\n> **Plan paused: baseline failure on the base commit.**\n> Task 1's Tests command `node --test tests/hook.test.ts` fails on base `abc1234` with exit 1. The summary reads \"tests 1, pass 0, fail 1: existing config resolution failed\". This is an existing test failing before any plan work.\n>\n> **Options:**\n> - `fix-first` - run `/skill:shape-ticket` for the base failure (its own gate applies). Once that fix lands, I bring the advanced base into this worktree through `/skill:using-git-worktrees`. Then I re-dispatch plan-writer with `Findings: rerun baseline` and re-run `plan_check`.\n> - `narrow` - give me filter or path text. I re-dispatch with `Findings: Task 1 Tests: narrow to `<text>``, the baseline reruns, then `plan_check` runs.\n> - `amend` - amend the approved spec through brainstorming's `reference/amendment-surface.md` section 5. The baseline reruns before `plan_check`.\n>\n> Recommendation: fix-first - the existing config-resolution test fails on the untouched base. Narrowing would hide a real regression the hook work would build on, and nothing indicates the spec is wrong.\n\n## Stop\n\nI end the turn here and wait for the human's choice. Nothing further is dispatched or tracked until they answer.\n",
-      "words": 421,
-      "wallMs": 15244,
+      "text": "gauntlet: question\n\n**Steps already taken (from the case):**\n1. `phase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })` was already set. Phase `plan` is `in_progress`.\n2. Step 3 dispatch already ran: `subagent({ agent: \"plan-writer\", context: \"fresh\", async: false, cwd: \"/work/app\", phase: \"plan-write\", acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" }, task: \"Write the implementation plan for the approved spec. Worktree: `/work/app`. Spec: `/work/app/doc/specs/hook.md`. Plan path: `/work/app/doc/plans/hook.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\" })`. It replied `OPEN QUESTIONS /work/app/doc/plans/hook.md`.\n3. Step 5 ran: `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })`. It returned `FAIL`, with an `open-questions` finding naming the row and a `baseline-line` finding naming the missing bullet.\n\n**Decision (step 6):**\n- The child replied `OPEN QUESTIONS`, so that branch applies whatever the check result was. I do not use the `PLAN WRITTEN` + `FAIL` re-dispatch path.\n- I read `## Open Questions` and found one substantive row in the baseline-failure form: `- Task 1: … fails on abc1234`.\n- Both FAIL findings come from that unresolved baseline row. Only Baseline can repair them, after a human choice, so I do not re-dispatch now.\n- The plan pauses. Phase `plan` stays `in_progress` with substep `plan-write`. I do not clear the substep, mark the phase complete, or call `plan_tracker` init.\n\n**Question for you:**\n\nThe baseline failed on the base commit before any change, so the plan is paused.\n- **Task:** Task 1\n- **Command:** `node --test tests/hook.test.ts`\n- **Base SHA:** `abc1234`\n- **Result:** exit 1. `tests 1, pass 0, fail 1: existing config resolution failed`\n\nChoose one:\n- `fix-first`: I run `/skill:shape-ticket` for the base failure (it has its own gate), then report the plan paused and end the turn. After the fix lands, I bring the advanced base into the worktree through `/skill:using-git-worktrees`. I then re-dispatch plan-writer with `Findings: rerun baseline` and run `plan_check` again.\n- `narrow`: you supply filter or path text. I re-dispatch with ``Findings: Task 1 Tests: narrow to `<text>` ``. Baseline is rerun, then `plan_check`.\n- `amend`: we amend the approved spec through brainstorming's `reference/amendment-surface.md` section 5. That re-enters plan-writer with an `Amend:` block, Baseline is rerun, then `plan_check`.\n\nRecommendation: fix-first. The existing config-resolution test already fails on the base. Task 1 cannot show a trustworthy red-to-green cycle against a broken baseline, and narrowing would hide a real pre-existing defect.\n\nI am stopped here, waiting for your choice.\n",
+      "words": 369,
+      "wallMs": 16643,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. The child has already returned `OPEN QUESTIONS /work/app/doc/plans/hook.md`; do not dispatch again.\n\n2. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })\n   ```\n   Result: `FAIL`, with an `open-questions` finding naming the failure row and a `baseline-line` finding naming the missing baseline bullet.\n\n3. Read the plan’s `## Open Questions` section at `/work/app/doc/plans/hook.md`. The row is substantive. Follow **`OPEN QUESTIONS` + any result**, not the `PLAN WRITTEN` + `FAIL` repair branch. Do not dispatch a checker-repair round or manufacture baseline evidence.\n\n4. Present to the human:\n\n   **Planning paused: Task 1’s baseline failed.**\n   - Original command: `node --test tests/hook.test.ts`\n   - SHA: `abc1234`\n   - Exit: `1`\n   - Summary: `tests 1, pass 0, fail 1: existing config resolution failed`\n\n   **fix-first** — Run `/skill:shape-ticket` for the base failure, subject to its own gate.\n   **narrow** — Supply filter or path text to narrow Task 1’s test command.\n   **amend** — Amend the approved spec through brainstorming’s `reference/amendment-surface.md` section 5.\n\n   **Recommendation: fix-first — resolve the existing config-resolution failure before implementation so the baseline can establish whether this change introduces regressions.**\n\n5. Stop and wait for the human’s choice. Leave phase `plan` as `in_progress` and substep `plan-write` unchanged. Do not stamp acceptance, complete the phase, initialize `plan_tracker`, or invoke execution.\n",
-      "words": 186,
-      "wallMs": 10438,
+      "text": "gauntlet: question\n\n1. Run the parent stamping check:\n   ```text\n   plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })\n   ```\n   Result: `FAIL`, with `open-questions` naming the failure row and `baseline-line` naming the missing baseline bullet.\n\n2. Read the plan’s `## Open Questions` section. The child returned `OPEN QUESTIONS`, and the section contains a substantive baseline failure. Follow that branch regardless of the checker result; do not dispatch a repair for the missing baseline bullet or fabricate passing evidence.\n\n**Task 1 baseline failed**\n- Original command: `node --test tests/hook.test.ts`\n- SHA: `abc1234`\n- Exit: `1`\n- Summary: `tests 1, pass 0, fail 1: existing config resolution failed`\n\nfix-first — Run `/skill:shape-ticket` for the base failure, subject to its own gate; then report this plan paused and end the turn.\nnarrow — Supply filter or path text to narrow Task 1’s test command.\namend — Amend through brainstorming’s `reference/amendment-surface.md` section 5.\n\nRecommendation: fix-first — The existing configuration-resolution failure should be addressed before using this test as the implementation baseline.\n\nPause for your choice. Keep phase `plan` as `in_progress` and substep `plan-write`. Make no further dispatch, do not complete the phase, and do not initialize `plan_tracker`.\n",
+      "words": 176,
+      "wallMs": 10026,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2cfb0c98f592ef269ecdbb4d6580f4c59dd104e855a32b1cda52e7c23ada8de9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a2dc7baff8d5ea7194c02df39a6293d5ad48c418e1bad2a3b7ca902dc3d8998d",
-      "baselineOutputSha": "e1aa6ff94a764da4ffc94551329e094f23a91edcd6f98a36e1f2a1b2a721d78a",
-      "candidateOutputSha": "e1aa6ff94a764da4ffc94551329e094f23a91edcd6f98a36e1f2a1b2a721d78a",
+      "intentSha": "dec4eec9a09cc436594d89d3c666314dcf792d3932e99914e473467a4f692cc7",
+      "baselineOutputSha": "cadc3e1ce0747297df64896df9b9b8c0a916e2769038c728939fa0bcba09af27",
+      "candidateOutputSha": "2661be0d8c22469960986386b388bde80a97fc979afb91cabc7c6297a67e42e3",
       "facts": {
         "failure": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "After is textually identical to Before, so no fact moved. Both outputs name Task 1, `node --test tests/hook.test.ts`, base `abc1234` and exit 1 as the base failure; both list fix-first, narrow and amend one per line followed by a Recommendation line; both hold phase `plan` in_progress with substep `plan-write`, make no `plan_tracker` init, no execution stamp and no complete call, and end the turn waiting for the human. The Change's 'offers fix-first, narrow, and amend for baseline failures, retaining the paused planning state' is already delivered by this wording, so the After text as written keeps every fact Before kept; nothing needs adjusting for this case.",
-      "wallMs": 6453,
+      "feedback": "Nothing moved on this case: After still names Task 1, `node --test tests/hook.test.ts`, base SHA abc1234 and exit 1 as the base failure, still lists fix-first, narrow and amend as one option per line with a Recommendation line directly after, and still keeps phase `plan` in_progress with substep `plan-write` retained while explicitly declining `plan_tracker` init, stamping and completion. After additionally moves the `gauntlet: question` marker to the very first line at column zero, which is the gate-line-first intent, and it does so without displacing the menu or pause bookkeeping. The one stylistic risk worth watching is that After renders the three options as bullets with inline code labels and a blank line before the Recommendation; a strict reader could still parse each as a single line, but if you want to be safe, keep the option labels as plain `fix-first - ...` lines immediately followed by `Recommendation: ...` as Before did, while retaining the column-zero `gauntlet: question` opener.",
+      "wallMs": 9502,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2cfb0c98f592ef269ecdbb4d6580f4c59dd104e855a32b1cda52e7c23ada8de9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a2dc7baff8d5ea7194c02df39a6293d5ad48c418e1bad2a3b7ca902dc3d8998d",
-      "baselineOutputSha": "d3af72318ef849d4c62883164eec89ac4b4130bcdff8ad2215b0da32ad6498d5",
-      "candidateOutputSha": "d3af72318ef849d4c62883164eec89ac4b4130bcdff8ad2215b0da32ad6498d5",
+      "intentSha": "dec4eec9a09cc436594d89d3c666314dcf792d3932e99914e473467a4f692cc7",
+      "baselineOutputSha": "10f6328ac23fff8cb0e6020125c79a5618ccc456311650c618e8463bc980dc8d",
+      "candidateOutputSha": "2dcc1866047ab09766e8ecd3df7e444e5e714917732f19a6ceab9d51b556e619",
       "facts": {
         "failure": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical for this case, so nothing moved: both name Task 1, `node --test tests/hook.test.ts`, SHA abc1234 and exit 1 as the base failure; both present fix-first, narrow and amend one per line followed by a Recommendation line; and both stop for the human with phase plan left in_progress, substep plan-write retained, and no plan_tracker init, stamping, or phase completion. The After wording preserves every fact Before kept while delivering the Change's baseline-failure pause behavior (stop on existing failure, no manufactured baseline evidence, three recovery routes, paused planning state). No wording adjustment is needed for this case; if the author wants stronger coverage of the Change, the only optional addition would be an explicit note that the `baseline-line` finding is not to be repaired by authoring a passing baseline bullet, which the current step 3 already implies.",
-      "wallMs": 6955,
+      "feedback": "No fact moved: After still names Task 1, `node --test tests/hook.test.ts`, SHA `abc1234` and exit 1 as the base failure, still lists fix-first, narrow and amend one per line with a Recommendation line after them, and still pauses with phase `plan` in_progress and substep `plan-write` while refusing to initialize `plan_tracker` or complete the phase. The one point of fragility is the closing pause paragraph: Before explicitly said \"do not stamp acceptance ... or invoke execution\", whereas After only says \"make no further dispatch, do not complete the phase, and do not initialize `plan_tracker`\" — it never actually stamps, so the fact still holds, but a reader checking the stamping prohibition has to infer it from the absence of a stamp step rather than from an explicit refusal. To keep the pause fact robust while delivering the Change, restore the explicit enumeration in the final line, e.g. \"Keep phase `plan` as `in_progress` and substep `plan-write`; do not stamp acceptance, complete the phase, initialize `plan_tracker`, dispatch again, or invoke execution.\" Everything else in After (leading with the stamping check, naming `open-questions`/`baseline-line` findings, the sharper Recommendation rationale) is compatible with all three facts.",
+      "wallMs": 12919,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "8475e17ce089bdf359207a8e45e5d6ffec26337e"
 }
