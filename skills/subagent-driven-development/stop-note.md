@@ -1,10 +1,12 @@
 # Stop note (subagent-driven-development companion)
 
-For a `NEEDS_CONTEXT`/`BLOCKED` fact ask, search the locations documented by the spec, plan, or repo: one bounded lookup per location in documented order, stopping at the first hit. Record each lookup and result, including earlier misses; re-dispatch with the found result in the task text.
+For a `NEEDS_CONTEXT`/`BLOCKED` fact ask, dispatch a delegated answer/evidence child to search the locations documented by the spec, plan, or repo: one bounded lookup per location in documented order, stopping at the first hit. Record each lookup and result, including earlier misses; consume the compact answer/evidence and re-dispatch with the found result. Never open source or deliverable reports in the primary. Stop on a delegated failure.
 
 Emit when no escalation model resolves, the escalated dispatch errors, its one escalated round fails (see `SKILL.md` "Fix-Loop Rounds"), or a `NEEDS_CONTEXT`/`BLOCKED` fact ask exhausts documented locations, needs credentials for a remaining location, or lacks its named lookup tool; an unavailable `gauntlet_setting` tool is a configuration error - stop and report, no stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
 
 ## Template
+
+Delegate human escalation wording through the answer/evidence carrier with the final review path, scoped-output paths, structured routing fields and lookup observations. Require the child to read findings and return the exact one-screen note below as its answer. Keep the primary from opening the report. Apply funded-round budget placement from reference/fix-loop.md.
 
 Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Start the message with `gauntlet: question` alone on the first output line, followed by a newline before the stop note; this is an implementation decision, not a done or stuck outcome.
 
