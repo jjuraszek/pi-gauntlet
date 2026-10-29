@@ -12,3 +12,8 @@ Honor explicit primary ROOT and shared BRANCH for keyed leg provisioning; preser
 - pr-list-member-conflict-repaired/checks: fails -> holds - Rebase completion belongs to the orchestrator with noninteractive editor and per-stop staging checks.
 - pr-list-member-conflict-unresolved/abort: fails -> holds - Member replay abort checks out home before validating the saved rebased tip.
 - pr-list-interrupted-recovery/saved-tip: fails -> holds - Failed home sync on recovered rebase history restores the actual pre-attempt local tip, not the original remote head.
+
+## Companion existing-branch contract
+Route explicit ROOT/BRANCH/REMOTE_BRANCH=existing before fresh collision checks. Resolve companion identity and base without PR state; provision published branches using existing rows and affirmative coordinated read-back. Admit only proven coordinated base-sync merge tips without replacing local commits. Keep ordinary home and N-PR rework behavior unchanged.
+
+Expected movements: pr-head-caller-root/root, identity, rows, ownership, race, merge, readback, recovery, invalid and missing fail -> hold; pr-head/ordinary-home remains holding. Preserve all existing fact IDs and the target word cap. Structural lint proves fixture shape and bundle references only; model verification separately establishes instruction behavior and regressions.

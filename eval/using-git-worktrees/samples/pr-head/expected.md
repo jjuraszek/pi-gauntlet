@@ -4,3 +4,4 @@
 - stops: judged: Fork, elsewhere, unreachable, moved, ahead and diverged each stop before file writes or worktree add with the reference's exact case-specific one-line error, naming branch/path/repository and relevant SHAs; checks are ordered after fetch.
 - override-race: judged: Skips branch-creating override with create: override skipped (contains -b); post-create race stops naming home and both SHAs and leaves the created tree intact.
 - history: judged: Advances PR history by merge, never replaces commits reachable from PRE_REWORK_HEAD; preserves appended-spec approval amend and appended-wave fold with WAVE_BASE_SHA descending from PRE_REWORK_HEAD.
+- ordinary-home: judged: Ordinary singleton PR home retains PR identity reports, pre-rework refs and provisioning; a clean local base-sync merge ahead of the published PR head still takes the ancestry stop, never coordinated base-sync recovery.
