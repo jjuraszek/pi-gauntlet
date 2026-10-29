@@ -264,9 +264,10 @@ test('missing live index fails tree capture without a SHA or scratch residue', (
 
 test('implementer template carries task scope and evidence, not persona conduct', () => {
   const prompt = readFileSync(new URL('../skills/subagent-driven-development/implementer-prompt.md', import.meta.url), 'utf8');
-  const ordered = ["[FULL TEXT of task from plan - paste it here, don't make subagent read file]", 'SCOPED_TEST_COMMANDS: [', 'TEST_CONTRACT: [', 'Tests call the via: seam directly', 'Create every Create: path at exactly that path.', 'one line per SCOPED_TEST_COMMANDS command', 'Any `unmet` -> `DONE_WITH_CONCERNS`.', '**Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT', 'Conduct (TDD scenarios, test economy, scope discipline, escalation, report shape) is your persona; this prompt carries only the task and its test scope.'];
+  const ordered = ['planPath: [absolute plan path]', 'anchor: "### Task N:"', 'anchors: [use instead of anchor for a multi-task repair]', 'Spec: [absolute authoritative home spec path]', 'Work from: [worker checkout]', 'SCOPED_TEST_COMMANDS: [', 'Read the selected task sections, Spec anchors, Tests:/via: and Files: Create:/Test: paths yourself.', 'Tests call the via: seam directly', 'Create every Create: path at exactly that path.', 'one line per SCOPED_TEST_COMMANDS command', 'Any `unmet` -> `DONE_WITH_CONCERNS`.', '**Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT', 'Conduct (TDD scenarios, test economy, scope discipline, escalation, report shape) is your persona; this prompt carries only the task and its test scope.'];
   let previous = -1;
   for (const text of ordered) { const at = prompt.indexOf(text); assert.ok(at > previous, text); previous = at; }
+  assert.doesNotMatch(prompt, /FULL TEXT|paste it here|don't make subagent read file|TEST_CONTRACT:/);
   assert.match(prompt, /one line per via:/);
   assert.match(prompt, /quote the last output line/);
   assert.doesNotMatch(prompt, /Commit your work|Code Organization|Over Your Head|Self-Review|read the plan|OWNED_FILES|owned-files/);
