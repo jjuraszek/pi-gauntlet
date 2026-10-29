@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "4ddb946b201c27f9d8f7f67fe186184faa0445745cfb1a63a9e591a5878f6f99",
       "candidateOutputSha": "3551dec368e2bf89364912192e482a2727ed8f532b678251e3834e86471358dd",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps all three facts: its recommended approach names `post` in `lib/notify.ts` (Adds and Pattern lines cite `lib/notify.ts:1-2`), identifies the hardcoded `general` as the gap, proposes widening the helper with an optional parameter, and both viable approaches carry Removes:/Adds: immediately before Pattern:. Two things drift relative to Before without moving a fact and are worth tightening: After's first message adds option C, 'a separate function beside `post` for channel-targeted sends', which invites exactly the copy-beside-the-helper the no-copy fact guards against (Before omitted it and later explicitly rejected keeping the inline copy); and After's approaches message is wrapped as a `gauntlet: question` block that ends by asking which approach to build on, even though the recorded answers said not to spend another turn clarifying - Before closed with a recommendation and flip conditions instead. To keep every fact Before kept while delivering the Change, keep the explicit '(reuse-only)' label and the 'nearly-fitting shared path / its one gap is the fixed channel' sentence on the recommended approach (After relies on the reader inferring it from the Adds line), drop the separate-function option from the caller-compatibility question, and present the approaches as a non-question message so the Removes/Adds/Pattern inventory is the closing structure rather than a re-ask.",
-      "wallMs": 17654,
+      "feedback": "No fact moved between Before and After: both outputs name lib/notify.ts#post as the owning helper, identify its hardcoded `channel: \"general\"` as the gap, recommend widening it with an optional channel parameter, place Removes:/Adds: directly before Pattern: on both viable approaches, and remove rather than retain report's inline copy. Two things in After are worth tightening so the facts stay robust rather than inferable: the recommended approach no longer carries Before's explicit \"(reuse-only)\" label or the sentence \"Its one gap is the fixed channel\" in the approaches message itself (the gap is stated only in the first message's premise list), so a reader scanning the approaches alone must infer the missing override from `channel = \"general\"`; restoring a one-line \"lib/notify.ts#post is the nearly-fitting shared path; its one gap is the fixed channel\" at the top of approach A would keep reuse-path self-contained. Second, After's first-message option C (\"a separate function beside post\") introduces a copy-adjacent candidate that the approaches message then silently drops instead of naming it as rejected the way Before and After both reject the inline copy and the new service; either drop option C from the questionary or add one sentence in the approaches message dismissing it as a second send path beside the owner, so no-copy is defended explicitly rather than by omission.",
+      "wallMs": 17181,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "1c6f25e743832cfcf0e2626a87c9f3ee4cbcf7231dd7f7feb3a38ae6b29db382",
       "candidateOutputSha": "264b63a77d3d8ce512c71096f93a25b288778d79d2928509fd666a3d02d54661",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this sample: both outputs name lib/notify.ts#post as the owning helper, point at its hard-coded `general` channel as the gap, label the optional-argument approach as the reuse-only candidate, place Removes:/Adds: immediately before Pattern: on both A and B, and recommend extending the helper while deleting the inline formatting/retry loop from jobs/report.ts. The After wording is slightly tighter in one respect worth keeping: approach B's Removes line explicitly names 'the helper's implicit default-channel behavior' and the first message states the report job duplicates the helper 'solely to select its channel', which makes the missing-channel-override identification explicit rather than inferred from the first message as in Before. One caution for the Adds lines: After folds test additions into Adds, which is fine for the moving-parts fact but should stay as concrete items rather than drifting into prose so the Removes/Adds/Pattern adjacency remains intact across all viable approaches.",
-      "wallMs": 15463,
+      "feedback": "No fact moved between Before and After on this input: both outputs name `lib/notify.ts#post` as the reuse-only candidate, identify its hard-coded `general` channel as the missing override, propose adding a channel parameter to that helper, place Removes:/Adds: lines directly before Pattern: on both viable approaches, and recommend A, which deletes the report job's duplicated formatting and retry loop in favor of delegating to the helper. The Expected-to-move list predicted fails -> holds for all three, but Before already satisfied them, so the recorded improvement is not visible in this pair. After's wording differences are safe: it drops Before's redundant 'no implicit dependency was missing' sentence (not required by any fact), labels A explicitly 'recommended, reuse-only', and folds test additions into the Adds: inventory, which still lists moving parts and keeps the Removes/Adds/Pattern ordering intact. To keep all three facts while delivering the Change, retain the explicit 'reuse-only' tag on the helper-extension approach, keep the Removes:/Adds:/Pattern: block adjacent and unbroken for every approach, and keep the first-message sentence that states the helper 'fixes delivery to general' so the missing-override identification stays explicit rather than implied.",
+      "wallMs": 12139,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "133c23b80dbdbb70ee8193c5e8e2727ee78d56ca492d399497393512a7f04444",
       "candidateOutputSha": "63a600a017d37e7644440e893d0c418ea93c13bcd73c596e140a4192b336b4c9",
       "facts": {
@@ -73,14 +73,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs open each item with a plain-words what/why sentence, list A) accept and B) alt-1 with one-line consequences, give letter recommendations with reasons, use the `1. A` / `2. <your own text>` reply grammar with bare `1` for all recommendations and no legacy `handle=choice` prompt, and carry one human-call sentence per item. After's human-call sentences shift from 'This is your call because ...' to '..., so the reviewer left it to you', which still satisfies f6 but is a looser pattern; if you want the fact to stay robust across models, keep an explicit 'This is your call because' lead or a similarly fixed phrase. Two smaller softenings in After are worth noticing even though no listed fact keys on them: the crosscut why-sentence dropped the concrete alpha-two/beta-four evidence that Before folded into plain words, and the Impact lines dropped the 'Design /' section prefix. Also, After splits the crosscut Details into two lines (accept and alt-1) rather than Before's single 'new (A) | new (B)' line; that's fine for readability but if any downstream fact later keys on one Details line per handle, prefer Before's combined form.",
-      "wallMs": 15436,
+      "feedback": "No fact moved: both outputs open each item with a plain-words what/why sentence, list A) accept and B) alt-1 with one-line consequences on crosscut, give Recommended: B - / A - with reasons, use the `1. A` / `2. <your own text>` reply grammar with bare 1 taking every recommendation and no legacy `2: <handle>=<choice>` prompt, and carry one human-call sentence per item (After's 'so the reviewer left it to you' phrasing satisfies f6 just as Before's 'This is your call because' did). Two small drifts in After are worth watching though they break no listed fact: the Impact lines dropped the 'Design /' section prefix (Before kept the full 'Design / retries' location on the Impact line), and item 1 lost the concrete evidence from the why-sentence (Before quoted 'alpha retries twice and beta retries four times'); if a later fact keys on the Impact location or on evidence in the opening sentence, keep Before's 'Impact: Design / retries:' and the alpha/beta numbers while retaining After's new human-call wording and its split Details lines for A and B.",
+      "wallMs": 13333,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "9a9d089695b030beed82c319fb930229dc0fc80f375176bb1155f84d2cb4258a",
       "candidateOutputSha": "23ccfd0fc0d9c18080d1b7cf73b1edbab1af442c447160ffcbd6be32183148cc",
       "facts": {
@@ -115,10 +115,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: both items still open with a plain-words what/why sentence, carry a one-sentence human-call line (plus the Reviewer echo), list A) accept / B) alt-1 with one-line consequences, end with `Recommended: B -` / `Recommended: A -` plus a reason, and the reply instructions still use `<n>. <letter or text>` with bare `1` for all recommendations and no `2: <handle>=<choice>` form. The only differences are non-fact wording: After's crosscut Impact line now says `adapter-owned policies -> one shared policy owner` instead of pre-committing the Impact to alt-1, the Details block renders `new (accept): ... Alternative alt-1: ...` rather than baking the recommended alternative into `new`, and the Recommended lines gain a trailing period. These are neutral-to-better for the menu (the Impact/Details no longer presume the human's choice) and do not move any judged fact, so no wording change is needed to preserve f1-f6 while delivering the Change.",
-      "wallMs": 10918,
+      "feedback": "No fact moved: both outputs open each item with a plain-words what/why sentence, carry a human-call sentence, list A) accept and B) alt-1 with one-line consequences, give `Recommended: B -` / `Recommended: A -` with reasons, and use the `1. A` / `2. <your own text>` reply grammar with bare `1` taking every recommendation and no legacy `2: <handle>=<choice>` prompt. The only differences in After are the trailing periods on the Recommended lines, the crosscut Impact line generalized to `one shared policy owner` (losing the coordinator detail Before stated), and the Details line now showing `new (accept): a new retry service...` plus the alt-1 alternative instead of the recommended alt-1 target. That last change is worth watching: the Details block now describes the accept option as the new state while the menu recommends B, which a reader could find contradictory. If the intent is to list the accept target and alternative in Details, consider labeling it `-> accept: ... / alt-1 (recommended): ...` so the Details stay consistent with the Recommended line while still delivering the Change; otherwise the After wording preserves every fact Before kept.",
+      "wallMs": 13089,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

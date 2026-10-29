@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "873b5c55bef220f1805b285777aa4c8168b409528d18588649f37110e589c107",
       "candidateOutputSha": "08c74fa98169d9bc6b4825dd611bdac78dfcef407977138dca95fd284a30b0d9",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "After moved no fact on this case: the premise note still traces fixtures/search.sql:1-2 to demo_vector and reports it absent from the installed-extension listing, the approaches message opens by restating the missing dependency and naming the listing lookup, the ## Problem excerpt keeps both the missing capability and the lookup, approaches are supplied without asking the user to locate or verify the extension, and every message distinguishes 'not installed' from 'availability unverified, no catalog supplied'. One wording to watch: After's premise note says 'I checked this with the lookup the guide names', which a strict reader could take as a live lookup claim; Before's phrasing ('That listing shows only plpgsql', 'no live database tools were available') is safer, so consider keeping an explicit 'from the supplied installed-extension listing' clause in the premise note. Otherwise the After wording delivers the Change (traced implicit dependency carried through premise note, approaches, and spec without stopping) while keeping every fact Before kept.",
-      "wallMs": 10629,
+      "feedback": "Nothing moved on this sample: both outputs trace fixtures/search.sql:1-2 to demo_vector, name the installed-extension listing as the lookup, report demo_vector absent while plpgsql is the only entry, restate the missing dependency at the top of the separate approaches message, carry the corrected premise and the installed-vs-available distinction into the spec ## Problem, and proceed to approaches with a recommendation to design now rather than asking the user to go verify the extension. After is slightly tighter in that it quotes the exact fixture lines and adds bench/query.sql:1's `<->` operator to the dependency trace, and it keeps 'I checked this with the lookup the guide names' tied to the supplied listing rather than implying a live query, which is what keeps the replay fact intact. One thing to watch in After's wording: the opening line 'the local database does not have installed' plus 'I checked this with the lookup' edges toward sounding like a live observation; keeping an explicit 'from the supplied listing / no live database tools' phrase as Before does would make the replay fact more robust under future rewording without costing any of the Change's dependency-tracing behavior.",
+      "wallMs": 13984,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "8f737eea3ae98d9b0c60e1fe1ba0d51bcfdafb34bbc4abff3c464ecbb43fd2ef",
       "candidateOutputSha": "79605ac34b3de5b92186de338705522874a01d11fc89124703cb241534454204",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After keeps every lookup and result that Before kept: the first message traces fixtures/search.sql:1–3 to demo_vector and states it is absent from the supplied installed-extension listing while explicitly separating not-installed from unavailable; the approaches message restates demo_vector as missing and names the repo guide's installed-extension lookup before presenting approaches; the ## Problem excerpt retains the dependency, the listing lookup, and the installed-vs-available distinction; approaches are supplied without asking the user to locate or verify the extension; and After explicitly says the findings come from supplied observations, not live lookups, which is a small strengthening of the replay fact. The wording change delivered the Change's premise-note/approaches/Problem carry-through without disturbing this sample; the only stylistic difference is that After folds the recorded answer into the first message instead of rendering a labeled question, which is consistent with the recorded answers and touches no fact here.",
-      "wallMs": 12835,
+      "feedback": "Nothing moved on this sample: both outputs trace fixtures/search.sql:1–3 to demo_vector in the premise note, name the installed-extension lookup and its plpgsql-only result before the approaches, carry the missing capability and lookup into ## Problem, supply approaches without gating on locating the extension, and keep 'not installed' separate from 'unavailable' while attributing findings to supplied observations. After is in fact slightly cleaner on the replay fact because it says outright that the findings come from supplied observations, not live lookups, and it drops Before's A/B/C timing question (safe here since the answer is already recorded). Two things to watch in After's wording so these facts stay stable: its approach 2 changes the result contract to approximate retrieval, which drifts from the Ask's 'keep the current benchmark' framing and could read as replacing the repro in a stricter judge's eyes — keep an exact-result approach as the recommended one and label the approximate route as contingent, as it does now; and keep the explicit sentence that the listing is installed-only and 'does not establish that it is unavailable to install' in all three surfaces, since that sentence is what carries the replay fact.",
+      "wallMs": 17336,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

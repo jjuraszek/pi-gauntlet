@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "f0fac2f5c373647ca7d9c9046931d9dadafb2b29f392a7ca98765339f956f65c",
       "candidateOutputSha": "84eccbd411c0c58fe1943a8181b531aee3d4f08463a66f2954c934a8419beac3",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs explain the resolver fit from the supplied evidence (defaults at settings/resolver.ts:12, resolved values consumed at ui/report-view.ts:30, single source of truth versus a second view-local path) and record choice A, and both then ask exactly one labeled-options question about the undecided workspace-switch reset behavior with a Recommendation line, without stopping at acknowledgment or launching approaches. After is slightly cleaner on the questionary layout: lead-in first, each option on its own physical line, and a plain 'C) other - name it' instead of Before's merged 'no setting ... - other - name it' line, which keeps the option grammar unambiguous. Keep the After wording as is; the only thing to watch is that the recorded-choice sentence stays explicit about the resolver path (it does here) so f1's 'retains choice A' remains visibly anchored to the supplied code.",
-      "wallMs": 9015,
+      "feedback": "Nothing moved on this continuation. Both outputs explain the fit from the supplied code (resolver owns defaults at settings/resolver.ts:12, view consumes resolved values at ui/report-view.ts:30, a view-local object would be a second source of truth), both record choice A for the draft, and both go on in the same response to ask one labeled-options question about the undecided reset-on-workspace-change behavior with a Recommendation line, so f1 and f2 hold on each side. After's layout follows the questionary rule (lead-in first, one option per physical line, Recommendation on its own final line) and its option lines are shorter, which is fine. The only wording difference worth watching is that After collapses the third option to a bare 'C) other - name it' where Before named a concrete alternative; keeping a concrete third option plus the 'other - name it' tail would make the question slightly more informative, but it does not affect either fact. The enlarged amendment-surface section 5 assembly did not disturb this sample.",
+      "wallMs": 9545,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "fd960a11805faa3079a72e1dab2771d0b24658ae053bfb5509688b651757e62a",
       "candidateOutputSha": "526b7592c2d07935dd12ba9d012bd0db2d5709469671a4faf0d430acd78ad03a",
       "facts": {
@@ -67,14 +67,35 @@
         },
         "f2": {
           "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "after": "fails",
+          "label": "regression"
         }
       },
-      "feedback": "Both outputs keep the resolver rationale grounded in settings/resolver.ts:12 and ui/report-view.ts:30 and confirm choice A, and both go on to a labeled-options question with a Recommendation line about the reset behavior, so no fact moved. After is weaker in form, though: its option A bundles two mutually exclusive outcomes (\"Reset report filters, or preserve them across workspaces\") into one letter, so the question effectively asks whether the setting should expose the choice rather than deciding the reset behavior itself, and the recommendation defers the open decision to the end user instead of taking a position. To keep f2 robustly satisfied under the new wording, keep Before's shape - one physical line per single-outcome option (clear / preserve / per-workspace restore / other), a lead-in that asks what should happen to active filters on a workspace switch, and a Recommendation that names one of those outcomes with its reason - while still rendering the layout and ownership explanation the Change asks for.",
-      "wallMs": 17174,
-      "verdict": "unchanged"
+      "feedback": "After keeps f1 (it grounds the resolver choice in settings/resolver.ts:12 owning defaults and ui/report-view.ts:30 consuming the resolved flow, and closes with \"We'll use the existing resolver\"), but it moves f2. Before's question directly decides the undecided reset behavior: four single-outcome options (clear / preserve / per-workspace restore / other) with a recommendation that picks one. After instead asks \"What should the new setting let users choose,\" and its option A bundles two mutually exclusive outcomes (\"Reset report filters, or preserve them\") into one letter, so choosing A - and the recommendation of A - does not resolve whether filters reset on workspace change; it defers the decision to the user-facing setting. A careful reader would not say After asks a labeled-options question about the unresolved reset behavior with a real recommendation. To deliver the Change while keeping f2, keep Before's question shape: ask what happens to active filters on a workspace switch, give each outcome its own letter (A clear, B preserve, C per-workspace restore, D other), and recommend exactly one; any wording about exposing the behavior as a user setting can be folded into the recommendation's rationale rather than collapsed into a compound option.",
+      "wallMs": 13677,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "gauntlet: question\nReusing the resolver fits because `settings/resolver.ts:12` already owns defaults, and `ui/report-view.ts:30` already consumes its resolved settings. Adding the setting there preserves one source of truth and the existing data path; a view-local object would introduce a second place to define and resolve settings.\n\nThat settles ownership, but not whether switching workspaces should reset filters. What should the new setting’s default behavior be?\nA) Clear report filters when switching workspaces so filters from the previous workspace cannot hide rows.\nB) Preserve report filters when switching workspaces, keeping today’s behavior unless the user changes the setting.\nC) Other - name the desired default.\nRecommendation: A - it directly addresses the hidden-row problem you described.\n",
+        "words": 112,
+        "wallMs": 9904,
+        "mechanical": {},
+        "judgeWallMs": 8385,
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Neither fact moved on this case. Both outputs explain the resolver choice against the supplied code (settings/resolver.ts:12 owns defaults, ui/report-view.ts:30 consumes them) and retain A, and both immediately follow with exactly one labeled-options question about the undecided workspace-switch reset behavior with a Recommendation line, rather than stopping or starting approaches. After differs only in presentation: it adds a bridging sentence naming the unresolved reset question, trims the option set from four to three (dropping the per-workspace-restore option), and frames the question as the setting's default behavior; none of that affects f1 or f2. If the author wants to keep the Before output's breadth, retaining the per-workspace-restore option alongside clear/preserve/other would cost nothing against the facts, but as written After satisfies everything Before satisfied."
+      }
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

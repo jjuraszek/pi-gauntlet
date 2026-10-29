@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f748186b0ae48d8bd5a9d15a6dff015941ef0733c9ab1d8bb9e048b12df88593",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "6f9fd4ccc07eb1bd220eabacfe6a79355094d02f7104a3a43ce3d8c0d12441d5",
       "candidateOutputSha": "e6568fb03dc1e7828d6187f112dc0a53ba999a4d3ac95039861a6ecb34d12a31",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. After still has Trace A inserting `**Engine:** waves` directly below `**Amend-grant:** none`, Trace B persisting the full option-2 description with Engine below it, both amending with `--amend --no-edit -q` and verifying both header fields via `show HEAD:<spec path>` before `phase_tracker` complete and `/skill:writing-plans`; Traces C and D print the audit from `%b HEAD`, re-present all five rows, persist nothing, and read approval only from a clean 1/2/4/5; Trace E classifies the mixed reply as a change request, revises, recommits, re-dispatches the summarizer and re-presents without writing Engine/Amend-grant; Trace F writes nothing and asks for 1/2/4/5; Trace G quotes `fund 0 fix rounds` as malformed, stops before any edit or amend, and explicitly refuses to frame it as a change request. Two small drifts worth watching though they did not cross a threshold: After's Trace B quotes the persisted value without the `**Amend-grant:**` prefix (fine since the surrounding sentence names the field, but keeping Before's full-line form is safer), and Trace E's added leg/companion aside and Trace A's `SKILL.md` read note are extra content under the word cap. Keeping the Engine-below-grant wording, the explicit two-field HEAD check, and the 'not a change request' sentence in G is what preserves every fact while the amendment-surface section 5 addition lands.",
-      "wallMs": 15056,
+      "feedback": "No fact moved on this sample: both outputs write `**Engine:** waves` directly below the grant line for A and B (B persisting the full option-2 description), amend and `show HEAD:<spec path>`-check both fields before `phase_tracker` complete and `/skill:writing-plans`; C and D print the audit from `show -s --format=%b HEAD` and re-present with no edit/commit/phase change, accepting approval only from a clean `1`, `2`, `4` or `5`; E routes to the change-request path (revise, recommit, re-summarize, re-render) with no engine or grant work; F writes nothing and asks for `1`, `2`, `4` or `5`; G reads Standing grants, flags `fund 0 fix rounds` as malformed N, persists nothing, and re-presents without framing it as a change request. The After wording's additions (fixed-observation preamble, leg/companion aside in E, explicit `Brainstorm stays in progress` lines) are harmless here; keep the gate-reply table and Standing-grants decode text untouched in the amendment-surface edit, as this After does, and the engine-waves facts remain stable.",
+      "wallMs": 14396,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f748186b0ae48d8bd5a9d15a6dff015941ef0733c9ab1d8bb9e048b12df88593",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "fdee485ca126ceb204614ca87a3b557c4bfa6094e635f38815c009dc4348fff9",
       "candidateOutputSha": "5cfbef9b2ee37c9904ca0469f851e70ea788aa741327aa12cfb025c75706e4d2",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved no fact: traces A and B still insert exactly one `Engine: waves` beneath `Amend-grant` (none in A, the full option-2 description in B), amend the existing commit, inspect `git show HEAD:<spec path>` for both fields, and only then mark brainstorm complete and invoke `/skill:writing-plans`; C and D read the audit from HEAD's commit body, print it verbatim, re-present the gate with nothing persisted and wait for a clean reply with `4`/`5` explicitly disarmed; E is a change request that revises and re-presents without an engine; F asks for `1`, `2`, `4`, or `5` and writes nothing; G quotes `fund 0 fix rounds`, re-presents, writes nothing, and is explicitly not a change request. Two small drifts are worth tightening so the next wording change does not slip: B's blockquote drops the `**Amend-grant:**` prefix that Before carried inside the quoted value (step 3 recovers it, but a judge keying on the exact persisted header line could read it as the bare description), and E adds a 'ask for the name and pause' branch that is reasonable but not in the supplied observations; keep the Before form of quoting the complete header line and either drop the invented pause branch or mark it as conditional on an unresolvable request so the trace still reads as revise-then-re-present on the main path.",
-      "wallMs": 17983,
+      "feedback": "After keeps every fact Before kept: A and B both insert exactly one `**Engine:** waves` beneath `**Amend-grant:**`, amend with --no-edit, inspect HEAD for both fields (B confirms the full option-2 grant text), and only then complete brainstorm and invoke `/skill:writing-plans`; C and D read the audit from HEAD's commit body, print it verbatim, re-present without persistence, and explicitly deny that the trailing 4/5 selects or grants anything while awaiting a clean reply; E stays a change request that revises and re-presents without an Engine or grant; F asks for 1/2/4/5 with no writes and G quotes `fund 0 fix rounds`, refuses to read it as a change request, and persists nothing. Two small wording drifts are worth watching though neither moved a fact: After's E inserts an 'ask for the replacement name and pause' branch not present in Before (fine for a narrated trace, but it slightly blurs the single revise→recommit→re-present path the mixed fact describes — consider making the rename resolution a precondition sentence rather than a new pause step), and After's B quotes the grant value without the `**Amend-grant:**` label inside the blockquote (step 3 still anchors Engine beneath it, so the field is implied; restoring the label in the quote would make the persisted header unambiguous). Otherwise the After phrasing — leading with the Standing-grants read, stating 'failed amend or check blocks progression', and 'funding requires a positive integer' — is clearer than Before and should be kept.",
+      "wallMs": 20915,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

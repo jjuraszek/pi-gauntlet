@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "7e376b66ddc0c8582a07da440f4a1fc81fa660cea1d0dc48d30290fc66d7e0b2",
       "candidateOutputSha": "31595bf46d1e8bd2bc5aeead8bd07451a9d537aa2108ba8f9b0757608bef0c3c",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs stop A on repo-b with expected feature/shared-change vs observed feature/other, stop F on the absent read-back without treating it as equality or emitting `Worktree ready at` for repo-b, and list `Preserved created legs:` with both the home tree and the created repo-b tree; B and C stop before the creator, D aborts on decline, E asks once with pkg-x/pkg-y options. Two softenings in After are worth tightening so the preflight fact stays robust: Run C drops Before's explicit 'The path is not suffixed' (only 'never reused' remains), and runs B–E replace the concrete `Preserved created legs:` block with a conditional prose line ('the repo-a home tree, if this run created it'), which still retains the leg but no longer renders the inventory the fact's spirit expects. Keep the explicit 'not suffixed and not reused' sentence for both B and C, and render a `Preserved created legs:` block in every stop (with the home path from the stated assumption, or an explicit 'repo-a home tree - path unobserved' line) while still delivering the Change's per-run stop reports and the `Recommendation: none - <why>` question form in E.",
-      "wallMs": 16916,
+      "feedback": "Neither fact moved. Run A and Run F in After still stop naming repo-b with the requested `feature/shared-change` against `feature/other` / no result, treat the absent read-back as a failed condition rather than equality, emit no `Worktree ready at` for repo-b, and print a `Preserved created legs:` block with both the home tree and the created repo-b tree while stating nothing is removed. Runs B, C, D stop before the creator without suffixing or reusing, D aborts on decline, and E asks exactly once without guessing. The one place After weakens the text is the retention inventory for B–E: Before listed the home leg concretely (`repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change`), whereas After hedges to \"the repo-a home tree, if this run created it\" and never prints the path, which a stricter reader of \"retains already-created legs\" could question. To keep every fact robustly while still delivering the Change, keep the explicit assumption Before made (home succeeded at the known path, as in A and F) and render the same `Preserved created legs:` listing with the home path in B–E; also note that E's `Recommendation: none - ...` line is a departure from Before's concrete recommendation that the preflight fact does not key on, but if the questionary rules require a labeled recommendation elsewhere, prefer Before's `Recommendation: A - ...` form.",
+      "wallMs": 15036,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "0c71d2b81c03e50aa581bcd068083d6751046b9a61f1a83af786030669f85ce2",
       "candidateOutputSha": "398d299068bbb050a782acc74af3de7e64390e3bfb8c6b3dd494785222d6e0cf",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves both facts: A and F still stop naming repo-b with requested `feature/shared-change` against observed `feature/other` / unavailable read-back, withhold the repo-b `Worktree ready at` line, and list `Preserved created legs:` with both the home tree and the created repo-b tree; B and C stop before the creator without suffixing or reusing and explicitly refuse to remove the home tree, D stops on the decline and preserves the home tree, and E asks once (naming `pkg-x`, `pkg-y`, or another explicit value) and waits rather than guessing. Nothing moved. One small hardening for both versions: Run E never states that already-created legs are retained while waiting; adding a line like 'Preserve any already-created home tree while waiting' in E would make the preflight fact's 'each retains already-created legs' clause explicit for every run rather than inferred from the absence of deletion. Also, D's 'Present its porcelain output verbatim' followed by 'cannot be reproduced here' is slightly awkward; Before's phrasing ('exact porcelain output is not supplied and cannot be reproduced') reads more cleanly without changing any fact.",
-      "wallMs": 14787,
+      "feedback": "Neither fact moved. In After, Run A still stops naming repo-b with observed `feature/other` versus requested `feature/shared-change`, withholds the repo-b `Worktree ready at` line, and lists both created legs under `Preserved created legs:`; Run F now states the requested branch and the unavailable read-back explicitly (an improvement over Before, which only implied the expected branch via step 1) and keeps the same two-leg preservation list. Runs B and C stop before the creator without suffixing or reuse and name the colliding ref/path, D stops on decline without stash/clean/test fallback, and E asks once and waits. The one soft spot shared by both outputs is Run E, which never says the already-created home tree is retained; adding a short 'Preserve any already-created home tree' line to E (as B, C and D have) would make the 'each retains already-created legs' clause explicit rather than inferred from the absence of any deletion.",
+      "wallMs": 16076,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6277fb45c3d742b55ee8729481329feb0d40002b0fb2d70079065d3afb325f5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "647573d259c128e5263dc283c4c19c07b6129ca6d629c22cf245d9a160fd88e4",
       "candidateOutputSha": "5016804e31684ffa286cb22b14f8bacca7209e1418de10433f2b7c42f78b92b0",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep the two facts: each skips re-reading reference/ticket-acceptance.md because it was read at step 3 and remains in context (After even states explicitly that no read is issued and nothing is reconstructed), and each asks the four-option cut question (A in-scope, B deviates, C deferred, D repair via /skill:shape-ticket acme/widgets#77) for the verbatim owner-column row without choosing its disposition. Nothing moved. One minor drift in After worth watching: it renders the B and C options as bare labels (B) deviates, C) deferred) rather than the Before's B) deviates: <why> / C) deferred: <where> templated forms, and it adds a 'lean toward D' aside; neither breaks the facts, but if a future wording edit keys on the exact option templates, keep the ticket cut-question format sentence in the scoping paragraph explicit that the four option lines are rendered with their reason placeholders so the model does not abbreviate them under the enlarged assembly.",
-      "wallMs": 18165,
+      "feedback": "Neither fact moved. Both outputs skip the re-read of reference/ticket-acceptance.md on the same-session redraw, explicitly citing that it was read at step 3 and is still in context, and neither narrates a read tool call for it (After even states \"I issue no `read` and reconstruct nothing from memory\"). Both keep the owner-column row verbatim, cite the title/status-only contract as the contradiction, and route the disposition to the human through the four-option cut question (in-scope, deviates, deferred, repair) rather than silently dropping the row or assigning deviates/deferred. After's only drift is cosmetic: its option lines are terser than Before's (\"B) deviates\" without the `<why>`/`<where>` placeholders) and it adds \"I lean toward D\", which is a recommendation inside the allowed A-or-D set, not a disposition. If you want After to track Before more closely, keep the `B) deviates: <why>` / `C) deferred: <where>` placeholder form in the narrated option list so the reply grammar stays visible; otherwise the wording already delivers the Change without losing either fact.",
+      "wallMs": 9771,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6277fb45c3d742b55ee8729481329feb0d40002b0fb2d70079065d3afb325f5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "0bed3b305d971b1ed5b349c0de0e660ee9cd6f02343c661cd2472095fb1cc672",
       "candidateOutputSha": "4472daf414b8da47fd1e04294901a1ad5ab5aa2e8a7a261bacb3650fa06539ac",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs explicitly decline to re-read reference/ticket-acceptance.md after the redraw and both present the cut question with in-scope, deviate, defer, and repair options while holding the row verbatim and waiting. The one risk in After is the new item 2, 'Read the approved spec as the redraw's draft' — it narrates an extra read action not in the fixed observations and calls the draft 'approved' even though the observations say no approval survives the redraw; a stricter judge could read that as an unwarranted read or as contradicting the supplied context. To keep both facts safely while delivering the Change, either drop that item or reword it to something like 'Carry the existing draft forward as the redraw's input; narrate no new reference read,' and avoid the word 'approved' so the output stays consistent with the no-surviving-approval observation.",
-      "wallMs": 10654,
+      "feedback": "Neither fact moved: After still skips rereading reference/ticket-acceptance.md on the grounds that the step-3 read is in context, and still presents the cut question with in-scope, deviate, defer, and repair options while recommending rather than assigning a disposition. The one new element in After is item 2, a \"Required draft read\" of the approved spec as the redraw's draft; this is not a read of the ticket reference so redraw-reuse survives, but it is a narrated read action that the fixed observations never supplied, and a stricter judge could read it as an extra read step injected by the enlarged assembly's unmarked-route wording (\"resumes at step 4 with the carried spec\"). To keep the narration tight, either drop that item for the plain same-session redraw or phrase it as reusing the in-context spec rather than performing a read, so the only read decision narrated is the explicit non-read of the ticket reference.",
+      "wallMs": 11336,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

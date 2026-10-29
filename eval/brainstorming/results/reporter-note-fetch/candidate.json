@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "132999e6d0c73e893c7620969b27cfd168070609c29fd3a5ff8ef5dc7ae58920",
       "candidateOutputSha": "a72fb17b1d090ccab2c39c02bc9fa119bd463eb5369bdc0e8ec62b5c5c51c0ec",
       "facts": {
@@ -83,14 +83,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: both traces page independently (50-full, 2-short), the paged note is quoted verbatim with `comments: 52 fetched, 2 pages`, the three notes in multiple are in creation order with the contradiction left unresolved, ACs stay body-only, no-path and whole-ticket-failed carry the `none - ticket not fetched (<reason>)` line to a paste-rows gate, and both degraded branches keep the status line under `## Reporter notes (verbatim)` beside the body-only gate line. The one fact that fails in both outputs is terms: neither scout term list includes `418` from the older Reporter note (Before and After both stop at `move src/export-target.ts source`). To deliver the Change's 'carry every Reporter-note section into scout search terms', the instruction should say explicitly that scout terms include every literal token from matched notes, including file paths and numbers (e.g. `src/export-target.ts 418`), not just topical words; the After wording's 'keeping the literal path intact' only guards the path. Minor: After's incomplete block adds `comments: 50 fetched, 1 page` above the `comments incomplete after page 1 (timeout)` line - harmless here, but if the status is meant to be the first line under the heading, say so to avoid a judge keying on heading position.",
-      "wallMs": 28176,
+      "feedback": "After preserves every fact Before held: both traces still page independently (full page 1, short page 2 stop), the verbatim note block with `comments: 52 fetched, 2 pages` follows the body AC block, the three notes in multiple are quoted oldest-first with the contradiction left unresolved and untrimmed, ACs stay body-only, no-path/whole-ticket-failed list the ref and use the `none - ticket not fetched (<reason>)` line with the paste-rows option, and both degraded branches keep the body row and the body-only gate line without a new stop. The one fact that fails in both arms is `terms`: neither output's scout query includes `418` — Before and After both list only `src/export-target.ts` and `source`, so the wording change did not move it but also did not fix it; to land it, state explicitly that the scout query carries every literal token from each Reporter note, including numbers and paths (e.g. 'add `src/export-target.ts` and `418` verbatim to the query'), rather than relying on 'carry note terms'. One near-miss to watch in After: the incomplete branch now inserts `comments: 50 fetched, 1 page` above `comments incomplete after page 1 (timeout)`, pushing the failure status to the second header line; a stricter reader could say the status left the heading, so if you want the count line too, specify that the failure status stays on the first line under `## Reporter notes (verbatim)` and the count follows it.",
+      "wallMs": 28104,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "c9370d4ec25f12076699d4eb90cc8a59733f87d946c62e01eaff70fa70112282",
       "candidateOutputSha": "1652bffd6e4b7876756c5d1cf144060009795b93dbdc57f344c1d64c5fa83632",
       "facts": {
@@ -125,9 +125,9 @@
           "label": "held"
         },
         "degraded": {
-          "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         },
         "count": {
           "before": "holds",
@@ -135,62 +135,9 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every paged/multiple/no-path fact that Before kept: both traces page independently with the full-page-then-short-page rule, the scout terms carry src/export-target.ts and 418, the note block sits after the reused body AC block with `comments: 52 fetched, 2 pages`, the three notes stay verbatim in creation order with the contradiction left unresolved, and the `none - ticket not fetched (<reason>)` line reaches the gate with a paste affordance. The one regression is in the degraded branches: Before put the failure status in the heading itself (`## Reporter notes (verbatim) — comments not fetched (permission denied)` / `— comments incomplete after page 1 (timeout)`), while After demoted it to a body line under a bare `## Reporter notes (verbatim)` heading, so the fact that keys on the heading now fails even though the gate line and the retained body AC row are intact. To deliver the Change without losing this, keep the heading grammar explicit in the wording—e.g. state that on comment-fetch failure or incompleteness the Reporter notes heading itself is suffixed with `— comments not fetched (<reason>)` or `— comments incomplete after page N (<reason>)`, and that the body of that section may add `comments: N fetched, M pages` plus `No Reporter note text was fetched.`—rather than describing the status as something the note block 'reports', which the model read as permission to place it anywhere in the section.",
-      "wallMs": 26197,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "These are narrated replay actions, not live calls. No unprovided results are assumed.\n\n### Common fetched AC block\n\nThe four body-success branches below reuse this exact draft block:\n\n```markdown\n## Ticket acceptance criteria (verbatim)\n\nAcceptance criteria\n\n- [ ] Exported reports retain the visible columns.\n```\n\nTheir later spec preserves that row:\n\n```markdown\n## Acceptance criteria\n\nTicket acme/widgets#81, Acceptance criteria, rows verbatim:\n\n- [ ] Exported reports retain the visible columns.\n  in-scope\n```\n\n### Branch paged\n\n1. **Scout — independent ticket reads.** The body succeeds. Comment page 1 contains 50 ordinary comments; because it is full, the scout continues. Page 2 contains Lee’s time-2 comment and Sam’s time-1 comment. Its short length ends pagination. Sam’s `Reporter note:` counts regardless of author or its placement after `Overlap evidence:`; the overlap-evidence text is excluded.\n2. **Scout — keyword stage.** Resulting query terms: `report export split implementation maintaining behavior output visible columns src/export-target.ts 418`. No index result is supplied, so none is claimed.\n3. **Context-builder — independent ticket reads.** Independently reads the body and both comment pages, with the same pagination outcome. It produces the common fetched AC block and:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments: 52 fetched, 2 pages\n\n   Reporter note: Move the export implementation to src/export-target.ts; the source has 418 lines.\n   ```\n\n4. **Draft/spec/gate stage.** Preserve this note in the draft. Carry the move target into Design as a requirement, and retain 418 lines as a description of the source input—not a target or limit. The gate retains the visible-columns AC. Neither the path nor the measurement may disappear merely because it appeared on the second comment page.\n\n### Branch multiple\n\n1. **Scout — independent ticket reads.** The body succeeds. One short page contains Casey, Robin, then Sam, newest first. All three labeled sections count; no author filter applies. Sam’s trailing overlap evidence is excluded.\n2. **Scout — keyword stage.** Resulting query terms: `report export split implementation behavior output visible columns current file separate public entry point`. No index outcome is supplied.\n3. **Context-builder — independent ticket reads.** Independently reads the body and short comment page. It reuses the common fetched AC block and orders notes by creation time:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments: 3 fetched, 1 pages\n\n   Reporter note: Move the implementation to a separate file.\n\n   Reporter note: Preserve the public entry point.\n\n   Reporter note: Keep the implementation in its current file.\n   ```\n\n4. **Draft/spec/gate stage.** Record that Casey’s later instruction contradicts Sam’s earlier instruction; do not silently select the newest note. Preserve the public-entry-point requirement. The location conflict requires clarification before committing to a location-dependent design. Neither comment creates or replaces a ticket AC; the common AC remains unchanged.\n\n### Branch no-path\n\n1. **Scout — availability stage.** The overrides exclude this tracker. No ticket body or comment read is available. The only supplied ticket identifier is `acme/widgets#81`; no title-, body-, or note-derived keyword terms can be produced.\n2. **Context-builder — dispatch stage.** Do not dispatch it for this excluded reference. Record the unfetched reference rather than inventing ticket contents.\n3. **Draft stage.**\n\n   ```markdown\n   ## External context\n\n   Unfetched ref: acme/widgets#81 - tracker excluded by overrides.\n\n   ## Ticket acceptance criteria (verbatim)\n\n   none - ticket not fetched (tracker excluded by overrides)\n   ```\n\n   No reporter-note block can be populated from observations.\n4. **Spec/gate stage.** Keep `none - ticket not fetched (tracker excluded by overrides)` in Acceptance criteria. Show it at the gate and invite pasted ticket rows. Do not treat this as “no ticket” and draft replacement ACs.\n\n### Branch comments-failed\n\n1. **Scout — independent ticket reads.** The body succeeds; the comment read fails before page 1 with `permission denied`. Keyword terms come from the body only: `report export split implementation maintaining behavior output visible columns`.\n2. **Context-builder — independent ticket reads.** The same body success and comment failure produce the common fetched AC block and:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments not fetched (permission denied)\n   ```\n\n3. **Spec/gate stage.** Retain the common AC; do not invent note requirements or claim there are no notes. Continue without a new fetch-failure stop. Adjacent to the gate summary, show:  \n   `Implied requirements came from the body only - comments not fetched (permission denied); paste missing comment text.`\n\n### Branch incomplete\n\n1. **Scout — independent ticket reads.** The body succeeds. Page 1 contains 50 ordinary comments; page 2 fails with `timeout`. Keyword terms remain body-only: `report export split implementation maintaining behavior output visible columns`.\n2. **Context-builder — independent ticket reads.** Independently observes the same sequence. Reuse the common fetched AC block and write:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments incomplete after page 1 (timeout)\n   ```\n\n3. **Spec/gate stage.** Retain the common AC. No move target or source size is known in this branch. Continue with:  \n   `Implied requirements came from the body only - comments incomplete after page 1 (timeout); paste missing comment text.`\n\n### Branch whole-ticket-failed\n\n1. **Scout — independent ticket reads.** Body and comments are unavailable: `ticket unavailable`. No substantive ticket-derived keyword terms are available.\n2. **Context-builder — independent ticket reads.** Independently encounters the same failure. The resulting draft records:\n\n   ```markdown\n   ## External context\n\n   External refs not fetched (ticket unavailable):\n   acme/widgets#81\n\n   ## Ticket acceptance criteria (verbatim)\n\n   none - ticket not fetched (ticket unavailable)\n   ```\n\n3. **Spec/gate stage.** Preserve that `none` line, disclose the unfetched reference, and offer the gate’s paste-rows affordance. Do not infer ACs or reporter notes from the other branches.\n",
-        "words": 836,
-        "wallMs": 31766,
-        "mechanical": {
-          "count": "holds"
-        },
-        "judgeWallMs": 24915,
-        "facts": {
-          "paging": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "terms": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "verbatim": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "multiple": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "ac-source": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "no-path": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "degraded": {
-            "before": "fails",
-            "after": "fails",
-            "label": "intended but unchanged"
-          },
-          "count": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "After keeps every fact Before kept except degraded, where it also fails but for a different reason than the Expected list acknowledges: in both comments-failed and incomplete the failure status (`comments not fetched (permission denied)`, `comments incomplete after page 1 (timeout)`) is written on the line beneath a plain `## Reporter notes (verbatim)` heading rather than in the heading itself, which is what the fact keys on; Before put the status in the heading (`## Reporter notes (verbatim) — comments not fetched (permission denied)`) but still read as failing only if one is strict about the gate line, otherwise it is the stronger shape. To keep degraded while still delivering the change, the After wording for the degradation blocks should say the status is appended to the `## Reporter notes (verbatim)` heading (e.g. `## Reporter notes (verbatim) — comments incomplete after page 1 (timeout)`) rather than placed as a following line, and keep the adjacent gate sentence and the body-only AC exactly as After already does. Two minor drifts worth tightening that did not move facts: After's common AC block inserts a bare `Acceptance criteria` label line inside the verbatim block (Before quoted only the row), and the no-path/whole-ticket-failed branches dropped Before's explicit 'does not introduce a new stop / does not block the flow' phrasing, which a stricter judge could read against the no-path fact."
-      }
+      "feedback": "Correction to the table above is not possible, so read the degraded row as before=holds, after=fails: Before put the failure status in the heading itself (`## Reporter notes (verbatim) — comments not fetched (permission denied)` and `— comments incomplete after page 1 (timeout)`), while After demoted it to a plain body line under a bare `## Reporter notes (verbatim)` heading, which is exactly the heading-keyed detail the degraded fact requires; the gate line, retained body AC row, and no-new-stop behavior are otherwise intact in both branches. Everything else survived the wording change: paging, terms, verbatim, multiple, ac-source, and no-path all hold in After with the same substance as Before, and After even improved the AC-block reuse by stating it once and naming the reusing branches. To keep degraded while delivering the Change, make the note-block instruction say the comment-fetch failure status is appended to the `## Reporter notes (verbatim)` heading text (e.g. `## Reporter notes (verbatim) — comments not fetched (<reason>)` / `— comments incomplete after page N (<reason>)`) rather than written as a body line, and keep the `comments: N fetched, P pages` accounting line for the incomplete branch as Before did.",
+      "wallMs": 18284,
+      "verdict": "improved"
     }
   },
   "refresh": {
@@ -510,5 +457,5 @@
       }
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

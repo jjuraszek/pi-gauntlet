@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "b888e158af339cae14724d7660dbf96620113f22f111f8d2331ad0120872b9e5",
       "candidateOutputSha": "36842149644840360c68ee5e87f9c332f440b90f099bc7803ce82cd3aa057218",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs name templates/deck.pptx from the retained generator's load_presentation call at slides/generator.py:13, state in the first message that the supplied complete templates/ directory listing (README.md, chart.pptx) does not contain it, restate the same lookup and result at the top of the separate approaches message before any approach, and record it in the ## Problem excerpt; both continue to approaches on the recorded answer without asking where the file is, and both frame the lookup as the repository guide's supplied listing rather than a live filesystem call. After's wording is slightly safer on the replay fact ('checked it with the lookup the repository guide names') than Before's 'I looked it up', so keep that phrasing; the only thing to watch is the stray 'That file does not exist, though' in After, which asserts absence a shade more strongly than the listing evidence warrants—'is not in the supplied listing' would keep the replay fact unambiguous while still delivering the Change's lookup-and-result carry-through.",
-      "wallMs": 16793,
+      "feedback": "Nothing moved on this sample: both outputs name templates/deck.pptx from the generator.py:13 load call, state in the first message that the supplied templates/ listing (README.md, chart.pptx only) does not contain it, restate the missing file and the directory-listing lookup at the top of the approaches message, record the same in the spec ## Problem, continue to approaches without asking where the file is, and describe the listing as a supplied/guide-named observation rather than a live tool call. The Expected-to-move list predicts fails->holds for premise/approaches/problem, but the Before text already carries the traced dependency and lookup result through all three surfaces, so this case shows intended-but-unchanged behavior rather than a delivered improvement. After's wording is slightly tighter ('I checked it with the lookup the repository guide names, a directory listing of templates/') and keeps the premise correction in a labeled 'Corrected premise:' paragraph, which is a good anchor for the premise fact; if you want to further insulate the replay fact, prefer phrasing like 'per the supplied templates/ listing' over 'I checked it' so no reader could read a live filesystem lookup into it.",
+      "wallMs": 14812,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "3ee280450a4dee7df28b6706bd621e670be85bedea0fffc2093bbb25d379eb0f",
       "candidateOutputSha": "74283a74b9fa17f94e554d2cc7f6f8e461cff80deec4b873de572d977346971f",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After's first message names templates/deck.pptx from the retained generate() loader, says the supplied complete templates/ listing holds only README.md and chart.pptx, and names the repository guide's directory listing as the lookup; the approaches message restates the missing dependency against the guide-prescribed listing before presenting A/B; the ## Problem excerpt records the full path, the listing lookup and 'missing'; it carries the recorded answer forward instead of asking where the template is; and it consistently calls the listing 'supplied' rather than claiming a live read. Two small drifts worth tightening in After's wording: the approaches preamble says only 'contains no `deck.pptx`' rather than the full `templates/deck.pptx` path the premise and spec use (a stricter judge could read that as a partial restatement), and approach B retargets the loader to chart.pptx, which sits in tension with the recorded answer that the missing asset will be supplied - keep the full path in the restatement line and frame B explicitly as conditional on a verified compatibility check so the recorded decision clearly governs, while keeping the directory-listing lookup named in all three surfaces as After already does.",
-      "wallMs": 22006,
+      "feedback": "Nothing moved: both outputs name `templates/deck.pptx` from the retained loader, state it is absent from the supplied complete `templates/` listing, restate that lookup and result ahead of the approaches, record it in the spec ## Problem, continue past it using the recorded answer, and attribute the result to the supplied observation rather than a live lookup. After is actually tighter on the Change's intent — its first message states the corrected premise and carries the recorded decision forward instead of re-asking a scope question as Before does, and its ## Approaches opener explicitly says 'the guide-prescribed `templates/` listing contains no `deck.pptx`'. One small hardening worth keeping in After's wording: in the approaches opener, say 'the supplied `templates/` listing' (not just 'guide-prescribed') so the replay-evidence attribution is as explicit there as it is in the premise note and ## Problem; and keep approach B's compatibility caveat so the alternative never reads as a claim that `chart.pptx` was verified.",
+      "wallMs": 16424,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

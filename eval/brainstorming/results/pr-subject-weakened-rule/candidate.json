@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "51e239f263693062667180d47352acc6fc0bac6360f1beb997cd4532c2e8d2d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "ad6783940e743a97c1efc31255ade2caef0dee31d3b212bda7f445f44b1a4341",
       "candidateOutputSha": "72e04a4ffdffd0d76e1be18baf34c9e7762dfc9e05f26c2ec93c9f48e344282a",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: After still judges against `git show aaaaaaa:AGENTS.md`, calls the worktree 'optional' text a proposal the rework does not adopt, lists 'Audit events are optional' under Dropped claims, keeps Changes as a restore-not-rewrite of the existing emitter and base rule text, and the Rework record retains the full 40-char pre-rework SHA, `main @ aaaaaaa - merge: ccccccc`, `RT62 - fix`, and `Scoped tests: none run`. Two wording drifts are worth tightening before they cost a fact in another run: the Keeps line appends 'no behavior of the PR survives into the result', which is a contradictory gloss (a Keeps line should name what is preserved, not what is discarded) and could read as Keeps:none to a strict judge, and the per-PR `keeps:` collapsed from 'all original PR commits are preserved as history' to 'original commits preserved'. Prefer pinning the Keeps grammar in the rework-record instructions as 'Keeps: all original PR commits preserved as history; repair commits land on top' for both the top-level and per-PR lines, and drop any trailing clause about discarded behavior so the preservation fact stays unambiguous while the Change's expanded assembly leaves this record untouched.",
-      "wallMs": 16498,
+      "feedback": "In this run no fact moved: After still judges against the base-SHA rule after the clean merge, keeps the worktree 'optional' text as a proposal that the rework does not adopt, drops the 'Audit events are optional' claim, restores the existing emitter and rule rather than rewriting, and the Rework record carries the full pre-rework SHA, base/merge line, RT62 fix disposition, and no-run scoped result with Keeps naming the original commits. Two wording drifts are worth tightening so the preservation and proposal facts do not slip in other runs: After's Keeps line adds 'no behavior of the PR survives into the result', a gloss that invites a reader to doubt that commits are kept, and the per-PR keeps shrank to 'original commits preserved' (the accepted-variance run shows this line can collapse to 'keeps: none'); likewise After's Changes line dropped Before's explicit 'in place of the PR's \"optional\" edit', so the repaired policy change is now only named under Dropped claims. Keep Before's Keeps and Changes phrasing verbatim in the record template ('all original PR commits are preserved as history; the repair commits land on top of them' and 'restore the base-SHA AGENTS.md rule ... in place of the PR's \"optional\" edit') while applying the amendment-surface section 5 change, which does not need to touch the Rework record rules.",
+      "wallMs": 15691,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "51e239f263693062667180d47352acc6fc0bac6360f1beb997cd4532c2e8d2d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "9c4a87e2abab97fad617183b2e332ad537c26c386e9b60385d1aa8279532a5f2",
       "candidateOutputSha": "f7a57e5ed02c2ab853e2c30b7defb57f20358d853cf0e534383d945d054b490b",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No judged fact moved in this run: After still judges the Problem against the base-SHA AGENTS.md read via git show, states the merged worktree's optional wording does not supersede the governing constraint, names the dropped optional-events claim and restores (not rewrites) the existing emitter and rule text, and its Rework record keeps the full pre-rework SHA, base/merge result with (clean), the RT62 fix disposition, 'none run (clean merge)', and a keeps line naming all original commits (the 'keeps: none' variance named under Expected to move does not appear in this output). Two softenings in After are worth guarding against under the enlarged assembly even though they did not break a fact here: the thread line shrank to a bare 'RT62 - fix' (Before carried the reply's reasoning), and the acceptance criteria collapsed from three drafted rows to one, losing the explicit AGENTS.md-rule and retain-original-commits rows. To keep every fact robust while delivering the amendment-surface section-5 change, add a sentence in the rework-record rules stating that the per-PR keeps line must name the preserved original commits verbatim (never 'none' when commits are kept) and that thread lines carry disposition plus the reply's one-line basis, so later word-cap pressure trims prose elsewhere rather than the record.",
-      "wallMs": 15876,
+      "feedback": "No fact moved on this output: After still judges the Problem against the base-SHA AGENTS.md requirement and explicitly says the merged worktree's optional wording \"does not supersede the governing constraint\"; the Rework record still lists \"Audit events are optional\" under Dropped claims and its Changes line restores the existing emitter and governing rule with no replacement; Keeps names all original commits, the full pre-rework SHA, base/merge (clean), the RT62 fix disposition, and the none-run scoped result are all present. The expected `keeps: none` regression did not appear in this run. Two softenings worth noticing even though they do not fail a fact: After collapses the acceptance criteria from three drafted rows to one, dropping the AGENTS.md-rule row and the retains-original-commits row that gave the preservation and proposal facts independent AC backing, and it trims the RT62 thread line to a bare \"fix\" without the reply's \"existing emitter is sufficient\" reason. To keep every Before fact robust while delivering the amendment-surface change, keep the PR-subject rework wording that asks for each thread's disposition plus its one-line reason and for drafted AC rows covering every design-derived observable (emitter, rule text, commit preservation), and make the per-PR keeps line require naming the preserved commits rather than allowing a summary token.",
+      "wallMs": 17268,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

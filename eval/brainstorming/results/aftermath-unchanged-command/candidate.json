@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0b49ab8cf8f9f32239dea5cc50fa21673adab7577d48ed92ca05998e5e746b76",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "8762b1182dac09e10a38e4131ed2de9771c062045d5bc1fd77427eb5cc88ff19",
       "candidateOutputSha": "12bd17d483bfa93ed77ddd4829a3bd1802a185867002140e34681151f41cb8db",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: F, W and M's line-25 finding still quote the FAIL lines verbatim as the open question with no item, restore or re-dispatch; B names Task 1, the command, 3a8fad8c, exit 1, 'parser rejects empty input', the three options, an explicit Recommendation line and a wait; D hands eval/report-runner/report.md to the human without checkout/restore while keeping the artifacts and both In-flight paths; M admits only the line-40 lines and replay Tests text into the item and leaves line 25 on the step-6 exit. Two wording risks did not move facts here but are worth tightening: (1) F, W and M step-6 renders now add 'exit: pass, as recorded by the baseline bullet' to a FAIL that is a plan-text defect, which could read as a base-failure exit and confuse the two routes - keep the 'Task facts' block only for the fails-on row and leave command-contract/baseline FAILs as the verbatim open question; (2) D's 'Recommendation line to match' is a placeholder rather than a rendered line, and D (like Before) states the unchanged-command/unamended-anchor reasoning but not the explicit 'line number and task membership alone never suffice' sentence - render the recommendation literally and repeat that sentence inside D so the dirty fact stands on its own trace rather than on F's wording.",
-      "wallMs": 23986,
+      "feedback": "After keeps every fact Before kept: F and W quote the FAIL lines verbatim and form no item, B names Task 1/command/SHA/exit 1/summary with fix-first/narrow/amend and a recommendation then waits, D hands eval/report-runner/report.md to the human without restore while keeping artifacts and both In-flight paths, and M admits only the line-40 lines into the item while line 25 stays on the step-6 exit. Nothing moved, but two drifts are worth tightening. First, the Change says the step-6 exit under a grant should end with `Recommendation: none - <why>` and wait, yet After's F/B/D/W/M renderings all emit `Recommendation: fix-first - ...`; the wording that delivers the Change is to have section 5 state that on an unattributable or repeated-evidence outcome the rendered exit's final line is literally `Recommendation: none - <why>` and the turn ends waiting, rather than letting the base-failure template's fix-first recommendation leak into the second-identical-FAIL and writer-only exits. Second, After pads the F and W exits (and M's line-25 exit) with a `Task facts` block reporting `exit: pass` from the baseline bullet, which blurs a plan-text contract defect with a base-failure row; keep the second-identical-FAIL exit as the verbatim open question plus the attribution explanation only, and reserve the Task/SHA/exit/options block for the `fails on <sha>` and dirtied rows. Both Before and After could also strengthen D by restating in that trace that shifted line number and task membership alone never attribute, rather than relying on F's statement.",
+      "wallMs": 26256,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0b49ab8cf8f9f32239dea5cc50fa21673adab7577d48ed92ca05998e5e746b76",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "ec2b42f7db1d8cb0f4f85e2494eb09e6e0205f2862cbd0d943d67a6769a90a68",
       "candidateOutputSha": "b5c2282d64f74127f1fd751019364a82c302ea539e24cc153c57debb21c296bb",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps F, D, W and M intact: it quotes each FAIL verbatim, refuses attribution from shifted line numbers or task membership, hands the dirty eval/report-runner/report.md to the human without restoring it while preserving artifacts and in-flight paths, and partitions M so only the line-40 replay block feeds a Task 2 item while the line-25 baseline block keeps its step-6 exit. The one movement is B: Before's base-failure exit said the fix-first/narrow/amend choices must come 'with a recommendation', whereas After's step 5 presents the same choices and pauses but never mentions a recommendation at all, so the fact's 'a recommendation' element is no longer shown. To keep B while still delivering the Change's `Recommendation: none - <why>` behavior, add to After's B step 5 a sentence such as 'End the exit with a `Recommendation:` line (`none - <why>` when the grant leaves the choice to the human) and wait under the grant rather than auto-taking it', so the base-failure exit still carries an explicit recommendation line while honoring the no-auto-recommendation rule.",
-      "wallMs": 21809,
+      "feedback": "Only the baseline fact moved: Before's B exit says the fix-first/narrow/amend choices are presented \"with a recommendation\" before the blocking pause, while After's B step 5 lists the same three choices and the pause but never mentions a recommendation line at all, so the fact's \"a recommendation and pause\" clause fails. The new Change wording (ending human-facing outcomes with `Recommendation: none - <why>` and waiting under any grant) appears to have displaced the base-failure exit's recommendation requirement rather than extended it; to keep baseline holding while delivering the Change, state explicitly in the base-failure exit that the three options are followed by an own-line `Recommendation:` (either a named option or `none - <why>`) and that the parent then pauses without auto-taking it under the grant. Two smaller drifts worth tightening: After's D says \"preserve the in-flight spec and plan\" instead of echoing the literal `In-flight:` paths, and After's F attaches the fix-first/narrow/amend menu to the second-identical-FAIL exit (that menu belongs to the base-failure exit); neither flipped a fact here, but naming the In-flight paths verbatim and keeping the two exits' menus distinct would make the traces more robust. fail, dirty, writer and mixed hold in both outputs; M's partition and the quoted evidence blocks are preserved correctly.",
+      "wallMs": 23205,
       "verdict": "improved"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "046c7bb9a20ff6bf528fe609ce1a86e038962d98a587d13f5f9bdac95ac7181c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "db14dde99866b2b4a69caa52442e4b885343cb7ca03623b6705482e1efbd05a3",
       "candidateOutputSha": "b97f9bc49a151b3667314abcb492c268672f89d4ce713eca40f387a8c1f1f785",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. In the readable branch, After still runs the in-context check first, finds the restored session empty, narrates the `read` of skills/brainstorming/reference/ticket-acceptance.md with its observed success, and only then runs the Spec Self-Review inline checks and evaluates the gathered row, so restored-read holds exactly as in Before. In the unreadable branch, After narrates the attempted `read`, the unreadable-file error, a blocking stop that forbids reconstruction from memory and refuses to treat the bundled copy as context, skips the inline checks, makes no disposition judgment, and does not advance to step 9, so blocking-stop holds as well. The After wording is slightly tighter (merging the in-context check into step 1 and folding the non-advance bullets into a single 'Do not continue' item) without dropping any of the elements the facts key on; keep the explicit 'check fails / not in context' line before the read and the explicit 'no bundled copy, no memory, no step 9' bullets after the error, as both outputs do, and both facts remain stable under the enlarged assembly.",
-      "wallMs": 9645,
+      "feedback": "Neither fact moved. In both outputs the readable branch narrates an in-context check that fails on restoration, an explicit `read` of skills/brainstorming/reference/ticket-acceptance.md before any step-8 lint, and only then runs the inline checks; the unreadable branch narrates the attempted read, the unreadable-file error, a blocking stop that skips the lint, makes no disposition on the gathered row, does not advance to step 9, and refuses to reconstruct the reference from memory or the bundled copy. After is slightly leaner (it folds the in-context check into step 1 and drops Before's explicit 'does not count as session context' bullet in the readable branch), but it keeps the equivalent 'Do not treat any bundled copy as session context' line in the unreadable branch, which is where the fact keys on it. To keep both facts robust under further wording changes, retain the three load-bearing phrases: 'the restored session has nothing in context, so the read is required before the rest of step 8', 'Observed outcome: unreadable-file error', and 'Do not reconstruct ... Do not treat any bundled copy as session context' before the 'Do not continue' list.",
+      "wallMs": 6457,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "046c7bb9a20ff6bf528fe609ce1a86e038962d98a587d13f5f9bdac95ac7181c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "feb5afdadba81017a835f659c84a7d267aa5090b3d452e19f5f0ba6587d92de6",
       "candidateOutputSha": "13a287b7ddadb64ededca831c9cda0d22403392e706afab7eb9434a15a808c91",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs narrate the step-8 reference read as a fresh required action before the self-review/lint in the readable branch, and both narrate the attempted read followed by a blocking stop with no reconstruction, lint, or advancement in the unreadable branch. The only softening in After is that it drops Before's explicit justification ('because it is not in session context'), so the 'rather than assuming an earlier session read survives restoration' half of restored-read is now carried only implicitly by the ordering; to keep that fact robust while retaining After's cleaner Required read / Stage action / Stage boundary structure, add a short clause to the readable branch's item 1 such as 'the reference is not in session context after restoration, so an earlier-session read is not assumed to survive.' After's explicit 'Stage boundary' item (no reconstruction of self-review instructions, no claimed lint pass, step 9 only after step 8 completes) is a useful tightening and should be kept.",
-      "wallMs": 9888,
+      "feedback": "Neither fact moved: both outputs narrate the step-8 read of reference/ticket-acceptance.md before resuming the lint/self-review in the readable branch, and both narrate the attempted read followed by a blocking stop with no reconstruction, lint, or advance in the unreadable branch. The one thing After loosened is the explicit rationale — Before's readable item 1 says the read is required \"because it is not in session context,\" which directly evidences the \"rather than assuming an earlier session read survives restoration\" clause; After only says \"Required read\" with an absolute-path note, leaving that inference to the reader. To keep restored-read unambiguous while delivering the labeled Required read/Stage action/Stage boundary structure, retain a short clause such as \"required because the reference is not in restored session context; an earlier session's read does not survive restoration.\" The unreadable branch's \"Blocking stop: Stop step 8. Do not reconstruct ... perform the remaining lint, or advance\" is as strong as Before and should be kept verbatim.",
+      "wallMs": 10285,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

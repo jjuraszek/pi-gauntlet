@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1ea278114c284a4100dabb9024429627b7ea15458fa5d54c4c9e55d8fd17182e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "c696c09f7f2d757cb1fcf0079fa378e3024d55cc5e7f978414da41bafabc2ed5",
       "candidateOutputSha": "fecf77434b8a872b3a21665545dd66fe922bed95335663e7af0607b1c06fc010",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After. Both outputs strip only the first non-ref token `merge-forward` after the `#12 #13` run, carry `keep retry limits` verbatim, admit in order, provision `fix/retry` rather than a new branch, merge #13 (`merge PR #13 head bbbbbbb into PR #12` → ddddddd) before origin/main (→ eeeeeee), validate both original heads as ancestors, omit any Rework base line, keep B on `SYNC=rebase` with `merge-forward` as intent, keep C free-text with #12 as context only, and keep D on the unmarked spec-only route with no thread fetch, no Rework record, and the token redundant. After even adds useful detail Before lacked (per-PR provenance subsections, explicit base-SHA constraint reads). One wording risk worth tightening: After's step 6 says `Run worktree add for fix/retry`, which a reader could misread as minting a new branch; phrasing it as `check out the existing fix/retry branch (HEAD = aaaa…)` as Before does keeps the leading fact unambiguous while still delivering the member-then-base merge provisioning the Change describes.",
-      "wallMs": 13996,
+      "feedback": "After moves no fact on this sample: Trace A still strips only the first non-ref token after the `#12 #13` run, carries `keep retry limits` verbatim, admits in order, checks out `fix/retry` at aaaa… rather than minting a branch, merges #13 with the canonical `merge PR #13 head bbbbbbb into PR #12` subject before `origin/main`, validates both original heads as ancestors, and prints a record without a `Rework base` line; Trace B keeps `SYNC=rebase` with `merge-forward` as intent text on the single-PR rework route; Trace C stays free text with #12 as context-builder input and no pr-head provisioning; Trace D keeps the unmarked spec-only route with the redundant token, no thread fetch, skipped binding/context-builder/scout/gather, no `## Rework record`, withheld 6 and the new-commit persistence. The After wording is slightly tighter and adds useful explicit statements (`only that token is stripped`, `No rework-base ref is written`, provenance subsections), all of which reinforce the facts; the one point worth keeping an eye on is that After folds the shared step-1 reset and `pr-subject.md` read into a preamble rather than narrating them per trace, which is fine here but should stay explicit if a future sample's facts key on per-trace read order. No wording change is needed to deliver the Change while keeping every fact Before kept.",
+      "wallMs": 13906,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1ea278114c284a4100dabb9024429627b7ea15458fa5d54c4c9e55d8fd17182e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "2ff4070e5e8dad97571da7c2cebc98997332d8bb462ec87afa3c4532fead5fc3",
       "candidateOutputSha": "30794d85601266fc2854aca7ff8d5254de1950620258cb0fcff44f76739682c5",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After keeps every A fact Before kept: the leading run is parsed as #12 #13, only the first intent token merge-forward selects merge provisioning, keep retry limits is retained as intent, #12 then #13 are admitted in order, #13's original head is merged into home before fetched main (ddddddd then eeeeeee), both original heads are preserved and named with Pre-rework head lines in the compact record, the member-merge line is kept out of the committed record, and no Rework base field appears. B and C are handled as in Before (keep selects rebase, later merge-forward stays intent; C is free text with #12 as context), and D keeps the unmarked spec-only route with no Rework record and no thread fetch while ordinary admission still applies. The one wording risk in After is that step 3 for A never names fix/retry explicitly—it says 'home first' and 'selected-home ... checks', which a careful reader resolves to #12's branch, but Before stated 'provision home fix/retry at original head aaaaaaaa…'. To make the leading fact unambiguous, add 'home fix/retry (no new branch)' to A's provision-and-sync step; otherwise the After wording delivers the Change without weakening any of the four facts.",
-      "wallMs": 22355,
+      "feedback": "After keeps every fact Before kept: A strips only the leading `merge-forward`, admits #12 then #13 in order, carries `keep retry limits`, merges #13's original head before fetched main (ddddddd, eeeeeee), keeps the member-merge line out of the Rework record with no `Rework base:` field; B defaults to rebase and keeps the full intent; C stays free text with #12 as context; D keeps the unmarked spec-only route, creates no Rework record, skips thread fetching, and withholds 6. The one soft spot is that After's A trace never names the selected home branch — it says 'home' and 'Preserve both original-head identities' but drops Before's explicit 'provision home `fix/retry` at original head `aaaaaaaa…`', so a strict reader of the `leading` fact has to infer fix/retry from the fixed observations. To deliver the Change while keeping that fact airtight, add one clause to step 3 such as 'provision home `fix/retry` at its original head `aaaaaaaa…` (no new branch) and record both original-head refs', which also restates the branch-preserving wording the Change asks for.",
+      "wallMs": 19342,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

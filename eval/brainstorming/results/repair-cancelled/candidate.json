@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "85d9650198051139ac0b5cde1588e1ab6c9f86361d0d2bd2bddc6ef4fa165ffb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "aaf6b412c9e928a7014603d40901806a880de8d2817ce6f5a76f7b982ae2e4dd",
       "candidateOutputSha": "089bbf0d2dca243f19803f10e05bef38d2c22bb5ccff971fc20e6fecd882c4a6",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs re-ask the cut question after the cancelled repair with the row \"The export includes the owner column.\" quoted unchanged, and both recommend A (in-scope) rather than marking the row deviates or deferred. One thing worth watching in After: the re-rendered question rewrites the option wording (A becomes \"add 'owner' to the shared column list at src/export/csv.ts:40...\", D drops the \"because\" clause and \"row\" label) relative to the recorded original cut question, so while the row text is unchanged, the menu is not a verbatim re-render. If the Change's \"re-render in full with the row unchanged\" is meant to pin the whole question, say so explicitly (e.g. \"re-ask the cut question verbatim: same row, same four options, same labels\") so a model doesn't treat the options as free to rephrase; as written the After output still satisfies f1 because the fact keys only on the row. Also note After blocks the approaches message until the re-ask is answered, while Before presents approaches under an in-scope default and re-asks at the end - both keep f2, but if the author wants one of these orderings, the wording should name which.",
-      "wallMs": 12594,
+      "feedback": "Neither fact moved: both outputs re-ask the cut question after the cancelled repair with the row quoted verbatim (\"The export includes the owner column.\") and both recommend A rather than marking the row deviates or deferred. The After output changes where the re-ask lands (it blocks the approaches message instead of trailing it) and rewrites option A into a commitment to one specific design (extend the shared `tableColumns` list) while option D grows a quoted row and drops the 'because' clause; the row itself stays unchanged so f1 still holds, but if a future fact keys on the re-rendered options matching the recorded question's labels, this drift would fail it. To keep every fact Before kept while delivering the re-render-in-full rule, have the scoping sentence say the re-ask reproduces the recorded cut question's lead-in and A-D option text verbatim with the row unchanged, adding only the one-line note that the repair was cancelled, rather than letting the re-render restate options in the author's current design terms.",
+      "wallMs": 13685,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "85d9650198051139ac0b5cde1588e1ab6c9f86361d0d2bd2bddc6ef4fa165ffb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "fe576228d9841f956061fddb03f65f38f5375e755e64aafcd3bfdab6d0d24e65",
       "candidateOutputSha": "9cd686818ca0b42f72d8b0adf1ff227c02044fea737bb85abd45c97a8393fcd4",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs re-ask the cut question in full after the cancelled repair, quote the owner-column row verbatim and unchanged, render all four labeled options A-D on their own lines with the recommendation on a final line, and recommend A rather than marking the row deviates or deferred. After does trade Before's block-quoted row for an inline quotation and adds extra framing prose (unverified owner-data source, 10k-row timing, button placement) ahead of the menu; that is harmless for f1 and f2, but if you want the re-render to stay visibly 'in full' and keep the row conspicuous, consider retaining the standalone quoted row line before the options and trimming the pre-menu framing so the scoping-sentence extension's intent (full re-render with the row unchanged) is unmistakable without relying on the reader to spot the inline quote.",
-      "wallMs": 8055,
+      "feedback": "Neither fact moved. Both outputs re-ask the four-option cut question after the cancelled repair with the owner-column row text unchanged and recommend A, so neither marks the row deviates or deferred. The only drift worth noting in After is presentational: Before re-rendered the row as a standalone quoted line before the question, whereas After folds the verbatim row into the first prose sentence and adds extra framing (10k-row timing, unverified owner-data source) before the menu. That still satisfies f1 as written, but since the Change requires the re-ask to re-render in full with the row unchanged, keeping the row as its own quoted line directly above the lettered options (as Before did) would make the re-render unambiguous while preserving After's added framing and the A/B/C/D + Recommendation layout.",
+      "wallMs": 7878,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }

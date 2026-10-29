@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b928bbda75a12ebbd47d53028e22244912a0b069b49f7481b3dd9b37759d036a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "a803f4d0a767181c696f17547d243014bb7b1c3a89775fe9007f9c050c23ba06",
       "candidateOutputSha": "5020bed8c892dab3d5afcb9870400a5d95dc4fe6a143f93eca65a1ce421a2885",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this sample. In A, After still treats `2; fund 3 fix rounds` as a clean approval with no change-request round, narrates the Amend-grant value verbatim as the option-2 description followed by `; fund 3 fix rounds`, writes `**Engine:** waves`, amends the spec commit, verifies HEAD, completes the phase and routes to writing-plans, all explicitly as narration rather than claimed execution. In B, After re-presents the full gate, says the token alone is not an approval and that nothing was recorded, and asks for `1` or `2` with the optional suffix. The only drift worth watching is that After's B says \"I haven't recorded anything\" rather than Before's more specific \"the spec still reads `**Amend-grant:** none`\"; keeping that explicit header-unchanged sentence (e.g. \"nothing has been written; the spec still reads `**Amend-grant:** none`\") would make the no-write narration unambiguous under future assembly growth while costing nothing against the Change.",
-      "wallMs": 11379,
+      "feedback": "Neither fact moved. In both Before and After, observation A treats `2; fund 3 fix rounds` as an approval with no change-request round, narrates the `**Amend-grant:**` line set to the exact option-2 menu description followed by `; fund 3 fix rounds`, writes `**Engine:** waves`, amends the spec commit, verifies HEAD, and routes to writing-plans; After additionally spells out the Standing-grants read and the malformed-value stop, which is consistent with the Change's independent decoding of amendment and fix-round capabilities. In both versions observation B re-presents the full gate, explicitly asks for `1` or `2`, states nothing has been recorded/written, and does not treat the bare budget token as approval; After moves the explanation above the gate restatement but keeps all three menu rows and the funding-suffix instruction. The After wording keeps everything Before kept while delivering the Change; the only nicety worth retaining from Before in B is the explicit line that the spec still reads `**Amend-grant:** none`, which makes the no-write narration unmistakable.",
+      "wallMs": 10604,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b928bbda75a12ebbd47d53028e22244912a0b069b49f7481b3dd9b37759d036a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "c3adabccee3d0b872c987ba70ff5d82e39d658107c2891fc353618cd6ffda64b",
       "candidateOutputSha": "f2bb93fe65348277ca619ff0efed40b6d3bdca611901807f8d41351148face33",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After A now persists the Amend-grant value exactly as the fact spells it: the full option-2 description including its terminal period, followed immediately by `; fund 3 fix rounds`, with Engine: waves, an amend of the existing commit, verification, and a direct handoff to writing-plans with no change-request round — this is what moved funded-value from fails to holds, since Before A dropped the period at the end of the menu description (`...spec approval; fund 3 fix rounds`) and so did not preserve the description verbatim. After B still re-presents the gate, states nothing is persisted and no phase transition occurs, and explicitly asks for `1; fund 3 fix rounds` or `2; fund 3 fix rounds`, so token-needs-approval holds in both arms. One caution for the After wording: B drops the gate's own `Add \"; fund N fix rounds\"...` suffix line when re-presenting; it does not affect this fact, but any future fact keyed on a verbatim re-render of the gate would fail, so prefer re-presenting the gate text exactly (including the suffix instruction) and placing the 'not an approval' explanation outside the quoted gate block.",
-      "wallMs": 18501,
+      "feedback": "After moved funded-value from fails to holds: Before A narrated the Amend-grant value but dropped the trailing period of the option-2 description, writing \"...a spec approval; fund 3 fix rounds\" instead of the exact menu text plus suffix \"...a spec approval.; fund 3 fix rounds\", so the persisted value was not the menu description verbatim; After A renders the header exactly, keeps Engine: waves beside it, amends the existing commit preserving the council audit, and proceeds to writing-plans with no change-request round while stating plainly that no tool actions occurred. Both arms keep token-needs-approval: B re-presents the full 1/2/3 gate, says the bare budget token does not approve or write anything, and asks for `1; fund 3 fix rounds` or `2; fund 3 fix rounds`. To keep this stable, the wording should continue to require the Amend-grant value to be the option description copied character-for-character (including its final period) followed by the funding suffix, and keep the budget-only branch re-rendering the gate verbatim with an explicit no-write statement; After A's hedge that Standing-grants validation \"is not claimed\" is acceptable for a text-only replay but should not be allowed to soften into refusing to narrate the write.",
+      "wallMs": 16108,
       "verdict": "improved"
     }
   },
-  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }
