@@ -1548,7 +1548,7 @@ test("shape guard: a one-task tasks wave and a chain step are not the lone shape
   assert.equal(await firstCallResult(h, "s2", { chain: [{ agent: "implementer", task: "fix" }] }), undefined);
 });
 
-const waveResult = (id: string, results: { agent: string; exitCode: number }[], isError = false) => ({
+const waveResult = (id: string, results: { agent: string; exitCode: number; interrupted?: boolean }[], isError = false) => ({
   toolName: "subagent",
   toolCallId: id,
   isError,
@@ -1556,6 +1556,95 @@ const waveResult = (id: string, results: { agent: string; exitCode: number }[], 
   details: { results },
 });
 const okWave = (id: string) => waveResult(id, [{ agent: "implementer", exitCode: 0 }]);
+
+for (const delivery of ["live", "session_start", "session_switch", "session_fork", "session_tree"]) {
+  test(`closure completion excludes interrupted children per result: ${delivery}`, async () => {
+    const cwd = tempCwd();
+    const reviewer = { agent: "conformance-reviewer", exitCode: 0 };
+    for (const row of [
+      { name: "interrupted single/resumed child", results: [{ ...reviewer, interrupted: true }], qualifies: false },
+      { name: "legacy success", results: [reviewer], qualifies: true },
+      { name: "explicit uninterrupted", results: [{ ...reviewer, interrupted: false }], qualifies: true },
+      { name: "nonzero exit", results: [{ ...reviewer, exitCode: 1 }], qualifies: false },
+      { name: "exact agent match", results: [{ agent: "conformance-reviewer-extra", exitCode: 0 }], qualifies: false },
+      { name: "empty async/management", results: [], qualifies: false },
+      { name: "mixed parallel", results: [{ ...reviewer, interrupted: true }, reviewer], qualifies: true },
+      { name: "earlier success in errored chain", results: [reviewer, { agent: "implementer", exitCode: 1 }], isError: true, qualifies: true },
+    ]) {
+      const result = waveResult("review", row.results, row.isError);
+      const h = harness({ cwd, branch: verifyBranch() });
+      await h.emit("session_start");
+      if (delivery === "live") await h.emitEvent("tool_result", result);
+      else {
+        h.setBranch(verifyBranch([{ type: "message", message: { role: "toolResult", ...result } }]));
+        await h.emit(delivery);
+      }
+      assert.equal((await completePhase(h, "verify")).details.error,
+        row.qualifies ? undefined : "no conformance-reviewer dispatch observed", row.name);
+    }
+  });
+
+  test(`cadence completion excludes interrupted children and preserves ties: ${delivery}`, async () => {
+    const cwd = tempCwd();
+    const implementer = { agent: "implementer", exitCode: 0 };
+    for (const row of [
+      { name: "interrupted implementer", results: [{ ...implementer, interrupted: true }], prior: false, warns: false },
+      { name: "interrupted SR", results: [{ agent: "spec-reviewer", exitCode: 0, interrupted: true }], prior: true, warns: true },
+      { name: "interrupted CR", results: [{ agent: "code-reviewer", exitCode: 0, interrupted: true }], prior: true, warns: true },
+      { name: "legacy implementer", results: [implementer], prior: false, warns: true },
+      { name: "explicit uninterrupted SR", results: [{ agent: "spec-reviewer", exitCode: 0, interrupted: false }], prior: true, warns: false },
+      { name: "failed reviewer", results: [{ agent: "code-reviewer", exitCode: 1 }], prior: true, warns: true },
+      { name: "wrong agent", results: [{ agent: "spec-reviewer-extra", exitCode: 0 }], prior: true, warns: true },
+      { name: "empty async/management", results: [], prior: true, warns: true },
+      { name: "mixed parallel tie", results: [implementer, { agent: "spec-reviewer", exitCode: 0 }, { agent: "code-reviewer", exitCode: 0, interrupted: true }], prior: false, warns: false },
+      { name: "earlier review in errored chain", results: [{ agent: "code-reviewer", exitCode: 0 }, { ...implementer, interrupted: true }], prior: true, isError: true, warns: false },
+    ]) {
+      const prior = row.prior ? [subagentResult(["implementer"])] : [];
+      const result = waveResult("work", row.results, row.isError);
+      const h = harness({ cwd, branch: implementBranch(prior) });
+      await h.emit("session_start");
+      if (delivery === "live") await h.emitEvent("tool_result", result);
+      else {
+        h.setBranch(implementBranch([...prior, { type: "message", message: { role: "toolResult", ...result } }]));
+        await h.emit(delivery);
+      }
+      await h.emitEvent("tool_call", commitCall("commit"));
+      const [warning] = await h.emitEvent("tool_result", commitResult("commit")) as ({ content: { text: string }[] } | undefined)[];
+      assert.equal(warning !== undefined, row.warns, row.name);
+      if (warning) assert.match(warning.content[0].text, /no spec-reviewer or code-reviewer observed/, row.name);
+    }
+  });
+}
+
+test("interrupted implementer waves still spend rounds and granted credits and nudge open tasks live and on replay", async () => {
+  const cwd = tempCwd({ piGauntlet: { closureReview: { maxFixRounds: 1 } } });
+  const interrupted = waveResult("paused", [{ agent: "implementer", exitCode: 0, interrupted: true }]);
+  for (const delivery of ["live", "session_start"]) {
+    const trail = [subagentResult(["conformance-reviewer"]), taskSnapshot([{ name: "repair", status: "in_progress" }])];
+    const h = harness({ cwd, branch: verifyBranch(trail) });
+    await h.emit("session_start");
+    if (delivery === "live") {
+      const [nudge] = await h.emitEvent("tool_result", interrupted) as { content: { text: string }[] }[];
+      assert.match(nudge.content[0].text, /0: repair \(in_progress\)/);
+    } else {
+      h.setBranch(verifyBranch([...trail, { type: "message", message: { role: "toolResult", ...interrupted } }]));
+      await h.emit(delivery);
+    }
+    assert.equal((await firstCallResult(h, "blocked", implementerWave()))?.block, true);
+    assert.equal((await grant(h, "grant", { rounds: 1, reason: "one more repair" })).details.error, undefined);
+    assert.equal(await firstCallResult(h, "funded", implementerWave()), undefined);
+    if (delivery === "live") await h.emitEvent("tool_result", interrupted);
+    else {
+      h.setBranch(verifyBranch([...trail,
+        { type: "message", message: { role: "toolResult", ...interrupted } }, grantResult(1),
+        { type: "message", message: { role: "toolResult", ...interrupted } },
+      ]));
+      await h.emit(delivery);
+    }
+    assert.equal((await firstCallResult(h, "spent", implementerWave()))?.block, true);
+    assert.equal((await grant(h, "again", { rounds: 1, reason: "another repair" })).details.error, undefined);
+  }
+});
 
 const guardedHarness = (settings: unknown, extra: unknown[] = []) =>
   harness({ cwd: tempCwd(settings), branch: verifyBranch([subagentResult(["conformance-reviewer"]), ...extra]) });

@@ -89,9 +89,9 @@ interface PlanCheckDetails {
 // child run in the result details (pi-cohort SingleResult: { agent, exitCode }).
 // Management mode and async dispatches return results: [] and fail this check.
 const qualifiesAsClosureDispatch = (details: unknown): boolean => {
-  const d = details as { results?: { agent?: unknown; exitCode?: unknown }[] } | undefined;
+  const d = details as { results?: { agent?: unknown; exitCode?: unknown; interrupted?: unknown }[] } | undefined;
   if (!d || !Array.isArray(d.results)) return false;
-  return d.results.some((r) => r?.agent === "conformance-reviewer" && r?.exitCode === 0);
+  return d.results.some((r) => r?.agent === "conformance-reviewer" && r?.exitCode === 0 && r?.interrupted !== true);
 };
 
 // One conformance fix round = one non-error subagent result carrying at least one
@@ -140,11 +140,11 @@ const CADENCE_AGENTS = ["implementer", "spec-reviewer", "code-reviewer"] as cons
 type CadenceAgent = (typeof CADENCE_AGENTS)[number];
 
 const completedCadenceAgents = (details: unknown): CadenceAgent[] => {
-  const d = details as { results?: { agent?: unknown; exitCode?: unknown }[] } | undefined;
+  const d = details as { results?: { agent?: unknown; exitCode?: unknown; interrupted?: unknown }[] } | undefined;
   if (!d || !Array.isArray(d.results)) return [];
   const seen = new Set<CadenceAgent>();
   for (const r of d.results) {
-    if (r?.exitCode === 0 && (CADENCE_AGENTS as readonly unknown[]).includes(r?.agent)) {
+    if (r?.exitCode === 0 && r?.interrupted !== true && (CADENCE_AGENTS as readonly unknown[]).includes(r?.agent)) {
       seen.add(r.agent as CadenceAgent);
     }
   }
