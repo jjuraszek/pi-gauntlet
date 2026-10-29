@@ -1,0 +1,34 @@
+{
+  "sample": "pr-subject-legacy-ref-errors",
+  "arm": "baseline",
+  "skillSha": "a4b02355cdac62efa7701161770c59746a506c0825453aa472993fe1e09cc5ee",
+  "inputSha": "95a879b3895c7ffa1dfee7c08f4184e02b2fe5dde986c3799ee04e632a86afe7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finishing `/work/widget/.worktrees/retry`: PR-subject row 1, ref boundary for member #13\n\n**State on entry**\n- The scoped verification set and the task/thread evidence were captured before the strip.\n- The strip/seal block finished with `--option pr --base origin/main`. The plan is stripped and the telemetry record is sealed. Both live as local commits on `retry`, so HEAD is `eeeeeee` or its seal descendant.\n- The home ref `refs/gauntlet/pre-rework/pr-12` already exists and equals `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. It is left as is: no rewrite, no overwrite, no reset.\n- Next operation: write the ref for member #13 with its recorded original, `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`.\n\n## Case A: the probe fails\n\n```\ngit -C \"$WORKTREE\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-13\n→ exit 128: fatal: cannot read ref: permission denied\n```\n\nExit 128 is neither \"present\" (0) nor \"absent\" (1), so it is a command error. The ref state of #13 is unknown. The flow stops here, at the probe, before any `update-ref` for #13 runs.\n\n```\nStopped: provenance ref for PR #13 could not be read\n(git rev-parse refs/gauntlet/pre-rework/pr-13 exited 128:\n fatal: cannot read ref: permission denied).\n```\n\n## Case B: the probe reports absent, then the write fails\n\n```\ngit -C \"$WORKTREE\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-13   → exit 1 (absent)\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-13 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n→ exit 1: fatal: update_ref failed: permission denied\n```\n\nThe skill rule here is \"stop on update-ref failure\". The flow stops at the write, so `pr-13` is still unwritten.\n\n```\nStopped: could not write refs/gauntlet/pre-rework/pr-13 -> bbbbbbb\n(git update-ref exited 1: fatal: update_ref failed: permission denied).\n```\n\n## Same outcome in both cases\n\n**Where the stop sits**\n- The strip/seal has already completed and stays committed locally on `retry`. Nothing is reverted or re-sealed.\n- The push has not happened. The ref loop for all recorded PRs must finish before the push.\n\n**What does not run**\n- No push of `HEAD:refs/heads/retry`. Origin is unchanged.\n- No `gh pr view 12 --json body`, no scratch body, no `gh pr edit`.\n- No member refresh, no closure question, no `gh pr close`.\n- No review-thread replies, no merge, no ticket change.\n\n**What is not done to the refs**\n- The existing home ref `pr-12` stays as it is.\n- There is no attempt to repair provenance, force or overwrite a ref, reset, or retry the probe or the write.\n\n**Report**\n\n```\nPush not performed; PR #12 description not edited; closure not offered.\nMember PRs #13 left open.\nWorktree preserved at /work/widget/.worktrees/retry (branch retry, sealed locally).\n```\n\nThe ship phase is **not** marked complete. Fix the permission on `refs/gauntlet/` yourself, then re-run `/skill:finishing-a-development-branch /work/widget/.worktrees/retry`. On that run, preflight and the ref loop are evaluated again, the seal reports `already sealed`, and push is offered only if every ref is written.\n",
+      "words": 426,
+      "wallMs": 15427,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A — Member-ref probe fails\n\nStop at:\n```bash\ngit -C \"/work/widget/.worktrees/retry\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-13\n```\n\nExit status: `128`\n```text\nfatal: cannot read ref: permission denied\n```\n\nThis is a ref-read error, **not evidence that the ref is absent**. Do not attempt `update-ref`, repair provenance, overwrite, reset, or retry. The correct existing home ref, `refs/gauntlet/pre-rework/pr-12`, remains unchanged. The member ref’s existence and value remain unverified.\n\n### B — Member ref is absent; provisioning fails\n\nAfter the probe establishes that the member ref is absent, stop at:\n```bash\ngit -C \"/work/widget/.worktrees/retry\" update-ref refs/gauntlet/pre-rework/pr-13 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n```\n\nExit status: `1`\n```text\nfatal: update_ref failed: permission denied\n```\n\nThe required member provenance ref was not successfully provisioned. Do not repair provenance, overwrite another ref, reset, or retry. Preserve the correct existing home ref unchanged; do not claim the member ref was created.\n\n### Boundary and downstream actions — both cases\n\nThe stop occurs **after evidence capture and successful plan stripping / telemetry sealing, but before the push**. Those completed local changes remain in place; do not roll them back.\n\nNeither case proceeds to:\n- Any push.\n- Home PR description fetch or edit.\n- An absorbed-PR closure question.\n- Any PR close.\n\n**Member PR #13 left open.** Shipping is blocked at ref provisioning; the ship phase is not marked complete.\n",
+      "words": 202,
+      "wallMs": 9632,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

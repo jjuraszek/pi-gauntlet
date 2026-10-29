@@ -15,7 +15,7 @@ Threads: member-thread
 PR: example/parser#44 - Parser boundaries
 Pre-rework head: 3333333333333333333333333333333333333333
 Threads: boundary-thread
-The record also has `### PR #42`, `### PR #43`, and `### PR #44` detail subsections. Show the appended section, then describe the no-record and N=1 cases.
+The record also has `### PR #42`, `### PR #43`, and `### PR #44` detail subsections. Show the appended section, then describe the no-record and N=1 cases. Independent rebase variant adds `Rework base: 4444444444444444444444444444444444444444` after the groups. Show its brief line position and reconstruction base. The same candidate spec/plan files and authoritative member-path exclusion are observed after that SHA; original records and superseded rework specs predate it. Retain the original no-Rework-base variant and ordinary no-pair fallbacks.
 
 Consumer success: the resulting brief passes entry checks and grant validation. The first pair's fetched headRefName is repair-parser and the actual branch is repair-parser. Member branches are not supplied. Ordered record identities match the brief. After the first pair's pre-rework SHA, the scan finds doc/specs/rework.md, doc/plans/rework.md, doc/specs/member-errors.md, and doc/plans/member-errors.md. The carried member-errors.md task plan pairs by basename with doc/specs/member-errors.md. Reading rework.md shows the record above and lists doc/specs/member-errors.md under member #43 in `## Problem`. That member spec has no Rework record. The rework spec/plan pair is valid; plan_check passes. Describe selection and restore, preserving the task snapshot without inventing gate history or approval.
 

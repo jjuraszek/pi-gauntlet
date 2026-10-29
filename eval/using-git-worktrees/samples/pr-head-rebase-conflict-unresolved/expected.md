@@ -1,0 +1,5 @@
+- abort: judged: Failed helper/completion leads to selected-worktree rebase --abort and explicit successful abort, original saved HEAD equality, home branch equality and successful empty status including untracked files before claiming restoration.
+- record: judged: Records sync: unresolved - src/retry.ts and Member replay: #13 pending, Member replay: #14 pending; does not attempt members or publish Rework base.
+- task: judged: Continues Design on saved original tip with rebase onto origin/main and resolve src/retry.ts as Task 1, also replaying pending members and persisting Rework base before finishing.
+- failed: judged: Abort failure reports PR, paths, selected worktree, abort error, observed branch/HEAD/status and last-good SHA, stops for manual recovery and neither claims restoration nor resets/cleans.
+- boundaries: judged: Helper gets exact conflict list, fetched base, stopped patch and scoped command; cannot commit or control rebase; no unrelated preapproval tests, reviewer, push or member replay after failure.

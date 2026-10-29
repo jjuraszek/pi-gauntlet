@@ -1,0 +1,80 @@
+{
+  "sample": "pr-list-rebase-push-and-close",
+  "arm": "candidate",
+  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "inputSha": "ffb2f750f6d7f598c258b6b04bc885b148691c1ac9905b530879b41db72452b9",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Aliases:** A=`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` (#12 original), B=`bbbb…`×40 (#13), C=`cccc…`×40 (#14), R=`2222222222222222222222222222222222222222` (Rework base), E=`eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` (final HEAD).\n\n## Preparation (order)\n\n1. Derive `WORKTREE=/work/widget/.worktrees/retry`, `PRIMARY=/work/widget`, `FEATURE=retry`.\n2. Read `doc/specs/rework.md` and its pairs (home first). Set `PRE_REWORK_HEAD=A`, and retain B and C.\n3. Confirm home with `gh pr view 12 -R acme/widget --json number,url,headRefName,baseRefName,state`. Result: OPEN, `retry` → `main`.\n4. `Rework base:` is present, so this is **rebase mode**.\n5. `git -C \"$WORKTREE\" fetch origin`\n6. Capture the scoped set (`test-retry`) and the thread and task evidence before the strip.\n\n## Preflight proofs\n\n```bash\ngit -C \"$WORKTREE\" merge-base --is-ancestor R HEAD   # exit 0\ngit -C \"$WORKTREE\" rev-parse origin/retry            # = A → lease push\n```\n\nRow 1 is offered and was chosen.\n\n## Threads refetch\n\nRefetch each PR with its own paginated `pr-head` query (`-F n=12`, `13`, `14`), plus a comment-cursor follow-up where needed.\n\n- **Home:** HOME was recorded as keep open and is still unresolved, so it renders `still open`.\n- **Members:** MEMBER13 and MEMBER14 copy their recorded dispositions. NEW13 is newly opened. Home's first-parent history is never used as proof of a member fix.\n\n## Strip and seal\n\n1. Remove `doc/plans/rework.md` and `doc/plans/rework-ledger.md` only if they are tracked or present, via the guarded loop.\n2. Seal the telemetry record:\n\n```bash\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree \"$WORKTREE\" --option pr --base origin/main --spec doc/specs/rework.md\n```\n\nIts stdout is printed verbatim.\n\n## Pre-rework refs\n\nAll three refs already exist and are preserved; no `update-ref` runs.\n\n```bash\ngit -C \"$WORKTREE\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-12   # exists\ngit -C \"$WORKTREE\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-13   # exists\ngit -C \"$WORKTREE\" rev-parse -q --verify refs/gauntlet/pre-rework/pr-14   # exists\n```\n\n## Push (home only)\n\n```bash\ngit -C \"$WORKTREE\" push --no-follow-tags --force-with-lease=retry:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa origin HEAD:refs/heads/retry\n```\n\nSuccess. Pushed home head saved as E.\n\n## Fresh body FETCH\n\n```bash\nJ=$(mktemp); BODY=$(mktemp)            # outside the repo\ngh pr view 12 -R acme/widget --json body > \"$J\"\njq -j '.body' \"$J\" > \"$BODY\"           # -j: raw, no added/trimmed newline\n```\n\n- `$BODY` holds exactly the bytes `Original description\\n`. No `$(...)` is used, so the trailing newline is not lost.\n- Append one blank line (`printf '\\n' >> \"$BODY\"`), then the block below.\n\n## Rework block (appended)\n\n```markdown\n## Rework\n\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: doc/specs/rework.md at eeeeeee\nKeeps: retry API\nChanges: repair retry\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- <HOME path:line> - still open\n#13:\n- <MEMBER13 path:line> - fix - retain delay (recorded; lands via #13's replayed history)\n- <NEW13 path:line> - still open\n#14:\n- <MEMBER14 path:line> - still open\n```\n\nNotes on the block:\n\n- There is no `supersedes the description above` line, because no claim was dropped.\n- Thread lines are labelled `#N:` because N=3.\n\nThe resulting file is `Original description\\n\\n## Rework\\n…`.\n\n## EDIT\n\n```bash\ngh pr edit 12 -R acme/widget --body-file \"$BODY\"\n```\n\nSuccess. The description of https://github.com/acme/widget/pull/12 now keeps its original text, followed by the Rework block. The worktree is preserved. This stops at the successful edit; eligibility and closure are not rendered.\n",
+      "words": 471,
+      "wallMs": 29002,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Shared preparation\n\n`PRIMARY=/work/widget`, `WORKTREE=/work/widget/.worktrees/retry`, `FEATURE=retry`.\n\nSHA aliases:\n- `A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` — original #12\n- `B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` — original #13\n- `C=cccccccccccccccccccccccccccccccccccccccc` — original #14\n- `R=2222222222222222222222222222222222222222` — rework base\n- `H=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` — final, pushed HEAD\n\nAll commands below are prescribed, **not executed**.\n\n1. Retain `doc/specs/rework.md`, verification command `test-retry`, and recorded task/thread evidence before stripping any plan.\n2. Run the rebase preflight:\n\n```bash\ngit -C \"$WORKTREE\" merge-base --is-ancestor \"$R\" HEAD\ngit -C \"$WORKTREE\" fetch origin\ngit -C \"$WORKTREE\" rev-parse origin/retry\n```\n\nThe ancestry proof exits 0; fetched `origin/retry` equals `$A`. Select the explicit lease push. Do not require original-head ancestry against this rebased tip.\n\n3. Refresh threads for #12, #13, and #14 using the prescribed paginated thread query, including remaining comment pages. Preserve member attribution and recorded dispositions; do not infer member fixes from home’s history.\n4. Capture the artifact’s path-only `**Spec:**` value. Resolve configured sibling plan directories; remove tracked task-plan and ledger candidates, committing removals as prescribed. Preserve the spec and telemetry.\n5. Seal before pushing:\n\n```bash\nnode <bin>/gauntlet-telemetry-seal.mjs \\\n  --worktree \"$WORKTREE\" --option pr --base origin/main \\\n  --spec doc/specs/rework.md\n```\n\nRetain actual seal stdout verbatim for completion; stop on nonzero exit.\n\n6. Probe existing original-head refs; preserve them, without updates:\n\n```bash\nfor N in 12 13 14; do\n  git -C \"$WORKTREE\" rev-parse -q --verify \\\n    \"refs/gauntlet/pre-rework/pr-$N\"\ndone\n```\n\n7. Push only home:\n\n```bash\ngit -C \"$WORKTREE\" push --no-follow-tags \\\n  --force-with-lease=retry:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \\\n  origin HEAD:refs/heads/retry\n```\n\nSave successful pushed HEAD as `$H`.\n\n### Fresh description and exact appended block\n\nFetch home’s description **after** the successful push:\n\n```bash\nFETCH=$(mktemp)\nBODY=$(mktemp)\n(cd \"$WORKTREE\" && gh pr view 12 -R acme/widget --json body) > \"$FETCH\"\n```\n\nDecode `$FETCH` as JSON without trimming or command-substituting its body. Write the decoded body’s UTF-8 bytes exactly to `$BODY`: `Original description\\n`. Append one newline, creating one blank line, then this block:\n\n```markdown\n## Rework\n\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: doc/specs/rework.md at eeeeeee\nKeeps: retry API\nChanges: repair retry\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- HOME - still open\n#13:\n- MEMBER13 - fix: retain delay (recorded member disposition)\n- NEW13 - still open\n#14:\n- MEMBER14 - keep open (recorded member disposition)\n```\n\nThread identifiers above stand for the supplied thread locations; no unavailable path or line is invented. Do not add “supersedes the description above”: no original claims were dropped.\n\nEdit using the complete scratch body, retaining the original description:\n\n```bash\n(cd \"$WORKTREE\" && gh pr edit 12 -R acme/widget --body-file \"$BODY\")\n```\n\n**Body edit succeeds. Stop here.**\n",
+      "words": 399,
+      "wallMs": 25698,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ae8957cc6cf32d92caf3aece3a5023f034e165046a3b371be7a1fb9996e337f0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "f7ad11bde289530dc2e042bd512a0cdc6e370b7a0d8a817c59fab9bccee6ec4d",
+      "candidateOutputSha": "a88bf308fd370a1e30a84ae557e6c7983877361b74f95330efb98963225bfc04",
+      "facts": {
+        "ordering": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "attribution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before stops at the merge-mode ancestry proof (A not an ancestor of E) and never pushes, fetches or edits, so neither fact holds there; its Absorbs/Threads text is only a forecast after a hypothetical rebuild, not an output of this run. After delivers the Change: it detects rebase mode from `Rework base:`, proves R is an ancestor of HEAD, uses the lease only because `origin/retry` equals A, preserves the three existing pre-rework refs, captures evidence before strip/seal (`--option pr --base origin/main`), pushes only home with the exact `--no-follow-tags --force-with-lease=retry:aaaa…` spelling, then fetches the body fresh via `jq -j` into out-of-repo scratch, appends the blank line and block, and edits before any eligibility/closure — and the block names #13/#14 with literal URLs, labels threads per PR, retains MEMBER13/MEMBER14 dispositions plus NEW13, and states home first-parent history is never member-fix proof. Two small tightenings would make the After wording more literally match the fact text without losing anything: write the Rework-base proof with the full SHA (`merge-base --is-ancestor 2222222222222222222222222222222222222222 HEAD`) rather than the alias `R` inside the command, and spell the edit as `gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"` (or at least `--repo`) so the call matches the checkpoint's expected invocation verbatim.",
+      "wallMs": 16901,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ae8957cc6cf32d92caf3aece3a5023f034e165046a3b371be7a1fb9996e337f0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "6064d761367b6e6f1b23a2e4644efe29f9e155727d533a0b1b67bef9fff636e6",
+      "candidateOutputSha": "bc6175e9f58d79cdc67e92d18c8b332ac0ae46b9712198b10d101576028d5804",
+      "facts": {
+        "ordering": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "attribution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before stops at a failed original-head ancestry proof and never preserves refs, strips/seals, pushes, fetches, or edits, so both facts fail there; After delivers the Change by proving the Rework base (R) as ancestor, treating the original heads only as lease/preservation inputs, and then running evidence capture → strip → seal (--option pr --base origin/main) → ref probe → the exact --no-follow-tags --force-with-lease=retry:aaaa… origin HEAD:refs/heads/retry push → post-push JSON fetch into mktemp scratch → blank line + Rework block → gh pr edit, with Absorbs/thread attribution using the literal URLs and recorded member dispositions plus NEW13, so both facts hold. Two spellings are looser than the fact text and could trip a stricter reader: After writes `gh pr edit 12 -R acme/widget --body-file \"$BODY\"` where the fact (and the Change's corrections) spell `--repo acme/widget --body-file \"$SCRATCH\"`, and the Absorbs line uses `#13 (url)` rather than a plain literal-URL list; keep the ordering and lease wording exactly as is, but emit `--repo`, name the scratch file `$SCRATCH`, and state explicitly that the scratch path is outside the repository so the ordering fact holds on literal reading as well.",
+      "wallMs": 18001,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

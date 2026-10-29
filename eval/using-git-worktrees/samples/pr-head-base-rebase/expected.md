@@ -1,0 +1,5 @@
+- admission: judged: Fetches and verifies reachable original head and matching remote before writes, provisions the exact home head through existing-branch checkout, and preserves aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa at refs/gauntlet/pre-rework/pr-12 before syncing.
+- linear: judged: Runs git -C at the selected worktree with rebase --no-rebase-merges origin/main despite rebase.rebaseMerges=true and the input merge; reports only the two replayed commits on the first-parent range with no merge commit.
+- durable: judged: Writes refs/gauntlet/rework-base/pr-12 at dddddddddddddddddddddddddddddddddddddddd and validates that ref as an ancestor of HEAD, not original-head ancestry against the rewritten tip.
+- report: judged: Reports rebased: aaaaaaa..ddddddd with zero conflict stops and Rework base: dddddddddddddddddddddddddddddddddddddddd immediately after Base SHA:, retaining the original PR/Pre-rework head pair.
+- boundaries: judged: Leaves origin/fix/retry unchanged and performs no push, reviewer dispatch or unrelated preapproval tests.

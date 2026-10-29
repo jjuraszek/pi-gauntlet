@@ -1,8 +1,8 @@
 {
   "sample": "pr-list-interrupted-recovery",
   "arm": "candidate",
-  "skillSha": "71811de4ec6625d9d7783d9336eba3813ac626e0c0d4092f4c0ab77bdce54179",
-  "inputSha": "4d11e37bc85defcea1768347722337e2226165a50ec0be676484bff017606cc1",
+  "skillSha": "265d6eba4f1c45e2a6666ef5bab7d3fec852d1236d671705e674e98e02b8aa40",
+  "inputSha": "673732dacd45ae74e8dcd4262b08f873b875636d75a232a53097014b672ac34c",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,191 +17,104 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace. The caller passed resolved PR values, so I follow `reference/pr-head.md` in place of Steps 0 and 1.\n\n## Shared prefix (A, A-no-worktree, B)\n\n**Repository and home resolution**\n\nAll commands below run from the session cwd. The process cwd never changes.\n\n1. `git rev-parse --path-format=absolute --git-common-dir` returns `/work/widget/.git`, so **ROOT=/work/widget**.\n2. `git rev-parse --show-superproject-working-tree` returns empty, so this is not a submodule.\n3. Overrides ladder: there is no `.pi/gauntlet-overrides.md`. I read the first file found, which carries only a runner. It has no `## using-git-worktrees` keys, so the legacy path applies.\n   - There is no native tool and no wrapper, so the home defaults to `$ROOT/.worktrees/<name>`.\n   - The runner only matters for conflict helpers. None are needed here.\n4. The admitted array is ordered home-first:\n   - Home is #12 on `fix/retry`. **PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa**.\n   - **MEMBER_HEADS** = [#13 `fix/cap` bbbb…bbbb, #14 `fix/retry-docs` cccc…cccc].\n   - `<name>` = `fix-retry`, so **WORKTREE=/work/widget/.worktrees/fix-retry**.\n\n**Fetch and reachability, before any write**\n\n5. `git -C /work/widget fetch origin` succeeds.\n6. For each admitted head, `git -C /work/widget rev-parse --verify -q <oid>^{commit}` succeeds for aaaa…, bbbb… and cccc….\n7. `git -C /work/widget rev-parse origin/fix/retry`, `origin/fix/cap` and `origin/fix/retry-docs` each equal the supplied head.\n8. `git -C /work/widget rev-parse origin/main` returns **BASE_SHA=dddddddddddddddddddddddddddddddddddddddd**.\n\n**Ordered stops**\n\n9. `isCrossRepository` is false for #12, #13 and #14.\n10. `git -C /work/widget worktree list --porcelain` shows `fix/retry` checked out at no path other than the selected home. In B, linked tree `other` is listed on its own branch at 9999999, and I do not adopt it.\n11. Reachability passed in steps 6–7.\n12. The N=1 local-ancestor stop does not apply, because N=3.\n\n**Recovery inspection**\n\nA local `fix/retry` exists in every variant, so recovery inspection runs. It reads the local branch tip, never caller HEAD.\n\n13. `git -C /work/widget rev-parse refs/heads/fix/retry`.\n\n---\n\n## Variant A: home exists clean\n\n- **Step 13** returns eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.\n- **Home ancestry:** `git -C /work/widget merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` exits 0.\n- **First-parent walk:** `git -C /work/widget log --first-parent --format='%H %P %s' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` returns one entry: `eeee… aaaa… bbbb… merge PR #13 head bbbbbbb into PR #12`.\n  - It is a two-parent merge with the canonical subject.\n  - #13 is an admitted member, the sha7 matches, and the second parent is #13's full original head. It is valid.\n- **Clean tree:** `git -C /work/widget/.worktrees/fix-retry status --porcelain` exits 0 with empty output.\n- **Provisioning:** the first table row (recovery validated) applies. I reuse the selected worktree unchanged, with no update-ref, reset or `-b`.\n  - `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` returns eeee…, which equals the validated tip.\n- **Member merges, in listed order:**\n  - **#13** is already landed, so I skip it. Record: `Member merge: #13 eeeeeee (already landed)`.\n  - **#14** is not an ancestor. I save last-good = eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.\n    - Command: `git -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #14 head ccccccc into PR #12\" cccccccccccccccccccccccccccccccccccccccc`.\n    - It merges cleanly as fffffff. Record: `Member merge: #14 fffffff`.\n- **Base merge:** `git -C /work/widget/.worktrees/fix-retry merge --no-ff --no-edit origin/main` merges cleanly. Record: `merge: 1111111`.\n- **Final ancestry proof:** `git -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor <oid> HEAD` exits 0 for aaaa…, bbbb… and cccc….\n- **Threads:** for each of #12, #13 and #14 I run the reviewThreads `gh api graphql --paginate … -F o=acme -F r=widget -F n=<N>` query. Each succeeds with no unresolved threads, so each records `Threads: none`.\n\n**Step 4 report**\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nMember merge: #13 eeeeeee (already landed)\nMember merge: #14 fffffff\nmerge: 1111111\nBase SHA: ddddddd\nThreads: #12 none, #13 none, #14 none\nReady to implement retry-cap rework across #12/#13/#14\n```\nMEMBER_HEADS (original heads bbbb… and cccc…) are carried to gather. Nothing was pushed or closed, and no spec or plan was written.\n\n---\n\n## Variant A-no-worktree: branch exists, no checkout anywhere\n\n- **Inspection** is identical to A: step 13 returns eeee…, aaaa… is an ancestor, and the walk validates the #13 merge.\n  - The worktree list shows no checkout of `fix/retry`, so there is no existing tree to dirt-check.\n- **Fresh-creation source check:** `git -C /work/widget status --porcelain` exits 0 with empty output, so the source is clean.\n- **Provisioning:** the recovery row applies with no worktree.\n  - Command: `git -C /work/widget worktree add \"/work/widget/.worktrees/fix-retry\" fix/retry`. This uses the existing branch with no `-b`, no update-ref and no reset.\n  - `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` returns eeee…, which equals the validated local tip.\n- **Merges and outcomes** are the same as A:\n  - #13 is skipped as already landed (eeeeeee).\n  - #14 is merged with the same canonical `-m` against the original cccc… head, giving fffffff.\n  - The base merges as 1111111.\n- **Final ancestry and threads** are the same as A. Every final ancestry proof exits 0, and every thread fetch records `Threads: none`.\n\n**Step 4 report:** identical to A, line for line.\n\n---\n\n## Variant B: unrelated commit on the branch\n\nThe shared prefix passes. The session's linked tree `other` (HEAD 9999999) is ignored, because it is neither the selected home nor on `fix/retry`.\n\n- **Step 13** reads `refs/heads/fix/retry` and returns the 2222222… tip, not caller HEAD 9999999.\n- **Home ancestry:** `git -C /work/widget merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa <2222222 tip>` exits 0.\n- **First-parent walk:** `git -C /work/widget log --first-parent --format='%H %P %s' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..<2222222 tip>` returns two entries:\n  - `2222222… eeee… unrelated cleanup` is a single-parent commit with no canonical subject, so it is **invalid**.\n  - `eeee… aaaa… bbbb… merge PR #13 head bbbbbbb into PR #12` is valid.\n\nThe unrelated commit means the walk fails. I stop before any write. There is no worktree add, no fetch-base merge, no member merge and no Step 4 report:\n\n> worktree /work/widget/.worktrees/fix-retry on fix/retry carries commits beyond PR #12's head (aaaaaaa) that are not member merges from this list; resolve by hand or remove the worktree.\n\nThe selected home path is named whether or not a tree exists there. I do not reset, rebase, delete the branch, or drop 2222222.\n",
-      "words": 956,
-      "wallMs": 43010,
+      "text": "## (1) Shared legend, preflight and report template\n\n**SHA aliases (full SHAs):**\n- a=`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` (#12 fix/retry, home)\n- b=`bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` (#13 fix/cap)\n- c=`cccccccccccccccccccccccccccccccccccccccc` (#14 fix/retry-docs)\n- d=`dddddddddddddddddddddddddddddddddddddddd` (origin/main = BASE_SHA)\n- e=`eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`\n- R2=`2222222222222222222222222222222222222222`\n- R3=`3333333333333333333333333333333333333333`\n- R4=`4444444444444444444444444444444444444444`\n- Short only: f=`fffffff`, m1=`1111111`, x2=`2222222`, h9=`9999999`.\n\n**Fixed values:**\n- ROOT=/work/widget.\n- NAME=fix-retry.\n- WT=/work/widget/.worktrees/fix-retry. This is the default home; overrides carry only the runner.\n- MEMBER_HEADS=[#13 b, #14 c].\n- PRE_REWORK_HEAD=a.\n- The process cwd never changes.\n\n**Preflight P (all rows):**\n1. `git -C ROOT fetch origin`\n2. For each PR: `rev-parse --verify -q <head>^{commit}` and `rev-parse origin/<branch>`. Both equal the original head.\n3. BASE_SHA = `git -C ROOT rev-parse origin/main` = d.\n4. Not a fork. `worktree list --porcelain` shows no fix/retry checkout elsewhere.\n\n**Lists:**\n- **K (pre-rework refs):** `git -C WT update-ref refs/gauntlet/pre-rework/pr-{12,13,14} {a,b,c}`, written using original heads. On rows that already have these refs, they are verified and left unchanged.\n- **V (merge validation):** `git -C WT merge-base --is-ancestor {a,b,c} HEAD`.\n- **T (threads):** run the GraphQL threads query for #12, #13 and #14. Result: `Threads: none` each.\n- **NW (no selected worktree):** `git -C ROOT status --porcelain` is clean. Then `git -C ROOT worktree add WT fix/retry`, with no `-b`, reset, update-ref or delete.\n\n**Step 4 report template:**\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ <tip7>\nPR: acme/widget#12 / Pre-rework head: a\nPR: acme/widget#13 / Pre-rework head: b\nPR: acme/widget#14 / Pre-rework head: c\nBase SHA: ddddddd\n[Rework base: <full>]\n<member lines>\n<base line>\nThreads: none (each PR)\n```\n\n## (2) Variant rows\n\n| Variant | Delta |\n|---|---|\n| **A** | P. `rev-parse -q --verify REBASE_HEAD` exits 1. Local tip `refs/heads/fix/retry` is e; a is its ancestor. `log --first-parent a..e` shows only canonical merge e (parents a and b). Status clean. SYNC=merge. Reuse WT; HEAD=e. Then K. #13 already landed. Merge c `-m \"merge PR #14 head ccccccc into PR #12\"` gives f. Base merge `--no-ff --no-edit origin/main` gives m1. Then V and T. Report Base `eeeeeee`; `Member merge: #13 eeeeeee (already landed)`; `#14 fffffff`; `merge: 1111111`. |\n| **A-no-worktree** | P. No tree, so no REBASE_HEAD check. Inspect `git -C ROOT rev-parse refs/heads/fix/retry`, which is e. The ancestry check and walk match A. NW provisions WT, and HEAD verifies as e. Then K, the merges, V, T and the report, all as in A. |\n| **B** | Ignore caller worktree \"other\" and its HEAD h9. P passes. Local tip is x2. The walk `a..x2` shows x2, a single-parent commit \"unrelated cleanup\", then e. **Stop before writes:** `worktree /work/widget/.worktrees/fix-retry on fix/retry carries commits beyond PR #12's head (aaaaaaa) that are not member merges from this list; resolve by hand or remove the worktree.` |\n| **R** | P. REBASE_HEAD exits 1. Tip is R3, not caller h9. R2 is an ancestor of R3. Pre-rework refs equal a, b, c. SYNC switches from merge to **rebase**. `cherry R3 b d` shows only minus lines, so #13 is already landed. Reuse WT; HEAD=R3. Last-good is R3. `rebase --no-rebase-merges origin/main` succeeds. `rebase --onto HEAD d c` gives R4. Then update-ref fix/retry to HEAD, checkout fix/retry, and set `rework-base/pr-12` to R4. Ancestry check passes. Report Base `3333333` and `Rework base: R4`. `Base: main @ ddddddd - rebased: 3333333..4444444, 0 stop(s)`. `Member replay: #13 (already landed)`. `#14 <first7>..4444444`. T. |\n| **R-no-worktree** | Same ref validation and cherry results as R, inspected from ROOT. NW provisions WT on the existing branch; HEAD verifies as R3 and is never overwritten. The rebase, replay, rework-base write, validation and report all match R. |\n| **R-active** | P passes, then `git -C WT rev-parse -q --verify REBASE_HEAD` exits 0 with a commit id. **Stop before sync or writes:** `worktree /work/widget/.worktrees/fix-retry has a rebase in progress; finish or abort it by hand`. |\n| **R-mismatch (pre-rework)** | P. `refs/gauntlet/pre-rework/pr-14` is not c. **Stop before writes:** the B message, which names PR #12 head aaaaaaa and WT. No reset. |\n| **R-mismatch (rework-base)** | P. `merge-base --is-ancestor R2 R3` exits 1. **Stop before writes:** the same B message. |\n| **R-home-failure** | R validation and provisioning; last-good is R3. The rebase stops on `src/retry.ts`. The runner is read via `git -C ROOT show d:<overrides>`; SCOPED=`node --test test/retry.test.mjs`. The helper receives the `--show-current-patch` payload and fails. `rebase --abort` exits 0. HEAD is R3 and equals the saved R3, not a. Branch is fix/retry; status `--untracked-files=all` is empty. No rework-base is written. Report: `sync: unresolved - src/retry.ts`, and both members marked `Member replay: pending`. **Task 1:** rebase onto origin/main, resolve `src/retry.ts`, replay #13 and #14, then persist Rework base. T. |\n| **Fresh control** | P. No recovery refs, branch or tree. NW uses DWIM to provision WT; HEAD is a. Then K. Last-good is a. The conflict, runner, helper failure and abort match R-home-failure, and HEAD equals the saved a. Report Base `aaaaaaa`; `sync: unresolved - src/retry.ts`; both members pending; same Task 1. T. |\n",
+      "words": 754,
+      "wallMs": 60278,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThe variants are independent. Every command below has **execution cwd `/work/widget`**; `git -C` explicitly selects another checkout where necessary. The session’s process cwd is never changed. Shell variables below expand to the exact values shown.\n\n### Shared resolution and pre-write checks\n\nI resolve:\n\n```sh\nROOT=/work/widget\nWORKTREE=/work/widget/.worktrees/fix-retry\nBRANCH=fix/retry\nNAME=fix-retry\nH12=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nH13=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nH14=cccccccccccccccccccccccccccccccccccccccc\nPRE_REWORK_HEAD=$H12\n```\n\nHome is `acme/widget#12`; MEMBER_HEADS are #13, then #14, retaining their supplied branch names, original heads, URLs, and retry-cap titles. All base branches are `main`; no PR is cross-repository.\n\nIn each variant, I run:\n\n```sh\ngit rev-parse --path-format=absolute --git-common-dir\ngit rev-parse --show-superproject-working-tree\n```\n\nThe common directory resolves to `/work/widget/.git`, hence ROOT above. This is not a submodule. The PR-head procedure selects the home; it does not adopt an unrelated session worktree.\n\nI check overrides, in order:\n\n```sh\ntest -f /work/widget/.pi/gauntlet-overrides.md\ntest -f /work/widget/gauntlet-overrides.md\ntest -f /work/widget/doc/gauntlet-overrides.md\n```\n\nThe stated absence of overrides and wrappers establishes the default home; no conflict runner is needed.\n\nThen:\n\n```sh\ngit -C \"$ROOT\" fetch origin\ngit -C \"$ROOT\" rev-parse --verify -q \"$H12^{commit}\"\ngit -C \"$ROOT\" rev-parse origin/fix/retry\ngit -C \"$ROOT\" rev-parse --verify -q \"$H13^{commit}\"\ngit -C \"$ROOT\" rev-parse origin/fix/cap\ngit -C \"$ROOT\" rev-parse --verify -q \"$H14^{commit}\"\ngit -C \"$ROOT\" rev-parse origin/fix/retry-docs\ngit -C \"$ROOT\" rev-parse origin/main\ngit -C \"$ROOT\" worktree list --porcelain\ngit -C \"$ROOT\" rev-parse refs/heads/fix/retry\n```\n\nAll original objects exist; each remote head equals its supplied SHA. I resolve:\n\n```sh\nBASE_SHA=dddddddddddddddddddddddddddddddddddddddd\n```\n\nNo branch-placement stop fires: `fix/retry` is either at the selected home or unchecked-out, as specified per variant.\n\n### A — existing selected home\n\nLocal-branch inspection returns:\n\n```sh\nTIP=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\ngit -C \"$ROOT\" merge-base --is-ancestor \"$H12\" \"$TIP\"\ngit -C \"$ROOT\" log --first-parent --format='%H %P %s' \"$H12..$TIP\"\ngit -C \"$WORKTREE\" status --porcelain\n```\n\nAncestry succeeds. The walk contains only `eeeeeee`, with exactly the supplied two parents and canonical #13 merge subject. Status is empty. Recovery therefore recognizes #13 as already landed; it neither merges #13 again nor invents another commit.\n\nI reuse the selected worktree unchanged:\n\n```sh\ngit -C \"$WORKTREE\" rev-parse HEAD\n```\n\nHEAD equals `$TIP`. I continue with the shared completion below.\n\n### A-no-worktree — provision the validated local branch\n\nThe same local-tip inspection, ancestry command, and first-parent walk from A validate `$TIP`. There is no existing home tree to inspect.\n\nBefore provisioning:\n\n```sh\ngit -C \"$ROOT\" status --porcelain\ngit -C \"$ROOT\" check-ignore -q .worktrees\n```\n\nThe source is clean; the ignore check succeeds. Then:\n\n```sh\ngit -C \"$ROOT\" worktree add \"$WORKTREE\" fix/retry\ngit -C \"$ROOT\" worktree list --porcelain\ngit -C \"$WORKTREE\" rev-parse HEAD\n```\n\nThe listing includes the exact selected home, and HEAD equals `$TIP`. This checks out the **existing validated branch**: no `update-ref`, `-b`, reset, deletion, or remote-head replacement occurs.\n\n### Shared completion for A and A-no-worktree\n\nIn each:\n\n```sh\ngit -C \"$WORKTREE\" merge --no-ff -m \"merge PR #14 head ccccccc into PR #12\" \"$H14\"\ngit -C \"$WORKTREE\" rev-parse --short HEAD\ngit -C \"$WORKTREE\" merge --no-ff --no-edit origin/main\ngit -C \"$WORKTREE\" rev-parse --short HEAD\ngit -C \"$WORKTREE\" merge-base --is-ancestor \"$H12\" HEAD\ngit -C \"$WORKTREE\" merge-base --is-ancestor \"$H13\" HEAD\ngit -C \"$WORKTREE\" merge-base --is-ancestor \"$H14\" HEAD\n```\n\nThe new member merge is `fffffff`; the clean base merge is `1111111`. Every original-head ancestry proof succeeds. No conflict helper or tests run.\n\nStep 4 report, separately emitted for each successful variant:\n\n```text\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nBase SHA: ddddddd\nMember merge: #13 eeeeeee (already landed)\nMember merge: #14 fffffff\nmerge: 1111111\nReady to implement retry-cap rework\n```\n\nThere is no gather, so the pre-gather thread-fetch step is not reached.\n\n### B — exact pre-write refusal\n\nThe shared local-branch inspection returns tip `2222222`, **not** caller HEAD `9999999`. I run:\n\n```sh\ngit -C \"$ROOT\" merge-base --is-ancestor \"$H12\" 2222222\ngit -C \"$ROOT\" log --first-parent --format='%H %P %s' \"$H12..2222222\"\n```\n\nThe walk includes the ordinary single-parent commit `2222222`, subject `unrelated cleanup`. It fails the recovery contract. I stop before provisioning, modification, member merges, or base merge:\n\n```text\nworktree /work/widget/.worktrees/fix-retry on fix/retry carries commits beyond PR #12's head (aaaaaaa) that are not member merges from this list; resolve by hand or remove the worktree.\n```\n\nNo Step 4 report is emitted for B.\n",
-      "words": 686,
-      "wallMs": 41788,
+      "text": "## 1. Shared legend, preflight, and reports\n\n“I’m using the using-git-worktrees skill to set up an isolated workspace.”\n\n**Notation:** Brackets contain exact comma-separated argv; aliases expand literally. `g[…]` means `[git,-C,/work/widget,…]`; `w[…]` substitutes cwd target `/work/widget/.worktrees/fix-retry`. Every command’s **process cwd** remains the supplied primary checkout.\n\n**Identity:** ROOT=`/work/widget`; W=`/work/widget/.worktrees/fix-retry`; branch=`fix/retry`; repository=`acme/widget`; ordered PRs=`12,13,14`; branches=`fix/retry,fix/cap,fix/retry-docs`; titles concern retry caps; base=`main`.\n\n**SHAs:** A=`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; B=`bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; C=`cccccccccccccccccccccccccccccccccccccccc`; D=`dddddddddddddddddddddddddddddddddddddddd`; E=`eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`; T=`2222222222222222222222222222222222222222`; X=`3333333333333333333333333333333333333333`; Y=`4444444444444444444444444444444444444444`. `f=fffffff`, `m=1111111`. PRE_REWORK_HEAD=A; BASE_SHA=D, permanently.\n\n**P:** Resolve supplied primary identity/home; `g[fetch,origin]`; for each ordered head H/branch b: `g[rev-parse,--verify,-q,H^{commit}]`, `g[rev-parse,origin/b]`; `g[rev-parse,origin/main]`; `g[worktree,list,--porcelain]`. Objects/remotes match; inspect supplied nonfork identities and checkout locations.\n\n**I:** Existing W: `w[rev-parse,-q,--verify,REBASE_HEAD]`; then inspect `g[rev-parse,refs/heads/fix/retry]`, `g[rev-parse,-q,--verify,refs/gauntlet/rework-base/pr-12]`. Existing clean-tree check=`w[status,--porcelain]`.\n\n**L(t):** `g[merge-base,--is-ancestor,A,t]`; `g[log,--first-parent,--format=%H %P %s,A..t]`.\n\n**V:** `g[merge-base,--is-ancestor,T,X]`; for N/H=`12/A,13/B,14/C`, `g[rev-parse,refs/gauntlet/pre-rework/pr-N]`, requiring H.\n\n**Provision(t):** No W: `g[status,--porcelain]`, `g[check-ignore,-q,.worktrees]`, `g[worktree,add,W,fix/retry]`; always `w[rev-parse,HEAD]`=t.\n\n**S:** `w[update-ref,refs/gauntlet/pre-rework/pr-N,H]` for each ordered pair; recovery preserves validated refs.\n\n**M(N,H):** `w[merge,--no-ff,-m,\"merge PR #N head H7 into PR #12\",H]`.\n**MB:** `w[merge,--no-ff,--no-edit,origin/main]`.\n\n**Refusal F:** `worktree /work/widget/.worktrees/fix-retry on fix/retry carries commits beyond PR #12's head (aaaaaaa) that are not member merges from this list; resolve by hand or remove the worktree.`\n\n**Report:** `Worktree ready at W`; `Branch: fix/retry`; `Base: fix/retry @ aaaaaaa`; ordered `PR: acme/widget#N` / `Pre-rework head: H`; `Base SHA: ddddddd`; variant outcomes; `Ready to implement retry caps`. Stop after reporting, before gather.\n\n## 2. Variant deltas\n\n| Variant | Ordered narration |\n|---|---|\n| **A** | P; I finds E/no rework-base; clean check; L(E) validates sole canonical #13 merge. Force merge. Provision(E); S; record `Member merge: #13 eeeeeee (already landed)`; M(14,C)→f; MB→m; ancestry-check A/B/C against HEAD. Report: #14 f, base `merge: 1111111`. |\n| **A-no-worktree** | P; I omits W-only commands, resolves actual local E; L(E) validates canonical recovery. Force merge. Provision(E) creates checkout without overwriting branch; S; same merges, ancestry checks, and Report outcomes as A. No reset, deletion, or replacement commit for #13. |\n| **B** | P; inspect selected home’s actual local tip, not unrelated caller HEAD 9999999. I; L(2222222) reveals ordinary single-parent “unrelated cleanup” after E. Stop before writes with **F**, referencing the complete identity/path/original-head legend. No provisioning, sync, or report. |\n| **R** | P; I; clean check; V validates actual X and original refs. Force rebase despite merge-forward. Provision(X); cherry(X,B,D) has no plus; cherry(X,C,D) has plus. Preserve refs; execute rebase sequence below. Report #13 already landed, #14 replay Y; Rework base Y. |\n| **R-no-worktree** | Same R sequence, omitting W-only arrival checks. Inspect actual local X and V before Provision(X); create checkout on that validated branch unchanged. Then R’s replay and Report. Never update-ref the home branch before provisioning, reset it, or use `-b`. |\n| **R-active** | P; `w[rev-parse,-q,--verify,REBASE_HEAD]` returns a commit. Stop immediately: `worktree /work/widget/.worktrees/fix-retry has a rebase in progress; finish or abort it by hand`. Identity/provenance: shared legend. No sync, writes, or Report. |\n| **R-mismatch: pre-head** | P; I; clean check; V finds pre-rework/pr-14 unequal to C. Stop before writes with **F**, using shared complete identity, selected path, and original provenance. Do not repair refs or honor merge-forward. |\n| **R-mismatch: ancestry** | P; I; clean check; V’s T→X ancestry fails. Stop before writes with **F**, referencing the same complete legend. No cherry, provisioning, sync, or Report. |\n| **R rebase sequence** | `g[cherry,X,B,D]`; `g[cherry,X,C,D]`; `w[rebase,--no-rebase-merges,origin/main]`; save successful tip; `w[rebase,--no-rebase-merges,--onto,HEAD,D,C]`; `w[update-ref,refs/heads/fix/retry,HEAD]`; `w[checkout,fix/retry]`; `w[update-ref,refs/gauntlet/rework-base/pr-12,HEAD]`; verify HEAD=Y and rework-base ancestry. Report base rebased A..Y, zero stops; #14’s added range ends Y. |\n| **R-home-failure** | Through R validation/cherry; save X. Home rebase conflicts. Capture status, unmerged paths, current patch; foreground helper at W receives only src/retry.ts and `node --test test/retry.test.mjs`; fails. Abort=0; verify HEAD=X, branch fix/retry, empty status. Report unresolved; both members pending. Task 1 below. |\n| **Fresh control** | P; source clean; Provision(A) uses unique-remote DWIM; S. Save A; same failed home-rebase/helper/abort sequence. Verify HEAD=A—not X—branch fix/retry, empty status. Report unresolved src/retry.ts; both members pending. Task 1: rebase onto origin/main, resolve file, replay #13/#14, persist Rework base. |\n",
+      "words": 605,
+      "wallMs": 68260,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
+      "factsSha": "8975da8138536cdc254e35fb6f2cae6b9ad197eafd3732c2a88432c9c620ce88",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
-      "baselineOutputSha": "76f0a0950feb5865fbfd5d96187d5a23b245ff5eb5cb3765c4d384dc1078aae1",
-      "candidateOutputSha": "5ca2985e23751e0eb9437c3f4de5071c93e4e047afa7011bde3c3713b0f582fa",
+      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
+      "baselineOutputSha": "e2c87e56d527afa1a0386bac0c1a782b6f8d5e19c0fb2342615b468f03c62aaf",
+      "candidateOutputSha": "cbe052280a9189dab9d99bbbec4d440f204fb4da0f3aa89e3509e7e510521a07",
       "facts": {
         "validation": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "unplanned improvement"
         },
         "resume": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "refusal": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "no-worktree": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
+        },
+        "saved-tip": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "pending": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "No fact moved: both outputs read refs/heads/fix/retry rather than caller HEAD, prove aaaa… is an ancestor, walk --first-parent '%H %P %s' from the supplied home head, validate the two-parent canonical #13 merge with its full original second parent, skip #13 as already landed with no invented commit, merge #14 then origin/main, provision the no-worktree variant with a plain `worktree add <path> fix/retry` on the validated tip, and in B refuse before any write with the selected path, fix/retry, PR #12's aaaaaaa and the not-member-merges reason while forbidding reset/rebase/delete. After is slightly tighter in places (explicit 'before any write' heading on fetch/reachability, the overrides ladder and the 'selected home path is named whether or not a tree exists' note), and the only observable drift is the `Base: fix/retry @ aaaaaaa` line in After versus `@ eeeeeee` in Before — neither is tested by a fact, but pick one and pin it in the wording so the report stays deterministic. If you want extra insurance for the resume fact, keep Before's explicit 'I create no new commit' phrase next to the #13 skip rather than relying on 'skip it' alone, and keep the B refusal's explicit 'no spec or plan' alongside 'no file changes' so the refusal fact stays unambiguous.",
-      "wallMs": 16859,
-      "verdict": "unchanged"
+      "feedback": "Before treated the merge-forward token, rework-base/pre-rework refs, REBASE_HEAD and cherry as out of contract, so every R-family row collapsed into the B refusal and no fact involving rebase recovery, the REBASE_HEAD stop, saved-actual-tip restoration or the Task 1 deferral could hold; only the canonical-merge halves (A, A-no-worktree, B, Fresh control) were satisfied. After delivers the Change without regressing anything: A/A-no-worktree still read the actual local tip, prove ancestry and validate the first-parent merge's parents, while R rows add the REBASE_HEAD probe, rework-base ancestry, exact pre-rework ref checks, SYNC override to rebase, cherry-based skip of #13, R4 replay with Rework base reporting, NW provisioning without -b/reset/overwrite, the rebase-in-progress stop, and R-home-failure's abort proving HEAD equals saved R3 (not a) with both members pending and Task 1 opened. One tightening to make validation unambiguous: row A says 'canonical merge e (parents a and b)' but does not state that the subject \"merge PR #13 head bbbbbbb into PR #12\" was checked—Before said 'canonical #13 subject' explicitly; add 'subject matches canonical #13 template' to row A (and 'walk match A' in A-no-worktree inherits it) so a careful reader sees subject validation, not just parent validation. Similarly, R-home-failure could state 'Report Base 3333333' explicitly so the 'continues on saved actual tip' requirement is visible in the report line rather than inferred from HEAD.",
+      "wallMs": 24681,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
+      "factsSha": "8975da8138536cdc254e35fb6f2cae6b9ad197eafd3732c2a88432c9c620ce88",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
-      "baselineOutputSha": "1219f691c4f171fedd560c726f7c801345f640893ec3244d31c38e1a70292562",
-      "candidateOutputSha": "ba6ee29131b65fec52f91f6159bbd0d8932109ee97f6c97ad945611dc1a333ef",
+      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
+      "baselineOutputSha": "3108cf58b3614112fcf55492ecbe3f3a1321712f12320e6ad5252a1e2897965e",
+      "candidateOutputSha": "dfb66a08e24354fa1ca64e3c2c23ab0d2cdf38793aef0fd6ed9d6d8c4b2c0327",
       "facts": {
         "validation": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "unplanned improvement"
         },
         "resume": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "refusal": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "no-worktree": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
+        },
+        "saved-tip": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "pending": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "After keeps every fact Before kept: it reads refs/heads/fix/retry as TIP rather than caller HEAD, proves H12 ancestry, walks `--first-parent --format='%H %P %s' H12..TIP`, validates the single two-parent canonical #13 merge, skips remerging #13, merges #14 then origin/main, proves all three original heads against final HEAD, reports provenance home-first with 'Member merge: #13 eeeeeee (already landed)', provisions the no-worktree variant via plain `worktree add` on the existing branch with no -b/update-ref/reset, and emits the exact pre-write refusal in B before any provisioning, member or base merge. Nothing moved. Two small things to watch so future wording does not regress: After dropped Before's explicit 'saved last-good tip is eeeeeee' line before the #14 merge (not a fact here, but useful for abort-restoration cases), and the shared sentence 'fix/retry is either at the selected home or unchecked-out, as specified per variant' is slightly loose for B, where the session sits in an unrelated linked worktree; phrasing it per variant would keep the branch-placement claim precise while still delivering the shared-resolution structure.",
-      "wallMs": 18812,
-      "verdict": "unchanged"
+      "feedback": "Before failed every fact on the rebase side because the skill text then had no interrupted-recovery protocol, so all R variants were refused pre-command (no rework-base/pre-rework validation, no cherry skip, no abort/equality proof against the actual tip, no finish-or-abort message, no R-no-worktree provisioning, and Task 1 phrased as a merge). After moved all six to holds without regressing the canonical-merge pieces Before already had (B's exact carries-commits refusal, A/A-no-worktree merge recovery). Two points to tighten so these stay robust: (1) R-home-failure says only 'Task 1 below', relying on the reader to jump to the Fresh-control row for the obligation list — put the explicit 'rebase onto origin/main, resolve src/retry.ts, replay pending members, persist Rework base' wording in the R-home-failure row or in the legend as a named Task-1 block both rows cite; (2) the canonical L(E) step says 'validates sole canonical #13 merge' — spell out in the legend that L checks each first-parent merge has exactly two parents, the canonical subject, and the original member head as second parent, so the validation fact doesn't rest on inference from the %H %P %s format. Also consider a distinct refusal text for the rebase mismatch stops (F's 'not member merges from this list' reads oddly for a pre-rework-ref mismatch), while still carrying path, branch, original SHA and the resolve-by-hand reason.",
+      "wallMs": 24406,
+      "verdict": "improved"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "pr-list-interrupted-recovery",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "ca5d35e22759917183e0b7c26b1a21de31c759b8af7f1f07e3fcbcc306380467",
-      "candidateSkillSha": "2bd9c6d579dd561378603e93ea8756914ecb1e086b3f3738c77141451167d172",
-      "inputSha": "4d11e37bc85defcea1768347722337e2226165a50ec0be676484bff017606cc1",
-      "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "1219f691c4f171fedd560c726f7c801345f640893ec3244d31c38e1a70292562",
-            "payloadSha": "11e95e7ed9655f181fa5b01424d7fc7300c8d2246f3955e1945d16716df9727f"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "fad72b953ae095019345505805099c45ddb64537e1af0b0834a3217a4e0c6d66",
-            "payloadSha": "aad50641a130024e42f0d02b1c64bd97b9d4e450222e495a66a66139ae1139d1"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-        "baselineOutputSha": "1219f691c4f171fedd560c726f7c801345f640893ec3244d31c38e1a70292562",
-        "candidateOutputSha": "fad72b953ae095019345505805099c45ddb64537e1af0b0834a3217a4e0c6d66",
-        "facts": {
-          "validation": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "resume": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "refusal": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "no-worktree": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Nothing moved: After keeps every fact Before kept. Both outputs read refs/heads/fix/retry rather than caller HEAD, prove home ancestry, walk `--first-parent --format='%H %P %s'` from the supplied home head, and validate the two-parent canonical #13 merge (After is actually stronger, naming both parents explicitly); both report `Member merge: #13 eeeeeee (already landed)`, skip #13, merge #14 then origin/main, and list #12/#13/#14 original heads home-first; both give the exact B refusal with path, branch, #12/aaaaaaa and the not-member-merges reason before any writes; both provision A-no-worktree with `worktree add ... fix/retry` (no `-b`, update-ref, reset) on the validated eeeeeee tip with no invented merge. Two small things worth tightening in After so the facts don't drift later: the A ancestry check uses the literal `eeeeeee...` instead of `refs/heads/fix/retry` (keep the ref form so the check is provably against the real local tip, not a copied constant), and the thread-fetch block now appears after the Step 4 report text with `Threads: none` dropped from the report block — restore the `Threads: none` line in the report and place the fetch before the report to match Before's ordering.",
-        "wallMs": 16825,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-        "baselineOutputSha": "1219f691c4f171fedd560c726f7c801345f640893ec3244d31c38e1a70292562",
-        "candidateOutputSha": "fad72b953ae095019345505805099c45ddb64537e1af0b0834a3217a4e0c6d66",
-        "facts": {
-          "validation": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "resume": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "refusal": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "no-worktree": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "None of these four facts moved: both outputs satisfy all four. After preserves actual-local-tip validation, canonical two-parent recovery checks, the already-landed #13 report, #14-before-base ordering, original-head provenance, and B’s pre-write refusal. Its explicit description of provisioning the existing validated branch also preserves the no-worktree requirement without inventing a merge. Keep those statements and commands intact when revising further. To deliver the separate gate-line-first change, put the waiting-question marker at column zero on the first line while retaining the existing choices and pause; After still opens with introductory prose.",
-        "wallMs": 7059,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "b7c3d572aca72072a07f83e0793b9421cd327c78"
+  "repoSha": "b49878892319f86b4d65d69583c65fc67b5e242c"
 }

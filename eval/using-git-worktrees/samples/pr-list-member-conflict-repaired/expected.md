@@ -1,4 +1,4 @@
-- helper: judged: Uses fresh foreground implementer at selected worktree, only src/retry.ts, fetched-base overrides and exact scoped test; helper stages but never commits or edits outside list.
-- checks: judged: Requires empty unmerged index, listed file staged, and status delta contained before orchestrator git -C worktree commit --no-edit preserving canonical #14 subject.
-- continue: judged: Reports Member merge: #14 fffffff and proceeds to origin/main only after repair, reporting base 1111111.
-- history: judged: Retains all three original heads and checks their ancestry; report PR/head pairs stay home first with original full SHAs.
+- helper: judged: Uses a fresh foreground implementer at selected worktree for each stop, only src/retry.ts, fetched-base overrides, current patch and exact scoped test; helper stages but never commits, continues, aborts, skips or edits outside list.
+- checks: judged: Requires empty unmerged index, listed file staged, and contained status delta before orchestrator GIT_EDITOR=true git -C worktree rebase --continue; only orchestrator skips the independently empty stopped commit.
+- continue: judged: After home rebase and #13 replay, repairs #14 and reports Member replay: #14 fffffff..fffffff, updates home ref and checks out home, then persists final rework-base ffffffffffffffffffffffffffffffffffffffff.
+- history: judged: Preserves all three full original pre-rework refs and home-first PR/head pairs; validates rework-base ancestry instead of original-head ancestry of rewritten HEAD and leaves origin members unchanged.

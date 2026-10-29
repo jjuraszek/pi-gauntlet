@@ -1,0 +1,4 @@
+- order: judged: Rebases home onto origin/main first, then replays #13 and #14 in listed order using rebase --no-rebase-merges --onto HEAD BASE_SHA and each original member head, moving home's ref to detached HEAD and checking out home after each success; no merge commits.
+- preflight: judged: Fetches and checks all three original objects and matching remote heads before worktree writes; a moved or unreachable #14 stops naming #14 before checkout.
+- ancestry: judged: Saves each original head at its pre-rework ref, leaves origin member branches untouched, writes rework-base at final 1111111111111111111111111111111111111111 and validates its ancestry rather than original-head ancestry of rewritten HEAD.
+- report: judged: Reports all three full original PR/Pre-rework head pairs home first, Member replay: #13 fffffff..1111111 and Member replay: #14 empty, rebased: aaaaaaa..1111111, and full Rework base immediately after Base SHA.

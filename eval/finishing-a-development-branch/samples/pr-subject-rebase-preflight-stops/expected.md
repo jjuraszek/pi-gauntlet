@@ -1,0 +1,2 @@
+- guard: judged: Rewritten boundary stops before menu/push with PR branch history was rewritten: ddddddd is not an ancestor of HEAD; the rework must restart from the recorded rework base.
+- incomplete: judged: Every incomplete/absent-Rework-base variant stops before menu/push with rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first. Does not fall back to merge mode or offer closure; member #13 remains open.

@@ -1,0 +1,5 @@
+- legacy: judged: Missing Rework base on an ordinary legacy merge record selects merge mode, proves all original heads and origin head ancestors, and pushes only home non-force after capture/strip/seal; does not force push or demand a Rework base for legacy mode.
+- refs: judged: Creates only the missing refs/gauntlet/pre-rework/pr-13 with original bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, preserves existing home ref and the mismatched existing member ref rather than overwriting either.
+- body: judged: Preserves fresh description bytes and original full SHA/ref provenance in the appended Rework block, writes via outside-repo scratch after push, and declining closure leaves #13 open without branch deletion.
+- original-proof: judged: Each original-head ancestry failure stops before pushing with PR branch history was rewritten naming the offending sha7 and the re-merged, not rebased remedy, rather than skipping a member proof or choosing a force push.
+- range: judged: Thread-count range uses merge-sha ccccccc..HEAD when present, otherwise original home prehead aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..HEAD, never a new local-before boundary.

@@ -1,0 +1,1 @@
+- verification: judged: For fix minors F3 dispatches lint, format, test-timeout and test-retry under lint/format header, or test-timeout and test-retry under sentinel (never sentinel); requires fresh successful post-fix evidence for every command before Step 3.5/menu return, blocks on failed test-retry or missing evidence, keeps ordinary-spec header-only dispatch.

@@ -1,0 +1,100 @@
+{
+  "sample": "pr-subject-merge-forward",
+  "arm": "candidate",
+  "skillSha": "1d452badf2a6b4cf296e478093c2a25dc2fcdd11ec9e3a32b27bc3beccdf25ed",
+  "inputSha": "036523b1f8594ebbea3c2c4925381d4fd8ccfcc8d02a586c441c55bd49bde2c2",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions (synthetic; no live calls)\n\n**Shared entry (each trace is independent)**\n1. Stage: the fresh-entry tracker reset, plan clear, and `start brainstorm`.\n2. Read `reference/pr-subject.md`. It is readable and applied.\n3. Read `reference/ticket-acceptance.md`, which is required before gathering even with no ticket. It is readable.\n4. Read the first-found overrides file and apply its `## conventions`.\n\n---\n\n**A - `#12 #13 merge-forward keep retry limits`**\n1. **Leading run:** `#12`, `#13`. The first non-ref token is `merge-forward`, so `SYNC=merge`. Only that token is stripped, and the intent is `keep retry limits`.\n2. **Ordered admission:** `gh pr view #12` runs, then `#13`, sequentially. Both are OPEN, in-repo, and target main. There are no duplicates, so both are admitted.\n3. **Classification:** the spec-PR classifier is skipped because N>1 always goes to relatedness and rework.\n4. **Relatedness:** titles, bodies, and diffs are fetched for both PRs. The hunks form one retry concern, so there is one group and no question. #12 is home.\n5. **Bind:** home has no tracker reference, so the result is `none - no ticket`. ACs will be drafted at spec-writing. The spec is named `YYYY-MM-DD-pr-12-<topic>.md`.\n6. Read `using-git-worktrees/reference/pr-head.md`. It is readable.\n7. **Provision with `SYNC=merge` and array [#12, #13]:**\n   - Fetch origin.\n   - Reachability: `origin/fix/retry` = aaaa…, `origin/fix/delay` = bbbb….\n   - `BASE_SHA`=cccc….\n   - All stops pass.\n   - Check out `fix/retry` and verify HEAD = aaaa….\n   - Write `refs/gauntlet/pre-rework/pr-12` and `pr-13`.\n8. **Sync order:**\n   - Member merge `#13` gives `ddddddd`.\n   - Base merge `origin/main` gives `eeeeeee`, with no conflicts.\n   - No rework-base ref is written.\n9. **Validate:** aaaa… and bbbb… are both ancestors of HEAD.\n10. **Threads:** the per-PR query returns empty for both, so `Threads: none`.\n11. **Gather:**\n    - Read base-SHA constraints via `git show cccc…:<path>`.\n    - Dispatch scout with the combined `BASE_SHA...HEAD` diff and `Member merge:` lines.\n    - Context-builder is skipped because there is no bound ticket.\n12. **Step 4 report:**\n    - `Base: fix/retry @ aaaaaaa`\n    - PR/Pre-rework pairs for #12 then #13\n    - `Member merge: #13 ddddddd`\n    - `merge: eeeeeee`\n    - `Base SHA: ccccccc`\n\n**Compact Rework record:**\n```\nPR: acme/widget#12 - <title>\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nThreads: none\nPR: acme/widget#13 - <title>\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nThreads: none\nBase: main @ ccccccc - merge: eeeeeee\nScoped tests: test/retry.test.mjs: green\n```\n- There is no `Rework base:` line, because this is a merge record.\n- `Member merge:` lines stay in Step 4 and scout input only, not in the record.\n\n13. Resume at step 4. The ticket-acceptance check is already in context, so it is not re-read.\n\n---\n\n**B - `#12 keep merge-forward retry limits`**\n1. **Leading run:** `#12`. The first non-ref token is `keep`, not `merge-forward`, so `SYNC=rebase`. The intent is carried verbatim as `keep merge-forward retry limits`.\n2. **Admission:** #12 is admitted.\n3. **N=1 classifier:** fetch and diff against `BASE_SHA`. Retry code changes fail the spec-only shape.\n4. **Route:** the rework route with the selected `SYNC=rebase`. This means a rebase onto origin/main, a `Rework base:` line on success, and no member replay lines. The full record is not repeated here.\n\n---\n\n**C - `repair retry merge-forward like #12`**\n1. **Leading run:** none, because the first token is `repair`.\n2. **Route:** this is a free-text subject. `#12` is a mid-sentence mention, so it is gathered as context through context-builder. `merge-forward` is ordinary intent text, and no `SYNC` is set.\n3. **Not applied:** no PR classification, no PR-head provisioning, and no Rework record. The ordinary worktree path is used.\n\n---\n\n**D - `#12 merge-forward`**\n1. **Leading run:** `#12`. `merge-forward` gives `SYNC=merge` and is stripped, so the intent is empty.\n2. **Admission:** #12 is admitted.\n3. **N=1 classifier:**\n   - Read `reference/spec-pr.md`. It is readable, and its shape predicate is applied.\n   - Derive ROOT, fetch `main fix/retry`, and set `BASE_SHA`=cccc….\n   - The name-status diff shows only an added `doc/specs/retry.md`, so the shape passes.\n   - `git show aaaa…:doc/specs/retry.md` shows the gate marker is absent.\n4. **Route:** shape passes and the marker is absent.\n   - `SYNC=merge` is forced, so the token is redundant and changes nothing about this route.\n   - Print `spec-only PR without the gate marker - running lint and council`.\n5. **Provision:**\n   - The pr-head checkout reuses the clean selected `fix/retry` and fast-forwards to aaaa….\n   - Base merge, then the Step 4 report.\n   - No thread fetch.\n6. **Skipped:** ticket binding, context-builder, scout, gather, and any `## Rework record`.\n7. **Resume at step 4:** the carried `<worktree>/doc/specs/retry.md` is the draft, as on a redraw. Its prior approval does not bypass the gate.\n8. **Later steps:**\n   - Run lint, council, and the gate.\n   - Row 6 is withheld: `Withheld: draft PR - #12 already exists`.\n   - On approval with 1, 2, 4, or 5, persist `**Engine:**`, `**Amend-grant:**`, and `**PR:** acme/widget#12` as a new commit per `spec-pr.md`.\n\nNo forge actions or writes were performed.\n",
+      "words": 739,
+      "wallMs": 36230,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Each independent fresh entry — tracking and required reads.** Narrate resetting the phase tracker, clearing the task tracker, and starting `brainstorm`; no calls or writes occur. Required skill resources would be read at their absolute paths under `skills/`. The fixed observations say resources are readable, so no unreadable-reference stop is triggered. Bundled reference text is not treated as an earlier session read.\n\n2. **Trace A — `#12 #13 merge-forward keep retry limits`: classification.**\n   - Read `skills/brainstorming/reference/pr-subject.md`.\n   - Parse the leading references as ordered PRs #12 and #13. The first intent token is `merge-forward`: select merge provisioning and retain intent `keep retry limits`.\n   - Admit #12, then #13. Both are OPEN, in-repo, target `main`, and pass all other admission checks.\n   - With two PRs, do not apply the single-PR spec-only classifier. Inspect each title/body and actual diff for relatedness: both concern retry behavior, so retain both, #12 home.\n\n3. **Trace A — provisioning reads and stages.**\n   - Read `skills/using-git-worktrees/SKILL.md` and `skills/using-git-worktrees/reference/pr-head.md` for root derivation, safety checks, worktree-home resolution, and PR-head provisioning.\n   - Check the overrides candidates in order; read the first present file and apply its governing sections. The observations do not identify which candidate exists or provide its contents.\n   - Narrate fetch/reachability, branch/worktree, recovery, and cleanliness checks; all admission checks pass. Provision home branch `fix/retry` at original head `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n   - Record the original-head refs, then merge **member #13 first**, producing `ddddddd`; merge fetched `origin/main` **second**, producing `eeeeeee`. No conflicts occur. Validate ancestry of both original heads.\n   - Read fetched-base `AGENTS.md`, the first-present overrides file, `REVIEW.md`, and cited constraint documents from base `cccccccccccccccccccccccccccccccccccccccc`. Do not substitute PR-edited policy documents.\n   - Fetch unresolved threads per PR: both lists are empty.\n\n4. **Trace A — gather and compact record.**\n   - Read `skills/brainstorming/reference/ticket-acceptance.md` before gathering, then `skills/brainstorming/gatherer.md`. There is no bound ticket; retain `none - no ticket`. Later acceptance rows come from the agreed design, not raw PR intent.\n   - Discover/read carried specs, gather attributed PR inputs, and dispatch the required scout against the combined diff under fetched-base constraints before step 4.\n   - The compact Rework record fields would be:\n     ```text\n     PR: acme/widget#12\n     Pre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n     Threads: none\n     PR: acme/widget#13\n     Pre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n     Threads: none\n     Base: main @ ccccccc - merge: eeeeeee\n     ```\n     Provisioning/scout outcome: `Member merge: #13 ddddddd`. It does **not** enter the Rework record; neither `Member replay:` nor `Rework base:` belongs to this merge route. No additional brainstorming tests are authorized by the clean sync; the supplied passing scoped-test observation is not a live execution claim.\n\n5. **Trace B — `#12 keep merge-forward retry limits`.** The leading run contains only #12. First intent token `keep` selects default **rebase**; preserve the entire intent `keep merge-forward retry limits`. The later token does not switch modes. Apply ordinary single-PR admission and spec-only classification before choosing the resulting route.\n\n6. **Trace C — `repair retry merge-forward like #12`.** No leading reference run exists. Use the free-text/context-builder path, gathering #12 as context. Neither PR-head provisioning nor the sync-token rule applies.\n\n7. **Trace D — unmarked spec-only PR.** Admit #12 normally, then inspect its pinned diff and read its added spec. Shape passes; marker is absent. Announce “spec-only PR without the gate marker - running lint and council.” Force merge provisioning regardless of the intent token. Provision the clean selected branch and merge the base; skip thread fetching, binding, gather, and scout. Resume step 4 using the carried spec, then follow design approvals, lint, council, and the full review gate. Prior approval does not bypass this route. Create **no Rework record**; withhold draft-PR option 6 because #12 already exists.\n",
+      "words": 567,
+      "wallMs": 25503,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "1ea278114c284a4100dabb9024429627b7ea15458fa5d54c4c9e55d8fd17182e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f035fb2bb781eadd528cefbc96893c46d9f58e29a3041a57c2f36cfca989009c",
+      "baselineOutputSha": "dcc8675028f6e8afe35c28eb41ded5df1a7a134a16caae1bb56d213851ae304e",
+      "candidateOutputSha": "cdd9eabc02ba216e0b307cb3425a34abad0e04de3de9c9aff53ad1459b1d9e3f",
+      "facts": {
+        "leading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "merge-path": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "nonleading": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "spec-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: Trace A now parses the #12/#13 run, strips only the first `merge-forward`, carries `keep retry limits` as intent, sets SYNC=merge on the checked-out `fix/retry`, and still narrates ordered admission, member-then-base merge with `Member merge: #13 ddddddd` provenance, original-head preservation, and a record with no `Rework base:` line — so `leading` moves to holds while `merge-path` stays held. Before already merged in A (fixed observations), but never stripped the token or carried the trimmed intent, which is why it failed `leading`. B and C are preserved: B keeps `merge-forward` verbatim in intent on the single-PR path with SYNC=rebase (nonleading token does nothing), and C stays free-text with #12 as context-builder context. D keeps the unmarked spec-only route, states the token is redundant on that route, writes no Rework record, skips thread fetch, and withholds 6 with the persist-on-approval line. No wording in After moved any fact; the only optional tightening would be to make B's sentence explicit that the nonleading token 'is not read as a sync selector' (it currently implies this via `SYNC=rebase`), but the current text already satisfies the fact as written.",
+      "wallMs": 20270,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "1ea278114c284a4100dabb9024429627b7ea15458fa5d54c4c9e55d8fd17182e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f035fb2bb781eadd528cefbc96893c46d9f58e29a3041a57c2f36cfca989009c",
+      "baselineOutputSha": "180965e1dc3c8df4307046b0032c8d399b3eb368bb4c5e6709782007a0f5b091",
+      "candidateOutputSha": "d2d7fdc03db7e80dfce1182cc0267de002577c4d043bd030e0d2ac307e6feca4",
+      "facts": {
+        "leading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "merge-path": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "nonleading": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "spec-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved only the intended fact: Before kept `merge-forward keep retry limits` whole as intent and never tied provisioning mode to the token, so `leading` failed there; After's sentence 'The first intent token is merge-forward: select merge provisioning and retain intent `keep retry limits`' plus ordered admission of #12 then #13 and provisioning on home branch `fix/retry` makes it hold. Nothing regressed: `merge-path` still shows member #13 merged first (ddddddd), origin/main second (eeeeeee), ancestry validation, canonical per-PR Pre-rework heads, and an explicit note that no `Rework base:`/`Member replay:` field exists; `nonleading` is actually sharper in After because Trace B states the later `merge-forward` token does not switch modes and Trace C says neither PR-head provisioning nor the sync-token rule applies; `spec-only` holds because Trace D keeps the unmarked route, no Rework record, no thread fetch, and withheld option 6. Two cautions for the author: After's D says 'Force merge provisioning regardless of the intent token', a claim the Change paragraph does not make and which could later collide with a fact requiring the token to be ignored rather than overridden — safer wording is 'the intent token does not change this route's classification or provisioning'; and After's B names the default as 'rebase', which is fine for this fixture but should match whatever the skill text actually calls the default so future judges do not read it as an invented mode. Also, After cleanly resolved Before's internal inconsistency (member merge listed inside the record while the prose said it belongs outside) by placing `Member merge: #13 ddddddd` explicitly outside the record; keep that split.",
+      "wallMs": 25175,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "c13e20f9a5d52c18f3f0d980dcddd0877c685bd8"
+}

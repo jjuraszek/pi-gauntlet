@@ -1,0 +1,100 @@
+{
+  "sample": "pr-list-rebase-eligibility",
+  "arm": "candidate",
+  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "inputSha": "5fbd7ad0051ffcca2701bae414d8f859f082731e30e1147970a133944457e31f",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure checkpoint (rebase record, home PR #12 at saved pushed head `eeeeeee`)\n\n**Live refresh (members only, open, at recorded heads; all objects local, so no fetch):**\n```\ngh pr view 13 -R acme/widget --json state,headRefOid   -> OPEN, bbbbbbb… (= recorded)\ngh pr view 14 -R acme/widget --json state,headRefOid   -> OPEN, ccccccc… (= recorded)\n```\n\n**Replay-outcome proofs (fixed recorded SHAs vs saved pushed home):**\n```\ngit -C \"/work/widget/.worktrees/retry\" merge-base --is-ancestor 4444444 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n  -> exit 0  (#13 range 3333333..4444444 eligible)\ngit -C \"/work/widget/.worktrees/retry\" cherry eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee cccccccccccccccccccccccccccccccccccccccc\n  -> exit 0, only '-' lines  (#14 empty eligible)\n```\n\n**Question:**\n```text\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\"\n1 - yes, close #13, #14\n2 - no, leave them open\n```\nThese are comment C13 and comment C14 below.\n\n**Reply: `1`.** Before each close, run an immediate live refresh. Both return OPEN with the recorded head unchanged, so the authorization holds:\n```\ngh pr view 13 -R acme/widget --json state,headRefOid   -> OPEN, bbbbbbb…\ngh pr close 13 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\" -R acme/widget\ngh pr view 14 -R acme/widget --json state,headRefOid   -> OPEN, ccccccc…\ngh pr close 14 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\" -R acme/widget\n```\nNo `--delete-branch`. No member push or merge.\n\n```\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n**Outcome:** `Closed: #13, #14`\n\n## Variants (each is independent of the others; commands and comments are the same as above unless stated)\n\n| Variant | Exclusion | Question targets / options | Outcome (after answering 1, when asked) |\n|---|---|---|---|\n| #14 record `(already landed)`, cherry shows only `-` | none; this record uses the same cherry proof as `empty` | #13 (C13), #14 (C14); `1 - yes, close #13, #14` / `2 - no, leave them open` | `Closed: #13, #14` |\n| #13 range ancestry exit 1 | #13 withheld: `#13 skipped: replay 4444444 is not an ancestor of pushed home eeeeeee` | #14 (C14) only; `1 - yes, close #14` / `2 - no, leave them open` | `Closed: #14; #13 skipped: replay 4444444 is not an ancestor of pushed home eeeeeee` |\n| #14 cherry has a `+` line | #14 withheld: `#14 skipped: cherry shows commits not contained in eeeeeee` | #13 (C13) only; `1 - yes, close #13` / `2 - no, leave them open` | `Closed: #13; #14 skipped: cherry shows commits not contained in eeeeeee` |\n| #13 proof exit 128 (`fatal: …`) | Treated as a command error: closure withheld for #13, `fatal:` output quoted, no retry | #14 (C14) only; `1 - yes, close #14` / `2 - no, leave them open` | `Closed: #14; #13 skipped: proof command error (exit 128: fatal: …)` |\n| #14 live eligibility refresh fails (HTTP 503) | #14 withheld as a failed refresh, with no inference from the stale state | #13 (C13) only; `1 - yes, close #13` / `2 - no, leave them open` | `Closed: #13; #14 skipped: refresh failed (HTTP 503)` |\n| Neither eligible (#13 range exit 1, #14 cherry `+`) | both withheld | **No question and no close** | `Member PRs #13, #14 left open.` (`#13 skipped: replay 4444444 is not an ancestor of pushed home eeeeeee`; `#14 skipped: cherry shows commits not contained in eeeeeee`) |\n\nThe ship phase is marked complete in every variant, after the close outcomes or right away when no question is asked.\n\nIn variants where a question is asked and the user answers 1, the same immediate refresh runs before each `gh pr close`. Any change in state or head since approval, or a refresh failure, skips that close and reports it, so no stale authorization is ever used. Nothing deletes member branches, pushes member refs, merges home, or retries a failed close.\n",
+      "words": 593,
+      "wallMs": 23477,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Main checkpoint\n\nRun eligibility refreshes in `acme/widget`:\n\n```bash\ngh pr view 13 -R acme/widget --json state,headRefOid\ngh pr view 14 -R acme/widget --json state,headRefOid\n```\n\nBoth are `OPEN`, with heads equal to their recorded originals. All objects are local; no fetch is needed.\n\nExact replay eligibility proofs against the immutable pushed home:\n\n```bash\ngit -C /work/widget/.worktrees/retry merge-base --is-ancestor 4444444 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\ngit -C /work/widget/.worktrees/retry cherry eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee cccccccccccccccccccccccccccccccccccccccc\n```\n\nThe ancestry proof exits 0. Cherry succeeds with only `-` lines. Both members qualify.\n\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\"\n1 - yes, close #13, #14\n2 - no, leave them open\n\n**Answer:** `1`\n\nFor the shared execution recipe below, `C13` and `C14` denote exactly the respective literal comments displayed above. Immediately before **each** close, repeat that member’s refresh command above. Both immediate refreshes remain `OPEN` at their original heads; execute:\n\n```bash\ngh pr close 13 --comment \"$C13\" -R acme/widget\ngh pr close 14 --comment \"$C14\" -R acme/widget\n```\n\nAfter successful closes, mark the ship phase complete.\n\n**Closed: #13, #14**\n\n## Independent variants\n\nEach variant starts independently from the checkpoint. Unmentioned eligibility results remain as in Main. Single-target questions retain the shared question heading and only that target’s exact literal comment above. Their exact options are shown below. With answer `1`, apply the shared immediate-refresh-and-close recipe only to the displayed target.\n\n| Variant | Exclusions and adjusted question | Outcome after successful authorized closes |\n|---|---|---|\n| #14 recorded `(already landed)`; same cherry output | No exclusions. Same complete question, comments, and options as Main. | **Closed: #13, #14** |\n| #13 range ancestry exits 1 | `#13 skipped: replay endpoint 4444444 is not an ancestor of pushed home eeeeeee.` Ask for **#14 only**, using C14. Options: `1 - yes, close #14`; `2 - no, leave it open`. | **Closed: #14; member PR #13 left open.** |\n| #14 cherry has a `+` line | `#14 skipped: recorded empty replay is not proved; cherry reports an uncontained commit.` Ask for **#13 only**, using C13. Options: `1 - yes, close #13`; `2 - no, leave it open`. | **Closed: #13; member PR #14 left open.** |\n| #13 proof exits 128 with fatal output | Report exit 128 and its fatal output verbatim; no literal diagnostic was supplied here. Withhold #13 closure as a command error. Ask for **#14 only**, using C14 and the #14-only options above. | **Closed: #14; member PR #13 left open (proof error).** |\n| #14 eligibility refresh fails HTTP 503 | `#14 skipped: eligibility refresh failed (HTTP 503).` Ask for **#13 only**, using C13 and the #13-only options above. | **Closed: #13; member PR #14 left open.** |\n| Neither eligible: ancestry exits 1; cherry has `+` | Both exclusions above apply. **No question and no close.** | **Member PRs #13, #14 left open.** |\n\nNo member push, branch deletion, home merge, or stale approval is used.\n",
+      "words": 468,
+      "wallMs": 18689,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9ab69495222e60722e53ba07a8a77361d80c74fbbc62b1b2bf4c41349805021f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "89a1fdeda1b47ab3e7160d70df67c04deafdbefba91e938e8e56d4eb3b685a7e",
+      "candidateOutputSha": "33b8ecbbe8f00d665eb1cd0db915b61a56a531508f2394519e7fb5e465b57e02",
+      "facts": {
+        "rebase-members": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "exclusions": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "rebase-comments": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "recheck": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves three facts from fails to holds and keeps recheck. Before failed rebase-members and rebase-comments because its close comments were merge-mode text (\"merged there and remain reachable as bbbbbbb\") rather than the replayed-range and already-contained comments, and its #14 proof appended the Rework base as a cherry limit argument (`git cherry eeee… cccc… 2222…`) so the already-landed control did not use the plain `git cherry <home> <original>` proof with the already-contained comment; After uses the exact two comments and the two-argument cherry, which is what rebase-members and rebase-comments ask for. Before failed exclusions because the exit-128 and HTTP 503 variants withheld closure for both members instead of excluding only the affected one; After excludes only #13 on exit 1 or exit 128 (quoting the fatal output) and only #14 on a '+' line or 503 (naming the reason), narrows the target list and option 1 to the remaining member, and states no question and both outcomes for the neither-eligible case. Recheck holds in both: each re-fetches live state/head before every close, closes only the displayed targets with unchanged identity, does not rerun the ancestry/cherry proofs after approval, and closes before marking ship complete and reporting. Nothing in After regressed a fact Before held; keep the per-member exclusion rows, the exact literal comments, and the plain two-argument cherry proof as written.",
+      "wallMs": 22524,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9ab69495222e60722e53ba07a8a77361d80c74fbbc62b1b2bf4c41349805021f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
+      "baselineOutputSha": "74a8102c7d59f3f11984a1a3bc99dd96abd43c6c87236e57b7387cd5cae2a931",
+      "candidateOutputSha": "2c36c149f5cd3ed08cc04524128b626e09cf27502e2c642558f81fed27290774",
+      "facts": {
+        "rebase-members": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "exclusions": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "rebase-comments": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "recheck": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before failed every fact because it applied merge-mode eligibility: it demanded original-head ancestry (bbbb…/cccc… against the pushed home), dismissed the 4444444 ancestry and `git cherry` proofs as non-qualifying, used the wrong 'merged there and remain reachable as' comments, withheld all closure on the #13 exit-128 and #14 HTTP 503 variants instead of excluding only the affected member, and never reached a close/mark-complete/outcome report. After moved all four to holds: it shows the exact `gh pr view` refreshes plus `merge-base --is-ancestor 4444444 eeee…` and `cherry eeee… cccc…`, displays the exact question/comments/options, repeats the refresh immediately before each close, closes only displayed targets, marks ship complete after closes, and the variant rows exclude exactly the right member with a stated reason while adjusting targets and option 1, naming both outcomes in the neither-eligible row. Two small wording risks to avoid regressing recheck/rebase-comments in future edits: the `$C13`/`$C14` shell-variable shorthand relies on the reader mapping back to the literal comments (keep the explicit 'denote exactly the literal comments displayed above' sentence, or inline the full strings once in the close commands), and the variant table should keep the explicit 'apply the shared immediate-refresh-and-close recipe only to the displayed target' sentence so single-target closes still visibly carry the pre-close refresh and unchanged-identity requirement.",
+      "wallMs": 18708,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+}

@@ -1,0 +1,34 @@
+{
+  "sample": "pr-subject-lease-refused",
+  "arm": "baseline",
+  "skillSha": "a4b02355cdac62efa7701161770c59746a506c0825453aa472993fe1e09cc5ee",
+  "inputSha": "702d969e80d59ff8fa3fe3d82ff5d3f58bc52d04ecf1bd1f013f5364369890ed",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finishing a Development Branch: Stopped at Step 4 Preflight\n\nI'm using the finishing-a-development-branch skill to complete this work.\n\n**Aliases:** W=`/work/widget/.worktrees/retry`, A=`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` (Pre-rework head), D=`dddd…dddd` (Rework base), E=`eeee…eeee` (HEAD).\n\n## Step 1: Record read (rework PR subject)\n\n- **Home pair:** `PR: acme/widget#12`, `Pre-rework head: A`. So `PRE_REWORK_HEAD=A`.\n- **Recorded fields:** `Base: main @ 1234567`, `Keeps: retry API`, `Changes: repair retry`, `Dropped claims: none`, `Threads: none`.\n- **Ignored field:** `Rework base: D` is not a field this skill reads. It neither replaces nor relaxes `PRE_REWORK_HEAD`.\n- **Live PR check:** #12 is OPEN, `headRefName=retry` equals `$FEATURE`, and `baseRefName=main`.\n- **Gates:** verification, clean-tree and conformance were already passed, as stated.\n\n## Step 4: Rework preflight\n\n```bash\ngit -C W fetch origin                                # ok\ngit -C W merge-base --is-ancestor A HEAD             # exit 1\n```\n\nProof 1 is the only one that matters, and it exits 1:\n\n```\nPR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.\n```\n\n**Why proof 1 fails:** the record's `rebased: aaaaaaa..ddddddd` explains it. The rework was rebased onto D, so A dropped out of HEAD's ancestry.\n\n**Why D cannot stand in for A:**\n- The proof is defined against the recorded `Pre-rework head`, not against a rework base.\n- The `pr-head` contract forbids `git rebase` below `PRE_REWORK_HEAD`.\n\n**This is a hard stop, not a withheld row.** Proof 2 (`origin/retry` = A is an ancestor of HEAD) is not evaluated. It would also exit 1, but the flow has already ended.\n\n## Row 1 cannot be chosen, so none of its steps run\n\n| Step you asked for | What happened |\n|---|---|\n| Ancestry proof | Exit 1 on `A → HEAD`. The stop above is final. |\n| Evidence capture, thread refetch, naming-commit count | Not run. The `git log --first-parent --grep '<id>' A..HEAD` range is never computed. It is also meaningless here, because A is not an ancestor of HEAD. |\n| Plan strip and telemetry seal (`--option pr --base origin/main`) | Not run. The plan stays and the record stays untracked and `in_progress`. |\n| `update-ref refs/gauntlet/pre-rework/pr-12` | Not run. The existing ref still points to A, unchanged. |\n| Push | Not run. The only permitted push is non-force: `git -C W push --no-follow-tags origin HEAD:refs/heads/retry`. |\n| `--force-with-lease` push | **Refused.** This skill force-pushes no PR-subject rework, and any force push needs an explicit request in any case. The `stale info` scenario is therefore unreachable. |\n| `## Rework` block and `Before:` provenance | Not written. A successful run would have used `Before: aaaa…aaaa (local ref refs/gauntlet/pre-rework/pr-12 in the rework checkout; …stays on origin because the push was not forced)`. That claim would be false after a lease push, which is one more reason the route is barred. |\n\n## No menu is shown\n\nThe preflight is a stop, so there is no returned menu. Rows 2–6 are not offered either. Recomputing on return would hit the same proof-1 failure.\n\n## Outcome\n\n- **Workspace:** W is preserved at E. Telemetry is unsealed and the plan is not stripped.\n- **Ref:** `refs/gauntlet/pre-rework/pr-12` still points to A.\n- **Remote:** `origin/retry` is still A. Nothing was pushed.\n- **Members:** none (N=1), so there is no member line and no closure question.\n- **Ship phase:** remains open and is not marked complete.\n- **No retries, resets, body fetches or edits, PR closes, thread replies, or other forge mutations occurred.**\n\n## To proceed\n\nRebuild the rework so that A is an ancestor of HEAD:\n1. Start a branch from A.\n2. Merge `origin/main` into it rather than rebasing.\n3. Reapply the repair commits on top of that branch.\n4. Rerun `/skill:finishing-a-development-branch W`.\n\nProof 1 will then pass and row 1's non-force push can land.\n",
+      "words": 571,
+      "wallMs": 23133,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Ancestry preflight, before offering or executing row 1:\n\n```bash\ngit -C \"/work/widget/.worktrees/retry\" merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD\n# exit 1\n```\n\nPR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.\n\nFinishing stops here. The rework base `ddddddd` being an ancestor does not satisfy the required proof against the original pre-rework head.\n\n- **Workspace:** preserved at `/work/widget/.worktrees/retry`, with HEAD `eeeeeee`.\n- **Original ref:** `refs/gauntlet/pre-rework/pr-12` remains at `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n- **Members:** none recorded.\n- **Not reached:** thread refresh/counting, plan stripping, telemetry sealing, push, body fetch/edit, and PR closure.\n- **No retries, resets, forge mutations, or thread replies.**\n\nThe stated seal success and lease-push rejection are not reachable under this skill’s required ordering. No lease push is prescribed: the permitted push, after successful ancestry checks and sealing, would be non-force. No returned menu or withheld-push reason is rendered here, because failure of the **first** ancestry proof requires stopping, not withholding row 1.\n\nAny later successful Rework block must retain the original provenance:\n\n```text\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\n```\n",
+      "words": 186,
+      "wallMs": 11328,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "a2bb2e18ba30625bb5e2c4fd05188f5aa3bf420f"
+}

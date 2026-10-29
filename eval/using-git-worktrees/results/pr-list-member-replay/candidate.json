@@ -1,0 +1,100 @@
+{
+  "sample": "pr-list-member-replay",
+  "arm": "candidate",
+  "skillSha": "265d6eba4f1c45e2a6666ef5bab7d3fec852d1236d671705e674e98e02b8aa40",
+  "inputSha": "851b26c4187b4cc3c699fef172a7763b1980c88a0532de6d4dee03b95fedc6c7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThe caller passed resolved PR values, so I follow `reference/pr-head.md` instead of Steps 0 and 1.\n\n## Resolve and fetch\n\n1. **Root and submodule guard** (cwd `/private/var/.../eval-skill-lZrLYp`, the primary checkout)\n   - I run `git rev-parse --path-format=absolute --git-dir --git-common-dir`. The two values are equal.\n   - `ROOT=$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir)\")` resolves to `/work/widget`.\n   - `git rev-parse --show-superproject-working-tree` returns empty, so this is not a submodule.\n\n2. **Overrides ladder**\n   - The overrides file has no `home:`, `create:` or `destroy:` keys, and there is no native tool or wrapper.\n   - The overrides file provides the runner only. The base-SHA constraint read is owned by `brainstorming/reference/pr-subject.md`, so I do not resolve SCOPED_TEST_COMMANDS here.\n   - `<name>` is `fix/retry` with `/` replaced by `-`, giving `fix-retry`.\n   - `WORKTREE=/work/widget/.worktrees/fix-retry`.\n   - `SYNC=rebase`.\n   - `PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n   - MEMBER_HEADS is `[#13 fix/cap bbbb…, #14 fix/retry-docs cccc…]`.\n\n3. **Fetch:** `git -C /work/widget fetch origin` succeeds.\n\n4. **Reachability and remote equality**, checked for every admitted PR before any write:\n   - `git -C /work/widget rev-parse --verify -q aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}` passes. `git -C /work/widget rev-parse origin/fix/retry` returns aaaa…, which matches.\n   - The same two checks for `bbbb…` and `origin/fix/cap` pass.\n   - The same two checks for `cccc…` and `origin/fix/retry-docs` pass.\n   - **If #14 were unreachable or moved**, I would stop right here, after fetch and before any stop-table row, worktree write, `worktree add` or checkout. The stop would read: `PR #14 head ccccccc is not reachable (origin/fix/retry-docs is at <sha7>); the branch moved.`\n\n5. **Base SHA:** `BASE_SHA=$(git -C /work/widget rev-parse origin/main)` resolves to `dddddddddddddddddddddddddddddddddddddddd`.\n\n## Pre-write stops, in order\n\n- `isCrossRepository` is false for #12, #13 and #14.\n- `git -C /work/widget worktree list --porcelain` shows `fix/retry` at no other path.\n- Reachability already passed in item 4.\n- `git -C /work/widget for-each-ref refs/heads/fix/retry` returns empty, so there is no local branch and the ancestry stop does not apply.\n\n## Recovery check\n\n- `git -C /work/widget for-each-ref refs/gauntlet/rework-base/pr-12` returns empty.\n- There is no existing worktree and no local branch, so there is nothing to recover.\n\n## Provision the exact head\n\n1. **Source clean check:** `git -C /work/widget status --porcelain` exits 0 with empty output, so the source is clean.\n2. **Home safety:** `git -C /work/widget check-ignore -q .worktrees` exits 0, so `.worktrees` is already ignored and nothing needs committing.\n3. **Create the worktree:** the matching row is \"no worktree, no local branch\".\n   - I run `git -C /work/widget worktree add \"/work/widget/.worktrees/fix-retry\" fix/retry`.\n   - Unique-remote DWIM resolves this as `--track -b fix/retry … origin/fix/retry`.\n4. **Verify the head:** `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` returns aaaa…, which equals home `headRefOid`.\n\n## Record pre-rework heads\n\nAll of these run with cwd unchanged:\n- `git -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/pre-rework/pr-12 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- `git -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/pre-rework/pr-13 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n- `git -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/pre-rework/pr-14 cccccccccccccccccccccccccccccccccccccccc`\n\n## Sync (rebase)\n\n**Home rebase comes first.**\n- last-good starts at aaaa…\n- I run `git -C /work/widget/.worktrees/fix-retry rebase --no-rebase-merges origin/main`.\n- HEAD becomes `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` on `fix/retry`. last-good is now eeee…\n\n**Member #13 replay** (replay runs detached):\n- I run `git -C /work/widget/.worktrees/fix-retry rebase --no-rebase-merges --onto HEAD dddddddddddddddddddddddddddddddddddddddd bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`.\n- This adds `ffff…` then `1111…`, leaving a detached HEAD at 1111…\n- `git -C /work/widget/.worktrees/fix-retry update-ref refs/heads/fix/retry HEAD` moves `fix/retry` to 1111…\n- `git -C /work/widget/.worktrees/fix-retry checkout fix/retry` puts the worktree back on the home branch. last-good is now 1111…\n- The result is `Member replay: #13 fffffff..1111111`.\n\n**Member #14 replay:**\n- I run `git -C /work/widget/.worktrees/fix-retry rebase --no-rebase-merges --onto HEAD dddddddddddddddddddddddddddddddddddddddd cccccccccccccccccccccccccccccccccccccccc`.\n- Every commit is already applied and drops, which is not an error. The detached HEAD stays at 1111…\n- `git -C /work/widget/.worktrees/fix-retry update-ref refs/heads/fix/retry HEAD` leaves the branch unchanged at 1111…\n- `git -C /work/widget/.worktrees/fix-retry checkout fix/retry` returns to the home branch. last-good stays at 1111…\n- The result is `Member replay: #14 empty`.\n\n**Member refs are never touched.** Neither local `fix/cap` / `fix/retry-docs` nor the origin branches are updated. Origin stays at bbbb… and cccc…\n\n**Persist the rework base:** `git -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/rework-base/pr-12 HEAD` records 1111…\n\n**Fetched-base constraint reads** follow `brainstorming/reference/pr-subject.md`, reading from BASE_SHA dddd… rather than the worktree tree.\n\n## Validate\n\n1. **Rework-base ancestry:** `git -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor refs/gauntlet/rework-base/pr-12 HEAD` exits 0.\n   - I do not assert original-head ancestry, because this is a rebased tip.\n2. **History:** `git -C /work/widget/.worktrees/fix-retry log --first-parent --format='%H %P %s' dddddddddddddddddddddddddddddddddddddddd..HEAD` lists, newest first:\n   - 1111… with parent ffff…\n   - ffff… with parent eeee…\n   - eeee… back down to dddd…\n   - Every entry has a single parent, so first-parent history is linear with no merge commits.\n3. **Unresolved review threads,** fetched before gather:\n   - I run the `gh api graphql --paginate` reviewThreads query from the reference with `-F o=acme -F r=widget` and `-F n=12`, then `-F n=13`, then `-F n=14`.\n   - Each fetch succeeds empty, giving `Threads: none` for all three.\n4. **Scope of work:** only the sync ran. I wrote no spec or plan, ran no tests, dispatched no reviewer, and did not push or close anything.\n\n## Step 4 report\n\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nBase: main @ ddddddd - rebased: aaaaaaa..1111111, 0 stop(s)\nMember replay: #13 fffffff..1111111\nMember replay: #14 empty\nBase SHA: ddddddd\nRework base: 1111111111111111111111111111111111111111\nThreads: #12 none, #13 none, #14 none\nReady to implement retry-cap rework for #12 (+#13, #14)\n```\n\nMEMBER_HEADS (#13 bbbb…, #14 cccc…) and every PR / pre-rework head pair carry forward to gather.\n",
+      "words": 850,
+      "wallMs": 43737,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nThis is a **synthetic narration only**. Every command below has process cwd **`/work/widget`**; `git -C` explicitly selects another checkout without changing that cwd.\n\n### 1. Resolve the PR worktree path\n\nThe supplied PR array selects the PR-head procedure instead of generic Steps 0–1.\n\nResolved values:\n\n- `ROOT=/work/widget`\n- Home: `acme/widget#12`, branch `fix/retry`\n- `NAME=fix-retry`\n- `WORKTREE=/work/widget/.worktrees/fix-retry`\n- `PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- `MEMBER_HEADS`, in order:\n  - #13, `fix/cap`, `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n  - #14, `fix/retry-docs`, `cccccccccccccccccccccccccccccccccccccccc`\n- Base branch: `main`\n- `SYNC=rebase`\n\nThe supplied facts establish primary-checkout status, attached HEAD, no overrides or wrapper, and no existing local branches or worktrees. No generic new-branch creation is used.\n\n### 2. Fetch and validate before writes\n\nRun, in order:\n\n```sh\ngit -C /work/widget fetch origin\ngit -C /work/widget rev-parse --verify -q 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}'\ngit -C /work/widget rev-parse origin/fix/retry\ngit -C /work/widget rev-parse --verify -q 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb^{commit}'\ngit -C /work/widget rev-parse origin/fix/cap\ngit -C /work/widget rev-parse --verify -q 'cccccccccccccccccccccccccccccccccccccccc^{commit}'\ngit -C /work/widget rev-parse origin/fix/retry-docs\ngit -C /work/widget rev-parse origin/main\ngit -C /work/widget worktree list --porcelain\n```\n\nAll original objects exist; remote heads equal their supplied heads. Resolve:\n\n```text\nBASE_SHA=dddddddddddddddddddddddddddddddddddddddd\n```\n\nAll PRs are in-repository. No conflicting checkout, recovery ref, local branch, or existing selected tree exists.\n\n**Pre-write failure boundary:** If #14’s object were unreachable or its remote head differed, this validation would stop **before checkout, ignore-file changes, worktree creation, or ref writes**, reporting:\n\n```text\nPR #14 head ccccccc is not reachable (origin/fix/retry-docs is at <observed sha7>); the branch moved.\n```\n\nThat failure does not occur here.\n\n### 3. Check source hygiene and provision the exact head\n\n```sh\ngit -C /work/widget status --porcelain\ngit -C /work/widget check-ignore -q .worktrees\n```\n\nStatus succeeds with empty output. The ignore check succeeds, so no `.gitignore` edit or commit is needed.\n\nAnnounce: “Setting up an isolated worktree at `/work/widget/.worktrees/fix-retry` on branch `fix/retry` for this work.”\n\n```sh\ngit -C /work/widget worktree add /work/widget/.worktrees/fix-retry fix/retry\ngit -C /work/widget worktree list --porcelain\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\n```\n\nUnique-remote DWIM provisions existing remote branch `fix/retry`; no explicit `-b` is used. The worktree listing confirms the selected path. HEAD equals the full original home SHA.\n\nRecord original provenance:\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/pre-rework/pr-12 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ngit -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/pre-rework/pr-13 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ngit -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/pre-rework/pr-14 cccccccccccccccccccccccccccccccccccccccc\n```\n\n### 4. Rebase home, then replay members in order\n\nSaved last-good home SHA is initially `PRE_REWORK_HEAD`.\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry rebase --no-rebase-merges origin/main\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\n```\n\nHome rebase succeeds at `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`; save that as last-good.\n\nReplay #13 using its **original** head and the fetched base:\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry rebase --no-rebase-merges --onto HEAD dddddddddddddddddddddddddddddddddddddddd bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ngit -C /work/widget/.worktrees/fix-retry rev-list --reverse --first-parent eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee..HEAD\ngit -C /work/widget/.worktrees/fix-retry update-ref refs/heads/fix/retry HEAD\ngit -C /work/widget/.worktrees/fix-retry checkout fix/retry\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\n```\n\nThe replay is detached and adds `ffffffffffffffffffffffffffffffffffffffff`, then `1111111111111111111111111111111111111111`. Update the home ref, reattach to `fix/retry`, and save the latter SHA as last-good.\n\nReplay #14:\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry rebase --no-rebase-merges --onto HEAD dddddddddddddddddddddddddddddddddddddddd cccccccccccccccccccccccccccccccccccccccc\ngit -C /work/widget/.worktrees/fix-retry rev-list --reverse --first-parent 1111111111111111111111111111111111111111..HEAD\ngit -C /work/widget/.worktrees/fix-retry update-ref refs/heads/fix/retry HEAD\ngit -C /work/widget/.worktrees/fix-retry checkout fix/retry\n```\n\nEvery #14 commit drops as already applied. The revision range is empty; home remains at `1111111111111111111111111111111111111111`.\n\nThere are no conflicts or conflict-test runs. No applicable additional fetched-base constraints are supplied.\n\nPersist and validate:\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry update-ref refs/gauntlet/rework-base/pr-12 HEAD\ngit -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor refs/gauntlet/rework-base/pr-12 HEAD\ngit -C /work/widget/.worktrees/fix-retry log --first-parent --reverse --format=%H dddddddddddddddddddddddddddddddddddddddd..HEAD\n```\n\nThe first-parent replay history is linear: home rebase through `eeeeeee`, then `fffffff`, then `1111111`; no member merge commits. Member branches remain unchanged.\n\n### Step 4 report\n\n```text\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nBase SHA: ddddddd\nRework base: 1111111111111111111111111111111111111111\nMember replay: #13 fffffff..1111111\nMember replay: #14 empty\nBase: main @ ddddddd - rebased: aaaaaaa..1111111, 0 stop(s), files: none\nReady to implement retry caps\n```\n\nStop here: no gather, tracker calls, push, close, spec, or plan writes.\n",
+      "words": 637,
+      "wallMs": 44038,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3c340668ac4244dd2d2084dda02cec05b99d367a2404b6b595f5d5848dfa245a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
+      "baselineOutputSha": "7466ff3fdd583bf19b1fbd82f22109a45ecf3b1a1e5d70a9f65974ba0255706c",
+      "candidateOutputSha": "d0bc3bd2e7e2851bc0583164fa6e78ac17f50fb55713833ab1bdde32ab094cdf",
+      "facts": {
+        "order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "preflight": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ancestry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "report": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "The After wording delivers the Change cleanly: Before refused SYNC=rebase and fell back to --no-ff member merges plus a base merge, so order, ancestry and report all failed (no detached replay, rework base left at aaaa…, report carried 'Member merge' lines and no 'rebased:' or 'Rework base'). After rebases home onto origin/main first, replays #13 then #14 with `rebase --no-rebase-merges --onto HEAD <BASE_SHA> <original head>`, moves refs/heads/fix/retry to the detached HEAD and checks home back out after each success, records pre-rework refs for all three PRs, leaves origin member branches untouched, persists rework-base at 1111… and validates that ancestry instead of original-head ancestry, and emits the report with 'rebased: aaaaaaa..1111111', both Member replay lines, and the full Rework base immediately after Base SHA. The preflight fact was preserved unchanged (fetch, per-PR object/remote checks, and a #14-named stop before any worktree write). No fact regressed; keep the explicit 'Home rebase comes first', the detached replay/update-ref/checkout triplet per member, and the 'I do not assert original-head ancestry, because this is a rebased tip' line, since those are what carry the moved facts.",
+      "wallMs": 16562,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3c340668ac4244dd2d2084dda02cec05b99d367a2404b6b595f5d5848dfa245a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
+      "baselineOutputSha": "6b6b4a8cd044826207499c1cf914bb4672892b0f21e98cd54fad6ba72cf07cd1",
+      "candidateOutputSha": "5f98dfab4f1cec569d6702d681567cf446a72d68ca898c7f0e303c9867a0377f",
+      "facts": {
+        "order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "preflight": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ancestry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "report": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before read the PR-head rules as merge-only and refused SYNC=rebase, so it never rebased home, never replayed members with --onto, never saved pre-rework or rework-base refs, and its report lacked the Member replay, rebased, and Rework base lines; only preflight held. After delivers the Change cleanly: it keeps the identical fetch/object/remote-head validation and the pre-checkout #14 stop, then rebases home onto origin/main with --no-rebase-merges, replays #13 and #14 in listed order via `rebase --no-rebase-merges --onto HEAD <BASE_SHA> <original head>`, updates refs/heads/fix/retry from the detached HEAD and checks out home after each success, records refs/gauntlet/pre-rework/pr-{12,13,14} at the original heads, writes refs/gauntlet/rework-base/pr-12 at 1111111 and validates that ref's ancestry (not the original heads'), leaves origin member branches untouched, and emits the home-first report with Rework base directly after Base SHA plus the #13 fffffff..1111111, #14 empty, and rebased aaaaaaa..1111111 lines. No fact that Before kept moved; the After wording (default rebase-linearize with ordered member replay, provenance refs, rework-base persistence and report) should be retained as is, with the only optional tightening being an explicit note that the pre-rework refs are written before any rebase so the saved-tip restoration path is unambiguous.",
+      "wallMs": 14401,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "b49878892319f86b4d65d69583c65fc67b5e242c"
+}
