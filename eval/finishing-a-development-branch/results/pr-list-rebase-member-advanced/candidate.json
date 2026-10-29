@@ -1,7 +1,7 @@
 {
   "sample": "pr-list-rebase-member-advanced",
   "arm": "candidate",
-  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "skillSha": "779a6a4cbee83e01031fd10a9e1f8f43bb859405e06994d8d0c28d4131667f5c",
   "inputSha": "efef07642244e7384621cdaa4c6eaeeb1f750dc0788485191b19aa4f71023a47",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Shared preparation (row 1, PR acme/widget#12 → `retry`, rebase record)**\n\n- Gates had already passed: verification (`test-retry`), conformance, and clean tree.\n- Evidence was captured, then the strip/seal ran with `--option pr --base origin/main --spec doc/specs/rework.md`.\n- Existing `refs/gauntlet/pre-rework/pr-12/13/14` were preserved.\n- Home was pushed with the lease: `git -C /work/widget/.worktrees/retry push --no-follow-tags --force-with-lease=retry:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa origin HEAD:refs/heads/retry` landed eeeeeee.\n- The fresh #12 body was appended byte-for-byte with the `## Rework` block. Its member threads were copied from the record, not inferred from home history:\n  - `Absorbs: #13 (https://github.com/acme/widget/pull/13), #14 (<url>)`\n  - `#12:` → `Threads: none`\n  - `#13:` → MEMBER13 recorded `fix`\n  - `#14:` → MEMBER14 `still open`\n\n**Eligibility refresh (`gh pr view <N> -R acme/widget --json state,headRefOid`)**\n\n- **#13: eligible.**\n  - State is OPEN and the head equals its recorded bbbbbbb.\n  - Replay `3333333..4444444` is proven: `git -C \"$WORKTREE\" merge-base --is-ancestor 4444444 eeeeeee` returned exit 0.\n- **#14: skipped (head moved to 9999999).**\n  - Rebase mode requires the live head to equal recorded ccccccc.\n  - Containment in home does not substitute for that equality.\n\n```text\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n1 - yes, close #13\n2 - no, leave them open\n```\n\n**Answer: 1**\n\n1. Immediate re-fetch of #13: state OPEN, head bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, which matches the approved state.\n2. Close command, with no `--delete-branch` and no member push:\n   `gh pr close 13 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\" -R acme/widget`\n   The close succeeded.\n3. `phase_tracker({ action: \"complete\", phase: \"ship\" })`\n\n```text\nPushed PR #12 (retry) at eeeeeee; Rework block appended to its description.\n<seal stdout verbatim>\nClosed: #13\n#14 skipped: head moved to 9999999\nMember PR #14 left open.\nWorktree preserved at /work/widget/.worktrees/retry.\n```\n\n---\n\n**Independent deltas (each one replaces only the steps after the answer `1`)**\n\n**A. #13 becomes CLOSED after approval.**\n- The re-fetch shows state CLOSED, so authorization is stale and nothing is closed.\n- Ship is still marked complete.\n\n```text\n#13 skipped: state CLOSED\n#14 skipped: head moved to 9999999\nMember PR #14 left open.\n```\n\n**B. #13's head changes after approval.**\n- The re-fetch head is no longer bbbbbbb, so there is no close and no retry.\n- Ship is still marked complete.\n\n```text\n#13 skipped: head moved to <new sha7>\n#14 skipped: head moved to 9999999\nMember PRs #13, #14 left open.\n```\n\n**C. #13's live refresh fails after approval.**\n- No close is attempted.\n- Ship is still marked complete.\n\n```text\n#13 skipped: refresh failed (<gh error>)\n#14 skipped: head moved to 9999999\nMember PRs #13, #14 left open.\n```\n\n**D. No eligible members (#13's replay proof fails at eligibility).**\n- The proof `merge-base --is-ancestor 4444444 eeeeeee` returned exit 1.\n- No question is rendered and nothing is closed.\n- `phase_tracker({ action: \"complete\", phase: \"ship\" })` runs.\n\n```text\n#13 closure withheld: replay 3333333..4444444 not an ancestor of pushed home eeeeeee\n#14 skipped: head moved to 9999999\nMember PRs #13, #14 left open.\n```\n\nAll cases share these invariants:\n- No member refs are updated or pushed.\n- No branches are deleted.\n- No review-thread replies are posted.\n- Nothing is merged.\n- Member fix status comes only from the recorded member dispositions, never from home's first-parent history.\n",
-      "words": 507,
-      "wallMs": 21627,
+      "text": "## Preparation (row 1, already executed)\n\n- **Subject:** rework PR subject (rebase mode, `Rework base: 2222222…`). Home is #12 on `retry`, OPEN, targeting `main`.\n- **Already done:** evidence capture, strip and seal (`--option pr --base origin/main --spec doc/specs/rework.md`), the lease push of home, and the byte-preserving body append and edit.\n  - Pushed home head: `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n  - Original `refs/gauntlet/pre-rework/pr-12/13/14` were preserved.\n  - No member push and no branch deletion.\n- **Member threads:** copied from the recorded dispositions. #13 MEMBER13 is `fix` and #14 MEMBER14 is `keep open`. Home first-parent history is not used as proof that a member fix landed.\n\n**Member eligibility** (rebase mode: state OPEN, live head equal to the recorded pre-rework head, replay proof):\n\n- **#13 is eligible.** It is OPEN at `bbbbbbb` (unchanged). Its replay `3333333..4444444` holds: `git -C /work/widget/.worktrees/retry merge-base --is-ancestor 4444444 eeeeeee` exits 0.\n- **#14 is skipped:** `head moved to 9999999`. In rebase mode the head must equal its recorded head. Containment in home does not override this.\n\n---\n\n```\ngauntlet: gate=finishing-a-development-branch/pr-subject-row-1\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n1 - yes, close #13\n2 - no, leave them open\n```\n\n**Answer:** `1`\n\n**Immediate re-fetch:** `gh pr view 13 -R acme/widget --json state,headRefOid` returns OPEN at `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`, so the close goes ahead:\n\n`gh pr close 13 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\" -R acme/widget`\n\nThe close succeeds. Then the ship phase is marked complete:\n\n`phase_tracker({ action: \"complete\", phase: \"ship\" })`\n\n```\ngauntlet: done pushed\nPushed PR #12 (retry) with lease at eeeeeee; rework block appended to its description.\nSeal: <seal stdout, verbatim>\nClosed: #13\n#14 skipped: head moved to 9999999; Member PR #14 left open.\nThreads carried: #13 MEMBER13 fix (member history), #14 MEMBER14 still open.\nWorktree preserved at /work/widget/.worktrees/retry.\n```\n\n---\n\n## Independent deltas (each replaces the post-approval steps above)\n\n**A. #13 is CLOSED at re-fetch.** No close runs; the approval is not acted on.\n\n```\ngauntlet: done pushed\nPushed PR #12 (retry) with lease at eeeeeee; rework block appended.\nClosed: none\n#13 skipped: state CLOSED\n#14 skipped: head moved to 9999999; Member PR #14 left open.\n```\n\n**B. #13's head changed at re-fetch.** No close runs.\n\n```\ngauntlet: done pushed\nPushed PR #12 (retry) with lease at eeeeeee; rework block appended.\nClosed: none\n#13 skipped: head moved to <live sha7>; Member PRs #13, #14 left open.\n#14 skipped: head moved to 9999999\n```\n\n**C. #13's live refresh fails at re-fetch.** No close runs and nothing is retried.\n\n```\ngauntlet: done pushed\nPushed PR #12 (retry) with lease at eeeeeee; rework block appended.\nClosed: none\n#13 skipped: refresh failed (<gh error>); Member PRs #13, #14 left open.\n#14 skipped: head moved to 9999999\n```\n\nIn A–C, the ship phase is still marked complete after the report, because the push and body edit succeeded and the gate was answered.\n\n**D. No eligible members.** #13's replay proof fails at eligibility. No question is rendered, and the ship phase is marked complete.\n\n```\ngauntlet: done pushed\nPushed PR #12 (retry) with lease at eeeeeee; rework block appended.\n#13 withheld: replay 3333333..4444444 not proven in eeeeeee\n#14 skipped: head moved to 9999999\nMember PRs #13, #14 left open.\n```\n",
+      "words": 520,
+      "wallMs": 24568,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Shared preparation\n\nHome PR #12 (`retry` → `main`) was pushed successfully with the lease against `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. Its fresh description was preserved byte-for-byte before appending the Rework block.\n\nEvidence capture, plan stripping, telemetry sealing, and body editing succeeded. Existing original-head refs remain unchanged. Member thread dispositions retain their recorded attribution; home history is not used to infer member fix completion. No member branch is pushed or deleted. Worktree preserved at `/work/widget/.worktrees/retry`.\n\n### Eligibility and closure\n\n- #13 (https://github.com/acme/widget/pull/13): eligible—OPEN at its recorded original head, with replay endpoint `4444444` an ancestor of pushed home `eeeeeee`.\n- #14 skipped: head moved to `9999999`. In rebase mode, containment in home does not substitute for equality with its recorded pre-rework head.\n\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n1 - yes, close #13\n2 - no, leave them open\n\n**Answer: 1**\n\nImmediately re-fetch #13’s state and head. Both remain unchanged: OPEN at `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`. Close #13 in `acme/widget` with exactly the displayed comment, without `--delete-branch`. Closure succeeds.\n\nMark ship complete: `phase_tracker({ action: \"complete\", phase: \"ship\" })`.\n\nClosed: #13.  \n#14 left open—head moved to `9999999`.\n\n### Independent deltas\n\nEach case starts independently from the approved question above:\n\n- **#13 becomes CLOSED:** Immediate refresh reports CLOSED. Skip closure because state changed after approval; post no comment. Mark ship complete. **#13 skipped: state CLOSED. #14 left open—head moved to `9999999`.**\n- **#13’s head changes:** Immediate refresh reports a head different from the approved original head. Skip closure under stale authorization; post no comment. Mark ship complete. **Member PRs #13, #14 left open. #13 skipped: head changed after approval; #14 skipped: head moved to `9999999`.**\n- **#13’s live refresh fails:** Withhold closure and report the refresh error; do not retry or post a comment. Mark ship complete. **Member PRs #13, #14 left open. #13 skipped: live refresh failed; #14 skipped: head moved to `9999999`.**\n- **No eligible members at eligibility:** #13’s recorded replay endpoint fails the ancestry proof; withhold its closure. #14 remains ineligible because its head moved. Ask no closure question. Mark ship complete. **Member PRs #13, #14 left open. #13 skipped: replay ancestry proof failed; #14 skipped: head moved to `9999999`.**\n",
-      "words": 357,
-      "wallMs": 16287,
+      "text": "Shared preparation: Captured scoped verification (`test-retry`) and accepted-complete task/thread evidence before stripping. Strip/seal, home-only lease push, and byte-preserving home description append/edit succeeded. Existing original-head refs remain unchanged. Member dispositions are retained; home history is not proof of member-fix completion. No member push or branch deletion.\n\nEligibility:\n- #13 — https://github.com/acme/widget/pull/13 — eligible: OPEN at recorded head `bbbbbbb`; replay tip `4444444` is an ancestor of pushed home `eeeeeee`.\n- #14 skipped: head moved to `9999999`. Containment in pushed home does not satisfy rebase mode’s recorded-head equality requirement.\n\ngauntlet: gate=finishing-a-development-branch/pr-subject-row-1\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n1 - yes, close #13\n2 - no, leave them open\n\n**Answer: 1**\n\nImmediately re-fetch #13’s state and head. In the successful checkpoint, it remains OPEN at its recorded head. Close only `acme/widget#13` with the exact displayed comment, without `--delete-branch`. Close succeeds.\n\nSimulated phase update: `phase_tracker({ action: \"complete\", phase: \"ship\" })`\n\ngauntlet: done pushed\nPushed and updated PR #12: https://github.com/acme/widget/pull/12  \nClosed: #13.  \n#14 left open: head moved to `9999999`.  \nWorktree preserved at `/work/widget/.worktrees/retry`.\n\n**Independent deltas after the same approval**\n\n- **#13 becomes CLOSED:** Immediate refresh reports CLOSED; skip closure because its state changed after approval. Post no comment. Mark ship complete.  \n  `gauntlet: done pushed`  \n  #13 skipped: state CLOSED after approval; no close performed. #14 left open: head moved to `9999999`.\n\n- **#13’s head changes:** Immediate refresh finds a head different from the approved `bbbbbbb`; skip closure under stale authorization. Mark ship complete.  \n  `gauntlet: done pushed`  \n  Member PRs #13, #14 left open. #13 skipped: head changed after approval; #14 skipped: head moved to `9999999`.\n\n- **#13’s live refresh fails:** Withhold closure and report the refresh failure; do not retry. Mark ship complete.  \n  `gauntlet: done pushed`  \n  Member PRs #13, #14 left open. #13 skipped: immediate state/head refresh failed; #14 skipped: head moved to `9999999`.\n\n**Independent checkpoint: no eligible members**\n\n#13’s replay ancestry proof fails during eligibility; withhold closure for #13. #14 remains ineligible because its head moved. Ask no closure question and close nothing. Mark ship complete.\n\ngauntlet: done pushed\nPushed and updated PR #12. Member PRs #13, #14 left open.  \n#13 skipped: replay tip `4444444` failed the ancestry proof against pushed home.  \n#14 skipped: head moved to `9999999`.  \nWorktree preserved.\n",
+      "words": 370,
+      "wallMs": 20672,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "069ee402749a63c84f1118ee897a967d72d0c7f3d4f981aaed2d69812a49d5df",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
-      "baselineOutputSha": "a50e5bef0fd9233386ba1155fb2110325603a75d77adb992f53d0d799e4293c2",
-      "candidateOutputSha": "637fa7098aa853f48b31e54e8e303aa640de5f992647a6294ab176dc68483047",
+      "intentSha": "32100071a628554cbbda1e228b697718ce4ec50be4e4e9ae2702b721bae76288",
+      "baselineOutputSha": "f5387b8ee73a343d1ebbd5808938b8ee9e529b01a25312180a3e517e11e02895",
+      "candidateOutputSha": "654ac4dc1ba14a5b1b469a06f227823342570737a8b706a7792272f5a2a1e40d",
       "facts": {
         "rebase-advanced": {
           "before": "holds",
@@ -44,9 +44,9 @@
           "label": "held"
         },
         "targets": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "recheck": {
           "before": "holds",
@@ -59,42 +59,42 @@
           "label": "held"
         }
       },
-      "feedback": "After moved `targets` from fails to holds: Before rendered the merge-mode comment (\"commits are merged there and remain reachable as bbbbbbb\"), while After uses the exact rebase comment \"this PR's commits are replayed there as 3333333..4444444.\" in both the question and the `gh pr close` invocation, with the two required options and only #13 displayed. Nothing regressed: After still refreshes after push/body success, proves #13 via `merge-base --is-ancestor 4444444 eeeeeee` against the saved pushed home, excludes #14 with the literal `#14 skipped: head moved to 9999999` and explicitly rejects contained-head eligibility, re-fetches state/head immediately before closing with all three skip variants, closes before marking ship complete, names both outcomes in the no-eligible case, and keeps the member-fix provenance and no-push/no-delete invariants. Minor polish to keep the current wording robust: use the literal report form `#14 skipped: head moved to 9999999` in the eligibility section too (After writes `#14: skipped (head moved to 9999999)` there, relying on the report block for the exact literal), render the #14 Absorbs URL literally instead of `<url>`, and drop the `<seal stdout verbatim>` placeholder from the final report unless the case supplies it.",
-      "wallMs": 17731,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept: the eligibility refresh happens after the already-completed push and body edit, #13 is proved via `merge-base --is-ancestor 4444444 eeeeeee` against the saved pushed home, #14 carries the literal `#14 skipped: head moved to 9999999` with an explicit statement that containment in home does not override rebase-mode head equality, the question/comment/options and close command match exactly and target only #13 in acme/widget, the immediate `gh pr view 13` re-fetch gates the close with OPEN + original-head equality while A–C skip rather than close, and the no-eligible variant renders no question but names both outcomes. Two small wording points worth tightening so future judges do not hesitate: variant D uses `#13 withheld: replay … not proven` where the main-flow vocabulary is `skipped`; keeping `#13 skipped: replay 3333333..4444444 not contained in eeeeeee` would align with the rest of the output. Also the main flow marks ship complete before the report, while A–C say it is marked complete after the report; stating the same order in both places (close → `phase_tracker complete` → report) would make the outcomes ordering unambiguous.",
+      "wallMs": 20559,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "069ee402749a63c84f1118ee897a967d72d0c7f3d4f981aaed2d69812a49d5df",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
-      "baselineOutputSha": "aa1bbe67d63f366fd2dc8214ba1545343c9efb894f6e96d63ba986cfd7979f63",
-      "candidateOutputSha": "32ef6c2381e64ca312700dbb7b1236604c238524ee2ef3bfe7f4ab63a4d2f3ad",
+      "intentSha": "32100071a628554cbbda1e228b697718ce4ec50be4e4e9ae2702b721bae76288",
+      "baselineOutputSha": "1c7f1a27f50f6897c05bbdb4b00d0e560545c53a1548380a27baeab4a1d3490e",
+      "candidateOutputSha": "441982440a71aa04077b816d0251bb2cb7932fccb01cac168f891d889d3e3b4c",
       "facts": {
         "rebase-advanced": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "targets": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "recheck": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "outcomes": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: it treats #13 as eligible from replay-endpoint ancestry (4444444 in pushed home eeeeeee) plus live OPEN-at-original-head, excludes #14 with the literal '#14 skipped: head moved to 9999999' while explicitly refusing merge-mode containment eligibility, renders the exact #13-only question/comment/options, re-fetches only live state/head before closing, closes with the displayed comment, then marks ship complete and names both outcomes (including the no-eligible variant with no question asked). Before failed every fact because it applied merge-mode original-head ancestry, deemed #14 eligible by containment, rendered a two-target merge-style question, and never closed or reported outcomes. Nothing regressed; one small polish for After would be to state explicitly that the replay-ancestry proof is not re-run after approval (only state/head are refreshed), making the recheck fact unambiguous without changing any other wording.",
-      "wallMs": 14070,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept: the eligibility section still states the literal \"#14 skipped: head moved to 9999999\" (with the SHA in backticks), only #13 appears in the exact question/comment/options, the immediate post-approval re-fetch of state/head gates the close with the three skip variants, and the close precedes the phase_tracker complete call and outcome report. The one soft spot is that the successful checkpoint's final report changed the #14 line from \"#14 skipped: head moved to 9999999\" to \"#14 left open: head moved to `9999999`\"; a stricter reader of rebase-advanced could treat that as losing the required literal in the closure output. To be safe while still delivering the Change, keep the exact phrase \"#14 skipped: head moved to 9999999\" (unformatted) in the final report as Before did, and optionally append \"left open\" after it rather than replacing \"skipped\".",
+      "wallMs": 17004,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+  "repoSha": "94656a46de26dc2f739b96059b1c2a51cc7878cb"
 }
