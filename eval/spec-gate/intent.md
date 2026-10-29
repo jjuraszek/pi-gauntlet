@@ -1,4 +1,4 @@
-for: 53d67e759ed2fec897cfcc838bcb330f2efaedf6d33d5825db35bf620239ff25
+for: eb8c513a9a664c1d6755c113ecc122ea02e9b38c3e6d2fe6d76148fca26db792
 
 ## Change
 Render every drafted acceptance row and disposition verbatim under Drafted acceptance criteria (approval ratifies): after Scope cuts: and before Council:, with five options. Ticket-row gates omit this block. The paired sample preserves verbatim briefing and audit counts and narrates reply-1 continuation; text replay proves supplied-observation rendering, not live gate execution.
