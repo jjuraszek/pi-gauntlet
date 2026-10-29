@@ -1,7 +1,7 @@
 {
   "sample": "amendment-menu-reply",
   "arm": "baseline",
-  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
   "inputSha": "8f4082006f803aa6f314147c6b6a600eec45f09c1691c03a1600bc1a62ef6a17",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Both items are resolved. Item 1 takes alt-1. Item 2 is a custom answer that edits the spec: it keeps the existing status and documents it. It does not redirect work elsewhere, so it stays in this batch.\n\n**Spec edits selected for `doc/specs/report-runner.md`** (described only; this replay does not write the file or commit):\n\n1. **Design / retries** (crosscut, alt-1)\n   - Old: each report adapter owns its retry policy.\n   - New: the existing report coordinator owns the shared retry policy, and adapters keep execution.\n   - No new retry service is added.\n   - Effect: the differing adapter limits (`adapters/alpha.ts:18` uses two retries, `adapters/beta.ts:22` uses four) give way to one coordinator retry limit.\n\n2. **Design / run status** (exit126, custom)\n   - The contract stays: exit 126 is failed.\n   - Add a documenting clause: exit 126 is classified as `failed`, including when the launch fails before report execution (the synthetic launch test returns 126 before execution). No separate `blocked` status is introduced.\n\n**Plan and phase:** No plan exists, so these edits reopen no tasks. There is no phase change, and the amended spec continues in the spec review.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n",
-      "words": 185,
-      "wallMs": 11851,
+      "text": "Both picks are valid, so the batch resolves without a reprompt. Your item 2 text is a spec edit, not a redirect, so it applies to the spec as given.\n\n**Spec edits for `doc/specs/report-runner.md`** (described only; this replay cannot write or commit):\n\n1. **Share retry policy (alt-1)**\n   - **Location:** Design / retries\n   - **Old:** each report adapter owns its retry policy.\n   - **New:** the existing report coordinator owns one shared retry policy, and adapters keep execution.\n   - **Effect:** this replaces the adapter-local limits, which currently differ: `adapters/alpha.ts:18` uses two retries and `adapters/beta.ts:22` uses four.\n   - No new retry service is added.\n\n2. **Classify blocked execution (custom)**\n   - **Location:** Design / run status\n   - **Old contract kept:** exit 126 is still classified as failed.\n   - **Added clause:** exit 126 means the launch failed before the report ran, as the synthetic launch test shows. It is deliberately classified as failed, not as a separate blocked status.\n   - The proposed blocked status is not adopted.\n\n**Aftermath:**\n- No plan exists, so this reopens no tasks.\n- There is no phase change.\n- No standing grant was given, so later amendments will still come to you.\n- The batch commit body would carry each reviewer's `probed:` line and record item 2 as `custom(keep 126 as failed, document it)`.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n",
+      "words": 207,
+      "wallMs": 11757,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Selected edits for `doc/specs/report-runner.md`:\n\n- **Design / retries:** The existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service is added.\n- **Design / run status:** Keep exit 126 classified as **failed**, and document that it can indicate a launch failure before report execution.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNo tasks reopen and no phase changes. No standing grant was given. This text-only replay has not written or committed these edits.\n",
-      "words": 75,
-      "wallMs": 7549,
+      "text": "Selected edits for `doc/specs/report-runner.md`:\n\n- **Design / retries:** the existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service.\n- **Design / run status:** keep exit 126 classified as **failed** and explicitly document that classification.\n\nNo tasks reopen and no phase changes. No standing grant was given. This text-only replay has not written files or created commits.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n",
+      "words": 66,
+      "wallMs": 5536,
       "mechanical": {}
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

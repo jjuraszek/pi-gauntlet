@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "baseline",
-  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "The ticket repair is saved and verified: acme/widgets#77 now reads \"The report-view setting uses the shared settings resolver.\" That row is `in-scope`, and the design will add the setting's default in `settings/resolver.ts:12` and read it in `ui/report-view.ts:30`.\n\nToday, filters stay active after a workspace switch and can hide rows in the new workspace. What should the report view do with active filters when the workspace changes?\n\nA) Reset all filters on every workspace change. The new setting controls this and defaults to on.\nB) Reset all filters only when the setting is turned on. It defaults to off, so current behavior stays the default.\nC) Keep filters that still apply in the new workspace and drop the ones that do not. The setting turns this pruning on or off.\nother - name it\n\nRecommendation: A - the reported problem is stale filters hiding rows after a switch, and defaulting to reset fixes that for every user while the setting still lets someone keep their filters.\n",
-      "words": 163,
-      "wallMs": 9527,
+      "text": "The ticket repair is saved and re-extracted. acme/widgets#77's only acceptance row now reads \"The report-view setting uses the shared settings resolver.\" The spec carries it as `in-scope`. That matches the path already traced: settings/resolver.ts:12 owns the defaults and ui/report-view.ts:30 consumes the resolved settings. No disposition or deviation is needed.\n\nThe setting still has no defined behavior. The open question is what happens to active report filters when the user switches workspaces. Which outcome should the setting control?\n\nA) Reset by default: filters clear on workspace change, and the setting lets users opt in to keeping them.\nB) Keep by default: current behavior stays, and the setting lets users opt in to clearing filters on workspace change.\nC) Prune by default: filters that don't apply to the new workspace are dropped and the rest are kept, and the setting switches between pruning and keeping everything.\nother - name it.\n\nRecommendation: A - the report is about filters carried into a new workspace and hiding its rows. A reset default fixes that for every user, and the default lives in the resolver that already owns settings defaults.\n",
+      "words": 183,
+      "wallMs": 11279,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The repaired ticket is verified: acme/widgets#77 now requires the shared settings resolver. That criterion is in scope, consistent with defaults owned by `settings/resolver.ts:12` and consumed by `ui/report-view.ts:30`. Framing remains kept.\n\nWhat should the report-view setting do when switching workspaces?\nA) Reset filters by default, with a setting to preserve them.\nB) Preserve filters by default, with a setting to reset them.\nC) Other - name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while retaining an option for users who want persistence.\n",
-      "words": 89,
-      "wallMs": 31793,
+      "text": "The saved repair is verified: acme/widgets#77 now requires the shared settings resolver, matching the traced resolver-to-report-view path. That criterion is in scope; the framing remains kept.\n\nWhat should the new setting do when the user switches workspaces?\nA) Reset report filters by default, with an option to preserve them.\nB) Preserve report filters by default, with an option to reset them.\nC) Other - name the desired behavior.\nRecommendation: A - it addresses filters unexpectedly hiding rows in the new workspace while allowing users to retain the existing behavior.\n",
+      "words": 87,
+      "wallMs": 8544,
       "mechanical": {}
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

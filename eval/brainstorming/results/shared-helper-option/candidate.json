@@ -35,7 +35,7 @@
       "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "39c216a71484d774cc99aecd08114e7120695d51a121d71b5c6dc79daea3c63c",
+      "baselineOutputSha": "d2a6fc05d65998960412d37b746af5ef0fd851038201282a165ecfdc59455fa3",
       "candidateOutputSha": "d2a6fc05d65998960412d37b746af5ef0fd851038201282a165ecfdc59455fa3",
       "facts": {
         "reuse-path": {
@@ -54,15 +54,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved on this case: Before already named `lib/notify.ts#post` as the reuse-only option, called out its hardcoded `channel: \"general\"`, proposed the optional parameter on that helper, and placed Removes:/Adds: immediately before Pattern: on both viable approaches, so the expected fails->holds movement is not observable in these two outputs. After preserves all of that and tightens it slightly: the reuse-only label is in the approach heading, the Pattern line explicitly says it \"removes the copy beside its caller\", and the Adds line enumerates the three test observables (given channel, default, retry-then-throw), which sets up the design-recap carry-forward the Change asks for. One thing to watch in After: the alternative's Adds line says \"every other `post` call site\" even though the trace found only `digest`; phrase it as \"`jobs/digest.ts:2` (the only traced caller)\" so the inventory lists observed moving parts rather than hypothetical ones. Otherwise the After wording keeps every fact Before kept.",
-      "wallMs": 12243,
+      "feedback": "The Before and After outputs are textually identical for this case, so no fact moved. Both name lib/notify.ts#post as the owning helper, identify its hardcoded channel: \"general\" as the missing channel override, propose adding a defaulted channel parameter to that helper, place Removes: and Adds: lines directly before Pattern: on both viable approaches, and recommend deleting the copied formatting/retry loop in jobs/report.ts in favor of delegation. The Expected-to-move list anticipated fails -> holds for all three facts, but Before already satisfies them here, so the After wording preserves rather than introduces these behaviors on this sample; no wording adjustment is needed to keep every fact Before kept.",
+      "wallMs": 7240,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "32420c30e01b7b4ff1eba19fd20cbca07c7546b5e8f7d085727b0a09734dd169",
+      "baselineOutputSha": "9c2af1245ccca394d14d843bab1125e4cf4e8843d80d7180b95f47968c10976a",
       "candidateOutputSha": "9c2af1245ccca394d14d843bab1125e4cf4e8843d80d7180b95f47968c10976a",
       "facts": {
         "reuse-path": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs present a reuse-only Approach A that names lib/notify.ts#post, identifies the missing caller-selectable channel (Before via the first message's hard-coded \"general\" note and A's signature change; After via A's explicit \"lacks only caller-selectable channel routing\"), and proposes changing the helper's signature; both put Removes:/Adds: directly before Pattern: on A and B; and both recommend A, which deletes report's duplicated payload/fetch/retry loop rather than keeping a copy. One small drift worth tightening in After: its Adds: lines reference `lib/notify.ts` without the `#post` anchor (the Pattern line still carries it), so if you want the reuse-path fact anchored in the inventory itself rather than only in Pattern and prose, keep the `#post` suffix in Adds: as Before did. Otherwise the After wording delivers the Change (grounded reuse-only candidate, no-copy recommendation, Removes/Adds inventory before Pattern) while keeping every fact Before kept.",
-      "wallMs": 12911,
+      "feedback": "Before and After are textually identical, so nothing moved. Both outputs already satisfy all three facts: approach A is explicitly labeled the reuse-only candidate, names `lib/notify.ts#post` as the existing owning path, identifies that it lacks only caller-selectable channel routing, and proposes changing its signature; both viable approaches carry Removes: and Adds: lines immediately before Pattern:; and the recommendation (A) changes the shared helper and removes the duplicated payload/fetch/retry loop from `jobs/report.ts` rather than copying or retaining it. The expected fails->holds movement on this sample is therefore not observable here because the Before arm already holds; the After wording should be kept as-is, and the author may want to re-check whether the recorded baseline for this sample was generated from a different pre-edit assembly than the one shown.",
+      "wallMs": 8441,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

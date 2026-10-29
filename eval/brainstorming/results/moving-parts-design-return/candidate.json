@@ -35,7 +35,7 @@
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "80c6c161ce749ff49cd4568b87d774c13a03cd5621b8c30622d284741d4da2c7",
+      "baselineOutputSha": "4e8efb8d76914ffcf66782759e248f342eb3414cc11a6aa6fece88b85f524897",
       "candidateOutputSha": "4e8efb8d76914ffcf66782759e248f342eb3414cc11a6aa6fece88b85f524897",
       "facts": {
         "carry-forward": {
@@ -49,23 +49,21 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs generate the Remove/Add inventory in the recap itself (Before as plain `Remove:`/`Add:` bullets, After as bolded ones plus a Pattern line and the empty-channel rejection), and both map the three observables to post_uses_requested_channel, post_keeps_default_channel and post_rejects_empty_channel in observable - test form. The one risk in After is that it dropped the literal ```markdown ## Tests``` spec block that Before emitted and replaced it with an inline *Tests.* prose bullet list; a stricter reader of 'spec ## Tests mapping' could call that a fail, so the After wording should keep instructing the model to render the Tests mapping as a spec section (```## Tests``` block, as it still does for ## Documentation impact) rather than only 'map every acceptance row and Design edge/error observable to a test'. Likewise, neither output labels the recap with the literal heading 'Design imperatives'; if that heading is meant to be required, say so explicitly in the wording, since both outputs currently use 'design commitments' and would be judged the same either way.",
-      "wallMs": 19818,
-      "verdict": "unchanged",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "Before and After are textually identical, so no fact moved. Both outputs generate the chosen inventory in the recap itself as bolded Remove:/Add: imperatives (the inline fetch in jobs/report.ts; one optional channel parameter on post) placed before Pattern, and both include a Tests mapping in observable - test name form for the two acceptance criteria and the empty-channel error clause, naming post_uses_requested_channel, post_keeps_default_channel, and post_rejects_empty_channel. The only fragility worth noting for the author: the recap is headed 'Recap of the chosen design commitments' rather than literally 'Design imperatives', and the Remove line pads the inventory with 'with its duplicated formatting and retry logic'; if the skill wording wants strict judges to find the literal label and the verbatim inventory, instruct the model to emit the heading 'Design imperatives' with 'Remove: the inline fetch in jobs/report.ts' and 'Add: one optional parameter on post' verbatim, which would deliver the Change without altering anything else that currently holds.",
+      "wallMs": 13633,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "6f9ec41a59d2b4333a7eac92abbcf95c6aa246071898ca0b73295066207eeb56",
+      "baselineOutputSha": "6732fd1d65a5740179ad9987c6ad0a270f095920cba70ed3173c5e847ff8d53d",
       "candidateOutputSha": "6732fd1d65a5740179ad9987c6ad0a270f095920cba70ed3173c5e847ff8d53d",
       "facts": {
         "carry-forward": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "test-per-observable": {
           "before": "holds",
@@ -73,14 +71,12 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved carry-forward from fails to holds by tightening the inventory to the chosen one: Before's Add line bundled the parameter with empty-channel validation, the report delegation call, and three tests, so its recap did not restate the chosen inventory (one optional parameter on post), whereas After states `Remove:` the inline fetch in `jobs/report.ts` and `Add:` one optional channel parameter to `post`, matching what was chosen. Both outputs keep test-per-observable: a `## Tests` section mapping requested channel, preserved default, and empty-channel rejection to `post_uses_requested_channel`, `post_keeps_default_channel`, and `post_rejects_empty_channel`. Two things to firm up in the After wording: neither output labels the recap with the literal heading `Design imperatives` (both bury it under `Chosen design commitments`), so a judge reading the fact strictly on the label could still fail it; have the skill emit a `Design imperatives` heading (or lead-in) immediately before the `Remove:`/`Add:` lines, and instruct it to carry the inventory verbatim rather than restating it with added qualifiers like 'and duplicated formatting/retry logic', which is harmless here but invites widening in other cases.",
-      "wallMs": 15710,
-      "verdict": "improved",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "Before and After are byte-identical, so no fact moved. Both recap the chosen inventory in the generated response under \"Chosen design commitments\" with explicit **Remove:** (the inline fetch from `jobs/report.ts`) and **Add:** (one optional channel parameter on `post`) lines, and both map all three observables to `post_uses_requested_channel`, `post_keeps_default_channel`, and `post_rejects_empty_channel` under `## Tests`. One fragility worth closing in the After wording: the fact names the recap heading as \"Design imperatives\" while the output titles it \"Chosen design commitments\"; a stricter judge could fail carry-forward on that label alone. Having the skill emit the recap under a literal `Design imperatives` heading (or instructing the recap to use that exact label before the Remove/Add lines) would keep every fact Before kept while removing the ambiguity, without touching the test-mapping behavior that already satisfies test-per-observable.",
+      "wallMs": 13894,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697",
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a",
   "refresh": {
     "status": "complete",
     "identity": {

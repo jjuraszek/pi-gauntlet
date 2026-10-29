@@ -35,7 +35,7 @@
       "factsSha": "453a6b0e69096fbb33e2c0c418e1ce10ceda4dc8806b3ef5f9e00eefad7d0700",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "36c86e883450429d4ca2b8af3bf1357ad59f93de60e1702f20c9b559bae46e06",
+      "baselineOutputSha": "d46a0a5c7e8614ca96933d93776102a3b1343bc7cc9d455951209a797479f97a",
       "candidateOutputSha": "d46a0a5c7e8614ca96933d93776102a3b1343bc7cc9d455951209a797479f97a",
       "facts": {
         "ordered": {
@@ -79,15 +79,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: PR-before-issue ordering is stated in each branch, Open stays on the fix/retry PR-head path with the pr-55 title-derived filename and a design-derived drafted AC section, Issue/Neither/Mention/Foreign/Bound all stop or route as required, and Branch G never looks up #13. The only softening is in Branch G, where After says the intent text 'is carried verbatim' without actually quoting 'fix the retry path, see #13 for context' as Before did; a reader infers it, but quoting the string explicitly (and, in the common opening, naming the PR-lookup-then-issue-lookup order once as a rule) would remove the ambiguity while still delivering the Change's single-path, trailing-context-as-intent behavior.",
-      "wallMs": 17177,
+      "feedback": "The Before and After outputs are textually identical, so no fact moved in either direction. Both narrate PR lookup strictly ahead of issue lookup (Branch A never reaches the issue lookup; Branch B reaches it only after not-a-PR), route Open onto the PR-head path on fix/retry with the draft accepted, a pr-55 title-derived filename, PR intent carried into Problem, and a later-stage 'Drafted from the design, no ticket rows:' section with the two in-scope outcome rows derived from the approved rework; Issue stays on the unchanged ticket path with the verbatim row; Neither and Foreign stop before provisioning with the required one-line messages naming #57/acme/widget and other/widget/acme/widget respectively; Mention stays free text with context-builder; Bound binds #12 from the title over body #13, keeps #12 rows, names #13 as context, ignores fix/issue-99 and closingIssuesReferences #99, and keeps the bound-ticket filename; Trailing context resolves only #12 and carries the rest as verbatim intent without looking up #13. One minor hardening for both: Branch G could quote the full intent string 'fix the retry path, see #13 for context' explicitly in the Problem description rather than only saying the text starting at `fix` is carried verbatim, which would make the trailing-context fact unambiguous to a stricter reader. Otherwise the After wording preserves every fact Before kept.",
+      "wallMs": 14255,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "453a6b0e69096fbb33e2c0c418e1ce10ceda4dc8806b3ef5f9e00eefad7d0700",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "a0b464dde9f81f0829e9d280a2337d862a4cd3699720fc0c8e7aed7b4ee12766",
+      "baselineOutputSha": "abf1bbb30f136349d4762eac9bfde4c07876f200a49c93a90c4b045ecd6256de",
       "candidateOutputSha": "abf1bbb30f136349d4762eac9bfde4c07876f200a49c93a90c4b045ecd6256de",
       "facts": {
         "ordered": {
@@ -131,10 +131,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs classify PR-first with no reversed or parallel lookup, keep Open on the existing fix/retry PR head (draft admitted) with the pr-55 title-derived filename and PR intent in Problem, and reserve the 'Drafted from the design, no ticket rows:' block with the two approved rework rows for the distinct later spec-writing stage; Issue retains the verbatim ticket row and unchanged ticket path; Neither and Foreign stop before provisioning with the required one-line errors naming #57/acme/widget and other/widget/acme/widget; Mention stays free text with #55 routed to context-builder; Bound binds #12 from the title ahead of the body's #13, ignores fix/issue-99 and closingIssuesReferences #99, keeps #13 as Problem context and the YYYY-MM-DD-12-<topic>.md shape; Trailing context resolves only #12 and performs no #13 lookup. After adds helpful explicitness (installed absolute paths, 'unbound PR, not ticket #55', 'the branch name does not bind a ticket', 'do not invent' a #13 outcome). One small point to keep safe: After's Open step 5 says 'using branch fix/retry' but, unlike Before, never states 'existing PR head branch, not a fresh branch'; adding that phrase would make the not-a-fresh-branch clause of the open fact unambiguous rather than inferred from 'PR-head provisioning'.",
-      "wallMs": 16072,
+      "feedback": "Before and After are textually identical, so nothing moved: both narrate PR lookup strictly before any issue lookup (and skip the issue lookup once Open classifies as a PR), route Open to PR-head provisioning on fix/retry with the draft admitted and the YYYY-MM-DD-pr-55-repair-retry-backoff.md filename, carry the PR title/body into ## Problem, and at the distinct later spec-writing stage emit 'Drafted from the design, no ticket rows:' with the two in-scope rows derived from the approved rework rather than the PR text; Issue retains the unchanged ticket path with the verbatim AC row, Neither stops with the one-line #57/acme/widget error before provisioning, Mention stays free text routed to context-builder, Foreign stops naming both other/widget and acme/widget, Bound binds #12 from the title ahead of the body's #13 line while ignoring fix/issue-99 and closingIssuesReferences #99 and keeping the YYYY-MM-DD-12-<topic>.md rule, and Trailing context resolves only #12 with the verbatim intent and no #13 lookup. Since the After wording produced the same output as Before on this case, the Change (coordinated-flow, multi-repo, and the other additions) did not perturb this sample; no wording adjustment is needed here, and the expected fails->holds movements listed for pr-subject-resolution are not observable in this pair because Before already holds every fact.",
+      "wallMs": 13147,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

@@ -35,7 +35,7 @@
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "5bc69b98cfa7980f7c0c3f8c38f9947f89ebf54c20c58ad5baa65e53f005b32a",
+      "baselineOutputSha": "1135f16c592342763e2b7251c6e3a6a45d7849ea095c8468cde76033f10cf814",
       "candidateOutputSha": "1135f16c592342763e2b7251c6e3a6a45d7849ea095c8468cde76033f10cf814",
       "facts": {
         "premise": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs trace the dump restore through fixtures/search.sql:1-2 and bench/query.sql:1 to demo_vector, name the installed-extension listing as the guide's capability lookup, report that the supplied listing holds only plpgsql, restate that finding at the top of the separate approaches message, carry it verbatim into the spec Problem, keep going with approaches after a provisioning-choice question (not a locate/verify request), and keep installed distinct from available-to-install while attributing the result to supplied observations. After is slightly stronger on the replay fact by stating outright that no live database lookup exists, and its two-bullet \"Corrected\" split (dependency vs not-installed) makes the trace easier to verify; keep that structure. One small thing to watch: After's \"Supported: the query boundary\" bullet later becomes \"I'm assuming the latency change stays inside query/service.sql:10\" - keep it as a supported observation rather than an assumption so the framing-holds statement stays consistent with the Problem excerpt.",
-      "wallMs": 14993,
+      "feedback": "Before and After are textually identical for this case, so nothing moved. Both outputs trace the dump restore to demo_vector in the premise note (fixtures/search.sql:1-3, bench/query.sql:1), state that the repo guide's capability lookup is the installed-extension listing and that it contains only plpgsql, restate the missing extension and that lookup under 'Dependencies carried forward' before presenting approaches, and carry the corrected premise and lookup into the spec ## Problem excerpt. The output continues into two approaches without asking the user to locate or verify the extension (the single question is about repro treatment, answered by the recorded answer), and it explicitly distinguishes the installed-extension listing from an available-extension catalog, marking installability as unverified rather than claiming a live lookup. The expected fails->holds movement for missing-db-extension is not visible here because Before already satisfies every fact; no wording change is needed to keep these facts, and the After wording should simply preserve this structure (premise correction with cited lines and lookup, a dependencies-carried-forward block ahead of the axis, and the Corrected premise/Unverified paragraphs in Problem).",
+      "wallMs": 11123,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "f0a8451b5059fd6ef8b69ee03b4bdac4adfba096b74c5531f2f5357b57a0d70a",
+      "baselineOutputSha": "c855be3eb7446cfe97d6ec1276f476410f1aa2d62d06a778f40400459b38d5f5",
       "candidateOutputSha": "c855be3eb7446cfe97d6ec1276f476410f1aa2d62d06a778f40400459b38d5f5",
       "facts": {
         "premise": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the first message traces fixtures/search.sql:1–3 to demo_vector, reports it absent from the supplied installed-extension listing (only plpgsql), and explicitly separates not-installed from unavailable-to-install; the approaches message restates the missing dependency and names the installed-extension lookup before presenting A/B; the ## Problem excerpt retains both the capability and the lookup. Two things to watch so these do not slip: After's first message poses an A/B/C questionary about who provisions the environment even though the recorded answer already settles it — that is not a request to locate or verify the extension, so it does not fail `continues`, but re-asking a recorded decision is wasted turn budget and a near-miss; prefer stating the recorded answer directly ('Per your recorded answer, provisioning happens during implementation') and reserving the labeled question for genuinely open premises. Second, the phrase 'checked the guide's fixture-restore → benchmark path … the prescribed installed-extension lookup' reads close to claiming a live lookup; it is rescued by 'these conclusions come from the supplied primary-source observations', but safer wording is 'the supplied installed-extension listing' everywhere, as the ## Problem excerpt already does.",
-      "wallMs": 16801,
+      "feedback": "Before and After are textually identical for this case, so nothing moved. Both outputs trace fixtures/search.sql:1-3 and bench/query.sql:1 to demo_vector in the first message, state it is absent from the supplied installed-extension listing while explicitly refusing to equate 'not installed' with 'unavailable to install', restate the lookup and its result at the top of the separate approaches message, carry both into the spec ## Problem, present two approaches without pausing for extension verification, and attribute every conclusion to the supplied replay observations rather than a live lookup. The After wording already delivers the intended dependency-tracing behavior for this sample; no further change is needed here, though the author should keep the explicit 'installed-extension listing, not available-extension catalog' phrasing in the premise note and Problem since that distinction is what keeps the replay fact holding.",
+      "wallMs": 8470,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

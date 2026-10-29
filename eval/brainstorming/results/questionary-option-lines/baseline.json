@@ -1,7 +1,7 @@
 {
   "sample": "questionary-option-lines",
   "arm": "baseline",
-  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
   "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "What should the report view do with active filters when the user switches workspaces?\nA) clear all filters on every workspace switch\nB) preserve all active filters across switches, which is today's behavior in the workspace-change handler\nC) restore each workspace's last filters\nRecommendation: C - filters usually depend on the workspace's data, so restoring each workspace's last filters avoids carrying stale selections across workspaces without making users rebuild their view.\n",
-      "words": 70,
-      "wallMs": 9410,
+      "text": "The framing stays as you kept it: the policy is owned by the existing settings resolver (settings/resolver.ts:12) and consumed by the report view (ui/report-view.ts:30). What should the report view do with active filters when the user switches workspace?\n\nA) Clear all filters on every workspace switch, so each workspace opens unfiltered.\nB) Preserve all active filters across switches, so the same filters carry into the new workspace.\nC) Restore each workspace's last filters, so returning to a workspace brings back what was set there.\n\nRecommendation: B - it matches what the workspace-change handler already does. The policy stays a single resolver value with no new per-workspace filter state, and existing users see no behavior change.\n",
+      "words": 114,
+      "wallMs": 10061,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "How should the report view handle filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across workspace switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves current behavior while making the policy explicit through the existing settings resolver.\n",
-      "words": 48,
-      "wallMs": 4652,
+      "text": "How should the report view handle filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves the current behavior and avoids introducing per-workspace filter state.\n",
+      "words": 44,
+      "wallMs": 3181,
       "mechanical": {}
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

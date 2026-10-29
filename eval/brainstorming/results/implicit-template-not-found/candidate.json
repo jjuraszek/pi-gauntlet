@@ -35,7 +35,7 @@
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "bf6c705787ed13a8c1cc34ad84d6cb5d8eb9e3162171cddfcc03bfa58eb01d9f",
+      "baselineOutputSha": "10fe0936be879dc85f9a93f075e3580ccd07cf23ec8b849e1916126b2124fdce",
       "candidateOutputSha": "10fe0936be879dc85f9a93f075e3580ccd07cf23ec8b849e1916126b2124fdce",
       "facts": {
         "premise": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs name `templates/deck.pptx` from the `load_presentation` call at `slides/generator.py:13`, state it is absent from the supplied `templates/` directory listing (README.md and chart.pptx only), restate that lookup and result at the top of the separate approaches message and in the spec `## Problem`, continue past the premise question without asking where the file is, and attribute the result to the supplied listing rather than a live check. The Expected list predicted premise/approaches/problem as fails in Before, but the Before text already carries the traced dependency through all three surfaces, so the After wording preserves rather than creates these outcomes. One small point to watch in After: the first message's lookup bullet is abbreviated to 'the `templates/` listing described above', which still satisfies the fact only because the full statement appears earlier in the same message; keeping the explicit 'supplied listing' phrase in the checked-items list (as Before does: 'using the repo's `templates/` listing lookup, which found `deck.pptx` missing') would make the replay-evidence attribution robust if the opening paragraph is ever shortened. Also consider keeping Before's explicit 'This is a missing implicit dependency' label in the spec excerpt, since After's Problem says 'absent' but drops the dependency framing.",
-      "wallMs": 15045,
+      "feedback": "The After output is textually identical to Before, so no fact moved. Both outputs name `templates/deck.pptx` from `slides/generator.py:13`, state it is absent from the supplied `templates/` listing (README.md and chart.pptx only) in the first message, restate the dependency and the directory-listing lookup at the top of the approaches message before Approach A, and record the same lookup and result in the spec `## Problem`; both refer to the listing as 'supplied' rather than claiming a live lookup, and both proceed to approaches after a how-to-handle premise question (not a where-is-it question) with the recorded answer applied. If the intent was for this case to move from fails to holds, the Before already satisfies all five facts as written here, so the wording change should be checked against a Before sample that actually omits the lookup or the file name; for the After wording, keep the explicit 'traced from the retained loader → named lookup → result → not found' chain in all three surfaces exactly as this output does.",
+      "wallMs": 11035,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "1656f11f87238ac4b0e5f6ac7f94cc8b1a8b9afe8da5e6a6229b844e04adb33e",
+      "baselineOutputSha": "60e6555c725eec2e69ce84dc939714d73444bb37ce464cb88c6ae772470b133b",
       "candidateOutputSha": "60e6555c725eec2e69ce84dc939714d73444bb37ce464cb88c6ae772470b133b",
       "facts": {
         "premise": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs name templates/deck.pptx from the generator's loader, state it is absent from the supplied templates/ listing in the premise note, the approaches message, and the spec Problem, continue without stopping, and treat the listing as a supplied observation. Two After choices are worth tightening because they sit close to the edge. First, After opens the approaches message with the recommendation sentence and only then restates the missing dependency; Before led with the dependency. Have the wording require the not-found restatement and lookup name as the opening lines of the approaches message, ahead of any recommendation, so a judge cannot read the recommendation as 'presenting approaches' first. Second, the After spec says the listing was 'obtained through the repository guide's documented lookup', which a stricter reader could take as a performed lookup; prefer 'the supplied complete templates/ listing (the guide's documented lookup)' so the replay fact stays unambiguous while still naming the lookup method.",
-      "wallMs": 14930,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both outputs name templates/deck.pptx from the retained loader (slides/generator.py:12–18) in the first message, state it is absent from the supplied complete templates/ listing (README.md, chart.pptx only) and tie that absence to the repository guide's documented listing lookup; the approaches message restates the missing deck.pptx and the guide-prescribed templates/ listing before enumerating approach 1 and 2; the ## Problem excerpt records the same lookup and result; the brainstorm proceeds to approaches without asking where the template is; and the text consistently speaks of the 'supplied' listing rather than claiming a live filesystem call. Since the Expected-to-move list anticipated fails -> holds for premise/approaches/problem but Before already holds here, the wording in After is sufficient to preserve all five facts; keep the explicit 'supplied listing contains only …' phrasing and the 'obtained through the repository guide's documented lookup' attribution, which is what makes both the not-found result and the replay-evidence framing unambiguous.",
+      "wallMs": 10654,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }
