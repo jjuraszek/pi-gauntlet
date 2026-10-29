@@ -1,18 +1,12 @@
-for: ded3c76d317f3332b22cf8d18b7e51d12813d2d3da897b69d81d6a06b95d2f07
+for: 5d62497a3e7b6bce814ad9ee058c6edcfd584923be1095cb0aa53e25dad8aaab
 
 ## Change
-Route quality review through the selected leg checkout and its Rules only when the dispatch names a Leg or Rules list, while preserving existing review facts.
-
-The code-reviewer persona's Tests priority becomes a check list over added and changed tests: split-assertion repeats, duplicate tests, oversized input, per-test rebuilds, and wrong-layer tests are Minor shrink or delete findings the implementer may decline; a consolidation that loses behavioral coverage is Critical. The review template asks whether each added or changed test earns its run instead of asking for edge cases and integration tests. Read supplied spec acceptance rows and Design clauses before the spec-observable check: report an unmatched test as Moderate delete with a searched-section citation, keep tests justified by cited acceptance or preservation commitments, and report the check unverified when no spec is supplied.
+Load anchored SDD wave tasks as a union from the plan, derive Spec/Files/Tests and combined Rules, and read implementer and prior review reports by path. Add the SDD-local prompt to the headed assembly while retaining the external inline template and legacy replay behavior. Mirror SHIP/FIX_FIRST/REJECT, finding metadata and the Behaviour-change footer into structured output; reject unreadable anchors with their identity. Preserve severity, test-economy and trajectory semantics.
 
 ## Expected to move
-- duplicate-tests-diff/f1: fails -> holds - the reviewer now proposes one test covering all three fields
-- duplicate-tests-diff/f2: fails -> holds - economy findings are Minor
-- duplicate-tests-diff/f3: fails -> holds - the reviewer avoids additional separate field-mapping edge-case tests
-- oversized-fixture-diff/f2: fails -> holds - lost posted_on coverage is Critical
-- oversized-fixture-diff/m1: fails -> holds - the lost-coverage finding includes Critical
-- wrong-layer-rspec/f1: fails -> holds - the reviewer names the model and request layers as owners
-- spec-observable-tests/uncommitted-delete: fails -> holds - the reviewer flags the summary-only mixed-case test as Moderate delete and cites the spec section searched
-- spec-observable-tests/acceptance-kept: fails -> holds - the reviewer keeps the test justified by the cited acceptance row
-- spec-observable-tests/preservation-kept: fails -> holds - the reviewer keeps the test justified by the cited Design Keep clause
-- duplicate-tests-diff/no-spec-unverified: fails -> holds - the reviewer reports the missing spec as unverified without a spec-citing delete finding
+- anchored-task/next-read: fails -> holds - The reviewer reads both selected tasks itself.
+- anchored-task/rules: fails -> holds - The reviewer derives combined task/home-leg Rules.
+- anchored-task/behaviour: fails -> holds - Structured behaviourChange mirrors the footer.
+- anchored-task/ownership: fails -> holds - Findings carry task ownership and partition metadata.
+- unreadable-anchor/reject: fails -> holds - An unreadable member rejects the union review.
+- unreadable-anchor/identity: fails -> holds - JSON identifies the exact unreadable anchor.

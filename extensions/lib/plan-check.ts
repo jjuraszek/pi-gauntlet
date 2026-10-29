@@ -43,6 +43,7 @@ interface TestsBullet {
 }
 
 interface Task {
+  orchestrator?: string;
   leg?: string;
   number: number;
   line: number;
@@ -96,7 +97,7 @@ interface Header {
   separatorLine: number | undefined;
 }
 
-interface ParsedPlan {
+export interface ParsedPlan {
   lines: string[];
   header: Header;
   waves: Wave[];
@@ -303,6 +304,7 @@ function parsePlan(planText: string): ParsedPlan {
       bodyStartLine: i + 1,
       bodyEndLine: bodyEndIdx + 1,
       waveNumber,
+      orchestrator: lines.slice(i + 1, bodyEndIdx + 1).map(line => /^Orchestrator: (.+)$/.exec(line)).find(match => match)?.[1],
       filesBlockMissing: filesLine === undefined,
       files,
       specAnchorLine,
@@ -1278,11 +1280,12 @@ function checkLedger(planText: string, specText: string): PlanCheckFinding[] {
   return findings;
 }
 
-export function checkPlan(planText: string, specText: string, fs: FsPort): PlanCheckFinding[] {
+export function checkPlan(planText: string, specText: string, fs: FsPort): { findings: PlanCheckFinding[]; parsed?: ParsedPlan; ledger: boolean } {
+  const ledger = planText.split("\n", 1)[0] === "# Ledger - loop engine";
   try {
     const ownership = legOwnership(specText);
-    if (ownership.findings.length) return ownership.findings;
-    if (planText.split("\n", 1)[0] === "# Ledger - loop engine") return checkLedger(planText, specText);
+    if (ownership.findings.length) return { findings: ownership.findings, ledger };
+    if (ledger) return { findings: checkLedger(planText, specText), ledger };
     const parsed = parsePlan(planText);
     const findings: PlanCheckFinding[] = [];
     if (ownership.legs.length) {
@@ -1293,7 +1296,7 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): PlanC
         if (!ownership.legs.some(l => l.repo === task.leg)) findings.push({ check: "leg-unknown", line: task.line + 1, text: first, reason: `unknown task leg ${task.leg}` });
         if (parsed.lines.slice(task.line + (explicit ? 1 : 0), task.bodyEndLine).some(l => /^Leg:/.test(l))) findings.push({ check: "leg-unknown", line: task.line, text: task.text, reason: "Leg: must be the first line after the task heading" });
       }
-      if (findings.length) return findings;
+      if (findings.length) return { findings, parsed, ledger };
       for (const wave of parsed.waves) if (new Set(parsed.tasks.filter(t => t.waveNumber === wave.number).map(t => t.leg)).size > 1) findings.push({ check: "wave-leg", line: wave.line, text: wave.text, reason: "wave mixes task legs" });
     }
 
@@ -1343,16 +1346,33 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): PlanC
     findings.push(...checkHeaderEntrypoint(parsed));
     findings.push(...checkHappyPathLine(parsed));
     findings.push(...checkWaiverLiteral(parsed));
-    return findings;
+    return { findings, parsed, ledger };
   } catch (err) {
     const message = String(err instanceof Error ? err.message : err);
-    return [
+    return { ledger, findings: [
       {
         check: "internal",
         line: 0,
         text: "",
         reason: message.split("\n")[0],
       },
-    ];
+    ] };
   }
+}
+
+export function renderManifest(parsed: ParsedPlan, planAbs: string, specAbs: string): string {
+  const kinds = { create: "Create", modify: "Modify", test: "Test" };
+  return [
+    `manifest: ${planAbs} | spec: ${specAbs} | tasks: ${parsed.tasks.length} | waves: ${parsed.waves.length}`,
+    ...parsed.tasks.map(task => JSON.stringify({
+      task: task.number,
+      wave: task.waveNumber,
+      ...(/\bin-place\b/.test(parsed.waves.find(wave => wave.number === task.waveNumber)?.label ?? "") ? { mode: "in-place" } : {}),
+      heading: task.text.replace(/^### Task \d+: /, ""),
+      files: task.files.map(file => ({ kind: kinds[file.kind], path: file.path })),
+      tests: task.tests.map(bullet => bullet.value),
+      ...(task.leg !== undefined ? { leg: task.leg } : {}),
+      ...(task.orchestrator !== undefined ? { orchestrator: task.orchestrator } : {}),
+    })),
+  ].join("\n");
 }

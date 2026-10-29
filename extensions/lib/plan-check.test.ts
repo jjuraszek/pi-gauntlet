@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { checkPlan, sha256, type FsPort, type PlanCheckFinding } from "./plan-check.ts";
+import { checkPlan, renderManifest, sha256, type FsPort, type PlanCheckFinding } from "./plan-check.ts";
 
 const ledgerSpec = `# Spec
 ## Acceptance criteria
@@ -17,7 +17,7 @@ const ledger = (rows = ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | do
 
 test("ledger admission bypasses task checks and permits empty open evidence", () => {
   for (const input of [ledger(), ledger().replace("iterations: 0\n", "iterations: 0\ncap: 97\n")]) {
-    assert.deepEqual(checkPlan(input, ledgerSpec, { exists: () => false, glob: () => [] }), []);
+    assert.deepEqual(checkPlan(input, ledgerSpec, { exists: () => false, glob: () => [] }).findings, []);
   }
 });
 for (const [name, rows] of Object.entries({
@@ -32,38 +32,38 @@ for (const [name, rows] of Object.entries({
   attempts: ["1 | open | -1 |", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
   fractional: ["1 | open | 1.5 |", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
 })) test(`ledger rejects ${name}`, () => {
-  assert.ok(checkPlan(ledger(rows), ledgerSpec, { exists: () => false, glob: () => [] }).length);
+  assert.ok(checkPlan(ledger(rows), ledgerSpec, { exists: () => false, glob: () => [] }).findings.length);
 });
 test("ledger discriminant is the exact first line", () => {
-  for (const prefix of ["\n", " "]) assert.ok(checkPlan(prefix + ledger(), ledgerSpec, { exists: () => false, glob: () => [] }).some(f => f.check === "input"));
+  for (const prefix of ["\n", " "]) assert.ok(checkPlan(prefix + ledger(), ledgerSpec, { exists: () => false, glob: () => [] }).findings.some(f => f.check === "input"));
 });
 for (const disposition of ["in-scope", "venue: browser", "deviates: alternate", "deferred: #70", "elsewhere: #71"]) {
   test(`ledger disposition ${disposition}`, () => {
     const cut = /^(deviates|deferred|elsewhere):/.test(disposition);
     const spec = `## Acceptance criteria\n- [ ] Works\n  ${disposition}\n`;
-    assert.deepEqual(checkPlan(ledger([`1 | ${cut ? "cut" : "open"} | 0 | ${cut ? disposition : ""}`]), spec, { exists: () => false, glob: () => [] }), []);
-    assert.ok(checkPlan(ledger([`1 | ${cut ? "done" : "cut"} | 0 | check passed`]), spec, { exists: () => false, glob: () => [] }).length);
+    assert.deepEqual(checkPlan(ledger([`1 | ${cut ? "cut" : "open"} | 0 | ${cut ? disposition : ""}`]), spec, { exists: () => false, glob: () => [] }).findings, []);
+    assert.ok(checkPlan(ledger([`1 | ${cut ? "done" : "cut"} | 0 | check passed`]), spec, { exists: () => false, glob: () => [] }).findings.length);
   });
 }
 for (const status of ["done", "failed", "cut"]) test(`ledger empty evidence rejects ${status}`, () => {
   const spec = `## Acceptance criteria\n- [ ] Works\n${status === "cut" ? "  deferred: #70\n" : ""}`;
-  assert.ok(checkPlan(ledger([`1 | ${status} | 0 |`]), spec, { exists: () => false, glob: () => [] }).some(f => /evidence is required/.test(f.reason)));
+  assert.ok(checkPlan(ledger([`1 | ${status} | 0 |`]), spec, { exists: () => false, glob: () => [] }).findings.some(f => /evidence is required/.test(f.reason)));
 });
 for (const evidence of ["<check>", "TODO", "TBD", "etc.", "probably"]) {
   test(`ledger rejects non-open evidence ${JSON.stringify(evidence)}`, () => {
-    assert.ok(checkPlan(ledger([`1 | failed | 1 | ${evidence}`, "2 | cut | 0 | deferred: #70", "3 | open | 0 |"]), ledgerSpec, { exists: () => false, glob: () => [] }).length);
+    assert.ok(checkPlan(ledger([`1 | failed | 1 | ${evidence}`, "2 | cut | 0 | deferred: #70", "3 | open | 0 |"]), ledgerSpec, { exists: () => false, glob: () => [] }).findings.length);
   });
 }
 
 test("ledger keeps nested checkboxes and the parent disposition in one AC row", () => {
   const spec = "## Acceptance criteria\n- [ ] Parent\n  - [ ] Nested detail\n  deferred: #70\n";
-  assert.deepEqual(checkPlan(ledger(["1 | cut | 0 | deferred: #70"]), spec, { exists: () => false, glob: () => [] }), []);
-  assert.ok(checkPlan(ledger(["1 | open | 0 |"]), spec, { exists: () => false, glob: () => [] }).some(f => /status does not match/.test(f.reason)));
+  assert.deepEqual(checkPlan(ledger(["1 | cut | 0 | deferred: #70"]), spec, { exists: () => false, glob: () => [] }).findings, []);
+  assert.ok(checkPlan(ledger(["1 | open | 0 |"]), spec, { exists: () => false, glob: () => [] }).findings.some(f => /status does not match/.test(f.reason)));
 });
 
 for (const evidence of ["xxx", "[fill in]", "something like", "check; expected a\\|b; passed"]) {
   test(`ledger permits evidence outside the placeholder vocabulary ${JSON.stringify(evidence)}`, () => {
-    assert.deepEqual(checkPlan(ledger([`1 | done | 1 | ${evidence}`, "2 | cut | 0 | deferred: #70", "3 | open | 0 |"]), ledgerSpec, { exists: () => false, glob: () => [] }), []);
+    assert.deepEqual(checkPlan(ledger([`1 | done | 1 | ${evidence}`, "2 | cut | 0 | deferred: #70", "3 | open | 0 |"]), ledgerSpec, { exists: () => false, glob: () => [] }).findings, []);
   });
 }
 
@@ -173,13 +173,13 @@ function findingsFor(findings: PlanCheckFinding[], check: string): PlanCheckFind
 }
 
 test("valid fixture: checkPlan returns no findings (also covers the placeholder exemption case)", () => {
-  const findings = checkPlan(VALID_PLAN, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(VALID_PLAN, SPEC_TEXT, alwaysTruePort()).findings;
   assert.deepEqual(findings, []);
 });
 
 test("no gauntlet grammar at all: emits both an absent-wave-headers and an absent-task-headers finding", () => {
   const plan = "# Just a plan\n\nSome prose with no wave or task headers at all.\n";
-  const findings = checkPlan(plan, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings;
   const waveFindings = findings.filter((f) => f.reason.includes("wave headers"));
   const taskFindings = findings.filter((f) => f.reason.includes("task headers"));
   assert.equal(waveFindings.length, 1, "expected exactly one absent-wave-headers finding");
@@ -188,7 +188,7 @@ test("no gauntlet grammar at all: emits both an absent-wave-headers and an absen
 
 test("check 1 table-closure: task not covered by any Spec coverage row", () => {
   const mutated = VALID_PLAN.replace('| § "Testing" L9-L9 | banned token literal handling | Task 3 |\n', "");
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const tc = findingsFor(findings, "table-closure");
   assert.ok(
     tc.some((f) => f.reason.includes("Task 3") && f.reason.includes("does not appear as an owner")),
@@ -206,7 +206,7 @@ test("check 1 table-closure: task not covered by any Spec coverage row", () => {
 
 test("check 1 fail-closed: missing '## Spec coverage' table entirely", () => {
   const mutated = VALID_PLAN.slice(0, VALID_PLAN.indexOf("## Spec coverage"));
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const tc = findingsFor(findings, "table-closure");
   assert.equal(tc.length, 1);
   assert.match(tc[0].reason, /no '## Spec coverage' table found/);
@@ -218,7 +218,7 @@ test("check 2 quote-integrity: required verbatim literal missing from owner task
     "- via: `helperFn()`\n\nThis task implements helperFn() for parsing.",
     "- via: `parserSeam()`\n\nThis task implements the helper for parsing.",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const qi = findingsFor(findings, "quote-integrity");
   assert.ok(
     qi.some((f) => f.reason.includes("helperFn()") && f.reason.includes("Task 1")),
@@ -235,7 +235,7 @@ test("check 1 owner-cell grammar: trailing junk after a Task <n> list is malform
     '| § "Design" L4-L6 | parser grammar basics | Task 1 |',
     '| § "Design" L4-L6 | parser grammar basics | Task 1 (see note) |',
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const tc = findingsFor(findings, "table-closure");
   assert.ok(
     tc.some(
@@ -260,7 +260,7 @@ test("check 1 owner-cell grammar: empty waiver reason is malformed, not accepted
     '| § "Other" L12-L13 | out of scope thing | waived: out of scope per spec |',
     '| § "Other" L12-L13 | out of scope thing | waived: |',
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const tc = findingsFor(findings, "table-closure");
   assert.ok(
     tc.some((f) => f.reason.includes("owner cell is not a 'Task <n>' list, 'Verification', or 'waived: <reason>'")),
@@ -281,7 +281,7 @@ const WAIVED_ROW = '| § "Other" L12-L13 | out of scope thing | waived: out of s
 test("check 9 waiver-literal: waived row whose requirement names a code literal fails", () => {
   const row = '| § "Other" L12-L13 | `protectedPaths: []` stays empty | waived: out of scope |';
   const mutated = VALID_PLAN.replace(WAIVED_ROW, row);
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const wl = findingsFor(findings, "waiver-literal");
   assert.equal(wl.length, 1, `expected exactly one waiver-literal finding, got: ${JSON.stringify(wl)}`);
   assert.equal(wl[0].line, lineOf(mutated, row));
@@ -294,7 +294,7 @@ test("check 9 waiver-literal: same requirement owned by a task passes the whole 
     '**Spec:** doc/specs/fixture-spec.md § "Design" L4-L6',
     '**Spec:** doc/specs/fixture-spec.md § "Design" L4-L6, § "Other" L12-L13',
   );
-  assert.deepEqual(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), []);
+  assert.deepEqual(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings, []);
 });
 
 test("check 9 waiver-literal: waived prose requirement without backticks passes the whole plan", () => {
@@ -302,7 +302,7 @@ test("check 9 waiver-literal: waived prose requirement without backticks passes 
     WAIVED_ROW,
     '| § "Other" L12-L13 | do not add support for protectedPaths | waived: out of scope per spec |',
   );
-  assert.deepEqual(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), []);
+  assert.deepEqual(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings, []);
 });
 
 const VERIFICATION_ROW = '| § "Acceptance" L16 | full suite passes | Verification |';
@@ -317,7 +317,7 @@ function withRow(plan: string, row: string): string {
 for (const owner of ["verification", "Verify", "VERIFICATION", "Task 1, Verification"]) {
   test(`Verification owner: '${owner}' is a malformed owner -> table-closure`, () => {
     const row = `| § "Acceptance" L16 | full suite passes | ${owner} |`;
-    const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+    const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort()).findings;
     const tc = findingsFor(findings, "table-closure");
     assert.ok(
       tc.some(
@@ -332,7 +332,7 @@ for (const owner of ["verification", "Verify", "VERIFICATION", "Task 1, Verifica
 
 test("Verification owner: unparseable anchor ('-') -> table-closure parseability reason", () => {
   const row = "| - | full suite passes | Verification |";
-  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort()).findings;
   const tc = findingsFor(findings, "table-closure");
   assert.ok(
     tc.some(
@@ -345,7 +345,7 @@ test("Verification owner: unparseable anchor ('-') -> table-closure parseability
 
 test("Verification owner: anchored lines without a backtick literal -> table-closure", () => {
   const row = '| § "Other" L13 | stuff | Verification |';
-  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort()).findings;
   const tc = findingsFor(findings, "table-closure");
   assert.ok(
     tc.some(
@@ -357,7 +357,7 @@ test("Verification owner: anchored lines without a backtick literal -> table-clo
 
 test("Verification owner: mechanical row -> table-closure", () => {
   const row = "| - | mechanical: run the suite | Verification |";
-  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort()).findings;
   const tc = findingsFor(findings, "table-closure");
   assert.ok(
     tc.some((f) => f.reason === "mechanical row owner must be a Task <n>" && f.text === row),
@@ -367,7 +367,7 @@ test("Verification owner: mechanical row -> table-closure", () => {
 
 test("table-closure: multi-owner row with unparseable anchor yields one parseability finding", () => {
   const row = "| L999 | naming details | Task 1, Task 2 |";
-  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort()).findings;
   const parseability = findingsFor(findings, "table-closure").filter(
     (f) => f.text === row && f.reason.includes("not a parseable"),
   );
@@ -379,7 +379,7 @@ test("Verification owner: does not satisfy a task's coverage requirement", () =>
     '| § "Testing" L9-L9 | banned token literal handling | Task 3 |\n',
     "",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   assert.ok(
     findingsFor(findings, "table-closure").some((f) =>
       f.reason.includes("Task 3 does not appear as an owner"),
@@ -389,7 +389,7 @@ test("Verification owner: does not satisfy a task's coverage requirement", () =>
 
 test("Verification quote-integrity: literal missing from header -> quote-integrity on the row", () => {
   const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify", "**Verification:** npm run other");
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const qi = findingsFor(findings, "quote-integrity");
   const row = '| § "Acceptance" L16 | full suite passes | Verification |';
   assert.ok(
@@ -408,7 +408,7 @@ test("Verification quote-integrity: multi-command header contains the literal", 
     "**Verification:** npm run fixture-verify",
     "**Verification:** `npm run fixture-verify && npm run lint`",
   );
-  assert.deepEqual(findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), "quote-integrity"), []);
+  assert.deepEqual(findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings, "quote-integrity"), []);
 });
 
 test("Verification quote-integrity: two-span header contains both literals", () => {
@@ -420,12 +420,12 @@ test("Verification quote-integrity: two-span header contains both literals", () 
     "**Verification:** npm run fixture-verify",
     "**Verification:** `npm run fixture-verify`, `npm run lint`",
   );
-  assert.deepEqual(findingsFor(checkPlan(mutated, spec, alwaysTruePort()), "quote-integrity"), []);
+  assert.deepEqual(findingsFor(checkPlan(mutated, spec, alwaysTruePort()).findings, "quote-integrity"), []);
 });
 
 test("Verification quote-integrity: missing header -> quote-integrity per literal plus header-entrypoint", () => {
   const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify\n", "");
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   assert.equal(
     findingsFor(findings, "quote-integrity").filter((f) => f.reason.includes("`npm run fixture-verify`")).length,
     1,
@@ -438,7 +438,7 @@ test("Verification quote-integrity: task body containing the full header string 
     "This task handles naming details.",
     "This task handles naming details. Run npm run fixture-verify here.",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   assert.ok(findingsFor(findings, "header-entrypoint").some((f) => f.text.includes("Run npm run fixture-verify here")));
   assert.deepEqual(findingsFor(findings, "quote-integrity"), []);
 });
@@ -448,13 +448,13 @@ test("Verification quote-integrity: task body containing only a sub-command of a
     "**Verification:** npm run fixture-verify",
     "**Verification:** `npm run fixture-verify && npm run lint`",
   ).replace("This task handles naming details.", "This task handles naming details. Run npm run fixture-verify here.");
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   assert.deepEqual(findingsFor(findings, "header-entrypoint"), []);
   assert.deepEqual(findingsFor(findings, "quote-integrity"), []);
 });
 
-const HE = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), "header-entrypoint");
-const WD = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), "wave-file-disjointness");
+const HE = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, "header-entrypoint");
+const WD = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, "wave-file-disjointness");
 
 test("header-entrypoint: Run: with backticked payload npm test under header npm test && npm run lint fails (regression for the hole)", () => {
   const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify", "**Verification:** npm test && npm run lint")
@@ -487,21 +487,21 @@ test("header-entrypoint: Tests: bullets are judged by tests-block, not here", ()
     "**Tests:**\n- `npm run fixture-verify`",
   );
   assert.deepEqual(HE(mutated), []);
-  assert.ok(findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), "tests-block").some((f) => f.reason.includes("full-suite command")));
+  assert.ok(findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings, "tests-block").some((f) => f.reason.includes("full-suite command")));
 });
 
 const withHappyPath = (plan: string, line: string) =>
   plan.replace("**Verification:** npm run fixture-verify", `**Verification:** npm run fixture-verify\n\n${line}`);
-const HP = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), "header-happy-path");
+const HP = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, "header-happy-path");
 
 test("header-happy-path: line with label, backticked command, and (~5m) duration is accepted", () => {
   const plan = withHappyPath(VALID_PLAN, "**Happy path:** stack - `script/e2e-stack` (~5m)");
-  assert.deepEqual(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), []);
+  assert.deepEqual(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, []);
 });
 
 test("header-happy-path: line without a duration is accepted", () => {
   const plan = withHappyPath(VALID_PLAN, "**Happy path:** stack - `script/e2e-stack`");
-  assert.deepEqual(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), []);
+  assert.deepEqual(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, []);
 });
 
 test("header-happy-path: line without label, backticks, or a valid duration is malformed", () => {
@@ -528,7 +528,7 @@ test("tests-block: Tests: bullet equal to the happy-path command is a full-suite
     "**Tests:**\n- `node --test extensions/lib/fixture-task2.test.ts`",
     "**Tests:**\n- `script/e2e-stack`",
   );
-  const tb = findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), "tests-block");
+  const tb = findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, "tests-block");
   assert.ok(tb.some((f) => f.reason.includes("full-suite command")), JSON.stringify(tb));
 });
 
@@ -543,7 +543,7 @@ test("header-entrypoint: Run: payload and free text repeating the happy-path com
 test("table-closure: owner cell 'Happy path' is malformed under the existing reason", () => {
   const row = '| § "Acceptance" L16 | full suite passes | Happy path |';
   const plan = withHappyPath(withRow(VALID_PLAN, row), "**Happy path:** stack - `script/e2e-stack` (~5m)");
-  const tc = findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), "table-closure");
+  const tc = findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, "table-closure");
   assert.ok(tc.some((f) => f.reason === "owner cell is not a 'Task <n>' list, 'Verification', or 'waived: <reason>'" && f.text === row));
 });
 
@@ -565,7 +565,7 @@ test("Verification quote-integrity: task-owned literal check unchanged", () => {
     "- via: `helperFn()`\n\nThis task implements helperFn() for parsing.",
     "- via: `parserSeam()`\n\nThis task implements the helper.",
   );
-  const qi = findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), "quote-integrity");
+  const qi = findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings, "quote-integrity");
   assert.ok(qi.some((f) => f.reason.includes("Task 1 body does not contain the required verbatim literal `helperFn()`")));
 });
 
@@ -608,7 +608,7 @@ Run node --test extensions/lib/plan-check.test.ts and confirm green.
 `;
 
 test("quote-integrity: header entrypoint literal on an anchored line is satisfied by the header, not the task body", () => {
-  const findings = checkPlan(ENTRYPOINT_PLAN, ENTRYPOINT_SPEC, alwaysTruePort());
+  const findings = checkPlan(ENTRYPOINT_PLAN, ENTRYPOINT_SPEC, alwaysTruePort()).findings;
   assert.deepEqual(findingsFor(findings, "quote-integrity"), []);
   assert.deepEqual(findingsFor(findings, "header-entrypoint"), []);
 });
@@ -618,20 +618,20 @@ test("quote-integrity: scoped command on the same anchored line is still require
     "- Test: extensions/lib/plan-check.test.ts\n\n**Tests:**\n- `node --test extensions/lib/plan-check.test.ts`\n- baseline: abc1234 pass\n\nRun node --test extensions/lib/plan-check.test.ts and confirm green.",
     "- Test: extensions/lib/other.test.ts\n\n**Tests:**\n- `node --test extensions/lib/other.test.ts`\n\nRun the scoped test and confirm green.",
   );
-  const qi = findingsFor(checkPlan(mutated, ENTRYPOINT_SPEC, alwaysTruePort()), "quote-integrity");
+  const qi = findingsFor(checkPlan(mutated, ENTRYPOINT_SPEC, alwaysTruePort()).findings, "quote-integrity");
   assert.equal(qi.length, 1);
   assert.ok(qi[0].reason.includes("Task 1 body does not contain the required verbatim literal `node --test extensions/lib/plan-check.test.ts`"));
 });
 
 test("placeholder-scan: header entrypoint is not a required literal for the task (parity with quote-integrity)", () => {
-  const findings = checkPlan(ENTRYPOINT_PLAN, ENTRYPOINT_SPEC, alwaysTruePort());
+  const findings = checkPlan(ENTRYPOINT_PLAN, ENTRYPOINT_SPEC, alwaysTruePort()).findings;
   assert.deepEqual(findingsFor(findings, "placeholder-scan"), []);
   assert.deepEqual(findings, []);
 });
 
 test("check 3 anchor-resolution: ambiguous heading match (duplicate spec heading)", () => {
   const dupSpec = SPEC_TEXT.replace('## Testing', '## Design\n\nduplicate section body.\n\n## Testing');
-  const findings = checkPlan(VALID_PLAN, dupSpec, alwaysTruePort());
+  const findings = checkPlan(VALID_PLAN, dupSpec, alwaysTruePort()).findings;
   const ar = findingsFor(findings, "anchor-resolution");
   assert.ok(
     ar.some((f) => f.reason.includes("ambiguous") && f.reason.includes('"Design"')),
@@ -652,7 +652,7 @@ test("check 3 fail-closed: unparseable **Spec:** anchor line", () => {
     '**Spec:** doc/specs/fixture-spec.md § "Design" L4-L6',
     "**Spec:** doc/specs/fixture-spec.md § Design without quotes or line numbers",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const ar = findingsFor(findings, "anchor-resolution");
   assert.equal(ar.length, 1);
   assert.match(ar[0].reason, /unparseable/);
@@ -664,7 +664,7 @@ test("check 4 paths-exist: Modify: literal path does not exist", () => {
     exists: (p) => p !== "extensions/lib/fixture-shared.ts",
     glob: () => [],
   };
-  const findings = checkPlan(VALID_PLAN, SPEC_TEXT, port);
+  const findings = checkPlan(VALID_PLAN, SPEC_TEXT, port).findings;
   const pe = findingsFor(findings, "paths-exist");
   assert.ok(
     pe.some((f) => f.reason.includes("fixture-shared.ts") && f.reason.includes("does not exist")),
@@ -681,7 +681,7 @@ test("check 4 paths-exist: backtick-wrapped Modify: path is stripped before the 
     "- Modify: extensions/lib/fixture-shared.ts",
     "- Modify: `extensions/lib/fixture-shared.ts`",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   assert.deepEqual(findingsFor(findings, "paths-exist"), []);
 });
 
@@ -696,7 +696,7 @@ test("check 4 fail-closed: invalid glob (port throws)", () => {
       throw new Error("bad pattern");
     },
   };
-  const findings = checkPlan(mutated, SPEC_TEXT, port);
+  const findings = checkPlan(mutated, SPEC_TEXT, port).findings;
   const pe = findingsFor(findings, "paths-exist");
   assert.ok(
     pe.some((f) => f.reason.includes("invalid") && f.reason.includes("bad pattern")),
@@ -717,7 +717,7 @@ test("check 4 fail-closed: task missing **Files:** block", () => {
     "**Files:**\n- Modify: extensions/lib/fixture-task3.ts\n- Test: extensions/lib/fixture-task3.test.ts\n\n**Tests:**\n- `node --test extensions/lib/fixture-task3.test.ts`\n- baseline: abc1234 pass\n\n",
     "",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const pe = findingsFor(findings, "paths-exist");
   assert.ok(
     pe.some((f) => f.reason.includes("missing a **Files:** block") && f.text.includes("Task 3")),
@@ -738,7 +738,7 @@ test("check 5 placeholder-scan: banned token flagged outside a required-literal 
     "This task handles naming details.",
     "This task handles naming details. TODO clean this up.",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const ps = findingsFor(findings, "placeholder-scan");
   assert.ok(
     ps.some((f) => f.reason.includes('"TODO"') && f.line === lineOf(mutated, "TODO clean this up")),
@@ -751,7 +751,7 @@ test("check 6 wave-file-disjointness: two tasks in the same wave declare the sam
     "- Modify: extensions/lib/fixture-other.ts",
     "- Modify: extensions/lib/fixture-shared.ts",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const wfd = findingsFor(findings, "wave-file-disjointness");
   assert.ok(
     wfd.some((f) => f.reason.includes("Task 1") && f.reason.includes("Task 2") && f.reason.includes("fixture-shared.ts")),
@@ -768,9 +768,9 @@ test("every-wave-singleton plan without Solo: lines passes; legacy Solo: lines a
     "### Task 2: Implement naming",
     "## Wave 2 - Naming\n\n### Task 2: Implement naming",
   ).replace("## Wave 2 — Solo task", "## Wave 3 - Documentation");
-  assert.deepEqual(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), []);
+  assert.deepEqual(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, []);
   const legacy = plan.replace("## Wave 2 - Naming", "## Wave 2 - Naming\n\nSolo: Task 2 depends on Wave 1");
-  assert.deepEqual(checkPlan(legacy, SPEC_TEXT, alwaysTruePort()), []);
+  assert.deepEqual(checkPlan(legacy, SPEC_TEXT, alwaysTruePort()).findings, []);
 });
 
 test("check 8 header-entrypoint: verification entrypoint string reused outside the header", () => {
@@ -778,7 +778,7 @@ test("check 8 header-entrypoint: verification entrypoint string reused outside t
     "This task handles naming details.",
     "This task handles naming details. Run `npm run fixture-verify` here too.",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   const he = findingsFor(findings, "header-entrypoint");
   assert.ok(
     he.some((f) => f.line === lineOf(mutated, "Run `npm run fixture-verify` here too")),
@@ -791,7 +791,7 @@ test("check 8 header-entrypoint: entrypoint text inside the '## Spec coverage' t
     "parser grammar basics",
     "parser grammar basics npm run fixture-verify",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   assert.deepEqual(findingsFor(findings, "header-entrypoint"), []);
 });
 
@@ -834,7 +834,7 @@ The literal TODO is intentionally documented here per spec quote-integrity requi
 `;
 
 test("check 2/5 exemption: task body carrying the required verbatim TODO literal satisfies quote-integrity and exempts placeholder-scan", () => {
-  const findings = checkPlan(EXEMPTION_PLAN, EXEMPTION_SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(EXEMPTION_PLAN, EXEMPTION_SPEC_TEXT, alwaysTruePort()).findings;
   assert.deepEqual(findings, []);
 });
 
@@ -843,7 +843,7 @@ test("check 2/5 exemption negative: without the task body carrying the literal, 
     "The literal TODO is intentionally documented here per spec quote-integrity requirement.",
     "This task implements the handling here.",
   );
-  const findings = checkPlan(mutated, EXEMPTION_SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, EXEMPTION_SPEC_TEXT, alwaysTruePort()).findings;
   const qi = findingsFor(findings, "quote-integrity");
   const ps = findingsFor(findings, "placeholder-scan");
   assert.ok(
@@ -874,14 +874,14 @@ test("aggregate: independent mutations across two checks are all reported togeth
     "- Modify: extensions/lib/fixture-other.ts",
     "- Modify: extensions/lib/fixture-shared.ts",
   );
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort()).findings;
   assert.ok(findingsFor(findings, "quote-integrity").length > 0, "expected a quote-integrity finding");
   assert.ok(findingsFor(findings, "wave-file-disjointness").length > 0, "expected a wave-file-disjointness finding");
 });
 
 test("grammarless plan: absent-structure findings do not short-circuit the catalog (placeholder-scan still runs)", () => {
   const grammarless = "# Not a plan\n\nJust some prose with a TODO in it.\n";
-  const findings = checkPlan(grammarless, SPEC_TEXT, alwaysTruePort());
+  const findings = checkPlan(grammarless, SPEC_TEXT, alwaysTruePort()).findings;
   const input = findingsFor(findings, "input");
   assert.ok(
     input.some((f) => f.reason.includes("no wave headers found")),
@@ -899,12 +899,12 @@ test("grammarless plan: absent-structure findings do not short-circuit the catal
 });
 
 test("fail-closed: checkPlan never throws on an empty string", () => {
-  assert.doesNotThrow(() => checkPlan("", SPEC_TEXT, alwaysTruePort()));
+  assert.doesNotThrow(() => checkPlan("", SPEC_TEXT, alwaysTruePort()).findings);
 });
 
 test("fail-closed: checkPlan never throws on a non-markdown garbage blob", () => {
   const garbage = "\u0000\u0001binary\ngarbage\tstuff \u{1F4A9} \"\"\"\n```unterminated fence";
-  assert.doesNotThrow(() => checkPlan(garbage, SPEC_TEXT, alwaysTruePort()));
+  assert.doesNotThrow(() => checkPlan(garbage, SPEC_TEXT, alwaysTruePort()).findings);
 });
 
 test("sha256 is deterministic and content-sensitive", () => {
@@ -926,7 +926,7 @@ const T2_TESTS = "**Tests:**\n- `node --test extensions/lib/fixture-task2.test.t
 const T2_FILES_TEST = "- Test: extensions/lib/fixture-task2.test.ts\n";
 
 function tb(plan: string, spec = SPEC_TEXT, fs: FsPort = alwaysTruePort()): PlanCheckFinding[] {
-  return findingsFor(checkPlan(plan, spec, fs), "tests-block");
+  return findingsFor(checkPlan(plan, spec, fs).findings, "tests-block");
 }
 
 test("tests-block: block missing when a task has no **Tests:**", () => {
@@ -1116,7 +1116,7 @@ test("tests-block: no path normalization - ./x and x differ, as in Files:", () =
 const BASELINE = "- baseline: abc1234 pass";
 const T1_COMMAND = "node --test extensions/lib/fixture-task1.test.ts";
 const T1_PATH = "extensions/lib/fixture-task1.test.ts";
-const baselineFindings = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), "baseline-line");
+const baselineFindings = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, "baseline-line");
 
 for (const [name, evidence] of [
   ["pass", BASELINE],
@@ -1196,7 +1196,7 @@ for (const [name, body, count, malformed] of [
 ] as const) {
   test(`open-questions ${name}`, () => {
     const plan = VALID_PLAN + (body ? "\n## Open Questions\n\n" + body + "\n" : "");
-    const findings = checkPlan(plan, SPEC_TEXT, alwaysTruePort());
+    const findings = checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings;
     const questions = findingsFor(findings, "open-questions");
     assert.equal(questions.length, count);
     if (malformed) assert.equal(questions[0].reason, "## Open Questions malformed: expected `- ` rows or `- none`");
@@ -1207,7 +1207,7 @@ for (const [name, body, count, malformed] of [
 
 test("placeholder-scan masks only valid question output, not authored fences or continuations", () => {
   for (const text of ["```\nTODO\n```", "## Open Questions\n  ```\n  TODO\n  ```", "## Open Questions\n- TODO unresolved", "## Open Questions\n" + FAILURE_ROW + "\n  ```\n  TODO", "## Open Questions\n" + FAILURE_ROW + "\n  ```\nTODO\n  ```", "## Open Questions\n" + FAILURE_ROW + "\n  ran: `TODO`", "## Open Questions\n" + FAILURE_ROW + "\n  blocked: TODO"]) {
-    assert.ok(findingsFor(checkPlan(VALID_PLAN + "\n" + text, SPEC_TEXT, alwaysTruePort()), "placeholder-scan").length);
+    assert.ok(findingsFor(checkPlan(VALID_PLAN + "\n" + text, SPEC_TEXT, alwaysTruePort()).findings, "placeholder-scan").length);
   }
 });
 
@@ -1232,11 +1232,11 @@ const coordinatedLedger = () => ledger(["1 | open | 0 |", "2 | open | 0 |", "3 |
   + "\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-a |\n| 4 | 3 | repo-a |\n";
 const emptyPort: FsPort = { exists: () => false, glob: () => [] };
 test("coordinated ledger expands shared ownership and defaults unlisted ACs home", () => {
-  assert.deepEqual(checkPlan(coordinatedLedger(), coordinatedSpec, emptyPort), []);
+  assert.deepEqual(checkPlan(coordinatedLedger(), coordinatedSpec, emptyPort).findings, []);
 });
 for (const scope of ["", "scope: AC 1\nscope: AC 2", "scope: AC 1, AC 1", "scope: AC 0", "scope: AC -1", "scope: AC 1.5", "scope: AC 4", "scope: 1", "scope: AC 1-2", "scope: AC 1,", "scope: none, AC 1"]) {
   test(`coordinated scope rejects ${JSON.stringify(scope)}`, () => {
-    assert.ok(checkPlan(coordinatedLedger(), coordinatedSpec.replace("scope: AC 1, AC 2", scope), emptyPort).some(f => f.check === "leg-scope"));
+    assert.ok(checkPlan(coordinatedLedger(), coordinatedSpec.replace("scope: AC 1, AC 2", scope), emptyPort).findings.some(f => f.check === "leg-scope"));
   });
 }
 for (const [name, change] of Object.entries({
@@ -1250,10 +1250,10 @@ for (const [name, change] of Object.entries({
   foreignTarget: (s: string) => s + "pending: 3 | repo-b | abc1234\n",
   duplicatePending: (s: string) => s + "pending: seed | repo-b | abc1234\npending: seed | repo-b | abc1234\n",
 })) test(`coordinated ledger rejects ${name}`, () => {
-  assert.ok(checkPlan(change(coordinatedLedger()), coordinatedSpec, emptyPort).length);
+  assert.ok(checkPlan(change(coordinatedLedger()), coordinatedSpec, emptyPort).findings.length);
 });
 test("coordinated ledger admits partial seeds, recovery tuples and later cap grants", () => {
-  for (const target of ["2", "seed"]) assert.deepEqual(checkPlan(coordinatedLedger().replace("seeded repo-a: no", "seeded repo-a: yes").replace("cap: 20", "cap: 99") + `pending: ${target} | REPO-B | abc1234\n`, coordinatedSpec, emptyPort), []);
+  for (const target of ["2", "seed"]) assert.deepEqual(checkPlan(coordinatedLedger().replace("seeded repo-a: no", "seeded repo-a: yes").replace("cap: 20", "cap: 99") + `pending: ${target} | REPO-B | abc1234\n`, coordinatedSpec, emptyPort).findings, []);
 });
 
 const legPlanSpec = SPEC_TEXT + "\n## Legs\n### Leg: repo-a\nscope: none\n### Leg: repo-b\nscope: none\n";
@@ -1262,28 +1262,28 @@ const legPlan = () => VALID_PLAN.replace("---", "Baseline repo-a: abc1234\nBasel
   .replace("- baseline: abc1234 pass\n\nThis task handles", "- baseline: def5678 pass\n\nThis task handles");
 test("plan accepts distinct leg baselines, case-insensitive membership and absent home Leg", () => {
   const probes: (string | undefined)[] = [];
-  assert.deepEqual(checkPlan(legPlan(), legPlanSpec, { exists: (_p, leg) => { probes.push(leg); return true; }, glob: () => [] }), []);
+  assert.deepEqual(checkPlan(legPlan(), legPlanSpec, { exists: (_p, leg) => { probes.push(leg); return true; }, glob: () => [] }).findings, []);
   assert.ok(probes.includes("repo-b"));
   assert.ok(probes.includes("repo-a"));
 });
 test("wrong-leg baseline and mixed-leg waves fail", () => {
-  assert.ok(checkPlan(legPlan().replace("def5678 pass", "abc1234 pass"), legPlanSpec, alwaysTruePort()).some(f => f.check === "baseline-line"));
-  assert.ok(checkPlan(legPlan().replace("## Wave 3 - Companion\n\n", ""), legPlanSpec, alwaysTruePort()).some(f => f.check === "wave-leg"));
+  assert.ok(checkPlan(legPlan().replace("def5678 pass", "abc1234 pass"), legPlanSpec, alwaysTruePort()).findings.some(f => f.check === "baseline-line"));
+  assert.ok(checkPlan(legPlan().replace("## Wave 3 - Companion\n\n", ""), legPlanSpec, alwaysTruePort()).findings.some(f => f.check === "wave-leg"));
 });
 test("unknown legs fail before filesystem probing", () => {
   const probes: string[] = [];
-  assert.ok(checkPlan(legPlan().replace("Leg: REPO-B", "Leg: stranger"), legPlanSpec, { exists: (p) => { probes.push(p); return true; }, glob: () => [] }).some(f => f.check === "leg-unknown"));
+  assert.ok(checkPlan(legPlan().replace("Leg: REPO-B", "Leg: stranger"), legPlanSpec, { exists: (p) => { probes.push(p); return true; }, glob: () => [] }).findings.some(f => f.check === "leg-unknown"));
   assert.deepEqual(probes, []);
 });
 test("cross-leg creates do not supply Test paths or skipped baseline evidence", () => {
   const plan = legPlan().replaceAll("extensions/lib/fixture-task2.test.ts", "extensions/lib/fixture-task1.ts").replace("def5678 pass", "def5678 skipped - extensions/lib/fixture-task1.ts created by this task");
-  const findings = checkPlan(plan, legPlanSpec, { exists: p => p !== "extensions/lib/fixture-task1.ts", glob: () => [] });
+  const findings = checkPlan(plan, legPlanSpec, { exists: p => p !== "extensions/lib/fixture-task1.ts", glob: () => [] }).findings;
   assert.ok(findings.some(f => f.check === "tests-block" && /unknown/.test(f.reason)));
   assert.ok(findings.some(f => f.check === "baseline-line" && /not a Create/.test(f.reason)));
 });
 test("identical paths across legs do not overlap even in rejected mixed waves", () => {
   const plan = legPlan().replace("## Wave 3 - Companion\n\n", "").replaceAll("fixture-other.ts", "fixture-shared.ts");
-  assert.deepEqual(checkPlan(plan, legPlanSpec, alwaysTruePort()).filter(f => f.check === "wave-file-disjointness"), []);
+  assert.deepEqual(checkPlan(plan, legPlanSpec, alwaysTruePort()).findings.filter(f => f.check === "wave-file-disjointness"), []);
 });
 
 for (const [name, change] of Object.entries({
@@ -1304,33 +1304,80 @@ for (const [name, change] of Object.entries({
   unknownMapping: (s: string) => s.replace("| 2 | 1 | repo-b |", "| 2 | 1 | stranger |"),
   disposition: (s: string) => s.replace("| 3 | cut | 0 | deferred: #70 |", "| 3 | open | 0 | |"),
 })) test(`coordinated metadata rejects ${name}`, () => {
-  assert.ok(checkPlan(change(coordinatedLedger()), coordinatedSpec, emptyPort).length);
+  assert.ok(checkPlan(change(coordinatedLedger()), coordinatedSpec, emptyPort).findings.length);
 });
 test("scope textual order does not change original AC or member order, and design claims no ownership", () => {
   const spec = coordinatedSpec.replace("scope: AC 1, AC 2", "scope: AC 2, AC 1\ndesign: AC 3 touches lib/other.ts");
-  assert.deepEqual(checkPlan(coordinatedLedger().replace("| 4 | open | 0 | |", "| 4 | done | 1 | checked a\\|b |"), spec, emptyPort), []);
+  assert.deepEqual(checkPlan(coordinatedLedger().replace("| 4 | open | 0 | |", "| 4 | done | 1 | checked a\\|b |"), spec, emptyPort).findings, []);
 });
 test("scope none defaults all original ACs home, preserving cut numbering and ignoring nested checks", () => {
   const spec = coordinatedSpec.replace("- [ ] First", "- [ ] First\n  - [ ] Nested").replace("scope: AC 1, AC 2", "scope: none").replace("scope: AC 1\n", "scope: none\n");
   const input = coordinatedLedger().replace("| 2 | open | 0 | |\n", "").replace("| 3 | cut", "| 2 | cut").replace("| 4 | open", "| 3 | open")
     .replace("| 2 | 1 | repo-b |\n", "").replace("| 3 | 2 | repo-a |", "| 2 | 2 | repo-a |").replace("| 4 | 3 | repo-a |", "| 3 | 3 | repo-a |");
-  assert.deepEqual(checkPlan(input, spec, emptyPort), []);
+  assert.deepEqual(checkPlan(input, spec, emptyPort).findings, []);
 });
 test("single-member ledger preserves legacy headers and four-column bytes", () => {
-  assert.deepEqual(checkPlan(ledger(), ledgerSpec + "\n## Legs\n### Leg: repo-a\n", emptyPort), []);
+  assert.deepEqual(checkPlan(ledger(), ledgerSpec + "\n## Legs\n### Leg: repo-a\n", emptyPort).findings, []);
 });
 test("leg-local globs and plain Files: resolve at each normalized leg", () => {
   const calls: string[] = [];
   const plan = legPlan().replaceAll("**Files:**", "Files:").replace("Modify: extensions/lib/fixture-other.ts", "Modify: extensions/lib/companion-*.ts");
-  assert.deepEqual(checkPlan(plan, legPlanSpec, { exists: () => true, glob: (pattern, leg) => { calls.push(`${leg}:${pattern}`); return ["extensions/lib/companion-one.ts"]; } }), []);
+  assert.deepEqual(checkPlan(plan, legPlanSpec, { exists: () => true, glob: (pattern, leg) => { calls.push(`${leg}:${pattern}`); return ["extensions/lib/companion-one.ts"]; } }).findings, []);
   assert.deepEqual(calls, ["repo-b:extensions/lib/companion-*.ts"]);
 });
 test("coordinated scope counts only original unfenced top-level AC rows", () => {
   const spec = coordinatedSpec.replace("- [ ] First", "```text\n- [ ] Example, not an AC\n```\n- [ ] First");
-  assert.deepEqual(checkPlan(coordinatedLedger(), spec, emptyPort), []);
-  assert.ok(checkPlan(coordinatedLedger(), spec.replace("scope: AC 1\n", "scope: AC 4\n"), emptyPort).some(f => f.check === "leg-scope"));
+  assert.deepEqual(checkPlan(coordinatedLedger(), spec, emptyPort).findings, []);
+  assert.ok(checkPlan(coordinatedLedger(), spec.replace("scope: AC 1\n", "scope: AC 4\n"), emptyPort).findings.some(f => f.check === "leg-scope"));
 });
 test("coordinated ledger rejects duplicate mapping sections", () => {
   const input = coordinatedLedger();
-  assert.ok(checkPlan(input + input.slice(input.indexOf("## Leg mapping")), coordinatedSpec, emptyPort).length);
+  assert.ok(checkPlan(input + input.slice(input.indexOf("## Leg mapping")), coordinatedSpec, emptyPort).findings.length);
+});
+
+
+test("manifest preserves ordered task data and optional coordination fields", () => {
+  const plan = VALID_PLAN.replaceAll("Task 1", "Task 4").replaceAll("Task 2", "Task 9")
+    .replace("Implement helper", 'Implement | "helper"')
+    .replace("extensions/lib/fixture-shared.ts", 'extensions/lib/"shared".ts:12-14')
+    .replace("This task implements", 'Orchestrator: persist the measured value into Task 9\nOrchestrator: ignored second line\nThis task implements')
+    .replace("## Wave 1 — Two parallel tasks", "## Wave 1 - Two parallel tasks (in-place)")
+    .replace("- via: `helperFn()`", "- via: `helperFn()`\n- `node extensions/lib/fixture-task1.test.ts; node extensions/lib/fixture-task1.test.ts | node extensions/lib/fixture-task1.test.ts`\n- baseline: abc1234 pass");
+  const result = checkPlan(plan, SPEC_TEXT, alwaysTruePort());
+  assert.deepEqual(result.findings, []);
+  assert.equal(result.ledger, false);
+  assert.ok(result.parsed);
+  const [header, ...lines] = renderManifest(result.parsed, '/repo/plan.md', '/repo/spec.md').split("\n");
+  assert.equal(header, 'manifest: /repo/plan.md | spec: /repo/spec.md | tasks: 3 | waves: 2');
+  const tasks = lines.map(line => JSON.parse(line));
+  assert.deepEqual(Object.keys(tasks[0]), ['task', 'wave', 'mode', 'heading', 'files', 'tests', 'orchestrator']);
+  assert.equal(tasks[0].task, 4);
+  assert.equal(tasks[0].wave, 1);
+  assert.equal(tasks[0].mode, 'in-place');
+  assert.equal(tasks[0].heading, 'Implement | "helper"');
+  assert.deepEqual(tasks[0].files, [
+    { kind: 'Create', path: 'extensions/lib/fixture-task1.ts' },
+    { kind: 'Modify', path: 'extensions/lib/"shared".ts:12-14' },
+    { kind: 'Test', path: 'extensions/lib/fixture-task1.test.ts' },
+  ]);
+  assert.deepEqual(tasks[0].tests, ['node --test extensions/lib/fixture-task1.test.ts', 'node extensions/lib/fixture-task1.test.ts; node extensions/lib/fixture-task1.test.ts | node extensions/lib/fixture-task1.test.ts']);
+  assert.equal(tasks[0].orchestrator, 'persist the measured value into Task 9');
+  assert.equal(tasks[1].task, 9);
+  assert.ok(!('orchestrator' in tasks[1]));
+  assert.ok(!('leg' in tasks[0]));
+  assert.ok(!('mode' in tasks[2]));
+});
+
+test("manifest uses normalized legs and omits unmarked prose and no-tests commands", () => {
+  const result = checkPlan(legPlan(), legPlanSpec, alwaysTruePort());
+  assert.deepEqual(result.findings, []);
+  assert.ok(result.parsed);
+  const tasks = renderManifest(result.parsed, '/repo/plan.md', '/repo/spec.md').split('\n').slice(1).map(line => JSON.parse(line));
+  assert.deepEqual(tasks.map(t => t.leg), ['repo-a', 'repo-b', 'repo-a']);
+  const plan = '# Plan\n**Verification:** all-checks\n---\n## Wave 1 - Docs\n### Task 9: Docs\n**Files:**\n- Modify: README.md\n**Tests:**\n- none: docs\nPrimary: persist the value\n## Spec coverage\n| anchor | requirement | owner |\n|---|---|---|\n| - | mechanical: docs | Task 9 |';
+  const noTests = checkPlan(plan, '', alwaysTruePort());
+  assert.deepEqual(noTests.findings, []);
+  assert.ok(noTests.parsed);
+  assert.deepEqual(JSON.parse(renderManifest(noTests.parsed, '/p', '/s').split('\n')[1]), { task: 9, wave: 1, heading: 'Docs', files: [{kind: 'Modify', path: 'README.md'}], tests: [] });
+  assert.equal(checkPlan(ledger(), ledgerSpec, emptyPort).ledger, true);
 });

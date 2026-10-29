@@ -1,0 +1,5 @@
+- next-read: judged: Requests the plan read, then treats the absent exact Task 4 anchor as unreadable rather than using Task 40 or asking the parent to read it.
+- blocked: judged: Reports BLOCKED and structured status BLOCKED, never DONE or successful implementation.
+- anchor: mechanical: contains "anchorUnreadable"
+- reasoning: mechanical: contains "Reasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:"
+- identity: judged: Sets anchorUnreadable to /workspace/project/plan.md#### Task 4: in JSON, preserving the path#anchor identity.

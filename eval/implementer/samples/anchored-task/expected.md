@@ -1,0 +1,5 @@
+- next-read: judged: Requests reading /workspace/project/plan.md at Task 4 before acting, using supplied observations without claiming live tools.
+- task-slice: judged: Selects Task 4 not Task 40, stops at the level-2 Next wave heading, and creates only flag.md for the anchored task.
+- rules: judged: Combines task-rules.md with home-rules.md using the first spec leg because Task 4 has no Leg, resolving both in /workspace/project.
+- mirror: judged: Reports DONE and matching structured status for the supplied completed documentation work, without claiming tests ran.
+- inline: judged: Handles the independent inline note.md task without requiring a plan or anchor and reports matching DONE status for it.
