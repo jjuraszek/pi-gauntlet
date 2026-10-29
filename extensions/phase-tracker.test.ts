@@ -2454,7 +2454,7 @@ for (const event of ["session_start", "session_switch", "session_fork", "session
   }
 }
 
-for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_check resolves clone URL companions with ${pattern}`, async () => {
+for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_check resolves clone URL companions with ${pattern}`, async (t) => {
   const primary = gitPrimary().primary;
   const companion = gitPrimary().primary;
   const unselected = gitPrimary().primary;
@@ -2505,6 +2505,41 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
     const invalid = await tool.execute("invalid", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings: { check: string; reason: string }[] } };
     assert.equal(invalid.details.status, "fail");
     assert.ok(invalid.details.findings.some(f => f.check === "input" && f.reason.includes("- sibling: ../viewer") && f.reason.includes("invalid configuration")));
+    const plain = realpathSync(tempCwd());
+    const missingName = `${name}-missing`;
+    const cases = [
+      { name: "PATH not found", value: `https://example.test/team/${missingName}.git`, reason: "PATH not found" },
+      { name: "not a checkout", value: `https://example.test/team/${plain.split("/").at(-1)}.git`, reason: "not a checkout" },
+      { name: "no origin", value: cloneUrl, origin: null, reason: "no origin" },
+      { name: "unparseable stored origin", value: cloneUrl, origin: "local-origin", reason: "unparseable origin" },
+      { name: "wrong repo", value: cloneUrl, origin: `https://example.test/other/${name}.git`, reason: "wrong repo" },
+      { name: "home primary", value: `https://example.test/team/${primary.split("/").at(-1)}.git`, reason: "PATH equals home primary" },
+      ...["viewer", "/srv/git/viewer.git", "file:///srv/git/viewer.git"].map(value => ({ name: `invalid ${value}`, value, reason: "invalid configuration" })),
+      { name: "stored trailing slash", value: cloneUrl, origin: `https://example.test/${repo}.git/` },
+      { name: "stored origin with insteadOf", value: cloneUrl, origin: `https://example.test/${repo}.git`, rewrite: true },
+    ];
+    for (const row of cases) await t.test(row.name, async () => {
+      const stored = "origin" in row ? row.origin : `https://example.test/${repo}.git`;
+      if (stored === null) execFileSync("git", ["config", "--unset", "remote.origin.url"], { cwd: companion });
+      else execFileSync("git", ["config", "remote.origin.url", stored!], { cwd: companion });
+      const rewriteKey = "url.https://rewritten.test/other/.insteadOf";
+      if ("rewrite" in row) execFileSync("git", ["config", rewriteKey, "https://example.test/team/"], { cwd: companion });
+      const line = `- sibling: ${row.value}`;
+      writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n${line}\n`);
+      try {
+        const result = await tool.execute(row.name, { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: { check: string; reason: string }[] } };
+        assert.equal(result.details.status, row.reason ? "fail" : "pass", JSON.stringify(result.details.findings));
+        if (row.reason) assert.ok(result.details.findings?.some(f => f.check === "input" && f.reason.includes(line) && f.reason.includes(row.reason!)), JSON.stringify(result.details.findings));
+      } finally {
+        if ("rewrite" in row) execFileSync("git", ["config", "--unset", rewriteKey], { cwd: companion });
+      }
+    });
+    execFileSync("git", ["config", "remote.origin.url", `https://example.test/${repo}.git`], { cwd: companion });
+    await t.test("identity precedes shared NAME without probing the other declaration", async () => {
+      writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: git@example.test:other/${name}.git\n- sibling: ${cloneUrl}\n`);
+      const result = await tool.execute("identity", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
+      assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
+    });
     writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${cloneUrl}\n`);
   } finally {
     for (const spy of spies) spy.mock.restore();

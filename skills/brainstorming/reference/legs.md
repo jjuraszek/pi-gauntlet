@@ -13,7 +13,9 @@ use `PATH` = `<home PRIMARY parent>/<NAME>` as each companion primary.
 
 Match only companions explicitly selected by the ask (repo identifier, `NAME`,
 or declared clone URL) or the ticket's repo-group headings. Compare
-case-insensitively, trailing `owner/name` of `IDENTITY` before `NAME`. Derive the portable identifier
+case-insensitively, trailing `owner/name` of `IDENTITY` before `NAME`. Derive each companion's portable identifier
+from the shared parser's trailing `owner/name` of `IDENTITY` for the validated stored origin
+read with `git -C <primary> config --get remote.origin.url`. Derive the home's identifier
 from `git -C <primary> remote get-url origin`'s `owner/name`, stripping `.git`;
 without origin use `repo:` from that member's own first-found overrides
 `## Issue tracker` section; without that value use the member's primary directory basename. Use the same identifier

@@ -1035,9 +1035,8 @@ export default function (pi: ExtensionAPI) {
               const parsedOrigin = parseClone(origin.stdout.trim());
               if (!parsedOrigin) return reject("unparseable origin");
               if (parsedOrigin.identity !== sibling.parsed.identity) return reject("wrong repo");
-              const remote = gitSync(["remote", "get-url", "origin"], path);
-              const repo = remote.stdout.trim().replace(/\.git$/, "").replace(/^.*[:/]([^/:]+\/[^/]+)$/, "$1").toLowerCase();
-              if (remote.code === 0 && repo === identifier) candidates.push(path);
+              const repo = parsedOrigin.identity.split("/").slice(-2).join("/");
+              if (repo === identifier) candidates.push(path);
             }
             if (candidates.length !== 1) return inputFailure(`cannot resolve selected sibling ${leg.repo}`);
             const branch = /^branch:\s*(\S+)\s*$/m.exec(leg.body)?.[1];

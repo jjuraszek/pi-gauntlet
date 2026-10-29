@@ -75,7 +75,7 @@ Everything between gate 1 and gate 2 - task breakdown, implementation, both revi
 
 ### Multi-repo runs
 
-A run has one home repository and one leg per selected repository. The home's `## shape-ticket` `- sibling:` declarations define eligible companions, not automatic membership: the ask must select a declared companion by repo identifier, basename, or sibling path, or the ticket must select it through a matching repo-group heading. Unselected paths are not resolved. Members are ordered home first, then selected siblings in declaration order. Every member gets its own worktree with the same full branch and derived worktree name.
+A run has one home repository and one leg per selected repository. The home's `## shape-ticket` `- sibling:` declarations define eligible companions, not automatic membership: the ask must select a declared companion by repo identifier, the declared clone URL's `NAME`, or the URL itself, or the ticket must select it through a matching repo-group heading. Unselected siblings are not resolved. Members are ordered home first, then selected siblings in declaration order. Every member gets its own worktree with the same full branch and derived worktree name.
 
 The approved home spec records `## Legs`, including each leg's scope, rules and resolved `contract:`. Each companion commits a leg file with the same filename in its own spec directory, carrying the home pointer, Problem, binding decisions and its own leg block. Plan and ledger stay home-owned; task `Leg:` selects the checkout for implementation and review. Committed artifacts use portable repo identifiers, not machine-local paths. See the [membership and artifact contract](skills/brainstorming/reference/legs.md).
 
