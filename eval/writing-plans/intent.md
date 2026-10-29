@@ -16,7 +16,7 @@ Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-for
 
 Keep Leg before Files and leg-specific test baselines and rule routing; preserve existing task-contract facts.
 
-Extend parent-offers-fix-first-narrow-amend while preserving failure/menu/pause as the no-grant control. Decode amend permission before taking baseline recommendations in initial planning and unchanged-command amendment aftermath. No model replay runs during implementation; verification owns the generated report.
+Add grant variants as two new samples, baseline-menu-under-grant and baseline-menu-aftermath, while preserving the existing parent-offers-fix-first-narrow-amend sample's failure/menu/pause as the no-grant control. Decode amend permission before taking baseline recommendations in initial planning and unchanged-command amendment aftermath. No model replay runs during implementation; verification owns the generated report.
 
 ## Expected to move
 - pr-subject-sync-repair/inplace-wave: fails -> holds - Place rebase Task 1 alone in Wave 1 marked in-place while retaining ordinary merge-task wave placement.
@@ -44,8 +44,8 @@ Extend parent-offers-fix-first-narrow-amend while preserving failure/menu/pause 
 - all-singleton-plan/singleton-template: fails -> holds - Singleton waves require no Solo justification or mode-specific template lines.
 - all-singleton-plan/ordered-handoff: fails -> holds - The parent initializes all three singleton tasks in wave order then directly invokes execution without mode selection.
 
-- parent-offers-fix-first-narrow-amend/grant-narrow: fails -> holds - Copy hook-config exactly into writer Findings and acknowledge the recommendation.
-- parent-offers-fix-first-narrow-amend/grant-amend: fails -> holds - Run section 5 without a redundant approval stop.
-- parent-offers-fix-first-narrow-amend/grant-fix-first: fails -> holds - Enter shape-ticket with its own gate only.
-- parent-offers-fix-first-narrow-amend/grant-wait: fails -> holds - Wait on none or a missing narrow filter.
-- parent-offers-fix-first-narrow-amend/aftermath: fails -> holds - Continue unchanged-command failure under grant without weakening dirty-path, repeated-evidence or budget protections.
+- baseline-menu-under-grant/grant-narrow: fails -> holds - Copy hook-config exactly into writer Findings and acknowledge the recommendation.
+- baseline-menu-under-grant/grant-amend: fails -> holds - Run section 5 without a redundant approval stop.
+- baseline-menu-under-grant/grant-fix-first: fails -> holds - Enter shape-ticket with its own gate only.
+- baseline-menu-under-grant/grant-wait: fails -> holds - Wait on none or a missing narrow filter.
+- baseline-menu-aftermath/aftermath: fails -> holds - Continue unchanged-command failure under grant without weakening dirty-path, repeated-evidence or budget protections.

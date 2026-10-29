@@ -22,5 +22,3 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - escalated-row-attempt/amend: fails -> holds - Named amendments use section 5 and return to ordered checks; repeated row evidence waits with Recommendation none.
 - exit-verification-escalates/repair: fails -> holds - One clean single-commit repair in the failing leg persists a once-per-flow parent marker and reruns only that command once; rows remain closed.
 - exit-verification-escalates/boundaries: fails -> holds - Cap, dirty/extra commits and unrecoverable identity prevent redispatch; failed rerun names spent escalation and recommendation.
-
-These new samples have no pre-edit sample evidence. Expected movement is instructional, not an observed model result; parent runs the model target and generates report.md.
