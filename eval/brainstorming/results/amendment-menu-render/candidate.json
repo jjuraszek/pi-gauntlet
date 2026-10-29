@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "133c23b80dbdbb70ee8193c5e8e2727ee78d56ca492d399497393512a7f04444",
       "candidateOutputSha": "63a600a017d37e7644440e893d0c418ea93c13bcd73c596e140a4192b336b4c9",
       "facts": {
@@ -73,14 +73,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs open each item with a plain-words what/why sentence, list A) accept and B) alt-1 with one-line consequences, give Recommended: B and Recommended: A with reasons, use the `1. A` / `2. <your own text>` reply form with bare 1 taking every recommendation, and carry one human-call sentence per item (After rephrases it as '...so the reviewer left it to you', which still satisfies f6). Two incidental regressions worth tightening: After's item 1 opener drops the concrete evidence Before surfaced ('alpha retries twice and beta retries four times'), and its Impact lines drop the 'Design /' section prefix and, for item 1, describe a generic 'single owner' rather than the recommended coordinator outcome. Wording like 'Impact: Design / retries: each adapter decides its own retry policy -> the existing report coordinator sets one retry policy for every adapter' plus keeping the alpha/beta counts in the opener would deliver the Change while preserving Before's specificity.",
-      "wallMs": 13012,
+      "feedback": "No fact moved: both outputs open each numbered item with a what/why sentence, list A) accept and B) alt-1 with consequences, give lettered recommendations with reasons, use the `1. A` / bare `1` reply grammar without the legacy `<handle>=<choice>` form, and carry one human-call sentence per item. After rephrases the human-call sentence from \"This is your call because ...\" to \"..., so the reviewer left it to you\" - still satisfies f6, but the explicit \"your call\" phrasing in Before is the more robust anchor for a judge reading f6 literally, so keeping \"This is your call because <reason>\" costs nothing. Two small losses worth reverting even though no fact keys on them: After drops the concrete evidence (alpha retries twice, beta four) from item 1's opening sentence, and trims the Impact location from \"Design / retries\" / \"Design / run status\" to bare \"retries\" / \"run status\"; Before's fuller forms are closer to the batch's Location field. The split \"crosscut\" / \"crosscut (alt-1)\" Details lines are fine but Before's single `new (A) | new (B)` line is tighter and maps directly to the lettered options.",
+      "wallMs": 13175,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "9a9d089695b030beed82c319fb930229dc0fc80f375176bb1155f84d2cb4258a",
       "candidateOutputSha": "23ccfd0fc0d9c18080d1b7cf73b1edbab1af442c447160ffcbd6be32183148cc",
       "facts": {
@@ -115,10 +115,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs open each item with the plain-words what/why sentence, carry a single human-call sentence, list A) accept and B) alt-1 with one-line consequences on crosscut, give 'Recommended: B -' and 'Recommended: A -' with reasons, and use the `<n>. <letter or free text>` reply grammar with bare `1` and no legacy `2: <handle>=<choice>` prompt. The only After differences are cosmetic or incidental: the crosscut Impact line now reads the generic 'adapter-owned policies -> one shared policy owner' instead of naming the recommended coordinator outcome, the Recommended lines gain trailing periods, and the Details line for crosscut now shows the accept outcome with alt-1 as an alternative rather than the recommended alt-1 outcome. None of these touch the graded facts, but if the author wants the Impact and Details lines to stay aligned with the recommendation (as Before did), the wording should instruct that Impact/Details render the recommended option's new text, or explicitly label both options, rather than defaulting to the accept text.",
-      "wallMs": 10567,
+      "feedback": "Nothing moved: both outputs open each item with a plain what/why sentence, list A) accept and B) alt-1 with one-line consequences, give `Recommended: B -` and `Recommended: A -` with reasons, carry one human-call sentence per item, and end with the `<n>. <letter or free text>` / bare `1` reply instruction with no legacy `<handle>=<choice>` form. The only After differences are outside the judged facts - the crosscut Impact line is now the option-neutral `adapter-owned policies -> one shared policy owner` rather than pre-committing to the coordinator, the Details line now shows `new (accept): ...` plus `Alternative alt-1: ...`, and the Recommended lines gained trailing periods. The Details rewrite is slightly at odds with the recommendation (it headlines accept as the `new` text while the menu recommends B); if you want to keep the neutral Impact wording, consider rendering Details as `old -> A: <accept text> / B: <alt-1 text>` or `new (recommended B): ...` so the summary and recommendation agree without reintroducing a pre-chosen option.",
+      "wallMs": 13848,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

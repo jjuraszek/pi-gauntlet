@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "7e376b66ddc0c8582a07da440f4a1fc81fa660cea1d0dc48d30290fc66d7e0b2",
       "candidateOutputSha": "31595bf46d1e8bd2bc5aeead8bd07451a9d537aa2108ba8f9b0757608bef0c3c",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs stop Run A naming repo-b with requested `feature/shared-change` versus observed `feature/other`, stop Run F on the absent read-back without treating it as equality or emitting `Worktree ready at` for repo-b, and list `Preserved created legs:` with both the home tree and the created repo-b tree while removing nothing; both stop B and C before the creator without suffixing or reuse, abort D on decline, and ask once in E instead of guessing. The visible effect of the Change in After is E's `Recommendation: none - <why>` line replacing Before's `Recommendation: A`, which still satisfies 'asks once rather than guessing'. One wording weakness worth tightening in After: Runs B–E no longer render the `Preserved created legs:` inventory with an explicit path, hedging with 'the repo-a home tree, if this run created it'; Before stated the assumption once up front and then listed `repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change` in every stop block. Keep After's `Recommendation: none` and coordinated-member framing, but restore Before's practice of stating the home assumption in the shared setup and printing a concrete `Preserved created legs:` block per stop, so the 'each retains already-created legs' clause reads as a listed inventory rather than a conditional sentence.",
-      "wallMs": 15128,
+      "feedback": "Neither fact moved. Both outputs stop A on repo-b with requested feature/shared-change versus actual feature/other and stop F on the absent branch read-back without equating it to a match or emitting `Worktree ready at`, and both print a `Preserved created legs:` block listing the home tree and the created repo-b tree with nothing removed. B and C stop at preflight before the creator without suffixing or reuse, D stops on decline without auto-stash, and E asks once for the subproject without running the template. The only drift in After is that runs B–E hedge the inventory as 'the repo-a home tree, if this run created it' instead of listing the path, which still satisfies 'retains already-created legs' but is weaker than Before's explicit assumed path; if you want the Change's `Preserved created legs:` listing to be concrete in every failure, keep After's phrasing but state the shared assumption once (home succeeded at /work/repo-a/.worktrees/feature-shared-change, as in A and F) and print that line in each B–E block rather than the conditional clause. After's `Recommendation: none - <why>` in E is consistent with the new aftermath wording and does not count as guessing.",
+      "wallMs": 16151,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "0c71d2b81c03e50aa581bcd068083d6751046b9a61f1a83af786030669f85ce2",
       "candidateOutputSha": "398d299068bbb050a782acc74af3de7e64390e3bfb8c6b3dd494785222d6e0cf",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. After keeps everything Before had and tightens the weakest spot: Before's F stop said only \"the exact requested branch\" and relied on context for the expected branch name, while After's F step 5 explicitly reports repo-b, requested branch `feature/shared-change`, and the unavailable actual branch, then withholds the repo-b `Worktree ready at` line and lists `Preserved created legs:` with both trees — keep that wording. A's stop in After names repo-b, `feature/other` versus `feature/shared-change`, and lists both preserved legs; B/C stop before the creator without suffixing or reusing and say not to remove the home tree; D stops on the decline; E asks once and waits. Two small risks to tighten so the preflight fact can't be read as marginal: E in both outputs never says it retains already-created legs (add a one-line \"Preserve any already-created home tree\" as D has), and After's D step 2 says to present porcelain output verbatim and then admits it cannot — phrase it as Before did (\"exact porcelain output is not supplied\") so the narration doesn't promise an action it then declines to perform.",
-      "wallMs": 22749,
+      "feedback": "After keeps both facts: Run A still names repo-b, contrasts requested feature/shared-change with observed feature/other, stops without a repo-b `Worktree ready at` line and lists both created trees under `Preserved created legs:`; Run F still names the requested branch and the unavailable read-back, refuses to treat no-result as a match, withholds the ready line and lists both legs without deleting either; B and C stop before the creator with no suffix or reuse and explicitly keep the home tree, D stops on the decline without stash/clean/tests, and E asks exactly once and waits rather than guessing or falling back to `git worktree add`. The only soft spot, present in Before as well, is that Run E never states that already-created legs are retained while waiting; the fact's 'each retains already-created legs' is currently satisfied only by silence. A one-line addition such as 'Preserve any already-created home tree while waiting' in E (mirroring B/C/D) would make that explicit without changing any other wording, and the new leading sentence about narrated actions is harmless and can stay.",
+      "wallMs": 16663,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

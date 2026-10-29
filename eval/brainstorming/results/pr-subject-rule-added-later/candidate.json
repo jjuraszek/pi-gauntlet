@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c06504948008420f2de239bdba76490dde7dd45f595407b9607b543500e3c51b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "b319aabdd37a9082e08c7fe959e6106fae6675e01a716e1fea10d4524db6474c",
       "candidateOutputSha": "769cbabcae7dfb3a72dfe4114884fe0bcdc208d905abbc1aabe70933cd64f1bb",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs name PR acme/widget#61 with its cache intent, state the base-added tenantId cache-key rule as a constraint while noting fork-point compliance, propose adding tenantId to the existing key (not a rewrite) with Keeps covering the original implementation and commits, place the Rework record after the ACs with the full 40-char pre-rework SHA, `Base: main @ aaaaaaa - merge: bbbbbbb`, `Dropped claims: none`, `Threads: none`, and `Scoped tests: none run (clean merge ...)`, and draft a tenant-isolation AC under `Drafted from the design, no ticket rows:` without the obsolete sentinel. After is slightly tighter (it cites `git show` provenance for the rule and says the AC is drafted from the agreed rework design in the Problem), which strengthens constraint/no-ticket rather than risking them; one minor drift is that After's Keeps line drops the explicit 'claim that request behavior is unchanged' from the top-level Keeps and moves it into the per-PR changes line - keep that claim named in the top-level Keeps as Before did so the dropped-claim disposition stays unambiguous, and otherwise the After wording delivers the change without disturbing any fact here.",
-      "wallMs": 12200,
+      "feedback": "No fact moved. Both outputs name PR acme/widget#61 with its cache intent, state the base-added tenantId cache-key rule as a constraint while acknowledging fork-point compliance, keep the Rework record after the ACs with the full pre-rework SHA, base/merge SHAs, Threads: none, Dropped claims: none, and Scoped tests: none run with a clean-merge reason, propose adding tenantId to the existing key while keeping the implementation and original commits, and draft a single in-scope unchecked tenant-isolation row under the exact 'Drafted from the design, no ticket rows:' header with no obsolete sentinel. After actually tightens the provenance wording ('read with git show from fetched main', 'complete agreed isolation change, with no unresolved inputs') and the per-PR changes line now ties the key change to the retained 'request behavior is unchanged' claim; the one small drift is that After's top-level Keeps line drops the explicit mention of the unchanged-request-behavior claim that Before carried, though it survives in the per-PR keeps line. To be safe, keep that claim in the top-level Keeps line as Before did so the dropped-claim disposition and Keeps read consistently, and otherwise retain After's wording.",
+      "wallMs": 12072,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c06504948008420f2de239bdba76490dde7dd45f595407b9607b543500e3c51b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "2feb7dc20c8d25ccdc12b842572038c2e7080b628204d97f849d83f703de5061",
       "candidateOutputSha": "0ac12f409103a6ba0c8ee9481d2e1c32a842bbb9312d8c5716f1b7ef80aab69a",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: Problem names acme/widget#61 with its cache-retry intent and lists the BASE_SHA AGENTS.md tenantId cache-key rule as a constraint added since fork despite fork-point compliance; Rework record Changes adds tenantId to the existing cache-key input while Keeps names the implementation and original commits; the record follows the ACs with full SHA, base/merge, Threads: none, a Dropped claims line, and Scoped tests: none run with the clean-merge reason; the AC uses the Drafted from the design, no ticket rows: header with one unchecked in-scope tenant-isolation outcome and no 'none - no ticket' sentinel. The one wording drift worth watching is Dropped claims: After records 'none' and folds the unchanged-request-behavior dependency into Changes, whereas Before listed the unqualified claim as dropped; since the gathered facts say the claim only holds with tenant isolation, the safer wording that still delivers the Change is to keep a qualified entry under Dropped claims (e.g. 'Request behavior is unchanged, unqualified; retained only with tenant isolation enforced') rather than 'none', so the disposition cannot be read as asserting the PR body's claim stands as written.",
-      "wallMs": 17747,
+      "feedback": "No fact moved: both outputs name PR acme/widget#61 with its cache intent, state the BASE_SHA AGENTS.md tenantId cache-key rule as a post-fork constraint despite fork-point compliance, propose adding tenantId to the existing cache-key input while keeping the implementation and original commits, keep the Rework record after the ACs with the full SHA, base/merge line, Threads: none, Scoped tests: none run (clean merge), and draft one in-scope unchecked tenant-isolation row under 'Drafted from the design, no ticket rows:' without the 'none - no ticket' sentinel. The one substantive difference is that After records 'Dropped claims: none' and folds the 'request behavior is unchanged' qualification into Changes, whereas Before lists that claim as dropped-without-qualification; the gathered draft says the claim 'needs tenant isolation to hold' and 'Framing: kept', so either disposition reads as consistent, but if the author wants a stable dropped-claim disposition across runs, the After wording should explicitly instruct that a claim retained only under a new condition be recorded either as a qualified dropped claim or as 'none' with the condition named in Changes, rather than leaving the choice to the model. The After AC row is more concrete (populate/request with matching inputs) and still clearly requires that a tenant never receives another tenant's cached result, which is fine.",
+      "wallMs": 18426,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

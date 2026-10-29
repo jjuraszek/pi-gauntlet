@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "51e239f263693062667180d47352acc6fc0bac6360f1beb997cd4532c2e8d2d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "ad6783940e743a97c1efc31255ade2caef0dee31d3b212bda7f445f44b1a4341",
       "candidateOutputSha": "72e04a4ffdffd0d76e1be18baf34c9e7762dfc9e05f26c2ec93c9f48e344282a",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved on this case: both outputs judge the Problem against the base-SHA `git show aaaaaaa:AGENTS.md` rule and call the merged-in optional-events edit a proposal, both Rework records list `Audit events are optional` under Dropped claims with Changes restoring the existing emitter and rule text rather than rewriting, and both keep the full pre-rework SHA, base/merge line, RT62 fix disposition, and no-run scoped result. Two After wordings are worth tightening so they don't drift under other runs: the Changes line lost Before's explicit clause `in place of the PR's \"optional\" edit`, which is what made the record itself (not just the Problem) name the PR policy change as the thing being repaired - keep that clause; and the Keeps line's added `no behavior of the PR survives into the result` reads as contradicting a keeps line and is the kind of phrasing that collapses into `keeps: none` in the per-PR block (the accepted variance in the other run) - drop it and keep Keeps to `all original PR commits are preserved as history; the repair commits land on top of them`, mirrored verbatim in the per-PR `keeps:` line.",
-      "wallMs": 16935,
+      "feedback": "In this run nothing moved: After still judges against `git show aaaaaaa:AGENTS.md`, calls the worktree's post-merge 'optional' text a proposal the rework does not adopt, drops the 'Audit events are optional' claim in the Rework record, restores the existing emitter and base rule text rather than rewriting, and keeps the full pre-rework SHA, `main @ aaaaaaa - merge: ccccccc`, the RT62 fix disposition, and 'none run' for scoped tests. The expected preservation regression (`keeps: none`) did not appear here - both the top-level Keeps and the per-PR `keeps:` line name the preserved original commits. Two wording risks worth tightening so the other run stays safe: After's Keeps line adds 'no behavior of the PR survives into the result', which a stricter reader could take as contradicting commit preservation (prefer Before's 'preserved as history; the repair commits land on top of them'), and After's Changes line lost Before's explicit 'in place of the PR's \"optional\" edit', which is the phrase that most directly ties the record's repair to the PR policy change; restoring that clause and keeping the per-PR `keeps:` line as a full sentence naming the commits would hold every fact Before held while still delivering the amendment-surface change.",
+      "wallMs": 17202,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "51e239f263693062667180d47352acc6fc0bac6360f1beb997cd4532c2e8d2d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "9c4a87e2abab97fad617183b2e332ad537c26c386e9b60385d1aa8279532a5f2",
       "candidateOutputSha": "f7a57e5ed02c2ab853e2c30b7defb57f20358d853cf0e534383d945d054b490b",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved on this case. After still judges the Problem against the base-SHA AGENTS.md read via git show, states the rule predates the fork, and says the merged worktree's optional wording from the PR edit does not supersede the governing constraint; its Rework record restores the existing emitter and rule rather than rewriting, lists 'Audit events are optional' under dropped claims, keeps the full pre-rework SHA, base/merge (clean), RT62 fix disposition, and 'none run' scoped result, and the keeps line names the preserved original commits in this run (the accepted 'keeps: none' variance did not appear here). Two non-fact regressions worth tightening in the After wording: the Acceptance criteria shrank from three drafted rows to one (losing the AGENTS.md-requires-the-rule row and the original-commits-retained row), and the RT62 thread line was reduced to a bare 'fix' without the disposition rationale. Adding a sentence to the amendment-surface section 5 text (or the PR-subject rework record slice) that drafted rows must cover every repaired observable from the design and that each thread line carries its one-line disposition reason would keep the Before detail while still delivering the aftermath routing change; likewise pinning the keeps line to 'name the preserved commits, never none' would close the accepted keeps variance.",
-      "wallMs": 15475,
+      "feedback": "No fact moved for this case. After still judges against the base-SHA AGENTS.md read via git show, keeps the merged worktree's optional wording as a non-superseding PR edit, restores (not rewrites) the existing emitter and rule, drops the optional-events claim, keeps all original commits in both Keeps lines, and retains the full pre-rework SHA, base/merge (clean), RT62 fix disposition, and the none-run scoped result — so the `keeps: none` variance noted in Expected to move did not surface in this run. Two non-fact differences worth watching: After collapsed the acceptance rows from three to one (dropping the AGENTS.md-rule row and the retained-commits row, both of which are design-derived observables) and shortened the thread line to a bare `fix` without the reply's confirmation; if you want the drafted-row and thread-disposition detail to stay stable under the enlarged assembly, add wording that requires one drafted row per Design observable and that each thread line carry its disposition plus a one-clause reason.",
+      "wallMs": 15997,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

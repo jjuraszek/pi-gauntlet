@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "85d9650198051139ac0b5cde1588e1ab6c9f86361d0d2bd2bddc6ef4fa165ffb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "aaf6b412c9e928a7014603d40901806a880de8d2817ce6f5a76f7b982ae2e4dd",
       "candidateOutputSha": "089bbf0d2dca243f19803f10e05bef38d2c22bb5ccff971fc20e6fecd882c4a6",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both facts hold in both outputs. Before re-asks the cut question at the end of its approaches message with the row quoted verbatim and all four options, and explicitly says it is only treating the row as in-scope by default pending the answer, never marking it deviates or deferred. After re-asks the cut question as its own blocking message (2) with the row quoted verbatim and all four options, and likewise leaves the row unmarked. The After wording moved nothing here; the one drift worth watching is that After's option A narrows to 'add owner to the shared column list' and its Recommendation line pre-commits to a design choice (extending `tableColumns`) before approaches are shown, which could tempt a model to treat the row as already decided. Keep the re-ask as a full re-render with the row unchanged, but phrase option A as the generic 'in-scope - add owner' (as Before does) and keep design selection in the approaches message, which preserves both facts while still delivering the cancelled-repair re-render rule.",
-      "wallMs": 9407,
+      "feedback": "Neither fact moved. Both outputs re-ask the cut question after the cancelled repair with the row \"The export includes the owner column.\" quoted unchanged, and neither marks the row deviates or deferred: Before treats it as in-scope by default while the question is pending, After stops and waits for the re-asked answer. The one difference worth watching is that After rewrites the option-A text (\"add 'owner' to the shared column list at src/export/csv.ts:40 ... where owner data comes from is an open question\") and reshapes the D clause, so the re-render is not strictly the same menu as the first ask even though the row itself is verbatim; if the Change's \"re-render in full with the row unchanged\" is meant to cover the option lines too, say so explicitly (e.g. \"re-render the same lettered options verbatim, with the row unchanged\") so a candidate does not drift the A/D wording. Also note After blocks the approaches message entirely on the unanswered re-ask, whereas Before delivered approaches with an in-scope default; if the author wants Before's behavior kept, the wording should state that the re-ask may follow the approaches in the same message rather than gate them.",
+      "wallMs": 11611,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "85d9650198051139ac0b5cde1588e1ab6c9f86361d0d2bd2bddc6ef4fa165ffb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "fe576228d9841f956061fddb03f65f38f5375e755e64aafcd3bfdab6d0d24e65",
       "candidateOutputSha": "9cd686818ca0b42f72d8b0adf1ff227c02044fea737bb85abd45c97a8393fcd4",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs re-ask the full A/B/C/D cut question with the owner-column row unchanged and both recommend A without marking the row deviates or deferred. The only drift in After is presentational — it quotes the row inline in the lead-in sentence rather than as a standalone blockquote, and it adds premise/framing commentary (owner-data source, 10k-row timing) ahead of the question. If the scoping-sentence extension is meant to require the row to be re-rendered 'in full', keep Before's standalone quoted-row line immediately before the options so a judge can see the row verbatim and unchanged rather than embedded in prose; otherwise the wording already delivers the Change without losing anything Before kept.",
-      "wallMs": 8177,
+      "feedback": "Nothing moved: both outputs re-ask the cut question in full after the cancelled repair, quote the owner-column row verbatim and unchanged, render A–D with the same labels, and recommend A rather than marking the row deviates or deferred. The only drift in After is presentational and risky rather than fact-breaking: the row is folded into a prose sentence instead of standing alone as a quoted line, and After adds extra observations (owner-data source and 10k-row timing 'remain unverified') that the recorded answers never asked about. If the Change's intent is that the re-ask 're-render in full with the row unchanged', wording like 'Re-render the cut question in full: quote the row on its own line exactly as written, then the labeled options and Recommendation' would keep both facts robustly and discourage the inline-paraphrase form that a stricter judge might read as not re-rendering the row.",
+      "wallMs": 8778,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "f0fac2f5c373647ca7d9c9046931d9dadafb2b29f392a7ca98765339f956f65c",
       "candidateOutputSha": "84eccbd411c0c58fe1943a8181b531aee3d4f08463a66f2954c934a8419beac3",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs justify choice A against the supplied code (resolver owns defaults at settings/resolver.ts:12, the view consumes resolved values at ui/report-view.ts:30, a view-local object would create a second source of truth), record the choice in the draft, and then, in the same response, ask one labeled A/B/C question about whether filters reset on workspace change with an explicit Recommendation line. After is actually tidier than Before here - Before's option C merged two ideas (no setting plus a stray 'other - name it'), while After keeps C as a clean 'other' escape and puts each option on its own line per the questionary layout rule. Keep the lead-in / one-option-per-line / final own-line Recommendation shape; the only risk to watch is that a leading-recap paragraph like 'I've noted that choice for the draft' does not grow into an acknowledgment-only stop before the question is asked.",
-      "wallMs": 7975,
+      "feedback": "Nothing moved on this case: both outputs explain the resolver fit against the supplied code (settings/resolver.ts:12 owns defaults, ui/report-view.ts:30 consumes them, B would create a second source of truth), both retain choice A and record it in the draft, and both go on in the same response to ask one labeled A/B/C question about the undecided reset-on-workspace-change behavior with a final own-line Recommendation: A, rather than stopping at acknowledgment or starting approaches. After is if anything tighter in the questionary layout - lead-in first, one option per line, a clean 'C) other - name it' instead of Before's option C that mixed a substantive choice with the other slot - so the After wording preserves every fact Before kept here while staying consistent with the questionary option-line and recommendation rules; no wording change is needed for this continuation.",
+      "wallMs": 7991,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "fd960a11805faa3079a72e1dab2771d0b24658ae053bfb5509688b651757e62a",
       "candidateOutputSha": "526b7592c2d07935dd12ba9d012bd0db2d5709469671a4faf0d430acd78ad03a",
       "facts": {
@@ -67,35 +67,14 @@
         },
         "f2": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After still explains the resolver fit with both file references and retains choice A, so f1 holds, but its question moved f2. Before asked a clean labeled-options question about the reset behavior itself (A clear / B preserve / C per-workspace / D other) with a recommendation that decides it. After re-frames the question as what the setting should let users choose and collapses two mutually exclusive answers into a single option ('A) Reset report filters, or preserve them across workspaces'), so picking the recommended A does not decide the reset behavior at all - it only decides that the setting will expose a toggle - and the option list is no longer one choice per label. To keep f2 while delivering the Change's questionary layout (lead-in first, one labeled option per physical line, Recommendation: on its own final line), keep Before's option set: ask directly 'What should happen to active report filters when switching workspaces?', give each outcome its own letter (clear / preserve / restore per-workspace / other), and recommend one of them with a reason tied to the hidden-rows problem.",
-      "wallMs": 17135,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "gauntlet: question\nThe existing resolver is the better fit because `settings/resolver.ts:12` already owns defaults, and `ui/report-view.ts:30` already consumes its resolved settings. Reusing that path keeps the default and the view’s behavior aligned without introducing a second settings object to maintain.\n\nWhat should happen to report filters when the user switches workspaces?\nA) Always reset filters so the new workspace starts unfiltered.\nB) Make resetting configurable, with reset enabled by default.\nC) Make resetting configurable, with filters preserved by default.\nD) Other - name the desired behavior.\nRecommendation: B - prevents filters from unexpectedly hiding rows while allowing users to retain them intentionally.\n",
-        "words": 100,
-        "wallMs": 11812,
-        "mechanical": {},
-        "judgeWallMs": 5576,
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Both outputs explain why the shared resolver fits by naming settings/resolver.ts:12 as the defaults owner and ui/report-view.ts:30 as the consumer, retain choice A, and then ask a single labeled-options question about the undecided reset-on-workspace-change behavior with a recommendation, without stopping at acknowledgment or starting approaches. After's option set is reframed around configurability (B/C add a user-facing setting) and recommends B rather than Before's plain reset, but that is a content choice within the same question shape and does not move either fact. Nothing in After moved a fact; if the author wants to keep the question closer to the original brief, keeping Before's \"clear / preserve / per-workspace\" framing while still delivering the Change would be safe, since the facts key only on the explanation, retained choice A, and the one labeled question with a recommendation."
-      }
+      "feedback": "Both outputs keep f1 (file-grounded reason for the shared resolver, choice A retained) and f2 (one labeled-options question with a recommendation about workspace-switch filter behavior, no stop at acknowledgment and no approaches started). After's wording is weaker on f2's spirit, though: its option A folds two alternatives into one line (\"Reset report filters, or preserve them across workspaces\"), so recommending A does not actually resolve the reset question, and the lead-in shifts from \"what should happen\" to \"what should the setting let users choose,\" which reads as a configurability question rather than a decision on the undecided behavior. To keep every fact as cleanly as Before while still delivering the Change, keep one alternative per labeled option (reset / preserve / per-workspace restore / other) and keep the lead-in on the undecided behavior itself, with the recommendation naming a single option.",
+      "wallMs": 12495,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

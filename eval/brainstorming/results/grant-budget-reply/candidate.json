@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b928bbda75a12ebbd47d53028e22244912a0b069b49f7481b3dd9b37759d036a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "a803f4d0a767181c696f17547d243014bb7b1c3a89775fe9007f9c050c23ba06",
       "candidateOutputSha": "5020bed8c892dab3d5afcb9870400a5d95dc4fe6a143f93eca65a1ce421a2885",
       "facts": {
@@ -49,21 +49,21 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved. Both A outputs treat `2; fund 3 fix rounds` as a clean approval with no change-request round, narrate setting `**Amend-grant:**` to the exact option-2 description followed by `; fund 3 fix rounds`, add `**Engine:** waves`, amend the spec commit, HEAD-check both fields, close the phase and route to writing-plans, all explicitly as narration without claiming disk writes. Both B outputs re-present the full gate, ask for 1 or 2, and state that nothing was written or recorded, refusing to treat the bare budget token as approval. One small hardening for After B: Before said explicitly `the spec still reads **Amend-grant:** none`, whereas After only says `I haven't recorded anything`; keeping an explicit no-header-write/no-commit sentence (e.g. 'no header edit or commit; Amend-grant still reads none') would make the no-write narration unambiguous to a stricter reader while leaving the Change intact.",
-      "wallMs": 10490,
+      "feedback": "Neither fact moved. In A, both Before and After treat `2; fund 3 fix rounds` as a clean approval with no change-request round, narrate the exact option-2 description with the `; fund 3 fix rounds` suffix as the `**Amend-grant:**` value, add `**Engine:** waves`, and amend the spec commit without claiming real writes; After additionally spells out the malformed-decode stop, which is harmless. In B, both re-present the full gate, state that nothing was written or recorded, and ask for `1` or `2` with the token attached, so the budget token alone is correctly not treated as approval; After only reorders the explanatory sentence ahead of the gate summary and drops Before's explicit 'the spec still reads `**Amend-grant:** none`' reminder. Keep that explicit header-unchanged line in After's B reply to make the no-write narration unambiguous, and otherwise the current wording delivers the Change while preserving both facts.",
+      "wallMs": 10190,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b928bbda75a12ebbd47d53028e22244912a0b069b49f7481b3dd9b37759d036a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "c3adabccee3d0b872c987ba70ff5d82e39d658107c2891fc353618cd6ffda64b",
       "candidateOutputSha": "f2bb93fe65348277ca619ff0efed40b6d3bdca611901807f8d41351148face33",
       "facts": {
         "funded-value": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "token-needs-approval": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. In A, both outputs read `2; fund 3 fix rounds` as approval plus grant plus funding with no change-request round, narrate the full option-2 description with the `; fund 3 fix rounds` suffix as the persisted **Amend-grant:** value, add **Engine:** waves, amend the spec commit, verify, and route to writing-plans; After is actually tighter because its quoted value keeps the menu's terminal period (`...spec approval.; fund 3 fix rounds`) exactly as the fact spells it, whereas Before dropped that period, and After explicitly disclaims any real read/edit/commit, which suits the text-only replay. In B, both outputs refuse to treat the bare budget token as approval, state that nothing is written or persisted, re-present the gate with options 1-3, and ask for `1; fund 3 fix rounds` or `2; fund 3 fix rounds`. Keep the After wording for A (exact value with period, explicit no-action disclaimer); for B, consider restoring the verbatim `Add \"; fund N fix rounds\" (or \"N more fix rounds\")` suffix line when re-presenting the gate so the re-presented menu is a faithful copy rather than a paraphrase, which would not change any fact but reduces drift risk under judges that key on the exact gate text.",
-      "wallMs": 20199,
-      "verdict": "unchanged"
+      "feedback": "In A, Before narrated the approval, the Engine field, the amend, and the handoff to writing-plans correctly, but its persisted Amend-grant value dropped the menu description's trailing period (\"...spec approval; fund 3 fix rounds\"), so it does not reproduce the option-2 description exactly as the fact requires; After renders \"...spec approval.; fund 3 fix rounds\" verbatim with the suffix appended, so funded-value now holds. In B both outputs refuse the bare budget token, state that nothing is written or committed, and re-present the 1/2/3 gate with an explicit prompt to reply `1; fund 3 fix rounds` or `2; fund 3 fix rounds`, so token-needs-approval holds in both; After's only drift is dropping the generic \"Add '; fund N fix rounds'\" instruction line from the re-rendered gate, replacing it with the concrete reply hint, which the fact tolerates but a stricter verbatim-regate fact would not. To keep both facts while delivering the change, keep After's exact description-plus-suffix wording for the grant value and, in the re-gate branch, re-render the gate text verbatim (including the funding suffix line) in addition to the explicit 1/2 reply hint.",
+      "wallMs": 16020,
+      "verdict": "improved"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

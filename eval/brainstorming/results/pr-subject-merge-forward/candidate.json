@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1ea278114c284a4100dabb9024429627b7ea15458fa5d54c4c9e55d8fd17182e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "c696c09f7f2d757cb1fcf0079fa378e3024d55cc5e7f978414da41bafabc2ed5",
       "candidateOutputSha": "fecf77434b8a872b3a21665545dd66fe922bed95335663e7af0607b1c06fc010",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After keeps every element Before had: Trace A parses the `#12 #13` run, strips only the first non-ref token `merge-forward`, carries `keep retry limits` verbatim, admits in order, checks out `fix/retry` at `aaaa…` via `worktree add` rather than a new branch, merges #13 (subject `merge PR #13 head bbbbbbb into PR #12` -> ddddddd) before `origin/main` (eeeeeee), validates both original heads as ancestors, writes no rework-base ref, and emits a record with `Base: main @ ccccccc - merge: eeeeeee` and no `Rework base` line while the Step 4 report carries `Member merge`. Trace B keeps `SYNC=rebase` with `merge-forward` as intent text on the single-PR rework path; Trace C stays free text with #12 gathered by context-builder and no provisioning; Trace D keeps the unmarked spec-only route, states the token is redundant, performs no thread fetch, writes no Rework record, withholds 6 and persists the three fields on approval. The only drift worth noting is cosmetic: After moves the `ticket-acceptance.md` read in Trace A to after threads/scout dispatch (Before read it before gather) and adds the explicit admission attributes and per-PR provenance subsections; neither affects these facts, but if a future fact keys on read order before gather, keep the ticket-acceptance read ahead of the scout dispatch as Before did.",
-      "wallMs": 17688,
+      "feedback": "Nothing moved. After's Trace A still strips only the first post-ref token (`merge-forward`), carries `keep retry limits` verbatim, admits #12 then #13 in order, provisions on `fix/retry` at `aaaa…`, merges #13 with the canonical `merge PR #13 head bbbbbbb into PR #12` subject before `origin/main` (ddddddd then eeeeeee), validates both original heads as ancestors, and writes no rework-base ref or `Rework base:` line; Trace B keeps `SYNC=rebase` with `merge-forward` as intent text, Trace C stays free-text with context-builder gathering #12 and no provisioning, and Trace D keeps the unmarked spec-only route with no thread fetch, no Rework record, option 6 withheld and the carried `doc/specs/retry.md` path. The only wording shifts are presentational: After says the `Member merge` line is omitted from the record (consistent with Before's 'stays in Step 4') and adds the per-PR provenance subsections, which actually strengthens the merge-path provenance claim. If you want extra safety for `leading`, add one explicit clause in A step 6 such as 'no new branch is minted; the selected branch is the existing `fix/retry`', and in D keep the phrase 'does not change the route' adjacent to 'creates no Rework record' so the spec-only fact's two halves stay on one line; otherwise the After wording delivers the Change without touching any fact Before held.",
+      "wallMs": 13717,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1ea278114c284a4100dabb9024429627b7ea15458fa5d54c4c9e55d8fd17182e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "2ff4070e5e8dad97571da7c2cebc98997332d8bb462ec87afa3c4532fead5fc3",
       "candidateOutputSha": "30794d85601266fc2854aca7ff8d5254de1950620258cb0fcff44f76739682c5",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After keeps A's leading-run parse, strips only the first `merge-forward`, retains `keep retry limits`, admits #12 then #13 in order, merges #13's original head first (ddddddd) then fetched main (eeeeeee), keeps `Member merge: #13 ddddddd` out of the Rework record and omits any `Rework base:` field; B defaults to rebase with the full intent retained, C stays free text with #12 as context, and D takes the unmarked spec-only route with no Rework record, no thread fetch and ordinary admission. The one soft spot is that After's trace A never names the home branch `fix/retry` (it only says 'home' / 'into home'), whereas Before narrated 'provision home `fix/retry` at original head `aaaaaaaa…`'; a reader infers the branch from the #12-home ordering, but adding 'provision home `fix/retry` at its original head' to step 3 would make the 'merge mode on fix/retry rather than a new branch' clause explicit without changing anything else in the Change.",
-      "wallMs": 18058,
+      "feedback": "No fact moved. After keeps A's parse of the leading `#12 #13` run, strips only the first intent token `merge-forward`, retains `keep retry limits`, admits #12 then #13 in order, merges #13's original head before fetched main (ddddddd then eeeeeee), reports `Member merge: #13 ddddddd` outside the record and states a merge record has no `Rework base:` field; B defaults to rebase with `keep merge-forward retry limits` retained verbatim, C stays free text with #12 as context, and D stays on the unmarked spec-only route with no Rework record, admission still applied and no thread fetch. One wording risk worth tightening: After's A step 3 never names `fix/retry` — it says only 'home' and 'both original-head identities' — whereas Before explicitly said 'provision home `fix/retry` at original head aaaaaaaa…'. A reader could infer home = fix/retry from the observations, but adding 'provision home `fix/retry` (the existing #12 branch, not a new branch) at `aaaaaaaa…`' to step 3 would make the leading fact's 'on fix/retry rather than a new branch' clause unambiguous while keeping the member-first/base-second merge sequence and the record/report distinction the Change asks for.",
+      "wallMs": 20851,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f748186b0ae48d8bd5a9d15a6dff015941ef0733c9ab1d8bb9e048b12df88593",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "6f9fd4ccc07eb1bd220eabacfe6a79355094d02f7104a3a43ce3d8c0d12441d5",
       "candidateOutputSha": "e6568fb03dc1e7828d6187f112dc0a53ba999a4d3ac95039861a6ecb34d12a31",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: Trace A inserts `**Engine:** waves` directly below `**Amend-grant:** none`, Trace B persists the full option-2 grant description plus the engine field, and both amend, run `show HEAD:<spec path>` to confirm both fields, then close brainstorm and invoke writing-plans; C and D print the audit from the HEAD body and re-present all five options with no edit, commit, grant, or phase change, reading approval only from a clean `1`, `2`, `4` or `5`; E discards the `4`, revises, recommits with the audit body, re-dispatches the summarizer and re-presents the gate without any engine or grant write; F writes nothing and asks for `1`, `2`, `4` or `5`, and G reads Standing grants, flags `fund 0 fix rounds` as the malformed-N row, stops before any edit or `--amend`, re-presents quoting the token and explicitly does not frame it as a change request. Nothing moved. Two small wording choices worth tightening so later judges do not have to infer: in Trace A, After says `**Amend-grant:** none` \"stays unchanged\" where Before wrote it as the table value - keep a sentence stating the value is confirmed/written as the decoded table value so the persistence of both fields is explicit; and in Trace G, After's example replies (`5` or `5; fund 1 fix rounds`) could repeat the full `1`, `2`, `4`, or `5` menu as Before did, so the re-gate reads as a clean-reply request rather than a nudge toward option 5.",
-      "wallMs": 16702,
+      "feedback": "Nothing moved on this sample: After still has Trace A insert exactly one `**Engine:** waves` directly below the unchanged `**Amend-grant:** none`, Trace B persist the full option-2 description plus `**Engine:** waves`, and both amend with `--amend --no-edit`, then `show HEAD:<spec path>` to confirm both fields before `phase_tracker` complete and `/skill:writing-plans`; C and D print the audit from `show -s --format=%b HEAD`, re-present all five options, persist nothing, and read approval only from a clean `1`, `2`, `4` or `5`; E treats the mixed reply as a change request, revises, recommits, re-dispatches the summarizer and re-presents the gate with no engine or grant write; F writes nothing and asks for `1`, `2`, `4` or `5`; G quotes `fund 0 fix rounds` as malformed, stops before any edit or `--amend`, re-presents, and explicitly refuses to frame it as a change request. Two wording notes for robustness rather than fixes: Trace G's opening phrase 'approval-shaped (`5`)' could be misread as a partial approval, so keep the Before phrasing that leads with the 'token with malformed N' row; and Trace B quotes the persisted value without the `**Amend-grant:**` prefix, which is fine here because step 4 names the field, but keeping the full line as in Before removes any ambiguity about what the HEAD check must find.",
+      "wallMs": 16207,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f748186b0ae48d8bd5a9d15a6dff015941ef0733c9ab1d8bb9e048b12df88593",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "fdee485ca126ceb204614ca87a3b557c4bfa6094e635f38815c009dc4348fff9",
       "candidateOutputSha": "5cfbef9b2ee37c9904ca0469f851e70ea788aa741327aa12cfb025c75706e4d2",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: After still has A keeping `Amend-grant: none` with `Engine: waves` directly beneath and B persisting the full option-2 grant text plus `Engine: waves`, both amending with `--no-edit`, reading HEAD's spec to confirm both fields, and only then completing brainstorm and invoking writing-plans; C and D read the audit from HEAD's body, print it verbatim, re-present without writes and wait for a clean reply; E classifies the mixed reply as a change request and re-gates after revising; F asks for 1/2/4/5 with no writes and G quotes `fund 0 fix rounds` and re-gates without treating it as a change request. Two wording choices are worth tightening so the facts stay robust under rephrasing: in B, After quotes the grant value without the `**Amend-grant:**` header prefix that Before carried, so a reader has to infer the field from step 3 — restore the prefixed header line in the blockquote; in E, the new 'ask for that name and pause here' branch is a conditional detour before the revise/re-gate path, which is fine as written but could read as the primary outcome if moved earlier — keep it subordinate to the revise-and-re-present steps as it is now.",
-      "wallMs": 15453,
+      "feedback": "After keeps every fact Before kept: A and B still insert exactly one `**Engine:** waves` beneath `**Amend-grant:**`, amend with `--no-edit`, and inspect `git show HEAD:<spec path>` for both fields before marking brainstorm complete and invoking `/skill:writing-plans`; C and D read the audit from HEAD's body, print it verbatim, re-present without persistence, and explicitly deny that the bundled `4`/`5` approves or grants; E revises and re-presents as a change request; F asks for `1`, `2`, `4`, or `5` with no writes and G quotes `fund 0 fix rounds`, re-presents, and refuses the change-request reading. Two wording choices in After are worth tightening even though nothing moved here: E's new 'if the name cannot be resolved, ask for that name and pause' branch introduces a second outcome (pause-to-ask) that a stricter judge could read as 'not revising and re-presenting' - Before's unconditional 'revise the requested output-section heading … re-present the five-option gate' is safer, so if you want the no-invention guard, phrase it as a sub-step that still ends at the re-presented gate for the revised spec; and B's block quote now drops the `**Amend-grant:**` prefix from the persisted value, relying on step 3 to imply it - keeping Before's full `**Amend-grant:** every later spec amendment …` line makes the option-2 description unambiguously the header value.",
+      "wallMs": 20071,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

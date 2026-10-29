@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "b888e158af339cae14724d7660dbf96620113f22f111f8d2331ad0120872b9e5",
       "candidateOutputSha": "36842149644840360c68ee5e87f9c332f440b90f099bc7803ce82cd3aa057218",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After names templates/deck.pptx from the retained generator's load call, states it is absent from the templates/ directory listing in the first message, restates the file and the listing lookup at the top of the approaches message, records both in the spec ## Problem, continues to approaches without asking where the template is, and never claims a live tool call. One small risk worth tightening: Before anchors the replay fact with the phrase 'the supplied listing is complete', while After says 'I checked it with the lookup the repository guide names' and 'checked ... through the guide's templates/ listing and found it missing', which a stricter reader could hear as a performed lookup. Keeping the word 'supplied' (e.g. 'the supplied, complete listing of templates/ shows only README.md and chart.pptx') in all three surfaces would preserve the replay fact unambiguously while still delivering the traced-dependency carry-through the Change asks for.",
-      "wallMs": 14888,
+      "feedback": "No fact moved: After still identifies templates/deck.pptx from the retained loader at slides/generator.py:13, says it is absent from the templates/ directory listing in the first message, restates that lookup and result before the approaches, carries it into the spec Problem, and continues to approaches without asking where the file is. The one soft spot is the replay fact: Before says 'the supplied listing is complete' and 'using the repo guide's templates/ listing', while After drops the word 'supplied' and flattens to 'That file does not exist, though' and 'checked it with the lookup the repository guide names', which a stricter reader could take as a claim of a performed filesystem check. To keep the fact robustly while still delivering the Change's lookup/result carry-through, phrase the result as 'not found in the supplied templates/ directory listing (the lookup the repository guide names)' in all three surfaces rather than 'does not exist', and keep 'supplied' or 'recorded' attached to the listing each time it is cited.",
+      "wallMs": 15867,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "3ee280450a4dee7df28b6706bd621e670be85bedea0fffc2093bbb25d379eb0f",
       "candidateOutputSha": "74283a74b9fa17f94e554d2cc7f6f8e461cff80deec4b873de572d977346971f",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs name `templates/deck.pptx` from the retained loader in the first message, state it is absent from the supplied complete `templates/` listing, restate the lookup and result before the approaches and in ## Problem, continue to approaches without asking where the template is, and lean only on the supplied listing rather than a live lookup. Two spots in After are closer to the edge than Before and worth tightening so they stay robust: the approaches restatement says the `templates/` listing \"contains no `deck.pptx`\" instead of restating the full path `templates/deck.pptx` as not found (Before restates the full path verbatim), and the premise note's phrase \"missing from the observed repository\" could read as a live observation to a strict judge, whereas Before's \"the supplied complete listing\" keeps the replay provenance explicit. Keep the current carry-through structure but restate the full `templates/deck.pptx` path in the approaches lead-in and say \"missing per the supplied `templates/` listing\" rather than \"observed repository\"; this delivers the implicit-dependency tracing in the Change while matching Before's exact wording on every fact.",
-      "wallMs": 18605,
+      "feedback": "No fact moved: both outputs name templates/deck.pptx from the retained generator's loader in the first message, state that the supplied complete templates/ listing (README.md, chart.pptx) does not contain it, restate the missing asset and the directory-listing lookup at the top of the approaches message, carry the same into the ## Problem excerpt, continue to approaches without asking where the template lives, and lean only on the supplied listing rather than claiming a live lookup. After actually tightens the delivery of the Change by dropping Before's scope question and carrying the recorded decision forward, which is closer to the 'without stopping' intent. One small robustness point for the After wording: the approaches-message restatement says 'the guide-prescribed templates/ listing contains no deck.pptx' rather than spelling out 'templates/deck.pptx' as the first message and Problem do; a stricter judge could read that as not literally restating the path, so the instruction could require the full dependency path verbatim in each of the three surfaces (premise note, approaches lead-in, spec Problem) to make the carry-through unambiguous while keeping everything else as is.",
+      "wallMs": 22589,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

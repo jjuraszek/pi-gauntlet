@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "b3e04d3e367594deb026ccb1ee8411ba585af0955636e4a2983ee96bd8858ae7",
       "candidateOutputSha": "9888970db0d2c0b3d29a953fa407f687b8570c3f921023ee39fadb3381731e3c",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs stop at #13 with the exact 'issue, not a pull request' text, offer only the drop-or-brainstorm-alone correction, withhold the umbrella paragraph, name no ticket contract for a list member, and narrate #12 admission before #13 with the PR lookup preceding the issue lookup and no writes. The only After-specific difference worth watching is that the stop text is rendered inside backticks within the blockquote; the words still match, but if a future fact keys on the literal rendering (plain blockquote, no code span), that wrapping could read as a format change. Keeping the stop line as a bare blockquote, as Before does, would avoid that risk while preserving everything the Change delivers here.",
-      "wallMs": 8867,
+      "feedback": "Nothing moved in this case: both outputs stop at the Issue-in-list check with the verbatim stop text, explicitly withhold the umbrella merge-by-hand paragraph, treat the ticket path only as a user-side correction rather than converting #13 into a ticket contract, and narrate #12's admission before #13's PR-then-issue lookups with no writes. The After wording is slightly tighter (it adds the fallback behavior for an unreadable reference and the N=1 classifier note), and one stylistic risk is worth flagging: After wraps the required stop text in backticks inside the blockquote, which a strict reader could treat as a code literal rather than the user-facing sentence; keeping the quote as plain blockquoted prose, as Before does, avoids any ambiguity about whether the exact text is shown. Otherwise the Change delivers the multi-PR admission behavior without disturbing either fact.",
+      "wallMs": 8568,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "95d06429853af35575fa041279df53125448cf00d6dfb26e62de46dc4560ed92",
       "candidateOutputSha": "3d34864db6f03012d9c93bc7e9f03c592bb71d79ce6161938ee5c1778e47f91b",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs resolve #12 before #13, consult #13's PR lookup before its issue lookup, emit the exact issue-not-a-PR failure with the drop-or-brainstorm-alone remedy, stop before any worktree creation, and neither offers an umbrella remedy, turns a list member into a ticket contract, performs a ticket brainstorm, or adds a decision gate. After's rewording (\"supplied\" lookups, \"narrated stage actions, not live calls\", \"Do not advance\") keeps every fact Before kept while making the no-live-tool framing more explicit, which is consistent with the Change's fixed-observation replay intent; one small note is that After dropped Before's explicit \"Do not provision a worktree yet\" at step 4, which is harmless since step 7 still states no worktree is created, but keeping that interim sentence would make the no-writes-before-stop ordering unambiguous at the point #12 is admitted.",
-      "wallMs": 8902,
+      "feedback": "Nothing moved on this sample: both outputs resolve #12 first, consult #13's PR lookup before its issue lookup, emit the exact failure-and-remedy sentence verbatim, create no worktree, run no ticket brainstorm for the list, and add no extra decision gate, so both facts hold in Before and After. After's rewording (\"supplied\" observations, \"Do not advance\") is neutral for these facts; the only cosmetic difference is that Before explicitly notes the #12 worktree is not provisioned in step 4 while After defers that to step 7, which still satisfies \"stop before provisioning.\" If you want extra margin, keep an explicit \"no worktree is provisioned yet\" clause in the #12 step as Before does, but the current After wording already keeps every fact Before kept while delivering the Change.",
+      "wallMs": 8482,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

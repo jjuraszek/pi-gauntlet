@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "5ce1b710bb7a5d0be3bed3af331ba33ed14ebf1523cd8e00f9dc7028daec60fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "abc760fc9c3b50a4cebf641e2ae1498ea103eef420bcc6f6a921e5de210d7ee1",
       "candidateOutputSha": "7ffa7abb9206c8390c80c2480ff08aa6fcef6992c061e2e772d7a8366668b92d",
       "facts": {
@@ -74,14 +74,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the leg count still comes from the same `git show 1111…:doc/specs/export.md` before home provisioning, home uses DWIM with the `-b` skip report, settlement reads overrides at BASE_SHA with identifier matching before probing, every stop line (missing-remote, exit 128, unmatched declaration, both drift texts, unresolved merge) is printed exactly, the exit-2 live lookup is distinguished from exit 128, recovery uses the ref-scoped log and never checks out the primary, inventories list home then helper with nothing removed, and approval 1 / the shared Design change persist home-only fields without inferring approval or touching companion PR fields. Three places are close to the edge and worth tightening so a stricter reader does not move a fact: (1) the prefix heading `Classifier (N=1)` reads as a leg count rather than a PR count and the step never says the N>1 coordinated marked context is handed to pr-head - rename it `Classifier (one PR)` and add `Pass the N>1 marked context to pr-head` as Before did; (2) in E's race the exit-128 branch only says `the B command-failure stop prints instead`, but B's `INV` is defined as the home-only block - state explicitly `INV (home and helper) follows` so preservation of helper is on the page; (3) the `aaaa…` stop text was rewritten relative to Before's `local branch spec-export is at aaaaaaa, not an ancestor of origin/spec-export (2222222)…` line - either form satisfies the fact, but keeping one canonical wording across checkpoints avoids a future exact-text fact drifting.",
-      "wallMs": 34148,
+      "feedback": "No fact moved: After keeps every checkpoint Before kept and in several places is stronger (explicit `LIVE(/work/codec)` command, printed exit-128 line naming member and command, INV blocks after every stop, `Pre-rework head:` excluded from companion reports). Two wording risks are worth tightening so a stricter reader does not flip the contract or remote-only facts: the heading `Classifier (N=1)` reads as contradicting the N>1 coordinated marked context the fact requires — rename it to something like `Classifier (single PR, N>1 coordinated legs)` and add the explicit sentence Before had, `Pass the N>1 coordinated marked context to pr-head`, right after the Leg-block count; and common-prefix step 4 says `Validate each declaration`, which could be read as probing the unselected codec in A — say `Validate only declarations that match a recorded leg` so `Probe only recorded matches` and `Settle only acme/helper` are unambiguous. The legend-based INV (home-only block) is fine, but the E and race sections rely on `INV (home and helper)` prose; rendering the two-line block verbatim there, as E's first stop already does, would make the home-then-helper ordering self-evident everywhere.",
+      "wallMs": 35636,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5ce1b710bb7a5d0be3bed3af331ba33ed14ebf1523cd8e00f9dc7028daec60fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "c0ff0f2b9211a78f20b3d7dd59b978a2c2bcd7721dafc4f059b27c8bf6989202",
       "candidateOutputSha": "b283b73736303e6d140420599240c20eaffc401f7ffb0cc3c708f4723329d072",
       "facts": {
@@ -91,9 +91,9 @@
           "label": "held"
         },
         "remote-only": {
-          "before": "holds",
+          "before": "fails",
           "after": "fails",
-          "label": "regression"
+          "label": "pre-existing"
         },
         "missing-remote": {
           "before": "holds",
@@ -121,56 +121,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps B–F intact (exact stop texts, exit 2 vs 128 distinction, recovery proof, home-only persistence) and actually improves A by naming the exact `git show 1111…:doc/specs/export.md` command, but it moves the remote-only fact: Before's legend defined the companion live check as part of all-companion preflight ('both during all-companion preflight and again during provisioning') and A.4 said 'Repeat helper's live check', whereas After's A.4 preflight validates only checkout/origin/nonhome/contracts and defers 'Fetch helper, perform its live check' to A.5, i.e. during provisioning, so a careful reader cannot say the shared remote was fetched and required before companion provisioning. After's A.8 inventory also drops the `acme/widget`/`acme/helper` member names that Before listed. To keep the fact while delivering the Change, put the fetch and exact `ls-remote --exit-code --heads` requirement inside A.4's preflight sentence (e.g. 'Fetch helper, require live `refs/heads/spec-export` (exit 0), validate checkout/origin/nonhome/contracts — all before any companion creation'), then in A.5 say 'repeat the live check' and name the `using-git-worktrees ROOT=/work/helper BRANCH=spec-export REMOTE_BRANCH=existing` invocation once; restore the member-prefixed inventory lines in A.8.",
-      "wallMs": 47760,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "## Shared command legend\n\nThese are prescribed actions and supplied observations, **not live tool calls**. Checkpoints and deltas are independent.\n\n- `FETCH(R)`: `git -C R fetch origin`\n- `LIVE(R)`: `git -C R ls-remote --exit-code --heads origin refs/heads/spec-export`\n- `ADD(R)`: `git -C R worktree add R/.worktrees/spec-export spec-export`\n- `MERGE(W)`: `git -C W merge --no-ff --no-edit origin/main`\n- `READY(R)`: verify the registered worktree path and branch, then report `Worktree ready at R/.worktrees/spec-export`.\n\nRequired skill/reference reads precede their stages: PR classification, spec-only predicate, supersession rules, PR-head provisioning, Legs and its shared sibling parser, and gate/grant rules. Narrated reads use absolute paths under the installed `skills/` root; no bundled reference is claimed as a session read. An unreadable required reference blocks its stage.\n\n## A — Two legs: admission through gate\n\n1. Admit the single OPEN, non-fork `acme/widget#42`. Fetch `main` and `spec-export`; classify the pinned `5555555…` / `1111111…` diff. Observe only `A doc/specs/export.md`.\n2. Read the spec through `git show 1111111111111111111111111111111111111111:doc/specs/export.md`. Observe the exact deferred header and **two original-head Leg blocks before home provisioning**. Select marked coordinated re-gating, with merge sync.\n3. Read home’s applicable configuration. Provision home through PR-head checks. The configured creator contains `-b`, so use `ADD(/work/widget)`, not the fresh-branch wrapper. Verify exact original head; merge the fetched base.\n4. Home’s report includes:\n   ```text\n   Worktree ready at /work/widget/.worktrees/spec-export\n   Branch: spec-export\n   Base: spec-export @ 1111111\n   PR: acme/widget#42\n   Pre-rework head: 1111111111111111111111111111111111111111\n   Base SHA: 5555555\n   create: override skipped (contains -b)\n   ```\n   Report the observed clean merge SHA without inventing it.\n5. Read first-found home overrides **at BASE_SHA**, then settle only recorded helper against its declaration. Validate `/work/helper`, canonical identity, and stored origin. Read helper’s own settings/overrides by file, not session `gauntlet_setting`.\n6. Complete every companion preflight before any companion creation: fetch, live remote existence, tracking head, and recorded/current home/create equality.\n7. For helper provisioning, repeat fetch and live lookup. Observe `2222222…`; resolve default `main`. With no local branch, use `ADD(/work/helper)`, reporting the same wrapper skip. Verify head, merge base, verify original-head ancestry, and perform `READY(/work/helper)`.\n8. Pin audit at add-commit `6666666…`; its three labels enable option 3, with zero applied/deferred/rejected. Dispatch the spec-only summarizer; narrate its supplied summary, “Retried exports retain receipts.”\n9. Gate inventory, home first:\n   ```text\n   /work/widget/.worktrees/spec-export\n   /work/helper/.worktrees/spec-export\n   ```\n   Show AC 1 verbatim with `in-scope`, scope cuts `none`, options 1/2/3/4/5, and:\n   ```text\n   Withheld: draft PR - #42 already exists\n   ```\n\n**Independent `-B` delta:** reject that creator identically; use existing-branch built-in provisioning and the prescribed skip-report line.\n\n## B — Missing remote versus transport failure\n\n1. Three-leg classification and home provisioning succeed. Preflight helper, then codec; successful plain fetch leaves codec’s stale tracking ref intact.\n2. `LIVE(/work/codec)` exits 2, empty output. Stop before **any companion add, local-ref update, or merge**:\n   ```text\n   origin/spec-export is missing in acme/codec; on the machine that ran option 6, push spec-export from that companion's checkout, then rerun brainstorming #42\n   Preserved created legs:\n   acme/widget spec-export /work/widget/.worktrees/spec-export\n   ```\n3. **Transport branch:** exit 128 instead reports `acme/codec`, the failed lookup command, and:\n   ```text\n   fatal: unable to access origin\n   ```\n   This is command failure, never absence.\n4. **Originating-machine recovery:** without checking out primary:\n   ```text\n   git -C /work/codec log -1 --format=%H refs/heads/spec-export -- doc/specs/export.md\n   ```\n   Observe `7777777777777777777777777777777777777777`; run `git -C /work/codec push -u origin spec-export`, then rerun brainstorming #42. Do not diagnose incompleteness.\n5. **No-commit-anywhere branch:** stop as an incomplete handle; regenerate nothing.\n\n## C — Membership and checkout validation\n\n1. Read BASE_SHA overrides, not home’s changed worktree copy. Without the codec declaration, stop:\n   ```text\n   leg acme/codec matches no sibling declaration in .pi/gauntlet-overrides.md\n   ```\n2. Independent helper validation branches stop naming the declaration and observed defect: missing `/work/helper`; stored origin `acme/other`; or canonical PATH equal to home.\n3. A missing last selected checkout prevents creating or syncing **all companions**. Preserve home and list its path.\n\n## D — Contract drift and malformed blocks\n\n1. Helper home drift stops:\n   ```text\n   contract drift for acme/helper: recorded home: .worktrees/<name>, resolved trees/<name>; amend the recorded contract or restore the repo convention, then rerun brainstorming #42\n   ```\n2. Independent creator drift stops:\n   ```text\n   contract drift for acme/helper: recorded create: git worktree add <home> -b <branch>, resolved workspace add <home> <branch>; amend the recorded contract or restore the repo convention, then rerun brainstorming #42\n   ```\n3. Neither silently chooses a contract nor provisions helper. A requested repair uses the amendment process, rewriting and committing the home block and affected companion artifact; completion waits for agreement.\n4. Independently, a malformed third block missing repo, branch, or contract stops naming that block. Preserve home; do not fall back to ordinary sibling discovery.\n\n## E — Partial provisioning and recovery\n\n1. Home merge `8888888…` succeeds; helper becomes ready. Codec’s checked-out-elsewhere stop is:\n   ```text\n   branch spec-export is checked out at /work/host/spec-export; finish or remove that worktree first.\n   ```\n   Identify `acme/codec`, then:\n   ```text\n   Preserved created legs:\n   acme/widget spec-export /work/widget/.worktrees/spec-export\n   acme/helper spec-export /work/helper/.worktrees/spec-export\n   ```\n   Remove nothing.\n2. On rerun, prove home’s published-head ancestry, exclusively two-parent first-parent merges, second-parent ancestry of `origin/main`, and cleanliness. Reuse unchanged:\n   ```text\n   Base sync recovered: 8888888\n   merge: no-op - head contains origin/main\n   ```\n   No reset or update-ref.\n3. **Helper conflict branch:** after failed resolution and abort:\n   ```text\n   base merge unresolved for acme/helper (doc/specs/old.md) - merge origin/main by hand in /work/helper/.worktrees/spec-export and rerun brainstorming #42\n   ```\n   List preserved home/helper. After manual merge `9999999…` passes recovery proof, reuse helper without reset.\n4. **Unrelated helper tip:** `aaaaaaaa…` fails recovery and ancestry proof; report local/published SHAs and that the companion needs the published branch head. Never reset.\n5. **Codec race:** after preflight and helper provisioning, repeated `LIVE(/work/codec)` exits 2 despite stale `3333333…`. Use B’s exact missing-remote stop; preserve home/helper before codec writes. Independent exit 128 reports transport failure, not absence.\n\n## F — Gate actions\n\n1. Approval 1: read/decode grants; create a **new home-only commit** with Engine `waves`, Amend-grant `none`, and PR `acme/widget#42`. Verify committed fields; leave helper untouched. Complete brainstorm and route immediately to writing-plans.\n2. Independent shared-design change: revise to “Keep receipts with pending status”; rewrite/commit home and live helper artifacts consistently, then fresh summarizer/re-gate. Infer no second council or approval.\n3. Keep pinned-audit and grant-decoding rules. Create no companion PR metadata, pre-rework refs, MEMBER_HEADS entries, thread fetches, or handoff/resume route.\n",
-        "words": 979,
-        "wallMs": 36776,
-        "mechanical": {},
-        "judgeWallMs": 43870,
-        "facts": {
-          "contract": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "remote-only": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "missing-remote": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "settlement": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "drift": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "preservation": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "persistence": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After keeps every fact Before kept: it narrates the original-head block count from the same `git show 1111111…:doc/specs/export.md` read before home provisioning (more explicitly than Before), completes all-companion preflight with fetch plus the exact `ls-remote --exit-code --heads` live check before any companion add/local-ref update/merge, distinguishes exit 2 from exit 128, prints every required stop line verbatim (missing-remote, no-sibling-declaration, both contract-drift variants, checked-out-elsewhere, unresolved base merge), lists `Preserved created legs:` in home-then-helper order, proves the two-parent base-sync recovery with `Base sync recovered: 8888888` and no reset/update-ref, and persists the home-only Engine/Amend-grant/PR commit on approval 1 with no companion PR metadata, pre-rework refs, MEMBER_HEADS, thread fetches, or handoff route. Two small wording regressions are worth tightening even though they did not flip a fact: After's gate inventory dropped the `acme/widget` / `acme/helper` leg names that Before printed alongside the paths, and After's C.2 validation branches no longer state explicitly that home is preserved and no companion is created/synced (Before's C.2 did). Both outputs also narrate the native `git worktree add … spec-export` creation rather than the `using-git-worktrees ROOT=/work/helper BRANCH=spec-export REMOTE_BRANCH=existing` invocation the remote-only fact names; adding that one-line invocation before `ADD(/work/helper)` would make the fact hold on its literal reading. Keep the legend macros (FETCH/LIVE/ADD/MERGE/READY) since they shortened the text while preserving exact commands, but restore the leg names in the inventory and the explicit home-preserved sentence in C."
-      }
+      "feedback": "Nothing moved between Before and After: both narrations keep the checkpoints independent, print the exact missing-remote, unmatched-declaration, drift, checked-out and unresolved-merge stops, preserve home/helper on every partial failure, prove the two-parent base-sync recovery without reset/update-ref, distinguish ls-remote exit 2 from exit 128, and persist home-only Engine/Amend-grant/PR as a new commit with the shared-Design change committed to the live helper file before re-gating. The one fact both arms miss is remote-only's requirement to invoke using-git-worktrees once with ROOT=/work/helper BRANCH=spec-export REMOTE_BRANCH=existing: Before shows only the raw `git -C <primary> worktree add ... spec-export` legend entry and After only says 'provision ... by existing-branch DWIM', so neither text names the skill invocation or its parameters even though both correctly report the skipped -b/-B creator and native existing-branch creation. After also dropped the member names from the gate inventory (paths only) and the helper's `Worktree ready at /work/helper/.worktrees/spec-export` block that Before rendered; those did not flip a fact but are closer to the edge. To keep every fact and still deliver the change, add one line in A5 such as 'invoke using-git-worktrees ROOT=/work/helper BRANCH=spec-export REMOTE_BRANCH=existing once; its -b creator is skipped, native existing-branch creation runs, report `create: override skipped (contains -b)` and `Worktree ready at /work/helper/.worktrees/spec-export`', and restore `acme/widget` / `acme/helper` labels in the gate inventory, while leaving the rest of After as is.",
+      "wallMs": 57156,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

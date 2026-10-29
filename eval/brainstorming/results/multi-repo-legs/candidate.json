@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "78edf5eefcc497a23f395cd34018367bb1dc640c4a819edf92e34f03dd330353",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "461778521d69671626189bc2a6a8bf7c3677c4f375afd340113a456957b95741",
       "candidateOutputSha": "0cb117929cddecfe461eeae21b89dc87fcdaf372fd64eb23de9f4ee4155df5cb",
       "facts": {
@@ -59,21 +59,21 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs provision home-then-repo-b-then-repo-c with each primary as $ROOT and the shared BRANCH, use the repo-a keyed contract, resolve repo-b's subproject to pkg-x, use the repo-c built-in default, never inspect repo-unused, keep every home Leg block portable (create/destroy/home/spec-dir/plan-dir/verification plus `Rules: root only - paths unresolved`, no machine-local path), claim AC 1 / AC 1 / AC 2 by original index, and commit home first before a repo-b companion carrying the **Home:** line, verbatim Problem, shared Design/Errors/Out-of-scope and only its own Leg block. After is actually tighter on the companion fact: Before's companion Decisions section slipped in an extra `- repo-b: ...` leg-specific bullet that is not one of the shared decisions, which a strict reader could count as more than the shared trio; After drops that bullet and keeps Decisions to exactly Design/Errors/Out of scope. Two things to keep an eye on in After so the facts don't drift: the verification line was reworded to `default preset policy; no configured verification or PR-gate commands` (still portable, but keep it free of any resolved command or path), and the leg `design:` lines dropped the trailing `(AC 1)`/`(AC 2)` tags — the scope line still carries the index so the scope fact holds, but if any later wording relies on the design line naming its AC, restore the tag. Otherwise the After wording delivers the change (explicit per-member contract table, preflight-before-create, home-first ready lines, companion-then-completion-check, header-only approval persistence) while preserving everything Before held.",
-      "wallMs": 17913,
+      "feedback": "Nothing moved on this case: both outputs invoke using-git-worktrees home-first then repo-b then repo-c with each primary as $ROOT and the shared BRANCH, use the repo-a keyed contract, resolve repo-b's subproject to pkg-x, fall back to the built-in for repo-c, never inspect repo-unused, render all three home Leg blocks with portable create/destroy/home/spec-dir/plan-dir/verification lines and `Rules: root only - paths unresolved` with no machine-local paths, claim AC 1 / AC 1 / AC 2 by original index, commit home first, and emit a repo-b companion with the exact **Home:** line, verbatim ## Problem, shared ## Decisions and only repo-b's Leg block. After is actually tighter than Before on the companion fact (Before smuggled an extra `- repo-b:` design bullet into ## Decisions, which a strict reader could flag as non-shared content; After keeps Decisions to the three shared items). Two cosmetic drifts in After worth watching so they don't become failures elsewhere: the design lines dropped the trailing `(AC 1)`/`(AC 2)` tags, and the verification line was reworded from `none configured (default preset)` to a longer prose value - if any fact ever keys on the verification wording or on AC tags in design lines, pin that text in the Leg-block template rather than letting the model paraphrase it.",
+      "wallMs": 16333,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "78edf5eefcc497a23f395cd34018367bb1dc640c4a819edf92e34f03dd330353",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "bec491cb1133dd0843feec294641e57ae58be100bca45774899b07407d2ee206",
       "candidateOutputSha": "4cc3b47f33abf7087780ce930eeb897688894286a2ef24b8a823bfba8d9eff79",
       "facts": {
         "provision": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "portable": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved between Before and After: both narrate repo-a → repo-b → repo-c ordering with pkg-x resolved for repo-b, the repo-a keyed script/tree contract, the built-in repo-c lifecycle, and repo-unused untouched; both home leg blocks carry portable create/destroy/home/spec-dir/plan-dir/verification plus the repo-relative `Rules: root only - paths unresolved` line with no committed machine-local path; scopes are AC 1 / AC 1 / AC 2 on original indices; and both commit home first with a companion containing the **Home:** line, verbatim ## Problem, ## Decisions with Design/Errors/Out of scope, and only repo-b's Leg block. After actually improves fidelity by keeping basename identifiers (`repo-b`, `repo-c`) as the input prescribes, where Before invented `acme/repo-b`; it also makes the provisioning explicit via the creator table, which is the clearest evidence for the provision fact. Two cautions for After: the extra `### repo-b ownership` subsection inside ## Decisions is content beyond the shared decisions and the Leg block, so a stricter reader of \"only its own entire Leg block\" could count it against the companion fact — drop it (the design line in the Leg block already carries that text) to keep the companion shape exactly as Before had it; and neither output names ROOT explicitly when describing the using-git-worktrees invocation, so a sentence such as \"each member invokes using-git-worktrees with ROOT = its primary (/work/repo-a, /work/repo-b, /work/repo-c) and BRANCH = feature/shared-change\" would pin the provision fact more firmly while still delivering the Change.",
-      "wallMs": 22689,
-      "verdict": "unchanged"
+      "feedback": "After moved provision to holds by adding the explicit Provisioning outcomes table: it narrates the creator invocation per member in home-then-repo-b-then-repo-c order, shows each resolved argument (repo-b subproject as pkg-x, repo-a's keyed script/tree, repo-c's built-in lifecycle), the same feature/shared-change branch, worktrees rooted under each primary, and states repo-unused is neither inspected nor provisioned; Before only asserted the ordering and pkg-x resolution in prose without narrating any invocation or primary ROOT, and also renamed the companions to acme/repo-b and acme/repo-c against the supplied basename identifiers. Keep that table, but two things in After risk the companion fact under a stricter judge: the extra `### repo-b ownership` subsection inserted into `## Decisions` (the fact expects Design/Errors/Out-of-scope plus only the member's own Leg block, so the ownership prose should live solely in the leg's `design:` line) and the invented detail \"after ensuring `.worktrees/` is ignored\" for repo-c, which no observation supplied. A wording that keeps every fact Before kept while delivering the Change would be: retain the provisioning table and basename identifiers, drop the ownership subsection so the companion's Decisions contains exactly the three shared subsections followed by the single `### Leg: repo-b` block, and state repo-c's creator as the plain default `git worktree add` without unobserved preconditions.",
+      "wallMs": 27802,
+      "verdict": "improved"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3964f84215fb650a3cadb08fbc0d1a2d61603f1da16a5e5a988f7bdd02a50e99",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "375e78e38c121626edd6765c0b96db9593ec9733df34400fa66b15e26e1c9d82",
       "candidateOutputSha": "4d11b97a517a300f0d1d54b3b0316a34159fc4fa85cc2d53d4d3d8fadce59a99",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs follow the `gauntlet: question` marker with a correction that names `settings/resolver.ts:11` and its existing timeout override before the options, and both render A) as framed, B) pivot through the existing resolver, and C) smaller or none on separate lines with a final Recommendation line and then stop. After did lose two things Before had that are worth restoring even though this case's facts do not key on them: the explicit `Correction:` label opening the premise fix, and the lead-in question line (`How should we frame this fix?`) immediately preceding the options - After runs its prose straight into `A)` after 'so I am raising a framing concern before any other question', which gives the user no actual question to answer and would fail the questionary-option-lines layout contract (lead-in first, one option per line, Recommendation last). After also dropped Before's explicit 'I found no premise that is still unverified' and 'The draft will record these findings for ## Problem' sentences, which the implicit-dependency and premise-note facts in other samples rely on. Wording that keeps everything: keep After's tighter correction paragraph but open it with `Correction:`, retain the 'no unverified premise / recorded for ## Problem' sentence, and insert a one-line question (`How should we frame this fix?`) on its own line directly before `A)`.",
-      "wallMs": 13560,
+      "feedback": "Both facts survive the change: After still opens with the marker, names `settings/resolver.ts:11` and its existing timeout override before anything else, and renders A) as framed / B) pivot through the existing resolver / C) smaller or none on separate lines with a closing Recommendation: B and no approaches. The one thing After loosened is the explicit lead-in question - Before asks 'How should we frame this fix?' on its own line, while After goes straight from the premise paragraph ('I am raising a framing concern before any other question') into the option list, so the framing question is implied by the options rather than asked. That did not fail either fact as written, but it is the kind of drift the questionary layout fact (lead-in first, labeled options each on their own line, Recommendation last) keys on; to deliver the Change while keeping every fact Before kept, retain a one-line lead-in such as 'How should we frame this fix?' immediately before A), and keep the correction sentence anchored on `settings/resolver.ts:11` and the single-boundary caller trace as After already does.",
+      "wallMs": 13504,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3964f84215fb650a3cadb08fbc0d1a2d61603f1da16a5e5a988f7bdd02a50e99",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "4443284adcbfff96fa6a81a0fe710ab33016595e90a03400f2b11bc0e176298c",
       "candidateOutputSha": "bec122d4b9675a9b1cf47b70c7d5bea8849058de9a1e15b75b431bda017a307b",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs keep both facts: each opens with the `gauntlet: question` marker, corrects the draft's claim by citing `settings/resolver.ts:11` and its existing timeout override support, then asks the framing question with A) as framed, B) pivot through the existing resolver, and C) smaller or none on separate physical lines, ending with a Recommendation line and waiting without producing approaches. After differs only cosmetically: it splits the caller-usage observation into a second sentence ('Recon also confirmed...'), uses lowercase 'as framed' with a dash separator on A) while B) and C) keep colons, and trims C) to 'leave the current behavior unchanged.' None of these move a fact, but the inconsistent option punctuation (dash on A, colon on B/C) and dropped 'add no settings file' clause on C slightly weaken readability; keeping Before's uniform `Letter) Label: description` form and the explicit no-file clause on C would deliver the same question layout with no loss.",
-      "wallMs": 6113,
+      "feedback": "Both outputs open with the gauntlet: question marker, then correct the draft's claim by citing settings/resolver.ts:11 and its existing timeout override support (After additionally states recon confirmed every caller uses that resolver), then pose the framing question with A) as framed, B) pivot through the existing resolver, and C) smaller or none each on its own line, and close with a Recommendation: line while awaiting the reply. No approaches are produced. After moves nothing: the only differences are cosmetic (lowercase option labels, 'we' instead of 'the design', a dash separator on A). To keep this stable under future wording changes, keep the exact 'A) ... B) ... C) ...' labels on separate physical lines and the 'Recommendation:' line last, and keep the resolver path cited inside the correction sentence before the question.",
+      "wallMs": 5838,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }

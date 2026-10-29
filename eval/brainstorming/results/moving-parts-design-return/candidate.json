@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "f1cdef63a6e4474e60d2e1bfb18188ea2128c96ca7e0f762c1469144001615f0",
       "candidateOutputSha": "803ddae850b28b553472b1480dfb39f3f5fea9e73430f959f4f7c3d7bc22b0c8",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "Both outputs recap the chosen inventory in the generated response itself with the required Remove: (inline fetch in `jobs/report.ts`) and Add: (one optional parameter on post) lines under the round-one recap, so carry-forward holds in both; note that neither Before nor After uses a literal `Design imperatives:` label, so if that label is meant to be load-bearing it is already absent in Before and should be pinned explicitly in the section-6 recap wording. The only movement is test-per-observable: Before emits a literal `## Tests` heading followed by the three `<observable> - <test>` lines, while After keeps all three mappings (requested channel, preserved default, empty-channel rejection, each to its named test) but demotes the heading to an italic run-in `*Tests* (one line per ...)`, which fails the fact's `## Tests` form. The enlarged assembly (amendment-surface section 5) appears to have nudged the model toward a lighter, prose-styled round two. To keep the fact while delivering the Change, add an explicit instruction in the round-two/test-mapping wording such as 'Render the test mappings under a literal `## Tests` heading in the response, not as a run-in or italic label' and, for symmetry, 'Introduce the carried Remove/Add lines with a literal `Design imperatives:` label'; no other content in After regressed.",
-      "wallMs": 23804,
+      "feedback": "After keeps the carry-forward intact: both outputs recap the chosen inventory with explicit `Remove: the inline fetch in jobs/report.ts` and `Add: one optional channel parameter on post` lines (neither uses a literal `Design imperatives:` label, so the fact is read on the Remove/Add lines in both). What moved is the test mapping: Before renders a literal `## Tests` heading followed by the three `<observable> - <test name>` lines, while After demotes it to an italic run-in `*Tests* (one line per acceptance row and Design error clause):` and the mapping lines then sit under no spec heading, so the fact's `## Tests` mapping is absent even though all three named tests are mapped. To keep the fact while delivering the Change (which touches amendment-surface section 5, not the brainstorming round-two rules), add an explicit instruction in the round-two/design-recap wording that the test mapping must appear under a literal `## Tests` heading exactly as it will appear in the spec, and that the recap must label the Remove/Add lines `Design imperatives:`, so the enlarged assembly cannot compress those structural markers into prose.",
+      "wallMs": 22387,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "72c2c10b537d35d930fd866dc89afec38a062cd86a6ff160589714f25c2efd13",
+      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
       "baselineOutputSha": "877d66fb211a2f5dfa603d9df33694c39eec2a2db412e39a8f8229213b37cf0f",
       "candidateOutputSha": "8929c15a25eb51ff632162e2da068d80555d79619b017a5a0348aea03797dea9",
       "facts": {
@@ -71,8 +71,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After lost the carry-forward fact: Before's recap carried the chosen inventory as explicit imperatives (\"**Remove:** Remove the inline fetch ... from `jobs/report.ts`\" / \"**Add:** Add the optional channel parameter ... to `lib/notify.ts#post`\"), while After folds the same content into prose bullets (\"Replace the inline delivery in `jobs/report.ts` with a call to `post`\", \"Extend its signature\") and a \"This supersedes...\" sentence, so a reader never sees a Remove/Add inventory in the recap. The test-per-observable fact survived in this After text because the `## Tests` heading and all three observable – test mappings are intact (note the Expected-to-move entry describing a demoted run-in heading does not match this output). To keep both facts while delivering the Change (carry the chosen inventory into Design imperatives and map every observable to a test), the After wording should instruct the recap to render a literal `Design imperatives:` block with `Remove: the inline fetch in jobs/report.ts` and `Add: one optional parameter on post` lines, rather than permitting the inventory to be paraphrased into the commitments list, and should pin `## Tests` as a heading so the mapping cannot be demoted under larger assemblies.",
-      "wallMs": 16415,
+      "feedback": "Before carries the chosen inventory as explicit imperatives — a **Remove:** line naming the inline fetch in `jobs/report.ts` and an **Add:** line naming the optional channel parameter on `lib/notify.ts#post` — so carry-forward holds there (though even Before omits a literal `Design imperatives` label, which is worth pinning). After replaces those two lines with a prose bullet list (\"Extend its signature…\", \"Replace the inline delivery…\") and a \"This supersedes…\" sentence; the content is implied but there is no Remove/Add inventory, so carry-forward fails. test-per-observable holds in both: After still renders a `## Tests` heading with all three observable → test mappings (requested channel, preserved default, empty-channel rejection), so the predicted demotion to a run-in did not occur in this output. To keep every fact while delivering the Change, have the recap open with a `Design imperatives:` label followed by `Remove: the inline fetch in jobs/report.ts` and `Add: one optional parameter on post` as their own lines before the commitment bullets, and keep the `## Tests` heading and three-line mapping exactly as After already does.",
+      "wallMs": 14362,
       "verdict": "improved"
     }
   },
@@ -241,5 +241,5 @@
       }
     }
   },
-  "repoSha": "233dc1f84375b7498039666d8cf9128366bab840"
+  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
 }
