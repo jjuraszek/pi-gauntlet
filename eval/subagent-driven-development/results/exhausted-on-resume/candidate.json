@@ -1,7 +1,7 @@
 {
   "sample": "exhausted-on-resume",
   "arm": "candidate",
-  "skillSha": "62172aaa9d3217f64ccb2198a02abb4927f98cb479bebc9c6dda007ab70f700c",
+  "skillSha": "4886aca8bd5d1097cea6ff83b31237e5d07dfa2235441d5e28660a1361896394",
   "inputSha": "c64c0347cd838dc7b56bd0a6a873f5c1f210bacc48635da059d5294c31895e8e",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Next parent action for task 3: stop note, no funded dispatch\n\n## Why no funded round is dispatched\n\n1. **The escalated round has already failed.** The escalated fix ran on `<configured-impl-model>`, and its CR re-review still returned `FIX_FIRST`. Per `fix-loop.md`, a review with issues after the escalated round gets a funded round only if one remains for the task. Otherwise it gets a stop note.\n2. **I decoded the grant before any funded dispatch.** The restored header reads `**Amend-grant:** fund 2 fix rounds`, so a budget token exists with N = 2.\n3. **The spent count could not be recovered on resume.** The resume rule recovers spent rounds only from `funded round <k> of <N>` transcript lines. The restored transcript has none for task 3. With nothing recoverable, funding counts as exhausted, even though no funded round was dispatched in this session. The token was not newly written, so there is no refund.\n4. **Result: the current issue-bearing re-review ends the loop with task 3's stop note.** The budget line carries the `(not recovered on resume)` suffix.\n\n## What I do not run\n\n- No shell commands and no `subagent` dispatch.\n- No `funded round 1 of 2 for task 3` line, since no funded dispatch happens.\n- No `git add -A` or tree recording for a new re-review.\n- No wave commit (`reset --soft` / `commit`), since CR has not accepted.\n- No `plan_tracker` write. Task 3 stays `in_progress`.\n- No `phase_tracker` call. The phase stays `implement`.\n- No further tasks or waves start.\n- `WAVE_BASE_SHA` and `HEAD_SHA: WORKTREE` stay recorded in `/workspace/project` for whatever the human picks.\n\n## Reply (the turn ends here)\n\n```\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: frame validation reads the frame without first checking its length, so short or truncated input is not rejected, and the review still flags it as unresolved.\nbudget: 2 of 2 spent (not recovered on resume)\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) add a length guard at src/frame.ts:21 that rejects frames shorter than the required length before any field is read, with a frame.test.mjs case for a truncated frame\n  b) amend plan task 3 (and its spec anchor) to state exactly what Validate frame must do with undersized frames, then re-run the fix against that contract\n\nPick one, or give another fix.\n```\n\n## How to refund funding\n\nTo fund more rounds, write a new budget token into the plan header, for example `**Amend-grant:** fund 2 fix rounds`. A newly written token is the refund.\n\n- It applies prospectively, with spent starting at zero. Earlier rounds neither count against it nor toward it.\n- Resuming without a new token does not reset anything; funding stays exhausted.\n- There is no other spent carrier and no new handoff or resume syntax. Recovery still reads only `funded round <k> of <N>` lines.\n\nOnce a new token is in place and you pick a fix, the next funded dispatch would use the escalated payload exactly:\n\n- one implementer with `model: <configured-impl-model>`, `context: \"fresh\"`, `async: false`, `cwd: /workspace/project`\n- the task text, prior patch, spec anchors, status protocol, `node --test frame.test.mjs`, and this CR report verbatim\n- a CR re-review afterwards with the re-review marker, the trajectory block and the Fix delta (`Behaviour-change: no`, so CR only)\n",
-      "words": 532,
-      "wallMs": 18006,
+      "text": "# Next parent action: emit the task-3 stop note, then end the turn\n\nThe restored `**Amend-grant:** fund 2 fix rounds` is a budget token (N = 2). The transcript has no recoverable `funded round <k> of 2 for task 3` lines, and the token was not newly written on resume. Under fix-loop.md \"On resume\", funding for task 3 is therefore **exhausted**.\n\nThe escalated round's CR re-review is issue-bearing:\n\n- **Verdict:** `FIX_FIRST`\n- **Trajectory:** `TRAJECTORY: DIVERGING (3 -> 3, max severity Moderate)`\n\nThe rule is \"a funded round while one remains for the task, otherwise stop note\". None remains, so the parent does not do any of the following:\n\n- dispatch a funded round, print `funded round 1 of 2 for task 3`, or send another implementer\n- run a re-review or re-dispatch only to get a trajectory line\n- grant a convergence exception, which is already ruled out because the line is `DIVERGING`\n- write to `plan_tracker`, which leaves task 3 `in_progress`\n- stage or run the wave commit (`reset --soft \"$WAVE_BASE_SHA\"` / `commit`), because CR has not reached `SHIP`\n- start other tasks or record a spent count anywhere new\n\nThe phase stays `implement`.\n\nThe stop note follows `stop-note.md` with these specifics:\n\n- **Header clause:** it includes the bracketed escalated clause, because an escalated round actually ran on `<configured-impl-model>`.\n- **Budget line:** `budget: 2 of 2 spent (not recovered on resume)` goes after `Problem:`. There are no `Searched:` lines because this is a review stall, not a fact ask. The line sits before the file finding.\n- **Finding:** only the final review's residual finding is quoted.\n- **Grant scope:** the grant is budget-only, so it supplies no automatic decision. The human chooses.\n\nRefunding is done by writing a *new* budget token, not by resuming again. That is offered as a fix option below.\n\n# Reply (verbatim, ends the turn)\n\n```\ngauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: frame validation still reads the frame without checking its length, and no funded fix round can be confirmed for this task after resume.\nbudget: 2 of 2 spent (not recovered on resume)\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) add a length guard at src/frame.ts:21 that rejects a frame shorter than the length it is about to read, with a test in frame.test.mjs for the short-frame case\n  b) refund funding: newly write a budget token on the spec header, e.g. `**Amend-grant:** fund 2 fix rounds` (writing it again counts as new); spent restarts at zero and I dispatch funded round 1 of 2 on the configured model with the same payload, scoped test and code review\n  c) amend plan task 3 / its spec anchor to state the required short-frame behaviour explicitly, then re-run the fix under that wording\n\nPick one, or give another fix.\nRecommendation: b - a fresh budget token is the only refund; a resume never resets spending, and the funded round targets exactly this residual finding inside the existing gate.\n```\n\nOn the next turn, if the human newly writes the token, the parent will:\n\n1. Print `funded round 1 of 2 for task 3`.\n2. Dispatch one implementer with `model: <configured-impl-model>`, `context: \"fresh\"`, `async: false`, and `cwd: \"/workspace/project\"`. The payload is the same task text, prior patch, spec anchors, status protocol, `SCOPED_TEST_COMMANDS: node --test frame.test.mjs`, and this CR report verbatim.\n3. Run `git -C /workspace/project add -A`, then record the tree with the fix-delta block.\n4. Dispatch the CR re-review with:\n   - `BASE_SHA: <WAVE_BASE_SHA>` and `HEAD_SHA: WORKTREE`\n   - the re-review marker and trajectory block\n   - `## Fix delta`\n5. Commit the wave only after `SHIP`.\n",
+      "words": 583,
+      "wallMs": 28442,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Next parent action: stop without further shell commands or dispatches. Unrecoverable funding is treated as exhausted, not unused. Do not commit the wave or mark task 3 complete; it remains `in_progress`, and the phase remains `implement`.\n\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The length guard remains missing, and funded-round usage could not be recovered on resume, so no further repair is authorized.\nbudget: 2 of 2 spent (not recovered on resume)\n  src/frame.ts:21 - \"missing length guard\"\n\nFix options:\n  a) Explicitly grant a refund by newly writing `**Amend-grant:** fund 2 fix rounds`, then repair the missing length guard.\n  b) Supply the length-guard fix for scoped testing and re-review before the wave commit.\n\nPick one, or give another fix.\n",
-      "words": 125,
-      "wallMs": 12110,
+      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The length guard is still missing. Funding history cannot be recovered on resume, so the unchanged grant is treated as exhausted and no further repair may be dispatched.\nbudget: 2 of 2 spent (not recovered on resume)\n  src/frame.ts:21 - \"missing length guard\"\n\nThe parent stops here: no shell commands, implementer dispatch, re-review, or wave commit. Task 3 stays in_progress in /workspace/project.\n\nFix options:\n  a) newly write `**Amend-grant:** fund 1 fix rounds` to refund one funded repair of the missing length guard\n  b) newly write `**Amend-grant:** fund 2 fix rounds` to refund two funded repairs of that finding\n\nA newly written token is a human refund; leaving the restored token unchanged is not. Any repair must still pass the scoped test and CR re-review before the wave can commit and task 3 can complete.\n\nPick one, or give another fix.\nRecommendation: a - authorizes one targeted repair and its required verification without granting an unnecessary additional round.\n",
+      "words": 171,
+      "wallMs": 16309,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "73762c9b912437cbe621930f70abdb5c4b608b41aee99bd5200a735cd6340409",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "9a4ec0ae566d0ced93c34136457a0fcd9fbcba91a8c587426eef94e0e4783330",
-      "candidateOutputSha": "9a4ec0ae566d0ced93c34136457a0fcd9fbcba91a8c587426eef94e0e4783330",
+      "intentSha": "3c477d0460f3a27f78f856ad1df65b990ecbac4c026f74b850a3c38b94920a6b",
+      "baselineOutputSha": "c667a15fa22855e80627346901723334194183e029542c4b261ae2ebcd0080b0",
+      "candidateOutputSha": "dc6063a72c6fcf6b09faa1eaa1274f1e774414348565123cd1e12e6d5237e725",
       "facts": {
         "exhausted": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "The After output is textually identical to Before, so no fact moved. Both outputs treat funding as exhausted with no funded dispatch and explicitly state that resuming without a new token resets nothing; both place `budget: 2 of 2 spent (not recovered on resume)` directly after the Problem: paragraph and before `src/frame.ts:21 - missing length guard`; and both identify a newly written `**Amend-grant:**` token in the plan header as the refund while rejecting any new spent carrier or handoff/resume syntax. The After wording already keeps every fact Before kept and delivers the resumed-flow refund explanation the Change asks for; no further wording adjustment is needed for this case.",
-      "wallMs": 6322,
+      "feedback": "After keeps every fact Before kept: it reads the restored Amend-grant as a budget token with no recoverable funded-round lines, declares funding exhausted under the resume rule without a funded dispatch or resume reset, places `budget: 2 of 2 spent (not recovered on resume)` directly after `Problem:` and before the `src/frame.ts:21` finding, and names a newly written budget token as the only refund (without inventing a spent carrier or a new resume grammar), now with the required trailing `Recommendation:` line. One wording wobble worth tightening: After's option b says to write the token on the \"spec header\" while the case and Before refer to the plan header; say \"plan header\" consistently so the refund location is unambiguous. Otherwise the After wording delivers the Change (gauntlet: question prefix, Recommendation close, explicit refund explanation) without moving any fact.",
+      "wallMs": 9575,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "73762c9b912437cbe621930f70abdb5c4b608b41aee99bd5200a735cd6340409",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "33b73dbc1c5a89682ac99eb459e1d1bd90f7792df419e8ed5ca5e45f39872007",
-      "candidateOutputSha": "33b73dbc1c5a89682ac99eb459e1d1bd90f7792df419e8ed5ca5e45f39872007",
+      "intentSha": "3c477d0460f3a27f78f856ad1df65b990ecbac4c026f74b850a3c38b94920a6b",
+      "baselineOutputSha": "4f0fd6a00516a9b03d41e5c83e79cd35c00d321591bdf7764748e0c4b92918f3",
+      "candidateOutputSha": "81a535b5e1a957fb9237bfd3d60aa7e018ade5dd26dd6361a27fab874b7f9d80",
       "facts": {
         "exhausted": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical, so no fact moved. Both outputs treat unrecoverable funding as exhausted with no funded dispatch and no automatic resume reset, place `budget: 2 of 2 spent (not recovered on resume)` directly after the Problem: line and before the `src/frame.ts:21` finding, and present the human refund as newly writing the `**Amend-grant:** fund 2 fix rounds` token rather than inventing spent state or requesting a new resume carrier. The After wording delivers the exhausted-on-resume behavior the Change asked for while keeping every fact Before kept; no further adjustment is needed for this case.",
-      "wallMs": 6229,
+      "feedback": "After keeps every fact Before kept: funding is treated as exhausted with no funded dispatch, no resume reset, and task 3 left in_progress; the `budget: 2 of 2 spent (not recovered on resume)` line sits directly after Problem: and before the src/frame.ts:21 finding; and the refund is identified as a newly written `**Amend-grant:**` token, explicitly contrasted with leaving the restored token unchanged, without inventing a spent carrier or asking for a new resume grammar. After additionally delivers the Change's trailing Recommendation line and tightens the Problem summary to name the unrecoverable history as the reason for exhaustion. No wording in After moved a fact; if anything, keep Before's option (a) phrasing that a human may also supply the repair directly, since After's menu now offers only refund sizes, which narrows the actionable choices slightly without breaking any listed fact.",
+      "wallMs": 9630,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
 }

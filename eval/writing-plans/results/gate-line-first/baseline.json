@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "baseline",
-  "skillSha": "9367e0eaead9aae0fec6b2237c9560ba58e9b45277d8ba160bb7cbef0f7524cc",
+  "skillSha": "137e706b78798d6e37ad85a9ed266940bf8deaf991e2516551e198f524f1abc0",
   "inputSha": "dad4216a7c8c200b506422e517993fe001294bc0afdd56f8666b26563b237c55",
   "kind": "text",
   "assembly": "concat",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nTask 1's baseline fails on the base commit before any plan work: `node --test tests/timeout.test.ts` fails on def5678 (exit 1). Summary: tests 1, pass 0, fail 1, \"existing timeout lookup failed\". The plan stays paused in `plan` (substep `plan-write`): no stamp and no `plan_tracker` init.\n\nfix-first - run `/skill:shape-ticket` for the base failure; once that fix lands, the worktree picks up the advanced base, the plan-writer is re-dispatched with `Findings: rerun baseline`, and the plan is checked again.\nnarrow - supply filter or path text that scopes Task 1's Tests command away from the failing case; the plan-writer is re-dispatched with that row.\namend - amend the approved spec through brainstorming's amendment surface (section 5), then rerun the baseline.\n\nRecommendation: fix-first - an existing timeout test already fails on base. Narrowing would hide the very lookup this change builds on, so the failure should be fixed before planning continues.\n",
-      "words": 147,
-      "wallMs": 5690,
+      "text": "gauntlet: question\nPlanning is paused on a baseline failure. Task 1's test command already fails on the base commit, before any plan work runs.\n\n- Task: Task 1\n- Command: `node --test tests/timeout.test.ts`\n- Base SHA: `def5678`\n- Exit: 1\n- Summary: tests 1, pass 0, fail 1: existing timeout lookup failed\n\nChoose one option:\n\nfix-first - run `/skill:shape-ticket` for the base failure under its own gate. The plan stays paused until that fix lands. I then bring the advanced base into the worktree and re-plan with a fresh baseline run.\nnarrow - you supply filter or path text that limits Task 1's Tests command to tests that pass on the base. I re-dispatch the plan-writer with `Task 1 Tests: narrow to `<your text>``.\namend - amend the approved spec through the amendment surface, for example to take the failing lookup into scope or out of scope. The plan is then rewritten against the amended spec.\n\nRecommendation: fix-first - the failing test is the existing coverage for the timeout lookup that this change builds on. Narrowing would hide that behavior from the change's own anchor test, and amending would fold an unrelated base defect into this spec.\n",
+      "words": 188,
+      "wallMs": 7681,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nPlanning is paused because Task 1’s baseline test fails:\n\n- Command: `node --test tests/timeout.test.ts`\n- Commit: `def5678`\n- Exit: `1`\n- Result: tests 1, pass 0, fail 1 — existing timeout lookup failed\n\nfix-first — Run `/skill:shape-ticket` for the existing failure, subject to its own gate; this plan remains paused.\nnarrow — Supply filter or path text to narrow the test command.\namend — Amend the approved spec through the brainstorming amendment workflow.\n\nRecommendation: fix-first — repair the existing timeout lookup failure before implementing this change.\n",
-      "words": 79,
-      "wallMs": 5793,
+      "text": "gauntlet: question\nTask 1’s baseline command, `node --test tests/timeout.test.ts`, failed on `def5678` with exit 1: existing timeout lookup failed (`tests 1, pass 0, fail 1`).\n\nfix-first - Run `/skill:shape-ticket` for the base failure under its own gate; planning then pauses until the fix lands.\nnarrow - Supply filter or path text to narrow Task 1’s tests.\namend - Amend the approved spec through brainstorming’s amendment procedure.\n\nRecommendation: fix-first - The existing timeout lookup already fails on the base, so repair it before proceeding.\n\nWhich option would you like? Planning remains paused in `plan-write`.\n",
+      "words": 89,
+      "wallMs": 6550,
       "mechanical": {
         "first-line": "holds"
       }
     }
   },
-  "repoSha": "8475e17ce089bdf359207a8e45e5d6ffec26337e"
+  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
 }

@@ -1,0 +1,1 @@
+- aftermath: judged: Variant F uses the same grant-aware narrow hook-config writer redispatch for the unchanged-command failure, not a new attributable spec item; it preserves dirty-path protections, two-item limit, repeat-evidence exit and attempts/iteration/cap budget, never restoring the protected plan path automatically.

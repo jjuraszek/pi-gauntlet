@@ -1,4 +1,3 @@
-bundle+: skills/brainstorming/reference/amendment-surface.md
 bundle-: skills/writing-plans/reference/plan-contract.md
 
 # Input
@@ -12,8 +11,3 @@ Worktree /work/app. Approved spec /work/app/doc/specs/hook.md. Plan /work/app/do
   ```
 
 The task's Tests command is node --test tests/hook.test.ts. No human choice has arrived. Narrate the parent handling through the pause.
-
-
-Then narrate independent variants from that same starting state. In each, the approved spec header contains `**Amend-grant:** auto-apply amends`; the evidence supports the supplied recommendation: (A) `Recommendation: narrow hook-config - only config coverage is relevant`; (B) `Recommendation: amend - correct the config requirement within its component`; (C) `Recommendation: fix-first - isolate the existing base failure`; (D) `Recommendation: none - no justified route`; (E) `Recommendation: narrow - no concrete filter known`. No human reply has arrived.
-
-Finally variant F is amendment re-entry: the parent has applied one item, dispatched plan-writer with Amend and In-flight, and checked its return. The unchanged Task 1 command fails on abc1234 with the same assertion, unrelated to the batch edit. Recommendation is narrow hook-config. No repeated evidence or dirty paths exist. Narrate continuation and contrast a test-dirtied protected plan path, repeated already-applied evidence, and a third aftermath item. Attempts and iteration/cap budget are unchanged; no recommendation buys retries.
