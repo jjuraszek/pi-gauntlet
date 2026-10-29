@@ -1,0 +1,90 @@
+{
+  "sample": "pr-subject-rebase-repair-brief",
+  "arm": "candidate",
+  "skillSha": "4e5bb385bdf6b860b468371ca42d876c04d6abb261641e8222c46d2babca1d4d",
+  "inputSha": "16d0f5e6fe30e6d77b1cbd1b7bb6da1d2e7c6c08b3c6f050201f83baf635caa8",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Gauntlet-resume: bare-worktree reconstruction for `/work/demo` (PR #42)\n\nThe brief has no `## Process state`, so restoration follows `reference/reconstruction.md`. The brief's PR fields still change the scan base and admit the rework spec.\n\n## 1. PR identity, already observed\n\n- `gh pr view 42 --repo example/parser --json headRefName` returned `repair-parser`.\n- `git -C /work/demo branch --show-current` returned `repair-parser`. The branches match.\n- The `## Rework record` in `/work/demo/doc/specs/rework.md` lists `PR: example/parser#42`. The title is ignored for this comparison. This matches the brief's identity list `[example/parser#42]`, so there is no order-mismatch stop.\n- Carried downstream:\n  - Pre-rework head `1111111111111111111111111111111111111111`\n  - Rework base `4444444444444444444444444444444444444444`\n\n## 2. Scan base\n\nThe brief carries a full `Rework base:`. Reconstruction therefore uses `<base> = 4444444444444444444444444444444444444444`. It does not use the merge-base, and it does not use the pre-rework head.\n\n## 3. Candidate scan\n\n`gauntlet_setting({ key: \"flowGuards\" })` resolves the directories `doc/specs` and `doc/plans`.\n\n```bash\ngit -C /work/demo diff --diff-filter=A --name-only 4444444444444444444444444444444444444444..HEAD -- doc/specs doc/plans\n```\nThe result is empty.\n\n```bash\ngit -C /work/demo ls-files --others --exclude-standard -- doc/specs doc/plans\n```\nThe result is empty.\n\nThe empty diff does not end the scan. For a brief with PR pairs, the candidate rules also admit the spec whose run-worktree `## Rework record` lists the brief's `PR:` identities, even when that spec is tracked at base.\n\n**Spec candidate:**\n- `/work/demo/doc/specs/rework.md` is admitted. Its record lists `example/parser#42`, and no other record matches.\n\n**Exclusion set:**\n- The spec's `## Problem` lists the member-carried spec `doc/specs/original.md`, so that path is excluded.\n- Its carried plan, which pairs by basename to `original.md`, is also skipped.\n- Neither file is promoted, so no multi-spec prompt arises.\n\n**Plan pairing:**\n- Line 1 of `doc/plans/rework.md` is not `# Ledger - loop engine`, so it is a task plan.\n- It pairs by basename with `/work/demo/doc/specs/rework.md`. That spec is tracked from base, which still counts as the spec.\n- No ledger exists.\n\n**Route:** one spec with a task plan only, which is **\"Spec with plan\"**.\n\n**Plan commit:**\n\n```bash\ngit -C /work/demo log --diff-filter=A --format=%H --reverse 4444444444444444444444444444444444444444..HEAD -- doc/plans/rework.md\n```\nThe result is empty.\n\n```bash\ngit -C /work/demo cat-file -e 4444444444444444444444444444444444444444:doc/plans/rework.md\n```\nThis exits 0.\n\nThe brief has a `Rework base:`, so the plan commit is `4444444444444444444444444444444444444444` itself. The fallback message \"plan predates base; no post-base task evidence\" does not apply.\n\n## 4. Task evidence\n\nTask 1, Repair parser, declares `Modify: src/parser.ts`. That is the union of its `Files:` block in the working copy and in `git -C /work/demo show 4444444444444444444444444444444444444444:doc/plans/rework.md`. There is no range suffix to strip.\n\n```bash\ngit -C /work/demo log --format=%h --oneline 4444444444444444444444444444444444444444..HEAD -- src/parser.ts\n```\nThe query returns one commit. Its hash was not supplied in the input, so it appears below as `<post-base commit>`.\n\n```bash\ngit -C /work/demo status --porcelain\n```\nThe result is empty, so the tree is clean.\n\n**Proposals:**\n- Task status: `complete`, because at least one matching commit exists.\n- Stage: `verify`, because no task is `pending`.\n\n**Feasibility:**\n- Pending-suffix order holds.\n- The stage is not `implement`, so the auto-complete edge does not apply.\n\n## 5. Human question (printed)\n\n```\nBrief context — Intent: Repair parsing. Decisions: Keep the parser API.\nSpec: /work/demo/doc/specs/rework.md   Plan: /work/demo/doc/plans/rework.md\nTask evidence (since plan commit 4444444444444444444444444444444444444444):\n  [0] Repair parser — <post-base commit> → proposed complete\nUncommitted files: none\nProposed stage: verify\nConfirm the approved spec and continuation, or edit statuses/stage in one reply.\n```\n\nThe human confirms the spec, continuation, `Repair parser: complete`, and stage `verify`.\n\n## 6. Restoration calls, in order\n\n1. Entry check 6 on `/work/demo/doc/specs/rework.md` passes, as already observed.\n2. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n3. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/demo/doc/specs/rework.md\" })`\n4. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n5. `plan_check({ planPath: \"/work/demo/doc/plans/rework.md\" })` returns **PASS**. No plan repair runs and no commit is made.\n6. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/demo/doc/specs/rework.md\" })`\n7. `phase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: /work/demo/doc/specs/rework.md\" })`\n8. `phase_tracker({ action: \"start\", phase: \"verify\" })`\n9. `plan_tracker({ action: \"init\", tasks: [{ name: \"Repair parser\", status: \"complete\" }] })`\n10. `phase_tracker({ action: \"status\" })` and `plan_tracker({ action: \"status\" })`. Both must show verify in progress and the single complete task exactly. Any mismatch is reported verbatim, not patched.\n\n## 7. Closing lines (printed)\n\n```\nGate history not restored; re-validating `none` before any stage advance\n```\n\nThe task is `none` because there is no brief `Active task` and no `in_progress` task, so the whole deliverable is re-validated. No `Repaired plan:` receipt is printed, because the first `plan_check` passed.\n\nThe grant line comes next on its own line. It is whichever line entry check 6 decoded: `Standing grant active: <sentence>` or `No standing grant.` The input says only that grant validation passed, so I am not inventing its content.\n\n## 8. Continuation\n\nThe verify stage has no `Ledger:`, so work continues in **verification-before-completion**. It runs the full conformance gate with nothing carried over.\n\nGate history, closure-review evidence, and fix rounds are not restored. PR identity implies no approval or gate evidence.\n",
+      "words": 765,
+      "wallMs": 30640,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Candidate resolution — using the supplied observations\n\n- The brief has no `## Process state`, so this is **bare-worktree reconstruction with brief context**, not process-state restoration.\n- Carry the brief context into the confirmation:\n  - Intent: Repair parsing\n  - Decisions: Keep the parser API\n- Use `4444444444444444444444444444444444444444`, the explicit **Rework base**, as the candidate scan base—not the pre-rework head or an ordinary merge-base.\n- The supplied branch check passes: PR #42 and `/work/demo` both identify `repair-parser`.\n\nThe configured directories are `doc/specs` and `doc/plans`. The supplied observations for:\n\n```text\ngit -C /work/demo diff --diff-filter=A --name-only 4444444444444444444444444444444444444444..HEAD -- doc/specs doc/plans\ngit -C /work/demo ls-files --others --exclude-standard -- doc/specs doc/plans\n```\n\nare empty. **That does not end candidate resolution.**\n\nThe PR-record admission rule admits `/work/demo/doc/specs/rework.md` even though it is tracked at the scan boundary. Its top-level record identity, with the title removed, is `example/parser#42`, matching the brief’s ordered identity list.\n\nRetain the explicit exclusion set:\n\n```text\n/work/demo/doc/specs/original.md\n```\n\nIts carried plan cannot promote that excluded member spec back into the route candidates.\n\nPair `/work/demo/doc/plans/rework.md` with `/work/demo/doc/specs/rework.md` by basename. Both are admitted despite predating the boundary. No ledger exists. The route is **Spec with plan**.\n\nCarry downstream:\n\n```text\nPR: example/parser#42\nPre-rework head: 1111111111111111111111111111111111111111\nRework base: 4444444444444444444444444444444444444444\n```\n\n### Task evidence and human confirmation\n\nThe supplied observations for:\n\n```text\ngit -C /work/demo log --diff-filter=A --format=%H --reverse 4444444444444444444444444444444444444444..HEAD -- doc/plans/rework.md\ngit -C /work/demo cat-file -e 4444444444444444444444444444444444444444:doc/plans/rework.md\n```\n\nare, respectively, no add commit and a successful existence check. Therefore use the explicit Rework base itself as the plan commit.\n\nFor `Repair parser`, the declared path is `src/parser.ts`. The supplied post-base evidence establishes one matching commit after that boundary; the proposed task status is `complete`, and the proposed stage is `verify`.\n\nPrint the confirmation prompt:\n\n```text\nIntent: Repair parsing\nDecisions: Keep the parser API\nSpec: /work/demo/doc/specs/rework.md\nPlan: /work/demo/doc/plans/rework.md\nTask: Repair parser\nDeclared file: Modify: src/parser.ts\nTask evidence: one post-base commit touches src/parser.ts.\nWorking tree: clean.\nProposed task status: complete\nProposed stage: verify\nConfirm the approved spec and continuation, and confirm or edit the task status and stage in one reply.\n```\n\nThe supplied human response confirms all of these. The snapshot is feasible: there is no pending-suffix violation, and an all-complete plan is being restored at `verify`, not `implement`.\n\n### Ordered restoration calls\n\nThese are narrated calls, not executed tools. Entry checks and grant validation have already passed.\n\n```text\nphase_tracker({ action: \"start\", phase: \"brainstorm\" })\nphase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/demo/doc/specs/rework.md\" })\nphase_tracker({ action: \"start\", phase: \"plan\" })\nplan_check({ planPath: \"/work/demo/doc/plans/rework.md\" })\n```\n\nThe supplied result is PASS. No plan repair, repair receipt, or commit follows.\n\nContinue:\n\n```text\nphase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/demo/doc/specs/rework.md\" })\nphase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: /work/demo/doc/specs/rework.md\" })\nphase_tracker({ action: \"start\", phase: \"verify\" })\nplan_tracker({ action: \"init\", tasks: [{ name: \"Repair parser\", status: \"complete\" }] })\nphase_tracker({ action: \"status\" })\nplan_tracker({ action: \"status\" })\n```\n\nNever call `start implement`. The status readbacks must match `verify` in progress and the single confirmed task `Repair parser` as complete; no actual readback text was supplied to quote.\n\nPrint:\n\n```text\nGate history not restored; re-validating `none` before any stage advance\n```\n\nThe required next line depends on check 6’s decoded result: either `No standing grant.` or `Standing grant active: <sentence>`. The input says validation passed but supplies neither the decoded grant nor its absence, so an exact line cannot be selected without inventing an observation.\n\nContinue in **verification-before-completion**, with the full conformance gate. The completed task status does not carry forward gate history, closure-review evidence, or fix rounds.\n",
+      "words": 553,
+      "wallMs": 27422,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6b882d0d4d67d90591d868412753a759347130682f14e14d00b1e18b386de2dd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
+      "baselineOutputSha": "7623cc034801c4f9f1967287aab5f471c16795ec1c3849646b67dd98b100f4fe",
+      "candidateOutputSha": "a59ac72aabbe9d2828e3e32d2df4c34847f277433e39c4a108f2cac791078e60",
+      "facts": {
+        "candidates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "evidence": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "safeguards": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the intended move on `evidence`: Before treated the empty plan-add query as \"plan predates base\" and skipped the per-task log, leaving Repair parser pending and the stage at implement, while After explicitly sets the plan commit to the full Rework base 4444…4444 when the brief carries `Rework base:`, runs the `4444..HEAD -- src/parser.ts` query, counts the one post-base commit, and proposes complete/verify. Both outputs keep `candidates` (Rework base as scan base, empty added-file diff not a stop, rework.md admitted via its Rework record matching `example/parser#42`, base-tracked plan paired, route Spec with plan) and `safeguards` (original.md and its carried plan excluded, human confirmation of spec/continuation/statuses/stage before any tracker call, entry check 6/grant/plan_check retained, no gate history, closure review or fix rounds fabricated, grant-line content not invented). The wording that makes the difference and should be kept is the explicit rule \"with a full `Rework base:` in the brief, the plan commit is that base itself, and the fallback 'plan predates base' message does not apply\"; one small care point is the `<post-base commit>` placeholder — keep labelling it as unsupplied rather than ever filling in a hash, so the no-fabrication safeguard stays intact.",
+      "wallMs": 12197,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6b882d0d4d67d90591d868412753a759347130682f14e14d00b1e18b386de2dd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
+      "baselineOutputSha": "623f1b681d764b46374eabda672fc534026f06d39067e5d2e6b814cb8a03d32f",
+      "candidateOutputSha": "ab6c19ff50d8865cda3cae06948b5c909951b2d692186d2d5d16f3de8b0fc39d",
+      "facts": {
+        "candidates": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "evidence": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "safeguards": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved candidates and evidence from fails to holds without losing safeguards: it uses the full Rework base 4444… as the scan base, explicitly refuses to end resolution on the empty added-file diff, admits doc/specs/rework.md through its Rework record identity example/parser#42, pairs doc/plans/rework.md by basename, routes to Spec with plan, uses the base-tracked plan's Rework base as its plan commit, counts the post-base src/parser.ts commit as evidence, and proposes complete/verify. Before instead insisted on the Pre-rework head 1111… as the only sanctioned scan base and stopped on a 'boundary mismatch', so both of those facts failed there. Safeguards held in both: original.md and its carried plan are excluded, the confirmation prompt precedes every tracker call, entry/grant/plan_check checks are kept, and After explicitly declines to invent gate history, closure review, fix rounds or the decoded grant line. The only minor tightening worth considering is naming the excluded carried plan path alongside doc/specs/original.md in the exclusion block, so the member-spec exclusion reads as covering both artifacts rather than relying on the prose sentence; otherwise the After wording delivers the Change while keeping everything Before kept.",
+      "wallMs": 13116,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "6b9731d05eef5c442dfce30908274e556092e03f"
+}

@@ -38,8 +38,7 @@ git -C <worktree> diff --diff-filter=A --name-only <base>..HEAD -- <dirs>
 git -C <worktree> ls-files --others --exclude-standard -- <dirs>
 ```
 
-Candidates are files under those directories added after base, plus untracked files
-there. Paths returned by these commands are relative to `<worktree>`; resolve them to
+Take files under those directories added after base, plus untracked files there, as candidates. For a brief with PR pairs, also admit the spec whose run-worktree `## Rework record` lists the brief's `PR:` identities, even when tracked at `<base>`; pair it with a task plan at `<planDir>/<same basename>` or a ledger whose `**Spec:**` header resolves to it, whether or not either file was added after `<base>`. Paths returned by these commands are relative to `<worktree>`; resolve them to
 absolute paths under `<worktree>` before reading artifacts, showing paths in prompts,
 or calling `plan_check`. Read candidate contents before choosing. For a PR-list brief,
 read the rework candidate's `## Rework record` and the member-carried spec paths listed
@@ -52,7 +51,7 @@ Read every plan-directory candidate's first line. A line exactly `# Ledger - loo
 from base; count a base-tracked spec so paired as a spec in the route table below.
 The plan commit is the first
 post-base commit that added the plan file: `git -C <worktree> log --diff-filter=A
---format=%H --reverse <base>..HEAD -- <plan>`, first line. An uncommitted plan has no
+--format=%H --reverse <base>..HEAD -- <plan>`, first line. For a brief with `Rework base:`, when that lookup is empty and `git -C <worktree> cat-file -e <base>:<plan>` exits 0, use the `Rework base:` commit itself as the plan commit. An uncommitted plan has no
 plan commit; treat every task as `pending`.
 
 | Candidates | Route |
@@ -112,8 +111,7 @@ Show, and ask the human to confirm or edit both in one reply:
    Uncommitted plan (no
    plan commit): skip this query entirely - there is no range to search - and show
    "plan uncommitted; no task evidence" in its place; every task is proposed `pending`.
-   Plan commit lookup empty while `git -C <worktree> cat-file -e <base>:<plan>` exits 0
-   (plan at or before base): skip the log query, show
+   For a plan tracked at the `Rework base:` with no post-base add commit, use that base as the plan commit and query post-base task evidence as above. Otherwise, when the lookup is empty but `git -C <worktree> cat-file -e <base>:<plan>` exits 0, skip the log query, show
    `plan predates base; no post-base task evidence`, every task proposed `pending`.
 2. Uncommitted files: `git -C <worktree> status --porcelain`.
 3. Proposed task statuses: `complete` iff at least one matching commit, else `pending`.

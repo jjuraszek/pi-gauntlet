@@ -1,6 +1,8 @@
-for: 4e805950184d16a1900a5d163cff7d603fc0ed419dd98e74559c2d45f7f3ada4
+for: 1f787187d4e0547de228dd2e2e2542934782ba9c9938f5d5ab176297d81e0d44
 
 ## Change
+
+Recover the active base-tracked spec/plan pair through the brief's PR identities in its Rework record despite an empty added-file diff; use Rework base as the tracked plan's evidence boundary, retaining exclusions and human confirmation.
 
 Carry an optional full Rework base after all consecutive ordered PR/head pairs and use it as reconstruction scan base when present. Keep the first-home-head fallback and ordinary no-pair behavior, home-only branch validation, ordered identity/member-spec exclusion and task/gate restoration. Extend the single/list brief samples without weakening their stable facts; synthetic narration is not live restoration evidence and no failed candidate must-hold is accepted.
 
@@ -19,6 +21,8 @@ Carry all PR/head pairs consecutively in record order, home first, while retaini
 Add deferred-spec-stop with sample-local entry-check instructions and an explicit before-check-6 replay override. Cover bare tree, brief, process state, seed and incomplete brainstorm after push/create failure; grant exemptions do not bypass admission. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated behavior, not live tracker restoration or before/after improvement. Every new candidate fact must hold regardless of aggregate verdict; retain existing facts and authorized directions. Task 1 retains the original-base deterministic red/green proof.
 
 ## Expected to move
+- pr-subject-rebase-repair-brief/candidates: fails -> holds - Resolve the base-tracked active pair by Rework record identity and route to Spec with plan.
+- pr-subject-rebase-repair-brief/evidence: fails -> holds - Use Rework base as the tracked plan commit and derive task status from post-base evidence.
 - pr-list-brief/producer: fails -> holds - Carry all three ordered pairs home first, preserving tracker output, Active task and terminal gate history; N=1 and no-record remain intact.
 - pr-list-brief/binding: fails -> holds - Validate only home's live branch identity against the actual worktree before tracker calls, preserving downstream entry and grant checks.
 - pr-list-brief/mismatch: fails -> holds - Stop pr-list-brief-mismatch with both observed branch names and no tracker writes.
