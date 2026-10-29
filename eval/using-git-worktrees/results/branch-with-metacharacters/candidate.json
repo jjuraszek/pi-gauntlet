@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c1bc7a968a1fd40ba84cd1491d298885f0d2f2213cc146e3d774f9dd4ad78e33",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "f4ba0ffb52990f87aac4b478e3b9733308d9d7ed3f4ebda876de000274f4e6e6",
       "candidateOutputSha": "16eb9c793023a3d95730eb2114ae74b88d9e37bd9e85270b9c6ea8f3ce9cb6c6",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on m1: both Before and After run `script/worktree create 'topic;id' 'billing' --branch 'topic;id'` from `/work/acme-mono`, each explicitly stating that every token is inserted as one single-quoted shell word so the `;` cannot act as a command separator, and both show the branch value appearing exactly once as `--branch 'topic;id'` rather than being split into two commands. After's restructuring (folding the clean-base check and provenance into Step 1a, adding the token-validity note for `<name>`, and noting that Step 2c setup is skipped) did not touch the quoting or the single-command invocation, so the fact is preserved; keep the sentence 'Each token is inserted as one single-quoted shell word' adjacent to the literal command line, as After does, since that pairing is what makes a careful reader confident the value is one argument.",
-      "wallMs": 6158,
+      "feedback": "Nothing moved on m1: both Before and After run `script/worktree create 'topic;id' 'billing' --branch 'topic;id'` from `/work/acme-mono`, with an explicit sentence that each token is inserted as one single-quoted shell word so the `;` is inert, and both exit 0 with the `worktree /work/acme-mono-topic;id` line confirmed afterward. The After wording actually tightens this slightly by resolving all tokens (BRANCH, NAME, HOME, <subproject>) before the command line and stating \"all tokens are resolved, so nothing is left to ask,\" which keeps the single-member, keyed-contract behavior intact while the Change's rebase/merge-forward/recovery additions apply only to PR-subject provisioning and do not touch this path. Keep that explicit quoting sentence and the fully quoted command line verbatim in any further revision; if you later add `$ROOT`/`$BRANCH` handling for keyed legs, make sure the explicit BRANCH value still flows into `--branch` as one quoted word rather than being interpolated unquoted.",
+      "wallMs": 8743,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c1bc7a968a1fd40ba84cd1491d298885f0d2f2213cc146e3d774f9dd4ad78e33",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "3af59940aa787e4d1bcdf29a70e77ecb9b2bd22e569852571455f8e774ab4c9a",
       "candidateOutputSha": "8c293b34d2ffeec882015d727101e81ffd22cd8faee593866d3ba17e56568e88",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both Before and After run the exact command `script/worktree create 'topic;id' 'billing' --branch 'topic;id'` with every substituted token as one single-quoted shell word and explicitly note that the semicolon is literal argument content rather than a command separator, so m1 holds in both. After actually strengthens the point slightly by saying \"both semicolons are inside quoted arguments\" in the same step as the command. The only wording risk to watch when iterating on the PR-subject/rebase changes is that the keyed-contract substitution step keeps stating the single-quoted-shell-word rule adjacent to the invoked command (as both outputs do), rather than relocating it into a general preamble where a reader could miss that it governs the `--branch` value specifically.",
-      "wallMs": 7428,
+      "feedback": "Nothing moved on this case: both Before and After emit the exact command `script/worktree create 'topic;id' 'billing' --branch 'topic;id'` with every substituted token as a single single-quoted shell word, and both explicitly state the semicolon is literal argument content rather than a command separator. After's step 8 phrasing (\"substituting each token as one single-quoted shell word\" plus \"Both semicolons are inside quoted arguments; neither is a shell command separator\") is at least as clear as Before's, so the wording change preserved m1 while adding the keyed-contract and read-back structure; keep that explicit per-token quoting sentence in any further revision, since it is what makes the fact unambiguous to a reader.",
+      "wallMs": 5563,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

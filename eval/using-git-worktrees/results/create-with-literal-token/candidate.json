@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8c4e44f07ae027025e59c5d061cc5762d9ccd80022d29bfd412feba1a898c4b6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "e0a02ec832ffbf5ff48f910b24787a5e63bcfc1462416a8497813ec5329a96af",
       "candidateOutputSha": "6d13e1796dbf2a4d9176c909e459a0ef69a641cd85a841b02001eeb61caec799",
       "facts": {
@@ -63,14 +63,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case. Both outputs run `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from /work/acme-mono with each value single-quoted and never invoke `git worktree add` (After even states this explicitly), both resolve `<subproject>` to reports from the plan's single top-level directory without asking, and both run `git -C /work/acme-mono worktree list --porcelain` after creation and emit `Worktree ready at /work/acme-mono-csv-export`. The Change text concerns PR-list/member rebase provisioning, which this single-member case never reaches, so the After wording's additions (CALLER_ROOT, $BRANCH, detached-HEAD note, 'I never cd') are harmless here; keep the explicit 'no `git worktree add`' sentence and the quoted token table, which make c1 easier to verify than Before.",
-      "wallMs": 9397,
+      "feedback": "Both outputs satisfy all three facts: each runs `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from /work/acme-mono with single-quoted tokens and no `git worktree add` (After even states this explicitly), each resolves `<subproject>` to `reports` from the plan without asking, and each runs `git -C /work/acme-mono worktree list --porcelain`, confirms the `worktree $HOME` line, and prints `Worktree ready at /work/acme-mono-csv-export`. Nothing moved in this single-member case, so the After wording preserved the existing provisioning facts as intended; the added `$BRANCH`/`CALLER_ROOT` mentions and the explicit 'no `git worktree add`' note are harmless and arguably strengthen c1. No wording changes are needed for this case.",
+      "wallMs": 6333,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8c4e44f07ae027025e59c5d061cc5762d9ccd80022d29bfd412feba1a898c4b6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "ef39e8572c0d93dfa317070d3b120f57a14b767a3277d6f30aa357bce6664401",
       "candidateOutputSha": "16df8983db241904ae43f004e3e8c1084ab6814620da458043ca5fed2aca6874",
       "facts": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After on this case: both run `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from /work/acme-mono with each token single-quoted and explicitly refuse `git worktree add`; both resolve `<subproject>=reports` from the approved plan without consulting the user; and both run `git worktree list --porcelain` after creation, show both worktree lines, and report `Worktree ready at /work/acme-mono-csv-export`. The After wording adds a submodule check and an explicit `test -f` on the overrides file, which are harmless additions. The Change paragraph (PR-subject provisioning, rebase/merge-forward behaviour, interrupted recovery) is not exercised by this single-member worktree case, so the Expected-to-move items are not observable here; the After wording preserves every single-member provisioning fact as the Change requires, and nothing in it needs adjusting for this case.",
-      "wallMs": 5332,
+      "feedback": "Nothing moved on this case: both Before and After run `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from /work/acme-mono with each token single-quoted and explicitly decline `git worktree add` (c1), both resolve `<subproject>=reports` directly from the approved plan without consulting the user (c2), and both run `git worktree list --porcelain` after creation, show the registered path, and emit `Worktree ready at /work/acme-mono-csv-export` (c3). After adds a submodule check, a `test -f` on the overrides file, and an explicit note about not running tests, none of which disturb the single-member provisioning facts. The Change (PR-subject linearization, member replay, rebase-conflict handling) does not touch this single-repository worktree path, so the After wording as written already preserves every fact Before kept; keep the keyed-contract create/verify sequence unchanged when editing the multi-member provisioning sections.",
+      "wallMs": 5719,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

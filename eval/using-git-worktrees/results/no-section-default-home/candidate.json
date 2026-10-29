@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0ee0c9ce40344d38f27f8601fa91e91d7cf84bf489fef2ccef1f87ab9ec01934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "d99f82f2d2bf69f19c7a36af1d27deec1254837d41f73b226a31974a5c9d9bdc",
       "candidateOutputSha": "950798381e0c7514a8a8060b46fef3d94ca0e7056029e28bb8e76c2b9ec9127d",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this single-member case: After still appends `.worktrees/` to .gitignore and commits it (2b steps 3–5) before running `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy` (step 6), and it emits the exact `Worktree ready at /work/acme-web/.worktrees/login-copy` line, so d1–d3 all hold in both outputs. The only drift in After is unrelated to the facts and worth tightening: it claims the pre-check `git worktree list --porcelain` 'prints nothing' (it would at least list the primary checkout) and that the 2c setup block 'succeeds with empty output' even though the case lists no manifests, whereas Before correctly says no install command runs. Keep the Before phrasing for those two observations ('output has no `worktree …/login-copy` line' and 'no manifest found, so nothing runs') when applying the PR-subject rebase/merge-forward change so the single-member narration stays strictly grounded in the case.",
-      "wallMs": 8982,
+      "feedback": "No fact moved: both narrations append `.worktrees/` to .gitignore, stage and commit it, then run `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy`, and both end with the exact `Worktree ready at /work/acme-web/.worktrees/login-copy` report. The After wording is slightly more terse and drops some of Before's explicit reasoning (e.g. why consent exceptions do not apply, the explicit list of manifests checked), and it invents two observations the case does not supply — that the setup subshell 'succeeds with empty output' and that `branch --show-current` 'prints empty output' rather than being simply undescribed. Those do not affect d1–d3 here, but to keep the single-member provisioning facts robust while delivering the PR-subject/rebase changes, keep the legacy-path wording stating only what the case specifies (treat undescribed outputs as unobserved, as Before does) and leave the Step 2b ignore-commit-then-add ordering and the fixed `Worktree ready at <path>` report line verbatim.",
+      "wallMs": 9238,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0ee0c9ce40344d38f27f8601fa91e91d7cf84bf489fef2ccef1f87ab9ec01934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "3b533770b11e949570be81ee2da7b3f19766a2f3979a0349ea2ccdd3c67bb76e",
       "candidateOutputSha": "04d9b1aae17ae80dae5337f19286667a05693275183af3dc304b14208a1342ae",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "All three facts hold in both outputs: each appends `.worktrees/` to .gitignore, stages and commits it before `git worktree add`, creates the worktree at /work/acme-web/.worktrees/login-copy with `-b login-copy`, and ends with the exact `Worktree ready at /work/acme-web/.worktrees/login-copy` report. The one notable divergence is in step 6: After replaces Before's non-executing `find` manifest check with a literal setup subshell and then, by applying the empty-output rule to `[ -f ... ]` tests, narrates running `pnpm install`, `cargo build`, `uv sync`, `bundle install`, and `go mod download` in a repository the case never described as containing any manifests. That does not move d1–d3, but it is a questionable reading of the case rule that a future fact about setup commands could flag; consider keeping Before's approach of first probing for manifests (or stating that the case supplies no manifests, so no setup commands run) while keeping the rest of After's wording, which otherwise preserves every fact Before kept.",
-      "wallMs": 6611,
+      "feedback": "No fact moved: After still appends `.worktrees/` to .gitignore and commits it (step 4) before `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy` (step 5), and ends with the exact `Worktree ready at /work/acme-web/.worktrees/login-copy` line. The one regression-risk the new wording introduced is in setup: After replaces Before's explicit `find` manifest probe with a compound subshell and then, applying the empty-output rule literally, narrates that `pnpm install`, `cargo build`, `uv sync`, `bundle install`, and `go mod download` all ran in an empty checkout, which is implausible and could trip a future fact about not running installs without a discovered manifest. To keep the Change (explicit ROOT/BRANCH handling, single-member provisioning facts preserved) without that hazard, keep Before's discrete manifest-discovery command whose empty output straightforwardly means 'no manifest found, no setup run', and only describe the install subshell when a manifest is actually observed.",
+      "wallMs": 9800,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

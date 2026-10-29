@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "dfc08226e8343f4d98e8e4226d79d8dcd9d6ccebae804717ee7bb7bf1498ad65",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "7559013e85c2334ff9abd68e26deeacf418f1b30372e0543290c2c133a95c701",
       "candidateOutputSha": "4e3ce1000f45ce7b215cfefe63c5a806a77435e402e299bd367d2cb17e823815",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still fetches, verifies the reachable original head and the matching origin/fix/retry before any write, provisions via the unique-remote DWIM existing-branch checkout, preserves aaaaaaa at refs/gauntlet/pre-rework/pr-12 before syncing, runs the explicit `git -C /work/widget/.worktrees/fix-retry rebase --no-rebase-merges origin/main` while naming rebase.rebaseMerges=true and the dropped merge, shows a two-commit straight first-parent range, writes refs/gauntlet/rework-base/pr-12 at ddd…d and validates only that ref's ancestry, and leaves origin/fix/retry untouched with no push, reviewer, or tests. Two small drifts worth watching though they don't break a fact here: the After Step 4 report drops the `Sync:` label from the rebased line and the `(clean)` marker on the Base line that Before printed, and it moves the provenance-note check and the advisory worktree-list/branch read-backs to different positions. If any future fact keys on the `Sync: Base: main @ … - rebased: …` line format or the clean marker, After would fail it, so consider keeping the report template verbatim (`Base: fix/retry @ aaaaaaa (clean)` and `Sync: Base: main @ bbbbbbb - rebased: aaaaaaa..ddddddd, 0 stop(s)`) while retaining the new explicit `--no-rebase-merges overrides rebase.rebaseMerges=true` note, the `MEMBER_HEADS=[]`/'no members to replay' statement, and the durable `Rework base:` line that deliver the Change.",
-      "wallMs": 15710,
+      "feedback": "No fact moved: After still fetches and verifies the head and matching origin/fix/retry before any write, checks out via the DWIM tracking row without -b, preserves aaaaaaaa at refs/gauntlet/pre-rework/pr-12 before the rebase, runs `git -C /work/widget/.worktrees/fix-retry rebase --no-rebase-merges origin/main` with an explicit note that it overrides rebase.rebaseMerges=true, shows a two-commit single-parent first-parent range, writes refs/gauntlet/rework-base/pr-12 at dddddddd and validates it as an ancestor of HEAD rather than original-head ancestry, keeps `Rework base:` immediately after `Base SHA:` with the PR/Pre-rework pair and `rebased: aaaaaaa..ddddddd, 0 stop(s)`, and leaves origin untouched with no push, reviewer, or extra tests. Two cosmetic drifts in After are worth watching since they are the kind of thing a stricter report fact could catch: the `Sync:` label was dropped from the sync line and `(clean)` was dropped from the `Base:` line, and the provenance-note check was moved before checkout. Keeping the report template verbatim (`Base: fix/retry @ aaaaaaa (clean)` and `Sync: Base: main @ ... - rebased: ..., 0 stop(s)`) would deliver the Change's --no-rebase-merges/Rework-base behavior with zero report-format risk.",
+      "wallMs": 17021,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "dfc08226e8343f4d98e8e4226d79d8dcd9d6ccebae804717ee7bb7bf1498ad65",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "5cd2dc13012864c70d9f0a6150c527d42d2cfc2654aa496ab9a4c739612c174b",
       "candidateOutputSha": "ffd015a28f317f5c5a760ca4cd205dd8ed9d5dff61bdc18c192f828a2e568d00",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps every fact Before kept. Both outputs fetch and verify the original commit and matching origin/fix/retry before any write, provision via plain `worktree add <path> fix/retry` with no `-b`/`-B`, write refs/gauntlet/pre-rework/pr-12 before the sync, run `git -C <worktree> rebase --no-rebase-merges origin/main` with an explicit note that it overrides rebase.rebaseMerges=true, show a two-commit single-parent first-parent range, write refs/gauntlet/rework-base/pr-12 at dddd… and validate it with `merge-base --is-ancestor … HEAD` while explicitly declining original-head ancestry, and emit the identical Step 4 report block with `rebased: aaaaaaa..ddddddd, 0 stop(s)` and `Rework base:` directly after `Base SHA:`. The only observable differences are stylistic: After numbers commands and drops `--reverse` from the log (so the listing is newest-first, still clearly no merge), and for the boundaries fact After leans on the supplied observation that origin/fix/retry is unchanged rather than re-running `rev-parse refs/remotes/origin/fix/retry` as Before does. To be safest on the boundaries fact under stricter readers, keep that post-sync remote re-read command in the After wording (it costs nothing and makes 'remote unchanged' a shown observation rather than an assertion); otherwise the After wording already delivers the Change (explicit `--no-rebase-merges` flattening of a merge-containing head, persisted and reported Rework base) without regressing any fact.",
-      "wallMs": 15659,
+      "feedback": "No fact moved: both outputs fetch and verify the original head and matching origin/fix/retry before any write, provision via plain `worktree add <path> fix/retry` with no `-b`/`-B`, preserve the original at refs/gauntlet/pre-rework/pr-12 before syncing, run `git -C <worktree> rebase --no-rebase-merges origin/main` with the config override explicitly noted, show a two-commit merge-free first-parent range, write refs/gauntlet/rework-base/pr-12 at dddd… and validate only that ref's ancestry of HEAD, and emit the identical Step 4 report with `rebased: aaaaaaa..ddddddd, 0 stop(s)` and `Rework base:` directly after `Base SHA:`. Two small regressions in After worth tightening even though they don't flip a fact: it drops the post-sync `rev-parse refs/remotes/origin/fix/retry` read-back and instead leans on 'the supplied observation confirms origin/fix/retry remains the original SHA', and it defers the `worktree list`/`branch --show-current` read-backs to after the rebase rather than immediately after checkout. Keep Before's structure here — a concrete remote-head read-back after sync and path/branch/HEAD read-backs right after `worktree add` — while retaining After's numbered command list and the explicit statement that `--no-rebase-merges` overrides `rebase.rebaseMerges=true` and drops the prior merge-from-main, which is the wording that delivers the Change's linearization intent.",
+      "wallMs": 18708,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

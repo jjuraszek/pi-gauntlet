@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b4edfd0f5facbf0d34a45cf2ce23a923fa9ff214f579e7e3d62570292b88ea8e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "9724c10d309bd6a8461edd5819e4a5a9d669715e705c09d7a589c48272831a45",
       "candidateOutputSha": "12b1319ded963a9f500f23a16a4677c0fc9d2fb86f22baee47c316a8cd0ad8c6",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this case: both Before and After stop at Detached HEAD, present exactly the two bases (current commit def5678 vs main), explicitly state no worktree has been created, and wait for the user's reply, so the choice fact holds in each. The After wording is slightly leaner (it drops the symbolic-ref evidence line and the project-naming-convention note) and swaps Before's 'name a branch for the work' for 'name another base ref', which broadens the escape hatch from branch-name to base-choice; neither change affects the fact, but if you want to keep the diagnostic transparency Before had, retain a short parenthetical like '(`git symbolic-ref -q HEAD` returned nothing)' while keeping After's tighter two-option prompt. The Expected-to-move items in the Change (rebase/replay/recovery behaviors) are not exercised by this input, so this case offers no evidence for or against them.",
-      "wallMs": 8724,
+      "feedback": "Nothing moved on this case: both Before and After present the two-option question (branch from the current detached commit def5678 or from main), state that no worktree has been created yet, and end by awaiting the user's reply before proceeding. After drops the explicit `git symbolic-ref -q HEAD` evidence and the \"I won't create a worktree from a detached HEAD\" refusal in favor of \"haven't created the worktree yet,\" which still conveys the wait but slightly weakens the signal that the pause is deliberate; After also replaces the branch-naming offer with \"name another base ref,\" which is fine for this fact. If you want to keep the stronger pre-creation guarantee alongside the Change, keep a clause like \"I'll create the worktree once you choose a base\" so a reader can see the worktree is explicitly gated on the answer, not merely not-yet-done.",
+      "wallMs": 7589,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b4edfd0f5facbf0d34a45cf2ce23a923fa9ff214f579e7e3d62570292b88ea8e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "53620e6f299d2a75319f747f3d4a8c654d1512576b09807c8fdd9810bba2d4f1",
       "candidateOutputSha": "53620e6f299d2a75319f747f3d4a8c654d1512576b09807c8fdd9810bba2d4f1",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical: both ask whether to create the timeout-work branch from the current commit def5678 or from main, and both stop there without creating a worktree, so the choice fact holds in each. The Change's PR-subject provisioning rewording did not touch the detached-HEAD question path at all, which is fine for this case; keep the detached-HEAD branch of the skill phrased as it is (single question naming def5678 and main, no command narration, wait for the answer) and confine the --no-rebase-merges/replay-order edits to the sync and recovery sections so this unrelated output stays stable.",
-      "wallMs": 4737,
+      "feedback": "Before and After are textually identical: each asks whether to branch from the current commit def5678 or from main and stops there without creating a worktree or narrating commands, so the choice fact holds in both. The wording change did not touch this detached-HEAD question path; no fact moved, and no wording adjustment is needed for this case — keep the question phrasing as-is while applying the Change to the PR-subject provisioning, rebase-conflict, and recovery paths it targets.",
+      "wallMs": 3492,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

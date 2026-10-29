@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "846efddc404c48a3143cc5b864d708356a428739e5f1dd47fbdeb542b0308e4e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "a4412c66c683dfa124d4867ea3470ac6655bbd55650e24139278a060abbce135",
       "candidateOutputSha": "b5fe90a426bc427e2abfa962b8b3bda06c4d17392e801b7b5134d17ee7ee7d3a",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: it cites the pr-head.md owner for both queries, paginates C1 across all three pages, drops resolved TX, carries every T1/T2/T3 comment in order with the shared url/author/createdAt metadata, fetches T1's comments by thread id with a separate comment cursor to hasNextPage=false and replaces the initial connection to avoid duplicates, reads reply 101 after replies 1–100 and renders the two-line cap as the effective request, renders the three locations correctly, stops on 'threads for #82 not fetched (API unavailable)' before gather and spec with no draft or record continuation even for N=1, and renders 'Threads: none' for the empty case. The only drift worth tightening is cosmetic: the H alias now says 'pre-rework head' and the failure section mentions 'Rework record continuation', which leaks the new rebase/Rework-base vocabulary from the Change into a thread-only narration that was told not to discuss provisioning or base merge; keeping the alias as plain 'headRefOid' and saying 'no draft, no record continuation' would deliver the Change without introducing terms this case never exercises. Neither query explicitly names node(id:), same as Before, so if that wording is meant to be checked literally, both versions would need 'via node(id:)' added to the Q2/C2 legend.",
-      "wallMs": 17579,
+      "feedback": "No fact moved. After keeps the pr-head.md owner citation, the three-page reviewThreads merge, the TX drop, the ordered 102-comment T1 record with supplied metadata stated once, the thread-id-keyed C2 with its own cursor run to hasNextPage=false and replacing (not appending to) the C1 comments, and the reply-101 correction read as a two-line cap with an explicit statement that stopping at the first comment page would plan the wrong change; locations, the 'threads for #82 not fetched (API unavailable)' stop before gather/spec with no draft or record continuation, and 'Threads: none' are all intact. Two small drifts from the Change leak into a thread-only narration: the H alias is annotated 'pre-rework head' and the failed-fetch section mentions 'no Rework record continuation' and 'the base outcome stays recorded', which are provisioning/base-merge concerns the case asked you not to narrate. Neither explicit wording names node(id:) as the per-thread fetch path; if you want the Change-era wording to be airtight, write C2 as 'the owner's node(id:<T1 id>) comment query' and drop the Rework/base-outcome mentions so the After text stays scoped to review-thread fetching while still reflecting the new default-rebase vocabulary where it belongs.",
+      "wallMs": 16241,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "846efddc404c48a3143cc5b864d708356a428739e5f1dd47fbdeb542b0308e4e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "fbbdaa2edfb5be307a6efbd0de62da1875af9b77af79bda423d304a799d6eaf1",
       "candidateOutputSha": "18d1a808e47b8694a5f2be54db6d5ac61e7820d856791398b89dde785213052b",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: it names the pr-head.md query owner, merges all three reviewThreads pages, excludes resolved TX, preserves all 102 T1 comments plus T2/T3 in order with the shared metadata legend, fetches T1's comments by thread id with a separate cursor through the last page and replaces rather than appends (no duplicates), reads reply 101 after replies 1-100 and converts the request into a two-line cap rather than a rewrite, and renders the three locations, the exact 'threads for #82 not fetched (API unavailable)' stop with explicit no-gather/spec/draft/record continuation, and 'Threads: none' for the empty set. Neither output literally mentions node(id:) — both say 'thread-by-ID comments query' with -F id=T1 — so if the author wants that fact robust against a stricter reader, add one phrase like 'QC is the node(id:) thread comments query' in the legend. The only substantive drift is that After runs the gh commands with cwd=W instead of ROOT; that does not move a listed fact here, but since the Change concerns provisioning/rebase behavior rather than thread fetching, there was no reason to change the cwd, and keeping cwd=ROOT as in Before avoids introducing an unrelated difference.",
-      "wallMs": 11897,
+      "feedback": "After preserves every fact that Before held: it names the pr-head.md query/pagination owner without copying the query, merges all three reviewThreads pages, excludes resolved TX, keeps all 102 T1 comments plus T2/T3 comments in order with the shared metadata legend, runs the thread-by-ID comments command C with its own cursor through the last page and replaces rather than appends (no duplicates), reads reply 101 after replies 1–100 and reframes the repair as a two-line cap rather than a rewrite, renders src/retry.ts:12, src/old.ts:7 (outdated) and README.md, stops the failed fetch with the exact 'threads for #82 not fetched (API unavailable)' message before gather/spec/draft/record for the N=1 run, and renders 'Threads: none' for the empty set. Nothing moved; the Change (rebase-mode provisioning semantics) does not touch this review-thread-only case, and After's only visible differences (cwd=W instead of ROOT, slightly reworded legend) are neutral to both facts. If you want extra robustness for the T1 comment-fetch fact, have the Q_COMMENTS alias definition say 'exact node(id:) thread-by-ID comments query' so the node(id:) mechanism is named explicitly rather than implied by -F id=T1.",
+      "wallMs": 13580,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

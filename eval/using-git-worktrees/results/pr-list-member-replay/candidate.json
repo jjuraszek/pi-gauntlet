@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3c340668ac4244dd2d2084dda02cec05b99d367a2404b6b595f5d5848dfa245a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "c8d2044687eee7f6263210e3ba0a36e128c4f532aaa85a49eac0a0b911fafe5e",
       "candidateOutputSha": "7082cf91102b8009c23e6cb4fe22f3736a99b8c86861f209804103d99dffb6b4",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: it fetches and checks all three original heads before any write and names #14 at the pre-checkout stop; it rebases home with --no-rebase-merges, replays #13 then #14 via rebase --no-rebase-merges --onto HEAD BASE_SHA <original head> with detached HEAD, update-ref, and checkout after each success; it records the three pre-rework refs, leaves origin member branches at bbbb/cccc, persists rework-base at 1111… and validates that ancestry instead of original-head ancestry; and the report lists the home pair first, both Member replay lines, rebased: aaaaaaa..1111111, and the full Rework base immediately after Base SHA. Two drifts are worth tightening even though no fact moved: the After report emits '0 stop(s) in none' (a stray 'in none' suffix Before did not have) and reorders the Member replay lines ahead of the Base: main line and changes the Threads line format; to keep the report shape stable while delivering the rebase-mode and rework-base wording, keep Before's report line order (Base: main … rebased … 0 stop(s), then Member replay lines, then Threads: none) and only add the Rework base line and the explicit 'no member refs touched' statement.",
-      "wallMs": 12982,
+      "feedback": "After keeps every fact Before kept: home rebase precedes the ordered #13/#14 detached replays with --no-rebase-merges --onto HEAD BASE_SHA and original heads, each followed by update-ref and checkout; the fetch plus three object/remote-equality checks and the named #14 stop sit before BASE_SHA and before any worktree add or checkout; pre-rework refs are written for all three PRs, origin member branches are explicitly left at bbbb…/cccc…, rework-base is persisted at the full 1111… tip and its ancestry (not original-head ancestry) is validated; and the report lists home first with full pre-rework heads, both Member replay lines, rebased: aaaaaaa..1111111, and full Rework base directly after Base SHA. The only drift is cosmetic noise in the report block that could trip stricter graders: '0 stop(s) in none' (a stray 'in none'), the Threads line reformatted to per-PR entries, the Member replay lines moved above the Base line, and the PR list dropped from the Ready line. To stay safest, keep Before's exact report line order and wording ('0 stop(s)', 'Threads: none', 'Ready to implement … (PRs #12, #13, #14)') while retaining After's clearer pre-write stop placement and the explicit origin-member-untouched statement.",
+      "wallMs": 13434,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3c340668ac4244dd2d2084dda02cec05b99d367a2404b6b595f5d5848dfa245a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "60c6ad035b17f8e2a52138da7f12635bd49a1de0e513257ebd7c328bda7fb8f3",
       "candidateOutputSha": "c012beb1f9bbdaaec20a60894d7faf1c4ec4b433c1223ee1b866c0322754357f",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "Before never reached the sync stage: it treated the undescribed post-create read-backs as empty output and stopped, so the home rebase, ordered member replays, provenance/rework-base refs, and Step 4 report were all absent, failing order, ancestry, and report while only the fetch/object/remote-head preflight and the #14 stop description held. After fixes this by treating the supplied successful observations as sufficient and then narrating the full sequence: home `rebase --no-rebase-merges origin/main` to eeeeeee, then `rebase --no-rebase-merges --onto HEAD BASE_SHA <original head>` for #13 and #14 in order, each followed by `update-ref refs/heads/fix/retry HEAD` and `checkout fix/retry`, pre-rework refs for all three PRs, origin member branches untouched, rework-base written at the final 1111111 and validated with `merge-base --is-ancestor` against it (not against original heads), and a home-first report with full Pre-rework heads, both Member replay lines, `rebased: aaaaaaa..1111111`, and the full Rework base directly after Base SHA. The preflight wording in both versions (fetch, three object checks, matching remote heads, explicit pre-checkout stop naming #14) is what kept that fact stable; keep that paragraph verbatim in any future revision, and keep the explicit instruction that supplied success observations satisfy read-backs so the narration cannot regress into Before's premature stop.",
-      "wallMs": 14301,
+      "feedback": "Before kept only preflight: it fetched, verified all three original objects and matching remote heads, and placed the #14 moved/unreachable stop before checkout, but then invented a stop at the post-create read-backs by treating undescribed command output as empty, so it never rebased home, replayed members, wrote pre-rework/rework-base refs, or produced the Step 4 report. After preserves the same preflight and stop boundary and then delivers the Change: it saves pre-rework refs for all three PRs, rebases home with --no-rebase-merges, replays #13 and #14 in listed order from BASE_SHA using the original member heads, moves refs/heads/fix/retry to the detached HEAD and checks out home after each, persists rework-base at the final full SHA and validates its ancestry, leaves origin member branches untouched, and reports home-first full pairs, both Member replay lines, rebased aaaaaaa..1111111, and full Rework base immediately after Base SHA. No fact regressed; the wording to keep is the explicit instruction that supplied successful observations (checkout HEAD, status, ancestry) satisfy read-backs rather than defaulting to empty output, which is what let After reach Step 4 while retaining the pre-write #14 stop.",
+      "wallMs": 14009,
       "verdict": "improved"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

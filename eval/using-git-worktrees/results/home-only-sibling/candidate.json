@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "1496ed869207cb6b69be64db283ae7333ec272cf8c65320391ef03befb490886",
       "candidateOutputSha": "1ce18a24d36ea5a5fb495cf0e889df12a944e9b1f8619ee2ca0db98db5c0b916",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every fact Before held: it runs `git -C /work/acme-api worktree add \"/work/acme-api-worktrees/rate-limit\" -b \"rate-limit\"` directly with no wrapper, explicitly states that HOME is outside $ROOT so no gitignore step is needed and commits nothing, and reports `Worktree ready at /work/acme-api-worktrees/rate-limit`. The only structural differences are cosmetic: the provenance check was moved from the clean-base step into its own `## Provenance note (fresh path)` section after creation, and the detached-HEAD check now cites `git symbolic-ref -q HEAD`. Neither moved a fact. If the author wants to tighten anything, keeping the provenance note inside the Step 3 clean-base check (as Before did) would keep ordering identical to the skill text, but this case shows the single-member keyed-path behavior is unaffected by the PR-subject provisioning change.",
-      "wallMs": 7469,
+      "feedback": "Nothing moved on this case: After still runs `git -C /work/acme-api worktree add \"/work/acme-api-worktrees/rate-limit\" -b \"rate-limit\"` directly with no wrapper (h1), explicitly skips the gitignore step because HOME is outside $ROOT and commits nothing (h2), and ends with the exact `Worktree ready at /work/acme-api-worktrees/rate-limit` line (h3). The After wording's additions — the explicit `git symbolic-ref -q HEAD` attached-HEAD check, the separate 'Provenance note (fresh path)' section, and the numbered Step 1a flow — are all orthogonal to the single-member provisioning facts here, so the 'preserve all existing single-member provisioning facts' requirement of the Change is satisfied on this input. One minor note: the provenance check now appears after creation rather than inside the clean-base step as in Before; that does not affect any fact here, but if other cases assert provenance ordering, keeping it adjacent to the clean-base check (as Before did) would be the safer wording.",
+      "wallMs": 7946,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "904c323e701544c06a724df65fdd9fb1c52988af30a33f03fd18c781d3261310",
       "candidateOutputSha": "20701342e6a91af100cf7ae203e30daf1a3ee00b9a06d25af75bf6dafc973cf4",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs are equivalent on every fact: each runs `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper, each states the home is outside the primary checkout so no .gitignore edit or commit occurs (and none is performed), and each ends with the exact line `Worktree ready at /work/acme-api-worktrees/rate-limit`. The Change paragraph, which concerns PR-subject provisioning and rebase sync, is not exercised by this single-member case, so no fact moved. The After wording (explicit per-command cwd annotations, the 'not a coordinated-member invocation' note, and the earlier gitignore reasoning in the resolve block) is a harmless restructuring; keep it as is, and continue to preserve the explicit 'outside the primary checkout, so no .gitignore change' statement and the verbatim ready line, since those are what h2 and h3 depend on.",
-      "wallMs": 6000,
+      "feedback": "Both outputs run `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper, explicitly state that no .gitignore change or ignore commit is needed because the home is outside the primary checkout, and report `Worktree ready at /work/acme-api-worktrees/rate-limit`, so no fact moved. The After wording is slightly more compact (e.g., folding the gitignore decision into the override-resolution bullets and dropping the explicit 'commits nothing' phrasing in step 4); to keep h2 unambiguously safe under further edits, keep an explicit sentence at worktree-creation time stating that no `.gitignore` edit and no commit occur because HOME lies outside the checkout, as Before does. Otherwise the After wording preserves every single-member provisioning fact while the PR-subject rebase/replay changes do not touch this case.",
+      "wallMs": 6421,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4d44d37c69380b6bbb104959f7771f46bdee39520f35d890bbcd4e2ce433a319",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "f89289fc25885d539cd6cc42161e2e35f3620acad71a22746fca42deff4d25a2",
       "candidateOutputSha": "178384d6f103f3bc395fb1b05f1326fcaca25bf4a92e9d77af398ba0caa258e3",
       "facts": {
@@ -69,14 +69,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: K/V in the legend plus the A and R rows show the canonical-merge walk (parents a b, canonical subject) and the rework-base/pre-rework validation; A forces SYNC=merge and skips #13 with eeeeeee, R forces rebase and replays only #14 to y with a Rework base line; B and both R-mismatch rows reference the complete S1-style message by explicit pointer with aaaaaaa, R-active gives the rebase-in-progress text; both no-worktree rows add WT on the existing branch with no -b/update-ref/reset; R-home-failure saves and proves x (not a) with branch and empty status while fresh control proves a; and the abort rows record unresolved src/retry.ts, both members pending, no Rework base, and Task 1. Three places are thinner than Before and worth tightening so a strict reader never has to infer: the R row should state the cherry output ('#13 only minus lines, #14 a plus line') rather than only listing the cherry commands in V; the R-mismatch rows should say 'no writes, no report' explicitly as Before did; and the R-home-failure row should end with 'T and RPT(x)' (as the fresh control row does) so the continuation on the saved actual tip is stated in the row itself rather than implied.",
-      "wallMs": 26167,
+      "feedback": "After keeps every fact Before kept: the K/V procedures still prove original home ancestry, walk first-parent merges with both parents and the canonical subject, and validate rework-base ancestry plus exact pre-rework refs; A still forces merge mode and skips #13 by its existing merge SHA, R still flips merge-forward to rebase and replays only #14 with a final Rework base; B and both mismatch rows resolve to the complete stop message (path, branch, aaaaaaa, reason) and R-active gives the finish-or-abort message; both no-worktree rows add on the existing branch without -b/reset/update-ref; R-home-failure proves HEAD against saved x (not a) and the fresh control against a; and both failure rows record sync unresolved, members pending and the full Task 1. Two small tightenings would make the After rows more self-sufficient: in R, state the cherry outcome explicitly (e.g. \"cherry x b d: only '-' lines; cherry x c d: '+'\") rather than only recording the already-landed line, so the skip is visibly derived from cherry with BASE_SHA; and in R-home-failure, finish the row with \"Then T and RPT(x)\" as the Fresh control row does, so the continuation on the saved actual tip and the final report are stated rather than implied. Both are additive wording and would not disturb any fact.",
+      "wallMs": 25306,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4d44d37c69380b6bbb104959f7771f46bdee39520f35d890bbcd4e2ce433a319",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "51a90a69c11f6ec47e4e70d48384997cd427c325b713be760b90051279035e76",
       "candidateOutputSha": "814937a51099cc38465072164f16b3871937bd8eaab7a727f550746dea2d3216",
       "facts": {
@@ -111,10 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the K tape still proves original ancestry and walks first-parent merges with %H %P %s, the R tape validates rework-base ancestry and the three pre-rework refs, cherry gates #13, A stays in merge mode while R forces rebase and reports Rework base, Stop S is defined once in full and every refusal row references it with the legend supplying path/branch/original SHA, both no-worktree rows provision the existing branch without -b/update-ref/reset, and R-home-failure saves and proves the actual tip (now aliased U=3333…) while the fresh control proves A. Nothing moved, but two spots are thinner than Before and worth firming up: R-no-worktree no longer says it ignores caller HEAD 9999999 (add 'not session HEAD' as A-no-worktree does), and R-home-failure's Task 1 reads 'resolve home rebase' rather than 'rebase onto origin/main and resolve src/retry.ts' (copy the fresh-control wording). Also be careful that re-lettering aliases (Before's T=3333…/X=2222… became After's U/T) doesn't confuse readers comparing variants; a note like 'U is the saved actual tip, never PRE_REWORK_HEAD A' in the R-home-failure row would make the actual-vs-original distinction explicit.",
-      "wallMs": 31960,
+      "feedback": "No fact moved: After still reads the actual local home tip (I/K), validates the canonical #13 merge and the rework-base/pre-rework refs (R tape), forces merge in A and rebase in R with cherry skipping #13, defines the refusal text once as Stop S and references it from B and both mismatch rows, provisions existing h in the no-worktree rows without -b/update-ref/reset, saves and proves U=3333… (not the original A) in R-home-failure and A in the fresh control, and defers unresolved/pending work to Task 1. Two things are worth tightening so the next edit does not slip: After reassigns the alias letters (T/U/V now mean rework-base/actual tip/replay result, versus Before's T=actual tip), and the B row cites the ordinary commit as bare '2222222' while T is also 2222…, so a reader must notice the abbreviation vs full-SHA distinction — keep Before's letters (T=actual tip, X=rework-base) or name the rework-base ref literally in the legend, and give the unrelated commit a distinct alias. Also make R-home-failure's Task 1 as explicit as the fresh control's ('rebase onto origin/main, resolve src/retry.ts, replay #13/#14, persist Rework base') so the pending fact does not depend on inference from the conflict sentence; that wording keeps every fact Before kept while still delivering the linearized default sync, orchestrator-only continuation, and actual-saved-tip restoration described in the Change.",
+      "wallMs": 30326,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

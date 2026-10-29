@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "63fdd27c165d9f4813d8163fc082b8993d03969df15dd5a26dc37901cf3e821e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "a53d97c6e3129d6c32242892ddc1e7e382e22f5206f0fb03c3fe4ff2d677da8b",
       "candidateOutputSha": "eaa02d5b2990577957fa9ac52f2194f9035ec06d28431ba755dae9aff58ca2b8",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After on this case: After still runs the selected-worktree `rebase --abort`, proves exit 0, HEAD == saved last-good, branch == home, and an empty `status --porcelain --untracked-files=all` before any restoration claim; it records `sync: unresolved - src/retry.ts` plus both pending member lines, writes no Rework base and starts no member; Task 1 is `rebase onto origin/main and resolve src/retry.ts` with ordered replays and the rework-base `update-ref` before finishing; the restore-failure variant reports PR, conflicted paths, worktree, abort exit status, observed branch/HEAD/status and last-good, stops for manual recovery without reset/clean/restoration claims; and the helper brief is scoped to the conflict list, base, patch and scoped command with commits and rebase control forbidden. Two small drifts worth tightening so the boundaries fact stays unambiguous under stricter reading: After step 19 says only `the base origin/main` where Before named the fetched base at `ddddddd` — keep the explicit SHA so the helper is clearly pinned to the fetched base rather than a live ref; and the Step 4 report dropped the `Base: main @ ddddddd - ` prefix on the sync line, which is fine for the record fact but you may want to keep the `Base:` line for consistency with the merge-subject report format. Otherwise the After wording delivers the Change (orchestrator-only continuation, proof against the actual saved pre-attempt tip, deferral to Task 1) without losing anything Before kept.",
-      "wallMs": 16629,
+      "feedback": "After keeps every fact Before kept: the failed completion check leads to a selected-worktree `rebase --abort`, with explicit exit-0, HEAD-equals-last-good, branch-equals-home and empty `status --porcelain --untracked-files=all` assertions before restoration is claimed; the unresolved/pending records are written without replaying members or publishing a Rework base; Design Task 1 is stated exactly with the pending replays and durable `rework-base` ref; the restore-failure variant reports PR, conflicted paths, worktree, abort exit status, observed branch/HEAD/status and saved last-good and stops without reset/clean or restoration claims; and the helper receives the conflict list, fetched base, stopped patch and scoped command with no commit or rebase control. Two small wording regressions worth tightening so later variants don't drift: After's helper brief says only `the base origin/main` (Before pinned `origin/main @ ddddddd`, which is what proves the fetched-base binding), and `no commits and no rebase --continue/--abort/--skip` is listed as brief *contents* rather than an explicit prohibition — phrase it as Before did (`The helper is forbidden from committing and from running rebase --continue/--abort/--skip`). Also After drops the `Base: main @ ddddddd - ` prefix from the sync line in the Step 4 report; keep that prefix alongside the bare `sync: unresolved - src/retry.ts` record so the report still names the fetched base it synced against.",
+      "wallMs": 15084,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "63fdd27c165d9f4813d8163fc082b8993d03969df15dd5a26dc37901cf3e821e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "9e7ae5c9a263d07166dfa94730cbad936b6a40f08cf4bb5059963da75e149c92",
       "candidateOutputSha": "b2412ef27e202c5a28ff16d1af41c5aec40660bfe2c2233439f938b7bd4e9980",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs perform a selected-worktree `rebase --abort`, assert exit 0, HEAD equality with the saved last-good SHA, branch `fix/retry`, and empty `status --porcelain --untracked-files=all` before continuing; both record `sync: unresolved - src/retry.ts` and both pending member replays without touching members or writing a Rework base; both hand Design the exact Task 1 wording with pending replays and durable Rework base persistence; both variants stop with PR, worktree path, conflicted file, abort exit 1, observed HEAD/branch/status, last-good SHA, and no reset/clean/restoration claim; both scope the helper to the single conflict file, fetched base, current patch, and scoped command with no commit or rebase control, and run nothing unrelated after the failure. Two After choices are worth watching rather than fixing: it skips re-narrating preflight/provisioning on the strength of the case's 'fresh exact-head checkout clean' premise (fine here, but the Before's explicit fetch/reachability/remote-equality read-backs are safer when the premise is less explicit), and it appends `Ready to implement rework` to a report whose sync line is `unresolved` — the record fact still holds because no Rework base is published, but a reader could misread that trailer as a green state; dropping it, or phrasing it as 'Ready for Design Task 1 (sync unresolved)', would deliver the Change's deferred-to-Task-1 semantics with less ambiguity. The 'from the recorded BASE_SHA' clause in After's Task 1 guidance is also slightly odd (members replay onto the rebased home tip, not the base); 'onto the rebased home tip at BASE_SHA-based history' or simply 'in order after the home rebase succeeds' would be cleaner.",
-      "wallMs": 19311,
+      "feedback": "No fact moved on this case: both outputs run the selected-worktree abort, assert exit 0, HEAD equality to the saved aaaa… tip, branch fix/retry and an empty --untracked-files=all status before claiming restoration; both record sync: unresolved - src/retry.ts plus #13/#14 pending without starting members or writing a Rework base; both hand Design Task 1 as rebase onto origin/main and resolve src/retry.ts with pending replays and durable Rework base persistence; both restore-failure variants report PR, worktree, path, abort exit, observed HEAD/branch/status and last-good SHA and stop without reset/clean/restoration claims; and both scope the helper to the exact file, fetched base, stopped patch and scoped command with no commit/continue/abort/skip. The one behavioral drift in After is that it 'accepts the supplied completed preflight' and skips re-showing the fetch, reachability/remote-equality checks, ignore check and worktree add that Before narrates; that is not graded here but could fail admission/clean-tree facts in other cases, so the After wording should keep 'show fetch, reachability, remote equality, conflicting-checkout, ignore and clean-tree checks even when the prompt stipulates they succeed' while adding the --no-rebase-merges/orchestrator-only continuation/actual-saved-tip language. After's additions (Remaining status line, explicit 'Earlier member replays: none', explicit per-assertion read-backs, and the note that HEAD/branch equality does not overcome a dirty index) are improvements worth keeping.",
+      "wallMs": 16603,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

@@ -1,0 +1,110 @@
+{
+  "sample": "pr-head-caller-root-recovery",
+  "arm": "candidate",
+  "skillSha": "8a96e3bdf6cf189d78ee689aae14c521336c33c3cdfae85827735f50eec6202a",
+  "inputSha": "a2cd36790596be762c57b0eaadd56db7a2bd35950fbe2882e6a244acf57f61bc",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Companion recovery narration for acme/helper `spec-export`\n\n## Legends\n\n**SHA aliases (full):**\n- O=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n- B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n- A=cccccccccccccccccccccccccccccccccccccccc\n- R=dddddddddddddddddddddddddddddddddddddddd\n- X=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n\n**Paths:** H=/work/helper (caller ROOT, used unchanged and never derived from the session's /work/widget common dir). WT=H/.worktrees/spec-export. HW=/work/widget/.worktrees/spec-export (the home leg, preserved).\n\n**Mode:** The caller supplied ROOT, BRANCH and `REMOTE_BRANCH=existing`, so this is companion mode from reference/pr-head.md. Steps 0/1/1a and the fresh-branch collision check are bypassed, and `-b` is never used. No `PR:` lines, `Pre-rework head:`, refs/gauntlet refs, MEMBER_HEADS or thread queries are read or written.\n\n**Shared companion preamble (C1–C7), all run in cwd = session cwd via `-C`:**\n- **C1** `git -C H rev-parse --show-superproject-working-tree` → empty, so this is not a submodule.\n- **C2** `git -C H fetch origin` → ok.\n- **C3** `git -C H ls-remote --exit-code --heads origin refs/heads/spec-export` → exit 0.\n- **C4** `git -C H rev-parse origin/spec-export` → O, so ORIGINAL_HEAD=O.\n- **C5** `gh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name` → `trunk`. Then `git -C H rev-parse origin/trunk` → B, so BASE_SHA=B.\n- **C6** Home resolution comes from H's own overrides and H/.pi/settings.json (read by file, defaults). `home: .worktrees/<name>` with NAME=spec-export gives HOME=WT. No `create:` is set, so the built-in existing-branch add is used.\n- **C7** `git -C H worktree list --porcelain` shows no spec-export tree at any other path, so the checked-out-elsewhere stop does not fire.\n\n**Recovery proof (P1–P5).** This applies because the caller is a companion in a coordinated run with N=2 Legs. The published head is O.\n- **P1** `git -C H rev-parse refs/heads/spec-export` gives the local tip.\n- **P2** Rebase guard. With a tree, run `git -C WT rev-parse --path-format=absolute --git-path rebase-merge` and the same for `rebase-apply`. Neither result is a directory.\n- **P3** `git -C H merge-base --is-ancestor O <tip>` must exit 0.\n- **P4** `git -C H log --first-parent --format='%H %P' origin/spec-export..refs/heads/spec-export` must be nonempty. Every entry must have exactly two parents, and each entry's second parent must pass `git -C H merge-base --is-ancestor <p2> origin/trunk` with exit 0.\n- **P5** With an existing tree, `git -C WT status --porcelain` must be empty.\n\nAny P failure takes the existing companion ancestry stop. `git -C H merge-base --is-ancestor refs/heads/spec-export origin/spec-export` exits 1, and the stop reads: \"acme/helper: local branch spec-export is at <sha7>, not an ancestor of origin/spec-export (aaaaaaa); companion needs the published branch head.\" It then prints `Preserved created legs: acme/widget spec-export HW`. Nothing is removed and local commits are kept.\n\n**Success tail (S1–S4):**\n- **S1** `git -C WT rev-parse HEAD` must equal R.\n- **S2** `git -C WT merge --no-ff --no-edit origin/trunk` → base already contained, so `merge: no-op - head contains origin/trunk`.\n- **S3** `git -C WT merge-base --is-ancestor O HEAD` → exit 0, so the original head is preserved.\n- **S4** Affirmative read-back. `git -C H worktree list --porcelain` must print `worktree WT`, and `git -C WT branch --show-current` must print `spec-export`. Both match.\n\n## Runs\n\n| Run | Narration |\n|---|---|\n| recover-tree | C1–C7, then P1=R, then P2 shows no rebase. P3 exits 0. P4 returns `R O B`: nonempty, two parents, and B is an ancestor of origin/trunk. P5 is clean. Recovery is admitted narrowly: the only commit beyond O is a base merge. The tree is reused as is, with no reset, update-ref or `-b`. Then S1–S4. **Ready** (report below). |\n| recover-add | C1–C7, then P1=R. With no tree, refs are inspected from H, and P3/P4 pass the same way. P5 does not apply because there is no tree yet. The source-clean check `git -C H status --porcelain` is empty. **Write:** `git -C H worktree add H/.worktrees/spec-export spec-export` (existing branch, no `-b`). Then S1–S4. **Ready**, with the same report. |\n| invalid-linear | C1–C7, then P1=X, P2 ok, and P3 (O ancestor of X) exits 0. P4 returns `X O`, which has one parent: X is an ordinary commit, not a base merge. **STOP** with the ancestry stop, `local branch spec-export is at eeeeeee`. No write happens in H, and HW is preserved. |\n| invalid-parent | C1–C7, then P1=R, P2 and P3 ok. P4 returns `R O X`, two parents. `git -C H merge-base --is-ancestor X origin/trunk` exits 1, so the second parent is not base content. **STOP** with the ancestry stop at `ddddddd`. No write, and HW is preserved. |\n| invalid-dirty | C1–C7, then P1–P4 pass. P5 `git -C WT status --porcelain` → ` M lib/a.ts`. Recovery requires a clean selected tree, so this is a failed proof rather than a dirty-tree ask. **STOP** with the ancestry stop at `ddddddd`. Nothing is stashed or cleaned, and HW is preserved. |\n| ordinary-control | This is PR home mode, not companion mode. ROOT is the git common dir, /work/widget. `git -C /work/widget fetch origin`, then `rev-parse --verify -q O^{commit}` → ok, and `origin/spec-export` = O. BASE_SHA = `rev-parse origin/trunk` = B. Stops in order: in-repo passes, no tree elsewhere passes, reachable passes. There is no coordinated context and no rework-base ref, so this N=1 run always takes the ancestry check. `git -C /work/widget merge-base --is-ancestor spec-export origin/spec-export` exits 1. **STOP:** \"local branch spec-export is at ddddddd, not an ancestor of origin/spec-export (aaaaaaa); rework needs the PR head.\" Nothing is written: no tree, no refs, no threads. |\n\n## Closing records\n\nThe Step 4 report is the same for recover-tree and recover-add:\n```\nWorktree ready at /work/helper/.worktrees/spec-export\nBranch: spec-export\nBase: spec-export @ ddddddd (clean)\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/trunk\nBase sync recovered: ddddddd\n```\n\n**Write boundaries:**\n- recover-add performs only the `worktree add`.\n- recover-tree writes nothing; its merge is a no-op.\n- All three invalid runs and the control stop before any write.\n- HW is listed under `Preserved created legs` on every companion stop.\n",
+      "words": 882,
+      "wallMs": 39302,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\n### Command and record legends\n\nThese are synthetic command narrations, not tool executions. Every command’s process cwd is `/work/widget/.worktrees/other`; `git -C` explicitly selects the repository. Commands below execute left-to-right.\n\nFull SHA aliases, substituted as single arguments wherever used:\n\n```text\nO=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nB=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nA=cccccccccccccccccccccccccccccccccccccccc\nR=dddddddddddddddddddddddddddddddddddddddd\nX=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n```\n\n`G(args)` means exactly `git -C /work/helper args`; `W(args)` means exactly `git -C /work/helper/.worktrees/spec-export args`.\n\n**I — companion identity and remote reads**\n```text\nG(rev-parse --path-format=absolute --git-dir --git-common-dir)\nG(rev-parse --show-superproject-working-tree)\nG(fetch origin)\nG(ls-remote --exit-code --heads origin refs/heads/spec-export)\nG(rev-parse origin/spec-export)\ngh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name\nG(rev-parse origin/trunk)\n```\nResolve ROOT=/work/helper, both git directories=/work/helper/.git, no superproject, live remote present, ORIGINAL_HEAD=O, baseRefName=trunk, BASE_SHA=B. No session isolation is adopted.\n\n**C — configuration and inventory**\n```sh\nfor p in /work/helper/.pi/gauntlet-overrides.md /work/helper/gauntlet-overrides.md /work/helper/doc/gauntlet-overrides.md; do\n  if [ -f \"$p\" ]; then cat \"$p\"; break; fi\ndone\ncat /work/helper/.pi/settings.json\n```\nThen `G(worktree list --porcelain)`, `G(show-ref --verify refs/heads/spec-export)`, `G(rev-parse refs/heads/spec-export)`. Resolve defaults, NAME=spec-export, HOME=WORKTREE=/work/helper/.worktrees/spec-export, and the observed local tip. No creator wrapper exists.\n\n**T — existing-tree guard**\n```text\nW(rev-parse --path-format=absolute --git-path rebase-merge)\nW(rev-parse --path-format=absolute --git-path rebase-apply)\n```\nUndescribed outputs are empty; neither names an existing directory.\n\n**P — recovery proof**\n```text\nG(merge-base --is-ancestor O refs/heads/spec-export)\nG(log --first-parent --format='%H %P' origin/spec-export..refs/heads/spec-export)\n```\nFor each merge entry, run `G(merge-base --is-ancestor SECOND_PARENT origin/trunk))`—with the extra closing parenthesis here only delimiting this sentence, not an argument. Require nonempty, exclusively two-parent entries. Existing selected trees additionally require `W(status --porcelain)` empty.\n\n**F — finish commands**\n```text\nW(rev-parse HEAD)\nW(merge --no-ff --no-edit origin/trunk)\nW(merge-base --is-ancestor O HEAD)\nG(worktree list --porcelain)\nW(branch --show-current)\n```\nResolve HEAD=R; merge is no-op; original-head ancestry succeeds; affirmative read-backs show the selected path and exactly `spec-export`.\n\n### Independent runs\n\n| Run | Ordered execution, boundary, outcome |\n|---|---|\n| **recover-tree** | I → C: local tip R, selected tree exists → T → P: O ancestor; walk `R O B`; `G(merge-base --is-ancestor B origin/trunk)` succeeds; `W(status --porcelain)` empty. Recovery narrowly admits only fetched-base merges. Reuse unchanged: no reset, update-ref, creator, or `-b`. F succeeds. Emit ready report below. |\n| **recover-add** | I → C: local tip R, no tree → P: O ancestor; walk `R O B`; B ancestry succeeds. Announce existing-branch provisioning at resolved HOME. `G(status --porcelain)` empty; `G(check-ignore -q .worktrees)` succeeds, so no ignore edit. First write: `G(worktree add /work/helper/.worktrees/spec-export spec-export)`. No `-b` or update-ref. F succeeds. Emit ready report below. |\n| **invalid-linear** | I → C: local tip X, no tree → P: published-head ancestry succeeds; walk `X O` has only one parent. Stop: local branch spec-export in acme/helper is at eeeeeee, not an ancestor of origin/spec-export (aaaaaaa); companion needs the published branch head. Recovery cannot exempt a linear commit. No writes or merge. Preserve H below. |\n| **invalid-parent** | I → C: local tip R, no tree → P: walk `R O X`; `G(merge-base --is-ancestor X origin/trunk)` exits 1. Stop: local branch spec-export in acme/helper is at ddddddd, not an ancestor of origin/spec-export (aaaaaaa); companion needs the published branch head. Second parent is not fetched-base ancestry. No writes. Preserve H. |\n| **invalid-dirty** | I → C: tip R, selected tree → T → P: `R O B`, valid ancestry; `W(status --porcelain)` returns ` M lib/a.ts`. Recovery requires a clean existing tree: stop with the carries-commits-beyond/recovery-proof failure naming acme/helper, spec-export and selected path. No merge, stash, cleanup, or creation. Existing tree remains untouched; preserve H. |\n| **ordinary-control** | Cwd unchanged. `git rev-parse --path-format=absolute --git-common-dir` → `/work/widget/.git`; root=/work/widget. Using `git -C /work/widget`: `rev-parse --show-superproject-working-tree`; `fetch origin`; `rev-parse --verify -q O^{commit}`; `rev-parse origin/spec-export` → O; `rev-parse origin/trunk` → B; `worktree list --porcelain`; `rev-parse refs/heads/spec-export` → R; `merge-base --is-ancestor spec-export origin/spec-export` exits 1. Stop: `local branch spec-export is at ddddddd, not an ancestor of origin/spec-export (aaaaaaa); rework needs the PR head.` No recovery exemption or writes. |\n\n### Closing records\n\nBoth successful companions emit:\n\n```text\nWorktree ready at /work/helper/.worktrees/spec-export\nBranch: spec-export\nBase: spec-export @ ddddddd (clean)\nBase SHA: B\nBase sync recovered: ddddddd\nmerge: no-op - head contains origin/trunk\nReady to implement spec-export\n```\n\nHere `B` denotes its full alias above. Companions emit no PR fields, pre-rework refs, or thread work.\n\nEvery failure preserves:\n\n```text\nPreserved created legs:\nacme/widget spec-export /work/widget/.worktrees/spec-export\n```\n\nNo companion tree was created in any failed run.\n",
+      "words": 652,
+      "wallMs": 53138,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ca8c2337b39977bc01a06872f00d17ea15878f00127caa6a8b4994788ad0e05d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
+      "baselineOutputSha": "d9c358f3d0cac3bd98951bd4fe5510255147dfb479ab096836f5a6bd133b474c",
+      "candidateOutputSha": "110afe1aa55aa2fde89178e916c2e8124acf41771564a565e21cee4690587b8a",
+      "facts": {
+        "root": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "identity": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "readback": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "recovery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "invalid": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before treated the companion as a plain caller-root preflight: it declined REMOTE_BRANCH, never fetched or ran gh repo view acme/helper, never resolved ORIGINAL_HEAD=O or BASE_SHA=B, denied any companion recovery path, and so never reached the read-back or a Worktree ready line — failing root, identity, readback and recovery while keeping only the invalid fact (it did stop naming acme/helper before writes and kept the control's ancestry stop). After moves all four to holds: C1–C7 route ROOT/BRANCH/REMOTE_BRANCH into companion mode ahead of collision/-b logic, target /work/helper and positional acme/helper with trunk and full B, derive ORIGINAL_HEAD=O without any PR fields/refs/threads, gate recovery on the exact P1–P5 proof (actual tip, O ancestry, nonempty %H %P walk with two parents and base-ancestral second parents, clean tree), reuse R with no reset/update-ref/-b, record the no-op merge and 'Base sync recovered: ddddddd', use existing-branch add for recover-add, and verify O ancestry plus porcelain list/--show-current before Worktree ready. The invalid runs and ordinary control still stop naming the repo before writes with trees preserved, so nothing regressed. One small tightening: the per-row invalid-linear/invalid-parent/invalid-dirty stop quotes drop the 'acme/helper:' prefix defined in the legend; echoing the prefix in each row (or noting 'per legend') would make the repo-naming stop unambiguous without adding words elsewhere.",
+      "wallMs": 17746,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ca8c2337b39977bc01a06872f00d17ea15878f00127caa6a8b4994788ad0e05d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
+      "baselineOutputSha": "0182ebe6254987e51d35acdb87b609fe2a1695d77b12adb32ac76979e12aec76",
+      "candidateOutputSha": "7da0c0f829c880a7d7267279334a606ac1d8acdef02c096dfe3b50419af21ed3",
+      "facts": {
+        "root": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "identity": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "readback": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "recovery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "invalid": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before refused companion recovery entirely, stopping at the explicit-root existing-branch collision before any fetch, default/base lookup, ORIGINAL_HEAD resolution, proof, or read-back, so root, identity, readback and recovery all failed while the invalid stops and ordinary-control ancestry stop still held. After delivers the Change: Step 0 routes ROOT/BRANCH/REMOTE_BRANCH=existing to companion mode, every git/gh command targets /work/helper and positional acme/helper with BASE_SHA=B, ORIGINAL_HEAD=O is read from origin/spec-export with no PR array/headRefOid/pre-rework refs or thread work, the first-parent %H %P walk with second-parent trunk ancestry and clean-tree check narrowly admits recover-tree/recover-add (reuse of R without reset/update-ref/-b, existing-branch add, no-op merge, Base sync recovered: ddddddd), the three invalid proofs stop naming acme/helper before writes, and ordinary-control keeps its unchanged singleton ancestry stop. No fact regressed. Minor polish: the invalid-dirty row's 'carries-commits-beyond/recovery-proof failure' wording should quote the actual stop line like the other rows do, and the stray closing parenthesis note in legend P should be removed rather than explained.",
+      "wallMs": 16959,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
+}

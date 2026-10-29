@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "33f2888c2609f02ef50d81acd3d00d5cc6c8b234475d32ad521b615fdbd36e48",
       "candidateOutputSha": "b22a1851a7d523e257454ad7d02da7bb6c6b652aec71d7b08b4300e7b4b8b6eb",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both facts hold in Before and After: each narration runs exactly `script/worktree create alerts` from /work/acme-ops, explicitly skips any `git worktree add` (After even names it in the skipped Step 2), and ends with the same `Worktree ready at /work/acme-ops-alerts` block. The only observable drift in After is the Step 1 announcement, which replaced the concrete path `/work/acme-ops-alerts` with 'via the project's `script/worktree` wrapper'; since the path is still reported in Step 4 this does not move k2, but if you want the announcement to keep naming the target location as Before did, word it as 'Setting up an isolated worktree at `/work/acme-ops-alerts` via `script/worktree` on branch `alerts`'. Otherwise the After wording delivers the single-member/legacy-path clarifications without disturbing either fact.",
-      "wallMs": 6929,
+      "feedback": "Both outputs satisfy k1 and k2: each runs `script/worktree create alerts` as the only creation command, never invokes `git worktree add` (After explicitly notes Step 2 and its `git worktree add` are skipped), and both end with a verbatim `Worktree ready at /work/acme-ops-alerts` block. The After wording changed only presentation details — the announce line now names the wrapper instead of the path, the provenance check moved after creation, and a closing note about carrying the path as a value was added — none of which moved a fact. The one minor drift is the Step 1 announce no longer stating the target path; keeping `at /work/acme-ops-alerts` in the announce alongside the wrapper mention would preserve the user-facing early disclosure of the location while still delivering the Change, which is otherwise irrelevant to this single-member legacy-path case.",
+      "wallMs": 5489,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "c789d8fa764116a2dd66dac36747b4d0db50c3b615fd699bd5c7173af7bee708",
       "candidateOutputSha": "3cc02e0e4ad36407206e3afc0211c461ca8e92507e85f819fd193a91e4cbf6af",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs run `script/worktree create alerts` once, run no `git worktree add`, and close with `Worktree ready at /work/acme-ops-alerts`, so k1 and k2 hold in Before and After alike; no fact moved. After differs only in structure (bolded Command/cwd headers, provenance moved after read-back, reliance on supplied facts instead of a `cat` of the overrides file) and adds an explicit closing sentence that no direct `git worktree add` was run, which if anything makes k1 more legible. The Change's PR-subject rebase/replay/recovery behavior is not exercised by this single-member worktree case, so the After wording is safe here; keep the explicit wrapper-only creation step and the literal `Worktree ready at <path>` report line in any further rewording.",
-      "wallMs": 5286,
+      "feedback": "Both outputs run `script/worktree create alerts` with cwd /work/acme-ops, never invoke `git worktree add`, read back the worktree list showing /work/acme-ops-alerts, and emit the same 'Worktree ready at /work/acme-ops-alerts' report, so k1 and k2 hold in both. After moved nothing; the differences are presentational (explicit **Command:**/**cwd:** lines, reordering the provenance check after read-backs, skipping the `cat` of the overrides file in favor of using supplied contents, and an explicit closing statement that no `git worktree add`, `.gitignore`, dependency, or test command ran). That closing sentence and the per-command cwd labelling are helpful reinforcements of k1; if the Change is meant to tighten keyed-leg ROOT/BRANCH handling, keep the explicit legacy-path determination and the 'Resolved destination, as specified by the case' line, since they make clear the wrapper path is the sole creation route for this single-member run.",
+      "wallMs": 6073,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }

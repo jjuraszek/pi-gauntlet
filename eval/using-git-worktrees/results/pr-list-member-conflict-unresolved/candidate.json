@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e5683c4cfdf8e626f24784b6d3271b20723103ff04e5fdc79b9db9ea3390c21f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "7a4ccb6024361650f27bb1b9db5467bd64b80bd88b52e9f68444e873b5754dfa",
       "candidateOutputSha": "3708fd0aa0bdac74a3a7ca40f1045cc9358c7cd0adb91ef896aa1428f25aad25",
       "facts": {
@@ -69,14 +69,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both dispatch a correctly scoped single helper, abort on the residual unmerged path, check out fix/retry before validating against the saved rebased tip eeee…, record #14 unresolved / #15 pending with #13 preserved, open Design with the matching Task 1, and stop with complete actual-state manual-recovery reports in both residual and failed-abort checkpoints without reset/clean or restoration claims. The After wording's shared legend is explicitly cited ('Using every legend field') and carries the failing PR, conflict paths, worktree, saved last-good and #13 replay, so the compact reports still satisfy the stand-alone-or-legend rule. Two small risks worth tightening in After: (1) step 20's 'Restoration checks' list omits 'abort exit 0' as a named check (it is only implied by step 18), whereas Before lists it explicitly—add it so the four-part check is unambiguous; (2) the Step 4 base line now says '1 stop(s) in … (aborted #14 replay)' instead of Before's '0 stop(s)'; if the skill defines stop-count as home-rebase stops only, make the wording say which rebase the count refers to so readers don't conflate the home rebase (which had no stops) with the aborted member replay.",
-      "wallMs": 21905,
+      "feedback": "After keeps every fact Before kept: the helper dispatch is scoped identically, the abort path detects the unmerged path, aborts, checks out fix/retry and validates against the saved eeee… tip rather than the original home head, both failure checkpoints stop with actual state and a manual-recovery requirement, and the clean path records #14 unresolved / #15 pending and opens Design with the matching Task 1. The one soft spot is step 20: Before listed 'abort exit 0' as an explicit restoration check, whereas After only reports the exit status in step 18 and then lists three checks; a strict reader could argue the abort-exit check is no longer part of the restoration gate. Keep the four-item check list (abort exit 0, HEAD = saved last-good, branch, empty status incl. untracked) in the restoration step. The shared-legend device is acceptable because each STOP explicitly says 'Using every legend field' and the legend carries failing PR, conflict paths, worktree, saved last-good and the #13 replay; keep that explicit citation wording so the stops are not read as relying on setup details. The '1 stop(s) … (aborted #14 replay)' Base line is a reasonable improvement over Before's '0 stop(s)' and does not move any fact.",
+      "wallMs": 25628,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e5683c4cfdf8e626f24784b6d3271b20723103ff04e5fdc79b9db9ea3390c21f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec5c994292bd9184de22dc79684fff1c9c6c5ccd095f4edc401982cea0dff024",
+      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
       "baselineOutputSha": "b49f0acb61f372bd0f2b574ceffce83c3295094665b93cb16bcbc99c6b7a9201",
       "candidateOutputSha": "f2205b409812c68b5ed24990e10a1978efbcb676b5fa08fc46024d1d52ad861f",
       "facts": {
@@ -111,10 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs dispatch one scoped foreground helper (two paths, current patch, fetched-base `node --test test/retry.test.mjs`, git add required, commit/continue/skip/abort/outside edits forbidden), both abort then checkout fix/retry and verify exit 0, HEAD = eeee…, branch, and empty `--untracked-files=all` status without comparing to the original home head, both carry a complete shared legend (failing #14, both conflict paths, selected worktree, saved last-good E, #13 replayed, #15 pending) that the residual and failed-abort stops explicitly cite with actual observed HEAD/branch/status and a manual-recovery requirement and no reset/clean, and both emit the same Member replay lines and Task 1 while declining to replay #15 or publish a Rework base. Note the expected residual move (fails→holds) is not visible here because Before already cited a complete legend; the After wording's explicit 'Complete unchanged fields' legend and its 'no restored-state claim or Step 4 ready report' sentence are the parts worth keeping, since they make stand-alone sufficiency unambiguous. One small risk in After: the helper instruction 'Stage each resolved file with `git -C W add <file>`' uses the token W rather than the literal path; keep the resolved-values table adjacent (as you did) or spell the path out so the helper scope remains clearly bound to the selected home.",
-      "wallMs": 20712,
+      "feedback": "After keeps every fact Before kept: the helper dispatch is scoped to the two conflict paths with the fetched-base node --test command, staging required and commit/continue/skip/abort/outside edits forbidden; the abort path runs rebase --abort then the required checkout and checks exit 0, HEAD == saved eeee…, branch fix/retry and empty untracked-inclusive status before claiming restoration, never comparing against the original home head; the clean Step 4 report carries the #13 replay, the #14 unresolved line with both paths, #15 pending, and Design opens with the matching Task 1; both failure checkpoints cite one complete shared legend (failing PR, conflict paths, worktree, saved last-good, #13 at E) and stop on actual state without restoration claims, reset or clean. Two small hardening suggestions to avoid future drift on the boundary fact: After only implicitly rules out push/close by never doing them and says 'no Step 4 ready report' for the failures — Before's explicit closing sentence ('Neither failure proceeds to Design or Step 4. No reset, clean, #15 replay, complete Rework-base publication, push, close, spec, or plan write occurs') is stronger and should be kept verbatim; and the Base line in the clean report lost Before's 'partially rebased; #14 replay unresolved' qualifier, which is worth restoring so the report header does not read as a complete sync even though the Member replay lines carry the real status.",
+      "wallMs": 23178,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cb4f0605ef702d42abb2bc5cb42e37d1988d74fe"
+  "repoSha": "85547ee4bb9a8fe7c0c69c9b9b0c120b958b6dac"
 }
