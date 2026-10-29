@@ -1,4 +1,4 @@
-for: aa4945144a48bdc9f63c9c2b27d4fe6bce3917724ba5a9a0bbf5ccefdf881574
+for: 66c86a75fa71f6d610eb001c2711e1d828d24ebb2fbf9fc6acba6dd7f972f882
 
 ## Change
 Continue authorized waves execution failures without changing review funding. Include When a Subagent Fails in the first slice. Take named in-task decisions within remaining attempts, stop on repeated evidence, and spend one isolated configured-model execution escalation after two failed attempts. Recover that exact task/site from the transcript fail-closed; grants and retry never re-arm it. Treat implementer-evidenced drafted-row text corrections as granted amendments, not redraws; preserve ticket/reviewer-only/add-remove/problem/component redraws. Every stop note ends in Recommendation. Preserve all review funding, convergence and lifecycle facts. These are intended movements, not observed model results; parent verification runs the full target and generates reports.
@@ -23,7 +23,7 @@ Cover coordinated-flow checkout-local task dispatch, Leg/Rules, per-repo baselin
 - blocked-decision-auto-taken/attempts: fails -> holds - Auto-taken redispatch consumes an ordinary attempt and retains the wave gate.
 - blocked-decision-auto-taken/repeated: fails -> holds - Whitespace-normalized repeated task evidence stops without an evidence file.
 - blocked-decision-auto-taken/controls: fails -> holds - None, absent, budget-only and consent/boundary controls cannot authorize dispatch; the none control ends its stop note with Recommendation: none - <why>.
-- third-attempt-escalated/dispatch: fails -> holds - Dispatch one fresh synchronous resolved-model execution attempt after two failures, separate from review funding.
+- third-attempt-escalated/dispatch: fails -> holds - Dispatch one fresh synchronous resolved-model execution attempt after two failures even when the second return recommends none; route recommendations after escalation, separate from review funding.
 - third-attempt-escalated/outcome: fails -> holds - Failed escalation can take a granted amendment but never a fourth unnamed repair; DONE still needs review.
 - third-attempt-escalated/recovery: fails -> holds - Exact task/site transcript identity survives grants and retry, with missing history spent.
 - third-attempt-escalated/hard-stops: fails -> holds - Missing settings/model and budget-only values stop before execution escalation.

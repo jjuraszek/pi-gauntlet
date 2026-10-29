@@ -24,14 +24,14 @@ On resume, keep header restoration unchanged; recover each task's spent count on
 
 ## Implementer-failure stops
 
-Decode grants through [Value decoding](../../brainstorming/reference/amendment-surface.md#standing-grants); absent/`none`/budget-only authorize nothing: retain the ordinary two-attempt stop. Follow [stop-note.md](../stop-note.md) for lookups/status routing; preserve review/funding rules above.
+Decode grants through [Value decoding](../../brainstorming/reference/amendment-surface.md#standing-grants); absent/`none`/budget-only: retain the ordinary two-attempt stop. Follow [stop-note.md](../stop-note.md) for lookups/status; preserve review/funding rules above.
 
 1. **Hard stops**: stop first for malformed grants, missing `implModel`, unavailable settings tools, dirty-tree/commit-boundary returns, empty-commit stagnation, cap, funded re-review `STAGNANT`, `REJECT`, and [redraws](../SKILL.md#implementer-status).
-2. **Takeable decision**: route `Recommendation:` below before escalation. Compare transcript evidence: whitespace-normalized `file:line` finding or failing command plus assertion already auto-resolved on this task -> `Recommendation: none - evidence repeats task <n>`; stop.
-3. **Execution escalation**: after two failed attempts, call `gauntlet_setting({ key: "escalationLoop" })`; `implModel` undefined stops with the existing note. Print `escalated round for task <n> after 2 failed attempts`. Dispatch one implementer: `model: <implModel>`, `context: "fresh"`, `async: false`, same payload and isolation as above (`SCOPED_TEST_COMMANDS`, complete prior report verbatim); retain siblings; no fan-out/re-chain. Spend once/task/site, independently of review escalation/funding.
-4. **Resulting decision**: dispatch error or non-`DONE` spends escalation; route below; no fourth unnamed repair. Success still runs the ordinary scoped tests and SR/CR gates before wave commit/completion.
+2. **Takeable decision**: route only `BLOCKED`/`NEEDS_CONTEXT` decisions with attempts remaining below. Compare whitespace-normalized `file:line` finding or failing command plus assertion already auto-resolved on this task -> `Recommendation: none - evidence repeats task <n>`; stop.
+3. **Execution escalation**: after two failed attempts, escalate before routing `Recommendation:`; call `gauntlet_setting({ key: "escalationLoop" })`; `implModel` undefined stops with the existing note. Print `escalated round for task <n> after 2 failed attempts`. Dispatch one implementer: `model: <implModel>`, `context: "fresh"`, `async: false`, same payload and isolation as above (`SCOPED_TEST_COMMANDS`, complete prior report verbatim); retain siblings; no fan-out/re-chain. Spend once/task/site, independently of review escalation/funding.
+4. **Resulting decision**: dispatch error or non-`DONE` spends escalation; use step 2's table; no fourth unnamed repair. Success still runs the ordinary scoped tests and SR/CR gates before wave commit/completion.
 
-For taken options print `took recommendation: <option> for task <n>`.
+When taken, print `took recommendation: <option> for task <n>`.
 
 | Recommendation | Action |
 |---|---|
@@ -40,4 +40,4 @@ For taken options print `took recommendation: <option> for task <n>`.
 | `fix-first` | Enter `/skill:shape-ticket` at its gate. |
 | `none`/budget/consent/redraw/separate change | Emit stop note ending in `Recommendation: <option> - <why>`; wait. |
 
-Recover identity only from that exact line in matching task's transcript, not a review escalation or sibling line; unrecoverable means spent. A mid-loop grant or explicit retry never re-arms.
+Recover only that line in matching task's transcript, not a review escalation or sibling line; unrecoverable means spent. A mid-loop grant or explicit retry never re-arms.
