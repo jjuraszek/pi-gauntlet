@@ -12,11 +12,13 @@
 
 **Verification:** `npm test; node eval/run.mjs subagent-driven-development; node eval/run.mjs loop-implementation; node eval/run.mjs writing-plans` - includes instruction-size checking for skills/subagent-driven-development/SKILL.md.
 
-Baseline jjuraszek/pi-gauntlet: b3d55006
+Baseline jjuraszek/pi-gauntlet: c95dcb57
 
 ---
 
 Baseline provenance (jjuraszek/pi-gauntlet): initial HEAD b3d55006; initial porcelain inventory was only `?? doc/plans/2026-10-29-implement-grant-continuity.md`. Admitted exactly the dispatched spec and plan paths; only the plan was dirty. Executed all three task commands unchanged: Task 1 executed 52 tests, Task 2 executed 15 tests, Task 3 executed 5 tests, all exit 0. After each command HEAD remained b3d55006 and porcelain remained that one plan path. No generated repository artifacts or source contamination. Reran every command after plan repair with the same results and unchanged per-command provenance; no SHA restamping or tree-equivalence claim was needed.
+
+Amendment baseline provenance (jjuraszek/pi-gauntlet): BASE c95dcb57; initial per-file inventory was only ` M doc/specs/2026-10-29-implement-grant-continuity.md`. Admitted exactly `doc/specs/2026-10-29-implement-grant-continuity.md` and `doc/plans/2026-10-29-implement-grant-continuity.md`, the dispatched and supplied In-flight paths. The endpoint-tree proof `git diff --quiet b3d55006 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 1, so retained no bullets and reran all three unchanged task commands. Task 1 executed 53 tests, Task 2 executed 17 tests, Task 3 executed 6 tests, all exit 0 with no failures. After each command HEAD remained c95dcb57 and porcelain remained the one spec path. No generated repository artifacts or source contamination. The replacement baseline bullets below come from these executions, not a tree-equivalence restamp.
 
 ## Files
 
@@ -25,10 +27,14 @@ Baseline provenance (jjuraszek/pi-gauntlet): initial HEAD b3d55006; initial porc
 - `skills/brainstorming/reference/amendment-surface.md`
 - `skills/writing-plans/SKILL.md`
 - `scripts/brainstorming-contract.test.mjs`
-- `eval/writing-plans/samples/parent-offers-fix-first-narrow-amend/case.md`
-- `eval/writing-plans/samples/parent-offers-fix-first-narrow-amend/expected.md`
 - `eval/writing-plans/intent.md`
 - `eval/writing-plans/report.md` (generated at verification)
+
+**Writing-plans evals - create:**
+- `eval/writing-plans/samples/baseline-menu-under-grant/case.md`
+- `eval/writing-plans/samples/baseline-menu-under-grant/expected.md`
+- `eval/writing-plans/samples/baseline-menu-aftermath/case.md`
+- `eval/writing-plans/samples/baseline-menu-aftermath/expected.md`
 
 **Waves policy - modify:**
 - `skills/subagent-driven-development/SKILL.md`
@@ -100,15 +106,17 @@ Rules: skills/forge-skill/SKILL.md
 - Modify: `skills/brainstorming/reference/amendment-surface.md:160-205`
 - Modify: `skills/writing-plans/SKILL.md:69-88`
 - Modify: `scripts/brainstorming-contract.test.mjs:129-135`
-- Modify: `eval/writing-plans/samples/parent-offers-fix-first-narrow-amend/case.md`
-- Modify: `eval/writing-plans/samples/parent-offers-fix-first-narrow-amend/expected.md`
+- Create: `eval/writing-plans/samples/baseline-menu-under-grant/case.md`
+- Create: `eval/writing-plans/samples/baseline-menu-under-grant/expected.md`
+- Create: `eval/writing-plans/samples/baseline-menu-aftermath/case.md`
+- Create: `eval/writing-plans/samples/baseline-menu-aftermath/expected.md`
 - Modify: `eval/writing-plans/intent.md`
 - Modify: `eval/writing-plans/report.md`
 - Test: `scripts/brainstorming-contract.test.mjs`
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: b3d55006 pass
+- baseline: c95dcb57 pass
 - via: `skills/writing-plans/SKILL.md` step 6 and `skills/brainstorming/reference/amendment-surface.md` section 5
 
 Decision: Amend permission from `**Amend-grant:**` remains the non-budget remainder after the existing structural predicate and Value decoding in `amendment-surface.md`; `2 more fix rounds`, `none`, or absent gives no auto-take permission. Do not broaden the decoder or change approval at spec finalization.
@@ -123,7 +131,7 @@ The coordinated additions are Task 2's `fix-loop.md` `## Implementer-failure sto
 - [ ] **Step 4: Correct the amendment owners.** In `skills/brainstorming/SKILL.md` and `amendment-surface.md` classify only drafted AC text corrections backed by evidence in a `BLOCKED`/`NEEDS_CONTEXT` implementer return as amend items. Keep ticket rows, row add/remove, problem statements and component boundaries redraws. Make the ledger aftermath accept this text correction without treating it as an automatic disposition change: preserve row identity, attempts, iterations and cap; retain existing reopen/cut rules. Keep `amend:` audit records, including `granted`, so finishing's digest exposes the correction.
 - [ ] **Step 5: Correct baseline recommendation routing.** In writing-plans step 6 render a recommendation with a concrete filter for narrow. Under amend permission take it immediately: print `took recommendation: narrow`, send `Task N Tests: narrow to hook-config` when the recommendation is `narrow hook-config`; route `amend` through section 5 and `fix-first` through `/skill:shape-ticket` to that skill's own write gate. `Recommendation: none` and a narrow option without a concrete filter wait. Without permission retain the existing three-route menu. Preserve baseline execution/provenance and parent-only writing boundaries.
 - [ ] **Step 6: Keep amendment aftermath consistent.** Replace its unconditional pause when rendering unchanged-command or writer-only step-6 failures with the same grant-aware recommendation path. Keep the two-item limit, repeated already-applied evidence route, unrelated-failure partition and protected dirty-path handling unchanged. No recommendation authorizes restoration or a redraw.
-- [ ] **Step 7: Extend the baseline eval.** Preserve the existing no-grant case in `eval/writing-plans/samples/parent-offers-fix-first-narrow-amend`. Add grant-bearing variants for `narrow hook-config`, `amend`, `fix-first`, and none, plus a continuation with an unchanged-command failure during an amendment batch. Add `bundle+: skills/brainstorming/reference/amendment-surface.md`; preserve meaningful `bundle-`/`bundle+` selection. Put must-hold facts in `expected.md` beside `case.md`, following `eval/README.md`: exact filter, acknowledgment, writer re-dispatch, ticket write-gate wait, none wait, unchanged dirty/attempt budgets. Update writing-plans intent with those sample/fact ids and actual pre-edit SHA. Add `lintTarget` assertions for this target in the owned contract test.
+- [ ] **Step 7: Add the split baseline evals.** Keep `eval/writing-plans/samples/parent-offers-fix-first-narrow-amend/case.md` and `expected.md` unchanged as the no-grant control. Create `eval/writing-plans/samples/baseline-menu-under-grant` for `narrow hook-config`, `amend`, `fix-first`, `none`, and narrow without a concrete filter; create `eval/writing-plans/samples/baseline-menu-aftermath` for an unchanged-command failure during an amendment batch, with protected dirty-path, repeated-evidence and third-item contrasts. Both samples already exist at amendment HEAD; retain their split instead of extending the control. Keep each replay below the target's 1000-word cap. In each new `case.md`, retain `bundle-: skills/writing-plans/reference/plan-contract.md` and `bundle+: skills/brainstorming/reference/amendment-surface.md`. Put must-hold facts in the adjacent `expected.md`, using `eval/README.md`'s stable fact-line format: under-grant ids `grant-narrow`, `grant-amend`, `grant-fix-first`, `grant-wait` cover exact filter, acknowledgment, writer re-dispatch, ticket write-gate wait and none/missing-filter wait; aftermath id `aftermath` covers the continuation with unchanged dirty-path protections, two-item limit and attempt/iteration/cap budgets. Update writing-plans intent to name these two sample paths and their fact ids rather than adding facts to the unchanged control; bind its `for:` to the current candidate assembly per `eval/README.md`. Keep the `lintTarget` assertions for this target in the owned contract test.
 - [ ] **Step 8: Confirm green and check style.** Run the Tests command, then `node --check scripts/brainstorming-contract.test.mjs`. Expect passing tests and exit 0. Read changed instruction clauses for forge-skill compliance; preserve existing frontmatter and Project overrides blocks.
 - [ ] **Step 9: Commit.** Stage only this task's changed policy, test, sample and intent files, then `git commit -m "Honor grant-authorized baseline and AC corrections" -m "Behavior-changing instruction edit; eval intent records the expected movement."`. Leave generated reports to the header verification run.
 
@@ -168,7 +176,7 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/wave-review.test.mjs`
-- baseline: b3d55006 pass
+- baseline: c95dcb57 pass
 - via: `skills/subagent-driven-development/SKILL.md` Implementer Status and When a Subagent Fails; `skills/subagent-driven-development/reference/fix-loop.md`
 
 Decision: An execution-failure escalation is distinct from the review loop's existing escalation/funded ledger. Preserve the latter's `STAGNANT`, `REJECT`, `fund N`, `grant_fix_rounds` and budget stop behavior, and use the existing re-dispatch isolation for the failing task. Source: fix-loop.md:3-27 and SDD SKILL.md Fix-Loop Rounds, Chain stopped or failed. `closureReview.maxFixRounds` and `piGauntlet.escalationLoop.autonomy` receive no implementation changes.
@@ -219,7 +227,7 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/loop-engine-contract.test.mjs`
-- baseline: b3d55006 pass
+- baseline: c95dcb57 pass
 - via: `skills/loop-implementation/SKILL.md` Before each dispatch, Dispatch, Exit verification and Human stop
 
 Decision: The row escalation uses `loop-implementer` with the existing target/ledger validation contract; the exit repair uses `implementer` because all ledger rows stay closed. Source: loop driver Dispatch/Validate the return and spec Design's exit repair row. No persona changes are needed.
@@ -330,7 +338,7 @@ Rules: skills/finishing-a-development-branch/reference/legs.md
 | § "Tests" L127 | BLOCKED decision, none and repeated-evidence eval | Task 2 |
 | § "Tests" L128 | Third attempt, post-failure decision and transcript resume eval | Task 2 |
 | § "Tests" L129 | Drafted-row amend/audit eval and retained redraw control | Task 2 |
-| § "Tests" L130 | Extend baseline recommendation and aftermath eval | Task 1 |
+| § "Tests" L130 | Add baseline-menu-under-grant and baseline-menu-aftermath; retain parent-offers-fix-first-narrow-amend unchanged | Task 1 |
 | § "Tests" L131 | `npm test` proves byte-limit, skill and model-literal lint | Verification |
 | § "Documentation impact" L134 | No new feature guide | Task 4 |
 | § "Documentation impact" L135 | Amend configuration/README; leave changelog for release | Task 4 |

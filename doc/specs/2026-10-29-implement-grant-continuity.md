@@ -127,7 +127,7 @@ Eval samples per `eval/README.md` (`case.md` + `expected.md`; `bundle-`/`bundle+
 - SDD `BLOCKED` decision with a recommendation under amend permission re-dispatches with it and prints `took recommendation:`; `Recommendation: none` stops with a stop note ending in that line; a second turn with repeated evidence stops - `eval/subagent-driven-development/samples/blocked-decision-auto-taken`
 - SDD third attempt on `implModel` after two failures; its failure followed by a takeable recommendation continues, followed by `none` stops; a resume turn recovers the spent round from the transcript line - `eval/subagent-driven-development/samples/third-attempt-escalated`
 - Evidenced drafted AC row correction entering through brainstorming's amendment route applies as an `amend:` item with the existing audit body; a problem-statement change still stops - `eval/subagent-driven-development/samples/ac-row-correction-amend`; existing `redraw-under-grant` keeps passing
-- Baseline menu takes `narrow <filter>`, `amend`, and `fix-first` under grant and waits on `none`; a second turn covers an unchanged-command failure during an amendment batch - extend `eval/writing-plans/samples/parent-offers-fix-first-narrow-amend`
+- Baseline menu takes `narrow <filter>`, `amend`, and `fix-first` under grant and waits on `none`; a second sample covers an unchanged-command failure during an amendment batch - `eval/writing-plans/samples/baseline-menu-under-grant` and `eval/writing-plans/samples/baseline-menu-aftermath`; the existing `parent-offers-fix-first-narrow-amend` stays unchanged (the target's 1000-word output cap cannot hold all seven scenes in one sample)
 - Byte limit and lint - `npm test` (instruction-size lint, skill lint, model-literal lint)
 
 ## Documentation impact
