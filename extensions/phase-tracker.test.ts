@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { after, test } from "node:test";
-import { execFileSync } from "node:child_process";
+import { after, mock, test } from "node:test";
+import childProcess, { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync, realpathSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -2451,3 +2453,110 @@ for (const event of ["session_start", "session_switch", "session_fork", "session
     });
   }
 }
+
+for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_check resolves clone URL companions with ${pattern}`, async (t) => {
+  const primary = gitPrimary().primary;
+  const companion = gitPrimary().primary;
+  const unselected = gitPrimary().primary;
+  const name = companion.split("/").at(-1)!;
+  const repo = `team/${name}`;
+  const cloneUrl = `git@example.test:${repo}.git`;
+  execFileSync("git", ["config", "remote.origin.url", `https://example.test/${repo}.git`], { cwd: companion });
+  const branch = "feature/legs";
+  const companionRoot = join(companion, pattern.replace("<name>", "feature-legs"));
+  execFileSync("git", ["worktree", "add", "-b", branch, companionRoot], { cwd: companion, stdio: "pipe" });
+  if (pattern.startsWith("..")) tempDirs.push(companionRoot);
+  mkdirSync(join(primary, ".pi"), { recursive: true });
+  writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${cloneUrl}\n- sibling: git@example.test:other/${unselected.split("/").at(-1)!}.git\n`);
+  const { planPath } = writePlanFixture(primary, {
+    mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\nbranch: ${branch}\ncontract: home: ${pattern}\n`,
+    mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo.toUpperCase()}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),
+  });
+  rmSync(join(primary, "file-b.ts"));
+  writeFileSync(join(companionRoot, "file-b.ts"), "companion only\n");
+  const h = harness({ cwd: primary });
+  await h.emit("session_start");
+  const tool = h.tools.find(t => t.name === "plan_check")!;
+  const probes: string[] = [];
+  const spies: { mock: { restore(): void } }[] = [];
+  if (unselected) {
+    for (const method of ["existsSync", "realpathSync", "statSync", "readFileSync", "readdirSync"] as const) {
+      const original = fs[method];
+      spies.push(mock.method(fs, method, (...args: any[]) => {
+        if (String(args[0]).startsWith(unselected)) probes.push(`${method}: ${args[0]}`);
+        return (original as Function)(...args);
+      }));
+    }
+    const original = childProcess.execFileSync;
+    spies.push(mock.method(childProcess, "execFileSync", (...args: any[]) => {
+      if (String(args[2]?.cwd).startsWith(unselected)) probes.push(`git: ${args[2].cwd}`);
+      return (original as Function)(...args);
+    }));
+    syncBuiltinESMExports();
+  }
+  try {
+    const result = await tool.execute("legs", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
+    assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
+    assert.deepEqual(probes, [], "unselected sibling must receive no filesystem or Git probes");
+    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: https://user@example.test:7999/${repo}.git/\n`);
+    const https = await tool.execute("https", { planPath }, undefined, undefined, h.ctx) as { details: { status: string } };
+    assert.equal(https.details.status, "pass");
+    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), "## shape-ticket\n- sibling: ../viewer\n");
+    const invalid = await tool.execute("invalid", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings: { check: string; reason: string }[] } };
+    assert.equal(invalid.details.status, "fail");
+    assert.ok(invalid.details.findings.some(f => f.check === "input" && f.reason.includes("- sibling: ../viewer") && f.reason.includes("invalid configuration")));
+    const plain = realpathSync(tempCwd());
+    const missingName = `${name}-missing`;
+    const cases = [
+      { name: "PATH not found", value: `https://example.test/team/${missingName}.git`, reason: "PATH not found" },
+      { name: "not a checkout", value: `https://example.test/team/${plain.split("/").at(-1)}.git`, reason: "not a checkout" },
+      { name: "no origin", value: cloneUrl, origin: null, reason: "no origin" },
+      { name: "unparseable stored origin", value: cloneUrl, origin: "local-origin", reason: "unparseable origin" },
+      { name: "wrong repo", value: cloneUrl, origin: `https://example.test/other/${name}.git`, reason: "wrong repo" },
+      { name: "home primary", value: `https://example.test/team/${primary.split("/").at(-1)}.git`, reason: "PATH equals home primary" },
+      ...["viewer", "/srv/git/viewer.git", "file:///srv/git/viewer.git"].map(value => ({ name: `invalid ${value}`, value, reason: "invalid configuration" })),
+      { name: "stored trailing slash", value: cloneUrl, origin: `https://example.test/${repo}.git/` },
+      { name: "stored origin with insteadOf", value: cloneUrl, origin: `https://example.test/${repo}.git`, rewrite: true },
+    ];
+    for (const row of cases) await t.test(row.name, async () => {
+      const stored = "origin" in row ? row.origin : `https://example.test/${repo}.git`;
+      if (stored === null) execFileSync("git", ["config", "--unset", "remote.origin.url"], { cwd: companion });
+      else execFileSync("git", ["config", "remote.origin.url", stored!], { cwd: companion });
+      const rewriteKey = "url.https://rewritten.test/other/.insteadOf";
+      if ("rewrite" in row) execFileSync("git", ["config", rewriteKey, "https://example.test/team/"], { cwd: companion });
+      const line = `- sibling: ${row.value}`;
+      writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n${line}\n`);
+      try {
+        const result = await tool.execute(row.name, { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: { check: string; reason: string }[] } };
+        assert.equal(result.details.status, row.reason ? "fail" : "pass", JSON.stringify(result.details.findings));
+        if (row.reason) assert.ok(result.details.findings?.some(f => f.check === "input" && f.reason.includes(line) && f.reason.includes(row.reason!)), JSON.stringify(result.details.findings));
+      } finally {
+        if ("rewrite" in row) execFileSync("git", ["config", "--unset", rewriteKey], { cwd: companion });
+      }
+    });
+    execFileSync("git", ["config", "remote.origin.url", `https://example.test/${repo}.git`], { cwd: companion });
+    await t.test("identity precedes shared NAME without probing the other declaration", async () => {
+      writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: git@example.test:other/${name}.git\n- sibling: ${cloneUrl}\n`);
+      const result = await tool.execute("identity", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
+      assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
+    });
+    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${cloneUrl}\n`);
+  } finally {
+    for (const spy of spies) spy.mock.restore();
+    syncBuiltinESMExports();
+  }
+  const originalPlan = readFileSync(planPath, "utf8");
+  const foreignSpec = join(companionRoot, "foreign-spec.md");
+  writeFileSync(foreignSpec, readFileSync(join(primary, "doc/specs/spec.md")));
+  writeFileSync(planPath, originalPlan.replace("doc/specs/spec.md", foreignSpec));
+  const foreign = await tool.execute("foreign-spec", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings: { check: string }[] } };
+  assert.equal(foreign.details.status, "fail");
+  assert.ok(foreign.details.findings.some(f => f.check === "input"));
+  writeFileSync(planPath, originalPlan);
+  rmSync(join(companionRoot, "file-b.ts"));
+  const failure = await tool.execute("legs-missing", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings: { check: string }[] } };
+  assert.equal(failure.details.status, "fail");
+  execFileSync("git", ["worktree", "remove", "--force", companionRoot], { cwd: companion, stdio: "pipe" });
+  const missing = await tool.execute("legs-missing-root", { planPath }, undefined, undefined, h.ctx) as { details: { findings: { check: string }[] } };
+  assert.ok(missing.details.findings.some(f => f.check === "input"));
+});

@@ -1,0 +1,4 @@
+- home: judged: Explicitly supplies Run worktree: /work/repo-a/.worktrees/feature-shared-change to cohort; Repo state stays home-bound despite companion-last dispatch and retains existing core field names/headings.
+- layout: judged: Append has both tracker status outputs, Active task: W2: reader, PR pair then legs: then terminal gate-history line, home entry first.
+- missing: judged: repo-b worktree is literal missing, HEAD is last recorded cccccccccccccccccccccccccccccccccccccccc, dirty unavailable and existing receipt path carried without treating receipt as proof.
+- single: judged: Single-member run emits no legs block, companion file, receipt, --leg or companion loop; does not change cohort core grammar.

@@ -115,6 +115,36 @@ test("seals an untracked in_progress record: stamp, ship event, diff, re-derived
   assert.equal(porcelain(root), "");
 });
 
+test("shipped CLI records companion legs and validates complete retry sets", (t) => {
+  const root = repo(); cleanup(t, root);
+  const args = ["--spec", SPEC, "--leg", "repo-b=abc1234", "--leg", "repo-c=https://example.test/pull/2?q=yes"];
+  const result = run(root, args);
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(record(root).legs, [
+    { repo: "repo-b", sha: "abc1234" },
+    { repo: "repo-c", pr: "https://example.test/pull/2?q=yes" },
+  ]);
+  const sealedHead = head(root);
+  assert.equal(run(root, ["--spec", SPEC, "--leg", args[5], "--leg", args[3]]).status, 0);
+  assert.equal(head(root), sealedHead);
+  for (const legs of [[], ["--leg", "repo-b=abc1234"], ["--leg", "repo-b=changed", "--leg", args[5]]]) {
+    const retry = run(root, ["--spec", SPEC, ...legs]);
+    assert.equal(retry.status, 1);
+    assert.match(retry.stderr, /legs differ/);
+    assert.equal(head(root), sealedHead);
+  }
+  assert.deepEqual(headFiles(root), [REC]);
+});
+
+test("shipped CLI rejects malformed leg values before sealing", () => {
+  for (const value of ["missing", "=abc", "repo=", "repo= "]) {
+    const result = invoke(["--leg", value]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /invalid --leg/);
+    assert.ok(result.stderr.includes(value.trim()));
+  }
+});
+
 test("docs/specs record seals with --spec (no path classification)", (t) => {
   const root = docsRepo(); cleanup(t, root);
   const r = run(root, ["--spec", SPEC2]);

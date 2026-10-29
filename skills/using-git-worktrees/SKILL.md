@@ -11,25 +11,37 @@ description: Use when starting feature work that needs isolation from current wo
 
 Git worktrees create isolated workspaces sharing the same repository, allowing work on multiple branches simultaneously without switching.
 
-**Core principle:** Detect existing isolation first → prefer the project's native tool → default to `<repo>/.worktrees/<branch>`, creating it if missing.
+**Core principle:** Detect existing isolation first → prefer the project's native tool → default to `<repo>/.worktrees/<name>`, creating it if missing.
 
 **Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
 
 ## Step 0 — Detect Existing Isolation (REQUIRED)
 
-For a caller passing resolved PR values, read [reference/pr-head.md](reference/pr-head.md) now and follow it instead of Steps 0 and 1, before generic linked-worktree reuse. For every other caller, check whether you are **already** inside an isolated worktree. Creating a worktree inside another worktree, or inside a submodule, produces silent corruption.
+Accept caller-supplied `$ROOT` and `$BRANCH` without replacing them from session
+state. Root isolation detection, clean-base, overrides/settings reads, wrapper
+discovery and creation in `$ROOT`. For a coordinated member, require its own
+primary as `$ROOT`; never reuse session isolation as another leg. Create a fresh
+member tree even when the session is linked. Without caller inputs, derive the
+primary as below and choose the feature branch by the existing convention.
+
+For a caller passing resolved PR values for home, read [reference/pr-head.md](reference/pr-head.md) now and follow it instead of Steps 0 and 1, before generic linked-worktree reuse. For every other caller, check whether you are **already** inside an isolated worktree. Creating a worktree inside another worktree, or inside a submodule, produces silent corruption.
 
 ```bash
-read -r GIT_DIR GIT_COMMON <<<"$(git rev-parse --path-format=absolute --git-dir --git-common-dir | tr '\n' ' ')"
-ROOT=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
-CURRENT_BRANCH=$(git branch --show-current)
+CALLER_ROOT=${ROOT:-}
+if [ -n "$CALLER_ROOT" ]; then
+  read -r GIT_DIR GIT_COMMON <<<"$(git -C "$ROOT" rev-parse --path-format=absolute --git-dir --git-common-dir | tr '\n' ' ')"
+else
+  read -r GIT_DIR GIT_COMMON <<<"$(git rev-parse --path-format=absolute --git-dir --git-common-dir | tr '\n' ' ')"
+  ROOT=$(dirname "$GIT_COMMON")
+fi
+CURRENT_BRANCH=$(git -C "$ROOT" branch --show-current)
 ```
 
 **Submodule guard:** `GIT_DIR != GIT_COMMON` is also true inside git submodules. Before concluding "already in a worktree," verify you are not in a submodule:
 
 ```bash
 # If this returns a path, you're in a submodule, not a worktree — treat as normal repo
-git rev-parse --show-superproject-working-tree 2>/dev/null
+git -C "$ROOT" rev-parse --show-superproject-working-tree 2>/dev/null
 ```
 
 **If `GIT_DIR != GIT_COMMON` (and not a submodule):** The session already runs inside a linked worktree. Its `$GIT_DIR` is `<primary>/.git/worktrees/<name>`, and `$GIT_DIR/gitdir` contains `<worktree>/.git`, so derive its full path:
@@ -51,13 +63,21 @@ For a PR head, use [reference/pr-head.md](reference/pr-head.md) instead of this 
 Pause for explicit consent **only** when one of these holds:
 - A trivial one-off the user named (typo, format run, dependency bump)
 - The user already set up a workspace, or asked to work in place
-- The sandbox can't support multiple checkouts (see Sandbox fallback)
+- The sandbox can't support multiple checkouts without a caller root (see Sandbox fallback)
 
 Otherwise create it. The gate is "is this real work?", not "did the user approve this worktree?"
 
+For explicit caller roots, preflight the requested branch and resolved home in
+that repo before any creator runs: use `git -C "$ROOT" show-ref --verify
+refs/heads/"$BRANCH"`, `git -C "$ROOT" worktree list --porcelain`, and the
+resolved path's existence. A branch, name, or path collision stops naming repo
+and branch; never suffix or reuse an unrelated tree. On dirty-primary decline,
+abort creation. On every failure, preserve created trees and list them using
+[Step 4's coordinated-member inventory](#step-4--report-location).
+
 ## Step 1a - Read the `## using-git-worktrees` contract
 
-Read the gauntlet overrides file (ladder in Project overrides) before any tool or wrapper discovery. Its `## using-git-worktrees` section carries up to three key lines, written like `## cleanup` items; prose before, between, or after them is instruction too:
+Read the gauntlet overrides file under `$ROOT` (ladder in Project overrides) before any tool or wrapper discovery. With a caller-supplied `$ROOT` (a coordinated member), read that member's overrides file and `$ROOT/.pi/settings.json` by file for its checkout configuration using existing preset rules - never the session-scoped `gauntlet_setting` - and run wrapper discovery under `$ROOT`. Its `## using-git-worktrees` section carries up to three key lines, written like `## cleanup` items; prose before, between, or after them is instruction too:
 
 | Key | Meaning | Absent (keyed contract active) |
 |---|---|---|
@@ -72,6 +92,8 @@ Keyed contract active:
 1. Run the Step 3 clean-base check in the source checkout.
 2. `NAME` is the branch name with every `/` replaced by `-` (`jacek/fix-x` -> `jacek-fix-x`). `HOME` is `home:` resolved against `$ROOT` with `<name>` -> `NAME`.
 3. `create:` set -> run it from `$ROOT` with each resolved token inserted as one single-quoted shell word (`'...'`, an embedded `'` escaped), including when the template already quotes it; a `<token>` the context rule cannot resolve is never executed - ask once for its value. A non-zero exit stops this skill with the command's output: no `git worktree add` fallback, no Step 4 report.
+   Resolve other wrapper tokens from this leg's touched directory, not the
+   session repo's touched paths.
    `create:` absent -> when `HOME` is inside `$ROOT`, gitignore its parent directory first (the Step 2b sequence with that directory in place of `.worktrees`); then `git -C "$ROOT" worktree add "$HOME" -b "$BRANCH"`.
 4. Post-create check, always: `git -C "$ROOT" worktree list --porcelain` must print `worktree $HOME`; otherwise stop and report the mismatch (a wrong `home:` pattern, or a wrapper that places trees elsewhere).
 5. `WORKTREE="$HOME"`; `$WORKTREE` is the value every later step carries (`home: ../acme-mono-<name>` with branch `fix-x` gives `/work/acme-mono-fix-x`, so the basename `acme-mono-fix-x` is not the name). Go to Step 4.
@@ -99,7 +121,7 @@ Only when no native tool exists:
 
 ### 2a. Pick a location
 
-The canonical home is `<repo>/.worktrees/<branch>`. A keyed `## using-git-worktrees` section never reaches this step (Step 1a creates at `home:`); on the legacy path a wrapper may define another path, otherwise use the canonical home. Do not ask local-vs-global or invent another path.
+Derive `NAME` from `$BRANCH` by replacing every `/` with `-`. The canonical home is `<repo>/.worktrees/<name>`. A keyed `## using-git-worktrees` section never reaches this step (Step 1a creates at `home:`); on the legacy path a wrapper may define another path, otherwise use the canonical home. Do not ask local-vs-global or invent another path.
 
 ### 2b. Create - gitignore the home first
 
@@ -107,17 +129,18 @@ Run the Step 3 clean-base check in the source checkout before this sequence. `.w
 
 ```bash
 # ROOT is the primary checkout derived in Step 0.
-BRANCH=<new feature branch name>
-if git -C "$ROOT" worktree list --porcelain | grep -qx "worktree $ROOT/.worktrees/$BRANCH"; then
+: "${BRANCH:?supply the shared or new feature branch name}"
+NAME=${BRANCH//\//-}
+if git -C "$ROOT" worktree list --porcelain | grep -qx "worktree $ROOT/.worktrees/$NAME"; then
   : # already exists - emit the Step 4 report, add nothing
 else
   if ! git -C "$ROOT" check-ignore -q .worktrees; then
     echo ".worktrees/" >> "$ROOT/.gitignore"
     git -C "$ROOT" add .gitignore && git -C "$ROOT" commit -m "Ignore .worktrees/" -- .gitignore
   fi
-  git -C "$ROOT" worktree add "$ROOT/.worktrees/$BRANCH" -b "$BRANCH"
+  git -C "$ROOT" worktree add "$ROOT/.worktrees/$NAME" -b "$BRANCH"
 fi
-WORKTREE="$ROOT/.worktrees/$BRANCH"
+WORKTREE="$ROOT/.worktrees/$NAME"
 ```
 
 The process cwd never changes. `$WORKTREE` is the value every later step carries; do not `cd` into it.
@@ -139,13 +162,14 @@ The process cwd never changes. `$WORKTREE` is the value every later step carries
 
 ### 2d. Sandbox fallback
 
-If worktree creation fails on permissions (read-only filesystem, container sandbox without write to parent dirs): stop, announce the failure, and continue in the current directory on a feature branch.
+On a permission failure (read-only filesystem or container sandbox without write to parent dirs), use the caller-root boundary:
 
-Working in place is a degraded mode for this skill only; `/skill:finishing-a-development-branch` requires a worktree path and does not finish an in-place branch.
+- With an explicit caller root, stop naming the repo, requested branch and error; never branch the session cwd. Preserve created trees and list them using [Step 4's coordinated-member inventory](#step-4--report-location).
+- Without a caller root, announce the failure and continue in the current directory on a feature branch after the Step 1 consent. Treat this as degraded in-place mode: `/skill:finishing-a-development-branch` requires a worktree path and does not finish an in-place branch.
 
 ## Step 3 — Verify Clean Base
 
-The check: bare `git status --porcelain` — untracked files count as dirty. Never `--untracked-files=no` / `-uno`. Empty output means clean only when the command exits 0; a nonzero exit is an error to surface — stop; never treat a failed check as "clean".
+The check: `git -C "$ROOT" status --porcelain` in the source checkout — untracked files count as dirty. Never `--untracked-files=no` / `-uno`. Empty output means clean only when the command exits 0; a nonzero exit is an error to surface — stop; never treat a failed check as "clean".
 
 **When and where it runs:**
 
@@ -158,9 +182,22 @@ The check: bare `git status --porcelain` — untracked files count as dirty. Nev
 
 Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline. Never append a colon to the marker. Follow the [first-line rule](../brainstorming/reference/menu-layout.md). Report the porcelain output verbatim and ask whether to clean up first (stash/commit) or proceed. Never run tests as a fallback; never auto-stash or auto-clean. On fresh paths the ask is about base hygiene — a user who *meant* the dirt to be part of the base commits it, and creation proceeds from the new HEAD. On the Step 0 path the ask is "continue working in a dirty workspace?" — the dirt is already in the workspace, not merely beside it.
 
-**Provenance note (report-only, never a gate).** Fresh-creation paths only — never Step 0 (an already-linked worktree was branched in some earlier invocation; there is no "created from" to compare this run). Resolve the default branch as `git symbolic-ref --short refs/remotes/origin/HEAD` with the leading `origin/` stripped; compare that short name to the source checkout's `git branch --show-current`. If they differ and the user did not name a base in the request, append one declarative line to the Step 4 report: `Note: branching from <ref>, not <default>.` — execution continues, no confirmation is awaited. If resolution fails (no remote, no `origin/HEAD`), skip the note silently. No other default-branch machinery.
+For a dirty-primary decline, stop this member before creation and list preserved
+created legs. Never auto-remove earlier members.
+
+**Provenance note (report-only, never a gate).** Fresh-creation paths only — never Step 0 (an already-linked worktree was branched in some earlier invocation; there is no "created from" to compare this run). Resolve the default branch as `git -C "$ROOT" symbolic-ref --short refs/remotes/origin/HEAD` with the leading `origin/` stripped; compare that short name to the source checkout's `git -C "$ROOT" branch --show-current`. If they differ and the user did not name a base in the request, append one declarative line to the Step 4 report: `Note: branching from <ref>, not <default>.` — execution continues, no confirmation is awaited. If resolution fails (no remote, no `origin/HEAD`), skip the note silently. No other default-branch machinery.
 
 ## Step 4 — Report Location
+
+Retain Step 1a's mandatory keyed-contract post-create path check. After every
+creation path (keyed, native, wrapper or built-in), apply the caller's row:
+
+| Caller supplied `$ROOT` | Read-back and ready condition |
+|---|---|
+| Yes (coordinated member) | Require `git -C "$ROOT" worktree list --porcelain` to print `worktree $WORKTREE` and `git -C "$WORKTREE" branch --show-current` to print exactly `$BRANCH`. On an absent, empty, or different result, stop this member, name repo, requested branch and actual result, and emit no `Worktree ready at` line for this member. In `Preserved created legs:`, list every tree created so far in this run, including the stopped member's own tree when its create command succeeded, each as `<repo> <branch or "branch unverified"> <path>`. Report `Worktree ready at <full-path>` only after both read-backs match. |
+| No (single-member run) | Use successful creation as the ready condition; read back the path and branch with the commands above as advisory checks, stopping only on an observed different path or branch and naming repo, requested branch and actual result. Treat an absent or undescribed result as unobserved, not a mismatch; report `Worktree ready at <full-path>` after successful creation with no observed mismatch. |
+
+Carry every verified result home first.
 
 ```
 Worktree ready at <full-path>
@@ -195,14 +232,14 @@ Re-run tests after rebasing.
 | Situation | Action |
 |---|---|
 | `GIT_DIR != GIT_COMMON` | Already in worktree - report its path, create nothing |
-| Worktree path already listed by `git worktree list` | Report it, create nothing |
+| Worktree path already listed by `git worktree list` | Explicit caller root: stop on collision; otherwise report existing isolation |
 | `git rev-parse --show-superproject-working-tree` returns a path | Submodule — treat as normal repo |
 | `## using-git-worktrees` has `home:`/`create:`/`destroy:` | Keyed contract (Step 1a): run `create:` or the built-in add at `home:`, then the post-create check |
-| `## using-git-worktrees` absent or keyless | Legacy path: native tool, then wrapper discovery, then `<repo>/.worktrees/<branch>` |
+| `## using-git-worktrees` absent or keyless | Legacy path: native tool, then wrapper discovery, then `<repo>/.worktrees/<name>` |
 | Project-native wrapper exists (legacy path) | Use the wrapper (commonly `script/worktree create`) |
-| No native tool | Create `<repo>/.worktrees/<branch>` (gitignore `.worktrees/` first) |
+| No native tool | Create `<repo>/.worktrees/<name>` (gitignore `.worktrees/` first) |
 | Detached HEAD | Ask before branching |
-| Sandbox/permission failure | Work in place on a feature branch |
+| Sandbox/permission failure | Follow Step 2d's caller-root boundary |
 | Source checkout dirty | Report + ask |
 
 ## Red Flags — STOP

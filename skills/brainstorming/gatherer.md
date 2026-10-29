@@ -12,6 +12,11 @@ Mint a temp dir outside the worktree (never committed):
 GATHER_DIR=$(mktemp -d)
 ```
 
+Read [reference/legs.md](reference/legs.md) for the settled member order and rules walk.
+Expand the scout task below once per leg, home first, using that leg's worktree
+as `cwd` and a distinct `<GATHER_DIR>/scout-<index>.md` output. Preserve one scout
+for a single-member run. Keep context-builder home-owned and conditional.
+
 Set the substep, then dispatch one foreground parallel-tasks `subagent` call (`async: false`; no
 `model:` — pi-cohort `agentOverrides` owns builder models). Preserve the parallel batch and await
 its terminal result before assembling the draft:
@@ -45,6 +50,13 @@ Use that SKILL.md directory, never `reference/` as the base.
 Scout (always dispatched):
 
 > Recon for an upcoming design discussion. The request: `<initial prompt verbatim>`.
+> Owning leg: `<repo>`; touched paths in this leg: `<paths or unresolved>`.
+> Apply `reference/legs.md`'s rules walk: root and touched-directory `AGENTS.md`
+> and `CLAUDE.md`, one hop of local documentation links in prose, bullets, and
+> tables, deduped by `realpath`; linked documents contribute no more links.
+> Emit repo-relative `Rules:` lines, `Rules: missing: <path>` for unresolved
+> links, or `Rules: root only - paths unresolved`. Include `pkg-x/AGENTS.md`
+> when touching `repo-a/pkg-x`; exclude untouched `pkg-y`.
 > Map the territory this change touches: relevant files with line ranges, existing
 > patterns and conventions the change must match, test conventions, integration
 > points, and whether the codebase or ecosystem already solves any of this. Trace retained
@@ -220,7 +232,8 @@ time:
 
 ## Draft assembly
 
-Read the temp files and write the draft **to the spec path** (normal filename
+Read every leg's temp file in member order, retaining each leg's repo identifier,
+Rules lines, recon and degraded status independently. Write the draft **to the spec path** (normal filename
 convention; slug minted from the initial prompt):
 
 ```markdown

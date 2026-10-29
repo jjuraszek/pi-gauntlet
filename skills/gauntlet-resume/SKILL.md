@@ -91,12 +91,13 @@ checks 2, 4, 5 do not apply; check 6 runs on the seed's pinned spec path.
    cwd with
    `realpath "$(git -C <worktree> rev-parse --path-format=absolute --git-common-dir)"`.
    If they differ, stop, name both paths, and say the resolved worktree belongs to a
-   different repository; restart pi in that repository's primary checkout and re-run.
+   different repository; restart pi in that repository's primary checkout and re-run. For member-primary entry on a coordinated brief, also print `home is <repo>; restart there`, naming the run home.
    Same-repository worktrees proceed by path: use `git -C <worktree>` for
    worktree Git commands and absolute artifact paths for `Read` and `plan_check`.
+3b. **Coordinated admission.** For a multi-member brief, read and apply `reference/brief-contract.md` "Coordinated admission" before any tracker write: resolve the home spec without inferring approval, compare ordered membership, validate each declared primary/common directory, shared branch and full home tuple, and live-validate receipts before admitting any missing tree. Preserve check 3's home binding.
 4. **Drift notice.** Compare the brief's `HEAD` and `dirty` fields in `## Repo state`
    with the live worktree (`git -C <worktree> rev-parse HEAD`, `git -C <worktree>
-   status --porcelain`). Announce differences. Informational, never a stop.
+   status --porcelain`). For coordinated briefs apply `reference/brief-contract.md` "Coordinated admission" per leg. Announce differences. Informational, never a stop.
 5. **Skills loaded.** For each name in `## Skills loaded` (none for
    `## Skills loaded: none`): match against the frontmatter `name` of every
    `skills/*/SKILL.md` in this package; `Read` each match's complete file into the

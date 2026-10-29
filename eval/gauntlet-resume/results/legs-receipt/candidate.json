@@ -1,0 +1,80 @@
+{
+  "sample": "legs-receipt",
+  "arm": "candidate",
+  "skillSha": "53cb927ef2948a8b9281e4382305616b906713080fc6aaac0f61cec25f753534",
+  "inputSha": "3836ecb594b695062745d0fe37696a29a7aa18e782fa9025f1ae3b002bae5a9e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Main run: ship-stage coordinated retry\n\n## Coordinated admission (entry check 3b), before any tracker write\n\n1. **Home binding.** I keep entry check 3's run-home binding to `/work/repo-a/.worktrees/feature-shared-change`, with home primary `/work/repo-a`.\n\n2. **Home spec.** I resolve the home spec `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md` through Candidates. I do not use a companion leg file. The approval stated in the input is used; artifact presence supplies none.\n\n3. **Ordered membership.**\n   - The brief `legs:` block lists `repo-a`, `repo-b`.\n   - The home spec `### Leg:` blocks list `repo-a`, `repo-b`.\n   - They match.\n\n4. **repo-b declared primary.**\n   - The declared sibling `git@github.com:acme/repo-b.git` parses to NAME `repo-b`.\n   - The primary is `/work/repo-b`, the home primary's parent plus NAME.\n   - Its canonical git common directory is `/work/repo-b/.git`, which matches.\n\n5. **repo-b location.**\n   - The brief records `worktree: missing`.\n   - I resolve the location from the leg's recorded `home:` contract and the shared NAME `feature-shared-change`, not from a newly inferred wrapper.\n   - That gives `/work/repo-b/.worktrees/feature-shared-change`. It is absent.\n   - The shared branch is `feature/shared-change`. The companion `**Home:**` tuple is `repo-a feature/shared-change doc/specs/shared.md`, which matches the run home.\n\n6. **Live receipt validation (PR receipt), in repo-b.**\n   - Command: `gh pr view https://example.test/repo-b/pull/2 --json state,headRefOid`\n   - Result: `state: OPEN`, `headRefOid: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`.\n   - The PR head equals the attempted head `bbbb…bbbb`.\n   - The delivered head equals the attempted head.\n   - The receipt records `verification: passed`.\n   - There is no current feature head to compare because the tree is missing.\n   - Result: the receipt is validated, and the missing repo-b tree is admitted as delivered.\n\n7. **Ship-stage retry admission.**\n   - The home plan is correctly stripped.\n   - Every companion receipt (repo-b) validates live.\n   - So I admit the missing plan on the receipt-validated retry route. I run no plan repair and no replacement plan.\n   - I invent no `plan_check` stamp. The call-table `plan_check` step is replaced by this route.\n\n8. **Drift notice (entry check 4, per leg).**\n   - `repo-a`: live HEAD and dirty state are compared with the brief, and any differences are announced.\n   - `repo-b`: the tree is missing. HEAD is the last recorded value and dirty is `unavailable`. This is informational only.\n\n## Tracker calls, in order\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: <brief file>\" })`\n5. `phase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: <brief file>\" })`\n6. `phase_tracker({ action: \"start\", phase: \"verify\" })`\n7. `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: …\", status: \"complete\" }, { name: \"W2: reader\", status: \"in_progress\" }] })`\n   - This uses the brief's snapshot verbatim.\n   - Feasibility holds: the order is a valid pending-suffix, and the stage is verify, so the implement auto-complete edge does not apply.\n\nI never call `start implement` or `complete`/`skip verify`. Restoration stops at verify in_progress.\n\n## Printed lines\n\n```\nGate history not restored; re-validating `W2: reader` before any stage advance\nNo standing grant.\n```\n\nI print `No standing grant.` on the assumption that check 6 found no `**Amend-grant:**` line or a value of `none`. If the spec carries a grant sentence, the line is instead `Standing grant active: <sentence>`.\n\nI also announce: closure review re-runs before ship. Fresh conformance is required because `complete verify` needs a fresh conformance dispatch.\n\n## Continuation in verification-before-completion (verify without `Ledger:`)\n\n- I re-validate the unlanded home in its own worktree:\n  - I use the spec's recorded contract command `node --test test/parser.test.mjs`, with cwd `/work/repo-a/.worktrees/feature-shared-change`. The command is recovered from the contract because the plan is absent.\n  - I check against the original scoped ACs.\n- repo-b is exempt from checkout-based verification and conformance because it has a validated receipt and a missing tree.\n- I then run fresh home conformance and finish via the finishing reference's retry route, which validates the same receipts again.\n- Receipts are preserved on any seal or home-delivery failure.\n\n---\n\n# Independent run B: receipt URL cannot be fetched\n\n`gh pr view <B receipt URL> --json state,headRefOid` fails with an error.\n\nThe receipt is unverifiable, so:\n- the leg stays unlanded;\n- the missing tree is not admitted;\n- the stripped plan is not admitted, because an absent plan without a fully validated ship retry is a stop.\n\n```\ngauntlet: stuck receipt for repo-b at <receipt path> cannot be validated: gh pr view <url> failed: <error>; missing tree /work/repo-b/.worktrees/feature-shared-change not admitted, stripped plan not admitted\n```\n\nNo tracker call is made, and the receipt is preserved.\n\n---\n\n# Independent run C: live PR is CLOSED\n\n`gh pr view <url> --json state,headRefOid` returns `state: CLOSED`.\n\nA closed PR is not a validated skip, so I stop for disposition.\n\n```\ngauntlet: stuck repo-b receipt PR <url> is CLOSED - not a validated skip; disposition required before retry (missing tree and stripped plan not admitted)\n```\n\nNo tracker call is made, and the receipt is preserved.\n\n---\n\n# Independent run D: copied receipt with no live proof\n\nA copied receipt alone proves nothing. Without live validation, the missing tree and the stripped plan are not admitted.\n\n```\ngauntlet: stuck repo-b receipt <receipt path> has no live proof - a copied receipt is not delivery evidence; missing tree /work/repo-b/.worktrees/feature-shared-change and stripped plan not admitted\n```\n\nNo tracker call is made.\n",
+      "words": 805,
+      "wallMs": 33637,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Run A — OPEN PR, matching head, passed verification\n\n1. Print:\n   ```text\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n2. In repo-b’s repository context, call:\n   ```text\n   gh pr view https://example.test/repo-b/pull/2 --json state,headRefOid\n   ```\n   Observe `OPEN` and head `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`. The delivered head equals the attempted head, and the receipt records passed verification. The missing companion worktree is admitted through this validated receipt.\n3. Use the correctly stripped, ship-stage retry route—not `plan_check` or plan repair:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"brainstorm\" })\n   phase_tracker({\n     action: \"skip\",\n     phase: \"brainstorm\",\n     reason: \"resume: /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\"\n   })\n   phase_tracker({ action: \"start\", phase: \"plan\" })\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: pasted brief\"\n   })\n   phase_tracker({\n     action: \"skip\",\n     phase: \"implement\",\n     reason: \"resume: pasted brief\"\n   })\n   phase_tracker({ action: \"start\", phase: \"verify\" })\n   ```\n4. Print:\n   ```text\n   Gate history not restored; re-validating `W2: reader` before any stage advance\n   ```\n\nThe next prescribed line depends on check 6’s decoded grant, which the input does not supply: either `No standing grant.` or `Standing grant active: <the decoded sentence>`. Neither can be selected faithfully from these observations.\n\nContinuation belongs to verification and finishing: freshly verify the unlanded home using the recorded command, with the home worktree as cwd:\n\n```text\nnode --test test/parser.test.mjs\n```\n\nThen run fresh home conformance against the recorded contracts and original scoped ACs before finishing. The receipt-proven missing repo-b checkout is exempt from checkout-based verification and conformance. No verification result or conformance result is supplied, so neither success nor ship completion can be narrated. Do not repair the stripped plan, fabricate a `plan_check` stamp, or create another companion PR.\n\n## Run B — receipt URL cannot be fetched\n\n1. Print:\n   ```text\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n2. In repo-b’s repository context, call:\n   ```text\n   gh pr view https://example.test/repo-b/pull/2 --json state,headRefOid\n   ```\n   Observe the supplied fetch failure.\n3. Print:\n   ```text\n   gauntlet: stuck repo-b: cannot fetch receipt PR https://example.test/repo-b/pull/2; delivery cannot be validated.\n   ```\n\nStop before any tracker mutation. Preserve the receipt and delivered work. Do not create a replacement PR. The input supplies no literal CLI error text to reproduce.\n\n## Run C — live PR is CLOSED\n\n1. Print:\n   ```text\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n2. In repo-b’s repository context, call:\n   ```text\n   gh pr view https://example.test/repo-b/pull/2 --json state,headRefOid\n   ```\n   Observe `CLOSED`.\n3. Print:\n   ```text\n   gauntlet: stuck repo-b: receipt PR https://example.test/repo-b/pull/2 is CLOSED; stop for disposition.\n   ```\n\nStop before any tracker mutation. A closed PR is not a validated delivery skip. Preserve the receipt; do not create another PR or infer approval.\n\n## Run D — copied receipt without live proof\n\n1. Print:\n   ```text\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n2. Attempt the required live validation in repo-b’s repository context:\n   ```text\n   gh pr view https://example.test/repo-b/pull/2 --json state,headRefOid\n   ```\n   No live proof is supplied.\n3. Print:\n   ```text\n   gauntlet: stuck repo-b: copied receipt has no live delivery proof; cannot admit the missing companion worktree.\n   ```\n\nStop before any tracker mutation. Preserve the receipt. Its presence alone authorizes neither restoration nor duplicate delivery.\n",
+      "words": 480,
+      "wallMs": 31505,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "45af3f6c1527fe7fb06fb5b96414a7812e822c66ebb25e44a527255a84bda10c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2049792b9304d1092ff15d94213bbc3d9c337bee3db7b58c1f27858a3873df4c",
+      "baselineOutputSha": "c4e5fff75219cf6cf4f31f98e208314c4fe3fff912f748d9ba7ccc5310fd0c53",
+      "candidateOutputSha": "970f35ea738b2612e09e49d39e8426a63d5f1c3f4836eb1c0c52dfa92a2fe147",
+      "facts": {
+        "admit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "verify": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs validate the live receipt (gh pr view OPEN, head match, verification passed) before admitting the missing repo-b tree and stripped plan, recover `node --test test/parser.test.mjs` from the recorded contract, run the brainstorm start/skip, plan start/skip, implement skip, verify start chain with no plan_check call and no plan repair, and have B/C/D stop with no tracker calls and no delivery inferred from copied files or the missing plan. After is slightly more explicit on admission ordering and on receipt preservation for runs B and C, but it drops the explicit preservation statement for run D (only 'No tracker call is made'), while Before likewise never states preservation for B/C/D at all, so neither side is weaker than the other on that point. To make the verify fact unambiguous in After, add 'and the receipt is preserved' to run D and state in each stop that the receipt file is left untouched; otherwise the After wording already delivers the coordinated-flow admission, contract-recovery and stop behaviors without regressing anything Before held.",
+      "wallMs": 17151,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "45af3f6c1527fe7fb06fb5b96414a7812e822c66ebb25e44a527255a84bda10c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2049792b9304d1092ff15d94213bbc3d9c337bee3db7b58c1f27858a3873df4c",
+      "baselineOutputSha": "287caecc6080d77ec7871c12480a38a464ea490a25e4183e4944ad7298071952",
+      "candidateOutputSha": "64db1a1ef1ee18301d3f64a7134ec47e7156b2ee5257c0b94dcdf90a233cab06",
+      "facts": {
+        "admit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "verify": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both Before and After validate the live repo-b receipt (gh pr view OPEN, matching head, passed verification) before admitting the missing companion tree and stripped plan, recover `node --test test/parser.test.mjs` from the recorded contract, walk brainstorm start/skip, plan start/skip, implement skip to verify start without inventing a plan_check stamp or repairing the plan, revalidate the unlanded home against recorded contracts/original scoped ACs with fresh conformance, and stop B/C/D before tracker writes while preserving receipts and never inferring delivery from copied files. So the expected fails→holds for legs-receipt/admit and legs-receipt/verify is not an observed move on this case—Before already held both. After's main differences are cosmetic: a skill-announcement line, a merged phase_tracker block, dropped `Closure review re-runs before ship.` line, and a D run that now narrates an attempted gh pr view with no supplied result. None of these weaken the facts, but if you want After to be distinguishable, keep Before's explicit per-call ordering and the closure-review line, and avoid narrating a tool attempt in D whose observation the input does not supply, since that risks reading as a fabricated observation rather than a stop on missing proof.",
+      "wallMs": 11847,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "d2e35168c92e6dd5e2a1bac003344a377448be67"
+}

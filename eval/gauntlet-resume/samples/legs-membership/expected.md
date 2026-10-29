@@ -1,0 +1,1 @@
+- stop: judged: Reports reordered/missing/extra leg and both ordered lists in each case before any tracker write; never silently edits membership.

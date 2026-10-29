@@ -1218,3 +1218,119 @@ test("tests-block: fenced **Tests:** lines are ignored", () => {
   );
   assert.deepEqual(tb(mutated), []);
 });
+
+const coordinatedSpec = ledgerSpec + `\n## Legs
+### Leg: repo-a
+branch: feature/run
+scope: AC 1, AC 2
+### Leg: repo-b
+branch: feature/run
+scope: AC 1
+`;
+const coordinatedLedger = () => ledger(["1 | open | 0 |", "2 | open | 0 |", "3 | cut | 0 | deferred: #70", "4 | open | 0 |"])
+  .replace("base: abc", "base: abc1234\nbase repo-a: abc1234\nbase repo-b: def5678\nseeded repo-a: no\nseeded repo-b: no\ncap: 20")
+  + "\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-a |\n| 4 | 3 | repo-a |\n";
+const emptyPort: FsPort = { exists: () => false, glob: () => [] };
+test("coordinated ledger expands shared ownership and defaults unlisted ACs home", () => {
+  assert.deepEqual(checkPlan(coordinatedLedger(), coordinatedSpec, emptyPort), []);
+});
+for (const scope of ["", "scope: AC 1\nscope: AC 2", "scope: AC 1, AC 1", "scope: AC 0", "scope: AC -1", "scope: AC 1.5", "scope: AC 4", "scope: 1", "scope: AC 1-2", "scope: AC 1,", "scope: none, AC 1"]) {
+  test(`coordinated scope rejects ${JSON.stringify(scope)}`, () => {
+    assert.ok(checkPlan(coordinatedLedger(), coordinatedSpec.replace("scope: AC 1, AC 2", scope), emptyPort).some(f => f.check === "leg-scope"));
+  });
+}
+for (const [name, change] of Object.entries({
+  missingMapping: (s: string) => s.replace("| 2 | 1 | repo-b |\n", ""),
+  duplicateMapping: (s: string) => s + "| 2 | 1 | repo-b |\n",
+  wrongOrder: (s: string) => s.replace("| 1 | 1 | repo-a |", "| 1 | 1 | repo-b |"),
+  foreignBase: (s: string) => s + "base stranger: abc1234\n",
+  missingSeed: (s: string) => s.replace("seeded repo-b: no\n", ""),
+  invalidCap: (s: string) => s.replace("cap: 20", "cap: 0"),
+  homePending: (s: string) => s + "pending: 1 | repo-a | abc1234\n",
+  foreignTarget: (s: string) => s + "pending: 3 | repo-b | abc1234\n",
+  duplicatePending: (s: string) => s + "pending: seed | repo-b | abc1234\npending: seed | repo-b | abc1234\n",
+})) test(`coordinated ledger rejects ${name}`, () => {
+  assert.ok(checkPlan(change(coordinatedLedger()), coordinatedSpec, emptyPort).length);
+});
+test("coordinated ledger admits partial seeds, recovery tuples and later cap grants", () => {
+  for (const target of ["2", "seed"]) assert.deepEqual(checkPlan(coordinatedLedger().replace("seeded repo-a: no", "seeded repo-a: yes").replace("cap: 20", "cap: 99") + `pending: ${target} | REPO-B | abc1234\n`, coordinatedSpec, emptyPort), []);
+});
+
+const legPlanSpec = SPEC_TEXT + "\n## Legs\n### Leg: repo-a\nscope: none\n### Leg: repo-b\nscope: none\n";
+const legPlan = () => VALID_PLAN.replace("---", "Baseline repo-a: abc1234\nBaseline repo-b: def5678\n---")
+  .replace("### Task 2: Implement naming", "## Wave 3 - Companion\n\n### Task 2: Implement naming\nLeg: REPO-B")
+  .replace("- baseline: abc1234 pass\n\nThis task handles", "- baseline: def5678 pass\n\nThis task handles");
+test("plan accepts distinct leg baselines, case-insensitive membership and absent home Leg", () => {
+  const probes: (string | undefined)[] = [];
+  assert.deepEqual(checkPlan(legPlan(), legPlanSpec, { exists: (_p, leg) => { probes.push(leg); return true; }, glob: () => [] }), []);
+  assert.ok(probes.includes("repo-b"));
+  assert.ok(probes.includes("repo-a"));
+});
+test("wrong-leg baseline and mixed-leg waves fail", () => {
+  assert.ok(checkPlan(legPlan().replace("def5678 pass", "abc1234 pass"), legPlanSpec, alwaysTruePort()).some(f => f.check === "baseline-line"));
+  assert.ok(checkPlan(legPlan().replace("## Wave 3 - Companion\n\n", ""), legPlanSpec, alwaysTruePort()).some(f => f.check === "wave-leg"));
+});
+test("unknown legs fail before filesystem probing", () => {
+  const probes: string[] = [];
+  assert.ok(checkPlan(legPlan().replace("Leg: REPO-B", "Leg: stranger"), legPlanSpec, { exists: (p) => { probes.push(p); return true; }, glob: () => [] }).some(f => f.check === "leg-unknown"));
+  assert.deepEqual(probes, []);
+});
+test("cross-leg creates do not supply Test paths or skipped baseline evidence", () => {
+  const plan = legPlan().replaceAll("extensions/lib/fixture-task2.test.ts", "extensions/lib/fixture-task1.ts").replace("def5678 pass", "def5678 skipped - extensions/lib/fixture-task1.ts created by this task");
+  const findings = checkPlan(plan, legPlanSpec, { exists: p => p !== "extensions/lib/fixture-task1.ts", glob: () => [] });
+  assert.ok(findings.some(f => f.check === "tests-block" && /unknown/.test(f.reason)));
+  assert.ok(findings.some(f => f.check === "baseline-line" && /not a Create/.test(f.reason)));
+});
+test("identical paths across legs do not overlap even in rejected mixed waves", () => {
+  const plan = legPlan().replace("## Wave 3 - Companion\n\n", "").replaceAll("fixture-other.ts", "fixture-shared.ts");
+  assert.deepEqual(checkPlan(plan, legPlanSpec, alwaysTruePort()).filter(f => f.check === "wave-file-disjointness"), []);
+});
+
+for (const [name, change] of Object.entries({
+  duplicateBase: (s: string) => s + "base repo-b: def5678\n",
+  malformedSha: (s: string) => s.replace("base repo-b: def5678", "base repo-b: not-a-sha"),
+  baseMismatch: (s: string) => s.replace("base: abc1234", "base: bbb1234"),
+  invalidSeed: (s: string) => s.replace("seeded repo-a: no", "seeded repo-a: maybe"),
+  duplicateSeed: (s: string) => s + "seeded repo-b: yes\n",
+  negativeIterations: (s: string) => s.replace("iterations: 0", "iterations: -1"),
+  unsafeIterations: (s: string) => s.replace("iterations: 0", "iterations: 9007199254740992"),
+  fractionalCap: (s: string) => s.replace("cap: 20", "cap: 1.5"),
+  unsafeCap: (s: string) => s.replace("cap: 20", "cap: 9007199254740992"),
+  malformedPending: (s: string) => s + "pending: 2 | repo-b | not-a-sha\n",
+  unknownPending: (s: string) => s + "pending: seed | stranger | abc1234\n",
+  nonexistentPending: (s: string) => s + "pending: 99 | repo-b | abc1234\n",
+  nonexistentAC: (s: string) => s.replace("| 4 | 3 | repo-a |", "| 4 | 4 | repo-a |"),
+  duplicatePair: (s: string) => s.replace("| 2 | 1 | repo-b |", "| 2 | 1 | repo-a |"),
+  unknownMapping: (s: string) => s.replace("| 2 | 1 | repo-b |", "| 2 | 1 | stranger |"),
+  disposition: (s: string) => s.replace("| 3 | cut | 0 | deferred: #70 |", "| 3 | open | 0 | |"),
+})) test(`coordinated metadata rejects ${name}`, () => {
+  assert.ok(checkPlan(change(coordinatedLedger()), coordinatedSpec, emptyPort).length);
+});
+test("scope textual order does not change original AC or member order, and design claims no ownership", () => {
+  const spec = coordinatedSpec.replace("scope: AC 1, AC 2", "scope: AC 2, AC 1\ndesign: AC 3 touches lib/other.ts");
+  assert.deepEqual(checkPlan(coordinatedLedger().replace("| 4 | open | 0 | |", "| 4 | done | 1 | checked a\\|b |"), spec, emptyPort), []);
+});
+test("scope none defaults all original ACs home, preserving cut numbering and ignoring nested checks", () => {
+  const spec = coordinatedSpec.replace("- [ ] First", "- [ ] First\n  - [ ] Nested").replace("scope: AC 1, AC 2", "scope: none").replace("scope: AC 1\n", "scope: none\n");
+  const input = coordinatedLedger().replace("| 2 | open | 0 | |\n", "").replace("| 3 | cut", "| 2 | cut").replace("| 4 | open", "| 3 | open")
+    .replace("| 2 | 1 | repo-b |\n", "").replace("| 3 | 2 | repo-a |", "| 2 | 2 | repo-a |").replace("| 4 | 3 | repo-a |", "| 3 | 3 | repo-a |");
+  assert.deepEqual(checkPlan(input, spec, emptyPort), []);
+});
+test("single-member ledger preserves legacy headers and four-column bytes", () => {
+  assert.deepEqual(checkPlan(ledger(), ledgerSpec + "\n## Legs\n### Leg: repo-a\n", emptyPort), []);
+});
+test("leg-local globs and plain Files: resolve at each normalized leg", () => {
+  const calls: string[] = [];
+  const plan = legPlan().replaceAll("**Files:**", "Files:").replace("Modify: extensions/lib/fixture-other.ts", "Modify: extensions/lib/companion-*.ts");
+  assert.deepEqual(checkPlan(plan, legPlanSpec, { exists: () => true, glob: (pattern, leg) => { calls.push(`${leg}:${pattern}`); return ["extensions/lib/companion-one.ts"]; } }), []);
+  assert.deepEqual(calls, ["repo-b:extensions/lib/companion-*.ts"]);
+});
+test("coordinated scope counts only original unfenced top-level AC rows", () => {
+  const spec = coordinatedSpec.replace("- [ ] First", "```text\n- [ ] Example, not an AC\n```\n- [ ] First");
+  assert.deepEqual(checkPlan(coordinatedLedger(), spec, emptyPort), []);
+  assert.ok(checkPlan(coordinatedLedger(), spec.replace("scope: AC 1\n", "scope: AC 4\n"), emptyPort).some(f => f.check === "leg-scope"));
+});
+test("coordinated ledger rejects duplicate mapping sections", () => {
+  const input = coordinatedLedger();
+  assert.ok(checkPlan(input + input.slice(input.indexOf("## Leg mapping")), coordinatedSpec, emptyPort).length);
+});

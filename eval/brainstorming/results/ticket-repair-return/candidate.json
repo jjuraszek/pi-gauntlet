@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "candidate",
-  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
+  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nThe repaired acme/widgets#77 is re-fetched, and its one criterion, \"The report-view setting uses the shared settings resolver.\", is now in-scope as written. It matches the kept framing: the new key gets its default in `settings/resolver.ts:12` and reaches `ui/report-view.ts:30` through the path I already traced. I'm recording that in the draft as an assumption, so there is no cut question left for this row.\n\nOne open point remains: what happens to active report filters when the user switches workspaces? This also sets what the new setting controls and its default.\n\nA) Reset by default: switching workspaces clears report filters, and the setting lets a user keep filters across workspaces instead.\nB) Keep by default: today's carry-over stays the default, and the setting turns on reset for users who want it.\nC) Partial reset: on a switch, drop only the filters that don't apply in the new workspace and keep the rest, with the setting choosing between this and always-reset.\nD) Other: name it.\n\nRecommendation: A - the ticket's reported failure is carried-over filters hiding rows in the new workspace, so resetting by default fixes it for everyone, and the resolver-backed setting still lets anyone who relies on today's carry-over keep it.\n",
-      "words": 201,
-      "wallMs": 11858,
+      "text": "The ticket repair is saved and re-extracted. acme/widgets#77's only acceptance row now reads \"The report-view setting uses the shared settings resolver.\" The spec carries it as `in-scope`. That matches the path already traced: settings/resolver.ts:12 owns the defaults and ui/report-view.ts:30 consumes the resolved settings. No disposition or deviation is needed.\n\nThe setting still has no defined behavior. The open question is what happens to active report filters when the user switches workspaces. Which outcome should the setting control?\n\nA) Reset by default: filters clear on workspace change, and the setting lets users opt in to keeping them.\nB) Keep by default: current behavior stays, and the setting lets users opt in to clearing filters on workspace change.\nC) Prune by default: filters that don't apply to the new workspace are dropped and the rest are kept, and the setting switches between pruning and keeping everything.\nother - name it.\n\nRecommendation: A - the report is about filters carried into a new workspace and hiding its rows. A reset default fixes that for every user, and the default lives in the resolver that already owns settings defaults.\n",
+      "words": 183,
+      "wallMs": 11279,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nThe repaired acme/widgets#77 now requires the shared settings resolver, so that ownership decision is settled. What should the report-view setting do when switching workspaces?\nA) Reset filters by default, with an option to retain them across workspace changes.\nB) Retain filters by default, with an option to reset them on workspace changes.\nC) Other - name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while preserving an opt-in way to carry them across.\n",
-      "words": 82,
-      "wallMs": 8614,
+      "text": "The saved repair is verified: acme/widgets#77 now requires the shared settings resolver, matching the traced resolver-to-report-view path. That criterion is in scope; the framing remains kept.\n\nWhat should the new setting do when the user switches workspaces?\nA) Reset report filters by default, with an option to preserve them.\nB) Preserve report filters by default, with an option to reset them.\nC) Other - name the desired behavior.\nRecommendation: A - it addresses filters unexpectedly hiding rows in the new workspace while allowing users to retain the existing behavior.\n",
+      "words": 87,
+      "wallMs": 8544,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "2225cbccfcc862fe8b43aa56dfe91a077c5ef3f289388ba5a965a8a781caa52a",
-      "candidateOutputSha": "1a734dc96714e90aa5dedb58a249eb24b0eb2cc3a076417bd8c358656a4209f4",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "e01013d0941c9872d837954a77b2fe4ed631af357defc07b51c7aa06eb0bb617",
+      "candidateOutputSha": "e01013d0941c9872d837954a77b2fe4ed631af357defc07b51c7aa06eb0bb617",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs treat the saved and re-fetched shared-resolver criterion as settled without re-asking for repair approval or asserting any result beyond the recorded observations, and both resume the unresolved workspace-switch reset question with labeled A-D options and an own-line Recommendation instead of stopping at a ticket-update report. The After adds the column-zero `gauntlet: question` classifier line ahead of the prose, which is the intended gate-line-first move and does not disturb either fact here. One wording risk worth tightening in After: 'I'm recording that in the draft as an assumption' reads oddly for a criterion that is verified in-scope against traced code, and a stricter judge on another sample could read 'assumption' as hedging on fetched evidence; phrasing it as 'recording that in-scope result in the draft' would keep f1 unambiguous while retaining the classifier line and the rest of the After layout.",
-      "wallMs": 10740,
+      "feedback": "Before and After are textually identical, so nothing moved on this continuation case. Both outputs use the verified shared-resolver criterion as the sole acceptance row, cite the saved-body verification without re-asking for repair approval or asserting any unfetched result (f1), and then resume the undecided reset-on-workspace-change question with a lead-in, labeled options A/B/C plus an 'other' line, and a final own-line Recommendation rather than stopping at the ticket-update report or jumping to approaches (f2). The After wording preserved everything here; no adjustment is needed for this case, though if later assembly edits touch the ticket-repair-return slice, keep the 'repair saved and re-extracted → resume the open design question' sequencing intact as it reads now.",
+      "wallMs": 7311,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "cbc6a153969bb91d90d67916c43e9a0cf9e30e0e8fa260aac80746c7a6354d26",
-      "candidateOutputSha": "98dad4751eb2eda709e65d95d3051d39650f02a60ea14bd8102246350727fa4d",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "9b0fc6183daaa1121d4c40754884062ad40a0e2bc54b2072030d727bd15158ca",
+      "candidateOutputSha": "9b0fc6183daaa1121d4c40754884062ad40a0e2bc54b2072030d727bd15158ca",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,97 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs adopt the repaired shared-resolver criterion from the latest verified tool result without re-asking for repair approval or inventing an unfetched outcome (f1), and both resume the open reset-behavior question with lettered options on their own lines and a final Recommendation line instead of stopping at a ticket-update report or jumping to approaches (f2). After additionally places the column-zero `gauntlet: question` marker as its first line, which is the intended gate-line-first change, and still keeps the lead-in, per-line options, and own-line recommendation layout. One small regression worth watching, though it does not touch a listed fact: After drops the explicit `settings/resolver.ts:12` → `ui/report-view.ts:30` trace that Before cited, and its options A/B fold a secondary 'with an option to...' design detail into what should be a pure reset-vs-retain decision. Keeping the one-sentence code-path reference after the marker and offering plain Clear/Retain/Restore/Other options would preserve Before's precision while still delivering the marker-first classification.",
-      "wallMs": 10992,
+      "feedback": "Before and After are textually identical, so nothing moved. Both open by stating the repair is verified and that acme/widgets#77 now requires the shared resolver, which matches the latest tool result exactly, with no re-request for approval and no claim beyond the fetched verification (f1 holds in both). Both then resume the still-open reset-on-workspace-change question with a lead-in, labeled options A/B/C each on its own line, and a final own-line Recommendation, rather than stopping at a ticket-update report or jumping to approaches (f2 holds in both). The After wording preserved every fact Before kept; no adjustment is needed for this case, and the current layout (lead-in, one option per physical line, Recommendation on its own final line) is the pattern to keep for the questionary contract while the broader Change lands elsewhere.",
+      "wallMs": 7682,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "ticket-repair-return",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
-      "candidateSkillSha": "e56966ab6f37d59c93529bd405e54013ce529262d21820b8b32ab4898250b062",
-      "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
-      "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "d47168ad43b521e0a3309023953fce4af4e7593adddcd9bfb82dc8d6389cc8ba",
-            "payloadSha": "a040efa643f88dab5f2756978326d294dac03e39dc9a418e270fe7331342b82a"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "e90544a6ec928877a63d5cdf2d8111e275d71e7582dd7ebfda336df1450bcddb",
-            "payloadSha": "a8e89e041e88cf0152179218ba8a692a1cd9e5cd8e17977489215bc10b5df2d6"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "d47168ad43b521e0a3309023953fce4af4e7593adddcd9bfb82dc8d6389cc8ba",
-        "candidateOutputSha": "e90544a6ec928877a63d5cdf2d8111e275d71e7582dd7ebfda336df1450bcddb",
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Nothing moved on this continuation: both outputs consume the verified shared-resolver criterion from the latest tool result without re-asking for repair approval or asserting any unfetched state, and both resume the open workspace-switch question with labeled single-line options and an own-line Recommendation instead of stopping at a ticket-update report or jumping to approaches. After adds the column-zero `gauntlet: question` marker and a third concrete option (per-workspace memory), which are compatible with the Change and the questionary layout. Two small retention points worth keeping in After's wording so future regenerations stay stable: Before explicitly says 'verified' (tying the claim to the saved-body verification) and restates 'Framing remains kept'; After drops both, saying only 'now requires' and 'I'll keep it in scope'. Phrasing such as 'Saved-body verification confirms acme/widgets#77 now requires the shared settings resolver; framing stays kept' would preserve that provenance and framing echo while still delivering the gate-line-first classification and the fuller option set.",
-        "wallMs": 9903,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "d47168ad43b521e0a3309023953fce4af4e7593adddcd9bfb82dc8d6389cc8ba",
-        "candidateOutputSha": "e90544a6ec928877a63d5cdf2d8111e275d71e7582dd7ebfda336df1450bcddb",
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Neither fact changed: After accepts the verified repaired criterion without reopening approval and resumes the unresolved reset decision with labeled options and a recommendation, without advancing to approaches. The added per-workspace option remains a clarification choice, not an approved design. To preserve both facts while delivering the broader change, keep this decision gate intact and defer approach inventories, shared-path changes, and design/test mappings until the reset behavior is resolved; retaining the resolver-to-view evidence in the recap would also preserve useful grounding from Before.",
-        "wallMs": 7099,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

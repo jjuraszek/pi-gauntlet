@@ -1,0 +1,2 @@
+- membership: judged: A and E stay single-member, B selects only repo-b and creates fresh trees with explicit primary ROOT and feature/shared-change despite linked session; C asks once to disambiguate before any creation.
+- identity: judged: Single-member new specs carry exactly one ### Leg: under ## Legs and no companion file, legs: brief, --leg, receipt or companion loop; legacy specs stay home-only without requiring Legs.

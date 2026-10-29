@@ -1,7 +1,7 @@
 {
   "sample": "shared-helper-option",
   "arm": "candidate",
-  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
+  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
   "inputSha": "20715d4d017dab30b527dbc7e7ea1d0373405dca50a1670eba80029b1d7b9506",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**(1) First message to the user**\n\n```text\ngauntlet: question\nThe framing holds: I checked lib/notify.ts#post, which owns the `[notice]` formatting, the two-attempt retry loop, and the hard-coded `\"general\"` channel (lib/notify.ts:2-6). I also traced both caller paths: jobs/report.ts#report inlines the same formatting and retry loop to send to the caller's channel (jobs/report.ts:2-6), and jobs/digest.ts calls `post(\"Daily digest\")` with only a message (jobs/digest.ts:2). The trace found no other loader, runtime dependency, or verification dependency on either path.\nOn premises: the draft's three claims are supported by those files. None was disproved, corrected, or left unverified, and no implicit dependency is missing or uncheckable.\nExisting default-channel calls such as the digest must keep working. How much may the caller contract change?\nA) backward-compatible: an optional channel argument, with existing message-only calls untouched\nB) breaking but explicit: a required channel argument, with every existing call site updated to pass \"general\"\nC) no signature change: report keeps its own send path\nD) other - name it\nRecommendation: A - it preserves retries and the digest's default with zero edits to existing callers.\n```\n\n---\n\n**(2) Approaches message** (after the recorded answers: the framing is kept, A is allowed, no new service, and B is allowed for comparison)\n\n```text\ngauntlet: question\nNo implicit dependency was recorded as missing or uncheckable. The trace of post, report, and digest found no loader, runtime, or verification dependency beyond those three files.\n\nThe two approaches differ on one axis: whether `post`'s channel stays implicit (defaulting to general) or becomes explicit at every call site. Both drop report's duplicate send loop. I recommend approach A.\n\n**A) Optional channel on the shared helper (recommended, reuse-only).** lib/notify.ts#post is the nearly-fitting shared path. It already owns formatting and retries and lacks only a caller-chosen channel. We add `channel = \"general\"` as an optional second parameter and make jobs/report.ts#report delegate to `post(message, channel)`. The digest call stays as written and still lands in general. Formatting and retries live in one place, so a future retry change reaches report automatically. The blast radius is limited to post's signature and the one delegating caller, and no existing call site changes. The trade-off is that the default stays implicit, so a new caller who forgets the argument silently posts to general.\nRemoves: the inline JSON body and two-attempt retry loop in jobs/report.ts#report\nAdds: an optional `channel` parameter defaulting to \"general\" on lib/notify.ts#post; report's call to `post(message, channel)`; tests for post honoring a passed channel, post defaulting to general, and report retrying via post\nPattern: follows the single owning notification path in lib/notify.ts#post and removes the inline copy in jobs/report.ts:2-6, which is the debt.\n\n**B) Required channel on the shared helper (drops the implicit-default assumption).** This approach also extends lib/notify.ts#post, but makes `channel: string` required and deletes the `\"general\"` literal from the helper. Report delegates as in A, and jobs/digest.ts becomes `post(\"Daily digest\", \"general\")`. Every destination is visible at its call site, and the compiler flags any caller that omits one. The cost is a larger blast radius: every existing `post` caller must change in the same edit. That is only the digest in the traced code, but any untraced caller breaks the build until updated. The default also stops being a helper-level contract and becomes a convention repeated at each caller.\nRemoves: the inline JSON body and retry loop in jobs/report.ts#report; the hard-coded \"general\" channel in lib/notify.ts#post\nAdds: a required `channel` parameter on lib/notify.ts#post; `\"general\"` passed explicitly in jobs/digest.ts; report's call to `post(message, channel)`; tests for post honoring the passed channel, digest posting to general, and report retrying via post\nPattern: follows the owning path in lib/notify.ts#post but cuts across the caller contract jobs/digest.ts:2 relies on, trading a central default for repeated literals.\n\nA new notification service is not an approach here. You ruled it out, and post already owns the contract. Keeping report's inline loop is not viable either: it is the duplication the shared helper replaces.\n\nWhat would flip the recommendation to B: if silent misrouting to general is a real risk, for example more callers that must never post to general by accident.\n\nWhich approach goes into the design?\nA) optional channel on post\nB) required channel on post\nC) other - name it\nRecommendation: A - same outcome with no change to existing callers.\n```\n",
+      "text": "## (1) First message to the user\n\nThe framing holds. I checked `lib/notify.ts#post` (lines 1-7), which owns the `[notice]` formatting and the two-attempt retry loop but fixes `channel: \"general\"`. I traced `jobs/report.ts#report` (lines 1-7), which copies that formatting and retry loop so it can send to the passed `channel`. I traced `jobs/digest.ts` (line 2), which calls `post(\"Daily digest\")` with no channel and relies on the `general` default. The gather draft found no extra loader or runtime dependency on any of these paths.\n\nBefore the questions, here are the premises. Three claims are supported by primary code:\n\n- `post` hardcodes `general` and owns the retry contract (`lib/notify.ts:2-6`).\n- `report` duplicates that body byte-for-byte except for the channel (`jobs/report.ts:2-6`).\n- `digest` is a default-channel caller of `post` (`jobs/digest.ts:2`).\n\nNo claim was disproved or corrected. The design does not depend on any unverified claim. I also found no missing or uncheckable implicit dependency: the repro path for both callers is a direct `fetch` to `https://notify.invalid/post`, with nothing loaded in between.\n\nHow must existing callers of `post` be treated when the channel becomes selectable?\nA) Backward-compatible: an optional channel argument, so `digest` and any default-channel call stay unchanged\nB) Explicit everywhere: a required channel argument, with `general` written at every existing call site\nC) other - name it\nRecommendation: A - It reaches the requested channel through the owning helper with zero edits to existing callers.\n\n---\n\n## (2) Approaches message\n\nNo implicit dependency was recorded as missing or not checkable, so there is nothing to restate before the approaches. Both traces needed only `lib/notify.ts`, `jobs/report.ts`, and `jobs/digest.ts`.\n\nThe two approaches differ on one axis: whether `post` keeps an implicit `general` default or every caller must name its channel. Both delete the copied retry loop in `jobs/report.ts`. That copy is the debt here, and neither approach extends it. No new notification service is proposed, per your answer.\n\n**Recommended: optional channel on the shared helper (reuse-only).** `post` gains `channel = \"general\"` as an optional second parameter and builds its body from it. `report` becomes a one-line delegation: `return post(message, channel)`.\n\n- `digest` and any other default-channel call stay untouched.\n- Retries and formatting remain owned in one place, so the report job inherits any future retry change instead of drifting.\n- Blast radius is limited to `post`'s signature and `report`'s body.\n- The trade-off is that the `general` default stays implicit. A future caller that forgets the argument silently lands in `general`.\n\nRemoves: the inline body construction and retry loop in `jobs/report.ts` (lines 2-6)\nAdds: an optional `channel` parameter on `lib/notify.ts#post` defaulting to `\"general\"`; a delegating call to `post(message, channel)` in `jobs/report.ts#report`; tests for `post` sending to a given channel, defaulting to `general`, and retrying once before throwing\nPattern: follows the owning notification path (`lib/notify.ts:1`) and removes the copy beside its caller (`jobs/report.ts:2-6`); a defaulted parameter on the shared construct is a reuse-only change.\n\n**Alternative: required channel argument.** `post(message, channel)` takes the channel as mandatory. `digest` becomes `post(\"Daily digest\", \"general\")`, and every other existing call site writes `general` explicitly. `report` delegates exactly as above.\n\n- This drops the ask's assumption that a hidden default must survive, which you allowed.\n- Every send states its destination, so the type checker catches a misrouted or forgotten channel.\n- Blast radius covers every caller of `post`. Today that is `jobs/digest.ts:2` per the gather trace, but the cost grows with each caller elsewhere, and each one is an edit that must be reviewed.\n- It changes existing default-channel calls rather than preserving them verbatim.\n\nRemoves: the inline body construction and retry loop in `jobs/report.ts` (lines 2-6); the hardcoded `\"general\"` in `lib/notify.ts:2`\nAdds: a required `channel: string` parameter on `lib/notify.ts#post`; an explicit `\"general\"` argument at `jobs/digest.ts:2` and every other `post` call site; a delegating call in `jobs/report.ts#report`; tests for channel routing and retry\nPattern: follows the same single owning path (`lib/notify.ts:1`) and removes the duplicated loop; it trades the implicit default for explicit call-site contracts at a wider caller blast radius.\n\nI recommend the optional argument because it meets every recorded requirement with the smallest change surface. I would switch to the required argument if a misrouted message caused by a forgotten channel is a real risk you want caught at compile time, or if the caller search turns up more `post` callers whose intended channel is not actually `general`.\n",
       "words": 703,
-      "wallMs": 33016,
+      "wallMs": 30509,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## 1. First message\n\nThe framing holds: the supplied primary code shows that `lib/notify.ts#post` owns notification formatting and retries, while `jobs/report.ts#report` duplicates both to select a channel. Tracing `jobs/digest.ts` confirms that its message-only call must continue delivering to `general`. The gather findings report no additional loader or runtime dependency.\n\nThe duplication is supported by both implementations: each prefixes the message with `[notice]`, attempts delivery twice when `fetch` throws, and rethrows the second failure. No premise is contradicted or remains unverified within these supplied paths.\n\nYour recorded answers keep this framing and allow either an optional channel argument or a required channel argument. I’ll compare those directly, without introducing a notification service or asking another clarification question.\n\n## 2. Approaches message\n\nI recommend **extending the existing helper with an optional channel argument**. Both approaches consolidate formatting and retries under `lib/notify.ts#post`; the distinguishing axis is whether channel selection remains optional for callers or becomes mandatory. Neither requires a new service, and neither has a missing or uncheckable dependency in the supplied traces.\n\n### A) Optional channel argument — recommended, minimal reuse-only change\n\nChange the helper signature to `post(message: string, channel: string = \"general\")` and use that channel in its existing payload. Replace the report job’s inline implementation with a call to `post(message, channel)`. Leave the digest call unchanged.\n\nThis delivers reports to the requested channel while preserving message-only callers, the `[notice]` prefix, and the existing retry behavior. It makes the smallest caller-facing change. Its trade-off is that callers may omit a channel inadvertently, though retaining that default is explicitly required for existing callers.\n\nRemoves: the inline payload formatting, fetch call, and retry loop from `jobs/report.ts`.\nAdds: a defaulted channel parameter and channel payload reference in `lib/notify.ts#post`; a helper import and delegation call in `jobs/report.ts`; tests covering requested-channel delivery, default-channel delivery, formatting, retry success, and final failure.\nPattern: consolidates duplicated behavior into its existing owner, `lib/notify.ts#post`, while preserving the message-only contract used by `jobs/digest.ts`.\n\n### B) Required channel argument — explicit selection at every caller\n\nChange the helper signature to `post(message: string, channel: string)`. Have the report job delegate with its requested channel, and update the digest to call `post(\"Daily digest\", \"general\")`.\n\nThis drops the assumption that the shared helper must supply the default. It preserves the digest’s delivery destination, but not its existing message-only call form. Every caller must select a channel explicitly; that makes routing visible but increases migration scope and repeats the default at callers. Your recorded answer permits this alternative, although it is less compatible than A.\n\nRemoves: the inline payload formatting, fetch call, and retry loop from `jobs/report.ts`; the helper’s hard-coded channel.\nAdds: a required channel parameter and channel payload reference in `lib/notify.ts#post`; a helper import and delegation call in `jobs/report.ts`; an explicit `\"general\"` argument in `jobs/digest.ts`; tests covering both caller destinations, formatting, retry success, and final failure.\nPattern: retains shared notification ownership in `lib/notify.ts#post`, but deliberately changes the message-only calling convention demonstrated by `jobs/digest.ts`.\n\nI would switch to B only if making channel selection mandatory at every call site became more important than preserving existing message-only calls.\n",
-      "words": 503,
-      "wallMs": 25522,
+      "text": "## 1. First message\n\nThe framing holds: I checked `lib/notify.ts#post`, traced the inline delivery in `jobs/report.ts`, and traced `jobs/digest.ts`’s one-argument call. Both delivery implementations use the same `[notice]` formatting and two-attempt retry behavior; the meaningful difference is their channel selection.\n\nThe supplied code supports making the shared helper own report delivery without introducing a service. Digest’s existing call currently selects `general`, and that behavior must remain. The traced paths introduce no additional loader or runtime dependency; no load-bearing premise remains unverified.\n\nYour recorded answers settle compatibility: compare an optional channel argument against a required argument with explicit `general` at existing call sites, without another clarification turn.\n\n## 2. Approaches message\n\n**I recommend the optional channel argument.** The approaches differ in where responsibility for the default channel lives: inside the shared helper or at every caller.\n\n### A) Keep the default in the shared helper\n\nChange the signature to `post(message: string, channel: string = \"general\")` and use `channel` in the existing payload. Replace report’s inline delivery with `post(message, channel)`. Leave digest unchanged.\n\nThis is the minimal reuse-only approach: the existing owning path already supplies formatting and retries and lacks only caller-selectable channel routing. It preserves one-argument compatibility while removing the duplicate implementation. The trade-off is that callers can omit a channel, so their destination is implicit.\n\nRemoves: The duplicated payload construction, fetch call, and retry loop from `jobs/report.ts`.\nAdds: A defaulted channel parameter and its payload use in `lib/notify.ts`; a `post` import and delegation in `jobs/report.ts`.\nPattern: Consolidates delivery under the existing owner, `lib/notify.ts#post`, while preserving the default-channel calling convention demonstrated by `jobs/digest.ts`.\n\n### B) Require every caller to name its channel\n\nChange the signature to `post(message: string, channel: string)`. Have report delegate with its requested channel, and update digest to `post(\"Daily digest\", \"general\")`.\n\nThis drops the assumption that the helper must retain an implicit default, an alternative your recorded answer permits. Delivery still has one implementation, and destinations become explicit at call sites. However, the signature change affects every caller: digest must change despite needing no behavioral change, and any additional one-argument consumers would require migration.\n\nRemoves: The duplicated payload construction, fetch call, and retry loop from `jobs/report.ts`; the helper’s implicit default-channel behavior.\nAdds: A required channel parameter and its payload use in `lib/notify.ts`; a `post` import and delegation in `jobs/report.ts`; an explicit `\"general\"` argument in `jobs/digest.ts`.\nPattern: Retains centralized delivery in `lib/notify.ts#post`, but deliberately replaces the one-argument caller contract shown in `jobs/digest.ts`.\n\nBoth approaches preserve formatting, two total attempts, success return behavior, and propagation of the second failure. Neither needs a new service or a parallel delivery helper.\n\n**I would switch to B only if explicit destination selection at every call site becomes more important than preserving the existing one-argument API.**\n",
+      "words": 447,
+      "wallMs": 19786,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "dbfbc3711d6154e5421cac23b28618886fd7362bbd3fbb40547414dfdde35275",
-      "candidateOutputSha": "92c55001f1c3f333632fa4e4ed6a8b47eb6edbc58a1530acf609b138b3bb71bc",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "d2a6fc05d65998960412d37b746af5ef0fd851038201282a165ecfdc59455fa3",
+      "candidateOutputSha": "d2a6fc05d65998960412d37b746af5ef0fd851038201282a165ecfdc59455fa3",
       "facts": {
         "reuse-path": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. Before already names lib/notify.ts#post in the recommended candidate's Adds and Pattern lines, proposes adding a `channel` parameter to it, and drops the inline loop in jobs/report.ts, so reuse-path, moving-parts, and no-copy all hold there; After keeps all three, and its sentence 'lib/notify.ts#post is the nearly-fitting shared path. It already owns formatting and retries and lacks only a caller-chosen channel' states the missing override explicitly inside the candidate rather than leaving it to the first message, which is the sturdier wording for reuse-path. Both outputs place Removes:/Adds: immediately before Pattern: on both viable approaches, and both explicitly reject keeping report's inline copy. If you want After to be strictly safer, keep that 'lacks only a caller-chosen channel' phrasing as the required disclosure for the reuse-only candidate and make sure the Removes/Adds/Pattern block stays unbroken by the gauntlet: question fence or any added option lines (After's extra C 'no signature change' option in message 1 is harmless to these facts but is not an approach the Change asked for).",
-      "wallMs": 20703,
+      "feedback": "The Before and After outputs are textually identical for this case, so no fact moved. Both name lib/notify.ts#post as the owning helper, identify its hardcoded channel: \"general\" as the missing channel override, propose adding a defaulted channel parameter to that helper, place Removes: and Adds: lines directly before Pattern: on both viable approaches, and recommend deleting the copied formatting/retry loop in jobs/report.ts in favor of delegation. The Expected-to-move list anticipated fails -> holds for all three facts, but Before already satisfies them here, so the After wording preserves rather than introduces these behaviors on this sample; no wording adjustment is needed to keep every fact Before kept.",
+      "wallMs": 7240,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "a9a85d2fc8943cbc3de42afed27935878bfcdc27635d8e6e8baad80615a7b8f8",
-      "candidateOutputSha": "a84b548106b2c64fc6c1fe6f81d754f29e9878dabf6800455fab4156d462d506",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "9c2af1245ccca394d14d843bab1125e4cf4e8843d80d7180b95f47968c10976a",
+      "candidateOutputSha": "9c2af1245ccca394d14d843bab1125e4cf4e8843d80d7180b95f47968c10976a",
       "facts": {
         "reuse-path": {
           "before": "holds",
@@ -81,107 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs name `lib/notify.ts#post` as the owning path, identify the hard-coded `general` channel as the missing override (Before in the first message, After in both the first message and approach B's Removes line), recommend changing the helper with a defaulted channel parameter, and place Removes:/Adds: immediately before Pattern: on both viable approaches with the duplicate report-side formatting and retry loop removed rather than retained. After is marginally stronger on reuse-path because it states the missing override inside the approaches message itself (\"the helper's hard-coded channel\") rather than relying on the first message; if you want that robustness guaranteed, add wording requiring the reuse-only candidate to name the shared path and its specific missing capability within its own section, not just in the premise note, while keeping the Removes/Adds/Pattern ordering rule as written.",
-      "wallMs": 13950,
+      "feedback": "Before and After are textually identical, so nothing moved. Both outputs already satisfy all three facts: approach A is explicitly labeled the reuse-only candidate, names `lib/notify.ts#post` as the existing owning path, identifies that it lacks only caller-selectable channel routing, and proposes changing its signature; both viable approaches carry Removes: and Adds: lines immediately before Pattern:; and the recommendation (A) changes the shared helper and removes the duplicated payload/fetch/retry loop from `jobs/report.ts` rather than copying or retaining it. The expected fails->holds movement on this sample is therefore not observable here because the Before arm already holds; the After wording should be kept as-is, and the author may want to re-check whether the recorded baseline for this sample was generated from a different pre-edit assembly than the one shown.",
+      "wallMs": 8441,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "shared-helper-option",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
-      "candidateSkillSha": "e56966ab6f37d59c93529bd405e54013ce529262d21820b8b32ab4898250b062",
-      "inputSha": "20715d4d017dab30b527dbc7e7ea1d0373405dca50a1670eba80029b1d7b9506",
-      "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "32420c30e01b7b4ff1eba19fd20cbca07c7546b5e8f7d085727b0a09734dd169",
-            "payloadSha": "692fb52038c37a8b700c11892d9af2c99ebe2bd2f078f91c4587098d74ca23f1"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "3f25cc81131be70aa72ea0fa7b18e446cfc2d5f9924bc3104b7acacb28181592",
-            "payloadSha": "0015f9b88204da65004961d174b4a5acbe4198afa1f6cd9523bbba898fa4ce9f"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "32420c30e01b7b4ff1eba19fd20cbca07c7546b5e8f7d085727b0a09734dd169",
-        "candidateOutputSha": "3f25cc81131be70aa72ea0fa7b18e446cfc2d5f9924bc3104b7acacb28181592",
-        "facts": {
-          "reuse-path": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "moving-parts": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "no-copy": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Nothing moved: both outputs already satisfy all three facts. Before names `lib/notify.ts#post`, calls out its hard-coded `\"general\"` channel as the blocker, labels approach A \"reuse-only\", proposes the defaulted-channel signature change, and places Removes:/Adds: directly before Pattern: on both approaches; After does the same, with the blocker phrased as \"the shared helper cannot receive it\" and the reuse-only label on A's heading. After's additions are compatible with every fact: it enriches the Adds: lines with regression coverage and type-check verification (useful for the carry-forward and test-per-observable facts in the design-return sample) without breaking the Removes/Adds/Pattern adjacency, and its first message now states the duplicated contract concretely (`[notice]` prefix, two attempts, rethrow on second failure). If you want the reuse-path grounding even more explicit, consider stating the missing override in approach A's body itself (e.g., \"`post` currently fixes `channel: \"general\"` in its body; add a `channel` parameter and substitute it\") rather than relying on the first message, so the candidate is self-contained when a judge reads only the approaches message. Also drop the trailing double spaces after the Removes:/Adds: lines, which rely on Markdown hard-break rendering and could be stripped by some renderers, merging the three inventory lines into one paragraph.",
-        "wallMs": 12560,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "32420c30e01b7b4ff1eba19fd20cbca07c7546b5e8f7d085727b0a09734dd169",
-        "candidateOutputSha": "3f25cc81131be70aa72ea0fa7b18e446cfc2d5f9924bc3104b7acacb28181592",
-        "facts": {
-          "reuse-path": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "moving-parts": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "no-copy": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "All three facts already hold in Before and remain true in After. After strengthens the gathered evidence by spelling out formatting, retry count, and terminal failure behavior, and adds regression coverage to each approach’s inventory. It still identifies the helper’s missing channel input, recommends changing that shared owner rather than retaining report-side duplication, and places Removes/Adds directly before every Pattern line. Retain those explicit helper and caller references and the inventory ordering; no corrective wording is needed for these facts.",
-        "wallMs": 8850,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

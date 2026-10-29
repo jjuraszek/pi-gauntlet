@@ -1,7 +1,7 @@
 {
   "sample": "home-match-builtin-remove",
   "arm": "baseline",
-  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "skillSha": "abba3103fa48c7fc97e8643ca7bfb5575f5492cc1a1a289cf45c70e02be23ba2",
   "inputSha": "26437436b01f1b8de5896b1758dbdd6ab2bf9b4d65d996ff6ef72f8aed8f3656",
   "kind": "text",
   "assembly": "concat",
@@ -15,15 +15,24 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (after squash-merge, option 3)\n\n**Cleanup contract:** no `## Legs` recorded, so this uses `.pi/gauntlet-overrides.md` → `## using-git-worktrees`. That section has `- home:`, so the **keyed contract** applies.\n\n**1. Resolve `home:`**\n- `home: ../acme-api-worktrees/<name>` is relative, so it resolves against `$PRIMARY` (`/work/acme-api`).\n- That gives `/work/acme-api/../acme-api-worktrees/<name>`, which canonicalizes to `/work/acme-api-worktrees/<name>`.\n- `<name>` appears once and fills the whole last path segment, with no prefix or suffix. The pattern is valid.\n\n**2. Ownership match**\n- Canonical `$WORKTREE` is `/work/acme-api-worktrees/rate-limit`.\n- Canonical pattern is `/work/acme-api-worktrees/*`.\n- They match. `NAME` = `rate-limit`.\n- Gauntlet owns this worktree.\n\n**3. `destroy:`** is not set, so rule 4 applies: use the standard git removal, then delete the branch.\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\"\ngit -C \"/work/acme-api\" worktree prune\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n\nThe worktree is removed first because `git branch -D` fails while a worktree still references the branch.\n\n**Result:** the worktree at `/work/acme-api-worktrees/rate-limit` is removed and pruned. The local branch `rate-limit` is deleted, since its work is already squash-merged into `main` at `/work/acme-api`.\n",
+      "words": 163,
+      "wallMs": 8421,
+      "mechanical": {
+        "b3": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The keyed `home:` resolves to `/work/acme-api-worktrees/<name>`, matching `$WORKTREE` with `NAME=rate-limit`. No `destroy:` is configured.\n\nRun in order, proceeding only after each command succeeds:\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\" &&\ngit -C \"/work/acme-api\" worktree prune &&\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n",
-      "words": 41,
-      "wallMs": 4884,
+      "text": "The keyed `home:` pattern matches this worktree, with `NAME=rate-limit`. No `destroy:` command is configured, so remove the worktree and prune before deleting the branch:\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\" &&\ngit -C \"/work/acme-api\" worktree prune &&\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n",
+      "words": 42,
+      "wallMs": 4986,
       "mechanical": {
         "b3": "holds"
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

@@ -1,0 +1,100 @@
+{
+  "sample": "multi-repo",
+  "arm": "candidate",
+  "skillSha": "53a44f74fd83648db39fad6f752fd4a672e6b32eba2f56e7e0d9a73825b7ec75",
+  "inputSha": "dacf74a7723e727dc355c53c23dfe70893dac5e0fda70dbfbcc8706c3f03da02",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Run 1: coordinated, two members (repo-a, then repo-b)\n\n**Actions in order**\n\n1. **Contract and skill.** I read `../gauntlet-resume/reference/brief-contract.md` in full. I announce: \"I'm using the gauntlet-handoff skill to write a resumable handoff brief.\"\n2. **Resolve the target.** No `--out` or `--key` was given, so I derive the key from the **run worktree**.\n   - The run worktree is the run home, `/work/repo-a/.worktrees/feature-shared-change`.\n   - It is not `/work/repo-b/...`, even though that was the last dispatch cwd.\n   - `git -C \"/work/repo-a/.worktrees/feature-shared-change\" branch --show-current` returns `feature/shared-change`.\n   - Replacing `/` with `-` gives key `feature-shared-change`.\n3. **Delegate the core to cohort.**\n   - `pi list` gives the `pi-cohort` root. I read `<root>/skills/handoff/SKILL.md` and follow it with `--key feature-shared-change`.\n   - The home spec `doc/specs/shared.md` has more than one member. So I explicitly supply `Run worktree: /work/repo-a/.worktrees/feature-shared-change` through cohort's \"was told to work in\" clause. This pins the core snapshot to the home, not to the repo-b companion or an `Also seen:` entry.\n   - Cohort writes the six core headings, ending at `## Skills loaded`. That includes `## Repo state` with `worktree: yes /work/repo-a/.worktrees/feature-shared-change`, `branch: feature/shared-change` and `HEAD: bbbb…bbbb`.\n4. **Take the path from the report.** Cohort reports `Handoff written: /tmp/pi-handoff/feature-shared-change.md`. Line 1 starts with `# Handoff:`.\n5. **Check for a double section.** No `^## Process state\\s*$` line exists, so I continue.\n6. **Check for a hotfix.** `skills/chase-bug/hotfix.md` is not in context, so I continue.\n7. **Read the trackers.**\n   - `phase_tracker status` shows implement `→` in_progress, so I append.\n   - `plan_tracker status` shows `→ W2: reader`.\n8. **Gather the appended fields.**\n   - There is no ledger, so I use the task-plan layout with `Active task: W2: reader`.\n   - The run worktree spec has a `## Rework record`. I copy its one top-level pair, without a title.\n   - There are multiple members, so I add the coordinated `legs:` block in the spec's `### Leg:` order, home first.\n   - The home is a live tree with no receipt, so its entry has no `receipt:` field.\n   - The repo-b tree is missing, so its entry records `worktree: missing`, the last recorded HEAD, `dirty: unavailable`, and its existing receipt path.\n9. **Append.** I write the block with a single `cat >> \"/tmp/pi-handoff/feature-shared-change.md\" <<'EOF' … EOF`. I re-read the tail and confirm it ends with the gate-history line.\n\n**Appended tail** (the brief itself carries no fence; tracker outputs are pasted byte-for-byte):\n\n```text\n\n## Process state\n\n<phase_tracker status output, verbatim - implement shown as → in_progress>\n\n<plan_tracker status output, verbatim - includes \"→ [i] W2: reader\">\n\nActive task: W2: reader\nPR: example/repo-a#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nlegs:\n  - repo: repo-a\n    worktree: /work/repo-a/.worktrees/feature-shared-change\n    branch: feature/shared-change\n    HEAD: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n    dirty: clean\n  - repo: repo-b\n    worktree: missing\n    branch: feature/shared-change\n    HEAD: cccccccccccccccccccccccccccccccccccccccc\n    dirty: unavailable\n    receipt: /work/repo-a/.git/gauntlet/receipts/shared.md/repo-b\nGate history not restored - re-validate before advancing.\n```\n\n**Report:**\n\n```text\ngauntlet: done brief-written\nBrief: /tmp/pi-handoff/feature-shared-change.md\nResume with: /skill:gauntlet-resume /tmp/pi-handoff/feature-shared-change.md\n```\n\nThe brief's `worktree:` field is `yes`, so no override argument is needed.\n\n---\n\n# Run 2: independent single-member run (spec has one Leg: repo-a)\n\n**Actions in order**\n\n1. **Contract.** I read the contract and make the same announcement as in Run 1.\n2. **Resolve the target.** The run worktree is `/work/repo-a/.worktrees/feature-shared-change`, so the key is `feature-shared-change`.\n3. **Delegate the core to cohort.** I follow cohort's procedure with `--key feature-shared-change`. There is only one member, so the multi-member explicit `Run worktree:` clause is not required. Cohort's snapshot uses the run worktree evidence. Cohort reports `Handoff written: /tmp/pi-handoff/feature-shared-change.md`.\n4. **Run the checks.** Steps 3 to 5 pass: line 1 is `# Handoff:`, there is no existing `## Process state`, and there is no hotfix.\n5. **Gather the appended fields.**\n   - Implement is in_progress and the active task is `W2: reader`.\n   - The Rework record pair is copied as before: one pair for N=1.\n   - There is **no `legs:` block**. Single-member briefs carry no coordinated block, no receipt and no companion entries.\n\n**Appended tail:**\n\n```text\n\n## Process state\n\n<phase_tracker status output, verbatim>\n\n<plan_tracker status output, verbatim>\n\nActive task: W2: reader\nPR: example/repo-a#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nGate history not restored - re-validate before advancing.\n```\n\n**Report:**\n\n```text\ngauntlet: done brief-written\nBrief: /tmp/pi-handoff/feature-shared-change.md\nResume with: /skill:gauntlet-resume /tmp/pi-handoff/feature-shared-change.md\n```\n",
+      "words": 633,
+      "wallMs": 29610,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: done brief-written\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\n### Coordinated run\n\nDelegate the six-heading core to cohort’s installed `handoff` procedure with `--key feature-shared-change`, explicitly supplying:\n\n```text\nRun worktree: /work/repo-a/.worktrees/feature-shared-change\n```\n\nThe core snapshot stays bound to **repo-a**, not the last-dispatched repo-b checkout. Take `/tmp/pi-handoff/feature-shared-change.md` from cohort’s supplied report rather than recomputing it.\n\nAfter checking the first line and absence of an existing `## Process state`, obtain phase status, then plan status. No hotfix exclusion applies. Read the home spec and append one process-state block with a single `cat >> … <<'EOF'`.\n\nThe supplied observations summarize tracker state rather than supplying its literal output. The placeholders below therefore represent the **verbatim tool outputs**, not text to write:\n\n```text\n\n## Process state\n\n<verbatim phase_tracker status: implement in_progress>\n\n<verbatim plan_tracker status: one task in_progress, W2: reader>\n\nActive task: W2: reader\nPR: example/repo-a#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nlegs:\n  - repo: repo-a\n    worktree: /work/repo-a/.worktrees/feature-shared-change\n    branch: feature/shared-change\n    HEAD: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n    dirty: clean\n  - repo: repo-b\n    worktree: missing\n    branch: feature/shared-change\n    HEAD: cccccccccccccccccccccccccccccccccccccccc\n    dirty: unavailable\n    receipt: /work/repo-a/.git/gauntlet/receipts/shared.md/repo-b\nGate history not restored - re-validate before advancing.\n```\n\nRepo-b’s missing tree is recorded, not silently omitted. Its existing receipt is included without claiming that it has been validated. Re-read the tail to confirm the gate-history line is last.\n\n### Independent single-member run\n\nDelegate the same home-bound core independently. With only `repo-a` in the spec, **omit the entire `legs:` block**, including any companion or receipt fields. Keeping the other supplied observations unchanged, the tail is:\n\n```text\n\n## Process state\n\n<verbatim phase_tracker status: implement in_progress>\n\n<verbatim plan_tracker status: one task in_progress, W2: reader>\n\nActive task: W2: reader\nPR: example/repo-a#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nGate history not restored - re-validate before advancing.\n```\n\nNeither supplied run triggers a stop. These are narrated actions only; no tools or writes were executed.\n\nFor either independent run, the reported brief path is `/tmp/pi-handoff/feature-shared-change.md`:\n\n```text\n/skill:gauntlet-resume /tmp/pi-handoff/feature-shared-change.md\n```\n\nIf cohort’s actual core says `worktree: no`, report the override form instead:\n\n```text\n/skill:gauntlet-resume /tmp/pi-handoff/feature-shared-change.md /work/repo-a/.worktrees/feature-shared-change\n```\n",
+      "words": 315,
+      "wallMs": 17700,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "60f40502b6c4601e285ae9c45ba5c8fc22635bd6546d041b4df9ac685823cca6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9427352b901b64a723df8310db6d5498d7bf3634a2d609f9a398f28b376fbcae",
+      "baselineOutputSha": "de980ebaa6d87fb4c16a3f8e64b9ef2459081f7ce260e5808dd5c85510672b7a",
+      "candidateOutputSha": "5639745cb156bf2b4f91c3e040f44e38eaf2241c1f3a555beab6e207b724f8ad",
+      "facts": {
+        "home": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "layout": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "missing": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "single": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moves home, layout and missing to holds by adding step 3's explicit `Run worktree: /work/repo-a/.worktrees/feature-shared-change` supplied through cohort's \"was told to work in\" clause (while keeping `## Repo state`'s existing `worktree:`/`branch:`/`HEAD:` names), and by adding the ordered `legs:` block after the PR pair and before the terminal gate-history line, home entry first, with repo-b carrying `worktree: missing`, the last recorded HEAD cccc…, `dirty: unavailable` and the carried receipt path without any claim that the receipt proves state. Run 2 still emits no legs block, receipt, companion entries, `--leg` or companion loop and leaves cohort grammar untouched, so single is preserved. Two things to tighten: the Change asks that the step-1 key/output question be marked before any announcement, but After's step 1 announces immediately and defers the key/output-path question to step 2 — move the shared question marker ahead of the announcement line in step 1. Also, After replaces the tracker outputs with `<... verbatim>` placeholders; Before pasted the actual status blocks, which makes the 'both tracker status outputs' part of layout easier for a reader to verify — keep the real blocks in the tail while retaining the new legs block.",
+      "wallMs": 17712,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "60f40502b6c4601e285ae9c45ba5c8fc22635bd6546d041b4df9ac685823cca6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9427352b901b64a723df8310db6d5498d7bf3634a2d609f9a398f28b376fbcae",
+      "baselineOutputSha": "aba9b4bfbeea8e0125ffee411a3c6d08272189539470acb44eeb26fa31f4299b",
+      "candidateOutputSha": "05d2d2241d86280f4101c62a0414da7f4d5da5d885999e389b4c5af3bd1e6079",
+      "facts": {
+        "home": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "layout": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "missing": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "single": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moves home, layout, and missing from fails to holds: it passes the literal `Run worktree: /work/repo-a/.worktrees/feature-shared-change` line to cohort and states the core stays repo-a-bound after the repo-b dispatch (Before only paraphrased 'bind to run home' and restated Branch/HEAD/Working tree without the Run worktree field); it appends both tracker outputs, Active task, the PR pair, a `legs:` block with repo-a first, then the gate-history line last; and the repo-b entry carries `worktree: missing`, the last HEAD ccc…, `dirty: unavailable`, and the receipt path while explicitly not treating the receipt as validation. The single fact already held vacuously in Before (its single-member block never had legs/companion/receipt content to omit) and still holds in After, which now makes the omission explicit, so nothing regressed. Two cautions for the After wording: the Change asks for the step-1 key/output question marker before any announcement, yet After opens directly with the gauntlet status line, so that intended move is not visible in this output; and the `<verbatim …>` placeholders are a reasonable way to avoid fabricating tracker text, but keep the surrounding sentence stating they stand for literal tool output so a reader does not take them as text to write.",
+      "wallMs": 20850,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "2afe2cc4555b20fac4631cffaf52418177bb0798"
+}

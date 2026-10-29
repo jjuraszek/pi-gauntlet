@@ -1,7 +1,7 @@
 {
   "sample": "pending-owner-stops",
   "arm": "baseline",
-  "skillSha": "8cd421b321d4d72aaa0fa04400eefa0833d125c68071ef45d031a61651ac6818",
+  "skillSha": "e56341fe48626805c06784bf9eb09da5d4fb33f4a0cfe01b6823c51a6d66fb94",
   "inputSha": "95082ff7b9432cd7fa83973e32a68929d7dfe5fe4721fafaf1f54d5bbf536106",
   "kind": "text",
   "assembly": "headed",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Resume: plan_check FAIL leads to a citation-repair stop\n\n**After tool result 3 (`plan_check` FAIL).** The call table's \"implement with task plan\" row sends a FAIL to `## Plan repair`.\n\n- **Repair route.** The finding is not `baseline-line` and not a substantive `open-questions` row. So baseline continuation does not apply, and the finding goes to **Citation repair**.\n- **Plan state.** Results 1 and 2 already recorded it before any write. `ls-files --error-unmatch` exited 0 and `status --porcelain` printed nothing. The plan is **tracked and clean**, so no temp copy is needed. Its restore path would be `git checkout`.\n- **Classification.** The finding is `paths-exist` with reason `Modify: path \"docs/parsers.md\" does not exist`. The candidate row is the dead `Modify:` drop. Its evidence needs two things:\n  - The deletion log must be non-empty. Tool result 4 (`git -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- docs/parsers.md` → `9f8e7d6`) satisfies this.\n  - The owning task must be `complete` or `skipped`. This fails. The owner is Task 5 (`W3: Update the parser guide`), which is `○` pending in the brief's snapshot.\n- **Result.** A dead `Modify:` row whose owner is pending or in progress is explicitly listed as having **no row**. One unclassified finding stops repair before any write.\n- **What does not happen:**\n  - No plan edit.\n  - No re-run of `plan_check`.\n  - No `git checkout`, since this is a stop before the first write.\n  - No commit.\n  - No `skip plan`, `start implement`, `substep`, or `plan_tracker init`.\n- **Phase state.** Phase `plan` stays in_progress.\n- **Not printed.** There is no repair receipt, closing line, or standing-grant line, because the restore did not complete.\n\n**Printed output, in order:**\n\n```\nFAIL (1 findings)\nTask 5: paths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\n```\n\n```\nRepair stopped: paths-exist - Modify: path \"docs/parsers.md\" does not exist is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n",
-      "words": 297,
-      "wallMs": 12507,
+      "text": "# Resume from plan_check FAIL: citation repair stops before any write\n\n**Tool result 3: `plan_check` returned FAIL (1 finding).**\nThis sends the restore from the call table's `implement with task plan` row into `## Plan repair`. The phase tracker already holds `start brainstorm`, `skip brainstorm resume: /work/app/.worktrees/retire-legacy/doc/specs/2026-03-09-retire-legacy-parsers.md` and `start plan`. Phase `plan` is in_progress.\n\n**Plan state recorded before any write (tool results 1–2):**\n- `ls-files --error-unmatch` exited 0.\n- `status --porcelain` printed nothing.\n- So the plan is tracked and clean, and no temp copy is needed.\n\n**Baseline routing:**\n- The finding is `paths-exist`.\n- It is neither `baseline-line` nor `open-questions`.\n- So Baseline continuation does not apply, and the finding goes to citation-table classification.\n\n**Classification of `paths-exist`, `Modify: path \"docs/parsers.md\" does not exist`:**\nThe candidate row is the dead-`Modify:` drop. It needs two pieces of evidence:\n- **Deletion evidence (tool result 4):** `git -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- docs/parsers.md` printed `9f8e7d6`. This is non-empty, so it is satisfied.\n- **Owner status:** the owning task, Task 5 `W3: Update the parser guide`, must be `complete` or `skipped` in the brief's task snapshot. It is `○` pending, so this is not satisfied.\n\nA `pending`/`in_progress` owner of a dead `Modify:` row is explicitly listed as having no row. That makes this a no-row finding, and repair stops before any write. The Modify row is not dropped, the plan is not edited, and nothing is committed.\n\n**Stop handling:**\n- No round wrote the plan, so no restore runs and no git command is issued.\n- Phase `plan` stays in_progress.\n- There is no `skip plan`, no `start implement` and no `plan_tracker init`.\n\nPrinted, in order:\n\n```\nTask 5: paths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\nRepair stopped: paths-exist - Modify: path \"docs/parsers.md\" does not exist is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\nThe restore did not succeed, so the following are not printed:\n- the `Repaired plan:` receipt\n- the `Gate history not restored; re-validating ...` closing line\n- the `Standing grant` line\n\nResume ends the turn here.\n",
+      "words": 329,
+      "wallMs": 14890,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n   ```\n   Result: FAIL with the supplied `paths-exist` finding.\n\n2. Call:\n   ```text\n   git -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- docs/parsers.md\n   ```\n   Result: `9f8e7d6`.\n\n3. Task 5 is `pending`, not `complete` or `skipped`, so the finding has no citation-repair row. Print:\n   ```text\n   Task 5: paths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\n   Repair stopped: paths-exist - Modify: path \"docs/parsers.md\" does not exist is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n   ```\n\nStop with `plan` still `in_progress`. No file writes, rollback, commit, tracker initialization, or continuation.\n",
-      "words": 96,
-      "wallMs": 13990,
+      "text": "Call:\n```text\nplan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n```\n\nResult:\n```text\nFAIL (1 findings)\npaths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\n```\n\nCall:\n```text\ngit -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- docs/parsers.md\n```\n\nResult:\n```text\n9f8e7d6\n```\n\nTask 5 is pending, so deletion history does not authorize dropping its `Modify:` row. No plan edit, rollback command, or tracker initialization occurs; phase `plan` remains `in_progress`.\n\nPrint:\n```text\nTask 5: paths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\nRepair stopped: paths-exist - Modify: path \"docs/parsers.md\" does not exist is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n",
+      "words": 99,
+      "wallMs": 10439,
       "mechanical": {
         "f1": "holds"
       }
     }
   },
-  "repoSha": "0dcac9779f68598e1724c9f6ed2783659a94e958"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

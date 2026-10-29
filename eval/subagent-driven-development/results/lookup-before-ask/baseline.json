@@ -1,7 +1,7 @@
 {
   "sample": "lookup-before-ask",
   "arm": "baseline",
-  "skillSha": "505fbad4c924559d148c9f2d14754e7dd45597c9a6834f5a89f05274b64e611d",
+  "skillSha": "62172aaa9d3217f64ccb2198a02abb4927f98cb479bebc9c6dda007ab70f700c",
   "inputSha": "cb66bac3ac4ee88e763e7d2225f84d88bb9f6eab0beeadf1f541f7a6674fa709",
   "kind": "text",
   "assembly": "headed",
@@ -15,13 +15,20 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Task 2 \"Render a summary\": NEEDS_CONTEXT fact ask, lookups exhausted, stop note\n\n## 1. Classify the status\n\n- The implementer exited 0 with `Status: NEEDS_CONTEXT` and made no edits.\n- The question asks where an artifact is. Its possible answers are locations, not edits to the spec, plan, or an approved rule.\n- So this is a **fact ask**, not an amendment batch or a decision.\n- I handle it through the lookup rules in `stop-note.md`.\n\n## 2. Bounded lookup\n\nThe spec documents exactly one location, so there is exactly one lookup:\n\n| Order | Location | Result (fixed observation) |\n|---|---|---|\n| 1 | template-store tool, collection `summary-frames`, key `summary-frame.tpl` | not found |\n\n- No other location is documented in the spec, task, or repo, so I search nowhere else.\n- No credentials are missing, and the lookup tool is available.\n- The documented locations are exhausted with no hit, so there is nothing to re-dispatch with.\n\n**The implementer is not re-dispatched.**\n\n## 3. State while stopped\n\n- No shell commands run, no subagent dispatches, and no `plan_tracker` write.\n- Task 2 stays `in_progress`, and the phase stays `implement`.\n- No further tasks start.\n- No escalated round ran, so the header has no bracketed escalation clause.\n- No review or fix round ran, so there are no `file:line` or test lines.\n- I omit the `budget:` line because no `**Amend-grant:**` budget token was supplied. If one exists, the line would be `budget: 0 of <N> spent`, placed after `Searched:`.\n\n## 4. Reply (the turn ends here)\n\n```\nStopped on task 2 (Render a summary).\n\nProblem: the task requires the summary-frame.tpl template, but it is not at the only location the spec documents, so the implementer cannot proceed (exhausted fact lookups).\nSearched: template-store summary-frames/summary-frame.tpl - not found\n\nFix options:\n  a) add summary-frame.tpl to the template-store under collection summary-frames, key summary-frame.tpl (or give me the template content or access), and I re-dispatch task 2 with it\n  b) amend the spec and plan task 2 to drop the summary-frame.tpl requirement, for example by rendering the summary without an external frame template\n\nPick one, or give another fix.\n```\n",
+      "words": 329,
+      "wallMs": 14038,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The next parent action is the single documented lookup: use the **template-store** tool with collection `summary-frames` and key `summary-frame.tpl`. The fixed lookup observation is **not found**. No other lookup location is authorized, so no shell commands, implementer re-dispatch, review, or commit follows. Task 2 remains `in_progress` in `/workspace/project`; the phase remains `implement`.\n\nStopped on task 2 (Render a summary).\n\nProblem: The required summary-frame.tpl template is missing, and the only documented artifact lookup is exhausted.\nSearched: template-store, summary-frames/summary-frame.tpl - not found\n\nFix options:\n  a) supply summary-frame.tpl in the approved template-store collection summary-frames\n  b) amend the spec and task 2 to remove the external-template requirement and define an approved replacement rendering contract\n\nPick one, or give another fix.\n",
-      "words": 115,
-      "wallMs": 10629,
+      "text": "Next parent action: perform the single documented lookup using `template-store` with collection `summary-frames` and key `summary-frame.tpl`.\n\nFixed lookup observation: `summary-frames/summary-frame.tpl - not found`.\n\nNo shell command, alternate-store search, review, or implementer re-dispatch follows. Task 2 remains `in_progress` in `/workspace/project`; the phase remains `implement`. End the turn with:\n\nStopped on task 2 (Render a summary).\n\nProblem: The implementer needs summary-frame.tpl, but the only documented artifact location was searched and the template was not found.\nSearched: template-store, collection summary-frames, key summary-frame.tpl - not found\n\nFix options:\n  a) supply summary-frame.tpl in the documented template-store collection and key\n  b) amend the approved spec and task 2 to remove the template dependency or define an explicit replacement\n\nPick one, or give another fix.\n",
+      "words": 116,
+      "wallMs": 11044,
       "mechanical": {}
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

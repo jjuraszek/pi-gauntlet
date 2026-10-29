@@ -1,0 +1,1 @@
+- reject: judged: A/B/C stop before any creation, naming the selected declaration and missing/non-repository/equal-home cause; canonicalizes B before comparison and does not resolve or validate unselected repo-c.

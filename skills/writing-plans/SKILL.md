@@ -112,6 +112,14 @@ List the files this implementation will create, modify, or delete. Group by comp
 
 If you can't list the files, the spec isn't ready: amend or redraw per brainstorming's [Amending an approved spec](../brainstorming/SKILL.md#amending-an-approved-spec).
 
+## Leg routing
+
+Read the home spec's `## Legs` and [the leg contract](../brainstorming/reference/legs.md) before recon. Keep the plan and `**Spec:**` header home-owned. Resolve each member's checkout from its declared primary and recorded `home:` with shared `NAME`; admit task ownership through `plan_check`, never from `design:` prose. Follow [plan-contract.md](reference/plan-contract.md#legs-leg-unknown) for `Leg:`, per-leg baselines and path keys. Repair unknown task legs in the plan, not spec membership.
+
+Re-walk every task's `Files:` using Gather rules in the leg contract. Append extra task `Rules:` and resolve `Rules: root only - paths unresolved`; retain missing-link evidence. Split mixed waves into consecutive single-leg waves without violating dependencies.
+
+Run Baseline independently in each owning checkout. Apply every provenance, dirty-tree, tree-equivalence, created-anchor, selector, contamination, artifact and blocked-command rule below within that repo. Qualify provenance notes, dirty/global/Open Questions and blocked evidence by repo; compare and retain SHAs only within the same leg. Write one `Baseline <repo>: <sha>` per member and execute each task's `Tests:` at that leg's root. Preserve all evidence rules and keep full verification for verify.
+
 ## Wave Grouping
 
 Group tasks into **waves** so the executor can parallelize independent work (see `subagent-driven-development` wave loop). A wave is a maximal set of tasks that (a) have no ordering dependency on each other, (b) own **pairwise-disjoint files**, and (c) contend on **no shared mutable runtime resource** (same DB/schema, port, fixture file, external service, shared temp path).

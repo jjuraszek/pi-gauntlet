@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n---\n\n```\ngauntlet: gate=finishing-a-development-branch/step-4\n\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n```\n",
-      "words": 51,
-      "wallMs": 9511,
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n---\n\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: none\n\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n",
+      "words": 83,
+      "wallMs": 12980,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nwhole-diff minors: not recorded\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
-      "words": 36,
-      "wallMs": 9661,
+      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
+      "words": 52,
+      "wallMs": 7185,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "468891d80c1566b6cd8f5e9f39fe285e34374c35346e1832d709ae38ce733e08",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
-      "baselineOutputSha": "4deec8289e5cf41d370d29cd116327b6325a6156012562dcce806b6e5f284988",
-      "candidateOutputSha": "ae1024745fe37ecaf501a57e2d136c8e0b8e804fc17c64eaf346ef12684743b2",
+      "intentSha": "7022b5222bf601036354fb3dcc156b192fb56b98837f2c9e75326a8c7cb4bb0f",
+      "baselineOutputSha": "e1e299d104a607c3c127e36749d8700f46937d6126ee7b4ca6cfe3d2fa85656d",
+      "candidateOutputSha": "e1e299d104a607c3c127e36749d8700f46937d6126ee7b4ca6cfe3d2fa85656d",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,16 +64,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs skip the Deferred/deviates line, report CONFORMS (0 open) with no gap card, produce zero decision items, trigger no fix or re-audit, and reach Step 4. After correctly adds the `gauntlet: gate=finishing-a-development-branch/step-4` marker before the summaries, which is what the Change asked for on clean closure. However, After truncates the Step 4 menu after item 1, dropping options 2–5 and the `Which option?` line, which directly contradicts the Change's own requirement that the zero-gap CONFORMS fall-through 'render Step 4's menu in full, options included' — Before rendered all five options. The wording likely over-applied the 'replay only the next response' continuation rule (or an 'include the re-ask clause / stop at the focused re-ask' instruction) to the clean-closure case. To keep every Before fact and still deliver the Change, scope the truncation rules explicitly to continuation samples (no-recommendation-reask / no-recommendation-execute) and state for the zero-gap path: 'emit the step-4 gate marker, then the closure summary lines, then the complete Step 4 menu (all five numbered options followed by the question line), without stopping early.'",
-      "wallMs": 14163,
+      "feedback": "The After output is byte-for-byte identical to Before, so no fact moved: neither prints a Deferred/deviates per spec line for this all-in-scope spec, both report CONFORMS (0 open) with no gap card, zero decision items appear, no fix dispatch or re-audit is triggered (auto-applied fix commits: none), and both reach the Step 4 gate marker and render the full five-option menu with the closing question, which is exactly what the Change's zero-gap CONFORMS fall-through requires. The only thing worth tidying is the redundant closure block: the fenced status block is immediately followed by a plain-text repeat of the same three lines before the gate marker; collapsing that to a single closure block placed directly before the gauntlet: gate=finishing-a-development-branch/step-4 line would keep every fact intact while making the Step 4 marker-before-summaries ordering cleaner.",
+      "wallMs": 11499,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "468891d80c1566b6cd8f5e9f39fe285e34374c35346e1832d709ae38ce733e08",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
-      "baselineOutputSha": "d5715d4d2d1d8bdfcba10ebdc17885f090c3a792a17501764365c09a810248a8",
-      "candidateOutputSha": "5198c5208d3458aedb557169290fcf746b9d76fabd1c0afa06ea311ed01f0f7b",
+      "intentSha": "7022b5222bf601036354fb3dcc156b192fb56b98837f2c9e75326a8c7cb4bb0f",
+      "baselineOutputSha": "2717c4d1ec96f4173a68d772562f9327154f396e8faccfd28d41852009d7005e",
+      "candidateOutputSha": "0cc38c68aa9afc9b8ea3cffbcc6190bd10d0431e26a9ac8d4b6a2eb840ce60b3",
       "facts": {
         "f1": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both renders print no Deferred/deviates line, report CONFORMS (0 open) with no gap card, produce zero decision items, dispatch no fix or re-audit, and reach Step 4 (After even adds the gate=finishing-a-development-branch/step-4 marker before the summaries, as the Change asks). However, After regresses on the Change's own stated goal of rendering Step 4's menu in full: it stops after option 1, omitting options 2–5 and the 'Which option?' prompt that Before printed, and it also drops the 'auto-applied fix commits: none' line that made f4 explicit. To keep every fact Before kept while delivering the Change, keep the gate marker placement and single-block closure summary, but retain the 'auto-applied fix commits: none' line and render the complete five-option menu followed by 'Which option?' rather than truncating after the first item.",
-      "wallMs": 13095,
+      "feedback": "After preserves every fact Before kept: no Deferred/deviates per spec line is printed, the closure block reports CONFORMS (0 open) with no gap card, zero decision items appear, no fix dispatch or re-audit is triggered (the new 'auto-applied fix commits: none' line explicitly confirms this rather than moving f4), and the Step 4 gate marker is reached. The only substantive wording change is that added 'auto-applied fix commits: none' line, which is harmless but is inserted after a stray blank line that splits the closure block; place it directly after happy-path without the blank line. Note also that the Change calls for the zero-gap CONFORMS fall-through to render Step 4's menu in full, options included, yet After still stops at a single option ('1. Push and create a Pull Request') exactly as Before did — if that strengthening is meant to apply here, the After wording should emit the complete Step 4 option list after the question line while keeping the gate marker before the summaries.",
+      "wallMs": 14978,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
+  "repoSha": "a3b62b92fa14318743644aeb1e49cf7994538d92"
 }

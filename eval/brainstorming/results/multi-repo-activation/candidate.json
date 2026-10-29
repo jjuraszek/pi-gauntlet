@@ -1,0 +1,80 @@
+{
+  "sample": "multi-repo-activation",
+  "arm": "candidate",
+  "skillSha": "c6dc83e6a34de117f5189d936f873647fd38bef62b9853c38ecd4b11682fd352",
+  "inputSha": "602ca05e59fddc953d1a7f2ca59a729554497a2dcf1e4e68a65ba156b761cd7f",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Membership and provisioning across five independent runs\n\nAll five runs share the same home and sibling declarations:\n\n- **Home primary:** `/work/repo-a`\n- **Declared siblings** (from repo-a's first-found overrides `## shape-ticket`):\n  - `git@github.com:acme/repo-b.git`\n  - `git@github.com:acme/repo-c.git`\n\nThese declarations only make a sibling eligible. Membership is decided per run. Each run starts at checklist step 1 (tracker reset, start `brainstorm`), and membership is settled at step 2, before Worktree First.\n\n---\n\n## Run A: the ask names no sibling\n\n1. **Match.** The ask (\"implement local parsing\") names no repo identifier, `NAME`, or clone URL. No ticket repo-group heading selects one. No companion is selected.\n2. **No probe.** Neither `/work/repo-b` nor `/work/repo-c` is touched. A git or filesystem probe of an unselected sibling is forbidden.\n3. **Activation.** The run keeps the single-member flow.\n4. **Creation.** Invoke using-git-worktrees once, with `$ROOT=/work/repo-a` and the feature branch chosen by convention. It reads repo-a's overrides `## using-git-worktrees` and `.pi/settings.json` by file. It then creates the worktree via the keyed contract or the legacy path, runs the post-create check, and reports `Worktree ready at <path>`.\n5. **Artifact boundary.** The spec carries exactly one `### Leg: <home id>` block. That block has a `contract:`, at least one `Rules:` line, `scope:`, and `design:`. The recorded contract is authority for later stages. The run produces:\n   - no companion spec file\n   - no `legs:` brief block\n   - no `--leg`\n   - no receipt\n   - no companion loop\n\n## Run B: \"update repo-b too\", by basename\n\n1. **Match before probing.** \"repo-b\" is compared case-insensitively against each declaration's trailing `owner/name`, then against `NAME`. It matches only `acme/repo-b` (`NAME` repo-b). repo-c does not match and is never probed.\n2. **Resolve the companion primary.** `PATH = <home PRIMARY parent>/repo-b = /work/repo-b`.\n3. **Validate before any creation:**\n   - `/work/repo-b` exists and is a checkout.\n   - `git -C /work/repo-b config --get remote.origin.url` is present, parses, and its full `IDENTITY` equals `acme/repo-b`.\n   - The canonicalized path is not equal to `/work/repo-a`.\n   - Any failure stops the run, naming the declaration line.\n4. **Identifiers.**\n   - Home: owner/name from `git -C /work/repo-a remote get-url origin`, with `.git` stripped.\n   - Companion: `acme/repo-b`.\n   - Each identifier is spelled the same way in `### Leg:`, task `Leg:`, and brief `repo:`.\n   - Order is home first, then repo-b.\n5. **Session isolation is not reused.** The session sits in `/work/repo-a/.worktrees/old` on `feature/old`. That tree is not the home leg. The run passes explicit caller roots and creates fresh trees.\n6. **Creation, home first.** using-git-worktrees runs once per member with `$BRANCH=feature/shared-change` (`NAME` feature-shared-change):\n   - `$ROOT=/work/repo-a`\n   - `$ROOT=/work/repo-b`\n7. **Per-member steps inside using-git-worktrees:**\n   - Preflight with `show-ref refs/heads/feature/shared-change`, `worktree list --porcelain`, and a path-existence check. The observations say these are clean and collision-free.\n   - Read that member's own overrides and settings by file, never via `gauntlet_setting`.\n   - Create the worktree using that member's own contract or legacy path.\n8. **Read-back for each coordinated member.** Both checks must pass:\n   - `worktree list` prints `worktree $WORKTREE`.\n   - `git -C $WORKTREE branch --show-current` prints exactly `feature/shared-change`.\n   \n   Only then is `Worktree ready at <path>` reported, carried home first. On any failure the run stops, names the repo and branch, and lists `Preserved created legs:`. It never auto-removes them.\n9. **Artifacts.**\n   - The home spec gets `## Legs` with two blocks, each carrying a portable `contract:`, `Rules:`, one validated `scope:`, and `design:`.\n   - The home spec is committed first.\n   - A companion file with the home's filename is then written in repo-b's spec dir and committed via `git -C <repo-b worktree>`.\n\n## Run C: \"repo-b\" matches two declarations\n\n1. **Match.** \"repo-b\" matches the `NAME` of both `team-one/repo-b` and `team-two/repo-b`. The ask supplies no owner to break the tie, so the basename is ambiguous.\n2. **Stop and ask once.** The run asks before any creation and never guesses. No tree is created, and no worktree or validation work starts until the reply. The message to the user:\n\n```text\ngauntlet: question\nThe ask names \"repo-b\", which matches two declared siblings in repo-a's overrides; both resolve to /work/repo-b, so only one can be the companion.\nA) git@github.com:team-one/repo-b.git\nB) git@github.com:team-two/repo-b.git\nC) neither - keep this a single-member (repo-a only) change\nRecommendation: C - nothing in the ask or ticket identifies the owner, so binding a leg now would be a guess; name A or B to add the leg.\n```\n\n3. **After the reply:**\n   - **A or B:** follow Run B's validation and two-member creation. The stored origin at `/work/repo-b` must equal the chosen full `IDENTITY`; otherwise the run stops, naming the line.\n   - **C:** follow Run A's single-member flow.\n\n## Run D: legacy spec without `## Legs`\n\n1. **Activation.** There is no `## Legs` section, so the spec means home-only.\n2. **Creation root.** The run uses ordinary single-repo provisioning with `$ROOT` set to the home primary.\n3. **Contract authority.** Finishing Step 6 keeps its finish-time reread of the worktree contract. There are no recorded `contract:` lines to treat as authority.\n4. **Artifact boundary.** No companion files, `legs:` brief, `--leg`, receipt, or companion loop.\n\n## Run E: a repo-b PR mentioned only as background\n\n1. **Activation.** An existing PR alone never activates membership. The ask does not select repo-b for implementation, so repo-b is not a member and is not probed.\n2. **Creation root.** The run uses the single-member flow at `$ROOT=/work/repo-a`. PR-head provisioning via `using-git-worktrees/reference/pr-head.md` would apply only if the home itself were the PR subject, which it is not here.\n3. **Artifact boundary.** Same as Run A: one home `### Leg:` block, and no companion artifacts, `legs:` brief, `--leg`, receipt, or companion loop.\n",
+      "words": 868,
+      "wallMs": 41478,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are independent runs. The actions below are prescribed from the supplied observations, not live tool calls.\n\n### A — Local parsing; no sibling selected\n\n1. Keep membership **home-only**. Declaring repo-b and repo-c makes them eligible; it does not activate them.\n2. Do not probe either sibling.\n3. Provision home using `/work/repo-a` as the explicit creation root, following its worktree contract. No branch name or resolved worktree location is supplied here.\n4. For a newly written spec, include exactly one home `### Leg:` block. Create no companion spec, `legs:` brief block, `--leg`, receipt, or companion loop.\n\n### B — repo-b explicitly selected\n\n1. Select **home, then repo-b**, in that order. The unique declared basename resolves the requested companion; repo-c remains unselected and unprobed.\n2. Before creating either tree, validate the selected repo-b declaration and `/work/repo-b`, including its stored origin and full parsed identity. Derive portable leg identifiers from validated origins rather than assuming directory names are authoritative.\n3. Read each member’s own first-found overrides and `.pi/settings.json`; resolve its own worktree contract. The supplied clean, collision-free observations satisfy those preconditions, but do not supply missing origin or contract results.\n4. Provision both members on `feature/shared-change`, using explicit roots:\n   - Home: `/work/repo-a`\n   - Companion: `/work/repo-b`\n   \n   Do **not** reuse `/work/repo-a/.worktrees/old` or branch from its session state. The coordinated run requires fresh member trees.\n5. If neither member has a different configured creation contract, the default destinations are:\n   - `/work/repo-a/.worktrees/feature-shared-change`\n   - `/work/repo-b/.worktrees/feature-shared-change`\n6. Require affirmative path and branch read-backs for each member before declaring it ready. A failure stops progression and preserves any trees already created.\n7. Write the home spec with both leg blocks; commit home first, then write and commit repo-b’s companion spec. Keep the plan and ledger home-owned.\n\n### C — Ambiguous repo-b basename\n\n1. Match the request against declarations before any sibling filesystem or Git probe.\n2. Both `team-one/repo-b` and `team-two/repo-b` match the supplied basename.\n3. **Stop before creation and ask once which repository is intended.** Do not guess, probe both to choose, or create a home tree before membership is settled.\n\n### D — Legacy spec without `## Legs`\n\n1. Treat the existing spec as **home-only**.\n2. Follow ordinary single-repository provisioning; do not activate declared siblings.\n3. Do not introduce companion files, multi-leg brief data, `--leg`, receipts, or a companion loop merely because sibling declarations exist.\n4. Because this spec has no recorded leg contracts, retain the legacy finish-time contract reread rather than treating a nonexistent `contract:` block as authority.\n\n### E — repo-b PR mentioned only as background\n\n1. Keep membership **home-only**. An existing sibling PR does not independently select that sibling for implementation.\n2. Do not provision or probe repo-b because of that background mention.\n3. Provision only home from `/work/repo-a`, following its applicable worktree contract.\n4. For a new spec, use exactly one home leg block and the same single-member artifact boundaries as A. A background sibling PR does not turn home provisioning into a PR-head run.\n",
+      "words": 475,
+      "wallMs": 23515,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6f02bbb4b49aacff2f264ef7c650ee64df6c904dd26c6c615fb5c2b965643e84",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dae272b66af7c8b0f68606b163652e22eb3cafe77127dbaa0f13e419b7cee53f",
+      "baselineOutputSha": "a1cbf2b5a02bf6fb2fdf8514db6fc449b020e92161dd6812c5e129d7a8bef609",
+      "candidateOutputSha": "96bb42ad8b15203983aa64d251106816ff695a1815e0937bee0dabd35a231331",
+      "facts": {
+        "membership": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "identity": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs keep A and E single-member, select only acme/repo-b in B with fresh trees rooted at the primaries on feature/shared-change (After is actually crisper, naming $ROOT=/work/repo-b explicitly where Before said only \"repo-b primary\"), ask once in C before any creation, and keep D home-only without requiring ## Legs. Two things in After are worth tightening so the identity fact reads unambiguously: Runs A and E say \"exactly one ### Leg: <home id> block\" with a template placeholder and never state that the block sits under a ## Legs heading (Before at least spelled the id as acme/repo-a, though it also omitted the heading for single-member runs). Wording like \"the spec carries ## Legs with exactly one ### Leg: acme/repo-a block\" would pin both the heading and the concrete identifier. Also note After drops the gauntlet: question framing for A, B, D and E in favor of numbered procedural narration; that does not affect these two facts, but if other samples key on the questionary layout (lead-in, one option per line, own-line Recommendation), keep the question blocks per run as Before did while adding the explicit resolve/validate/read-back steps After introduced.",
+      "wallMs": 22513,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6f02bbb4b49aacff2f264ef7c650ee64df6c904dd26c6c615fb5c2b965643e84",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dae272b66af7c8b0f68606b163652e22eb3cafe77127dbaa0f13e419b7cee53f",
+      "baselineOutputSha": "ebf1caa5696c149c5695f52f0103ff71ac7d6084b1f2a1865903c2d44646b4c4",
+      "candidateOutputSha": "a6c06336fc66927de258c3118a7c111116bdf20810ff8897f53f963bd900d38b",
+      "facts": {
+        "membership": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "identity": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs keep A and E home-only, select only repo-b in B with fresh trees on feature/shared-change from explicit roots while refusing to reuse /work/repo-a/.worktrees/old, stop C before any creation with a single disambiguation question, give new single-member specs exactly one home ### Leg: block with no companion spec/legs: brief/--leg/receipt/companion loop, and keep legacy D home-only without requiring Legs. The one drift worth watching in After is that B now asserts a concrete companion primary `/work/repo-b` and default `.worktrees/feature-shared-change` destinations that the observations never supplied (the declaration is only a git URL), whereas Before wrote `$ROOT=<resolved repo-b primary>`; the fact still holds because the root is explicit and primary-derived, but a stricter judge could read the invented path as guessing. To keep the membership fact robust while still delivering the change, phrase the companion root as the resolved repo-b primary (or mark `/work/repo-b` as an assumed resolution pending validation) and drop the default-destination bullet, which adds unobserved detail without serving any fact.",
+      "wallMs": 16573,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "9cdbb0f98e6600f53abfcb07d50fa6be3b9e1b14"
+}

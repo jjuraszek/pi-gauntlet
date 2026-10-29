@@ -1,0 +1,1 @@
+- stop: judged: Resolves missing path from recorded home and shared NAME, then stops naming repo-b before tracker writes; does not invent a tree, receipt or approval.

@@ -25,6 +25,13 @@ Spec-writing replaces the context draft, in this exact order:
    `### PR #<N>` provenance subsection per PR with lowercase claims. Carry every PR's
    stated intent and constraints added since fork into Problem. Open Design with the
    unresolved sync repair when present. Omit the record from a ticket or free-text spec.
+   Then write `## Legs` after `## Acceptance criteria` and optional `## Rework record`,
+   using [legs.md](legs.md): one `### Leg: <repo>` block per member, home first,
+   with `branch:`, portable `contract:`, `Rules:`, exactly one `scope:` line and
+   `design:` prose for owned paths and observable outcomes.
+   Validate every block using [legs.md](legs.md)'s scope grammar before committing.
+   Keep machine-local paths out of committed blocks. Even a single-member spec
+   carries exactly one block; legacy specs without the section remain home-only.
 3. **Immediately after the write**, confirm line 1 of the file is no longer
    `# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing` - before
    dispatching lint, critique, council, or summarizer. The phase-tracker commit
@@ -115,6 +122,13 @@ git -C <abs worktree path> add -- <spec path> [<predecessor path>] && git -C <ab
 <audit lines, verbatim>
 EOF
 ```
+
+After the home commit, write and commit every companion leg file through
+`git -C <companion worktree>` using [legs.md](legs.md)'s artifact grammar:
+`**Home:**` tuple, copied `## Problem`, `## Decisions` from shared
+Design/Errors/Out-of-scope and repo-binding clauses, and its own block verbatim.
+Stop naming any failed companion; do not present artifact completion until all
+files agree. A single-member run writes no companion file.
 
 If the council path ran, the body is its audit (`Coverage:` when present, then `Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) - the durable, non-contractual record a finish-time revert and row 3 below read back; the audit is never a committed spec section. On the worker path the body is empty except for a main-loop drafted-AC repair audit line when a repair occurred. Append that repair line after the council audit on the council path; never alter its labels, cluster lines, or counts. `-m`, `-F <file>`, `printf | ... -F -`, and `$'...'` strings are not used for this commit. The `add` on the same line is required because the spec is untracked at its first commit and `commit -- <path>` rejects an untracked path.
 

@@ -1,0 +1,3 @@
+- walk: judged: Scouts run in their own worktrees; repo-a Rules includes root AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md and pkg-x/doc/parser.md; repo-b rules remain separate.
+- bounded: judged: Dedupes symlinked root CLAUDE.md by realpath, excludes untouched pkg-y/AGENTS.md and second-hop.md; reports missing outside.md without inventing contents.
+- unresolved: judged: Unknown touched paths retain root rules and emit Rules: root only - paths unresolved, leaving task path walks to plan-writer.

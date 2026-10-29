@@ -1,0 +1,34 @@
+{
+  "sample": "legs-wrong-primary",
+  "arm": "baseline",
+  "skillSha": "7a232da7dcf80b9e7965a364fcfda555db88c4d05cabd647a92fd69e18ec77f6",
+  "inputSha": "f56532907cf09df5470bb831c07009ff21e43e73b24c53257f1540247036a5a9",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Coordinated admission re-runs entry check 3 against the run home before any tracker write, and that check stops this restore. Nothing reaches the call table, so I make no `plan_check` call and no tracker call.\n\n**Tool calls (read-only, entry check 3 re-run against the run home):**\n\n1. In the session cwd (`/work/repo-b`):\n   `realpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-b/.git`\n2. Against the brief's run-home worktree:\n   `realpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-a/.git`\n\nThe two common directories differ. Settings and flow guards come from the session cwd's repository (repo-b), but the brief's run home is repo-a. Same-repository binding fails. This is a member-primary entry on a coordinated brief: repo-b is a declared companion leg.\n\n**Printed:**\n\n```\ngauntlet: stuck session repository /work/repo-b/.git differs from the resolved worktree's repository /work/repo-a/.git\nThe resolved worktree /work/repo-a/.worktrees/feature-shared-change belongs to a different repository; restart pi in that repository's primary checkout (/work/repo-a) and re-run /skill:gauntlet-resume.\nhome is repo-a; restart there\n```\n\nBecause this is a stop, I end here and change nothing:\n\n- **Trackers:** no `phase_tracker` or `plan_tracker` call; the session stays idle.\n- **Arming sequence:** no `start brainstorm`, `skip`, `plan_check`, `start implement` or `plan_tracker init`.\n- **Rest of coordinated admission:** I do not compare membership, validate repo-b's primary, branch or `**Home:**` tuple, check receipts, or report drift.\n- **Restore output:** no closing line, standing-grant line or post-restore continuation.\n- **Files:** no plan repair, `cd`, or worktree command.\n",
+      "words": 223,
+      "wallMs": 9286,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nEntry check 3 stops before coordinated admission or any tracker mutation. The supplied observations establish the repository mismatch; no additional tool calls are needed.\n\nPrint:\n```text\ngauntlet: stuck session git common directory is /work/repo-b/.git; resolved home worktree git common directory is /work/repo-a/.git. The resolved worktree belongs to a different repository. home is repo-a; restart there. Restart pi in /work/repo-a and re-run /skill:gauntlet-resume.\n```\n",
+      "words": 74,
+      "wallMs": 15497,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "d2e35168c92e6dd5e2a1bac003344a377448be67"
+}

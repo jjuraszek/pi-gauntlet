@@ -1,0 +1,80 @@
+{
+  "sample": "multi-repo-branch-mismatch",
+  "arm": "candidate",
+  "skillSha": "487fa544bea58391a41cf2b6f0959d967498a92c2bd4329aa11fde582fb1df19",
+  "inputSha": "faca50a01220a9ba10dada1cfe037d3ac6fbce990ea4122873293dbbda1386a9",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Worktree provisioning for repo-a (home) then repo-b on `feature/shared-change`\n\nThis case has no `## Narrated read actions` heading or `replay: continuation` marker. The input asks for a narration of provisioning outcomes, so this is a narrated account of checklist step 2 for each run, using the supplied observations. Nothing was executed.\n\n**Shared setup for every run (checklist step 2):**\n- Membership is settled per `reference/legs.md`: home `repo-a` first, then selected sibling `repo-b`.\n- Both members share `BRANCH=feature/shared-change` and `NAME=feature-shared-change`.\n- using-git-worktrees runs once per member, with that member's primary as `$ROOT`.\n- For each caller-rooted member, the Step 1 preflight runs before any creator:\n  - `git -C \"$ROOT\" show-ref --verify refs/heads/feature/shared-change`\n  - `git -C \"$ROOT\" worktree list --porcelain`\n  - a check that the resolved home path exists\n- No member's failure ever auto-removes a tree created earlier in the run.\n\n---\n\n## Run A: repo-b branch read-back mismatch\n1. **repo-a (home):** Creation succeeds. Both read-backs match.\n   - `Worktree ready at /work/repo-a/.worktrees/feature-shared-change`, Branch: `feature/shared-change`\n2. **repo-b:** The preflight is clean, so the wrapper runs. Step 4 coordinated-member read-back:\n   - `worktree list` prints `worktree /work/repo-b/.worktrees/feature-shared-change`, which matches.\n   - `git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current` prints `feature/other`, which does not match.\n3. **Stop on repo-b:**\n   - `repo-b`: requested branch `feature/shared-change`, actual branch `feature/other`.\n   - No `Worktree ready at` line for repo-b.\n   - Preserved created legs:\n     - `repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change`\n     - `repo-b feature/other /work/repo-b/.worktrees/feature-shared-change`\n4. Brainstorm halts before step 3. Nothing is removed.\n\n## Run B: repo-b branch already exists\n1. **repo-a (home):** Provisioned first as above. Its outcome is not supplied, so it appears in the inventory only if it was created.\n2. **repo-b preflight:** `show-ref` finds `refs/heads/feature/shared-change` already in repo-b. This is a collision.\n3. **Stop before the creator runs:**\n   - `repo-b`: branch `feature/shared-change` already exists.\n   - The branch is never suffixed and no unrelated tree is reused.\n   - No repo-b tree is created and there is no ready line.\n   - Preserved created legs: only legs created earlier in this run (repo-a if its creation succeeded). Nothing is removed.\n\n## Run C: repo-b target path already exists\n1. **repo-a (home):** Same as Run B.\n2. **repo-b preflight:** The resolved home `/work/repo-b/.worktrees/feature-shared-change` already exists. This is a path collision.\n3. **Stop before the creator runs:**\n   - `repo-b`, branch `feature/shared-change`: target path already exists.\n   - No suffix and no reuse.\n   - No repo-b tree is created. Earlier created legs are listed and preserved.\n\n## Run D: repo-b dirty primary, human declines\n1. **repo-a (home):** Same as Run B.\n2. **repo-b:** The Step 3 clean-base check (`git -C <repo-b primary> status --porcelain`, untracked files counted) shows a dirty checkout.\n   - The porcelain output is reported verbatim with the ask.\n   - The human declines continuing on the dirty base.\n3. **Stop before creation:**\n   - `repo-b`, branch `feature/shared-change`: dirty primary, continuation declined.\n   - There is no auto-stash or auto-clean.\n   - Earlier created legs are listed and preserved, never removed.\n\n## Run E: repo-b wrapper needs `<subproject>`\n1. **repo-a (home):** Same as Run B.\n2. **repo-b:** The wrapper template contains `<subproject>`. It is resolved from this leg's touched top-level directories:\n   - `pkg-x/a.ts` gives `pkg-x`.\n   - `pkg-y/b.ts` gives `pkg-y`.\n   - That is two candidates, so the token cannot be resolved from context.\n3. **Ask once for this leg:** \"Which subproject should repo-b's worktree wrapper use for `<subproject>`?\"\n   - A) `pkg-x`\n   - B) `pkg-y`\n   - Recommendation: neither can be inferred, since both are touched. Name the one the wrapper should provision.\n4. No human reply arrives. The template is never executed with an unresolved token, and there is no fallback to `git worktree add`.\n5. repo-b stays unprovisioned and pending this answer. The brainstorm does not advance to step 3, and earlier legs stay preserved.\n\n## Run F: repo-b branch read-back unavailable\n1. **repo-a (home):** Succeeds.\n   - `Worktree ready at /work/repo-a/.worktrees/feature-shared-change`, Branch: `feature/shared-change`\n2. **repo-b:** The creator reports success. Step 4 read-back:\n   - `worktree list` prints `worktree /work/repo-b/.worktrees/feature-shared-change`, which matches.\n   - `branch --show-current` returns no result.\n   - For a coordinated member, an absent result counts as a failure, not as \"unobserved\".\n3. **Stop on repo-b:**\n   - `repo-b`: requested branch `feature/shared-change`, actual result none (branch read-back unavailable).\n   - No `Worktree ready at` line for repo-b.\n   - Preserved created legs:\n     - `repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change`\n     - `repo-b branch unverified /work/repo-b/.worktrees/feature-shared-change`\n4. Brainstorm halts before step 3. Nothing is removed.\n",
+      "words": 664,
+      "wallMs": 30145,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A — Branch mismatch after creation\n1. Home succeeded: `Worktree ready at /work/repo-a/.worktrees/feature-shared-change`, branch `feature/shared-change`.\n2. Repo-b’s wrapper reports `/work/repo-b/.worktrees/feature-shared-change`. Its branch read-back returns `feature/other`, not the requested `feature/shared-change`.\n3. **Stop:** repo-b failed the mandatory branch verification. Emit no `Worktree ready at` line for repo-b. Do not retry, rename, or remove either tree.\n\nPreserved created legs:\n- `repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change`\n- `repo-b feature/other /work/repo-b/.worktrees/feature-shared-change`\n\n### Run B — Branch collision before creation\n1. Repo-b’s preflight finds that requested branch `feature/shared-change` already exists.\n2. **Stop before invoking the creator.** Do not reuse the branch, suffix its name, or create a replacement branch.\n3. Preserve any earlier-created home tree; no repo-b tree was created in this run.\n\n### Run C — Target-path collision before creation\n1. Repo-b’s preflight finds that `/work/repo-b/.worktrees/feature-shared-change` already exists.\n2. **Stop before invoking the creator.** Do not reuse, overwrite, remove, or choose a suffixed path.\n3. Preserve any earlier-created home tree; no repo-b tree was created in this run.\n\n### Run D — Dirty primary; continuation declined\n1. Repo-b’s clean-base check reports a dirty primary. The prescribed interaction reports the porcelain output verbatim; that output is not supplied here.\n2. The human declines continuation.\n3. **Stop before repo-b creation.** Do not stash, clean, commit, or run tests as a fallback. Preserve any earlier-created home tree.\n\n### Run E — Ambiguous wrapper token\n1. Repo-b’s wrapper requires `<subproject>`. The touched paths identify two candidates: `pkg-x` and `pkg-y`.\n2. Ask once which value to use for repo-b’s `<subproject>`; do not infer one from path order or execute the unresolved template.\n3. **Pause awaiting the answer.** No further human reply is supplied, so do not invoke the creator or fall back to `git worktree add`. Preserve any earlier-created home tree.\n\n### Run F — Branch read-back unavailable\n1. Home succeeded: `Worktree ready at /work/repo-a/.worktrees/feature-shared-change`, branch `feature/shared-change`.\n2. Repo-b’s creator reports success, and its worktree listing contains `/work/repo-b/.worktrees/feature-shared-change`.\n3. Repo-b’s branch read-back yields no result. Because this run supplies an explicit member root, successful creation and path verification alone are insufficient.\n4. **Stop:** repo-b’s requested branch `feature/shared-change` remains unverified. Emit no `Worktree ready at` line for repo-b. Preserve both created trees.\n\nPreserved created legs:\n- `repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change`\n- `repo-b branch unverified /work/repo-b/.worktrees/feature-shared-change`\n",
+      "words": 357,
+      "wallMs": 15704,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "afe6cb6ec86fd9e1f71a25c7042934e91579013a230747fb96a26a29ae432a0f",
+      "candidateOutputSha": "f948edf2439ff6bb0ecdfbf4a4007c743068ae98a130b7ed825c7c4a1b13e2fe",
+      "facts": {
+        "mismatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preflight": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs keep both facts. Run A and Run F in After stop on repo-b, name the requested `feature/shared-change` against observed `feature/other` / absent read-back, emit no `Worktree ready at` for repo-b, and list `Preserved created legs:` with both the home tree and the created repo-b tree without removing either. Runs B–E in After still stop before the creator (B/C) with no suffix or reuse, abort on decline (D), and ask once for `<subproject>` (E). The one weakening worth fixing: After hedges the home leg in B–E (\"repo-a if its creation succeeded\", \"earlier created legs are listed\") instead of actually listing `repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change`, because it treats the home outcome as unsupplied. Before reasoned that reaching repo-b at all means home already returned `Worktree ready`, so it printed the concrete inventory in every run. To keep the preflight fact robust under a stricter reader, restore that inference sentence in the shared-setup block (\"reaching a sibling means every earlier member returned Worktree ready, so those legs are always listed\") and print the explicit `Preserved created legs:` line with the home path in B, C, D and E, while keeping the new step-2/coordinated-member framing and the Run F \"absent result counts as failure, not unobserved\" wording that delivers the Change.",
+      "wallMs": 18152,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "aef31be2f97f35514c59f3f8f50eb8e800a8d2306212bb17a3e059f46ab9ad2b",
+      "candidateOutputSha": "3231fbf7ff3692027e07603e23f16e96b8f2f1a178ddfdd1cdb2d6083476ab99",
+      "facts": {
+        "mismatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preflight": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both outputs stop A naming repo-b with expected feature/shared-change versus observed feature/other, stop F on the unavailable read-back without treating it as equality or emitting `Worktree ready at` for repo-b, and list `Preserved created legs:` with the home tree and the created repo-b tree in both A and F without deleting either; B/C/D/E likewise stop before the creator, decline, or ask once while preserving earlier legs. Two small wording risks in After worth tightening so the facts stay robust: in Run F step 3 the justification \"Because this run supplies an explicit member root\" is an invented rationale not present in the observations and could read as conditional (implying branch verification is optional without a member root) - replace it with the Before phrasing that creator success and path membership never establish branch equality; and in Run A step 3 the stop line only says \"failed the mandatory branch verification\", so keep the explicit expected/observed pair in the stop sentence itself (as Before does) rather than relying on step 2, since a reader scanning the stop line should see both branch names there.",
+      "wallMs": 15146,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "1ee84d3566d85fcab68e7c6f8d2eb3605fd373cd"
+}

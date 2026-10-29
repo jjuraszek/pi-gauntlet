@@ -1,0 +1,80 @@
+{
+  "sample": "legs-verify",
+  "arm": "candidate",
+  "skillSha": "7d6ec53aabec3bd605e99602f556e11a44f932cf537d5c9c73b92f7c05cb0148",
+  "inputSha": "1947c566e65d991f8d4fe29a1f93533083a9054faffae7974fefa59fdf64fc47",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n`phase_tracker({ action: \"start\", phase: \"ship\" })`\n\n## Step 1 - Activation and per-leg verification\n\n**Input and coordinated mode**\n\n- `WORKTREE=/work/repo-a/.worktrees/feature-shared-change`\n- `PRIMARY=/work/repo-a`\n- `FEATURE=feature/shared-change`\n- I read the home spec `doc/specs/shared.md` once. Its `## Legs` section has three members: repo-a (home), then repo-b and repo-c as companions. Because there is more than one member, coordinated-finish mechanics apply.\n- Membership, branches, repository identity, and each companion's full `**Home:** repo-a feature/shared-change doc/specs/shared.md` tuple all validate.\n- The recorded `contract:` lines are the authority. I do not reread the overrides file to replace them.\n- There are no receipts under `/work/repo-a/.git/gauntlet/receipts/shared.md/`, so every leg is unlanded and gets fresh checks.\n\n**Skip rule does not apply.** No verification has run in this session, so there is no verified commit to skip from. Every leg runs its recorded set from its own worktree:\n\n| Leg | Command (cwd = leg worktree) | Rules | Owned ACs |\n|---|---|---|---|\n| repo-a | `(cd /work/repo-a/.worktrees/feature-shared-change && node --test test/parser.test.mjs)` | `AGENTS.md` | AC 1 |\n| repo-b | `(cd <repo-b worktree from brief / recorded home:> && node --test test/parser.test.mjs)` | `AGENTS.md` | AC 1 |\n| repo-c | `(cd /work/repo-c/.worktrees/feature-shared-change && node --test test/parser.test.mjs)` | `AGENTS.md` | AC 2 |\n\n**Leg-local verify evidence.** I read `/work/repo-b/.pi/settings.json` by file and merged its preset under the existing settings rules. Repo-b's top-level `piGauntlet` keys replace the preset's keys wholesale. Its merged `piGauntlet.verifyBeforeShip` requires repo-b's own passing tests.\n\n- Home's verify flag being true, and home's `gauntlet_setting` result, count only for home.\n- Neither one is evidence for repo-b.\n- Repo-b's requirement is met only by the `node --test test/parser.test.mjs` run in repo-b's worktree above.\n- Repo-c's and repo-a's settings were read and merged the same way.\n\nAll three legs pass.\n\n## Step 3.5 - Closure / conformance (per leg)\n\nEach leg was reviewed with its own `cwd`, its Rules, and its owned original AC rows:\n- AC 1 is reviewed in both repo-a and repo-b.\n- AC 2 is reviewed in repo-c.\n\nThe audited state recorded for each leg covers its head and tree, including staged, unstaged and untracked files. Closure is aggregated before the menu, and no dispositions remain open.\n\n```\nClosure / conformance: CONFORMS\n  repo-a: CONFORMS (0 open), audited-base <repo-a audited SHA>\n  repo-b: CONFORMS (0 open), audited-base <repo-b audited SHA>\n  repo-c: CONFORMS (0 open), audited-base <repo-c audited SHA>\n```\n\n## Step 4 - Present options (one choice for all members)\n\n```\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n## Step 5 - Freshness check before delivery\n\nIf the user chooses a delivery option (1, 2 or 3), the order is companions repo-b, then repo-c, then home. I validate receipts first; there are none, so nothing is skipped.\n\nImmediately before each leg's delivery, I compare its current checkout against its audited head and tree.\n\n**repo-b: changed. A new untracked source file appeared after the audit.**\n- The audited state is stale, so repo-b's delivery is held.\n- The new file is a source deliverable. I stage and commit it in repo-b's own worktree with `git -C <repo-b worktree> add <file>` and `git -C <repo-b worktree> commit`, never from home's checkout. This also keeps a push or squash from silently leaving it behind.\n- I rerun `node --test test/parser.test.mjs` with repo-b's worktree as cwd. Repo-b's leg-local `verifyBeforeShip` again requires this run's own passing evidence; home's flag does not count.\n- I run a fresh conformance review with repo-b's worktree as `cwd`, its `AGENTS.md` rules, and AC 1. This replaces repo-b's closure block with a new `audited-base`.\n- Repo-b is delivered only if both pass. If either fails, fan-out stops before any delivery and reports:\n  ```\n  Shipped:\n  Not shipped: repo-b <failure>; repo-c untouched; repo-a untouched\n  ```\n\n**repo-c: unchanged.** Its audited head and tree match the current checkout, so it is delivered after repo-b.\n\n**repo-a (home): unchanged.**\n1. Home's strip-and-seal runs only after complete companion results are collected. It uses `--option <pr|squash>` and one `--leg repo-b=<sha|pr-url>` and one `--leg repo-c=<sha|pr-url>`. No companion gets telemetry or a plan strip.\n2. Home is then delivered through the selected recipe.\n3. A receipt is written per leg after each delivery attempt.\n4. Every companion PR body or squash message carries `Home: repo-a feature/shared-change doc/specs/shared.md`.\n5. The home PR body or squash message lists every companion PR URL or squash SHA.\n\nFor PR, draft and Keep, all worktrees and branches are preserved.\n\nFor Squash or Discard, cleanup uses each leg's recorded contract, from its own primary, companions first:\n- **repo-b:** `script/wrapper remove '<name>'` plus the configured teardown hook.\n- **repo-c:** owned built-in removal of `.worktrees/<name>`, then `worktree prune`.\n- **repo-a:** `script/tree destroy '<name>'`, skipped if any companion's cleanup failed.\n\nThere is no `git worktree remove` fallback past a failed wrapper or hook.\n",
+      "words": 772,
+      "wallMs": 27020,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Before the menu\n\nThe home verification flag is not sufficient evidence to skip checks: no verification has run on a known clean commit in this session.\n\n- Read each primary’s `.pi/settings.json` directly and merge its preset using the existing settings rules: repository top-level keys replace preset keys wholesale; absent keys fall through. Do not use home’s settings result as companion evidence.\n- Run `node --test test/parser.test.mjs` separately with each leg’s worktree as cwd:\n  1. `/work/repo-a/.worktrees/feature-shared-change`\n  2. `/work/repo-b/.worktrees/feature-shared-change`\n  3. `/work/repo-c/.worktrees/feature-shared-change`\n- Require each leg’s own passing evidence, including repo-b’s.\n- Complete conformance against each leg’s `AGENTS.md` and owned original AC rows: AC1 for repo-a and repo-b; AC2 for repo-c. Retain each audited head and full checkout state, including untracked files.\n\nThe supplied aggregate verification, conformance, and disposition closure pass. Present one home-controlled finish menu, not separate companion menus.\n\n### Repo-b changes after the audit\n\nImmediately before delivery, compare every present leg’s current head and checkout state with its retained audited state. Repo-b’s new untracked source file makes its earlier verification and conformance evidence stale, even if its HEAD is unchanged.\n\n**Pause delivery at repo-b.** Before delivering it:\n\n1. Account for the new source file and include intended untracked deliverables in the staged/committed audit input.\n2. Rerun `node --test test/parser.test.mjs` in repo-b’s worktree.\n3. Re-review repo-b’s current diff for conformance using its own Rules and AC1 ownership.\n4. Resolve any resulting dispositions and retain a fresh audited head and checkout state.\n\nHome and repo-c need no repeat checks solely because repo-b changed, but their freshness must still be checked before their respective deliveries.\n\nNo fresh repo-b verification or review result is supplied, so delivery cannot continue yet. Do not push, squash, seal home telemetry, write delivery receipts, or clean up any worktree. Preserve all three branches and worktrees. Once repo-b’s gates pass, resume the selected action in delivery order: repo-b, repo-c, then home.\n",
+      "words": 306,
+      "wallMs": 14062,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ed4e9e5aa2a651c0f5739e7706f7a505e9121144721e273157db30f700f7642d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "935865a675510d0eedf3aa97c407e748711bd111fde812f97fe7bb5dda44503b",
+      "candidateOutputSha": "378b46bf2734fc7a4373d541cfa36f7382693835ae859606fcb9bf40100d3fa4",
+      "facts": {
+        "fresh": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "changed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "No fact moved between Before and After on this input. Both outputs run all three recorded commands with each leg's worktree as cwd, run per-leg conformance with its own `AGENTS.md` and owned original AC rows (AC 1 for repo-a/repo-b, AC 2 for repo-c) before a single menu, read `/work/repo-b/.pi/settings.json` by file with preset merge, and explicitly refuse to let home's true verify flag or success stand in for repo-b's evidence. Both also retain audited head plus staged/unstaged/untracked tree state, compare it immediately before each leg's delivery, detect repo-b's new untracked source file, hold repo-b, commit the repair via `git -C <repo-b worktree>`, and rerun repo-b's tests and conformance before it ships. After is slightly stronger in making the freshness comparison explicitly per-leg immediately before each delivery and in showing the per-leg `audited-base` in the closure block, which is good for the Change's per-leg audit coverage; keep that wording. One caution for After: it unilaterally decides the untracked file is a deliverable, whereas Before asked whether it is a deliverable or should be removed — consider restoring that two-branch wording so the narration does not assume intent while still committing repairs in repo-b's worktree.",
+      "wallMs": 13658,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ed4e9e5aa2a651c0f5739e7706f7a505e9121144721e273157db30f700f7642d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "b6eee12648c2ab0323007f1dd1c08fa3960c29824f257733fd47402b5b57a089",
+      "candidateOutputSha": "deba8f9a96fc9532b9548f600f41615e5a1094fd8306e9d6325d8bd0ba105d1c",
+      "facts": {
+        "fresh": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "changed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy both facts, so nothing moved on this case; the Expected-to-move list anticipated a fails→holds shift for fresh/changed, but Before already reads each primary's settings by file with the preset merge, runs the recorded command in each leg's own worktree, audits conformance against each leg's AGENTS.md and scoped AC rows, rejects the home flag as companion evidence, and in Run 2 stops repo-b on the untracked file, stages/commits it there, reruns tests and conformance, and rechecks freshness immediately before delivery. After is tighter where it matters: it spells out the three cwd paths, names the explicit pre-delivery comparison of current head and checkout state against the retained audited state, and folds intended untracked deliverables into the staged/committed audit input. Keep that explicit comparison sentence and the per-leg cwd list, and consider stating outright that resulting repairs are committed in repo-b's worktree (Before's 'stage or commit it' is the clearest phrasing of that) so a reader cannot miss the 'repairs committed there' clause of the changed fact; otherwise the After wording preserves everything Before kept.",
+      "wallMs": 16473,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+}

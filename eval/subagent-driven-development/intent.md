@@ -12,6 +12,10 @@ Run every plan task through the same N >= 1 wave loop, including an all-singleto
 
 Migrate chain-wave-dispatch, chain-stop-blocked, singleton-apply-failure and all-singleton-waves to the declared 7.4.3 floor; below-floor runtimes stop instead of using a tasks fallback. Add old-cohort-preflight-stops for the package-derived floor and all fixed guard errors, and happy-path-reference-read for the absolute late read, saved-summary conformance handoff and unreadable-reference stop. The guard selects pi-cohort and pi-gauntlet by the installed `package.json` name, so version-pinned, local-path and filtered `pi list` entries resolve. Preserve the main pre-failure slice and assemble the After All Tasks Complete slice plus happy-path-run reference in both arms using preparatory baseline 557b2a3. Fixed observations never authorize source reconstruction.
 
+Cover checkout-local Leg/Rules routing, per-repo wave bases and identical relative paths in different members; retain dependency and leg-unknown plan_check rejection without duplicating its runtime matrix. These are intended fact movements, not observed model results. Parent verification runs the full target; this task runs deterministic structural and assembly checks only.
+
+Cover coordinated-flow checkout-local task dispatch, Leg/Rules, per-repo baselines and wave dependency rejection in leg-cwd. Preserve every legacy fact and bundle selection. Runtime validation remains in extensions/lib/plan-check.test.ts; parent verification runs full model comparisons.
+
 ## Expected to move
 - gate-line-first/question-first: fails -> holds - Exhausted fact lookups ask for a human decision before any summary.
 
@@ -68,3 +72,7 @@ Migrate chain-wave-dispatch, chain-stop-blocked, singleton-apply-failure and all
 - exhausted-on-resume/exhausted: fails -> holds - Treats funding as exhausted, with no funded dispatch and no automatic resume reset.
 - exhausted-on-resume/suffix: fails -> holds - Stops with budget: 2 of 2 spent (not recovered on resume) after Problem: and before the file finding.
 - exhausted-on-resume/refund: fails -> holds - Identifies a newly written budget token as the human refund rather than inventing spent state or asking for a new resume carrier.
+
+- leg-cwd/roots: fails -> holds - Enforce the new coordinated-flow must-hold fact: Runs W1 in home and W2 after its dependency in repo-b, capturing each WAVE_BASE_SHA there, with own git/tests/integration/repair roots; same relative paths do not collide across legs.
+- leg-cwd/context: fails -> holds - Enforce the new coordinated-flow must-hold fact: Carries Leg and additive spec/task Rules to implementer, spec-reviewer and code-reviewer, resolved in owning checkout, while authoritative spec stays absolute home path.
+- leg-cwd/repair: fails -> holds - Enforce the new coordinated-flow must-hold fact: Repairs repo-z in the plan without expanding membership; splits the mixed wave into dependency-preserving single-leg waves before dispatch. Does not reject valid Tests placement after Leg and Files.

@@ -1,0 +1,1 @@
+- retain: judged: Reports all retained worktrees and branches, keeps receipts for later validation, and performs no plan strip, seal, delivery or cleanup.

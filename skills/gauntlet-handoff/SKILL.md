@@ -65,7 +65,7 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
    (`disable-model-invocation: true`), so it is absent from the session skill list.
    Locate it by path: run `pi list`; the indented path under the `pi-cohort` entry
    (`npm:pi-cohort`, or a local path ending in `/pi-cohort`) is the package root. `Read` `<root>/skills/handoff/SKILL.md` and follow its procedure with the
-   output option resolved in step 1 - the brief's core (six headings, ending at
+   output option resolved in step 1. Read the run home's spec; with multiple members, explicitly supply `Run worktree: <home worktree>` through cohort's "was told to work in" snapshot clause. Pin the snapshot to that path, not the most-recently-used companion and not an `Also seen:` entry. The brief's core (six headings, ending at
    `## Skills loaded`) is cohort's to write, by cohort's rules. No `pi-cohort` entry, or
    the file missing -> STOP: "cohort `handoff` skill not found at
    `<root>/skills/handoff/SKILL.md` - install or upgrade to pi-cohort >= 7.1.0". No
@@ -85,7 +85,7 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
    - A phase `in_progress` (verify or ship included - resume stops at verify on its own)
      -> append the process-state section exactly as `## Producers` in
      `reference/brief-contract.md` lays it out: both status outputs verbatim
-     (`No plan active.` verbatim when there is no plan), the contract's artifact-specific fields, and the gate-history line. Recognize the loop alternative by ledger line 1; read the ledger from the run worktree for its durable last decision. Read the run worktree's spec; when it carries `## Rework record`, copy every top-level PR identity (without the title) and its full pre-rework head, home first in record order, into the optional fields in the contract's producer layout; copy the optional top-level rework base after the pairs as the contract specifies. Without that record, use the ordinary layout. Use only the contract's grammar; write no second state file. Append with a single
+     (`No plan active.` verbatim when there is no plan), the contract's artifact-specific fields, and the gate-history line. Recognize the loop alternative by ledger line 1; read the ledger from the run worktree for its durable last decision. Read the run worktree's spec; when it carries `## Rework record`, copy every top-level PR identity (without the title) and its full pre-rework head, home first in record order, into the optional fields in the contract's producer layout; copy the optional top-level rework base after the pairs as the contract specifies. Without that record, use the ordinary layout. For multiple members, read `reference/brief-contract.md` "Coordinated brief grammar" and append its ordered member snapshot, including missing trees and existing receipt paths, in that layout. Keep the core snapshot home-bound. Use only the contract's grammar; write no second state file. Append with a single
      `cat >> "<brief path>" <<'EOF' ... EOF` whose body is that block.
    - Re-read the file tail and confirm it ends with the gate-history line from the
      contract and nothing after.

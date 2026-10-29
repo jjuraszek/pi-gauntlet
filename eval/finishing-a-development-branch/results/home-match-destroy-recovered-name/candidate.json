@@ -1,7 +1,7 @@
 {
   "sample": "home-match-destroy-recovered-name",
   "arm": "candidate",
-  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "skillSha": "abba3103fa48c7fc97e8643ca7bfb5575f5492cc1a1a289cf45c70e02be23ba2",
   "inputSha": "b97393bf65b1a1e44472bd81f9903a1f6872746945ba769cf9f9f7fba849b6ad",
   "kind": "text",
   "assembly": "concat",
@@ -15,23 +15,32 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (option 3, squash-merge)\n\n**Contract source:** The case does not mention `## Legs`, so I treat this as a legacy spec and read the cleanup contract from `## using-git-worktrees` in `/work/acme-mono/.pi/gauntlet-overrides.md`. That section has `home:`, `create:` and `destroy:` keys, so the **keyed contract** applies.\n\n**1. Resolve `home:`**\n- `../acme-mono-<name>` resolved against `$PRIMARY` (`/work/acme-mono`) gives `/work/acme-mono-<name>`.\n- `<name>` appears once, in the single segment `acme-mono-<name>`.\n- That segment has the prefix `acme-mono-` and no suffix, so the pattern is valid.\n\n**2. Ownership match**\n- `realpath` leaves both paths unchanged: `$WORKTREE` = `/work/acme-mono-fix-x`.\n- The pattern segment `acme-mono-*` matches `acme-mono-fix-x`, with `*` = `fix-x`.\n- This is a match, and `NAME` = `fix-x`.\n\n**3. Match and `destroy:` set:** I run the project's destroy command from `$PRIMARY`, with `<name>` replaced by `'fix-x'` as one single-quoted shell word:\n\n```bash\ncd /work/acme-mono && script/worktree destroy 'fix-x'\n```\n\nOutput:\n```\nremoved fix-x\n```\n\nIt exited 0, so destroy succeeded. Per the contract, I do **not** run `git worktree remove` or `git worktree prune`. I continue straight to branch deletion:\n\n```bash\ngit -C \"/work/acme-mono\" branch -D \"fix-x\"\n```\n\n**Result**\n- Worktree `/work/acme-mono-fix-x` was removed by the project-native `script/worktree destroy` (exit 0, \"removed fix-x\").\n- Feature branch `fix-x` was deleted from the primary checkout at `/work/acme-mono`. Its changes are already squash-merged into `main`.\n- I did not run any fallback `git worktree remove --force` or `prune`.\n",
+      "words": 211,
+      "wallMs": 9242,
+      "mechanical": {
+        "r4": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The keyed `home` pattern resolves to `/work/acme-mono-<name>` and matches `/work/acme-mono-fix-x`, recovering `NAME=fix-x`.\n\nRun from `/work/acme-mono`:\n```sh\nscript/worktree destroy 'fix-x'\n```\n\nOutput:\n```text\nremoved fix-x\n```\n\nDestroy succeeded. Do not run `git worktree remove` or `git worktree prune`. Continue with branch deletion:\n```sh\ngit -C \"/work/acme-mono\" branch -D \"fix-x\"\n```\n",
-      "words": 46,
-      "wallMs": 3930,
+      "text": "The keyed `home:` pattern resolves to `/work/acme-mono-<name>` and matches the worktree, recovering `NAME=fix-x`.\n\nRun from `/work/acme-mono`:\n```sh\nscript/worktree destroy 'fix-x'\n```\n\nIt exits successfully:\n```text\nremoved fix-x\n```\n\nThen delete the merged feature branch:\n```sh\ngit -C \"/work/acme-mono\" branch -D \"fix-x\"\n```\n\nDo not run `git worktree remove` or `git worktree prune`; the project destroy command handled worktree cleanup.\n",
+      "words": 56,
+      "wallMs": 3104,
       "mechanical": {
         "r4": "holds"
       }
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "c1ba8a24eb5c6751c42f0606cf4aaa7998a5664b303712a0fb2ed4e676d715d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
-      "baselineOutputSha": "23dfa582bc3ebcd6c18a682b5b69822646399b7cbbaaceb21b8558d43d8836ce",
-      "candidateOutputSha": "5bf13d3a7719626aa705865883afb5ae16257370ceb9e8aa0535369730d1e160",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "639eb9f38e8b2b0f82be72adc4badbbc44575caa3e63ee1662a5df966bde1d62",
+      "candidateOutputSha": "639eb9f38e8b2b0f82be72adc4badbbc44575caa3e63ee1662a5df966bde1d62",
       "facts": {
         "r1": {
           "before": "holds",
@@ -49,10 +58,37 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs recover fix-x from the matched home pattern, run destroy from /work/acme-mono with 'fix-x', and continue to branch deletion only after destroy succeeds, without built-in worktree removal or pruning. After preserves the cleanup behavior required by the Change; retain its explicit name recovery, working directory, success check, and branch-deletion continuation.",
-      "wallMs": 3854,
+      "feedback": "The Before and After outputs are byte-for-byte identical, so nothing moved: both narrate the keyed `## using-git-worktrees` contract, resolve `home:` to `/work/acme-mono-<name>`, match `acme-mono-*` against the segment `acme-mono-fix-x` to recover `NAME = fix-x` (not the basename `acme-mono-fix-x`), run `script/worktree destroy 'fix-x'` from `/work/acme-mono`, observe exit 0, and then continue explicitly to `git -C \"/work/acme-mono\" branch -D \"fix-x\"` while stating that no `git worktree remove` or `prune` runs. Thus r1 and r2 hold in both arms, which differs from the Expected-to-move note that the baseline fails them; the supplied Before text already reflects the recovered-name and no-builtin-remove behavior. The After wording therefore preserves every fact Before kept and delivers the Change for this case; no wording adjustment is needed here, though if the author expected a visible delta they should confirm the Before sample was actually generated from the pre-change skill text.",
+      "wallMs": 7122,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c1ba8a24eb5c6751c42f0606cf4aaa7998a5664b303712a0fb2ed4e676d715d5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "4056c9bb5a7c3f48160773143048eca513a3e11454e3613f7de27a123b44d6cb",
+      "candidateOutputSha": "4056c9bb5a7c3f48160773143048eca513a3e11454e3613f7de27a123b44d6cb",
+      "facts": {
+        "r1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "r2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "r4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both recover NAME=fix-x from the matched <name> segment (not the basename acme-mono-fix-x), run `script/worktree destroy 'fix-x'` from /work/acme-mono, then run `git -C \"/work/acme-mono\" branch -D \"fix-x\"` after the successful destroy, and explicitly refuse `git worktree remove`/`prune`. The expected fails->holds movement for r1/r2 is not observed because the Before output here already satisfies the keyed-contract behavior; the After wording needs no adjustment for this sample, though the author should confirm the Before baseline used for this case is actually the pre-change wording rather than a copy of After.",
+      "wallMs": 4760,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

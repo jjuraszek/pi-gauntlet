@@ -23,6 +23,8 @@ Limit each sentence to 200 characters. Use the seed contract below for `target: 
 
 Read the task fields: `iteration`, `spec` (absolute path), `ledger` (absolute path), `base` (SHA), `target` (row number or `seed`), `previous decision` (line or `none`), and `hint` (human retry hint or `none`).
 
+Read additive inputs `Leg:`, `Rules:`, mapped original AC and, for companions, exact `pending:` tuple. Read the combined spec/task `Rules:` files before acting, resolving them in the supplied leg checkout. Consume the caller's mapping, not ownership inferred from spec prose. Keep git operations, code and scoped tests in the supplied checkout with its per-leg base; read spec and ledger at their absolute home paths.
+
 ## Procedure
 
 1. Read the given spec in full before reading the ledger or code. Read the given ledger next.
@@ -45,6 +47,14 @@ For every `open` row, write its failing test or name its check and record the ch
 Append exactly one decision line: `row 0 done | seeded <k> rows, closed <m> on baseline | <first row to take>`.
 
 Stage the seeded evidence changes and ledger, commit exactly once with subject `loop: seed evidence`, check for a clean tree, and reply with the appended seed decision only.
+
+## Companion result commit
+
+For a companion `pending:` input, replace ledger mutation/staging and decision appending in the procedure and output contract with the commit-body path below; leave the home ledger untouched. Limit work and seed checks to mapped entries for this leg. Apply the same one-commit and bounded evidence contracts. Prepare the resulting four-column `row | status | attempts | evidence` target row in memory, not a sidecar. Serialize it in the companion commit body instead of editing the home ledger; for seed serialize all and only this leg's non-cut rows, preserving their attempts and proven baseline closures. For ordinary work serialize only its target, attempts +1 and status done/failed.
+
+Use the existing subject `loop: row <n> <status>` or `loop: seed evidence`. Put the exact dispatched `pending:` tuple and consumed `iteration:` on separate body lines, then a blank line, then the resulting pipe-delimited table rows without a header, then a blank line and the existing bounded decision line. Include the check name plus at most three semicolon-separated result lines and escaped pipes in each evidence cell. Compute seed decision counts from this leg only. Stage code/tests explicitly and commit exactly once in the companion; check clean status. Reply with the existing decision line only. Let the parent validate the commit and write the home ledger.
+
+For coordinated home work, edit only mapped home entries and its seeded state under the ordinary ledger contract; preserve foreign entries, mappings, bases and all other headers.
 
 ## Boundaries
 

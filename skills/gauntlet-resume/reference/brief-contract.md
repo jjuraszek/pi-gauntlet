@@ -27,7 +27,7 @@ Headings, fixed order. A consumer keys on headings, never prose.
 | `## Repo state` | one field per line: `toplevel`, `worktree: yes <path>` or `worktree: no`, `branch` (`detached` when none), `HEAD`, `base` (`unknown` when no remote resolves), `dirty: <porcelain>` or `dirty: clean`, `diff-stat` (`unavailable` when base unknown), `test cmd`; any field `unavailable` when its command failed; heading `## Repo state: not a git repo` outside git | always |
 | `## Decisions` | bullets; rejected alternatives marked `rejected:` | always |
 | `## Skills loaded` | frontmatter `name`s; `## Skills loaded: none` when none | always |
-| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; optional one or more consecutive `PR: <owner/repo#N>` / `Pre-rework head: <40-char sha>` pairs, one per record group, home first, in record order, only for a PR subject; optional single `Rework base: <40-char sha>` after all PR pairs; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
+| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; optional one or more consecutive `PR: <owner/repo#N>` / `Pre-rework head: <40-char sha>` pairs, one per record group, home first, in record order, only for a PR subject; optional single `Rework base: <40-char sha>` after all PR pairs; optional coordinated block defined below after that line; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
 
 For a loop ledger (line 1 exactly `# Ledger - loop engine`), replace `Active task` with these two fields, retaining both tracker status outputs and the gate-history line:
 
@@ -53,7 +53,7 @@ one blank line, the heading on its own line, a blank line, the `phase_tracker st
 output verbatim, a blank line, the `plan_tracker status` output verbatim, a blank line,
 `Active task: <name|none>`, then, only for a PR subject, one or more consecutive
 `PR: <owner/repo#N>` / `Pre-rework head: <40-char sha>` pairs, one per record group,
-home first, in record order, then optional single `Rework base: <40-char sha>` after all PR pairs and before the gate-history line -
+home first, in record order, then optional single `Rework base: <40-char sha>` after all PR pairs, then the optional coordinated block below, then the gate-history line after the last pair, rework-base line, or block -
 unfenced, nothing after.
 For a task plan, set `Active task` to the first `→` task name, else `none` (also for `No plan active.`). For a line-1 ledger, read its path and last decision and use the loop alternative above, retaining the optional PR pairs and rework base before the gate-history line. Copy the full rework base only from the top-level record when present; never invent a boundary for incomplete sync. Copy only top-level record pairs, without titles; `Threads:` and record `### PR #<N>` subsections are not brief fields. For N=1 emit one pair; without a Rework record use the ordinary layout.
 
@@ -79,6 +79,38 @@ Plan: 1/3 done (1 in progress, 1 pending)
 Active task: W2: producer
 Gate history not restored - re-validate before advancing.
 ```
+
+## Coordinated brief grammar
+
+For more than one member only, append this block after the optional PR pairs and before the terminal gate-history line. Emit entries in the home spec's `### Leg:` order, home first. Keep the six core headings and `## Repo state` fields unchanged and bound to the run home. Distinguish PR home (the leading PR pair) from run home (the first member); do not infer one from the other.
+
+```text
+legs:
+  - repo: repo-a
+    worktree: <absolute home worktree>
+    branch: <shared branch>
+    HEAD: <full sha>
+    dirty: clean
+  - repo: repo-b
+    worktree: missing
+    branch: <shared branch>
+    HEAD: <last recorded full sha or unavailable>
+    dirty: unavailable
+    receipt: <absolute home-owned receipt path>
+Gate history not restored - re-validate before advancing.
+```
+
+Keep fields in this order. Use the portable repo identifier from `../../brainstorming/reference/legs.md`. Record the absolute worktree path or the literal `missing` when absent; record live HEAD and porcelain dirt (`clean` when empty), or last recorded HEAD and `unavailable` dirt for a missing tree. Include the optional receipt path only when a delivery receipt exists; transport is not proof. For a live tree without a receipt omit that field. Single-member and legacy briefs carry no coordinated block, leg file, receipt, `--leg` or companion loop.
+
+## Coordinated admission
+
+Run resume entry check 3 against the run home unchanged. Resolve the home spec through Candidates, retaining human approval/confirmation requirements; artifact presence supplies no approval. Before any tracker write, compare ordered brief membership with the home spec's `### Leg:` blocks exactly; name the missing, extra or reordered leg and both lists on mismatch. Use `../../brainstorming/reference/legs.md` for membership, companion-file and scope grammar; keep no duplicate grammar here.
+
+For each companion, parse the home overrides' selected sibling clone URL with shape-ticket's shared parser and use `<home PRIMARY parent>/<NAME>` as its declared primary. Canonicalize that primary's git common directory. Resolve an absent location from the leg's recorded `home:` contract and shared NAME (shared branch with `/` replaced by `-`), not a newly inferred wrapper. Require the companion worktree's canonical git common directory to equal the declared primary's, its live branch to equal the shared branch, and its leg file's full `**Home:**` tuple to equal the run home's repo, shared branch and repo-relative spec path. Stop naming the offending leg and expected/observed path, branch or full tuple. A live tree's branch or tuple mismatch is not informational drift.
+
+Admit a missing companion tree only after live receipt validation under `../../finishing-a-development-branch/reference/legs.md`. A copied receipt alone proves nothing. Announce per-leg HEAD and dirty drift against live trees without stopping; identify each leg. Keep approval, standing-grant validation, arming order and task snapshots unchanged. Dispatch task `Leg:` work in that leg's checkout, not the home by default.
+
+For a ship-stage retry with a correctly stripped plan, require every companion receipt to validate live before admitting the missing plan. Restore through the legal brainstorm start/skip, plan start/skip and implement skip sequence to verify, without inventing a plan_check stamp or conformance evidence. Re-validate unlanded home using recorded contracts and original scoped ACs, then run fresh home conformance and finish; use the finishing reference's retry route. Preserve receipts on seal or home delivery failure; do not repair or replace a correctly stripped plan. An absent plan without this fully validated ship retry remains a stop.
 
 ## Tracker output grammar
 
@@ -163,7 +195,9 @@ Honor SKILL.md entry check 6's deferred stop before any process-state arming cal
 | implement with ledger | Read ledger line 1; resolve its path-only `**Spec:**` header; run entry checks 1-6, naming check 6 (Grant field); `start brainstorm`; `skip brainstorm` reason `resume: <spec path>`; `start plan`; `plan_check` on the absolute ledger path; on PASS `skip plan` reason `resume: <spec> (loop engine)` using the resolved absolute spec path as `<spec>`; `start implement`; no `plan_tracker init`; apply the shared cap boundary in `reconstruction.md` "Spec with ledger" step 4 before continuation; render cap, rows and decisions; continue at loop step 5. Follow `reconstruction.md` "Spec with ledger" for this self-contained ordered restore. On FAIL stop with findings, never `## Plan repair` or writing-plans. |
 | implement with task plan | `start brainstorm`; `skip brainstorm S`; `start plan`; `plan_check({ planPath })`; on FAIL run `## Plan repair`; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
 | verify | `start brainstorm`; `skip brainstorm S`; `start plan`; `plan_check({ planPath })`; on FAIL run `## Plan repair`; on PASS `skip plan R`, then `skip implement R`; `start verify`; `substep` if shown; `plan_tracker init`. Never call `start implement`. |
-| ship | as verify. Restoration stops at verify in_progress: `complete verify` needs a fresh conformance dispatch and `skip verify` would bypass a real gate. Announce that the closure review re-runs before ship |
+| ship | With a correctly stripped coordinated plan, apply "Coordinated admission"'s fully receipt-validated retry route instead of plan repair; otherwise as verify. Restoration stops at verify in_progress: `complete verify` needs a fresh conformance dispatch and `skip verify` would bypass a real gate. Announce that the closure review re-runs before ship |
+
+For a coordinated ledger, apply reconstruction's pending companion return boundary before dispatch or verification, including verify/ship restores; record a validated interrupted return before continuing.
 
 For a ledger brief, pair by the ledger's path-only `**Spec:**` header, not basename; require the resolved spec under `flowGuards.specDirs` and the ledger under its sibling plans directory. Keep same-repository binding and human confirmation. For every ledger brief apply the shared cap boundary in `reconstruction.md` "Spec with ledger" step 4 before dispatch or verification, retaining its legacy stop and original-phase grant continuation. For verify/ship ledger briefs, use the ledger restore sequence through `skip plan`, then `skip implement R`; `start verify`, with no task tracker. Continue verify/ship ledger briefs in `/skill:loop-implementation` `After the loop` from step 1 (full ledger verification), after the already-restored `start verify`, retaining whole-diff code review, happy path when triggered, fresh conformance review and finishing without task-tracker calls. Ship still stops at verify for fresh conformance.
 

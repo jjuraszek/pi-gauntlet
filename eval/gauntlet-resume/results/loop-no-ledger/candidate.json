@@ -1,7 +1,7 @@
 {
   "sample": "loop-no-ledger",
   "arm": "candidate",
-  "skillSha": "8c0767334f13b1fc925e6a34e9a7e8c3ec80d1e395637619286bc862582a4113",
+  "skillSha": "e7af41e02801170dd0ed870e0276db7bae76c308feb0dc67ac24ac487b5e3fc9",
   "inputSha": "ab0c35ca223847752cad62a3266810e06bb82a3d2465c0cb2ce182ec21498e33",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Restore: approved loop-engine spec with no ledger, routed to `loop-implementation`\n\n## Routing\n\n**Inputs**\n- This is a bare worktree, so there is no brief and no PR pairs. Candidates use the ordinary merge-base.\n- `flowGuards` resolves `specDirs` (`doc/specs`) and their sibling `planDirs` (`doc/plans`).\n- Two scans run against `doc/specs doc/plans`:\n  - `git -C /work/app/.worktrees/loop diff --diff-filter=A --name-only <base>..HEAD -- doc/specs doc/plans`\n  - `git -C /work/app/.worktrees/loop ls-files --others --exclude-standard -- doc/specs doc/plans`\n- The scans find one spec and no plan-directory candidate. No line-1 `# Ledger - loop engine` file and no task plan exist.\n\n**Route**\n- One spec with no plan is the \"Spec without plan\" route.\n- The spec carries `**Engine:** loop`, so the row is \"approved spec with `**Engine:** loop`, no ledger\". This continues in `loop-implementation`.\n- It does not go to the writing-plans body, and it uses no task tracker.\n\n**Resolved values**\nThese are absolute paths under the worktree. They are carried as values and never re-discovered:\n- worktree: `/work/app/.worktrees/loop`\n- spec: `/work/app/.worktrees/loop/doc/specs/run.md`\n- plan directory: `/work/app/.worktrees/loop/doc/plans`\n\n**Approval**\n- Approval comes from the human's explicit confirmation, not from the spec being present.\n- Entry check 6 has passed. `**Amend-grant:** none` decodes to no standing grant.\n\n## Arming (after check 6, before driver admission)\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })` arms the flow.\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\" })`. Skip keeps the flow armed.\n\nPrinted:\n```\nGate history not restored (closure-review evidence and fix rounds are not carried over); nothing to re-validate - no task has run yet on this spec.\nNo standing grant.\n```\n\nThen I continue in `loop-implementation`, without any reset-bearing `/skill:brainstorming` entry.\n\n## Entry steps 1–5 (`loop-implementation`)\n\n**Entry step 1: resolved settings**\n- `gauntlet_setting({ key: \"loopEngine\" })` returns `maxIterationsPerRow` = 12.\n- Step 1 applies because this is a fresh seed, not an admitted ledger.\n\n**Entry step 2: verification**\nThe overrides `## PR gate` section supplies the command. Printed:\n```\nverification command: node --test check.mjs (PR gate)\n```\n\n**Entry step 3: driver's plan skip**\n- `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`\n\n**Entry step 4: clean named-branch check and ledger creation**\n\nChecks:\n- `git -C \"/work/app/.worktrees/loop\" branch --show-current` must return a named branch.\n- `git -C \"/work/app/.worktrees/loop\" status --porcelain` must be empty.\n\nBase:\n- `git -C \"/work/app/.worktrees/loop\" rev-parse HEAD` gives the base, taken before the skeleton exists.\n\nI write `/work/app/.worktrees/loop/doc/plans/run-ledger.md` as follows:\n\n```markdown\n# Ledger - loop engine\n**Spec:** `doc/specs/run.md`\nbase: <observed HEAD SHA>\nverification: node --test check.mjs\niterations: 0\ncap: <(non-cut rows) * 12 + 1>\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | |\n...\n\n## Decisions\n```\n\nRow rules:\n- Every acceptance criterion in the spec gets a row, in order.\n- `in-scope` and `venue:` rows start as `open` with 0 attempts.\n- `deviates:`, `deferred:` and `elsewhere:` rows start as `cut`, with the disposition text as evidence.\n\nCap rule:\n- The cap is computed once, with 12 per non-cut row plus 1 for the seed. For example, 5 non-cut rows give 61.\n- The cap is written directly after `iterations: 0`.\n\n**Entry step 5: `plan_check`, commit and implement start**\n1. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })`. It stamps because the flow is armed.\n   - On FAIL, I stop with the findings as a configuration error. I do not run plan repair or writing-plans.\n2. On PASS, I commit the stamped skeleton as `loop: seed ledger`.\n3. `phase_tracker({ action: \"start\", phase: \"implement\" })`. This is admitted because the `plan_check` stamp is current.\n\n## Continuation\n\n- I continue at \"Before each dispatch\":\n  - Read the ledger and require its `cap:` header.\n  - Run the ordered table.\n  - Select target `seed`, because no validated `loop: seed evidence` commit exists yet.\n- I do not call `plan_tracker init`, and no reviewers run inside implement.\n",
-      "words": 562,
-      "wallMs": 24921,
+      "text": "# Ordered restore: spec without plan, routed to the loop engine\n\nNo tool results are supplied beyond the input. Each call below is the prescribed action. Where a value would come from a tool, I name it instead of inventing one.\n\n## 0. Routing decision\n\n- **Candidates (reconstruction \"Candidates\"):** The worktree is bare and has no brief, so there are no PR pairs and the ordinary merge-base applies. The scan finds one spec, `doc/specs/run.md`, and no plan or ledger. That is route **\"Spec without plan\"**.\n- **Approval:** The human explicitly confirmed approval. Approval never comes from the artifact being present.\n- **Post-restore table:** The spec has `**Engine:** loop` and no ledger. Continuation therefore goes to **loop-implementation**, not the writing-plans body, and no task tracker is used.\n- **About plan_check at this point:** No plan exists yet. This route has no `start plan` and no pre-admission `plan_check` on a plan. The only `plan_check` is loop Entry step 5, run on the freshly seeded ledger. That is also why arming comes first: `plan_check` only stamps inside an armed flow.\n\n## 1. Resolved inputs carried forward\n\nThese are absolute values, carried as-is and never re-resolved:\n\n- worktree: `/work/app/.worktrees/loop`\n- spec: `/work/app/.worktrees/loop/doc/specs/run.md` (Spec header written repo-relative: `doc/specs/run.md`)\n- plan directory: `/work/app/.worktrees/loop/doc/plans`\n- ledger path to create: `/work/app/.worktrees/loop/doc/plans/run-ledger.md`\n- original prompt: kept for verify.\n\n## 2. Tracker restore (after check 6)\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })` arms the flow.\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\" })`\n\n## 3. Printed lines\n\n- The brief-contract closing line, stating that gate history is not restored and naming the work to re-validate.\n- `No standing grant.` (check 6 found `**Amend-grant:** none`)\n\n## 4. Continue in loop-implementation, Entry steps 1–5\n\n**Entry step 1: resolved settings**\n- Read the overrides file. This is a restored session, so nothing is in context yet.\n- Call `gauntlet_setting({ key: \"loopEngine\" })` and retain `maxIterationsPerRow` = 12. This is a fresh seed, so the setting applies.\n\n**Entry step 2: verification**\n- The overrides `## PR gate` section supplies `- verification command:`.\n- Print: `verification command: node --test check.mjs (PR gate)`\n\n**Entry step 3: driver's plan skip**\n- `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`\n\n**Entry step 4: clean named-branch check and ledger creation**\n- Run these checks, stopping on a dirty tree or detached HEAD:\n  - `git -C \"/work/app/.worktrees/loop\" status --porcelain` must be empty.\n  - `git -C \"/work/app/.worktrees/loop\" branch --show-current` must be non-empty.\n- Run `git -C \"/work/app/.worktrees/loop\" rev-parse HEAD` to get the base SHA.\n- Write `/work/app/.worktrees/loop/doc/plans/run-ledger.md`:\n  - line 1: `# Ledger - loop engine`\n  - `` **Spec:** `doc/specs/run.md` ``\n  - `base: <observed SHA>`\n  - `verification: node --test check.mjs`\n  - `iterations: 0`\n  - `cap: <non-cut rows × 12 + 1>`\n- Build one row per spec AC, in order:\n  - In-scope and `venue:` rows start `open`, attempts 0.\n  - `deviates:`, `deferred:` and `elsewhere:` rows start `cut`, with the disposition text as evidence.\n  - Leave an empty `## Decisions` section.\n- The row count comes from reading the spec in full, so the cap value is computed then. For example, 5 non-cut rows gives cap 61; all-cut gives cap 1.\n\n**Entry step 5: plan_check, commit and implement start**\n- `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })`\n- On findings, stop with them as a configuration error. There is no plan repair and no writing-plans step.\n- On PASS:\n  - commit the stamped skeleton as `loop: seed ledger`\n  - `phase_tracker({ action: \"start\", phase: \"implement\" })`\n\n## 5. Next\n\n- Go to \"Before each dispatch\":\n  - require the `cap:` header\n  - apply the ordered table\n  - target `seed`\n- No writing-plans body, no `plan_tracker init`, and no reviewers inside implement.\n",
+      "words": 542,
+      "wallMs": 25085,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The route is **approved spec with `Engine: loop`, no ledger**. Human confirmation supplies approval; artifact presence does not. A fresh ledger must be prepared before `plan_check` can run—there is no task plan to restore or repair.\n\nAll calls below are narrated, not executed.\n\n1. Prepare and retain these resolved inputs:\n   - Worktree: `/work/app/.worktrees/loop`\n   - Spec: `/work/app/.worktrees/loop/doc/specs/run.md`\n   - Plan directory: `/work/app/.worktrees/loop/doc/plans`\n   - New ledger: `/work/app/.worktrees/loop/doc/plans/run-ledger.md`\n\n   Read the spec in full and retain the original prompt for verification. Check 6 has passed; `**Amend-grant:** none` supplies no standing grant.\n\n2. Arm the flow:\n\n   ```text\n   phase_tracker({ action: \"start\", phase: \"brainstorm\" })\n   phase_tracker({\n     action: \"skip\",\n     phase: \"brainstorm\",\n     reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\"\n   })\n   ```\n\n   Do not invoke the reset-bearing brainstorming entry.\n\n3. Announce that gate history was not restored and verification must be performed afresh. The provided contract excerpt does not contain its literal closing line, so I cannot reproduce that line exactly.\n\n   Print on its own line:\n\n   ```text\n   No standing grant.\n   ```\n\n4. Continue directly in **loop-implementation**, carrying the resolved inputs above.\n\n### Entry step 1: resolved settings\n\nRead the first existing project overrides file in the prescribed search order, including its conventions and relevant sections. Call:\n\n```text\ngauntlet_setting({ key: \"loopEngine\" })\n```\n\nRetain the supplied fresh-seed result:\n\n```text\nmaxIterationsPerRow = 12\n```\n\n### Entry step 2: verification\n\nSelect the supplied PR gate command. Print exactly:\n\n```text\nverification command: node --test check.mjs (PR gate)\n```\n\n### Entry step 3: driver's plan skip\n\nCall:\n\n```text\nphase_tracker({\n  action: \"skip\",\n  phase: \"plan\",\n  reason: \"loop engine\"\n})\n```\n\nDo not enter writing-plans or initialize a task tracker.\n\n### Entry step 4: clean named-branch check and ledger creation\n\nDescribe running:\n\n```text\ngit -C \"/work/app/.worktrees/loop\" branch --show-current\ngit -C \"/work/app/.worktrees/loop\" status --porcelain\ngit -C \"/work/app/.worktrees/loop\" rev-parse HEAD\n```\n\nRequire a nonempty branch name and clean status. The input establishes these checks pass; retain the observed full HEAD SHA as the ledger base.\n\nCreate `/work/app/.worktrees/loop/doc/plans/run-ledger.md` with:\n\n- First line exactly `# Ledger - loop engine`.\n- Path-only header exactly ``**Spec:** `doc/specs/run.md` ``.\n- The observed base SHA.\n- `verification: node --test check.mjs`.\n- `iterations: 0`.\n- Immediately afterward, `cap:` equal to **12 × the number of non-cut AC rows + 1**.\n- One indexed row per spec AC, in order. Disposition lines are not additional ACs.\n- Initially `open` rows for ordinary, `in-scope`, and `venue:` ACs; initially `cut` rows only for `deviates:`, `deferred:`, and `elsewhere:`.\n- Attempts zero throughout; disposition evidence only for initially cut rows.\n- A `## Decisions` section.\n\nThe supplied input does not include the ACs or HEAD SHA, so literal ledger contents and a numeric cap cannot be invented.\n\n### Entry step 5: `plan_check`, commit and implement start\n\nCall:\n\n```text\nplan_check({\n  planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\"\n})\n```\n\nNo result for this call is supplied. Therefore, stop the unconditional narration here.\n\n**On FAIL:** stop with its findings as a configuration error; do not repair a task plan.\n\n**On PASS:** commit the stamped skeleton as `loop: seed ledger`, then call:\n\n```text\nphase_tracker({ action: \"start\", phase: \"implement\" })\n```\n\nContinue immediately at **Before each dispatch**, enforcing the durable cap and ordered checks before any child dispatch. Do not initialize a task tracker or run reviewers inside implement.\n",
-      "words": 482,
-      "wallMs": 29555,
+      "text": "This is the **approved loop spec without a plan** route—not a task-plan restore. There is no existing ledger to check yet: loop Entry steps 1–4 must prepare and seed it before `plan_check`. Artifact presence is not approval; the human’s explicit confirmation supplies approval.\n\nThe following describes actions only; no tools are executed.\n\n### Restore announcement and arming\n\n1. Print the closing line prescribed by `brief-contract.md`: gate history is not restored and verification must be fresh. **The supplied excerpt omits that literal closing line, so I cannot quote it exactly.**\n2. Check 6 has passed with `**Amend-grant:** none`. Print on its own line:\n\n   No standing grant.\n\n3. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"brainstorm\" })\n   ```\n4. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"brainstorm\",\n     reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\"\n   })\n   ```\n\nThe `start brainstorm` call arms the flow; the skip preserves that arming. Continue directly in loop implementation, without resetting trackers or entering writing-plans.\n\n### Entry step 1: resolved settings\n\nCarry these resolved inputs:\n\n```text\nworktree: /work/app/.worktrees/loop\nspec: /work/app/.worktrees/loop/doc/specs/run.md\nplan directory: /work/app/.worktrees/loop/doc/plans\nledger: /work/app/.worktrees/loop/doc/plans/run-ledger.md\n```\n\nRead the spec in full and retain the original prompt for verification. Read the first existing project overrides file in the prescribed search order, unless already read this session, and apply its relevant sections.\n\nCall:\n```text\ngauntlet_setting({ key: \"loopEngine\" })\n```\n\nRetain the supplied result: `maxIterationsPerRow = 12`.\n\n### Entry step 2: verification\n\nSelect the supplied PR-gate command. Print:\n\n```text\nverification command: node --test check.mjs (PR gate)\n```\n\n### Entry step 3: driver's plan skip\n\nCall:\n```text\nphase_tracker({\n  action: \"skip\",\n  phase: \"plan\",\n  reason: \"loop engine\"\n})\n```\n\nDo not call `start plan`, run a plan-writing body, or initialize a task tracker.\n\n### Entry step 4: clean named-branch check and ledger creation\n\nRun these read-only commands:\n\n```text\ngit -C \"/work/app/.worktrees/loop\" branch --show-current\ngit -C \"/work/app/.worktrees/loop\" status --porcelain\ngit -C \"/work/app/.worktrees/loop\" rev-parse HEAD\n```\n\nRequire a nonempty branch name and empty status. Use the actual returned HEAD as the ledger’s `base:`.\n\nCreate `/work/app/.worktrees/loop/doc/plans/run-ledger.md` with the prescribed ledger grammar:\n\n- First line: `# Ledger - loop engine`\n- Spec header: `` **Spec:** `doc/specs/run.md` ``\n- Verification: `node --test check.mjs`\n- Iterations: `0`\n- One indexed row per spec AC, in order.\n- Initialize only `deviates:`, `deferred:`, and `elsewhere:` rows as `cut`; initialize the others as `open`.\n- Set cap once to **12 × non-cut row count + 1**, including the seed dispatch. All-cut cap is `1`.\n- Place `cap:` immediately after `iterations: 0`.\n- Include `## Decisions`.\n\nThe input supplies neither the spec’s ACs nor the actual HEAD SHA, so literal ledger contents and a numeric cap cannot be stated without inventing them.\n\n### Entry step 5: `plan_check`, commit and implement start\n\nOnce that ledger exists, call:\n\n```text\nplan_check({\n  planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\"\n})\n```\n\n**No result for this call is supplied. Stop here rather than assume PASS.**\n\nOn FAIL, stop with the findings as a configuration error—no plan repair or writing-plans route. On PASS, commit the stamped skeleton as `loop: seed ledger`, then call:\n\n```text\nphase_tracker({ action: \"start\", phase: \"implement\" })\n```\n\nContinue at **Before each dispatch**, preserving the seeded cap and iterations. No task-tracker calls are made.\n",
+      "words": 478,
+      "wallMs": 26355,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8b21905f1b23b0c46a99ffe0c5e554a971a7a0de65806bf737e5ae281e73e076",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "dd8f9eb87362a1a8b829d3f9e4be68cb037f6a8ea0371d7836cd8e2bd3084bff",
-      "candidateOutputSha": "ab8561ac0e66816c479c2f7bc38db6fe8f5e427746683e56c6fc0aaf486414ed",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "b7f497549a8e36add539073857ea4e2be4f0d9cdfb484bba229d04bfa4963876",
+      "candidateOutputSha": "91626b60d7d37d6c5b5b71d3eec7dabee607587ac2ac214879b0f91eb4cbfae5",
       "facts": {
         "route": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. After keeps everything Before established: the \"Spec without plan\" route with `**Engine:** loop` continuing into loop-implementation with no writing-plans body and no task tracker; the absolute worktree/spec paths and resolved plan directory carried as values into Entry; maxIterationsPerRow = 12 at step 1, the PR-gate-sourced verification command at step 2, the driver plan skip at step 3, ledger creation at step 4, and plan_check, seed commit and implement start at step 5; and the brainstorm start/skip with `resume: <absolute spec path>` placed after check 6 and before driver admission. The main compression — folding Before's resolved-inputs table into a bullet list and dropping the explicit `git add` line — did not weaken any fact, though if you tighten further, keep the absolute plan-directory value and the explicit step-1/2/3/4/5 labels, since those are what the inputs and create facts hinge on; also keep the explicit note that `skip` preserves the armed state so plan_check stamps, which is what distinguishes this arming from a generic brainstorm bypass.",
-      "wallMs": 13170,
+      "feedback": "After keeps all three facts: it routes Engine loop to loop-implementation with explicit 'no writing-plans body, no plan_tracker init', carries the absolute worktree/spec paths and resolved plan directory as 'never re-resolved' inputs, resolves maxIterationsPerRow 12 at Entry step 1 and the PR-gate verification command at step 2 before ledger creation at step 4, and arms via brainstorm start/skip with reason `resume: /work/app/.worktrees/loop/doc/specs/run.md` after check 6 and before the step-5 plan_check, while retaining the step-3 plan skip and step-5 check/commit/implement start. Two small wording risks to watch: After reorders the printed lines (section 3) to come after tracker arming (section 2), whereas Before printed them immediately after check 6 and before arming — if the ordering of post-restore lines ever becomes a fact, keep the Before order; and After's closing-line text says the brief 'names the work to re-validate' even though this route has no task plan, so a phrase like Before's 'there is no task to re-validate because this route has no task plan' would be more precise. Otherwise the After wording delivers the Change's explicit Entry-step mapping and arming-before-admission without moving any fact.",
+      "wallMs": 13449,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8b21905f1b23b0c46a99ffe0c5e554a971a7a0de65806bf737e5ae281e73e076",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "e5d3fbde2544dcc84334c1077460c8af165c195e16008d7f49c8da3db1b31650",
-      "candidateOutputSha": "3381647b87cbda3716c4d2f7346f06f8edb3277a0f179db138fd9bddc2728942",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "1dff7eac9a30d592ab0b45efe2da03adc0f8363360828ce581cc4ca3c107160c",
+      "candidateOutputSha": "f9909bbfe697ab2fcdb8f000b532f7349c557c951166aaad323008fad6a8535a",
       "facts": {
         "route": {
           "before": "holds",
@@ -81,107 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: Before already routes Engine loop to ledger creation with explicit refusals of writing-plans and task-tracker initialization, carries the absolute worktree/spec/plan-directory paths into Entry, resolves maxIterationsPerRow 12 at step 1 and the PR-gate verification command at step 2 before ledger creation at step 4, and arms via brainstorm start/skip with reason `resume: /work/app/.worktrees/loop/doc/specs/run.md` after check 6, retaining the plan skip at step 3 and plan_check/seed commit/implement start at step 5. After preserves all of that (adding the explicit 'carrying the resolved inputs above' hand-off and moving the overrides read into step 1, which is harmless), so the expected fails->holds for loop-no-ledger/route, /create and /inputs are not a wording improvement on this case — they were already held. Two things in After are worth tightening so the stable facts don't drift elsewhere: the step 3 reason is `loop engine` whereas the Change specifies the exact reason `resume: <spec> (loop engine)`, so render `reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\"`; and 'stop the unconditional narration here' at step 5 should not be read as omitting the PASS branch — keep the seed commit and `start implement` call stated unconditionally as the PASS continuation, as both outputs currently do.",
-      "wallMs": 13351,
+      "feedback": "After keeps all three facts: it still routes Engine loop straight to ledger creation with no writing-plans body or task tracker, carries the absolute worktree/spec paths and resolved plan directory into Entry step 1 alongside maxIterationsPerRow = 12, prints the PR-gate-sourced verification command at step 2, skips plan at step 3, creates the ledger at step 4, and runs plan_check, the seed commit and implement start at step 5, with brainstorm start/skip (reason `resume: /work/app/.worktrees/loop/doc/specs/run.md`) armed after check 6 and before plan_check. Two wording risks worth tightening so a stricter reader does not move `create`: the intro line says 'loop Entry steps 1–4 must prepare and seed it before plan_check', which slightly conflicts with the step-5 heading that places plan_check in step 5 (say 'steps 1–4 prepare and seed it; step 5 checks it'), and the bolded 'Stop here rather than assume PASS' in step 5 can read as truncating the chain before the seed commit and implement start — Before's phrasing ('neither the commit nor implement start can be reported as completed') keeps the full ordered chain visible while still refusing to assume a result. Also consider keeping the explicit 'With entry checks 1–6 passed, including check 6' sentence immediately before the brainstorm start/skip calls, as Before did, rather than only mentioning check 6 inside the 'No standing grant' bullet, so the after-check-6 ordering is unambiguous.",
+      "wallMs": 15169,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "loop-no-ledger",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "4d59e6a190eabd4af7099602724590c2162309c95d78b0170daef650b21d92a0",
-      "candidateSkillSha": "42f2d8ce055252f91cab26f82143e3ab9fb89062c10acbd7d6f4a25e84d883ea",
-      "inputSha": "ab0c35ca223847752cad62a3266810e06bb82a3d2465c0cb2ce182ec21498e33",
-      "factsSha": "8b21905f1b23b0c46a99ffe0c5e554a971a7a0de65806bf737e5ae281e73e076",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "c4e70ff69db0dcce3f5f3b95f86ce7529b5a772f93e944835f8051c5c3e04676",
-            "payloadSha": "3a1d3e91b7a220d658d5427d876807fe9692bdfbdafc5cbb0a26fb3a393f0458"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "e9019716b531c0f0c98581ce46cb2ef93e86cbe68da0babbe8db8b0dffccecbe",
-            "payloadSha": "c8415e97febb53f5f2904af309803c24d7272452c3afb02443b9b6522a4fdf92"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "8b21905f1b23b0c46a99ffe0c5e554a971a7a0de65806bf737e5ae281e73e076",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "c4e70ff69db0dcce3f5f3b95f86ce7529b5a772f93e944835f8051c5c3e04676",
-        "candidateOutputSha": "e9019716b531c0f0c98581ce46cb2ef93e86cbe68da0babbe8db8b0dffccecbe",
-        "facts": {
-          "route": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "inputs": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "create": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Nothing moved on this case: both Before and After route Engine loop straight to ledger seeding with no writing-plans body or task tracker, both carry the absolute worktree/spec paths and the resolved plan directory into Entry, resolve maxIterationsPerRow 12 at step 1 and the PR-gate-sourced verification command at step 2 before creating the ledger at step 4, and both arm the flow after check 6 with brainstorm start/skip (reason `resume: /work/app/.worktrees/loop/doc/specs/run.md`) before plan_check, retaining the step-3 plan skip, step-4 creation, and step-5 check/seed commit/implement start. After adds the useful 'continue automatically at Before each dispatch, do not stop at a restoration report' phrasing that matches the Change. Two small things to watch so the wording does not regress elsewhere: After's instruction to 'print the contract's literal closing line once available' is vaguer than Before's concrete gate-history notice, so keep a concrete fallback line rather than deferring to an unavailable excerpt; and neither output uses the Change's stated exact plan-skip reason `resume: <spec> (loop engine)` (both say `loop engine`), so if that reason is meant to be canonical, spell it out in the Entry step 3 wording so the loop-ledger-worktree/restore fact can move on its own case.",
-        "wallMs": 15262,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "8b21905f1b23b0c46a99ffe0c5e554a971a7a0de65806bf737e5ae281e73e076",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "c4e70ff69db0dcce3f5f3b95f86ce7529b5a772f93e944835f8051c5c3e04676",
-        "candidateOutputSha": "e9019716b531c0f0c98581ce46cb2ef93e86cbe68da0babbe8db8b0dffccecbe",
-        "facts": {
-          "route": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "inputs": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "create": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "None of these three facts moved: both outputs route to ledger creation, carry the resolved absolute inputs, preserve the Entry 1–5 mapping, and arm brainstorm before plan_check. After makes the passed check 6 and automatic continuation more explicit without losing those facts. Keep that ordering and the concrete paths, settings value, and PR-gate attribution. To make the requested ordering unmistakable, retain a direct sentence such as: “After entry check 6, start brainstorm and skip it with reason resume: /work/app/.worktrees/loop/doc/specs/run.md, then execute driver Entry steps 1–5 and continue automatically on success.”",
-        "wallMs": 7339,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "0dcac9779f68598e1724c9f6ed2783659a94e958"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

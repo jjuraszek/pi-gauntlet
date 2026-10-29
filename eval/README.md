@@ -36,7 +36,7 @@ A full target run replays every stale cell on both replay models and judges each
 
 1. Edit, then run only the samples the edit targets plus the ones the last report flagged: `node eval/run.mjs <target> <sample>` per sample (partial report).
 2. Batch every wording fix the partial reports ask for into one edit before the next run.
-3. Run the full target once, when every targeted cell holds, to produce the committed `report.md`; the completion line's counts show how many cells the edit actually cost. A judge note on a sample the edit did not touch is a finding to record in the commit body, not a reason to edit the skill again.
+3. Run the full target once, when every targeted cell holds, to produce the committed `report.md`; the completion line's counts show how many cells the edit actually cost. A judge note on a sample the edit did not touch is a finding to record in the commit body, not a reason to edit the skill again. When a rebase onto the base branch re-stales samples the edit never touched, the committed report may instead be the per-sample partials of the samples whose assembled input the edit's own hunks change; the commit body names that scoping.
 4. Change only what the spec names. A clause added on the agent's own judgment (a reordering, an extra guard) is the usual cause of a regression on an untouched sample.
 
 A dropped file is also removed from that sample's replay prompt, so the sample sends fewer system-prompt tokens per cell; for example, a `gatekeep-pr` sample that drops three of nine reference files sends roughly a third less skill text.

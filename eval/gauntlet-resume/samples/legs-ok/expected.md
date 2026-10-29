@@ -1,0 +1,1 @@
+- drift: judged: Announces repo-b HEAD and dirty drift without stopping; keeps task snapshot, approval/grant checks and legal armed plan_check restoration; dispatches W2 in companion checkout with its Rules, never defaults to home.

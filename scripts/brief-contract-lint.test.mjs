@@ -115,7 +115,7 @@ for (const [name, text] of [["process table", processRow], ["producer and loop",
   assert.match(text, /record order/ , name);
 }
 assert.match(processRow, /optional single `Rework base: <40-char sha>` after all PR pairs/);
-assert.match(producer, /optional single `Rework base: <40-char sha>` after all PR pairs and before the gate-history line/);
+assert.match(producer, /optional single `Rework base: <40-char sha>` after all PR pairs, then the optional coordinated block below, then the gate-history line after the last pair, rework-base line, or block/);
 assert.match(producer, /loop alternative above, retaining the optional PR pairs and rework base before the gate-history line/);
 assert.match(producer, /Copy the full rework base only from the top-level record when present; never invent a boundary for incomplete sync/);
 const identityRestore = actualContract.split("## Process-state restore")[1].split("Facts that fix the order")[0];
@@ -129,3 +129,44 @@ assert.ok(realHandoff.includes("every top-level PR identity"));
 assert.match(realHandoff, /copy the optional top-level rework base after the pairs as the contract specifies/);
 assert.match(candidateRules, /use its full `Rework base:` SHA as `<base>` when present, else the first pair's full `Pre-rework head:` SHA/);
 assert.match(candidateRules, /Without the optional pairs, including a bare worktree, use the ordinary base/);
+
+const legBlock = [
+  'legs:',
+  '  - repo: repo-a',
+  '    worktree: /tmp/repo-a/run',
+  '    branch: feature/shared-change',
+  '    HEAD: <sha>',
+  '    dirty: clean',
+  '  - repo: repo-b',
+  '    worktree: missing',
+  '    branch: feature/shared-change',
+  '    HEAD: <sha>',
+  '    dirty: unavailable',
+  '    receipt: /tmp/repo-a/run/.pi/gauntlet/receipts/spec.md/repo-b',
+].join('\n');
+const coordinatedContract = contract.replace('Gate history', legBlock + '\nGate history');
+assert.deepEqual(rules(files({ [CONTRACT_FILE]: coordinatedContract })), []);
+for (const [name, text] of [
+  ['ordered fields', coordinatedContract.replace('    branch: feature/shared-change\n    HEAD: <sha>', '    HEAD: <sha>\n    branch: feature/shared-change')],
+  ['placement', coordinatedContract.replace(legBlock + '\n', '').replace('Gate history not restored - re-validate before advancing.', 'Gate history not restored - re-validate before advancing.\n' + legBlock)],
+  ['missing tree spelling', coordinatedContract.replace('worktree: missing', 'worktree: gone')],
+]) {
+  assert.ok(lintBriefGrammar(files({ [CONTRACT_FILE]: text })).some(f => f.rule === 'legs-layout'), name);
+}
+assert.deepEqual(rules(files({ [CONTRACT_FILE]: coordinatedContract.replace(/    receipt: .*\n/, '') })), []);
+for (const line of legBlock.split('\n')) {
+  assert.ok(lintBriefGrammar(files({ 'skills/gauntlet-handoff/SKILL.md': handoff + '\n' + line + '\n' })).some(f => f.rule === 'grammar-outside-contract'), line);
+}
+assert.ok(actualContract.includes('worktree: missing'));
+assert.ok(actualContract.includes('## Coordinated admission'));
+assert.ok(routes.includes('3b. **Coordinated admission.**'));
+
+for (const [name, text, tokens] of [
+  ["handoff home pin", realHandoff, ["Run worktree: <home worktree>", '"was told to work in"', "Coordinated brief grammar"]],
+  ["entry checks", routes, ["home is <repo>; restart there", "3b. **Coordinated admission.**", "per leg"]],
+  ["admission", actualContract, ["declared primary", "canonical git common directory", "full `**Home:**` tuple", "every companion receipt", "correctly stripped plan", "original scoped ACs", "Preserve receipts"]],
+  ["ledger recovery", reconstruction, ["pending:", "exactly one new companion commit", "before dispatch or verification", "never rerun the recovered row"]],
+  ["seed refusal", realFiles.find(f => f.rel.endsWith("/gauntlet-resume/reference/seed.md")).text, ["`**Home:**`", "home repo, branch and spec path", "Never create a run from a leg file"]],
+]) {
+  for (const token of tokens) assert.ok(text.includes(token), `${name}: ${token}`);
+}

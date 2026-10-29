@@ -1,0 +1,80 @@
+{
+  "sample": "legs-discard",
+  "arm": "candidate",
+  "skillSha": "7d6ec53aabec3bd605e99602f556e11a44f932cf537d5c9c73b92f7c05cb0148",
+  "inputSha": "26d9dc2b44e0367dafd85ad5c5e1fa03d178cc696978176f23f3e85114c204ea",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Run 1: Discard chosen, confirmation not yet typed\n\nVerification, conformance and disposition closure already passed for all three legs. The Step 4 choice is **5. Discard**. Discard has no strip and no seal. Before any cleanup, I list every member and ask for one typed confirmation:\n\n```\nThis will permanently delete, for every member of doc/specs/shared.md:\n\n- repo-a (home): branch feature/shared-change - 2 commits - worktree /work/repo-a/.worktrees/feature-shared-change\n- repo-b:        branch feature/shared-change - 3 commits - worktree /work/repo-b/.worktrees/feature-shared-change\n- repo-c:        branch feature/shared-change - 1 commit  - worktree /work/repo-c/.worktrees/feature-shared-change\n\nType 'discard' to confirm.\n```\n\n**Stop.** I wait for the exact text `discard`. No cleanup, branch deletion, strip or seal runs until it arrives.\n\n---\n\n# Run 2 (independent): Exact `discard` confirmation received\n\nCleanup runs through each leg's recorded `contract:`. Companions go first in declared order, then home. Every member gets its attempt even if another member refuses. `<name>` expands to the single-quoted word `'feature-shared-change'` and `<branch>` to `'feature/shared-change'`.\n\n1. **repo-b** (from `/work/repo-b`)\n   - I run the recorded `## cleanup` command `script/wrapper remove 'feature-shared-change'`, with the configured `subagents.worktreeTeardownHook` (pi-cohort semantics).\n   - **The wrapper refuses.** I print its output.\n   - I do not fall back to `git worktree remove`, run no prune, and do not delete the branch. The tree stays intact.\n   - Cleanup continues with the other members.\n\n2. **repo-c** (from `/work/repo-c`)\n   - The ownership match passes: the worktree matches recorded `home: .worktrees/<name>`.\n   - I remove it with the owned built-in:\n     - `git -C /work/repo-c worktree remove /work/repo-c/.worktrees/feature-shared-change`\n     - `git -C /work/repo-c worktree prune`\n   - Removal succeeded, so I delete the branch: `git -C /work/repo-c branch -D feature/shared-change`.\n\n3. **repo-a, home** (from `/work/repo-a`)\n   - Discard cleans home regardless of companion refusals. The squash-only \"skip home on companion failure\" rule does not apply here.\n   - I run the recorded `destroy:` command `script/tree destroy 'feature-shared-change'`, which succeeds.\n   - Because a wrapper did the removal, I run no `git worktree remove` or `prune` myself.\n   - I delete the branch: `git -C /work/repo-a branch -D feature/shared-change`.\n\nCleanup report:\n\n```\nrepo-b: failed - script/wrapper remove refused; worktree /work/repo-b/.worktrees/feature-shared-change and branch feature/shared-change preserved\nrepo-c: removed - worktree /work/repo-c/.worktrees/feature-shared-change removed, worktree pruned, branch feature/shared-change deleted\nrepo-a: removed - worktree /work/repo-a/.worktrees/feature-shared-change destroyed via script/tree, branch feature/shared-change deleted\n```\n\nClosing state:\n\n- **Receipts:** none were written, since this run made no delivery. There is nothing to remove or retain.\n- **Telemetry:** no seal runs for discard. Home's untracked record went with the destroyed home worktree. No companion telemetry was ever written.\n- **Ship phase:** not marked complete, because discard is never recorded as shipped.\n- **Next step for repo-b:** its worktree and branch need manual attention. Resolve the wrapper refusal, then rerun `script/wrapper remove 'feature-shared-change'` from `/work/repo-b`.\n",
+      "words": 409,
+      "wallMs": 18252,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run 1 — Discard selected; confirmation pending\n\nThis will permanently delete:\n\n| Repository | Branch | Commits | Worktree |\n|---|---|---:|---|\n| repo-a (home) | `feature/shared-change` | 2 | `/work/repo-a/.worktrees/feature-shared-change` |\n| repo-b | `feature/shared-change` | 3 | `/work/repo-b/.worktrees/feature-shared-change` |\n| repo-c | `feature/shared-change` | 1 | `/work/repo-c/.worktrees/feature-shared-change` |\n\nType `discard` to confirm.\n\n**Stop:** No cleanup or branch deletion occurs before exact confirmation.\n\n### Run 2 — Exact `discard` confirmation received\n\nCleanup proceeds in companion order, then home, using the recorded contracts:\n\n1. **repo-b:** Attempt its recorded `script/wrapper remove 'feature-shared-change'` cleanup from `/work/repo-b`, honoring the configured teardown hook. The wrapper refuses removal. Surface that refusal, preserve its worktree and branch, and do not fall back to Git removal or prune. Continue with the remaining members.\n2. **repo-c:** Ownership matches `/work/repo-c/.worktrees/feature-shared-change`. Remove the worktree using the owned built-in, then prune. After successful removal, delete `feature/shared-change` from `/work/repo-c`.\n3. **repo-a:** Run `script/tree destroy 'feature-shared-change'` from `/work/repo-a`. On success, delete `feature/shared-change`. Run no additional Git worktree removal or prune after the wrapper.\n\nResults:\n\n```text\nrepo-a: removed - worktree and local branch deleted\nrepo-b: failed - wrapper refused removal; worktree and local branch preserved\nrepo-c: removed - worktree and local branch deleted\n```\n\nDiscard remains incomplete because repo-b cleanup failed. No plan stripping, telemetry sealing, or ship-complete marking occurs. No receipts existed, so none are removed.\n",
+      "words": 194,
+      "wallMs": 9664,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b1a62f01674fa08e93ba01cc0225be71ec1585abf79e39cd8a8494cfa5c8b88f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "3b449a8ce0cf96caa82611366b96086cc8207bc74167692e83183ab5a0ec66da",
+      "candidateOutputSha": "38a2edb1d62bdeff98e88e087fc00028a3707a6e42044327b1cfeb25cc4cd470",
+      "facts": {
+        "confirmation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "cleanup": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs already list every branch, commit count and worktree path for all three members and demand a single exact typed `discard` for the run before any action, and both then run each recorded teardown (repo-b wrapper refused and preserved with tree and branch intact, repo-c owned built-in remove + prune + branch -D, repo-a destroy script then branch -D with no built-in remove/prune), report every outcome, confirm no receipts exist, and state no strip, no seal and no shipped marking. The After wording is a modest tightening rather than a behaviour change: it adds the explicit 'do not delete the branch' line for the refused repo-b leg, states that every member gets its attempt even after a refusal, expands `<branch>` quoting, and spells out that discard cleans home regardless of companion refusals; these clarifications are good and keep both facts. One small regression to watch: the After cleanup report lists repo-b, repo-c, repo-a rather than the declared member order (home, repo-b, repo-c) used in Before's report, which the discard facts do not require but other coordinated-flow facts ('in member order') do, so consider emitting the report in declared member order while keeping the execution order companions-first.",
+      "wallMs": 10963,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b1a62f01674fa08e93ba01cc0225be71ec1585abf79e39cd8a8494cfa5c8b88f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "50f4dd8bc742a7ae64fe625f88e8080757bc947be034b9df0ac4fe17c309d8ab",
+      "candidateOutputSha": "84de6039cc0e55e7fd66053be022de6cb7b9f54d77ccaf6dd993783d04378212",
+      "facts": {
+        "confirmation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "cleanup": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs present the full branch/commit-count/worktree table, request a single exact typed `discard` for the whole run, and in Run 2 apply each recorded teardown in companion-then-home order, preserve the refused repo-b tree and branch without Git fallback or prune, report all three outcomes, and explicitly withhold plan strip, telemetry seal and ship-complete marking while noting no receipts existed. Two small wording regressions in After are worth tightening even though they did not cost a fact: the Run 1 stop line drops the explicit 'no plan stripping or telemetry sealing before confirmation' guard that Before stated, and the repo-a step says 'after the wrapper' when repo-a's contract is the `script/tree destroy` script (repo-b is the wrapper) — say 'after a successful `destroy:`' instead. Keeping Before's fuller stop sentence and the correct contract noun would preserve clarity while still delivering the keyed-contract, branch -D continuation and no-built-in-after-destroy wording the Change targets.",
+      "wallMs": 9719,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+}

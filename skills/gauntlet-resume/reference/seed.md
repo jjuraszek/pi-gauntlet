@@ -4,6 +4,8 @@ Consumed only by `SKILL.md` in this directory, for a one-token `.md` argument cl
 as a spec seed. `<seed>` is its `realpath`; `<rel>` is `<seed>` relative to `<primary>`.
 Entry check 1 (idle session) runs first. Then, in order; every stop names the path.
 
+Before starting the seed sequence, read the seed's header. A `**Home:**` header marks a companion leg file: stop, name its home repo, branch and spec path, and direct resume to that home. Never create a run from a leg file.
+
 1. **Primary session.** `git rev-parse --git-dir --git-common-dir` in the session cwd
    prints two paths; their `realpath`s must agree. Otherwise stop:
    `seed from the primary checkout`.

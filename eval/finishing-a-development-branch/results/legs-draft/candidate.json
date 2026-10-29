@@ -1,0 +1,80 @@
+{
+  "sample": "legs-draft",
+  "arm": "candidate",
+  "skillSha": "7d6ec53aabec3bd605e99602f556e11a44f932cf537d5c9c73b92f7c05cb0148",
+  "inputSha": "63e26dd962d91c983e52670e060b41e4a6ec9b4eb3d20875dbe5f0cd710c9359",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated finish: draft PR, Step 5 (`feature/shared-change`)\n\nThe home spec `doc/specs/shared.md` has three members in `## Legs`, so the coordinated mechanics replace the home-only delivery. The choice is option 2, draft PR. That choice applies once to the companions in declared order (repo-b, then repo-c), and then to home (repo-a). Every worktree and branch is kept.\n\n## 1. Receipts and freshness\n\n- **Receipt directory:** receipts live under the home git common dir, `/work/repo-a/.git/gauntlet/receipts/shared.md/`. No receipts exist yet, so no leg is skipped and every leg is unlanded.\n- **Freshness check:** before each leg's delivery, I compare its retained audited head and tree with the current checkout. That covers committed, staged, unstaged and untracked changes.\n  - All three legs match their audited clean heads, so no re-verification or re-review is needed.\n  - Each leg already passed `node test/parser.test.mjs` against its own Rules (`AGENTS.md`) and owned ACs: AC1 for repo-a and repo-b, AC2 for repo-c.\n\n## 2. Deliver companions, in declared order\n\nCompanions get no plan strip, no telemetry seal, and nothing written under `.pi/gauntlet/telemetry/`.\n\n**repo-b**\n\n```bash\ngit -C <repo-b worktree> push -u origin feature/shared-change\n(cd <repo-b worktree> && gh pr create --draft --title \"<title>\" --body \"...\nHome: repo-a feature/shared-change doc/specs/shared.md\")\n```\n\n- The push and create both succeed: https://example.test/repo-b/pull/2.\n- I write the receipt `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b`:\n\n```text\nattempted-head: <full repo-b feature SHA>\ndelivered: pr https://example.test/repo-b/pull/2 <full repo-b feature SHA>\nverification: passed\n```\n\n**repo-c**\n\n```bash\ngit -C /work/repo-c/.worktrees/feature-shared-change push -u origin feature/shared-change\n(cd /work/repo-c/.worktrees/feature-shared-change && gh pr create --draft --title \"<title>\" --body \"...\nHome: repo-a feature/shared-change doc/specs/shared.md\")\n```\n\n- The push and create both succeed: https://example.test/repo-c/pull/3.\n- I write the receipt `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-c`:\n\n```text\nattempted-head: <full repo-c feature SHA>\ndelivered: pr https://example.test/repo-c/pull/3 <full repo-c feature SHA>\nverification: passed\n```\n\n## 3. Home strip-and-seal\n\nBoth companion results are now collected, so the set is complete and sealing is allowed.\n\n- Before the strip, I capture the spec path, the recorded verification set and the accepted task evidence.\n- On `/work/repo-a/.worktrees/feature-shared-change` I run the plan-strip loop. It removes the task plan and the ledger if either was committed, and leaves the spec and telemetry in place. Then I seal:\n\n```bash\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree /work/repo-a/.worktrees/feature-shared-change \\\n  --option pr --base <base-branch> --spec doc/specs/shared.md \\\n  --leg repo-b=https://example.test/repo-b/pull/2 \\\n  --leg repo-c=https://example.test/repo-c/pull/3\n```\n\n- I print the seal's stdout verbatim. There is no existing seal whose `legs:` set could conflict.\n\n## 4. Deliver home\n\nThis step runs once, after the successful seal, with no second seal.\n\n```bash\ngit -C /work/repo-a/.worktrees/feature-shared-change push -u origin feature/shared-change\n(cd /work/repo-a/.worktrees/feature-shared-change && gh pr create --draft --title \"<title>\" --body \"## Summary\n...\n## Test Plan\n- [ ] node --test test/parser.test.mjs (each leg)\n\nCompanion PRs:\n- repo-b: https://example.test/repo-b/pull/2\n- repo-c: https://example.test/repo-c/pull/3\")\n```\n\n- The push and create both succeed: https://example.test/repo-a/pull/1.\n- I write the receipt `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-a` with `delivered: pr https://example.test/repo-a/pull/1 <full repo-a feature SHA>` and `verification: passed`.\n\n## 5. Cleanup and receipts\n\n- **No cleanup:** a draft PR does not trigger Step 6. These recorded cleanup contracts are not invoked:\n  - repo-a: `script/tree destroy`\n  - repo-b: `script/wrapper remove`, plus its teardown hook\n  - repo-c: the built-in `.worktrees/<name>` removal\n- **Kept:** all three worktrees and branches stay in place for iterating on PR feedback.\n- **Receipts:** draft PR success has no cleanup requirement, so the receipts are removed now that the home PR has landed. Home delivery and required cleanup succeeded; receipts removed.\n\n## Report\n\n```text\nShipped: repo-a https://example.test/repo-a/pull/1\nShipped: repo-b https://example.test/repo-b/pull/2\nShipped: repo-c https://example.test/repo-c/pull/3\nNot shipped: none\n```\n\nWorktrees kept:\n- `/work/repo-a/.worktrees/feature-shared-change`\n- the repo-b worktree from the brief\n- `/work/repo-c/.worktrees/feature-shared-change`\n\nAll three still hold `feature/shared-change`.\n\nThe chosen action succeeded for every member, so the ship phase is complete:\n\n```\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n\nAfter the merge and any deploy, run `/skill:check-delivery <ticket-ref>` to prove delivery before advancing the ticket.\n",
+      "words": 572,
+      "wallMs": 25963,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\nStart the ship phase. Apply the selected **draft PR** action to repo-b, then repo-c, then home.\n\n1. **repo-b**\n   - Confirm its checkout still matches the audited clean head and tree.\n   - Push `feature/shared-change` from its worktree and create the PR with `--draft`.\n   - Result: https://example.test/repo-b/pull/2\n   - Include in its PR body:\n     `Home: repo-a feature/shared-change doc/specs/shared.md`\n   - Write its receipt under `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b`, recording the actual attempted head, delivered PR URL and head, and `verification: passed`.\n\n2. **repo-c**\n   - Perform the same freshness check, push, and draft creation.\n   - Result: https://example.test/repo-c/pull/3\n   - Include the same Home tuple and write its receipt under `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-c`.\n\n3. **Home: repo-a**\n   - Retain the spec path, recorded verification commands, and accepted task evidence before stripping the home plan.\n   - Run only home's strip-and-seal block, with `--option pr`, the resolved base branch, `--spec doc/specs/shared.md`, and:\n     ```text\n     --leg repo-b=https://example.test/repo-b/pull/2\n     --leg repo-c=https://example.test/repo-c/pull/3\n     ```\n   - Do not strip companion plans or write companion telemetry.\n   - A seal failure stops here: print its output and preserve both delivered companion PRs and their receipts. No seal result was supplied, so successful sealing cannot be asserted.\n   - After successful sealing, push home and create its PR with `--draft`, listing both companion PR URLs in the body.\n   - Supplied home delivery result: https://example.test/repo-a/pull/1\n   - Write home's receipt under `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-a`.\n\n**After successful sealing and home delivery**, report in member order:\n\n```text\nShipped: repo-a https://example.test/repo-a/pull/1\nShipped: repo-b https://example.test/repo-b/pull/2\nShipped: repo-c https://example.test/repo-c/pull/3\n```\n\nPrint the seal's actual stdout verbatim; none was supplied here.\n\nAll three worktrees and branches remain preserved. Run **no destroy command, cleanup wrapper, teardown hook, worktree removal, prune, or branch deletion** for this draft-PR choice.\n\nRemove all three receipts after successful home delivery, report:\n\n```text\nHome delivery and required cleanup succeeded; receipts removed\n```\n\nThen mark the ship phase complete.\n",
+      "words": 286,
+      "wallMs": 14741,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7ee14df4142d449b01b3f7b37b7a9aed749c480c6265fac8216d893ecf71b30c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "1c6436e41928faa5fb764f3a46145cf8e48733a3c0a6250cd78144fb6e2e2e48",
+      "candidateOutputSha": "8d9aa04bf9f30eba728b2cca8904aa2dd94a05b01c81b9eb3fe3b9b464bc552a",
+      "facts": {
+        "order": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "seal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs already satisfy order and seal: each delivers repo-b, then repo-c, then home with `--draft` on every `gh pr create` run via `cd` into that leg's own worktree, keeps all worktrees/branches, writes receipts owned by home, and seals exactly once on home with both `--leg` results and no companion strip/telemetry. After introduces some drift worth tightening rather than any fact movement: it relocates receipts from `.pi/gauntlet/receipts/` in the home worktree (with the `info/exclude` guard Before narrated) to `/work/repo-a/.git/gauntlet/receipts/`, which is still home-owned but unexplained; the freshness bullet quotes the verification command as `node test/parser.test.mjs` rather than the recorded `node --test test/parser.test.mjs`; the final report lists repo-a before the companions instead of member delivery order; and \"now that the home PR has landed\" conflates draft-PR creation with landing. To keep every fact Before kept while delivering the change, retain Before's exact receipt path and exclude step, quote the recorded verification command verbatim, print the Shipped lines in the same repo-b/repo-c/repo-a order the deliveries ran, and say \"home PR created\" rather than \"landed\" when explaining receipt removal.",
+      "wallMs": 15628,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7ee14df4142d449b01b3f7b37b7a9aed749c480c6265fac8216d893ecf71b30c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "87c21186f603d2ced6b80dc0728d9fae722531012a674db750eee4aeafba3f05",
+      "candidateOutputSha": "4cd052b079ce4b090da8efc730176ed321d0103071ac455a6e4bcd4310d6353c",
+      "facts": {
+        "order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "seal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moves `order` to holds by adding the explicit cwd element Before lacked: \"Push `feature/shared-change` from its worktree and create the PR with `--draft`\" for repo-b, \"the same freshness check, push, and draft creation\" for repo-c, and home pushed in its own step, plus the explicit per-member home-owned receipt paths and the no-cleanup list; Before had the sequence, `--draft`, preservation and home-owned receipts but never said where each push/create ran, so a careful reader could not confirm \"in its own cwd\". `seal` already held in Before (single home seal with both `--leg` values, no companion strip/telemetry) and After keeps it with \"Run only home's strip-and-seal block\" and \"Do not strip companion plans or write companion telemetry\". To make After robust, state the cwd for every member rather than relying on \"the same\" for repo-c and implication for home (e.g. \"from `/work/repo-c/.worktrees/feature-shared-change`\", \"from the home worktree\"), and keep the explicit \"once\" wording from Before next to the home seal so the no-second-seal clause is stated rather than inferred.",
+      "wallMs": 16614,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+}

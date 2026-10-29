@@ -1,34 +1,42 @@
 {
   "sample": "menu-after-numbered-findings",
   "arm": "candidate",
-  "skillSha": "dc7d646025c9c84fd88ecf2be42cbfb5a2235f6db5e5367f2e51df8b3b16ee15",
+  "skillSha": "c7a91e4d9e7dcc7f6fe3927a1e67fe05b07bae6160bf1de63bfb010277c8728a",
   "inputSha": "08630215061bbf8af18b67335f51ef83c13f49f1f41e3537e192f45505143c98",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Checkpoint 1: Step 4 gate\n\n1. Tests passed.\n2. Conformance passed.\n3. Whole-diff review passed.\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n---\n\n## Checkpoint 2: Reply `6` to the legacy transcript\n\nTaking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\n\n*(Resolution: the menu has N = 5 options. It sits directly after a 3-item ordered run, separated only by a blank line, so L = 3 and the options displayed as `4.`-`8.`. The reply 6 is greater than N, and 6 - 3 = 3 falls within 1-5.)*\n\nNext, simulated and not executed: Option 3 follows this order:\n1. Run the strip-and-seal block on `fix-x` with `--option squash --base main`.\n2. Check out and pull `main` in `$PRIMARY`.\n3. Run `git merge --squash fix-x` and commit.\n4. Re-run the Step 1 verification set in `$PRIMARY`.\n5. Run the Step 6 worktree cleanup.\n6. Delete the `fix-x` branch only if Step 6 removed the worktree.\n\nThere is no push and no PR.\n",
+      "words": 200,
+      "wallMs": 9175,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=finishing-a-development-branch/step-4\n## Checkpoint 1\n\n1. Tests passed.\n2. Conformance passed.\n3. Whole-diff review passed.\n\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n---\n\n## Checkpoint 2\n\nTaking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\n\nSimulated next action: strip the ephemeral plan and seal telemetry on `fix-x` before squash-merging locally into `main`, re-running verification, and applying ownership-checked cleanup. No commands are executed.\n",
-      "words": 109,
-      "wallMs": 8157,
+      "text": "## Checkpoint 1: Generate the gate\n\n1. Tests passed.\n2. Conformance passed.\n3. Whole-diff review passed.\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n## Checkpoint 2: Respond to a legacy transcript\n\nTaking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\n\nSimulated next action: strip the ephemeral plan and seal telemetry on fix-x before squash-merging locally into main, then re-verify and apply ownership-gated cleanup. No push or PR; no commands executed.\n",
+      "words": 112,
+      "wallMs": 8152,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "1fc8add11acc987a8239b920628b45dc1ad0d3ec35ec428804c7fdf1df3f2cc6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
-      "baselineOutputSha": "ddb5aab6385de9bf866fa0f9b3ab4b2736a17bc470ff7b352b7b7142fe4947f4",
-      "candidateOutputSha": "2b79ac6245dec27d5236f14b2da58f15c74a7a606a34b3a16de2c29504e174da",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "ddcdf22059fa232da676a52efd72e3cc6c21e88f5e3bb2665cea1bfa74e7750b",
+      "candidateOutputSha": "ddcdf22059fa232da676a52efd72e3cc6c21e88f5e3bb2665cea1bfa74e7750b",
       "facts": {
         "layout": {
           "before": "holds",
@@ -41,10 +49,32 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact changed: both outputs separate the unchanged five-option menu from the numbered observations with prose, and both explicitly resolve reply 6 to option 3, Squash-merge to main, before describing simulated action. After adds the leading owned gate marker while retaining both facts. Keep that marker, prose separator, full menu, and explicit mapped-pick sentence; also retain Before’s explicit cleanup-only-after-success condition and no-push statement to preserve those boundaries unambiguously.",
-      "wallMs": 4126,
+      "feedback": "After is byte-identical to Before, so nothing moved. Both outputs already satisfy layout: the three numbered observations are followed by the prose line \"Implementation complete. What would you like to do?\" before the five options, which breaks the ordered list under CommonMark so the options render as 1-5 (not 4-8), and the five labels are unchanged. Both also satisfy mapped-pick: the first sentence of checkpoint 2 is \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\", naming number and label before the simulated squash sequence, with no raw-6 treatment, no other option, and no re-ask. The expected fails->holds movement for this case is not observed because the baseline output already applied the separator and echo; the After wording preserves that, so no rewording is needed here, though if the author wants the change to be visibly attributable, the generated gate could add an explicit horizontal rule or bullet-list observations in addition to the prose separator, and the echo sentence could cite the mapping rule (\"reply 6 minus 3 preceding items = option 3\") inline rather than in the parenthetical that follows.",
+      "wallMs": 9567,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "1fc8add11acc987a8239b920628b45dc1ad0d3ec35ec428804c7fdf1df3f2cc6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "7a7d857f7809a09dd3b7bef69032b87ce1a98eec011d2d42f5dd3f52544fd474",
+      "candidateOutputSha": "7a7d857f7809a09dd3b7bef69032b87ce1a98eec011d2d42f5dd3f52544fd474",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mapped-pick": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Before and After are textually identical here, so nothing moved. In both, the three numbered observations are followed by the prose paragraph \"Implementation complete. What would you like to do?\" before the options, which closes the first ordered list under CommonMark so the generated menu renders 1 through 5 (layout holds), and checkpoint 2 opens with \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\" before the simulated action (mapped-pick holds). The expected fails->holds movement for this case is not visible in this sample because Before already satisfied both facts; the After wording preserves that behavior, so no wording change is needed for these facts — if the author wants the gate to be more robustly distinguishable from the legacy transcript, an explicit horizontal rule or bullets for the observations would also work, but the current prose separator already satisfies the contract.",
+      "wallMs": 8168,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

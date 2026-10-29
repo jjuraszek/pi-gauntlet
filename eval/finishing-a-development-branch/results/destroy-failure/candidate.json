@@ -1,7 +1,7 @@
 {
   "sample": "destroy-failure",
   "arm": "candidate",
-  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "skillSha": "abba3103fa48c7fc97e8643ca7bfb5575f5492cc1a1a289cf45c70e02be23ba2",
   "inputSha": "05fe076d40b5368ba568d3596ddaaca27de12068bd39bad6872a32fd036d7016",
   "kind": "text",
   "assembly": "concat",
@@ -15,11 +15,21 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (after squash-merge, option 3)\n\n**Cleanup contract:** `.pi/gauntlet-overrides.md` has a `## using-git-worktrees` section with `home:` and `destroy:`, so the keyed contract applies.\n\n**1. Resolve `home:`**\n- `../acme-mono-<name>` resolved against `$PRIMARY` (`/work/acme-mono`) gives `/work/acme-mono-<name>`.\n- `<name>` appears once, inside the single segment `acme-mono-<name>`, with the literal prefix `acme-mono-` and no suffix.\n- Pattern: `/work/acme-mono-*`\n\n**2. Ownership match**\n- `realpath $WORKTREE` gives `/work/acme-mono-fix-x`.\n- It matches `/work/acme-mono-*`, and `*` captures `fix-x`, so **NAME = `fix-x`**.\n- The worktree is gauntlet-owned under the keyed contract.\n\n**3. Run `destroy:`** from `$PRIMARY`, with `<name>` replaced by `'fix-x'`:\n\n```bash\ncd /work/acme-mono && script/worktree destroy 'fix-x'\n```\n\n**Result: exit 1**\n\n```\nerror: worktree fix-x has unsynced changes\n```\n\n**Cleanup stopped.** The destroy command failed, so:\n- The branch **`fix-x` is kept**. `git branch -D fix-x` was not run.\n- The worktree **`/work/acme-mono-fix-x` is still there**. It was not force-removed: no `git worktree remove --force` and no `prune`.\n- The squash-merge into `main` at `/work/acme-mono` is already done and is not affected.\n\n**Your next step:** the worktree has unsynced changes. Before cleanup can finish, either sync or commit them, or confirm they can be dropped. Then re-run:\n\n```bash\ncd /work/acme-mono && script/worktree destroy 'fix-x' && git -C /work/acme-mono branch -D fix-x\n```\n",
+      "words": 188,
+      "wallMs": 8885,
+      "mechanical": {
+        "f2": "fails",
+        "f3": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The worktree matches `home: ../acme-mono-<name>`, with `NAME=fix-x`.\n\nCleanup from `/work/acme-mono` failed:\n```text\n$ script/worktree destroy 'fix-x'\nerror: worktree fix-x has unsynced changes\n```\n\nStopping cleanup. Keep branch `fix-x`; do not run `git worktree remove`, `git worktree prune`, or branch deletion.\n",
-      "words": 38,
-      "wallMs": 3972,
+      "text": "Run from `/work/acme-mono`:\n\n```bash\nscript/worktree destroy 'fix-x'\n```\n\nThe destroy command failed with exit code 1:\n\n```text\nerror: worktree fix-x has unsynced changes\n```\n\nCleanup stopped. Preserve `/work/acme-mono-fix-x` and branch `fix-x`. Do not run `git worktree remove`, `git worktree prune`, or branch deletion.\n",
+      "words": 41,
+      "wallMs": 2881,
       "mechanical": {
         "f2": "holds",
         "f3": "holds"
@@ -27,12 +37,39 @@
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "6bbc07617e4c04efcfb45156ac03eaf55fc3448cfa6ddcc0bb671e07a1f9e4ac",
+      "candidateOutputSha": "6bbc07617e4c04efcfb45156ac03eaf55fc3448cfa6ddcc0bb671e07a1f9e4ac",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Before and After are byte-identical, so no fact moved: both narrate `cd /work/acme-mono && script/worktree destroy 'fix-x'`, report the exit 1 and `error: worktree fix-x has unsynced changes` output, and then explicitly state that `git branch -D fix-x` was not run and no `git worktree remove --force`/`prune` was executed. The only mention of `branch -D` is inside a suggested re-run command for the user, which a careful reader would not treat as the narration itself running it. The Expected-to-move entry (f1 fails -> holds) is not borne out by this pair, because the Before text already satisfies the keyed-contract destroy path; the wording you supplied already delivers the Change for this case, and if you want the suggested re-run to be unambiguous you could label it `Suggested re-run (not executed):` so no reader could mistake the trailing `branch -D` for an executed step.",
+      "wallMs": 7216,
+      "verdict": "unchanged"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
-      "baselineOutputSha": "d9b562b41365a01ddbb356ce131918e11932cebb2ee9c9fe6f196168d68d047e",
-      "candidateOutputSha": "b5b30755cc386a3efd7adf661beba7d7dc3a36ae592a34befe81ec8be6c8db2a",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "6b3f2287601c71a84cbcca5a59208c6a92ea9233dc9269821216d6f5405cae14",
+      "candidateOutputSha": "6b3f2287601c71a84cbcca5a59208c6a92ea9233dc9269821216d6f5405cae14",
       "facts": {
         "f1": {
           "before": "holds",
@@ -50,10 +87,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves f1: both outputs narrate running `script/worktree destroy 'fix-x'` from `/work/acme-mono`, report its error, and stop without worktree removal or branch deletion. Spelling out `git worktree prune` moves no fact. To deliver the requested final-outcome format while preserving this behavior, prepend exactly one stuck line, then retain the command, error, and explicit instruction to keep `fix-x` without removal, pruning, or branch deletion.",
-      "wallMs": 3623,
+      "feedback": "Before and After are textually identical here, and both satisfy f1: the narration runs `script/worktree destroy 'fix-x'` from /work/acme-mono, reports the exit code and the `unsynced changes` error verbatim, and explicitly states that `git worktree remove`, `git worktree prune`, and branch deletion are not run while the worktree and branch are preserved. Nothing moved on this case; the After wording delivers the keyed-contract destroy behavior with the no-force/keep-branch rule intact, so no adjustment is needed. If you want the narration to be even more unambiguous for the audit, consider having it name the override contract it matched (home: ../acme-mono-<name>, destroy: script/worktree destroy <name>) and the recovered name before running the command, which would make the ownership match and name recovery legible without changing any of the held behavior.",
+      "wallMs": 5911,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

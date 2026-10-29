@@ -1,6 +1,6 @@
 # Amendment surface
 
-`read` this file (the `read` tool at its absolute path, never a shell command) from `skills/brainstorming/SKILL.md` § Amending an approved spec, from any phase, for amend-class changes; at approval, load only [Standing grants](#standing-grants), not the batch procedure. Keep redraws outside this procedure. Classify a change to an approved drafted acceptance-criteria row - its text, a row added, a row removed - as a redraw at batch preparation, before any standing grant, never a disposition amendment: re-draft from the new design and ratify at the full gate; keep a disposition-only change to such a row in this grammar so it keeps the cut question. Apply an item the human has answered by letter or custom text as recorded. Only the main loop holding `edit`/`write` authors amendments and human-facing amendment text. Use the human last: a fresh reviewer clears evidence-backed factual corrections; present the rest to the human once per batch plainly.
+`read` this file (the `read` tool at its absolute path, never a shell command) from `skills/brainstorming/SKILL.md` section Amending an approved spec, from any phase, for amend-class changes; at approval, load only [Standing grants](#standing-grants), not the batch procedure. Keep redraws outside this procedure. Classify a change to an approved drafted acceptance-criteria row - its text, a row added, a row removed - as a redraw at batch preparation, before any standing grant, never a disposition amendment: re-draft from the new design and ratify at the full gate; keep a disposition-only change to such a row in this grammar so it keeps the cut question. Apply an item the human has answered by letter or custom text as recorded. Only the main loop holding `edit`/`write` authors amendments and human-facing amendment text. Use the human last: a fresh reviewer clears evidence-backed factual corrections; present the rest to the human once per batch plainly.
 
 ## Standing grants
 
@@ -144,6 +144,18 @@ Reply grammar: one line per item, `<n>. <letter or free text>`; bare `1` applies
 Before the aftermath, `read` this section again; never run it from memory.
 
 Apply accepted items only: reviewer clears, `accept`, `alt-n`, and state-changing `custom`. Print one line per applied item: `amended the spec: <title> - <what>`.
+
+Preserve scope indices on disposition-only amendments, including cuts; validate
+all blocks using [legs.md](legs.md)'s scope grammar before committing.
+Apply [legs.md](legs.md)'s companion aftermath in this same amendment: changes
+to Problem, shared Design/Errors/Out-of-scope, repo-binding clauses, or a leg
+block rewrite each affected companion artifact. Commit home, then the affected
+files through their own `git -C`; preserve the amendment audit in those commits.
+Do not complete the amendment while any carried text disagrees. For specs with
+`## Legs`, recorded contracts are authoritative, replacing finish Step 6's
+reread rule; amend the block before using a changed contract. Legacy specs
+without that section retain finish-time rereading. A one-member run has no
+companion artifact or companion aftermath.
 
 Aftermath, once per batch, only when at least one item applied (nothing applied -> skip to the commit below). Ledger exists (line 1 `# Ledger - loop engine` in the resolved plan dir) -> skip `plan-writer`, `plan_check`, and `plan_tracker`. Reconcile the ledger against the approved spec dispositions: `deviates:`, `deferred:`, or `elsewhere:` -> `cut`, evidence = the disposition; factual or requirement-preserving amendment -> preserve rows; re-bounded `done` row -> `open`, evidence = `reopened by amendment`. Preserve every row's attempts and the ledger's iterations. Never auto-edit ticket or approved drafted AC row texts; reconcile dispositions only, never text/add/remove changes. Commit spec + ledger together with subject `loop: cut row <n>` for a batch containing only one cut, otherwise `loop: amend` (including mixed batches), carrying the amendment audit body below (including each `granted` record and granting sentence); continue without task-plan aftermath. No plan yet -> commit the spec; continue. Plan exists -> read `git -C "<abs worktree path>" status --porcelain` (plain jj: `jj -R "<abs worktree path>" diff --summary`); collect the parent's in-flight workflow edits as worktree-relative paths, including the amended spec and staged in-place wave-repair deliverables. Dispatch `plan-writer` per `writing-plans` `## Author the plan` step 3 with an `Amend:` block naming the amended spec sections, an `In-flight:` list of those paths (the parent supplies the set; the child never infers it), and the rule "preserve every task title and wave position the amendment does not touch; edit only affected anchors and tasks", then run that section's steps 5-6 (the parent `plan_check` and its branches).
 

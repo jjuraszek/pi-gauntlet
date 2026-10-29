@@ -1,0 +1,80 @@
+{
+  "sample": "legs-stale-pr",
+  "arm": "candidate",
+  "skillSha": "7d6ec53aabec3bd605e99602f556e11a44f932cf537d5c9c73b92f7c05cb0148",
+  "inputSha": "feb5398c16b50ebc01ff86ba63828fcccddb190d82e5c7a125a6a4f900677653",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated finish: Step 5, PR choice\n\nMembership has more than one member, so the coordinated mechanics apply. The repo-b receipt records a PR, so the selected action is reconciled as **PR (option 1)**. The chosen action runs on repo-b, then repo-c, then home (repo-a). Every worktree and branch is kept, so Step 6 cleanup does not run.\n\nThe repo-b receipt is at:\n`/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b`\n\nIt reads:\n```text\nattempted-head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndelivered: pr https://example.test/repo-b/pull/2 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nverification: passed\n```\n\n---\n\n## Run A: base observations\n\n**1. Validate receipts first.**\n\nRepo-b's identity matches spec `shared.md`, repo `repo-b` and choice PR. The proof was run in repo-b's repository:\n`gh pr view https://example.test/repo-b/pull/2 --json state,headRefOid`\n\n| Check | Result |\n|---|---|\n| State | `OPEN` |\n| Live head equals attempted head | yes, `bbbb…` |\n| Delivered head equals attempted head | yes |\n| Verification | passed |\n| Current feature head unchanged | **no**: the head is now `cccc…` |\n\nThe receipt is therefore **stale**. It is not a validated skip. The retry action is to re-push the verified branch non-force and update the existing PR. No second PR is created.\n\nRepo-c has no receipt, so it is unlanded.\n\n**2. Freshness check.**\n\nThe audited heads and trees match the current checkouts:\n- repo-b at `cccc…`, clean\n- repo-c, clean\n\nNothing needs re-verification or re-review.\n\n**3. Repo-b: retry on the existing PR.**\n\n```bash\ngit -C <repo-b worktree> push -u origin feature/shared-change   # non-force\n(cd <repo-b worktree> && gh pr edit https://example.test/repo-b/pull/2 --body-file <body with \"Home: repo-a feature/shared-change doc/specs/shared.md\">)\n```\n\nAfter the push, I refresh with `gh pr view … --json state,headRefOid`. It must show `OPEN` with head `cccc…`. Then I rewrite the receipt:\n\n```text\nattempted-head: cccccccccccccccccccccccccccccccccccccccc\ndelivered: pr https://example.test/repo-b/pull/2 cccccccccccccccccccccccccccccccccccccccc\nverification: passed\n```\n\n**4. Repo-c: deliver.**\n\n```bash\ngit -C <repo-c worktree> push -u origin feature/shared-change\n(cd <repo-c worktree> && gh pr create --title \"<title>\" --body \"<summary, test plan; Home: repo-a feature/shared-change doc/specs/shared.md>\")\n```\n\nI then write `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-c` with:\n- `attempted-head` set to repo-c's head\n- `delivered: pr <repo-c PR url> <head>`\n- `verification: passed`\n\nNo companion plan strip, seal or telemetry write happens.\n\n**5. Home strip and seal.**\n\nThe complete companion set is collected. I capture the spec path and evidence, then strip the home plan. Then I run:\n\n```bash\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree /work/repo-a/.worktrees/feature-shared-change --option pr --base <base-branch> --spec doc/specs/shared.md \\\n  --leg repo-b=https://example.test/repo-b/pull/2 --leg repo-c=<repo-c PR url>\n```\n\nIts stdout is printed verbatim. A nonzero exit stops the run before home delivery, and every receipt is kept.\n\n**6. Home delivery.**\n\n```bash\ngit -C /work/repo-a/.worktrees/feature-shared-change push -u origin feature/shared-change\n(cd /work/repo-a/.worktrees/feature-shared-change && gh pr create --title \"<title>\" --body \"<summary, test plan, companion PRs: https://example.test/repo-b/pull/2, <repo-c PR url>>\")\n```\n\nI write home's receipt. No second seal runs.\n\n```text\nShipped: repo-b https://example.test/repo-b/pull/2 repo-c <repo-c PR url> repo-a <home PR url>\nNot shipped: none\n```\n\nPR success has no cleanup requirement, and all three worktrees and branches are preserved.\n\nHome delivery and required cleanup succeeded; receipts removed.\n\n`phase_tracker({ action: \"complete\", phase: \"ship\" })`\n\n---\n\n## Run B: `gh pr view` fails, boundary unavailable\n\nRepo-b's receipt cannot be verified, so the leg stays unlanded. The boundary is unavailable, so I **stop** rather than risk a duplicate PR. Fan-out stops before any delivery. Nothing is pushed, no seal runs, there is no rollback, and the receipt is kept.\n\n```text\nShipped: none\nNot shipped: repo-b receipt unverifiable - gh pr view failed (boundary unavailable) repo-c untouched repo-a not delivered (companion fan-out stopped)\n```\n\nRetry in a fresh session once GitHub is reachable. The same receipt will be validated again first.\n\n---\n\n## Run C: PR is `CLOSED`\n\n`https://example.test/repo-b/pull/2` is `CLOSED`. A closed PR is not a validated skip, so I **stop for your disposition**. Nothing is pushed, created or sealed. The receipt is kept and there is no rollback.\n\n```text\nShipped: none\nNot shipped: repo-b recorded PR https://example.test/repo-b/pull/2 is CLOSED - needs disposition repo-c untouched repo-a not delivered (companion fan-out stopped)\n```\n\nHow should repo-b's closed PR be handled before the coordinated finish continues?\n",
+      "words": 614,
+      "wallMs": 27755,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A — stale repo-b PR receipt\n\nThe receipt does not prove current delivery: its attempted and delivered heads are `bbbbbbbb…`, while repo-b’s current verified feature head is `cccccccc…`.\n\n1. Reconcile repo-b with the existing PR at https://example.test/repo-b/pull/2. Do **not** create another PR or treat the receipt as a validated skip.\n2. Check repo-b’s audited head and working-tree freshness immediately before delivery.\n3. Non-force push the verified `feature/shared-change` branch from `/work/repo-b/.worktrees/feature-shared-change`. Update the existing PR by URL rather than creating a duplicate.\n4. After success, refresh the PR and require its head to match the attempted current head. Rewrite repo-b’s receipt with:\n   ```text\n   attempted-head: cccccccccccccccccccccccccccccccccccccccc\n   delivered: pr https://example.test/repo-b/pull/2 cccccccccccccccccccccccccccccccccccccccc\n   verification: passed\n   ```\n5. Only after repo-b succeeds, proceed to unlanded repo-c, checking freshness and delivering it through the selected action. Collect both companion results before home’s strip-and-seal, passing one `--leg` result per companion. Deliver home only after sealing succeeds.\n\nNo push, edit, refresh, seal, or later delivery result was supplied, so none can be reported as successful. On the first failure, stop fan-out and preserve delivered work and receipts. For PR delivery, preserve every worktree and branch.\n\n### Independent run B — repo-b PR boundary unavailable\n\nStop receipt reconciliation at the failed `gh pr view`. The PR cannot be validated; do not infer delivery, push speculatively, create a duplicate PR, deliver repo-c, or strip/seal/deliver home. Preserve all worktrees, branches, and receipts.\n\n```text\nNot shipped: repo-a - home delivery not attempted; repo-b receipt validation blocked\nNot shipped: repo-b - PR boundary unavailable; delivery unverified\nNot shipped: repo-c - not attempted; fan-out stopped\n```\n\nThe observation supplies no underlying command error text to quote. Ship remains incomplete.\n\n### Independent run C — repo-b PR is CLOSED\n\nStop for disposition. A closed PR is **not** a validated delivery skip. Do not automatically reopen it, create a replacement PR, or continue to repo-c or home. Preserve all worktrees, branches, and receipts.\n\n```text\nNot shipped: repo-a - home delivery not attempted; repo-b requires disposition\nNot shipped: repo-b - recorded PR is CLOSED; not a validated delivery skip\nNot shipped: repo-c - not attempted; fan-out stopped\n```\n\nHow should the closed repo-b PR be handled before coordinated delivery resumes?\n",
+      "words": 349,
+      "wallMs": 15291,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "915ae05ee58fd04a4475e2959ac8b2a9e7768a09668c0c1680c90c52a6362fd7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "b99e21166f056a8ba2d9418ba4257340aa5db96d5c140c869abb825a35fcdc67",
+      "candidateOutputSha": "850ccf1bac5d6f5f679dd492cf765c2758301208a0cc7f0595e5273216217f32",
+      "facts": {
+        "repush": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs treat the stale repo-b receipt as a retry rather than a skip, push non-force to the existing PR #2, edit and refresh it, rewrite the receipt with cccc…, and explicitly refuse a second PR; both Run B and Run C stop the fan-out, preserve receipts and worktrees, avoid any push/create, and Run C asks the user for disposition. Two things in After are worth watching so they do not erode these facts in neighbouring cases: the receipt location changed from the Before's `.pi/gauntlet/receipts/<spec>/<repo>` inside the home worktree to `/work/repo-a/.git/gauntlet/receipts/…`, which is a contract drift the wording should pin down explicitly (keep the git-path exclude/`info/exclude` and directory-creation language from Before); and Run B in After only says 'Retry in a fresh session' without an explicit disposition question, so phrasing like 'stop and ask how to proceed' for the unavailable-boundary branch, mirroring Run C's closing question, would make the stop fact unambiguous for both observations while still delivering the live-receipt retry and reconciliation-stop coverage the Change asks for.",
+      "wallMs": 15725,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "915ae05ee58fd04a4475e2959ac8b2a9e7768a09668c0c1680c90c52a6362fd7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "828af4d777888696b7a2fcbd066a2884e52cf79cc8da1b6f58d2c82e44b6e926",
+      "candidateOutputSha": "0d26fd659ff26cfed274097c3ead85634fda88ee9baff9215cadec2c997391e0",
+      "facts": {
+        "repush": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs treat the stale receipt as non-skippable, non-force push the verified branch to the existing repo-b PR, refresh it, rewrite the receipt with the ccc… head, and refuse a duplicate PR; both stop on the unavailable boundary and the CLOSED PR while preserving receipts. After is somewhat stronger than Before on the stop fact because run C ends with an explicit disposition question and run B explicitly forbids speculative pushes, whereas Before's run B merely stops without asking anything — if the intent is that unavailable boundaries also 'ask for disposition', After should end run B with a comparable explicit question (e.g. 'How should repo-b's unverifiable PR be handled before delivery resumes?') rather than only the 'ship remains incomplete' note. After also adds freshness-check and --leg sealing detail without weakening the repush fact; keep the explicit 'update existing PR by URL / not a validated skip' wording, as it is what makes the no-duplicate requirement unambiguous.",
+      "wallMs": 12794,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+}

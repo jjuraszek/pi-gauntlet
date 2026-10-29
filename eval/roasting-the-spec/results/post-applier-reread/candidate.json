@@ -1,7 +1,7 @@
 {
   "sample": "post-applier-reread",
   "arm": "candidate",
-  "skillSha": "6b12ee60f5d81efb2ad314fe8411bd4792faafda575fffc18de1d3f4c768c448",
+  "skillSha": "aa8ace0c2d8b4fd80c1ce608805e7ccd6066f3829d41e29c81ff4c37d2f0bd87",
   "inputSha": "3e61394f7e6c2a8d41bf216885710bcd6bc6947245ee581aec719a136b8bedf3",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Successful applier return: parent post-applier sequence\n\nAll commands use absolute paths or `git -C`. The parent stays in `/tmp/acme/widgets-main` throughout. I do not read or print member files or `chair.md` content. The only content I ingest is the applier audit.\n\n## 1. Reread the spec first\n\nBefore any validation, status check, or other action, `read` the spec from disk:\n\n```\nread /tmp/acme/widgets-wt/doc/specs/job-status.md\n```\n\n## 2. Store the audit and validate it mechanically\n\nWrite the applier's returned audit text verbatim, unaltered, to `/tmp/council-widgets/audit.md`. Its content is the supplied audit, not something I reconstruct.\n\nCheck that all three labels are present:\n\n```bash\ngrep -q '^Applied:'  /tmp/council-widgets/audit.md\ngrep -q '^Deferred:' /tmp/council-widgets/audit.md\ngrep -q '^Rejected:' /tmp/council-widgets/audit.md\n```\n\nCheck that the counts match:\n\n```bash\ngrep -c 'raised-by:' /tmp/council-widgets/audit.md                          # supplied: 3\ngrep -Ec '^- \\[(blocker|major|minor)\\]' /tmp/council-widgets/chair.md       # supplied: 3\n```\n\n- A no-match exit status counts as zero, not as a failure.\n- The supplied facts give all labels present and 3 = 3, so the audit is accepted.\n- No restore or retry is needed. `spec.before.md` is not copied back.\n\n## 3. Compare status snapshots by path and clean attributable edits\n\nCapture the after-state and list paths that are newly dirty. The comparison uses paths only, ignoring status codes:\n\n```bash\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.after\ncomm -13 <(cut -c4- /tmp/council-widgets/status.before | sort) \\\n         <(cut -c4- /tmp/council-widgets/status.after  | sort)\n```\n\n**Result from the supplied snapshots:**\n- `src/status.ts` is newly dirty and tracked.\n- `generated/new/deep/result.txt` is newly dirty and untracked.\n- `notes/user.txt` changed status from ` M` to `MM`, but the path was already in the before-set. It is not newly dirty, so it is not touched. Any applier edits inside it are the backstop's accepted gap.\n- `doc/specs/job-status.md` is the spec and is excluded.\n- `doc/specs/predecessor.md` and `scratch/keep/user-note.txt` were already dirty and are preserved.\n\n**Revert the tracked file:**\n```bash\ngit -C /tmp/acme/widgets-wt checkout -- 'src/status.ts'\n```\n\n**Remove the untracked file only, using an absolute path anchored at WORKTREE:**\n```bash\nrm -- \"/tmp/acme/widgets-wt/generated/new/deep/result.txt\"\n```\n\n- I do not use a relative `rm`. From the parent cwd, a relative path would delete `/tmp/acme/widgets-main/generated/new/deep/result.txt`, which is unrelated user data that must survive.\n- I do not remove the new `generated/new/deep` directories, only the file.\n\n**Gate `Council:` line suffix, which brainstorming appends after the audit-derived counts:**\n```\n; reverted applier edit outside the spec: src/status.ts; reverted applier edit outside the spec: generated/new/deep/result.txt\n```\nThe counts themselves come from the stored audit. None are invented here.\n\n## 4. Placeholder scan and grant predicate\n\n1. Re-run brainstorming's placeholder scan over `/tmp/acme/widgets-wt/doc/specs/job-status.md`.\n2. Re-apply the `**Amend-grant:**` predicate from `amendment-surface.md#standing-grants` to the header block, exactly once.\n   - **If the line is intact,** leave it as is. Its meaning: later spec amendments apply without asking, redraw still stops, and the grant is not approval.\n   - **If it was altered or removed,** repair it to `none`.\n3. The portable `reference/documentation-impact.md` citation stays as written. It refers to `/opt/gauntlet/skills/brainstorming/reference/documentation-impact.md` and is not an external reference to inline.\n\n## 5. Clean up the temp directory\n\n```bash\nrm -rf /tmp/council-widgets\n```\n\nNothing council-related is staged.\n\n## 6. Hand off to brainstorming (finalization and gate unchanged)\n\nReturn the audit verbatim, together with the final spec, to brainstorming. Brainstorming then handles, with no changes to its usual process:\n- the summarizer;\n- the quoted-heredoc worktree spec commit, with the audit as the commit body;\n- the gate text and numbering;\n- the `Council:` counts plus the revert suffix above;\n- row-3 retrieval via `git show -s --format=%b HEAD`;\n- the revert valve.\n\nThe user ratifies at that single gate. This is a single pass, with no automatic re-roast.\n",
-      "words": 555,
-      "wallMs": 22551,
+      "text": "# Successful applier return: reread, validation, cleanup, and handoff\n\nThe parent stays in `/tmp/acme/widgets-main`. Every command below targets the worktree through `git -C /tmp/acme/widgets-wt` or a full absolute path. No command uses `cd` or a bare relative path.\n\n## 1 — Reread the spec first\n\nBefore anything else, including audit validation, status checks, or any retry decision:\n\n```\nread({ path: \"/tmp/acme/widgets-wt/doc/specs/job-status.md\" })\n```\n\n## 2 — Store and validate the audit\n\nStore the returned audit text verbatim, exactly as the applier returned it, at `/tmp/council-widgets/audit.md`. This audit is the only findings-bearing input the parent takes in.\n\nCheck that all three labels are present:\n\n```bash\ngrep -q '^Applied:'  /tmp/council-widgets/audit.md\ngrep -q '^Deferred:' /tmp/council-widgets/audit.md\ngrep -q '^Rejected:' /tmp/council-widgets/audit.md\n```\n\nCheck that the counts match. These commands return counts only and print no findings. A no-match exit status counts as zero, not a failure.\n\n```bash\ngrep -c 'raised-by:' /tmp/council-widgets/audit.md                     # supplied: 3\ngrep -Ec '^- \\[(blocker|major|minor)\\]' /tmp/council-widgets/chair.md   # supplied: 3\n```\n\nPer the supplied facts, all labels are present and 3 equals 3. The audit is therefore accepted, with no restore and no retry.\n\n## 3 — Find attributable edits outside the spec\n\nCompare the two snapshots by path, ignoring status codes:\n\n```bash\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.after\ncut -c4- /tmp/council-widgets/status.before | sort > /tmp/council-widgets/paths.before\ncut -c4- /tmp/council-widgets/status.after  | sort > /tmp/council-widgets/paths.after\ncomm -13 /tmp/council-widgets/paths.before /tmp/council-widgets/paths.after\n```\n\nPer the supplied snapshots, the newly dirty paths outside the spec are:\n- `src/status.ts`, a tracked file\n- `generated/new/deep/result.txt`, an untracked file in a new nested directory\n\nThese paths were already dirty before the applier ran, so the parent leaves them untouched:\n- `doc/specs/job-status.md` is the spec itself.\n- `doc/specs/predecessor.md` holds a predecessor banner.\n- `notes/user.txt` changed from ` M` to `MM`. Because it was already dirty, any applier edits there cannot be attributed from status alone. This is the backstop's accepted gap, so the file is not reverted.\n- `scratch/keep/user-note.txt` is user work.\n\n## 4 — Revert the attributable edits\n\nRevert the tracked file:\n\n```bash\ngit -C /tmp/acme/widgets-wt checkout -- 'src/status.ts'\n```\n\nRemove the untracked file using its full worktree path:\n\n```bash\nrm -- \"/tmp/acme/widgets-wt/generated/new/deep/result.txt\"\n```\n\nTwo cautions apply to this removal:\n- **Use the full path.** A relative `rm -- generated/new/deep/result.txt` would resolve against the parent's cwd. It would delete the unrelated user file `/tmp/acme/widgets-main/generated/new/deep/result.txt`, which must survive.\n- **Remove only the file.** The directories `generated/new/deep/`, `generated/new/`, and `generated/` stay in place.\n\n## 5 — Add the cleanup suffix to the gate's Council line\n\nAppend one suffix per reverted path to the `Council:` line. The counts come unchanged from the audit labels; none are fabricated here.\n\n```\nCouncil: <counts from audit>; reverted applier edit outside the spec: src/status.ts; reverted applier edit outside the spec: generated/new/deep/result.txt\n```\n\n## 6 — Run the placeholder scan\n\nRe-run brainstorming's placeholder scan on `/tmp/acme/widgets-wt/doc/specs/job-status.md`. For example:\n\n```bash\ntimeout 30 rg -n 'TBD|TODO|\\?\\?\\?|<[^>]+>' /tmp/acme/widgets-wt/doc/specs/job-status.md\n```\n\nFix any real placeholder in the spec only. Keep the portable `reference/documentation-impact.md` citation as written. It names `/opt/gauntlet/skills/brainstorming/reference/documentation-impact.md`, not a consumer external reference, and it is not rewritten to the absolute path.\n\n## 7 — Apply the Amend-grant predicate once\n\nApply the standing-grants predicate from `../brainstorming/reference/amendment-surface.md#standing-grants` exactly once to the header block.\n\n- **If the line is intact,** leave it unchanged. The expected line is: `**Amend-grant:**` every later spec amendment applies without asking; redraw still stops; grant is not approval.\n- **If the line was altered or removed,** repair it to `none`.\n\n## 8 — Remove the temp directory\n\n```bash\nrm -rf /tmp/council-widgets\n```\n\nThis removes only this council's temp directory, including the member files, `retry/`, `chair.md`, `spec.before.md`, the status and path snapshots, and `audit.md`. Nothing council-related is staged.\n\n## 9 — Hand off to brainstorming\n\nReturn two things to brainstorming:\n- the audit, verbatim\n- the now-final spec at `/tmp/acme/widgets-wt/doc/specs/job-status.md`\n\nBrainstorming then proceeds unchanged:\n- It writes the summarizer and the quoted-heredoc spec commit in the worktree, with the audit as the commit body.\n- The gate text and numbering stay the same, and the `Council:` line carries the cleanup suffixes above.\n- Row 3 retrieves the audit with `git show -s --format=%b HEAD`.\n- The revert valve remains available.\n\nThe user ratifies at that single gate. There is no automatic re-roast.\n",
+      "words": 642,
+      "wallMs": 25122,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "No new child dispatch is needed: the active stage is a successful applier return. I would proceed as follows, without changing the parent’s cwd or ingesting member findings or the chair report.\n\n### 1. Reread the spec first\n\nBefore saving the audit, validating it, or checking status:\n\n```bash\ncat -- /tmp/acme/widgets-wt/doc/specs/job-status.md\n```\n\nThis is the required post-applier spec reread.\n\n### 2. Save and mechanically validate the audit\n\nSave the already-available audit **verbatim** to `/tmp/council-widgets/audit.md`. If `APPLIER_AUDIT` holds its exact returned bytes:\n\n```bash\nprintf '%s' \"$APPLIER_AUDIT\" > /tmp/council-widgets/audit.md\n```\n\nCheck the required labels:\n\n```bash\ngrep -q '^Applied:'  /tmp/council-widgets/audit.md &&\ngrep -q '^Deferred:' /tmp/council-widgets/audit.md &&\ngrep -q '^Rejected:' /tmp/council-widgets/audit.md\n```\n\nCompare counts without printing chair findings:\n\n```bash\naudit_count=$(grep -c 'raised-by:' /tmp/council-widgets/audit.md) ||\n  test \"$?\" -eq 1\n\nchair_count=$(grep -Ec '^- \\[(blocker|major|minor)\\]' /tmp/council-widgets/chair.md) ||\n  test \"$?\" -eq 1\n\ntest \"$audit_count\" -eq \"$chair_count\"\n```\n\nA no-match status means zero; other grep errors are validation failures. The supplied facts establish all three labels and matching counts of **3**, so this case continues without restoration or retry. These totals do not establish the Applied/Deferred/Rejected split; derive that only from the available audit.\n\n### 3. Check status by path, then clean attributable outside edits\n\nCapture current status:\n\n```bash\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all \\\n  > /tmp/council-widgets/status.after\n```\n\nCompare its **path set**, not its status-code strings, with `/tmp/council-widgets/status.before`.\n\nUnder the supplied snapshots, the newly dirty non-spec paths are exactly:\n\n- `src/status.ts`\n- `generated/new/deep/result.txt`\n\nRevert/remove only those concrete paths:\n\n```bash\ngit -C /tmp/acme/widgets-wt checkout -- 'src/status.ts'\nrm -- '/tmp/acme/widgets-wt/generated/new/deep/result.txt'\n```\n\nDo **not** remove the new directories. Do not touch:\n\n- `doc/specs/predecessor.md`\n- `notes/user.txt`, despite its change to `MM`\n- `scratch/keep/user-note.txt`\n- `/tmp/acme/widgets-main/generated/new/deep/result.txt`\n\nThe possible applier edits inside already-dirty `notes/user.txt` fall within the acknowledged attribution gap; status alone does not authorize restoring it.\n\nA follow-up status check can confirm that no newly dirty non-spec paths remain:\n\n```bash\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all\n```\n\n### 4. Run the final spec checks\n\n1. Rerun **brainstorming’s existing placeholder scan**, scoped to:\n\n   ```text\n   /tmp/acme/widgets-wt/doc/specs/job-status.md\n   ```\n\n   Its exact scanner command is not supplied here; I would reuse it unchanged rather than substitute an invented regex.\n\n2. Reapply the standing-grant header predicate **exactly once**. Preserve this valid supplied grant:\n\n   ```text\n   **Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n   ```\n\n   If the applier altered or removed the protected line, repair it to `**Amend-grant:** none` as the skill requires. No such alteration is supplied as a fact.\n\n3. Preserve the portable `reference/documentation-impact.md` citation. Do not replace it with the absolute guideline path or flag it as consumer external context.\n\n### 5. Retain the handoff, then remove only the council temp directory\n\nKeep the verbatim audit and final spec available for the brainstorming handoff before deleting their temporary backing files. Then:\n\n```bash\nrm -rf -- '/tmp/council-widgets'\n```\n\nDo not stage council artifacts.\n\n### 6. Resume unchanged brainstorming finalization and its single gate\n\nReturn the verbatim audit and final spec to brainstorming. Retain its existing summarizer, quoted-heredoc spec commit with the audit as commit body, unchanged gate wording and numbering, and revert valve.\n\nPopulate `Council:` disposition counts from the audit—not invented counts—and append exactly:\n\n```text\n; reverted applier edit outside the spec: src/status.ts; reverted applier edit outside the spec: generated/new/deep/result.txt\n```\n\nRetain row 3’s audit retrieval, explicitly targeting the worktree without changing cwd:\n\n```bash\ngit -C /tmp/acme/widgets-wt show -s --format=%b HEAD\n```\n\nThe user ratifies or reverts at that existing single gate. No additional council pass or approval gate is introduced.\n",
-      "words": 540,
-      "wallMs": 26594,
+      "text": "I would resume **after the successful applier return**, without redispatching any council child. All commands below are prescribed, not executed; the parent stays in `/tmp/acme/widgets-main`.\n\n### 1. Reread the spec first\n\nBefore storing or validating the audit, checking status, or doing anything else:\n\n```bash\ncat -- /tmp/acme/widgets-wt/doc/specs/job-status.md\n```\n\nThis is the permitted parent spec reread—not a read of member findings or the chair report.\n\n### 2. Store and mechanically validate the audit\n\nStore the already-available returned audit **verbatim** at `/tmp/council-widgets/audit.md`. Do not reconstruct or invent its text.\n\nThen check the required labels and count equality without printing chair findings:\n\n```bash\ngrep -q '^Applied:' /tmp/council-widgets/audit.md &&\ngrep -q '^Deferred:' /tmp/council-widgets/audit.md &&\ngrep -q '^Rejected:' /tmp/council-widgets/audit.md\n\naudit_count=$(grep -c 'raised-by:' /tmp/council-widgets/audit.md || :)\nchair_count=$(grep -Ec '^- \\[(blocker|major|minor)\\]' /tmp/council-widgets/chair.md || :)\ntest \"$audit_count\" -eq \"$chair_count\"\n```\n\nThe supplied facts establish that these checks pass: all three labels are present, with three dispositions matching three clusters. Do not retry or restore the successful applier result.\n\n### 3. Compare dirty paths and clean attributable outside edits\n\nObtain the post-applier status using the explicit worktree:\n\n```bash\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all \\\n  > /tmp/council-widgets/status.after\n```\n\nCompare with `/tmp/council-widgets/status.before` **by path, not status code**. On the supplied snapshots, only these non-spec paths are newly dirty:\n\n- `src/status.ts`\n- `generated/new/deep/result.txt`\n\nClean exactly those paths:\n\n```bash\ngit -C /tmp/acme/widgets-wt checkout -- 'src/status.ts'\nrm -- '/tmp/acme/widgets-wt/generated/new/deep/result.txt'\n```\n\nDo **not** remove directories. Do not touch the unrelated launch-directory file at `/tmp/acme/widgets-main/generated/new/deep/result.txt`.\n\nPreserve every before-set path, including:\n\n- `doc/specs/predecessor.md`\n- `notes/user.txt`, despite its status changing to `MM`\n- `scratch/keep/user-note.txt`\n\nPossible applier edits to the already-dirty `notes/user.txt` cannot be attributed from status alone; do not revert them using this backstop.\n\nAppend both instantiated cleanup suffixes to the eventual gate’s `Council:` line:\n\n```text\n; reverted applier edit outside the spec: src/status.ts\n; reverted applier edit outside the spec: generated/new/deep/result.txt\n```\n\n### 4. Scan and check the grant\n\nRe-run brainstorming’s existing placeholder scan against:\n\n```text\n/tmp/acme/widgets-wt/doc/specs/job-status.md\n```\n\nUse that workflow’s actual scan and resolution rules, rather than inventing a substitute placeholder pattern.\n\nApply the standing-grant predicate to the header block **exactly once**. Preserve the supplied valid grant:\n\n> every later spec amendment applies without asking; redraw still stops; grant is not approval.\n\nIf the applier altered or removed the header line, repair it to `**Amend-grant:** none` as prescribed. Do not treat the grant as approval or bypass the review gate.\n\nPreserve the portable `reference/documentation-impact.md` citation; do not replace it with the absolute guideline path.\n\n### 5. Preserve the handoff, then remove this council’s temp directory\n\nHand brainstorming the final spec and the available audit verbatim. Derive Applied/Deferred/Rejected totals from that audit; do not infer their distribution from the known total of three.\n\nBefore removing the temp directory, ensure the caller has retained the audit for its commit body and gate summary. Then:\n\n```bash\nrm -rf -- /tmp/council-widgets\n```\n\nNothing council-related is staged.\n\n### 6. Leave brainstorming’s finalization and gate unchanged\n\nBrainstorming retains its summarizer and quoted-heredoc spec commit, using the **actual verbatim audit** as the commit body. Stage only the intended spec, not the other dirty files:\n\n```bash\ngit -C /tmp/acme/widgets-wt add -- doc/specs/job-status.md\n```\n\nUse the existing finalization procedure rather than inventing a replacement commit body or gate text. Preserve:\n\n- the gate’s existing wording and numbering;\n- the `Council:` counts drawn from the audit, with both cleanup suffixes above;\n- row 3’s audit retrieval via:\n\n  ```bash\n  git -C /tmp/acme/widgets-wt show -s --format=%b HEAD\n  ```\n\n- the existing revert valve;\n- the user’s single ratification gate.\n\nNo new council pass, implementation work, or landing on `main` follows automatically.\n",
+      "words": 552,
+      "wallMs": 33087,
       "mechanical": {}
     }
   },
@@ -34,51 +34,51 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "ecbd4f688287832c0eb55fbdc2a791606111349f5a773d259fc1e027bab46be5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4dbd458a64b5d610ab6ff8addc74767867b00109a16f5e9c491cf10406501eda",
-      "baselineOutputSha": "b336f3df6fc4df70ff28cf6723d857ce40224e648d93dad98d81a12bbefc8fb8",
-      "candidateOutputSha": "63d09b1dc444fa186e434044d435324291d993bdb24ab295ff17941daecbc461",
+      "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
+      "baselineOutputSha": "b98907ee86233a7e1afb69ae84d826adbe37a9882e218911cec90264f6499895",
+      "candidateOutputSha": "dcaa69f6165fc37a28083b445e0a018ebdb68a8a9b4a15b8b2a92d4a47ccde62",
       "facts": {
         "first-reread": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "full-snapshots": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "rooted-cleanup": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "before-set-preserved": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "gate-suffix": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "finalization": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves every fact to holds: it rereads the spec as the literal first post-return action, compares status.before/status.after by path via cut -c4- with --untracked-files=all, reverts src/status.ts with checkout -- and removes only the quoted absolute WORKTREE-rooted result.txt without rmdir, leaves notes/user.txt alone despite the MM change with an explicit statement that status cannot attribute edits inside already-dirty paths, appends the instantiated 'reverted applier edit outside the spec' suffixes to the Council line, and finishes with placeholder scan, single Amend-grant predicate with repair-to-none, temp removal, and an unchanged handoff naming summarizer, heredoc commit, row-3 git show, and revert valve. Before failed by auditing and cleaning before the reread, acting on notes/user.txt's index because its status code changed, rmdir-ing new directories, using restore instead of checkout --, repairing the grant line to pre-applier text rather than none, and omitting the suffix wording and row-3 retrieval. One small hardening for After: show the before-snapshot command explicitly (git -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.before) at the dispatch step so a reader sees both snapshots use the same enumeration, and keep the Before case's guard that /tmp/council-widgets lies outside WORKTREE before rm -rf.",
-      "wallMs": 22225,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept: the spec reread is unambiguously first, both snapshots are compared by path from --porcelain --untracked-files=all output, the tracked revert uses git -C and the untracked removal uses a quoted absolute worktree path with explicit no-directory and parent-file-preservation cautions, the before-set (including notes/user.txt at MM) is listed as untouched with the attribution caveat, the gate suffix names both paths, and finalization retains scan, single-shot grant repair to none, temp-only removal, summarizer, heredoc commit, unchanged gate, row 3 and revert valve. One wording risk to tighten: After's row 3 line reads `git show -s --format=%b HEAD` without `-C /tmp/acme/widgets-wt`, which contradicts its own opening claim that every command targets the worktree via git -C and, given the parent stays in /tmp/acme/widgets-main, could be read as showing the wrong HEAD; restore Before's `git -C /tmp/acme/widgets-wt show -s --format=%b HEAD`. Also consider stating explicitly (as Before implied via status.before) that the before snapshot was taken with the same --porcelain --untracked-files=all command, so the nested-file enumeration claim is visible in the text rather than only in the case setup, and keep the placeholder pattern conservative so `<[^>]+>` does not flag legitimate spec content.",
+      "wallMs": 29011,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ecbd4f688287832c0eb55fbdc2a791606111349f5a773d259fc1e027bab46be5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4dbd458a64b5d610ab6ff8addc74767867b00109a16f5e9c491cf10406501eda",
-      "baselineOutputSha": "58c035822a0b7f2f9ffdaa21b0d117f56ae0c67689966d62036b00c183f24eff",
-      "candidateOutputSha": "d8322e92351e63ed2040987d18dbca471548e3fea171210f2c1903595d3e6a1f",
+      "intentSha": "402d7f47d881c6a70b5a8ace33b965853ce556f6f4cde31b6395070236ec0664",
+      "baselineOutputSha": "449de1a755bf312e31a368d5114078ed66bb4ce95499a607fe84856bccdbebae",
+      "candidateOutputSha": "f8c29aa0cf95c8e8c307c2ad1f633faac716731ed2f1a1a5c79c5440095fc68b",
       "facts": {
         "first-reread": {
           "before": "holds",
@@ -86,14 +86,14 @@
           "label": "intended but unchanged"
         },
         "full-snapshots": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "rooted-cleanup": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "before-set-preserved": {
           "before": "holds",
@@ -101,20 +101,20 @@
           "label": "intended but unchanged"
         },
         "gate-suffix": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "finalization": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves every previously failing fact to holds and regresses nothing: it isolates the spec reread as a standalone first step (Before bundled it with the audit read, which still counted but was weaker), captures the after snapshot with the full --porcelain --untracked-files=all form and compares path sets against status.before, restores src/status.ts with `git -C … checkout --`, removes only the quoted absolute worktree-rooted result.txt without any rmdir, preserves all four before-set paths with an explicit attribution-gap statement, appends the exact instantiated 'reverted applier edit outside the spec' suffixes to the Council line, and keeps the full finalization chain (placeholder scan reuse, grant predicate reapplied once with repair-to-none, rm -rf of only /tmp/council-widgets, summarizer, quoted-heredoc commit, row 3 `git show -s --format=%b HEAD`, revert valve, no extra human stop). Before failed rooted-cleanup by using `git restore`, unquoted rm, and rmdir of new directories; failed gate-suffix by substituting a generic 'Cleanup:' sentence; and failed finalization by omitting the summarizer/heredoc/row-3 command and inserting a new user-direction stop over notes/user.txt. One hardening for After: show the before-snapshot capture command explicitly (`git -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all > /tmp/council-widgets/status.before`) in the delegation stage so the 'both snapshots use the same full form' requirement is stated rather than implied by the comparison.",
-      "wallMs": 27823,
-      "verdict": "improved"
+      "feedback": "No fact moved: After keeps the spec-first cat reread, the --untracked-files=all after snapshot with path-set comparison against status.before, the quoted absolute rm and git -C checkout limited to the two attributable paths, the before-set preservation with the MM attribution caveat, both instantiated suffixes, and the full finalization list (placeholder scan, single grant reapplication with repair to none, rm -rf of only /tmp/council-widgets, summarizer, heredoc commit, row-3 git show, revert valve, single gate). Three wording choices in After are worth tightening so they don't drift toward failing later: (1) the new `git -C ... add -- doc/specs/job-status.md` step is an addition to brainstorming's finalization that Before did not prescribe—if the intent is only 'stage nothing else', say that in prose and leave the commit mechanics to the existing procedure, otherwise a reader may conclude finalization was changed; (2) the two suffixes are shown on separate lines, which a literal reader could paste as two lines into the single `Council:` line—render them as one `; ...; ...` run as Before does; (3) `|| :` on the grep counts swallows exit codes >1 (real errors) rather than only the exit-1 no-match case—keep Before's explicit `-le 1` rc test so the zero-valid audit case stays mechanically distinguishable from a grep failure. Also quote the grant with its `**Amend-grant:**` prefix intact so the predicate target is unambiguous.",
+      "wallMs": 24204,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "258cf7c4a2d47b7b3369fce0a0682898f19bcae8"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

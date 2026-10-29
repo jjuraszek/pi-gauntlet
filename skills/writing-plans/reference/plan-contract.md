@@ -8,6 +8,14 @@ A wave is a maximal set of tasks that have no ordering dependency on each other,
 
 - Tasks nest under `## Wave N — <label>` headers; `### Task N` headers sit inside a wave.
 
+## Legs (`leg-unknown`)
+
+Read the home spec's `## Legs` using [the leg contract](../../brainstorming/reference/legs.md). Write `Leg: <repo>` immediately after each task heading, before `**Files:**`; absence means home. Keep the plan and its `**Spec:**` header at home, citing the home spec. Repair a `leg-unknown` task in the plan, never by adding spec membership.
+
+Write one `Baseline <repo>: <sha>` header per member. Match each task's baseline bullets to its own leg's SHA; require equality within a leg, not across legs. Resolve `Modify:`/`Create:`/`Test:` paths and globs against the admitted leg checkout, using its recorded `home:` with shared `NAME` against its declared primary. Key file overlap and cross-task created anchors on `(leg, path)`.
+
+Split mixed waves into consecutive leg-homogeneous waves, preserving dependencies. Re-walk each task's `Files:` under its leg using the leg contract's Gather rules procedure. Append task `Rules:` for files missing from the spec list; resolve `Rules: root only - paths unresolved`. Read the combined lists before execution and review.
+
 ## Files (`wave-file-disjointness`, `paths-exist`)
 
 **File-ownership contract.** The per-task `**Files:**` block *is* the ownership declaration — no new syntax. Rule: **within a wave, the union of every task's declared paths must be pairwise disjoint.** Globs are allowed for `Modify` when exact paths are unknown, but must not overlap another same-wave task's paths. A task that must touch another's file belongs in a later wave.
@@ -27,7 +35,7 @@ Every `### Task N` carries a `**Tests:**` block: the bare line `**Tests:**` dire
 
 Absence is never valid. A `- [ ]` step or any non-bullet line ends the block. `via:` and `none:` are unchecked beyond form.
 
-Baseline forms (`baseline-line`): `- baseline: <sha> pass`, `- baseline: <sha> pass via `<base command>`` (both allow ` - artifacts: <path>[, <path>]`), or `- baseline: <sha> skipped - <path>[, <path>] created by this task`. Use 7-40 lowercase hex characters for `<sha>`; every baseline SHA in the plan must match. Never put a baseline under `none:`. `skipped` is valid only when every command anchor is a listed `Create:` path and every listed path is one of those anchors. Every segment of a `pass via` base command must anchor an existing `Test:` path of the task and no `Create:` path. Obtain evidence through writing-plans Self-Review Baseline, never by editing evidence to satisfy a finding.
+Baseline forms (`baseline-line`): `- baseline: <sha> pass`, `- baseline: <sha> pass via `<base command>`` (both allow ` - artifacts: <path>[, <path>]`), or `- baseline: <sha> skipped - <path>[, <path>] created by this task`. Use 7-40 lowercase hex characters for `<sha>`; every baseline SHA within the same leg must match (plan-wide for legacy home-only plans). Never put a baseline under `none:`. `skipped` is valid only when every command anchor is a listed `Create:` path and every listed path is one of those anchors. Every segment of a `pass via` base command must anchor an existing `Test:` path of the task and no `Create:` path. Obtain evidence through writing-plans Self-Review Baseline, never by editing evidence to satisfy a finding.
 
 Commands are written repo-relative and run in the worktree via `(cd "<abs worktree path>" && <command>)` - the checker never runs them; Baseline and the executor do. Each command is split into segments on `&&`, `||`, `;`, `|`; every segment must contain, as a whitespace-delimited token, a `Test:` path of the same task (the path alone, or followed by `::`, `#`, or `:` and a filter). A `Test:` value containing `*`, `?`, `[` or ending in `/` never anchors; any other argument token with those shapes is a broadening selector and fails. `cd `, `sh -c`, `bash -c`, `eval `, `$(` are unsupported. Each `Test:` path must exist or be a `Create:` path of some task. A segment equal to a header `**Verification:**` or `**Happy path:**` segment is a full-suite command and fails. Runners with no file-addressable form are out of scope (`go test ./pkg -run X`, `mvn -Dtest=`).
 

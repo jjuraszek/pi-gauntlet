@@ -1,7 +1,7 @@
 {
   "sample": "no-section-sibling-host-owned",
   "arm": "baseline",
-  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "skillSha": "abba3103fa48c7fc97e8643ca7bfb5575f5492cc1a1a289cf45c70e02be23ba2",
   "inputSha": "000ecdd5365881f14bcc8a172e1bdade132801ca6a5dc4f3190b1cf1af73f1f3",
   "kind": "text",
   "assembly": "concat",
@@ -15,15 +15,24 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Step 6: Cleanup Workspace\n\nOption 3 (Squash-merge) was chosen, so cleanup runs.\n\n**Contract lookup:** The spec has no `## Legs` section, so no `contract:` lines are recorded. There is no gauntlet overrides file, so there is no `## using-git-worktrees` section. This means the **legacy path** applies.\n\n**Legacy path checks:**\n\n1. **Project-native script:** There is no `worktree` script at `/work/acme-api`, so there is no native destroy command to defer to.\n2. **Gauntlet-owned location:** `$WORKTREE` = `/work/acme-api-worktrees/rate-limit`.\n   - It is not under `$PRIMARY/.worktrees/`, which is `/work/acme-api/.worktrees/`.\n   - It is not under `~/.worktrees/acme-api/`.\n   - Gauntlet did not create it, so gauntlet does not own its cleanup.\n3. **Otherwise:** The host environment owns this workspace.\n\n**Action taken:**\n- I did **not** run `git worktree remove` or `git worktree prune`.\n- I did **not** run `git -C \"/work/acme-api\" branch -D rate-limit`, because the branch is still checked out in the worktree and deleting it would fail.\n\n**Report:**\n> The squash-merge of `rate-limit` into `main` at `/work/acme-api` succeeded. The worktree at `/work/acme-api-worktrees/rate-limit` is host-owned and was left in place. It still holds branch `rate-limit`, which was **not** deleted.\n>\n> To clean up manually once you're done with it:\n> ```bash\n> git -C /work/acme-api worktree remove /work/acme-api-worktrees/rate-limit\n> git -C /work/acme-api worktree prune\n> git -C /work/acme-api branch -D rate-limit\n> ```\n",
+      "words": 200,
+      "wallMs": 7344,
+      "mechanical": {
+        "s2": "fails"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The worktree `/work/acme-api-worktrees/rate-limit` is host-owned: no overrides or native worktree script exist, and it is outside the managed worktree locations.\n\nSkip worktree removal, pruning, and branch deletion. The host-owned worktree still holds `rate-limit`.\n",
-      "words": 33,
-      "wallMs": 4104,
+      "text": "The host environment owns `/work/acme-api-worktrees/rate-limit`: it is outside the recognized gauntlet-owned paths, and no cleanup override or project-native worktree script exists.\n\nLeave the worktree intact and skip branch deletion. The host-owned worktree still holds `rate-limit`.\n",
+      "words": 35,
+      "wallMs": 3230,
       "mechanical": {
         "s2": "holds"
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "pr-subject-rebase-preflight-stops",
   "arm": "candidate",
-  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "skillSha": "443ec236a1ab4a75dc35f6302ff29134ec5499c49ea541b8f28ff93d5df91957",
   "inputSha": "43526d1142c5a3e71f79811e8f11f01db15a440a22444b7a3893186ecf687b0d",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Step 4 preflight: rework PR subject acme/widget#12\n\nThe skill was invoked as `/skill:finishing-a-development-branch /work/widget/.worktrees/retry`. These are synthetic pre-menu checkpoints, and nothing was executed.\n\n**SHA aliases:**\n- A = `aaaaaaa…`, the home pre-rework head (`PRE_REWORK_HEAD`).\n- C = `ccccccc…`, the original head of member #13.\n- D = `ddddddd…`, the recorded Rework base.\n- E = `eeeeeee…`, the current HEAD.\n\n**Identity (Step 1):** `gh pr view 12` reports state `OPEN`, headRefName `retry`, and baseRefName `main`. headRefName matches `$FEATURE`, so the identity check passes.\n\n**Mode:** The record's `Base:` line reads `main @ 1234567 - rebased: …`. This is not the `merge:` form, so **merge mode is not allowed in any variant**. Only `Base:` in `merge:` form selects merge. A missing Rework base therefore never falls back to the merge proofs.\n\n| # | Variant | Checkpoint | Exact stop | Menu | Push |\n|---|---|---|---|---|---|\n| 1 | Rework base D recorded, but D is not an ancestor of E | `git -C \"$WORKTREE\" fetch origin` succeeds. Then `git -C \"$WORKTREE\" merge-base --is-ancestor D HEAD` exits 1. | `PR branch history was rewritten: ddddddd is not an ancestor of HEAD; the rework must restart from the recorded rework base.` | not reached | none |\n| 2 | `Base:` says `sync: unresolved`, members are `pending`, and there is no `Rework base:` | The record-form read stops before fetch and before any proof. | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | not reached | none |\n| 3 | Home sync completed, but `Member replay: #13 unresolved - <files>` (or `pending`), and there is no `Rework base:` | The record-form read stops before fetch. | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | not reached | none |\n| 4 | `Base:` is the rebased form, but `Rework base:` is absent | The record-form read stops before fetch. It is a rebase record without a Rework base, and merge mode is unavailable. | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | not reached | none |\n\n**What variant 1 would have done next if D had been an ancestor of E:**\n- Resolve `origin/retry`.\n- If it equals A, use a lease push: `--force-with-lease=retry:A`.\n- If it descends from D and is an ancestor of E, use a non-force push.\n- Otherwise withhold row 1 with `push withheld: origin/retry moved past aaaaaaa`.\n\nNone of these steps runs here.\n\n**Command errors:** In any variant, a proof exiting with a code other than 0 or 1 would stop with that command's output. In all four variants, any stop happens before the six-row menu is rendered.\n\n**Not run in any variant:**\n- The strip-and-seal block or the telemetry seal.\n- `update-ref refs/gauntlet/pre-rework/pr-<N>`.\n- The push.\n- The `gh pr view 12 --json body` fetch, the scratch-file `## Rework` block, and `gh pr edit`.\n- Thread refetch and resolution rendering.\n- The member-closure question and `gh pr close`.\n\nShip stays incomplete. `phase_tracker` complete is not called.\n\n**Member #13:** It **remains open** in every variant. Closure is only offered after a successful row-1 push and a successful home body edit. Even then, rebase mode requires #13's head to still equal C and its replay outcome to be provable. Variants 3 and 4 could not prove that anyway: an `unresolved`/`pending` replay outcome withholds closure.\n\nReport line for all four variants: `Member PRs #13 left open.`\n\n**Next action:**\n- **Variants 2–4:** Return to the rework flow and complete Task 1. That means finishing the base rebase and/or replaying #13 onto home, and persisting `refs/gauntlet/rework-base/pr-12` plus the `Rework base:` line. Then rerun finishing on `/work/widget/.worktrees/retry`.\n- **Variant 1:** Restart the rework from the recorded rework base. Do not reset, force-push, or retry from this skill.\n\nThe worktree is preserved in all cases.\n",
-      "words": 581,
-      "wallMs": 20720,
+      "text": "# Finishing PR #12: pre-menu stop checkpoints for the rework subject\n\n**Inputs**\n- `WORKTREE=/work/widget/.worktrees/retry`, `PRIMARY=/work/widget`, `FEATURE=retry`.\n- Subject: a rework PR subject. Home is acme/widget#12, which is OPEN, has `headRefName` retry, and targets `<base-branch>` main.\n- Per Step 1, home is confirmed with `gh pr view 12 --json number,url,headRefName,baseRefName,state`.\n- SHA aliases used below:\n  - A = `aaaaaaaa…` (`PRE_REWORK_HEAD`, home)\n  - C = `cccccccc…` (member #13's original head)\n  - D = `dddddddd…` (recorded Rework base)\n  - E = `eeeeeeee…` (HEAD)\n- The record form is rebase mode, because `Base: main @ 1234567 - rebased: aaaaaaa..ddddddd` is recorded. Merge mode is never selected: only a `Base:` written in `merge:` form selects it. None of the variants below can fall back to merge mode.\n- Steps 1-3.5 (verification, conformance) are assumed passed for these synthetic checkpoints. Nothing is executed.\n\n## Stop variants (independent)\n\n| # | Record state | Where it stops | Exact stop | Menu | Push / body | Merge mode |\n|---|---|---|---|---|---|---|\n| 1 | `Rework base: D` recorded; D is not an ancestor of E | After `git -C \"$WORKTREE\" fetch origin`, at the one-time proof `git -C \"$WORKTREE\" merge-base --is-ancestor D HEAD`, which exits 1 | `PR branch history was rewritten: ddddddd is not an ancestor of HEAD; the rework must restart from the recorded rework base.` | not reached | none; the origin-equality check against A is never evaluated | no |\n| 2 | `Base: … sync: unresolved`, members `pending`, no `Rework base:` | Record-form read, before fetch | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | not reached | none | no |\n| 3 | Home rebased, but `Member replay: #13 unresolved`/`pending`, no `Rework base:` | Record-form read, before fetch | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | not reached | none | no |\n| 4 | `Base: main @ 1234567 - rebased: aaaaaaa..ddddddd`, no `Rework base:` line | Record-form read, before fetch. This is a rebase record without `Rework base:`, so it gets the same stop | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | not reached | none | no |\n\nIn each variant, the stop message would open with `gauntlet: stuck` and then the reason shown above. No terminal `done` marker is emitted.\n\n## What none of the variants do\n- Run the strip-and-seal block or telemetry seal.\n- Write the `refs/gauntlet/pre-rework/pr-12` or `pr-13` update-refs.\n- Run either push form: the `--force-with-lease=retry:A` lease push or the non-force push.\n- Fetch the body or run `gh pr edit`.\n- Refetch threads.\n- Show the close-member gate.\n\n`phase_tracker` ship stays started and is not completed. The worktree and the `retry` branch are preserved, with no Step 6 cleanup.\n\n## Member #13\n#13 remains open in all four variants. Closure is only offered after a successful push and a successful home body edit, and neither is reached here. Report:\n\n```\nMember PRs #13 left open.\n```\n\nFor variants 2-4, the fix is to complete Task 1: replay #13 onto home, then persist `refs/gauntlet/rework-base/pr-12` and the `Rework base:` line. After that, rerun finishing. Variant 1 requires restarting the rework from the recorded rework base. It must not be reset or forced.\n",
+      "words": 477,
+      "wallMs": 24656,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "SHA aliases: home pre-rework `aaaaaaa` = `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; member #13 pre-rework `ccccccc` = `cccccccccccccccccccccccccccccccccccccccc`; Rework base `ddddddd` = `dddddddddddddddddddddddddddddddddddddddd`; HEAD `eeeeeee` = `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n\nEach checkpoint is independent:\n\n| Checkpoint | Exact stop | Menu / push reached? | Merge mode allowed? |\n|---|---|---|---|\n| Recorded Rework base is not an ancestor of HEAD | `PR branch history was rewritten: ddddddd is not an ancestor of HEAD; the rework must restart from the recorded rework base.` | No / No | No |\n| Base says `sync: unresolved`, members pending, no Rework base | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | No / No | No |\n| Home sync completed, but member #13 is unresolved/pending and no Rework base | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | No / No | No |\n| Base records a rebase, but Rework base is absent | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | No / No | No |\n\nOnly a `Base:` record in `merge:` form selects merge mode. A failed or incomplete rebase record cannot fall back to merge mode.\n\nNo push, PR-body edit, or closure is performed.\n\nMember PRs #13 left open.\n",
-      "words": 180,
-      "wallMs": 7770,
+      "text": "SHA aliases: home original `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; member #13 original `cccccccccccccccccccccccccccccccccccccccc`; Rework base `dddddddddddddddddddddddddddddddddddddddd`; HEAD `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n\n| Independent checkpoint | Exact stop | Menu / push reached? | Merge mode allowed? |\n|---|---|---|---|\n| Recorded Rework base is not an ancestor of HEAD | `PR branch history was rewritten: ddddddd is not an ancestor of HEAD; the rework must restart from the recorded rework base.` | No / No | No |\n| Base says `sync: unresolved`, members pending, no Rework base | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | No / No | No |\n| Home sync completed, but member #13 is unresolved/pending and no Rework base exists | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | No / No | No |\n| Base records a rebase, but Rework base is absent | `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` | No / No | No |\n\nOnly a `Base:` record in `merge:` form selects merge mode. None of these cases permits falling back to merge mode.\n\nNo commands, push, description edits, or PR closure are executed. Member PR #13 remains open in every variant.\n",
+      "words": 177,
+      "wallMs": 7044,
       "mechanical": {}
     }
   },
@@ -34,47 +34,47 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "da77925a3a99c8708b0b3ad980394060bc51065355df6094c63312d0f2dd14d1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
-      "baselineOutputSha": "09791e0adb351b9861cb4ea1fd0afbbcf0873ace6e7dc083b07d715c5bb4f32e",
-      "candidateOutputSha": "683d2c805485b0914b87304c791b8ca8f9d36bff78a0949858ed15dc994fc919",
+      "intentSha": "32100071a628554cbbda1e228b697718ce4ec50be4e4e9ae2702b721bae76288",
+      "baselineOutputSha": "f6d319e7b41351a37f9e7cbd5d6981823ad722f28b6fb760409248b2ad38e08a",
+      "candidateOutputSha": "ca28edc3168068a257b276d9ddcebe7a2096c636d115be2bc9e1dcfc6aab94a0",
       "facts": {
         "guard": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "incomplete": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves both facts from fails to holds and loses nothing Before kept. Before never read the Rework base field, so variant 1 stopped on the home head (aaaaaaa) with a re-merge instruction, and variants 2–4 all collapsed into merge-mode rewritten-history stops with merge-based recovery; After instead reads the rebased `Base:` form first, refuses merge mode outright, tests D's ancestry for variant 1 with the exact `ddddddd … restart from the recorded rework base` stop, and emits the exact `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` stop for every absent-Rework-base variant before fetch, with menu not reached, push none, no closure offered, and `Member PRs #13 left open.` stated for all four. Keep this wording; the only optional tightening is to make the variant-2/3 rows say explicitly that the `sync: unresolved`/`pending` member state is subsumed by the missing-Rework-base stop so a reader does not wonder whether a different stop precedes it.",
-      "wallMs": 9930,
-      "verdict": "improved"
+      "feedback": "Nothing moved: both facts hold in Before and After. After's Variant 1 row carries the exact rewritten-boundary text, states the stop at the one-time `merge-base --is-ancestor D HEAD` proof before the menu and before either push form, and Variants 2-4 each carry the exact `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` text with menu not reached, no push/body, merge mode `no`, and #13 explicitly left open — matching Before's per-variant blocks. Two small wording risks worth tightening in After so the facts stay robust: (1) After splits the `gauntlet: stuck` prefix out of the table into a trailing sentence; keeping the full `gauntlet: stuck …` line verbatim per variant (as Before does) avoids a strict reader questioning whether the exact stop string is emitted. (2) After truncates the SHA aliases to `aaaaaaaa…`; since the case asks to share aliases, print the full 40-char SHA once in the alias legend (as Before does) so the `ddddddd` short form in the guard message can be traced to the recorded Rework base. Otherwise the Change (rebase-record detection, merge-mode never selected for rebased `Base:` forms, incomplete records stopping before fetch/menu, no closure) is delivered without relaxing either fact.",
+      "wallMs": 12811,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "da77925a3a99c8708b0b3ad980394060bc51065355df6094c63312d0f2dd14d1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
-      "baselineOutputSha": "4a87af85f31bab9ff01b4a92109d08f92cca215879af8713af9f20b24bdabd95",
-      "candidateOutputSha": "89a548016be65fafdc38eef86714aeed2bf6285e900a4927c213034cd1b85324",
+      "intentSha": "32100071a628554cbbda1e228b697718ce4ec50be4e4e9ae2702b721bae76288",
+      "baselineOutputSha": "60f14238e0132bf5e9677a04d4867f758a5f97f9f15b244312bd3aff0c812f99",
+      "candidateOutputSha": "b8c9743ef17dca75f38ea3526d949271bd9f891a4db12ed2c3976677d2f5a812",
       "facts": {
         "guard": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "incomplete": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After delivers both facts: the rewritten-boundary row prints the exact `PR branch history was rewritten: ddddddd is not an ancestor of HEAD; the rework must restart from the recorded rework base.` stop with menu/push not reached, and all three incomplete/absent-Rework-base variants print the exact `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` stop, explicitly refuse merge-mode fallback (`Only a Base: record in merge: form selects merge mode`), and leave #13 open with no push/body edit/closure. Before failed both because its wording lacked any Rework-base or sync-incomplete contract, so the model substituted the legacy `must be re-merged, not rebased` string and declined to state the metadata stops. Nothing that Before held was lost; to keep this stable, retain the explicit definitions of `Rework base`, the `sync:` field states, and the two verbatim stop strings in the rebase-preflight section, and keep the sentence that an incomplete rebase record never selects merge mode so future wording edits don't reintroduce the re-merge fallback.",
-      "wallMs": 9297,
-      "verdict": "improved"
+      "feedback": "Nothing moved: both outputs state the exact rewritten-history stop for the non-ancestor variant and the exact `rework sync incomplete for PR #12: no Rework base recorded; finish Task 1 first.` stop for all three incomplete/absent-Rework-base variants, place every stop before the menu/push, deny merge-mode fallback (only a `merge:`-form `Base:` record selects merge mode), and leave member #13 open. After actually tightens the incomplete fact by adding explicit per-row Menu/push and Merge-mode columns and by stating no PR closure is executed, which Before only implied via 'stop before the menu'. One cosmetic deviation: the case asked to share SHA aliases, and After expands every SHA to full 40-character form instead of Before's compact `a × 40` style; keep the alias convention from Before (short alias = full SHA) to stay within the compact-rows request while retaining After's explicit reached/allowed columns and the 'no closure executed' line.",
+      "wallMs": 9277,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+  "repoSha": "db40a3e3b54b9200b0a6d451fb3c11105de776bf"
 }

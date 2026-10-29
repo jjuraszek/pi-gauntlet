@@ -105,6 +105,18 @@ test('version preflight and retained-result recovery surround the initial chain'
   assert.match(skill, /Second chain call in the same wave after a stop or a chain error - the retained results are the fan-out result; continue on the snapshot path\./);
 });
 
+test('planning and wave dispatch bind task roots and Rules to admitted legs', () => {
+  const writer = readFileSync(new URL('../skills/writing-plans/SKILL.md', import.meta.url), 'utf8');
+  const contract = readFileSync(new URL('../skills/writing-plans/reference/plan-contract.md', import.meta.url), 'utf8');
+  for (const token of ['Leg: <repo>', 'Baseline <repo>: <sha>', '(leg, path)', 'leg-unknown', 'home:', 'NAME']) assert.ok(contract.includes(token), token);
+  for (const token of ['Rules: root only - paths unresolved', 'owning checkout', 'tree-equivalence', 'per-leg']) assert.ok(writer.includes(token), token);
+  for (const token of ['leg-homogeneous', 'before capturing `WAVE_BASE_SHA`', 'combined spec/task `Rules:`', 'home spec', 'every leg']) assert.ok(skill.includes(token), token);
+  for (const name of ['implementer', 'spec-reviewer', 'code-reviewer']) {
+    const persona = readFileSync(new URL(`../agents/${name}.md`, import.meta.url), 'utf8');
+    assert.match(persona, /Read the combined spec\/task `Rules:` files before acting/);
+  }
+});
+
 const quote = value => `'${value.replaceAll("'", "'\\''")}'`;
 const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
 

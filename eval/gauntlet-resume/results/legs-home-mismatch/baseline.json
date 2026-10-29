@@ -1,0 +1,34 @@
+{
+  "sample": "legs-home-mismatch",
+  "arm": "baseline",
+  "skillSha": "7a232da7dcf80b9e7965a364fcfda555db88c4d05cabd647a92fd69e18ec77f6",
+  "inputSha": "200dc22aef16a08cf528cdeec2e7bfce114427de84c8fa56ba3a26db21ce0cc5",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated admission: three independent runs\n\nAll three runs stop at entry check 3b, Coordinated admission. Each stop happens before any tracker write, so no run reaches the call table's `plan_check`. Each run is shown in full.\n\n---\n\n## Run A: companion `**Home:**` names a different branch\n\n1. **Read the home spec.** `Read /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`\n   - Result: `## Legs` holds `### Leg: repo-a` and then `### Leg: repo-b`. Approval comes from the human, not from the file being present.\n2. **Compare membership.** The brief's `legs:` lists `[repo-a, repo-b]` and the spec lists `[repo-a, repo-b]`. They match.\n3. **Resolve the repo-b primary and its common directory.** `git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir`, then `realpath`\n   - Result: `/work/repo-b/.git`\n4. **Check the repo-b worktree's common directory.** `git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir`, then `realpath`\n   - Result: `/work/repo-b/.git`, which matches the primary.\n5. **Check the repo-b live branch.** `git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current`\n   - Result: `feature/shared-change`, which matches.\n6. **Read the companion leg file.** `Read /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md`\n   - Result: the `**Home:**` line reads `repo-a feature/other doc/specs/shared.md`.\n   - This does not equal the run home tuple, so the run stops. A tuple mismatch is not informational drift.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated admission: leg repo-b **Home:** tuple mismatch in /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md - expected `repo-a feature/shared-change doc/specs/shared.md`, observed `repo-a feature/other doc/specs/shared.md`\n```\n\nNothing else happens. There are no `phase_tracker` or `plan_tracker` calls, no `plan_check`, no closing line and no grant line.\n\n---\n\n## Run B: companion `**Home:**` names a different spec path\n\nSteps 1–5 are identical to Run A. Membership matches, the repo-b common directory is `/work/repo-b/.git` on both sides, and the live branch is `feature/shared-change`.\n\n6. **Read the companion leg file.** `Read /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md`\n   - Result: the `**Home:**` line reads `repo-a feature/shared-change doc/specs/other.md`.\n   - The spec path does not match, so the run stops.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated admission: leg repo-b **Home:** tuple mismatch in /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md - expected `repo-a feature/shared-change doc/specs/shared.md`, observed `repo-a feature/shared-change doc/specs/other.md`\n```\n\nAs in Run A, there are no tracker mutations, no `plan_check`, no closing line and no grant line.\n\n---\n\n## Run C: repo-b live branch is a different branch\n\nSteps 1–4 are identical to Run A. Membership matches and the repo-b common directory `/work/repo-b/.git` matches the declared primary.\n\n5. **Check the repo-b live branch.** `git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current`\n   - Result: `feature/other`.\n   - The shared branch is `feature/shared-change`, so the run stops here. A live-tree branch mismatch is not drift. The leg file's `**Home:**` tuple is never read.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated admission: leg repo-b worktree /work/repo-b/.worktrees/feature-shared-change is on branch `feature/other`, expected shared branch `feature/shared-change`\n```\n\nAs in the other runs, there are no tracker mutations, no `plan_check`, no closing line and no grant line.\n",
+      "words": 416,
+      "wallMs": 20040,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Independent run A\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nRead(\"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\")\n```\n\nObserved `**Home:**` tuple does not match the run home. Print and stop:\n```text\ngauntlet: stuck repo-b Home tuple mismatch: expected repo-a feature/shared-change doc/specs/shared.md; observed repo-a feature/other doc/specs/shared.md\n```\n\nNo tracker mutation or `plan_check` call.\n\n### Independent run B\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nRead(\"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\")\n```\n\nObserved `**Home:**` tuple does not match the run home. Print and stop:\n```text\ngauntlet: stuck repo-b Home tuple mismatch: expected repo-a feature/shared-change doc/specs/shared.md; observed repo-a feature/shared-change doc/specs/other.md\n```\n\nNo tracker mutation or `plan_check` call.\n\n### Independent run C\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\ngit -C /work/repo-b/.worktrees/feature-shared-change branch --show-current\n```\n\nObserved branch is `feature/other`. Print and stop:\n```text\ngauntlet: stuck repo-b branch mismatch at /work/repo-b/.worktrees/feature-shared-change: expected feature/shared-change; observed feature/other\n```\n\nNo tracker mutation or `plan_check` call.\n",
+      "words": 149,
+      "wallMs": 15577,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "d2e35168c92e6dd5e2a1bac003344a377448be67"
+}

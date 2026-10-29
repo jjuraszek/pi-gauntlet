@@ -1,7 +1,7 @@
 {
   "sample": "questionary-option-lines",
   "arm": "candidate",
-  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
+  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
   "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nWhich filter policy should the report view apply on a workspace switch? The workspace-change handler in `ui/report-view.ts` currently keeps active filters, and `settings/resolver.ts:12` would own the chosen default.\nA) clear all filters on every workspace switch\nB) preserve all active filters across switches\nC) restore each workspace's last filters\nRecommendation: B - it matches the handler's current behavior, so existing users see no change, and it needs no new per-workspace filter state.\n",
-      "words": 73,
-      "wallMs": 5495,
+      "text": "The framing stays as you kept it: the policy is owned by the existing settings resolver (settings/resolver.ts:12) and consumed by the report view (ui/report-view.ts:30). What should the report view do with active filters when the user switches workspace?\n\nA) Clear all filters on every workspace switch, so each workspace opens unfiltered.\nB) Preserve all active filters across switches, so the same filters carry into the new workspace.\nC) Restore each workspace's last filters, so returning to a workspace brings back what was set there.\n\nRecommendation: B - it matches what the workspace-change handler already does. The policy stays a single resolver value with no new per-workspace filter state, and existing users see no behavior change.\n",
+      "words": 114,
+      "wallMs": 10061,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nHow should the report view handle filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - preserves current behavior while making the policy explicit through the existing settings resolver.\n",
-      "words": 48,
-      "wallMs": 2549,
+      "text": "How should the report view handle filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves the current behavior and avoids introducing per-workspace filter state.\n",
+      "words": 44,
+      "wallMs": 3181,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "deb77334f25c72357b81c9b878c86452f7ad224149f4a9c33008caf80878f3c2",
-      "candidateOutputSha": "97eb4f54a856700f6e06e1dd9c7b1493e79ba18df06adfd76ab071db25fb05bb",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "4d20ea2d589768048384f09f965432e1448999ed7cc6bbff65bd55632c7f318a",
+      "candidateOutputSha": "4d20ea2d589768048384f09f965432e1448999ed7cc6bbff65bd55632c7f318a",
       "facts": {
         "layout": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. After adds the `gauntlet: question` marker at column zero as the first line, which the layout fact tolerates because the lead-in still precedes the first labeled option, each of A/B/C sits on its own physical line, and `Recommendation:` is the final own-line entry; the lead-in now also folds in the recon context (handler keeps filters, resolver owns the default) without disturbing that structure. Content holds too: one question, all three supplied choices verbatim, and a single recommendation (B) with a stated reason rather than a decision or a jump to approaches. The only drift worth watching is that After's option lines drop the per-option consequence clauses Before carried and its recommendation flips from C to B; neither is judged here, but if the author wants the marker line and the richer lead-in without losing option-level consequences, keep the one-line consequence after each label (as the amendment-menu grammar already requires) and leave the gate marker as the sole line above the lead-in.",
-      "wallMs": 12499,
+      "feedback": "Before and After are textually identical: both open with the lead-in restating the kept framing, place A), B), and C) each on their own physical line, and end with Recommendation: on its own final line, so layout holds in both. Both ask exactly one question, preserve all three supplied choices verbatim in meaning (clear on every switch, preserve across switches, restore each workspace's last filters), and recommend B with a concrete reason tied to the existing workspace-change handler and resolver ownership, without deciding for the user or jumping to approaches or a design, so content holds in both. No fact moved; the After wording delivers the Change's questionary layout requirement while keeping everything Before kept, and no adjustment is needed for this case.",
+      "wallMs": 4882,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "d5a09ff053fdbb4688ae4b00cd30c031565b7ba50e63a85c6ef551f741f52600",
-      "candidateOutputSha": "26ff28a014db977e6d9cc4fc2c55b8356ea021e5134c47484afb09342d18398c",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "e512a5b49f73600f9d4929fd7e28a5c4284aff1a95e699677e9509b13771bbff",
+      "candidateOutputSha": "e512a5b49f73600f9d4929fd7e28a5c4284aff1a95e699677e9509b13771bbff",
       "facts": {
         "layout": {
           "before": "holds",
@@ -71,97 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this case. Both outputs put the question lead-in before option A, render A/B/C on separate physical lines, and end with Recommendation: on its own final line; both preserve the three supplied choices verbatim and recommend B with a reason instead of deciding or jumping to approaches. After adds the column-zero `gauntlet: question` classifier line ahead of the lead-in, which is what the gate-line-first change asks for and does not disturb the lead-in-first ordering since the question still precedes the first labeled option. The only risk to watch in other cells is a model treating the classifier line as the lead-in and collapsing the question into the option block; keeping the wording 'the classifier line precedes the lead-in; the lead-in still precedes the first labeled option' would protect the layout fact while delivering the marker.",
-      "wallMs": 9398,
+      "feedback": "Before and After are textually identical: a one-line lead-in question, then options A), B), and C) each on their own physical line with the three supplied choices preserved verbatim, and a final own-line Recommendation: naming B with a reason (keeps current behavior, avoids per-workspace state) without deciding for the user or jumping to approaches. Both facts hold in both outputs, so the After wording moved nothing here; the questionary layout rule is already satisfied and no adjustment is needed for this case.",
+      "wallMs": 3600,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "questionary-option-lines",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
-      "candidateSkillSha": "e56966ab6f37d59c93529bd405e54013ce529262d21820b8b32ab4898250b062",
-      "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
-      "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "8d7d73d2f0f15aba6124d3bab76a83f3b4dd0365ee069398576fb6f0ee051444",
-            "payloadSha": "6bf88a462895f4828f01d0db10a8c12fa5298e23ae28700b4150d8b9053fc3f3"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "59f30aaad3890c69cf2e15d050e092bc6e3cb55646beb1e3cd623cee3d9d833a",
-            "payloadSha": "12734eb8ce5b024b31f47965c94f58840d1121ab66fe671939c7984a331f9217"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "8d7d73d2f0f15aba6124d3bab76a83f3b4dd0365ee069398576fb6f0ee051444",
-        "candidateOutputSha": "59f30aaad3890c69cf2e15d050e092bc6e3cb55646beb1e3cd623cee3d9d833a",
-        "facts": {
-          "layout": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "content": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Nothing moved in this continuation: After keeps the lead-in question ahead of the first labeled option, each of A/B/C on its own physical line, and Recommendation: as the final own line, and it preserves all three supplied choices with a reasoned pick of B. The only visible difference is the new column-zero 'gauntlet: question' marker on the first line, which sits above the lead-in rather than between options, so it does not disturb the layout fact; keep that marker as a single bare line preceding the lead-in (never inline with the question or an option) and the questionary wording stays stable under the gate-line-first change.",
-        "wallMs": 6183,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "8d7d73d2f0f15aba6124d3bab76a83f3b4dd0365ee069398576fb6f0ee051444",
-        "candidateOutputSha": "59f30aaad3890c69cf2e15d050e092bc6e3cb55646beb1e3cd623cee3d9d833a",
-        "facts": {
-          "layout": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "content": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After preserves both facts: the lead-in precedes three separately labeled option lines, Recommendation: remains on the final line, and the question retains all three choices with a reasoned recommendation rather than a decision. The added “gauntlet: question” marker does not disrupt that layout. Keep this structure and, to retain Before’s explicit connection to the agreed framing, consider ending with “Recommendation: B - it preserves current behavior while making the policy explicit through the existing settings resolver, without adding per-workspace filter state.”",
-        "wallMs": 4294,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

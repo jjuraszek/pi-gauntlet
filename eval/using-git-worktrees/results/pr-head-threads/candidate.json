@@ -1,7 +1,7 @@
 {
   "sample": "pr-head-threads",
   "arm": "candidate",
-  "skillSha": "d9a9d5c1340f3949e7ec332f72d723acb125c81a33125a826ef595001482f9af",
+  "skillSha": "004b77d3a4c9c6362f782d3b6ecaaabf243d3f285e7ab5d7afe8f2a541c0f4bd",
   "inputSha": "45a0126ca5b0136723fd14df336fc4509ca73d24a10f2b5c3730e43cd78fc28d",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# PR-head review threads: acme/widget#82\n\n## Setup and query owner\n\n**Aliases**\n\n| Alias | Value |\n|---|---|\n| ROOT | `/work/widget` |\n| W | `/work/widget/.worktrees/fix-retry` (clean, on `fix/retry` at H) |\n| H | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` (headRefOid, `aaaaaaa`) |\n| B | `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` (origin/main, `bbbbbbb`) |\n\n**Query owner.** `reference/pr-head.md` § \"Fetch unresolved review threads\" owns both queries, so they are not copied here.\n\n- Q1 is the paginated `reviewThreads` query.\n- Q2 is the per-thread comment follow-up, keyed by thread id with its own comment cursor.\n\nThis step runs for every admitted PR, N=1 included, before gather. The process cwd never changes. Both queries pass owner, repo and number explicitly, so they do not depend on cwd.\n\n**Commands**\n\n| # | Command | cwd |\n|---|---|---|\n| C1 | `gh api graphql --paginate -f query='<Q1>' -F o=acme -F r=widget -F n=82` | unchanged process cwd |\n| C2 | `gh api graphql --paginate -f query='<Q2>' -F id=<T1 id>` | unchanged process cwd |\n\n## Successful fetch\n\n**Merge and filter.** C1 returns three `reviewThreads` pages, which are merged and then filtered to `isResolved == false`.\n\n| Page | Thread | isResolved | Kept |\n|---|---|---|---|\n| 1 | T1 | false | yes |\n| 2 | T2 | false (outdated) | yes |\n| 2 | TX `src/gone.ts:2` | true | **dropped** |\n| 3 | T3 | false | yes |\n\n**T1 comment pagination.** T1's comments report `hasNextPage: true` and `totalCount=102`, so the first page does not hold them all.\n\n- C2 runs from T1's first comment page to its last page.\n- Comment page 1 holds 100 comments: the original plus replies 1–99.\n- Comment page 2 holds replies 100–101.\n- C2's full connection of 102 comments replaces T1's initial 100, so there are no duplicates.\n- The comment cursor stays separate from the reviewThreads cursor.\n\nT2 and T3 report no further comment pages, so they need no follow-up.\n\n**Location rule.**\n\n- Use `<path>:<line>` when `line` is set.\n- Otherwise use `<path>:<originalLine> (outdated)`.\n- Otherwise use `<path>` alone.\n\nEvery comment carries the same metadata: url `https://github.com/acme/widget/pull/82#discussion_r1`, author `reviewer`, createdAt `2026-01-01T00:00:00Z`. Comments are listed in their original order.\n\n**Rendered threads (input to gather)**\n\n**T1 — `src/retry.ts:12`**\n\n| # | Body |\n|---|---|\n| 1 | Rewrite the retry engine |\n| 2–101 (replies 1–100) | Rewrite still requested |\n| 102 (reply 101) | Correction: keep the engine; cap retries in two lines. |\n\n- **Effective request:** keep the existing engine and cap retries in a two-line change.\n- **Superseded request:** the original \"rewrite the retry engine\" is overridden by the final reply.\n- This correction is visible only because every page was read. Truncating at 100 comments would have carried a stale rewrite request into the spec.\n\n**T2 — `src/old.ts:7 (outdated)`**\n\n`line` is null and `originalLine` is 7, so the outdated form applies.\n\n| # | Body |\n|---|---|\n| 1 | Keep this guard |\n| 2 | Yes, retain it |\n\n- **Effective request:** retain the guard. The reply confirms it.\n\n**T3 — `README.md`**\n\nBoth `line` and `originalLine` are null, so only the path is shown.\n\n| # | Body |\n|---|---|\n| 1 | Document the cap |\n\n- **Effective request:** document the retry cap in the README.\n\n**Outcome:** 3 unresolved threads (T1, T2, T3) are carried to gather. Gather and the spec follow.\n\n## Failed fetch (independent case)\n\nC1 fails with `API unavailable`. A failure on a C2 comment fetch would be treated the same way.\n\nThe per-PR stop applies even in this N=1 run:\n\n> `threads for #82 not fetched (API unavailable)`\n\nThe run stops **before gather and the spec**:\n\n- no draft is written and no Rework record is made;\n- no thread list is assumed empty, so there is no silent continuation.\n\nFinish's separate post-verification fetch-failure reporting does not apply at this point.\n\n## Empty set (independent case)\n\nC1 succeeds and, after filtering, there are zero unresolved threads.\n\nRecord: `Threads: none`\n\nGather proceeds with no review-thread inputs.\n",
-      "words": 549,
-      "wallMs": 21820,
+      "text": "# PR-head review threads: acme/widget#82 (N=1)\n\n## Setup and query owner\n\n**Aliases**\n\n| Alias | Value |\n|---|---|\n| ROOT | `/work/widget` (primary checkout; the process cwd for every command, never changed) |\n| W | `/work/widget/.worktrees/fix-retry` (provisioned clean on `fix/retry` at H) |\n| H | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` (PRE_REWORK_HEAD) |\n| B | `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` (BASE_SHA, origin/main) |\n\n**Query and pagination owner.** The owner is `reference/pr-head.md`, section \"Fetch unresolved review threads\". It runs once per admitted PR, so it runs here even though N=1. I cite the query and do not copy it.\n\n**Command legend**\n\n| ID | Command (cwd ROOT) |\n|---|---|\n| Q1 | `gh api graphql --paginate -f query=<owner reviewThreads query> -F o=acme -F r=widget -F n=82` |\n| Q2 | `gh api graphql --paginate -f query=<owner per-thread comments query> -F id=<T1 id>`, starting at T1's first comment page with no `after` cursor |\n\n## Successful fetch\n\n**Q1 pagination.** The reviewThreads cursor walks three pages, and I merge all three:\n\n- Page 1 returns T1.\n- Page 2 returns T2 and TX.\n- Page 3 returns T3. Its `hasNextPage` is false, so pagination ends.\n\n**Filter.** I keep threads where `isResolved == false`. TX (`src/gone.ts:2`) is resolved, so I drop it.\n\n**T1 comment pagination.**\n\n- T1's comments report `hasNextPage: true` with `totalCount=102`, which exceeds the first page of 100.\n- I run Q2 by T1's id with its own comment cursor, separate from the reviewThreads cursor, until its last page.\n- I replace T1's initial comment list with the complete 102-comment connection, so there are no duplicates.\n- T2 and T3 are complete on their first comment page and need no Q2.\n\n**Location rule:** `<path>:<line>`, else `<path>:<originalLine> (outdated)`, else `<path>`.\n\nEvery comment carries the same metadata: url `https://github.com/acme/widget/pull/82#discussion_r1`, author `reviewer`, createdAt `2026-01-01T00:00:00Z`.\n\n**Rendered unresolved threads (order preserved)**\n\n| Thread | Location | # | Body |\n|---|---|---|---|\n| T1 | `src/retry.ts:12` | 1 | Rewrite the retry engine |\n| | | 2–101 (replies 1–100) | Rewrite still requested |\n| | | 102 (reply 101, from a Q2 later page) | Correction: keep the engine; cap retries in two lines. |\n| T2 | `src/old.ts:7 (outdated)` | 1 | Keep this guard |\n| | | 2 | Yes, retain it |\n| T3 | `README.md` | 1 | Document the cap |\n\n**Effective repair requests** (I read the first request and every reply, because replies can change the request):\n\n- **T1:** the request changed. Reply 101 supersedes the first comment and the 100 \"Rewrite still requested\" replies. The current request is to keep the existing retry engine and cap retries in a two-line change, not to rewrite it. Without the Q2 follow-up this correction would be missed.\n- **T2:** retain the guard at `src/old.ts`, originally line 7. The thread is outdated but unresolved, so it is still carried.\n- **T3:** document the retry cap in `README.md`. The thread has no line anchor.\n\n**Outcome:** T1, T2 and T3 go forward to gather together with H and B.\n\n## Failed fetch (independent case)\n\nQ1 (or Q2) returns `API unavailable`. The owner rule says to stop before gather and spec, and this applies to the N=1 run as well:\n\n> `threads for #82 not fetched (API unavailable)`\n\nThe run stops here:\n\n- No gather.\n- No spec draft or Rework record.\n- No partial thread list.\n- No push.\n\nW is left as provisioned, on `fix/retry` at H. Finish owns its own, separate reporting for fetch failures after verification; that path does not apply here.\n\n## Empty fetch (independent case)\n\nQ1 succeeds, and after merging all pages and filtering `isResolved == false`, zero threads remain. Because no T1 exists, no Q2 runs. The record is:\n\n> `Threads: none`\n\nThe flow continues to gather with no thread inputs.\n",
+      "words": 541,
+      "wallMs": 20126,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThis narration covers **only review-thread fetching**, as requested. Provisioning, base merge, and the Step 4 workspace report are outside this scope.\n\n### Command and query legend\n\nAll commands below run with **cwd `/work/widget`**; no cwd changes occur.\n\nResolved values: `ROOT=/work/widget`, `W=/work/widget/.worktrees/fix-retry`, owner=`acme`, repository=`widget`, PR=`82`.\n\nThe query and pagination owner is **`using-git-worktrees/reference/pr-head.md`, “Fetch unresolved review threads.”**\n\n- `$QT` denotes that section’s exact, unmodified **reviewThreads query**.\n- `$QC` denotes its exact, unmodified **thread-comments query**.\n\nThese symbols identify the literal query arguments without reproducing the queries. No tools or tracker calls are actually executed here.\n\n### Independent successful fetch\n\n| Order | Command, with exact remaining arguments | Result / resolved values |\n|---|---|---|\n| 1 | `gh api graphql --paginate -f query=\"$QT\" -F o=acme -F r=widget -F n=82` | Fetch all three reviewThreads pages, using the connection’s returned `endCursor` as `endCursor` for each next page. Merge pages; retain unresolved T1, T2, T3; exclude resolved TX. |\n| 2 | `gh api graphql --paginate -f query=\"$QC\" -F id=T1` | Start T1’s comments at its first page and paginate using its own comment cursor, separate from the reviewThreads cursor. Fetch all 102 comments; replace—not append to—the initial partial connection. |\n\nT1’s `totalCount=102` and initial `hasNextPage=true` require command 2. With the query’s `first:100`, its complete comment pages contain: first comment plus replies 1–99, then replies 100–101. Pagination ends only after the final comment page.\n\n**Rendering legend:** Every comment below individually carries:\n- URL: `https://github.com/acme/widget/pull/82#discussion_r1`\n- Author: `reviewer`\n- createdAt: `2026-01-01T00:00:00Z`\n\nRanges below represent distinct consecutive comments, each retaining that metadata—not a deduplicated comment.\n\n| Thread / rendered location | Complete ordered comments |\n|---|---|\n| **T1 — `src/retry.ts:12`** | **1:** “Rewrite the retry engine” → **2–101 (replies 1–100, individually):** “Rewrite still requested” → **102 (reply 101):** “Correction: keep the engine; cap retries in two lines.” |\n| **T2 — `src/old.ts:7 (outdated)`** | **1:** “Keep this guard” → **2:** “Yes, retain it” |\n| **T3 — `README.md`** | **1:** “Document the cap” |\n\n**Resulting repair requests carried to gather:**\n- T1: **Keep the engine; cap retries in two lines.** The final correction supersedes the original rewrite request despite the intervening 100 replies.\n- T2: Retain the guard; preserve the outdated-location annotation.\n- T3: Document the cap.\n\nTX at `src/gone.ts:2` is resolved and is not carried forward. The successful fetch supplies all unresolved threads and their complete ordered comments to gather.\n\n### Independent failed fetch\n\nStarting independently after successful provisioning:\n\n```bash\ngh api graphql --paginate -f query=\"$QT\" -F o=acme -F r=widget -F n=82\n```\n\nCwd: `/work/widget`. Fetch fails with `API unavailable`.\n\n**Stop immediately, including for this N=1 run:**\n\n```text\nthreads for #82 not fetched (API unavailable)\n```\n\nNo gather, spec, draft, or continuation record follows.\n\n### Independent successful empty fetch\n\nStarting independently after successful provisioning:\n\n```bash\ngh api graphql --paginate -f query=\"$QT\" -F o=acme -F r=widget -F n=82\n```\n\nCwd: `/work/widget`. Successful complete pagination yields no unresolved threads. No comment-pagination command is needed.\n\nRecord:\n\n```text\nThreads: none\n```\n",
-      "words": 452,
-      "wallMs": 26085,
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace. Provisioning has already succeeded; this narration covers **only review-thread fetching**, as requested. No tools are actually invoked.\n\n### Command and record legends\n\n| Alias | Value |\n|---|---|\n| `ROOT` | `/work/widget` |\n| `W` | `/work/widget/.worktrees/fix-retry` |\n| `H` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |\n| `B` | `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` |\n| `QT` | Exact reviewThreads query owned by **PR-head worktree → Fetch unresolved review threads** |\n| `QC` | Exact thread-id comments query owned by that same section |\n\n`QT` and `QC` denote the owner’s query strings, not literal alias names sent to GraphQL. Commands below use their shell-expanded values. `gh --paginate` owns cursor advancement: the reviewThreads cursor and T1’s comment cursor remain separate.\n\nEvery command below has **cwd `/work/widget`**.\n\n### Independent successful fetch\n\nCommands run, in order:\n\n| Order | Exact command arguments, using defined aliases |\n|---|---|\n| 1 | `gh api graphql --paginate -f query=\"$QT\" -F o=acme -F r=widget -F n=82` |\n| 2 | `gh api graphql --paginate -f query=\"$QC\" -F id=T1` |\n\nCommand 1 fetches and merges all three reviewThreads pages. Filtering `isResolved == false` retains **T1, T2, T3**, in that order; resolved **TX** is excluded.\n\nT1 has `totalCount=102` and first-page `hasNextPage=true`, requiring command 2. That command starts T1’s comments connection at its **first page** and fetches through its final page. Its complete connection **replaces**, rather than appends to, T1’s initial comments, preventing duplication.\n\nFor every comment rendered below, preserve these supplied metadata:\n\n- **url:** `https://github.com/acme/widget/pull/82#discussion_r1`\n- **author:** `reviewer`\n- **createdAt:** `2026-01-01T00:00:00Z`\n\nThe repeated-comment range represents each individual comment, in order, with that same metadata.\n\n| Thread and rendered location | Ordered comments |\n|---|---|\n| **T1 — `src/retry.ts:12`** | 1. “Rewrite the retry engine” |\n| | 2–101. Replies 1–100, each: “Rewrite still requested” |\n| | 102. Reply 101: “Correction: keep the engine; cap retries in two lines.” |\n| **T2 — `src/old.ts:7 (outdated)`** | 1. “Keep this guard” |\n| | 2. “Yes, retain it” |\n| **T3 — `README.md`** | 1. “Document the cap” |\n\n**Pagination detail:** T1’s initial 100-comment page contains the opening comment and replies 1–99. Its later comment page contains replies 100–101, including the correction.\n\n**Carried repair requests:** Keep the existing retry engine and cap retries in two lines—the final reply supersedes the original rewrite request. Retain the old guard. Document the cap. Carry all ordered comments and their metadata into gather, not just these summaries.\n\n### Independent failed fetch\n\nRun, with cwd `/work/widget`:\n\n```sh\ngh api graphql --paginate -f query=\"$QT\" -F o=acme -F r=widget -F n=82\n```\n\nObserved error: `API unavailable`.\n\n**Stop:** `threads for #82 not fetched (API unavailable)`\n\nThis singleton N=1 run stops **before gather and spec**. No draft or continuation record substitutes for the missing fetch.\n\n### Independent successful empty fetch\n\nRun, with cwd `/work/widget`:\n\n```sh\ngh api graphql --paginate -f query=\"$QT\" -F o=acme -F r=widget -F n=82\n```\n\nSuccessful pagination yields no unresolved threads. Record:\n\n```text\nThreads: none\n```\n\nFetching is complete; gather may proceed. No provisioning, base-merge commands, or Step 4 provisioning report are repeated.\n",
+      "words": 442,
+      "wallMs": 18862,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "846efddc404c48a3143cc5b864d708356a428739e5f1dd47fbdeb542b0308e4e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
-      "baselineOutputSha": "a1c893abef3865e08cb7ae70db57413025d701b33b73d3403adf81d5dc41e748",
-      "candidateOutputSha": "e357006db44dbca976f2ed5d90bafab057e6d7cb2d3db9bf1efe3d01bed935c4",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "ec15313054fa5d96126ef31ed51e9df6fa5facfed79466c552aadbbe78d3e450",
+      "candidateOutputSha": "8c9ca78f1abe0ea128de82c51e3dacb03ffc5c612b6768b525cc1387451f8bfe",
       "facts": {
         "threads": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs cite the pr-head.md query owner, merge all three reviewThreads pages, drop resolved TX, keep c1–c102 in order with the shared url/author/createdAt legend, run a separate per-thread comment follow-up with its own cursor to the last page without duplicates, and read reply 101 as the two-line cap that supersedes the rewrite; both render src/retry.ts:12, src/old.ts:7 (outdated), README.md, stop on 'threads for #82 not fetched (API unavailable)' before gather and spec with no draft/record continuation, and render 'Threads: none' for the empty set. Two After wording slips are worth tightening so the threads fact stays unambiguous: After describes Q2 only as 'keyed by thread id' and never names the `node(id:)` mechanism that Before stated explicitly (keep one phrase like 'Q2 uses node(id:) on T1's id with its own comment cursor'), and the sentence 'Both queries pass owner, repo and number explicitly' is wrong for Q2, which passes only the thread id per C2 — say 'Q1 passes owner/repo/number; Q2 passes the thread id' instead. The Change itself concerns provisioning/rebase behavior and does not touch this thread-fetch narration, so the After text can carry it without affecting either fact.",
-      "wallMs": 20703,
+      "feedback": "Nothing moved on this case: After still cites reference/pr-head.md as the query/pagination owner, walks all three reviewThreads pages, drops resolved TX, keeps T1/T2/T3 comments in order with the supplied url/author/createdAt, re-fetches T1 by id with its own comment cursor until the last page and replaces the connection to avoid duplicates, reads reply 101 after replies 1-100 as a two-line cap rather than a rewrite, and states the correction would be missed without the Q2 follow-up; the failed-fetch stop line ('threads for #82 not fetched (API unavailable)') precedes gather and spec with no draft/record continuation, and the empty case renders 'Threads: none'. Two small things worth keeping from Before or tightening: Before's explicit 'Record: Threads: 3 unresolved (...)' summary line was replaced by a looser 'Outcome' sentence in After, and neither output names the node(id:) lookup form the fact mentions - saying 'Q2 fetches T1 via node(id:) with its own comment cursor' in the legend would make that part of the fact verifiable from the text while delivering the Change unchanged.",
+      "wallMs": 15010,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "846efddc404c48a3143cc5b864d708356a428739e5f1dd47fbdeb542b0308e4e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
-      "baselineOutputSha": "acc60e9e7df054f0d46e16e753adb38f94b34ed39bd740eb9c5dfb76d51c16c7",
-      "candidateOutputSha": "58865ef5b9cfddd579b7779ddce32a0f1d2e1472241c26ffc051cb0fc4461c61",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "49fe5cb32ffc4577b83e840482e0607f0b37dcf8a930a99825e17383f19dceed",
+      "candidateOutputSha": "ac1746db8143af85a8eb9cfb0c0842c5bff9eabc713696a51f940c8aa9b35ec9",
       "facts": {
         "threads": {
           "before": "holds",
@@ -71,97 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs name the pr-head.md 'Fetch unresolved review threads' section as the query/pagination owner, merge all three reviewThreads pages, exclude resolved TX, render T1/T2/T3 with every comment in order under the shared metadata legend, fetch T1's comments by thread id with a separate comment cursor to the last page and replace rather than append, read reply 101 after replies 1–100 as a two-line cap repair, state that the initial reviewThreads page is insufficient, render src/retry.ts:12, src/old.ts:7 (outdated) and README.md, stop with 'threads for #82 not fetched (API unavailable)' before gather and spec with no draft or continuation record, and render 'Threads: none' for the empty case. After is slightly tighter on the insufficiency point ('totalCount=102 and initial hasNextPage=true require command 2'). Two non-fact regressions in After worth fixing without touching the facts: it runs every command with cwd /work/widget (ROOT) instead of the provisioned worktree $W that Before used, and it invents a page split ('first comment plus replies 1–99, then replies 100–101') that the input never supplied; restore 'cwd $W' and drop the inferred page composition, keeping the explicit 'require command 2' sentence and 'replace—not append' language.",
-      "wallMs": 17409,
+      "feedback": "Neither fact moved: After still routes threads through the PR-head owner with --paginate across all three pages, excludes TX, preserves ordered comments with the supplied url/author/createdAt, fetches T1's comments by thread id with a separate cursor and explicit replace-not-append deduplication, reads the reply-101 correction as the two-line cap repair, renders src/retry.ts:12, src/old.ts:7 (outdated), README.md, stops with 'threads for #82 not fetched (API unavailable)' before gather and spec with no draft/record continuation, and renders 'Threads: none' for the empty set. Three wording drifts are worth tightening so the facts stay unambiguous: (1) After names the owner only as the 'PR-head worktree → Fetch unresolved review threads' section and drops the explicit `reference/pr-head.md` path that Before gave—keep the file path in the alias table so 'pr-head.md query owner' is literally satisfied; (2) After switched every command to cwd `/work/widget` (ROOT) where Before used cwd `W`—this is consistent with the Change's 'process cwd remains unchanged' intent, but for gh API calls it is neutral, so state once that these calls are worktree-independent rather than implying a cwd change; (3) the added 'Pagination detail' asserting the first page holds the opener plus replies 1–99 and the later page replies 100–101 is an invented page boundary not in the input—say only that the correction sits on a later comment page reached through T1's own cursor, which is what the fact requires.",
+      "wallMs": 20699,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "pr-head-threads",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "ca5d35e22759917183e0b7c26b1a21de31c759b8af7f1f07e3fcbcc306380467",
-      "candidateSkillSha": "2bd9c6d579dd561378603e93ea8756914ecb1e086b3f3738c77141451167d172",
-      "inputSha": "45a0126ca5b0136723fd14df336fc4509ca73d24a10f2b5c3730e43cd78fc28d",
-      "factsSha": "846efddc404c48a3143cc5b864d708356a428739e5f1dd47fbdeb542b0308e4e",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "49fe5cb32ffc4577b83e840482e0607f0b37dcf8a930a99825e17383f19dceed",
-            "payloadSha": "7643737a308360939a7cdfd682fbb0b31809b49d9c0b8442959b731d2a22c49c"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "88aefb39a824512881a48137fd6f5961f089f52534039a613036c8b0250f29a2",
-            "payloadSha": "5611163385bf16c00cea21c4e95cb974b825bc30e36807becb5cb19903a19227"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "846efddc404c48a3143cc5b864d708356a428739e5f1dd47fbdeb542b0308e4e",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-        "baselineOutputSha": "49fe5cb32ffc4577b83e840482e0607f0b37dcf8a930a99825e17383f19dceed",
-        "candidateOutputSha": "88aefb39a824512881a48137fd6f5961f089f52534039a613036c8b0250f29a2",
-        "facts": {
-          "threads": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "locations-failure": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither fact moved. After keeps everything Before kept: it names reference/pr-head.md \"Fetch unresolved review threads\" as owner of both queries and pagination, fetches all three reviewThreads pages, excludes resolved TX, renders every T1/T2/T3 comment in order with the shared url/author/createdAt metadata, fetches T1's comments by thread id (-F id=T1) with a separate cursor from the first comment page through the last and replaces rather than appends (no duplicates), reads reply 101 after replies 1-100 and states that the correction supersedes the rewrite with a two-line cap, and notes totalCount=102/hasNextPage=true so reviewThreads pagination alone is insufficient. Locations (src/retry.ts:12, src/old.ts:7 (outdated), README.md), the exact stop line before gather and spec with no draft/record continuation, and Threads: none for the empty set are all present. The only substantive wording change is cwd moving from W to /work/widget, which matches the Change's \"process cwd remains unchanged while commands target the selected worktree\" intent but neither fact tests it. If you want to harden the threads fact further, both versions would benefit from naming the follow-up query shape explicitly (e.g., \"Q_COMMENTS queries node(id:) for the thread's comments connection\") rather than relying on -F id=T1 to imply it.",
-        "wallMs": 17850,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "846efddc404c48a3143cc5b864d708356a428739e5f1dd47fbdeb542b0308e4e",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-        "baselineOutputSha": "49fe5cb32ffc4577b83e840482e0607f0b37dcf8a930a99825e17383f19dceed",
-        "candidateOutputSha": "88aefb39a824512881a48137fd6f5961f089f52534039a613036c8b0250f29a2",
-        "facts": {
-          "threads": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "locations-failure": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither listed fact moved: After preserves the query-owner delegation, independent pagination, complete ordered comments and metadata, corrected two-line repair, locations, failure stop, and empty rendering. For clarity, explicitly describe the owner’s comments query as node(id: T1) with its own comment cursor. After does change command execution from W to ROOT; to deliver the requested selected-worktree targeting while keeping process cwd unchanged, retain cwd=ROOT and explicitly execute each fetch in W, for example with `(cd \"$W\" && gh api ...)`. Keep the existing thread rendering and failure/empty behavior unchanged.",
-        "wallMs": 11241,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "ae57c89cbd9a2b891aae3ff7061d7ec54e94ee6b"
+  "repoSha": "8e5bd68d6d0a6f161bebc8296b81b4068aa7b2f6"
 }

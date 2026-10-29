@@ -1,0 +1,3 @@
+- contracts: judged: Runs each recorded cleanup from own primary with shell-word-safe name/branch; does not replace contract from new overrides or bypass repo-b hook/wrapper refusal with git worktree remove.
+- report: judged: Leaves repo-b tree/branch and receipts intact, removes repo-c and prunes its successful built-in removal, preserves repo-a with `repo-a: preserved - companion cleanup failed`, and reports failed and remaining results; deletes branches only after successful removal, never prunes wrappers.
+- single: judged: One-member spec uses recorded contract without companion artifact/loop, legs block, receipt or --leg; legacy home-only rereads finish-time overrides.

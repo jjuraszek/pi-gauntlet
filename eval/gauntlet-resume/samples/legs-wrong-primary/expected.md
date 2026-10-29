@@ -1,0 +1,1 @@
+- stop: judged: Entry check stops naming expected run home repo-a and observed companion primary; no tracker mutation or companion-home resume.

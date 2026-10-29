@@ -13,8 +13,8 @@ export interface PlanCheckFinding {
 }
 
 export interface FsPort {
-  exists(path: string): boolean;
-  glob(pattern: string): string[];
+  exists(path: string, leg?: string): boolean;
+  glob(pattern: string, leg?: string): string[];
 }
 
 export function sha256(bytes: Uint8Array): string {
@@ -43,6 +43,7 @@ interface TestsBullet {
 }
 
 interface Task {
+  leg?: string;
   number: number;
   line: number;
   text: string;
@@ -221,7 +222,7 @@ function parsePlan(planText: string): ParsedPlan {
 
     for (let k = i; k <= bodyEndIdx; k++) {
       const line = lines[k];
-      if (filesLine === undefined && /^\*\*Files:\*\*/.test(line)) {
+      if (filesLine === undefined && /^(?:\*\*Files:\*\*|Files:)/.test(line)) {
         filesLine = k + 1;
         let p = k + 1;
         while (p <= bodyEndIdx) {
@@ -509,7 +510,7 @@ function checkTestsBlock(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
   const push = (task: Task, line: number, text: string, reason: string) =>
     findings.push({ check: "tests-block", line, text, reason: `Task ${task.number}: ${reason}` });
   const createPaths = new Set(
-    parsed.tasks.flatMap((t) => t.files.filter((f) => f.kind === "create").map((f) => stripLineSuffix(f.path))),
+    parsed.tasks.flatMap((t) => t.files.filter((f) => f.kind === "create").map((f) => `${t.leg ?? ""}\0${stripLineSuffix(f.path)}`)),
   );
   const header = headerSegments(parsed);
 
@@ -519,7 +520,7 @@ function checkTestsBlock(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
 
     for (const f of testEntries) {
       const p = stripLineSuffix(f.path);
-      if (!createPaths.has(p) && !fs.exists(p)) push(task, f.line, f.text, `unknown \`Test:\` path "${p}" (neither exists nor is a Create: path of any task)`);
+      if (!createPaths.has(`${task.leg ?? ""}\0${p}`) && !fs.exists(p, task.leg)) push(task, f.line, f.text, `unknown \`Test:\` path "${p}" (neither exists nor is a Create: path of any task)`);
     }
 
     if (task.testsMisplacedLines.length > 0) {
@@ -599,7 +600,7 @@ function checkBaselineLines(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] 
           const found = anchors(segment);
           const created = [...creates].filter(p => segment.split(" ").some(token => token === p || token.startsWith(p + "::") || token.startsWith(p + "#") || token.startsWith(p + ":")));
           for (const path of created) push(bullet, `baseline: pass via \`${match[2]}\` segment \`${segment}\` anchors Create: path ${path}`);
-          if (!found.some(p => !creates.has(p) && fs.exists(p))) push(bullet, `baseline: pass via \`${match[2]}\` segment \`${segment}\` anchors no existing Test: path`);
+          if (!found.some(p => !creates.has(p) && fs.exists(p, task.leg))) push(bullet, `baseline: pass via \`${match[2]}\` segment \`${segment}\` anchors no existing Test: path`);
         }
       }
     }
@@ -877,7 +878,7 @@ function checkPathsExist(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
       if (isGlob(path)) {
         let matches: string[];
         try {
-          matches = fs.glob(path);
+          matches = fs.glob(path, task.leg);
         } catch (err) {
           findings.push({
             check: "paths-exist",
@@ -895,7 +896,7 @@ function checkPathsExist(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
             reason: `Modify: glob "${path}" matched no files`,
           });
         }
-      } else if (!fs.exists(path)) {
+      } else if (!fs.exists(path, task.leg)) {
         findings.push({
           check: "paths-exist",
           line: f.line,
@@ -967,16 +968,17 @@ function fileEntries(task: Task): { path: string; kind: "literal" | "glob"; role
 function checkWaveFileDisjointness(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
   const findings: PlanCheckFinding[] = [];
   const globCache = new Map<string, string[] | Error>();
-  const expand = (pattern: string): string[] | Error => {
-    const cached = globCache.get(pattern);
+  const expand = (pattern: string, leg?: string): string[] | Error => {
+    const key = `${leg ?? ""}\0${pattern}`;
+    const cached = globCache.get(key);
     if (cached !== undefined) return cached;
     let result: string[] | Error;
     try {
-      result = fs.glob(pattern);
+      result = fs.glob(pattern, leg);
     } catch (err) {
       result = err instanceof Error ? err : new Error(String(err));
     }
-    globCache.set(pattern, result);
+    globCache.set(key, result);
     return result;
   };
 
@@ -985,6 +987,7 @@ function checkWaveFileDisjointness(parsed: ParsedPlan, fs: FsPort): PlanCheckFin
     if (tasks.length < 2) continue;
     for (let i = 0; i < tasks.length; i++) {
       for (let j = i + 1; j < tasks.length; j++) {
+        if (tasks[i].leg !== tasks[j].leg) continue;
         const a = fileEntries(tasks[i]);
         const b = fileEntries(tasks[j]);
         for (const ea of a) {
@@ -995,16 +998,16 @@ function checkWaveFileDisjointness(parsed: ParsedPlan, fs: FsPort): PlanCheckFin
             if (ea.kind === "literal" && eb.kind === "literal") {
               overlap = ea.path === eb.path;
             } else if (ea.kind === "glob" && eb.kind === "literal") {
-              const exp = expand(ea.path);
+              const exp = expand(ea.path, tasks[i].leg);
               if (exp instanceof Error) errFinding = globErrFinding(wave, ea.path, exp);
               else overlap = exp.includes(eb.path);
             } else if (ea.kind === "literal" && eb.kind === "glob") {
-              const exp = expand(eb.path);
+              const exp = expand(eb.path, tasks[j].leg);
               if (exp instanceof Error) errFinding = globErrFinding(wave, eb.path, exp);
               else overlap = exp.includes(ea.path);
             } else {
-              const expA = expand(ea.path);
-              const expB = expand(eb.path);
+              const expA = expand(ea.path, tasks[i].leg);
+              const expB = expand(eb.path, tasks[j].leg);
               if (expA instanceof Error) errFinding = globErrFinding(wave, ea.path, expA);
               else if (expB instanceof Error) errFinding = globErrFinding(wave, eb.path, expB);
               else overlap = expA.some((p) => expB.includes(p));
@@ -1134,6 +1137,101 @@ function checkWaiverLiteral(parsed: ParsedPlan): PlanCheckFinding[] {
   return findings;
 }
 
+export function parseLegs(specText: string): { repo: string; body: string; line: number }[] {
+  const lines = specText.split("\n");
+  const mask = fenceMask(lines);
+  const legs: { repo: string; body: string; line: number }[] = [];
+  let inside = false;
+  let current: typeof legs[number] | undefined;
+  for (const [i, line] of lines.entries()) {
+    if (mask[i]) continue;
+    if (/^## /.test(line)) { inside = /^## Legs\s*$/.test(line); current = undefined; continue; }
+    if (!inside) continue;
+    const match = /^### Leg: (\S+)\s*$/.exec(line);
+    if (match) { current = { repo: match[1].toLowerCase(), body: "", line: i + 1 }; legs.push(current); }
+    else if (current) current.body += line + "\n";
+  }
+  return legs;
+}
+
+export function legOwnership(specText: string) {
+  const legs = parseLegs(specText);
+  const findings: PlanCheckFinding[] = [];
+  const lines = specText.split("\n");
+  const mask = fenceMask(lines);
+  let inAcceptance = false;
+  let count = 0;
+  for (const [i, line] of lines.entries()) {
+    if (mask[i]) continue;
+    if (/^##\s+/.test(line)) inAcceptance = /^## Acceptance criteria\s*$/i.test(line);
+    else if (inAcceptance && /^- \[[ xX]\]\s+/.test(line)) count++;
+  }
+  const owners = Array.from({ length: count }, () => [] as string[]);
+  if (legs.length > 1) {
+    const seen = new Set<string>();
+    for (const leg of legs) {
+      const scopes = leg.body.split("\n").filter(l => /^scope:/.test(l));
+      const value = scopes[0]?.slice(6).trim() ?? "";
+      const ids = [...value.matchAll(/AC ([1-9]\d*)/g)].map(m => Number(m[1]));
+      if (seen.has(leg.repo) || scopes.length !== 1 || (value !== "none" && (!/^AC [1-9]\d*(?:, AC [1-9]\d*)*$/.test(value) || new Set(ids).size !== ids.length || ids.some(n => n > count || !Number.isSafeInteger(n))))) {
+        findings.push({ check: "leg-scope", line: leg.line, text: leg.repo, reason: "expected exactly one scope: none or scope: AC n, AC m with unique original AC indices" });
+      } else for (const n of ids) owners[n - 1].push(leg.repo);
+      seen.add(leg.repo);
+    }
+    for (const owner of owners) if (!owner.length) owner.push(legs[0].repo);
+  }
+  return { legs, owners, findings };
+}
+
+function coordinatedMetadata(lines: string[], legs: ReturnType<typeof parseLegs>, pairs: { ac: number; leg: string }[], add: (i: number, reason: string) => void) {
+  const header = (key: string) => lines.flatMap((l, i) => l.startsWith(key + ":") ? [{ value: l.slice(key.length + 1).trim(), i }] : []);
+  const one = (key: string, pattern: RegExp) => {
+    const rows = header(key);
+    if (rows.length !== 1 || !pattern.test(rows[0]?.value ?? "")) add(rows[0]?.i ?? 0, `invalid or missing ${key} header`);
+    return rows[0]?.value;
+  };
+  const sha = /^[a-f0-9]{7,40}$/;
+  const base = one("base", sha);
+  const iterations = one("iterations", /^(?:0|[1-9]\d*)$/);
+  const cap = one("cap", /^[1-9]\d*$/);
+  if (!Number.isSafeInteger(Number(iterations))) add(0, "iterations must be a safe integer");
+  if (!Number.isSafeInteger(Number(cap))) add(0, "cap must be a safe integer");
+  for (const [i, l] of lines.entries()) {
+    const m = /^(base|seeded) ([^:]+):/.exec(l);
+    if (m && !legs.some(leg => leg.repo === m[2].toLowerCase())) add(i, "foreign member header");
+  }
+  for (const [index, leg] of legs.entries()) {
+    for (const key of ["base", "seeded"]) {
+      const rows = lines.flatMap((l, i) => {
+        const m = /^(base|seeded) ([^:]+):\s*(.*)$/.exec(l);
+        return m && m[1] === key && m[2].toLowerCase() === leg.repo ? [{ value: m[3], i }] : [];
+      });
+      if (rows.length !== 1 || !(key === "base" ? sha : /^(no|yes)$/).test(rows[0]?.value ?? "")) add(rows[0]?.i ?? 0, `invalid or missing ${key} ${leg.repo}`);
+      if (key === "base" && index === 0 && rows[0]?.value !== base) add(rows[0]?.i ?? 0, "home base mismatch");
+    }
+  }
+  const pending = header("pending");
+  if (pending.length > 1) add(pending[1].i, "duplicate pending tuple");
+  for (const row of pending) {
+    const m = /^(seed|[1-9]\d*) \| (\S+) \| ([a-f0-9]{7,40})$/.exec(row.value);
+    const repo = m?.[2].toLowerCase();
+    if (!m || !legs.slice(1).some(l => l.repo === repo) || (m[1] !== "seed" && pairs[Number(m[1]) - 1]?.leg !== repo)) add(row.i, "invalid pending tuple or target leg");
+  }
+  const mapping = lines.findIndex(l => l === "## Leg mapping");
+  if (lines.filter(l => l === "## Leg mapping").length > 1) add(mapping, "duplicate leg mapping section");
+  let i = mapping + 1;
+  while (lines[i]?.trim() === "") i++;
+  if (mapping < 0 || !/^\|\s*row\s*\|\s*ac\s*\|\s*leg\s*\|$/.test(lines[i] ?? "") || !/^\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|$/.test(lines[i + 1] ?? "")) { add(Math.max(mapping, 0), "missing leg mapping table"); return; }
+  let count = 0;
+  for (i += 2; lines[i]?.startsWith("|"); i++) {
+    const cells = lines[i].split("|").slice(1, -1).map(c => c.trim());
+    const expected = pairs[count];
+    if (!expected || cells.length !== 3 || cells[0] !== String(count + 1) || cells[1] !== String(expected.ac) || cells[2].toLowerCase() !== expected.leg) add(i, "leg mapping must match original AC and membership order exactly once");
+    count++;
+  }
+  if (count !== pairs.length) add(Math.max(mapping, 0), "missing leg mapping entries");
+}
+
 function checkLedger(planText: string, specText: string): PlanCheckFinding[] {
   const findings: PlanCheckFinding[] = [];
   const dispositions: boolean[] = [];
@@ -1150,8 +1248,13 @@ function checkLedger(planText: string, specText: string): PlanCheckFinding[] {
     if (/^- \[[ xX]\]\s+/.test(line)) dispositions.push(false);
     else if (dispositions.length && /^\s*(?:deviates|deferred|elsewhere):/.test(line)) dispositions[dispositions.length - 1] = true;
   }
+  const ownership = legOwnership(specText);
+  const pairs = ownership.owners.flatMap((owners, i) => owners.map(leg => ({ ac: i + 1, leg })));
+  const coordinated = ownership.legs.length > 1;
+  const expectedDispositions = coordinated ? pairs.map(pair => dispositions[pair.ac - 1]) : dispositions;
   const lines = planText.split("\n");
   const add = (i: number, reason: string) => findings.push({ check: "ledger", line: i + 1, text: lines[i] ?? "", reason });
+  if (coordinated) coordinatedMetadata(lines, ownership.legs, pairs, add);
   const header = lines.findIndex(l => /^\|\s*row\s*\|\s*status\s*\|\s*attempts\s*\|\s*evidence\s*\|$/.test(l));
   if (header < 0) {
     add(0, "missing ledger table");
@@ -1164,22 +1267,35 @@ function checkLedger(planText: string, specText: string): PlanCheckFinding[] {
     const [row, status, attempts, evidence] = cells;
     count++;
     if (cells.length !== 4 || !lines[i].endsWith("|")) { add(i, "expected four ledger cells"); continue; }
-    if (row !== String(count) || count > dispositions.length) add(i, "expected exactly one row per spec AC in order");
+    if (row !== String(count) || count > expectedDispositions.length) add(i, "expected exactly one row per spec AC in order");
     if (!["open", "done", "failed", "cut"].includes(status)) add(i, "invalid ledger status");
-    else if ((status === "cut") !== dispositions[count - 1]) add(i, "status does not match spec disposition");
+    else if ((status === "cut") !== expectedDispositions[count - 1]) add(i, "status does not match spec disposition");
     if (!/^\d+$/.test(attempts) || !Number.isSafeInteger(Number(attempts))) add(i, "attempts must be a non-negative integer");
     if (!evidence && status !== "open") add(i, "evidence is required on non-open rows");
     if (/<[^>]*>|\b(?:TODO|TBD|probably)\b|etc\./i.test(evidence)) add(i, "placeholder in ledger evidence");
   }
-  if (count !== dispositions.length || count === 0) add(header, "expected exactly one row per spec AC");
+  if (count !== expectedDispositions.length || count === 0) add(header, "expected exactly one row per spec AC");
   return findings;
 }
 
 export function checkPlan(planText: string, specText: string, fs: FsPort): PlanCheckFinding[] {
   try {
+    const ownership = legOwnership(specText);
+    if (ownership.findings.length) return ownership.findings;
     if (planText.split("\n", 1)[0] === "# Ledger - loop engine") return checkLedger(planText, specText);
     const parsed = parsePlan(planText);
     const findings: PlanCheckFinding[] = [];
+    if (ownership.legs.length) {
+      for (const task of parsed.tasks) {
+        const first = parsed.lines[task.line];
+        const explicit = /^Leg: (\S+)\s*$/.exec(first ?? "");
+        task.leg = explicit?.[1].toLowerCase() ?? ownership.legs[0].repo;
+        if (!ownership.legs.some(l => l.repo === task.leg)) findings.push({ check: "leg-unknown", line: task.line + 1, text: first, reason: `unknown task leg ${task.leg}` });
+        if (parsed.lines.slice(task.line + (explicit ? 1 : 0), task.bodyEndLine).some(l => /^Leg:/.test(l))) findings.push({ check: "leg-unknown", line: task.line, text: task.text, reason: "Leg: must be the first line after the task heading" });
+      }
+      if (findings.length) return findings;
+      for (const wave of parsed.waves) if (new Set(parsed.tasks.filter(t => t.waveNumber === wave.number).map(t => t.leg)).size > 1) findings.push({ check: "wave-leg", line: wave.line, text: wave.text, reason: "wave mixes task legs" });
+    }
 
     if (parsed.waves.length === 0 && parsed.tasks.length === 0) {
       if (parsed.waves.length === 0) {
@@ -1206,7 +1322,20 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): PlanC
     findings.push(...checkAnchorResolution(parsed, specLines));
     findings.push(...checkPathsExist(parsed, fs));
     findings.push(...checkTestsBlock(parsed, fs));
-    findings.push(...checkBaselineLines(parsed, fs));
+    if (ownership.legs.length) {
+      const declarations = parsed.lines.slice(0, parsed.header.separatorLine ?? 0).flatMap((line, i) => {
+        const m = /^Baseline (\S+): ([a-f0-9]{7,40})$/.exec(line);
+        return m ? [{ repo: m[1].toLowerCase(), sha: m[2], line: i + 1 }] : [];
+      });
+      for (const leg of ownership.legs) {
+        const tasks = parsed.tasks.filter(t => t.leg === leg.repo);
+        findings.push(...checkBaselineLines({ ...parsed, tasks }, fs));
+        const declarationsForLeg = declarations.filter(d => d.repo === leg.repo);
+        if (declarationsForLeg.length !== 1) findings.push({ check: "baseline-line", line: 0, text: leg.repo, reason: "expected one Baseline declaration per leg" });
+        for (const task of tasks) for (const bullet of task.testsBaseline) if (bullet.value.split(" ")[0] !== declarationsForLeg[0]?.sha) findings.push({ check: "baseline-line", line: bullet.line, text: bullet.text, reason: `Task ${task.number}: baseline differs from ${leg.repo} declaration` });
+      }
+      for (const declaration of declarations) if (!ownership.legs.some(l => l.repo === declaration.repo)) findings.push({ check: "baseline-line", line: declaration.line, text: declaration.repo, reason: "unknown baseline leg" });
+    } else findings.push(...checkBaselineLines(parsed, fs));
     findings.push(...parsed.openQuestions.findings);
     const requiredLiterals = computeRequiredLiteralsPerTask(parsed, specLines);
     findings.push(...checkPlaceholderScan(parsed, requiredLiterals));

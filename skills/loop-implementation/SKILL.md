@@ -18,6 +18,8 @@ Run this driver in the main session. Carry the absolute implementation worktree 
 | Otherwise overrides has `## verification-before-completion` | Use its exactly one backticked command; zero or several is a configuration error. |
 | Neither section supplies a command | Discover the project's test entrypoint from its actual manifest/build instructions; print discovery as source. Stop on an unresolved or ambiguous entrypoint. |
 
+For more than one `### Leg:` block, apply coordinated Entry below instead of the home-only skeleton and cap calculation. Keep legacy and single-member ledger bytes unchanged, with no coordinated metadata.
+
 3. Call `phase_tracker({ action: "skip", phase: "plan", reason: "loop engine" })`.
 4. Require a clean named-branch implementation worktree. Write `<resolved plan dir>/<spec stem>-ledger.md`. Use this grammar with literal values, not placeholders:
 
@@ -41,6 +43,18 @@ Use the actual repo-relative spec path alone in the Spec header. Read base with 
 
 For resume, use the admitted ledger, its base and verification command, and durable iterations and cap instead of overwriting it. Skip Entry step 1 for an admitted ledger; settings apply only to fresh seeding. Render rows, cap and decision history; stop on a dirty tree before dispatch.
 
+## Coordinated Entry and resume
+
+Read `## Legs` with [the scope grammar](../brainstorming/reference/legs.md#scope-grammar-and-validation) before skeleton commit or dispatch. Require exactly one `scope:` per block: `scope: AC 1, AC 3` or `scope: none`. Reject missing/duplicate scope lines, duplicate indices within a list, malformed tokens and out-of-range original indices through the amendment stop. Include cut original AC indices; never infer ownership from a `design:` mention or path. Default only indices absent from every valid list to home; repeat shared indices in every owner's list.
+
+Retain the home skeleton's `**Spec:**`, `verification:`, `iterations:`, `cap:` and `## Decisions` fields and its `plan_check`/commit admission. Read each member's verification from the home spec's `## Legs` `contract:` `- verification:` line before dispatch; keep the existing home verification header.
+
+Assign numeric entries in original AC order, then membership order for shared ACs, independent of scope-list order. Leave spec rows untouched and copy each cut disposition to every expanded entry. Keep the four-column table and add `## Leg mapping` with `row | ac | leg`, one mapping per entry exactly once. Reject duplicate/missing mappings. Keep `base:` as home base; record one actual `base repo-a: <sha>` / `seeded repo-a: no` pair per member, including home. Resolve bases with each member's `git -C`, not home HEAD.
+
+Compute initial cap as non-cut entry count times `maxIterationsPerRow` plus one seed dispatch per leg with non-cut entries. One shared home/companion AC and one home-only AC produce three entries, two seeds and cap 14 at default 4; a wholly cut third leg adds no seed. All-cut cap stays 1 and exits without seed. Preserve cap after cuts, reopens, amendments, funding and recovery; only an explicit cap grant raises it.
+
+Recover pending companion work before generic dirty checks and before any new dispatch. Read the durable home ledger's `pending:` tuple and consumed iteration, selected companion HEAD and saved pre-dispatch state. Reconstruct the pre-dispatch ledger from home `HEAD:<ledger path>` on resume and admit only the expected on-disk iterations bump and tuple against it. Admit only the known iterations bump and exact pending tuple as pre-dispatch dirt; stop on other dirt. Reapply companion return validation below only when exactly one new commit after the recorded HEAD matches attribution and result. Apply the home-ledger commit without another attempt or iteration bump, clear pending and retain prior decisions. Stop preserving state on zero commits, unrelated movement, multiple commits or attribution/result mismatch. Never rerun that row or seed. After a successful parent commit no pending tuple remains, so a subsequent resume cannot duplicate the update.
+
 ## Before each dispatch
 
 Read the ledger and require its `cap:` header before the ordered table, including before rule 1. On a missing header stop with `ledger has no cap: line - seeded under the old loopEngine contract`, even for a completed ledger; use the legacy grant below, never derive cap from settings. Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit. Funding alone resets neither window. Preserve every row's attempts and the total iteration cap. Apply this ordered table, starting here after each return or human decision:
@@ -57,9 +71,13 @@ Set row allowance to 3 + funded N, increased to the latest `row <n> retry` decis
 
 Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row survives on the branch, independently of `iterations`; otherwise select the still-unresolved human retry target, then the still-failed row named by the previous decision, then first failed row, then first open row. Use the latest operational `row <n> ...` decision for targeting and the child's `previous decision:` input, skipping cap grant history while retaining the entire Decisions section. Durable status beats a decision's suggestion. Keep the retry hint only for its target.
 
+For coordinated targeting, select the next unseeded leg with non-cut entries in membership order before ordinary targeting. Use the existing retry/failed/open priority only after those seeds validate. Skip wholly cut legs; never mark foreign legs seeded. Map each numeric target to its original AC and leg via `## Leg mapping`.
+
 ## Dispatch
 
-Record `HEAD_BEFORE`, copy the ledger text, and take i from the current iterations count. Increment `iterations:` before dispatch in the working tree so the child's commit persists it. Create a unique absolute output path with `mktemp` outside the repository. Dispatch exactly one foreground child in the main implementation worktree, not a nested worktree:
+For coordinated dispatch, capture home and selected leg heads and save a pre-dispatch ledger snapshot for the expected-dirt comparison. Select the leg worktree as `cwd` and git root, its own base, mapped original AC, `Leg:` and combined spec/task `Rules:` as additive task inputs. Read spec and ledger by absolute home paths. Bump iterations exactly once. Before every companion dispatch, including seed, persist the exact tuple such as `pending: 2 | repo-b | abc1234` (or `pending: seed | repo-b | abc1234`) with actual target, repo and pre-dispatch HEAD in the home ledger. Keep that expected bump/tuple durable on disk before generic dirty checks; admit no other dirt. After persisting the bump and pending tuple, bind `SAVED_LEDGER` to the durable home ledger for companion admission, not the pre-dispatch snapshot. Pass consumed `iteration:` and the exact `pending:` as attribution. Leave home iterations on the existing single child commit path, validating only home entries and home seeded state.
+
+For home-only dispatch, record `HEAD_BEFORE`, copy the ledger text, and take i from the current iterations count. Increment `iterations:` before dispatch in the working tree so the child's commit persists it. Create a unique absolute output path with `mktemp` outside the repository. Dispatch exactly one foreground child in the main implementation worktree, not a nested worktree:
 
 ```text
 subagent({ agent: "loop-implementer", context: "fresh", async: false,
@@ -75,6 +93,12 @@ Omit the model override; let the persona override or parent inheritance resolve 
 
 ## Validate the return
 
+For a companion, validate from its commit, not the reply. Require a clean companion and exactly one commit after pending HEAD; require unchanged home HEAD and no home edits except the expected persisted bump/tuple. Match subject `loop: row <n> <status>` or `loop: seed evidence`, exact pending tuple and consumed `iteration:` in the body. Parse only the resulting four-column target row (all and only that leg's non-cut rows for seed), followed by one bounded decision. Apply the evidence and decision bounds below. Reject a wrong target, foreign entry, header changes, fabricated counts, malformed evidence or extra results. Validate seed counts against actual rows and baseline closures; preserve attempts and set only this leg's seeded value to `yes` after every non-cut entry validates. Keep seed misses a human stop. Apply ordinary repair only to the target, retaining consumed iterations and saved cap.
+
+After validation update only that leg's target or seed entries, append the validated decision, record companion SHA in evidence, and remove `pending:` in one home-ledger commit. Preserve every other row, header and prior decision. That home-ledger commit (`loop: record <repo> row <n>`) is a parent commit, not a child `loop: row ...` commit: it never counts toward child-only empty-commit stagnation, and a rejected companion return records the rejection in the same parent commit while preserving the pending tuple and every row. Recover interrupted returns by this same validation, never trusted reply text.
+
+For home-only returns, apply the following boundary and table. For coordinated home returns apply it only to home entries/seeded state, preserving foreign entries, mappings and bases.
+
 1. Require empty `git -C "<worktree>" status --porcelain` and exactly 1 from `git -C "<worktree>" rev-list HEAD_BEFORE..HEAD --count`. On dirty/zero/multiple commits stop, preserving changes and commits. Use `Stopped: iteration <i> left the tree dirty` or `Stopped: iteration <i> added <k> commits`. Read the ledger from HEAD only after this boundary passes.
 2. Validate by dispatched `target`, not iteration number, against the saved copy using this table. Preserve headers including cap and the bumped iterations, row identifiers and prior decisions.
 
@@ -87,9 +111,68 @@ Require ordinary decision grammar `^row <target> (done|failed) \| .{1,200} \| .{
 
 On an ordinary miss restore every non-target row, headers (including the saved cap) and prior decisions from the saved copy, retaining the incremented iterations. Set the target `failed`, attempts = saved attempts +1, evidence = `iteration <i>: <concrete miss>`. Remove malformed appended decisions and commit `loop: repair row <n>`. Set previous decision to `none`; otherwise use the new conforming line. Two consecutive validation misses stop because the child is not following the contract. A conforming return resets the consecutive-miss count; parent repair commits do not count toward child-only empty stagnation.
 
+### Companion commit admission
+
+Require the unchanged home HEAD and expected-only home dirt boundary above, then run this read-only admission recipe on both immediate returns and pending recovery. Set `CHECKOUT` to the companion root, `PENDING` to the exact persisted tuple including `pending:`, `ITERATION` to the consumed count and `SAVED_LEDGER` to the durable home ledger after the iterations bump and pending write, including on recovery. Use the pre-dispatch snapshot only for the expected-dirt comparison. On failure preserve pending and stop. On success use the emitted object for the single parent ledger commit described above; never treat it as permission for another dispatch.
+
+<!-- companion-return-shell -->
+```bash
+node - "$CHECKOUT" "$PENDING" "$ITERATION" "$SAVED_LEDGER" <<'NODE'
+const fs = require('node:fs');
+const { execFileSync } = require('node:child_process');
+const [root, pending, iteration, savedPath] = process.argv.slice(2);
+const requireThat = (ok, why) => { if (!ok) throw new Error(why); };
+const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
+const tuple = /^pending: (seed|\d+) \| (\S+) \| ([a-f0-9]{7,40})$/.exec(pending);
+requireThat(tuple, 'invalid pending');
+const saved = fs.readFileSync(savedPath, 'utf8');
+requireThat(saved.split('\n').filter(line => line.startsWith('pending:')).length === 1 && saved.split('\n').includes(pending) && saved.split('\n').includes(`iterations: ${iteration}`), 'pending already applied or iteration mismatch');
+const [, target, leg, before] = tuple;
+requireThat(git('status', '--porcelain') === '', 'dirty companion');
+requireThat(git('merge-base', '--is-ancestor', before, 'HEAD') === '', 'unrelated HEAD');
+requireThat(git('rev-list', '--count', `${before}..HEAD`) === '1', 'expected one companion commit');
+const commit = git('rev-parse', 'HEAD');
+const message = git('show', '-s', '--format=%B', 'HEAD').split('\n');
+const subject = message.shift();
+requireThat(message.shift() === '', 'missing body separator');
+requireThat(message.shift() === pending, 'pending mismatch');
+requireThat(message.shift() === `iteration: ${iteration}`, 'iteration mismatch');
+const resultLines = message.filter(line => line.trim() !== '');
+const cells = line => line.split(/(?<!\\)\|/).slice(1, -1).map(s => s.trim());
+const table = text => text.split('\n').filter(line => /^\|\s*\d+\s*\|/.test(line)).map(cells);
+const [ledger, mapping] = saved.split('## Leg mapping\n');
+requireThat(mapping, 'missing mapping');
+const map = table(mapping.split('## Decisions')[0]);
+const oldRows = table(ledger);
+requireThat(new Set(map.map(r => r[0])).size === map.length && map.length === oldRows.length && oldRows.every(r => map.some(m => m[0] === r[0])), 'invalid mapping');
+const expected = oldRows.filter(r => map.some(m => m[0] === r[0] && m[2] === leg) && (target === 'seed' ? r[1] !== 'cut' : r[0] === target));
+requireThat(expected.length && expected.every(r => r[1] !== 'cut'), 'foreign or cut target');
+const decision = resultLines.pop();
+const rows = resultLines.map(cells);
+requireThat(rows.length === expected.length && resultLines.every(l => l.startsWith('|') && l.endsWith('|')), 'extra result');
+for (const [i, row] of rows.entries()) {
+  const old = expected[i];
+  requireThat(row.length === 4 && row[0] === old[0], 'foreign row');
+  requireThat((target === 'seed' ? /^(open|done)$/ : /^(done|failed)$/).test(row[1]), 'invalid status');
+  requireThat(/^\d+$/.test(row[2]) && Number(row[2]) === Number(old[2]) + (target === 'seed' ? 0 : 1), 'attempt mismatch');
+  requireThat(row[3].length > 0 && row[3].split(';').length <= 4 && !/[<>]/.test(row[3]), 'unbounded evidence');
+  requireThat(target !== 'seed' || old[1] !== 'done' || row[1] === 'done', 'lost baseline closure');
+}
+if (target === 'seed') {
+  requireThat(subject === 'loop: seed evidence', 'seed subject mismatch');
+  const d = /^row 0 done \| seeded (\d+) rows, closed (\d+) on baseline \| .{1,200}$/.exec(decision);
+  requireThat(d && Number(d[1]) === expected.length && Number(d[2]) === rows.filter(r => r[1] === 'done').length, 'seed counts mismatch');
+} else {
+  requireThat(subject === `loop: row ${target} ${rows[0][1]}`, 'row subject mismatch');
+  requireThat(new RegExp(`^row ${target} ${rows[0][1]} \\| .{1,200} \\| .{1,200}$`).test(decision), 'invalid decision');
+}
+console.log(JSON.stringify({ sha: commit, rows: resultLines, decision }));
+NODE
+```
+
 ## Exit verification
 
-Run the ledger's `verification:` command exactly once foreground in the worktree. Failure: human stop `Stopped: verification failed with every row closed`, Problem quoting failing output. Preserve closed rows: no reopening and no automatic rerun. Further work requires a human decision. Success: record verified HEAD and clean status; call `phase_tracker({ action: "complete", phase: "implement" })`, then continue immediately below.
+For coordinated exit, read each leg's verification from the home spec's `## Legs` `contract:` `- verification:` line and run it once foreground in its owning checkout, with repair routed there; retain home flow policy. Require every leg to pass before completing implement. For legacy/single-member exit, run the ledger's `verification:` command exactly once foreground in the worktree. Failure: human stop `Stopped: verification failed with every row closed`, Problem quoting failing output. Preserve closed rows: no reopening and no automatic rerun. Further work requires a human decision. Success: record verified HEAD and clean status; call `phase_tracker({ action: "complete", phase: "implement" })`, then continue immediately below.
 
 ## Human stop
 
@@ -110,11 +193,15 @@ Serialize the bare decision as `cap +50 |` with an empty words cell. A cap grant
 
 For dirty/commit-boundary retry, ask the human to authorize discarding uncommitted changes/resetting to last valid commit. Preserve consumed dispatch count: set iterations to restored HEAD's value +1 before the next normal bump. An interrupted dispatch consumes the same count; recover it from disk/branch rather than silently repeating iteration 0.
 
+For coordinated amendments, reconcile by original AC/leg mapping without resetting attempts, iterations or cap. Re-read explicit scope lists after approved ownership amendments and reconcile expanded entries; a disposition-only cut changes neither original indices nor ownership. Preserve unchanged mapped entries and their histories.
+
 For ledger amendments use its line-1 discriminant: no plan writer, plan_check or task-tracker lifecycle. Approved deviates/deferred/elsewhere becomes `cut` with disposition evidence; requirement-preserving amendments leave rows unchanged; a re-bounded done row becomes `open` with `reopened by amendment`. Preserve attempts, iterations and cap. Commit spec + ledger as `loop: cut row <n>` or `loop: amend`. Option 4 stops for amendments, option 5 auto-applies amends, redraw always stops and deletes the ledger with the plan. Never cut automatically.
 
 ## After the loop
 
 Read SDD's `After All Tasks Complete`, `../subagent-driven-development/reference/happy-path-run.md`, and `../verification-before-completion/reference/conformance-check.md` IN FULL now with read. Stop on an unreadable reference; do not reconstruct it. Execute this continuation, not the waves engine or a generic verification skill:
+
+For coordinated runs, route each verification and review below to every leg with its own base, checkout, Rules and owned original ACs under home flow policy. Re-verify and re-review any changed leg; invoke coordinated finish once from home after every leg passes. Keep single-member/legacy paths free of a companion loop, leg file, `legs:` brief or `--leg` argument.
 
 0. Call `phase_tracker({ action: "start", phase: "verify" })`.
 1. Parent full verification uses the ledger command. Reuse the passing exit run only when HEAD and clean/no-change worktree still match. Commit verification-produced tracked changes. Any repair invalidates that run: rerun the full command successfully before the next gate. No task reopen/update is awaited.

@@ -1,0 +1,100 @@
+{
+  "sample": "pr-list-member-merge-order",
+  "arm": "candidate",
+  "skillSha": "004b77d3a4c9c6362f782d3b6ecaaabf243d3f285e7ab5d7afe8f2a541c0f4bd",
+  "inputSha": "ecf4608d0e3308ecda9769ed1a2d4d7fe8cc1440ee32222997f3102948ded94d",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThe caller passes resolved PR values, so I follow `reference/pr-head.md` in place of Steps 0 and 1. All commands run from the process cwd, which never changes. Every git command targets a repo with `-C`.\n\n## Resolve ROOT and home\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir` → both `/work/widget/.git`, so GIT_DIR == GIT_COMMON.\n2. `git -C /work/widget rev-parse --show-superproject-working-tree` → empty, so this is not a submodule.\n3. Resolved values:\n   - **ROOT** = `/work/widget`, which matches the caller.\n   - **Overrides:** none affect creation (no `home:`, `create:` or wrapper). The file-scoped runner matters only for conflicts.\n   - **Home:** `headRefName` = `fix/retry`, so `<name>` = `fix-retry` and **WORKTREE** = `/work/widget/.worktrees/fix-retry`.\n   - **MEMBER_HEADS**, in order: #13 `fix/cap` @ `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`, then #14 `fix/retry-docs` @ `cccccccccccccccccccccccccccccccccccccccc`.\n\n## Fetch and pre-write checks (nothing written yet)\n\n4. `git -C /work/widget fetch origin` → succeeds.\n5. Check that each original head exists and that its remote branch equals it:\n   - #12:\n     - `git -C /work/widget rev-parse --verify -q aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}` → ok\n     - `git -C /work/widget rev-parse origin/fix/retry` → `aaaa…aaaa`, which equals the supplied head\n   - #13:\n     - `git -C /work/widget rev-parse --verify -q bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb^{commit}` → ok\n     - `git -C /work/widget rev-parse origin/fix/cap` → `bbbb…bbbb`, equal\n   - #14:\n     - `git -C /work/widget rev-parse --verify -q cccccccccccccccccccccccccccccccccccccccc^{commit}` → ok\n     - `git -C /work/widget rev-parse origin/fix/retry-docs` → `cccc…cccc`, equal\n6. `git -C /work/widget rev-parse origin/main` → **BASE_SHA** = `dddddddddddddddddddddddddddddddddddddddd`.\n7. Ordered stops:\n   - **Fork-hosted:** `isCrossRepository` is false for all three. Pass.\n   - **Branch checked out elsewhere:** `git -C /work/widget worktree list --porcelain` lists only the primary. Pass.\n   - **Reachability:** passed in step 5.\n   - **Local branch ancestry:** there is no local `fix/retry`, so this check does not apply.\n8. **Interrupted-merge recovery:** there is no existing home worktree or local branch, so recovery is skipped.\n\n**If #14 were unreachable or had moved:** step 5 would stop with `PR #14 head ccccccc is not reachable (origin/fix/retry-docs is at <sha7>); the branch moved.` That stop comes after the fetch and before any write. No worktree, no `worktree add`, no checkout of `fix/retry`, and no merge of #13 would happen.\n\n## Provision the exact head\n\n9. Clean-base check: `git -C /work/widget status --porcelain` exits 0 with empty output, so the base is clean.\n10. Home is inside ROOT, so check that it is gitignored: `git -C /work/widget check-ignore -q .worktrees` → exit 0. It is already ignored, so no `.gitignore` commit is needed.\n11. State matches \"no worktree, no local branch\". Run `git -C /work/widget worktree add \"/work/widget/.worktrees/fix-retry\" fix/retry`. Unique-remote DWIM tracks `origin/fix/retry`.\n12. `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` → `aaaa…aaaa`, which equals `headRefOid`.\n13. Captured values:\n    - **PRE_REWORK_HEAD** = `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n    - **BASE_SHA** = `dddd…dddd`\n14. No provenance note is added, because the base is the PR head itself.\n\n## Member merges, in listed order\n\n15. Merge #13:\n    - Last-good SHA: `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` → `aaaa…aaaa`\n    - `git -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #13 head bbbbbbb into PR #12\" bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` → clean, producing `eeeeeee`\n16. Merge #14:\n    - Last-good SHA: `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` → `eeeeeee…`\n    - `git -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #14 head ccccccc into PR #12\" cccccccccccccccccccccccccccccccccccccccc` → clean, producing `fffffff`\n\nThere were no conflicts, so no helper was dispatched and no scoped tests ran.\n\n## Base merge\n\n17. `git -C /work/widget/.worktrees/fix-retry merge --no-ff --no-edit origin/main` → clean, producing `1111111`.\n\n## All-head ancestry proofs against final HEAD\n\n18. Each command exits 0, so all three original heads are preserved:\n    - `git -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD`\n    - `git -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb HEAD`\n    - `git -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor cccccccccccccccccccccccccccccccccccccccc HEAD`\n\n## Read-back\n\n19. `git -C /work/widget worktree list --porcelain` → includes `worktree /work/widget/.worktrees/fix-retry`.\n20. `git -C /work/widget/.worktrees/fix-retry branch --show-current` → `fix/retry`. Both read-backs match.\n\nNothing was rebased, reset or amended at or below PRE_REWORK_HEAD. Nothing was pushed or closed, and no spec or plan was written. Next, the review-thread fetch runs per PR (#12, #13, #14) before gather. MEMBER_HEADS are carried forward to gather.\n\n## Step 4 report\n\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa (clean)\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nMember merge: #13 eeeeeee\nMember merge: #14 fffffff\nmerge: 1111111\nBase SHA: ddddddd\nReady to implement retry-cap rework for #12 (with #13, #14)\n```\n",
+      "words": 662,
+      "wallMs": 34223,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThis is a synthetic narration; no tools are invoked. **Every command below runs with cwd `/work/widget`**, without changing the process cwd. Seven-character merge IDs denote the supplied commits; where a full ID is required, I retain that commit’s full object ID rather than inventing its unspecified suffix.\n\n### 1. Resolve the PR-head workspace\n\nThe admitted order is home **#12**, then **#13**, then **#14**. All three are in-repository PRs targeting `main`.\n\nCommands, in order:\n\n```bash\ngit -C /work/widget rev-parse --path-format=absolute --git-dir --git-common-dir\ngit -C /work/widget rev-parse --show-superproject-working-tree\n```\n\nResolve:\n\n- `GIT_DIR = GIT_COMMON = /work/widget/.git`\n- Superproject output: empty.\n- `ROOT=/work/widget`; primary checkout, not a submodule.\n- `BRANCH=fix/retry`\n- `NAME=fix-retry`\n- `WORKTREE=/work/widget/.worktrees/fix-retry`\n- `PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- Members, retained in order:\n  - #13: `fix/cap`, `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n  - #14: `fix/retry-docs`, `cccccccccccccccccccccccccccccccccccccccc`\n\nCheck the overrides ladder:\n\n```bash\nfor p in .pi/gauntlet-overrides.md gauntlet-overrides.md doc/gauntlet-overrides.md; do if [ -f \"/work/widget/$p\" ]; then cat \"/work/widget/$p\"; break; fi; done\n```\n\nNo overrides file is present. No native creation tool is available. Discover project instructions and wrappers:\n\n```bash\nif [ -f /work/widget/AGENTS.md ]; then cat /work/widget/AGENTS.md; fi\nls -la /work/widget /work/widget/script /work/widget/bin\n```\n\nNo wrapper or alternative home applies. The selected home is the default home.\n\n### 2. Fetch and finish all pre-write checks\n\n```bash\ngit -C /work/widget fetch origin\ngit -C /work/widget rev-parse --verify -q aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}\ngit -C /work/widget rev-parse origin/fix/retry\ngit -C /work/widget rev-parse --verify -q bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb^{commit}\ngit -C /work/widget rev-parse origin/fix/cap\ngit -C /work/widget rev-parse --verify -q cccccccccccccccccccccccccccccccccccccccc^{commit}\ngit -C /work/widget rev-parse origin/fix/retry-docs\ngit -C /work/widget rev-parse origin/main\n```\n\nAll original commit objects exist. Each remote head equals its supplied original head. Resolve:\n\n```text\nBASE_SHA=dddddddddddddddddddddddddddddddddddddddd\n```\n\nThe metadata fork check passes for every PR. Continue:\n\n```bash\ngit -C /work/widget worktree list --porcelain\ngit -C /work/widget branch --list fix/retry\ntest -e /work/widget/.worktrees/fix-retry\n```\n\nThere is no conflicting worktree, no local home branch, and the selected path is absent, as stipulated. No recovery or local-branch ancestry check is needed.\n\n**The requested hypothetical failure boundary:** an unreachable or moved #14 stops at its object/remote validation above, before any checkout, ignore-file modification, or worktree creation:\n\n```text\nPR #14 head ccccccc is not reachable (origin/fix/retry-docs is at <observed sha7>); the branch moved.\n```\n\nThat is not the outcome of this run; #14 passes.\n\n### 3. Provision the exact home head\n\nSetting up an isolated worktree at `/work/widget/.worktrees/fix-retry` on branch `fix/retry` for this work.\n\n```bash\ngit -C /work/widget status --porcelain\ngit -C /work/widget check-ignore -q .worktrees\n```\n\nThe source is clean. The ignore check succeeds, so no `.gitignore` write or commit is needed.\n\n```bash\ngit -C /work/widget worktree add /work/widget/.worktrees/fix-retry fix/retry\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\ngit -C /work/widget worktree list --porcelain\ngit -C /work/widget/.worktrees/fix-retry branch --show-current\n```\n\nUnique-remote DWIM checks out the existing remote branch. HEAD equals the full original #12 head. Read-backs confirm the selected path and branch `fix/retry`.\n\n### 4. Merge members, then fetched base\n\nSave the last-good full home SHA, then merge #13’s original head:\n\n```bash\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\ngit -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #13 head bbbbbbb into PR #12\" bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n```\n\nSaved SHA: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. Clean merge: `eeeeeee`.\n\nSave the new last-good full SHA, then merge #14’s original head:\n\n```bash\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\ngit -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #14 head ccccccc into PR #12\" cccccccccccccccccccccccccccccccccccccccc\n```\n\nSaved SHA: full object ID of `eeeeeee`. Clean merge: `fffffff`.\n\nNow merge the fetched base:\n\n```bash\ngit -C /work/widget/.worktrees/fix-retry merge --no-ff --no-edit origin/main\n```\n\nClean merge: `1111111`. No conflict helper or tests run.\n\nProve every original PR head remains an ancestor of final HEAD:\n\n```bash\ngit -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD\ngit -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb HEAD\ngit -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor cccccccccccccccccccccccccccccccccccccccc HEAD\n```\n\nAll three exit 0.\n\n### Step 4 report\n\n```text\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nBase SHA: ddddddd\nMember merge: #13 eeeeeee\nMember merge: #14 fffffff\nmerge: 1111111\nReady to implement retry caps\n```\n\nStop here: no gather, push, close, spec, or plan writes.\n",
+      "words": 651,
+      "wallMs": 37436,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0a4e56ccb3df65fb58ad9df0417a5a43c4c315e6c2eba86c7b0fd05c7029b3d9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "7d1246ff28b9383d278d65ce85674b352dea57ccab64c2a1f29c19d69c768694",
+      "candidateOutputSha": "ed8f9bc933863e69a53205f9670306da5c368f27414f80692742a761613eb9d5",
+      "facts": {
+        "order": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preflight": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ancestry": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "report": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: #13 then #14 are merged with --no-ff and the canonical \"merge PR #N head <sha7> into PR #12\" subjects before the origin/main merge; fetch plus object-existence and remote-equality checks for all three heads precede any write, and the hypothetical #14 failure is explicitly placed at step 5, naming #14, before worktree add or checkout; all three merge-base --is-ancestor proofs run against final HEAD; and the Step 4 report lists the three PR/Pre-rework pairs with full SHAs in #12, #13, #14 order followed by the eeeeeee and fffffff member lines and the 1111111 base outcome. Nothing moved. Two small drifts worth watching so the next wording change doesn't break the report fact: After relocated \"Base SHA: ddddddd\" to after the merge line and dropped the \"acme/widget\" prefix in the Ready line; neither is required by the facts, but keeping the Before layout (Base SHA before the member lines, owner/repo#12 in the Ready line) costs nothing and keeps the report shape stable across variants. Also, After moved the review-thread fetch to a forward-looking sentence rather than narrating it; if a future fact requires the per-PR thread query to be shown, restore Before's explicit three-query section.",
+      "wallMs": 14725,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0a4e56ccb3df65fb58ad9df0417a5a43c4c315e6c2eba86c7b0fd05c7029b3d9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "55354ecf0d5cdf4f63390843cc3288fdb6e326a2bfbd5ee35506bb70329941ac",
+      "candidateOutputSha": "4ac15ddcd76b851968c805d080e2db811747b550f7482d847baafc60191f892e",
+      "facts": {
+        "order": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preflight": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ancestry": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "report": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved between Before and After on these four facts: both outputs merge the original #13 head (bbbb…) then #14 (cccc…) with `--no-ff -m \"merge PR #N head <sha7> into PR #12\"` before `origin/main`; both fetch, verify all three original commit objects, compare each remote branch to its supplied head, and place the #14 moved/unreachable stop explicitly before checkout and ignore edits; both run `merge-base --is-ancestor` for all three originals against final HEAD; and both emit the identical Step 4 report with three PR/Pre-rework pairs (#12, #13, #14, full SHAs), member lines eeeeeee and fffffff, and `merge: 1111111`. The Expected-to-move entry claiming `order` failed in Before is not borne out by the Before text, so the After wording did not need to repair anything here. The After wording does deliver the Change's explicit `ROOT`/`BRANCH` resolution and `git -C /work/widget` targeting without regressing any fact. Two small suggestions to keep it robust: retain the per-merge `rev-parse --short HEAD` read-back commands that Before showed (After only narrates the results), so the eeeeeee/fffffff/1111111 outcomes are tied to an observed command rather than asserted; and replace the awkward phrase \"Saved SHA: full object ID of `eeeeeee`\" with a plain statement like \"Saved SHA: the full SHA that `rev-parse HEAD` returned for the #13 merge\", which stays within the synthetic constraints while reading as a real provenance save.",
+      "wallMs": 16619,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "8e5bd68d6d0a6f161bebc8296b81b4068aa7b2f6"
+}

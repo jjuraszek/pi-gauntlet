@@ -1,7 +1,7 @@
 {
   "sample": "duplicate-tests-diff",
   "arm": "candidate",
-  "skillSha": "59784facd665ba809bf0c51e9deebcf8df21e74ee5d874a5e42d27e7233d24e1",
+  "skillSha": "ded3c76d317f3332b22cf8d18b7e51d12813d2d3da897b69d81d6a06b95d2f07",
   "inputSha": "8b6576574ffef847ebc184abdbe9ec9d92cdc9ea4da9362cda326aef36c2e4c7",
   "kind": "text",
   "assembly": "headed",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nVerdict: FIX_FIRST\nReasoning: F1, a Moderate error-handling defect: `import_record` raises `ImportRejected` only for an empty account, while malformed amounts and dates escape as raw exceptions and non-finite amounts are accepted.\nConfidence: medium   (diff and post-change importer.py read in full; no tests run; `parse_amount` body not supplied)\n\nSpec check: unverified: no spec supplied. The requirements block is a one-line Task 2 summary with no `## Acceptance criteria` or `## Design` section and no spec path. The observable-coverage check was not performed. The other test-economy checks were applied.\n\nFindings:\n  - [Moderate] F1: ledger/importer.py:import_record — only an empty account becomes `ImportRejected`. Other bad input leaks a different exception type:\n        - a missing `amount` or `posted_on` key raises `KeyError`\n        - a non-numeric amount raises `decimal.InvalidOperation`\n        - a bad date raises `ValueError`\n        - `Decimal(\"NaN\")`, `Decimal(\"Infinity\")` and `Decimal(\"sNaN\")` are accepted as ledger amounts\n        A caller that catches `ImportRejected` to skip bad rows will crash on any of these, or will post a non-finite amount.\n        Fix: Parse the amount with the module's existing `parse_amount`, or with `Decimal(...)` plus an `is_finite()` check. Wrap the `KeyError`/`ValueError`/`InvalidOperation` paths in `ImportRejected`. Add one table-driven rejection test with named rows for \"missing amount\", \"amount NaN\" and \"bad date\".\n        touched-files: ledger/importer.py, ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F2: [shrink] ledger/importer_test.py:13-25 — `test_import_sets_account`, `test_import_sets_amount` and `test_import_sets_posted_on` repeat the same setup and call, with the assertions split across them.\n        Fix: Merge them into one `test_import_maps_fields` that calls `import_record(RECORD, TODAY)` once and asserts all three fields. Saves about 8 lines.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F3: ledger/importer.py:import_record + ledger/importer_test.py:28 — plan deviation.\n        - The plan says `import_record` returns an Entry with account, amount and posted_on from the record.\n        - The code also rejects an empty account (with a test) and adds a `memo` field to `Entry`. Neither is in the plan.\n        - Both look like reasonable additions. They are still uncommitted behavior.\n        Fix: Have the orchestrator make a scope decision. Either add \"empty account -> ImportRejected\" and `memo` to the task requirements, or drop the check, its test and the `memo` field.\n        touched-files: ledger/importer.py, ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F4: [yagni] ledger/importer.py:import_record — the `today` parameter is never read. The plan mandates the signature but does not say what `today` governs.\n        Fix: Confirm with the plan author whether `today` should drive a rule, such as rejecting a future `posted_on`. If no rule is intended, note that it is reserved, or remove it from the signature.\n        touched-files: ledger/importer.py\n        touched-resources: none\n  - [Minor] F5: [shrink] ledger/importer_test.py:9 — the `RECORD` fixture carries `\"memo\": \"opening\"`, but no test asserts memo, and none of the tested paths need it.\n        Fix: Drop `memo` from `RECORD`. Alternatively, keep it and assert `entry.memo` in the merged F2 test if F3 keeps memo in scope.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nComplexity: net -8 lines\nVerification: none run. SCOPED_TEST_COMMANDS was `none`, so the orchestrator gate owns test execution.\nParallel-safe: F1 conflicts F2 (both touch importer_test.py); F1 conflicts F3 (both touch importer.py and importer_test.py); F1 conflicts F4 (both touch importer.py); F1 conflicts F5 (both touch importer_test.py); F2 conflicts F3 (both touch importer_test.py); F2 conflicts F5 (both touch importer_test.py); F3 conflicts F4 (both touch importer.py); F3 conflicts F5 (both touch importer_test.py); F2,F4 disjoint; F4,F5 disjoint\nBehaviour-change: yes\n```\n",
-      "words": 507,
-      "wallMs": 32441,
+      "text": "Verdict: FIX_FIRST\nReasoning: The code adds empty-account rejection, and the Task 2 plan does not commit that behavior; this Moderate finding needs a scope decision before merge.\nConfidence: medium (I read the full test diff and the post-change `import_record`/`Entry`; I could not see the `importer.py` diff itself or `parse_amount`, and I ran no tests)\n\nFindings:\n  - [Moderate] F1: ledger/importer.py:11 (with ledger/importer_test.py `test_import_rejects_empty_account`) — Plan deviation. The plan says `import_record(record, today)` \"returns an Entry with account, amount, and posted_on taken from the record\". The code also raises `ImportRejected` on an empty or missing account, and a test asserts it. That is new observable behavior beyond the plan, and only a task summary was supplied, not an approved spec, so nothing commits it. The guard is reasonable, but it is scope creep until someone approves it.\n        Fix: Send the rule to the scope decision. Either amend the Task 2 plan or spec to commit \"empty account -> ImportRejected\" and keep the guard and test, or remove the `if not record.get(\"account\")` guard and `test_import_rejects_empty_account`.\n        touched-files: ledger/importer.py, ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F2: [shrink] ledger/importer_test.py:11-25 — `test_import_sets_account`, `test_import_sets_amount` and `test_import_sets_posted_on` each repeat the same setup and the same `import_record(RECORD, TODAY)` call, with the assertions split across them. Collapse them into one test with all three assertions; coverage of the three fields is unchanged:\n        ```python\n        def test_import_maps_fields():\n            entry = import_record(RECORD, TODAY)\n            assert (entry.account, entry.amount, entry.posted_on) == (\"4010\", Decimal(\"125.00\"), date(2026, 1, 15))\n        ```\n        Spec-observable check: unverified: no spec supplied. No `## Acceptance criteria` or `## Design` section was supplied, so I applied only the standard economy checks.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nNotes (not findings):\n- `today` is unused in `import_record`. The plan's signature mandates it, so I did not flag it as `yagni:`.\n- The code copies `memo` into `Entry`, which the plan does not name, and no test covers it. I can't tell from the supplied material whether `Entry.memo` predates this task. If it was added here, it belongs to the same scope decision as F1.\n\nComplexity: net -6 lines\n\nParallel-safe: F1 conflicts F2 (both touch ledger/importer_test.py)\nBehaviour-change: yes\n\nVerification: None run. SCOPED_TEST_COMMANDS was `none`, so the orchestrator gate owns test execution.\n",
+      "words": 345,
+      "wallMs": 25390,
       "mechanical": {
         "m1": "holds",
         "m2": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Verdict: SHIP\nReasoning: The implementation satisfies the supplied Task 2 summary; the only finding is redundant test setup and execution.\nConfidence: medium\n\nFindings:\n  - [Minor] F1: ledger/importer_test.py:12 — `shrink:` The three successful-import tests repeat the same setup and operation, splitting assertions about one returned Entry across separate tests.\n        Fix: Combine them into one successful-import test that calls `import_record(RECORD, TODAY)` once and asserts account, amount, and posted_on together. Preserve the separate empty-account rejection test.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nRequirements: The supplied code takes all three required fields from the record. Empty-account rejection and memo handling are additional behavior not addressed by the Task 2 summary; their scope approval cannot be established from the supplied material.\n\nTest economy: unverified: no spec supplied with `## Acceptance criteria` or `## Design` sections; the Task 2 summary alone does not establish grounds for deleting tests of additional behavior.\n\nVerification: No commands run. `SCOPED_TEST_COMMANDS: none`; review was limited to the supplied diff and implementation.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
-      "words": 159,
-      "wallMs": 14880,
+      "text": "Verdict: SHIP\nReasoning: The implementation maps the three required fields correctly; the only confirmed finding is redundant test setup and execution.\nConfidence: medium\n\nFindings:\n  - [Minor] F1: [shrink] ledger/importer_test.py:12 — Three tests repeat the same setup and import operation while splitting assertions for a single returned Entry.\n        Fix: Combine them into one test that calls `import_record(RECORD, TODAY)` once and asserts account, amount, and posted_on together, preserving all three checks.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nVerification:\nNo commands run; `SCOPED_TEST_COMMANDS: none`, and the dispatch prohibits execution. Review was limited to the supplied code.\nTest-scope verification: unverified: no spec supplied with Acceptance criteria or Design sections. The supplied Task 2 requirement establishes the three field mappings, but does not establish whether empty-account rejection is approved behavior.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 126,
+      "wallMs": 12158,
       "mechanical": {
         "m1": "holds",
         "m2": "holds"
@@ -40,9 +40,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7fa1630a23876b76f7fc982d69060729522f9824fab56aeadc6ef3b04c3e1307",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d9e785e9a7abb37e46ae31049516cf9eedc48f66bad759810155ba389d5865f0",
-      "baselineOutputSha": "2d8d9598745a536293fc9da88db9471a227d64cf33d546d5ef3237d5ecc16b8c",
-      "candidateOutputSha": "1ea40ac30b01867786b3a2268f30002362621de8f462790ad396485c6c594624",
+      "intentSha": "0b6e0c7c0810d1f38ba04e2ca6db8e9f52a84a6971153d0a6c8f7834af8d274b",
+      "baselineOutputSha": "1ea40ac30b01867786b3a2268f30002362621de8f462790ad396485c6c594624",
+      "candidateOutputSha": "35ca0fc248b8080d3132597f6d408a7d241544310be953c65acc8462bfe0294f",
       "facts": {
         "f1": {
           "before": "holds",
@@ -60,9 +60,9 @@
           "label": "intended change"
         },
         "no-spec-unverified": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "m1": {
           "before": "holds",
@@ -75,16 +75,16 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs already carry a Minor [shrink] finding that merges the three field tests into one call-once test (Before even folded memo in), so f1 and f2 were not actually moved by the Change here. What After moved is f3 and no-spec-unverified: Before's F1 fix asked for two separate rejection tests ('one for a malformed amount and one for a malformed date'), while After folds them into a single table-driven test with named rows, and After adds the explicit 'Spec check: unverified: no spec supplied' line with no spec-citing delete finding. Nothing regressed. One thing to watch in the wording: After's F5 [shrink] on the memo fixture and F3's 'drop the memo field' option sit close to a coverage-losing consolidation; if the persona text says 'a consolidation that loses behavioral coverage is Critical', make sure it also says that fixture trimming must not remove a field the merged test could cheaply assert, otherwise a reviewer may propose dropping memo from RECORD rather than asserting it. Keeping the phrase 'one table-driven rejection test' in the Tests check list is what delivered f3; keep it, and consider adding 'prefer extending the merged mapping test over new fixture-stripping findings' so the shrink finding and the memo coverage do not pull against each other.",
-      "wallMs": 22781,
+      "feedback": "After keeps every fact Before kept and gains f3: Before's F1 asked for an additional table-driven rejection test covering missing amount, NaN amount and bad date, which a reader counts as extra edge-case tests of the field parsing; After drops that request entirely and only proposes the shrink consolidation, so f3 now holds. f1, f2 and no-spec-unverified were already satisfied in Before (it had a [Minor] [shrink] merge-into-one-call finding and a top-level 'Spec check: unverified: no spec supplied' line), and After preserves them. One wording wrinkle in After: the 'Spec-observable check: unverified: no spec supplied' line is nested inside the F2 shrink finding rather than reported as its own top-level line, which a reader could miss or mistake for part of the finding's fix; keep the template's instruction to emit the spec-observable result as a standalone section (as Before did) so the unverified report is unambiguous while the Tests priority still avoids asking for new edge-case tests.",
+      "wallMs": 14952,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7fa1630a23876b76f7fc982d69060729522f9824fab56aeadc6ef3b04c3e1307",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d9e785e9a7abb37e46ae31049516cf9eedc48f66bad759810155ba389d5865f0",
-      "baselineOutputSha": "393ea39d7ee190165aba715c413bfd8223daab9bb7120117edb8361863c60ae3",
-      "candidateOutputSha": "f7568a245a0cc2cd7b1fe073f60aa71c90b17c4eb7294bdc688cd91d91d6291f",
+      "intentSha": "0b6e0c7c0810d1f38ba04e2ca6db8e9f52a84a6971153d0a6c8f7834af8d274b",
+      "baselineOutputSha": "f7568a245a0cc2cd7b1fe073f60aa71c90b17c4eb7294bdc688cd91d91d6291f",
+      "candidateOutputSha": "a02d638c5552efc450f0f5aa69d0b05b5151d8883691bd68f89f34caf63ff24c",
       "facts": {
         "f1": {
           "before": "holds",
@@ -102,9 +102,9 @@
           "label": "intended but unchanged"
         },
         "no-spec-unverified": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "m1": {
           "before": "holds",
@@ -117,10 +117,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing regressed: both outputs already carry a single Minor shrink finding that proposes one `import_record(RECORD, TODAY)` call asserting account, amount, and posted_on together, and neither asks for extra edge-case tests, so f1–f3 hold on both sides (contrary to the Expected to move list, Before already satisfied them). The only real movement is no-spec-unverified, which After gains through the explicit \"Test economy: unverified: no spec supplied\" line with no spec-citing delete finding. Two small things to watch in the After wording: the Requirements paragraph's remark that empty-account rejection and memo handling have \"scope approval [that] cannot be established\" edges toward inventing a scope concern the Change does not ask for, and could in another run tip into a delete finding without a spec citation — phrasing it as \"outside the Task 2 summary; left as-is pending a spec\" would be safer; and After dropped the \"Complexity: net -10 lines\" line that Before emitted, which no fact tracks here but may matter elsewhere. Keeping the tag as a bracketed `[shrink]` prefix alongside the severity would also make f1's tag requirement less dependent on the reader noticing the inline `shrink:` label.",
-      "wallMs": 13110,
-      "verdict": "improved"
+      "feedback": "Nothing moved on this case: both Before and After carry a single Minor finding tagged shrink (Before as `shrink:` in the body, After as `[shrink]` before the path) that proposes one import_record call asserting account, amount, and posted_on together, neither asks for extra edge-case field-mapping tests, and both report the spec-observable check as `unverified: no spec supplied` with no spec-citing delete finding — so the four facts already held in Before and still hold in After. The After wording is slightly cleaner in two ways worth keeping: the tag sits in a fixed position (`[Minor] F1: [shrink] path:line`) which makes f1's tag check unambiguous, and the Fix line explicitly says 'preserving all three checks', which guards the Critical lost-coverage rule. One regression to watch: After dropped the Requirements paragraph and folded the no-spec caveat into a `Test-scope verification` label, whereas Before used `Test economy:`; if any downstream fact keys on a named section for the spec-observable check, pin a single stable label (e.g. `Spec-observable tests: unverified: no spec supplied`) in the template rather than letting the model rename it per run.",
+      "wallMs": 11679,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
 }

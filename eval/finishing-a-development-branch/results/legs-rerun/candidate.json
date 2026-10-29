@@ -1,0 +1,110 @@
+{
+  "sample": "legs-rerun",
+  "arm": "candidate",
+  "skillSha": "7d6ec53aabec3bd605e99602f556e11a44f932cf537d5c9c73b92f7c05cb0148",
+  "inputSha": "5556bfaa1b1aa40edd1b7ad22ec2ffa53dd0fb38949b282398386f1655a9a128",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated finish: retry runs A-E\n\nAll five runs share this setup:\n\n- **Home:** `/work/repo-a/.worktrees/feature-shared-change` on branch `feature/shared-change`.\n- **Primary:** `/work/repo-a`, derived from `--git-common-dir`.\n- **Spec:** `doc/specs/shared.md`, with three members: repo-a (home), then repo-b and repo-c.\n- **Mode:** multi-member coordinated finish. Recorded `contract:` lines are the authority, so overrides are not reread.\n- **Shared NAME:** `feature-shared-change`.\n- **Receipts:** stored under `/work/repo-a/.git/gauntlet/receipts/shared.md/`.\n\nEach run is a fresh session with the home plan already stripped. A stripped plan is admitted only when every companion has a receipt, and each receipt is validated before any checkout-based verification or conformance fan-out. Verification commands come from the recorded contract (`node --test test/parser.test.mjs`), not from the absent plan.\n\n---\n\n## A: PR-only retry\n\n**Receipt validation (Step 1).** Both companion receipts pass, so both are validated skips.\n\n| Leg | Check | Result |\n|---|---|---|\n| repo-b | `gh pr view <url>` in repo-b | `OPEN`, `headRefOid` = attempted = delivered head, `verification: passed`; no tree, so no current-head comparison |\n| repo-c | same check in repo-c | same result |\n\n**Verification and conformance.**\n- repo-b and repo-c are exempt from checkout-based checks, because each has a validated receipt and a missing tree.\n- Home verification runs `(cd /work/repo-a/.worktrees/feature-shared-change && node --test test/parser.test.mjs)` and passes. Rules: `AGENTS.md`.\n- Fresh home conformance covers AC1, which home shares with repo-b.\n- The audited head and tree are retained for the freshness check.\n\n**Step 3.5 and Step 4.**\n- The closure block prints `Closure / conformance: CONFORMS`.\n- One menu is shown, and the selected action is **1. Push and create a Pull Request**, applied to every leg.\n\n**Step 5 execution.**\n1. Both companions are validated skips. The home freshness check against the audited head and tree is unchanged.\n2. Collected companion results: `repo-b=<repo-b PR url>` and `repo-c=<repo-c PR url>`.\n3. Home strip-and-seal:\n   - The plan loop is a no-op, since the plan is already stripped.\n   - Seal command: `node <bin>/gauntlet-telemetry-seal.mjs --worktree <home> --option pr --base <base> --spec doc/specs/shared.md --leg repo-b=<url> --leg repo-c=<url>`.\n   - Any existing seal's `legs:` set is compared with the collected results.\n   - The seal's stdout is printed verbatim.\n4. Home delivery:\n   - `git -C <home> push -u origin feature/shared-change`.\n   - `gh pr create`, with a body that lists both companion PR URLs.\n   - Home receipt written: `delivered: pr <home url> <head>`, `verification: passed`.\n\n**Cleanup and completion.**\n- PR delivery requires no cleanup, so all worktrees and branches are preserved.\n- `Home delivery and required cleanup succeeded; receipts removed`\n- Ship phase is marked complete.\n\n```text\nShipped: repo-b pr <url> (validated skip), repo-c pr <url> (validated skip), repo-a pr <home url>\nNot shipped: none\n```\n\n---\n\n## B: squash-only retry\n\n**Receipt validation.** For each companion:\n- The actual default branch of `/work/repo-b` and `/work/repo-c` is resolved.\n- `git -C /work/<repo> merge-base --is-ancestor <squash SHA> <default>` exits 0.\n- `verification: passed` is recorded, and both trees are missing.\n\nBoth companions are validated skips and are exempt from checkout checks.\n\n**Home checks.** Home verification and conformance pass, and the closure prints CONFORMS. The menu selection is **3. Squash-merge**.\n\n**Step 5 execution.**\n1. Collected companion results: `repo-b=<sha>` and `repo-c=<sha>`.\n2. The seal runs with `--option squash --leg repo-b=<sha> --leg repo-c=<sha>`, and its output is printed verbatim.\n3. Home squash in `/work/repo-a`:\n   - `checkout <base>`\n   - `pull`\n   - `merge --squash feature/shared-change`\n   - `commit`, with a message listing both companion squash SHAs.\n4. Post-squash verification `(cd /work/repo-a && node --test test/parser.test.mjs)` passes.\n5. Home receipt written: `delivered: squash <sha>`, `verification: passed`.\n\n**Step 6 cleanup**, companions first, then home:\n\n| Leg | Action | Branch |\n|---|---|---|\n| repo-b | Tree already absent. No wrapper or teardown hook runs against a missing path. | Deleted only if it still exists and no worktree references it. |\n| repo-c | Tree already absent. No `git worktree remove` or `prune` is needed. | Same rule as repo-b. |\n| repo-a | Ownership is proven against the recorded `home:`. From `/work/repo-a`, `script/tree destroy 'feature-shared-change'` runs, with no prune afterwards. | On success, `git -C /work/repo-a branch -D feature/shared-change`. |\n\n**Completion.**\n- `Home delivery and required cleanup succeeded; receipts removed`\n- Ship phase is marked complete.\n\n```text\nShipped: repo-b squash <sha> (validated skip), repo-c squash <sha> (validated skip), repo-a squash <sha>\n```\n\n---\n\n## C: mixed-action receipts, so stop\n\n**Receipt validation.**\n- **repo-b:** the PR receipt is valid and becomes a validated skip.\n- **repo-c:** the receipt records `squash`, but the selected action is PR. A mismatched receipt leaves the leg **unlanded**.\n\n**Stop at Step 1, before checkout-based verification and conformance fan-out.**\n- repo-c is unlanded and its worktree is missing, which is a hard stop.\n- I will not open a new PR for repo-c, because its delivered squash would make that duplicate delivery.\n- No seal runs, home is not delivered, nothing is rolled back, and every receipt is retained.\n\n```text\nShipped: repo-b pr <url> (validated skip)\nNot shipped: repo-c receipt action squash <sha> does not match selected action pr; worktree missing\nNot shipped: repo-a fan-out stopped before home delivery\n```\n\nYou need to decide repo-c's disposition. One finish applies a single action to every leg, so the run needs either a consistent action or a manual resolution of repo-c.\n\n---\n\n## D: unreachable squash, so stop\n\n**Receipt validation.**\n- **repo-b:** valid, a validated skip.\n- **repo-c:** `git -C /work/repo-c merge-base --is-ancestor <squash SHA> <default>` exits 1. That is a negative proof, so the receipt is unverifiable and the leg is unlanded. Had the command returned any exit other than 0 or 1, it would be reported as a command error instead.\n\n**Stop before fan-out.**\n- The worktree for unlanded repo-c is missing.\n- No re-squash, seal, home delivery, or cleanup runs.\n- Receipts are retained.\n\n```text\nShipped: repo-b squash <sha> (validated skip)\nNot shipped: repo-c squash <sha> not reachable from <default branch>; worktree missing\nNot shipped: repo-a fan-out stopped before home delivery\n```\n\n---\n\n## E: interrupted loop-engine run, so stop\n\n- The home plan is stripped, so it can be admitted only when every companion has a receipt.\n- This run has no companion receipts, so the stripped plan is not admitted.\n- Recording a missing parent ledger commit is loop-engine state, not one of finishing's mechanics. I will not write it, deliver anything, or seal.\n\n```text\nNot shipped: repo-b no receipt; pending companion commit awaiting parent ledger record\nNot shipped: repo-c no receipt\nNot shipped: repo-a fan-out not started\n```\n\nResume the interrupted loop run with `/skill:gauntlet-resume` so its ledger commit is recorded. Then re-run `/skill:finishing-a-development-branch /work/repo-a/.worktrees/feature-shared-change`.\n",
+      "words": 991,
+      "wallMs": 51642,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A — PR-only retry\n\n- Validate both companion PR receipts using their live PR state and heads. The supplied results prove delivery: both are OPEN, heads match, verification passed, and identity/action match.\n- Exempt repo-b and repo-c from checkout-based verification and conformance because their worktrees are missing and their receipts are validated. Do not recreate their trees, push again, or create duplicate PRs.\n- Recover verification commands from the recorded contracts, not the stripped plan. Home’s fresh checks and conformance have passed.\n- Collect both companion PR URLs, then run home’s strip-and-seal block with one `--leg <repo>=<pr-url>` argument per companion. Do not repeat the already-completed plan removal. If a seal already exists, require its companion results to match.\n- On successful sealing, deliver home through the PR recipe. Include both companion URLs in its PR body and write home’s receipt.\n- Preserve home’s worktree and branch. No cleanup runs for PR delivery.\n- After successful home delivery, remove the receipts and report:\n\n```text\nHome delivery and required cleanup succeeded; receipts removed\n```\n\nReport companion deliveries as validated skips, home’s actual PR result, and the seal’s stdout verbatim. Mark ship complete only after home delivery succeeds.\n\n### B — Squash-only retry\n\n- Validate both companion squash receipts against their own primaries’ actual default branch, `trunk`. Their passed verification and reachable squash commits prove delivery.\n- Exempt their missing worktrees from checkout-based verification and conformance. Do not squash either companion again.\n- Collect both squash SHAs, then seal home with one `--leg <repo>=<sha>` argument per companion, checking any existing seal for exact agreement.\n- After successful sealing, squash home using its primary checkout recipe. Include both companion squash SHAs in home’s squash message.\n- Run `node --test test/parser.test.mjs` against home’s delivered primary state. Write home’s receipt even if this post-squash verification fails. A failure stops completion and cleanup; retain every receipt.\n- After successful verification, reconcile and complete recorded cleanup in companion order, then home:\n  - repo-b: recorded cleanup wrapper and configured teardown-hook semantics, from `/work/repo-b`; never bypass a failure with built-in removal.\n  - repo-c: recorded owned built-in cleanup.\n  - repo-a: recorded destroy script, from `/work/repo-a`.\n- The companion trees are already missing: do not claim a new removal occurred. Establish their actual cleanup state before deleting their branches. Branch deletion follows successful worktree removal, never precedes it.\n- Attempt remaining companion cleanup after a companion refusal. If any companion cleanup fails, preserve home:\n\n```text\nrepo-a: preserved - companion cleanup failed\nreceipts retained - required cleanup failed\n```\n\nOnly after home delivery and all required cleanup succeed, remove receipts, print the explicit receipt-removal line, and mark ship complete. Do not push the local squash commits.\n\n### C — Mixed-action receipts\n\nStop before sealing or delivering home.\n\nRepo-b’s PR receipt validates, but repo-c’s squash receipt does not match the selected PR action. Its reachable squash is not proof of PR delivery. With repo-c’s worktree missing, there is no validated PR-delivered exemption or available unlanded checkout.\n\nDo not create a replacement PR, reinterpret the squash receipt, or silently change the selected action. Preserve all receipts and home’s worktree; request disposition of the action mismatch.\n\n```text\nShipped: repo-b — validated existing PR\nNot shipped: repo-a — blocked by repo-c receipt/action mismatch\nNot shipped: repo-c — selected PR action conflicts with recorded squash delivery; worktree missing\n```\n\nAlso disclose repo-c’s existing squash result without counting it as successful delivery under the selected action.\n\n### D — Unreachable squash\n\nStop before sealing or delivering home.\n\nRepo-b’s squash receipt validates. Repo-c’s receipt does not: its squash is not reachable from its primary’s default branch. Passed recorded verification alone is insufficient proof.\n\nDo not squash repo-c again or infer delivery from feature-head ancestry. Preserve all receipts and home’s worktree. Surface the unreachable recorded squash and require reconciliation before continuing.\n\n```text\nShipped: repo-b — validated existing squash\nNot shipped: repo-a — blocked by repo-c’s unverifiable squash delivery\nNot shipped: repo-c — recorded squash is unreachable from its primary default branch\n```\n\n### E — Interrupted loop-engine run\n\nThe supplied finishing instructions do not define a pending-companion-commit/parent-ledger recovery protocol. A valid pending companion commit alone does not establish that the parent ledger recorded completion.\n\nStop at that restoration boundary. Preserve the pending commit and existing artifacts; do not infer accepted-complete task evidence, manufacture the missing ledger entry, duplicate the companion commit, or proceed to sealing and home delivery. Resume through the loop engine’s authoritative recovery protocol before finishing continues.\n",
+      "words": 699,
+      "wallMs": 25740,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "55a282026a12193e0930628e6c09562d4301c661433beb742d336726ce89741f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "c7471891a140a15a27c252eb833173d9ede984d6608f6afe4e9d3442b3bb6244",
+      "candidateOutputSha": "962ee60c48ccbc744e36ea5e02ee209c87b757e008be4146dbe8a4fe4e18faf0",
+      "facts": {
+        "skip": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "squash": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mixed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retain": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "pending": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: A validates both OPEN receipts at matching heads before any fan-out and proceeds to a complete home seal/PR with both companion URLs; B proves reachability against each primary's resolved default branch, skips, seals and squashes home once with companion SHAs in the message; C and D stop at Step 1 with receipts retained, no duplicate delivery and no automatic action switch; receipt removal is explicitly gated on 'Home delivery and required cleanup succeeded'. The one fact that fails in both arms is pending: neither output validates the pending companion commit nor records the parent ledger commit once before verification/new work - both refuse and defer to the loop engine (After adds a `/skill:gauntlet-resume` pointer, which is a hint but not the behavior the fact asks for). To land pending, After's E should narrate the finish skill admitting the interrupted return itself: validate the pending companion commit against the ledger entry, record the parent ledger commit exactly once, then continue to verification without rerunning the child or advancing the iteration counter again. Two smaller drifts worth tightening even though no listed fact moved: After's B cleanup table says companion branches are 'Deleted only if it still exists and no worktree references it', which contradicts Before's rule that a branch is deleted only after a successful tree removal (missing tree means branch preserved and reported); restore 'preserved (tree already absent, branch kept)' wording. After's B also drops the explicit 'Not shipped: none' / Cleanup line that Before reported, so keep the full per-leg cleanup outcome in the summary.",
+      "wallMs": 37919,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "55a282026a12193e0930628e6c09562d4301c661433beb742d336726ce89741f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "3e9aa78d822c4e8ca89fe35901d4283c06e73eb9ee48dbfef22dfea9ddfbf001",
+      "candidateOutputSha": "84c1da0c0f4a07864a16714ce1d23f4af1a2239ecc853a4c82db7b1b4824e8ed",
+      "facts": {
+        "skip": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "squash": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "mixed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retain": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "pending": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After's A section now delivers skip: it names the live OPEN state, matching heads and passed verification as the validation, exempts the missing trees, recovers commands from recorded contracts rather than the stripped plan, and restates home's fresh checks/conformance before seal and PR delivery. B fell short because After dropped Before's explicit \"With home's fresh checks passed\" gate and never says the verification command is recovered from the recorded spec contract before sealing; add the same two sentences A uses (\"Recover verification commands from the recorded contracts, not the stripped plan. Home's fresh checks and conformance have passed.\") to B ahead of the seal step. E still fails pending in both arms: each narration stops and defers to an unsupplied recovery procedure, so neither shows the ledger return being validated and recorded exactly once before verification or new work; have E narrate validating the pending commit against the ledger, recording that completion once (and only once), then proceeding to verification without re-dispatching the child or advancing the iteration a second time. mixed and retain were kept intact by both wordings; C's explicit \"do not silently change the selected action\" and B's \"receipts retained - required cleanup failed\" lines are good reinforcements worth keeping.",
+      "wallMs": 33692,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+}

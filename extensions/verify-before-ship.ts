@@ -25,6 +25,9 @@
  * `testCommands` to match your project's conventions.
  */
 
+import { resolve, dirname } from "node:path";
+import { existsSync, realpathSync, readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import {
   DEFAULT_TEST_COMMANDS,
@@ -34,6 +37,8 @@ import {
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
 import { matchShipStatement } from "./lib/telemetry-paths.ts";
+import { checkoutOfSync, gitSync } from "./lib/checkout.ts";
+import { parseLegs } from "./lib/plan-check.ts";
 
 const SOURCE_EXT = /\.(ts|tsx|js|jsx|py|rb|go|rs|java|swift|kt)$/;
 const TEST_PATH = /(^|\/)(tests?|__tests__)\/|\.(test|spec)\.|_test\.(py|go|rb)$/;
@@ -56,9 +61,159 @@ const formatWarning = (command: string, testCommands: string[], reference: strin
   );
 };
 
+const checkout = (path: string): string => {
+  let existing = resolve(path);
+  while (!existsSync(existing) && dirname(existing) !== existing) existing = dirname(existing);
+  const result = spawnSync("git", ["-C", existing, "rev-parse", "--show-toplevel"], { encoding: "utf8" });
+  const root = result.status === 0 ? result.stdout.trim() : resolve(path);
+  try { return realpathSync(root); } catch { return root; }
+};
+
+// Only literal shell directories can supply evidence; expansions remain untrusted.
+const statements = (command: string, cwd: string): { command: string; testCommand: string; target: string; trusted: boolean }[] => {
+  const tokens = command.match(/"[^"\n]*"|'[^'\n]*'|&&|\|\||[;()\n]|[^\s;()]+/g) ?? [];
+  // Allow only literal simple commands and subshells. Only the final list in
+  // each sequence can prove success: earlier failures can be masked by a separator.
+  const literalWord = /^(?:[a-zA-Z0-9_./:=+,%@-]+|'[^'\\\n$`]*'|"[^"\\\n$`]*")$/;
+  // Redirections and leading assignments do not mask a command's exit status.
+  const redirection = /^(?:[0-9]*[<>]{1,2}(?:&[0-9]*)?|&>>?)[a-zA-Z0-9_./-]*$/;
+  const assignment = /^[a-zA-Z_][a-zA-Z0-9_]*=/;
+  const reservedWord = /^(?:if|then|else|elif|fi|for|while|until|do|done|case|esac|in|function|select|time|coproc)$/;
+  let position = 0;
+  const parseCommand = (): boolean => {
+    if (tokens[position] === "(") {
+      position++;
+      if (!parseSequence() || tokens[position] !== ")") return false;
+      position++;
+      return true;
+    }
+    let named = false;
+    for (; position < tokens.length; position++) {
+      const token = tokens[position];
+      if (redirection.test(token)) continue;
+      if (!literalWord.test(token)) break;
+      if (named || assignment.test(token)) continue;
+      if (reservedWord.test(token) || token === "false") return false;
+      named = true;
+    }
+    return named;
+  };
+  // Earlier pipeline segments cannot prove success because their exit status may be masked.
+  const masked = new Set<number>();
+  const parsePipeline = (): boolean => {
+    const start = position;
+    let lastStart = position;
+    if (!parseCommand()) return false;
+    while (tokens[position] === "|") {
+      position++;
+      lastStart = position;
+      if (!parseCommand()) return false;
+    }
+    for (let i = start; i < lastStart; i++) masked.add(i);
+    return true;
+  };
+  const parseAndList = (): boolean => {
+    if (!parsePipeline()) return false;
+    while (tokens[position] === "&&") {
+      position++;
+      if (!parsePipeline()) return false;
+    }
+    return true;
+  };
+  const parseSequence = (): boolean => {
+    let start = position;
+    if (!parseAndList()) return false;
+    while (tokens[position] === ";" || tokens[position] === "\n") {
+      position++;
+      for (let i = start; i < position; i++) masked.add(i);
+      start = position;
+      if (position !== tokens.length && !parseAndList()) return false;
+    }
+    return true;
+  };
+  const canCredit = parseSequence() && position === tokens.length;
+  const out: { command: string; testCommand: string; target: string; trusted: boolean }[] = [];
+  const stack: string[] = [];
+  let dir = cwd, words: string[] = [], testWords: string[] = [];
+  const flush = () => {
+    if (!words.length) return;
+    const literal = (word: string) => !/[$`]/.test(word);
+    if (words[0] === "cd" && words.length === 2) {
+      dir = literal(words[1]) ? resolve(dir, words[1]) : "";
+    } else {
+      let target = dir;
+      if (words[0] === "git") {
+        for (let i = 1; i < words.length - 1; i++) if (words[i] === "-C") target = literal(words[i + 1]) ? resolve(target, words[++i]) : "";
+      }
+      out.push({ command: words.join(" "), testCommand: canCredit ? testWords.join(" ") : "", target: checkout(target || cwd), trusted: !!target });
+    }
+    words = [];
+    testWords = [];
+  };
+  for (const [index, token] of tokens.entries()) {
+    if (["&&", "||", ";", "\n", "(", ")"].includes(token)) {
+      flush();
+      if (token === "(") stack.push(dir);
+      if (token === ")") dir = stack.pop() ?? cwd;
+    } else {
+      const quoted = /^["']/.test(token);
+      words.push(quoted ? token.slice(1, -1) : token);
+      testWords.push(quoted || masked.has(index) ? '""' : token);
+    }
+  }
+  flush();
+  return out;
+};
+
 export default function (pi: ExtensionAPI) {
-  let verified = false;
-  let pendingTestCallId: string | null = null;
+  const verified = new Set<string>();
+  let homeSpec: string | undefined;
+  const rememberPlan = (event: { toolName: string; isError?: boolean; details?: unknown }, cwd: string) => {
+    if (event.toolName === "phase_tracker" && !homeSpec && !event.isError) {
+      const details = event.details as { action?: string; error?: string; phases?: Record<string, { status?: string; reason?: string }> } | undefined;
+      if (details?.action === "skip" && !details.error) {
+        for (const phase of ["brainstorm", "plan"]) {
+          const state = details.phases?.[phase];
+          const spec = state?.status === "skipped" ? /^resume: (.+?)(?: \(loop engine\))?$/.exec(state.reason ?? "")?.[1] : undefined;
+          if (spec) {
+            homeSpec = resolve(cwd, spec);
+            break;
+          }
+        }
+      }
+    }
+    if (event.toolName !== "plan_check") return;
+    const details = event.details as { status?: string; specPath?: string } | undefined;
+    homeSpec = !event.isError && details?.status === "pass" ? details.specPath : undefined;
+  };
+  pi.on("session_start", async (_event, ctx) => {
+    homeSpec = undefined;
+    for (const entry of ctx.sessionManager.getBranch()) {
+      if (entry.type === "message" && entry.message.role === "toolResult") rememberPlan(entry.message, ctx.cwd);
+    }
+  });
+  const coordinatedMember = (target: string, primary: string): boolean => {
+    if (!homeSpec) return false;
+    let legs: ReturnType<typeof parseLegs>;
+    try { legs = parseLegs(readFileSync(homeSpec, "utf8")); } catch { return false; }
+    if (legs.length < 2) return false;
+    if (target === checkout(dirname(homeSpec))) return true;
+    const remote = gitSync(["remote", "get-url", "origin"], primary);
+    let repo = remote.stdout.trim().replace(/\.git$/, "").replace(/^.*[:/]([^/:]+\/[^/]+)$/, "$1").toLowerCase();
+    if (remote.code !== 0) {
+      const overridesPath = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
+      const overrides = overridesPath ? readFileSync(overridesPath, "utf8") : "";
+      const tracker = /^## Issue tracker\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(overrides)?.[1] ?? "";
+      repo = (/^- repo:\s*(\S+)\s*$/m.exec(tracker)?.[1] ?? primary.split("/").at(-1) ?? "").toLowerCase();
+    }
+    return legs.slice(1).some(leg => {
+      const branch = /^branch:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
+      const home = /^(?:contract:\s*)?(?:-\s*)?home:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
+      return leg.repo === repo && !!branch && !!home && home.split("<name>").length === 2 &&
+        target === checkout(resolve(primary, home.replace("<name>", branch.replaceAll("/", "-"))));
+    });
+  };
+  const pendingTests = new Map<string, Set<string>>();
   const pendingShipWarnings = new Map<string, string>();
 
   const getCommand = (event: { input: unknown }): string => {
@@ -73,7 +228,7 @@ export default function (pi: ExtensionAPI) {
 
   pi.on("tool_call", async (event, ctx) => {
     if (event.toolName === "write" || event.toolName === "edit") {
-      if (isSourceWrite(getPath(event))) verified = false;
+      if (isSourceWrite(getPath(event))) verified.delete(checkout(dirname(resolve(ctx.cwd, getPath(event)!))));
       return undefined;
     }
 
@@ -86,38 +241,38 @@ export default function (pi: ExtensionAPI) {
       pendingShipWarnings.set(id, prior ? prior + "\n\n" + text : text);
     };
 
-    const { gauntlet, errors } = loadGauntletSettings(ctx.cwd);
-    const { testCommands, warningReference } = resolveVerifyBeforeShip(gauntlet, DEFAULT_TEST_COMMANDS);
-    const settingsWarned = errors.length > 0 ? settingsErrorWarning(errors) : undefined;
+    const targets = new Set<string>();
     let settingsErrShown = false;
-    const testRegex = buildTestCmdRegex(testCommands);
-
-    if (testRegex.test(command)) {
-      pendingTestCallId = event.toolCallId;
-      if (settingsWarned && !settingsErrShown) {
-        addShipWarning(event.toolCallId, settingsWarned);
+    for (const statement of statements(command, ctx.cwd)) {
+      const targetCheckout = checkoutOfSync(statement.target);
+      let settingsRoot = statement.target;
+      if (targetCheckout?.via === "git" && !targetCheckout.isPrimary) {
+        const common = gitSync(["rev-parse", "--path-format=absolute", "--git-common-dir"], statement.target);
+        if (common.code === 0 && coordinatedMember(statement.target, dirname(common.stdout.trim()))) settingsRoot = dirname(common.stdout.trim());
+      }
+      const { gauntlet, errors } = loadGauntletSettings(settingsRoot);
+      const { testCommands, warningReference } = resolveVerifyBeforeShip(gauntlet, DEFAULT_TEST_COMMANDS);
+      const isTest = buildTestCmdRegex(testCommands).test(statement.testCommand) && !/^(?:echo|printf|rg|grep)\b/.test(statement.command);
+      if (isTest && statement.trusted) targets.add(statement.target);
+      if ((isTest || matchShipStatement(statement.command)) && errors.length && !settingsErrShown) {
+        addShipWarning(event.toolCallId, settingsErrorWarning(errors));
         settingsErrShown = true;
       }
-      return undefined;
-    }
-
-    if (matchShipStatement(command) && !verified) {
-      if (settingsWarned && !settingsErrShown) {
-        addShipWarning(event.toolCallId, settingsWarned);
-        settingsErrShown = true;
+      if (matchShipStatement(statement.command) && (!statement.trusted || !verified.has(statement.target))) {
+        addShipWarning(event.toolCallId, formatWarning(command, testCommands, warningReference));
       }
-      addShipWarning(event.toolCallId, formatWarning(command, testCommands, warningReference));
     }
+    if (targets.size) pendingTests.set(event.toolCallId, targets);
     return undefined;
   });
 
-  pi.on("tool_result", async (event) => {
+  pi.on("tool_result", async (event, ctx) => {
+    rememberPlan(event, ctx.cwd);
     if (event.toolName !== "bash") return undefined;
 
-    if (pendingTestCallId === event.toolCallId) {
-      pendingTestCallId = null;
-      if (!event.isError) verified = true;
-    }
+    const targets = pendingTests.get(event.toolCallId);
+    pendingTests.delete(event.toolCallId);
+    if (!event.isError) for (const target of targets ?? []) verified.add(target);
 
     const warning = pendingShipWarnings.get(event.toolCallId);
     if (!warning) return undefined;

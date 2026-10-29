@@ -37,3 +37,9 @@ The full report has 27 unchanged cells and one inconclusive cell: a confirmation
 Tool-free response comparison cannot prove actual spec-file writes, tool execution, multi-turn liveness, or perfect compliance across models and sessions. These cases do not cover round-two approval starting the required spec-file write; a prose spec response is not write evidence.
 
 Process, commands, and record schema: `eval/README.md`. The live-tool harness in `replay/` is separate and not a target.
+
+## Coordinated-flow coverage
+
+Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
+
+Assembly: target.json owns shared slices; new case.md files declare bundle+ selections without changing legacy cases. New coordinated cases retain the leg grammar. Full skill/procedure additions are limited to scenarios that need them. Each expected.md pins must-hold facts before replay. Run the full target at parent verification, not just new cases.

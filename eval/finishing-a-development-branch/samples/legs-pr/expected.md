@@ -1,0 +1,3 @@
+- partial: judged: On repo-c push failure stops before seal/home; reports Shipped repo-b URL and Not shipped repo-c actual error plus untouched home in member order, preserving receipt and worktrees with no rollback.
+- bodies: judged: Success companions carry Home: repo-a feature/shared-change doc/specs/shared.md in bodies; home existing PR rework body links both URLs; delivers companions first and updates rather than duplicates home PR.
+- preflight: judged: Withheld duplicate-home action starts no companion fan-out; absorbed PR closure authorization remains separate.

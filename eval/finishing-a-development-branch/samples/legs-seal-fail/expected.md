@@ -1,0 +1,2 @@
+- seal: judged: A prints actual bin error and stops before home delivery; B compares stored/collected legs set and stops naming mismatch; neither overwrites evidence nor seals partial results.
+- home: judged: C reports delivered companions and home Not shipped actual push failure, preserves all receipts/worktrees; no companion telemetry, rollback or false ship completion.

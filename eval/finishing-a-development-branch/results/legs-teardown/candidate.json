@@ -1,0 +1,90 @@
+{
+  "sample": "legs-teardown",
+  "arm": "candidate",
+  "skillSha": "7d6ec53aabec3bd605e99602f556e11a44f932cf537d5c9c73b92f7c05cb0148",
+  "inputSha": "ee2e08167826d44ccb71743eaf06172af009605e0e8371ee2fc75722dee7913c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (coordinated finish, squash)\n\n**Run:** home `repo-a`, spec `doc/specs/shared.md`, branch `feature/shared-change`, `NAME` = `feature-shared-change`.\n\nOption 3 (squash) was delivered to all three primaries, and post-squash verification passed on each. Receipts were written to `/work/repo-a/.git/gauntlet/receipts/shared.md/{repo-b,repo-c,repo-a}`. Home's strip-and-seal ran once, with `--leg repo-b=<sha> --leg repo-c=<sha>`.\n\n### Authority\n\nThe spec carries `## Legs`, so the recorded `contract:` lines are the cleanup authority. The newer overrides file suggests `git worktree remove` for repo-b. I am not using it because the recorded wrapper and hook stay authoritative. Using a changed contract would first require amending both the home block and repo-b's companion file.\n\nCleanup order is the companions in declared order (repo-b, then repo-c), then home.\n\n### repo-b (recorded `## cleanup` wrapper + configured teardown hook)\n\n- From `/work/repo-b`, I ran `script/wrapper remove 'feature-shared-change'` with the configured `subagents.worktreeTeardownHook`, using pi-cohort semantics.\n- The teardown hook refused: `exit 1 tree busy`.\n- There was no fallback to `git worktree remove` or `--force`, and no prune.\n- The branch was not deleted, and the tree is left intact.\n- This is a companion cleanup failure. Cleanup continues for the remaining companion.\n\n### repo-c (owned built-in, `home: .worktrees/<name>`)\n\n- `realpath` of `/work/repo-c/.worktrees/feature-shared-change` matches the recorded pattern, with `NAME` = `feature-shared-change`.\n- `git -C /work/repo-c worktree remove /work/repo-c/.worktrees/feature-shared-change` succeeded.\n- `git -C /work/repo-c worktree prune` was run because this was a successful owned built-in removal.\n- `git -C /work/repo-c branch -D feature/shared-change` was run after the successful removal.\n\n### repo-a (home, recorded `destroy: script/tree destroy <name>`)\n\n- I skipped this cleanup because a companion cleanup failed.\n- `script/tree destroy` was not run, so the home checkout is kept for a retry.\n\n### Cleanup report\n\n```text\nShipped: repo-b <squash sha> repo-c <squash sha> repo-a <squash sha>\nrepo-b: failed - teardown hook exit 1 (tree busy); worktree /work/repo-b/.worktrees/feature-shared-change and branch feature/shared-change preserved\nrepo-c: removed - worktree removed, pruned, branch feature/shared-change deleted\nrepo-a: preserved - companion cleanup failed\nreceipts retained - required cleanup failed\n```\n\n- All receipts remain under `/work/repo-a/.git/gauntlet/receipts/shared.md/`.\n- Squash delivery succeeded for every member, but Option 3's required cleanup did not complete. I am therefore **not** calling `phase_tracker({ action: \"complete\", phase: \"ship\" })` yet.\n- **To retry:** clear the busy repo-b tree, then run `/skill:gauntlet-resume` in a fresh session. It will validate the squash receipts (squash SHA reachable from each primary's default branch, `verification: passed`) and then retry cleanup without re-squashing. The retry starts with repo-b's recorded wrapper and hook, then runs repo-a's `script/tree destroy`.\n\n---\n\n# Independent run: one-member spec (`## Legs` with only `repo-a`)\n\n- This uses the ordinary finish path with the single recorded block's contract. There is no companion loop, no receipts, no `--leg`, and no `legs:` brief block.\n- **Ownership:** the recorded `home:` pattern is matched against `$WORKTREE` after canonicalization. That match yields `NAME` = `feature-shared-change`.\n- **Destroy:** from `/work/repo-a`, run `script/tree destroy 'feature-shared-change'`.\n  - **On success:** no `git worktree remove` and no prune. Then run `git -C /work/repo-a branch -D feature/shared-change`.\n  - **On non-zero exit:** print the output, keep the branch, and end this step. Never fall back to `git worktree remove --force`.\n- The overrides file is not reread, because the recorded contract governs.\n\n# Independent run: legacy spec (no `## Legs`)\n\nThis is the home-only flow. I would now reread the overrides ladder (`.pi/gauntlet-overrides.md`, `gauntlet-overrides.md`, `doc/gauntlet-overrides.md`) and read its `## using-git-worktrees` section.\n\n- **Keyed section** (has `home:`, `create:` or `destroy:`):\n  - Resolve `home:` against `$PRIMARY` and match it with `realpath` to recover `NAME`.\n  - **Match with `destroy:`:** run it from `$PRIMARY` with single-quoted `'NAME'` and `'$FEATURE'`, then `branch -D`.\n  - **Match without `destroy:`:** run `git -C \"$PRIMARY\" worktree remove \"$WORKTREE\"`, then prune, then `branch -D`.\n  - **No match:** the workspace is host-owned. Remove nothing, keep the branch, and report it.\n- **Legacy path** (no file, no section, or a section without keys):\n  - **Project-native script:** use its destroy command against the primary.\n  - **Under `$PRIMARY/.worktrees/` or `~/.worktrees/<project>/`:** run worktree remove, then prune, then `branch -D`.\n  - **Otherwise:** the workspace is host-owned and both the worktree and branch are preserved.\n",
+      "words": 620,
+      "wallMs": 26008,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Coordinated squash cleanup\n\nAll three squash commits were created and post-squash verification passed. Cleanup proceeds in companion order, then home, using the **recorded contracts**, not the new overrides.\n\n- **repo-b: failed — teardown hook refused (`exit 1 tree busy`).** Stop this leg’s cleanup. Preserve its worktree and branch; do not bypass the hook or wrapper with `git worktree remove`.\n- **repo-c: removed.** Its owned built-in removal succeeded. Prune from `/work/repo-c`, then delete `feature/shared-change` only after successful removal.\n- **repo-a: preserved - companion cleanup failed.** Do not run its recorded destroy wrapper. Retain the home worktree at `/work/repo-a/.worktrees/feature-shared-change` for retry through `/skill:gauntlet-resume`.\n\n**receipts retained - required cleanup failed**\n\nDo not roll back the squash commits or mark the ship phase complete.\n\n### Independent one-member spec\n\nUse repo-a’s recorded contract even though it is the only leg. After proving the worktree matches its recorded `home:` pattern, run from `/work/repo-a`:\n\n```sh\nscript/tree destroy 'feature-shared-change'\n```\n\nOn success, delete `feature/shared-change` from the primary; do not run built-in removal or prune after the wrapper. On failure, print its output and preserve the branch without fallback. No companion loop, receipt, or `--leg` argument applies.\n\n### Independent legacy spec without `## Legs`\n\nUse the ordinary home-only cleanup path. Read the first-found overrides file now, using the prescribed ladder, and apply its `## using-git-worktrees` cleanup contract.\n\nDo not borrow the recorded contract from either independent spec. Prove ownership before removal; preserve an unmatched host-owned worktree and its branch. Delete the branch only after successful worktree removal.\n",
+      "words": 237,
+      "wallMs": 13622,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "859d5577d7dd84e54b615c13eb379904cd49fffc60c623c072d8ad226ec36856",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "dd24b525b38106c4c90aaa503867033da8b80975ea70aec68a6bf0ca2d157440",
+      "candidateOutputSha": "c59bb097596c61d14e2353ebf026f3b62dc45927d91bd7258f05b776b54c3740",
+      "facts": {
+        "contracts": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "report": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "single": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved the report fact to holds by treating the repo-b hook refusal as a reason to skip home's destroy and emitting the exact `repo-a: preserved - companion cleanup failed` line, while Before instead declared the skip a protocol error, prescribed running `script/tree destroy` and reported repo-a as `pending`, which contradicts the required preservation line. Both outputs keep the contracts fact: recorded wrapper/hook and destroy lines stay authoritative over the newer overrides, names are single-quoted, each command runs from its own primary, and neither falls back to `git worktree remove`/`--force` after the repo-b refusal. Both keep the single fact: the one-member spec uses the recorded contract with no companion loop, receipt, `--leg` or `legs:` block, and the legacy spec rereads the overrides ladder. One wording tension to watch: the contracts fact says 'runs each recorded cleanup from own primary' while the report fact requires repo-a to be preserved after a companion failure; After reconciles this by running only the remaining companion and skipping home, so the Change text should say explicitly that companions continue in declared order after a refusal and that home cleanup is withheld (not attempted) when any companion cleanup fails, so a reader does not expect home's destroy to run. After also relocates receipts to `/work/repo-a/.git/gauntlet/receipts/` where Before used `.pi/gauntlet/receipts/`; pin the receipt directory in the wording so that detail does not drift between samples.",
+      "wallMs": 23576,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "859d5577d7dd84e54b615c13eb379904cd49fffc60c623c072d8ad226ec36856",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "c67c7d3f02dabc5982c1bacfe0979c7d714c45bc2461ac400b6a5395fd2cc0df",
+      "candidateOutputSha": "31f68ffecb87248a7a86289a21714268d48b42fad18750abfadf64e2741fdb4c",
+      "facts": {
+        "contracts": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "report": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "single": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved `report` from fails to holds: Before insisted repo-a's destroy still be attempted and reported it as `preserved — cleanup not yet attempted`, whereas After reports the required `repo-a: preserved - companion cleanup failed`, keeps repo-b's tree/branch and receipts, prunes only repo-c's successful built-in, and deletes branches only after successful removal. `contracts` and `single` hold in both; the one soft spot in After is that the coordinated section never shows the shell-word-safe invocation or the cwd for repo-b's wrapper (only the one-member section quotes `'feature-shared-change'` and names `/work/repo-a`), and the line `Do not run its recorded destroy wrapper` can read against 'runs each recorded cleanup' unless tied to the companion-failure rule. To keep every fact robust, add one sentence in the coordinated section stating that each companion cleanup was run from its own primary with the name/branch passed as a single quoted shell word, and phrase the repo-a line as 'withheld because a companion cleanup failed; the recorded `script/tree destroy '<name>'` from `/work/repo-a` remains the only permitted command on retry' so the recorded-contract and quoting rules are visible there too.",
+      "wallMs": 25121,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+}

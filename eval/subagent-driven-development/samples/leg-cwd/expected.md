@@ -1,0 +1,3 @@
+- roots: judged: Runs W1 in home and W2 after its dependency in repo-b, capturing each WAVE_BASE_SHA there, with own git/tests/integration/repair roots; same relative paths do not collide across legs.
+- context: judged: Carries Leg and additive spec/task Rules to implementer, spec-reviewer and code-reviewer, resolved in owning checkout, while authoritative spec stays absolute home path.
+- repair: judged: Repairs repo-z in the plan without expanding membership; splits the mixed wave into dependency-preserving single-leg waves before dispatch. Does not reject valid Tests placement after Leg and Files.

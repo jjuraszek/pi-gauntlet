@@ -1,7 +1,7 @@
 {
   "sample": "pr-list-rebase-close-outcomes",
   "arm": "candidate",
-  "skillSha": "ef5c07830f1ebc38adc2627be35a7fa9503b13563fbd8140bef8de8bb4a536ca",
+  "skillSha": "443ec236a1ab4a75dc35f6302ff29134ec5499c49ea541b8f28ff93d5df91957",
   "inputSha": "6eebdd6bf91dec9fe5e4503afea4bc2312e4d931968e888cfda812feec3a3338",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Closure checkpoint: home PR #12 pushed and body edited (rebase record)\n\n**Aliases:** `WT=/work/widget/.worktrees/retry` · `E=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` (the saved pushed home head; it does not change) · `A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` (original home) · `B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` (original #13) · `C=cccccccccccccccccccccccccccccccccccccccc` (original #14)\n\n## Eligibility (rebase mode, fixed SHAs)\n\nThe record carries `Member replay:` lines, so it is in rebase mode. Each member must be `OPEN` and still at its recorded pre-rework head, and its replay outcome must be proven against `E`. Both original heads are already local, so no fetch is needed.\n\n```bash\ngh pr view 13 -R acme/widget --json state,headRefOid   # OPEN, headRefOid == B\ngh pr view 14 -R acme/widget --json state,headRefOid   # OPEN, headRefOid == C\ngit -C \"$WT\" merge-base --is-ancestor 4444444 \"$E\"     # #13 replay 3333333..4444444 -> exit 0\ngit -C \"$WT\" cherry \"$E\" \"$C\"                          # #14 'empty' -> succeeds, only '-' lines\n```\n\nBoth members qualify. Ship stays open until this question resolves.\n\n## Question\n\n```text\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\"\n1 - yes, close #13, #14\n2 - no, leave them open\n```\n\n## Main path: answer `1`, live state unchanged\n\nImmediately before each close, the skill refreshes only the live state and head. It does not repeat the fixed-SHA proofs. It then executes exactly the displayed target/text pair:\n\n```bash\ngh pr view 13 -R acme/widget --json state,headRefOid   # OPEN, B -> proceed\ngh pr close 13 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\" -R acme/widget\ngh pr view 14 -R acme/widget --json state,headRefOid   # OPEN, C -> proceed\ngh pr close 14 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\" -R acme/widget\n```\n\nThese commands never use `--delete-branch`. They push nothing to member branches and leave member refs untouched both locally and on origin.\n\nBoth closes succeed. Then:\n\n```\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n\nReport:\n- `Closed: #13, #14`\n- Worktree preserved at `/work/widget/.worktrees/retry`.\n- Next step: once the merge lands, run `/skill:check-delivery <ticket-ref>`.\n\n## Delta 1: answer `2`\n\n- No refresh and no `gh pr close` runs.\n- Ship completes after the answer.\n- Report: `Member PRs #13, #14 left open.`\n\n## Delta 2: answer `1`, but #14's live head changed\n\n- **#13:** the refresh shows `OPEN` at `B`, and the close succeeds as in the main path.\n- **#14:** the refresh shows `OPEN` at a new head, not `C`. The approval covered the old head, so acting now would rely on stale authorization.\n  - #14 is skipped without a close, a retry, or a new question.\n  - Fixed-SHA proofs are not re-run.\n- Ship completes after the attempt.\n- Report: `Closed: #13; #14 skipped: head moved to <new sha7>`\n",
-      "words": 441,
-      "wallMs": 19051,
+      "text": "## Eligibility proofs (before the gate)\n\nThese checks run after the home push and body edit succeeded, and before ship is marked complete. The mode is rebase.\n\n- **Aliases:** `H`=`eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` (saved pushed home), `B13`=`bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`, `C14`=`cccccccccccccccccccccccccccccccccccccccc`. The original home is `aaaaaaa`.\n- **Worktree:** `WORKTREE=/work/widget/.worktrees/retry`.\n\nRefresh each member:\n\n```bash\ngh pr view 13 -R acme/widget --json state,headRefOid   # OPEN, B13 = recorded pre-rework head\ngh pr view 14 -R acme/widget --json state,headRefOid   # OPEN, C14 = recorded pre-rework head\n```\n\nBoth refreshed heads are already local, so no fetch is needed. Both are OPEN, and in rebase mode each current head must equal its recorded head. Both pass.\n\nProve each replay outcome against the fixed saved SHA `H`:\n\n```bash\ngit -C \"$WORKTREE\" merge-base --is-ancestor 4444444 H   # #13 range 3333333..4444444 -> exit 0\ngit -C \"$WORKTREE\" cherry H C14                         # #14 empty -> succeeds, only '-' lines\n```\n\nBoth members are eligible.\n\n## Closure question\n\n```text\ngauntlet: gate=finishing-a-development-branch/pr-subject-row-1\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\"\n1 - yes, close #13, #14\n2 - no, leave them open\n```\n\nNothing terminal is reported while this gate waits for an answer.\n\n## Main path: user answers `1`\n\nImmediately before each close, recheck only the live state and head. The fixed-SHA proofs are not repeated.\n\n```bash\ngh pr view 13 -R acme/widget --json state,headRefOid   # OPEN, B13 unchanged\ngh pr close 13 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\" -R acme/widget\ngh pr view 14 -R acme/widget --json state,headRefOid   # OPEN, C14 unchanged\ngh pr close 14 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\" -R acme/widget\n```\n\nNeither close passes `--delete-branch`. No member branch is pushed or updated, locally or on origin.\n\nAfter both closes succeed, mark ship complete:\n\n```\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n\nFinal message:\n\n```text\ngauntlet: done pushed\nPushed rework to PR #12 (https://github.com/acme/widget/pull/12); description updated.\nClosed: #13, #14\n<gauntlet-telemetry-seal.mjs stdout, verbatim>\n```\n\n## Delta 1: user answers `2`\n\n- No recheck runs and nothing is closed.\n- Ship is completed right after the answer.\n\n```text\ngauntlet: done pushed\nPushed rework to PR #12 (https://github.com/acme/widget/pull/12); description updated.\nMember PRs #13, #14 left open.\n<seal stdout, verbatim>\n```\n\n## Delta 2: user answers `1`, but #14's live head changes after approval\n\n1. The #13 recheck is unchanged, so its close runs exactly as above.\n2. The #14 recheck returns `headRefOid` = `<new>`, which no longer equals `C14`.\n   - The approval covered the old head, so acting on it would be stale authorization.\n   - #14 is skipped: no close, no retry, no re-proof, no merge.\n3. Ship is completed after these outcomes.\n\n```text\ngauntlet: done pushed\nPushed rework to PR #12 (https://github.com/acme/widget/pull/12); description updated.\nClosed: #13; #14 skipped: head moved to <new7>\n<seal stdout, verbatim>\n```\n\nIn every path, the worktree at `/work/widget/.worktrees/retry` is kept. No branch is deleted, locally or on origin.\n",
+      "words": 484,
+      "wallMs": 20558,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Eligibility checkpoint — rebase mode\n\nShared SHA aliases:\n\n```text\nPUSHED=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\nHOME_ORIGINAL=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR13_ORIGINAL=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR14_ORIGINAL=cccccccccccccccccccccccccccccccccccccccc\nWORKTREE=/work/widget/.worktrees/retry\n```\n\nThe member refreshes show both PRs `OPEN`, with heads equal to their recorded originals:\n\n```bash\ngh pr view 13 -R acme/widget --json state,headRefOid\ngh pr view 14 -R acme/widget --json state,headRefOid\n```\n\nEligibility proofs against the immutable saved pushed SHA and recorded originals:\n\n```bash\ngit -C \"$WORKTREE\" merge-base --is-ancestor 4444444 \"$PUSHED\"\n# Exit 0: #13's recorded replay endpoint is contained in the pushed home.\n\ngit -C \"$WORKTREE\" cherry \"$PUSHED\" \"$PR14_ORIGINAL\"\n# Success, only '-' lines: #14's recorded empty replay qualifies.\n```\n\nBoth members qualify. No closure has occurred.\n\n### Closure question\n\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\"\n1 - yes, close #13, #14\n2 - no, leave them open\n\n### Baseline — user answers `1`\n\nImmediately before each close, refresh **only** that member’s live state/head. Both remain `OPEN` at their recorded heads; do not repeat fixed-SHA eligibility proofs.\n\nPrescribed sequence:\n\n```bash\ngh pr view 13 -R acme/widget --json state,headRefOid\ngh pr close 13 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\" -R acme/widget\n\ngh pr view 14 -R acme/widget --json state,headRefOid\ngh pr close 14 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\" -R acme/widget\n```\n\nBoth closes succeed. **Only then** mark ship complete:\n\n```text\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n\nClosed: #13, #14.\n\n### Independent deltas\n\n- **Answer `2`:** Run no close commands. Member PRs #13, #14 left open. Then mark ship complete.\n- **Answer `1`, but #14’s head changes:** #13’s unchanged immediate recheck permits its successful close. #14’s immediate recheck detects a head different from `cccccccccccccccccccccccccccccccccccccccc`; skip #14 rather than closing under stale authorization. Do not repeat eligibility proofs or retry closure. Report: **Closed: #13; #14 skipped: head changed after approval; left open.** Then mark ship complete.\n\nAll paths preserve the worktree and branches. No member push or branch deletion occurs.\n",
-      "words": 338,
-      "wallMs": 12079,
+      "text": "### Eligibility checkpoint\n\nShared immutable SHA aliases:\n```bash\nPUSHED=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\nHOME_ORIGINAL=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR13_ORIGINAL=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR14_ORIGINAL=cccccccccccccccccccccccccccccccccccccccc\n```\n\nBoth members refresh as `OPEN` at their recorded original heads. Rebase-mode eligibility proofs:\n```bash\ngit -C /work/widget/.worktrees/retry merge-base --is-ancestor 4444444 \"$PUSHED\"\n# exit 0: #13's recorded replay is contained in the saved pushed home\n\ngit -C /work/widget/.worktrees/retry cherry \"$PUSHED\" \"$PR14_ORIGINAL\"\n# exit 0, only '-' lines: #14's recorded empty replay is already contained\n```\n\nThus #13 and #14 qualify. These proofs use the immutable saved pushed SHA, not a moving branch.\n\n### Closure question\n\n```text\ngauntlet: gate=finishing-a-development-branch/pr-subject-row-1\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\"\n#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\"\n1 - yes, close #13, #14\n2 - no, leave them open\n```\n\nShip remains incomplete while this question awaits an answer.\n\n### Answer 1 — unchanged immediate rechecks\n\nImmediately before each close, refresh only that target’s live state/head:\n```bash\ngh pr view 13 -R acme/widget --json state,headRefOid\n# OPEN, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ngh pr close 13 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are replayed there as 3333333..4444444.\" -R acme/widget\n\ngh pr view 14 -R acme/widget --json state,headRefOid\n# OPEN, cccccccccccccccccccccccccccccccccccccccc\ngh pr close 14 --comment \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are already contained there.\" -R acme/widget\n```\n\nBoth closes succeed. Only now mark ship complete with `phase_tracker({ action: \"complete\", phase: \"ship\" })`, then report:\n\n```text\ngauntlet: done pushed\nPR #12 pushed and its description updated.\nClosed: #13, #14\nWorktree preserved at /work/widget/.worktrees/retry.\n```\n\n### Independent deltas\n\n**Answer 2:** Perform no closes. After the answer, mark ship complete and report:\n```text\ngauntlet: done pushed\nPR #12 pushed and its description updated.\nMember PRs #13, #14 left open.\nWorktree preserved at /work/widget/.worktrees/retry.\n```\n\n**Answer 1, but #14’s immediate live recheck shows a changed head:** #13 closes as above. Skip #14; do not close it under stale authorization. Do not repeat fixed-SHA eligibility proofs. Mark ship complete after recording the skip, then report:\n```text\ngauntlet: done pushed\nPR #12 pushed and its description updated.\nClosed: #13; #14 skipped: head changed after approval.\nMember PR #14 left open.\nWorktree preserved at /work/widget/.worktrees/retry.\n```\n\nNo member is pushed, and no branch is deleted.\n",
+      "words": 365,
+      "wallMs": 15224,
       "mechanical": {}
     }
   },
@@ -34,19 +34,19 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "21034344acc45d623307596e6375067513a6e598343407ae7dccc7f4a426ca2a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
-      "baselineOutputSha": "95c19450d7c187bc92291974ab2669ef38d0025cb65dbf05692d6183c3cad78d",
-      "candidateOutputSha": "f449d6fbdd8ad558d17a9540a0beafa4a6066da2ae018605803e354aada2d1e7",
+      "intentSha": "32100071a628554cbbda1e228b697718ce4ec50be4e4e9ae2702b721bae76288",
+      "baselineOutputSha": "d1bd8f71229d29eb4089f1c0782c6b7a7b7ec411828b7d7124baa58eab197b2d",
+      "candidateOutputSha": "aa9629a1640aa5cc4dc7f93041b5dc2fdd574cea3cbbaf5740b41b56e2036a42",
       "facts": {
         "rebase-members": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "rebase-comments": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "outcomes": {
           "before": "holds",
@@ -54,26 +54,26 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change: eligibility now proves #13 via `merge-base --is-ancestor 4444444 E` and #14 via `git cherry E C` with only '-' lines, both against the immutable saved pushed SHA and recorded originals, alongside OPEN/live-head equality; the question text uses the exact replayed-range and already-contained comments; the pre-close recheck refreshes only live state/head and does not repeat the fixed-SHA proofs; and outcomes (close before mark-complete, `Closed: #13, #14`, decline leaves both open, moved #14 skipped and reported while #13 closes, no stale authorization, no `--delete-branch` or member push) are all preserved, so nothing Before kept was lost. One gap worth tightening: rebase-members also states that a *refresh failure* at the immediate recheck skips the member, and After only narrates the changed-head case — add a short clause in the main-path or Delta 2 prose such as \"if the live refresh fails or returns a changed state/head, the member is skipped without a close\" so that conjunct is explicitly shown. Delta 2's report could also keep the `Member PR #14 left open.` line Before printed, for parity.",
-      "wallMs": 14467,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept: eligibility proofs run once against the immutable saved pushed SHA (`H`) and the recorded originals (OPEN + head equality for both, `merge-base --is-ancestor 4444444 H` for #13, `cherry H C14` with only '-' lines for #14); the closure question, per-PR comment texts and options 1/2 are verbatim; closes carry the displayed comments with no `--delete-branch` or member push, precede `phase_tracker complete`, and the outcomes for answer 1, answer 2 and the post-approval #14 head move are all reported correctly with the stale authorization refused and #13 still closed. Two small drifts worth tightening in After, though neither moves a fact: the case asked to record the original home as a full SHA and After abbreviates it to `aaaaaaa` (give it an alias like the others), and Delta 2 uses the placeholder `<new>`/`<new7>` where Before used a concrete `ddddddd…`; a concrete synthetic value reads as a real pre-close observation rather than a template. Neither Before nor After explicitly says a failed pre-close refresh (not just a changed state/head) also skips the close—adding one clause such as 'if the recheck fails or the state/head differs, skip that target' would make the rebase-members conjunct airtight in both arms.",
+      "wallMs": 15980,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "21034344acc45d623307596e6375067513a6e598343407ae7dccc7f4a426ca2a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
-      "baselineOutputSha": "9e6d54b34ebd9aa5b56565eda09aec4c6ff6af151c671657e0d5f62d95c49d01",
-      "candidateOutputSha": "efdb3a61097307a95425d0361a4a00076a11d5e83ba4f18672217923840e284c",
+      "intentSha": "32100071a628554cbbda1e228b697718ce4ec50be4e4e9ae2702b721bae76288",
+      "baselineOutputSha": "4bd2df249dbb6730e5bfb6b0474b033b6b902a50dd2ecbfd47b16b4a9bdad0b7",
+      "candidateOutputSha": "c288c95e5a2c3094b646a9d70a9edc297b70bad3ef261bb250244a8d187c9e51",
       "facts": {
         "rebase-members": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "rebase-comments": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "outcomes": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moves rebase-members and rebase-comments to holds: it runs `merge-base --is-ancestor 4444444 $PUSHED` for #13 and `git cherry $PUSHED $PR14_ORIGINAL` for empty #14 against the immutable saved pushed SHA and recorded originals (Before instead demanded merge-mode original-head ancestry and explicitly rejected replay/cherry evidence, so it withheld closure and printed the merge-mode 'merged there and remain reachable as' comments rather than the exact replay-range/already-contained text). After also preserves outcomes: per-target live state/head refresh immediately before each close, no --delete-branch or member push, close-then-mark-complete ordering, and the stale-authorization skip for a moved #14. One gap to tighten: the fact says the pre-close recheck skips on 'changed state/head or refresh failure', but After only narrates the changed-head skip; add a clause such as 'if a refresh fails or returns a non-OPEN state or a head different from the recorded original, skip that member and report it' so the rebase-members conjunct is covered verbatim. Otherwise keep the shared-alias block, the explicit note that fixed-SHA proofs are not repeated, and the exact instantiated question text — those are what deliver the Change while keeping every fact Before kept.",
-      "wallMs": 19868,
-      "verdict": "improved"
+      "feedback": "No fact moved between Before and After: both run the #13 ancestor proof and the #14 cherry proof against the immutable PUSHED alias and recorded original SHAs, both show OPEN/live-head equality, both print the exact closure question and options verbatim, and both close only after an immediate live state/head refresh, skip a moved #14 under stale authorization, mark ship complete after closes, and report Closed/left-open/skipped outcomes with no member push or branch deletion. After's additions (explicit `gh pr close --comment` calls, 'Ship remains incomplete while this question awaits an answer', per-target refresh wording) sharpen the Change's 'close precedes mark-complete' and 'recheck only refreshes live state/head' corrections without disturbing any fact. Two small things to watch: After dropped the literal PR #12 URL from the completion line ('PR #12 pushed and its description updated' vs Before's 'Pushed and updated PR #12: https://...') — not graded here but it weakens traceability, so keep the URL; and neither output narrates the 'skip on refresh failure' branch that the rebase-members fact mentions — adding one sentence like 'if a pre-close refresh fails, skip that target and report it, leaving it open' would make After cover the fact text completely without adding another delta.",
+      "wallMs": 17264,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+  "repoSha": "db40a3e3b54b9200b0a6d451fb3c11105de776bf"
 }

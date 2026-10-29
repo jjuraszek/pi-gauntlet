@@ -1,0 +1,34 @@
+{
+  "sample": "legs-membership",
+  "arm": "baseline",
+  "skillSha": "7a232da7dcf80b9e7965a364fcfda555db88c4d05cabd647a92fd69e18ec77f6",
+  "inputSha": "17f0a9d5af5a2513cf88c07f1cc7ba13b937906e98acea9a23c4f9f42e6dfd30",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Three independent runs: coordinated admission (entry check 3b)\n\nAll three runs stop at the same point. Membership comparison happens in \"Coordinated admission\", before any tracker write. So no run reaches `start brainstorm`, `plan_check` or `plan_tracker init`. No run validates companion primaries, branches, the `**Home:**` tuple or receipts, because the membership mismatch stops admission first.\n\nShared step in each run, before the comparison:\n\n1. **Read** `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`\n   - This is the home spec, resolved through Candidates. It is approved, but approval comes from the spec itself, not from the artifact being present.\n   - Its `## Legs` blocks, in order: `### Leg: repo-a`, `### Leg: repo-b`.\n   - Spec membership: `repo-a, repo-b`.\n2. **Parse** the brief's `legs:` block for its ordered `repo:` values, then compare it with the spec membership exactly.\n\n---\n\n## Run A: brief `repo-b, repo-a`\n\nThe brief has the same members in a different order. Leg `repo-b` comes first, but the home's `### Leg:` order puts home first.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated membership mismatch: leg repo-b reordered (brief position 1, spec position 2); brief lists repo-b, repo-a, spec lists repo-a, repo-b\n```\n\nThere are no tracker calls. `phase_tracker` and `plan_tracker` stay idle and `plan_check` does not run.\n\n---\n\n## Run B: brief `repo-a` only\n\nThe brief is missing leg `repo-b`, which the spec declares.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated membership mismatch: leg repo-b missing from brief; brief lists repo-a, spec lists repo-a, repo-b\n```\n\nThere are no tracker calls. `phase_tracker` and `plan_tracker` stay idle and `plan_check` does not run.\n\n---\n\n## Run C: brief `repo-a, repo-b, repo-c`\n\nThe brief has an extra leg, `repo-c`, which has no `### Leg:` block in the home spec.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated membership mismatch: leg repo-c extra in brief (no ### Leg: block in doc/specs/shared.md); brief lists repo-a, repo-b, repo-c, spec lists repo-a, repo-b\n```\n\nThere are no tracker calls. `phase_tracker` and `plan_tracker` stay idle and `plan_check` does not run.\n\n---\n\n## What happens next\n\nIn every run the session ends at this stop with no mutation. The snapshot (W1 complete, W2: reader in_progress) is never initialized.\n\nThere is no closing `Gate history not restored…` line and no `Standing grant` line, because the restore never completed.\n\nOnce the brief's `legs:` block matches the spec's `### Leg:` order (`repo-a`, `repo-b`), re-run `/skill:gauntlet-resume`.\n",
+      "words": 354,
+      "wallMs": 15458,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nPrint and stop:\n```text\ngauntlet: stuck reordered membership: repo-b precedes repo-a in the brief; brief lists [repo-b, repo-a], spec lists [repo-a, repo-b]\n```\n\nNo tool calls or tracker mutations.\n\n### Run B\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nPrint and stop:\n```text\ngauntlet: stuck missing leg repo-b in the brief; brief lists [repo-a], spec lists [repo-a, repo-b]\n```\n\nNo tool calls or tracker mutations.\n\n### Run C\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nPrint and stop:\n```text\ngauntlet: stuck extra leg repo-c in the brief; brief lists [repo-a, repo-b, repo-c], spec lists [repo-a, repo-b]\n```\n\nNo tool calls or tracker mutations.\n",
+      "words": 122,
+      "wallMs": 13604,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "d2e35168c92e6dd5e2a1bac003344a377448be67"
+}

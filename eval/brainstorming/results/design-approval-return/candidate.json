@@ -1,7 +1,7 @@
 {
   "sample": "design-approval-return",
   "arm": "candidate",
-  "skillSha": "4232f7d1600bab4137e1f04361f102035f8d17ab8631f2d4a93f1a5d3d6460c1",
+  "skillSha": "c81d8c6df18b2974b1a86e26115b52e2f93c0b9fbfa77c1d7d8ff7f6f0c9f349",
   "inputSha": "e7aca67cfaae42657ba8fe8d2c1fb4ab911a03410fc7fe941876cb858769be15",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nRound two covers errors, edge cases, tests, and documentation impact. Round one is approved as recorded: `settings/resolver.ts` owns defaults and resolution, `ui/report-view.ts` consumes the resolved value, and filters persist across workspace changes.\n\n**Errors**\n\nThe change adds no new error surface. An invalid report-view value does not throw. The resolver at `settings/resolver.ts:12` returns the existing default, as it already does for other settings, so `ui/report-view.ts:30` always receives a valid resolved value. No view-local validation or fallback is added.\n\n**Edge cases**\n\n- **Unset value:** the resolver supplies the existing default, and the report view renders with it.\n- **Invalid value:** the resolver falls back to the same default. The view behaves exactly as it does when the value is unset.\n- **Workspace change:** the user's report filters keep their current values. Switching workspaces does not reset them to the default.\n- **Restart or reload:** settings stay in memory only, so the setting returns to its default after a reload. Durable persistence is out of scope.\n- **Public surface:** the public API and config shape stay unchanged. The setting is private to the report view.\n\n**Tests**\n\nEach observable outcome gets one test entry. The exact test file names will be fixed in the spec against the repo's existing test layout.\n\n- The unset setting resolves to the existing default - resolver default test alongside `settings/resolver.ts`.\n- An invalid value resolves to the existing default without throwing - resolver invalid-value test alongside `settings/resolver.ts`.\n- The report view renders using the resolver's value, with no local settings object - report-view consumption test alongside `ui/report-view.ts`.\n- Filters keep their values across a workspace change - report-view workspace-switch test alongside `ui/report-view.ts`.\n- After a reload, the setting returns to its default - in-memory reset test alongside `settings/resolver.ts`.\n- The public API and config shape are unchanged - none: no public surface is touched, and the existing public-surface tests stay green unchanged.\n\n**Documentation impact**\n\nThis section applies the materiality bar in `reference/documentation-impact.md`. The draft lists `Docs touched: none`, so there are no candidates for amendment.\n\n- Nothing qualifies as introduced. A private setting with no public API or config change clears none of the inclusion categories.\n- Nothing is amended. No existing user guide covers this private report view.\n- Nothing is invalidated. No router, `AGENTS.md` section, or topic guide describes report-view settings.\n\n```markdown\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n```\n\nApproving this round lets me write the spec. Since there is no ticket, its acceptance criteria will be drafted from this two-round design, with one row for each observable outcome above.\n\nDo you approve round two: errors, edge cases, tests, and documentation impact as stated?\n",
-      "words": 430,
-      "wallMs": 14991,
+      "text": "Round one is approved. Here is round two, covering errors, edge cases, tests, and documentation impact.\n\n**Errors.** The existing resolver in `settings/resolver.ts:12` validates the report-view setting. An invalid value falls back to the existing default, so no new error path, exception, or user-visible error state is added. The resolver handles a missing value the same way: `ui/report-view.ts:30` always receives a resolved value and never a raw or undefined one. The view adds no validation of its own, so every validity rule has one owner.\n\n**Edge cases.**\n- **Workspace change:** report filters keep their current values when the workspace changes. Switching workspaces does not reset the view's resolved setting or its filters.\n- **Restart:** settings stay in memory, so a process restart returns the setting to its default. Persistence across restarts is out of scope.\n- **Repeated workspace switches:** filters keep their values across multiple consecutive switches, not just the first one.\n- **Default path:** when nobody sets the setting, the view behaves exactly as it does today.\n- **Public surface:** the public API and config shape do not change. The setting stays private and is never exposed through any external surface.\n\n**Tests.** Each line names an observable and its proposed test location. The file names follow the module paths; I'll confirm them against the repo's existing test layout when writing the spec.\n- The resolver supplies the report-view default when no value is set - `settings/resolver.test.ts`\n- The resolver returns the existing default for an invalid value - `settings/resolver.test.ts`\n- The report view reads the resolved setting rather than a view-local settings object - `ui/report-view.test.ts`\n- Report filters keep their values across a workspace change - `ui/report-view.test.ts`\n- Filters keep their values across repeated workspace switches - `ui/report-view.test.ts`\n- The setting returns to its default after a restart - none: settings live only in memory, so the reset is the absence of persistence, and no test can observe more than the default case above\n- The public API and config shape are unchanged - none: the design adds no public surface, so nothing new exists to assert; existing public-contract tests cover regressions\n\n**Documentation impact.** This section applies `reference/documentation-impact.md`. The gather draft lists `Docs touched: none`, so there are no amendment candidates to weigh. The setting is private and does not change any public API, config shape, or cross-component contract. No user guide covers this report view. Its default and fallback behavior are fully answered by the resolver code and its tests, so the setting does not qualify as a documented tunable parameter. No router, topic guide, or index becomes stale.\n\n```markdown\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n```\n\nDo you approve round two?\n",
+      "words": 434,
+      "wallMs": 14672,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nRound two covers errors, edge cases, verification, and documentation.\n\n**Errors and edge cases.** Invalid values fall back to the existing default owned by `settings/resolver.ts:12`; the report view does not introduce a separate fallback or error-handling path. Resolution remains centralized, and `ui/report-view.ts:30` consumes the resolved value through its existing settings flow.\n\nThe setting remains in memory. This change adds no disk persistence, public API, or configuration-shape change. Keeping filters across workspace changes is a separate, explicit requirement: switching workspaces must not reset the current report-filter values. It does not imply restoring those values after restarting the application.\n\n**Verification.** Tests should exercise the shared resolver and the report view’s existing integration boundary rather than creating a parallel settings path just for testing. Resolver coverage establishes default and invalid-value behavior; report-view coverage establishes consumption and filter retention. Together, they check both ownership and the user-visible result.\n\n## Tests\n- An unset report-view setting resolves to the existing default — resolver default-value test.\n- A valid report-view setting reaches the report view through the existing resolved-settings flow — report-view settings-consumption test.\n- An invalid report-view setting falls back to the existing default — resolver invalid-value fallback test.\n- Current report-filter values remain unchanged after switching workspaces — report-view workspace-change retention test.\n- Updating the private setting causes no persistence writes — in-memory settings test.\n- Existing public API and configuration shapes remain unchanged — existing contract checks, supplemented by diff review for exported or configuration-schema changes.\n\nThese are proposed test names and coverage boundaries, not claims that those tests already exist. Implementation planning will locate the appropriate existing test files.\n\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n\nApplying `reference/documentation-impact.md`, no product-facing documentation change is warranted: this is a private setting using the existing ownership boundary, with no public contract change. The draft records `Docs touched: none`, and no existing guide covers this private report view.\n\nDo you approve round two: these error and edge behaviors, test coverage, and documentation impact?\n",
-      "words": 325,
-      "wallMs": 14098,
+      "text": "### Round two: errors, edges, tests, and documentation\n\nThe setting will use the existing resolver’s validation and fallback behavior. An invalid value resolves to the existing default; the report view will not introduce a separate fallback policy or duplicate the resolver’s defaults. `ui/report-view.ts:30` continues to consume resolved settings rather than interpreting raw values itself.\n\nSettings remain in memory. This change adds no persistence mechanism and makes no promise that values survive an application restart. Workspace changes must preserve the current report-filter values, as approved in round one; switching workspaces must not reset those filters as a side effect of resolving or consuming the new setting.\n\nThe implementation remains private: there is no public API or configuration-shape change. Verification will therefore cover both the new setting’s behavior and regression protection for existing settings consumers. The tests should exercise the shared path, not a view-local substitute that could pass while bypassing the actual resolver.\n\n## Tests\n\nThe following are proposed test cases; their final locations should follow the repository’s existing test organization.\n\n- An omitted report-view setting resolves to the existing default — resolver default test.\n- An invalid report-view setting falls back to that same default — resolver invalid-value test.\n- A valid report-view setting reaches the view through the existing resolved-settings flow — report-view integration test.\n- Current report-filter values remain unchanged after switching workspaces — workspace-switch regression test.\n- Updating the setting uses in-memory state without introducing persistence — settings lifecycle test.\n- Existing settings consumers retain their current resolution behavior — shared-resolver regression tests.\n- Public API and configuration shapes remain unchanged — existing contract checks and diff review.\n\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n\nApplying `reference/documentation-impact.md`, the draft’s `Docs touched: none` remains appropriate: this private setting introduces no new operational procedure, public contract, or persistence behavior, and no existing guide covers the report view.\n\nDo you approve round two, including the error behavior, regression coverage, and documentation impact?\n",
+      "words": 316,
+      "wallMs": 13535,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b3ccdee963afb2313abbb1f63328c064f67eedf306ed19899f0a3042acdc368d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "fb88826a8529fd8bce2f116c4ed40971039e9170302096aa2c4cece0a72a2637",
-      "candidateOutputSha": "ab42c6c9c300497474be4f31d7d934a03aac167ccf1dd2796ad9f356b67adffe",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "e2bb6bbd0f9787a35c160a458c8114e237ad2ef701ab2e658e30703b8097b514",
+      "candidateOutputSha": "e2bb6bbd0f9787a35c160a458c8114e237ad2ef701ab2e658e30703b8097b514",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this continuation. Both outputs present the round-two content in full (errors, edge cases, per-observable test mapping, documentation impact with the materiality-bar citation and the rendered block) rather than promising it, and both end at the existing round-two approval question. After adds a `gauntlet: question` first line and a one-sentence recap that round one is approved as recorded; neither treats round-one approval as approval of the final spec, since After still closes with an explicit round-two approval request and only says spec writing follows approval of this round. The one wording drift worth watching is that After maps the restart/reload observable to an invented `in-memory reset test` where Before said `none: in-memory by design`; that is not keyed by f1 or f2, but if a later fact pins the Before mapping, keep the `none:` entry while retaining the new preface and closing question, which deliver the gate-line-first marker without disturbing either fact here.",
-      "wallMs": 10506,
+      "feedback": "Before and After are textually identical: both present the round-two Errors, Edge cases, Tests (each observable mapped to a named test file or an explicit none-with-reason), and a Documentation impact block applying reference/documentation-impact.md, so f1 holds in each; both open with 'Round one is approved' as a step acknowledgement, not as final-spec approval, and end at the existing 'Do you approve round two?' request, so f2 holds in each. Nothing moved in this continuation case. The After wording is safe here; keep the round-two section ordering and the closing approval question unchanged while delivering the Change, and if any later wording touches the round-two gate, retain the explicit 'Do you approve round two?' line and avoid phrasing that collapses round-one approval into spec approval.",
+      "wallMs": 5630,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b3ccdee963afb2313abbb1f63328c064f67eedf306ed19899f0a3042acdc368d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "ea857d32b4d41fb84bc469e6a5da6f8dede42f9f7bf492a6ac62e2535274690c",
-      "candidateOutputSha": "48b7affd68502052f0e75dacbcbe04c8184460162d67cd99e9fea49faa8431e1",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "0fbf123f0e8ddec784675ccdcd234b25660f0bb53147c009a4bbcee797d30110",
+      "candidateOutputSha": "0fbf123f0e8ddec784675ccdcd234b25660f0bb53147c009a4bbcee797d30110",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,97 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this continuation. Both outputs present round two in full — concrete error/edge behavior (invalid-value fallback to the resolver-owned default, in-memory only, filter retention across workspace changes without implying restart restoration), a named test list, and the three-line documentation-impact block applying reference/documentation-impact.md — rather than promising to do so later, so f1 holds in both. Both also close with an explicit 'Do you approve round two…' question and neither treats the user's 'approve' of round one as final-spec approval, so f2 holds in both. The After wording adds the column-zero 'gauntlet: question' marker as its first line and reorganizes the prose into bolded Errors/Verification lead-ins; this delivers the gate-line-first change without displacing the round-two content or the closing approval request. Keep that structure: marker first, full round-two content, then the round-two approval question as the final line, and avoid any wording that would compress the tests or documentation sections into a deferred promise.",
-      "wallMs": 8950,
+      "feedback": "Before and After are textually identical for this continuation case, so no fact moved. Both present round two concretely: invalid-value fallback through the shared resolver, in-memory/no-persistence and workspace-switch edges, a seven-item test list mapping each observable to a named test, and a documentation-impact section that applies reference/documentation-impact.md to confirm Docs touched: none; both end with the round-two approval question and do not treat the round-one approval as final-spec approval. The After wording therefore keeps every fact Before kept; nothing in the Change paragraph required altering this output, and no wording adjustment is needed here.",
+      "wallMs": 5900,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "design-approval-return",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "d5f9df9682ddadf0adff27140342156e0e242ef483fb8ecb7079178bab8f07e9",
-      "candidateSkillSha": "987bd1f0b9213662b1f919a4ecda4b3b257a30c17c69b4892d64c988e16d6142",
-      "inputSha": "e7aca67cfaae42657ba8fe8d2c1fb4ab911a03410fc7fe941876cb858769be15",
-      "factsSha": "b3ccdee963afb2313abbb1f63328c064f67eedf306ed19899f0a3042acdc368d",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "f2ed0108146906011a966b007d1774a2149c7d0b232c430b25b7a943eed367cd",
-            "payloadSha": "a669d78e914ea92a9b97ccc78c173feece97ef78b09ee4c554cc1e0d2bb2dd88"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "c638ee2fd1cbcc17a27a47f71506a365bb9dce2b8ddbe3806422bdcb672b0bc4",
-            "payloadSha": "eb65374194dbdb6a4409f606b859ebec83ee2d4cce3215d7342b5d273e68100d"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "b3ccdee963afb2313abbb1f63328c064f67eedf306ed19899f0a3042acdc368d",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "f2ed0108146906011a966b007d1774a2149c7d0b232c430b25b7a943eed367cd",
-        "candidateOutputSha": "c638ee2fd1cbcc17a27a47f71506a365bb9dce2b8ddbe3806422bdcb672b0bc4",
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Neither fact moved: After still presents the round-two error/edge analysis (resolver-owned fallback, in-memory state, filters preserved across workspace change), a concrete Tests section, and the three-line documentation-impact inventory with the reference applied, and it still ends on an explicit round-two approval question rather than treating round-one approval as final. Two things worth watching in After, though they do not break these facts: the leading 'gauntlet: question' classification line sits above the heading, so keep the approval question itself as the last line as it is now; and three of the six Tests bullets are 'inspect the diff' instructions rather than named tests, which weakens the 'map every observable to a test' intent of the Change — Before named a test for each behavior (`report-view setting remains in memory`, etc.). A wording that keeps every fact while delivering the Change would require each acceptance row and Design edge/error observable to end with a backticked test name, and allow structural constraints (no view-local settings object, unchanged API/config shape) to be listed separately as review checks rather than mixed into the Tests list.",
-        "wallMs": 10283,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "b3ccdee963afb2313abbb1f63328c064f67eedf306ed19899f0a3042acdc368d",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "f2ed0108146906011a966b007d1774a2149c7d0b232c430b25b7a943eed367cd",
-        "candidateOutputSha": "c638ee2fd1cbcc17a27a47f71506a365bb9dce2b8ddbe3806422bdcb672b0bc4",
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Neither fact changed: After presents concrete error behavior, lifecycle edges, verification, and documentation impact, then stops at round-two approval without treating round-one approval as final approval. Its explicit resolver and caller references strengthen the shared-path grounding. Keep that structure and approval boundary; to deliver the Change more fully, retain Before’s explicit no-override default test and map each observable to a named test, while carrying the chosen Removes/Adds inventory into design imperatives rather than relying solely on structural inspection bullets.",
-        "wallMs": 5296,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

@@ -1,34 +1,42 @@
 {
   "sample": "verification-resolution",
   "arm": "candidate",
-  "skillSha": "ee7d1855929f08686507097c6a2b7b4473c91b2ff46757c8f36772899005d592",
+  "skillSha": "a75d969897e3b91f0f31ada155add282d22f39b29f615374051f15ef6dc894a8",
   "inputSha": "bb67cde1407f2ef81548524cfc2c5f4003792c5b17629854f0f208912456652f",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Verification is resolved once at Entry step 2, after reading the overrides and `gauntlet_setting({ key: \"loopEngine\" })` in step 1. No calls have run. Each snapshot below is independent.\n\n## A: PR gate `make ci` plus a prose section with `make test`\n\n- **Rule:** row 1 applies, because `## PR gate` contains `- verification command: make ci`. The prose section's `make test` is never consulted.\n- **Printout:** `verification command: make ci (PR gate)`\n- **Next calls:**\n  1. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`.\n  2. Confirm a clean named-branch worktree.\n  3. `git -C \"<worktree>\" rev-parse HEAD` to read the base.\n- **Durable change:** write the ledger with `verification: make ci`, `iterations: 0` and the computed `cap:`.\n- **Admission:**\n  1. `plan_check({ planPath: <ledger path> })`.\n  2. Commit `loop: seed ledger`.\n  3. `phase_tracker({ action: \"start\", phase: \"implement\" })`.\n- **Next target:** `seed`, unless every row is cut. In that case cap is 1 and rule 1 exits to verification with no seed dispatch.\n\n## B: No PR gate; prose says run `make ci`\n\n- **Rule:** row 2 applies. `## verification-before-completion` contains exactly one backticked command.\n- **Printout:** `verification command: make ci (verification-before-completion)`\n- **Next steps:** the same as A. The ledger header is `verification: make ci`, and the next target is `seed`, unless all rows are cut.\n\n## C: Neither section; manifest test entrypoint is `make check`\n\n- **Rule:** row 3 applies. The command is discovered from the project's actual manifest or build instructions, and it is unambiguous.\n- **Printout:** `verification command: make check (discovery)`\n- **Next steps:** the same as A. The ledger header is `verification: make check`, and the next target is `seed`, unless all rows are cut.\n\n## D: Prose lists `make test` and `make lint`\n\n- **Rule:** row 2 applies, but the section holds two backticked commands. Several commands is a configuration error, so I stop.\n- **No further calls:** no `phase_tracker` skip, no ledger, no `plan_check`, no commit, and no dispatch. There is no next target.\n- **Output:**\n  ```\n  Stopped: configuration error - ## verification-before-completion in <overrides path> lists 2 backticked commands (`make test`, `make lint`); exactly one is required.\n  Fix: reduce the section to one command, or add `- verification command: <cmd>` under ## PR gate, then rerun.\n  ```\n\n## E: Prose section has zero commands\n\n- **Rule:** row 2 applies, because the section exists. Zero commands is a configuration error. I do not fall through to manifest discovery, since that only applies when neither section supplies a command.\n- **No further calls:** the same as D. There is no next target.\n- **Output:**\n  ```\n  Stopped: configuration error - ## verification-before-completion in <overrides path> contains no backticked command; exactly one is required.\n  Fix: add exactly one backticked command there, or add `- verification command: <cmd>` under ## PR gate, then rerun.\n  ```\n",
+      "words": 426,
+      "wallMs": 18073,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "These are independent, hypothetical resolutions; no tools have run and no durable changes have been made.\n\nFor a fresh run, the prerequisite call is `gauntlet_setting({ key: \"loopEngine\" })`. If that tool is actually unavailable, execution stops there. The outcomes below describe verification resolution given each supplied snapshot.\n\n| Snapshot | Resolution | Human-facing printout |\n|---|---|---|\n| **A** | The PR gate takes precedence; ignore the prose section’s command. | `verification command: make ci (PR gate)` |\n| **B** | Use the prose section’s exactly one backticked command. | `verification command: make ci (verification-before-completion)` |\n| **C** | Use the supplied manifest-discovered entrypoint. | `verification command: make check (discovery)` |\n| **D** | Configuration error: the prose section contains two backticked commands. Do not choose one or fall back to discovery. | Stop output below. |\n| **E** | Configuration error: the prose section contains zero backticked commands. Do not fall back to discovery. | Stop output below. |\n\n### A, B, C — next action\n\nThe next prescribed call after successful resolution is:\n\n```text\nphase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })\n```\n\nNo ledger mutation or child dispatch occurs merely from resolving verification. Next, require the clean named-branch implementation worktree and seed the ledger with the selected command. The first dispatch target would be `seed`, unless all rows are initialized `cut`, in which case exit verification applies without a dispatch.\n\n### D — stop output\n\n```text\ngauntlet: question\nStopped: verification configuration error.\nProblem: verification-before-completion contains two backticked commands, `make test` and `make lint`; exactly one is required.\nPreserve every row's attempts and the total iteration cap.\n\nCorrect the section to contain exactly one backticked verification command, or stop.\n```\n\nNo phase-skip call, ledger change, or next dispatch target.\n\n### E — stop output\n\n```text\ngauntlet: question\nStopped: verification configuration error.\nProblem: verification-before-completion contains zero backticked commands; exactly one is required.\nPreserve every row's attempts and the total iteration cap.\n\nCorrect the section to contain exactly one backticked verification command, or stop.\n```\n\nNo phase-skip call, ledger change, or next dispatch target.\n",
-      "words": 308,
-      "wallMs": 18600,
+      "text": "No calls have run. These are independent verification-resolution outcomes, not simulated execution.\n\nFor an actual fresh run, the prerequisite call is `gauntlet_setting({ key: \"loopEngine\" })`. If that tool is unavailable, the driver stops there; it must not claim to have resolved settings or seeded a ledger. The outcomes below describe the requested configuration resolution independently.\n\n| Snapshot | Resolution | Human-facing printout or stop |\n|---|---|---|\n| **A** | Use the PR gate command. Its precedence means the prose section does not compete with it. | `verification command: make ci (PR gate)` |\n| **B** | The `verification-before-completion` section supplies exactly one backticked command. | `verification command: make ci (verification-before-completion)` |\n| **C** | Neither override section supplies a command; discover the unambiguous entrypoint from the actual manifest. | `verification command: make check (discovery: manifest test entrypoint)` |\n| **D** | Configuration error: the prose section contains two backticked commands. Do not select one, combine them, or fall back to discovery. | `Stopped: verification-before-completion must contain exactly one backticked command; found 2.` |\n| **E** | Configuration error: the prose section exists but contains zero backticked commands. Do not fall back to discovery. | `Stopped: verification-before-completion must contain exactly one backticked command; found 0.` |\n\n**Calls and durable state at this boundary**\n\n- Read the first existing overrides file in the prescribed search order, once per session. **C** additionally requires reading the actual manifest/build instructions; no verification command is executed during resolution.\n- **A–C:** retain the selected command. The next workflow call, once prerequisites are satisfied, is `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`. Ledger creation follows only after validating the spec, branch, and clean worktree.\n- **D–E:** stop before that phase call, ledger creation, commits, or dispatch. The human-facing configuration stop begins with `gauntlet: question` on its own line and requests correction or stopping.\n- **Durable changes from resolution alone:** none in all five snapshots.\n- **Next dispatch target:** none yet. The spec and ledger are not supplied, so neither a seed nor a row may be dispatched or claimed as selected.\n",
+      "words": 313,
+      "wallMs": 22654,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "cde57f325ee36560345ef300a79393086d8addff9e437810737b72891a6a148f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1861e2a50a838581f2dd0a0d44451cf05a387965acbcf5bf2b0f18c3b4e120f1",
-      "baselineOutputSha": "e58165cf08d80d26799562e84bdb2dcb38055e15946b0a7af1e380a6f023c3a5",
-      "candidateOutputSha": "b9fb4d8e3c9c1ed8ccf8b626156415fdf61aa12ed26a33a9c7691f5d0bf95fcf",
+      "intentSha": "16e80dabd6e4df063bc29f070b6ed5ba032f57612b02fceb24c77d5a4009a069",
+      "baselineOutputSha": "e3849d14d143d1014e3601ab2a31ff01e8421c70f0a907529bd9a919c3bc9ab9",
+      "candidateOutputSha": "64ec77c80a34e8e3de6d60e40112cef803363cbab05ab2e2da051bca1650d4c2",
       "facts": {
         "contract": {
           "before": "holds",
@@ -36,10 +44,27 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves the verification-resolution contract: PR-gate precedence, the single prose command, discovery for C, and pre-iteration stops for D and E, with source-labelled successful printouts. Adding `gauntlet: question` to D and E delivers the requested stop framing without changing that fact. Apply the same explicit prefix to the unavailable-tool stop, and retain C’s more precise source label, `discovery: manifest test entrypoint`, to preserve Before’s specificity. Keep authorization requirements and ledger preservation explicit wherever discard/reset stops are described.",
-      "wallMs": 6747,
+      "feedback": "Both outputs satisfy the contract: A picks the PR gate over the prose `make test`, B uses the single prose command, C discovers `make check` only because neither section exists, and D/E stop as configuration errors with no ledger, no phase skip and no commit, each successful resolution printing the command with its source. After kept every element Before kept, and tightened D/E by naming the overrides path and listing exactly what does not run. Two notes for the author: the Change asks that every human stop be prefixed with a `gauntlet: question` marker, but After's D/E stop blocks still begin with `Stopped: configuration error - ...`, so if that marker is meant to apply to configuration-error stops the wording should lead with it (e.g. `gauntlet: question - configuration error ...`) while keeping the 'no ledger / no commit' statement; and E's rationale drifted from 'row 3 applies only when neither section exists' to 'only applies when neither section supplies a command', which a reader could misread as permitting discovery after an empty section—restore the 'exists' phrasing to keep the discovery boundary unambiguous.",
+      "wallMs": 10348,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "cde57f325ee36560345ef300a79393086d8addff9e437810737b72891a6a148f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "16e80dabd6e4df063bc29f070b6ed5ba032f57612b02fceb24c77d5a4009a069",
+      "baselineOutputSha": "a7e0241d54d7a640acbc94d32f97ba54513ef55375f65be573f3ab720f7a0031",
+      "candidateOutputSha": "f75b146408e5fe2202ccaa9ac3d26090ff356299693959fd6052bc46f854f2bc",
+      "facts": {
+        "contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every element of the contract that Before kept: A selects the PR gate with a `(PR gate)` source printout, B uses the single prose command with its section as source, C discovers `make check` only because neither section exists and prints the discovery source, and D/E stop as configuration errors before `phase_tracker`, ledger creation, commits, or dispatch without selecting, combining, or falling back. The one weakness in After is internal inconsistency rather than a fact movement: the bullet text asserts the human-facing stop begins with `gauntlet: question` on its own line, but the D/E table cells still show bare `Stopped: ...` lines with no such prefix, so the Change is stated but not actually rendered. To deliver the Change without risking the contract, show the literal stop text in the table (e.g. a `gauntlet: question` line followed by the `Stopped: verification-before-completion must contain exactly one backticked command; found N.` line and the correct-or-stop request), keep the `verification command: ... (source)` printouts for A–C unchanged, and keep the explicit 'stop before phase_tracker/ledger/commit/dispatch' sentence so the before-iteration-zero boundary stays visible.",
+      "wallMs": 11368,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "3ffa2f0701ca648ff212f5571520ed3acc5880c0"
 }

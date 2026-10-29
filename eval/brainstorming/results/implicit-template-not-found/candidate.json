@@ -1,7 +1,7 @@
 {
   "sample": "implicit-template-not-found",
   "arm": "candidate",
-  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
+  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
   "inputSha": "301ff0060fb22623ee1082ebf27a622e3a1e2f9948892c2a73b715389bfc4de0",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**(1) First message to the user**\n\n```text\ngauntlet: question\nOne premise needs correcting before we go further. The seed design says the generator loads its presentation template without naming the file. The code names it: `generate()` calls `load_presentation(\"templates/deck.pptx\")` (slides/generator.py:12-18). That file is not in the repository. The repository guide's lookup for templates is a directory listing of `templates/`, and that listing contains only `templates/README.md` and `templates/chart.pptx`. No other template store is documented. The design will therefore treat `templates/deck.pptx` as a missing implicit dependency, not as an existing asset.\n\nThe rest of the premise is supported. The generator exists and already has an insertion point: after loading the deck, `generate()` calls `append_summary(deck, rows)` before returning it (slides/generator.py:12-18). `append_summary` builds on the existing slide layout API (slides/summary.py:3-5). I have not verified whether `templates/chart.pptx` could stand in for the missing deck. Nothing documents its layouts, so I am not assuming it can.\n\nThe missing template does not stop the brainstorm. It goes to Open Questions, and the design assumes the file is supplied before the generator runs.\n\nThe framing holds: I traced `generate()` → `load_presentation(\"templates/deck.pptx\")` → `append_summary(deck, rows)` → return, and I checked the slide insertion boundary in slides/summary.py:3-5. I checked the template dependency with the directory listing of `templates/` and found it missing (corrected above). The scout raised no objection, and my recon found no alternative framing to propose.\n\nWhat should the summary addition look like?\nA) Keep the current generator and add one summary slide built from existing layouts.\nB) Add a summary slide that needs a new custom layout.\nC) Add a separate summary section with several slides.\nD) other - name it\nRecommendation: A - the insertion hook and the layout API already exist, so one slide fits without a new boundary.\n```\n\n---\n\n**(2) Approaches message** (after the recorded answers: A, and the missing asset is supplied during implementation without pausing the brainstorm)\n\nFirst, the missing dependency from the premise note. `generate()` loads `templates/deck.pptx` (slides/generator.py:12-18). The repository's documented lookup is a directory listing of `templates/`. That listing returned only `templates/README.md` and `templates/chart.pptx`, so the file is missing. Per your answer, the file will be supplied during implementation, and it stays in Open Questions until then.\n\nThe approaches differ on one question: where the summary-slide logic lives. It can sit inside the existing insertion hook, or it can get a new construct beside that hook.\n\n**Recommended: extend `append_summary` (reuse-only).** `generate()` already calls `append_summary(deck, rows)` right after loading the deck. `append_summary` already builds on the existing layout API. Adding the one summary slide inside that function means:\n- the generator stays unchanged, as you asked\n- no new entry point or call site is needed\n- the slide uses an existing layout, matching your answer\n\nThe trade-off is that any other caller of `append_summary` also gets the new slide. I found no other caller in the mapped files, but the plan should search for callers before the change lands.\n\nRemoves: none\nAdds: summary-slide construction inside `append_summary` (slides/summary.py), using an existing layout; a test that `generate()` output contains exactly one summary slide\nPattern: follows the generator's slide insertion hook (slides/generator.py:12-18) and the existing layout API (slides/summary.py:3-5).\n\n**Alternative: a new summary-slide function called from `generate()`.** This adds a dedicated `add_summary_slide(deck, rows)` and a second call after `append_summary`. It isolates the new slide from whatever `append_summary` emits today. The costs are a new construct and a second insertion step in a generator you asked to keep as is.\n\nRemoves: none\nAdds: `add_summary_slide` function (new, slides/summary.py or a new module); a new call site in `generate()` (slides/generator.py); a test for the new function and for the `generate()` output\nPattern: cuts across the existing insertion hook (slides/generator.py:12-18) by putting a parallel insertion path beside `append_summary`.\n\n**Not viable: drop the assumption that the template is `deck.pptx` and retarget to `templates/chart.pptx`.** The listing gives only that file's name. Nothing documents that it carries the layouts `append_summary` needs, and you chose to supply the missing deck instead.\n\nI recommend extending `append_summary`. That would flip if the caller search finds another caller of `append_summary` that must not receive a summary slide. In that case the separate function becomes the safer boundary.\n\n---\n\n**Draft spec `## Problem` excerpt**\n\n```markdown\n## Problem\n\nThe presentation generator (`generate()`, slides/generator.py:12-18) builds a deck by loading a template and then calling `append_summary(deck, rows)`. The deck needs one summary slide built from the existing layout API (slides/summary.py:3-5). The generator itself is kept, not replaced.\n\nCorrected premise: the seed design never named the template the generator loads. The code names it as `templates/deck.pptx`. The repository's documented template lookup, a directory listing of `templates/`, shows only `templates/README.md` and `templates/chart.pptx`. No other template store is documented, so `templates/deck.pptx` is a missing implicit dependency. Per the user, it will be supplied during implementation, and the brainstorm does not pause for it (see Open Questions).\n\nUnverified: whether `templates/chart.pptx` carries usable layouts. It is not assumed to be a substitute.\n\nFraming: kept\n```\n",
-      "words": 807,
-      "wallMs": 40776,
+      "text": "## (1) First message to the user\n\nBefore we go further, one of the design's premises needs correcting. The seed design says the generator loads \"its presentation template\" without naming the file. The code names it: `slides/generator.py:13` calls `load_presentation(\"templates/deck.pptx\")`. The repository guide's template lookup is a directory listing of `templates/`. The supplied complete listing contains only `templates/README.md` and `templates/chart.pptx`, and no other template store is documented. That means `templates/deck.pptx` is missing, so `generate()` cannot load its deck as the repo stands.\n\nI'm treating this as a corrected premise. The design continues on the generator as it is, and you can override that in your reply. What `deck.pptx` should contain, including its layouts, can't be checked because the file isn't there, so that remains unverified.\n\nThe framing holds. Here is what I checked:\n- **Insertion boundary:** `generate()` at `slides/generator.py:12-18` already calls `append_summary(deck, rows)` after loading the deck. That call is the slide-insertion hook the scout found.\n- **Layout API:** `append_summary` at `slides/summary.py:3-5` builds on the existing slide layout API.\n- **Template lookup:** the `templates/` listing described above.\n- **Scout objection:** the scout raised none. I found no misdiagnosis or existing solution that points to an alternative. The ask fits the existing hook.\n\nHow should the brainstorm handle the missing `templates/deck.pptx`?\n\nA) Keep the path `templates/deck.pptx`. The asset is supplied during implementation, and the brainstorm continues without waiting for it.\nB) Repoint the generator at `templates/chart.pptx`. This changes the generator's input, and whether chart.pptx has the needed layouts is unverified.\nC) Other - name it.\n\nRecommendation: A - it keeps the generator unchanged as you asked, and it doesn't build the design on an asset whose layouts haven't been checked.\n\n---\n\n*(Recorded answers applied: A on the template. The follow-up question settled the slide count and layout source: one summary slide using existing layouts.)*\n\n---\n\n## (2) Approaches message\n\nFirst, a restatement of the missing dependency. The generator depends on `templates/deck.pptx` (`slides/generator.py:13`). The repo's lookup for templates is the `templates/` listing. Its result is `README.md` and `chart.pptx` only, so the file is absent. Per your answer, the asset will be supplied during implementation and the brainstorm doesn't pause for it. Its layouts stay unverified until then.\n\nI recommend **Approach A**.\n\n**A) Extend `append_summary` through the existing hook (reuse-only).**\n- `generate()` already calls `append_summary(deck, rows)`, and `append_summary` already uses the existing layout API.\n- The change goes inside that function: it builds the one summary slide from `rows` using an existing layout.\n- `generator.py` stays untouched, which matches \"keep the generator, don't replace it.\"\n- **Trade-off:** any other caller of `append_summary` gets the new slide too. The fixed observations show only the `generate()` call site, so the blast radius looks limited to that path. That should be confirmed when planning.\n- **Trade-off:** the slide depends on the supplied `deck.pptx` actually providing the existing layout `append_summary` selects.\n\nRemoves: none\nAdds: summary-slide construction inside `append_summary` (`slides/summary.py`) using an existing layout; a test covering `generate(rows)` producing exactly one summary slide.\nPattern: follows the generator's slide-insertion hook (`slides/generator.py:14`) and the existing layout API (`slides/summary.py:3-5`).\n\n**B) Add a separate summary-slide builder that `generate()` calls.**\n- A new function, for example in a new module, is called after `append_summary` in `generate()`.\n- **Trade-off:** it isolates the new slide from current `append_summary` behavior.\n- **Trade-off:** it edits the generator, which you asked to keep, and creates a second insertion path beside the hook that already exists for summaries.\n\nRemoves: none\nAdds: a new summary-slide builder function or module; a new call site in `generate()` (`slides/generator.py`); a test for the builder.\nPattern: cuts across the existing insertion hook (`slides/generator.py:14`). This puts a second insertion path beside the owning one.\n\n**Candidates I considered but am not proposing:**\n- **Drop the assumption that a new slide is needed at all**, since `append_summary` already runs: not viable. Your recorded answer commits to adding one summary slide, and dropping it would remove the requested outcome.\n- **Repoint the template to `chart.pptx`**: already settled by your answer A on the template question.\n\n**What would flip the recommendation:** if planning finds other callers of `append_summary` that must not get the summary slide, B's isolation becomes worth the extra insertion path. Even then, a discriminant parameter on `append_summary` should be tried first.\n\n---\n\n## Draft spec `## Problem` excerpt\n\n```markdown\n## Problem\n\nThe presentation generator (`slides/generator.py:12-18`) must keep its current\nstructure and gain one summary slide built from `rows` with the existing slide\nlayout API (`slides/summary.py:3-5`), inserted through the existing\n`append_summary(deck, rows)` hook.\n\nCorrected premise: the seed design said the generator loads an unnamed template.\n`generate()` loads `templates/deck.pptx` (`slides/generator.py:13`). The\nrepository's template lookup, a listing of `templates/`, contains only\n`templates/README.md` and `templates/chart.pptx`. `deck.pptx` is absent. Per the\nuser, the asset is supplied during implementation and the template path is unchanged.\n\nUnverified: the contents of `templates/deck.pptx`, including whether it provides\nthe existing layout the summary slide uses. This cannot be checked until the\nasset is supplied; it is carried to Open Questions.\n\nFraming: kept\n```\n",
+      "words": 801,
+      "wallMs": 40124,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nThe seed’s unnamed template dependency resolves to `templates/deck.pptx` in `slides/generator.py:12–18`. That asset is missing from the supplied complete `templates/` listing, which contains only `README.md` and `chart.pptx`. No other template store is documented, so template availability is a missing prerequisite—not an established capability. These conclusions use the supplied observations, not live tool calls.\n\nThe framing holds: checked the generator’s template-loading path, its existing call to `append_summary`, the summary helper’s use of the existing layout API (`slides/summary.py:3–5`), and the repository guide’s directory-listing lookup for the template dependency; none calls for replacing the generator.\n\nWhich template contract should accompany the summary-slide work?\nA) Preserve `templates/deck.pptx` as the generator’s template; supply the missing asset during implementation and add one summary slide using existing layouts.\nB) Keep the generator but change its template selection to an explicitly chosen, compatible asset.\nC) Other - name it.\nRecommendation: A - it preserves the requested generator and existing loading contract without making the missing asset a brainstorm blocker.\n\n---\n\n## Approaches\n\nThe recorded answer selects A: retain the generator, add one summary slide using existing layouts, and supply the missing asset during implementation without pausing the brainstorm.\n\nThe implicit dependency remains explicit: the repository guide prescribes listing `templates/`; the supplied complete listing does not contain the generator’s required `templates/deck.pptx`. The available `chart.pptx` is not evidence of a compatible replacement.\n\n**I recommend reusing the existing summary path.** The distinguishing axis is whether template selection remains fixed or becomes configurable.\n\n### 1. Complete the existing summary hook; preserve template selection\n\nKeep `generate(rows)` and its existing `append_summary(deck, rows)` call. Implement or adjust the requested one-slide behavior within `slides/summary.py`, using the layout API it already uses. Do not add a second summary invocation: the generator already calls the helper. Supply `templates/deck.pptx` during implementation.\n\nThis has the smallest behavioral surface and preserves the loader contract. The observations establish the integration point, but not the helper’s complete current behavior, so implementation must inspect that behavior before deciding what needs changing.\n\nRemoves: none.\nAdds: the required `templates/deck.pptx` asset; any necessary summary-helper changes; regression coverage for exactly one summary slide through the retained generator.\nPattern: reuses the existing orchestration boundary in `slides/generator.py:12–18` and layout integration in `slides/summary.py:3–5`, rather than introducing parallel slide insertion.\n\n### 2. Retain the generator; make template selection explicit\n\nKeep the generator and summary hook, but add an optional template-path argument, preserving `templates/deck.pptx` as the default. This drops the assumption that template selection must remain hard-coded. The missing default asset still needs supplying; configurability does not itself fix that dependency.\n\nThis permits callers and tests to select a compatible template, but broadens the generator’s interface without a recorded requirement for multiple templates. Compatibility of `chart.pptx` remains unverified.\n\nRemoves: none.\nAdds: an optional generator argument, its connection to the existing loader, the required default asset, summary-helper changes as needed, and coverage for default and explicit template selection.\nPattern: retains the owning loader and summary hook in `slides/generator.py:12–18`, but introduces configurability beyond the requested single-template workflow.\n\nI would switch to approach 2 only if callers actually need template selection; the recorded requirements favor approach 1.\n\n---\n\n## Problem\n\nThe existing presentation generator must be retained and produce one summary slide using existing layouts. It already calls `append_summary(deck, rows)` after loading its presentation template.\n\nThe seed leaves that template unnamed, but `slides/generator.py:12–18` requires `templates/deck.pptx`. The repository guide’s prescribed lookup—a directory listing of `templates/`—shows only `README.md` and `chart.pptx`. Thus, the required asset is missing; no documented alternative store establishes its availability.\n\nFraming: kept - retain the generator and its existing summary insertion boundary.\n\nThe missing asset will be supplied during implementation, as explicitly accepted by the user; it does not pause brainstorming. The design preserves the current template path and does not assume that `chart.pptx` is a compatible substitute.\n",
-      "words": 615,
-      "wallMs": 32322,
+      "text": "### First user-facing message\n\nThe seed’s unnamed template dependency is now concrete: `generate()` loads `templates/deck.pptx` (`slides/generator.py:12–18`), but the supplied complete `templates/` listing contains only `README.md` and `chart.pptx`. The corrected premise is that the retained generator depends on a missing asset—not an available, unnamed template. The repository guide’s documented lookup, listing `templates/`, establishes that absence; no other template store is documented.\n\nThe framing holds: the supplied observations trace `generate(rows)` through template loading, `append_summary(deck, rows)`, and the returned deck, and establish that `append_summary` uses the existing layout API (`slides/summary.py:3–5`). They support keeping the generator and its insertion hook. They do not establish that `chart.pptx` is a compatible substitute or that a subsequently supplied `deck.pptx` will expose the required layouts.\n\nYour recorded answer settles the scope: retain the generator, add exactly one summary slide using existing layouts, and supply the missing asset during implementation. I’ll carry that dependency and its outstanding compatibility check into the design rather than pause the brainstorm.\n\n### Separate approaches message\n\n**I recommend extending the existing summary path without adding another abstraction.** The distinguishing axis is whether summary preparation stays inside `append_summary` or gains a separate internal boundary.\n\nBoth approaches have the same unresolved dependency: the guide-prescribed `templates/` listing contains no `deck.pptx`, although `generate()` loads that exact path. The asset must be supplied during implementation; its loadability and layout compatibility remain unverified.\n\n**1. Reuse the existing generator and summary hook.** Keep `generate(rows)` and `append_summary(deck, rows)` as the owning path. Make any necessary summary changes within the existing hook, using the existing layout API, and supply `templates/deck.pptx`. This has the smallest change surface and avoids parallel rendering logic. Its trade-off is that summary preparation and slide construction remain together.\n\nRemoves: none.  \nAdds: `templates/deck.pptx`; any necessary changes within the existing `slides/summary.py` hook; focused verification coverage for loading the supplied template and producing exactly one summary slide.  \nPattern: extends the existing orchestration and layout boundary rather than creating a second presentation path (`slides/generator.py:12–18`, `slides/summary.py:3–5`).\n\n**2. Separate summary preparation from slide construction inside the existing summary module.** Retain the generator and public hook, but introduce an internal helper in `slides/summary.py` to prepare summary content from `rows`; the existing hook remains responsible for creating the slide through the layout API. This gives content preparation an independently testable boundary, but adds an abstraction whose value is not yet demonstrated by the supplied observations.\n\nRemoves: none.  \nAdds: `templates/deck.pptx`; an internal summary-preparation helper and its call site in `slides/summary.py`; focused helper and slide-integration tests.  \nPattern: preserves the generator-to-summary boundary and existing layout ownership, while adding an internal separation of responsibilities (`slides/generator.py:12–18`, `slides/summary.py:3–5`).\n\nAn alternative that drops the retained-generator requirement is not viable under your recorded answer. Replacing the missing template with `chart.pptx` is not an evidence-backed shortcut: presence alone does not establish compatibility.\n\nI would switch from approach 1 to approach 2 only if inspection of the summary logic reveals substantial preparation behavior that benefits from independent testing.\n\n### Draft spec excerpt\n\n## Problem\n\nThe existing presentation generator must be retained and produce exactly one summary slide using existing layouts.\n\nFraming: kept — the existing `generate(rows)` → `append_summary(deck, rows)` path owns summary insertion.\n\nThe seed design omitted the template’s identity. The generator explicitly loads `templates/deck.pptx` (`slides/generator.py:12–18`), but the complete directory listing obtained through the repository guide’s documented lookup contains only `templates/README.md` and `templates/chart.pptx`. No alternative template store is documented.\n\nThe missing asset will be supplied during implementation, as explicitly accepted by the user; it does not block brainstorming. Successful loading and compatibility with the summary’s required layouts remain unverified until that asset is supplied. `chart.pptx` is not assumed to be a compatible substitute.\n",
+      "words": 590,
+      "wallMs": 34642,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "d56b9f44cb0034efeb3a5d56bf44b8f458d36861764f4d9258651aea5f7c3706",
-      "candidateOutputSha": "8b9b491a3e5440eb214c083fd5334b56f4f2fa419eb4cc75b9b163546e72d4ef",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "10fe0936be879dc85f9a93f075e3580ccd07cf23ec8b849e1916126b2124fdce",
+      "candidateOutputSha": "10fe0936be879dc85f9a93f075e3580ccd07cf23ec8b849e1916126b2124fdce",
       "facts": {
         "premise": {
           "before": "holds",
@@ -64,16 +64,16 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the first message names `templates/deck.pptx` from `load_presentation` in the retained generator and says the `templates/` directory listing contains only README.md and chart.pptx, the approaches message restates the missing file and the listing lookup before any approach, the spec Problem excerpt records both, and the brainstorm moves on without asking where the template is. The one place After weakened its footing is the replay fact: Before anchored the observation with 'The supplied listing is complete' and 'the listing the repo guide names', whereas After says 'That file is not in the repository' and 'I checked the template dependency with the directory listing of `templates/` and found it missing', which a reader could take as a live `ls` rather than a supplied observation; it still passes because the lookup is consistently attributed to the repo guide's documented listing, but to stay safe under the gate-line-first change keep the word 'supplied' (e.g. 'the supplied `templates/` listing, which is complete, shows only ...') and avoid the bare 'not in the repository' claim. The added `gauntlet: question` first line and the chart.pptx 'not a substitute' note do not disturb any fact.",
-      "wallMs": 19172,
+      "feedback": "The After output is textually identical to Before, so no fact moved. Both outputs name `templates/deck.pptx` from `slides/generator.py:13`, state it is absent from the supplied `templates/` listing (README.md and chart.pptx only) in the first message, restate the dependency and the directory-listing lookup at the top of the approaches message before Approach A, and record the same lookup and result in the spec `## Problem`; both refer to the listing as 'supplied' rather than claiming a live lookup, and both proceed to approaches after a how-to-handle premise question (not a where-is-it question) with the recorded answer applied. If the intent was for this case to move from fails to holds, the Before already satisfies all five facts as written here, so the wording change should be checked against a Before sample that actually omits the lookup or the file name; for the After wording, keep the explicit 'traced from the retained loader → named lookup → result → not found' chain in all three surfaces exactly as this output does.",
+      "wallMs": 11035,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "4fb20a62214e6496e32dc755602cf74461c4b0c0956b6b216d47ae3d1352bcbb",
-      "candidateOutputSha": "2908f7dbcf913f31ca15d0b8bc6916d8947c9f47382a2e616dfe21abd93e3110",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "60e6555c725eec2e69ce84dc939714d73444bb37ce464cb88c6ae772470b133b",
+      "candidateOutputSha": "60e6555c725eec2e69ce84dc939714d73444bb37ce464cb88c6ae772470b133b",
       "facts": {
         "premise": {
           "before": "holds",
@@ -101,127 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this sample: both outputs identify templates/deck.pptx from the retained loader in slides/generator.py:12–18, say explicitly in the first message that it is absent from the supplied complete templates/ listing (README.md, chart.pptx only), restate the missing asset and the templates/ directory-listing lookup at the top of the approaches message before any approach, and record the same in the spec ## Problem; both continue to approaches without asking where the file is, and both attribute the lookup to supplied observations (After says so outright: \"not live tool calls\"). After additionally leads with the gate-line-first marker and converts the premise note into a labeled A/B/C question with its own-line Recommendation, which is the Change's intended layout. The only soft spot worth watching is that After's first message poses a question (template contract) that the Recorded answers already settle; a judge reading 'continues' strictly could see that as a pause, so if you keep the questionary form, phrase the lead-in so it acknowledges the recorded decision (e.g. 'Your recorded answer keeps the generator; confirming the template contract that accompanies it:') rather than opening an undecided choice, and keep the explicit 'missing from the supplied templates/ listing' sentence in the first paragraph as After already does.",
-      "wallMs": 18306,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both outputs name templates/deck.pptx from the retained loader (slides/generator.py:12–18) in the first message, state it is absent from the supplied complete templates/ listing (README.md, chart.pptx only) and tie that absence to the repository guide's documented listing lookup; the approaches message restates the missing deck.pptx and the guide-prescribed templates/ listing before enumerating approach 1 and 2; the ## Problem excerpt records the same lookup and result; the brainstorm proceeds to approaches without asking where the template is; and the text consistently speaks of the 'supplied' listing rather than claiming a live filesystem call. Since the Expected-to-move list anticipated fails -> holds for premise/approaches/problem but Before already holds here, the wording in After is sufficient to preserve all five facts; keep the explicit 'supplied listing contains only …' phrasing and the 'obtained through the repository guide's documented lookup' attribution, which is what makes both the not-found result and the replay-evidence framing unambiguous.",
+      "wallMs": 10654,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "implicit-template-not-found",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
-      "candidateSkillSha": "e56966ab6f37d59c93529bd405e54013ce529262d21820b8b32ab4898250b062",
-      "inputSha": "301ff0060fb22623ee1082ebf27a622e3a1e2f9948892c2a73b715389bfc4de0",
-      "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "1656f11f87238ac4b0e5f6ac7f94cc8b1a8b9afe8da5e6a6229b844e04adb33e",
-            "payloadSha": "2d755be6cac88834958304ed2266385fe76ae4927481277c5001ff3cd32d61cc"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "d230bc5e3fda70a2c6a0f55835be5732b71fe138ca9563ce7222469f958042f1",
-            "payloadSha": "d4a34095910ffdd8101cb22798e2c6b514ef348aca48f89166e6d8107a792f13"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "1656f11f87238ac4b0e5f6ac7f94cc8b1a8b9afe8da5e6a6229b844e04adb33e",
-        "candidateOutputSha": "d230bc5e3fda70a2c6a0f55835be5732b71fe138ca9563ce7222469f958042f1",
-        "facts": {
-          "premise": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "approaches": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "problem": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "continues": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "replay": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Nothing moved on this case: both outputs already name templates/deck.pptx from the generator's loader, state it is absent from the supplied complete templates/ listing in the first message, restate that before the approaches, record it in ## Problem, proceed without asking where the file is, and attribute the result to the supplied observation rather than a live lookup. The Before was already satisfying the three dependency facts the Change expected to move, so After preserves rather than gains. One small drift worth watching: After's ## Problem says 'the supplied complete template-directory listing' and drops the 'repository guide's documented lookup' phrasing that Before used; it still names the templates/ listing so the fact holds, but a stricter judge could read the lookup as under-identified. Keeping a clause like 'the repository guide's lookup — the supplied templates/ directory listing' in the spec excerpt, as the premise note and approaches already do, would make the problem fact robust to tighter readings while leaving the rest of the Change (Removes/Adds before Pattern, change-not-copy) intact.",
-        "wallMs": 15175,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "1656f11f87238ac4b0e5f6ac7f94cc8b1a8b9afe8da5e6a6229b844e04adb33e",
-        "candidateOutputSha": "d230bc5e3fda70a2c6a0f55835be5732b71fe138ca9563ce7222469f958042f1",
-        "facts": {
-          "premise": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "approaches": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "problem": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "continues": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "replay": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "No judged fact moved: After preserves the loader-derived missing dependency in the premise note, approaches, and Problem excerpt, continues without requesting the asset’s location, and relies on supplied evidence rather than claiming a live lookup. To make that preservation unambiguous, repeat “templates/deck.pptx was not found in the supplied complete templates/ directory listing” in all three locations. After also grounds the recommended reuse path in the existing call and layout API and places Removes/Adds directly before Pattern; retain those details while carrying the chosen inventory and observable-to-test mappings into the later Design and Tests sections.",
-        "wallMs": 9183,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
 }

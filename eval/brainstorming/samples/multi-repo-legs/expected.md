@@ -1,0 +1,4 @@
+- provision: judged: Invokes using-git-worktrees home first then repo-b then repo-c with each primary as ROOT and the same BRANCH; uses repo-a keyed contract, resolves repo-b subproject to pkg-x, uses repo-c default and never touches repo-unused.
+- portable: judged: Home blocks retain portable create/destroy/home/spec-dir/plan-dir/verification contracts and repo-relative Rules; no committed machine-local path.
+- scope: judged: Home scope claims AC 1, repo-b AC 1 and repo-c AC 2, using original indices.
+- companion: judged: Commits home first; repo-b file has **Home:** repo-a feature/shared-change doc/specs/shared.md, a ## Problem section with the verbatim home Problem, a ## Decisions section with shared Design/Errors/Out-of-scope and only its own entire Leg block; no home or repo-c block.
