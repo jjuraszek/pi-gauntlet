@@ -1,4 +1,4 @@
-for: 86177e4d7f5642073cfbf5cd8e883946a042f125eb0d577978628b5cf6b01c1f
+for: 142d5965599d6cd698d3e856cc5ed26852ea36161d3432a819184162b1d57560
 
 ## Change
 
@@ -12,7 +12,10 @@ PR-subject behavior uses preparatory baseline `1b0f7dd2bbbf926a8ff65109414d05aa9
 
 All-or-nothing endpoint equivalence outside the dispatched spec and plan directories permits retaining valid unchanged-command evidence across planning-only commits and re-stamping it to BASE, even when task steps change. Any failed proof reruns all commands, and the explicit forced-rerun override always wins. The baseline-equivalent-restamp supplied-observation scenarios exercise retention plus fresh evidence for an added task, and rerun-all after a source diff. The existing provenance note records retained evidence.
 
+Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-form Task 1 as an ordinary wave task. The pr-subject-sync-repair sample bundles subagent-driven-development to exercise this execution distinction.
+
 ## Expected to move
+- pr-subject-sync-repair/inplace-wave: fails -> holds - Place rebase Task 1 alone in Wave 1 marked in-place while retaining ordinary merge-task wave placement.
 - baseline-equivalent-restamp/restamp: fails -> holds - Retain unchanged commands across planning-only commits.
 - baseline-equivalent-restamp/provenance: fails -> holds - Record tree-equivalent retention in the existing provenance note.
 - pr-subject-threads/merge-first: fails -> holds - Resolve the outstanding base merge as Task 1.

@@ -1,7 +1,7 @@
 {
   "sample": "fresh-child-authors-plan",
   "arm": "candidate",
-  "skillSha": "9367e0eaead9aae0fec6b2237c9560ba58e9b45277d8ba160bb7cbef0f7524cc",
+  "skillSha": "47f63b360b14a49b96dd458d0ea9f85f363714739bed09c210bb1661cb9695a3",
   "inputSha": "dd76ff95ddc6c34aa414f545fb4137a930ca7702bc5a7a928da978d8a72f65e9",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Plan-phase narration (parent loop)\n\n**0. Phase state.** `phase_tracker` already shows `plan` as `in_progress`, so I do not call `start` again.\n\n**1. Scope Check.**\n- **Deployable intermediate state:** there is no overrides file, so no `## Deployment` topology is documented. The check fails closed, so there is no deployment-driven split.\n- **Review-risk isolation:** nothing in the case gives a reason to land part of the work separately.\n- **Decision:** one plan, with no split to report.\n\n**2. Set the substep.**\n```\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })\n```\n\n**3. Resolve the five absolute paths.**\n- Worktree: `/work/app/.worktrees/rate-limit`\n- Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`\n- Plan, in the spec's sibling `plans/` directory: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`\n- Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`\n- Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`\n\n**4. Entry branch.** No plan file exists and this is not a restored flow, so I dispatch:\n```\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n})\n```\n- The task text is the fixed template only, with no `Findings:` or `Amend:` block.\n- There is no `output:` and no `model:`.\n- **Result:** `PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. The dispatch did not error, did not return an async handle, and left a plan at the path, so I continue.\n\n**5. Stamping check in the parent.**\n```\nplan_check({ planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })\n```\n**Result:** `PASS — plan verified and stamped for implement-start`.\n\n**6. Branch on (reply, check).** The pair is `PLAN WRITTEN` + `PASS`, so I go to step 7. There is no question, so no `gauntlet: question` message.\n\n**7. Clear the substep and read the plan once.**\n```\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: null })\n```\nThe plan contains:\n- Wave 1 — Server: Task 1 \"Emit the rate-limit header\" and Task 2 \"Count requests per key\"\n- Wave 2 — Client: Task 3 \"Read the header in the client\"\n- No `## Open Questions` section\n\n**8. Execution Handoff.**\n```\nphase_tracker({ action: \"complete\", phase: \"plan\" })\nplan_tracker({ action: \"init\", tasks: [\n  \"W1: Emit the rate-limit header\",\n  \"W1: Count requests per key\",\n  \"W2: Read the header in the client\"\n] })\n```\n\n**9. Auto-invoke execution in this session, with no confirmation prompt.**\n```\n/skill:subagent-driven-development\n```\nFrom here the executor owns the only remaining pauses: in-flight `BLOCKED` or `NEEDS_CONTEXT` stops and the end gate.\n",
-      "words": 362,
-      "wallMs": 13532,
+      "text": "# Plan phase: rate-limit header\n\n## 0. Phase state\n\n`phase_tracker` shows brainstorm complete and plan `in_progress`. The Overview's `start` call has already run, so I do not call `start` again.\n\n## 1. Scope check\n\n- **Independent deployability:** There is no overrides file, so no `## Deployment` topology is documented. Undocumented topology fails closed, so there is no deployment-driven split. The server and client waves do not justify a split by themselves.\n- **Review-risk isolation:** Nothing in the case calls for landing part of the work separately.\n- **Decision:** one plan, with no split to report.\n\n## 2. Set the substep\n\n```\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })\n```\n\n## 3. Resolve the five absolute paths\n\n- **Worktree:** `/work/app/.worktrees/rate-limit`\n- **Spec:** `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`\n- **Plan:** `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md` (the `plans/` directory beside `specs/`)\n- **Plan skill:** `/opt/pi/skills/writing-plans/SKILL.md`\n- **Plan contract:** `/opt/pi/skills/writing-plans/reference/plan-contract.md`\n\n## 4. Entry branch and dispatch\n\nNo plan file exists, and this flow was not restored by `/skill:gauntlet-resume`. So I dispatch the writer. There is no `Findings:` or `Amend:` block, no `output:` and no `model:`.\n\n```\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n})\n```\n\nThe dispatch returns `PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. It did not error, did not return an async handle, and the plan path was written. Step 4 does not apply.\n\n## 5. Stamping check in the parent\n\n```\nplan_check({ planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })\n```\n\nResult: `PASS — plan verified and stamped for implement-start`.\n\n## 6. Branch on the result\n\nThe pair is `PLAN WRITTEN` + `PASS`, so I go to step 7. There are no Open Questions to handle and no re-dispatch.\n\n## 7. Close out and hand off\n\nClear the substep:\n\n```\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: null })\n```\n\nI read the plan once:\n- **Wave 1 — Server:** Task 1 \"Emit the rate-limit header\" and Task 2 \"Count requests per key\".\n- **Wave 2 — Client:** Task 3 \"Read the header in the client\".\n- There is no `## Open Questions` section.\n\nMark the plan phase complete:\n\n```\nphase_tracker({ action: \"complete\", phase: \"plan\" })\n```\n\nInitialize the execution list once, in wave order:\n\n```\nplan_tracker({ action: \"init\", tasks: [\n  \"W1: Emit the rate-limit header\",\n  \"W1: Count requests per key\",\n  \"W2: Read the header in the client\"\n] })\n```\n\nThen I auto-invoke `/skill:subagent-driven-development` in this session without waiting for confirmation. The spec gate has already happened. From here the only pauses are the executor's in-flight STOPs and its end gate.\n",
+      "words": 393,
+      "wallMs": 14443,
       "mechanical": {
         "f1": "holds",
         "f2": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Set the planning substep; `plan` is already `in_progress`, so do not start it again:\n\n   ```text\n   phase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })\n   ```\n\n2. Resolve the five absolute paths:\n\n   - Worktree: `/work/app/.worktrees/rate-limit`\n   - Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`\n   - Plan: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`\n   - Skill: `/opt/pi/skills/writing-plans/SKILL.md`\n   - Contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`\n\n   Read the approved spec for the scope check:\n\n   ```text\n   read({ path: \"/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md\" })\n   ```\n\n   There is no overrides file documenting a deployment topology, so fail closed against a deployment-driven split. No review-risk isolation reason is identified in the supplied situation. Proceed with one plan; the server/client distinction is not itself a split signal.\n\n3. No plan exists, so dispatch one fresh child synchronously, without an announcement:\n\n   ```text\n   subagent({\n     agent: \"plan-writer\",\n     context: \"fresh\",\n     async: false,\n     cwd: \"/work/app/.worktrees/rate-limit\",\n     phase: \"plan-write\",\n     acceptance: {\n       level: \"none\",\n       reason: \"the parent plan_check owns acceptance\"\n     },\n     task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n   })\n   ```\n\n   Result:\n\n   ```text\n   PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\n   ```\n\n4. Run the parent's stamping check:\n\n   ```text\n   plan_check({\n     planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\"\n   })\n   ```\n\n   Result:\n\n   ```text\n   PASS — plan verified and stamped for implement-start\n   ```\n\n   Decision: `PLAN WRITTEN` plus `PASS` advances to handoff. No repair dispatch or human question is required.\n\n5. Clear the substep:\n\n   ```text\n   phase_tracker({ action: \"substep\", phase: \"plan\", substep: null })\n   ```\n\n6. Read the finished plan once:\n\n   ```text\n   read({\n     path: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\"\n   })\n   ```\n\n   The plan has no Open Questions section. Extract the three tasks in wave order:\n   - Wave 1: Emit the rate-limit header\n   - Wave 1: Count requests per key\n   - Wave 2: Read the header in the client\n\n7. Complete the planning phase:\n\n   ```text\n   phase_tracker({ action: \"complete\", phase: \"plan\" })\n   ```\n\n8. Initialize the execution list once:\n\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       \"W1: Emit the rate-limit header\",\n       \"W1: Count requests per key\",\n       \"W2: Read the header in the client\"\n     ]\n   })\n   ```\n\n9. Immediately invoke, without asking for confirmation:\n\n   ```text\n   /skill:subagent-driven-development\n   ```\n\n   Execution now passes to that skill. The parent has not authored the plan or implementation code, and has not landed anything on `main`.\n",
-      "words": 313,
-      "wallMs": 13393,
+      "text": "1. Set the current planning substep; do not restart the already-in-progress phase:\n\n   ```text\n   phase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })\n   ```\n\n2. Resolve the five absolute paths:\n   - Worktree: `/work/app/.worktrees/rate-limit`\n   - Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`\n   - Plan: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`\n   - Skill: `/opt/pi/skills/writing-plans/SKILL.md`\n   - Contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`\n\n   Recheck the approved spec for the scope split. No overrides file exists, so there is no documented deployment topology permitting a deployment-driven split. No review-risk isolation reason is supplied. Proceed with one plan.\n\n3. No plan exists to restore. Dispatch a fresh, synchronous child:\n\n   ```text\n   subagent({\n     agent: \"plan-writer\",\n     context: \"fresh\",\n     async: false,\n     cwd: \"/work/app/.worktrees/rate-limit\",\n     phase: \"plan-write\",\n     acceptance: {\n       level: \"none\",\n       reason: \"the parent plan_check owns acceptance\"\n     },\n     task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n   })\n   ```\n\n   Result:\n\n   ```text\n   PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\n   ```\n\n4. Run the parent’s stamping check:\n\n   ```text\n   plan_check({\n     planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\"\n   })\n   ```\n\n   Result:\n\n   ```text\n   PASS — plan verified and stamped for implement-start\n   ```\n\n   Decision: `PLAN WRITTEN` + `PASS`; proceed to handoff without a repair dispatch or approval prompt.\n\n5. Clear the planning substep:\n\n   ```text\n   phase_tracker({ action: \"substep\", phase: \"plan\", substep: null })\n   ```\n\n6. Read the finished plan once:\n\n   ```text\n   read({\n     path: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\"\n   })\n   ```\n\n   The plan contains:\n   - Wave 1 — Server:\n     - Task 1: Emit the rate-limit header\n     - Task 2: Count requests per key\n   - Wave 2 — Client:\n     - Task 3: Read the header in the client\n\n   There is no Open Questions section.\n\n7. Complete the planning phase:\n\n   ```text\n   phase_tracker({ action: \"complete\", phase: \"plan\" })\n   ```\n\n8. Initialize the execution list once, in wave order:\n\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       \"W1: Emit the rate-limit header\",\n       \"W1: Count requests per key\",\n       \"W2: Read the header in the client\"\n     ]\n   })\n   ```\n\n9. Immediately invoke, without waiting for confirmation:\n\n   ```text\n   /skill:subagent-driven-development\n   ```\n",
+      "words": 270,
+      "wallMs": 7980,
       "mechanical": {
         "f1": "holds",
         "f2": "holds"
@@ -40,9 +40,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "399c6bdbef70f126e6c3e53c7e7890838841bc6915d1d561b8d78ed322780451",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-      "baselineOutputSha": "26d2dc46d4e44e2b41e80ee1bece4b0acd3282dcb4d0aa541af67eebef3f7121",
-      "candidateOutputSha": "7c8d292606efc9834bc99cd04bc81bccc7b469099f0d2e59df63a5b5184ccbb6",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
+      "baselineOutputSha": "6914049645e552041bb6f5a6220eb5137351d81c8faa84982360caa7c1d6f310",
+      "candidateOutputSha": "fe4c99b5660f802d74a7b62046ef9ba91f008377097a9f314831193ad9e5be1b",
       "facts": {
         "f3": {
           "before": "holds",
@@ -75,16 +75,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case: both outputs make a single fresh, synchronous plan-writer dispatch with the acceptance-none line, no output field, and all three paths in the task text; both run plan_check on the plan path after the child reply and before the read/init; neither dispatches a scout, writes a file, or reproduces plan body text; and both read the plan once, init plan_tracker with exactly the three W-prefixed titles in wave order, and go straight to /skill:subagent-driven-development with no execution-mode choice (Before already did this, so the predicted f6 fails->holds is not visible in Before's text). After's only substantive differences are presentational: a numbered step list, an explicit `/skill:subagent-driven-development` code line, and naming BLOCKED/NEEDS_CONTEXT as the executor-owned pauses. If the author wants the After wording to demonstrably differ on f6, the distinguishing signal would have to be an explicit statement that singleton waves are ordinary groups and that no Solo/Parallel-safe mode is chosen before handoff; as written, both outputs already satisfy f6 and the Change does not need to alter anything else in this sample to keep f3–f5 holding.",
-      "wallMs": 11844,
+      "feedback": "Nothing moved between Before and After for this case: both narrate a single fresh, synchronous plan-writer dispatch with the `acceptance: { level: \"none\" }` line, no `output:` field, and a task string naming the worktree, spec, and plan paths (f3); both run `plan_check` on the plan path right after the child's `PLAN WRITTEN` reply and before the single plan read and tracker init (f4); neither dispatches a scout, writes a file, or reproduces plan body text beyond wave and task titles (f5); and both read the plan once, call `plan_tracker init` with exactly the three `W1:/W1:/W2:` entries in wave order, then invoke `/skill:subagent-driven-development` immediately with no execution-mode choice (f6). Note that f6 already held in Before as written, so the expected fails->holds transition is not visible in this pair; if the author wants After to demonstrate the mode-selection removal explicitly, the handoff sentence could say something like \"without selecting an execution mode or asking for confirmation\" so the absence of a Solo/Parallel decision is stated rather than merely implied, while keeping the existing immediate-invocation wording that preserves f6's other clauses.",
+      "wallMs": 14962,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "399c6bdbef70f126e6c3e53c7e7890838841bc6915d1d561b8d78ed322780451",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
+      "intentSha": "8200a1385a9a5db5d2f02e1d6a529b5039be596ac5ce933ef3cba1feeb351cf6",
       "baselineOutputSha": "1d7110653d1ddbca46e6c747c6b63bbad631ebfbb518917963d15f23e31ec6ff",
-      "candidateOutputSha": "0ac33d63d023afa4c5ca355b78603da9aacaea853ac790b265be02bcedfbbe4e",
+      "candidateOutputSha": "c018130e2ee56b1042418e2a607fc55677ffd0ca2b4ac4e904b55281a4299a34",
       "facts": {
         "f3": {
           "before": "holds",
@@ -117,137 +117,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this case: both Before and After dispatch a single fresh, synchronous plan-writer with acceptance level none, no output field, and a task naming the worktree, spec, and plan paths; both call plan_check on the plan path right after the child reply and before the plan read and tracker init; neither dispatches a scout, writes or edits a file, or reproduces plan body text; and both read the plan once, init plan_tracker with exactly the three W1/W1/W2 tasks in wave order, then invoke /skill:subagent-driven-development directly with no mode selection. The Expected-to-move entry for f6 (fails -> holds) is not borne out by the Before text, which already hands off without choosing an execution mode, so the After wording preserves rather than gains that behavior. The After changes here are only presentational (imperative voice, path resolution before the spec read, a closing note that the parent authored nothing and landed nothing on main) and none of them affect the facts; the author can keep this wording as-is for this fixture.",
-      "wallMs": 11995,
+      "feedback": "Nothing moved: both outputs make the single fresh/async-false plan-writer dispatch with acceptance level none and no output field and all three paths in the task text (f3), call plan_check on the plan path between the child reply and the plan read (f4), dispatch no scout, write nothing, and quote only wave/task titles rather than plan body (f5), and read the plan once, init the tracker with exactly the three W1/W1/W2 titles in order, then invoke /skill:subagent-driven-development with no mode selection (f6). Note that the Expected-to-move entry for f6 is already satisfied by Before — Before never selects an execution mode either — so the After wording preserves rather than creates that behavior. One minor drift in After worth tightening: step 2 says 'Recheck the approved spec' without showing a read call, whereas Before shows the explicit read; if the spec read is intended to be a real tool call, keep the `read({ path: ...spec... })` block in After so the scope-check step remains a verifiable action rather than a bare assertion. Otherwise the After wording delivers the direct singleton-wave handoff while keeping every fact Before kept.",
+      "wallMs": 12765,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "fresh-child-authors-plan",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "1b903b0fc90a6fcb36196ef2e6e7de4405a09df12df815dfe74ee22b508d3f76",
-      "candidateSkillSha": "d3ff1f78b322ea65e2b8abdd91f7c554c6c380d3aed05975fd0e7efe262ccd41",
-      "inputSha": "dd76ff95ddc6c34aa414f545fb4137a930ca7702bc5a7a928da978d8a72f65e9",
-      "factsSha": "399c6bdbef70f126e6c3e53c7e7890838841bc6915d1d561b8d78ed322780451",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "1d7110653d1ddbca46e6c747c6b63bbad631ebfbb518917963d15f23e31ec6ff",
-            "payloadSha": "3586761bb1dff8d573b2e01705dea84e1ca6b21772fc83547022be335fd602aa"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "d23db313165b8a5f5cc8ef21b5976176a5822c15994580b61a44ca1f0da45156",
-            "payloadSha": "5b5640f77b032c4909f74b79457b83d0ad68c6673658858aa057426ca09338b1"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "399c6bdbef70f126e6c3e53c7e7890838841bc6915d1d561b8d78ed322780451",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-        "baselineOutputSha": "1d7110653d1ddbca46e6c747c6b63bbad631ebfbb518917963d15f23e31ec6ff",
-        "candidateOutputSha": "d23db313165b8a5f5cc8ef21b5976176a5822c15994580b61a44ca1f0da45156",
-        "facts": {
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f5": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f6": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Nothing moved between Before and After on this case: both narrate one fresh, synchronous plan-writer dispatch with acceptance level none and no output field, run plan_check on the plan path right after the child reply and before the single plan read, dispatch no scout, write nothing, quote no plan body, and end with plan_tracker init in exact wave order followed directly by /skill:subagent-driven-development with no mode choice. Note that f6 was expected to go fails -> holds, but the Before text already satisfies it (read once, init in order, immediate invocation, no execution-mode selection), so the fixture's expectation is stale rather than the After wording having fixed anything here. The After wording is fine as-is for this sample; if you want it to visibly exercise the new no-mode-selection rule, consider having the narration state explicitly at step 8/9 that singleton or multi-task waves need no Solo/Parallel-safe decision and that handoff is direct, which would make the Change observable in this output without disturbing f3–f5.",
-        "wallMs": 11917,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "399c6bdbef70f126e6c3e53c7e7890838841bc6915d1d561b8d78ed322780451",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-        "baselineOutputSha": "1d7110653d1ddbca46e6c747c6b63bbad631ebfbb518917963d15f23e31ec6ff",
-        "candidateOutputSha": "d23db313165b8a5f5cc8ef21b5976176a5822c15994580b61a44ca1f0da45156",
-        "facts": {
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f5": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f6": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After preserves every listed fact; none moved. Both outputs use the same fresh synchronous writer dispatch, parent stamping check before the single finished-plan read, ordered tracker initialization, and direct execution handoff without mode selection. After mainly shortens the narration and moves the spec read before the substep update. Retain the explicit dispatch fields, check/read ordering, exact task list, and immediate skill invocation; this case needs no further wording change to preserve these facts while supporting the requested handoff behavior.",
-        "wallMs": 5609,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "50dd29dfd3066c986f17ea1dfffbf4e54fc40ebd"
+  "repoSha": "ec4e5ab500837b12d497f879be151dc2c392a188"
 }
