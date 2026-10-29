@@ -2,6 +2,8 @@ bundle+: skills/brainstorming/reference/pr-subject.md
 bundle+: skills/brainstorming/gatherer.md
 bundle+: skills/brainstorming/reference/spec-finalization.md
 ## Fixed observations
+Regression control: #12 and #13 remain a multi-PR rework list, not a single marked-spec handle. No coordinated marked classification or companion settlement is activated by their existing PR list or carried spec paths. Preserve admission, per-PR relatedness, rework and record attribution.
+
 Fresh authorized #12 #13 are admitted OPEN, in-repo acme/widget, non-fork, base main; all fetches succeed. Home #12 title/body: Retry delay / Keep bounded retries. Head 1111111111111111111111111111111111111111, paths src/retry.ts and doc/specs/retry-cap.md; carried spec doc/specs/retry-cap.md at that original head states "Retries use at most five attempts." Threads empty. Member #13 title/body: Retry cap / Retries never exceed three attempts. Head 2222222222222222222222222222222222222222, paths src/cap.ts and doc/specs/retry-cap.md, carried spec doc/specs/retry-cap.md at that original head states "Retries use at most three attempts.", thread RT13 at src/cap.ts:9: Please preserve the three-attempt cap. Disposition fix. Member #13 binds #90 (context); home has no ticket. Member merge: #13 aaaaaaa. Base: main @ bbbbbbb - merge: no-op. The combined worktree's doc/specs/retry-cap.md states only "Retries use at most three attempts." No base-added constraints; no scoped tests ran (no conflict). Both design rounds approve bounded delays and a three-attempt cap; preserve these behaviors with the smallest repair. Framing: kept.
 
 ## Narrated read actions

@@ -14,7 +14,8 @@ Home is acme/widget at /work/widget; session is linked at /work/widget/.worktree
 | wrapper | create: helper create -b <branch> <name>; no local branch. |
 | race | Add succeeds but selected tree HEAD=X, expected O. |
 | elsewhere | spec-export checked out at /work/helper/.worktrees/foreign. |
-| missing | After fetch origin/spec-export is absent. |
+| missing | Plain git -C /work/helper fetch origin exits 0 without pruning; stale local origin/spec-export still resolves to O despite deletion of the remote branch. git -C /work/helper ls-remote --exit-code --heads origin refs/heads/spec-export exits 2 with no matching head. |
+| lookup-error | Independent of missing: plain git -C /work/helper fetch origin exits 0; local origin/spec-export resolves to O. git -C /work/helper ls-remote --exit-code --heads origin refs/heads/spec-export exits 128 with fatal: unable to access origin. |
 | unresolved | Base merge conflicts in lib/a.ts; companion BASE_SHA overrides provide credential-free file-scoped runner `node --test lib/a.test.mjs`; helper fails; merge abort succeeds back to O, clean. |
 | recover-tree | Selected home clean at R, O ancestor of R; first-parent O..R contains only R O B, B ancestor of origin/trunk; base merge no-op. |
 | recover-add | Same proof as recover-tree but no worktree exists. |

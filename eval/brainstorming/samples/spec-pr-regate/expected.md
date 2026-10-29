@@ -1,4 +1,5 @@
 anonymized: true
+- single-member: judged: Count zero carried Leg blocks in the original-head marker text for Control and one for One-leg. Both retain today's forced merge-sync home-only re-gate, with no sibling settlement, companion preflight or companion provisioning.
 - classifier: judged: Fetch main/spec-export, pin base and inspect supplied name-status, added header and exact banner hunks; Draft and Ready both classify spec PR, independent of draft status, title ticket and unavailable threads; Pasted also re-gates without an audit requirement.
 - skips: judged: Successful marked routes provision via pr-head without binding #17, thread fetch, context-builder, gather/scout, questionary, spec writing, inline lint, council, worker or second predecessor pass.
 - gate: judged: Draft renders rows 1/2/4/5 plus 3, with withheld 6 for #42, carried preserve receipts intent, scope cut and drafted rows; summary uses dispatch/fresh temp/read/render/cleanup and no initial spec commit.

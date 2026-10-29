@@ -1,0 +1,18 @@
+anonymized: true
+- contract: judged: Use labeled independent checkpoints and a compact command legend; synthetic acme repos and /work paths only, no production data. Judge narrated actions, not tool execution. Decode clean 6 once, home-only none+deferred amend/readback; never amend a companion. Carry recorded contract and Worktree First paths. One block/legacy keeps exactly one push, PR and cleanup without companion prefixes.
+
+- success: judged: A Resolve defaults using positional `gh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name`, nonempty main, fetch and `diff --name-status origin/main...HEAD`; use helper settings by file, never companion gauntlet_setting. Exactly one recorded A and only banner-only M pass. Helper probe exits 2: absent, no fetch of spec-export. Finish helper preflight then home preflight before any push. Push helper then home, create exactly one home `--draft` PR with both markers, deferred, no Engine. Print `pushed: acme/helper origin/spec-export` before https://github.com/acme/widget/pull/42; phase complete. Remove helper then home, preserving local and remote branches.
+
+- companion-shape: judged: B Print acme/helper, `M src/export.ts`, origin/main and `Withheld: draft PR - acme/helper diff against origin/main is not spec-only (src/export.ts)`. Keep 1/2/4/5 and amended home/checkouts. No pushes.
+
+- home-last: judged: C Preflight helper, codec then home. Print home `M .gitignore`, origin/main and `Withheld: draft PR - acme/widget diff against origin/main is not spec-only (.gitignore)`. No push even of valid companions; no PR.
+
+- retry: judged: D Helper push succeeds, codec prints `remote: permission denied` with acme/codec. List published acme/helper and all retained paths, re-present retryable 6. Retry both preflight and publication passes (companions then home preflight). Discover helper present exit 0, fetch spec-export and compare full SHAs; print acme/helper already published and skip push. Codec exit 2 gets pushed before home. Print both pushed lines before URL. Never force.
+
+- foreign: judged: E Inventory equal helper as already published; print codec remote 4444444444444444444444444444444444444444 and HEAD 3333333333333333333333333333333333333333, retain /work/widget/.worktrees/spec-export, /work/helper/.worktrees/spec-export, /work/codec/.worktrees/spec-export. Stop before codec/home publication, no force/reconcile; 6 remains retryable after by-hand resolution.
+
+- errors: judged: F Name acme/helper gh failure `GraphQL: denied`, acme/codec fetch failure `fatal: unreachable`, and acme/helper ls-remote failure `fatal: no access` independently. All stop before pushes. Non-2 ls-remote error is not absence; no spurious shape withheld message.
+
+- home-failure: judged: G Print home protected/unavailable output and published acme/helper and acme/codec, retain all paths; no rollback. Push failure keeps retryable6 behavior; create failure keeps create-only row. Create retry refreshes/equality-checks the published home head and reruns the same create only; no amend or push anywhere, no second companion pass that would amend home. Print companion published lines before URL on eventual success.
+
+- cleanup: judged: H Refuse unsafe helper wrapper, report acme/helper /work/helper/.worktrees/spec-export and branch-deleting source; no native bypass. Report acme/codec /work/codec/.worktrees/spec-export and `worktree is locked`; still attempt successful home removal. Host-owned helper alternative reports /work/host/spec-export untouched then attempts codec/home. Preserve every branch. No option-6 receipt, companion PR, telemetry or brief.

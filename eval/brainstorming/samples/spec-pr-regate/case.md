@@ -6,6 +6,8 @@ Override normal replay: narrate actual prescribed calls with arguments and print
 
 Prompt #42 preserve receipts. Origin acme/widget, admitted same-repo non-fork OPEN PR URL https://github.com/Acme/Widget/pull/42, title "Export #17 receipts", base main, head spec-export, headRefOid aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa. Base SHA bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb. Ticket #17 exists but is not bound yet. Review-thread query would fail if attempted. All resources readable, flowGuards.specDirs = [doc/specs]. Worktree /work/widget/.worktrees/spec-export, PR-head provisioning succeeds, base merge succeeds yielding distinct HEAD cccccccccccccccccccccccccccccccccccccccc.
 
+Control: original-head spec has no ## Legs. Independent One-leg delta adds ## Legs with only ### Leg: acme/widget, branch: spec-export, contract: home: .worktrees/<name>, create: git worktree add <home> -b <branch>, spec-dir: doc/specs; Rules: AGENTS.md; scope: AC 1. Both remain home-only, including their merge-sync gate; never settle siblings. Narrate this control briefly, not another full gate.
+
 Pinned base...head diff:
 A doc/specs/export.md
 M doc/specs/old.md
