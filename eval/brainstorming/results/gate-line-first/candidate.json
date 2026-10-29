@@ -38,14 +38,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3964f84215fb650a3cadb08fbc0d1a2d61603f1da16a5e5a988f7bdd02a50e99",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "7c2e9debad9bdf9f7df35e148ea36d1d02aa086c2762ce4b6c9661cf45fbe76f",
+      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "baselineOutputSha": "375e78e38c121626edd6765c0b96db9593ec9733df34400fa66b15e26e1c9d82",
       "candidateOutputSha": "375e78e38c121626edd6765c0b96db9593ec9733df34400fa66b15e26e1c9d82",
       "facts": {
         "correction": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "framing": {
           "before": "holds",
@@ -53,26 +53,26 @@
           "label": "held"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved the correction fact from fails to holds: Before never renders a question marker, so its (otherwise accurate) premise note citing settings/resolver.ts:11 and the existing timeout override is not placed 'after the marker' as the fact is written, whereas After opens with the column-zero line `gauntlet: question` and then immediately disproves the draft claim with settings/resolver.ts:11 and its timeout-override support before the framing question. Framing holds in both: A/B/C each sit on their own line, B pivots to passing the override through the existing resolver, C is smaller-or-none, and both end on a Recommendation line and stop. Nothing regressed; the After wording that keeps every Before fact while delivering the change is exactly this shape — marker on line one, premise correction next, then the lead-in, one labeled option per line, and a final own-line Recommendation. Keep the marker line literally first (no leading prose) so gate-line-first stays satisfied, and keep the explicit Disproved/Supported/Corrected/Unverified bookkeeping visible in prose as After does so the correction remains unmistakably before the question.",
-      "wallMs": 16908,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical, so nothing moved. Both open with the `gauntlet: question` marker, immediately correct the draft's claim by citing `settings/resolver.ts:11` and its existing timeout-override support before any question is asked, and then present the framing question with A) as framed, B) pivot to passing the override through the existing resolver, and C) smaller or none on separate physical lines, closing with a single `Recommendation:` line and stopping to await the reply without listing approaches. The After wording preserves every fact Before held; no adjustment is needed for this case.",
+      "wallMs": 6028,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3964f84215fb650a3cadb08fbc0d1a2d61603f1da16a5e5a988f7bdd02a50e99",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "8dacff2bb82b545fa7e410057db9c5e0082f612e0783450b07f2e705421f7cc4",
+      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "baselineOutputSha": "4443284adcbfff96fa6a81a0fe710ab33016595e90a03400f2b11bc0e176298c",
       "candidateOutputSha": "4443284adcbfff96fa6a81a0fe710ab33016595e90a03400f2b11bc0e176298c",
       "facts": {
         "correction": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "framing": {
           "before": "holds",
@@ -80,15 +80,15 @@
           "label": "held"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After adds the `gauntlet: question` marker at column zero as its first line, and the verified premise correction (`settings/resolver.ts:11` already accepts a timeout override, every caller uses that resolver, a second file duplicates the boundary) follows it directly and precedes the framing question, so the correction fact as written (which is positioned relative to the marker) holds only in After; Before carries the same correction content but has no marker for it to follow. Both outputs keep the framing contract intact: lead-in first, A) as framed / B) pivot to passing the override through the existing resolver / C) smaller or none on separate physical lines, a final `Recommendation:` line choosing B, and no approaches produced, so the wording change delivered the marker without disturbing the questionary layout. If you want the correction fact to also credit the pre-marker baseline, reword it to something like 'Correct the claim using settings/resolver.ts:11 and its existing timeout override support before the framing question (after the marker when present)'; otherwise the current After wording already keeps every fact Before kept and adds the one the marker requirement introduces.",
-      "wallMs": 18308,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical, so no fact moved. Both open with the `gauntlet: question` marker, then correct the draft's claim by citing `settings/resolver.ts:11` and its existing timeout override before posing the framing question, satisfying `correction`. Both then render A) as framed, B) pivot to passing the override through the existing resolver, and C) smaller or none on separate physical lines after a lead-in, and end with a `Recommendation:` line as the final line while stopping to await the reply with no approaches produced, satisfying `framing`. The After wording preserves everything Before delivered for this continuation; no adjustment is needed here, and any further changes to the questionary layout rules should keep the marker-first/correction-then-question ordering and the one-option-per-line plus final own-line Recommendation layout exactly as both outputs show.",
+      "wallMs": 5853,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

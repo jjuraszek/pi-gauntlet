@@ -1,7 +1,7 @@
 {
   "sample": "human-raised-drop",
   "arm": "candidate",
-  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
+  "skillSha": "46230ac73e4c7b5113a163f24e5ccaa63fb52be65622b5210b286d3ec2351e00",
   "inputSha": "ef2a533acdc8413125441da13b20c9ab316d57925678233e824f464c6fa1185b",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Recorded: the export reuses the existing CSV serializer and paging, with columns from the table's definitions (`src/export/csv.ts:40`: title, status, owner). The button sits beside the report title.\n\nDropping a ticket row is a scope decision, so I need your call on the third acceptance criterion: \"The export of a 10k-row report completes in under 60s.\" Nothing in the code shows this row is wrong or impossible. The gather found that every ticket row matches the table contract. How should the spec treat it?\n\nA) in-scope - the reuse approach must export a 10k-row report in under 60s, proven by a test that exports a 10k-row fixture through the existing serializer and paging\nB) deviates: the 10k-row timing is more than this sprint needs, so the export ships without a timing guarantee\nC) deferred: <where> - name the tracker ref, spec path, or URL that will own the 10k-row timing\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 \"The export of a 10k-row report completes in under 60s.\" - sprint scope does not need the 10k-row timing\nRecommendation: A - the row is part of the ticket's contract and nothing shows it is wrong; the reuse approach already pages through the data, so the timing test should mostly confirm what this design delivers.\n",
-      "words": 206,
-      "wallMs": 11057,
+      "text": "gauntlet: question\nI've recorded your approach: reuse the existing CSV serializer and paging, with the button beside the report title. Before the design round, I need your decision on the third ticket row, \"The export of a 10k-row report completes in under 60s.\" The gather draft found nothing showing that row is wrong or impossible. That means the ticket contract still stands until you choose otherwise. How should the spec carry that row?\n\nA) in-scope - the row stays a requirement as written. The reused serializer and paging path gets one timing test that exports a 10k-row report and asserts it finishes in under 60s. No new streaming or job machinery is added unless that test fails.\nB) deviates: the 60s bound for 10k rows is beyond this sprint's need, so the export ships without a performance guarantee.\nC) deferred: <the follow-up tracker ref, spec path, or URL you name> - the bound moves to that destination and is listed as a scope cut at the gate.\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row 3 (\"10k-row export under 60s\") - you consider the row the wrong requirement, so you would fix the ticket itself.\n\nRecommendation: A - the chosen reuse approach adds no new machinery for this row, so keeping it costs only one timing test. That test also guards the exact risk the row names.\n",
+      "words": 222,
+      "wallMs": 11509,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "We’ll reuse the existing CSV serializer and paging, with the Export CSV button beside the report title. Before the design rounds, we need to resolve your requested scope cut for this ticket row:\n\n> The export of a 10k-row report completes in under 60s.\n\nHow should we handle it?\nA) in-scope - retain the 10k-row, under-60s requirement and verify it this sprint.\nB) deviates: omit the 10k-row performance guarantee from this sprint’s implementation.\nC) deferred: acme/widgets#77 - leave this requirement tracked on the ticket for a later sprint.\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77` to revise this row to reflect your stated sprint scope before continuing.\nRecommendation: D - update the ticket contract to match your intended scope rather than leave the implementation and ticket disagreeing.\n",
-      "words": 122,
-      "wallMs": 10653,
+      "text": "gauntlet: question\nThe ticket includes “The export of a 10k-row report completes in under 60s.” Your request to drop it changes the ticket’s acceptance contract. How should we handle that row?\nA) in-scope - retain the 10k-row, under-60s requirement and verify it with the reuse-based implementation.\nB) deviates: omit the 10k-row, under-60s requirement because it exceeds this sprint’s needs.\nC) deferred: move the performance requirement to a follow-up; include a tracker reference, spec path, or URL in your answer.\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 to revise this row because you’ve identified it as beyond this sprint’s needs.\nRecommendation: D - align the ticket with your intended scope before approving the design.\n",
+      "words": 110,
+      "wallMs": 10157,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "5d8bd960cc8d8daf385ffbfddc963fe05c72198b8563137ebb4b519e4838afbf",
-      "candidateOutputSha": "5d8bd960cc8d8daf385ffbfddc963fe05c72198b8563137ebb4b519e4838afbf",
+      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "baselineOutputSha": "3094d567f91ff5249afbb41daab328bec7bbe682c22ad11d0d7867359db114e1",
+      "candidateOutputSha": "b334d778316d788dacea74240723dd2054eda97dbfc0daf482afd2cbed507bcb",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical on this continuation case: both open with the recorded approach and placement, pose the cut question for the 60s row with options A, B, C, D in that order, recommend A, and leave the row unmarked (neither deferred nor deviates) pending the user's answer, so every fact holds on both sides and nothing moved. The After wording delivers the Change without disturbing the ticket cut-question contract here; keep the cut question's own format and the section-4 scoping sentence that confines the amendment menu grammar to the amendment batch, and leave the recommendation rule and the 'ask before marking' rule untouched, since they are what keep f1-f3 holding.",
-      "wallMs": 6613,
+      "feedback": "Nothing moved in this continuation: After still opens with a lead-in, renders the cut question for the 60s row with options A, B, C, D each on their own line in that order, puts Recommendation: A on its own final line, and marks the row neither deferred nor deviates before the user answers (B and C remain offered options, not applied states). The After wording even tightens the layout by separating the recommendation line with a blank line and rendering D with the explicit row reference, both of which fit the questionary layout rule in the Change. The only drift worth watching is that After's recommendation drops Before's secondary mention of D as the at-source repair; keeping a short clause like \"if the bound should not be in this ticket, D fixes it at the source\" would preserve that guidance without affecting any of the three facts.",
+      "wallMs": 7943,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "3d9b6811db93d3a9bfef129459e2f621a1318bdcbd5770d5f97031bc6a9e5aa2",
-      "candidateOutputSha": "3d9b6811db93d3a9bfef129459e2f621a1318bdcbd5770d5f97031bc6a9e5aa2",
+      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "baselineOutputSha": "e5578bbf56d2d63a9194c2eef38fa6cd248a924184ff891eadc2dfc81bfaff13",
+      "candidateOutputSha": "9f3ea42975d7cbb0ad20f429bc8748ce45a2b70c05f5fa8b39ab43c176e5e16d",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical, so nothing moved: both ask the cut question for the quoted 60s row with options A, B, C, D in that order, both recommend D, and neither marks the row deferred or deviates ahead of the user's answer (the words appear only as option labels, not as a recorded disposition). The scoping sentence confining the amendment-menu grammar to the amendment batch is doing its job here, since the ticket cut question keeps its own lead-in / one-option-per-line / own-line Recommendation layout rather than being re-rendered as a numbered problem-first item; keep that scoping sentence and the ticket-acceptance slice ordering after the amendment section 4 slice so this continuation stays stable.",
-      "wallMs": 6604,
+      "feedback": "Nothing moved: both outputs ask the cut question for the 60s row with A, B, C, D in order, both recommend D, and neither marks the row deferred or deviates before the user answers. Two small regressions in After are worth noting even though no fact keys on them: option B dropped Before's clause 'retain the ticket row verbatim and record the scope cut', which is the wording that makes the deviates option safe against silently rewriting the ticket contract, and the `/skill:shape-ticket acme/widgets#77` command lost its code formatting and the 'through its confirmation gate' phrase. After also dropped Before's lead-in recap of the chosen approach (reuse serializer/paging, button beside title), which Before used to confirm the completed step-5 selections before pivoting. To keep every Before property while delivering the Change, keep After's structure but restore the verbatim-row/record-the-cut wording in B, the backticked command plus confirmation-gate mention in D, and a one-clause recap of the selected approach in the lead-in.",
+      "wallMs": 10411,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9265385c6db4e84d7eb2c53e1f8662684ce20a02974001869b71e04a22096715",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "77bae7f5ac86ad1d405c02ae7313e110d9f1eb25d350587945d1cb7efeef8bbf",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "6a3d3570ae0cc5fd7788ed9d9f99b1ba08626c32cba7a5b505e7eba4616dcf50",
       "candidateOutputSha": "6a3d3570ae0cc5fd7788ed9d9f99b1ba08626c32cba7a5b505e7eba4616dcf50",
       "facts": {
         "f1": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the briefing body is reproduced word for word, the Council line still reads `4 applied, 1 deferred, 1 rejected; coverage 2 of 3` with no per-member reason, and reply `2` is still narrated as approval with the amendment grant. Two things worth tightening so this stays robust: After drops the `## Briefing` heading that Before carried, which a stricter reader could count against verbatim reproduction, so keep the heading if the source render includes it; and both the Scope cuts line and the Drafted acceptance criteria block are still angle-bracket placeholders rather than rendered rows, because this case supplies no `## Acceptance criteria` section. The Change says the drafted block should be omitted for ticket-row gates and that Scope cuts should render `none` when no cuts exist, so for a case that supplies that section the After wording should emit the concrete rows (or `none` / omitted block) in the slot after Scope cuts: and before Council:, keeping the briefing and audit counts untouched exactly as done here.",
-      "wallMs": 13238,
+      "feedback": "After is byte-identical to Before, so nothing moved: the briefing is reproduced verbatim, the Council line reads `4 applied, 1 deferred, 1 rejected; coverage 2 of 3` with no per-member reason and no `no output produced` text, and reply `2` is handled as approval with the auto-apply amendment grant. Both outputs render the Scope cuts line and the Drafted acceptance criteria block as unfilled template placeholders (`<every deferred:/... or none>`, `<every drafted - [ ] row ...>`) rather than concrete values, which is acceptable for this case's facts because the case supplied no `## Spec acceptance criteria` section; if the author wants the Change to be visible in this sample, the wording should instruct the gate to render `Scope cuts: none` and omit the drafted block (or state the absent-observation reason explicitly) when no rows are supplied, while leaving the briefing, Council counts line, and reply-2 continuation exactly as they are.",
+      "wallMs": 12030,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9265385c6db4e84d7eb2c53e1f8662684ce20a02974001869b71e04a22096715",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "62438234544ec2ff2a8360517751c8dcb3795095a6a067351e0212fd623eca75",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "021e261af08cb56f975de64634eb74452b3d1c52073aafd713d52521662b8a93",
       "candidateOutputSha": "021e261af08cb56f975de64634eb74452b3d1c52073aafd713d52521662b8a93",
       "facts": {
         "f1": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs reproduce the briefing verbatim, carry the identical `Council: 4 applied, 1 deferred, 1 rejected; coverage 2 of 3` line with no per-member reason, and treat reply 2 as approval that persists the auto-apply amendment grant. After correctly inserts the new `Drafted acceptance criteria` line between `Scope cuts:` and `Council:` and, since this case supplies no `## Spec acceptance criteria` section, honestly reports that no rows can be reproduced rather than inventing a drafted block. One wording drift worth watching: Before stated the eligibility rule explicitly (`Options 4/5 require acceptance-criteria rows; option 6 is unavailable if this is already a PR subject`), while After softened it to `Loop-option eligibility cannot be verified...` and dropped the option-6 PR-subject caveat; that does not touch the five facts here but would weaken cases asserting the option-6 unavailability note, so keep the explicit rule line alongside the new drafted-rows block, and keep the drafted block's not-fetched/not-supplied phrasing as a concrete reason rather than a template token.",
-      "wallMs": 12128,
+      "feedback": "The After output is textually identical to Before, so no fact moved: the briefing is reproduced verbatim, the Council line reads exactly `Council: 4 applied, 1 deferred, 1 rejected; coverage 2 of 3` with no per-member reason, and reply 2 is narrated as approval that persists the auto-apply amendment grant. Note, however, that the After wording did not deliver the Change here either: the gate still prints `Scope cuts: cannot verify without the applied spec's acceptance-criteria section` and a hedging `Drafted acceptance criteria` line instead of a concrete `Scope cuts: none` (or listed cuts) between the commit line and Council, and the menu rendering (six rows) is unaffected. To keep every fact above while delivering the Change, instruct the gate to render `Scope cuts: none` when the acceptance-criteria section is absent or has only in-scope rows, omit the drafted block for ticket-row gates rather than printing a placeholder sentence, and leave the briefing, the Council counts line format, and the reply-2 approval narration untouched.",
+      "wallMs": 10193,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3d95fb33758faf76184c11854690d860c4893a3f"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

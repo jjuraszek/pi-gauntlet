@@ -40,7 +40,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
       "baselineOutputSha": "6bbc07617e4c04efcfb45156ac03eaf55fc3448cfa6ddcc0bb671e07a1f9e4ac",
       "candidateOutputSha": "6bbc07617e4c04efcfb45156ac03eaf55fc3448cfa6ddcc0bb671e07a1f9e4ac",
       "facts": {
@@ -60,14 +60,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are byte-identical, so no fact moved: both narrate `cd /work/acme-mono && script/worktree destroy 'fix-x'`, report the exit 1 and `error: worktree fix-x has unsynced changes` output, and then explicitly state that `git branch -D fix-x` was not run and no `git worktree remove --force`/`prune` was executed. The only mention of `branch -D` is inside a suggested re-run command for the user, which a careful reader would not treat as the narration itself running it. The Expected-to-move entry (f1 fails -> holds) is not borne out by this pair, because the Before text already satisfies the keyed-contract destroy path; the wording you supplied already delivers the Change for this case, and if you want the suggested re-run to be unambiguous you could label it `Suggested re-run (not executed):` so no reader could mistake the trailing `branch -D` for an executed step.",
-      "wallMs": 7216,
+      "feedback": "Before and After are byte-identical for this case, so nothing moved: both narrate `cd /work/acme-mono && script/worktree destroy 'fix-x'`, quote the exit-1 output verbatim, and then explicitly state that `git branch -D fix-x` was not run and that no `git worktree remove --force` or `prune` followed, which satisfies f1 in both arms. The expected fails->holds movement for destroy-failure/f1 therefore is not visible here because the Before text already reflects the keyed-contract behavior. The one thing to watch in the After wording is the trailing suggested re-run line that chains `script/worktree destroy 'fix-x' && git -C /work/acme-mono branch -D fix-x`; it is clearly framed as a user next step rather than an executed command, so it does not break f1, but if you want to remove any ambiguity for a strict reader, label it as a manual command the user runs only after resolving the unsynced changes, and keep the explicit 'was not run' statements for both `branch -D` and `worktree remove`.",
+      "wallMs": 9153,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
       "baselineOutputSha": "6b3f2287601c71a84cbcca5a59208c6a92ea9233dc9269821216d6f5405cae14",
       "candidateOutputSha": "6b3f2287601c71a84cbcca5a59208c6a92ea9233dc9269821216d6f5405cae14",
       "facts": {
@@ -87,10 +87,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical here, and both satisfy f1: the narration runs `script/worktree destroy 'fix-x'` from /work/acme-mono, reports the exit code and the `unsynced changes` error verbatim, and explicitly states that `git worktree remove`, `git worktree prune`, and branch deletion are not run while the worktree and branch are preserved. Nothing moved on this case; the After wording delivers the keyed-contract destroy behavior with the no-force/keep-branch rule intact, so no adjustment is needed. If you want the narration to be even more unambiguous for the audit, consider having it name the override contract it matched (home: ../acme-mono-<name>, destroy: script/worktree destroy <name>) and the recovered name before running the command, which would make the ownership match and name recovery legible without changing any of the held behavior.",
-      "wallMs": 5911,
+      "feedback": "Before and After are byte-for-byte identical here: both run `script/worktree destroy 'fix-x'` from `/work/acme-mono`, quote the exit code and the `unsynced changes` error verbatim, and then explicitly refuse `git worktree remove`, `git worktree prune`, and branch deletion, so f1 holds in both arms. The Expected-to-move entry predicting Before would fail f1 (baseline treating a sibling path as host-owned and never running destroy) is not what the Before text shows — the baseline output already follows the keyed `destroy:` contract and keeps the branch. Nothing in After moved any fact; if the author wants this case to demonstrate the Change, the fixture or baseline needs a genuine pre-change narration (e.g. one that declares `/work/acme-mono-fix-x` host-owned and skips destroy), otherwise this sample is a stable control rather than evidence of movement.",
+      "wallMs": 8182,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

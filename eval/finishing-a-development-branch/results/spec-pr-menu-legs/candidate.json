@@ -1,0 +1,170 @@
+{
+  "sample": "spec-pr-menu-legs",
+  "arm": "candidate",
+  "skillSha": "9c503e5b8f518c23854ddc08c39ecee21423ba51b964590c680fd2fb5a0e98bb",
+  "inputSha": "ccf166b691490b241180e3fd541aa5efa5f79bc28614f5ea8257be20bb39ec6a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Header-linked coordinated finish (doc/specs/shared.md, PR acme/widget#42)\n\n## Command legend\n- **H** = `/work/widget/.worktrees/shared` (home, acme/widget)\n- **C** = `/work/helper/.worktrees/shared` (companion, acme/helper)\n- **R** = receipt file `/work/widget/.git/gauntlet/receipts/shared.md/acme/helper`\n- **P9** = `https://github.com/acme/helper/pull/9`\n- **SEAL** = `node <bin>/gauntlet-telemetry-seal.mjs --worktree H --option pr --base origin/release --spec doc/specs/shared.md --leg acme/helper=P9`\n- **HPUSH** = `git -C H push --no-follow-tags origin HEAD:refs/heads/shared`\n- **CVIEW** = `gh pr view P9 --json state,headRefOid,isDraft` (run in C's repository)\n\n## Shared preparation (every run)\n1. **Spec header.** The header has no `**Engine:** deferred`. It has `**PR:** acme/widget#42` and no `## Rework record`, so the header-linked route applies.\n2. **Announce.** \"I'm using the finishing-a-development-branch skill to complete this work.\" Then `phase_tracker({ action: \"start\", phase: \"ship\" })`.\n3. **Identity.** `gh pr view 42 -R acme/widget --json number,url,state,isDraft,headRefName,baseRefName` returns:\n   - number 42, state OPEN, isDraft true\n   - headRefName `shared`, which equals `$FEATURE`\n   - baseRefName `release`, retained for Step 3 and the seal.\n4. **Legs activation.** There are two blocks, so legs.md applies:\n   - Origins, common dirs, the declared sibling, and C's `**Home:** acme/widget shared doc/specs/shared.md` tuple all validate.\n   - No receipts exist yet.\n5. **Step 1 verification, per leg, each in its own checkout:**\n   - `(cd H && test-widget)` passes.\n   - `(cd C && test-helper)` passes.\n6. **Step 3.5 conformance, per leg:**\n   - acme/widget: `cwd` H, Rules `AGENTS.md`, AC 1 (home output). Result CONFORMS.\n   - acme/helper: `cwd` C, Rules `AGENTS.md`, AC 2 (helper output). Result CONFORMS.\n   - Audited heads are H `bbbb…bbbb` and C `cccc…cccc`. Aggregate output: `Closure / conformance: CONFORMS`.\n7. **Step 4 preflight.**\n   - `git -C H fetch origin` succeeds.\n   - `git -C H merge-base --is-ancestor origin/shared HEAD` exits 0, so rows 1 and 2 are offered.\n8. **Menu.**\n```\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push to PR #42 and mark it ready for review\n2. Push to PR #42, keep it a draft\n3. Squash-merge to release (no PR, no surviving branch; orphans PR #42 - close it by hand)\n4. Keep the branch as-is (I'll handle it later; nothing is pushed)\n5. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\n9. **Freshness before any delivery.** H and C still match their audited head and tree (staged, unstaged and untracked are unchanged).\n10. **Home body.** The body stays `Original description\\n` byte-for-byte. No Rework block is added and no companion URL is inserted.\n\n---\n\n## A: Row 1\n1. **Companion push.** `git -C C push -u origin shared`.\n2. **Companion PR.** `(cd C && gh pr create …)`, created ready (no `--draft`). The body carries `Home: acme/widget shared doc/specs/shared.md` and returns P9.\n3. **Receipt R:**\n```\nattempted-head: cccccccccccccccccccccccccccccccccccccccc\ndelivered: pr https://github.com/acme/helper/pull/9 cccccccccccccccccccccccccccccccccccccccc\nverification: passed\n```\n4. **Reconcile.** CVIEW returns OPEN, head `cccc…`, isDraft false. It is already ready, so no `gh pr ready` is needed.\n5. **Home strip and seal, once.**\n   - Remove the plan candidates from H.\n   - Run SEAL (base `origin/release`, one `--leg acme/helper=P9`) and print its stdout verbatim, e.g. `sealed .pi/gauntlet/telemetry/doc/specs/shared.yaml`.\n   - No companion strip or seal runs.\n6. **Home push.** HPUSH succeeds.\n7. **Home ready.** `gh pr ready 42 -R acme/widget` succeeds.\n8. **Summary (companions first, home last):**\n```\ngauntlet: done pushed\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nShipped: acme/widget pr https://github.com/acme/widget/pull/42\nHome delivery and required cleanup succeeded; receipts removed\n```\n9. **Closeout.**\n   - Keep this summary for cross-repo review, because PR #42's body does not list P9.\n   - Both worktrees are kept.\n   - `phase_tracker({ action: \"complete\", phase: \"ship\" })`.\n\n## B: Row 2\n1. **Companion PR.** The companion push succeeds, then `(cd C && gh pr create --draft …)` returns P9 as a draft with the Home pointer. Receipt R is written as in A.\n2. **Reconcile.** CVIEW returns OPEN, `cccc…`, isDraft true. It is left as a draft.\n3. **Home.** SEAL (identical to A), then HPUSH.\n4. **No ready calls** are made on either PR. PR #42 remains a draft.\n5. **Summary:**\n```\ngauntlet: done pushed\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nShipped: acme/widget pr https://github.com/acme/widget/pull/42\nHome delivery and required cleanup succeeded; receipts removed\n```\n6. **Closeout.** Same keep-summary note as A. Worktrees are kept and ship is completed.\n\n## C: Retry row 1 after partial B (fresh session)\n1. **Receipt R.** It parses to attempted `cccc…`, delivered `pr P9 cccc…`, verification passed.\n2. **Stripped plan.** Admitted, because every companion has a receipt. Commands are recovered from the recorded contract.\n3. **Live proof before any exemption.** CVIEW returns:\n   - state OPEN\n   - headRefOid `cccc…`, which equals attempted and delivered\n   - isDraft true\n4. **Missing C worktree.** It is exempt from checkout verification and conformance only because of this validated receipt. Without the receipt, a missing tree would stop the run.\n5. **Home checks.** H is verified and audited fresh. Preflight and menu are as in shared preparation, and the user selects row 1.\n6. **No duplicate create.**\n   - `gh pr ready P9` succeeds.\n   - CVIEW refreshes to isDraft false, and R is rewritten with the same head and passed verification.\n7. **Home seal and delivery.** SEAL runs.\n   - If a seal from partial B already exists, its `legs:` set `{acme/helper, pr P9}` is compared with the collected set. It matches, so the output is `already sealed …`.\n   - Then HPUSH, then `gh pr ready 42 -R acme/widget`.\n8. **Summary.** Same two Shipped lines as A, plus `gauntlet: done pushed` and receipts removed. Keep the summary for cross-repo review.\n\n## D: Retry row 2 after partial A\n1. **Receipt and tree.** R is valid. C is present and clean, with current head `cccc…` matching attempted.\n2. **Live state.** CVIEW returns OPEN, `cccc…`, isDraft false.\n3. **Row 2.** The companion is left ready: no `gh pr ready`, and no redraft.\n4. **Home.** SEAL (or the matching `already sealed` result), then HPUSH. No home ready call is made, so PR #42 stays a draft.\n5. **Summary.** Same two Shipped lines, `gauntlet: done pushed`, receipts removed, keep-summary note.\n\n---\n\n## Independent failures\nNone of these roll anything back. Each return to the menu is a separate gate message, and the preflight is recomputed when it is shown.\n\n**1. Companion create fails (`GraphQL: create denied`).**\n- No PR exists, so no receipt is written.\n- The companion branch push stays on origin and is not reverted.\n- Home strip, seal and push never start, and ship is not completed.\n```\ngauntlet: stuck companion acme/helper PR create denied\nShipped: (none)\nNot shipped: acme/helper GraphQL: create denied\nNot shipped: acme/widget companion delivery failed; home not sealed or pushed\n```\n\n**2. C companion ready fails (`GraphQL: ready denied`).**\n- R is retained unrefreshed, and P9 stays open as a draft.\n- Seal and home push never start.\n```\ngauntlet: stuck companion acme/helper ready denied\nNot shipped: acme/helper GraphQL: ready denied (PR https://github.com/acme/helper/pull/9 open, still draft; receipt retained)\nNot shipped: acme/widget companion not ready; home not sealed or pushed\n```\n\n**3. Live receipt PR is CLOSED.**\n- This is not a validated skip, and no duplicate create runs. It stops for a user disposition.\n- R is retained, and no home seal or push happens.\n```\ngauntlet: stuck acme/helper receipt PR #9 is CLOSED; disposition needed\nNot shipped: acme/helper receipt PR https://github.com/acme/helper/pull/9 is CLOSED\nNot shipped: acme/widget companion unresolved\n```\n\n**4. Home seal exits 1 after companion delivery.**\n- P9 and R are retained. No home push and no ready.\n```\ngauntlet: stuck home seal failed\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nNot shipped: acme/widget seal: invalid telemetry\n```\n\n**5. Home ready fails after a successful push.**\n- The push of `shared` to PR #42 already completed. PR #42 remains a draft; mark it ready by hand or retry later.\n- Receipts are retained, worktrees are kept, and ship is not marked complete.\n```\ngauntlet: stuck acme/widget pushed but gh pr ready failed\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nShipped: acme/widget pr https://github.com/acme/widget/pull/42 (push completed; still draft - GraphQL: home ready denied)\nreceipts retained - home ready incomplete\n```\n\n**6. Home push rejected (`remote: stale head`).**\n- The rejection is reported once. Ready is skipped, nothing is forced and there is no automatic retry.\n- P9, R and the home seal commit are retained, and the user returns to the menu.\n```\ngauntlet: stuck home push rejected\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nNot shipped: acme/widget remote: stale head\n```\n\n## Home preflight divergence\n- **Trigger.** The ancestry proof exits 1.\n- **Menu.** Rows 1 and 2 are omitted. The menu shows rows 3–5 with:\n  `Withheld: push - origin/shared is at aaaaaaa, local HEAD at bbbbbbb; a non-force push cannot land`\n- **Replies.** A reply of `1` or `2` gets a clarifying question naming 3–5.\n- **No companion delivery starts:** no push, no create and no receipt.\n\n## Deferred Engine\n- **Trigger.** An exact `**Engine:** deferred` before the first `##`.\n- **Stop.** It stops before the announcement with `spec approved for handoff only - run brainstorming #N`.\n- **Nothing runs:** no phase change, verification, strip, seal or push.\n\n## Rows 3–5\nThey keep legs.md's coordinated mechanics:\n\n- **Row 3 (squash).**\n  - Companions are squashed first, then home, each with post-squash verification and a receipt.\n  - Home is sealed once with `--option squash --base origin/release --leg acme/helper=<sha>`.\n  - Cleanup uses the recorded `destroy:` contracts.\n- **Row 4 (keep).** Retains every worktree and receipt, with no strip or seal.\n- **Row 5 (discard).**\n  - One typed `discard` confirmation lists both branches, their commits, and the absolute worktree paths `/work/widget/.worktrees/shared` and `/work/helper/.worktrees/shared`.\n  - Each leg is then cleaned through its recorded contract, companion first.\n",
+      "words": 1459,
+      "wallMs": 60487,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Command legend and shared preparation\n\nAll calls below are **narrated synthetic calls**, not executed. Runs are independent unless explicitly described as retries.\n\n- `W=/work/widget/.worktrees/shared`, `WP=/work/widget`\n- `H=/work/helper/.worktrees/shared`, `HP=/work/helper`\n- `C=cccccccccccccccccccccccccccccccccccccccc`\n- `R=/work/widget/.git/gauntlet/receipts/shared.md/acme/helper`\n- `P9=https://github.com/acme/helper/pull/9`\n- `P42=https://github.com/acme/widget/pull/42`\n\n**Input preparation:** derive primaries and branches from the supplied worktrees. Select `doc/specs/shared.md` once. Its non-deferred Engine and header-only PR select the header-linked route, not rework. Narrate:\n\n```text\ngh pr view 42 -R acme/widget --json number,url,state,isDraft,headRefName,baseRefName\n→ OPEN, draft, shared → release; identity checks pass.\n```\n\nValidate both repository identities, shared branches, companion Home tuple, scope indices and recorded contracts. Those contracts—not reread overrides—govern cleanup.\n\n“I’m using the finishing-a-development-branch skill to complete this work.”\n\nNarrate `phase_tracker({ action: \"start\", phase: \"ship\" })`.\n\n**Fresh-run verification and closure:** narrate `test-widget` with cwd `W`, and `test-helper` with cwd `H`. Both pass. Each conformance review uses its own cwd and `AGENTS.md`: home owns original AC 1; helper owns original AC 2. Both conform. Retain audited heads and clean staged/unstaged/untracked snapshots; immediate pre-delivery comparisons remain unchanged. No amendment digest applies.\n\n**Shared Step 4 preflight:** narrate `git -C \"$W\" fetch origin`, then `git -C \"$W\" merge-base --is-ancestor origin/shared HEAD`. Both succeed.\n\n```text\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push to PR #42 and mark it ready for review\n2. Push to PR #42, keep it a draft\n3. Squash-merge to release (no PR, no surviving branch; orphans PR #42 - close it by hand)\n4. Keep the branch as-is (I'll handle it later; nothing is pushed)\n5. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\n\n**Delivery shorthand:**\n\n- **Companion create:** push `git -C \"$H\" push -u origin shared`; narrate `gh pr create` in `H`, with `--draft` only for row 2. Body includes `Home: acme/widget shared doc/specs/shared.md`.\n- **Receipt:** write `R` after successful delivery:\n  ```text\n  attempted-head: cccccccccccccccccccccccccccccccccccccccc\n  delivered: pr https://github.com/acme/helper/pull/9 cccccccccccccccccccccccccccccccccccccccc\n  verification: passed\n  ```\n- **Home strip/seal:** capture evidence and the artifact’s path-only Spec header; remove tracked home task-plan/ledger candidates if present, preserving spec and telemetry. No companion strip/seal. Narrate exactly one seal:\n  ```text\n  node <bin>/gauntlet-telemetry-seal.mjs --worktree \"$W\" --option pr --base origin/release --spec doc/specs/shared.md --leg acme/helper=https://github.com/acme/helper/pull/9\n  ```\n  Successful synthetic stdout: `sealed .pi/gauntlet/telemetry/doc/specs/shared.yaml`.\n- **Home delivery:** `git -C \"$W\" push --no-follow-tags origin HEAD:refs/heads/shared`; row 1 then calls `gh pr ready 42 -R acme/widget`. Never edit the home body: it remains exactly `Original description\\n`.\n- **Successful finish:** remove receipts after complete home delivery; preserve both worktrees; narrate ship-phase completion. Print the seal stdout verbatim.\n\n## A — Row 1\n\nUse both-leg fresh verification/conformance above. Companion push and **ready PR create** succeed; write receipt. Refresh companion live state/head/draft: OPEN, matching `C`, already ready.\n\nRun home strip/seal once, then home push, then home ready. All succeed.\n\n```text\ngauntlet: done pushed\nsealed .pi/gauntlet/telemetry/doc/specs/shared.yaml\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nShipped: acme/widget pr https://github.com/acme/widget/pull/42\nHome delivery and required cleanup succeeded; receipts removed\n```\n\nBoth worktrees remain. Keep this summary for cross-repo review: the unchanged home body does not list companions.\n\n## B — Row 2\n\nRelative to A: create helper PR with `--draft`; refresh confirms draft. Run the same single home strip/seal and home push. **No ready calls anywhere.**\n\n```text\ngauntlet: done pushed\nsealed .pi/gauntlet/telemetry/doc/specs/shared.yaml\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nShipped: acme/widget pr https://github.com/acme/widget/pull/42\nHome delivery and required cleanup succeeded; receipts removed\n```\n\nBoth PRs remain drafts; both worktrees remain. Keep this summary for cross-repo review.\n\n## C — Row 1 retry after partial B\n\nValidate `R` **before checkout exemptions**. Query `P9` for state, head and draft; require OPEN, attempted head = delivered head = live head = `C`, and passed verification. When the tree exists, require unchanged current head; when missing, this validated receipt permits checkout verification/conformance exemption. Home checks still pass.\n\nNo duplicate push/create. Call `gh pr ready \"$P9\"`; refresh live state/head/draft and rewrite receipt **before home sealing**. Then use A’s home sequence and successful output.\n\n## D — Row 2 retry after partial A\n\nValidate the receipt and live OPEN/matching head; present clean helper tree matches `C`. Live `isDraft=false`: leave it ready, **never redraft**. No duplicate create or ready call. Proceed with home strip/seal and push only; home remains draft. Use B’s successful output, noting helper remains ready.\n\n## Independent failures\n\nEach block starts from its relevant successful preparation; stop immediately at the named failure.\n\n**Companion create denied:**\n```text\ngauntlet: stuck companion PR creation failed\nGraphQL: create denied\nNot shipped: acme/helper PR creation failed; pushed shared branch retained\nNot shipped: acme/widget companion delivery failed\n```\nNo PR receipt exists. No home strip/seal/push; preserve both trees.\n\n**Companion ready denied in C:**\n```text\ngauntlet: stuck companion readiness failed\nGraphQL: ready denied\nNot shipped: acme/helper ready failed; existing draft PR https://github.com/acme/helper/pull/9 retained\nNot shipped: acme/widget companion readiness failed\n```\nRetain receipt; no home strip/seal/push, retry or rollback.\n\n**Receipt PR CLOSED:**\n```text\ngauntlet: stuck companion receipt PR is CLOSED\nNot shipped: acme/helper closed receipt requires disposition\nNot shipped: acme/widget companion receipt validation failed\n```\nRetain receipt and trees. No duplicate create or delivery.\n\n**Home seal fails after companion delivery:**\n```text\ngauntlet: stuck home telemetry seal failed\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nNot shipped: acme/widget seal: invalid telemetry\n```\nExit 1 stops before home push. Retain companion delivery, receipts and trees; no rollback.\n\n**Home ready fails after push:**\n```text\ngauntlet: stuck home readiness failed after successful push\nGraphQL: home ready denied\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nNot shipped: acme/widget readiness failed; push to https://github.com/acme/widget/pull/42 completed, PR remains draft\nsealed .pi/gauntlet/telemetry/doc/specs/shared.yaml\n```\nRetain receipts and trees for manual action or later retry; do not complete ship.\n\n**Home push rejected:**\n```text\ngauntlet: stuck home push rejected\nremote: stale head\nShipped: acme/helper pr https://github.com/acme/helper/pull/9\nNot shipped: acme/widget push rejected\n```\nRetain receipts, seal and trees. Skip ready; no force or automatic retry. Return separately to Step 4 with recomputed preflight.\n\n## Other independent checkpoints\n\n**Preflight divergence:** omit rows 1/2, retain labels 3–5; print `Withheld: push - origin/shared is at <observed-sha7>, local HEAD at bbbbbbb; a non-force push cannot land`. No companion delivery starts. Hidden 1/2 replies require clarification.\n\n**Deferred Engine:** before announcement, phase start or verification, print only:\n\n```text\nspec approved for handoff only - run brainstorming #42\n```\n\n**Rows 3–5:** retain coordinated squash, keep and discard mechanics. Squash requires every leg’s post-squash verification and recorded cleanup. Keep preserves everything. Discard first lists both resolved worktrees, branches and commit counts and requires exact typed `discard`; no strip/seal. No cleanup or discard authorization is inferred here.\n",
+      "words": 1026,
+      "wallMs": 39210,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f1d209bf8f6224df6b30b086018f43369b32c37343769c92d8ac0af2a921f631",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
+      "baselineOutputSha": "f6853feb65a4a3ada49fdc310b816c276ad9612d6ce6b2981ba10b79a5a811b0",
+      "candidateOutputSha": "fbf6380061495e6f7b5cbb6af058626dcd95eafe7f805ef85bbe50e45f421401",
+      "facts": {
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "draft": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retry-ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retry-draft": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "seal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "companion-failures": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "seal-failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "home-failures": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "body-summary": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "controls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Only body-summary actually moved: Before collapsed the success summary into one line (`Shipped: acme/helper <url> (ready) acme/widget <url> (ready)`) without the `pr` token or a second `Shipped:` prefix, and told the user that *worktrees* were kept for cross-repo review rather than instructing them to keep the *summary*; After prints the two separate `Shipped: acme/helper pr <url>` / `Shipped: acme/widget pr <url>` lines, explicitly removes receipts after home delivery, and adds `Keep this summary for cross-repo review, because PR #42's body does not list P9`, which is what made the fact hold. Everything else (per-leg verification/conformance with own cwd/Rules/AC, companion-first non-force push and create, single home seal with --base origin/release and --leg, receipt-validated retries with live OPEN/head/isDraft proof before exemption, ready-denied/create-denied/CLOSED stops, seal failure naming acme/widget with bin output, home-ready and stale-head handling with preflight recompute, divergence/deferred/rows 3–5 controls) was already present in Before and is preserved in After. Two wording points worth keeping tight in After so no fact regresses: in failure 5, prefixing the home line with `Shipped: acme/widget … (push completed; still draft …)` could be read by a strict reader as a ship claim — consider `Pushed (not ready): acme/widget …` or keep `Not shipped:` with the completed-push disclosure, as Before did; and in run C, state the fresh home `test-widget`/AC 1 re-verification explicitly (Before named both) rather than the generic `H is verified and audited fresh`, so the retry's home evidence is unambiguous.",
+      "wallMs": 47240,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f1d209bf8f6224df6b30b086018f43369b32c37343769c92d8ac0af2a921f631",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
+      "baselineOutputSha": "a13c3c64202ee3b672b7719c7108335cb7f42cffbaf0dd60e196deefe741d97a",
+      "candidateOutputSha": "3edaabb9ef34db837a6421654614cbdf77e35d0fd6388244eb300117b33040a4",
+      "facts": {
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "draft": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retry-ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retry-draft": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "seal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "companion-failures": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "seal-failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "home-failures": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "body-summary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "controls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing regressed: every fact that Before satisfied is still satisfied in After, and After tightens several spots that Before only reached loosely. The seal-failure line is now the literal `Not shipped: acme/widget seal: invalid telemetry` rather than a separate 'seal exited 1' line plus verbatim bin output; the ready-denied block no longer prints a contradictory `Shipped: acme/helper` and `Not shipped: acme/helper` pair for the same leg; success lines use the `Shipped: <leg> pr <URL>` shape in the required helper-then-home order; and 'No companion strip/seal' plus 'exactly one seal' are stated explicitly instead of implied. Two small cautions for future edits: After's receipt-write in B is only inherited via 'Relative to A', and the preflight-divergence diagnostic now shows a `<observed-sha7>` placeholder—both are acceptable here but would be the first things to break if the delta blocks were compressed further, so keep an explicit 'write receipt' phrase in B and keep the divergence line naming both SHAs. The B/D 'refresh confirms draft' and D 'noting helper remains ready' additions correctly reconcile live draft status without introducing redraft or duplicate-create calls, which is the intended Change.",
+      "wallMs": 36399,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
+}

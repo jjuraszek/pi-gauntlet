@@ -1,7 +1,7 @@
 {
   "sample": "explicit-pause",
   "arm": "candidate",
-  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
+  "skillSha": "46230ac73e4c7b5113a163f24e5ccaa63fb52be65622b5210b286d3ec2351e00",
   "inputSha": "3d8c5f29b04e988b1925cd5a3b31cea4953518aae9c28a11f4ea00ada7becb63",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Got it: **A**, the report-view setting goes through the existing settings resolver (`settings/resolver.ts:12`), which `ui/report-view.ts:30` already reads from.\n\nI'll pause here as you asked. The open point is still whether report filters reset when the workspace changes. I won't assume an answer or move on to approaches until you've checked.\n\nWhen you're ready, send me what you found about the reset behavior, or just say \"continue\". I'll resume step 4 with the next question from there.\n",
-      "words": 76,
-      "wallMs": 6725,
+      "text": "Paused. Recorded: settings ownership uses the existing resolver (`settings/resolver.ts:12`), with `ui/report-view.ts:30` consuming the resolved value. No view-local settings object.\n\nWhether report filters reset on a workspace change is still open. When you've checked, reply with what you found, or just say \"continue.\" I'll take it from there with the next question, then move on to approaches. Nothing past this point is decided or approved yet.\n",
+      "words": 65,
+      "wallMs": 5614,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Paused here. We’ll reuse the existing settings resolver. Whether report filters reset on a workspace change remains undecided; we won’t advance until you’re ready.\n",
-      "words": 24,
-      "wallMs": 4116,
+      "text": "Paused here. We’ll reuse the existing settings resolver; reset behavior on workspace changes remains undecided. We won’t move to approaches or design until you’re ready.\n",
+      "words": 25,
+      "wallMs": 3763,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "152965d57a99efe03dbc89304ebbed363789eeb935030bd780cbb6e2050a9cbd",
-      "candidateOutputSha": "152965d57a99efe03dbc89304ebbed363789eeb935030bd780cbb6e2050a9cbd",
+      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "baselineOutputSha": "d0f4aca6b468a355f338651885746e632a8462c4e506ad86c61e28d148fdbbf4",
+      "candidateOutputSha": "cd792efa9f8d7ba8ed073d2b734b41e4cc866bfec4ac64fff8139b6a4f8afe23",
       "facts": {
         "f1": {
           "before": "holds",
@@ -44,16 +44,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are identical: both acknowledge A, honor the pause explicitly, avoid asking a new question, do not present approaches, and do not advance design (they only note the still-open reset point and how to resume). No fact moved, so no wording adjustment is needed for this case; the expanded assembly preserved the explicit-pause behavior as intended.",
-      "wallMs": 3307,
+      "feedback": "Both outputs honor the pause: each records the resolver choice (settings/resolver.ts:12 feeding ui/report-view.ts:30), names the still-open filter-reset item without resolving it, asks no new question, proposes no approaches, and states nothing is approved. After keeps f1 and additionally leads with the explicit 'Paused.' marker, which makes the state clearer than Before's second-paragraph placement. The one spot worth watching in After is the resumption instruction 'reply with what you found, or just say \"continue.\"' — it is an instruction rather than a question, so it does not move f1, but a reader could see it as nudging the user forward during a pause they requested; Before's 'When you're back, tell me what you found' is the lower-risk phrasing. If you want to keep the 'Paused.' lead and the resumption options, phrase them as what will happen on return ('When you're back, share what you found and I'll resume with the next question') rather than as a reply prompt, and keep 'Nothing past this point is decided or approved yet' as the closing line.",
+      "wallMs": 10245,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
-      "baselineOutputSha": "6fbc4b3235d29f722d06e141728840d3126f11d2c6be44b752397ed7c236c27f",
-      "candidateOutputSha": "6fbc4b3235d29f722d06e141728840d3126f11d2c6be44b752397ed7c236c27f",
+      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "baselineOutputSha": "ff2a1f5620183a15968aa591f71f008d3ecb3ea2cdc9558429da0167cc770d92",
+      "candidateOutputSha": "f46ef94553295fef4bb70d326921813ce36e31c115b6ee577ab16d6fa6408cbf",
       "facts": {
         "f1": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are identical: both acknowledge the pause, record the chosen option A, note the undecided reset behavior, and stop without asking a question, presenting approaches, or advancing design, so f1 holds in both. No fact moved on this continuation case; the expanded assembly left the explicit-pause behavior intact, and the current wording needs no adjustment to deliver the Change while preserving this fact.",
-      "wallMs": 3665,
+      "feedback": "Both outputs honor the explicit pause: each records the chosen option A, leaves the reset behavior undecided, asks no new question, presents no approaches, and advances no design. After's only real difference is naming the next stages (\"approaches or design\") in its promise not to proceed, which merely describes what is being withheld rather than delivering it, so f1 still holds; no wording in After moved the fact, and the current phrasing is safe to keep as long as it continues to avoid listing options or questions while paused.",
+      "wallMs": 4223,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

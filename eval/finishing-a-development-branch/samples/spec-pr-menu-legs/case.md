@@ -3,7 +3,7 @@ bundle+: skills/finishing-a-development-branch/reference/spec-pr.md
 bundle+: skills/finishing-a-development-branch/reference/legs.md
 bundle+: skills/brainstorming/reference/legs.md
 ## Header-linked coordinated finish checkpoints
-Synthetic observations only. No tools or live forge actions exist; narrate calls and printed outcomes, never execute them. Use shared preparation then independent deltas, maximum 1800 words.
+Synthetic observations only. No tools or live forge actions exist; narrate calls and printed outcomes, never execute them. Use shared preparation then independent deltas, at most 1400 words: a compact command legend, then one short block per run giving only its delta.
 
 Home acme/widget at /work/widget/.worktrees/shared, companion acme/helper at /work/helper/.worktrees/shared; both branches shared. Selected spec doc/specs/shared.md has Engine waves, PR acme/widget#42, no Rework record. Its two original ACs are home output and helper output. Home block then companion block:
 ```markdown

@@ -1,7 +1,7 @@
 {
   "sample": "deferred-spec-stop",
   "arm": "candidate",
-  "skillSha": "7a22070924d2a3b0e3a6377f2edbedd1c3f10f8084735c3bd3900064fed66fd7",
+  "skillSha": "5e1318548ea5726fdbc90a24495fc35806e5a080f78715a23c62dc6c941d984d",
   "inputSha": "a7c844de34ef64d58cd4c781f6869fc854e7223713c19fbb8c1029ce3a628633",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Variant A: `**PR:** acme/widget#42` present, `Amend-grant: none`**\n\n1. Input: the worktree path is present. Derive the checkout values without changing the process cwd:\n   ```bash\n   WORKTREE=/work/widget/.worktrees/spec-export\n   PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")   # -> /work/widget\n   FEATURE=$(git -C \"$WORKTREE\" branch --show-current)\n   ```\n2. Resolve the selected run spec: the resolved path is `doc/specs/export.md`, so no candidate discovery runs.\n3. Read the header before announcing:\n   - `# Export receipts`\n   - `**Amend-grant:** none`\n   - `**Engine:** deferred`\n   - `**PR:** acme/widget#42`\n   - No `## Rework record`.\n4. The exact `**Engine:** deferred` sits before the first `##`, so the gate fires before any other step. The `**PR:**` route, including `gh pr view 42 -R acme/widget`, is never reached.\n5. Printed:\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n6. Stop. The following never happen:\n   - the announcement\n   - `phase_tracker({ action: \"start\", phase: \"ship\" })`\n   - Step 1 verification (test-all does not run, although the checkout is clean)\n   - the plan strip and telemetry seal\n   - any push\n\n**Outcome A:** Stopped at Input with `spec approved for handoff only - run brainstorming #42`. There was no phase change, verification, strip, seal or push.\n\n---\n\n**Variant B: no `**PR:**` line, known subject #42, `Amend-grant: none`**\n\n1. Same derivation of `$WORKTREE`, `$PRIMARY` and `$FEATURE`, and the same selected spec.\n2. Header read: title, `**Amend-grant:** none`, `**Engine:** deferred`. There is no `**PR:**` line and no Rework record.\n3. The deferred gate fires before the first `##`. #42 comes from the known subject.\n4. Printed:\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n5. Stop. There is no announcement, ship start, verification, strip, seal or push.\n\n**Outcome B:** Stopped at Input with the same handoff-only line naming #42. Nothing ran.\n\n---\n\n**Variant C: `**Amend-grant:** all` (other header fields as in A)**\n\n1. Same derivation and selected spec.\n2. Header read: title, `**Amend-grant:** all`, `**Engine:** deferred`, `**PR:** acme/widget#42`, and no Rework record.\n3. The amend grant affects only amendment handling. It does not lift the deferred-engine gate, which is checked first and still fires.\n4. Printed:\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n5. Stop. There is no announcement, ship start, verification, strip, seal or push.\n\n**Outcome C:** Stopped at Input with `spec approved for handoff only - run brainstorming #42`. The grant value `all` changes nothing at this gate.\n",
-      "words": 357,
-      "wallMs": 14480,
+      "text": "# Deferred finish entry: three variants\n\n**Shared steps for all variants (Input, before the announcement and before ship starts)**\n\n1. `WORKTREE=/work/widget/.worktrees/spec-export`. The argument is present, so the flow continues.\n2. Derive `PRIMARY`:\n   `PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")`\n   No result was supplied. By layout it would be `/work/widget`.\n3. Derive `FEATURE`:\n   `FEATURE=$(git -C \"$WORKTREE\" branch --show-current)`\n   No result was supplied, so the branch name stays unverified.\n4. Select the run spec: `doc/specs/export.md`. It was carried as the resolved spec, so no second discovery runs.\n5. Read the header before the first `##`. It contains the exact line `**Engine:** deferred`.\n\nThe deferred check runs first. It comes before any `**PR:**` routing, Rework-record check, announcement, `phase_tracker` start, Step 1 verification, plan strip, telemetry seal, or push.\n\n---\n\n**Variant A: `**PR:** acme/widget#42`, no Rework record**\n\nThe header-linked PR route never starts. No `gh pr view` identity check runs because the deferred stop comes first.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nOutcome: stopped at Input. There is no announcement, no ship phase, and no verification, strip, seal or push, even though a clean checkout and `test-all` were available.\n\n---\n\n**Variant B: no PR header, known subject #42**\n\nThe steps and the deferred match are identical to Variant A. The ordinary create route would have applied, but it is never reached.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nOutcome: stopped at Input, with the same zero side effects as Variant A.\n\n---\n\n**Variant C: `Amend-grant: all` (Engine still deferred)**\n\nThe amendment grant only governs auto-applied amendments later in the flow. It does not lift the deferred-handoff stop. The deferred line is still present before the first `##`.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nOutcome: stopped at Input, with the same zero side effects. The `all` grant has no effect here.\n\n---\n\n**One-line outcomes**\n\n- **A (PR header #42):** Deferred stop at Input, with no announcement, ship start, verification, strip, seal or push.\n- **B (no PR header, subject #42):** Same deferred stop. The ordinary route is never reached.\n- **C (Amend-grant: all):** Same deferred stop. The grant does not override `**Engine:** deferred`.\n",
+      "words": 346,
+      "wallMs": 14129,
       "mechanical": {
         "notice": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "- PR `acme/widget#42`, grant `none`: spec approved for handoff only - run brainstorming #42\n- PR header absent, known subject #42, grant `none`: spec approved for handoff only - run brainstorming #42\n- Grant `all`: spec approved for handoff only - run brainstorming #42\n",
-      "words": 38,
-      "wallMs": 5811,
+      "text": "PR header present, Amend-grant: none → spec approved for handoff only - run brainstorming #42\nPR header absent, known subject #42 → spec approved for handoff only - run brainstorming #42\nAmend-grant: all → spec approved for handoff only - run brainstorming #42\n",
+      "words": 37,
+      "wallMs": 5422,
       "mechanical": {
         "notice": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c1d122f093806ca43ca25e7ce3abdb6b4d57b22815d7624b465e9e23198d282e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
-      "baselineOutputSha": "b68630c8ba464e36762cc34701cffa6e23955b1a854ac0b9ab5158f8b2251f86",
-      "candidateOutputSha": "39b449b74d25bc71d48cecdb9e3c4d80a1064731ba926fd785e79f54282675aa",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
+      "baselineOutputSha": "8b41e12aea0d62d1cf0c26a372f603faf46a558f3366434a5f77e7cd518dcd78",
+      "candidateOutputSha": "6475a27d40b1040aed3bdf76bc5a344729b0b36f542864552fc63540e5a9a950",
       "facts": {
         "boundary": {
           "before": "holds",
@@ -53,16 +53,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs stop every variant on the resolved `**Engine:** deferred` header at Input, before the announcement, `phase_tracker` ship start, Step 1 verification, strip, seal, push or any gh call; the absent-PR variant takes #42 from the known subject, the `all` grant is explicitly described as not lifting the gate, and no tracker or delivery call is narrated as actually executing after the stop. After's per-variant enumerated header read and explicit 'never happen' list make the boundary slightly more legible than Before's shared common-entry block, so the wording is safe to keep; the only caution is that After's longer per-variant repetition pushes close to the 400-word budget, so if further Change text is added, keep the shared derivation and the never-happen list in one common block (as Before did) and leave only the header-read and one-line outcome per variant, which retains the boundary fact while leaving room for any narration the Change requires.",
-      "wallMs": 8418,
+      "feedback": "Nothing moved on the boundary fact: both outputs stop every variant on the `**Engine:** deferred` header before any announcement, `phase_tracker` start, verification, strip, seal or push; both print `spec approved for handoff only - run brainstorming #42` for the absent-PR-header variant (using the known subject), and both state that `Amend-grant: all` does not lift the stop. After restructures the narration into shared steps plus per-variant sections and adds the explicit ordering sentence (deferred check precedes PR routing, Rework check, tracker start, verification, strip, seal, push) and a one-line outcome summary, which keeps the boundary fact at least as clear as Before. Keep that explicit ordering sentence and the per-variant zero-side-effects outcome lines; if you tighten wording further, retain the explicit statement that no `gh pr view` runs in Variant A/B so a reader cannot infer a tracker call before the stop.",
+      "wallMs": 7444,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c1d122f093806ca43ca25e7ce3abdb6b4d57b22815d7624b465e9e23198d282e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "110a6c1a558817ed4be15c32bbd4fd8b8881896fad653ef14ece8f8c69f63ab2",
-      "baselineOutputSha": "85e9322f81c08a664662b611e34f6476e349c410081b79b39673e95f1ec683a2",
-      "candidateOutputSha": "6bc44cad59b827999d5a1f3c5d58590d3e0c09bb0fa863f94132f2ada079cf80",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
+      "baselineOutputSha": "d0c6274cefdfd51177e10544a2cd99c8a216517bef5e44751bb3626164c739a0",
+      "candidateOutputSha": "569fb4e13825346113921150b5d5314d652c58a09eec388f1b1b7582637f42eb",
       "facts": {
         "boundary": {
           "before": "holds",
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording did not move the boundary fact: all three variants still halt on the resolved deferred header with the single outcome line \"spec approved for handoff only - run brainstorming #42\", no announce/start ship, verification, strip, seal, push or tracker/delivery call is narrated as happening, grant `all` is not treated as an exemption, and the absent-header variant resolves to the known subject #42. After actually tightens provenance by stating the grant value on every line (including the absent-header variant) and quoting the PR ref `acme/widget#42` verbatim, which is a reasonable improvement over Before's looser labels. One caution for both arms: the case asked to narrate the calls/printed output in order up to the stop, and both replies compress each variant to a bare outcome line with no narrated reads of the spec header or the stop message itself; if you want the sample to also evidence that the stop fires before any ship announcement, consider prefixing each line with the resolved header fields that were read (Engine: deferred, grant, PR) followed by the stop, while keeping the one-line-per-variant form so the boundary fact stays satisfied.",
-      "wallMs": 10739,
+      "feedback": "Both outputs stop every variant on the deferred header with the same handoff-only message, use #42 when the PR header is absent, and give grant all the same outcome, so the boundary fact holds in After as well as Before; After narrates no calls at all, so nothing is shown happening after the stop. However, After dropped the explicit 'no calls, announcement, phase change, verification, strip, seal, or push' clause that Before carried, so the boundary now rests only on the absence of narration rather than on a stated assertion — a reader with less context could wonder whether omitted steps were simply not reported. To keep the fact robustly held while delivering the change, keep the one-line-per-variant format but retain a terse explicit negation such as '…run brainstorming #42; no calls, announcement, verification, strip, seal, or push' on each line (or once after the three lines), so the stop-before-everything boundary is stated, not merely implied.",
+      "wallMs": 10353,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f7801e7188320f6b8f0a81bfade7904c1a972037"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

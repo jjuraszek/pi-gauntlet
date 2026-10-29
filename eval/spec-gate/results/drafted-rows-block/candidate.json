@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "190974da325dd9e65c30d63b71cbc68a5433af979208bc53431bdea95e2bff4a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "40c0da1d2cfaea1d20d6fc16eee97639974031a6e28ec0f7e95daed1d2467d5e",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "663681b9cba752f70ade89f0775c205bdd1153c88419ef30f8495c76db73cc65",
       "candidateOutputSha": "663681b9cba752f70ade89f0775c205bdd1153c88419ef30f8495c76db73cc65",
       "facts": {
         "drafted": {
@@ -59,15 +59,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved between Before and After: both arms render the Drafted block in the Drafted gate only, placed after `Scope cuts: none` and before `Council:`, with both unchecked rows and their `in-scope` dispositions verbatim; the Ticket gate omits the block in both; each gate lists options 1-6 with the exact option 4 and 5 sentences and narrates reply 1 as approval into planning under existing amendment review; and the briefing, `Scope cuts: none`, and `Council: 1 applied, 0 deferred, 0 rejected` are preserved. Two incidental regressions in After are worth attention even though no fact covers them: the gate text is no longer fenced as a code block, and the `New predecessor candidates at spec-writing: none` line lost its trailing explanatory clause (`- index rows are a hint; code is the source and an absent row proves nothing`), which the reference wording appears to specify. The Ticket gate in After also dropped the one-line note explaining why no drafted block appears (rows come verbatim from ticket #42); keeping that sentence makes the omission visibly intentional rather than accidental. Retaining the fenced render, the full predecessor-candidates sentence, and the ticket-provenance note while keeping the Drafted block placement exactly as shown would deliver the Change without losing any Before behavior.",
-      "wallMs": 12540,
+      "feedback": "Before and After are textually identical, so no fact moved in either direction. Both outputs already render the Drafted block in the Drafted gate (after Scope cuts: none, before Council:) with both unchecked rows and their in-scope dispositions verbatim, omit that block in the Ticket gate, paste the Briefing verbatim, keep Scope cuts: none, report Council: 1 applied, 0 deferred, 0 rejected, render the full menu (options 1-6, with the loop-engine sentences for 4 and 5), and narrate reply 1 as approval into writing-plans under existing amendment review without claiming execution. The expected fails->holds transitions did not occur because the Before sample was already compliant on this fixture; if the authored Change is meant to be demonstrated, the Before arm needs to be generated from the pre-change wording (where the Drafted block or Scope cuts line would be absent) rather than reusing the same render, otherwise this case proves only that After preserves the behavior, not that the Change introduced it.",
+      "wallMs": 11866,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "190974da325dd9e65c30d63b71cbc68a5433af979208bc53431bdea95e2bff4a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "ebd4b00153d4683705519b61f81dbf4804456a2d176c0b403bd38cc77b325be2",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "b33d3eadf55b3f33e0e85241367617a8b1983e7174f5b9be7fe6c941a4928f5f",
       "candidateOutputSha": "b33d3eadf55b3f33e0e85241367617a8b1983e7174f5b9be7fe6c941a4928f5f",
       "facts": {
         "drafted": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both Before and After render the Drafted block in the correct position with both rows and in-scope dispositions verbatim, omit it in Ticket, paste the briefing verbatim, keep Scope cuts: none, report Council: 1 applied, 0 deferred, 0 rejected, render the full numbered menu (1-6, with 4 and 5 intact), and narrate reply 1 as approval into `/skill:writing-plans` rather than loop execution. The After differences are cosmetic — `## Drafted`/`## Ticket` headings instead of bold labels, backticked paths, a blank line between Council and the predecessor line, and 'approved' instead of 'approval'. One regression worth watching, though it touches no listed fact: After writes `worktree: <scratch>`, a placeholder token the case never supplied, where Before honestly said `not supplied`; keep the Before wording for unsupplied observations so the render does not appear to invent a value, consistent with the Change's own note that `<reason>`-style template tokens should be replaced by concrete supplied text, not fabricated. Otherwise the After wording already delivers the Change while keeping every fact Before kept.",
-      "wallMs": 16133,
+      "feedback": "After is textually identical to Before, so no fact moved: both outputs place the `Drafted acceptance criteria (approval ratifies):` block in the Drafted gate only, after `Scope cuts: none` and before `Council:`, with both unchecked rows and their `in-scope` dispositions copied verbatim; the Ticket gate omits the block; both gates paste the Briefing verbatim, keep `Scope cuts: none`, report `Council: 1 applied, 0 deferred, 0 rejected`, render options 1-6 with the source sentences for 4 and 5, and narrate reply 1 as proceeding to `/skill:writing-plans` under existing amendment review rather than a loop engine. One note for the author: the `menu` fact says \"all five numbered options\" while the Change text (zero rows render 1, 2, 3, 6; any row adds 4/5) and both renders show six rows 1-6 when rows exist; the output satisfies the fact as written because options 1-5 are all present, but rewording the fact to \"all six numbered options (1-6)\" for the with-rows case would avoid a future judge reading \"five\" as \"exactly five\" and failing a correct six-row gate.",
+      "wallMs": 13259,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3d95fb33758faf76184c11854690d860c4893a3f"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

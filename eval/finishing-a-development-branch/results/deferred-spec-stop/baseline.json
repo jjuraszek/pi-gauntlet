@@ -1,7 +1,7 @@
 {
   "sample": "deferred-spec-stop",
   "arm": "baseline",
-  "skillSha": "a11b19c6764807e27206f565f71eb1e296274d9e6c5e7656f4fea854accc330b",
+  "skillSha": "ef859e39bc91566bb61af34979292272a5c4f4b3106730e43b3adb8c970331cf",
   "inputSha": "a7c844de34ef64d58cd4c781f6869fc854e7223713c19fbb8c1029ce3a628633",
   "kind": "text",
   "assembly": "concat",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Finish entry: deferred spec\n\n**Common entry.** All three variants are the same up to this point.\n\n1. The `<worktree-path>` argument is present: `/work/widget/.worktrees/spec-export`. The missing-path stop does not apply.\n2. Derive the checkout context once:\n   ```bash\n   WORKTREE=/work/widget/.worktrees/spec-export\n   PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")   # -> /work/widget\n   FEATURE=$(git -C \"$WORKTREE\" branch --show-current)\n   ```\n3. Resolve the selected run spec to `doc/specs/export.md` (carried path). Read its header before announcing.\n\nNothing reached any of these steps in any variant:\n- the \"I'm using the finishing-a-development-branch skill…\" announcement\n- `phase_tracker({ action: \"start\", phase: \"ship\" })`\n- Step 1 verification (`test-all` is never run, and the clean checkout is never relied on)\n- the plan strip\n- the telemetry seal\n- any push or gh call\n\n---\n\n**Variant 1: `**PR:** acme/widget#42` present, `Amend-grant: none`, no Rework record**\n\nThe header shows exactly `**Engine:** deferred` before the first `##`. The deferred check runs first, so the `**PR:**` header-linked route and its `gh pr view 42 -R acme/widget` identity check are never reached.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nOutcome: stopped at Input on the deferred engine. There was no phase change, verification, strip, seal, or push, and PR #42 was untouched.\n\n---\n\n**Variant 2: `**PR:**` absent, known subject #42**\n\nThe header still shows exactly `**Engine:** deferred` before the first `##`. There is no PR route to consider anyway.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nOutcome: stopped at Input on the deferred engine. Nothing was announced, started, verified, stripped, sealed, or pushed.\n\n---\n\n**Variant 3: `Amend-grant: all` (otherwise as Variant 1)**\n\nThe amend grant governs amendment handling, not the engine gate. `**Engine:** deferred` before the first `##` still triggers the stop, ahead of any PR check.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nOutcome: stopped at Input on the deferred engine. The `all` grant does not lift the handoff-only stop, and there was no phase change, verification, strip, seal, or push.\n",
-      "words": 306,
-      "wallMs": 13346,
+      "text": "# Narrated finish entry: `Engine: deferred` spec\n\n## Variant 1: `PR: acme/widget#42`, `Amend-grant: none`\n\n1. The `<worktree-path>` argument is present (`/work/widget/.worktrees/spec-export`), so the missing-argument stop does not apply.\n2. I derive the paths once. No results were supplied, so I show the calls only:\n   ```bash\n   WORKTREE=/work/widget/.worktrees/spec-export\n   PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")\n   FEATURE=$(git -C \"$WORKTREE\" branch --show-current)\n   ```\n3. I resolve the selected run spec as `doc/specs/export.md` (supplied). I read its header before announcing:\n   - `# Export receipts`\n   - `**Amend-grant:** none`\n   - `**Engine:** deferred`\n   - `**PR:** acme/widget#42`\n   - There is no `## Rework record`.\n4. An exact `**Engine:** deferred` line sits before the first `##`. The deferred stop therefore wins before any `**PR:**` handling, so I run no `gh pr view` identity check.\n5. Printed output:\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n6. Nothing else happens:\n   - no announcement\n   - no `phase_tracker` start\n   - no test-all verification (the clean checkout is never used)\n   - no strip, seal or push\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`, and the ship phase never started.\n\n## Variant 2: no `PR:` header, known subject #42\n\nSteps 1–3 run as above. The header now holds only `# Export receipts`, `**Amend-grant:** none` and `**Engine:** deferred`, with no Rework record. The `**Engine:** deferred` line sits before the first `##`, so the same stop applies. The PR route is irrelevant either way.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nNone of the following happen: announcement, phase change, verification, strip, seal or push.\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`, and nothing else executed.\n\n## Variant 3: `Amend-grant: all`\n\nSteps 1–3 run as above, with `**Amend-grant:** all`. The amend grant does not lift the deferred-engine stop, because the check keys only on the exact `**Engine:** deferred` line before the first `##`.\n\nPrinted:\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nNone of the following happen: announcement, `phase_tracker`, verification, strip, seal, `gh` call or push.\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`. The `all` grant changes nothing.\n",
+      "words": 330,
+      "wallMs": 13305,
       "mechanical": {
         "notice": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "- PR header present, `Amend-grant: none`: spec approved for handoff only - run brainstorming #42\n- PR header absent, known subject #42: spec approved for handoff only - run brainstorming #42\n- `Amend-grant: all`: spec approved for handoff only - run brainstorming #42\n",
-      "words": 37,
-      "wallMs": 4478,
+      "text": "PR header present, Amend-grant: none → `spec approved for handoff only - run brainstorming #42`; no calls, announcement, phase change, verification, strip, seal, or push.\nPR header absent, known subject #42 → `spec approved for handoff only - run brainstorming #42`; no calls, announcement, phase change, verification, strip, seal, or push.\nAmend-grant: all → `spec approved for handoff only - run brainstorming #42`; no calls, announcement, phase change, verification, strip, seal, or push.\n",
+      "words": 67,
+      "wallMs": 8998,
       "mechanical": {
         "notice": "holds"
       }
     }
   },
-  "repoSha": "696cf14803d78e1b2594d2d7971df43a69f7944a"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

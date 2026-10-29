@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "baseline",
-  "skillSha": "5064410f0a7fc786410e37cc448aa9dc33f42a34fa461291f5ec502b8d66a7c0",
+  "skillSha": "46230ac73e4c7b5113a163f24e5ccaa63fb52be65622b5210b286d3ec2351e00",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "The ticket repair is saved and re-extracted. acme/widgets#77's only acceptance row now reads \"The report-view setting uses the shared settings resolver.\" The spec carries it as `in-scope`. That matches the path already traced: settings/resolver.ts:12 owns the defaults and ui/report-view.ts:30 consumes the resolved settings. No disposition or deviation is needed.\n\nThe setting still has no defined behavior. The open question is what happens to active report filters when the user switches workspaces. Which outcome should the setting control?\n\nA) Reset by default: filters clear on workspace change, and the setting lets users opt in to keeping them.\nB) Keep by default: current behavior stays, and the setting lets users opt in to clearing filters on workspace change.\nC) Prune by default: filters that don't apply to the new workspace are dropped and the rest are kept, and the setting switches between pruning and keeping everything.\nother - name it.\n\nRecommendation: A - the report is about filters carried into a new workspace and hiding its rows. A reset default fixes that for every user, and the default lives in the resolver that already owns settings defaults.\n",
-      "words": 183,
-      "wallMs": 11279,
+      "text": "gauntlet: question\nThe repaired acme/widgets#77 row now reads \"The report-view setting uses the shared settings resolver,\" so I'm treating it as `in-scope` as written. The setting's default goes in `settings/resolver.ts:12`, and `ui/report-view.ts:30` reads the resolved value. I'll record that in the draft. What should a workspace switch do to the report filters?\nA) Always clear filters on a workspace switch. The setting only controls something else, and the hidden-rows bug is fixed for everyone.\nB) Clear filters on a workspace switch by default. The setting lets a user keep filters across workspaces.\nC) Keep filters across workspaces by default, as they behave today. The setting lets a user opt in to clearing them.\nD) Other - name it.\nRecommendation: B - it fixes the reported hidden-rows problem by default and keeps today's carry-over behavior available through the resolver.\n",
+      "words": 136,
+      "wallMs": 9504,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The saved repair is verified: acme/widgets#77 now requires the shared settings resolver, matching the traced resolver-to-report-view path. That criterion is in scope; the framing remains kept.\n\nWhat should the new setting do when the user switches workspaces?\nA) Reset report filters by default, with an option to preserve them.\nB) Preserve report filters by default, with an option to reset them.\nC) Other - name the desired behavior.\nRecommendation: A - it addresses filters unexpectedly hiding rows in the new workspace while allowing users to retain the existing behavior.\n",
-      "words": 87,
-      "wallMs": 8544,
+      "text": "gauntlet: question\nThe saved repair to acme/widgets#77 is verified, and its acceptance criterion now requires the shared settings resolver. That settles settings ownership; filter behavior on workspace changes remains undecided.\n\nWhat should the new setting let users choose?\nA) Reset filters on workspace changes versus keep the current filters.\nB) Restore each workspace’s last-used filters versus keep the current filters.\nC) other - name it.\nRecommendation: A - resetting directly addresses filters hiding rows in the newly selected workspace, without adding per-workspace filter storage.\n",
+      "words": 82,
+      "wallMs": 11307,
       "mechanical": {}
     }
   },
-  "repoSha": "e0cb0441192526345241faef17a203dccdd9100a"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

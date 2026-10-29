@@ -1,24 +1,35 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "9d28127330c5377e261b402624a74ba02f542a7a709ec5b7ddd51f38268e7cd2",
+  "skillSha": "b2ce8bece400b05d38599731e9799b1790e881d87ca682c0fa21c316d839ba3a",
   "inputSha": "e1792cd49e043a3d0c8be27c7d7607ef8c92dabb84e38958ac907ae0b297aad3",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n",
+      "words": 55,
+      "wallMs": 5911,
+      "mechanical": {
+        "gate-first": "holds",
+        "one-marker": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "gauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n",
       "words": 55,
-      "wallMs": 3278,
+      "wallMs": 3739,
       "mechanical": {
         "gate-first": "holds",
         "one-marker": "holds"
@@ -26,11 +37,11 @@
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "f01a857443cb26612ba47fa931cc0881a9fe059ec1401597af0793fee1b9ab81",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
-      "baselineOutputSha": "ed6133817f502db6270ff4348323605a6ada126124985244e01a71ec96342315",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
+      "baselineOutputSha": "5d6d54829731cf0fddadc04f0ae0f03f355c804d1fa0fee42b07fdd64b564e6b",
       "candidateOutputSha": "663ce67104235db4da4f75df30af57529ae5d9c1195c739c51e6a79f9e00c650",
       "facts": {
         "full-menu": {
@@ -44,9 +55,9 @@
           "label": "held"
         },
         "gate-first": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "one-marker": {
           "before": "holds",
@@ -54,10 +65,42 @@
           "label": "held"
         }
       },
-      "feedback": "After adds the owned Step 4 gate marker before the closure summary, delivering the requested gate-first change while preserving both facts: CONFORMS, all five normal options, and the choice question remain intact, and no done or stuck marker appears. No corrective wording is needed; retain this gate-first layout and defer terminal outcome markers until a choice has been made and its outcome reached.",
-      "wallMs": 3909,
-      "verdict": "improved"
+      "feedback": "Both outputs are effectively identical for this case: each emits the gauntlet gate line, a CONFORMS closure with no minors, the five numbered normal options (push/PR, draft PR, squash-merge main, keep, discard), and the closing 'Which option?' prompt, with no done or stuck marker. The only difference is that After drops the blank line between the gate line and the closure summary, which does not move either fact. No wording change is needed for this case; the After wording preserves everything Before kept while leaving the clean non-PR menu path untouched by the rebase/lease/leg changes.",
+      "wallMs": 3931,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f01a857443cb26612ba47fa931cc0881a9fe059ec1401597af0793fee1b9ab81",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a3f5f6b15fbe165f706ca7515d310a2472215accf07eaeeb214026af817d239b",
+      "baselineOutputSha": "663ce67104235db4da4f75df30af57529ae5d9c1195c739c51e6a79f9e00c650",
+      "candidateOutputSha": "663ce67104235db4da4f75df30af57529ae5d9c1195c739c51e6a79f9e00c650",
+      "facts": {
+        "full-menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "nonterminal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gate-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before and After are byte-identical for this case: both state CONFORMS, list all five normal options (push/create PR, draft PR, squash-merge to main, keep, discard) and end with \"Which option?\", and neither emits a done or stuck marker, so both facts hold in both arms and nothing moved. The After wording delivered the Change without disturbing the plain named-branch, non-PR, CONFORMS path; keep the shared menu-layout contract exactly as it renders here (observations block first, then the numbered generated options, then the choice prompt) so this default menu remains stable while the PR-subject, PR-list, and legs variants gain their new behavior.",
+      "wallMs": 6290,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }

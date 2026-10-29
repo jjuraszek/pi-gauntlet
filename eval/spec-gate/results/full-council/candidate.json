@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8f3bc8332ff60e5162ada68b476040962f5638eef0009d884a10c3152cfdf20a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "5fb444a711e82bfd28c9b72969a12de96a02bc9597c4d0706de46a62af3c5f49",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "2e90bc6ca8de7ee83ed8be7bdb68bc36293d957c25926a79b76fd75585e22fef",
       "candidateOutputSha": "2e90bc6ca8de7ee83ed8be7bdb68bc36293d957c25926a79b76fd75585e22fef",
       "facts": {
         "f1": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact: the briefing body is reproduced word-for-word, the Council line still reads 11/0/0, no per-cluster disposition lines appear, the menu has exactly rows 1-6 with the right semantics, and the reply-1 narration sets Amend-grant to none and proceeds to writing-plans. Two drifts are worth tightening though, because they are not part of the Change and could trip a stricter reader of f1 or f3: After drops the `## Briefing` heading that Before carried above the verbatim text, and it inserts a `New predecessor candidates at spec-writing: none - ...` line between Council and the menu that neither the Change nor the Expected-to-move list calls for. Keep the Before layout (heading, verbatim briefing, commit line, `Scope cuts: none`, `Council: ...`, then the menu), add the Drafted acceptance criteria block only when drafted rows exist (this ticket-row case correctly omits it), and leave the predecessor-candidates line out unless the instruction actually requires it; also keep the reply echoed as `` `1` `` for consistency with the sample's existing style.",
-      "wallMs": 13761,
+      "feedback": "After is textually identical to Before, so nothing moved on any of the five facts: both render the briefing verbatim under the gauntlet header, carry the single `Council: 11 applied, 0 deferred, 0 rejected` line with no per-cluster Applied/Deferred/Rejected lines before the menu, present exactly rows 1-6 with the expected semantics (4/5 present because the ticket supplied one in-scope acceptance row), and narrate reply 1 as plain approval with `**Amend-grant:** none` and `**Engine:** waves` before `/skill:writing-plans`. The `Scope cuts: none` line sits correctly between the commit line and Council (only an in-scope ticket row exists), and the Drafted acceptance criteria block is correctly omitted for a ticket-provenance row. No wording adjustment is needed for this case; the Change's drafted-block and scope-cut behaviors should be confirmed on the cases that actually supply deferred/drafted rows, since this sample cannot distinguish them.",
+      "wallMs": 9002,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8f3bc8332ff60e5162ada68b476040962f5638eef0009d884a10c3152cfdf20a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7fddbe6260a438c5a698bd501dd4541fa485812ce2df49954b0c4b26a617b522",
-      "baselineOutputSha": "7e98049f6bdc0aa7013cbf1eb40b8e646c8b2b81538620f4e7f578307c1ef383",
+      "intentSha": "0f4318d0d2593df6325640724d93b8d46609d1ac7a7783c79df72872c00cca7a",
+      "baselineOutputSha": "e4f31bb335e872d1d2809e0fa507da973192f5bdba82abd42d230a8227b2eeff",
       "candidateOutputSha": "e4f31bb335e872d1d2809e0fa507da973192f5bdba82abd42d230a8227b2eeff",
       "facts": {
         "f1": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both outputs reproduce the briefing verbatim, carry the single `Council: 11 applied, 0 deferred, 0 rejected` line with no per-cluster disposition lines between briefing and menu, render exactly six numbered rows 1-6 with the expected semantics, and narrate reply 1 as plain approval persisting `**Amend-grant:** none` and `**Engine:** waves`. After's only differences are cosmetic (parenthesized \"spec path and worktree path not supplied\", \"not supplied\" instead of \"not provided\"), and it correctly omits the Drafted acceptance criteria block for this ticket-row gate while keeping `Scope cuts: none` between the commit line and Council. The After wording delivers the Change for this case without disturbing any kept fact; if anything, keep the ticket-row omission explicit in the skill text (\"ticket-row gates omit this block\") so a future render does not add an empty Drafted block that could push the menu or Council line out of position.",
-      "wallMs": 8910,
+      "feedback": "Before and After are byte-identical for this case, so no fact moved: both render the briefing verbatim after the gauntlet header, carry a single `Council: 11 applied, 0 deferred, 0 rejected` line with no per-cluster disposition lines above the menu, list exactly six rows 1-6 with the expected semantics, and narrate reply 1 as plain approval persisting `Amend-grant: none` and `Engine: waves` before invoking writing-plans. The After wording also correctly places `Scope cuts: none` between the committed-to line and Council and omits the Drafted acceptance criteria block because the only acceptance row is ticket-provenance in-scope, which matches the Change's ticket-row rule. Nothing in this output needs rewording; if the author wants this case to exercise the new Scope cuts logic more visibly, it would require a case with deferred/venue rows rather than any change to the gate wording.",
+      "wallMs": 9948,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3d95fb33758faf76184c11854690d860c4893a3f"
+  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
 }
