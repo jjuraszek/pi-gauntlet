@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "453a6b0e69096fbb33e2c0c418e1ce10ceda4dc8806b3ef5f9e00eefad7d0700",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "ec5459b921e6d992a76324f8f865c287ee2335b8a7f72b76ff8f43b340ca9988",
       "candidateOutputSha": "0336c6dcc47d8f6c90b6abd880dcdb7e9ad757a39d0fc939a61c4f290b1424c0",
       "facts": {
@@ -79,14 +79,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: After keeps every fact Before kept. It preserves the strict PR-lookup-then-issue-lookup order (Open explicitly withholds `gh issue view`; Issue and Neither reach it only after not-a-PR), routes Open through pr-head onto `fix/retry` with the `pr-55-repair-retry-backoff` filename, carries the PR body intent into `## Problem`, and renders the later-stage `Drafted from the design, no ticket rows:` block with the two in-scope bounded-delay/no-retry-on-success rows attributed to the approved rework rather than the PR text. Issue stays on the unchanged ticket path with the verbatim `Retry delay stays bounded.` row; Neither and Foreign stop with the exact one-line errors naming #57/acme/widget and other/widget/acme/widget; Mention stays free text with context-builder for #55; Bound picks #12 from the title over the body's #13, names #13 as Problem context, ignores `fix/issue-99` and `closingIssuesReferences #99`, and keeps the `YYYY-MM-DD-12-<topic>.md` bound-ticket form; Trailing context carries the intent verbatim and never looks up #13. Two small polish points that would not change any verdict: After's Bound branch writes `12-<topic>` as a placeholder where Before filled in `12-repair-retry` (filling the topic makes the bound-ticket rule more concretely checkable), and After's Bound `## Problem` bullet says intent comes 'from the title and body' when the fixed observation only supplies the carried `keep retries` intent — tightening that to the carried intent plus the #13 context line would keep the narration strictly to supplied observations while still delivering the Change's first-intent-token `merge-forward` check, which After already states correctly.",
-      "wallMs": 17659,
+      "feedback": "No fact moved: After keeps every ordered/single-path routing fact Before kept. Both outputs run gh pr view before any gh issue view, skip the issue lookup on an admitted PR, stop Neither and Foreign with the exact one-line errors naming #57/acme/widget and other/widget/acme/widget before provisioning, keep Mention on free text with context-builder for #55, bind #12 from the title ahead of #13 in the body while ignoring fix/issue-99 and closingIssuesReferences #99, and resolve only #12 in the trailing-context case with the intent carried verbatim and no #13 lookup. For Open, After preserves the fix/retry PR-head worktree (draft admitted), the pr-55-repair-retry-backoff filename, the PR intent in ## Problem, and the exact `Drafted from the design, no ticket rows:` block with the two in-scope rows derived from the approved rework, while explicitly separating early classification from the step-7 spec-writing stage. Two small wording points worth tightening so later judges don't waver: Branch F's filename is left as `YYYY-MM-DD-12-<topic>.md` rather than the concrete `12-repair-retry` form Before gave (still the bound-ticket rule, but a concrete slug is safer), and Branch F's `## Problem` line 'Stated intent from the title and body, plus the carried intent' muddies which text is the prompt intent — say 'Stated intent: \"keep retries\"' and keep title/body separate. Otherwise the After wording delivers the Change (spec-pr classifier read, SYNC token handling, merge-forward check on the first intent token, per-PR provenance subsection) without weakening any of these facts.",
+      "wallMs": 18885,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "453a6b0e69096fbb33e2c0c418e1ce10ceda4dc8806b3ef5f9e00eefad7d0700",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "02ca98a618548dbdbd6bfb9d08c47c0eea0fe8eaf048810ed7866fe314fd2d7a",
       "candidateOutputSha": "420612bf5b3300fe56c0422273bc407a0c8abca331909bf41bedc8fe39c3e0d4",
       "facts": {
@@ -131,10 +131,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs classify PR-before-issue once per branch, keep Open on the fix/retry PR-head path with the pr-55 title filename and the 'Drafted from the design, no ticket rows:' section carrying both approved in-scope outcomes, preserve the #56 ticket row verbatim, emit the exact #57 and other/widget stop lines before provisioning, keep the mention on free text, bind #58 to #12 from the title ahead of body #13 while ignoring fix/issue-99 and #99, and resolve only #12 in the trailing-context case. Two spots in After are fragile and worth tightening so the Change (unmarked spec-only routing, merge-forward token, multi-PR publication) does not later erode these facts: Open step 4 says 'do not claim ... that provisioning occurred' while step 5 only names 'the PR-head branch'—keep Before's explicit sentence 'the admitted subject takes the PR-head provisioning path, not a new unrelated branch' so the single-path routing is stated rather than inferred; and Bound step 6 uses the placeholder `<ticket-12-id>` where Before wrote the literal `YYYY-MM-DD-12-<topic>.md`—render the bound ticket number literally so the bound-ticket filename rule is unambiguous. Also consider restoring the gatherer read in the Mention branch, which After dropped without harming the fact.",
-      "wallMs": 20550,
+      "feedback": "No fact moved: After keeps PR-before-issue ordering in every branch, takes the PR-head path on fix/retry for the draft #55 with a pr-55 filename, writes the later acceptance section verbatim as 'Drafted from the design, no ticket rows:' with both approved in-scope outcome rows, stops Neither and Foreign before provisioning with the exact one-line errors, routes Mention to context-builder, binds #12 from the title ahead of body #13 while ignoring fix/issue-99 and #99, and resolves only #12 in the trailing-context branch. Two soft spots worth tightening so they don't drift under future assembly growth: the Bound filename is rendered as a placeholder `YYYY-MM-DD-<ticket-12-id>-<topic>.md` where Before wrote the concrete `YYYY-MM-DD-12-<topic>.md` (a careful reader still accepts the bound-ticket rule, but a stricter judge might not), and Open step 4's 'do not claim ... that provisioning occurred' sits awkwardly beside step 5's PR-head branch statement — phrasing it as 'the PR-head family is selected on fix/retry; the spec-only classifier outcome is not asserted' would keep the single-path claim unambiguous while still honoring the observation gap the Change intends.",
+      "wallMs": 18607,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
+  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
 }

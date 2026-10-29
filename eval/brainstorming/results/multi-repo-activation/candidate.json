@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6f02bbb4b49aacff2f264ef7c650ee64df6c904dd26c6c615fb5c2b965643e84",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "84926aac8013edd8128609a5cd480cd2653dcf9356060d73a44c755a7e6f4e83",
       "candidateOutputSha": "d1f90b20ea20c6febda5449428cdba676f75676e1520f5223916e261280482dd",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs keep A and E single-member with no sibling probe, select only repo-b in B with explicit `$ROOT=/work/repo-a` (not the linked `.worktrees/old` session) and `$ROOT=/work/repo-b` on `feature/shared-change`, ask once in C before any creation, give single-member specs exactly one `### Leg:` under `## Legs` with no companion file/`legs:` brief/`--leg`/receipt/companion loop, and leave the legacy D spec home-only without retrofitting Legs. Two small After differences are worth watching though they did not break a fact here: Run C's question now carries `Recommendation: C` rather than `Recommendation: none`, which edges toward guessing where Before explicitly declined to recommend; and Run A phrases the boundary as 'exactly one `## Legs` block' before naming the `### Leg:` heading, which a stricter reader might take as counting sections rather than Leg blocks. Keeping Before's 'exactly one `### Leg: <home id>` block' phrasing and the `Recommendation: none - only you know...` line in C would remove both ambiguities while still delivering the Change.",
-      "wallMs": 12829,
+      "feedback": "Neither fact moved. Both outputs keep A and E single-member without probing siblings, select only repo-b in B with explicit $ROOT=/work/repo-a and $ROOT=/work/repo-b on feature/shared-change while refusing to reuse the linked /work/repo-a/.worktrees/old session tree, and have C ask once before any creation; both also give single-member new specs exactly one ### Leg: block with no companion file, legs: brief, --leg, receipt or companion loop, and keep legacy D home-only with no retrofitted Legs. Two wording points in After are worth tightening so they do not drift in future runs: Run A says 'exactly one ## Legs block, ### Leg: acme/repo-a', which conflates the section heading with the leg block - prefer 'one ## Legs section containing exactly one ### Leg: <home id> block' to keep the identity fact unambiguous; and Run C's question now gives 'Recommendation: C' where Before gave 'Recommendation: none - ...', which is fine for the membership fact (it still asks once before creation and does not guess) but if the author wants the disambiguation question to stay non-leading, pin the 'Recommendation: none - <why>' form for ambiguous-sibling asks in the legs reference rather than leaving it to the model.",
+      "wallMs": 14183,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6f02bbb4b49aacff2f264ef7c650ee64df6c904dd26c6c615fb5c2b965643e84",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "e4470a723a901f8bd004e44defab98f581a327e5428486ed4a73f76aa7e5323a",
       "candidateOutputSha": "a66e089b467d16579176990eabde8c76d64845af2f2d19c08961b61c40b3b144",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs keep A and E home-only, provision B from explicit primaries /work/repo-a and /work/repo-b on feature/shared-change with fresh trees rather than the linked .worktrees/old checkout, stop C before any creation with a single disambiguation ask, and give single-member new specs exactly one home Leg block with no companion spec, legs: brief, --leg, receipt or companion loop while D stays legacy home-only. The one softening worth watching is C: Before actually renders the gauntlet question with the two candidate owners and a recommendation, whereas After only narrates 'Ask once for an unambiguous selection' and notes the run is blocked, so a stricter reader could question whether it 'asks'. To keep that fact robust under the new wording, retain the rendered question block (team-one/repo-b vs team-two/repo-b, one ask, before any probe or creation) alongside the stop narration; the rest of the After wording (per-member overrides/settings reads, origin validation, home-first commit, preserve partial trees) delivers the Change without displacing anything Before kept.",
-      "wallMs": 16723,
+      "feedback": "Neither fact moved: After keeps A and E home-only, selects only acme/repo-b for B with explicit roots /work/repo-a and /work/repo-b on feature/shared-change while refusing the old linked worktree, stops C before any creation with a single ask, and keeps D legacy home-only with exactly one home leg block and no companion/legs:/--leg/receipt/loop artifacts. The one softening worth fixing is that After only narrates 'Ask once for an unambiguous selection' for C and never renders the question, whereas Before actually emits the gauntlet: question block with the two owners listed; a strict reader could argue 'asks once' is prescribed rather than performed. Keep the Change's membership/provisioning wording but have the C branch render the disambiguation question itself (lead-in, one option per line, Recommendation line) so the ask is shown, not merely described; likewise consider naming the `### Leg:` under `## Legs` form explicitly for single-member specs rather than 'one home leg block' so the identity fact is matched on its own terms.",
+      "wallMs": 15624,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
+  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
 }

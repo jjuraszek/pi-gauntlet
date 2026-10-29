@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "922b94c7a20ca5c68ad98313c8728e3a84912fafaf5d21af42617f9b65e20886",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "2afe618df193d6adfd3bd7d9a0c6c0f2234143cfc952409be9386f1c2964fb03",
       "candidateOutputSha": "e9b3fb884eeef663a355a13e1bbfc7946a1eaa1dab2c73bb55d59f3a75ed041a",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. After still narrates exactly one `read` of `skills/brainstorming/reference/ticket-acceptance.md` at step 3 (item 4) before gathering (item 5) and before question one, and both step 4 (item 6) and step 8 (item 11) explicitly skip the re-read while step 4 still applies ticket handling (cut-question check, `Framing: kept`) and step 8 runs the ticket lint (item 12). The only wording risk in After is item 3, 'Open the [Ticket Handling] section', which a hasty reader could mistake for a second resource load; it is defused by 'already loaded as part of `SKILL.md`', but keeping Before's single-sentence form ('This is the first use and nothing is in context yet. Run `read` on ... before gathering') would avoid introducing a separate 'open' action at all. Otherwise the After wording delivers the Change without losing either fact.",
-      "wallMs": 11150,
+      "feedback": "Nothing moved on this case: both outputs narrate exactly one `read` of `skills/brainstorming/reference/ticket-acceptance.md` at step 3, placed before gathering and before question one, and both skip the re-read at steps 4 and 8 via an explicit in-context check while still applying ticket handling (gathered verbatim row, cut-question check, `Framing: kept`) and running the step-8 ticket lint (header form, character-for-character row, `in-scope`, empty `Scope cuts:`). The only wording risk in After is item 3, 'Open the Ticket Handling section ... already loaded as part of SKILL.md', which a hasty reader could mistake for a second reference read; it is clearly scoped to the loaded SKILL.md, but phrasing it as 'Consult the already-loaded Ticket Handling section of SKILL.md (no read)' would remove any ambiguity while keeping the Change's amendment-surface additions untouched here.",
+      "wallMs": 8849,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "922b94c7a20ca5c68ad98313c8728e3a84912fafaf5d21af42617f9b65e20886",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "29ff3004ebed332b4e743f01d824426eeb10dfdcf9cd7af554ade1eaa6a290e4",
       "candidateOutputSha": "0aedf0f7e6196e889d8300d16b3b51dfef36eef5a42ac33ee1eab31caec78225",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs narrate a single read of skills/brainstorming/reference/ticket-acceptance.md at step 3 before gathering and before question one, and both have steps 4 and 8 check that the reference is already in context and explicitly decline to reread it while still applying ticket handling (in-scope decision carried, verbatim row checked) and running the step-8 lint. After even improves the lint narration by splitting the context check (item 8) from the lint itself (item 9) and naming the verbatim-row and in-scope checks concretely. One wording nit in After item 2 — 'even though no resource has previously been read this session' — reads awkwardly as if the read were in tension with the fresh session; Before's 'its first use this session' is clearer and makes the first-use fact more obviously true. Keeping that phrasing while retaining After's separate lint item and the added gate-line-first mention in item 6 would deliver the Change without any risk to either fact.",
-      "wallMs": 11253,
+      "feedback": "Nothing moved here: After narrates exactly one read of skills/brainstorming/reference/ticket-acceptance.md at step 3 before gathering (item 2), reuses the in-context reference at step 4 (item 4) and step 8 (item 8) with explicit do-not-reread wording, and still applies ticket handling and runs the step-8 ticket lint (item 9, now a separate item with verbatim-row and in-scope checks). The only soft spot is item 2's phrase 'even though no resource has previously been read this session', which reads as if a prior read would be a reason to skip; 'its first use this session' (Before's wording) states the first-use rule more directly and would be a safer retention under the enlarged assembly. Splitting the step-8 context check and lint into two items is fine and arguably makes the reuse fact easier to verify.",
+      "wallMs": 7576,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
+  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
 }

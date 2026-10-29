@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "1b9a45238c1ac3a1f5b91cf70dd9fa5d262e493047d28faf27cf6e2157f2f8e2",
       "candidateOutputSha": "d5fcb5efab7c61429f797f13592fb7a2bef9a84882d2ec2d0797a2406103ab9f",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps all three facts: the Recorded line is verbatim (crosscut=alt-1, exit126=custom(keep 126 as failed, document it)), item 2's free text is accepted as custom without a re-ask, and the spec-edit section applies the coordinator-owned retry policy and the retained-failed-plus-documentation clause while explicitly saying no blocked status is introduced. The one wobble is the commit body: After echoes the batch's original What fields there (\"move retry policy into one owner\", \"classify exit 126 as blocked rather than failed\") and paraphrases the custom reply instead of echoing it verbatim, so the exit126 audit line reads as if the blocked classification were the applied change while the choice column says custom. Before avoided this by substituting the chosen effect into the What column and quoting the reply text verbatim in the custom(...) token. To keep f3 unambiguous, have the commit-body row describe the applied effect (the chosen option's or custom reply's effect), not the item's original proposal, and require the custom(text) token in the commit body to match the Recorded echo verbatim; the new Aftermath paragraph (skips plan-writer/plan_check/plan_tracker, spec-only commit) is a good addition and should stay.",
-      "wallMs": 15899,
+      "feedback": "No fact moved: After keeps the verbatim Recorded line (crosscut=alt-1, exit126=custom(keep 126 as failed, document it)), accepts item 2's free text as custom without re-asking, and describes alt-1 and the keep-failed-and-document edits while explicitly stating no blocked status is introduced. Two soft spots worth tightening in the After wording though: the commit body's item-2 row carries the original proposal text \"classify exit 126 as blocked rather than failed\" in the What column and a paraphrased custom(...) that differs from the free text echoed in the Recorded line, whereas Before rewrote the What column to the chosen effect and kept custom(...) verbatim everywhere. A reader skimming only the commit block could think the blocked proposal was applied. Suggest wording in the apply/commit instructions that the commit row's What reflects the applied effect (the chosen option or custom edit) and that custom(text) is copied verbatim in both the commit row and the Recorded confirmation; that keeps all three facts solid while still delivering the aftermath/section-5 change.",
+      "wallMs": 13989,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "f4173ee5671372fbb6187603128795e43af7d86cc1fd2ce16b024d4a53695671",
       "candidateOutputSha": "69f7b0d71acf2a39d30d7efda0931ad8ab2c87306611bc9e1f0c56e67565f6c8",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: After still prints the exact `Recorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)` line with the free text verbatim, accepts the item 2 free text as a custom choice without re-asking, and describes the selected edits (coordinator owns shared retry policy with adapters keeping execution, no new service; exit 126 stays failed and is documented) while explicitly disclaiming disk writes and commits. The only differences are cosmetic: After leads with the numbered edit list and places the Recorded confirmation after it, whereas Before leads with the Recorded line. Both satisfy the facts as written, but if the author wants the continuation to read as confirmation-first (matching the section 4 reply-grammar rule that the Recorded echo follows the reply), keeping the Recorded line as the first line of the response, as Before does, is the safer wording; the numbered edit items keyed to the batch handles are a fine addition and do not disturb any fact.",
-      "wallMs": 8935,
+      "feedback": "Nothing moved: After still prints the exact Recorded line with crosscut=alt-1 and exit126=custom(keep 126 as failed, document it), accepts the free text without re-asking, and describes alt-1 (coordinator owns policy, adapters keep execution, no new service) plus the custom exit-126 effect (keep failed, document it) while disclaiming writes and commits. The only difference is ordering - After places the Recorded confirmation after the edit list rather than first - which no fact keys on; if you want the confirmation to lead for scan-ability, state in section 4 that the Recorded line precedes the edit description, but the current wording already keeps every fact Before kept.",
+      "wallMs": 4959,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
+  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
 }

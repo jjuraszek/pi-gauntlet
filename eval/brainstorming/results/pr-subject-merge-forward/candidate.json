@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1ea278114c284a4100dabb9024429627b7ea15458fa5d54c4c9e55d8fd17182e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "c696c09f7f2d757cb1fcf0079fa378e3024d55cc5e7f978414da41bafabc2ed5",
       "candidateOutputSha": "fecf77434b8a872b3a21665545dd66fe922bed95335663e7af0607b1c06fc010",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved. After's Trace A still strips only the first post-ref token (`merge-forward`), carries `keep retry limits` verbatim, admits #12 then #13 in order, provisions on `fix/retry` at `aaaa…`, merges #13 with the canonical `merge PR #13 head bbbbbbb into PR #12` subject before `origin/main` (ddddddd then eeeeeee), validates both original heads as ancestors, and writes no rework-base ref or `Rework base:` line; Trace B keeps `SYNC=rebase` with `merge-forward` as intent text, Trace C stays free-text with context-builder gathering #12 and no provisioning, and Trace D keeps the unmarked spec-only route with no thread fetch, no Rework record, option 6 withheld and the carried `doc/specs/retry.md` path. The only wording shifts are presentational: After says the `Member merge` line is omitted from the record (consistent with Before's 'stays in Step 4') and adds the per-PR provenance subsections, which actually strengthens the merge-path provenance claim. If you want extra safety for `leading`, add one explicit clause in A step 6 such as 'no new branch is minted; the selected branch is the existing `fix/retry`', and in D keep the phrase 'does not change the route' adjacent to 'creates no Rework record' so the spec-only fact's two halves stay on one line; otherwise the After wording delivers the Change without touching any fact Before held.",
-      "wallMs": 13717,
+      "feedback": "No fact moved between Before and After. Both outputs strip only the first non-ref token `merge-forward` after the `#12 #13` run, carry `keep retry limits` verbatim, admit in order, provision `fix/retry` rather than a new branch, merge #13 (`merge PR #13 head bbbbbbb into PR #12` → ddddddd) before origin/main (→ eeeeeee), validate both original heads as ancestors, omit any Rework base line, keep B on `SYNC=rebase` with `merge-forward` as intent, keep C free-text with #12 as context only, and keep D on the unmarked spec-only route with no thread fetch, no Rework record, and the token redundant. After even adds useful detail Before lacked (per-PR provenance subsections, explicit base-SHA constraint reads). One wording risk worth tightening: After's step 6 says `Run worktree add for fix/retry`, which a reader could misread as minting a new branch; phrasing it as `check out the existing fix/retry branch (HEAD = aaaa…)` as Before does keeps the leading fact unambiguous while still delivering the member-then-base merge provisioning the Change describes.",
+      "wallMs": 13996,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1ea278114c284a4100dabb9024429627b7ea15458fa5d54c4c9e55d8fd17182e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "2ff4070e5e8dad97571da7c2cebc98997332d8bb462ec87afa3c4532fead5fc3",
       "candidateOutputSha": "30794d85601266fc2854aca7ff8d5254de1950620258cb0fcff44f76739682c5",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After keeps A's parse of the leading `#12 #13` run, strips only the first intent token `merge-forward`, retains `keep retry limits`, admits #12 then #13 in order, merges #13's original head before fetched main (ddddddd then eeeeeee), reports `Member merge: #13 ddddddd` outside the record and states a merge record has no `Rework base:` field; B defaults to rebase with `keep merge-forward retry limits` retained verbatim, C stays free text with #12 as context, and D stays on the unmarked spec-only route with no Rework record, admission still applied and no thread fetch. One wording risk worth tightening: After's A step 3 never names `fix/retry` — it says only 'home' and 'both original-head identities' — whereas Before explicitly said 'provision home `fix/retry` at original head aaaaaaaa…'. A reader could infer home = fix/retry from the observations, but adding 'provision home `fix/retry` (the existing #12 branch, not a new branch) at `aaaaaaaa…`' to step 3 would make the leading fact's 'on fix/retry rather than a new branch' clause unambiguous while keeping the member-first/base-second merge sequence and the record/report distinction the Change asks for.",
-      "wallMs": 20851,
+      "feedback": "No fact moved. After keeps every A fact Before kept: the leading run is parsed as #12 #13, only the first intent token merge-forward selects merge provisioning, keep retry limits is retained as intent, #12 then #13 are admitted in order, #13's original head is merged into home before fetched main (ddddddd then eeeeeee), both original heads are preserved and named with Pre-rework head lines in the compact record, the member-merge line is kept out of the committed record, and no Rework base field appears. B and C are handled as in Before (keep selects rebase, later merge-forward stays intent; C is free text with #12 as context), and D keeps the unmarked spec-only route with no Rework record and no thread fetch while ordinary admission still applies. The one wording risk in After is that step 3 for A never names fix/retry explicitly—it says 'home first' and 'selected-home ... checks', which a careful reader resolves to #12's branch, but Before stated 'provision home fix/retry at original head aaaaaaaa…'. To make the leading fact unambiguous, add 'home fix/retry (no new branch)' to A's provision-and-sync step; otherwise the After wording delivers the Change without weakening any of the four facts.",
+      "wallMs": 22355,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
+  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
 }

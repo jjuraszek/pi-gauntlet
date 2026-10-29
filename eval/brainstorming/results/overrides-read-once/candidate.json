@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0bda7ffbeb62738050132cb7af7848b668a27bd11721b942148c4e8b29519ca8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "b4935d9ba358892945580afc77b1c4e6e69f640e8d14731d5390d0874a5ceba1",
       "candidateOutputSha": "5c1b3203f871296662254105d4cf3c5623d7060c7a5553e02d421dc9de1160a4",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "After moves no fact. Trace A still narrates exactly one `read` of `.pi/gauntlet-overrides.md` in brainstorming (step 2) and explicitly skips the duplicate in writing-plans because the content is already in context (step 6, \"No second `read` happens\"); American English is applied in both stages (steps 3 and 7) and the `demo-` prefix from the named `## writing-plans` section is applied in the second stage despite the skipped read (step 8). Trace B still treats uncertainty as requiring the read (step 1: \"the read is required, not skipped\"), narrates the read (step 3), and applies both American English and the `demo-` prefix (steps 4-5). The wording tightened (\"held, not used\" for the unapplied section, \"once-per-session rule\" for the skip) and dropped the leading heading and the \"not live tool calls\" disclaimer, none of which the facts key on. If you want extra margin, keep the explicit \"content remains in context\" phrasing in A6 (it currently says \"already in context from brainstorming's read\", which suffices) and keep B1's statement that unsure means read, since those are the exact hinges for cross-stage-reuse and unsure-read.",
-      "wallMs": 12046,
+      "feedback": "Nothing moved on this sample: After still narrates exactly one `read` of .pi/gauntlet-overrides.md in Trace A step 2, skips the writing-plans re-read in step 6 while grounding the skip in the content being 'already in context from brainstorming's read', applies American English in both stages (steps 3 and 7) and the demo- prefix in the second stage (step 8), and Trace B reads the file when possession is unsure (steps 1-3) before applying both conventions and the named section. One small caution: After's step 6 adds the phrase 'per the once-per-session rule', which a stricter reader could take as a session-count rule rather than an in-context rule; keeping the Before-style justification ('the content is still in context, so the read is skipped') as the sole stated reason would keep the cross-stage-reuse fact unambiguous. Also, After calls the read 'the observed outcome is success' which reads as narration of a supplied observation rather than a live tool call, consistent with the Narrated read actions exception, so no fact is at risk there.",
+      "wallMs": 11485,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0bda7ffbeb62738050132cb7af7848b668a27bd11721b942148c4e8b29519ca8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "2ccd8fe074b337a42b57228a85d539377207b18729d809df1849bfb3d7028acc",
       "candidateOutputSha": "f9a43b75d8d739009f376b28cf690ed3585b0801d7e12ceef19b968f198f58dc",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this sample. Both outputs narrate a single successful read of .pi/gauntlet-overrides.md during brainstorming in Trace A, an explicit skip of the reread in writing-plans because the content remains in context, American English applied in both stages with the demo- prefix applied only at the writing-plans stage, and in Trace B a read performed precisely because context possession is uncertain, followed by application of both conventions. After adds bold step labels and a 'Required read — observed success' framing that makes the read/skip decision slightly more legible than Before without altering any fact; the only stylistic risk is the em-dash in the heading, which is cosmetic. No wording adjustment is needed to preserve these three facts while delivering the amendment-surface change, since the overrides-handling slice is untouched by it.",
-      "wallMs": 7822,
+      "feedback": "Nothing moved on this sample: After still narrates a single observed read of .pi/gauntlet-overrides.md in Trace A's brainstorming step, an explicit skip of the reread in writing-plans because the content remains in context, American English applied in both stages with the demo- prefix applied only in the writing-plans stage, and Trace B reading the file when context possession is uncertain before applying both conventions. The After wording is slightly clearer than Before (bold step labels, 'the condition for skipping the read is not established' makes the skip clause's non-ban reading explicit), and it keeps every fact Before kept; no wording change is needed for this sample, though if you want Trace B to key more tightly on the unsure-read fact you could add a clause like 'the skip clause does not forbid reading' to step 1 of Trace B without affecting the other facts.",
+      "wallMs": 9479,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
+  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
 }

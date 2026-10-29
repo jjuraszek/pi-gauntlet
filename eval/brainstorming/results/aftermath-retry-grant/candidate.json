@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e623a06a5d7077f86d1ce29d58be9991d4e7c5bca912296ccb4ad7a218aab63a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "3e45f3bd8d1f2a1980fbdb7e76345dac65b8c5dc7c748b03e8654487b85cce51",
       "candidateOutputSha": "3756c37464e7a430d164a19e13b710beb1662a72d65388579e95e1cbcffc70bb",
       "facts": {
@@ -54,9 +54,9 @@
           "label": "intended but unchanged"
         },
         "commit": {
-          "before": "fails",
+          "before": "holds",
           "after": "fails",
-          "label": "intended but unchanged"
+          "label": "regression"
         },
         "protected": {
           "before": "holds",
@@ -69,14 +69,55 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs trace the main path, variants and jj restore cleanly; the only regression in After is in the commit audit. Before's audit body carries the retry evidence itself (the `FAIL (1 findings) command-contract @ line 24 ...` text plus the dirtied-row paths) and states explicitly that `git revert` of the single `amend:` commit undoes the first amend and the retry together. After replaces the evidence field with the placeholder `FAIL lines + dirtied row (verbatim)` and its undo list says only `git revert this commit` without saying that this removes the retries along with the batch, so the audit no longer shows verbatim evidence and the revert scope is left implicit. To keep the commit fact while delivering the section-5 change, require the audit record's evidence column to reproduce the quoted FAIL lines and the dirtied row text (not a label describing them), and have the undo step say in words that reverting the one batch commit also undoes every aftermath retry item recorded in it.",
-      "wallMs": 24884,
-      "verdict": "unchanged"
+      "feedback": "After keeps restore, grant, dispatch, protected and redraw, and improves on Before by explicitly acknowledging the consumed first Findings: retry and by stating in R that no item is formed before anything is restored. The one regression is commit: After's audit line for the retry item records its evidence as the placeholder `FAIL lines + dirtied row (verbatim)` rather than the evidence itself, so the commit body no longer contains the verbatim FAIL line or the dirtied-row text that the fact requires (Before wrote `FAIL (1 findings) command-contract @ line 24 ...; Task 1 dirtied tracked source: eval/report-runner/report.md, ...` in the audit field). The section-5 wording should state that the audit evidence field carries the quoted FAIL/row text verbatim, not a reference to it — e.g. 'evidence: the verbatim lines as quoted in the item, never a summary or pointer' — which would restore the commit fact while leaving the rest of the Change (two-item cap, repeated-evidence stop, eligible-row restore, Recommendation: none exit) intact.",
+      "wallMs": 33117,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "# Narrated read and stage actions: report-runner amendment aftermath\n\nNo tools are available, so each item below is a narrated, intended action using the fixed observations. Reads are listed as required reads. I do not reproduce reference contents from memory. Any required read that comes back unreadable stops the flow with a blocking error at that point.\n\n## Main trace (git)\n\n1. **Read the amendment surface.** `read` `skills/brainstorming/reference/amendment-surface.md`, section 5, again before the aftermath. If it is unreadable, stop with a blocking error and do not improvise the grammar.\n\n2. **Classify the second plan_check FAIL.** The two FAIL results are identical, so the attribution check applies to them.\n   - The quoted text `Tests: \\`node eval/run.mjs report-runner audit\\`` is compared with `git -C /tmp/report-worktree show HEAD:doc/plans/report-runner.md`.\n   - In HEAD, Task 1's Tests line was `node --test eval/lib/lint.test.mjs`.\n   - Task 1's `Spec:` anchor is `#tests`, which is the section this batch amended.\n   - The text was changed by this batch, so the FAIL is attributable. Neither the line number (24) nor task membership alone would prove that.\n\n3. **Classify the dirtied-tracked-source row.** Its baseline command, `node eval/run.mjs report-runner audit`, is the Tests command this batch introduced. The row is therefore also attributable.\n   - The fix is a Tests-section correction inside one component. It is amend-class, not a redraw.\n   - It is the first aftermath item, so it is within the two-item limit.\n   - Its evidence (the FAIL lines plus the row) does not repeat the evidence of \"Run report replay\".\n\n4. **Check restore eligibility, path by path.**\n   - `git -C /tmp/report-worktree ls-files -- \"eval/report-runner/report.md\"` prints the path, so it is tracked.\n   - The same check for `eval/report-runner/results/audit/baseline.json` prints the path, so it is tracked.\n   - The same check for `eval/report-runner/results/audit/candidate.json` prints the path, so it is tracked.\n   - None of the three is the spec, the plan, an `In-flight:` path, or a new `??` file at a `Create:`/`Test:` path.\n   - `/tmp/report-runner-artifacts/audit.log` is an `artifacts:` path and is preserved, never restored.\n   - Result: the whole row is eligible.\n\n5. **Restore exactly those paths.** This happens before the retry is applied. The orchestrator does it, never the plan-writer or implementer. Each command quotes one path:\n   ```bash\n   git -C /tmp/report-worktree checkout -- \"eval/report-runner/report.md\"\n   git -C /tmp/report-worktree checkout -- \"eval/report-runner/results/audit/baseline.json\"\n   git -C /tmp/report-worktree checkout -- \"eval/report-runner/results/audit/candidate.json\"\n   ```\n   - All three exit 0.\n   - A nonzero exit would stop the flow and print the shell error.\n\n6. **Hold the item.**\n\n   | Field | Value |\n   |---|---|\n   | handle | `replay` |\n   | title | Move replay to verification |\n   | location | spec `## Tests` |\n   | old -> new | `replays in Task 1 Tests` -> `replays at final verification` |\n   | evidence | the verbatim `FAIL (1 findings)` / `command-contract @ line 24 …` / `> Tests: …` lines, plus the verbatim `dirtied tracked source` row |\n   | recommended | `accept` (no `alt-n` exists) |\n\n7. **Re-check the grant.**\n   - `read` the Standing grants section of `amendment-surface.md`, which holds the section 1 predicate and Value decoding.\n   - Re-read the spec header. It still shows `**Amend-grant:** auto-apply amends`, which decodes as amend permission.\n   - Because the grant permits amendments:\n     - No menu is shown.\n     - The recommended edit is applied.\n     - The acknowledgment is printed: `amended the spec: Move replay to verification - Tests now replays at final verification instead of in Task 1 Tests`.\n\n8. **Re-dispatch the plan-writer.**\n   - First `read` `skills/writing-plans/SKILL.md` for the `## Author the plan` steps 3 and 5-6.\n   - The dispatch carries only an `Amend:` block with these parts:\n     - It names the amended section, `Tests`.\n     - Its rule sentence quotes the FAIL lines and the dirtied row verbatim.\n     - It says: \"preserve every task title and wave position the amendment does not touch; edit only affected anchors and tasks\".\n     - `In-flight: doc/specs/report-runner.md, doc/plans/report-runner.md`.\n   - Observed result: PLAN WRITTEN.\n   - The parent then reruns steps 5-6, and plan_check returns PASS.\n\n9. **Finalize, once.**\n   - Read the amended plan once. This is step 7's read only, with no phase completion and no tracker init.\n   - Task 1's anchors changed and it was complete, so reopen it: `plan_tracker({ action: \"update\", index: <Task 1>, status: \"in_progress\" })`.\n   - No task was removed, so there is no re-`init`.\n   - Implement-phase work continues, so there is no `phase_tracker` call.\n\n10. **Commit.**\n    - `read` `skills/brainstorming/reference/legs.md` and validate the scope grammar. A one-member run has no companion aftermath.\n    - Commit the spec and plan together in one batch commit, with the message passed through a quoted heredoc:\n    ```\n    amend: 2 item(s) - Run report replay, Move replay to verification\n\n    - <run-handle> | Run report replay | Tests: replays at final verification -> replays in Task 1 Tests | <its recorded kind> | <its reviewer line> | <its evidence>\n    - replay | Move replay to verification | Tests: replays in Task 1 Tests -> replays at final verification | granted | not reviewed - aftermath retry attributed to this batch's Tests edit | <verbatim FAIL lines>; <verbatim dirtied row>\n    \"auto-apply amends\"\n    ```\n\n## How the audit records the choice\n\n- **Under the grant:** the retry is recorded as `granted`, and the granting sentence is quoted in the body.\n- **Without a grant (or a budget-only / `none` grant):**\n  - The flow runs sections 2-4, renders the menu, and ends the turn without re-dispatch.\n  - A later human letter is recorded as `accepted` (for `A`) or `alt-n`. Here only `A` or custom is possible, since no alternatives exist.\n  - Free text is recorded as `custom(<effect>)`.\n\n## How to undo the batch\n\n1. Run `git -C /tmp/report-worktree revert <batch sha>`. This undoes the retry together with the rest of the batch.\n2. Read the grant line from the pre-revert HEAD: `git -C /tmp/report-worktree show HEAD^:doc/specs/report-runner.md`. Pass it through the predicate.\n3. If the working-tree `**Amend-grant:**` differs, restore that value and persist it per Standing grants.\n4. Only then re-enter the surface for any items to keep.\n\n## Independent variants\n\nEach variant starts from the same pre-restore state.\n\n**Variant U (adds untracked `tests/report-new.test.mjs`)**\n- `ls-files` prints nothing for the new path, and it is a new `??` at a `Create:`/`Test:` path. It is ineligible.\n- The **entire row** goes to the step-6 exit. **None of the three original paths is restored**, because partial restoration is not allowed.\n- The step-6 exit is rendered in full and includes:\n  - the task, command, SHA, exit, and summary;\n  - the `fix-first`, `narrow`, and `amend` options, each on its own line;\n  - a `Recommendation:` line;\n  - all dirty paths and their cause, handed to the human to commit, discard, or move.\n- The grant does not count as consent to restore. No re-dispatch happens over the dirty row.\n\n**Variant P (adds the spec path; the same applies to the plan or any `In-flight:` path)**\n- The extra path is tracked but protected, so the whole row goes to step 6.\n- **None of the original three is restored**, and the protected file is never restored.\n\n**Variant R (`acceptance-scope` FAIL)**\n- Fixing this finding changes the spec Goal and acceptance criteria, so it is redraw-class.\n- Before any restore:\n  1. Commit the batch as-is, carrying \"Run report replay\" and its audit. This preserves the batch; it is not cleanup.\n  2. Hand the three dirty paths to step 6 without restoring them.\n  3. `read` `skills/brainstorming/SKILL.md` § Amending an approved spec and take the redraw path:\n     - keep the worktree and the approved spec;\n     - run `plan_tracker({ action: \"clear\" })`, then `phase_tracker({ action: \"reset\" })`, then `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`;\n     - delete the plan file (there is no ledger);\n     - resume at checklist step 4, reading `ticket-acceptance.md` if it is not in context;\n     - finish at the full gate.\n- The grant never stands in for a redraw.\n\n## Plain-jj equivalent restore\n\nUse this in place of the git checkout, never both. Paths are workspace-rooted, because `-R` alone does not root them:\n```bash\njj -R /tmp/report-worktree restore -- 'root:\"eval/report-runner/report.md\"'\n```\nRepeat once per eligible path. A nonzero exit stops the flow and prints the error.\n",
+        "words": 1208,
+        "wallMs": 64519,
+        "mechanical": {},
+        "judgeWallMs": 29668,
+        "facts": {
+          "restore": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "grant": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "dispatch": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "commit": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "protected": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "redraw": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After keeps the restore scope, grant handling, U/P/R routing and plain-jj root: fileset intact, but it stops rendering the actual retry content: step 8 only *describes* the Amend: rule sentence (\"quotes the FAIL lines and the dirtied row verbatim\") instead of writing the rule with the `FAIL (1 findings) / command-contract @ line 24 ... / > Tests: ...` lines and the dirtied row inside it as Before did, and the commit body swaps the evidence for `<verbatim FAIL lines>; <verbatim dirtied row>` placeholders (and the held-item table abbreviates with `…`), so a reader cannot see the quoted evidence the dispatch and commit facts key on. To deliver the Change (section-5 aftermath routing, Recommendation: none exits, two-item/repeated-evidence bounds) without losing these, keep the wording that the dispatch and audit must *print* the quoted FAIL lines and baseline row verbatim in the narrated output - e.g. \"render the Amend: rule sentence with the FAIL lines and dirtied row quoted inline\" and \"write the audit line's evidence field as the verbatim lines, never a placeholder\" - rather than wording that only says they are quoted."
+      }
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e623a06a5d7077f86d1ce29d58be9991d4e7c5bca912296ccb4ad7a218aab63a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "73d82ea378fa21f494f30443ab5cc4135cb6277c58fe9c663e5f9757a3849b18",
       "candidateOutputSha": "7a777d27f43087610479e72f77c57a45495c2577ed63490c4f89cce81e34563d",
       "facts": {
@@ -111,10 +152,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: it checks all three paths for membership and protection before narrating exactly three git -C checkout commands ahead of the apply, preserves audit.log and the In-flight paths, re-reads the grant and applies with an `amended the spec:` acknowledgment, re-dispatches an Amend-only block naming Tests with the verbatim FAIL/row evidence and both In-flight paths, finalizes read -> tracker -> single `amend: 2 item(s)` commit with a `granted` audit and accepted/alt-n/revert explanation, routes U/P whole-row to step 6 with no partial restore, and handles R as commit-as-is -> step 6 -> redraw before any restore, with the jj `root:` fileset equivalent. Two small softenings worth tightening so the facts stay unambiguous under judge variance: (1) Before explicitly states the writer's first Findings retry has already been consumed and must not be repeated, whereas After only says 'this is the first aftermath retry item' — add a sentence like 'the writer's first Findings retry is already spent; do not issue another Findings: block' to the attribution step; (2) After's Amend bullet drops the `#tests (Tests)` anchor form Before used — keep the anchor spelling `doc/specs/report-runner.md#tests (Tests)` so the 'names Tests' reading of the dispatch fact is literal rather than inferred. With those two phrasings retained, the Change (section-5 retry feedback, eligible-row-only restore, grant independent of funding, two-item/repeated-evidence stop) is delivered without moving any of these six facts.",
-      "wallMs": 27949,
+      "feedback": "Both outputs satisfy all six facts on their own text, so the After wording moved nothing in this case: it keeps the three ls-files checks and three quoted `git -C /tmp/report-worktree checkout --` restores ahead of the apply, the grant re-read with an `amended the spec:` acknowledgment and no human menu, an Amend-only re-dispatch that names Tests and quotes the FAIL/row evidence with both In-flight paths, the read→tracker→single batch commit order with granted/accepted/alt-n and git revert undo, whole-row ineligibility for U/P with no partial restore, and R's commit-as-is → step-6 handoff → redraw before any restore. Two small softenings in After are worth tightening so the facts stay robust across runs: Before explicitly states the writer's first Findings retry has already been consumed and must not be repeated, whereas After only says this is the first aftermath retry item—keep an explicit sentence like \"the writer's one Findings retry is already spent; the next dispatch is Amend-only\"; and After's U/P steps name the writing-plans step-6 exit with commit/discard/move only in U while P refers back to \"the human exit\"—repeat the full commit/discard/move exit in P (and in R) so each variant renders the exit in full as the Change requires.",
+      "wallMs": 27139,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
+  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
 }

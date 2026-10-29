@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "b3e04d3e367594deb026ccb1ee8411ba585af0955636e4a2983ee96bd8858ae7",
       "candidateOutputSha": "9888970db0d2c0b3d29a953fa407f687b8570c3f921023ee39fadb3381731e3c",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this case: both outputs stop at the Issue-in-list check with the verbatim stop text, explicitly withhold the umbrella merge-by-hand paragraph, treat the ticket path only as a user-side correction rather than converting #13 into a ticket contract, and narrate #12's admission before #13's PR-then-issue lookups with no writes. The After wording is slightly tighter (it adds the fallback behavior for an unreadable reference and the N=1 classifier note), and one stylistic risk is worth flagging: After wraps the required stop text in backticks inside the blockquote, which a strict reader could treat as a code literal rather than the user-facing sentence; keeping the quote as plain blockquoted prose, as Before does, avoids any ambiguity about whether the exact text is shown. Otherwise the Change delivers the multi-PR admission behavior without disturbing either fact.",
-      "wallMs": 8568,
+      "feedback": "Both facts hold in Before and After. After keeps the ordered admission (#12 fully resolved before #13; `gh pr view 13` returning not-a-PR before `gh issue view 13`), explicitly states nothing is written during resolution, quotes the exact stop sentence, names the drop-or-brainstorm-alone remedy, excludes the umbrella paragraph, and confirms no ticket binding or ticket brainstorm occurs for any list member. The only visible drift is cosmetic: After wraps the quoted stop text in a backtick code span inside the blockquote, and it adds a hypothetical about the reference read failing and a parenthetical that the spec-PR classifier applies only to N=1; none of these move a fact, but if you want After to track Before more tightly, render the stop sentence as a plain blockquote without the code span and keep step 2 to the observed readable outcome only, leaving the N=1 remark out since the case does not ask for classifier scope commentary.",
+      "wallMs": 8704,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "95d06429853af35575fa041279df53125448cf00d6dfb26e62de46dc4560ed92",
       "candidateOutputSha": "3d34864db6f03012d9c93bc7e9f03c592bb71d79ce6161938ee5c1778e47f91b",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this sample: both outputs resolve #12 first, consult #13's PR lookup before its issue lookup, emit the exact failure-and-remedy sentence verbatim, create no worktree, run no ticket brainstorm for the list, and add no extra decision gate, so both facts hold in Before and After. After's rewording (\"supplied\" observations, \"Do not advance\") is neutral for these facts; the only cosmetic difference is that Before explicitly notes the #12 worktree is not provisioned in step 4 while After defers that to step 7, which still satisfies \"stop before provisioning.\" If you want extra margin, keep an explicit \"no worktree is provisioned yet\" clause in the #12 step as Before does, but the current After wording already keeps every fact Before kept while delivering the Change.",
-      "wallMs": 8482,
+      "feedback": "Nothing moved in this case: both outputs resolve #12 before #13, run #13's PR lookup before its issue lookup, emit the exact failure-and-remedy sentence verbatim, and stop with no worktree, no ticket brainstorm for the list, and no extra gate. After's only drift is cosmetic — step 7 is headed \"Do not advance\" rather than \"Stop before provisioning\" and step 4 drops Before's explicit \"Do not provision a worktree yet\" — but \"create no worktree\" still makes the pre-provisioning stop unambiguous. If you want to keep the stop-point reading maximally robust under future assembly growth, retain the words \"before provisioning\" in the final step's heading; otherwise the After wording delivers the Change without weakening either fact.",
+      "wallMs": 8994,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
+  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
 }

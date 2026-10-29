@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "23a25ff66e5ad7a6d23a635b55c013816dbc1d5dfa2d747bc6b80776f337a018",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "93b03d74265960eeca03c4c6fd6cfb38ee6c445af2664cd7849d97ca7928655a",
       "candidateOutputSha": "eea2408eb2c0186c6a5ce05e7e992e8d53083d99c4d331a0625315e305ed85d0",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs render rows 1-5 with a `Withheld: draft PR - #42 already exists` line and no actionable row 6, and both treat reply `6` as a clarification that lists the rendered choices while explicitly performing no header edit, commit, push, `gh pr create`, `phase_tracker` completion, or engine dispatch. The one visible drift in After is that the clarification re-labels the gate's numbered rows as lettered items (A-E) with an `other - name it` line and a `Recommendation: A` footer, which is the amendment-batch menu grammar leaking into the User Review Gate even though the section-4 scoping sentence confines that grammar to the amendment batch; it also paraphrases rows 1/2 as `plan with waves`, wording the rendered gate never used. It still satisfies the fact because the numbers are named inside each item, but a stricter judge could read `A)`-`E)` as choices that were not rendered. To keep the fact robustly while delivering the change, have the clarification echo the gate rows by their own numbers (`1) approve`, `2) approve, auto-apply amends`, ...) and, if a recommendation is wanted, state it as `Recommendation: 1 - ...` rather than introducing letters; keep the amendment-surface lettered grammar and `Recommendation: none - <why>` clause scoped to section 4/5 text so it does not restyle other questionary surfaces.",
-      "wallMs": 13489,
+      "feedback": "Neither fact moved: both outputs render rows 1-5 with a Withheld draft-PR line and no actionable row 6, and both answer reply 6 with a gauntlet: question that names the five rendered choices and performs no header write, commit, push/create, phase completion, or engine dispatch. One drift worth watching in After: the clarification adopts the amendment-batch lettered menu grammar (A-E, an unnumbered 'other' line, and a 'Recommendation: A' line) and relabels rows as 'plan with waves', even though the Change's scoping sentence confines that grammar to the amendment batch and says brainstorming's questions keep their own formats. It still names the rendered choices, so the fact holds, but a later judge keying on 'names the rendered choices' as the gate's own numbered rows could read the lettered relabeling as a different menu. To keep the margin, have the clarification echo the gate rows by their own numbers and labels (as Before does) and reserve the lettered/Recommendation layout for the amendment-surface section 4 batch.",
+      "wallMs": 12317,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "23a25ff66e5ad7a6d23a635b55c013816dbc1d5dfa2d747bc6b80776f337a018",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "73a57ec84c8435b284e1f12f75c0a07391feb4c61bdc4b55a75bdd411ba3c9d5",
+      "intentSha": "624bd22b8427802f8dca8e05e9247969ef1cf55ad39620341042e07809d6029a",
       "baselineOutputSha": "cf72ebe0b30345f3c67b6057726f2bac15e7d0452deffd19b7ea15a4cdfe053c",
       "candidateOutputSha": "683ced3d1f0aa34eee8c20956eb2f08075aca4a3f9cbc5ba0a07875eeba05004",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved on this sample. Both outputs render rows 1-5 with row 6 withheld as a non-actionable line naming the existing PR #42, so the menu fact holds in each. On reply 6, Before answers with a prose clarification listing 1-5; After reformats the same clarification as a questionary (gauntlet: question, lettered A-E mapping to 1-5, Recommendation line) and then states explicitly that no approval/grant is recorded, no commit changes, nothing is pushed or opened, and neither engine starts, so the clarification fact also holds. The added Recommendation line and the extra 'revert applied council edit <X>' affordance in After are harmless to these facts, but note the After menu re-enumerates the rendered choices by letter rather than by their rendered numbers; keeping the numeric option labels visible (as After does via 'A) 1 — ...') is what preserves the 'naming rendered choices' fact, so retain that pairing if the questionary layout is kept.",
-      "wallMs": 11355,
+      "feedback": "Neither fact moved. Both outputs render rows 1-5 with a non-actionable 'Withheld: draft PR - #42 already exists' line and no selectable row 6, and both answer reply 6 with a clarification that names only the rendered choices 1-5 while explicitly recording no approval, grant, commit, push, PR creation, phase completion or engine start. After additionally wraps the clarification in the labeled questionary layout (lead-in, A-E option lines, own-line Recommendation) and spells out the no-write list more precisely, which still satisfies the fact. One minor caution: mapping lettered options A-E onto numeric gate options 1-5 invites an ambiguous follow-up reply ('A' vs '1'); if the author wants to tighten this, have the clarification re-present the numeric labels directly (e.g. '1 - approve...') rather than introducing a second labeling scheme, which keeps the clarification fact intact and avoids a later mis-decode without affecting the delivered change.",
+      "wallMs": 10978,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "740f007653b15d0adc5d4ff8a984e9dfa1e87b2f"
+  "repoSha": "893f456e9af3e1ebe4d2ba6ac04d9eacbc0eb53e"
 }
