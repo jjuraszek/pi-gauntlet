@@ -695,20 +695,22 @@ const legsPath = 'skills/brainstorming/reference/legs.md';
 const legContract = () => readFileSync(new URL(`../${legsPath}`, import.meta.url), 'utf8');
 
 test('membership selects declared siblings before resolving paths or creating trees', () => {
-  const text = legContract();
+  const text = legContract().replace(/\s+/g, ' ');
   for (const clause of [
-    'identifier before basename', 'ask once before any creation',
+    'trailing `owner/name` of `IDENTITY` before `NAME`', 'ask once before any creation',
     'home first, then selected siblings in declared order',
-    'Never resolve or validate unselected sibling paths',
-    'missing, not a git repository, or equal to home',
+    'Never probe unselected siblings',
+    'Validate every selected declaration before creating any tree',
+    'missing `PATH`, not a checkout, no origin, unparseable origin, wrong repo, or `PATH` equal to home',
     'An existing PR alone never activates membership',
   ]) assert.ok(text.includes(clause), clause);
 });
 
 test('portable identifiers prefer origin, then own tracker overrides, then primary basename', () => {
   const text = legContract().replace(/\s+/g, ' ');
-  assert.match(text, /Derive the portable identifier from `git -C <primary> remote get-url origin`'s `owner\/name`, stripping `\.git`; without origin use `repo:` from that member's own first-found overrides `## Issue tracker` section; without that value use the member's primary directory basename\./);
-  assert.match(text, /Compare case-insensitively, identifier before basename/);
+  assert.match(text, /Derive each companion's portable identifier from the shared parser's trailing `owner\/name` of `IDENTITY` for the validated stored origin read with `git -C <primary> config --get remote\.origin\.url`\./);
+  assert.match(text, /Derive the home's identifier from `git -C <primary> remote get-url origin`'s `owner\/name`, stripping `\.git`; without origin use `repo:` from that member's own first-found overrides `## Issue tracker` section; without that value use the member's primary directory basename\./);
+  assert.match(text, /Compare case-insensitively, trailing `owner\/name` of `IDENTITY` before `NAME`/);
   assert.match(text, /Use the same identifier in `### Leg:`, task `Leg:`, and brief `repo:` fields/);
 });
 
