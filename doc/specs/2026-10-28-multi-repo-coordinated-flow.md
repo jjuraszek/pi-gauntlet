@@ -46,7 +46,7 @@ Drafted from the design, no ticket rows:
 - [ ] The home telemetry record seals with a `legs:` list of companion repo plus landed SHA or PR; no companion repo gains a telemetry record; the seal bin rejects a `legs:` entry lacking repo or both SHA and PR.
   in-scope
 - [ ] A single-member run executes, hands off, and finishes exactly as before this change - no leg file, no `legs:` brief block, no `--leg` seal argument, no companion loop - and its spec differs only by the one-block `## Legs` section; a legacy spec without `## Legs` is read as home-only; every existing eval target passes, with spec-body expectations updated only for the new section.
-  in-scope
+  deviates: the clause "every existing eval target passes" reaches only the eval targets whose bundle this change touches; untouched targets keep the results committed on main (shape-ticket carries three pre-existing inconclusive cells at d4a41d31, byte-identical on this branch). Every other clause of the row stays in-scope as written.
 
 ## Design
 
@@ -184,6 +184,7 @@ Add: `## Legs` section, leg-file template, `repo` identifier rule, and activatio
 - Per-companion telemetry records.
 - Multi-home runs (two repos each owning a spec).
 - Automatic fan-out to every declared sibling without the ask or ticket selecting it.
+- Making untouched eval targets pass: `eval/shape-ticket` carries three inconclusive cells inherited from main; its skill, agents, and samples are outside this change (rescoped at the finish gate, conformance G1/C1).
 
 ## Open questions
 
