@@ -1,7 +1,7 @@
 {
   "sample": "redraw-under-grant",
   "arm": "candidate",
-  "skillSha": "a4620822d2097b456bc41b81f9ad522d6f3a5e3dda4b74d7de4fb49ebc8980d2",
+  "skillSha": "bd3fe6c4410741f2d5bf24065bb436b0d9268cc3b0ba6a812c1d70bbd39df9b6",
   "inputSha": "09669d4966b7fc2be0bff02462940e6f3c5eeaa8a20fbab64552ff9efa562c59",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Retention: stop for a redraw, not an auto-applied amend\n\n## Classification\n\nThe Retention batch has three candidates:\n\n- **accept** adds `archive-writer`.\n- **alt-1** adds `archive-worker`.\n- **alt-2** adds `retention-daemon`.\n\nNone of these components exists in the approved component inventory. Every option therefore adds a component, which makes this a **redraw** under both governing rules:\n\n- **Implementer Status classification:** \"Stop for a redraw: changed problem statement; component added, removed, or re-bounded.\"\n- **Amendment surface, Standing grants:** \"redraws always stop and the grant never satisfies the spec gate.\" Also: \"A redraw item stops alone first.\"\n\nThe header `**Amend-grant:** auto-apply amends` passes the predicate and decodes as amend permission with no budget. That permission covers only amend-class changes. It does not reach redraws. Choosing `recommended` (accept) does not change this, because no option avoids the redraw.\n\n## Next parent action: stop, with no side effects\n\nThe parent runs no shell commands and dispatches no subagents in this turn. Specifically, it does not:\n\n- edit the spec\n- print `amended the spec: ...`\n- dispatch the amendment reviewer or `plan-writer`\n- run `plan_check`\n- make an `amend:` or `grant:` commit\n- dispatch an implementer or a new wave\n\nState is left as follows:\n\n- Task 3 stays `in_progress`, with no `plan_tracker` write.\n- The phase stays `implement`, with no `phase_tracker` call.\n- The `/workspace/project` checkout is left exactly as it is.\n- The review report is held unapplied. After the redraw resolves, any remaining amend-class items get re-batched.\n\nThe redraw procedure itself lives in `skills/brainstorming/SKILL.md`, which I have not read. I am routing to it, not reconstructing it.\n\n## Reply to the user (the turn ends here)\n\n```\nStopped on task 3: the Retention fix needs a spec redraw, not an amendment.\n\nA review traced a retention defect and every proposed fix adds a component the\napproved spec does not have:\n  accept - add an archive-writer component (recommended by the review)\n  alt-1  - add a remote archive-worker component\n  alt-2  - add a local retention-daemon component\n\nAdding a component changes the approved design, so your standing grant\n(\"auto-apply amends\") does not cover it - redraws always stop for you.\nNothing was applied or committed; task 3 stays in progress.\n\nTo continue, either:\n  a) redraw the spec to add one of these components (archive-writer is the\n     recommended choice) and re-approve it at the spec gate, or\n  b) give a fix that stays inside the existing components, which I can then\n     handle as an ordinary amendment or task repair.\n\nPick one, or give another direction.\n```\n\nThe turn boundary is here. Nothing else is dispatched until the user replies.\n",
-      "words": 407,
-      "wallMs": 14661,
+      "text": "# Retention: new component under standing grant (task 3)\n\n## Classification: redraw, not amend\n\nEvery candidate edits the component inventory:\n\n- **accept** adds `archive-writer`.\n- **alt-1** adds a remote `archive-worker`.\n- **alt-2** adds a local `retention-daemon`.\n\nNone of these exists in the approved inventory, so each one is a component-boundary change.\n\nThe amendment surface sorts component changes into redraws at batch preparation, before any standing grant is considered. Implementer-failure stops also list redraws as a hard stop. So the header line `**Amend-grant:** auto-apply amends` has no effect here. The predicate still reads that line as a valid, active amend grant. But a grant never covers a redraw and never substitutes for the spec gate.\n\n## What the parent does not do\n\n- It does not apply `accept`.\n- It does not print `amended the spec: ...` or record `granted`.\n- It does not dispatch the amendment-review reviewer or render the human-batch menu. Redraws bypass the amendment grammar.\n- It does not dispatch the plan-writer amend, run `plan_check`, or make an `amend:` commit.\n- It does not call `plan_tracker` or `phase_tracker`. Task 3 stays `in_progress`, the phase stays `implement`, and no other task starts.\n- No escalated or funded round is dispatched, because a redraw is not an execution failure.\n\n## Next parent actions\n\n1. **Confirm nothing was edited.** The tree should still be at pre-batch HEAD, since the amendment surface edits nothing before a decision:\n   ```bash\n   git -C /workspace/project status --porcelain\n   ```\n   If this shows spec or plan edits from this batch, stop and report them. Do not restore anything.\n\n2. **Read the brainstorming `SKILL.md` redraw path.** Use the `read` tool at its absolute path in the installed gauntlet skills directory, before acting on the redraw. I have not read that section, so I will not reconstruct its steps. Per the amendment surface, a redraw means \"re-draft from the new design and ratify at the full gate\".\n\n3. **Emit the stop note** following `stop-note.md`, then end the turn.\n\n## Reply (turn boundary)\n\n```\ngauntlet: question\nStopped on task 3 (<task 3 title>).\n\nProblem: the retention defect fix proposed by review needs a new component that is not in the approved component inventory; a component addition is a redraw, so the standing amend grant cannot apply it and the spec must be re-drafted and re-approved at the full spec gate.\n\nFix options:\n  a) redraw the spec to add a local archive-writer component that owns retention writes, then re-approve at the spec gate\n  b) redraw the spec to add a remote archive-worker component instead, then re-approve at the spec gate\n  c) redraw the spec to add a local retention-daemon component instead, then re-approve at the spec gate\n\nPick one, or give another fix.\nRecommendation: a - matches the review's recommended fix with the smallest new boundary; it still needs your approval at the full spec gate because the grant never covers a redraw.\n```\n\nThe turn ends here. Task 3 stays `in_progress`, the phase stays `implement`, and nothing is committed. After the reply, the parent takes the brainstorming redraw path for the chosen option. Any amend items held from the same batch are re-batched only after the redraw resolves.\n",
+      "words": 508,
+      "wallMs": 19410,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "**Next parent action:** Classify Retention as a **redraw**, before applying the standing grant. Accept and both alternatives add a component absent from the approved inventory. `auto-apply amends` does not authorize a redraw.\n\nRun no shell commands or subagent dispatches. Leave the spec and checkout unchanged and task 3 `in_progress`. Stop for the user’s design decision.\n\n**Reply:**\n\nRetention requires revisiting the approved design: the proposed archive-writer is a new component. Both alternatives—remote archive-worker and local retention-daemon—also add components, so your auto-apply amendment permission does not cover any of these choices.\n\nThe review recommends archive-writer. Shall we redraw the design around that component, or would you prefer one of the alternatives? The revised spec will need approval before implementation resumes.\n",
-      "words": 118,
-      "wallMs": 11040,
+      "text": "**Next parent action:** Classify Retention as a **redraw**, not an amendment. Every candidate adds a component absent from the approved inventory. The standing `auto-apply amends` grant does not authorize component-boundary changes.\n\nDo not edit the spec, dispatch an implementer or plan-writer, or commit anything. Keep task 3 `in_progress` in `/workspace/project` and return to the design gate for redrafting and full ratification.\n\nParent reply, ending the turn:\n\ngauntlet: question\nStopped on task 3 (Retention).\n\nProblem: The proposed retention repair adds a new component. All three options change the approved component inventory, so the auto-apply amendment grant cannot authorize them.\n\nFix options:\n  a) redraw the design with an archive-writer component\n  b) redraw the design with a remote archive-worker component\n  c) redraw the design with a local retention-daemon component\n\nPick one, or give another design direction. The revised design will require full approval before implementation resumes.\nRecommendation: a - follows the review's recommended repair, subject to design ratification.\n",
+      "words": 154,
+      "wallMs": 10395,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "03a57db6675460c668d4acdfb22c1fb7ebbe5078e22927a48b23849d83afcf09",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "794a67212c7345bf5ef04ec614648ba34336bd986591de861a52690801c614e8",
-      "candidateOutputSha": "794a67212c7345bf5ef04ec614648ba34336bd986591de861a52690801c614e8",
+      "intentSha": "0fec1abdda8012b33843cfb09016d5d4ca3b7e39837c7b3c2b0fdf8c24bab7d3",
+      "baselineOutputSha": "b50c4c2b3772c51d5e156bd0ca6365d6a597ef6ab3396dd38cff1ddfe76b5a9c",
+      "candidateOutputSha": "73a1c7f2459ebe86738a24d50b173daab5f88040f212edad9aad39eac98904e0",
       "facts": {
         "redraw-stop": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical on this case, so no fact moved: both outputs classify every candidate (accept, alt-1, alt-2) as adding an inventory-absent component, name it a redraw under the Implementer Status and Standing-grants rules, state that the amend permission does not reach redraws, and stop at the turn boundary for human approval; both also explicitly refrain from editing the spec, printing `amended the spec:`, dispatching plan-writer or the amendment reviewer, running plan_check, or making an `amend:` commit, leaving task 3 in_progress with no tracker write. The expected movement (fails -> holds for redraw-stop and no-apply) is not observed because Before already held both; the After wording preserves that behavior, so nothing needs changing for this case — keep the 'redraws always stop and the grant never satisfies the spec gate' / 'redraw item stops alone first' language explicit in the amendment surface, since that is what the output anchors its stop on.",
-      "wallMs": 6931,
+      "feedback": "Both outputs classify every candidate (accept, alt-1, alt-2) as a component addition absent from the approved inventory, call it a redraw, explicitly state the `**Amend-grant:** auto-apply amends` header cannot cover it, and stop with a `gauntlet: question` note for the human; both also explicitly refuse to apply the candidate, dispatch plan-writer amend, run plan_check, or make an `amend:` commit, leaving task 3 in_progress. So nothing moved: Before already held both facts and After keeps them. After's additions are consistent with the Change — the stop note now ends with a `Recommendation:` line, states that redraws are sorted out at batch preparation before grants are considered, and notes that no escalated or funded round is dispatched because a redraw is not an execution failure. One thing to watch in After's wording: it drops Before's option (d) 'fix inside an existing component', which narrows the human's actionable choices; if 'preserving actionable choices' matters, keep a non-redraw alternative in the options list while still ending with the Recommendation line.",
+      "wallMs": 10911,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "03a57db6675460c668d4acdfb22c1fb7ebbe5078e22927a48b23849d83afcf09",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
-      "baselineOutputSha": "d1244d83d22457f026c54ae9ebc20b8568a5aeb6fef721e7dc4299d1abd5ad30",
-      "candidateOutputSha": "d1244d83d22457f026c54ae9ebc20b8568a5aeb6fef721e7dc4299d1abd5ad30",
+      "intentSha": "0fec1abdda8012b33843cfb09016d5d4ca3b7e39837c7b3c2b0fdf8c24bab7d3",
+      "baselineOutputSha": "917e7ad81ade2f157c944baab404b2e7712343586ec0640d0bffcc643ed365b4",
+      "candidateOutputSha": "98a3d0e1377697360f2d798ba5cce9863a3ce8e381d31c95a9627156277fc158",
       "facts": {
         "redraw-stop": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical: both classify the new archive-writer component (and both alternatives) as a redraw outside the auto-apply amends grant, run no shell commands or dispatches, leave the spec and checkout unchanged with task 3 in_progress, and stop for the human's design decision. Neither output applies the candidate, dispatches a plan-writer amend, or makes an amend: commit, so no fact moved in either direction. The After wording preserves every fact Before kept while still delivering the Change; no adjustment to the wording is needed for this case.",
-      "wallMs": 3686,
+      "feedback": "Nothing moved on this case: both outputs classify the Retention batch as a redraw because every candidate (accept, alt-1, alt-2) adds a component missing from the approved inventory, both explicitly refuse to edit the spec, dispatch an implementer/plan-writer, or commit, and both stop for a human decision while keeping task 3 in_progress. After also delivers the Change's stop-note shape — `gauntlet: question` prefix, a `Problem:` summary, enumerated actionable options, active implementation state (task 3 in_progress, return to design gate), and a terminal `Recommendation:` line — which Before only partially had (it had the prefix but no Problem/Recommendation structure). The one minor wording difference worth keeping deliberate: After says `dispatch an implementer or plan-writer` whereas Before's general `no edits, shell commands, dispatches, or commits` is broader; retaining an explicit `no plan-writer amend dispatch, no amend: commit` phrase, as After does, is the safest way to keep no-apply unambiguous while the redraw/amendment distinction is being tightened elsewhere in the skill.",
+      "wallMs": 9053,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+  "repoSha": "ed3f82172ee84b137edaa1ba8fd795e6dbfadd6f"
 }

@@ -23,10 +23,12 @@ Fix options:
   c) <optional third>
 
 Pick one, or give another fix.
+Recommendation: <option> - <why>
 ```
 
 ## Rules
 
+- End every note with `Recommendation: <option> - <why>`, or `Recommendation: none - <why>` when no named change is recommended. Apply [Implementer-failure stops](reference/fix-loop.md#implementer-failure-stops) before emitting an execution decision note.
 - Bracketed header clause only when an escalated round actually ran; omit it when no model was resolvable or the dispatch errored.
 - For review stalls, quote only residual issues from the final review report; do not summarize history.
 - For fact asks, put one `Searched: <where> - <result>` line per lookup directly under `Problem:`, in lookup order. For an unavailable named tool, write `Searched: <tool> - not available`. Omit `Searched:` for decisions, including extra-round approval.
@@ -54,4 +56,5 @@ Fix options:
   b) amend plan task 4 so the client retries on any non-negative delay, and keep the policy as is
 
 Pick one, or give another fix.
+Recommendation: a - retries the first failure without changing the approved policy.
 ```

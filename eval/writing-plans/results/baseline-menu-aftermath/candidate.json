@@ -1,0 +1,80 @@
+{
+  "sample": "baseline-menu-aftermath",
+  "arm": "candidate",
+  "skillSha": "21edfd547cd46805377ad458fc4fe9d3033fd17d5eaeb3ca615214f2caab47d6",
+  "inputSha": "074d5987bceda09710dac4695585df5f370fb573e1e796ed6289619e2545a55e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Variant F: amendment re-entry, parent narration\n\n**Where things stand.** I am inside brainstorming `amendment-surface.md` §5. I `read` that section again first and do not run it from memory. One aftermath item is already applied. The plan-writer re-dispatch carried `Amend:` and `In-flight:` blocks and replied `OPEN QUESTIONS /work/app/doc/plans/hook.md`. The parent `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })` returned FAIL with two findings:\n- `open-questions` naming the Task 1 row.\n- `baseline-line` naming the missing bullet.\n\nPhase `plan` stays `in_progress` with substep `plan-write`. There is no stamp and no `plan_tracker` call.\n\n**Attribution check.** The outcome is a first `- Task 1: ... fails on abc1234` row, so I compare its baseline command against this batch's edits.\n- The command is `node --test tests/hook.test.ts`.\n- I compare it with `git -C \"/work/app\" show HEAD:doc/plans/hook.md`, and it is unchanged.\n- Task 1's `Spec:` anchors point to no amended text this batch added or changed.\n- The assertion is the same pre-existing config-resolution failure.\n\nThe row is therefore not attributable to the batch. It does not become an amendment item. I render the writing-plans step-6 baseline branch in full:\n\n```\ngauntlet: question\nTask 1 baseline fails before any change: `node --test tests/hook.test.ts` on abc1234 (exit 1) - existing config resolution failed.\nfix-first - run /skill:shape-ticket for the base failure, then pause the plan\nnarrow hook-config - restrict Task 1's Tests to the hook-config filter\namend - change the spec via amendment-surface section 5\nRecommendation: narrow hook-config - the failing assertion is pre-existing config resolution, outside the hook behavior this task proves\n```\n\n**Grant check.** I read the spec header through the structural predicate. It holds exactly one `**Amend-grant:**` line with the value `auto-apply amends`, so the grant is active.\n- Value decoding finds no `fund N fix rounds` token. The remainder is non-empty, so the line carries amend permission and no budget.\n- The recommendation names a concrete filter, so I print `took recommendation: narrow hook-config`.\n\n## Continuation\n\nI re-dispatch per step 3:\n\n```\nsubagent({ agent: \"plan-writer\", context: \"fresh\", async: false, cwd: \"/work/app\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app`. Spec: `/work/app/doc/specs/hook.md`. Plan path: `/work/app/doc/plans/hook.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\\nFindings:\\n- Task 1 Tests: narrow to `hook-config`\" })\n```\n\nWhat happens next:\n1. The child runs Baseline's rerun rule, because the command text changed.\n2. I run the stamping `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })`, then branch on step 6 again.\n3. On `PLAN WRITTEN` + `PASS`, I finalize the aftermath once. I read the plan once and commit spec + plan together in the single `amend:` batch commit. The audit records the applied item as `granted`, with its evidence and the quoted grant sentence.\n4. I then complete writing-plans step 7:\n   - `phase_tracker({ action: \"substep\", phase: \"plan\", substep: null })`\n   - `phase_tracker({ action: \"complete\", phase: \"plan\" })`\n   - `plan_tracker({ action: \"init\", tasks: [\"W1: <Task 1 title>\"] })`\n   - `/skill:subagent-driven-development`\n\nThe narrow choice buys no extra attempts. Iteration and cap budgets are unchanged.\n\n## Contrast: test-dirtied protected plan path\n\nSuppose the return carried `- Task 1: `node --test tests/hook.test.ts` dirtied tracked source on abc1234: doc/plans/hook.md`. That is the restore-and-rerun branch, not the menu.\n- The plan path is protected, so the whole row routes through step 6 without restoration. No `git checkout` runs and there is no partial restore.\n- I name the path and its cause (the Task 1 test run) and hand it to the human to commit, discard, or move.\n- The grant does not authorize cleanup. I stop and wait for the human.\n\n## Contrast: repeated already-applied evidence\n\nSuppose Task 1 fails again on abc1234 with evidence identical to item 1's already-applied evidence. The two-item rule sends repeated evidence to step 6 without restoration.\n- I render the same baseline exit in full, including task, command, SHA, exit, summary and the three options.\n- I override the plan-writer's `narrow hook-config` and end with `Recommendation: none - evidence repeats item 1`.\n- I list the batch's retry items and their evidence.\n- `Recommendation: none` waits under any grant, so `auto-apply amends` takes nothing, no `took recommendation` line prints, and no re-dispatch happens. I stop for the human.\n\n## Contrast: third aftermath item\n\nSuppose a third human-facing outcome arrives in this batch. Section 5 allows at most two aftermath items per batch.\n- I render that outcome's step-6 exit in full, ending `Recommendation: none - two-item limit reached`, and list the retry items with their evidence.\n- There is no restoration and no auto-apply, despite the grant. I stop for the human.\n",
+      "words": 712,
+      "wallMs": 31887,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Continuation: unrelated baseline failure\n\nThe parent check is already complete. I `read({ path: \"/opt/pi/skills/brainstorming/reference/amendment-surface.md\" })`, re-reading section 5. Attribution check: Task 1’s unchanged command and assertion are unrelated to the batch edit, so this is the ordinary writing-plans step-6 exit—not another amendment item. The missing baseline bullet does not authorize inventing passing evidence. I render:\n\ngauntlet: question\nTask 1: `node --test tests/hook.test.ts` fails on `abc1234`, exit 1: existing config resolution failed.\nfix-first - run `/skill:shape-ticket` for the base failure, then pause this plan.\nnarrow hook-config - narrow Task 1’s tests to the supported filter.\namend - use the approved-spec amendment procedure.\nRecommendation: narrow hook-config - isolate the supported test scope from the unrelated baseline failure.\n\nI read the approved spec header via `read({ path: \"/work/app/doc/specs/hook.md\" })`. Its single, structurally valid grant value, `auto-apply amends`, has amend permission and no funding token. I print `took recommendation: narrow hook-config` and dispatch:\n\n```text\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/app\",\n  phase: \"plan-write\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent plan_check owns acceptance\"\n  },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app`. Spec: `/work/app/doc/specs/hook.md`. Plan path: `/work/app/doc/plans/hook.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\\n\\nFindings:\\nTask 1 Tests: narrow to `hook-config`\"\n})\n```\n\nThe child must apply Baseline’s rerun rule; narrowing is not evidence of success. After a successful foreground return with a nonempty plan, I call `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })`. No result for this new dispatch/check is supplied, so I cannot claim PASS or initialize execution. If it passes, amendment aftermath requires clearing the plan substep, reading the amended plan once, reconciling any affected tracker entries, and committing spec and plan together—not completing the phase or initializing the tracker through step 7.\n\n### Contrast: test dirties the protected plan path\n\ngauntlet: question\nTask 1’s test dirtied the protected plan path `/work/app/doc/plans/hook.md`. Commit, discard, or move that change before baseline can resume.\n\nI do not restore it: section 5 excludes the spec, plan, and supplied `In-flight:` paths from eligible restoration. Even an otherwise attributable row containing this protected path goes wholly to step 6, without partial cleanup. I preserve the batch edits, retain phase `plan` and substep `plan-write`, and wait for the human’s disposition. The standing grant does not authorize restoration; there is no repair dispatch or tracker initialization.\n\n### Contrast: evidence repeats an already-applied item\n\ngauntlet: question\nTask 1: `node --test tests/hook.test.ts` again fails on `abc1234`, exit 1: existing config resolution failed. Its evidence is identical to an already-applied item’s evidence.\nfix-first - run `/skill:shape-ticket` for the base failure.\nnarrow hook-config - the returned recommendation, not authorization for another retry.\namend - consider a specification amendment.\nBatch retry evidence: the already-applied item and this outcome both contain `tests 1, pass 0, fail 1: existing config resolution failed`.\nRecommendation: none - evidence repeats item 1\n\nThe repeated-evidence guard overrides automatic recommendation-taking, despite `auto-apply amends` and the child’s repeated `Recommendation: narrow hook-config`. I wait without restoration or re-dispatch. Attempts, iterations, and cap remain unchanged.\n\n### Contrast: third aftermath item\n\ngauntlet: question\nThis outcome would require a third aftermath item in the same batch. I list the batch’s two retry items and their evidence, followed by this outcome’s verbatim evidence.\nRecommendation: none - two-item limit reached\n\nI wait under the same grant, without applying the third item, restoring paths, or dispatching another retry. The case supplies no details for those two items to quote here. Neither a recommendation nor amend permission buys additional attempts or changes the iteration/cap budget.\n",
+      "words": 556,
+      "wallMs": 25335,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4da302740200bfc710204286317ccce0aefce01f83362133030160d61dbd72e4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
+      "baselineOutputSha": "2b8568c5779595aeab0c2a808e588f5e9ffa3f62dca40fd2597173e8f0cbff2c",
+      "candidateOutputSha": "ea2180c4feda9b2442fcb18e34786b6efb9031482fef75f474fb11a748142374",
+      "facts": {
+        "aftermath": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "repeated-evidence-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moves both facts to holds and regresses nothing. Before treated the unchanged-command failure as outside the grant and paused on the three-option menu, so it never performed the grant-aware narrow hook-config redispatch; After adds the explicit grant check (predicate, Value decoding, `took recommendation: narrow hook-config`) and the step-3 redispatch with the Findings row, while still keeping the row non-attributable (no new spec item), keeping budgets unchanged, refusing `git checkout` on the protected plan path, and enforcing the two-item cap. Before's repeated-evidence contrast also failed because it still rendered `Recommendation: narrow - …`, which under an active grant reads as an auto-apply path; After correctly overrides the plan-writer's recommendation with `Recommendation: none - evidence repeats item 1`, prints no `took recommendation` line, and dispatches nothing. Keep that structure: decode the grant before acting on any baseline recommendation, state that the recommendation buys no retries, and in the repeat-evidence and third-item contrasts always end on `Recommendation: none - <reason>` naming the applied item so the grant cannot pick anything up.",
+      "wallMs": 11955,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4da302740200bfc710204286317ccce0aefce01f83362133030160d61dbd72e4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
+      "baselineOutputSha": "7144c7ef64be8ff525257f5c4550859d9967b94b89e38adc5c2910bbc54f11d7",
+      "candidateOutputSha": "bd444b4296b8f5df5870a5c059d2273196c05153afe366eb1fd706353264403d",
+      "facts": {
+        "aftermath": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "repeated-evidence-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Both facts moved from fails to holds in After, and nothing Before kept was lost. Before treated the unchanged-command failure as an ordinary human stop (\"The grant does not choose a baseline option\") and, in the repeated-evidence contrast, still printed `Recommendation: narrow` rather than the required `Recommendation: none - evidence repeats item <n>`. After decodes the `auto-apply amends` grant, prints `took recommendation: narrow hook-config`, and redispatches plan-writer with `Findings: Task 1 Tests: narrow to hook-config` as a writer-level fix rather than a new attributable spec item, while the contrasts keep the protected plan path unrestored, enforce the two-item limit, render `Recommendation: none - evidence repeats item 1` with no dispatch, and hold attempts/iteration/cap unchanged. One minor robustness note: the After continuation reads an amendment-surface file under `/opt/pi/skills/brainstorming/...` that the case does not supply; anchoring the grant decode solely on the supplied spec header read (which it also does) would avoid an invented path without affecting either fact.",
+      "wallMs": 11030,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "b238d3e5e73715a882ae0e8c88ea4cd496950812"
+}

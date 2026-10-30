@@ -1,0 +1,100 @@
+{
+  "sample": "baseline-menu-under-grant",
+  "arm": "candidate",
+  "skillSha": "21edfd547cd46805377ad458fc4fe9d3033fd17d5eaeb3ca615214f2caab47d6",
+  "inputSha": "fea8c36b3d148462376944e61a440f894d11f4d78626fd6cd1a35b4d198c648c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Common parent steps (all variants)**\n\n1. `phase_tracker` was not started again because phase `plan` is already `in_progress` with substep `plan-write`.\n2. The `plan-writer` dispatch returned `OPEN QUESTIONS /work/app/doc/plans/hook.md`.\n3. Step 5 ran: `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })` returned `FAIL` with `open-questions` and `baseline-line` findings.\n4. Step 6 decision: the reply is `OPEN QUESTIONS` and `## Open Questions` holds a substantive row in the form `- Task 1: ... fails on abc1234`. This takes the baseline-failure branch, not the `PLAN WRITTEN` + `FAIL` repair branch.\n5. While paused:\n   - Phase `plan` stays `in_progress` with substep `plan-write`.\n   - There is no stamp and no `plan_tracker` init.\n   - I do not re-dispatch to \"fix\" the `baseline-line` finding. Only Baseline can resolve it.\n6. Before waiting, I resolve permission. I read the spec header with the structural predicate:\n   - There is exactly one `**Amend-grant:**` line, with value `auto-apply amends`. The grant is active.\n   - Value decoding finds no `fund N fix rounds` or `N more fix rounds` token. The remainder is non-empty, so amend permission is granted with no budget.\n\nThe menu I print (only the Recommendation line differs by variant):\n\n```\ngauntlet: question\nTask 1 baseline fails on abc1234: `node --test tests/hook.test.ts` exited 1 - tests 1, pass 0, fail 1: existing config resolution failed.\nfix-first - run /skill:shape-ticket for the base failure, then this plan pauses\nnarrow <filter> - restrict Task 1's Tests to a concrete filter\namend - correct the spec through the amendment surface (section 5)\nRecommendation: <per variant>\n```\n\n**Variant A** (`narrow hook-config`)\n\nAmend permission exists and the recommendation names a concrete filter, so I print `took recommendation: narrow hook-config`. I re-dispatch per step 3:\n\n`subagent({ agent: \"plan-writer\", context: \"fresh\", async: false, cwd: \"/work/app\", phase: \"plan-write\", acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" }, task: \"Write the implementation plan for the approved spec. Worktree: /work/app. Spec: /work/app/doc/specs/hook.md. Plan path: /work/app/doc/plans/hook.md. Plan skill: /opt/pi/skills/writing-plans/SKILL.md. Plan contract: /opt/pi/skills/writing-plans/reference/plan-contract.md.\\nFindings:\\n- Task 1 Tests: narrow to hook-config\" })`\n\nThe child runs Baseline's rerun rule. Then I run step 5, `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })`, and branch on the new pair.\n\n**Variant B** (`amend`)\n\nI print `took recommendation: amend` and enter brainstorming's `reference/amendment-surface.md` section 5.\n\n1. Section 1 re-reads the grant at the batch boundary: active, with amend permission. It skips steps 2–4, applies the recommended config-requirement correction, and prints `amended the spec: <title> - <what>`. The item is recorded as `granted`.\n2. I re-`read` section 5 before the aftermath. A plan exists, so I read `git -C \"/work/app\" status --porcelain` to collect in-flight paths, including the amended spec.\n3. I dispatch `plan-writer` with the same object as in Variant A, but with an `Amend:` block naming the amended config section. The block carries the rule \"preserve every task title and wave position the amendment does not touch; edit only affected anchors and tasks\" and an `In-flight:` list.\n4. The child reruns Baseline. I run the parent `plan_check`, then steps 5–6 and the attribution check.\n5. On `PASS`, I commit spec and plan together in one `amend:` commit. The body quotes `auto-apply amends`.\n\n**Variant C** (`fix-first`)\n\nI print `took recommendation: fix-first` and enter `/skill:shape-ticket` for the existing base failure. Its own gate is the only remaining stop.\n\nI report the plan as paused and end the turn. Phase `plan` stays `in_progress` with substep `plan-write`.\n\nAfter the fix lands, the next steps are:\n- Bring the advanced base in through `/skill:using-git-worktrees` (rebase, or merge for a shared branch).\n- Re-dispatch per step 3 with `Findings: rerun baseline`.\n- Run step 5.\n\n**Variant D** (`none`)\n\nThere is no route to take, even though the grant is active. I print the menu ending `Recommendation: none - no justified route`, then stop and wait for the human. There is no dispatch and no state change, and I never infer consent.\n\n**Variant E** (`narrow` without a filter)\n\nA `narrow` recommendation with no concrete filter waits despite the grant. The menu's narrow line asks the human to supply the filter or path, and I stop for the reply. No re-dispatch happens until a concrete filter arrives.\n",
+      "words": 651,
+      "wallMs": 21238,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\n**Shared handling for each independent variant:** Call `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })`, receiving the stated FAIL, then `read({ path: \"/work/app/doc/plans/hook.md\" })` to inspect Open Questions. Because the child returned substantive `OPEN QUESTIONS`, take that branch—not ordinary checker repair. The missing baseline bullet does not authorize inventing evidence. Report Task 1, original command `node --test tests/hook.test.ts`, SHA `abc1234`, exit `1`, and summary `existing config resolution failed`. Present:\n- `fix-first` — run `/skill:shape-ticket` for the existing base failure.\n- `narrow <filter>` — use an evidence-supported concrete filter, or request one.\n- `amend` — use brainstorming’s amendment procedure.\n\nBefore waiting, call `read({ path: \"/opt/pi/skills/brainstorming/reference/amendment-surface.md\" })` and `read({ path: \"/work/app/doc/specs/hook.md\" })`. Apply the header structural predicate and value decoding: the single `auto-apply amends` value grants amend permission and no fix-round budget.\n\n**Variant A.** Print `Recommendation: narrow hook-config - only config coverage is relevant`, then `took recommendation: narrow hook-config`. Call:\n```text\nsubagent({\n  agent: \"plan-writer\", context: \"fresh\", async: false,\n  cwd: \"/work/app\", phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app`. Spec: `/work/app/doc/specs/hook.md`. Plan path: `/work/app/doc/plans/hook.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\\n\\nFindings:\\nTask 1 Tests: narrow to `hook-config`\"\n})\n```\nThe child applies Baseline’s rerun rule; narrowing is not itself passing evidence. Then call `plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })` and branch on the new reply/check pair. No subsequent result is supplied, so do not claim PASS or initialize the tracker.\n\n**Variant B.** Print `Recommendation: amend - correct the config requirement within its component`, then `took recommendation: amend`. Enter the amendment procedure: prepare the evidence-backed correction as an amend item, not a component redraw; re-read and decode the grant at the batch boundary. With amend permission, take the recommended correction without reviewer or human approval. Before applying, `read({ path: \"/opt/pi/skills/brainstorming/reference/amendment-surface.md\" })` again for section 5. Apply only the correction and print its amendment acknowledgment. Read worktree status, then dispatch `plan-writer` with the same fixed template and dispatch fields as A, replacing Findings with an `Amend:` block identifying the actually amended sections, the parent’s exact `In-flight:` paths, and the prescribed unaffected-task preservation rule. Run the parent checker and section-5 aftermath. The supplied case does not identify the replacement spec text or subsequent results, so neither an exact amendment payload nor successful completion can be asserted.\n\n**Variant C.** Print `Recommendation: fix-first - isolate the existing base failure`, then `took recommendation: fix-first`. Invoke `/skill:shape-ticket` for the recorded base failure; its own gate is the remaining approval stop. Report the hook plan paused and end the turn. Keep phase `plan` and substep `plan-write` in progress; do not initialize `plan_tracker`. After fix-first lands, the prescribed continuation is advanced-base integration through `using-git-worktrees`, fresh writer dispatch with `Findings: rerun baseline`, then the parent checker—not an assumed successful repair now.\n\n**Variant D.** Print `Recommendation: none - no justified route`. Retain the baseline-failure menu and wait for the human. The standing grant cannot supply a missing recommendation. Keep phase and substep unchanged; no redispatch, stamp, or tracker initialization.\n\n**Variant E.** Print `Recommendation: narrow - no concrete filter known`. Request the concrete filter and wait with the menu retained. Amend permission does not make an unspecified narrowing executable. Keep phase and substep unchanged; no redispatch, stamp, or tracker initialization.\n",
+      "words": 514,
+      "wallMs": 30132,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "e63134b06233c30e8fd1717f649da8a9c0448f1e1beea3cfcb64f41d4f2643c0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
+      "baselineOutputSha": "8dbee6814d2892249740406f587d1fe8beb6e77fc36fd753014eed3eb1d6b645",
+      "candidateOutputSha": "b1e9396887e5adc114c96ecf068bce3956899b0d75cb19fcd99b29642bd0b84d",
+      "facts": {
+        "grant-narrow": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-amend": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-fix-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-wait": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the new step 6 (\"Before waiting, I resolve permission\") decodes the Amend-grant line structurally and then lets Variants A, B and C print `took recommendation: ...` and continue — A re-dispatches plan-writer with the verbatim `Findings:\\n- Task 1 Tests: narrow to hook-config` block, reruns Baseline and the parent plan_check without asking the human for the filter; B enters amendment-surface section 5 with the parent applying the spec edit and the writer repairing only the plan via an Amend:/In-flight: block; C enters shape-ticket under its own gate, reports the plan paused and neither invents ticket authorization nor finishes the plan. Before failed all three because it treated the grant as merely waiving per-diff review and stopped for a human choice in every variant. grant-wait is preserved: D (`none`) and E (`narrow` with no concrete filter) both stop with no dispatch and no state change despite the active grant. No regressions; the only wording to watch is Variant D, where After renders `Recommendation: none - no justified route` as a literal menu line while Before rendered it as the no-recommendation form — either satisfies the wait fact, but pinning one canonical rendering in the skill would keep the two samples consistent.",
+      "wallMs": 13601,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "e63134b06233c30e8fd1717f649da8a9c0448f1e1beea3cfcb64f41d4f2643c0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
+      "baselineOutputSha": "dbed20376c2471e858617138333b1be47748d39da00ad78ef26d9b4dedb96fa6",
+      "candidateOutputSha": "562f7920a4ca1b0d581729e5c9452cf44a94ed9bfbea7348782f158685708ddb",
+      "facts": {
+        "grant-narrow": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-amend": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-fix-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "grant-wait": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change cleanly with no regression: the shared block decodes `**Amend-grant:** auto-apply amends` from the spec header before any variant acts, and Variants A–C each print the `took recommendation: ...` acknowledgment and then actually continue — A re-dispatches plan-writer with `Findings: Task 1 Tests: narrow to \\`hook-config\\`` (copied verbatim, no filter request), lets the child rerun baseline and then runs the parent checker; B enters amendment section 5 with the parent applying the spec correction and the writer handling only plan repair via an `Amend:` block, with no extra human/reviewer stop; C invokes `/skill:shape-ticket` under that skill's own gate, pauses the hook plan, and explicitly refuses to assume the repair landed. D and E still wait with the menu retained, which is why grant-wait holds in both outputs. Before failed the three grant facts only because every variant ended in 'wait for the human' regardless of the grant. One small nit: A's acknowledgment reads `took recommendation: narrow hook-config` whereas the fact phrases it as `took recommendation: narrow`; a reader still counts it as acknowledging narrow, but printing `took recommendation: narrow` followed by the filter as a separate token would match the contract wording exactly and avoid any ambiguity.",
+      "wallMs": 14407,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "ed3f82172ee84b137edaa1ba8fd795e6dbfadd6f"
+}

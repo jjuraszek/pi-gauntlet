@@ -126,12 +126,23 @@ test('drafted requirements are protected in each actual critique task and the ap
   for (const marker of ['pre-approval rewrites only for integrity', 'Delete a drafted row only after its Design commitment is cut', 'Preserve every committed outcome', 'clarification', 'never invent']) assert.ok(worker[1].includes(marker), `worker: ${marker}`);
 });
 
-test('approved drafted row identity routes to redraw before grants or disposition reconciliation', () => {
+test('evidenced drafted corrections are amend items while redraws retain the gate', () => {
   for (const path of ['skills/brainstorming/SKILL.md', 'skills/brainstorming/reference/amendment-surface.md']) {
     const text = read(path);
-    for (const marker of ['approved drafted acceptance-criteria row', 'its text, a row added, a row removed', 'at batch preparation', 'before any standing grant', 're-draft from the new design', 'full gate', 'never a disposition amendment', 'disposition-only change to such a row', 'keeps the cut question', 'Apply an item the human has answered by letter or custom text as recorded.']) assert.ok(text.includes(marker), `${path}: ${marker}`);
+    for (const marker of ['approved drafted acceptance-criteria row', 'quoted test, assertion, or code line', '`BLOCKED`/`NEEDS_CONTEXT`', 'reviewer-only or taste', 'ticket rows', 'row add/remove', 'problem statement', 'component boundary', 'full gate', 'disposition-only change', 'keeps the cut question']) assert.ok(text.includes(marker), `${path}: ${marker}`);
   }
-  assert.ok(read('skills/brainstorming/reference/amendment-surface.md').includes('Never auto-edit ticket or approved drafted AC row texts'));
+  const aftermath = read('skills/brainstorming/reference/amendment-surface.md');
+  for (const marker of ['row identity', 'iterations and cap', 'including each `granted` record', 'reopened by amendment', 'at most two aftermath items', 'evidence repeating an already-applied', 'without restoration']) assert.ok(aftermath.includes(marker), marker);
+  assert.ok(!aftermath.includes('Never auto-edit ticket or approved drafted AC row texts'));
+});
+
+test('baseline recommendations use decoded amend permission and preserve writer boundaries', () => {
+  const text = read('skills/writing-plans/SKILL.md');
+  const branch = text.slice(text.indexOf('6. Branch'), text.indexOf('7. Clear'));
+  for (const marker of ['Value decoding', 'before waiting', 'budget-only', 'Recommendation: <option>[ <filter>]', 'took recommendation: <option>', 'narrow hook-config', 'Task N Tests: narrow to hook-config', 'none', 'without a concrete filter', 'no amend permission', 'never clean automatically']) assert.ok(branch.includes(marker), marker);
+  const aftermath = read('skills/brainstorming/reference/amendment-surface.md');
+  assert.ok(aftermath.includes('same grant-aware step-6 path'));
+  assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/writing-plans', import.meta.url))), []);
 });
 
 test('gate template renders the Scope cuts line after the commit line', () => {

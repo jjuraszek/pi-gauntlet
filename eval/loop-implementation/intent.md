@@ -1,4 +1,4 @@
-for: a75d969897e3b91f0f31ada155add282d22f39b29f615374051f15ef6dc894a8
+for: a72f1baef2de5f5786f84d80f6d04c1ab95ed43e997a8f882a8c802dd531e904
 
 ## Change
 Prefix every human stop, including discard/reset authorization, with gauntlet: question while preserving ledger state and the authorization boundary.
@@ -17,3 +17,8 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - leg-iteration/dispatch: fails -> holds - Enforce the new coordinated-flow must-hold fact: Bumps iterations once to 3 and durably writes pending: 2 | repo-b | bbbbbbb before dispatch; passes repo-b cwd, own base, mapped AC, Leg/Rules, iteration/pending and absolute home spec/ledger.
 - leg-iteration/return: fails -> holds - Enforce the new coordinated-flow must-hold fact: Validates clean exactly-one attributed companion commit and unchanged home/expected dirt, updates only row 2 and its decision, records companion SHA, clears pending in one home-ledger commit; no duplicate child dispatch or bump on interrupted recovery.
 - leg-iteration/reject: fails -> holds - Enforce the new coordinated-flow must-hold fact: Two new companion commits stop preserving pending/state; home parent ledger commits do not count as child empty-commit stagnation.
+
+- escalated-row-attempt/round: fails -> holds - Amend permission spends one durable model round beyond allowance, with capped funding accounting, hard-stop precedence and no retry rearm.
+- escalated-row-attempt/amend: fails -> holds - Named amendments use section 5 and return to ordered checks; repeated row evidence waits with Recommendation none.
+- exit-verification-escalates/repair: fails -> holds - One clean single-commit repair in the failing leg persists a once-per-flow parent marker and reruns only that command once; rows remain closed.
+- exit-verification-escalates/boundaries: fails -> holds - Cap, dirty/extra commits and unrecoverable identity prevent redispatch; failed rerun names spent escalation and recommendation.

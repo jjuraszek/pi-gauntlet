@@ -21,3 +21,23 @@ Before every funded dispatch, print `funded round <k> of <N> for task <n>` for e
 Emit the task's stop note for the funded-stop outcomes above (including `STAGNANT`) and an escalated-round failure with no funded round left. While a budget token exists, include `budget: <spent> of <N> spent` in every stop note after `Problem:` and any `Searched:` lines and before the file finding, including pre-escalation stops, missing `implModel`, and exhausted fact lookups at spent zero; use the `(not recovered on resume)` suffix below when recovery fails, and omit the line without a token. Treat this line as the only round-history exception to `stop-note.md`'s no-round-history rule.
 
 On resume, keep header restoration unchanged; recover each task's spent count only from its `funded round <k> of <N>` transcript lines. Without recoverable lines, treat funding as exhausted; stop the next issue-bearing re-review with `budget: <N> of <N> spent (not recovered on resume)`. Treat a newly written budget token as the human refund, never a resume reset. Use no new spent carrier or handoff/resume grammar.
+
+## Implementer-failure stops
+
+Decode grants through [Value decoding](../../brainstorming/reference/amendment-surface.md#standing-grants); absent/`none`/budget-only: retain the ordinary two-attempt stop. Follow [stop-note.md](../stop-note.md) for lookups/status; preserve review/funding rules above.
+
+1. **Hard stops**: stop first for malformed grants, missing `implModel`, unavailable settings tools, dirty-tree/commit-boundary returns, empty-commit stagnation, cap, funded re-review `STAGNANT`, `REJECT`, and [redraws](../SKILL.md#implementer-status).
+2. **Takeable decision**: route only `BLOCKED`/`NEEDS_CONTEXT` decisions with attempts remaining below. Compare whitespace-normalized `file:line` finding or failing command plus assertion already auto-resolved on this task -> `Recommendation: none - evidence repeats task <n>`; stop.
+3. **Execution escalation**: after two failed attempts, escalate before routing `Recommendation:`; call `gauntlet_setting({ key: "escalationLoop" })`; `implModel` undefined stops with the existing note. Print `escalated round for task <n> after 2 failed attempts`. Dispatch one implementer: `model: <implModel>`, `context: "fresh"`, `async: false`, same payload and isolation as above (`SCOPED_TEST_COMMANDS`, complete prior report verbatim); retain siblings; no fan-out/re-chain. Spend once/task/site, independently of review escalation/funding.
+4. **Resulting decision**: dispatch error or non-`DONE` spends escalation; use step 2's table; no fourth unnamed repair. Success still runs the ordinary scoped tests and SR/CR gates before wave commit/completion.
+
+When taken, print `took recommendation: <option> for task <n>`.
+
+| Recommendation | Action |
+|---|---|
+| In-task repair | Preserve payload/isolation; count every re-dispatch as an ordinary attempt; enforce two-attempt limit. |
+| Spec/plan rule edit, including drafted-AC-row text correction backed by quoted implementer test/assertion/code evidence | Follow [amendment-surface section 5](../../brainstorming/reference/amendment-surface.md#5-apply-aftermath-commit) under grant. |
+| `fix-first` | Enter `/skill:shape-ticket` at its gate. |
+| `none`/budget/consent/redraw/separate change | Emit stop note ending in `Recommendation: <option> - <why>`; wait. |
+
+Recover only that line in matching task's transcript, not a review escalation or sibling line; unrecoverable means spent. A mid-loop grant or explicit retry never re-arms.

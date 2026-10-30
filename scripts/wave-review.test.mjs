@@ -1,5 +1,6 @@
 import test from 'node:test';
-import { createHash } from 'node:crypto';
+import { lintTarget } from '../eval/lib/lint.mjs';
+import { lintSkillSizes } from './skill-size-lint.mjs';
 import { runInNewContext } from 'node:vm';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdtempSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs';
@@ -326,7 +327,8 @@ test('amendment owners honor permission before fact and decision routing', () =>
     assert.match(row, /spec-defect citation.*amendment route.*Resolve fact asks/);
   }
   assert.match(status, /candidate answers are each edits to the spec, plan, or an approved rule.*amendment batch.*never a decision/);
-  assert.match(status, /changed problem statement; component added, removed, or re-bounded/);
+  assert.match(status, /drafted AC row text correction.*quoted implementer evidence.*granted `amend:` audit body/);
+  assert.match(status, /redraws: ticket rows, row add\/remove, reviewer-only or taste objections, problem changes, or component boundary changes/);
   assert.match(status, /another-round approval.*only.*no funded round left/);
   for (const text of ['recommended', 'alt-n', 'amended the spec: <title> - <what>', 'plan-writer', 'plan_check', 'tracker update', 'amend:']) assert.ok(status.includes(text), text);
   assert.match(skill, /`NEEDS_CONTEXT`, `BLOCKED`, a fix-loop escalation, a workflow warning, a redraw, or an amend with no standing grant\./);
@@ -349,5 +351,56 @@ test('funded rounds own stop-note funding rules and preserve the base stop note'
   const funded = readFileSync(fixReference, 'utf8').split('## Funded rounds')[1];
   assert.match(funded, /While a budget token exists, include `budget: <spent> of <N> spent` in every stop note after `Problem:` and any `Searched:` lines and before the file finding/);
   for (const text of ['pre-escalation', 'missing `implModel`', 'exhausted fact lookups at spent zero', 'only round-history exception', '(not recovered on resume)', 'omit the line without a token']) assert.ok(funded.includes(text), text);
-  assert.equal(createHash('sha256').update(stopNote).digest('hex'), '1da67e1750e45a8f3c50bd1bd9c750b22db4be33b347a25c45465ba3954e74f6');
+  for (const block of [...stopNote.matchAll(/```\n([\s\S]*?)\n```/g)]) {
+    assert.match(block[1], /^gauntlet: question\n/);
+    assert.match(block[1], /Recommendation: (?:<option>|[a-c]|none) - [^\n]+$/);
+  }
+  assert.doesNotMatch(stopNote, /budget: <spent> of <N> spent/);
+});
+
+const failureReference = readFileSync(new URL('../skills/subagent-driven-development/reference/fix-loop.md', import.meta.url), 'utf8');
+
+test('execution failures take authorized decisions before a single isolated escalation', () => {
+  const execution = failureReference.split('## Implementer-failure stops')[1];
+  assert.ok(execution, 'execution stops need their own procedure, not review funding');
+  const ordered = ['1. **Hard stops**', '2. **Takeable decision**', '3. **Execution escalation**', '4. **Resulting decision**'];
+  for (let i = 0; i < ordered.length; i++) {
+    assert.ok(execution.includes(ordered[i]), ordered[i]);
+    if (i) assert.ok(execution.indexOf(ordered[i - 1]) < execution.indexOf(ordered[i]));
+  }
+  for (const text of ['Value decoding', 'took recommendation: <option> for task <n>',
+    'count every re-dispatch as an ordinary attempt', 'escalated round for task <n> after 2 failed attempts',
+    'gauntlet_setting({ key: "escalationLoop" })', 'model: <implModel>', 'context: "fresh"', 'async: false',
+    'SCOPED_TEST_COMMANDS', 'complete prior report verbatim', 'same payload and isolation',
+    'dispatch error or non-`DONE`', 'no fourth unnamed repair', 'unrecoverable means spent',
+    'whitespace', 'file:line', 'failing command plus assertion',
+    'Recommendation: none - evidence repeats task <n>', '/skill:shape-ticket',
+    'funded re-review `STAGNANT`', '`REJECT`', 'budget-only']) assert.ok(execution.includes(text), text);
+  const hardStops = execution.split('2. **Takeable decision**')[0];
+  for (const stop of ['malformed grants', 'missing `implModel`', 'unavailable settings tools', 'dirty-tree', 'commit-boundary', 'empty-commit stagnation', 'cap', 'funded re-review `STAGNANT`', '`REJECT`']) assert.ok(hardStops.includes(stop), stop);
+  assert.match(execution, /implModel` undefined stops with the existing note/);
+  assert.match(execution, /matching task's transcript, not a review escalation or sibling line/);
+  assert.match(execution, /mid-loop grant or explicit retry never re-arms/);
+  assert.doesNotMatch(execution, /when it cannot be recovered, stop rather than claim fresh evidence/);
+  assert.match(execution, /Success still runs the ordinary scoped tests and SR\/CR gates/);
+  for (const row of skill.split('\n').filter(line => /^\| `(NEEDS_CONTEXT|BLOCKED)`/.test(line))) {
+    assert.match(row, /decisions under amend permission.*Implementer-failure stops/);
+  }
+  assert.match(skill, /After 2 failed attempts:[^\n]*Implementer-failure stops/);
+  assert.match(skill, /drafted AC row text correction[^\n]*implementer evidence/);
+});
+
+test('execution eval assembly includes failure routing and remains within authoring limits', () => {
+  const root = new URL('../', import.meta.url).pathname;
+  assert.deepEqual(lintTarget(join(root, 'eval/subagent-driven-development')), []);
+  assert.deepEqual(lintSkillSizes(root), []);
+  assert.ok(Buffer.byteLength(skill) < 50000);
+  assert.ok(skill.split('\n').length <= 500);
+  const expected = readFileSync(join(root, 'eval/subagent-driven-development/samples/blocked-decision-auto-taken/expected.md'), 'utf8');
+  assert.match(expected, /stop note ending in Recommendation: none - <why>/);
+  const target = JSON.parse(readFileSync(join(root, 'eval/subagent-driven-development/target.json'), 'utf8'));
+  assert.equal(target.skillFiles[0].sliceTo, '## After All Tasks Complete');
+  for (const sample of ['blocked-decision-auto-taken', 'third-attempt-escalated', 'ac-row-correction-amend']) {
+    for (const file of ['case.md', 'expected.md']) assert.ok(existsSync(join(root, 'eval/subagent-driven-development/samples', sample, file)));
+  }
 });

@@ -1,6 +1,8 @@
-for: 551c035080c903d52d8106e07ce7eb2d7d75baab271627f354fbe2271846a6fc
+for: 66c86a75fa71f6d610eb001c2711e1d828d24ebb2fbf9fc6acba6dd7f972f882
 
 ## Change
+Continue authorized waves execution failures without changing review funding. Include When a Subagent Fails in the first slice. Take named in-task decisions within remaining attempts, stop on repeated evidence, and spend one isolated configured-model execution escalation after two failed attempts. Recover that exact task/site from the transcript fail-closed; grants and retry never re-arm it. Treat implementer-evidenced drafted-row text corrections as granted amendments, not redraws; preserve ticket/reviewer-only/add-remove/problem/component redraws. Every stop note ends in Recommendation. Preserve all review funding, convergence and lifecycle facts. These are intended movements, not observed model results; parent verification runs the full target and generates reports.
+
 Prefix implementation stop notes with gauntlet: question before the problem summary, preserving actionable choices and active implementation state.
 
 
@@ -17,6 +19,17 @@ Cover checkout-local Leg/Rules routing, per-repo wave bases and identical relati
 Cover coordinated-flow checkout-local task dispatch, Leg/Rules, per-repo baselines and wave dependency rejection in leg-cwd. Preserve every legacy fact and bundle selection. Runtime validation remains in extensions/lib/plan-check.test.ts; parent verification runs full model comparisons.
 
 ## Expected to move
+- blocked-decision-auto-taken/taken: fails -> holds - Apply the named bounded-parser repair in the same turn under permission.
+- blocked-decision-auto-taken/attempts: fails -> holds - Auto-taken redispatch consumes an ordinary attempt and retains the wave gate.
+- blocked-decision-auto-taken/repeated: fails -> holds - Whitespace-normalized repeated task evidence stops without an evidence file.
+- blocked-decision-auto-taken/controls: fails -> holds - None, absent, budget-only and consent/boundary controls cannot authorize dispatch; the none control ends its stop note with Recommendation: none - <why>.
+- third-attempt-escalated/dispatch: fails -> holds - Dispatch one fresh synchronous resolved-model execution attempt after two failures even when the second return recommends none; route recommendations after escalation, separate from review funding.
+- third-attempt-escalated/outcome: fails -> holds - Failed escalation can take a granted amendment but never a fourth unnamed repair; DONE still needs review.
+- third-attempt-escalated/recovery: fails -> holds - Exact task/site transcript identity survives grants and retry, with missing history spent.
+- third-attempt-escalated/hard-stops: fails -> holds - Missing settings/model and budget-only values stop before execution escalation.
+- ac-row-correction-amend/amend: fails -> holds - Evidence-backed drafted-row text corrections enter the amendment route without another permission stop.
+- ac-row-correction-amend/aftermath: fails -> holds - Complete plan/check/tracker aftermath and the granted audit with worker evidence.
+- ac-row-correction-amend/redraw: fails -> holds - Preserve the explicit remaining redraw classes under permission.
 - gate-line-first/question-first: fails -> holds - Exhausted fact lookups ask for a human decision before any summary.
 
 - lookup-before-ask/searched: fails -> holds - Exhausted fact lookups require the searched location and not-found result directly under Problem.

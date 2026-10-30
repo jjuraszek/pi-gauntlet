@@ -1,36 +1,46 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "551c035080c903d52d8106e07ce7eb2d7d75baab271627f354fbe2271846a6fc",
+  "skillSha": "66c86a75fa71f6d610eb001c2711e1d828d24ebb2fbf9fc6acba6dd7f972f882",
   "inputSha": "19ff200fc4ff128dd3ebcc461453aa4cbc49e9a3073a0f75bb74d8fa58f19e7b",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\nStopped on task <n> (<title>).\n\nProblem: The implementer returned NEEDS_CONTEXT because it needs the required schema artifact, and both locations documented by the spec came up empty. This is an exhausted fact lookup, so no escalated round ran.\nSearched: docs/schema.json - no file\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) supply the schema artifact by adding it at docs/schema.json, or by publishing it to the artifact registry, then re-run the task\n  b) give access to the registry entry if the 404 is a permissions or credentials problem\n  c) amend the spec section that requires the schema, or plan task <n>, to drop or replace the schema requirement\n\nPick one, or give another fix.\nRecommendation: a - it keeps the approved spec intact and unblocks the implementer with the artifact the spec already expects.\n",
+      "words": 134,
+      "wallMs": 6791,
+      "mechanical": {
+        "question-first": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on task <n> (required schema artifact).\n\nProblem: The implementer needs the required schema artifact, but all documented lookup locations are exhausted.\nSearched: docs/schema.json - no file found\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) supply the required schema artifact or restore access to it in the artifact registry\n  b) amend the spec and plan task to remove the schema-artifact requirement\n\nPick one, or give another fix.\n",
-      "words": 69,
-      "wallMs": 5323,
+      "text": "gauntlet: question\nStopped on task <n> (required schema artifact).\n\nProblem: The implementer needs the required schema artifact, but all documented locations have been checked and neither contains it.\nSearched: docs/schema.json - no file\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) supply the required schema artifact\n  b) amend the spec and plan task to remove the schema-artifact requirement and define the replacement behavior\n\nPick one, or give another fix.\nRecommendation: a - preserves the approved requirement and unblocks implementation.\n",
+      "words": 77,
+      "wallMs": 4101,
       "mechanical": {
         "question-first": "holds"
       }
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "c696d06d91cb642650e0596f6ec9d3f179e8188842e5777ec3f4cd6aff9d9847",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "026b9a91c9a042910d9d9eadf4cae54c09ed0f335d520e00090f2d2fda8337ca",
-      "baselineOutputSha": "0af747d08c8cb3dce5ff26f465575c8828ff143f14c5825b5a15df2c82a3c37b",
-      "candidateOutputSha": "7833ac9f471bd155b67bdadde9bad6480deacc64ca891d358caadba5f59f0bfb",
+      "intentSha": "0fec1abdda8012b33843cfb09016d5d4ca3b7e39837c7b3c2b0fdf8c24bab7d3",
+      "baselineOutputSha": "221a63601512ded6546e01242b542018844c474a527a97f951daea4ed92384be",
+      "candidateOutputSha": "5d8553b4fe1298333777d4c3fa66cad4cecf15479f8310d3f1d91b4a6059795e",
       "facts": {
         "actionable": {
           "before": "holds",
@@ -43,15 +53,42 @@
           "label": "held"
         },
         "question-first": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves both facts: it retains Problem and both ordered Searched results, offers supply/access or amendment without asking for a location, and introduces no dispatch, state change, or done/stuck terminal marker. The added “gauntlet: question” prefix delivers the requested change before the problem summary. No corrective wording is needed to retain the facts Before satisfied.",
-      "wallMs": 5594,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept: it retains the gauntlet: question prefix, the Problem line, both Searched lines in documented order (docs/schema.json then artifact registry), and offers supply (a), access (b) and amend (c) without asking where the artifact lives, and it neither dispatches nor marks the task done or stuck, leaving in_progress/implement implicitly active. The added Recommendation line correctly delivers the Change's 'every stop note ends in Recommendation' requirement. One small narrowing worth watching: Before's option b offered access to 'another source that holds the schema artifact' generally, while After limits it to the registry 404 being a credentials problem; that still satisfies 'access' here, but a wording like 'give access to the registry entry, or to another source that holds the artifact' would keep the broader fallback while preserving the new diagnostic hint. The 'no escalated round ran' clause in Problem is accurate for an exhausted fact lookup and does not read as a terminal marker.",
+      "wallMs": 10993,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c696d06d91cb642650e0596f6ec9d3f179e8188842e5777ec3f4cd6aff9d9847",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0fec1abdda8012b33843cfb09016d5d4ca3b7e39837c7b3c2b0fdf8c24bab7d3",
+      "baselineOutputSha": "67d094849a3febf3ba54ea4623e42e696137b644d2e71a5c914405c844b0a429",
+      "candidateOutputSha": "1312b0e04160d441e0e650980d4bfd8ef04620a12f59c88790e23f461ac649bc",
+      "facts": {
+        "actionable": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "preserved": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "question-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps both facts: it still leads with gauntlet: question, retains Problem and the two ordered Searched lines, offers supply and amend without asking where the artifact lives, performs no dispatch or state write, and now ends in the required Recommendation line. Two small drifts are worth tightening so the actionable fact stays unambiguous: option a) dropped Before's 'or restore access to it in the artifact registry', which was the explicit 'access' half of supply-or-amend, and the header now prints a literal 'task <n>' placeholder instead of naming the task. Suggested wording: keep After's structure and Recommendation, but write option a) as 'supply the required schema artifact or restore access to it in the artifact registry' and substitute the actual task identifier in the Stopped line.",
+      "wallMs": 9948,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "6ce21879545a9d4b0962c2c753b726577b22b1b4"
 }

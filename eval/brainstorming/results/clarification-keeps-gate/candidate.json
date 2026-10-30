@@ -1,7 +1,7 @@
 {
   "sample": "clarification-keeps-gate",
   "arm": "candidate",
-  "skillSha": "46230ac73e4c7b5113a163f24e5ccaa63fb52be65622b5210b286d3ec2351e00",
+  "skillSha": "66b3e9000af1c594c7c663c5b004cda619dc465f206315981c1b7b539fa865cb",
   "inputSha": "7f60ce82e65026adf6ebc58fe496308f94b69693537ceba4f9362ded14f5b9cb",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nNo. The design adds no new settings file. `settings/resolver.ts:12` already owns the defaults and the only settings file. The new report-view setting becomes one more key in that file, with its default declared beside the existing ones. It is resolved through the same resolver, so there is still one read path and one place where defaults live.\n\nHere is round one again, with that point made explicit. Nothing else has changed.\n\n**Architecture.** The shared resolver stays the single owner of settings. The private report-view setting is a key in the existing settings schema, not a parallel store, and no new boundary appears between the UI and the settings layer.\n\n**Responsibilities.**\n- `settings/resolver.ts` owns the new key's default and its resolution, as it already does for every other setting.\n- `ui/report-view.ts` consumes the resolved value and never reads the settings file or computes a default itself.\n- Per your selection, the setting keeps report filters across workspace changes. The resolved value comes from the shared settings file rather than from per-workspace state, so switching workspaces does not reset it.\n\n**Data flow.**\n1. The settings file supplies the stored value.\n2. `settings/resolver.ts:12` applies the default when the key is absent.\n3. `ui/report-view.ts:30` receives the resolved settings through the existing path, which I traced end to end, and applies the report filters.\n\n**Moving parts.**\n- Remove: none.\n- Add:\n  - Add the report-view key and its default to the resolver's schema in `settings/resolver.ts`.\n  - Add a read of the resolved key in `ui/report-view.ts` at the existing consumption point (`:30`).\n  - Add report-view resolver test coverage beside the existing settings tests.\n\n**Supersedes:** none.\n\nDo you approve round one?\n",
-      "words": 268,
-      "wallMs": 12317,
+      "text": "gauntlet: question\nNo, it does not add another settings file. `settings/resolver.ts:12` owns the defaults and the only settings file, and this design keeps it that way. The new private report-view setting is one more key under that resolver, not a second settings path.\n\nRound one, updated to show every moving part:\n\n- **Ownership:** the existing resolver in `settings/resolver.ts` owns the new setting's default and resolution, like every other setting.\n- **Behavior:** the setting keeps report filters when the workspace changes.\n- **Data flow:**\n  1. The resolver applies the default and reads any value from the existing settings file.\n  2. It returns the resolved settings.\n  3. `ui/report-view.ts:30` reads the key from those resolved settings through its current consumption path.\n- **Remove:** none.\n- **Add:** a private report-view filter-retention key, with its default, in the resolver's schema in `settings/resolver.ts`.\n- **Add:** a read of that resolved key in `ui/report-view.ts`, at the existing consumption point, to decide whether filters persist across workspace changes.\n- **Supersedes:** nothing.\n\nDo you approve round one?\n",
+      "words": 161,
+      "wallMs": 9103,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "No. The design keeps the existing settings file and adds the private report-view setting to the shared resolver at `settings/resolver.ts:12`. The report view consumes it through the existing resolved-settings path at `ui/report-view.ts:30`. Report filters will remain preserved across workspace changes.\n\nRound one is still awaiting your approval.\n",
-      "words": 47,
-      "wallMs": 3259,
+      "text": "gauntlet: question\nNo. The design keeps the single existing settings file owned by `settings/resolver.ts:12`. It adds the private report-view setting to that resolver’s defaults and resolution; `ui/report-view.ts:30` consumes it through the existing resolved-settings path. Report filters remain preserved across workspace changes.\n\nDo you approve round one with that clarification?\n",
+      "words": 49,
+      "wallMs": 2856,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "02abcc2002c91ea908ff68db76139f5e71c07af0d6cc1e443734542a20cb559d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "0bc2441c6b5f700f7d512d70e1fd7c3e203faaa0f9673b6c46fba7f5d3d55c58",
-      "candidateOutputSha": "57937f2df1e2e0d5d3bc2fe1d5eab7473ad3ad814c9f1452425239bacd8b821c",
+      "candidateOutputSha": "c64cd81651609f0750ff51f7f40e31c48300a4bb5818b6cf916e1f10d76779f4",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs open with a direct 'No' and state that the setting becomes another key in the one existing settings file owned by settings/resolver.ts:12, and both re-present round one only, defer nothing from round two into the body, and close by asking for round-one approval. Two things in After are worth tightening even though they do not fail a fact here. First, After says 'Nothing else has changed' while its Moving parts list adds a new item (resolver test coverage) that Before's round one did not carry, and it drops Before's write-back path (the report view persisting filter changes through the resolver) and the explicit Pattern line naming the owning resolver; under the Change's inventory-before-Pattern rule and the round-two test-mapping rule, that test item reads as a sneaked-in round-two concern and the missing Pattern line weakens the moving-parts contract. Second, 'with that point made explicit' plus a changed inventory invites a careful reader to doubt whether round one is really unchanged. Suggested wording: keep After's crisp first paragraph, keep the Remove/Add inventory limited to the key, its default, and the read/write at ui/report-view.ts:30, restore the 'Pattern: this follows the owning resolver at settings/resolver.ts:12' line directly after Moving parts, say explicitly that tests and errors come in round two, and only then ask 'Do you approve round one?'",
-      "wallMs": 13803,
+      "feedback": "Neither fact moved. Both outputs answer the side question directly (\"No, this adds no settings file\" / \"No, it does not add another settings file\") and tie the new key to the single existing file owned by settings/resolver.ts:12, so f1 holds in both; both re-render round one and close with \"Do you approve round one?\" without presenting round two or claiming approval, so f2 holds in both. After is tighter and adds the Remove/Add/Supersedes inventory the Change asks for; its one risk is the phrase \"Round one, updated to show every moving part\", which could read as a silent revision of the pending round - consider wording like \"Round one again, now with its Remove/Add inventory shown\" so the reader sees the same round awaiting the same approval. Before's explicit \"persists in the same single settings file\" sentence is slightly stronger evidence for f1 than After's \"reads any value from the existing settings file\"; keeping a persistence clause (writes go back through the resolver into the same file) would preserve that margin while still delivering the moving-parts disclosure.",
+      "wallMs": 11412,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "02abcc2002c91ea908ff68db76139f5e71c07af0d6cc1e443734542a20cb559d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b647bc0705c2ac822bd1fdb10b75f6e4d3f801c1c2d1c974623b4a255ed20c1",
+      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
       "baselineOutputSha": "b06db8129b9813941bbf015201867e810052b75b78cafa7492d542c522f4c5dc",
-      "candidateOutputSha": "3448a71b29a16cac25f532d611df494209e25a3a3413ad7c3b701a1e94060d64",
+      "candidateOutputSha": "ddd4f5ed9d2f81ca327cb3bbb4764cc2b943aa453b0095b1d620563212c587d9",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both facts hold in both outputs: each opens with \"No\" and states the design keeps/uses the existing settings file via the shared resolver at settings/resolver.ts:12, and each leaves round one pending without presenting round two or claiming approval. The one visible drift in After is that it dropped the leading `gauntlet: question` classification line that Before had at column zero; that is not one of this case's two facts, but the Change's gate-line-first requirement (first line classifies the waiting question) means the After wording should keep that marker ahead of the answer. Otherwise After's closing sentence (\"Round one is still awaiting your approval.\") is a fine alternative to Before's explicit re-ask; if you want to preserve the exact prior shape, restore the explicit question (\"Do you approve round one?\") after the marker line while keeping the existing-file sentence first.",
-      "wallMs": 10654,
+      "feedback": "Both outputs answer \"No\" and state the design reuses the existing settings file at settings/resolver.ts:12, so f1 holds in both; both end by re-asking for round-one approval without presenting round two or claiming approval, so f2 holds in both. After moved nothing: it rephrases the same answer (single existing file, private setting added to the resolver's defaults/resolution, report-view consumes via the existing path) and re-asks approval \"with that clarification\". No wording change is needed to preserve these facts; the After wording already keeps every fact Before kept.",
+      "wallMs": 3852,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
+  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
 }
