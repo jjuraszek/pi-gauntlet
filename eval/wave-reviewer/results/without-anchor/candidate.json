@@ -1,0 +1,136 @@
+{
+  "sample": "without-anchor",
+  "arm": "candidate",
+  "skillSha": "d89fe7c03af0185c760c12417c38943f39c424d6252427d19205b801f370f96b",
+  "inputSha": "5e5a6f4e776f5e78f9af3cababed5117f887e208b0196212f5f22f653d118d4c",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Next file read for anchored dispatches:** none. This dispatch has no `planPath`, `anchor`/`anchors`, or Spec anchors, so I review it with the requesting-code-review template and the supplied observations only. I did not run git or any tests.\n\n```\nVerdict: SHIP\nReasoning: render_label correctly satisfies AC1 and the Design Keep rule, and the only finding is a declinable Minor duplicate test.\nConfidence: high\n\nFindings:\n  - [Minor] F1: [delete] test_labels.py:7-9 - test_label_trims_same_input_again repeats test_label_trims_outer_space (lines 3-5) exactly: the same input \" label \" and the same assertion == \"label\". It adds runtime and proves no new behavior.\n        Fix: Delete test_label_trims_same_input_again (lines 7-10). AC1 coverage stays in test_label_trims_outer_space.\n        touched-files: test_labels.py\n        touched-resources: none\n\nComplexity: net -4 lines\nParallel-safe: F1 disjoint\n```\n\n**Notes (not findings)**\n\n- **Correctness:** `labels.py:2` returns `name.strip()`, which strips outer whitespace (AC1). It returns `\"\"` for `\"\"`, which satisfies Design `Keep: An empty label remains empty`.\n- **Test economy:** `test_label_trims_outer_space` cites AC1 and `test_label_keeps_empty` cites the Design `Keep:` clause. Both are exempt from the `[Moderate]` \"proves no committed observable\" check. I searched `## Acceptance criteria` and `## Design` in the supplied excerpt.\n- **Plan fidelity:** DESCRIPTION's \"preserve mixed case\" is summary-only and appears in neither the Acceptance criteria nor the Design. It is therefore not a commitment, and the missing mixed-case test is not a defect. The code still preserves case, because `str.strip` does not alter case. No deviation from the approved spec was found.\n- **Non-string input:** Input such as `None` would raise `AttributeError`. The spec does not cover this case, so I am not reporting it as a finding.\n- **Scope:** No scope creep. The diff adds only `labels.py` and `test_labels.py`.\n\n**Verification:** SCOPED_TEST_COMMANDS was `none`, so I ran no commands, and the orchestrator gate owns test execution. I made no git calls either. The review is based on the supplied complete contents of `labels.py` and `test_labels.py`, both read in full.\n\n```json\n{\n  \"verdict\": \"SHIP\",\n  \"reasoning\": \"render_label correctly satisfies AC1 and the Design Keep rule, and the only finding is a declinable Minor duplicate test.\",\n  \"findingCount\": 1,\n  \"findings\": { \"critical\": 0, \"moderate\": 0, \"minor\": 1 },\n  \"maxSeverity\": \"Minor\",\n  \"parallelSafe\": \"Parallel-safe: F1 disjoint\"\n}\n```\n",
+      "words": 332,
+      "wallMs": 13251,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "For an anchored dispatch, my first read request would be the selected task section in `planPath`, matched by the exact dispatched anchor heading. This dispatch is anchor-less; I reviewed both supplied complete-file observations against the approved excerpt.\n\nVerdict: SHIP\nReasoning: The implementation satisfies AC1 and the empty-label preservation requirement; only a non-blocking duplicate test needs trimming.\nConfidence: high\n\nFindings:\n  - [Minor] F1: [delete] test_labels.py:7 - `test_label_trims_same_input_again` repeats the setup, operation, and assertion of `test_label_trims_outer_space` without proving another observable behavior.\n        Fix: Delete `test_label_trims_same_input_again`; retain the AC1 test and the distinct empty-label preservation test.\n        touched-files: test_labels.py\n        touched-resources: none\n\nThe absent mixed-case test is not a gap: mixed-case preservation appears only in the summary, not in the approved Acceptance criteria or Design commitments.\n\nVerification:\n`SCOPED_TEST_COMMANDS: none`\nNo commands were run; no command output is available. Review used only the supplied observations.\n\nParallel-safe: F1 disjoint\n\n```json\n{\n  \"verdict\": \"SHIP\",\n  \"reasoning\": \"The implementation satisfies AC1 and the empty-label preservation requirement; only a non-blocking duplicate test needs trimming.\",\n  \"findingCount\": 1,\n  \"findings\": {\n    \"critical\": 0,\n    \"moderate\": 0,\n    \"minor\": 1\n  },\n  \"maxSeverity\": \"Minor\",\n  \"parallelSafe\": \"Parallel-safe: F1 disjoint\"\n}\n```\n",
+      "words": 174,
+      "wallMs": 11760,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f313fda887ab8443055094e498a7815cbaa076657ff69eb481eb19f7925c29e7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e8582c084d5cb5ce7de1415bda9246c10b1b029cd16c66c22e9e875ba9e97c2a",
+      "baselineOutputSha": "c40ab861f040df993a9f6a3a40862fa22c1a9bfb9f734020606819601a69bbd2",
+      "candidateOutputSha": "13e1fe169d6abdc6c5e4c54b79f1d968e74c816e31051504d56887503904e1af",
+      "facts": {
+        "findings-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "economy": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "calibration": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ship": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "initial": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-behaviour": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-boolean": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved only the ship fact, and in the intended direction: Before emitted \"approve\"/\"Ready to merge? Yes\" with a findingCounts object and no findingCount or Parallel-safe line, whereas After emits SHIP in both the report block and the JSON, reports critical 0 / moderate 0 / minor 1 with findingCount 1 equal to the severity sum, and includes exactly one Parallel-safe line covering F1. Every fact Before kept is still kept in After: no clause table or structured clauses appear, the supplied Acceptance criteria and Design excerpt are explicitly searched for test observables, the duplicate trim test is a Minor [delete] finding with test_labels.py:7-9 evidence while the direct trim test and the empty-label Keep test are preserved, the mixed-case test is correctly declined as summary-only, and no TRAJECTORY footer or field is present. The only polish worth making in the After wording is internal consistency on the evidence range (the finding cites lines 7-9 but the Fix says 7-10, which includes a blank line); otherwise the wording delivers the Change without regressing any fact.",
+      "wallMs": 14838,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f313fda887ab8443055094e498a7815cbaa076657ff69eb481eb19f7925c29e7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e8582c084d5cb5ce7de1415bda9246c10b1b029cd16c66c22e9e875ba9e97c2a",
+      "baselineOutputSha": "806710e16d11559a20929c4649f94e810584edc14bc40049161c842539930491",
+      "candidateOutputSha": "04cb0517b6ead485b5b53278f768762f35299adbac077d5993dd43099f1c6c78",
+      "facts": {
+        "findings-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "economy": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "calibration": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ship": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "initial": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-behaviour": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-boolean": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved only the ship fact, and in the intended direction: it emits SHIP in both report and JSON, mirrors critical/moderate/minor counts with findingCount equal to their sum, and adds a single Parallel-safe line covering F1, where Before used an unrelated approve_with_nits verdict with no Parallel-safe line or findingCount. No fact regressed: the clause table is still omitted for the anchor-less caller while AC1 and the Design Keep are checked for test observables, the duplicate trim test is a Minor [delete] finding with test_labels.py evidence that keeps the direct trim and empty-label tests, the mixed-case test is explicitly not demanded, and no TRAJECTORY footer appears. Two things worth keeping as-is or tightening in the wording: the opening sentence about what the reviewer 'would' read for an anchored dispatch is harmless but slightly off-topic for an anchor-less sample—consider having the anchor-less branch state only that no planPath/anchors were supplied and the clause table is therefore omitted; and keep the explicit 'delete:'/'shrink:' tag requirement, since Before's prose 'Remove the duplicate test' only loosely satisfied the economy fact's expected form.",
+      "wallMs": 15684,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

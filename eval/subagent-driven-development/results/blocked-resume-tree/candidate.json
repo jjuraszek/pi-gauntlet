@@ -1,0 +1,55 @@
+{
+  "sample": "blocked-resume-tree",
+  "arm": "candidate",
+  "skillSha": "7095729dd21ac87cd7b6a6bf004fc83d420452d17a8487477a8ce0c4f0ad1e4e",
+  "inputSha": "a250d9230aac2bad6df6abeed8ecd11313f83b1f8bc916113975cf84fe5480f8",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Continuation: Task 1 repair returned BLOCKED, answered by delegated lookup\n\n## Where things stand\n\nThese are the supplied fixed observations. None of them are results I produced.\n\n- The Task 1 repair returned structured `status: BLOCKED`. Its `question` asked for a source constant.\n- The `BLOCKED` was a fact ask. Per `stop-note.md`, a delegated answer/evidence child ran one bounded lookup per documented location, in documented order. It found `LIMIT=8`.\n- I am consuming only `answer` and `evidence` from that child. I am not reading the report directly, because the question is resolved and no concern or finding is left open.\n- The tracker keeps both wave indices (`### Task 1:`, `### Task 2:`) `in_progress`. Nothing is marked complete until the wave commit.\n\n## Counting under the transition table\n\nThe table row \"`BLOCKED` / `NEEDS_CONTEXT` answered by the ladder\" applies:\n\n- `failed[1] += 1`.\n- Next, re-dispatch the **identical payload** with the answer appended under `## Answer to your BLOCKED question`.\n- The re-dispatch goes **into the existing repair tree**. That is the registered `RP_TREE` from this round's printed `repair-base: <path> <sha>` observation.\n\nThe integrated tree still includes sibling additions, and the existing snapshot already carries them. So I do **not**:\n\n- run `git worktree remove`,\n- re-run the repair-base recipe, or\n- run the Rebuild path.\n\nIf the new `failed[1]` reaches 2, this dispatch becomes the escalated round instead. In that case I would first print `escalated round for task 1 after 2 failed attempts`, call `gauntlet_setting({ key: \"escalationLoop\" })`, and add `model: <implModel>`. If `implModel` is undefined or the tool is unavailable, that is a stop note. The current counter value was not supplied, so I am not asserting either case.\n\nRecovery requires the round's `repair-base:` transcript line. If it is absent, stop with a Recovery stop note rather than re-snapshot. For an in-place wave, the \"existing repair tree\" is `/workspace/project` with no `worktree:`.\n\n## Next command: confirm the registered repair tree is intact\n\n```bash\ngit -C \"<RP_TREE from repair-base observation>\" rev-parse HEAD\ngit -C \"<RP_TREE from repair-base observation>\" status --porcelain\n```\n\n`HEAD` must equal the SHA printed on the `repair-base:` line. On a nonzero exit, stop and report the shell error.\n\n## Re-dispatch: one-step, schema-bound, file-only, foreground carrier\n\n```ts\nsubagent({ async: false, cwd: \"<RP_TREE from repair-base observation>\",\n  chain: [{ parallel: [\n    { agent: \"implementer\", as: \"impl_1\",\n      outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave<w>-repair<k>-task1-answered.md\",\n      outputMode: \"file-only\",\n      task: \"planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 1:; Spec: /workspace/project/doc/specs/feature.md; Leg: <owning leg>; Rules: <combined task/leg Rules resolved in owning checkout>; SCOPED_TEST_COMMANDS: <Task 1 manifest tests verbatim, or none>.\\n## Previous review report (re-review trigger)\\n<prior review report path or gate log path - identical to the BLOCKED repair payload>\\n<identical findings block / gate-log reference from the BLOCKED repair>\\n## Answer to your BLOCKED question\\nLIMIT=8 (evidence: <evidence entries from the delegated answer/evidence child, verbatim>)\\npi-cohort saves your final report; do not write it yourself. Return DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT.\" }\n  ], worktree: true, concurrency: 4,\n     stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } }]\n})\n```\n\nThis is a repair implementer, so there is no `context: \"fresh\"` override and no prior-patch path. There is also no `model:`, unless this turns out to be the escalated round described above.\n\n## After the dispatch returns\n\nEach step below is conditional on the structured output. I am not predicting it.\n\n1. **Record the result.** Print `wave <w> repair <k> task 1 <status> report <path> delta <Artifacts dir>/worktree-diffs/step-0/task-0-implementer.patch applied <yes|no>` from the actual result.\n2. **Apply the delta.** If the status is `DONE` or `DONE_WITH_CONCERNS` with a delta, apply it to the integrated tree, then remove the repair worktree:\n   ```bash\n   git -C /workspace/project apply --index \"<Artifacts dir>/worktree-diffs/step-0/task-0-implementer.patch\"\n   git -C /workspace/project worktree remove --force \"<RP_TREE>\"\n   git -C /workspace/project add -A\n   git -C /workspace/project diff --stat <recorded pre-repair tree> \n   ```\n   If the apply fails, that is +1 → Rebuild. An empty `--stat` is +1 and gets no re-review.\n3. **Gate.** Re-run Task 1's manifest `tests` one by one with logs to `gate-<i>.log`. Print `wave <w> gate <i> exit <code>`.\n4. **Re-review on green.** Record the tree with the `fix-delta-tree-shell` block (`FD_ROOT=/workspace/project`). Then dispatch one `wave-reviewer` on the carrier with:\n   - `context: \"fresh\"`, `WAVE_VERDICT_SCHEMA`, and `stopOn /verdict [FIX_FIRST, REJECT]`;\n   - `anchors: ### Task 1:, ### Task 2:`;\n   - `BASE_SHA: 1111111111111111111111111111111111111111` and `HEAD_SHA: WORKTREE`;\n   - the wave union as `SCOPED_TEST_COMMANDS`;\n   - the prior report path under the re-review marker, plus the `## Fix delta` tree pair.\n5. **If the status is `BLOCKED` or `NEEDS_CONTEXT` again,** apply the repeat-evidence check from the takeable-decision ladder. If it is not a repeat, answer it and re-dispatch into the same `RP_TREE`, still with no re-snapshot.\n\nI stop here, at the dispatch boundary, without inventing its result.\n",
+      "words": 729,
+      "wallMs": 31809,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "error",
+      "error": "github-copilot API error (429): 429 quota exceeded",
+      "wallMs": 3201
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b1dcc8cf00399fbef22ed217387a0718931efd13b9c7a40459a9a9782ae08c34",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2057fa1d45d7779f9a651e5d12dae50e16b73027b3448d1918b14c5fbcdd9d65",
+      "baselineOutputSha": "26855ebfa00ebe53744e9d001ad30adcf791cf5e379d3816376b24786a0bd784",
+      "candidateOutputSha": "f47355392072a009804040c105b5c7425764cd87d52b493e7679af6c35cbc0ef",
+      "facts": {
+        "protocol": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before routes the BLOCKED answer through a delegated lookup, redispatches in /workspace/project with the sibling additions intact, keeps anchors and wave-union scoped tests, and uses no relay child, but it never counts the BLOCKED as a failure (no counter increment, no mention of the attempt ledger) and it rewrites the repair payload rather than appending the answer to the unchanged one, so the fact's 'count failure / append to unchanged payload' clauses are not met. After fixes both: it names the transition-table row, increments failed[1], re-dispatches the identical payload with an appended '## Answer to your BLOCKED question' section, explicitly refuses worktree removal / re-snapshot / Rebuild, consumes only answer/evidence, and keeps anchors and scoped tests. The one wording hazard in After is the dispatch block itself: it says the in-place existing repair tree is /workspace/project 'with no worktree:' yet the carrier sets `worktree: true` and step 2 removes a repair worktree and applies a delta, which contradicts the 'same current tree, direct edits in-place' intent for a tree that still holds uncommitted sibling additions. To keep this fact robustly, make the carrier shape conditional on the wave mode (omit `worktree: true` and the delta-apply/remove steps when RP_TREE is /workspace/project; use them only when a committed clean snapshot exists), and keep the scoped-test placeholder as the wave union so sibling regressions remain visible during the gate.",
+      "wallMs": 25176,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "verdict": "error",
+      "error": "github-copilot API error (429): 429 quota exceeded"
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

@@ -1,0 +1,42 @@
+{
+  "sample": "unreadable-anchor",
+  "arm": "baseline",
+  "skillSha": "aa04a4f3b2e8c75884c259daed7d85e1ca61526f7df6028513eb75bb3fdfcee5",
+  "inputSha": "0a2182cfaa6c73649d317abe5afaa4201ac164aec7ce522adff1d338ec40c564",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Next file read requested:** `/workspace/project/plan.md`. This dispatch is anchored, so the plan must be read first to resolve `### Task 4:` and `### Task 7:`. The requesting-code-review template for anchor-less dispatches does not apply here.\n\n---\n\n## Wave Review: unreadable-anchor\n\n**Scope:** planPath `/workspace/project/plan.md`, anchors `[\"### Task 4:\", \"### Task 7:\"]`, spec `/workspace/project/spec.md`, work root `/workspace/project`. SCOPED_TEST_COMMANDS: none.\n\n### Anchor resolution (from the complete plan.md observation)\n\n| Anchor | Result | Notes |\n|---|---|---|\n| `### Task 4:` | **Resolved** | Exact heading found: \"Default flag\", Spec: Design L9, Files: Create `flag.mjs`. `### Task 40:` is a decoy and was not matched. |\n| `### Task 7:` | **Unresolved** | No exact heading exists. `### Task 70:` (\"Another decoy\") is a prefix-adjacent decoy. It was not substituted. |\n\n### Evidence limits\n\n- The plan.md observation is complete, so the absence of `### Task 7:` is definitive. It is not a truncated read.\n- No observations exist for `/workspace/project/spec.md` (so Design L9 is unread) or for `flag.mjs`. I cannot confirm Task 4's implementation against the spec. Task 4 is therefore unreviewed, not passed.\n- No git or test commands were run. None were scoped, and none can be run here.\n\n### Issues\n\n**Critical (1)**\n1. **Dispatch anchor `### Task 7:` does not exist in the plan.** The wave cannot be reviewed as dispatched. I will not guess which task was intended (for example, Task 70), and I will not narrow the wave to Task 4 alone. Either is a scope change, and only the dispatcher or the plan owner can authorize it. **Fix:** correct the anchor list or add the missing task to the plan, then re-dispatch.\n\n**Important (0)**\n\n**Minor (0)**\n\n### Verdict\n\n**BLOCKED.** One dispatch anchor cannot be resolved. Task 4 resolved but remains unverified, because neither the spec nor the code was supplied. No approval is given for any part of this wave.\n\n---\n\n```json\n{\n  \"verdict\": \"BLOCKED\",\n  \"findings\": {\n    \"critical\": 1,\n    \"important\": 0,\n    \"minor\": 0\n  }\n}\n```\n\n*Note:* The persona contract text was not visible in this context. The JSON is limited to the verdict and the finding counts, matching the written review. I left out speculative fields.\n",
+      "words": 322,
+      "wallMs": 16746,
+      "mechanical": {
+        "identity": "fails",
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next file read requested: `/workspace/project/plan.md` — locate both requested task headings before following their spec and file references.\n\n## Review: BLOCKED\n\nThe supplied complete plan contains `### Task 4: Default flag`, but no heading matching the requested `### Task 7:` anchor. `### Task 70:` is not a match.\n\nThe anchored scope therefore cannot be resolved. No implementation review was completed, and no code findings were established. Zero findings must not be interpreted as approval.\n\nTo unblock the review, correct the missing anchor or provide an updated plan containing it. No further plan read is requested.\n\n```json\n{\n  \"verdict\": \"BLOCKED\",\n  \"finding_counts\": {\n    \"critical\": 0,\n    \"important\": 0,\n    \"minor\": 0\n  }\n}\n```\n",
+      "words": 100,
+      "wallMs": 9560,
+      "mechanical": {
+        "identity": "fails",
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

@@ -1,4 +1,4 @@
-for: 658b25bd18b8c5a7d37f535aec94d4795c5aeb89685448d6d26cd91af135a207
+for: 7095729dd21ac87cd7b6a6bf004fc83d420452d17a8487477a8ce0c4f0ad1e4e
 
 ## Change
 Localize implement amendments to affected entries and historical evidence, preserving staged repairs during no-execution maintenance. Attribute retained failures by command/assertion/path plus corresponding repair evidence, not task membership. Preserve semantic inventory through failed apply and retry; keep grant, redraw and unrelated-regression stops and parent stamping. The local-amend-revalidation sample exercises these distinctions. Full model reports/results remain parent verification-owned.

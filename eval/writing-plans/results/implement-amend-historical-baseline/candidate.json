@@ -1,0 +1,110 @@
+{
+  "sample": "implement-amend-historical-baseline",
+  "arm": "candidate",
+  "skillSha": "d6cd7056b497af03c4beca0335cd8f817767dcf8e236f1e9b84c4cbd91a96e4c",
+  "inputSha": "aaf2c88edc8a0af7618c446fda0e2928b95a3b0625977ce35b8fb8a86a78b215",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Plan-writer: Amend-apply (implement-local)\n\n## Mode and scope\n\nThis run handles an implement-phase `Amend-apply:` block for one granted item: a meaning-preserving clarification of the `Config` section.\n\n- **Spec edit:** I write only the granted text into `## Config` of `/workspace/app/doc/specs/config.md`, using a full-file `write`. Every other spec section stays byte-identical.\n- **Plan edit:** I patch only what the line shift touches:\n  - Task 1's `**Spec:**` anchor\n  - Task 2's `**Spec:**` anchor\n  - the two matching `## Spec coverage` rows\n  - the header policy line\n\n  I do not regenerate the plan. Task ids, titles, the Wave 1 position, completed state, task bodies, `Tests:` commands and evidence are all unchanged.\n- **Commands:** I run no test command, because no command text changed and no evidence is missing or invalid. I run no endpoint-tree equivalence check and no rerun-all sweep.\n- **Workspace hygiene:** No stash, checkout, restore, clean or commit.\n\n## Status inventory (before and after)\n\nAll dirty paths are admitted, so nothing blocks the run.\n\n| Path | State | Why admitted |\n|---|---|---|\n| `doc/specs/config.md` | M | The spec, explicit parent `In-flight:` |\n| `src/config.mjs` | staged M | Explicit parent `In-flight:` |\n| `doc/plans/config.md` | M (by this write) | The plan path |\n\n- No unknown paths are present.\n- HEAD is `fed9876`.\n- The staged repair to `src/config.mjs` belongs to the existing wave task. It is preserved untouched: not committed, restored, discarded or labelled as clean HEAD. It stays in that task's gate loop.\n\n## Patched plan (`/workspace/app/doc/plans/config.md`)\n\n```markdown\n# Config validation — Implementation Plan\n\n**Spec:** doc/specs/config.md\n**Baseline home:** abc1234\n**Baseline policy:** implement-local\n**Verification:** `npm test`\n\nBaseline provenance: initial inventory abc1234 clean; Task 1 `node --test tests/config.test.mjs` executed at abc1234 (home, worktree /workspace/app, no admitted changes), derived pass via `node --test tests/config.test.mjs`, artifacts scratch/output.log. Task 2 `node --test tests/other.test.mjs` recorded at def5678 with tests/other.test.mjs absent (all anchors created).\nBaseline provenance: retained home | node --test tests/other.test.mjs | def5678 skipped - tests/other.test.mjs created by this task\nBaseline provenance: implement-local apply at fed9876; admitted In-flight doc/specs/config.md, src/config.mjs (staged, preserved); no commands changed, no execution performed.\n\n## Wave 1 — Validation\n\n### Task 1: Validate config\n\n**TDD scenario:** New feature — full TDD cycle\n\n**Spec:** doc/specs/config.md § \"Config\" L13-L15\n\n**Files:**\n- Modify: `src/config.mjs`\n- Test: `tests/config.test.mjs`\n\n**Tests:**\n- `node --test tests/config.test.mjs`\n- baseline: abc1234 pass via `node --test tests/config.test.mjs` - artifacts: scratch/output.log\n\n- [x] **Step 1: Write the failing test** … (original body, unchanged)\n- [x] **Step 2: Run test, confirm failure** — Run: `node --test tests/config.test.mjs` Expected: FAIL\n- [x] **Step 3: Write minimal implementation** … (unchanged)\n- [x] **Step 4: Run test, confirm pass** — Run: `node --test tests/config.test.mjs` Expected: PASS\n- [x] **Step 5: Format & lint the task's files** (unchanged)\n- [x] **Step 6: Commit** (unchanged)\n\n### Task 2: Validate other\n\n**TDD scenario:** New feature — full TDD cycle\n\n**Spec:** doc/specs/config.md § \"Other\" L23-L25\n\n**Files:**\n- Create: `tests/other.test.mjs`\n- Test: `tests/other.test.mjs`\n\n**Tests:**\n- `node --test tests/other.test.mjs`\n- baseline: def5678 skipped - tests/other.test.mjs created by this task\n\n- [x] Steps 1–6 (original body, unchanged)\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Config\" L13-L15 | validate config | Task 1 |\n| § \"Other\" L23-L25 | validate other config | Task 2 |\n```\n\n## Evidence retention\n\n| Task | Retained bullet | Notes |\n|---|---|---|\n| Task 1 | `- baseline: abc1234 pass via `node --test tests/config.test.mjs` - artifacts: scratch/output.log` | Kept byte-identically, including the pass-via and artifacts suffixes. Unchanged command, so no rerun. |\n| Task 2 | `- baseline: def5678 skipped - tests/other.test.mjs created by this task` | Historical skip, retained even though `tests/other.test.mjs` now exists. The path stays declared `Create:`. |\n\n- **Why Task 2's skip is allowed:** retention is valid only because two records match it by leg, exact command and exact value:\n  - the saved original inventory, which recorded the path as absent at `def5678`\n  - the `Baseline provenance: retained home | … | def5678 skipped - …` line\n- **What I did not do:** I invented no new skip and no new execution.\n- **Mixed SHAs:** `abc1234` and `def5678` are allowed under `implement-local`. Each value describes its own recorded revision and implies nothing about freshness at `fed9876`. The original `Baseline home: abc1234` declaration is preserved.\n\n## Saved apply report inventory (captured before editing, retained on every return)\n\nThe original inventory covers both tasks. Both sit in Wave 1 and are completed.\n\n| Field | Task 1 | Task 2 |\n|---|---|---|\n| Title | Validate config | Validate other |\n| Anchor | § \"Config\" L10-L12 | § \"Other\" L20-L22 |\n| Anchored obligation text | validate config | validate other config |\n| Full task body | captured | captured |\n| `Tests:` command | `node --test tests/config.test.mjs` | `node --test tests/other.test.mjs` |\n| Baseline bullet | captured verbatim | captured verbatim |\n\nThe report also records:\n- the original provenance notes\n- the pre- and post-apply status inventory and the admitted `In-flight:` paths\n- HEAD `fed9876`, with no execution tree used and no commands run\n- the new anchors (L13-L15 and L23-L25) and a semantic comparison showing identical obligations and work: pure offset shifts with meaning-preserving rewording only\n\nNo sidecar file is written. A retry would read this inventory back through `previousApplyReport`.\n\n## Self-check\n\n- `plan_check` passes on the saved plan, as observed: the mechanical checker otherwise passes.\n- The `implement-local` header is well-formed.\n- The retained-provenance line matches Task 2's bullet.\n- Anchors resolve to the amended spec.\n- Coverage closure holds.\n- There are no open questions.\n\n## Structured result\n\n```json\n{ \"amendedSections\": [\"Config\"], \"tasksAdded\": [], \"tasksAnchorChanged\": [], \"tasksRemoved\": [], \"passed\": true }\n```\n\n- `tasksAnchorChanged` is empty because both anchor moves are pure offsets with unchanged obligations, bodies and Tests. They are not semantic changes.\n\n## Parent handoff\n\nThe parent then:\n- runs the stamping `plan_check`\n- reconciles trackers, which need no change because no task was added, removed or semantically changed\n- leaves the staged `src/config.mjs` repair to the existing task gate loop\n- keeps the integrated gate, review and final verification mandatory\n\n## Contrast (not applied here)\n\n**Ordinary initial planning** would run Baseline steps 1-4 at `fed9876` and write no policy header:\n- The admitted in-flight `src/config.mjs` lies outside the spec and plan directories, so Baseline would collect `- Baseline: in-flight source edits on fed9876: src/config.mjs`.\n- It would run nothing and reply `OPEN QUESTIONS`.\n- On a clean tree it would require a uniform SHA across the leg.\n- Task 2's anchor now exists, so it would be run rather than skipped.\n\n**Explicit `Findings: rerun baseline`** would override this branch:\n- It would execute every command.\n- It would remove `**Baseline policy:** implement-local`.\n- It would restore ordinary uniform evidence at one SHA, with Task 2 executed rather than skipped.\n- It would preserve the historical inventory in the report.\n- It would still stop on the in-flight source edit under ordinary step 1.\n- Mode is never inferred from mixed SHAs.\n\nPLAN WRITTEN /workspace/app/doc/plans/config.md\n",
+      "words": 987,
+      "wallMs": 37673,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Implement-local patch\n\nApply only the granted meaning-preserving clarification in the spec’s Config section. Preserve every other spec section.\n\nPatch `/workspace/app/doc/plans/config.md` in place:\n\n- Add or retain the header `**Baseline policy:** implement-local`.\n- Retain `Baseline home: abc1234`.\n- Shift Task 1’s Config anchor from L10–L12 to L13–L15.\n- Shift Task 2’s Other anchor from L20–L22 to L23–L25.\n- Update corresponding coverage anchors.\n- Preserve task numbers, titles, completed state, Wave 1 positions, task bodies, Files and Tests. Neither clarification nor line movement changes either task’s obligation or work.\n\n### Evidence retention\n\nKeep the original command bullets and their baseline bullets byte-for-byte:\n\n**Task 1 — Validate config**\n```markdown\n- `node --test tests/config.test.mjs`\n- baseline: abc1234 pass via `node --test tests/config.test.mjs` - artifacts: scratch/output.log\n```\n\n**Task 2 — Validate other**\n```markdown\n- `node --test tests/other.test.mjs`\n- baseline: def5678 skipped - tests/other.test.mjs created by this task\n```\n\nAppend this exact historical-evidence entry to the existing provenance note, supported by the matching original inventory:\n\n```text\nBaseline provenance: retained home | node --test tests/other.test.mjs | def5678 skipped - tests/other.test.mjs created by this task\n```\n\nThe retained skip describes absence at `def5678`, not current existence. Do not execute it merely because the file now exists or remains declared Create. Do not restamp either bullet to `fed9876`, prove endpoint-tree equivalence, or run a baseline sweep.\n\nRecord the current inventory: HEAD `fed9876`, modified `doc/specs/config.md`, and staged modification `src/config.mjs`; both paths are explicitly admitted parent In-flight paths. No unknown paths block this maintenance. Preserve the staged repair without committing, restoring, discarding, or snapshotting it. With no execution needed, make no claim that tests passed on the current dirty tree.\n\n### Saved apply report\n\nBefore editing, preserve the original inventory in the existing saved apply report:\n\n- Both task numbers, titles, completed states and Wave 1 positions.\n- Original anchors, anchored obligation text, task bodies and Tests.\n- Original per-leg baseline declaration, exact command evidence and artifact suffix.\n- Task 2’s recorded absence at `def5678`.\n- Current revision and admitted per-file status inventory.\n\nRetain that original inventory on failure or retry; create no sidecar. Record the applied clarification, anchor shifts, unchanged semantic obligations and work, retained evidence, and passing mechanical-check result.\n\n### Parent handoff\n\nThe amendment result is below. No task is semantically changed by these anchor shifts, so all delta arrays are empty. The parent owns stamping and tracker reconciliation; existing completed task states remain intact. Integrated gates, review and final verification remain mandatory.\n\nOrdinary initial planning would instead follow ordinary Baseline rules and produce uniform per-leg evidence. Explicit `Findings: rerun baseline` would execute all commands, remove the implement-local header and restore ordinary uniform evidence while preserving historical inventory in the report. Neither mode applies here.\n\n```json\n{\n  \"amendedSections\": [\"Config\"],\n  \"tasksAdded\": [],\n  \"tasksAnchorChanged\": [],\n  \"tasksRemoved\": [],\n  \"passed\": true\n}\n```\n",
+      "words": 426,
+      "wallMs": 17758,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7020fe1be76ab89dba62a62e8e5b83bc697ee95f234997138829b2a0ab9059fd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cc71f2cea9e5d50487a24f4d950e23390e0be1fe4c7b6abe1eb7beb4543463a4",
+      "baselineOutputSha": "9814775ab8575b0cce3449be48237796584aa5865861606eb69d883265f676d4",
+      "candidateOutputSha": "6c21979e45d455a604ec8757768ecacbc0ff28b7af437b99cc6a98476d786b60",
+      "facts": {
+        "local": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "historical": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-refresh": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "semantic": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "gates": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moves all five facts to holds: it patches only the two Spec anchors, the two coverage rows and the policy header, writes `Baseline policy: implement-local`, keeps `Baseline home: abc1234` and both historical bullets byte-identical with their pass-via/artifacts and skipped suffixes, adds a matching `retained home | … | def5678 skipped` provenance line sourced from the original inventory, runs no equivalence check or command, leaves the staged `src/config.mjs` untouched, returns `tasksAnchorChanged: []` with the original obligations/bodies/Tests/positions captured in the existing apply report, and keeps plan_check, coverage closure and the parent stamping check ahead of tracker reconciliation while contrasting ordinary initial planning and `Findings: rerun baseline` as distinct branches. Before failed because it applied ordinary Baseline step 1 (blocked on the in-flight source edit), evaluated tree-equivalence, added an Open Questions block and told the parent to commit the staged repair before retrying, wrote no policy header or retained-skip line, and reported `tasksAnchorChanged: [1, 2]`. Two things to watch in After: the plan listing shows `**TDD scenario:**` lines and `**Verification:** npm test` that the case never states were in the original header — label these explicitly as `(unchanged from original)` or omit them so the 'unaffected text preserved' claim cannot be read as regeneration; and the policy header line is the only non-anchor edit, so state once that it is the only addition the mode requires, which keeps `local` unambiguous while delivering the implement-local policy.",
+      "wallMs": 32291,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7020fe1be76ab89dba62a62e8e5b83bc697ee95f234997138829b2a0ab9059fd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cc71f2cea9e5d50487a24f4d950e23390e0be1fe4c7b6abe1eb7beb4543463a4",
+      "baselineOutputSha": "31c7ff6a4ad5a43c84c4dc799bf56b1f7eede94dd481bfd88278fb006c492b5d",
+      "candidateOutputSha": "3e359fc619100661ebba7ab07499791eedd4b913b9c4d597e661acec544e8345",
+      "facts": {
+        "local": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "historical": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-refresh": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "semantic": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "gates": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before emitted only a delta JSON that treated the parent-declared In-flight staged repair as a blocking dirty path, reported tasksAnchorChanged [1, 2] for offset-only shifts, and described no patch, evidence retention, report inventory or gate handling, so every fact failed. After moves all five to holds: it patches only the two anchors plus coverage while preserving ids, titles, Wave 1, completed state and bodies; it writes the implement-local header, keeps both historical bullets byte-for-byte (derived-pass, skipped and artifact suffixes) and adds the retained def5678 skip provenance without restamping; it performs no equivalence proof or baseline sweep and leaves the staged repair untouched; it records original obligations/bodies/Tests/positions in the existing apply report and returns an empty tasksAnchorChanged; and it keeps the mechanical checker, coverage and parent stamping before reconciliation while explicitly contrasting ordinary initial planning and Findings: rerun baseline. No fact regressed. One minor tightening for the author: state the ordering 'parent stamp, then tracker reconciliation' explicitly rather than implying it, so the gates fact is unambiguous under stricter readings.",
+      "wallMs": 14200,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

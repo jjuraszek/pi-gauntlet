@@ -3,7 +3,6 @@ bundle+: skills/brainstorming/reference/legs.md
 bundle+: skills/subagent-driven-development/SKILL.md
 bundle+: agents/implementer.md
 bundle+: agents/wave-reviewer.md
-bundle+: agents/wave-reviewer.md
 bundle+: skills/writing-plans/reference/plan-contract.md
 bundle+: agents/plan-writer.md
 # Input

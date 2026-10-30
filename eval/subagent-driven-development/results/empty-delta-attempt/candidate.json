@@ -1,0 +1,70 @@
+{
+  "sample": "empty-delta-attempt",
+  "arm": "candidate",
+  "skillSha": "85d9dd012cadfe0d2e8001b611805d469051017a8b33e6361f501f0775e45655",
+  "inputSha": "949583285e823f4fe76ac49961eebf31a826421a46d76e3bb367e92661c7b851",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Next operation: empty repair delta, then escalated round for Task 1\n\n## 1. Classify the result\n\nThe repair returned `DONE`, but tree-before equals tree-after, so the `## Fix delta` is empty.\n\n- **No re-review.** The unchanged tree is not sent back to the wave-reviewer.\n- **Count one failed attempt.** `failed[1]` goes from 1 to 2.\n- **No convergence exception.** That exception applies only when a `CONVERGING` re-review produces `failed[n] == 2`. Here an empty delta produced it.\n- **Escalate.** Per the transition table, `failed[1] == 2` with `escalated[1]` unset leads to the escalated round with `model: <implModel>`.\n- **Tracker.** Indices for Task 1 and Task 2 stay `in_progress`.\n\nPrint the observation, filling `<w>`, `<k>` and paths only from the actual return:\n\n```text\nwave <w> repair <k> task 1 DONE report <REPORT_DIR>/wave<w>-repair<k>-task1.md delta <Artifacts dir>/worktree-diffs/step-0/task-0-implementer.patch applied <yes|no as observed>\nescalated round for task 1 after 2 failed attempts\n```\n\n## 2. Remove the spent repair-base worktree\n\nUse the `RP_TREE` path printed by the earlier `repair-base:` observation. Do not invent it.\n\n```bash\ngit -C '/workspace/project' worktree remove --force '<RP_TREE from prior repair-base: line>'\n```\n\n## 3. Resolve the escalation model\n\n```ts\ngauntlet_setting({ key: \"escalationLoop\" })\n```\n\n- If `implModel` is undefined, or the tool is unavailable, issue a hard stop with a stop note. Do not dispatch.\n- Otherwise, pass the `implModel` string verbatim.\n\n## 4. Build a fresh repair base\n\nThis assumes the wave is isolated. The base still contains every integrated patch and every applied delta.\n\n<!-- repair-base-shell -->\n```bash\nRP_ROOT='/workspace/project'\nRP_BASE='1111111111111111111111111111111111111111'\nRP_DIR=$(mktemp -d) || exit 1\nRP_TREE=\"$RP_DIR/tree\"\ngit -C \"$RP_ROOT\" add -A || exit 1\ngit -C \"$RP_ROOT\" diff --binary --cached \"$RP_BASE\" > \"$RP_DIR/integrated.patch\" || exit 1\ngit -C \"$RP_ROOT\" worktree add --detach \"$RP_TREE\" \"$RP_BASE\" || exit 1\nif [ -s \"$RP_DIR/integrated.patch\" ]; then git -C \"$RP_TREE\" apply --index \"$RP_DIR/integrated.patch\" || exit 1; fi\ngit -C \"$RP_TREE\" -c user.name=gauntlet -c user.email=gauntlet@local commit -q --allow-empty -m \"wave integrated snapshot\" || exit 1\nprintf 'repair-base: %s %s\\n' \"$RP_TREE\" \"$(git -C \"$RP_TREE\" rev-parse HEAD)\"\n```\n\n- On a nonzero exit, stop and keep `RP_DIR` for diagnosis.\n- If the manifest says `\"mode\":\"in-place\"`, skip this recipe. Instead use `cwd: '/workspace/project'`, no `worktree:`, and the wave union of tests.\n\n## 5. Escalated one-step carrier\n\nThis dispatch runs in the foreground, is schema-bound and file-only. It omits `context` because it is an escalated repair implementer.\n\n```ts\nsubagent({ async: false, cwd: \"<RP_TREE from repair-base: line>\",\n  chain: [{ parallel: [\n    { agent: \"implementer\", model: \"<implModel verbatim from gauntlet_setting>\",\n      output: \"<REPORT_DIR>/wave<w>-escalated-task1.md\", outputMode: \"file-only\",\n      outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      task: \"planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 1:; Spec: /workspace/project/doc/specs/feature.md; Leg: <owning leg if any>; Rules: <combined task/leg Rules if any>; SCOPED_TEST_COMMANDS: <Task 1 manifest tests verbatim, or none>.\\n\\n## Previous review report (re-review trigger)\\n<prior wave-reviewer report path>\\nYour fix changed no tracked file. Read the saved report yourself and resolve its FIX_FIRST findings attributed to Task 1 with actual tracked changes. pi-cohort saves your final report; do not write it yourself.\" }\n  ], worktree: true,\n     stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } }]\n})\n```\n\n## 6. Stop here\n\nI have not invented the dispatch result. When it returns, continue as follows:\n\n1. Print the `wave <w> repair ...` observation.\n2. Apply the `Artifacts:` delta with `git -C '/workspace/project' apply --index <delta>`, then run `worktree remove --force` on the new `RP_TREE`.\n3. Run `git -C '/workspace/project' add -A`, then check `diff --stat` for emptiness.\n4. Record the review tree with the fix-delta-tree shell.\n5. Re-run Task 1's test gate.\n6. If the gate is green, dispatch one `wave-reviewer` re-review. It carries the prior report path, the `## Fix delta` tree pair, `BASE_SHA: 1111111111111111111111111111111111111111` and `HEAD_SHA: WORKTREE`.\n7. If the escalated round fails, move to a funded round if the ledger has one left. Otherwise, write a stop note.\n",
+      "words": 578,
+      "wallMs": 25939,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The empty tracked delta counts as one failed attempt: `failed[1]` becomes **2**. Do **not** dispatch a re-review of the unchanged tree. Task 1 remains `in_progress`.\n\nThe next operation is execution escalation—not another ordinary repair.\n\n```bash\ncd /workspace/project &&\nprintf '%s\\n' 'escalated round for task 1 after 2 failed attempts'\n```\n\nThen resolve the escalation configuration:\n\n```ts\ngauntlet_setting({ key: \"escalationLoop\" })\n```\n\n**Stop here pending that result.** No `implModel`, previous-review report path, or Task 1 scoped-test array was supplied. Do not invent them or launch a worker.\n\nOnce those prerequisites are available, the escalated repair uses the prescribed repair-base snapshot and this foreground, schema-bound carrier. The variables below must contain actual observed values, not placeholders substituted with guesses:\n\n```ts\nsubagent({\n  async: false,\n  cwd: repairBaseTree, // Actual RP_TREE printed by the repair-base recipe\n  chain: [{\n    parallel: [{\n      agent: \"implementer\",\n      model: escalationLoop.implModel, // Pass the resolved string verbatim\n      output: `${reportDir}/wave1-task1-escalated.md`,\n      outputMode: \"file-only\",\n      outputSchema: {\n        type: \"object\",\n        required: [\"status\", \"reasoning\"],\n        additionalProperties: false,\n        properties: {\n          status: {\n            type: \"string\",\n            enum: [\"DONE\", \"DONE_WITH_CONCERNS\", \"NEEDS_CONTEXT\", \"BLOCKED\"]\n          },\n          reasoning: { type: \"string\", maxLength: 300 },\n          concerns: { type: \"array\", items: { type: \"string\" } },\n          question: { type: \"string\" },\n          anchorUnreadable: { type: \"string\" },\n          measured: { type: \"object\" }\n        },\n        allOf: [\n          {\n            if: { properties: { status: { const: \"DONE_WITH_CONCERNS\" } } },\n            then: { required: [\"concerns\"] }\n          },\n          {\n            if: { properties: { status: { const: \"NEEDS_CONTEXT\" } } },\n            then: { required: [\"question\"] }\n          }\n        ]\n      },\n      task: [\n        \"planPath: /workspace/project/doc/plans/feature.md\",\n        \"anchor: ### Task 1:\",\n        \"Spec: /workspace/project/doc/specs/feature.md\",\n        `SCOPED_TEST_COMMANDS: ${JSON.stringify(task1ScopedTests)}`,\n        \"Read the selected task, cited Spec ranges, Files, Tests, and combined Rules yourself.\",\n        \"Your fix changed no tracked file. Repair the outstanding findings.\",\n        \"## Previous review report\",\n        previousReviewReport,\n        \"Read that saved report yourself; do not ask another child to relay it.\",\n        \"Return DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED explicitly.\",\n        \"pi-cohort saves your final report; do not write it yourself.\"\n      ].join(\"\\n\")\n    }],\n    worktree: true,\n    stopOn: {\n      path: \"/status\",\n      in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"]\n    }\n  }]\n})\n```\n\nThis carrier is **not dispatched**: escalation configuration and the remaining dispatch prerequisites have not been observed.\n",
+      "words": 288,
+      "wallMs": 21265,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a564d420a27a0a73ff9b611f37b71ac95c3a02a0a4672e915775a03dc0a4c097",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2057fa1d45d7779f9a651e5d12dae50e16b73027b3448d1918b14c5fbcdd9d65",
+      "baselineOutputSha": "c491af55241a895d423a0540115a63c4faeda3269d87c3162ec228236dc230f6",
+      "candidateOutputSha": "8abf2fc855b2f5d6e879e5498392c09697156bab68e192d1262f4379ab850ba8",
+      "facts": {
+        "protocol": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before gets the first two legs right (empty delta counted as failed attempt 1→2, no unchanged-tree re-review) but then explicitly refuses the third: it says it will not resend the prior report with 'your fix changed no tracked file' because that would be a third attempt, and at failed==2 it routes through a delegated Amend-grant read with STOP-and-report as the likely outcome rather than resolving to an execution escalation; so Before fails the fact as written. After holds it: it counts the empty delta as one failed attempt, dispatches no re-review, resolves failed[1]==2 with escalated[1] unset into the escalated round via the transition table and gauntlet_setting implModel, and the escalated carrier resends the prior wave-reviewer report path with 'Your fix changed no tracked file'. Nothing in After moved this fact the wrong way; keep the transition-table escalation on the current integrated tree without a grant gate, and keep the 'Previous review report (re-review trigger)' block with the no-tracked-file line in the escalated carrier, since dropping either would reintroduce Before's grant-first stop or its refusal to resend.",
+      "wallMs": 13439,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a564d420a27a0a73ff9b611f37b71ac95c3a02a0a4672e915775a03dc0a4c097",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2057fa1d45d7779f9a651e5d12dae50e16b73027b3448d1918b14c5fbcdd9d65",
+      "baselineOutputSha": "737fba5c0a4a48111c9e6e64d4634f3104b6b215904a12334284a14629975d47",
+      "candidateOutputSha": "d6eb5a98241548af638f92f6b414d4e4dc3d7dad2121aa3c2d4e064f06797e58",
+      "facts": {
+        "protocol": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Both outputs count the empty delta as Task 1's second failure, refuse an unchanged-tree re-review, and promise to resend the prior report with 'your fix changed no tracked file'. Where they differ is the final clause: Before stops at 'do not dispatch a third ordinary repair' and says routing 'depends on reference/fix-loop.md, current amendment permission, and escalation configuration', so it never actually resolves execution escalation as the next operation — a careful reader sees an indeterminate stop, not an escalation decision. After names 'execution escalation—not another ordinary repair' explicitly, issues the gauntlet_setting read for escalationLoop as the concrete next command, and shows the one-step schema-bound file-only carrier (with the previous report and the no-tracked-file instruction) while clearly marking it as not dispatched pending observed prerequisites. That is the wording that satisfies the fact; keep the explicit naming of escalation at the threshold, the concrete settings-read command, and the 'not dispatched / do not invent values' guards, since those also preserve the no-invented-outcomes constraint that Before relied on.",
+      "wallMs": 17313,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

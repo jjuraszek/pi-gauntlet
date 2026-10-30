@@ -1,0 +1,126 @@
+{
+  "sample": "partial-wave-ship",
+  "arm": "candidate",
+  "skillSha": "d89fe7c03af0185c760c12417c38943f39c424d6252427d19205b801f370f96b",
+  "inputSha": "8a4620b5c3802deb1b41fd6f17da1eb147d0cf814962a5a87d740c1386703861",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Next read requested:** `/workspace/project/plan.md`. This is an anchored dispatch, so I read the task section before anything else. I then used only the supplied observations.\n\n**Anchor resolution:**\n- `### Task 4:` matches the heading `### Task 4: Default flag`. It does not match `### Task 40: Decoy`.\n- The section ends at `## Wave 2`.\n- Task text:\n  - Leg: `worker`\n  - Spec: `Acceptance criteria L1; Design L9`\n  - Files: Create `flag.mjs`, Test `flag.test.mjs`\n  - Tests: `node --test flag.test.mjs`\n  - via: `defaultFlag`\n\n**Rules:**\n- The combined rules are `task-rules.md` (from the task) plus `worker-rules.md` (from the spec's `### Leg: worker` entry). Both are resolved in `/workspace/project`.\n- Both say: keep the function pure, and no extra exports.\n- `wrong-rules.md` (the `home` leg) does not apply, because the task names `Leg: worker` explicitly.\n\n**Spec slice read:** Acceptance criteria L1 and Design L9 only.\n\n---\n\n```\nVerdict: SHIP\nReasoning: The only in-slice clauses (AC L1 and Design L9) are met by flag.mjs, and the single assert-based self-check proves the committed observable with no findings.\nConfidence: high\n\nClauses:\n| Clause | Status | Evidence |\n|---|---|---|\n| C1: defaultFlag() returns false (AC L1) | met | flag.mjs:1; flag.test.mjs:3. spec-condition: \"defaultFlag() returns false.\" code-condition: flag.mjs:1 `return false;` |\n| C2: Keep: defaultFlag() is pure (Design L9; task-rules.md, worker-rules.md) | met | flag.mjs:1 has no parameters, no I/O, no state, and a constant return |\n| C3: Keep: no other exports (Design L9; task-rules.md, worker-rules.md) | met | flag.mjs:1 is the sole statement and sole export. spec-condition: \"has no other exports\" code-condition: flag.mjs:1 exports only `defaultFlag` |\n| C4: Files: Create flag.mjs, Test flag.test.mjs; via: defaultFlag | met | Both files were added in the diff; flag.test.mjs:1 imports `defaultFlag` from './flag.mjs' |\n| C5: Tests entry point: node --test flag.test.mjs | met | flag.test.mjs exists at the named path as an assert-based self-check (flag.test.mjs:2-3) |\n\nFindings: none\n\nNotes (outside findings):\n  - Test economy: flag.test.mjs:3 proves AC L1. It is also the single assert-based self-check, so it is exempt from delete/shrink.\n  - Later-wave clauses (AC L2, Design L10, owned by Task 5 in Wave 2) are not rows. The absence of later.mjs is expected and is not unmet.\n  - Task 40 (Decoy, Design L20, wrong.mjs) is outside the anchor and was not reviewed.\n  - Both whole-file observations (flag.mjs, flag.test.mjs) were read in full.\n  - The implementer report was read and was not treated as authority.\n\nVerification: SCOPED_TEST_COMMANDS: none. No commands were supplied, so none were run. Test execution belongs to the orchestrator gate.\n```\n\n```json\n{\n  \"verdict\": \"SHIP\",\n  \"reasoning\": \"The only in-slice clauses (AC L1 and Design L9) are met by flag.mjs, and the single assert-based self-check proves the committed observable with no findings.\",\n  \"findingCount\": 0,\n  \"findings\": { \"critical\": 0, \"moderate\": 0, \"minor\": 0 },\n  \"touchedTasks\": [4],\n  \"clauses\": [\n    { \"clause\": \"C1: defaultFlag() returns false (AC L1)\", \"status\": \"met\", \"evidence\": \"flag.mjs:1 `return false;`; flag.test.mjs:3\" },\n    { \"clause\": \"C2: Keep: defaultFlag() is pure (Design L9)\", \"status\": \"met\", \"evidence\": \"flag.mjs:1 constant return, no I/O or state\" },\n    { \"clause\": \"C3: Keep: no other exports (Design L9)\", \"status\": \"met\", \"evidence\": \"flag.mjs:1 sole export defaultFlag\" },\n    { \"clause\": \"C4: Files: Create flag.mjs, Test flag.test.mjs; via: defaultFlag\", \"status\": \"met\", \"evidence\": \"diff adds both files; flag.test.mjs:1 imports defaultFlag\" },\n    { \"clause\": \"C5: Tests entry point: node --test flag.test.mjs\", \"status\": \"met\", \"evidence\": \"flag.test.mjs:2-3 assert-based self-check at named path\" }\n  ]\n}\n```\n",
+      "words": 493,
+      "wallMs": 18667,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next file read I would request: `/workspace/project/plan.md`, selecting the exact `### Task 4:` section through the next level-two or level-three heading—not `### Task 40:`.\n\nI will use only the supplied observations, including Task 4’s cited spec clauses and its combined rules from `task-rules.md` and the `worker` leg’s `worker-rules.md`.\n\n\nVerdict: SHIP\nReasoning: Task 4 satisfies its cited requirements and combined rules, while Task 5 correctly remains outside this wave.\nConfidence: high\n\nClauses:\n| Clause | Status | Evidence |\n|---|---|---|\n| C1: `defaultFlag()` returns false. | met | spec-condition: “defaultFlag() returns false.” code-condition: `flag.mjs:1` returns literal `false`; `flag.test.mjs:3` asserts that result. |\n| C2: Keep `defaultFlag()` pure. | met | `flag.mjs:1` returns a constant without side effects or external dependencies, satisfying Design L9 and both supplied rules files. |\n| C3: Keep no other exports. | met | The complete `flag.mjs:1` exports only `defaultFlag`, satisfying Design L9 and both supplied rules files. |\n\nFindings:\nNone.\n\nPlan fidelity: The requested `flag.mjs` and `flag.test.mjs` exist at the exact paths. The test imports the function and checks its committed observable behavior. Its assert-based self-check is appropriately minimal. Task 40 is not selected; Task 5 and the absence of `later.mjs` are outside this wave.\n\nVerification:\n`SCOPED_TEST_COMMANDS: none`. No commands were run, and there is no execution output to quote. The task’s `Tests:` metadata does not authorize execution; the orchestrator gate owns it. Both diff-touched files were reviewed in full using the supplied observations.\n\n```json\n{\n  \"verdict\": \"SHIP\",\n  \"reasoning\": \"Task 4 satisfies its cited requirements and combined rules, while Task 5 correctly remains outside this wave.\",\n  \"findingCount\": 0,\n  \"findings\": {\n    \"critical\": 0,\n    \"moderate\": 0,\n    \"minor\": 0\n  },\n  \"touchedTasks\": [4],\n  \"clauses\": [\n    {\n      \"clause\": \"C1: defaultFlag() returns false.\",\n      \"status\": \"met\",\n      \"evidence\": \"spec-condition: “defaultFlag() returns false.” code-condition: flag.mjs:1 returns literal false; flag.test.mjs:3 asserts that result.\"\n    },\n    {\n      \"clause\": \"C2: Keep defaultFlag() pure.\",\n      \"status\": \"met\",\n      \"evidence\": \"flag.mjs:1 returns a constant without side effects or external dependencies, satisfying Design L9 and both supplied rules files.\"\n    },\n    {\n      \"clause\": \"C3: Keep no other exports.\",\n      \"status\": \"met\",\n      \"evidence\": \"The complete flag.mjs:1 exports only defaultFlag, satisfying Design L9 and both supplied rules files.\"\n    }\n  ]\n}\n```\n",
+      "words": 322,
+      "wallMs": 13257,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a4e997b8a670c7f85491e136c2d4c8635a57c86e9ecd509730ed1e4d54091258",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e8582c084d5cb5ce7de1415bda9246c10b1b029cd16c66c22e9e875ba9e97c2a",
+      "baselineOutputSha": "b019c991a4eb84ed4247cfda2dd9152bff819023b950df5024ea63741050bcec",
+      "candidateOutputSha": "2d0fa47fe747c280cf57946f68388a9e4f511e5d71a5f00cfbb90d313f363001",
+      "facts": {
+        "slice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "clauses": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ship": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rules": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-behaviour": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-boolean": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change on this sample without regressing anything Before kept. Before resolved the anchor and rules correctly and excluded Task 40 and Task 5, but it never rendered clause rows with a met status (only a contract table plus ✅ bullets), emitted APPROVE rather than SHIP, and its structured output lacked findingCount and a clauses array, so 'clauses' and 'ship' failed. After moves both to holds: it renders a Clause/Status/Evidence table where every wave-one row is 'met' with flag.mjs:1 or flag.test.mjs:3 evidence, explicitly states that AC L2/Design L10/later.mjs are not rows and not unmet, emits SHIP in both the report and JSON with findingCount 0 and all three severity counts 0, and the JSON clauses mirror the table. The slice and rules facts are preserved intact (task-rules.md + worker-rules.md, wrong-rules.md rejected, Task 40 and Task 5 excluded). One small wording note: the test-economy note calls the single assert exempt from delete/shrink while the Change says test economy applies to anchor-less callers; keeping that note out of anchored reviews would avoid confusion without affecting any fact here.",
+      "wallMs": 17350,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a4e997b8a670c7f85491e136c2d4c8635a57c86e9ecd509730ed1e4d54091258",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e8582c084d5cb5ce7de1415bda9246c10b1b029cd16c66c22e9e875ba9e97c2a",
+      "baselineOutputSha": "3e476a794f67044ec04069458b4dc8a849e55a9758ac48fea1f19c4af993c3e9",
+      "candidateOutputSha": "2f6ccfdc23879a560e88885c3e60050e51c1fd5b20a6968cdef015f19e81682d",
+      "facts": {
+        "slice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "clauses": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ship": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rules": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-behaviour": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-boolean": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps everything Before kept (Task 4 selected over the Task 40 decoy, Task 5 excluded, task-rules.md plus worker-rules.md used instead of wrong-rules.md) and delivers the intended moves: it renders three met clause rows anchored on flag.mjs:1 and flag.test.mjs:3 with no row or unmet finding for laterFlag/later.mjs/L20, and emits SHIP in both report and JSON with findingCount 0 and all three severity counts zero and no invented missing-test or scope-creep finding. No fact regressed. One minor tightening worth considering: the JSON severity keys are critical/moderate/minor while the prose section is just 'Findings: None'—if the skill text names the three severities, make sure the wording pins the exact key names so future runs mirror them consistently; otherwise the After wording is sound for this case.",
+      "wallMs": 11268,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

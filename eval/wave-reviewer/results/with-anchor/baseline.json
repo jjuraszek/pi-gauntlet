@@ -1,0 +1,40 @@
+{
+  "sample": "with-anchor",
+  "arm": "baseline",
+  "skillSha": "aa04a4f3b2e8c75884c259daed7d85e1ca61526f7df6028513eb75bb3fdfcee5",
+  "inputSha": "d7c3401aee8cb1b59bfdf67e98868154794d866e5450a78b78ed03cf3ae97475",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Wave Review: Task 4 (Default flag)\n\n## Next read request\n\nFor this anchored dispatch, the first file I would request is:\n\n**`/workspace/project/plan.md`**\n\nI need it to find the exact `### Task 4:` heading and the boundary of that slice. The plan observation was supplied, so I use it below. The anchor-less template from requesting-code-review does not apply, because this dispatch has an anchor.\n\n## Scope resolution\n\n- **Anchor `### Task 4:`** matches only `### Task 4: Default flag`.\n  - `### Task 40: Decoy` does not match the anchor. It is out of scope, along with `wrong.mjs` and L11.\n  - The slice ends at `## Next wave`, so `wrong-wave.mjs` is out of scope.\n- **Leg:** worker. The spec's `### Leg: worker` points to `worker-rules.md`. The `home` leg and `wrong-rules.md` do not apply.\n- **Rules:** The task cites `task-rules.md`, and the leg cites `worker-rules.md`. Both say the same thing: keep the function pure, and add no extra exports.\n- **Spec clauses:** Design L9 and L10. The spec controls here. The task prose leaves out the true-argument requirement, but the task cites L10, so L10 is binding.\n- **Entry point:** `defaultFlag` (from the `via:` line).\n- **Test command:** The plan says `node --test flag.test.mjs`. `SCOPED_TEST_COMMANDS` is `none`. I did not run any command. All test conclusions below come from static reading only.\n- **Implementer report:** It claims the task is complete and the tests passed. I treat this as an unverified claim, not evidence.\n\n## Clause rows\n\n| # | Clause | Source | Evidence | Status |\n|---|---|---|---|---|\n| C1 | `defaultFlag()` returns `false` with no arguments | Spec L9 | `flag.mjs:1` returns `false` unconditionally. `flag.test.mjs:3` asserts this case. | ✅ Met |\n| C2 | `defaultFlag(true)` returns `true` | Spec L10 | `flag.mjs:1` takes no parameter and always returns `false`, so `defaultFlag(true)` returns `false`. | ❌ Not met |\n| C3 | Create `flag.mjs` | Plan Files | The diff adds `flag.mjs`. | ✅ Met |\n| C4 | Test file `flag.test.mjs` | Plan Files | The file exists but is unchanged in the diff. It covers only L9 and has no assertion for L10. | ⚠️ Partial |\n| C5 | Entry point is `defaultFlag` | Plan `via:` | `flag.mjs` exports `defaultFlag`. `flag.test.mjs:1` imports it. | ✅ Met |\n| C6 | Function stays pure | task-rules / worker-rules | No side effects or external state in `flag.mjs:1`. | ✅ Met |\n| C7 | No extra exports | task-rules / worker-rules | `flag.mjs` contains only one export. | ✅ Met |\n| C8 | Tests run via `node --test flag.test.mjs` | Plan Tests | Not executed. The pass claim comes only from the report. | ⚪ Unverified |\n\n## Findings\n\n### F1: Critical. Spec L10 is not implemented.\n`flag.mjs:1`: `export function defaultFlag() { return false; }`\n\nThe function declares no parameter and always returns `false`. Spec L10 requires `defaultFlag(true)` to return `true`. The task prose omits this requirement, but it cites L9-L10, and the spec is authoritative.\n\n**Fix:** Accept a parameter and return it, with a default of `false`. For example: `export function defaultFlag(value = false) { return value; }`. This keeps the function pure and keeps a single export.\n\n### F2: Important. Tests do not cover L10.\n`flag.test.mjs` asserts only `defaultFlag() === false` (line 3). The diff shows the file unchanged, so the task did not add coverage for the cited L10 clause. If the plan's test command were run, it could pass while F1 remains unfixed. Even if it were true, the report's \"tests passed\" claim would not show the task is complete.\n\n**Fix:** Add `assert.equal(defaultFlag(true), true);` to `flag.test.mjs`.\n\n## Verdict\n\n**Changes requested.** There is 1 critical and 1 important finding. The no-argument path (L9), entry point, purity, and export rules are all met. However, the implementation fails cited spec clause L10, and the test file does not cover it. The implementer report's completion and pass claims are not supported by the supplied evidence.\n\n```json\n{\n  \"verdict\": \"changes_requested\",\n  \"findings\": {\n    \"critical\": 1,\n    \"important\": 1,\n    \"minor\": 0\n  }\n}\n```\n",
+      "words": 573,
+      "wallMs": 20239,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next file read requested: `/workspace/project/plan.md`, to locate the exact `### Task 4:` anchor and determine its scope.\n\n## Review — Task 4: Default flag\n\n**Verdict: Changes requested.**\n\nReviewed only the supplied observations. The exact Task 4 section—not Task 40—covers `flag.mjs` and `flag.test.mjs`, cites Design L9–L10, and ends before `## Next wave`. Both task rules and worker-leg rules apply. The cited specification remains authoritative despite the omitted true-argument requirement in the task prose.\n\n### Clause rows\n\n| Requirement | Evidence | Assessment |\n|---|---|---|\n| Design L9: `defaultFlag()` returns `false` | `flag.mjs:1` returns `false`; `flag.test.mjs:3` asserts this case | Satisfied by inspection |\n| Design L10: `defaultFlag(true)` returns `true` | `flag.mjs:1` unconditionally returns `false`; the complete test file has no true-argument assertion | **Not satisfied** |\n| Task and worker rules: keep the function pure | The complete implementation contains no side effects | Satisfied by inspection |\n| Task and worker rules: no extra exports | Only `defaultFlag` is exported | Satisfied |\n| File contract and test entry point | `flag.mjs` was added; the existing `flag.test.mjs` imports it and checks the default case | Files present; required true-argument behavior is not covered |\n\n### Finding\n\n**P2 — Honor the explicitly supplied `true` argument**  \n**Location:** `/workspace/project/flag.mjs:1`\n\n`defaultFlag` always returns `false`, so `defaultFlag(true)` violates Design L10. Task 4 explicitly cites L9–L10; the omission from its prose does not remove that requirement.\n\nUpdate the function to satisfy both specified calls, and add an assertion for `defaultFlag(true)` to `flag.test.mjs`. The current test checks only the no-argument case and cannot detect this defect.\n\n### Verification limits\n\nNo commands or tests were executed. The implementation report’s completion and passing-test claims were not treated as proof.\n\nThe persona contract’s contents were not supplied, so its exact JSON schema cannot be verified. The minimal structured summary is:\n\n```json\n{\n  \"verdict\": \"changes_requested\",\n  \"finding_counts\": {\n    \"total\": 1,\n    \"P2\": 1\n  }\n}\n```\n",
+      "words": 275,
+      "wallMs": 17788,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

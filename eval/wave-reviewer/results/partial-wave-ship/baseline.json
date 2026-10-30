@@ -1,0 +1,40 @@
+{
+  "sample": "partial-wave-ship",
+  "arm": "baseline",
+  "skillSha": "aa04a4f3b2e8c75884c259daed7d85e1ca61526f7df6028513eb75bb3fdfcee5",
+  "inputSha": "8a4620b5c3802deb1b41fd6f17da1eb147d0cf814962a5a87d740c1386703861",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Wave Review: Wave 1 (Task 4)\n\n**Next read requested:** `/workspace/project/plan.md` (the dispatch's `planPath`), to resolve the anchor `### Task 4:` and identify the task block for this anchored dispatch.\n\n**Dispatch mode:** This dispatch is anchored, so I did not use the requesting-code-review template for anchor-less dispatches.\n\n## Anchor Resolution\n\n- `### Task 4:` matches exactly one heading: **Task 4: Default flag**.\n- **Task 40: Decoy** shares the prefix but does not match the anchor. I excluded it, along with its `Design L20` and `wrong.mjs`.\n- **Task 5: Later flag** is in Wave 2, which is outside this review. The missing `later.mjs` is therefore expected and is not a finding.\n\n## Task 4 Contract\n\n| Item | Source | Requirement |\n|---|---|---|\n| Acceptance criteria L1 | spec.md | `defaultFlag()` returns `false`. |\n| Design L9 | spec.md | `defaultFlag()` is pure and has no other exports. |\n| Rules | task-rules.md (task-level); leg `worker` resolves to worker-rules.md, not the `home` leg's wrong-rules.md | Keep the function pure. No extra exports. |\n| Files | plan.md | Create `flag.mjs`. Test file: `flag.test.mjs`. |\n| Tests | plan.md | `node --test flag.test.mjs` |\n| via | plan.md | `defaultFlag` |\n\n## Verification Against Observations\n\n- **Files:** The diff adds exactly `flag.mjs` and `flag.test.mjs`. This matches the plan, with no stray files.\n- **L1:** `flag.mjs:1`, `export function defaultFlag() { return false; }`, returns `false`. ✅\n- **L9 / Rules (purity):** The function has no inputs, side effects, or external state. ✅\n- **L9 / Rules (single export):** The whole-file observation shows `flag.mjs` is one line with a single export, `defaultFlag`. ✅\n- **via:** The test reaches the behavior through `defaultFlag`, imported at `flag.test.mjs:1`. ✅\n- **Test content:** `flag.test.mjs:3`, `assert.equal(defaultFlag(), false);`, asserts L1 directly with strict assertion (`flag.test.mjs:2`). ✅\n- **Implementer report:** The claims that Task 4 is complete and Task 5 belongs to Wave 2 are consistent with the plan and the diff.\n\n## Test Execution\n\nI did not run any tests or git commands. `SCOPED_TEST_COMMANDS` is `none`, and I have no live tools. My assessment of `node --test flag.test.mjs` comes from reading the file only. The file is a top-level assertion module that would fail only if the assertion throws, and from reading, it should not.\n\n## Findings\n\n- Critical: 0\n- Important: 0\n- Minor: 0\n\n## Verdict\n\n**APPROVE.** Wave 1 (Task 4) satisfies Acceptance criteria L1, Design L9, and the task rules. Task 5 is deferred to Wave 2 and is out of scope here.\n\n```json\n{\n  \"verdict\": \"APPROVE\",\n  \"findings\": {\n    \"critical\": 0,\n    \"important\": 0,\n    \"minor\": 0\n  }\n}\n```\n",
+      "words": 366,
+      "wallMs": 16878,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next file read requested: `/workspace/project/plan.md`, to resolve the exact `### Task 4:` anchor and its wave scope.\n\n\n## Wave 1 review — PASS\n\nNo findings.\n\n- Resolved the exact `### Task 4:` anchor, not the `Task 40` decoy.\n- `defaultFlag()` returns `false`, is pure, and is the only export, satisfying the cited acceptance criterion, design constraint, and task/worker rules.\n- The supplied test directly checks the required return value.\n- Task 5 belongs to wave 2; the absence of `later.mjs` is not a wave 1 defect.\n\nReview is based solely on the supplied observations. No tests or git commands were run.\n\n```json\n{\n  \"verdict\": \"PASS\",\n  \"finding_counts\": {\n    \"critical\": 0,\n    \"important\": 0,\n    \"minor\": 0\n  }\n}\n```\n",
+      "words": 103,
+      "wallMs": 12018,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}
