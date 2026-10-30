@@ -1,4 +1,4 @@
-for: d6faf3b45479c6d117e2f27683043b1a4c56334334ad69aaa2f21ae7bc866bb8
+for: f8d3769c43d09db984f63d7c5667b89fb4f9444d31b89e8689e2d80b506e7fe2
 
 ## Change
 Continue authorized waves execution failures without changing review funding. Include When a Subagent Fails in the first slice. Take named in-task decisions within remaining attempts, stop on repeated evidence, and spend one isolated configured-model execution escalation after two failed attempts. Recover that exact task/site from the transcript fail-closed; grants and retry never re-arm it. Treat implementer-evidenced drafted-row text corrections as granted amendments, not redraws; preserve ticket/reviewer-only/add-remove/problem/component redraws. Every stop note ends in Recommendation. Preserve all review funding, convergence and lifecycle facts. These are intended movements, not observed model results; parent verification runs the full target and generates reports.
