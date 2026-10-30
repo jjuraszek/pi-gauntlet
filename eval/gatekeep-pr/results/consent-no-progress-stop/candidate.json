@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "04a1db7b974bb73e5d86126a890c13dded2120df82a1eb5e2bab22eca26ecfb5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "458b2740577014f0bcddb325291f7fd8cb120aac26dbf81b82db92f8933d98ad",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "94f2bd3eae0371a93f66f1c232a955492f0460774668f18d93586eb53d4ce826",
       "candidateOutputSha": "94f2bd3eae0371a93f66f1c232a955492f0460774668f18d93586eb53d4ce826",
       "facts": {
         "f4": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs reach `stuck - no progress` from the unchanged failed scoped-test prerequisite and still-open P1, both state explicitly that CI run 910 does not exercise the mechanism and cannot clear the obstacle, and both dispatch no implementer, watch, sync or push. After additionally leads with the `gauntlet: gate=gatekeep-pr/obstacle recommended=3` line and prefixes the verdict with `not ready -`, which keeps the obstacle explicit rather than drifting toward readiness. The only wording risk in After is the deliver row's \"retries only once its failed test input or payload changes\" — it preserves the no-silent-retry meaning, but if you want it airtight, name the full set of inputs (source, payload, test, command, base) as Before did, so a reader cannot infer that a retry could fire on CI or head freshness alone.",
-      "wallMs": 8596,
+      "feedback": "After is byte-for-byte identical to Before for this case, so nothing moved: both outputs run the exit check before any wave, match the unchanged failed prerequisite (`node --test src/guard.test.ts: signature comparison is constant-time`) against the stored no_progress checkpoint, explicitly note that green CI run 910 does not exercise the mechanism, dispatch no helpers, and render the no-progress obstacle menu with stop recommended and merge withheld. The batch-summary sequencing change does not touch this single-PR obstacle path, which is the desired outcome; keep the new wording scoped to the batch summary round (per-PR report-then-pick ordering) so the single-PR gate, exit-check ordering and no-progress rendering text remain untouched as they are here.",
+      "wallMs": 6357,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "04a1db7b974bb73e5d86126a890c13dded2120df82a1eb5e2bab22eca26ecfb5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "6405fb167a1124ddfc5ebf41bb548d6df57c3c9c17a701d139f69d31c6876be4",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "d87286ae960a35123d30b5eb711a2ebb5816d8314d492510909fa167bfca19c1",
       "candidateOutputSha": "d87286ae960a35123d30b5eb711a2ebb5816d8314d492510909fa167bfca19c1",
       "facts": {
         "f4": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves f4: it evaluates the retained no-progress checkpoint before any dispatch, names the exact unchanged failed prerequisite (node --test src/guard.test.ts: signature comparison is constant-time), explicitly dispatches no implementer/verifier/reviewer and runs no test, sync, push or CI watch, states that green run 910 does not settle the mechanism contribution, and renders the obstacle template with stuck - no progress rather than final readiness or a silent retry. The new gate line (gauntlet: gate=gatekeep-pr/obstacle recommended=3) and the numbered narration delivered the Change without weakening the obstacle exit. Two small drifts worth tidying so other facts stay intact: the deliver row's 'add 6 to each cap, retaining rounds 1/12 and syncs 0/12' reads as if the caps are already 1/12 and 0/12 — Before's 'rounds 1/6 to 1/12, syncs 0/6 to 0/12' is clearer about cumulative extension with unchanged usage; and After dropped the 'approve (this is your own PR)' entry from Not offered, which Before carried and which the menus.md templates likely expect alongside the merge omission.",
-      "wallMs": 8990,
+      "feedback": "Before and After are identical for this single-PR case, so nothing moved: both evaluate the Exit check before any dispatch, treat the unchanged failed prerequisite plus the still-open P1 as a no-progress obstacle, explicitly decline to re-dispatch or watch CI, and state that the green rejection-test run does not settle the mechanism. The Change concerns the batch summary round (one PR's report and menu per turn), which this non-batch invocation never reaches, so the After wording had no effect here; to keep f4 intact while delivering the Change, scope the new sequencing language strictly to the batch summary round and leave the single-PR obstacle/exit-check path untouched, as it is now.",
+      "wallMs": 6651,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b77b1d53aa9a1b96d5de50e56d3038e15f91b1fd27707f1c8d2d34ade1c7f375",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "862687a268cbeed5dda98a368d97253a4abb359c1c969d4b05e88f3ebfbf771d",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "bfb3182d925e8b94f832167a27de72ce2e6b9a2039c35cf9f57e4731721b7497",
       "candidateOutputSha": "bfb3182d925e8b94f832167a27de72ce2e6b9a2039c35cf9f57e4731721b7497",
       "facts": {
         "g1": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the ownership match against `../mono-<name>` resolving to `/work/mono-<name>` and recovering `pr-731` happens in step 1 item 4 before the destroy in item 5; the recorded `script/worktree destroy 'pr-731'` runs from `/work/mono` with no `git worktree remove --force` anywhere, and `worktree: done` is printed both as a step result and in the output block; `git -C /work/mono branch -D feature/csv-export` follows in step 2 with `branch: done`. The new leading `gauntlet: gate=... recommended=1` marker line and the per-step `Result:` lines deliver the Change (exact marker before prose, one recommendation number) without disturbing the cleanup narration. One minor tightening: in step 1 item 4, state explicitly that the pattern match is performed on the full path `/work/mono-pr-731` against `/work/mono-*` (as Before did) rather than only the basename segment `mono-pr-731` against `mono-*`, so a reader cannot question whether the home directory component was checked; otherwise the After wording is safe to keep.",
-      "wallMs": 11784,
+      "feedback": "After is byte-for-byte identical to Before for this case, so nothing moved: both narrations resolve `../mono-<name>` against /work/mono, match `mono-pr-731` to recover `pr-731` in step 1.4 before the destroy in step 1.5 (g1); both run `script/worktree destroy 'pr-731'` from /work/mono, print `worktree: done`, and never invoke `git worktree remove --force` (g2); and both run `git -C /work/mono branch -D feature/csv-export` and print `branch: done` (g3). This case is a single-PR terminal-menu cleanup, not the batch summary round, so the wording change about sequencing one PR's report and menu per turn is not exercised here and had no side effect on the cleanup narration - the change is safely scoped as written; keep the batch-round wording confined to the summary-round section and the cleanup steps will continue to hold.",
+      "wallMs": 9055,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b77b1d53aa9a1b96d5de50e56d3038e15f91b1fd27707f1c8d2d34ade1c7f375",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "7cbebfe6d9b91c312c8d63584a18892d28d384da94108b0214724a8206e03c2e",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "3bfbdc999b1f768b47f5469663665a1ae71d79cc8ef4cf4aae9f3b7527c61eb1",
       "candidateOutputSha": "3bfbdc999b1f768b47f5469663665a1ae71d79cc8ef4cf4aae9f3b7527c61eb1",
       "facts": {
         "g1": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After still matches /work/mono-pr-731 to name pr-731 before removal, runs the recorded destroy from /work/mono with no forced git removal and prints `worktree: done`, then deletes feature/csv-export with `branch -D` and prints `branch: done`. Two wording risks worth tightening so g1 stays unambiguous: After calls the configured home pattern `/work/mono-<name>`, whereas the override is `../mono-<name>` — say 'the configured home `../mono-<name>`, resolved against primary `/work/mono` to `/work/mono-<name>`' so a reader sees the recorded pattern was used; and the duplicated `realpath /work/mono-pr-731` line looks like a copy slip (one realpath of the candidate plus the resolved home path would read cleaner). The added gate line, step labels and the pre-menu read-only refresh deliver the Change without touching cleanup ownership.",
-      "wallMs": 14507,
+      "feedback": "Before and After are byte-for-byte identical for this case, so no fact moved: both resolve the worktree via the home pattern (rendered in its resolved form `/work/mono-<name>`, recovering `pr-731`) before any removal, both run `script/worktree destroy 'pr-731'` from `/work/mono` and print `worktree: done` with no `git worktree remove --force`, and both run `git -C /work/mono branch -D feature/csv-export` and print `branch: done`. This is expected since the Change targets the batch summary round's per-PR report/menu sequencing, which this single-PR terminal-menu cleanup path never enters. No wording adjustment is needed to protect these facts; one minor pre-existing nit worth tightening in the skill (unrelated to the Change) is that step 1 runs `realpath /work/mono-pr-731` twice rather than resolving both the worktree and the primary, and it would be clearer to cite the pattern as the recorded `../mono-<name>` alongside its resolved form so g1-style checks read unambiguously.",
+      "wallMs": 10324,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

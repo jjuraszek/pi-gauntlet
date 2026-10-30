@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f4fc75ddbc43da58798c06691346a7fd3a59e572b198fb20795b601709017189",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "cecff0bd30b0e2f0795b39da5f451caf5bbfe813b723b64a103d4841233180aa",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "5706edf25d006251eff7be60329215503cb67cca99b556dc63ea3c756abb0dd9",
       "candidateOutputSha": "5706edf25d006251eff7be60329215503cb67cca99b556dc63ea3c756abb0dd9",
       "facts": {
         "p1": {
@@ -58,15 +58,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs run the recorded `script/worktree destroy 'pr-733'` from `/work/mono`, print `worktree: failed - error: database teardown failed for pr-733` on the exit-1 result with an explicit refusal of `git worktree remove --force`, and then print `branch: skipped - worktree destroy failed` while stating `git branch -D` does not run. After keeps the cleanup ownership wording intact; the only drift worth watching is that After fabricates extra concrete details not in the digest (a `git log origin/main..HEAD` call, a `rev-parse HEAD` that returns the merge commit verbatim, a `Delivers:` line and a `gauntlet:` marker), which don't affect p1/p2 here but could break exact-output facts in other cases. If you want to keep the Change's gate-line-first behaviour, keep the marker and keep the cleanup step narration exactly as it is, but avoid inventing command outputs the digest doesn't supply (use a placeholder like `<post-pull HEAD>` as Before did).",
-      "wallMs": 10110,
+      "feedback": "Before and After are textually identical for this single-PR cleanup case, so neither fact moved: both run `script/worktree destroy 'pr-733'` from /work/mono, print `worktree: failed - error: database teardown failed for pr-733` on exit 1 without any `git worktree remove --force` or prune, and both print `branch: skipped - worktree destroy failed` with no `git branch -D`. The Change only affects the batch summary round's per-PR sequencing, which this case never enters, so the After wording is safe here; keep the cleanup reference untouched and confine the one-report-and-menu-per-turn sequencing language to the batch summary section so single-PR cleanup narration continues to render exactly as it does now.",
+      "wallMs": 6330,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f4fc75ddbc43da58798c06691346a7fd3a59e572b198fb20795b601709017189",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "22d6d82e65ea68588121fdf9210d8bb64c7d18e134e4702a1e57c7571cd4b0af",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "32b35e6e15ad1f2923f1ea76bddd17734792c32181cb8c87c21b7eadf23947ca",
       "candidateOutputSha": "32b35e6e15ad1f2923f1ea76bddd17734792c32181cb8c87c21b7eadf23947ca",
       "facts": {
         "p1": {
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs run `script/worktree destroy 'pr-733'` via `(cd /work/mono && ...)`, print the exact `worktree: failed - error: database teardown failed for pr-733` line, explicitly decline forced removal, and print `branch: skipped - worktree destroy failed` while running no `git branch -D`. The only structural difference is that After defers the three result lines to a consolidated \"Cleanup results\" block rather than printing each at the step where it occurs; that still satisfies the facts, but if you want the output to read unambiguously as 'on non-zero exit prints X', consider keeping the `worktree:`/`branch:` lines adjacent to the steps that produce them (as Before does) in addition to or instead of the summary block. After also adds the `gauntlet: gate=... recommended=1` first line and the closed-PR template framing from the Change; keep those, since they do not interfere with the cleanup facts.",
-      "wallMs": 9805,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both run the recorded destroy via `(cd /work/mono && script/worktree destroy 'pr-733')`, record the exit-1 failure without retry or force-remove, print `worktree: failed - error: database teardown failed for pr-733`, skip branch deletion with `branch: skipped - worktree destroy failed`, and never invoke `git worktree remove --force` or `git branch -D`. The Change targets the batch summary round's per-PR sequencing, which this single-PR terminal-menu cleanup entry never reaches, so the wording change is correctly scoped and does not disturb the cleanup narration; keep the batch sequencing instructions confined to the batch summary section so single-PR cleanup paths like this one remain unaffected.",
+      "wallMs": 7953,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

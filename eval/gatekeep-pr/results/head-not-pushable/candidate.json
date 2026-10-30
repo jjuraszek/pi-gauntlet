@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "ed5b4ec1087a6c4245bf815f024676efd7004d7b0b737339a42b8db37936ee70",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "2a2da6f4abf12d6418e551d63794380555dcf6c0d517cdf1b029210cac8ae6b0",
       "candidateOutputSha": "2a2da6f4abf12d6418e551d63794380555dcf6c0d517cdf1b029210cac8ae6b0",
       "facts": {
         "f1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs stop at step 2b precondition 2, name the non-pushable head (and the exact push destination) as the reason, run no rebase or push, dispatch no verification helper, and close `sync` as `failed`. After additionally delivers the gate-line-first requirement (the `gauntlet: gate=... recommended=1` marker precedes prose) and keeps show-evidence as a hint rather than a numeric row, which matches the Change. One small inconsistency worth tightening in After: item 7 says there is 'no `Sync:` line and no `Verdict:` line', yet the rendered block then prints a lowercase `sync: stopped - ...` line; either state that the terminal stop renders a `sync:` record line (distinct from the step-5 `Sync:` report line) or drop the disclaimer, so a careful reader cannot read the narration as contradicting the rendered output. Otherwise the After wording preserves every fact Before kept.",
-      "wallMs": 10657,
+      "feedback": "After is byte-identical to Before on this case, so no fact moved: both outputs stop at step 2b's precondition 2 with a sync record naming the non-pushable head (head_pushable false), list `git rebase origin/main` and the lease push among the things that do not run, dispatch no helper, and close the `sync` stage as `failed`. This is expected, since the Change targets the batch summary round (one PR's report and menu per turn) and `412 --rebase` is a single-PR invocation that never reaches that round. The rewording is therefore safe for this case; to confirm the Change actually lands, run a multi-PR batch case where s8 can be observed, and keep the single-PR terminal-stop path untouched as it is here.",
+      "wallMs": 9075,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "448d1ae1bac6ec904cc53647e43e8f789568d17fa9882ed47ddac90620b25455",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "0afa97d9f9ab6c1509fc2ef9b1f6e3c3483491470932e010c1209cc577768567",
       "candidateOutputSha": "0afa97d9f9ab6c1509fc2ef9b1f6e3c3483491470932e010c1209cc577768567",
       "facts": {
         "f1": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After keeps everything Before kept: the stop lands at the sync-precondition checkpoint (described as the step-2 checkpoint) with the exact non-pushable destination `git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding` as the reason, no fetch/rebase/push runs, no helper is dispatched, and `sync` is closed as `failed` with `verify` pending. After additionally delivers the Change's gate-line-first marker (`gauntlet: gate=gatekeep-pr/sync-preconditions recommended=1`) before any prose and records the new course/usage/deadline fields in the continuation record, which is consistent with the persistent-course model. One small wording risk to watch: After renumbers its narrative so that the `--rebase` target resolution is item 1 and the precondition stop is item 3; a strict reader could momentarily conflate narrative numbering with procedure step numbers, so consider phrasing the stop as 'at procedure step 2 (sync preconditions)' explicitly, or folding the `--rebase` target note into the initialization item, so the 'stops right after step 2' reading stays unambiguous while the gate line and course-record initialization remain.",
-      "wallMs": 11220,
+      "feedback": "Before and After are byte-identical on this case, so nothing moved: both stop at the sync precondition check immediately after the step-2 checkpoint, record `sync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding`, close `sync` as `failed`, dispatch no helper, and explicitly state that no fetch, rebase, or push runs. This is a single-PR sync-precondition case, so the batch-summary sequencing change has no surface here; the After wording left the sync-preconditions path untouched, which is exactly what you want. One minor clarity point that exists in both versions (not introduced by the Change): the output's own numbered item 3 starts `sync` while the prose later says \"step 3 never starts\" — the two \"step 3\"s refer to different numberings (the output's narrative list vs. the skill's step sequence). Consider labelling the narrative items differently (e.g. letters) or saying \"the skill's step 3 (sync body) never starts\" so a reader doesn't read that as a contradiction with f1's \"stops right after step 2\".",
+      "wallMs": 13871,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

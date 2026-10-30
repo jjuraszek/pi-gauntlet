@@ -38,14 +38,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a516113f95baa8f6a71f2c09c26fb7fb82614c073935c997d35f746ffcccfe72",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "fa607f360eb830c1a4425f966c2d12121a62cc2827633884fca7658e45218206",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "67bc1959c7cfcc154316d6d67079120f9a6b1e5a183aacce5f3b24ccf7e9c788",
       "candidateOutputSha": "67bc1959c7cfcc154316d6d67079120f9a6b1e5a183aacce5f3b24ccf7e9c788",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -58,21 +58,21 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. After keeps both payloads in the single D3 iteration started by the one numeric `2` (step 6 description repair, step 7 implementer), explicitly charges no round for the description write and counts rounds_used 1 only after the P2 source commit, so f1 holds as in Before. After also reads the body back after `gh pr edit` (step 6 Readback) and rechecks the affected claim against the pushed head 2222222 (step 11), minting P3 rather than silently rewriting, so f2 holds. Two small polish points that do not affect the facts: the stray markdown `**contradicted`**` in step 11, and After's initial menu is described as three rows (nits omitted) while Before described four — After's version is consistent with the Entry's 'when available' and the Change's omission rules, so keep it.",
-      "wallMs": 10013,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both land P1 (description, orchestrator-only, no round charged) and P2 (file payload, one counted round) in a single delivery iteration after the lone numeric pick `2` (f1), and both read the body back after `gh pr edit` and recheck the affected claim at the pushed head 2222222, minting P3 rather than silently rewriting (f2). The Change targets the batch summary round (one PR's report and menu per turn, collecting each pick before the next), which this single-PR `642` invocation never enters, so the new sequencing wording has no observable effect here; keep the batch-only scoping of that instruction so it stays inert on single-PR runs exactly as it does in this output, and if you want it exercised, add a multi-PR case rather than widening the wording to touch single-PR menus.",
+      "wallMs": 8247,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a516113f95baa8f6a71f2c09c26fb7fb82614c073935c997d35f746ffcccfe72",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "994e45dcc503382d42b333a8feca852391ac9850ed1a8513605735290955c119",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "6681dea1c9537bbe04779db2e00be31d8f12e960d3f81f508685cb53c5d02d10",
       "candidateOutputSha": "6681dea1c9537bbe04779db2e00be31d8f12e960d3f81f508685cb53c5d02d10",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -85,8 +85,8 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. In both outputs the single numeric 2 authorizes one deliver iteration in which the description write and the test payload land back-to-back, the body is read back immediately after gh pr edit, and a fresh description recheck runs against pushed head B before the menu, minting a new proposal rather than rewriting the body. One minor wording difference worth keeping in mind: Before states explicitly that the description-only operation costs no round, while After only implies it through the counter staying at rounds 1/6 after the source commit; adding an explicit sentence like 'This description-only correction spends no source round' at step 7 would make f1 unambiguous under the new independent-accounting model without changing anything else the Change delivers (gate line, persistent course, shared menu template, affected-claim recheck at exact head).",
-      "wallMs": 10595,
+      "feedback": "The After output is textually identical to Before for this single-PR case, so nothing moved: both land the description edit (step 6) and the test payload (step 9) inside the one 'First delivery iteration' authorized by the single numeric `2` selection, with only the source-changing test repair counted as a round (rounds 1/6) and the description work spending none (f1); both read the body back via `gh pr view ... --json ...body` immediately after `gh pr edit` and then recheck the affected claim against pushed head `B` in step 15 (f2). The Change concerns the batch summary round (one PR's report and menu per turn, collecting each pick before the next), which has no surface in this `642` single-PR invocation, so the new wording is correctly inert here; to confirm it delivers the Change, exercise it on a multi-PR batch case, and keep the batch-sequencing wording scoped to the batch summary round so it does not alter the single-PR delivery-iteration, round-accounting, or body-readback steps that these facts depend on.",
+      "wallMs": 8603,
       "verdict": "unchanged"
     }
   },
@@ -282,5 +282,5 @@
       }
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

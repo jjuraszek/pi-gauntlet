@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "35e38b8ee02cdec12dc87efffbcbcf5dc5b825c890984b65b5a3e7fd23cbc023",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "ef35a17c0741c6fe364f0fdce9deed8d70cda7dd8606e80a90f4f815bc206498",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "b359904b61a1d2255425f6e7576a43386e029af1136694b7dcf8e10c5659309c",
       "candidateOutputSha": "b359904b61a1d2255425f6e7576a43386e029af1136694b7dcf8e10c5659309c",
       "facts": {
         "f1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs have checkpoint A and B exit as `stuck - run record unreadable` with no sync, rebase, push, helper dispatch or watch; both explicitly refuse to search `${TMPDIR:-/tmp}` for another `gatekeep-state.*`, refuse to mint a replacement, refuse to take a course from chat, and state that usage is preserved rather than zeroed. After additionally gains the `gauntlet: gate=gatekeep-pr/obstacle recommended=1` first line, puts the errno and locator in the Verdict, and drops the `PR comments` CONFLICTING bullet and the `Not offered: merge` entry; those are consistent with the Change (shared menus.md templates, gate line first) and do not touch f1-f4. If you want extra safety for f4, keep the explicit \"not zeroed\" phrasing in checkpoint B too, mirroring A, but as written every fact Before kept is kept by After.",
-      "wallMs": 10728,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both checkpoints hit the `stuck - run record unreadable` exit on ENOENT and EACCES respectively, dispatch no helpers and run no rebase/sync (f1, f2), explicitly decline to search `${TMPDIR:-/tmp}` for other `gatekeep-state.*` files or infer authority from chat (f3), and preserve `repair.*` usage rather than minting a fresh record (f4). The Change targets the batch summary round (one PR's report and menu per turn), which this single-PR continuation case never enters, so the wording edit has no observable effect here; keep the continuation/obstacle path untouched as you did, and confine the sequencing language to the batch summary section so it cannot be read as applying to the single-PR obstacle menu.",
+      "wallMs": 7117,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "35e38b8ee02cdec12dc87efffbcbcf5dc5b825c890984b65b5a3e7fd23cbc023",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "a5c4a629f93f627f4cfbc9028162e131e656695495fca95ca7c8d62074cf3bca",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "df4bcdfa07ca4e056a6949313d538bb3ed4a32a0ba08b60632649a494a279a5b",
       "candidateOutputSha": "df4bcdfa07ca4e056a6949313d538bb3ed4a32a0ba08b60632649a494a279a5b",
       "facts": {
         "f1": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps all four facts: both checkpoints stop on the unreadable record, dispatch no helpers and run no sync or repair, explicitly refuse to discover another record or infer authority from the digest, and leave tracker stages untouched rather than resetting usage. The risk in After is elsewhere: the entry asks to narrate each checkpoint through its next menu, and the course-obstacle-unknown expectations call for an obstacle menu with stop recommended last and evidence in a hint, yet After declares that neither checkpoint reaches a menu and renders no verdict line, Delivers/Evidence lines, or exact-head CI evidence that Before carried. Its gate line also reads `gauntlet: stuck run record unreadable` instead of the exact tagged obstacle id `stuck - run record unreadable`. To deliver the Change without losing ground, keep After's crisp refusal language (no replacement record, no discovery, no authority from digest or chat, no counter reset, no permission change) and emit the exact obstacle id first, then still render the shared obstacle template: Delivers, Evidence bound to 1111111111111111111111111111111111111111, Verdict, Not offered (deliver/assess/merge because the record cannot be validated, no extension since it cannot clear the prerequisite), a single numeric stop row marked recommended, and a show-evidence hint rather than a numeric evidence row.",
-      "wallMs": 12928,
+      "feedback": "The After output is byte-for-byte identical to Before, so no fact moved: both checkpoints stop on `stuck - run record unreadable` without dispatching repair helpers (f1, f2), both explicitly refuse to discover another record or infer authority from the digest or the reported CONFLICTING state (f3), and both state that no tracker stages are initialized or reset (f4). The Change targets the batch summary round's per-PR report/menu sequencing, which this single-PR stuck-record case never reaches, so the wording change was correctly inert here; keep the stuck-path wording untouched and confine the new one-PR-at-a-time sequencing text to the batch summary section so it cannot leak into continuation-checkpoint behavior.",
+      "wallMs": 7064,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e83b33ab40a92086774e5a76d4ee59ca78c2fc8b948bcf395b9859a1ac4d3934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "df270cc416a0d7d0306f389bf79b34892189867df165508e5e569f2bef5f0fb0",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "67dd80a9a15418273b221f8cdaea69d3c7900514ce20d3681dcf3a99ba850485",
       "candidateOutputSha": "67dd80a9a15418273b221f8cdaea69d3c7900514ce20d3681dcf3a99ba850485",
       "facts": {
         "f1": {
@@ -56,7 +56,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps the ordering (body write and narrow recheck at 1111, then the file repair, review and push to 2222), keeps the missing-test contribution explicitly open after the claim recheck, charges the round only on the new source commit while body work costs nothing, and mints P2 with an exact proposal applied in iteration 2 rather than rewriting the body silently. Two soft spots worth tightening so f3 stays unambiguous under the course model: the iteration-1 affected-claim recheck says only 'checks the body against head 2222' — add that the task carries 2222's exact-head CI evidence (as Before did) and the HEAD assertion against 2222, so a reader sees the recheck is bound to both the pushed head and its evidence; and the iteration-2 description write should name the P2 proposal sentence explicitly in the write line, so the 'only the approved sentence changes' guarantee is visible for the second write as it is for the first. Also note the stop row text changed from 'remove the worktree' to 'leave the checkout as found' — fine for this case, but keep it consistent with the shared menus.md stop template and the owned tracked-clean cleanup rule.",
-      "wallMs": 15265,
+      "feedback": "After is textually identical to Before for this single-PR case, so nothing moved: the body write still clears only the P1 claim contribution while the missing-test contribution is explicitly left open (f1), the description work precedes the file push (f2), the affected claim is narrowly rechecked by a description-recheck worker against the pushed head 2222 with CI evidence (f3), the newly contradicted sentence is minted as P2 and applied in D3 iteration 2 rather than silently rewritten (f4), and file rounds are counted and pushed_head persisted independently of the uncharged body writes (f5). The batch-summary sequencing change is not exercised here since only one PR (642) is in play, so this case gives no signal on the Change itself; to verify the per-PR report-and-menu sequencing you need a case with two or more PRs in the batch, while keeping this single-PR narration untouched as it does now.",
+      "wallMs": 10346,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e83b33ab40a92086774e5a76d4ee59ca78c2fc8b948bcf395b9859a1ac4d3934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "25e3a8a2b5d7cf8f978d99dc7c4a6406009ce05765eea3f18e00d13fc3ee947d",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "31e984bf60c9efbb1c5244365b1fe0dbf3fa28617f14826721d48dfc0bc2a0a8",
       "candidateOutputSha": "31e984bf60c9efbb1c5244365b1fe0dbf3fa28617f14826721d48dfc0bc2a0a8",
       "facts": {
         "f1": {
@@ -93,7 +93,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every fact Before held: section 2 closes only the description-claim contribution and explicitly leaves the missing-test contribution open; the body edit lands before the single push in section 4; section 5 narrowly rechecks the just-corrected sentence against pushed head 2222... and its exact-head CI; the contradicted negative sentence gets a drafted exact inverse proposal that is applied in the next iteration (section 6) with unrelated text preserved; and repair rounds are counted on the source commit while the description-only writes are stated to consume no round, with usage reported as one round and zero syncs. The After wording also adds the gate line first and the 'Not offered: approve' row, consistent with the Change. Nothing moved, so no corrective wording is needed; if you tighten further, keep the explicit 'next iteration' phrasing in section 6 and the per-stage usage statements, since those are what carry f4 and f5.",
-      "wallMs": 11867,
+      "feedback": "Before and After are textually identical for this single-PR deliver case, so no fact moved: Section 2 closes only the claim contribution and leaves the missing-test contribution open (f1), the body write precedes the Section 4 push (f2), Section 5 step 5 narrowly rechecks the corrected sentence against head 2222... and the new CI evidence (f3), Section 6 drafts and applies an exact inverse replacement in the next iteration while preserving unrelated text (f4), and the repair round and counted checkpoint are persisted separately from the description-only write that consumes no round (f5). The Change targets the batch-summary round (one PR report and menu per turn, collecting each pick before the next), which this case never enters because the invocation is a single PR number, so the wording change had no observable effect here; to confirm it delivers the intended behavior, evaluate it on a multi-PR batch case, and keep the per-PR deliver-loop wording (narrow description recheck, independent contribution tracking, separate round accounting) untouched as it is here.",
+      "wallMs": 22009,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

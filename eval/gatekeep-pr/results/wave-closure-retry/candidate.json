@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "42dcf07df9bca775d6aa749eb5fb9b3ceb51becabcad13ac83ddf0854d0d3d0d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "60bb03f44e710aedd7cf45bf3e4a67ae40dc07d151f993f6b2ec3eb631359211",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "08286f25f92d1f672ce15c0ad6b6c5ba4eab98f7f34449a187f23f50d256c5ca",
       "candidateOutputSha": "08286f25f92d1f672ce15c0ad6b6c5ba4eab98f7f34449a187f23f50d256c5ca",
       "facts": {
         "w1": {
@@ -46,7 +46,7 @@
         "w2": {
           "before": "fails",
           "after": "fails",
-          "label": "intended but unchanged"
+          "label": "pre-existing"
         },
         "w3": {
           "before": "holds",
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs handle the reviewer dispatch (P1/P2 only, closure line per listed finding), the F3 show-evidence treatment, and the no-push rule correctly, so w1, w3 and w4 hold on both sides. Neither output satisfies w2, and After did not move it: like Before, After explicitly parks P3 (\"stays an open blocker outside this carried set. The next D3 iteration takes it after this wave pushes\") and dispatches only P2, P4, P5, whereas the fact requires that under retained deliver every open blocker — including newly recorded P3 — joins the next pass without another pick. After does improve the round accounting (counting the returned wave once because it left new source commits, then opening a fresh uncounted checkpoint), which matches the Change's source-round rule, but that alone does not satisfy w2. To fix the wording, state in the retry-pass step that the carried set for the next dispatch is the union of the reviewer's open/carried findings and every other open source blocker in the ledger (here P3), listing P2, P3, P4, P5 in the dispatch list and in the re-review's previous-report section, while keeping the F3 show-evidence-only line, the no-push decision, and the once-per-new-source-commit round charge exactly as After already has them.",
-      "wallMs": 14634,
+      "feedback": "Before and After are textually identical on this case, so the wording change moved nothing here; that is expected, since the Change targets the batch-summary round (one PR's report and menu per turn) and this case is a single-PR mid-delivery narration with no menu, so the new sequencing rule never fires. The one fact that fails in both outputs is w2: the next-round dispatch list is {P2, P4, P5} and the text explicitly parks P3 (\"stays an open blocker outside this carried set. The next D3 iteration takes it after this wave pushes\"), whereas w2 requires that all open blockers, including newly recorded P3, join the next pass without another pick. To fix that independently of the batch-summary change, the repair-loop wording should state that the carried set for the next pass is every open blocker in the ledger (dispatched-and-still-open, newly recorded since the last dispatch, and reviewer findings minted to P# IDs), not only findings touched by the current wave or reviewer report, while keeping the reviewer task itself scoped to the findings actually dispatched in the wave (which w1 correctly captures). The batch-summary change wording itself appears safe for this case and should remain confined to the summary-round menu text so it does not alter single-PR deliver narration.",
+      "wallMs": 14091,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "42dcf07df9bca775d6aa749eb5fb9b3ceb51becabcad13ac83ddf0854d0d3d0d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "a2349407dc746a08c43aa7dfe747c7571fde9bb684bd526541173636408471fd",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "97e42b57b2c8d69f48c7c82956cc2d7d1728c90c74d751168f3c9ac5ed27a4bb",
       "candidateOutputSha": "97e42b57b2c8d69f48c7c82956cc2d7d1728c90c74d751168f3c9ac5ed27a4bb",
       "facts": {
         "w1": {
@@ -78,7 +78,7 @@
         "w2": {
           "before": "fails",
           "after": "fails",
-          "label": "intended but unchanged"
+          "label": "pre-existing"
         },
         "w3": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves everything Before kept (reviewer task scoped to P1/P2 with per-finding closure lines, F3 parked under show evidence, no push) but does not deliver the intended move on w2: both outputs build the retry dispatch list from the reviewer's closure set (P2, P4, P5) and explicitly hold P3 out as 'an independent open blocker' not added to the pass, whereas w2 requires newly recorded P3 to join the retry under the retained deliver course without another pick. The wording conflates two different sets: the reviewer's re-review list (correctly only the dispatched findings) and the next repair pass's carried set (which under persistent deliver should be every open blocker, including P3 recorded after the P1/P2 dispatch and the newly minted P4/P5). Suggested wording in the skill: 'The pre-push reviewer's closure list names only the findings this wave dispatched. The next repair pass under a retained deliver course dispatches implementers for every open blocker with a drafted payload — carried findings still open, blockers minted from the reviewer's Critical/Moderate findings, and blockers recorded since the wave began — without a new course pick; a round is charged once when the pass leaves its first new source commit.' That keeps w1's separation intact while making the dispatch list P2, P3, P4, P5 and still excluding Minor F3.",
-      "wallMs": 18182,
+      "feedback": "Before and After are textually identical, so the Change (sequencing per-PR report and menu in the batch summary round) did not touch this single-PR pre-push path and moved nothing here. The one failing fact, w2, fails in both: the retry dispatch list covers P2, P4, and P5 but leaves P3 out, even though the text itself calls P3 'an independent open delivery blocker' and the fact requires that all open blockers join the next pass without another pick. To keep w1/w3/w4 as they are and satisfy w2, the retry section should state that the carried set for the next pass is the full open blocker set (P2, P3, P4, P5), add a fourth implementer dispatch for P3 (stop logging the raw secret at handler.ts:40) with its drafted payload, and keep the round-charging sentence tied to the first new source-repair commit rather than to the pick; nothing in the batch-summary wording change needs to alter this path.",
+      "wallMs": 9039,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

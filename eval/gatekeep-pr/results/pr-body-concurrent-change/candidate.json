@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "173f6710efc7f955af3b10732ed99b2b0a6dda0a20157ae9b94df5e530b22311",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "26b410cc8afc97631ce634a528e9d70df6c4361f8e50d441c02af334c96f42b4",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "319a768ccd1a42ce45d05613ef372bb99b7a5d7da8b4a08a97cb45c480802111",
       "candidateOutputSha": "319a768ccd1a42ce45d05613ef372bb99b7a5d7da8b4a08a97cb45c480802111",
       "facts": {
         "f1": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f1: the mismatch-observing iteration ends with no write, no sync, no push and no menu, re-proposes P1 from the four-line current body with the reviewer note preserved, and the next iteration re-fetches the head/body as a compare-and-swap before `gh pr edit`. After adds nothing that moves this fact; it actually tightens it by naming the persisted `assessed_body`/payload refresh and the \"no menu\" step explicitly, and the leading `gauntlet: gate=gatekeep-pr/final recommended=1` line delivers the gate-line-first part of the Change without disturbing the snapshot-safety narrative. If anything to polish, keep the iteration-2 compare-and-swap sentence stating that the body is compared against the refreshed `original_body` (After does this) rather than loosely \"everything matches\", so the fresh-compare requirement stays unambiguous.",
-      "wallMs": 7094,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: iteration 1 detects the body mismatch, invalidates the stale payload, re-proposes P1 from the current body (preserving the reviewer note), and ends with no write and no menu; iteration 2 performs a fresh compare-and-swap against the refreshed original_body before the single gh pr edit, and the readback confirms the reviewer note survived. This is a single-PR deliver course, so the batch-summary sequencing change (one PR report and menu per turn, collect each pick before the next) is not exercised here and does not touch the delivery-loop wording. Keep the description-repair and compare-and-swap text as it is; scope the new per-PR sequencing language strictly to the batch summary round so it cannot be read as introducing a menu between delivery iterations.",
+      "wallMs": 8492,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "173f6710efc7f955af3b10732ed99b2b0a6dda0a20157ae9b94df5e530b22311",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "4fae321d65fa4a0fef9e3add54fcad6b7e6dadf1bdbf859fb8cd7dc994cc6034",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "efed1c763a74d04e57a8451c3790397c0efcb937106046fe14b1c16ebe5e3720",
       "candidateOutputSha": "efed1c763a74d04e57a8451c3790397c0efcb937106046fe14b1c16ebe5e3720",
       "facts": {
         "f1": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f1: the iteration that observes the added reviewer paragraph performs no description write, invalidates the stale payload, and redrafts the same sentence replacement against the fetched body (preserving the reviewer paragraph); the next iteration re-fetches, confirms the body matches the refreshed proposal, writes with --body-file, reads back, and runs a fresh recheck, with no menu between the two iterations under the retained deliver course. After's additions (the leading gate line, the 'Not offered: approve' row, the explicit 'no intervening menu' and 'stale-write checkpoint' statements) do not disturb this; if anything, After states the compare-and-swap precondition more explicitly. Keep the explicit 'matches the refreshed proposal's head, base, state, and original body' sentence before the edit, since that is the clearest signal of a fresh compare-and-swap, and keep naming the preserved reviewer paragraph in the replacement body.",
-      "wallMs": 9810,
+      "feedback": "Before and After are textually identical for this case, so the wording change had no observable effect here: both outputs detect the body mismatch in the first delivery iteration, perform no description write, redraft the exact sentence replacement against the newly fetched body (preserving the reviewer paragraph), proceed without an intervening menu, and in the next iteration run a fresh freshness read that matches the refreshed proposal before issuing `gh pr edit`, satisfying f1 in both. This is expected since the Change targets the batch summary round (per-PR sequential report and menu) while this case is a single-PR continuation under a deliver course; keep the new batch-sequencing wording scoped to the batch summary path so that single-PR continuation behavior, including the no-menu-between-iterations rule and compare-and-swap before any description write, remains untouched.",
+      "wallMs": 8958,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

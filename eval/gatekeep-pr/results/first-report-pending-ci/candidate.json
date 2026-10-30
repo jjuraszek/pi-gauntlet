@@ -38,14 +38,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4b2893be5efdf3fe21f5e08da3b86ca306f2bfc7128ec6392b9cb625195aca9c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "5d9cdb61e877ec88a8ce9716fb071821fc85ff9871eece1fcd3bd9c7e8087fa6",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "867821f53bede0baf2fade73d7c37a3c2eb98e008f1f7abde1fbea212fe98402",
       "candidateOutputSha": "867821f53bede0baf2fade73d7c37a3c2eb98e008f1f7abde1fbea212fe98402",
       "facts": {
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
@@ -58,21 +58,21 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs select the Pending evidence row (`source: pending`, run 910 binding despite CLEAN), explicitly state no local run happens, and render the initial template with assess/deliver/stop plus `Not offered: deliver with nits (no nits), merge (ci / test pending)` and no ordinary wait row. After additionally prepends the `gauntlet: gate=gatekeep-pr/initial recommended=2` marker before any prose and states that no watch starts because no course is set, which is consistent with the Change's course model and keeps f2/f3 intact. One small difference worth preserving: Before's deliver row said 'repair blockers, rebase on main, watch CI' while After says 'watch CI, sync with main when needed, and repeat' — fine for this zero-blocker case, but keep the shared menus.md deliver wording identical across scenarios so blocker-bearing cases still name repair explicitly.",
-      "wallMs": 7769,
+      "feedback": "Before and After are textually identical for this single-PR case: both render the initial assess/deliver/stop template with no ordinary wait row (f2) and both state the Pending row applies with no local run of `node --test src/guard.test.ts` while `ci / test` is binding and in progress (f3). Nothing moved. This case does not exercise the batch summary round, so the sequencing change has no observable effect here; that is the desired outcome, since the new wording about collecting one pick before presenting the next PR's report should stay scoped to the batch path and leave the single-PR first-report flow (initial template selection, pending-evidence withhold, no local verification) untouched, which the After output confirms.",
+      "wallMs": 6976,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4b2893be5efdf3fe21f5e08da3b86ca306f2bfc7128ec6392b9cb625195aca9c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "c3275bdab0f2221439ffe96c0da8c9674310fb0a97c80aff1681cd3a47189fbd",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "05db362e5df3cbe6321bbe774c40675448561610f0b928215352cbe4482fe1e9",
       "candidateOutputSha": "05db362e5df3cbe6321bbe774c40675448561610f0b928215352cbe4482fe1e9",
       "facts": {
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs render a pending-evidence first report with the initial assess/deliver/stop template and no wait row, and both explicitly state the helper selects Pending and does not run `node --test src/guard.test.ts` or watch CI while `ci / test` is in progress. After additionally emits the `gauntlet: gate=gatekeep-pr/initial recommended=2` marker first, which Before lacked, and correctly keeps course unset. One regression worth watching for sibling facts (e.g. menu-rows-omitted): After dropped Before's `Not offered: deliver with nits (no nits); merge (ci / test pending).` line, so omitted rows are no longer named with reasons. Keep the Change's course/menu wording but retain the explicit `Not offered:` line from the shared menus.md template so omission reasons stay visible.",
-      "wallMs": 7415,
+      "feedback": "After is textually identical to Before for this single-PR case: the first report still renders pending evidence with the initial assess/deliver/stop menu (no wait row), and the verifier explicitly declines to run `node --test src/guard.test.ts` while `ci / test` is binding pending, so neither fact moved. The Change targets the batch summary round, which this `642` single-argument invocation does not exercise, so the wording has no visible effect here; to confirm the intended move on batch-summary-queue/s8 you need a multi-PR case, and the sequencing wording should be scoped to the batch round only so it continues to leave the single-PR initial template, pending evidence handling, and no-local-verification-while-pending behavior untouched as it does here.",
+      "wallMs": 6675,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "55bc993f25f395fb3037098bd6660944233220400632258cd1e3be83e524729a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "ac358ee3540d5ce6876a7ad100be6a1583c0f3501ccec20bf86daf082fb22ab0",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "84ae6b866bc87ab70bd54b92bdb598bfb21925fe28063bedbff61b7598b94923",
       "candidateOutputSha": "84ae6b866bc87ab70bd54b92bdb598bfb21925fe28063bedbff61b7598b94923",
       "facts": {
         "f1": {
@@ -56,7 +56,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every fact Before held: the rebase targets origin/release/2 before any Verify/Review helper, a fresh code-reviewer range-diffs 7c1e9a2 against the rewritten HEAD before the push despite the clean replay, the push is --force-with-lease=feature/ledger-rounding:<pre_head> to the digest head_url/head_ref, no watch runs in entry sync, the first report renders the initial template with no wait row, and the narration states both verification and the brief assess the pushed <new_head> with a Sync: line directly ahead of the Verdict. After additionally adds the gauntlet gate line first, which is what the Change asks for. One small wording nit present in both outputs: the deliver row says 'sync the branch with main' even though the named base is release/2; consider 'sync with the named base' so the row matches the Sync: line without risking a reader concluding the course would rebase onto main.",
-      "wallMs": 11188,
+      "feedback": "The After output is textually identical to Before for this single-PR case: the rebase onto origin/release/2 (step 8) precedes the verify helper (step 3), a fresh code-reviewer range-diffs the replay before the push (step 9), the push is --force-with-lease=feature/ledger-rounding:7c1e9a2f... to the digest head_url/head_ref (step 10), the re-gather is explicitly marked 'no CI watch' and the initial template is chosen because ci / test is binding pending on <new_head>, and the 'SHA assessed' bullet plus the Sync: line directly above the Verdict are all present. Nothing moved. The Change targets the batch summary round (one PR's report and menu per turn, picks collected sequentially), which this `412 --rebase release/2` invocation never enters, so the wording edit is invisible here; that is the correct outcome. Keep the batch-only sequencing scoped to the multi-PR path (e.g. 'in the batch summary round, render the first PR's report and menu with the summary; after each pick, render the next PR's report and menu') and avoid phrasing that could be read as applying to the single-PR first menu, so the entry-sync narration, the no-watch rule, and the Sync:/Verdict adjacency remain untouched.",
+      "wallMs": 11388,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "55bc993f25f395fb3037098bd6660944233220400632258cd1e3be83e524729a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "a9e20af653b6213b46e4c6e5fba82030314d2ef3d49d1d3a9a24706f6d6bb997",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "ce0c89335bd8892c61b088c3d12f6284dc9810aae8498e80f3a8596bfc007516",
       "candidateOutputSha": "ce0c89335bd8892c61b088c3d12f6284dc9810aae8498e80f3a8596bfc007516",
       "facts": {
         "f1": {
@@ -93,7 +93,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs rebase onto origin/release/2 before any verifier, dispatch a fresh code-reviewer over `git range-diff origin/release/2 <pre-head> HEAD` before the push, push with `--force-with-lease=feature/ledger-rounding:<pre-sync SHA>` to the digest head_url/head_ref, run no watch inside entry sync, render the initial assess/deliver/stop template with no wait row, state that Verify/Review bind to the pushed SHA, and place `Sync:` directly above `Verdict:`. The Expected-to-move entry for conflict-free-sync/f4 therefore shows no delta here because Before already satisfied it. Two After-only drifts the author should watch: After says it mints a fresh continuation record via `mktemp` at this step-2-complete boundary (Before retains the existing record named in the gather task), which cuts against the Change's 'validated, never reinitialized' record rule in the batch/consent scenarios; and After adds a `gauntlet: gate=...` header line before the brief, which is fine for the gate-line-first facts but should be kept to exactly one marker. To keep every fact while delivering the Change, retain the Before wording 'retain its continuation record rather than minting another' and keep the rest of After as is.",
-      "wallMs": 14756,
+      "feedback": "The Before and After outputs are textually identical for this case, so no fact moved: both rebase onto origin/release/2 in section 3 before any verifier or reviewer dispatch (f1), both dispatch a fresh code-reviewer over `git range-diff origin/release/2 H HEAD` prior to the push despite the clean rebase (f2), both push with `--force-with-lease=feature/ledger-rounding:<H>` to the digest's head_url and head_ref (f3), both skip any CI watch and render the initial template bound to `R` with the pushed check pending rather than a wait row (f4), and both state that Verify and Review bind to `R` and place the `Sync:` line directly before `Verdict:` (f5). This is expected since the Change concerns the batch-summary round (sequencing one PR's report and menu per turn), which a single-PR invocation of `412 --rebase release/2` never enters; the new wording is correctly scoped and did not leak into the single-PR entry-sync path. To confirm the Change actually lands, run the batch-summary-queue case rather than this one; for this case the After wording is safe as written and needs no adjustment.",
+      "wallMs": 12358,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

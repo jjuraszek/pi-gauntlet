@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "d335e747bde2fda4d8bf5209520059da08db38f6c2582b8c01da11ba284e1583",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "c63cce7c09eeb0c6589da8fa7b27716b563a74116cd4d49dc32a2a042ef1475e",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "2e621a860d86f238767b8648843f4a1d831d4a8bc368f1ef055b7074f09f2d8c",
       "candidateOutputSha": "2e621a860d86f238767b8648843f4a1d831d4a8bc368f1ef055b7074f09f2d8c",
       "facts": {
         "f1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs run the same read-only preconditions (fetch, merge-base ancestry, merge-commit scan, baseline SHA agreement) and then print the four-line explanation and the yes/no question before any rewrite; both record `sync: declined - other author's branch`, run no rebase or push, close sync as skipped, verify on the unsynced head 7c1e9a2 and render `Sync: declined ...` in the report. After adds the `gauntlet: gate=...` first line, a `gauntlet: question` marker on the confirmation turn, an `assess/deliver/stop` initial template with the `Not offered: deliver with nits` line and evidence folded into a hint, which is consistent with the Change and does not disturb f1-f4. One thing to keep an eye on: After's narration lists the fetch, ancestry check, merge scan and baseline before the author check just as Before does; if the author intends 'only a fetch may precede the question' strictly, both wordings should state that the ancestry/merge-scan/baseline reads are non-mutating so a reader does not mistake them for rewrites. Otherwise the After wording preserves everything Before kept.",
-      "wallMs": 13413,
+      "feedback": "Before and After are byte-identical for this case, so no fact moved: the other-author confirmation still runs as its own turn after only read-only inspection (fetch, merge-base, rev-list, baseline reads) and before any rewrite; the explanation text still names new SHAs, preserved authorship, the local committer identity, outdated review comments, and dismissed approvals; the `no` answer still yields `Sync: declined - other author's branch` with no rebase or push; and verification still assesses the unsynced head 7c1e9a2. This case is a single-PR run, so the batch-summary-round wording (one PR's report and menu per turn) has no bearing here, which is consistent with the Change targeting batch-summary-queue/s8 rather than this scenario. No wording adjustment is needed to preserve f1-f4; just confirm the per-PR sequencing instruction is scoped to the batch round so single-PR runs like this one continue to render exactly one report and one menu as they do now.",
+      "wallMs": 14376,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d335e747bde2fda4d8bf5209520059da08db38f6c2582b8c01da11ba284e1583",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "1d6cc3757c124ad41f458cd216d558ffc3ca6d13683c190d113b3b0bf8f4d74c",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "baccca3d2b18a8e5fd7fa88a21e0319bb3054fa2c9a732f37bcc08e5ae4766da",
       "candidateOutputSha": "baccca3d2b18a8e5fd7fa88a21e0319bb3054fa2c9a732f37bcc08e5ae4766da",
       "facts": {
         "f1": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the other-author explanation is printed verbatim before any rewrite with only read-only precondition queries (fetch, ancestor check, merge-commit scan, baseline SHA reads) ahead of the yes/no question, the `no` answer records `sync: declined - other author's branch` with sync closed as skipped and no rebase/push, and verification plus review run on the unchanged 7c1e9a2f head with the `Sync:` line reading declined in the final report. The course-model rewording lands cleanly: the initial assess/deliver/stop template replaces per-action rows, deliver-with-nits is explicitly omitted, and assess is recommended for someone else's PR. Two small drifts worth watching, though neither moves a listed fact: After dropped the `Not offered: merge (branch behind main)` line that Before rendered and that the shared menus.md template expects for an omitted merge row, and After switched the `git -C` invocations from the absolute worktree path `W` to the relative `.worktrees/pr-412`, which weakens the exact-cwd evidence the Change asks to preserve; restoring the absolute path binding and the `Not offered:` line would keep the After wording fully aligned with the template while delivering the same course semantics.",
-      "wallMs": 14025,
+      "feedback": "Before and After are textually identical for this single-PR, other-author decline case, so no fact moved: both print the four-line explanation (new SHAs, authorship kept, local committer identity, outdated comments / dismissed approvals) after only read-only preflight commands and before any rewrite, both record `sync: declined - other author's branch` with no rebase or push, and both verify the original head and render `Sync: declined - other author's branch` in the report. The batch-summary sequencing change does not touch this path, which is the desired result; keep the single-PR sync/confirmation wording as-is and confine the per-turn report-and-menu sequencing to the batch summary round so this case stays unaffected.",
+      "wallMs": 13528,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

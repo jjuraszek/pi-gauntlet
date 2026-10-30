@@ -34,37 +34,37 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "da5de2070ddb697e56dec9a82520d2861c3eb52cc118f265b2b4a952776060bb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "b56e410791bb23f019e1539db5adc49fef30af74db74e7cfa0972434c129d772",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "ffe278dca94c7378c46c137ad5ec869c05aecfd081593bac5519016acc88f739",
       "candidateOutputSha": "ffe278dca94c7378c46c137ad5ec869c05aecfd081593bac5519016acc88f739",
       "facts": {
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f3 on their own text: Before persists the repair.wave checkpoint (step 15) before the implementer dispatch (step 16), persists syncs_used 1 before the rebase (step 11), charges rounds_used 2 only after confirming exactly one new commit 4444 (step 17), and charges no round for the body write (step 7); After does the same with the checkpoint in step 5 before any dispatch, syncs_used 0 -> 1 in step 15, rounds_used 1 -> 2 only after the single new commit 4444 is verified in step 20, and an explicit 'no round charged' on the description repair. Nothing in After moved the fact, so no wording change is needed to retain it; if you want After to make the independent accounting even more legible, consider adding a one-line ledger near the readiness exit (e.g. 'Accounting: rounds 2/6 (one new source commit 4444), syncs 1/6 (conflict sync), body work uncharged') so a reader sees the three independent budgets reconciled at the end rather than reconstructing them from steps 15 and 20.",
-      "wallMs": 10232,
+      "feedback": "Before and After are textually identical for this single-PR resume case, so no fact moved. Both record the checkpoint (`repair.wave` with `counted: false`, `stage: apply`) in step 5 before any helper dispatch, charge no round for the P2 body write (section header and step 11), increment `syncs_used` 0 -> 1 separately in step 15 before the rebase, charge nothing for the base-only conflict resolution in step 18, and increment `rounds_used` 1 -> 2 only in step 20 after the single new source commit 4444 is verified. The Change targets the batch summary round (one PR's report and menu per turn), which this `642` single-argument run never enters, so the wording change is correctly inert here; keep the batch-sequencing instruction scoped to the batch summary path (e.g., 'when more than one PR is in the batch, render the first PR's report and menu with the summary, then wait for that pick before rendering the next') so the single-PR resume flow and its round/sync accounting language stay untouched.",
+      "wallMs": 7998,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "da5de2070ddb697e56dec9a82520d2861c3eb52cc118f265b2b4a952776060bb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "d39c3026d217f2a4ffffd33cdb8e49b2c3cbaa83979d4ecceaba92756ba8cb7a",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "df5ef0a71c5f11f1614c9a010edec234669c5a9b0e7ace49728027c9dc9d0f45",
       "candidateOutputSha": "df5ef0a71c5f11f1614c9a010edec234669c5a9b0e7ace49728027c9dc9d0f45",
       "facts": {
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved on f3: both outputs persist the wave checkpoint (pre_wave_head/round_start_head, counted: false) before any helper dispatch, charge no round for the description write, increment syncs_used to 1/6 before the conflict sync, and raise rounds_used from 1 to 2 only after the implementer commits 4444444, with syncs staying at 1/6. After additionally states the independent accounting more explicitly ('Sync usage remains 1/6', 'This description-only operation spends no round', 'The base-only merge spends no repair round'), which makes the fact easier to verify. Keep that explicit per-budget phrasing in After, and keep the checkpoint-before-work and counted:true-after-commit ordering as written; the only risk to avoid is collapsing the sync increment and the round increment into a single accounting sentence, which would blur the separate-counter requirement.",
-      "wallMs": 8994,
+      "feedback": "Before and After are textually identical for this single-PR case, so nothing moved: both persist the wave checkpoint with `counted: false` before any dispatch, spend no round on the description-only correction, bump syncs to 1/6 separately in the loop-sync stage before the base merge, and only set `counted: true` with rounds 2/6 after the implementer's new source commit 4444..., leaving cumulative 2/6 rounds and 1/6 syncs at the menu. The batch-summary sequencing change does not touch this path, which is the right outcome; to keep it that way, scope the new per-PR report/menu sequencing wording strictly to the batch summary round (e.g. 'in batch mode, after the summary render the first PR's report and menu, collect its pick, then render the next') so it introduces no accounting or menu changes for single-argument invocations like `642`.",
+      "wallMs": 7818,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

@@ -34,47 +34,47 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "bb1352588eb330a04fe80c1c53ecbfa4e2cdd1c1d8e6075d3dfad3c51b057d2d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "8566966d1528b1b875ab6a7ae60f0149f17190eee6291624aa4a79d7c8c35d5f",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "b1b5d411846629feea364428244fcb33c441e717948449b5b984be733c798a43",
       "candidateOutputSha": "b1b5d411846629feea364428244fcb33c441e717948449b5b984be733c798a43",
       "facts": {
         "layout": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "mapped-pick": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs render the three numbered blockers and the four initial rows as separate lists split by the `Verdict:`/`Pick one:` prose lines so the menu displays 1-4, keep evidence behind the `show evidence` hint, and in checkpoint 2 compute N=4, L=3, R-L=3 to reach raw option 3 (reply), echo the mapping line before the freshness check and post, and run no repair or re-ask. After adds the `gauntlet: gate=.../initial recommended=2` marker lines and an explicit course/counters-unchanged step, which strengthens the delivery of the Change without disturbing either fact. Two small drifts worth tidying in After so later facts about exact-head evidence stay clean: the PR-comment locator became the vague `(CSV header thread)` where Before cited the commit `3f2a1c0`, and the nit locator dropped the `:31, lib/page.ts` detail; also restore `--method POST` on the `gh api` replies call (gh infers POST from `-f`, but spelling it out matches the skill's exact-command expectation). Otherwise the After wording keeps everything Before kept.",
-      "wallMs": 13476,
+      "feedback": "Before and After are byte-identical for this case, so neither fact moved: Checkpoint 1 still renders the three numbered blockers, then the prose lines 'Verdict: fixable - 3 blockers' and 'Pick one:' as the separator, then options 1-4 starting at 1 with evidence left behind the 'show evidence' hint; Checkpoint 2 still echoes 'Taking 6 as option 3 - reply - ...' before the simulated post, selects no repair, and does not re-ask. The Change concerns the batch summary round (one PR's report and menu per turn, collecting each pick before the next), which this single-PR entry never exercises, so the new wording neither helps nor harms here. Keep the per-PR sequencing rule scoped to the batch summary path and leave the single-PR report/menu rendering and numeric lookup text untouched, as it appears you did; to actually verify the intended movement, add a batch case with two or more PRs and check that the second report and menu appear only after the first pick is collected.",
+      "wallMs": 9295,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "bb1352588eb330a04fe80c1c53ecbfa4e2cdd1c1d8e6075d3dfad3c51b057d2d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "2d52f8460e35d9df20a5062925bc795eae2770b7e746d102b5518ece9f6d656d",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "3701c82b2a42c45ecb9c165c3acd61df529ded6d6c28322a0291343b1a20970d",
       "candidateOutputSha": "3701c82b2a42c45ecb9c165c3acd61df529ded6d6c28322a0291343b1a20970d",
       "facts": {
         "layout": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "mapped-pick": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "After moves layout from fails to holds by inserting an explicit `---` separator between the Verdict line and the `Pick one:` options list, so the blocker list (1-3) and option list (1-4) are unambiguously separate Markdown lists both starting at 1, with evidence still confined to the `show evidence` hint; Before relied only on intervening prose paragraphs with no explicit separator. mapped-pick already held in Before (\"Taking 6 as option 3 - reply.\" echoed before the post, no repairs, no re-ask) and After preserves it with the same echo plus a clearer statement that the selection authorizes the reply only and establishes no delivery course. Nothing regressed; to keep both facts while delivering the Change, retain the `---` (or another permitted separator) before every menu block that follows a numbered findings list, keep the single `[recommended]` marker on the actual rendered number, and keep the explicit \"Taking N as option M - <label>\" echo line ahead of any post in remapped-pick checkpoints.",
-      "wallMs": 15212,
-      "verdict": "improved"
+      "feedback": "After is textually identical to Before for this case: checkpoint 1 still renders the three blockers and the four initial options as separate ordered lists split by the `---` separator, both numbered from 1, with location evidence kept in the per-row parenthetical hint and no compose syntax; checkpoint 2 still resolves displayed `6` to raw option 3 (reply), echoes that consequence before the simulated post, and dispatches no repairs or re-asks. Nothing moved here, which is expected since the Change targets the batch summary round (one PR's report and menu per turn, collecting each pick before the next PR) and this entry never reaches that round. Keep the new per-PR sequencing wording scoped to the batch summary path so it continues to leave the single-PR initial menu and the displayed-number mapping untouched, as it does now.",
+      "wallMs": 8348,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

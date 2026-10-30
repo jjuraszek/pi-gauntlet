@@ -34,35 +34,35 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2d4f4ea62eb3a4afda8cd9423a29ebfc0d41141c8eb33df1e548adfcecd8c12f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "7a553b6185d1e51f21af848f14ee1cc00c86cd1b5a7c18630c0da2cb1b84ce49",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "2a2ce6f86b4151b855a4907d45b8ee8219e0fad7ec945961076f6d7a8099b218",
       "candidateOutputSha": "2a2ce6f86b4151b855a4907d45b8ee8219e0fad7ec945961076f6d7a8099b218",
       "facts": {
         "f6": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs keep f6: each states explicitly that no CI watch runs because the course is unset and a watch is admitted only inside delivery under a course, and each renders the initial template with rows 1 assess, 2 deliver (eligible, recommended), 3 stop, with no ordinary wait row and merge withheld in the 'Not offered' line. After adds the `gauntlet: gate=gatekeep-pr/initial recommended=2` marker before prose and rewords the assess row to reflect the zero-blocker own-PR case (nothing posts, then stop) rather than Before's 'post the review; then approve or stop', which is more accurate for an own PR with no findings and does not disturb f6. The one wording drift worth watching is the deliver row: After drops Before's 'rebase on main if needed' and says 'repair anything it turns up'; keeping both clauses ('watch ci / test, repair anything it turns up, rebase on main if needed, repeat until merge is offered') would preserve the sync-authority hint that other scenarios rely on while still delivering the course-based menus.md template.",
-      "wallMs": 9716,
+      "feedback": "Before and After are byte-for-byte identical on this single-PR case: both explicitly refuse to start a CI watch while course is null (\"No CI watch runs, because a watch is admitted only at D3 step 4 under a course\"), both render the initial template with assess, deliver (eligible and recommended as the author's own PR), and stop, and neither offers a wait option, so f6 holds on both sides and nothing moved. The Change about sequencing per-PR reports and menus in the batch summary round does not reach this single-argument invocation, which is the desired outcome; keep the batch-round wording scoped to the batch summary path (e.g. \"when more than one PR is in the batch, present the first PR's report and menu with the summary and collect that pick before rendering the next PR's report and menu\") so the single-PR initial-menu path continues to render exactly as it does here, with no watch and no wait before a numeric deliver selection.",
+      "wallMs": 7581,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2d4f4ea62eb3a4afda8cd9423a29ebfc0d41141c8eb33df1e548adfcecd8c12f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "4e46a9b640eaae52106fbe2f01b3079198c9c2ec3f414dc24dc9222399dcc312",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "7c1aaa4346ca2b621bf831aff8ae221f10738c1bd30f9044e9384d89fcec1aa0",
       "candidateOutputSha": "7c1aaa4346ca2b621bf831aff8ae221f10738c1bd30f9044e9384d89fcec1aa0",
       "facts": {
         "f6": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved for f6: both outputs keep course null, explicitly start no CI watch or poll window before a numeric deliver selection, and render the initial template with assess, an eligible recommended deliver, and stop, with no ordinary wait row and evidence only in the hint. After additionally emits the gate marker line first and notes that deliver would rebase on main if needed, which is consistent with the Change's persistent-course model and does not introduce a watch or wait row; keep the explicit 'I start no CI watch ... Course remains unset; no numeric delivery selection authorizes entering the delivery body' sentence, since that is what makes the first half of f6 verifiable from the text rather than inferred from the menu alone.",
-      "wallMs": 6436,
+      "feedback": "After is byte-for-byte identical to Before on this single-PR continuation, so nothing moved: both outputs state in step 6 that no CI watch starts and course remains unset with no numeric delivery selection, and both render the initial menu with assess, eligible recommended deliver, and stop, with no wait row. This case never enters the batch summary round, so the Change (one PR's report and menu per turn, collecting each pick before the next) is not exercised here; the wording that delivers it should be confined to the multi-PR batch path and leave the single-PR initial-menu rendering and the no-watch-before-selection rule untouched, as it did.",
+      "wallMs": 5963,
       "verdict": "unchanged"
     }
   },
@@ -222,5 +222,5 @@
       }
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

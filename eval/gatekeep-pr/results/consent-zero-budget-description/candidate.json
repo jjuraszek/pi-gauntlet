@@ -34,37 +34,37 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "ecce501d9b50064fd667c3c9b55b245bc55b1d377d006104a656ac33e4bee724",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "0a98254f27132166d88e8a3cbe6e924433b14bcb940103ea762a772cb8eef630",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "06aaab10891fc0549aaac686142c05087b820b0a4d7d3a6e1099ec7b486a6237",
       "candidateOutputSha": "06aaab10891fc0549aaac686142c05087b820b0a4d7d3a6e1099ec7b486a6237",
       "facts": {
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f2: each omits the deliver rows with an explicit cap-zero reason, declines to run the description edit despite the typed request, and leaves rounds/syncs caps and usage at 0 without reinitializing the record. After makes the budget point slightly more explicit (\"write nothing to the record's course or accounting fields\") and adds the gauntlet gate line before the report, which are good additions; Before already stated the same facts, so this case did not actually move on f2. If the author wants After to visibly demonstrate the 'neither budget resets' clause rather than imply it, keep After's explicit accounting-untouched sentence and consider echoing the persisted caps/usage values (rounds 0/0, syncs 0/0) in the narration, while retaining the unchanged menu omission wording and the no-write statement that Before also carried.",
-      "wallMs": 9098,
+      "feedback": "Before and After are textually identical for this single-PR case, so f2 holds in both: step 2 states that `deliver` was omitted because `maxFixRounds` is `0`, that the typed correction is classified as a change request rather than a selection, that no `gh pr edit` runs, and that nothing is written to the record's course or accounting fields (so `rounds_used`/`syncs_used` and caps stay at 0), while the menu's `Not offered` line confirms the delivery rows are absent. The Change targets the batch summary round (one PR's report and menu per turn), which this single-PR entry never reaches, so no fact moved here; keep the single-PR path untouched exactly as it is and confine the new sequencing wording to the batch-summary branch (e.g. 'after the summary, render the first PR's report and menu; wait for that pick before rendering the next PR's report and menu') so that the Next-action classification, cap-zero omission, and no-write/no-reset behavior remain word-for-word intact.",
+      "wallMs": 6938,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ecce501d9b50064fd667c3c9b55b245bc55b1d377d006104a656ac33e4bee724",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "d8e06bdea727d542ce60bb963d21b967845aecb085336d80b837f550e463f045",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "4e24da0d405a702ba3ad940553d3b6436bcf4fbae59df880d5dcc505f7335cb6",
       "candidateOutputSha": "4e24da0d405a702ba3ad940553d3b6436bcf4fbae59df880d5dcc505f7335cb6",
       "facts": {
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved here: both outputs omit the deliver and deliver-with-nits rows with an explicit cap-zero reason, both treat the typed correction as a change request that is persisted as a draft only (Before: \"do not edit the PR body\"; After: \"I run no `gh pr edit`\"), and both state that usage counters and caps remain at zero rather than being reset. After additionally emits the gate line first and names the resolved `closureReview.maxFixRounds` setting in the omission reason, which is consistent with the Change; keep that wording. One small wording risk to avoid in future edits: After says caps \"remain zero\" rather than Before's explicit \"neither budget resets\" phrasing - if later scenarios have nonzero caps, keep an explicit sentence that the caps and usage values are preserved as supplied, not reinitialized, so the no-reset fact stays unambiguous.",
-      "wallMs": 8018,
+      "feedback": "Before and After are textually identical for this single-PR case, so nothing moved: both omit deliver rows under cap zero ('Not offered: deliver and deliver with nits (closureReview.maxFixRounds is zero)'), both store the correction as a draft with no `gh pr edit`, and both state usage counters and caps remain zero with no reset. The Change targets the batch-summary round, which this case never enters, so the After wording is correctly inert here; keep the batch sequencing instruction scoped to the batch summary path (e.g., 'in the batch summary round, render the summary with the first PR's report and menu, then collect that pick before rendering the next PR') so single-PR continuation output stays unchanged as it does here.",
+      "wallMs": 6796,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

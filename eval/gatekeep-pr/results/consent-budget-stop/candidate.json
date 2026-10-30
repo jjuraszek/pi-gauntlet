@@ -34,37 +34,37 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "32e6628eaf3ea7d530610ddb835a829dd48c0b7fbe3bd0d8b87ef4aea23f5c46",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "087f359d192e61b948ac04fba9df544a72d0aa7c98bc435eaca79022205d562a",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "f674d7e541a9640dd795b9f72c0c1955f1b64b103ea7192fa896fe3d60825534",
       "candidateOutputSha": "f674d7e541a9640dd795b9f72c0c1955f1b64b103ea7192fa896fe3d60825534",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs preserve rounds 6/6 and syncs 6/6 through recovery and the fresh-head conflict reassessment, run read-only Verify and Review on 2222222 without any sync, push, or implementer, and render an obstacle whose deliver row adds 6 to each cap cumulatively rather than resetting counters, so f1 holds in both; the expected fails->holds move did not actually occur because Before already satisfied the fact. In After, the cap wording in the deliver row (\"rounds 6 of 6, syncs 6 of 6, caps become 12\") is slightly less legible than Before's \"rounds 6 of 12, syncs 6 of 12\" and could be misread as unchanged caps; consider rendering the post-extension state explicitly as \"rounds 6 of 12, syncs 6 of 12\" while keeping the gauntlet marker line, the explicit sync-cap-first verdict, and the merge-tree exit-1 check that After adds, so that the obstacle's cumulative-extension semantics remain unambiguous under the new course model.",
-      "wallMs": 11764,
+      "feedback": "The Before and After outputs are textually identical for this case, so nothing moved: both preserve rounds 6/6 and syncs 6/6 through record validation and the fresh-head reassessment, explicitly refuse to reset repair.*, perform no sync/push/write, run Verify and Review as read-only report-only helpers on 2222..., and the obstacle menu offers a cumulative extension (add 6 to each cap, caps become 12) rather than a counter reset. The Change targets the batch summary round (one PR's report and menu per turn), which this single-PR `642` invocation never reaches, so the wording edit is correctly inert here; keep the new batch-sequencing language scoped to the multi-PR summary path and leave the single-PR obstacle template untouched, as it currently is.",
+      "wallMs": 7394,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "32e6628eaf3ea7d530610ddb835a829dd48c0b7fbe3bd0d8b87ef4aea23f5c46",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "d2ed67b9549afb9bf77ca10d31f7db0133c73d24582cdc197708840076f66e7f",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "a8b263434d166a3857e4d49573dfb61db5021c647bfd3625ba573127107c30e8",
       "candidateOutputSha": "a8b263434d166a3857e4d49573dfb61db5021c647bfd3625ba573127107c30e8",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs keep f1: each recovers the record with rounds 6/6 and syncs 6/6 intact, runs only a fast-forward head reconciliation plus read-only Verify and Review at 2222222…, dispatches no conflict helper, rebase, push, or watch, and renders the obstacle template whose deliver row adds 6 to each cap (6/12 and 6/12) while preserving usage rather than zeroing it. After additionally delivers the Change well: the gauntlet gate line precedes prose, the accounting note explicitly states the sync cap is a retained failed prerequisite and that no selection authorizes extension, and the deliver row phrases the cumulative extension clearly. Two small cautions so future wording does not drift: Before's deliver row shows the before/after pair ('rounds 6/6 to 6/12') which makes the cumulative-not-reset point unmistakable—After's 'rounds 6/12 and syncs 6/12' still reads as cumulative but could be tightened to the same from→to form; and After's 'Not offered: merge' reason bundles cap exhaustion with the conflict, whereas the conflict alone is the merge blocker—keep the merge omission reason to the conflict and leave cap state in the verdict/obstacle prose so readers do not infer that extending caps would unblock merge.",
-      "wallMs": 11203,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both retain rounds 6/6 and syncs 6/6 through recovery and the fresh-head conflict reassessment, explicitly state that head reconciliation spends neither counter, dispatch Verify and Review as report-only helpers on the new head, perform no wave, rebase, merge, push, or CI watch, and offer the deliver option as an explicit cumulative extension (rounds 6/12, syncs 6/12) rather than a reset. The batch-summary sequencing change is not exercised here because this is a single-PR invocation (argument `642`), so the After wording neither helped nor hurt this fact; keep the obstacle-menu wording as is and confine the per-PR sequencing instruction to the batch summary round so single-PR runs remain unaffected.",
+      "wallMs": 7666,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

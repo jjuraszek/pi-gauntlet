@@ -38,46 +38,46 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "936fb08181d59b70be2639971d90479ef3beebafb2e5ea4469ad5fd92832cfa9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "aca5bfee48de7ca6d7b97be7c717b63441b6e3a742fe46292b821bfa1946f0d2",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "c94363156477228abe8d56777c6ac9c4df3dbd9a50f45b2b947a3560ca69a6ec",
       "candidateOutputSha": "c94363156477228abe8d56777c6ac9c4df3dbd9a50f45b2b947a3560ca69a6ec",
       "facts": {
         "gate-first": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "After moved gate-first from fails to holds: it opens with exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=2` and nothing else on that line, the menu's row 2 is the stop row tagged [recommended], and the `stop and summarize` nudge appears only as a quoted string inside the prose below the gate, never as a second standalone marker; Before had no gate line at all. Keep that structure: emit the gate line first with the recommended number taken from the actual rendered position of the tagged stop row, and quote the runtime text inline as evidence rather than echoing it on its own line. One wording wrinkle unrelated to this fact: the After stop row says it will 'remove the worktree' while also saying 'the unpushed repair commit stays in the kept checkout', which contradicts itself and the stop-cleanup rule that unpushed trees are kept; reuse Before's 'keep the worktree if it holds unpushed commits, leave the PR as is' phrasing there so the stop row stays consistent with worktree: kept semantics while the gate line and quoted nudge remain as in After.",
-      "wallMs": 8749,
-      "verdict": "improved"
+      "feedback": "Before and After are byte-identical for this case, so nothing moved: both open with the single line `gauntlet: gate=gatekeep-pr/obstacle recommended=2`, row 2 is the stop row tagged [recommended], and the runtime nudge \"stop and summarize\" appears only as a quoted string in the narrative under that gate rather than as a second terminal marker. The Change targets the batch-summary round (one PR's report and menu per turn, collecting each pick before the next), which this single-PR obstacle case never enters, so the new wording correctly leaves this path untouched. Keep the per-PR sequencing instruction scoped to the batch summary round only, so that single-PR obstacle menus continue to emit exactly one gate line followed by one menu as they do here.",
+      "wallMs": 5922,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "936fb08181d59b70be2639971d90479ef3beebafb2e5ea4469ad5fd92832cfa9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "d99684109469c1a2539d6be8b4e1ba8120c381a3309048b9df60d78a41033bc3",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "7b6ee0f9d941866bde1e67ad5f74c804420ec6b7c75f525f1ce3b206fd1d2dcb",
       "candidateOutputSha": "7b6ee0f9d941866bde1e67ad5f74c804420ec6b7c75f525f1ce3b206fd1d2dcb",
       "facts": {
         "gate-first": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "After moved gate-first from fails to holds: its first line is exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=2` with nothing else on it, row 2 is the stop row tagged [recommended], and the runtime nudge appears only as quoted text (\"stop and summarize\") beneath the gate rather than as a second standalone terminal marker. Before had no gate line at all, opening with the Delivers prose. The After wording delivers the Change without losing anything Before held; keep the marker line byte-exact and first, keep the recommended number bound to the actual rendered stop row, and keep the nudge inside an Evidence/quote sentence as done here. One small tightening to consider: the duplicated '(assessed-head evidence not supplied)' parenthetical in the closing hint and the separate 'Evidence:' line could be merged into a single evidence statement so the quoted nudge is the only quoted runtime text and readers cannot mistake either for a second marker.",
-      "wallMs": 8017,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical here, so the Change (sequencing one PR's report and menu per pick in the batch-summary round) has no observable effect on this single-PR obstacle case, and gate-first holds in both: the first line is exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=2`, row 2 is the stop row tagged [recommended], and the runtime nudge \"stop and summarize\" appears only as quoted evidence beneath that gate with no second terminal marker. Nothing moved. To keep this intact while delivering the Change, scope the new sequencing wording explicitly to the batch summary round (\"after the summary, render the first PR's report and menu, wait for the pick, then render the next PR's report and menu\") so it does not alter the single-gate first-line format or introduce extra gate lines or markers in non-batch obstacle turns like this one.",
+      "wallMs": 6380,
+      "verdict": "unchanged"
     }
   },
   "refresh": {
@@ -167,5 +167,5 @@
       }
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

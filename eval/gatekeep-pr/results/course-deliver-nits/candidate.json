@@ -34,57 +34,57 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "eb016a6ed96791aa46d7508a047dacfa31153e1af138312f91f4651f36e9ef27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "d50a42edd2d8b3336e68d882b2784d47de891e77b093ee8026793857402a4c6e",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "a75eca28de001ce13f8d1e6227db56886673d2b14b5416c046596a7849f85670",
       "candidateOutputSha": "a75eca28de001ce13f8d1e6227db56886673d2b14b5416c046596a7849f85670",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "After keeps all three facts: it dispatches N1 and N2 on the already-mergeable head instead of exiting readiness, mints N3 from the 2222 re-review and folds it into iteration 2 without a new nit pick, and renders final only after N1/N2/N3 closure lines, exact-head CI success on 3333 and reconciliation, with merge as a separate numeric row. Two wording points are worth tightening so the facts stay robust: (1) iteration 2's Re-render says 'no source review runs' and then 'the last re-review has no nit or blocker' in the same breath — pick one framing (e.g. 'the fresh comment-source reviewer at 3333 returns clean') so the final re-review evidence is unambiguous and the N3-resolved line is clearly bound to 3333; (2) state explicitly in the readiness block that the persisted course remains `deliver-nits` and that no course change is written, mirroring the Before's clear 'readiness exit leads to the final template' wording, so a reader need not infer it. Also restoring the explicit `counted: true` persist in iteration 2 would keep the round accounting parallel to iteration 1.",
-      "wallMs": 16448,
+      "feedback": "The Before and After outputs are textually identical for this single-PR case, so no fact moved: both dispatch N1 and N2 despite the already-mergeable head (f1), both mint N3 from the own-push re-render and fold it into the deliver-nits course with no fresh nit selection (f2), and both render the final menu only after N1/N2/N3 closure lines, exact-head CI success on 3333..., and a separate merge/stop pick (f3). This is expected because the Change scopes itself to the batch summary round, which this `42` single-argument case never enters; keep the new per-PR sequencing wording confined to the batch summary section (e.g., 'In the batch summary round, render the first PR's report and menu with the summary, then collect its pick before rendering the next PR's report and menu') so the single-PR D3 loop and final-menu rendering remain untouched, as they are here.",
+      "wallMs": 9028,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "eb016a6ed96791aa46d7508a047dacfa31153e1af138312f91f4651f36e9ef27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "d7dd9519107518ddfd15d01740d164adf4e7f6c408ca69e798530adb74ec02fc",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "44edcbd12f0152f4783437f181bf147bf87357b3b20bab40ecfd74cf5bc2f38a",
       "candidateOutputSha": "44edcbd12f0152f4783437f181bf147bf87357b3b20bab40ecfd74cf5bc2f38a",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs dispatch N1 and N2 despite the mergeable entry head, carry N3 from the post-push comment-delta review into a second wave with no new pick, and render exactly one final menu only after reviewer closure lines for all three nits, exact-head CI success on 3333...3333, and a merge row that is offered but never executed, with the course left as deliver-nits. After also adds the gauntlet gate line and the 'Not offered: approve (own PR)' row, which strengthens the shared-menu delivery. One thing worth tightening in After: it asserts 'the initial gather did not use a review-thread query', which contradicts the digest (review_threads is a supplied, empty comment source) and the Before narration that re-ran the paginated reviewThreads query; keep the reviewThreads refetch wording from Before so comment-snapshot safety stays consistent with the digest while retaining After's course-model and menu template changes.",
-      "wallMs": 13543,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both dispatch N1 and N2 despite the head already being mergeable, both fold N3 from the comment-delta source review into a second wave without rendering a mid-course menu, and both render the single final menu only after all three closure lines, exact-head reconciliation on 3333...3333 and successful CI, with deliver-nits retained and merge left as a separate unexecuted pick. This single-PR invocation (`42`) never enters a batch summary round, so the Change wording (one PR's report and menu per turn, collecting each pick before the next) is not exercised here and has no observable effect; keep the sequencing instruction scoped to the batch summary round so single-PR runs like this continue to render exactly one final menu and never pause mid-course for a per-PR pick.",
+      "wallMs": 7527,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

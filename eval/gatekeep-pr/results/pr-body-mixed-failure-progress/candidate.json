@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "494a34ffb4d093193deba5e5eaa4cbc18fac6af9d21fa2874b6e4285b557a57c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "2e66b0796ed007d801fb935fe3eb667bee5ecfba192d6715e9e15d6091e4b38c",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "09f40013e5fd1cd126d056983bf6a90d3de4a79744635e856d101ad4c29e8252",
       "candidateOutputSha": "09f40013e5fd1cd126d056983bf6a90d3de4a79744635e856d101ad4c29e8252",
       "facts": {
         "f3": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on f3: both outputs keep P1's confirmed description progress (exact readback at unchanged head, narrow recheck matched, P1 resolved and removed from the rendered blocker list) while leaving P2 open as the sole failed file blocker, with no replay of the body write and no coupling of P1's status to the no-progress exit. After states this slightly more compactly (step 3 and step 5) than Before (steps 4 and 7, which also name `affected_claims` retaining P1); if you want the independence to be unmistakable, keep a line like Before's 'affected_claims keeps P1, and its stored narrow recheck still matches at this unchanged head' alongside the P2-open line, which costs nothing against the course/menus.md change you are delivering.",
-      "wallMs": 7725,
+      "feedback": "The After output is textually identical to Before, so nothing moved on this case: both outputs keep the confirmed P1 description progress (readback matched the consented replacement body, the narrow recheck still matches, P1 stays `matched` and leaves the rendered list) while treating the failed P2 file repair separately (edits discarded, no commit, no-progress row matched, no round charged, wave retained), which is exactly what f3 asks for. This single-PR re-entry case does not exercise the batch-summary sequencing the Change targets, so the wording change is invisible here; to verify batch-summary-queue/s8 you need a multi-PR case, and the per-PR sequencing text should be confined to the batch summary round so it leaves the single-PR obstacle menu and the description/file independence logic untouched, as it did here.",
+      "wallMs": 8350,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "494a34ffb4d093193deba5e5eaa4cbc18fac6af9d21fa2874b6e4285b557a57c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "6e539b1ffa2d705ccfc8ae336031dffdc5f40d739b94924df3501785e442a944",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "8dd189af1b3b6b0c8daa2f450cd020ba3e3bbb77854e503523495d062c354159",
       "candidateOutputSha": "8dd189af1b3b6b0c8daa2f450cd020ba3e3bbb77854e503523495d062c354159",
       "facts": {
         "f3": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs preserve the resolved description contribution while keeping the constant-time comparison blocker open and independent: Before states the description contribution is resolved and that the successful correction does not clear the file blocker; After says the same (\"remains resolved; it does not resolve the independent constant-time comparison blocker\") and explicitly declines to repeat the already successful narrow recheck. Nothing in the After wording moved f3. If you want to tighten After, consider retaining the Before evidence detail (0 binding pending checks; merge_state_status CLEAN) in the Evidence line so the exact-head evidence stays as complete as before, and consider naming the resolved P1 by id in the continuation paragraph so a reader can trace description progress to the persisted finding without opening the state file.",
-      "wallMs": 6778,
+      "feedback": "The After output is textually identical to Before for this single-PR case, so nothing moved: both preserve the confirmed P1 description correction as resolved (\"The successful description correction remains resolved\"), omit it from Blockers, and keep the P2 constant-time comparison blocker open independently without charging a round, syncing, pushing, or re-dispatching the description recheck. The Change targets the batch summary round (one PR's report and menu per turn, collecting each pick before the next), which this single-PR `642` invocation never enters, so the new wording is correctly inert here; keep the batch sequencing language scoped to the batch round only and leave the single-PR obstacle path, including the explicit \"description correction remains resolved; it does not resolve the independent ... blocker\" sentence and the P1-free Blockers list, untouched so f3 continues to hold.",
+      "wallMs": 6955,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

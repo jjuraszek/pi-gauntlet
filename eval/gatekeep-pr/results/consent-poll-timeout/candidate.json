@@ -34,37 +34,37 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "eee1972eff5f69f339ddeb7debb4bc9eff1ef5ab39902b8a722a645f9c97596f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "b4a6db0270267b90de5b8d900b3ed2098c75ca6d812bdd33a2c94d133a3275f7",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "717b0cf48c523d8f8daa4f9d4241308ea75fda46c45bdfa8f81d7f0e4c16f82d",
       "candidateOutputSha": "717b0cf48c523d8f8daa4f9d4241308ea75fda46c45bdfa8f81d7f0e4c16f82d",
       "facts": {
         "f5": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "After keeps every element of f5 that Before kept: it records the deadline (12:15:00Z) expiring at 12:15:01Z after the last own push at 12:00:00Z, states explicitly that the 12:10 base observation does not renew the window and that no new deadline is minted and no `gh pr checks --watch` runs, exits through the obstacle row, offers a numeric deliver that opens exactly one more 15-minute window with neither cap extended (and even echoes the unchanged 0 of 6 / 0 of 6 counters), and renders no ordinary wait row. One wording inconsistency worth tightening: the narration exits with `stuck - CI pending past 15 minutes` while the rendered Verdict line says `not ready - CI pending past 15 minutes`; since the gate line claims `gate=gatekeep-pr/obstacle`, keep the Verdict text identical to the tagged stop (`stuck - ...`) so the obstacle marker, exit tag and rendered verdict agree without weakening any of the f5 content.",
-      "wallMs": 9698,
+      "feedback": "Before and After are textually identical for this single-PR case, so nothing moved: both record the deadline (12:15:00Z) elapsing after the last own push at 12:00:00Z, explicitly decline to mint a new deadline or run `gh pr checks --watch`, offer deliver as exactly one more 15-minute window with no round charged and neither cap extended, and omit any ordinary wait option. The Change targets the batch summary round, which this single-PR entry never reaches, so the per-PR sequencing wording has no footprint here; when you do apply it, keep the obstacle menu text as is (deadline-elapsed row, no automatic renewal, single-window deliver, no wait) and only alter the batch loop so each PR's report and menu renders after the previous pick rather than collecting picks at once.",
+      "wallMs": 6073,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "eee1972eff5f69f339ddeb7debb4bc9eff1ef5ab39902b8a722a645f9c97596f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "d1103e8435a7fc0defeb66f13d26c7531402aa41f158e73cacf6b0b186bcd524",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "a54fb6f5a50999a2ba5ec540e2ea5cf6cf76fa9d38232fa8deff49e42480232b",
       "candidateOutputSha": "a54fb6f5a50999a2ba5ec540e2ea5cf6cf76fa9d38232fa8deff49e42480232b",
       "facts": {
         "f5": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f5: each records the 12:15:00Z deadline as expired with the last own push at 12:00 and no renewal from the 12:10 base observation or the continuation, renders the obstacle menu (stuck - CI pending past 15 minutes) without running a watch or verification, states that a numeric deliver would open exactly one additional 15-minute window while extending neither cap, and omits any ordinary wait row. After did not move this fact; it adds the `gauntlet: gate=gatekeep-pr/obstacle recommended=3` line, an explicit 'No obstacle continuation was selected, so I open no additional window' sentence, and a usage line, all of which reinforce f5. One caution for the author: After's verdict reads `not ready - stuck - ...`, stacking two markers where Before used a single `stuck` tag — this does not affect f5 but may collide with facts elsewhere that require exactly one marker in the gate line, so consider keeping `Verdict: stuck - CI pending past 15 minutes` alone while retaining the new gate header and the explicit no-renewal sentence.",
-      "wallMs": 11952,
+      "feedback": "Before and After are byte-identical for this single-PR obstacle case, so nothing moved: both expire the 12:15:00Z deadline at the 12:15:01Z observation after the 12:00:00Z push, render the obstacle gate with no CI watch run, state explicitly that neither the 12:10 base observation nor the continuation renews the window, offer deliver as exactly one additional 15-minute window without extending either cap, and present only deliver/assess/stop with no ordinary wait option. The Change targets the batch summary round's per-PR sequencing, which this one-PR entry never reaches, so the After wording correctly leaves this path untouched; keep the batch-sequencing wording scoped to the batch summary round so single-PR timeout rendering continues to produce the same obstacle menu.",
+      "wallMs": 9269,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

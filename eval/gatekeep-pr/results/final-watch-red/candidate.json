@@ -38,24 +38,24 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b443212fba6255416e2bb590360b18a502f30bdf97453fb9a2f29ea9b04501c7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "673ac07041a33957f3f8371ee666a34108da040440c30be2ede1e6dd7a90be4d",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "4f4e6f6d6445ba489b6b1fd7d7a2870bd8895e93d8f748502b0d04847efa5786",
       "candidateOutputSha": "4f4e6f6d6445ba489b6b1fd7d7a2870bd8895e93d8f748502b0d04847efa5786",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
@@ -63,31 +63,31 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: it still refuses a watch while course is unset (step 2 says explicitly 'not delivery step 4, so I start no watch'), it still attributes the completed-failure snapshot to the same read-only refresh 'not from any watch' and mints a blocker from the exact --log-failed line, and the menu still offers assess/deliver/deliver with nits/stop with no fix row and nothing applied. Two small tightenings would make the After text more legible against these facts without disturbing the Change: name the minted blocker as 'P1' in the narration (After says only 'one P#', so a reader has to infer the id from the rendered Blockers list), and add an explicit closing statement that repair.rounds_used remains 0 and the payload is persisted unapplied (Before said 'keyed to P1 and not applied' and 'persisted to the record'; After says 'nothing has been applied' but never restates the counter). The new 'gauntlet: gate=gatekeep-pr/initial recommended=2' first line and the reworded assess row ('post the review to the PR; then approve or stop') are consistent with the shared menus.md template and did not move any fact here.",
-      "wallMs": 13832,
+      "feedback": "Before and After are textually identical for this single-PR resume case, so nothing moved: both start no watch with course unset, both mint one P# from the `--log-failed` line while explicitly attributing the completed-failure snapshot to the read-only refresh rather than a watch, and both draft the blocker payload, render the initial menu with deliver (not fix) and leave rounds_used at 0. The batch-summary sequencing change correctly has no footprint here because there is only one PR and no batch summary round; keep the change scoped to the batch summary path as it is, and avoid introducing any per-PR sequencing language into the single-PR initial template, which would only add noise to cases like this one.",
+      "wallMs": 8763,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b443212fba6255416e2bb590360b18a502f30bdf97453fb9a2f29ea9b04501c7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "f7d3e47e77eb4df672118cef5a14ef64e520e738ba8d111b5a4154b5f3053373",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "e76d489588f090a6e428a5194d3878ebf2fc242ff35c93a28c6ab9f80ec26743",
       "candidateOutputSha": "e76d489588f090a6e428a5194d3878ebf2fc242ff35c93a28c6ab9f80ec26743",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "All three facts survive in After: course stays null, no watch or repair runs, the failing log mints blocker P1 explicitly marked as independent of any authorized watch, the repair stays a draft, the initial template offers deliver (recommended) with no fix row, and counters remain zero. The one softening is step 3, where After folds the entry's IN_PROGRESS pre-menu refresh into the completed-failure snapshot (\"The completed-failure snapshot replaces the earlier in-progress check state\") rather than showing, as Before does, a first refresh that observes pending CI with evidence pending and no watch, followed by a second independent refresh that observes the failure. That ordering is what makes f1 unambiguous; keep two distinct refresh steps — pending observed → no watch, course unset → then the independent failure snapshot — while still using the new initial/menus.md wording and course-based rows, and f1 will read as cleanly as it does in Before.",
-      "wallMs": 16673,
+      "feedback": "After is byte-identical to Before on this single-PR case, so nothing moved: both render the initial gate with course unset and no watch or repair (f1), both mint a numbered blocker from the supplied `--log-failed` output while explicitly stating the failure snapshot is independent of an authorized watch (f2), and both persist a drafted repair payload, offer deliver rather than fix, and keep rounds_used at zero (f3). Because the Change targets the batch-summary round and this case has one PR, the wording change is not exercised here; the sequencing language you add for batch mode should stay scoped to the batch summary round (e.g. 'in a batch, after the summary, render the first PR's report and menu, collect its pick, then render the next') so single-PR continuations like this one keep rendering exactly one report and one menu as they do now.",
+      "wallMs": 10206,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

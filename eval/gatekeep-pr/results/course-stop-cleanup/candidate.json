@@ -34,67 +34,67 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7c09683060b9f8d1f0e798ca0a5bfeb55f1c7439bebcc6ba8a889dac7ba595ba",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "110d0e4008729952dbb696bfc2b9744b38062dddd00a32dff728bcdce4728b35",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "029f8beafe8f436a7ec81feaf2fe50c832396672f6abce21a750620bb286fc64",
       "candidateOutputSha": "029f8beafe8f436a7ec81feaf2fe50c832396672f6abce21a750620bb286fc64",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "No fact moved: After still removes the owned, tracked-clean, fully pushed trees in A and B (including tmp.out) via the recorded destroy from /work/widgets, keeps C/D/E/F with the exact kept-reason lines and names the discard decision in C as a separate explicit human choice, lists branch deletion, base fetch/pull and the release/close-ticket overrides as never run with no merge or approval, and retires only the PR 42 record, helper outputs, logs and temporary body files while never touching the primary. The Change-driven additions (the `gauntlet: gate=... recommended=2` marker and the `gauntlet: stuck stopped at initial` first line in each case) sit cleanly before the worktree line and do not disturb any of the four facts. One small regression worth fixing relative to the Entry's 'narrate each stop consequence': Before customized the rendered stop row per checkpoint (`stop - remove /work/widgets-pr-42 (untracked files there are deleted)`), while After collapses it to the generic `stop - remove the worktree`; keeping the per-checkpoint consequence text in the shared template placeholder (as Before did) alongside the new gate marker would preserve that detail while still delivering the shared-menu change.",
-      "wallMs": 11857,
+      "feedback": "Before and After are byte-identical for this case, so no fact moved: A and B both run the recorded `git -C /work/widgets worktree remove --force /work/widgets-pr-42` (plus prune) and state that `tmp.out` is deleted; C names the unpushed commit 2222... and explicitly says discarding is a separate human decision; D, E and F are kept with the dirty-file, outside-home and ambiguous-match reasons respectively; step 8 forbids branch deletion, main fetch/pull, and the release/close-ticket overrides while the closing paragraph confirms no merge or approval; and step 9 confines deletions to the record, gatekeep-verify/review outputs, their logs and temp body files, with step 5 guarding the primary. This is expected: the Change concerns the batch summary round's per-PR report/menu sequencing, which this single-PR stuck/stop-at-initial case never reaches, so the wording change has no surface here. To make the batch change observable without disturbing these facts, keep the cleanup.md non-final-stop and teardown text untouched and scope the new sequencing language strictly to the batch summary section (e.g., 'render PR k's report and menu only after PR k-1's pick is recorded'), avoiding any edits to the shared stop-handling steps that this case relies on.",
+      "wallMs": 12591,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7c09683060b9f8d1f0e798ca0a5bfeb55f1c7439bebcc6ba8a889dac7ba595ba",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "c814505811eb87ccb8442e3186a4b8f6b79b6bf05851921a2b868b0eaf8849a5",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "d30405847c06cd0e69017fa82ff60ee4e62ffbf7071cd5f5129cdb66815594da",
       "candidateOutputSha": "d30405847c06cd0e69017fa82ff60ee4e62ffbf7071cd5f5129cdb66815594da",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps A/B removal via the recorded destroy from /work/widgets (tmp.out deleted), keeps C/D/E/F with the correct kept reasons and the explicit separate discard decision for C, states no branch deletion, base fetch/pull, release or close-ticket override and leaves the PR open and unmerged, and retires only this run's record plus any helper/log artifacts while the primary stays. Two wording points to tighten rather than fix: the leading `gauntlet: stuck stopped at initial` line is an odd gate marker for a plain stop and could be misread as an obstacle, so consider a plainer stop tag; and After says it 'retains the existing course and accounting' without echoing course null and 0/0 of 10/10 as Before did, which costs nothing to keep and makes the record-preservation claim concrete.",
-      "wallMs": 12105,
+      "feedback": "The After output is textually identical to Before, so nothing moved on this case: A and B still destroy the owned, clean, fully pushed worktree from the primary with the recorded `git -C /work/widgets worktree remove --force /work/widgets-pr-42` (deleting `tmp.out`); C/D/E/F are kept with their specific reasons (unpushed 2222… with the discard decision explicitly deferred to a separate human choice, tracked dirt in `src/guard.mjs`, path outside the recorded home, ambiguous ownership); no branch deletion, base sync, release, or close-ticket override runs and the PR stays open unmerged; only the continuation record is removed and the primary/sibling checkouts are untouched. This case is a single-PR stop at the initial menu, so the batch-summary sequencing Change has no surface here and the wording is behaving as intended. To make the Change land where it matters (batch-summary-queue/s8), keep the single-PR path untouched and scope the new sentence to the batch summary round only, e.g. 'In the batch summary round, render the summary followed by the first PR's report and menu; collect that pick before rendering the next PR's report and menu, never presenting multiple menus or asking for a combined reply' — this preserves every fact Before kept here while delivering the sequencing behavior in the batch case.",
+      "wallMs": 11963,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }
