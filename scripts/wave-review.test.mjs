@@ -370,7 +370,7 @@ test('execution failures take authorized decisions before a single isolated esca
   for (const text of ['Value decoding', 'took recommendation: <option> for task <n>',
     'count every re-dispatch as an ordinary attempt', 'escalated round for task <n> after 2 failed attempts',
     'gauntlet_setting({ key: "escalationLoop" })', 'model: <implModel>', 'context: "fresh"', 'async: false',
-    'SCOPED_TEST_COMMANDS', 'complete prior report verbatim', 'same payload and isolation',
+    'SCOPED_TEST_COMMANDS', 'the prior report path and the anchored task payload', 'same payload and isolation',
     'dispatch error or non-`DONE`', 'no fourth unnamed repair', 'unrecoverable means spent',
     'whitespace', 'file:line', 'failing command plus assertion',
     'Recommendation: none - evidence repeats task <n>', '/skill:shape-ticket',
