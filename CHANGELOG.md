@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Require `Do not edit any file.` in read-only `Amend-prepare:` task text so pi-cohort's completion guard accepts preparation that mentions implementation fixes without making edits.
+
 ## v7.43.0 - 2026-10-30
 
 ### Added

@@ -3,6 +3,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
+test('Amend-prepare contracts require the completion guard no-edit sentence', () => {
+  for (const path of [
+    'skills/subagent-driven-development/reference/implement-amendments.md',
+    'skills/brainstorming/reference/amendment-surface.md',
+    'agents/plan-writer.md',
+  ]) assert.ok(read(path).includes('Do not edit any file.'), path);
+});
+
 test('implement amendment modes bound preparation and granted apply without changing ordinary planning', () => {
   const text = read('agents/plan-writer.md');
   assert.equal(text.match(/^---\n[\s\S]*?\n---/)[0], `---
