@@ -1,7 +1,7 @@
 {
   "sample": "no-arg-discovery-zero",
   "arm": "candidate",
-  "skillSha": "b9172a34e8328bbb093e663c415382264c221708f7cb21fc659d4b9c1828d9f5",
+  "skillSha": "2eb9b04d46957802c08ae0cb278f653b4ad7fdd692db0f71f63403a25147e03f",
   "inputSha": "2ddd1aa87f6d567a964c496ece31be5a3bb1e84fc0e1420edcfcc21870134a73",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: stuck no open PRs authored by @me or awaiting @me's review in acme/widgets\n\n**Argument resolution: discovery (Section A, Argument-resolution discovery)**\n\nNo PR token was supplied, so discovery runs during argument resolution. It runs before Progress tracking, continuation-record minting, tracker `init`, set admission, and provisioning.\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. I strip `.git` and lowercase it, giving origin `acme/widgets`. This is a GitHub origin, so discovery continues.\n2. `gh api user --jq .login` exits 1 (`HTTP 403: Forbidden`). I record `viewer.login: unreadable` and continue with `@me`.\n3. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` exits 0 and returns `[]`. The output is a valid array with 0 rows, below the 1000 limit, so the result is complete.\n4. `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` exits 0 and returns `[]`. The output is a valid array with 0 rows, below the limit, so the result is complete.\n5. The union of the two results, after dedupe, is empty. There are no drafts or decided PRs to filter, so there are 0 matches.\n\n**Outcome: 0 matches, so discovery stops.** Because `viewer.login` is unreadable, the message uses `@me` in place of the login:\n\n`no open PRs authored by @me or awaiting @me's review in acme/widgets`\n\nWhat did not happen:\n- The run never falls back to the current branch's unrelated PR 999.\n- No helper was dispatched.\n- No continuation record was minted.\n- No `plan_tracker` stages were initialized.\n- No worktree was provisioned.\n- No head SHA was verified or assessed, so the brief assesses nothing.\n- The Claude Code multi-PR rejection does not apply, because it covers only 2 or more matches.\n\nNo `Sync:` line renders, because `--rebase` was not passed and no report renders. No `Verdict:` line renders, and no menu renders: discovery rejection ends the run before step 1.\n",
-      "words": 306,
-      "wallMs": 9815,
+      "text": "gauntlet: stuck no open PRs authored by @me or awaiting @me's review in acme/widgets\n\n**Narration: argument resolution with no PR token**\n\nThere is no PR token, so argument resolution runs discovery from `verification-brief.md` Section A. This happens before set-versus-single routing, before minting the continuation record, before tracker init, and before provisioning. It is not Gatherer step 1.\n\n1. **Resolve the origin.** `git remote get-url origin` returns `git@github.com:acme/widgets.git`. With the `.git` suffix stripped and the name lowercased, the GitHub repository is `acme/widgets`. The origin is a readable GitHub remote, so there is no `discovery failed: origin is not a GitHub repository` stop.\n\n2. **Read the viewer.** `gh api user --jq .login` exits 1 with `HTTP 403: Forbidden`. I record `viewer.login: unreadable` and continue with `@me` as the query identity.\n\n3. **Run the author query.**\n   `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   It exits 0 and returns `[]`.\n\n4. **Run the direct review-request query.**\n   `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   It exits 0 and returns `[]`.\n\n5. **Validate both results before filtering.**\n   - Both queries exited 0.\n   - Both outputs are JSON arrays with no malformed rows.\n   - Each count is 0, below the 1000 limit, so neither query is incomplete.\n\n6. **Filter and sort.** The union of the two queries, deduplicated by number, is empty. There is nothing to filter for drafts or for `APPROVED`/`CHANGES_REQUESTED` decisions, and nothing to sort.\n\n7. **Take the 0-match outcome.** Zero matches means a stop. The viewer login is unreadable, so the message uses `@me` in place of the login. I do not fall back to the current branch's unrelated PR 999. The Claude Code multi-PR rejection does not apply because it only fires at two or more matches.\n\n**What did not run**\n- Tracker stages: none initialized, because the run stopped before progress initialization.\n- Continuation record: none minted.\n- Worktree: none provisioned.\n- No helper was dispatched.\n- No SHA was assessed by verification or the brief.\n- No `Sync:` line renders, since `--rebase` was not passed and no report exists.\n- No `Verdict:` line renders.\n- No menu renders.\n\nDiscovery output:\n\n```text\nno open PRs authored by @me or awaiting @me's review in acme/widgets\n```\n",
+      "words": 361,
+      "wallMs": 13957,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`; normalize the repository to `acme/widgets`.\n2. Run `gh api user --jq .login`. It fails with `HTTP 403: Forbidden`; record viewer identity as `unreadable` and use `@me` for discovery.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It succeeds with `[]`.\n4. Run `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It succeeds with `[]`.\n5. Validate both arrays, union and deduplicate them, and apply the discovery filters. No PRs remain.\n\nStop at discovery rejection. Do not fall back to the current branch's unrelated PR 999. No continuation record is minted, no tracker stages are initialized, no provisioning occurs, and no helpers are dispatched. No SHA is assessed, and no report, Sync line, verdict, or menu renders.\n\ngauntlet: stuck no open PRs authored by @me or awaiting @me's review in acme/widgets\n",
-      "words": 149,
-      "wallMs": 4885,
+      "text": "1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`; normalize the repository to `acme/widgets`.\n2. Run `gh api user --jq .login`. It exits 1 with `HTTP 403: Forbidden`; record `viewer.login: unreadable` and use `@me` for discovery.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It returns `[]`.\n4. Run `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It returns `[]`.\n5. Validate both arrays, union and deduplicate them, and obtain zero matches. Stop discovery without falling back to the current branch's PR 999.\n\nNo continuation record is minted, no tracker stages are initialized, no provisioning runs, and no helpers are dispatched. Neither verification nor review assesses a SHA. No report, sync line, verdict, or menu renders.\n\nDiscovery rejection:\n```text\nno open PRs authored by @me or awaiting @me's review in acme/widgets\n```\n",
+      "words": 141,
+      "wallMs": 4775,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
       "baselineOutputSha": "28767fa86541501085685882e423c2eb1bbc3de6f97434370c8db11640dbc3bb",
-      "candidateOutputSha": "6e7dab6d8ed26fcadb0561dec42536812a3764e22592b6c75a732b2694b058d7",
+      "candidateOutputSha": "a6b926fb942421dbce017e4fc3d6c73ebc5e8e852d1cedf09266df1a13b79289",
       "facts": {
         "f1": {
           "before": "fails",
@@ -44,8 +44,8 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves f1 from fails to holds: it stops with the exact string `no open PRs authored by @me or awaiting @me's review in acme/widgets` (both in the stuck header and as the quoted stop message), treats the 403 on `gh api user` as a non-fatal read that simply substitutes `@me`, runs both open-list queries with limit-completeness checks, and explicitly refuses the current-branch PR 999 fallback — all before tracker init, continuation minting, or provisioning. Before failed only on the exact-message clause (it reported `no PR token given and discovery found no PR to gate in acme/widgets` and a prose variant), while also querying `gh pr view` on the current branch, which the approved discovery contract does not call for even if it was ultimately not adopted. Nothing Before kept was lost in After; keep the exact-message rendering and the explicit `@me` substitution rule, and keep omitting the current-branch `gh pr view` probe so the no-fallback claim is demonstrated by the command sequence rather than only asserted.",
-      "wallMs": 9116,
+      "feedback": "Before stops before provisioning, treats the 403 as a non-fatal `viewer.login: unreadable` record, and declines the PR 999 fallback, but its stop line is `no PR token given and discovery found no PR to gate in acme/widgets` rather than the exact required string, so f1 fails on wording alone. After emits exactly `no open PRs authored by @me or awaiting @me's review in acme/widgets` both in the first line and in the discovery output block, explicitly substitutes `@me` because the login is unreadable, continues discovery past the failed user read, rejects the current-branch PR 999 fallback, and confirms no tracker, continuation record, or worktree was created — every clause of f1 holds. Nothing regressed; to keep this stable, retain the explicit rule in After that an unreadable viewer login substitutes `@me` in the exact 0-match message rather than altering the message shape, and keep the zero-match stop emitted verbatim as the first line before any narration.",
+      "wallMs": 9152,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -53,7 +53,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
       "baselineOutputSha": "c0e5cd27d77cebcbd648d8565fda42945032fc552650f9197d25e9124aec7364",
-      "candidateOutputSha": "f0270059df109f67731c112bce7430bccf5c2392779a01919295385b6b63eb35",
+      "candidateOutputSha": "370d6cb1562dcbb5c0c4999ad33e6c4167908992b786c3ea3a73ed609b13a9d6",
       "facts": {
         "f1": {
           "before": "fails",
@@ -61,10 +61,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before fails f1 solely on wording: its stop line is `gauntlet: stuck PR discovery rejected - viewer identity unreadable and no candidate PRs found`, not the exact required `no open PRs authored by @me or awaiting @me's review in acme/widgets`, even though it correctly continued discovery past the 403 and did not fall back to PR 999. After fixes this by emitting the exact stop text, explicitly recording the identity read as `unreadable` while still using `@me` for both queries, and explicitly refusing the current-branch PR 999 fallback before any provisioning. To keep this stable, retain the exact stop string verbatim (no added 'viewer identity' qualifier) and keep the explicit 'identity unreadable, continue with @me' step and the 'do not fall back to PR 999' sentence; placing the gauntlet line first rather than last would also align with the gate-line-first expectations in the Change without affecting f1.",
-      "wallMs": 11759,
+      "feedback": "Before never emits the required exact stop text; it stops with a different message (`gauntlet: stuck PR discovery rejected - viewer identity unreadable and no candidate PRs found`) that also folds the 403 user read into the rejection reason, so f1 fails there. After fixes both halves: step 2 records `viewer.login: unreadable` and explicitly continues discovery with `@me` (so the failed read is not treated as an identity error), both open-list queries run, the union is zero, step 5 refuses the current-branch PR 999 fallback, and the final block renders exactly `no open PRs authored by @me or awaiting @me's review in acme/widgets` before any provisioning, tracker init or continuation minting. Nothing Before held was lost; keep the After wording, and if anything, consider placing the exact rejection string as the first line of the stop rather than after the prose so the exact-text requirement is unambiguous even for readers scanning only the leading line.",
+      "wallMs": 8746,
       "verdict": "improved"
     }
   },
-  "repoSha": "0815af89ece7d6868774e0e638c698bda634e12b"
+  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
 }

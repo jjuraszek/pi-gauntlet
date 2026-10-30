@@ -1,7 +1,7 @@
 {
   "sample": "no-arg-discovery-single",
   "arm": "candidate",
-  "skillSha": "b9172a34e8328bbb093e663c415382264c221708f7cb21fc659d4b9c1828d9f5",
+  "skillSha": "2eb9b04d46957802c08ae0cb278f653b4ad7fdd692db0f71f63403a25147e03f",
   "inputSha": "e372302133032eeacd66dc78c475b66e9f3cb7e3601a0e10eab8e9957c6e3aae",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Argument resolution: discovery, no PR token\n\nThe arguments line carries no PR token, no issue reference and no `--rebase`. Discovery therefore runs during argument resolution, per `verification-brief.md` Section A `### Argument-resolution discovery`. It runs before Progress tracking, continuation-record minting, tracker `init`, set admission or provisioning.\n\n1. **`git remote get-url origin`** returns `git@github.com:acme/widgets.git`.\n   - This is a GitHub origin.\n   - After stripping `.git` and lowercasing, the repository identity is `acme/widgets`.\n   - `GH_REPO=other/project` and the gh default `other/project` are ignored. Discovery binds to origin through explicit `-R` and URL tokens.\n\n2. **`gh api user --jq .login`** returns `alex`.\n   - `viewer.login = alex` is recorded once.\n   - The first single-PR gather will reuse this value.\n\n3. **`gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`** exits 0.\n   - The output is an array of one object with integer `number` 101.\n   - The count is 1, below the limit of 1000, so the result is complete.\n\n4. **`gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`** exits 0.\n   - The output is an empty array, which is valid.\n   - The count is 0, below the limit, so the result is complete.\n\n5. **Union, filter and sort** produce the matches.\n   - The deduplicated union is {101}.\n   - PR 101 is not a draft.\n   - Its `reviewDecision` is `REVIEW_REQUIRED`, which is retained. Only exact `APPROVED` or `CHANGES_REQUESTED` would drop it.\n   - The size key is 1+1=2, giving the sorted list [101].\n   - PR 999 on the current branch is not a candidate. Discovery never falls back to the current branch.\n\n6. **Outcome: exactly 1 match.**\n   - The single-PR path continues on this harness with the token `https://github.com/acme/widgets/pull/101`.\n   - Set routing is not re-entered and no `source: discovered` set is formed.\n   - The cap check (`parallel.maxTasks` 4) and the discovered-list line do not apply.\n\n## Stopping point: single-PR handoff\n\nThe run stops here, before step 1 gather and before provisioning.\n\n- **Helpers:** none dispatched.\n- **Tracker:** no stages initialized. Continuation-record minting and `plan_tracker init` (`gather, provision, verify`, with no `sync` because `--rebase` is absent) come after this handoff and are not reached.\n- **Assessed SHA:** none yet. Verification and the brief have not run, and `headRefOid` is gathered only in step 1.\n- **Sync line:** none renders, because `--rebase` was not passed.\n- **Verdict line and menu:** none. No report or menu is rendered at the discovery handoff.\n",
-      "words": 374,
-      "wallMs": 14489,
+      "text": "# gatekeep-pr: argument resolution narration\n\n**Invocation:** no PR token, no issue reference, no `--rebase`.\n\nDiscovery therefore runs during argument resolution, per verification-brief.md Section A `### Argument-resolution discovery`. It runs before the set-vs-single branch, before the continuation record is minted, before tracker init, and before any provisioning.\n\n## Commands run, in order\n\n1. **`git remote get-url origin`**\n   - Returns `git@github.com:acme/widgets.git`.\n   - This is a GitHub origin. Strip `.git` and lowercase it, giving `acme/widgets`.\n   - `GH_REPO=other/project` and the gh default repo are ignored. Every query names `-R acme/widgets` explicitly.\n\n2. **`gh api user --jq .login`**\n   - Returns `alex`, recorded as `viewer.login`.\n   - The step-1 gather will reuse this value.\n\n3. **Author query:** `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - Exit 0, returning one row: #101.\n\n4. **Direct-request query:** `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - Exit 0, returning `[]`.\n\n## Validation and filtering\n\n**Validation, before filtering:**\n- Both queries exited 0.\n- Both outputs are arrays.\n- The single row is an object with integer `number` 101.\n- Neither query hit the 1000 limit, so there is no incompleteness stop.\n\n**Filtering:**\n- The union, deduplicated by number, is {101}.\n- #101 is not a draft.\n- Its `reviewDecision` is `REVIEW_REQUIRED`, which is neither `APPROVED` nor `CHANGES_REQUESTED`, so it stays.\n- Sorted by additions plus deletions (2), then by number: `[101]`.\n- The current branch's PR #999 is never considered, because discovery never falls back to the current branch.\n\n## Outcome\n\nThere is exactly one match, so the run continues on the single-PR path. The origin URL token is:\n\n`https://github.com/acme/widgets/pull/101`\n\nThis token keeps the `acme/widgets` identity through `gh pr view`, whatever `GH_REPO` or the gh default says.\n\n- **Set routing:** it is not entered, because there are fewer than two PRs.\n- **Helpers:** none dispatched.\n- **Writes:** none.\n\n## Stop point: single-PR handoff\n\nThe narration stops here, before step 1 gather and before provisioning.\n\n- **Continuation record:** not yet minted.\n- **Tracker:** not yet initialized. On handoff it will `init` with `gather, provision, verify`, with no `sync` stage because `--rebase` is absent.\n- **Assessed SHA:** none yet. Verification and the brief have assessed no SHA, because gather has not run.\n- **Sync line:** none renders, because `--rebase` was not passed.\n- **Verdict line:** none yet. No report renders at this stop point.\n- **Menu:** none renders at this stop point.\n",
+      "words": 369,
+      "wallMs": 16467,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`, so discovery binds to `acme/widgets`, not `GH_REPO`, the gh default, or the current branch's unrelated PR 999.\n2. Run `gh api user --jq .login`. It returns `alex`; retain that identity for the first single-PR gather.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It returns the supplied valid array containing PR 101.\n4. Run `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It returns a valid empty array.\n5. Validate both outputs, union and deduplicate by number, exclude drafts and exact `APPROVED` or `CHANGES_REQUESTED` decisions, then sort by additions plus deletions and number. PR 101 remains with a size of 2; `REVIEW_REQUIRED` does not exclude it.\n\nHand off the single explicit URL token `https://github.com/acme/widgets/pull/101` to the single-PR path.\n\nStop before Gather. No continuation record is minted, no tracker stages are initialized, no provisioning runs, and no helpers are dispatched. No SHA is assessed, and no report, Sync line, verdict, or menu renders.\n",
-      "words": 173,
-      "wallMs": 5783,
+      "text": "1. Run `git remote get-url origin`. Its result, `git@github.com:acme/widgets.git`, resolves to the lowercase GitHub repository `acme/widgets`.\n2. Run `gh api user --jq .login`. Record `viewer.login: alex`.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. Validate the complete array and retain PR 101: it is not a draft and has neither an `APPROVED` nor a `CHANGES_REQUESTED` decision.\n4. Run `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. Validate the complete empty array.\n5. Union and deduplicate the results, then sort by additions plus deletions and PR number. The roster contains only PR 101, with two changed lines.\n6. Hand off to the single-PR path with the origin-qualified token `https://github.com/acme/widgets/pull/101`. Neither `GH_REPO`, the gh default repository, nor the current branch's unrelated PR 999 changes that identity.\n\nStop before Gather or provisioning. No continuation record or tracker stages are initialized, no helpers are dispatched, and no SHA is assessed. No report, sync line, verdict, or menu renders at this handoff.\n",
+      "words": 169,
+      "wallMs": 5153,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
       "baselineOutputSha": "da03b7c83fde8e76cbdb0188b8ee02dbac51c97eee74e9891b6f1c8bdce3e5b8",
-      "candidateOutputSha": "d716753cfbfd653a90cfdbd2ad569ece8f992f616832f254ec8f5381c456a0b9",
+      "candidateOutputSha": "92b6716473ad8cd897343fa62f29e259a6c6349c01eb05e240844b9179414115",
       "facts": {
         "f1": {
           "before": "fails",
@@ -44,8 +44,8 @@
           "label": "intended change"
         }
       },
-      "feedback": "After satisfies f1 fully: both gh pr list commands carry -R acme/widgets with GH_REPO=other/project explicitly ignored, PR 999 is rejected as a candidate, and the handoff token is the exact URL https://github.com/acme/widgets/pull/101 with set routing and discovery stop errors absent. Before narrates both -R acme/widgets queries and names 'PR 101 in acme/widgets' as the sole candidate, but its handoff is 'gatekeep-pr 101' — a bare number, which under GH_REPO=other/project would not pin the repository and is not the URL the fact requires, so Before fails on the handoff clause. The After wording that made the difference is the explicit URL-token handoff plus the 'Discovery binds to origin through explicit -R and URL tokens' line; keep both. Nothing in After regressed relative to Before, so no wording needs restoring; if anything, After could additionally state that the URL token is used precisely so the single-PR path does not re-resolve the number against GH_REPO, making the Change's identity-validation intent explicit.",
-      "wallMs": 14561,
+      "feedback": "Before narrates both gh pr list commands with -R acme/widgets and rejects GH_REPO/gh default and the branch's PR 999, but it hands off as a bare `gatekeep-pr 101`, which is not the origin-URL token the fact requires and would re-expose the target to GH_REPO=other/project at `gh pr view`; so Before fails f1. After satisfies every part: both queries carry -R acme/widgets, the ambient repo is explicitly ignored, the union is exactly {101}, set routing is not entered, no discovery incompleteness stop fires, and the handoff token is spelled as https://github.com/acme/widgets/pull/101 with an explicit note that this preserves the acme/widgets identity through gh pr view. To keep this holding in future wording, retain the explicit sentence that the single-PR handoff uses the origin URL form (not the bare number) and the validation block that distinguishes a normal single result from the limit-hit incompleteness stop.",
+      "wallMs": 11204,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -53,7 +53,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
       "baselineOutputSha": "0e5b4cbdd0fd4a83a7f096a9e210c9e6506c92e99719261432e7905c3995abe7",
-      "candidateOutputSha": "d9e8b8cbfbaeda84cd29e75608eb793b3c4f72d6115d231c9e854f20d5bc7f48",
+      "candidateOutputSha": "5c250e82e0bee27b9c8935d7732bdde81af91f8b2dbbb60bded8c86b7ee7f75a",
       "facts": {
         "f1": {
           "before": "fails",
@@ -61,10 +61,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before resolves the omitted token via `gh pr view` on the current branch, picks PR 999, runs neither open-list query, and explicitly declines to bind to acme/widgets, so f1 fails. After narrates both `gh pr list -R acme/widgets` commands (author @me and user-review-requested:@me), filters the union to the single non-draft REVIEW_REQUIRED row, and hands exactly https://github.com/acme/widgets/pull/101 to the single-PR path with no batch dispatch or discovery stop error, so f1 holds. The wording that delivered this is the explicit origin-remote binding step (\"discovery binds to acme/widgets, not GH_REPO, the gh default, or the current branch's unrelated PR 999\") preceding both list commands; keep that ordering and the explicit -R flag in both narrated commands, and keep the pre-Gather stop sentence unchanged so the handoff remains single-PR without provisioning.",
-      "wallMs": 6361,
+      "feedback": "After satisfies f1 fully: both gh pr list commands are narrated with -R acme/widgets derived from the origin remote, GH_REPO=other/project and the gh default are explicitly disregarded, and the only handoff is the single-PR path with https://github.com/acme/widgets/pull/101 — no batch dispatch and no discovery stop error. Before failed because it resolved the omitted token from the current branch (PR 999) via the gh default context and ran no discovery queries. The After wording that delivers this (origin-remote identity resolution, viewer login, author query plus user-review-requested query, union/dedupe/sort, single-PR handoff with origin-qualified URL, stop before Gather/Provision) should be kept as is; no fact that Before kept was lost.",
+      "wallMs": 4690,
       "verdict": "improved"
     }
   },
-  "repoSha": "0815af89ece7d6868774e0e638c698bda634e12b"
+  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
 }

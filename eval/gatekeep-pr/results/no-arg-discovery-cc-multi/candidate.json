@@ -1,7 +1,7 @@
 {
   "sample": "no-arg-discovery-cc-multi",
   "arm": "candidate",
-  "skillSha": "b9172a34e8328bbb093e663c415382264c221708f7cb21fc659d4b9c1828d9f5",
+  "skillSha": "2eb9b04d46957802c08ae0cb278f653b4ad7fdd692db0f71f63403a25147e03f",
   "inputSha": "d4bdf3510e8075f2621dd3fd58628056bb455073b6cee0725d575997f6745856",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: stuck multi-PR mode requires pi's nested dispatch\n\n**Narration (argument resolution, `verification-brief.md` Section A, Argument-resolution discovery)**\n\nNo PR token was supplied, so discovery runs during argument resolution. It runs before Progress tracking, continuation-record minting, tracker `init`, set admission, or provisioning.\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`.\n   - Strip `.git` and lowercase the result.\n   - The origin repository is `acme/widgets`, which is a GitHub repository, so discovery continues.\n\n2. `gh api user --jq .login` returns `alex`, so `viewer.login` is `alex`.\n\n3. Run the author query:\n   `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - It exits 0 and returns a JSON array of objects.\n   - Each row has an integer `number`.\n   - It returned 2 rows, below the 1000 limit, so the result is complete.\n   - Rows: #112 (3+3) and #101 (1+1).\n\n4. Run the direct-request query:\n   `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - It exits 0 and returns a valid array.\n   - It returned 1 row, below the limit, so the result is complete.\n   - Row: #97 (2+2).\n\n5. Union and dedupe by number: #112, #101, #97.\n   - Filter: no row is a draft.\n   - All three decisions are `REVIEW_REQUIRED`, which is retained. Only exact `APPROVED` and `CHANGES_REQUESTED` are removed.\n   - Three matches remain.\n   - The unrelated PR #999 on the current branch is not a candidate. Discovery never falls back to the current branch.\n\n6. Sort by `additions + deletions`, then by number:\n   - #101 = 2\n   - #97 = 4\n   - #112 = 6\n\n7. Two or more matches on the Claude Code harness means discovery rejects the run. Print the two fixed lines and stop.\n\nNo tracker stages were initialized and no continuation record was minted. No worktree was provisioned and no helper was dispatched. No SHA was verified or assessed, no Sync line or verdict renders, and no menu renders.\n\n```text\nmulti-PR mode requires pi's nested dispatch\ndiscovered, smallest first: 101, 97, 112\n```\n",
-      "words": 310,
-      "wallMs": 12104,
+      "text": "## Narration (argument resolution, no PR token)\n\nThe arguments line has zero PR tokens, so discovery runs under `verification-brief.md` Section A `### Argument-resolution discovery`. It runs before set-vs-single routing, continuation-record minting, tracker init, and provisioning.\n\n1. **Resolve origin.** `git remote get-url origin` returns `git@github.com:acme/widgets.git`. After stripping `.git` and lowercasing, the repository is `acme/widgets`. This is a GitHub origin, so discovery continues.\n\n2. **Read the viewer.** `gh api user --jq .login` returns `alex`, recorded as `viewer.login = alex`.\n\n3. **Run the author query.**\n   `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - It exits 0 and returns an array of two objects with integer `number` values (112, 101).\n   - The count is 2, below the 1000 limit, so the result is valid.\n\n4. **Run the direct-request query.**\n   `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - It exits 0 and returns an array of one object with integer `number` 97.\n   - The count is 1, below the limit, so the result is valid.\n\n5. **Union, dedupe, and filter.**\n   - The union is {112, 101, 97}, with no duplicates.\n   - No PR is a draft.\n   - Every `reviewDecision` is `REVIEW_REQUIRED`, which is neither `APPROVED` nor `CHANGES_REQUESTED`, so all three stay.\n   - PR 999 on the current branch is ignored, because discovery never falls back to the current branch.\n\n6. **Sort by `additions + deletions`, then by number.**\n   - PR 101 has size 2.\n   - PR 97 has size 4.\n   - PR 112 has size 6.\n   - The order is 101, 97, 112.\n\n7. **Route on the match count.** There are 3 matches on Claude Code, so the \"2+ Claude Code\" row applies: print the harness rejection and the discovered list, then stop.\n   - The run does not re-enter set routing.\n   - No `batch.md` admission runs, so `parallel.maxTasks` 4 is never consulted.\n   - No helper is dispatched.\n\n## Tracker, SHA, report\n\n- **Tracker:** no stages are initialized. The run stops before the continuation record and before `plan_tracker` init.\n- **Assessed SHA:** none. Verification and review never run, and no PR is fetched or provisioned.\n- **Sync line:** none renders, because `--rebase` was not passed and no report renders.\n- **Verdict line:** none renders, because no report exists.\n- **First menu:** none renders. Discovery rejection is a stop.\n\n## Rendered output\n\n```text\ngauntlet: stuck discovery found 3 PRs; multi-PR mode requires pi's nested dispatch\nmulti-PR mode requires pi's nested dispatch\ndiscovered, smallest first: 101, 97, 112\n```\n",
+      "words": 386,
+      "wallMs": 16512,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Run `git remote get-url origin`. Normalize `git@github.com:acme/widgets.git` to `acme/widgets`.\n2. Run `gh api user --jq .login`. Retain `alex` for discovery.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`.\n4. Run `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`.\n5. Validate both complete arrays, union and deduplicate by PR number, and filter drafts and decided PRs. All three remain. Sort by additions plus deletions, then number: 101 (2), 97 (4), 112 (6).\n6. Reject discovery's multi-PR result on Claude Code. The current branch's PR 999 is not a fallback. The parallel task cap is not reached or applied.\n\nNo tracker stages are initialized, no continuation record is minted, no provisioning runs, and no helpers are dispatched. No SHA is verified or assessed; no sync line, verdict, or menu renders.\n\nmulti-PR mode requires pi's nested dispatch\ndiscovered, smallest first: 101, 97, 112\n",
-      "words": 153,
-      "wallMs": 5671,
+      "text": "gauntlet: stuck discovery rejected\n\nAt argument resolution, I run these commands in order:\n\n1. `git remote get-url origin`\n   Returns `git@github.com:acme/widgets.git`. I normalize the origin identity to `acme/widgets`.\n\n2. `gh api user --jq .login`\n   Returns `alex`, which I retain as the viewer login.\n\n3. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   Returns PRs 112 and 101.\n\n4. `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   Returns PR 97.\n\nBoth outputs validate, and neither reaches the limit. I union and deduplicate the rows; all three survive the draft and review-decision filters. Sorting by additions plus deletions, then PR number, produces **101, 97, 112**.\n\nClaude Code rejects the discovered multi-PR roster. I do not fall back to the current branch's PR 999. I mint no continuation record, initialize no tracker stages, provision nothing, and dispatch no helpers. No SHA is verified or reviewed, and no Sync line, verdict, or menu renders.\n\nmulti-PR mode requires pi's nested dispatch\ndiscovered, smallest first: 101, 97, 112\n",
+      "words": 171,
+      "wallMs": 8822,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
       "baselineOutputSha": "8a8c752061fb4d56f75049b61ff4cb6bec54c14e59d625c83c0e63622632d826",
-      "candidateOutputSha": "79ec93dd90adb40df936545dea66aed083e49422b72481a37d6e1773c0a0ebe2",
+      "candidateOutputSha": "2d2229f4f3812566f2ea71a6bb90223fa83ad56dd68ab8cde4f31396f030dbb2",
       "facts": {
         "f1": {
           "before": "fails",
@@ -44,8 +44,8 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before prints a single merged error line (\"multi-PR mode requires pi's nested dispatch; discovery found 3 PRs (#112, #101, #97) on Claude Code - name one PR to gate it\") rather than the two fixed lines, and it never computes the smallest-first order, so f1 fails there even though the no-effects half (no provisioning, dispatch, continuation, tracker init) is satisfied. After moves f1 to holds: it renders exactly `multi-PR mode requires pi's nested dispatch` followed by `discovered, smallest first: 101, 97, 112`, sorts by additions+deletions then number, and explicitly states no tracker init, continuation minting, provisioning or dispatch occurred. One caution for the author: the opening header `gauntlet: stuck multi-PR mode requires pi's nested dispatch` repeats the obstacle text as prose before the fenced output; a strict reader might treat that as a third rendering of the line. Keeping the obstacle id only inside the fenced two-line block (or clearly labelling the header as narration, not output) would preserve the exact-print claim with less ambiguity while still delivering the discovery contract.",
-      "wallMs": 8561,
+      "feedback": "After moved f1 to holds by rendering the two required lines verbatim and in order (`multi-PR mode requires pi's nested dispatch` then `discovered, smallest first: 101, 97, 112`), with the size-sorted order 101, 97, 112 derived explicitly, and by stating that no provisioning, dispatch, continuation record or tracker init occurs. Before failed because it collapsed everything into one free-form line (`...; discovery found 3 PRs (#112, #101, #97) on Claude Code - name one PR to gate it`) with no `discovered, smallest first` line and the wrong order. One risk in After: it prepends a `gauntlet: stuck discovery found 3 PRs; multi-PR mode requires pi's nested dispatch` gate line before the two mandated lines; a stricter reader of 'print exactly' could treat that extra line as a violation. If the gate-line-first contract is intended, state in the skill text that the gate line precedes the exact two-line discovery output so both facts are visibly compatible, or fold the harness rejection into the gate line so the exact string appears once rather than twice.",
+      "wallMs": 13176,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -53,7 +53,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
       "baselineOutputSha": "6f67a3ddb4e9a3d62f6905ae0a7034dcc3c82fef65e0980a90f7ef68cae9d2ce",
-      "candidateOutputSha": "b8f46f83add3a1cbf08fe39aff3b380c053bca2816158eedf9432459b6853b36",
+      "candidateOutputSha": "8d30991b275d9fcaf4257b1b405cc4239bfd52b28068fc1543dca9d2dc31c47e",
       "facts": {
         "f1": {
           "before": "fails",
@@ -61,10 +61,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before never performed discovery: it fell back to `gh pr view` on the current branch, resolved PR 999, and explicitly declined to emit the rejection lines, so f1 fails there. After performs the approved discovery contract — normalizes the origin remote, retains the viewer login, runs both open-list queries, unions/deduplicates, filters drafts and decided PRs, sorts by additions+deletions then number (101, 97, 112), rejects the multi-PR result on Claude Code without treating PR 999 as a fallback, and emits exactly `multi-PR mode requires pi's nested dispatch` followed by `discovered, smallest first: 101, 97, 112`, while stating no tracker init, continuation minting, provisioning, or helper dispatch occurred — so f1 holds. The After wording delivers the Change without regressing anything; to keep it robust, keep the two output lines verbatim and last (after the narration), keep the explicit negations for tracker/continuation/provisioning/dispatch, and keep the sort key (size then number) spelled out so the ordering 101, 97, 112 remains unambiguous.",
-      "wallMs": 7995,
+      "feedback": "After moved f1 from fails to holds by actually running the author and user-review-requested discovery queries, unioning and sorting the rows by additions+deletions then number, and ending with the exact two lines `multi-PR mode requires pi's nested dispatch` / `discovered, smallest first: 101, 97, 112`, while explicitly stating no continuation record, tracker init, provisioning, or dispatch occurs. Before instead resolved the current branch to PR 999 and declared the rejection unsupported, never emitting either line. Nothing in After regressed relative to Before. One caution for the author: the leading `gauntlet: stuck discovery rejected` marker and the narrative preamble sit above the required output; a strict reader of 'print exactly' could object, so consider either placing the two mandated lines as the very first rendered output after the marker, or clarifying in the wording that argument-resolution narration may precede the two exact lines as long as they appear verbatim, adjacent, and in order.",
+      "wallMs": 8955,
       "verdict": "improved"
     }
   },
-  "repoSha": "0815af89ece7d6868774e0e638c698bda634e12b"
+  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
 }
