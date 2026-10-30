@@ -95,6 +95,7 @@ for (const [name, text, patterns] of [
   ['admission and serial provisioning', batch, [
     /before any fetch, confirmation, provisioning, or dispatch/,
     /positional issue/, /duplicate identities/, /origin/, /Claude Code/,
+    /print exactly: `multi-PR mode requires pi's nested dispatch`/,
     /parallel\.maxTasks/, /default `8`/, /never chunk/i,
     /multi-PR mode takes at most <max> PRs \(pi-cohort parallel.maxTasks\); got <n>/,
     /number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files/,
@@ -135,7 +136,18 @@ test('PR sets route before the unchanged single-PR steps', () => {
   const args = section(skill, '## Arguments\n', '## Steps\n');
   assert.match(args, /two or more PR tokens \(numbers or URLs, space-separated, before any `--rebase`\)/);
   assert.match(args, /positional issue reference.*one-line error/);
-  assert.match(args, /zero or one PR token.*existing single-PR path/);
+  assert.match(args, /zero tokens discover.*before.*set-routing row/);
+  assert.match(args, /before Progress tracking, continuation record minting, tracker `init`, set admission, or provisioning/);
+  assert.match(args, /trailing comma.*before identity normalization/);
+  assert.doesNotMatch(brief, /Missing PR number:|gh pr view --json number,url/);
+  const discovery = section(brief, '### Argument-resolution discovery\n', '### Gather fixed commands\n');
+  for (const pattern of [
+    /git remote get-url origin/, /gh api user --jq \.login/,
+    /gh pr list -R <owner\/repo> --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions/,
+    /gh pr list -R <owner\/repo> --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions/,
+    /discovery failed: malformed gh pr list output/, /discovery failed: incomplete \(<query> hit --limit 1000\)/,
+    /source: discovered/, /GH_REPO/, /never falls back/,
+  ]) assert.match(discovery, pattern);
   const rows = section(skill, '| Step | Read now | Output | Tracker stage |\n', 'Re-entry:');
   assert.match(rows, /\| Set routing \| `reference\/batch.md` \| pi-only admission.*\| - \|/);
   assert.ok(rows.indexOf('| Set routing |') < rows.indexOf('| 1 Gather |'));
@@ -352,13 +364,19 @@ test('report.md renders bottom-up and delegates exit and menu verdicts', () => {
   assert.match(report, /For ordinary assessments, use `mergeable`, `fixable`, or `not ready`/);
   assert.match(report, /Delegate obstacle\/cap verdicts to `post-selection-loop.md` `### Exit check` and menu verdicts to `menus.md`/);
   assert.doesNotMatch(report, /Two states:/);
-  const order = ['Delivers', 'PR comments', 'Nits', 'Blockers', 'Verdict:'];
+  const order = ['Delivers', 'Role:', 'PR comments', 'Nits', 'Blockers', 'Verdict:'];
   const orderSection = section(report, '## Order\n');
   const fence = orderSection.match(/```[^\n]*\n([\s\S]*?)\n```/);
   assert.ok(fence, 'Missing fenced report template after ## Order');
   const idx = order.map((s) => fence[1].indexOf(s));
   assert.ok(idx.every((i) => i >= 0), `report.md is missing section ${order[idx.indexOf(-1)]}`);
   assert.deepEqual([...idx].sort((a, b) => a - b), idx, 'sections must appear in bottom-up order');
+  assert.match(report, /Print exactly one `Role:` directly under `Delivers`/);
+  assert.match(report, /Keep API order, exclude the viewer by case-insensitive User login comparison/);
+  assert.match(report, /render missing login\/slug as `unknown`/);
+  assert.match(brief, /viewer: \{ login, is_author, role \}/);
+  assert.match(brief, /Author wins a stale self-request/);
+  assert.match(brief, /Use pending `reviewRequests`, never `reviews` history/);
   assert.match(report, /^Verdict: mergeable - [^\n]*\| fixable - <N> blockers/m);
   assert.ok(!report.includes('not mergeable'));
   assert.ok(!report.includes('Ticket changes'));
@@ -484,7 +502,8 @@ test('sync.md re-gather resolves pending checks through the binding rule', () =>
 
 test('post-selection-loop.md refreshes merge state before every menu and binds the preconditions to it', () => {
   const refresh = section(loop, '### Pre-menu refresh\n', '### Wait course\n');
-  assert.match(refresh, /gh pr view <N> --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup/);
+  assert.match(refresh, /gh pr view <N> --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup[^`\n]*,reviewRequests/);
+  assert.match(refresh, /replace.*pr\.review_requests.*re-derive `viewer\.role`/);
   assert.match(refresh, /gh run list -R <owner>\/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url/);
   assert.match(refresh, /merge state not refreshed \(<reason>\)/);
   assert.match(refresh, /never mints `C#` rows/);
