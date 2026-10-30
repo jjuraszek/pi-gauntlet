@@ -755,8 +755,8 @@
       { agent: "implementer", exitCode: 0, model: "p/impl:high", usage: usage(100, 10, 1) },
       { agent: "implementer", exitCode: 1, model: "p/impl:high", usage: usage(50, 5, 0.5) },
       { agent: "spec-summarizer", exitCode: 0, model: "p/s", usage: usage(1) },
-      { agent: "code-reviewer", exitCode: 0, model: "p/r", usage: usage(1) },
-    ], "- [major] a\n- [minor] b\n- [minor] c"));
+      { agent: "wave-reviewer", exitCode: 0, model: "p/r", usage: usage(1) },
+    ], `## Outputs\n### review\n\`\`\`json\n{"structured":{"findings":{"critical":0,"moderate":1,"minor":2}}}\n\`\`\`\nOutput saved to: /tmp/review.md\n[major] duplicate [minor] duplicate`));
     await h.emit("tool_result", subagentResult([]));
     const rec = h.readRecord();
     const dispatches = rec.events.filter((e) => e.kind === "dispatch") as any[];
@@ -765,13 +765,19 @@
     assert.equal(dispatches[1].exit, 1);
     assert.deepEqual(rec.derived.personas.implementer, { dispatches: 2, models: ["p/impl:high"], tokens: { input: 150, output: 15, cache_read: 0, cache_write: 0, cost: 1.5 } });
     assert.equal(rec.derived.gates.spec_rounds, 1);
-    assert.deepEqual(rec.derived.reviews?.["code-reviewer"], { dispatches: 1, nonzero_exit: 0, findings: { blocker: 0, major: 1, minor: 2 } });
+    assert.deepEqual(rec.derived.reviews?.["wave-reviewer"], { dispatches: 1, nonzero_exit: 0, findings: { blocker: 0, major: 1, minor: 2 } });
     assert.equal(rec.derived.conformance_loops, 0);
     assert.deepEqual(rec.derived.phases.plan?.tokens, { input: 152, output: 15, cache_read: 0, cache_write: 0, cost: 1.5 });
   });
 
+  test("zero structured findings do not fall back to inline severity tags", async () => {
+    const h = await boundInPlan();
+    await h.emit("tool_result", subagentResult([{ agent: "wave-reviewer", exitCode: 0 }], '## Outputs\n### Step 1\n#### Task 1 (wave-reviewer)\n```json\n{"structured":{"findings":{"critical":0,"moderate":0,"minor":0}}}\n```\nOutput saved to: /tmp/review.md\n[Critical] duplicate'));
+    assert.deepEqual(h.readRecord().derived.reviews?.["wave-reviewer"]?.findings, { blocker: 0, major: 0, minor: 0 });
+  });
+
   for (const [name, agents] of [
-    ["chain", ["implementer", "spec-reviewer", "spec-reviewer"]],
+    ["chain", ["implementer", "wave-reviewer", "wave-reviewer"]],
     ["plain tasks", ["implementer", "implementer"]],
     ["empty results", []],
     ["missing results", undefined],
@@ -798,7 +804,7 @@
         const retained = results!.filter((r) => r.agent === agent);
         assert.deepEqual(rec.derived.personas[agent], { dispatches: retained.length, models: retained.map((r) => r.model), tokens: { input: 10 * retained.length, output: 2 * retained.length, cache_read: 0, cache_write: 0, cost: 0.5 * retained.length } });
       }
-      if (name === "chain") assert.deepEqual(rec.derived.reviews?.["spec-reviewer"], { dispatches: 2, nonzero_exit: 1 });
+      if (name === "chain") assert.deepEqual(rec.derived.reviews?.["wave-reviewer"], { dispatches: 2, nonzero_exit: 1 });
       if (results?.length) assert.deepEqual(rec.derived.phases.implement?.tokens, { input: 10 * results.length, output: 2 * results.length, cache_read: 0, cache_write: 0, cost: 0.5 * results.length });
       else assert.deepEqual(rec, before);
       assert.deepEqual(rec.events.filter((e) => e.kind === "phase" || e.kind === "gate"), before.events.filter((e) => e.kind === "phase" || e.kind === "gate"));

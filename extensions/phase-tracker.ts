@@ -133,10 +133,10 @@ const unfinishedTaskLines = (tasks: Task[]): string[] =>
   );
 
 // Review-cadence guard (spec 2026-08-12-execution-fidelity-hardening): presence-only
-// advisory ledger of the most recent completed implementer / spec-reviewer /
-// code-reviewer dispatch. Agents completing in the SAME dispatch share a sequence
-// number, so a fused implementer+reviewer result never reads as reviewer-stale.
-const CADENCE_AGENTS = ["implementer", "spec-reviewer", "code-reviewer"] as const;
+// advisory ledger of the most recent completed implementer / wave-reviewer dispatch.
+// Agents completing in the SAME dispatch share a sequence number, so a fused
+// implementer+reviewer result never reads as reviewer-stale.
+const CADENCE_AGENTS = ["implementer", "wave-reviewer"] as const;
 type CadenceAgent = (typeof CADENCE_AGENTS)[number];
 
 const completedCadenceAgents = (details: unknown): CadenceAgent[] => {
@@ -152,9 +152,9 @@ const completedCadenceAgents = (details: unknown): CadenceAgent[] => {
 };
 
 const REVIEW_CADENCE_WARNING =
-  "⚠️ Reminder: no spec-reviewer or code-reviewer observed since the last implementer.\n" +
-  "SR is required per task; CR per wave for code waves (doc-only waves are SR-only).\n" +
-  "Dispatch the missing review(s) before committing integrated work.";
+  "Reminder: no wave-reviewer observed since the last implementer.\n" +
+  "One wave-reviewer is required per wave, for both code and documentation.\n" +
+  "Dispatch the missing wave review before committing integrated work.";
 
 const CLOSURE_GATE_ERROR =
   "Error: cannot complete 'verify': no conformance-reviewer dispatch observed.\n" +
@@ -476,8 +476,7 @@ export default function (pi: ExtensionAPI) {
   let cadenceSeq = 0;
   const cadenceLastSeen: Record<CadenceAgent, number> = {
     implementer: 0,
-    "spec-reviewer": 0,
-    "code-reviewer": 0,
+    "wave-reviewer": 0,
   };
   const observeCadence = (details: unknown) => {
     const agents = completedCadenceAgents(details);
@@ -550,8 +549,7 @@ export default function (pi: ExtensionAPI) {
     pendingGuardWarnings.clear();
     cadenceSeq = 0;
     cadenceLastSeen.implementer = 0;
-    cadenceLastSeen["spec-reviewer"] = 0;
-    cadenceLastSeen["code-reviewer"] = 0;
+    cadenceLastSeen["wave-reviewer"] = 0;
     for (const entry of ctx.sessionManager.getBranch()) {
       if (entry.type === "custom_message") {
         if (entry.customType === RECOVERY_CUSTOM_TYPE) {
@@ -813,8 +811,7 @@ export default function (pi: ExtensionAPI) {
       phases.implement.status === "in_progress" &&
       parseGitCommit(command) &&
       cadenceLastSeen.implementer > 0 &&
-      cadenceLastSeen.implementer > cadenceLastSeen["spec-reviewer"] &&
-      cadenceLastSeen.implementer > cadenceLastSeen["code-reviewer"]
+      cadenceLastSeen.implementer > cadenceLastSeen["wave-reviewer"]
     ) {
       warnings.push(REVIEW_CADENCE_WARNING);
     }

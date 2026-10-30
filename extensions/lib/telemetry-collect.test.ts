@@ -50,7 +50,27 @@ test("textOf concatenates text content blocks", () => {
   assert.equal(textOf("nope"), "");
 });
 
+test("structured findings use only Outputs, including zero counts and repeated Stop summaries", async () => {
+  const { countStructuredFindings } = await import("./telemetry-collect.ts");
+  const carrier = (value: unknown) => `## Outputs\n### Step 1\n#### Task 1 (wave-reviewer, as review)\n\`\`\`json\n${JSON.stringify({ structured: value })}\n\`\`\`\nOutput saved to: /tmp/review.md`;
+  for (const [name, value, expected] of [
+    ["counts", { findings: { critical: 1, moderate: 2, minor: 3 } }, { blocker: 1, major: 2, minor: 3 }],
+    ["zeros", { findings: { critical: 0, moderate: 0, minor: 0 } }, { blocker: 0, major: 0, minor: 0 }],
+    ["absent", {}, undefined],
+    ["negative", { findings: { critical: -1, moderate: 2, minor: 3 } }, undefined],
+    ["fraction", { findings: { critical: 0.5, moderate: 2, minor: 3 } }, undefined],
+    ["missing", { findings: { critical: 1, minor: 3 } }, undefined],
+  ] as const) {
+    const text = carrier(value);
+    assert.deepEqual(countStructuredFindings(`${text}\n## Stop\n${text.replace("## Outputs", "summary")}`), expected, name);
+  }
+  assert.equal(countStructuredFindings(carrier({ findings: { critical: 1, moderate: 2, minor: 3 } }).replace("## Outputs", "## Other")), undefined);
+  assert.equal(countStructuredFindings("## Outputs\n```json\n{invalid}\n```"), undefined);
+  assert.deepEqual(countStructuredFindings('## Outputs\n### Step 1\n#### Task 1 (wave-reviewer)\n```json\n{"findings":{"critical":1,"moderate":2,"minor":3}}\n```\nOutput saved to: /tmp/review.md'), { blocker: 1, major: 2, minor: 3 });
+  assert.deepEqual(countFindings("spec-reviewer [Critical]\ncode-reviewer [Moderate]"), { blocker: 1, major: 1, minor: 0 });
+});
+
 test("constant sets", () => {
-  assert.deepEqual([...REVIEWER_AGENTS], ["spec-reviewer", "code-reviewer", "conformance-reviewer"]);
+  assert.deepEqual([...REVIEWER_AGENTS], ["wave-reviewer", "conformance-reviewer"]);
   assert.deepEqual([...COUNTED_USER_PHASES], ["plan", "implement", "verify", "ship"]);
 });

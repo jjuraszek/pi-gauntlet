@@ -1,0 +1,7 @@
+- selection: judged: Requests the plan read, selects Task 4 exactly, excludes Task 40 and Next wave, and uses only supplied observations.
+- rules: judged: Combines task-rules.md and worker-rules.md from the explicit worker leg, not wrong-rules.md.
+- authority: judged: Marks the default false clause met with flag.mjs:1 evidence and a condition-match pair, but marks the true-argument clause unmet despite its omission from task prose and the completion claim.
+- verdict: judged: Emits FIX_FIRST in the written report and structured output, with clause rows before findings and at least one Critical or Moderate finding identifying the missing true-argument behavior and test.
+- metadata: judged: Mirrors nonnegative integer findings counts and findingCount, includes clauses with met/unmet statuses and evidence, and includes finding ownership plus one Parallel-safe partition line; does not invent a missing-file finding for the unchanged existing test.
+- no-behaviour: mechanical: lacks "Behaviour-change:"
+- no-boolean: mechanical: lacks "behaviourChange"

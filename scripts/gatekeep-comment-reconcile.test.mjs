@@ -496,7 +496,7 @@ test('verification-brief.md classifies pending checks as binding from merge_stat
 });
 
 test('sync.md re-gather resolves pending checks through the binding rule', () => {
-  assert.match(sync, /Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "implementer", context: "fresh", async: false, cwd: <worktree> \}\)[\s\S]*name each conflicted file by path in the task text[\s\S]*Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "code-reviewer", context: "fresh", async: false, cwd: <worktree> \}\)/);
+  assert.match(sync, /Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "implementer", context: "fresh", async: false, cwd: <worktree> \}\)[\s\S]*name each conflicted file by path in the task text[\s\S]*Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "wave-reviewer", context: "fresh", async: false, cwd: <worktree> \}\)/);
   assert.match(sync, /a binding check still pending routes to the initial or terminal template/);
 });
 

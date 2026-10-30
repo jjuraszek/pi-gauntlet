@@ -7,14 +7,14 @@ description: Use when completing tasks, implementing major features, or before m
 
 # Requesting Code Review
 
-Dispatch a subagent with the code-reviewer prompt template to catch issues before they cascade.
+Dispatch a subagent with the wave-reviewer prompt template to catch issues before they cascade.
 
 **Core principle:** Review early, review often.
 
 ## When to Request Review
 
 **Mandatory:**
-- Dispatch one initial code review per code-touching wave in subagent-driven development, over the integrated wave diff; doc-only waves are SR-only
+- Dispatch one integrated wave review per green wave in subagent-driven development, including doc-only waves, over the integrated wave diff
 - After completing major feature
 - Before merge to main
 
@@ -25,22 +25,22 @@ Dispatch a subagent with the code-reviewer prompt template to catch issues befor
 
 ## How to Request
 
-**1. Select the review source.** For an integrated uncommitted wave, use its recorded base as `BASE_SHA` and the literal `WORKTREE` as `HEAD_SHA`; stage new deliverables before dispatch, per `code-reviewer.md`. For the whole-diff review only, use the committed range:
+**1. Select the review source.** For an integrated uncommitted wave, use its recorded base as `BASE_SHA` and the literal `WORKTREE` as `HEAD_SHA`; stage new deliverables before dispatch, per `wave-reviewer.md`. For the whole-diff review only, use the committed range:
 ```bash
 BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
-**2. Dispatch code-reviewer subagent:**
+**2. Dispatch wave-reviewer subagent:**
 
-Fill the template at `code-reviewer.md` in this skill directory, then dispatch a subagent with it.
+Fill the template at `wave-reviewer.md` in this skill directory, then dispatch a subagent with it.
 
 **How to dispatch:**
 
-Use the `subagent` tool with the code-reviewer template filled in. This foreground dispatch must return a terminal result before acting on review feedback:
+Use the `subagent` tool with the wave-reviewer template filled in. This foreground dispatch must return a terminal result before acting on review feedback:
 
 ```ts
-subagent({ agent: "code-reviewer", async: false, task: "... filled template ..." })
+subagent({ agent: "wave-reviewer", async: false, task: "... filled template ..." })
 ```
 
 **Placeholders:**
@@ -60,7 +60,7 @@ Take the recipient stance from `receiving-code-review`: verify each finding, ans
 ## Integration with Workflows
 
 **Subagent-Driven Development:**
-- Dispatch one initial code review per code-touching wave over the integrated wave diff; doc-only waves are SR-only
+- Dispatch one integrated wave review per green wave over the integrated wave diff, including doc-only waves
 - Fix and re-review before the accepted-wave commit and before moving to the next wave
 
 **Ad-Hoc Development:**
@@ -75,7 +75,7 @@ Take the recipient stance from `receiving-code-review`: verify each finding, ans
 - Proceed with unfixed Moderate issues
 - Argue with valid technical feedback
 
-See template at: `code-reviewer.md` in this skill directory
+See template at: `wave-reviewer.md` in this skill directory
 
 ## Project overrides
 

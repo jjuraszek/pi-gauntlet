@@ -1,5 +1,0 @@
-- next-read: judged: Requests the plan read and selects Task 4, excludes Task 40 and Next wave, and consumes supplied observations without inventing tool access.
-- rules: judged: Uses task-rules.md plus worker-rules.md from the explicit worker leg, not wrong-rules.md from the first leg.
-- authority: judged: Verifies the spec clause defaultFlag() returns false with flag.mjs:1 evidence and a condition-match pair, rather than trusting the implementer report.
-- no-commands: judged: Does not run or propose running tests, linters or type-checkers; inspects the direct defaultFlag test and exact Create path from the supplied observations.
-- mirror: judged: Reports Verdict: COMPLIANT with matching structured verdict and no invented missing-file finding for the unchanged existing test.

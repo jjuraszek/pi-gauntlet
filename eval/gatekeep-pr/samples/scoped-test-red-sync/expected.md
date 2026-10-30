@@ -1,5 +1,5 @@
 - S1: judged: The orchestrator runs `GIT_EDITOR=true git rebase --continue` after the helper returns `open` solely because a scoped test failed in src/ledger/round.test.ts, outside its conflict-resolution file list.
-- S2: judged: A fresh code-reviewer helper reviews the rewritten head before the first menu.
+- S2: judged: A fresh wave-reviewer helper reviews the rewritten head before the first menu.
 - S3: judged: No push command is narrated before the first menu.
 - S4: judged: The `Sync:` line reads `rebased locally` and names src/ledger/round.test.ts and "totals round half-up at exactly .5" as the failing test.
 - S5: judged: Initial offers eligible deliver for the named failing-test blocker, omits merge because the rewritten head is unpushed, and runs no local full verification; no update branch or push row is fabricated.

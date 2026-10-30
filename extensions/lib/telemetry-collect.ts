@@ -30,7 +30,29 @@ export function countOpenGaps(text: string): number | undefined {
   return gaps.size || undefined;
 }
 
-export const REVIEWER_AGENTS = new Set(["spec-reviewer", "code-reviewer", "conformance-reviewer"]);
+export function countStructuredFindings(text: string): { blocker: number; major: number; minor: number } | undefined {
+  const outputs = /^## Outputs\s*$/m.exec(text);
+  if (!outputs) return undefined;
+  const body = text.slice(outputs.index + outputs[0].length).split(/^## /m)[0];
+  const total = { blocker: 0, major: 0, minor: 0 };
+  let found = false;
+  for (const match of body.matchAll(/^```json\s*\n([\s\S]*?)^```/gm)) {
+    try {
+      const value = JSON.parse(match[1]);
+      const findings = value?.structured?.findings ?? value?.findings;
+      if (!findings || ![findings.critical, findings.moderate, findings.minor].every((n) => Number.isSafeInteger(n) && n >= 0)) continue;
+      total.blocker += findings.critical;
+      total.major += findings.moderate;
+      total.minor += findings.minor;
+      found = true;
+    } catch {
+      // A malformed carrier falls back to the historical severity tags.
+    }
+  }
+  return found ? total : undefined;
+}
+
+export const REVIEWER_AGENTS = new Set(["wave-reviewer", "conformance-reviewer"]);
 export const COUNTED_USER_PHASES = new Set<PhaseKey>(["plan", "implement", "verify", "ship"]);
 
 export const textOf = (content: unknown): string =>
