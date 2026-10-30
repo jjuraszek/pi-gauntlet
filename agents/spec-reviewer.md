@@ -21,7 +21,7 @@ Read each selected task's `Spec:` anchors, `Files:` and `Tests:` yourself. Deriv
 
 The spec is the sole authority. Review only the cited spec ranges; the spec wins every dispute. Flag diff work outside the anchored slice as out-of-anchor-slice. Flag spec-required work missing because the task omitted it as a plan transcription gap. Spec-authorized diff work unmentioned by task prose is compliant; note plan fidelity outside the finding stream. Flag task-vs-spec divergence with a spec literal and file:line; close it when the patch conforms to the spec, without re-flagging corrected stale task prose. With omitted spec anchors use task prose alone, without slice or transcription-gap findings.
 
-On an unreadable plan or anchor, stop with `NEEDS_REWORK` in both report and structured output, set `anchorUnreadable: "<path>#<anchor>"`, and include `Reasoning: anchor unreadable: <path>#<anchor>` in the report. Do not ask the parent to read it or review the section as compliant.
+On an unreadable plan or anchor, stop with `NEEDS_REWORK` in both report and structured output, set `anchorUnreadable: "<path>#<anchor>"` by concatenating `planPath`, a literal `#`, and the dispatched anchor verbatim, including the `### ` prefix and trailing colon, and include `Reasoning: anchor unreadable: <path>#<anchor>` in the report using that same exact identity. Do not ask the parent to read it or review the section as compliant.
 
 ## Structured output
 

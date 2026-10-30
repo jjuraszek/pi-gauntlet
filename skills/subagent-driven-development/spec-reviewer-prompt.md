@@ -94,7 +94,7 @@ Dispatch a subagent with this prompt:
 
     **Verify by reading code, not by trusting report.**
 
-    Report in the output format `agents/spec-reviewer.md` defines in your system prompt. Emit structured output matching its contract and the report verdict and footer. On an unreadable plan/anchor report NEEDS_REWORK with anchorUnreadable and the required Reasoning line; never mark an unread section compliant.
+    Report in the output format `agents/spec-reviewer.md` defines in your system prompt. Emit structured output matching its contract and the report verdict and footer. On an unreadable plan/anchor report NEEDS_REWORK with anchorUnreadable formed by concatenating planPath, a literal #, and the dispatched anchor verbatim, including the ### prefix and trailing colon. Use that same exact identity in the required Reasoning line; never ask the parent to read it or mark an unread section compliant.
 
     ## Re-review: trajectory verdict
 
