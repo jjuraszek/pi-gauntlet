@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "05bacdfb77f11ea0d0e5b421bfbea86b817c7280c6f1528790e7f2103f71aa5a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "8f4920ced4d173a490b4f4bee961426e557927c5ad1cb361755e5d42b9deded8",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "e13d90204462b5504bcbd1442ccf2cba2cbb3a25677185766f23c3aeeb7acea5",
       "candidateOutputSha": "e13d90204462b5504bcbd1442ccf2cba2cbb3a25677185766f23c3aeeb7acea5",
       "facts": {
         "authorization": {
@@ -58,15 +58,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps both facts: it opens with the gauntlet: question marker, states explicitly that nothing was discarded, reset or repaired, that implement stays active, that row 1 keeps its 1 attempt and the ledger shows iterations 2 of cap 9, and option 1 is phrased as an authorization request with no cap increment offered anywhere. If anything, After is tighter than Before on the preserved fact, since Before only mentions implement staying active inside option 3 while After states it up front. The one small regression is the dropped closing instruction ('Reply with 1, 2 or 3. For 1, you can add a hint.'); without it the authorization ask relies on the option label alone. Restoring that final line under the Recommendation keeps the explicit ask while retaining the question prefix and the new preserved-state sentence.",
-      "wallMs": 12288,
+      "feedback": "Before and After are textually identical, so no fact moved. Both open with the `gauntlet: question` marker, state the dirty-tree stop, name the discard/reset as something the human must authorize (option 1), offer no cap grant anywhere, and explicitly say nothing was discarded, reset or repaired while implement stays active. Both preserve row 1's attempt count, iterations 2 of cap 9 and the 'attempts are never reset' / 'preserve every row's attempts and the total iteration cap' language, with no done or stuck marker. The Change's question-prefix requirement is already satisfied in both; the After wording introduces nothing new to this case, so there is nothing to repair here - keep this rendering as the reference for dirty-return stops, since it delivers the marker and the authorization boundary together without touching ledger state.",
+      "wallMs": 9015,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "05bacdfb77f11ea0d0e5b421bfbea86b817c7280c6f1528790e7f2103f71aa5a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "9049f53e25edfcefbfa5ce1c0e5074b253716652a774c09e666721985711ada0",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "dc94f38be30dc09c3cd3cff6fef0a658be4893c48290d32f430b9abd1256ac6e",
       "candidateOutputSha": "dc94f38be30dc09c3cd3cff6fef0a658be4893c48290d32f430b9abd1256ac6e",
       "facts": {
         "authorization": {
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved nothing: both outputs carry the gauntlet: question marker, explicitly ask the human to authorize discard/reset before any cleanup, offer no cap grant, and preserve attempts, consumed dispatch count and the total cap with the tree untouched and no done/stuck marker. After is actually slightly stronger on the preserved fact because it names 'implement active' and 'Changes and commits remain untouched' outright, where Before only implies them. Two small risks to watch in the After wording: the 'Recommendation: option 1' line is fine as long as it keeps the 'no cleanup can proceed without your permission' clause (dropping it could read as pre-authorizing the reset), and neither output states the concrete ledger figures (iterations:2 cap:9, attempts 1) - adding a one-line ledger echo such as 'Ledger unchanged: iterations:2 cap:9, row 1 attempts 1' would make the preservation fact unambiguous to a careful reader without altering the authorization boundary or the question-first marker.",
-      "wallMs": 14673,
+      "feedback": "Before and After are textually identical, so no fact moved. Both open with the `gauntlet: question` prefix, state that no cleanup authorization has been given and that changes and commits remain untouched, explicitly ask the human to authorize discard/reset in option 1 while offering no cap grant, and preserve row attempts, the total iteration cap and the consumed dispatch count with implement active and no done/stuck marker. Nothing in After needs changing for this case; if you want the rendering to more directly mirror the Change, you could surface the ledger numbers verbatim (e.g. `attempts 1`, `iterations:2 cap:9`) in the preservation line rather than describing them generically, which would make the ledger-state preservation unambiguous without touching the authorization boundary or the question prefix.",
+      "wallMs": 7143,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "cde57f325ee36560345ef300a79393086d8addff9e437810737b72891a6a148f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "e3849d14d143d1014e3601ab2a31ff01e8421c70f0a907529bd9a919c3bc9ab9",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "56c40aa10380373478911e961c464b8c944d0c4a7e573b3445b8f50ee5ee370a",
       "candidateOutputSha": "56c40aa10380373478911e961c464b8c944d0c4a7e573b3445b8f50ee5ee370a",
       "facts": {
         "contract": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "The contract fact holds in both outputs and nothing moved: After still has row 1 (PR gate) winning in A with the prose section explicitly never consulted, the single prose command used in B, discovery used only in C where neither section exists, and D/E stopping on multiple/zero commands with no fallback, no ledger, no phase skip and no commit before iteration zero, while A-C each print a `verification command: <cmd> (<source>)` line. After's only substantive additions are the expanded seeding steps and the all-rows-cut note (cap 1, exit through rule 1), which are consistent with the Change's ledger cap persistence and do not disturb the resolution ordering or the stop-before-iteration-zero behavior; if you extend this case further, keep the explicit 'no fallback to discovery' sentence and the 'no printout line' marker on D/E stops, since those are what anchor the contract fact for a reader, and if the Change's `gauntlet: question` prefix is meant to apply here, add it only to genuine human-authorization stops rather than to the D/E configuration-error stops, which are terminal and not awaiting authorization.",
-      "wallMs": 9813,
+      "feedback": "Before and After are textually identical, so nothing moved. Both outputs satisfy the contract: A takes `make ci` from the PR gate and ignores the prose `make test`; B uses the single backticked prose command; C falls to discovery only because neither section exists; D and E stop as configuration errors without a printout, ledger write, commit or dispatch (i.e. before iteration zero) and explicitly refuse to fall through to discovery; A, B and C each print a source-tagged `verification command: ... (source)` line. The Change paragraph targets amend preparation, question-prefixed stops, cap persistence and leg-iteration behavior, none of which this verification-resolution case exercises, so no wording adjustment is needed here - the After wording already keeps every fact Before kept. If the author later wants the D/E stops to carry the new `gauntlet: question` prefix, add it to the `Stopped:` lines without touching the row-1/2/3 ordering or the no-fallback statement, so the contract fact stays intact.",
+      "wallMs": 9041,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "cde57f325ee36560345ef300a79393086d8addff9e437810737b72891a6a148f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "a7e0241d54d7a640acbc94d32f97ba54513ef55375f65be573f3ab720f7a0031",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "f707e16e1885bb58b0a307e8cca67bd75a92dd064bade64947a3b663b3883a89",
       "candidateOutputSha": "f707e16e1885bb58b0a307e8cca67bd75a92dd064bade64947a3b663b3883a89",
       "facts": {
         "contract": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy the contract: A selects the PR gate over the prose command, B uses the single prose command, C falls back to discovery only because no section exists, and D/E stop on 0/2 backticked commands without ledger, phase, commit, or dispatch activity, each successful resolution printing a source tag. After did not move the fact, but it weakened the C printout from `(discovery: manifest test entrypoint)` to the bare `(discovery)`, which still names a source yet drops the evidence of where the command came from; keep the fuller `discovery: <basis>` form in the After wording so the source printout stays as specific as Before. Separately, the Change asked for every human stop to carry the `gauntlet: question` prefix, and After's D/E lines use a plain `Stop:` label instead; if you want that delivered, write the D/E rows as `gauntlet: question — Configuration error: ...` while leaving the 'no ledger edits, commits, phase changes, or dispatches' sentence intact so the iteration-zero boundary continues to hold.",
-      "wallMs": 11150,
+      "feedback": "After is textually identical to Before, so nothing moved: both outputs let the PR gate win in A with the prose command explicitly ignored, use the single backticked prose command in B, reach discovery only in C where no section exists, stop D and E on the exactly-one-command rule without choosing a command or falling back to discovery, and print a source-labelled `verification command: ... (PR gate|verification-before-completion|discovery)` line for each successful resolution while stating that no ledger edits, commits, dispatches or row selection occur before the stop. If the Change's 'prefix every human stop with gauntlet: question' is meant to apply to configuration-error stops, the After wording would need to add that marker to the D/E stop lines while keeping the 'found N' message and the no-fallback/no-ledger-change statements intact; as written, the fact is preserved and no wording adjustment is required.",
+      "wallMs": 8844,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

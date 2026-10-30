@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e9c75d176eda514403b6f4b8fc3c9c1623d7d01140a12f16e158317a410bfde0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "0b66921d29cf55ada43f8148e5c1618ffc4f7d4a1110ad13e461a8206cd29631",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "703d5658912e29f8c059a6737e394bdc544e08fb8136ea29afc0bcd1b23ce4a2",
       "candidateOutputSha": "703d5658912e29f8c059a6737e394bdc544e08fb8136ea29afc0bcd1b23ce4a2",
       "facts": {
         "contract": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy the contract fact: each stop quotes the concrete assertion evidence and the last decision verbatim with no round history or model escalation (After even states explicitly there is no model: override), the retry appends `row 1 retry | map delimiter | allowed attempts 4` while leaving attempts, iterations and cap untouched, the cut path requires an approved disposition amendment, the stop choice keeps implement active, the two ledger-only child commits trigger the stop while interleaved `loop: repair row …` parent commits are excluded, and the explicit `loop: retry row 1` commit opens a fresh window so the checks go 0 → pass, 1 → pass, 2 → stop with attempts a→a+2 and iterations I→I+2 preserved. After adds `gauntlet: question` as the first line of both stops together with Recommendation lines, which delivers the Change without moving the fact; the only wording risks worth watching are the added claim that `hint:` is cleared after the first post-retry child (Before kept it while the retry remained the latest operational decision - pick one rule and state it consistently with the skill text) and the new `<a> + 2 < <L>` assumption, which is fine here because it mirrors the snapshot's 'sufficient allowance' stipulation but should stay labelled as an assumption rather than a derived value.",
-      "wallMs": 15211,
+      "feedback": "After is textually identical to Before, so no fact moved. Both outputs satisfy the contract: the rule-2 stop quotes the concrete assertion evidence and the last decision line verbatim with no round history or model escalation (and explicitly no `model:` override); the retry appends `row 1 retry | map delimiter | allowed attempts 4` durably while keeping attempts 3, `<I>` and `<cap>` unchanged; the cut goes through the brainstorming amendment surface with no plan writer, plan_check or tracker; stop leaves `implement` active with no commit; the empty-commit stop counts only child `loop: row …` commits and skips interleaved parent `loop: repair …` commits; the explicit `loop: retry row 1` commit opens a fresh window so check (a) dispatches with 0 child commits, check (b) still passes with one post-retry empty (old empties do not combine), and check (c) stops after the second post-retry empty with attempts `<a+2>`, iterations `<I+2>` and cap preserved. Since the Change wording produced no textual difference here, nothing needs adjusting for this case; if the author intended the new routing or gauntlet-prefix wording to surface visibly, note that the `gauntlet: question` prefix and ordinary-path amend routing are already present in Before, so the only way to demonstrate the Change on this input would be to add an explicit sentence in the cut path naming the ordinary amend preparation path without altering any of the existing count-preservation or window statements.",
+      "wallMs": 9921,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e9c75d176eda514403b6f4b8fc3c9c1623d7d01140a12f16e158317a410bfde0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "68a19afcf150e15b8202b473693a21803d1e39fd03d7ede82f83c943c51496a3",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "765140d70a887b3afc334c80596aa5cb2eafb7eb497eb3bf901376a029a29c80",
       "candidateOutputSha": "765140d70a887b3afc334c80596aa5cb2eafb7eb497eb3bf901376a029a29c80",
       "facts": {
         "contract": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every element of the contract: the gauntlet: question stop quotes the assertion and latest decision without round history or model escalation, the retry appends `row 1 retry | map delimiter | allowed attempts 4` and explicitly does not reset attempts/iterations, the cut routes through an approved disposition amendment, the stop leaves implement active, two ledger-only child commits stop despite interleaved parent repairs, and the checkpoint table makes the fresh post-retry window explicit (0 → 1 → 2, with old empties outside it). Two things to watch so this does not drift into a failure: After adds a trailing period inside the quoted evidence and decision (\"...found comma.\" / \"...try delimiter mapping.\") which is no longer a verbatim quote of the ledger cell — drop the periods or place them outside the quotes as Before did; and section 2's stop reuses case-1 evidence/decision text rather than placeholders, so keep the explicit \"quote the actual values\" caveat (or revert to `<verbatim ...>` placeholders) to avoid inventing ledger content. The added Recommendation lines are fine for the Change as long as they never imply a model escalation or auto-retry.",
-      "wallMs": 18114,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both quote the concrete assertion ('expected colon but found comma') and the last decision line without any round history or model escalation; the retry appends 'row 1 retry | map delimiter | allowed attempts 4' and explicitly says not to reset attempts or iterations; the cut path routes through an approved disposition amendment and refuses a direct cut; the stop path makes no commit and leaves implement active; the rule-3 section stops on two child-only empty commits while stating parent repair commits neither count nor break the window; and the post-retry table opens a fresh window at the retry commit (window 0, then 1 with no stop, then 2 stops) so pre-retry empties neither stop the resume nor combine with the first post-retry empty, with attempts A/A+1/A+2 and iterations I/I+1/I+2 preserved throughout. The After wording already delivers the Change's relevant pieces here (every human stop is prefixed 'gauntlet: question', ledger state and authorization boundary preserved, and no cap or window accounting was altered); keep this structure as-is, and if later edits touch section 2, retain the explicit 'since loop: retry row 1' qualifier in the second stop text and the three-row checkpoint table, since those are what make the fresh-window behavior unambiguous.",
+      "wallMs": 9807,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

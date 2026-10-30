@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "612151d6f3168db4e989e6906aa14fe09e47a241608aaafcb6d856fe09e49bfb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "370f1d2bb5273c601629e2c04a457c42a8d26d4be990c317718a3252c911a127",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "97e828d396d5d0dc2efe3ddf4e321fb8dacf9822bb7a79d07aa877c01598a1a6",
       "candidateOutputSha": "97e828d396d5d0dc2efe3ddf4e321fb8dacf9822bb7a79d07aa877c01598a1a6",
       "facts": {
         "legacy": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After still prints the verbatim `Stopped: ledger has no cap: line - seeded under the old loopEngine contract` ahead of rule 1 in both the failed-row and all-done branches, explicitly skips `gauntlet_setting` and refuses to derive a cap from settings, skips exit verification on the capless all-done ledger, writes `cap: 12` directly under `iterations: 7`, appends `cap +5 |`, makes exactly one `loop: raise cap` parent commit, keeps iterations 7 / attempts 1, and returns to the ordered table; the dirty and commit-boundary snapshots preserve state, withhold `cap +N`, and gate discard/reset on explicit authorization. The `gauntlet: question` prefix is now stated for every human stop including the dirty and commit-boundary authorizations, which delivers the Change. Two incidental wording drifts from Before are worth noting even though they do not touch the listed facts: After drops the `Retry row 1 with hint` option from the Snapshot 1 menu (Before offered it with the note that the missing cap still blocks dispatch) and adds a `Recommendation:` line; if you want the menus to stay byte-comparable with Before, keep the retry option and its blocking note, and keep the explicit sentence that discard/reset authorization is deliberately absent from the clean stop.",
-      "wallMs": 16160,
+      "feedback": "The After output is textually identical to Before, so nothing moved: both stop before rule 1 (including the all-done snapshot) with the exact `Stopped: ledger has no cap: line - seeded under the old loopEngine contract` line, explicitly skip `gauntlet_setting` and exit verification, write `cap: 12` directly after `iterations: 7`, append `cap +5 |`, make exactly one `loop: raise cap` commit while leaving iterations at 7 and row 1 attempts at 1, then return to the ordered table; the dirty-tree and commit-boundary variants preserve state, withhold `cap +N`, open with `gauntlet: question`, and require explicit discard/reset authorization with no automatic cleanup. Since every fact holds in both outputs, no wording repair is needed for this case; if the Change intended visible differences here (e.g. the amend-prepare routing or task-tracker removal), they do not surface in this sample's text, so the author should verify the edited wording actually fires on a missing-cap legacy resume rather than only on the amend path.",
+      "wallMs": 9138,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "612151d6f3168db4e989e6906aa14fe09e47a241608aaafcb6d856fe09e49bfb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "c74e7e6116700ee862d6720f7d83dc9cce0eec2c29b7140fe6b822f722c3860d",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "0987aa388078ab2465078fedfb123a648c6dd6d5ed30200d01fcd9d171c0f3e6",
       "candidateOutputSha": "0987aa388078ab2465078fedfb123a648c6dd6d5ed30200d01fcd9d171c0f3e6",
       "facts": {
         "legacy": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the missing-cap line is printed before rule 1 with no gauntlet_setting call and no verification; cap +5 inserts cap:12 directly under iterations:7, appends `cap +5 |`, makes exactly one `loop: raise cap` commit, preserves iterations 7 and attempts 1, and returns to the ordered table; both the dirty-tree and commit-boundary stops begin with `gauntlet: question`, withhold any cap grant, preserve state, and gate destructive cleanup on explicit discard/reset authorization. The one wording risk is in the clean stops: After replaces Before's generic 'Raise the cap: cap +N' offer with the pre-filled 'reply cap +5 to set the missing cap to 12', which a strict reader could take as no longer offering the general cap +N syntax; prefer 'Raise the cap: cap +N (e.g., cap +5 sets cap to 12)' so the generic grant form stays visible while the Recommendation line still delivers the concrete suggestion. Also consider restoring the explicit 'Preserve every row's attempts and the total iteration cap.' line in the commit-boundary section (Before included it there) so the state-preservation sentence is present verbatim in every human stop.",
-      "wallMs": 20166,
+      "feedback": "The Before and After outputs are textually identical, so no fact moved. Both print the exact `ledger has no cap: line - seeded under the old loopEngine contract` stop under a `gauntlet: question` marker before rule 1 (including the all-done branch), explicitly refuse the loopEngine settings recomputation (multiplier 4) and any verification run; both apply `cap +5` as `cap: 12` immediately after `iterations: 7`, append `cap +5 |`, make exactly one `loop: raise cap` commit, keep iterations 7 and row 1 attempts 1, and return to the ordered table; both dirty-tree and commit-boundary variants refuse `cap +N`, preserve state, and require explicit discard/reset authorization with `Recommendation: none` when none is given. The After wording therefore keeps every fact Before kept; since the Change also asks for the `gauntlet: question` prefix on every human stop, that is already present in all four stop variants, so no further wording adjustment is needed for this case — the Change's remaining items (amend-prepare routing, coordinated-flow legs, escalation rounds) are simply not exercised by this input.",
+      "wallMs": 10382,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4882a8ae5eba718a595d3d3209774ac0f694c10a374a366dbb083fded5513be2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "1ae58441415bb31204a538c087fe562d377cb26a4c51228af89f020a82bd10cd",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "affde5d1e21329682b704f56eddf7fd3fc4228185d7c944bf14b0167836a207e",
       "candidateOutputSha": "affde5d1e21329682b704f56eddf7fd3fc4228185d7c944bf14b0167836a207e",
       "facts": {
         "contract": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on the contract fact: After still exits A on rule 1 (third-attempt done, no dispatch, iterations unchanged), exits B without a seed dispatch and without stagnation, picks row 1 in C because the unresolved human retry target outranks the row-2 failed decision, picks row 2 in D via the previous failed decision, and in E lets durable `done` status beat the decision's row-1 suggestion and fall through to the first failed row. The question-first prefix was delivered cleanly: the A/B failure stop opens with `gauntlet: question` on its own line while the ledger and cap are preserved. The only drift worth watching is that After trims some Before scaffolding (the pre-dispatch `status --porcelain` and empty-commit/validation-miss log scan, the explicit retry/amend/stop action list and the funded-round line on D's stop); keep those lines in the shared pre-dispatch section so later facts about stagnation windows and stop actions don't regress while you keep the gauntlet: question prefix.",
-      "wallMs": 14260,
+      "feedback": "Before and After are textually identical, so no fact moved. Both outputs satisfy the contract: A exits via rule 1 with the third-attempt done row exempt from stagnation, B writes an all-cut ledger with cap:1 and exits without seed dispatch, C lets the unresolved human retry target (row 1) outrank the previous `row 2 failed` decision, D falls back to the still-failed row named by the previous decision, and E lets durable `done` status beat the decision's row 1 suggestion and selects the first failed row. The After wording already preserves the `gauntlet: question` marker on the closed-row verification stop and the cap-required pre-dispatch read; if the Change is meant to show up for this case (e.g. cap persisted in the ledger, capless-legacy stop, question-prefixed stops), it is already present in Before, so no further wording adjustment is needed to keep this fact while delivering the Change.",
+      "wallMs": 7417,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4882a8ae5eba718a595d3d3209774ac0f694c10a374a366dbb083fded5513be2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "8cc23418f928ef19a148294ead3d51b3212b284f1b6acebaddbc980b3cb3aa2c",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "9714fb840c5fb6f843f822c5d39542acec1890ababa47af4fdc1b4452479dc89",
       "candidateOutputSha": "9714fb840c5fb6f843f822c5d39542acec1890ababa47af4fdc1b4452479dc89",
       "facts": {
         "contract": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every element of the contract fact that Before held: A exits straight to verification with the third-attempt exemption and no iteration/attempt/stagnation bookkeeping, B writes the all-cut skeleton and exits via Rule 1 with no seed dispatch, C selects row 1 on the unresolved human retry over the previous failed-row-2 decision, D selects the still-failed row 2 named by the previous decision over the first open row, and E lets durable `done` status override the stale suggestion and falls through to first-failed row 2 without rewriting history. The additions (requiring `cap:` before the ordered table, durably recording the retry decision before dispatch, the single shared foreground call block, and the funded-round notice) deliver the Change's cap-persistence and question-prefixed stop intent without disturbing targeting precedence. One small risk to watch: E's sentence \"no still-failed target selected by the previous decision\" could be misread as the previous decision never naming a failed row; keep the surrounding \"Durable status wins over the suggestion\" phrasing so readers understand the suggestion is disqualified because row 1 is already done, not because the rule is absent.",
-      "wallMs": 12709,
+      "feedback": "Before and After are textually identical, so no fact moved. Both satisfy the contract: A routes a third-attempt success straight to exit verification with no stagnation or escalation, B exits all-cut without a seed child or iteration spend, C lets the unresolved human retry on row 1 outrank the previous decision naming failed row 2, D lets the previous-decision failed row 2 outrank the first open row, and E lets durable `failed` status on row 2 override the stale `done` suggestion for row 1. If the Change (question-prefixed stops, cap persistence, coordinated-flow legs, section-5 amend routing) was meant to surface in this case, the After wording has not yet incorporated it; when you do, keep the ordered targeting prose and the exit-verification exemption for a successful third attempt exactly as written here, since that is what carries the contract.",
+      "wallMs": 9000,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

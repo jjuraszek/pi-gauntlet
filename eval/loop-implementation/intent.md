@@ -1,6 +1,7 @@
 for: a72f1baef2de5f5786f84d80f6d04c1ab95ed43e997a8f882a8c802dd531e904
 
 ## Change
+Route ledger-engine amend preparation through the ordinary path without plan-writer, an Amend-prepare: block, plan_check or a task-tracker lifecycle, preserving section 5 apply and the existing amend behavior.
 Prefix every human stop, including discard/reset authorization, with gauntlet: question while preserving ledger state and the authorization boundary.
 
 Persist the row-scaled total cap in the ledger, grant positive increments through one parent commit, stop capless legacy ledgers before the ordered table, and keep row funding, seed recovery, validation and child-only windows independent. Select operational row decisions through cap history. New samples are baseline-skipped: new sample, no pre-edit sample evidence; the runner still generates genuine baseline and candidate evidence.
@@ -9,6 +10,7 @@ Cover shared-AC expansion, original AC indices, per-leg base/seed state and cut 
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
 
 ## Expected to move
+- escalated-row-attempt/ledger-prepare-local: holds -> holds - Intended but unchanged: both baseline replies already prepare ledger-engine amends through the ordinary path; preserve that routing while scoping delegated preparation to task-plan callers.
 - gate-line-first/question-first: fails -> holds - Dirty returns await explicit authorization under a question marker.
 - cap-and-exit-verification/contract: fails -> holds - Explicit cap:2 replaces the removed setting while retaining seed-inclusive cap stop and closed-row exit failure.
 - commit-boundary/seed-recovery: fails -> holds - Explicit continuing cap:97 and cap:1 alternative preserve authorized interrupted-seed recovery, target validation and consumed iterations.

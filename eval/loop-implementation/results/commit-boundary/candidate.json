@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4e5360817536e5225bf561ed31035e6954e2936187bc8abe9d902e8a4d9f77fe",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "e0f8916bca328e53a89d28ba9f0590f0ef5996af8cd71acbc26d19ea3cc9e604",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "f31286882c5f4e8e384e361014648260e9d577e33410e29d50bf1583512137c4",
       "candidateOutputSha": "f31286882c5f4e8e384e361014648260e9d577e33410e29d50bf1583512137c4",
       "facts": {
         "seed-recovery": {
@@ -49,15 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both facts survive the wording change: After still prefixes every stop with `gauntlet: question`, keeps iterations 1 → dispatch `iteration: 1` / `target: seed` with a seed-contract hint → bump to 2, validates both open rows' evidence with attempts 0, row 3 untouched, exactly one `row 0 done` decision in one clean `loop: seed evidence` commit, selects row 1 only afterward, and at cap:1 stops before any recovery dispatch without resetting counters or cap; Part A keeps every boundary as a preserving human stop with restored 5 before the normal bump to 6. A few spots are weaker than Before and worth tightening so the facts stay unambiguous: (1) the seed recovery runs an unrestricted `git clean -fd` — Before limited removal to the untracked paths listed in that iteration's porcelain output, which better honours \"no automatic cleanup\"; restore that scoping. (2) Case 4 (dispatch error) only says the header is preserved; add \"no relaunch\" explicitly as case 5 does for the async handle. (3) Part A's post-authorization step 3 unconditionally appends and commits a `row <n> retry` line, whereas Before made that conditional on the human choosing \"Retry with hint\"; keep the retry line conditional so authorization of the reset alone does not create a parent commit. (4) The validation decision line uses `<first row to take>` rather than the concrete `row 1` that the following selection relies on; naming it makes the \"only then select an ordinary row\" step verifiable.",
-      "wallMs": 19257,
+      "feedback": "Before and After are textually identical, so nothing moved. Both outputs already satisfy seed-recovery: the interrupted seed is preserved as consumed `iterations: 1` only after explicit authorization, the recovery dispatch is `iteration: 1`, `target: seed` with a seed-contract hint and a normal bump to `iterations: 2`, validation checks both open rows for failing-check evidence with attempts 0, row 3 unchanged, exactly one `row 0 done` decision in one clean `loop: seed evidence` commit, selection then falls to row 1, and at cap:1 Rule 4 fires before any recovery dispatch with no counter/cap reset and only the human-authorized reset/clean commands. Both also satisfy contract: all five bad returns are hard stops preserving state, async/error never poll or relaunch, and the restored count goes to 5 before the bump to 6. Since the Expected-to-move entry for seed-recovery lists fails -> holds but the Before text already holds, the After wording is not demonstrably doing work on this case; if the intent is to make the gauntlet: question prefix and authorization boundary explicit, consider wording in the After output that distinguishes it from Before (e.g., a sentence stating that every human stop, including discard/reset authorization, carries the `gauntlet: question` marker and that counters, cap and attempts are untouched until the human answers), otherwise the case cannot show the change.",
+      "wallMs": 12130,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4e5360817536e5225bf561ed31035e6954e2936187bc8abe9d902e8a4d9f77fe",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "8edab9b044e1b87338ba5bfb96f5b26048405dec09361df044a42542d39fa467",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "dc683fc03c98292e755cf68a6fae0a10bcb026f9101d5a1ef651518de55d9f87",
       "candidateOutputSha": "dc683fc03c98292e755cf68a6fae0a10bcb026f9101d5a1ef651518de55d9f87",
       "facts": {
         "seed-recovery": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy both facts, so the wording change did not move either as written: Before already preserved the interrupted seed as iterations 1, redispatched target seed at iteration 1 with a seed-contract hint after a bump to 2, validated it as seed (both open rows evidenced, attempts 0, cut row unchanged, one row 0 done decision, one clean loop: seed evidence commit), only then selected an ordinary row, stopped at cap:1 before redispatch, and never reset counters or auto-cleaned; it also stopped on every bad boundary, refused relaunch/poll on error/async, and restored 5 before bumping to 6. After keeps all of that while delivering the Change: every stop, including the discard/reset authorizations, now opens with gauntlet: question, and it adds a Recommendation line without weakening the authorization boundary. One thing to watch in After: the cap:1 stop recommends cap +1 and says the next target 'would still be seed', which is fine, but keep the explicit statement that the grant does not erase the consumed seed dispatch (Before's 'permitting the recovered seed dispatch with iteration: 1, not 0') so a reader cannot infer a counter reset; otherwise the After wording preserves every fact Before kept.",
-      "wallMs": 12923,
+      "feedback": "Before and After are textually identical, so no fact moved. Both outputs preserve the interrupted seed as consumed iterations 1 after explicit authorization, dispatch iteration 1 with target seed, a seed-contract hint and a normal bump to iterations 2, validate the return under seed rules (both open rows gain named failing-check evidence at attempts 0, cut row unchanged, exactly one row 0 done decision, one clean loop: seed evidence commit) before selecting the first open row, and at cap:1 stop before any recovery dispatch without resetting counters or auto-cleaning. Both also stop at every bad boundary while preserving state, refuse to poll/join/relaunch on error or async handle, and restore iterations to 5 before the normal bump to 6. Every stop already carries the gauntlet: question prefix, so the Change is delivered; keep this wording as-is, and if further edits are made, retain the explicit iterations 1 -> 2 seed recovery numbers, the hint text that reasserts the seed contract at iteration greater than 0, and the cap:1 stop placed before the bump, output-path allocation and child call.",
+      "wallMs": 19526,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

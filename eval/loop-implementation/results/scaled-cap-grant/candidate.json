@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "fd3a65371fb39e89283495cc9dea91b61770af79b3dc8b08d6b47d9e7df33f14",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "916f68f9d0b669a53851caef095c82a56880c5e37c0d231b1e3c81f1d6f4f7ad",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "e9cdad07f18609716dffe378257f870652810082499c0a4e300e27a07e445d7a",
       "candidateOutputSha": "e9cdad07f18609716dffe378257f870652810082499c0a4e300e27a07e445d7a",
       "facts": {
         "stop": {
@@ -74,15 +74,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: both outputs prefix each human stop with `gauntlet: question`, stop at rule 4 before dispatch/verification naming row 24 attempts 1 and cap 97 with cap +N beside retry/amend/stop, apply the bare `cap +50 |` in exactly one `loop: raise cap` parent commit to `cap: 147` with iterations 97 and all attempts preserved, select row 24 via durable status with the operational decision still `row 24 failed | check failed | retry`, produce identical `cap +50 | because more rounds` cells for both reason forms, reject all four malformed tokens with one re-ask and hold the stop on a second invalid reply with no commits, list funding and cap as separate replies at the dual-exhaustion stop, leave both windows untouched by the grant so the stagnation stop recurs until a retry, compute 97/1 for fresh and all-cut entry with cut/reopen/amend preserving cap and redraw reseeding, and treat the cap-to-999 child as a changed-header miss repaired by restoring the saved cap, keeping the consumed iteration, marking the target failed with attempts+1 and a `loop: repair row 24` commit, with no seed retry. Nothing moved. Two small precision nits in After that could become fact failures under a stricter judge: the pipe-form row in section 2 says \"whitespace boundary\" when the boundary is the `|` (Before said \"pipe boundary\"); keep Before's wording there. Also the section-6 validation example silently switches to saved cap 147 (post-grant) while the prompt's premise is cap 97; either state the premise shift explicitly or use `cap: 97` so the \"restores saved cap\" claim is unambiguous.",
-      "wallMs": 21110,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both show the rule-4 cap stop before dispatch/verification with the `gauntlet: question` prefix naming row 24 attempts 1 and cap 97; the bare `cap +50` grant appending `cap +50 |` and writing `cap: 147` in one `loop: raise cap` parent commit with iterations 97 and all attempts preserved; identical trimmed words cells for both reason forms; single clarification then a held stop for each malformed token with no commits; independent funding (Amend-grant, row allowance only) and cap (total only) offers with no combined syntax; a grant that resets neither the empty-child nor validation-miss window so stagnation still blocks dispatch until a retry; 24×4+1=97 / all-cut cap 1 / cap-preserving cut-reopen-amend / redraw reseed; and the cap-to-999 child treated as a header miss with saved cap restored, iteration 98 kept, row 24 failed at attempts 2 under `loop: repair row 24`. The After wording already carries the `gauntlet: question` prefix on every stop and persists the cap; nothing in the Change needs further adjustment here. If the author wants this case to exercise the ledger-engine amend routing (ordinary path, no plan-writer/Amend-prepare:/plan_check lifecycle), the input would need an amend branch; the current text only references brainstorming's amendment surface and still calls `plan_check` during fresh seeding, which is seed-time and unrelated to amend preparation, so no fact is at risk.",
+      "wallMs": 15488,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "fd3a65371fb39e89283495cc9dea91b61770af79b3dc8b08d6b47d9e7df33f14",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "e36598350d5b897e025fd0e82edccf10ac9ed05b8b2acb796bc03ff554cc53a8",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "8b9e58de108dc6d0f2b9066d372b4e5f4a536e4bf939836fc586ba42ee10a10c",
       "candidateOutputSha": "8b9e58de108dc6d0f2b9066d372b4e5f4a536e4bf939836fc586ba42ee10a10c",
       "facts": {
         "stop": {
@@ -121,10 +121,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After preserves every fact Before held. Both outputs stop at rule 4 before dispatch and verification, name row 24 attempts 1 and cap 97, offer cap +N beside retry/amend/stop under a `gauntlet: question` marker; both append exactly `cap +50 |`, write cap:147 in one `loop: raise cap` parent commit, keep iterations 97 and attempts unchanged, and return to row 24 with the operational decision still `row 24 failed | check failed | retry`. The parse table, four malformed tokens asked once with a second invalid holding the stop, independent funding/cap listing with explicit 'no combined syntax', grant-doesn't-reset-windows, entry formula (97 / all-cut 1 with rule-1 exit and no seed), amendment/redraw cap behavior, and the cap-999 repair (restore saved cap, keep consumed iteration, failed with attempts+1, `loop: repair row 24`, return to ordered table rather than any automatic seed retry) all hold in After. After's additions — Recommendation lines on every stop, the explicit 'there is no combined syntax' sentence, the saved-cap `C` generalization in section 7, and the post-grant stagnation stop stating cap 147 rather than exhausted — strengthen rather than weaken the facts. One minor caution for future wording: After section 7 opens by saying the cap-exhausted baseline 'cannot dispatch such a child without prior authorization' and then branches on C=97 vs C=147; keep the concrete post-grant worked example (iterations 98, cap 147, attempts 2) that Before stated so the 'keeps consumed iteration' fact stays textually explicit rather than implied by 'retaining the already-bumped iterations'.",
-      "wallMs": 22653,
+      "feedback": "Before and After are textually identical, so nothing moved: both already prefix every human stop with `gauntlet: question`, persist `cap: 147` through exactly one `loop: raise cap` parent commit with `cap +50 |` appended, skip the cap decision when selecting the operational row decision (row 24 failed | check failed | retry), parse both reason forms into `cap +50 | because more rounds`, ask once for each malformed token and hold the stop on a second invalid reply with no commits or counter changes, list funding and cap as separate replies under Amend-grant with no combined syntax, keep the empty-child and validation-miss windows untouched by a grant so rule 3 still stops after `cap +50`, compute fresh cap as non-cut rows × 4 + 1 (97 / all-cut 1 with rule-1 exit and no seed), preserve cap across cut/reopen/requirement-preserving amend via a single `loop: cut row <n>`/`loop: amend` commit without plan-writer, task-tracker or `plan_check`, and treat a child writing cap 999 as a changed-header miss repaired by restoring saved C, keeping the consumed iteration, marking row 24 failed with attempts+1 in a `loop: repair row 24` commit. Since the After wording produced no observable difference for this input, the Change is either already satisfied by the baseline on this case or not exercised here; if the author expects a visible delta (e.g. explicit statement that ledger-engine amend preparation goes through the ordinary path without a plan-writer step, or a `gauntlet: question` prefix on discard/reset authorization), they should add a prompt line that forces the model to narrate that routing, while keeping the existing stop/grant/window/entry/validation sentences verbatim so these seven facts continue to hold.",
+      "wallMs": 20269,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

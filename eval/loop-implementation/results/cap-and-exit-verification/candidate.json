@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9ee6dafe5a149b7a859d9bb85dca32f85c55772e03586a14debc9d665238d3d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "d31556d345e014cb1158a5fad926a30cbf18c5698b775a05fdada8c9dc3cfb00",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "d6f6e9d45810f9e3279c52176d617c6351235e37d8082f3ecbd598faa7daa851",
       "candidateOutputSha": "d6f6e9d45810f9e3279c52176d617c6351235e37d8082f3ecbd598faa7daa851",
       "facts": {
         "contract": {
@@ -44,15 +44,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the contract: Snapshot A stops at rule 4 before any dispatch, lists row 1 with its attempts, and offers `cap +N`; Snapshot B runs `make check` exactly once, quotes the failing output, reopens nothing, reruns nothing automatically, and keeps implement active. The one place After weakened the fact's support is seed inclusivity: Before states outright that \"the seed and the row dispatch each consumed one count, which exhausts the cap of 2\", whereas After only says the seed is excluded for rule 3's commit count and leaves the seed-inclusive cap accounting implicit in the 2 ≥ 2 arithmetic (and its recommendation line's \"row 1 has never been dispatched\" slightly muddies which dispatch consumed the count). To keep the fact unambiguous while still delivering the gauntlet-prefixed stop, cap-history target selection and the cap-gated repair round, add back one sentence under Snapshot A's ordered table such as \"Both the seed and the single row dispatch count toward the cap; 2 of 2 are spent\", and in Snapshot B keep the `cap +N` option but say explicitly that it re-runs verification rather than reopening or retrying any row.",
-      "wallMs": 16634,
+      "feedback": "Before and After are byte-identical, so nothing moved; both already satisfy the contract fact. Snapshot A stops at rule 4 (2 ≥ 2) before any dispatch, reports row 1 with its attempts, states the durable `cap: 2` header is present, and offers `cap +N` with a single parent `loop: raise cap` commit while leaving iterations and attempts untouched; the seed-inclusive count is implied by iterations: 2 covering seed plus one row dispatch (the 'seed is excluded' note applies only to rule 3's progress check, not the cap). Snapshot B runs `make check` exactly once in the foreground, quotes the verbatim assertion output in the Problem line, explicitly refuses to reopen rows or auto-rerun, and keeps phase implement active. If the author intended a visible change for this case (the Expected list says fails -> holds), the After wording did not reach this output; to make the seed-inclusive cap stop more explicit without disturbing anything else, add one line under Snapshot A such as 'iterations: 2 counts the seed plus one row dispatch; the cap is seed-inclusive' and keep every other sentence as is.",
+      "wallMs": 10263,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9ee6dafe5a149b7a859d9bb85dca32f85c55772e03586a14debc9d665238d3d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "c2e74dc50702d9ec3654aa4f8209c58016d03263925008982c2285221f256488",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "ec5f6bb5ba9488a6d1739311f20303050c718fb2171cb35ac7d1e23836954212",
       "candidateOutputSha": "ec5f6bb5ba9488a6d1739311f20303050c718fb2171cb35ac7d1e23836954212",
       "facts": {
         "contract": {
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs keep the contract: snapshot A stops at the durable cap before any dispatch or verification, names row 1 with its attempts, and offers cap +N; snapshot B runs make check exactly once, quotes 'assertion expected2 got1', never reopens a row or reruns the command, and leaves implement active. Two things in After weakened the fact without breaking it, and are worth restoring. First, Before stated explicitly that 'the consumed seed and row dispatch both count toward the cap' — After drops that sentence, so seed-inclusive accounting is only implied by iterations 2 = cap 2; keep a line like 'seed plus one row dispatch consumed both cap units' in A. Second, After's B stop now reframes the verification failure as a cap stop and offers cap +N, whereas Before said 'No cap +N offer applies: this is a verification-failure stop, not a cap stop.' If the Change intends the cap to forbid repair dispatch, say so while keeping the stop labeled as a verification-failure stop (e.g., 'Stopped: exit verification failed with every row closed; cap 2 reached, so no repair dispatch is possible'), and either keep cap +N off the menu or explicitly note that a grant only reenables the repair path and does not reopen rows — otherwise a reader may conclude closed-row failure is just another cap stop rather than the distinct exit-command path the fact describes.",
-      "wallMs": 15024,
+      "feedback": "Before and After are byte-identical, so no fact moved. Both satisfy the contract: snapshot A stops at iterations 2 / cap 2 before any dispatch or verification, names row 1 and its attempts, treats the seed-inclusive iteration count as reaching the cap, and offers `cap +N`; snapshot B runs `make check` exactly once, quotes `assertion expected2 got1`, forbids reopening rows, rerunning verification, incrementing iterations or adding a repair identity, and explicitly refuses to complete implement or start verify. The Expected-to-move entry anticipated fails -> holds here, but the baseline already met the fact, so the author should not count this as a delivered movement; if the intent was to make seed-inclusiveness explicit, a small addition such as 'iterations 2 (seed + 1 row dispatch) reached cap 2' in the stop line would make that aspect literal without disturbing anything else.",
+      "wallMs": 11286,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

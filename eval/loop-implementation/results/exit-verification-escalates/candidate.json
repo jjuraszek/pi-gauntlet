@@ -34,47 +34,47 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b9b652b88eff3ac0ca153dc7b94fd5db95ca8ce4b2ac4f0a2b0079018c43bfff",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "12910653e8f3899a119ffb1e715aabc4fd14fb3803f4c5e5a6a706f52a238b7e",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "882a1a9d5de51649c49822b1e48fe3251b81b4acd7aea202298e840d04d422df",
       "candidateOutputSha": "882a1a9d5de51649c49822b1e48fe3251b81b4acd7aea202298e840d04d422df",
       "facts": {
         "repair": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "boundaries": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "Before denies that any exit-verification repair exists at all (zero dispatches, no marker, no rerun, 'not reachable' for error/non-DONE), so both facts fail there: it never increments iterations, never captures HEAD_BEFORE, never dispatches an implementer, never writes `loop: repair verification`, and describes no consumed-round or spent-marker handling. After delivers the Change and satisfies both facts: one bump 8→9, failing-leg HEAD_BEFORE, a single synchronous `implementer` call with implModel in the failing checkout carrying failing output/absolute spec/Rules/`make check`, clean exactly-one-commit validation with rows/mapping/cap unchanged, home-count parent marker (empty when the home child already carries the bumped ledger), once-per-flow scope, single rerun of only the failing command, and the `gauntlet: question` → `Stopped: verification failed with every row closed — escalated round spent` → `Recommendation: none` stop; the variants table and resume cases cover cap, dirty/zero/two commits with preserved count, error/non-DONE consuming the round, marker recovery, unrecoverable-identity-as-spent, no second-leg repair and no verify-phase credit. Two spots are thin and worth tightening so the boundaries fact rests on explicit text rather than inference: add one sentence stating that with amend permission missing (or the marker already on the branch) the driver issues the original `Stopped: verification failed with every row closed` stop with no bump, no HEAD_BEFORE and no dispatch; and consider whether the at-cap variant should keep the verification-failure header (as Before did, since rule 1 precedes rule 4) rather than switching to `Stopped: iteration cap 20 reached`, so the at-cap case clearly reads as 'stops without repair' instead of looking like a cap stop that could be funded and then repaired.",
-      "wallMs": 22965,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical, so no fact moved. Both outputs already satisfy `repair`: the single iterations bump to 9, failing-leg HEAD_BEFORE, one synchronous fresh `implementer` call with implModel in the companion cwd carrying Rules, absolute spec, exact `make check` and the failing output, exactly-one clean commit with unchanged rows/mapping/cap, the `loop: repair verification` parent marker (empty when the home child already carries the bumped ledger), a single rerun of only the failing command, and the `gauntlet: question` / `Stopped: verification failed with every row closed — escalated round spent` / `Recommendation: none` stop. Both also satisfy `boundaries`: cap stop without dispatch, dirty/zero/two-commit stops preserving the consumed count, error/non-DONE consuming the round, marker recovery on resume, unrecoverable identity treated as spent with no fabricated marker, and no second-leg repair or verify-phase credit. The only soft spot in both is that the missing-permission case is implied (permission listed among hard boundaries) rather than shown as its own stop; if the After wording is meant to exercise that, add one row to the section 3 table showing the original human stop with `gauntlet: question` first and `Recommendation: none` when amend permission is absent, without otherwise altering the existing text.",
+      "wallMs": 15520,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b9b652b88eff3ac0ca153dc7b94fd5db95ca8ce4b2ac4f0a2b0079018c43bfff",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "0f29a73d1de1f945954367e3455adca7b1625cb53bc6594ff6572b1fb6e52f4a",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "e692f1b3e4db0591cb8f0c6917f3b1931ba47f5d3ee6b27ed6749658f7d447cf",
       "candidateOutputSha": "e692f1b3e4db0591cb8f0c6917f3b1931ba47f5d3ee6b27ed6749658f7d447cf",
       "facts": {
         "repair": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "boundaries": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "Before refused the whole escalated verification-repair protocol (zero dispatches, no marker, no DONE contract), so it could not show the iteration bump, HEAD_BEFORE capture, implementer dispatch inputs, `loop: repair verification` marker, empty-marker fallback, single rerun, or `escalated round spent`, and its boundary table lacked round consumption on error/non-DONE and marker recovery on resume. After delivers all of these: one bump to 9, companion-cwd implementer with implModel/spec/Rules/`make check`/failing output, clean exactly-one-commit admission, parent ledger commit vs. empty marker for the home leg, once-per-flow marker, failing-command-only rerun, and the retained `Stopped: verification failed with every row closed` header under `gauntlet: question` with `Recommendation: none`. Cap, dirty/zero/two-commit, dispatch-error, non-DONE, resume, unrecoverable-identity and second-leg snapshots all preserve count/state, refuse redispatch, carriers, fabricated success, row reopening, cap bypass or verify credit. The one soft spot: After never explicitly states the missing-amend-permission case (it only conditions the repair on permission being active); adding a sentence that without amend permission the driver takes the unchanged original verification-failure stop with no bump would make the boundaries fact unambiguous rather than inferred.",
-      "wallMs": 20078,
-      "verdict": "improved"
+      "feedback": "The Before and After outputs are textually identical, so no fact moved: both already satisfy every clause of the repair fact (single iterations bump 8→9, HEAD_BEFORE capture, one fresh synchronous `implementer` with resolved implModel in the companion cwd carrying the failing output, absolute spec, additive Rules and exact `make check`; clean exactly-one-commit admission with rows/mapping/cap unchanged; `loop: repair verification` parent marker with the `--allow-empty` fallback when the home child already committed the bumped ledger; one rerun of only the failing command; and the `gauntlet: question` / `Stopped: verification failed with every row closed` / `escalated round spent` / `Recommendation: none` stop) and every clause of the boundaries fact (cap stop without repair, dirty/zero/two-commit stops preserving the consumed count, dispatch error and non-DONE consuming the round, spent-marker recovery on resume, interrupted identity treated as spent with no carrier or fabricated success, per-flow not per-leg repair, no duplicate rerun or verify-phase credit). The Expected-to-move list predicted fails→holds for both exit-verification-escalates facts, but Before already held them, so the wording change produced no observable effect on this case; the one clause not explicitly exercised in either output is the missing-permission branch, so if the author wants that covered unambiguously, After should add a sentence stating that without amendment permission the driver emits the unchanged original `Stopped: verification failed with every row closed` stop without any bump, dispatch or marker, while leaving all other text as is.",
+      "wallMs": 17596,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

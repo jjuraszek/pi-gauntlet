@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "baseline",
-  "skillSha": "a75d969897e3b91f0f31ada155add282d22f39b29f615374051f15ef6dc894a8",
+  "skillSha": "a72f1baef2de5f5786f84d80f6d04c1ab95ed43e997a8f882a8c802dd531e904",
   "inputSha": "a1a3f0fc2fce24982ddce157aca8b97f6c714d605dd237ea0057dee2ed1857a0",
   "kind": "text",
   "assembly": "concat",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nRow 1 is open with 1 attempt. The child made one commit, but it also left uncommitted changes in the implementation worktree. I have preserved both the changes and the commit, and I have not read the ledger from HEAD.\n\nProblem: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nPreserve every row's attempts and the total iteration cap.\n\nLedger: iterations 2, cap 9.\n\nChoose one:\n\n1. **Discard and reset, then retry.** You authorize me to discard the uncommitted changes and reset to the last valid commit. I keep the consumed dispatch count: before the next normal bump, I set iterations to the restored HEAD's value + 1. I do not reset attempts. You can add a hint for row 1.\n2. **Amend.** Change the spec through the brainstorming amendment surface. A row is cut only by an approved disposition amendment.\n3. **Stop.** The implement phase stays active, and the branch, commit and uncommitted changes stay as they are.\n\nReply with 1, 2 or 3. For 1, you can add a hint.\n",
-      "words": 186,
-      "wallMs": 11287,
+      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nThe loop child made its one commit for row 1 but left uncommitted changes in the implementation worktree. The return fails the commit boundary, so the ledger was not validated or read from the new HEAD. Nothing was discarded, reset or repaired. Implement stays active.\n\nProblem: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nRow 1 is open with 1 attempt. The ledger shows iterations 2 of cap 9.\n\nPreserve every row's attempts and the total iteration cap.\n\nOptions:\n1. **Authorize discard and reset.** This discards the uncommitted changes and resets to the last valid commit, then retries row 1. You can add a hint. The consumed dispatch count is kept: iterations becomes the restored HEAD's value + 1 before the next normal bump. Attempts are never reset.\n2. **Amend.** This uses the brainstorming amendment surface if the delimiter contract in the spec is wrong or needs a new disposition.\n3. **Stop.** This leaves the branch, the dirty changes and the commit exactly as they are, with the phase still implement.\n\nRecommendation: none - the uncommitted changes have not been examined, so only you can judge whether discarding them is safe.\n",
+      "words": 205,
+      "wallMs": 17487,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty.\n\nProblem: \"check parser: expected colon, got comma\"\nLast decision: \"row 1 failed | delimiter still wrong | retry\"\n\nThe child added one commit but left uncommitted changes. No cleanup is authorized.\n\nPreserve every row's attempts and the total iteration cap.\n\nAuthorize discarding uncommitted changes and resetting to the last valid commit before retrying row 1, or stop and preserve the current branch state? Recovery must retain the consumed dispatch count; attempts and cap must not reset.\n",
-      "words": 83,
-      "wallMs": 8866,
+      "text": "gauntlet: question\n\nStopped: iteration 1 left the tree dirty.\n\nProblem: The child returned one commit but left uncommitted changes. Row 1 evidence: “check parser: expected colon, got comma”. Last decision: “row 1 failed | delimiter still wrong | retry”.\n\nNo cleanup authorization has been given. Changes and commits remain untouched.\n\nPreserve every row's attempts and the total iteration cap.\n\n1. Authorize discarding uncommitted changes and resetting to the last valid commit, then retry with an optional hint. Preserve the consumed dispatch count.\n2. Stop and keep the current branch state, with implement active.\n\nRecommendation: option 1 - authorize discard/reset before retrying; no cleanup can proceed without your permission.\n",
+      "words": 105,
+      "wallMs": 10740,
       "mechanical": {
         "question-first": "holds"
       }
     }
   },
-  "repoSha": "3ffa2f0701ca648ff212f5571520ed3acc5880c0"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }
