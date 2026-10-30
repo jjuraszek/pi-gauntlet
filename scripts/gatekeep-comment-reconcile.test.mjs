@@ -136,8 +136,8 @@ test('PR sets route before the unchanged single-PR steps', () => {
   const args = section(skill, '## Arguments\n', '## Steps\n');
   assert.match(args, /two or more PR tokens \(numbers or URLs, space-separated, before any `--rebase`\)/);
   assert.match(args, /positional issue reference.*one-line error/);
-  assert.match(args, /zero tokens discover.*before.*set-routing row/);
-  assert.match(args, /before Progress tracking, continuation record minting, tracker `init`, set admission, or provisioning/);
+  assert.match(args, /zero tokens discover.*before this row runs/);
+  assert.match(args, /during argument resolution/);
   assert.match(args, /trailing comma.*before identity normalization/);
   assert.doesNotMatch(brief, /Missing PR number:|gh pr view --json number,url/);
   const discovery = section(brief, '### Argument-resolution discovery\n', '### Gather fixed commands\n');
@@ -146,7 +146,7 @@ test('PR sets route before the unchanged single-PR steps', () => {
     /gh pr list -R <owner\/repo> --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions/,
     /gh pr list -R <owner\/repo> --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions/,
     /discovery failed: malformed gh pr list output/, /discovery failed: incomplete \(<query> hit --limit 1000\)/,
-    /source: discovered/, /GH_REPO/, /never falls back/,
+    /source: discovered/, /GH_REPO/, /never falls back/i,
   ]) assert.match(discovery, pattern);
   const rows = section(skill, '| Step | Read now | Output | Tracker stage |\n', 'Re-entry:');
   assert.match(rows, /\| Set routing \| `reference\/batch.md` \| pi-only admission.*\| - \|/);
@@ -375,8 +375,8 @@ test('report.md renders bottom-up and delegates exit and menu verdicts', () => {
   assert.match(report, /Keep API order, exclude the viewer by case-insensitive User login comparison/);
   assert.match(report, /render missing login\/slug as `unknown`/);
   assert.match(brief, /viewer: \{ login, is_author, role \}/);
-  assert.match(brief, /Author wins a stale self-request/);
-  assert.match(brief, /Use pending `reviewRequests`, never `reviews` history/);
+  assert.match(brief, /else author when is_author; else requested reviewer/);
+  assert.match(brief, /Pending reviewRequests only, never reviews history/);
   assert.match(report, /^Verdict: mergeable - [^\n]*\| fixable - <N> blockers/m);
   assert.ok(!report.includes('not mergeable'));
   assert.ok(!report.includes('Ticket changes'));

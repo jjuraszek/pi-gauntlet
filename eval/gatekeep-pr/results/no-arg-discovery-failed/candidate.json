@@ -1,0 +1,70 @@
+{
+  "sample": "no-arg-discovery-failed",
+  "arm": "candidate",
+  "skillSha": "b9172a34e8328bbb093e663c415382264c221708f7cb21fc659d4b9c1828d9f5",
+  "inputSha": "aae8bbef55e5fbce4b1b8e51d7bb0e6fe46363b1fe640b92a0bf4a9ccc29d324",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: stuck discovery failed - scenario A: HTTP 503: Service Unavailable; scenario B: incomplete (author query hit --limit 1000)\n\nEach scenario is a fresh invocation with no PR token, so argument-resolution discovery runs (`verification-brief.md` Section A). It must finish before Progress tracking, continuation-record minting, tracker `init`, set admission, or provisioning. Both scenarios stop inside discovery, so none of those steps ever runs.\n\n---\n\n## Scenario A\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. I strip `.git` and lowercase it, so origin is `acme/widgets` on GitHub and discovery continues.\n2. `gh api user --jq .login` returns `alex`, so I record `viewer.login = alex`.\n3. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` exits 1. The first stderr line is `HTTP 503: Service Unavailable`.\n4. A nonzero exit stops discovery before any filtering, so the direct-request query (`--search 'user-review-requested:@me'`) is not run.\n5. I do not fall back to the current branch's PR 999.\n6. No other work starts:\n   - no continuation record is minted\n   - no `plan_tracker` stages are initialized\n   - no worktree is provisioned\n   - no helper is dispatched\n\nRendered stop:\n\n```text\ngauntlet: stuck discovery failed: HTTP 503: Service Unavailable\ndiscovery failed: HTTP 503: Service Unavailable\n```\n\n---\n\n## Scenario B\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`, so origin is `acme/widgets`.\n2. `gh api user --jq .login` returns `alex`, so I record `viewer.login = alex`.\n3. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` exits 0. It returns a well-formed array of 1000 objects, numbers 2000-2999, all `isDraft: true`.\n4. `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` exits 0 and returns `[]`.\n5. Validation runs before union, dedupe, or draft filtering.\n   - Both outputs are arrays of valid objects with integer `number`.\n   - The author query's row count (1000) equals the limit, so the result may be incomplete.\n   - Discovery stops here. The fact that every returned row is a draft never reaches the filter, so this is not a \"0 matches\" outcome.\n6. I do not fall back to PR 999, and no record, tracker, provisioning, or helper work starts.\n\nRendered stop:\n\n```text\ngauntlet: stuck discovery failed: incomplete (author query hit --limit 1000)\ndiscovery failed: incomplete (author query hit --limit 1000)\n```\n\n---\n\nNeither scenario produces any of the following:\n\n- **Tracker stages:** none initialized.\n- **Assessed SHA:** none. No verification or brief runs.\n- **Sync line:** none renders, since no `--rebase` was passed and no report is rendered.\n- **Verdict line:** none renders.\n- **Menu:** none renders. Each invocation ends at its discovery error.\n",
+      "words": 410,
+      "wallMs": 18683,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Scenario A\n\n1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`; normalize the repository identity to `acme/widgets`.\n2. Run `gh api user --jq .login`. It returns `alex`.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It exits 1. Stop using its first error line; do not run the direct-request query.\n\nNo tracker stages are initialized, no continuation record is minted, and no provisioning or helper dispatch occurs. No SHA is assessed, and no sync line, verdict, or menu renders. PR 999 is not a fallback.\n\ndiscovery failed: HTTP 503: Service Unavailable\n\n### Scenario B\n\n1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`; normalize the repository identity to `acme/widgets`.\n2. Run `gh api user --jq .login`. It returns `alex`.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It exits 0 and returns exactly 1000 valid rows. Validate the output before filtering drafts: the count equals the query limit, so discovery rejects it as incomplete. Do not run the direct-request query.\n\nNo tracker stages are initialized, no continuation record is minted, and no provisioning or helper dispatch occurs. No SHA is assessed, and no sync line, verdict, or menu renders. PR 999 is not a fallback.\n\ndiscovery failed: incomplete (author query hit --limit 1000)\n",
+      "words": 216,
+      "wallMs": 7297,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4ce3cc2b6ff3d944d377112d63906f3fd629d84b370116c8df0c2ae0f8457bf8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "baselineOutputSha": "3f2558a8b17bfdc51a1918d430e043324f75ac4bedbef0c93c5ce41bfb5223b3",
+      "candidateOutputSha": "56e1f44a92c67a3585ce4235f6c622f5e4660442acd0e7f20d92428146af43e5",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves f1 from fails to holds: Before rendered `gauntlet: stuck PR discovery failed: author query exited 1: HTTP 503: Service Unavailable` and `gauntlet: stuck PR discovery incomplete: author query returned 1000 rows ...`, neither of which contains the required `discovery failed: HTTP 503: Service Unavailable` / `discovery failed: incomplete (author query hit --limit 1000)` strings, and Before's scenario B step 8 also reasoned about the rows being drafts (\"no candidate qualifies\"), i.e. it filtered before rejecting. After emits the exact two stop strings, states explicitly in B that validation stops discovery before union/dedupe/draft filtering so the all-draft fact never reaches the filter, and in both scenarios lists no continuation mint, no tracker init, no provisioning, no dispatch, and no fallback to PR 999. Keep the current structure: the exact `discovery failed: <reason>` line in the rendered stop block, the explicit \"stops before filtering\" sentence in B, and the per-scenario no-work list; one minor tidy would be to drop the duplicated `gauntlet: stuck discovery failed: ...` line above the exact string so each stop renders one unambiguous marker, but that duplication does not break the fact.",
+      "wallMs": 11708,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4ce3cc2b6ff3d944d377112d63906f3fd629d84b370116c8df0c2ae0f8457bf8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "baselineOutputSha": "645e56e162480e5ee54e6a1e48fe66de3d879c8da6635a0b8d99a844a5773f26",
+      "candidateOutputSha": "9758e922358a691d0742da3105b0e0b65554b9f2c6e3f8b59777de6a8e094bf5",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before never runs the discovery queries and resolves to PR 999 via `gh pr view`, so it produces neither error and falls back to the current branch; After runs the author query, stops in Scenario A with `discovery failed: HTTP 503: Service Unavailable` (first stderr line only), rejects the saturated 1000-row result in Scenario B before draft filtering with `discovery failed: incomplete (author query hit --limit 1000)`, and explicitly states no tracker init, continuation minting, provisioning, dispatch, or PR 999 fallback in both. The After wording delivers the Change as intended; the only polish worth considering is emitting the `discovery failed:` line as the very first line of each scenario's stop (per the gate-line-first expectation) rather than after the prose paragraph, so the obstacle id precedes narration without changing any of the facts it already holds.",
+      "wallMs": 5423,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "0815af89ece7d6868774e0e638c698bda634e12b"
+}

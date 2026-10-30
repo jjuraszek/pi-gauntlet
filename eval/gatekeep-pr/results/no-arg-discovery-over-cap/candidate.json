@@ -1,0 +1,70 @@
+{
+  "sample": "no-arg-discovery-over-cap",
+  "arm": "candidate",
+  "skillSha": "b9172a34e8328bbb093e663c415382264c221708f7cb21fc659d4b9c1828d9f5",
+  "inputSha": "cd9cf6175c6696c99e474edad788c3d870bc8c1a14575323cb2441d249a70d37",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "The run stops at the set-size check during argument resolution, before any tracker init, continuation record, fetch or provisioning. No menu renders.\n\n## Argument resolution: discovery\n\nNo PR token was given, so discovery runs per `verification-brief.md` Section A `### Argument-resolution discovery`.\n\n1. `git remote get-url origin` returned `git@github.com:acme/widgets.git`.\n   - I removed `.git` and lowercased the rest, so the repository is `acme/widgets`.\n   - It is a GitHub origin, so discovery continues.\n2. `gh api user --jq .login` returned `alex`, recorded as `viewer.login`.\n3. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - It exited 0 with a well-formed array of 6 rows.\n   - Every `number` is an integer, and 6 is below the limit, so the result is complete.\n4. `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - It exited 0 with a well-formed array of 4 rows.\n   - Every `number` is an integer, and 4 is below the limit, so the result is complete.\n5. **Union and dedupe by number:** 104, 88, 101, 130, 200, 201, 112, 97, 202. PR 101 appeared in both queries and is kept once.\n6. **Filter:**\n   - 200 is dropped because `isDraft` is true.\n   - 201 is dropped because it is `APPROVED`.\n   - 202 is dropped because it is `CHANGES_REQUESTED`.\n   - These stay: `REVIEW_REQUIRED` (104, 88, 101, 130), `null` (112) and `\"\"` (97).\n   - PR 999 on the current branch plays no part, because discovery never falls back to the current branch.\n7. **Sort by additions + deletions, then by number:**\n\n   | PR | Size |\n   |---|---|\n   | 101 | 2 |\n   | 97 | 4 |\n   | 112 | 6 |\n   | 88 | 8 |\n   | 130 | 8 |\n   | 104 | 10 |\n\n   PRs 88 and 130 are both size 8, so the lower number goes first.\n8. Discovery found 6 matches on pi. That re-enters set routing with origin URL tokens in sorted order, tagged `source: discovered`:\n   - `https://github.com/acme/widgets/pull/101`\n   - `https://github.com/acme/widgets/pull/97`\n   - `https://github.com/acme/widgets/pull/112`\n   - `https://github.com/acme/widgets/pull/88`\n   - `https://github.com/acme/widgets/pull/130`\n   - `https://github.com/acme/widgets/pull/104`\n\n## Set routing: admission (`reference/batch.md`)\n\n- **Harness:** this is pi, so there is no harness rejection.\n- **Tokens:** there is no positional issue reference and no duplicate identity. Every URL matches origin `acme/widgets`.\n- **Set size:** `parallel.maxTasks` is 4 and the set has 6 PRs. Sets are never chunked or trimmed, so admission rejects the set before any effect.\n\n## What did not run\n\n- **Tracker:** no stages were initialized.\n- **Continuation record:** none was minted.\n- **Writes:** nothing was fetched, provisioned or dispatched.\n- **Verification:** no SHA was verified or assessed by the brief.\n- **Report:** no sync line renders, because `--rebase` was not passed and no report exists. No verdict line renders and no menu renders.\n\n## Output\n\n```text\ngauntlet: stuck multi-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n```\n",
+      "words": 440,
+      "wallMs": 17765,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Starting at argument resolution with no PR token, I narrate these commands in order:\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. I normalize origin to `acme/widgets`.\n2. `gh api user --jq .login` returns `alex`.\n3. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` returns the supplied author rows.\n4. `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` returns the supplied direct-request rows.\n\nBoth outputs validate as complete arrays with integer PR numbers and fewer than 1000 rows. I union them, deduplicate PR 101, exclude draft PR 200, and exclude decided PRs 201 and 202. Sorting by additions plus deletions, then PR number, produces **101, 97, 112, 88, 130, 104**.\n\nI re-enter pi set routing with those six origin-qualified PR URLs, in that order, tagged `source: discovered`. The set exceeds the supplied `parallel.maxTasks` of 4, so admission stops before any fetch, provisioning, or helper dispatch. I do not use unrelated PR 999.\n\nNo continuation record is minted, no tracker stages are initialized, and no helpers are dispatched. No SHA is verified or assessed; no sync line, verdict line, or menu renders because discovery is rejected.\n\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
+      "words": 214,
+      "wallMs": 6676,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ebb822882a44aefcc525bb862da6fb615e32ac05e6e8dc368ae33c1eccce35b8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "baselineOutputSha": "734fe2751ff840317a30dfaddd28c6dd8f5a6a394c8f305b1c56319b9fa2b4df",
+      "candidateOutputSha": "68c2dd59fdf5e3b41d36c7336068daf4cd21759b3dd0a3d8b77205bac389a8ac",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers f1 because it explicitly unions the nine unique numbers, dedupes 101, drops 200/201/202 for draft/APPROVED/CHANGES_REQUESTED, sorts by additions+deletions with the 88/130 tie broken by number, and closes with the exact `multi-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6` line followed by `discovered, smallest first: 101, 97, 112, 88, 130, 104`, while still stating no tracker init, continuation record, fetch, provisioning or dispatch ran. Before failed only because it never sorted the set and never emitted the `discovered, smallest first:` line (it listed 104, 88, 101, 130, 112, 97 in query order and stopped at the marker). One thing to watch: After's output block repeats the cap message twice (once with the `gauntlet: stuck` marker prefix, once bare); since the fact only requires the bare line followed by the discovered line, this still holds, but the wording should make clear whether the marker line and the bare error line are both intended so future outputs don't collapse them into one and lose the exact bare line.",
+      "wallMs": 13291,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ebb822882a44aefcc525bb862da6fb615e32ac05e6e8dc368ae33c1eccce35b8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "baselineOutputSha": "2bdcdbbc1ec10080099fdef97913af770e6c41074a49061e9ed2be8b2f5e6b8f",
+      "candidateOutputSha": "56db096fbb8aac8e664970b5ac2111f0310c72a634f63bc274985f236f7940b8",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves f1 from fails to holds and regresses nothing: it keeps the draft/decided filters, the 101 dedup, the no-provisioning/no-dispatch/no-continuation/no-tracker-init statements, and adds the missing size-then-number sort and the exact two-line ending (`multi-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6` followed by `discovered, smallest first: 101, 97, 112, 88, 130, 104`), which Before lacked entirely (Before ended only with the cap line and never ordered the set). Two small hardening suggestions for the wording: name the review decisions explicitly (`APPROVED` for 201, `CHANGES_REQUESTED` for 202) rather than the collective \"decided PRs\", so a reader can check the filter rule directly, and phrase the \"re-enter pi set routing\" sentence as a hypothetical admission check (e.g. \"the six discovered PRs would enter set routing, but the set exceeds parallel.maxTasks 4, so admission is rejected before any fetch, provisioning, or helper dispatch\") to avoid any reading that routing actually began before the rejection.",
+      "wallMs": 11381,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "0815af89ece7d6868774e0e638c698bda634e12b"
+}

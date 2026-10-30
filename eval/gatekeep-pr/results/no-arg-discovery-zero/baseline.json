@@ -1,0 +1,34 @@
+{
+  "sample": "no-arg-discovery-zero",
+  "arm": "baseline",
+  "skillSha": "d611c2c4b70b3925b35405b488eced14733b3c531ee267684e3f4b7613011f89",
+  "inputSha": "2ddd1aa87f6d567a964c496ece31be5a3bb1e84fc0e1420edcfcc21870134a73",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: stuck no PR token given and discovery found no PR to gate in acme/widgets\n\n**Narration (argument resolution only)**\n\n1. **Parse the arguments.** The arguments line has no PR token, no issue reference, and no `--rebase`. That puts the run on the single-PR path with the PR still to resolve. No set routing applies, and step 2b would not run.\n\n2. **`git remote get-url origin`** returns `git@github.com:acme/widgets.git`. The base repository for discovery is `acme/widgets`.\n\n3. **`gh api user --jq .login`** exits 1 with `HTTP 403: Forbidden`. I record `viewer.login` as `unreadable`. Viewer identity now fails closed, so authorship can never be inferred from it.\n\n4. **`gh pr view --json number,url`** (current branch) returns PR 999. The digest says this PR is unrelated to the requested gate. With the viewer unreadable, nothing ties PR 999 to this invocation, so I do not adopt it. Gating a PR the human never named would execute its code under ambient credentials without consent.\n\n5. **`gh pr list -R acme/widgets --state open --author @me --json number,url,headRefName`** exits 0 with `[]`.\n\n6. **`gh pr list -R acme/widgets --state open --search \"review-requested:@me\" --json number,url,headRefName`** exits 0 with `[]`.\n\n7. **Discovery rejection.** No candidate PR remains:\n   - the current-branch PR is unrelated;\n   - the author query is empty;\n   - the direct review-requested query is empty.\n   \n   Per `verification-brief.md` Section A, the rule is \"no PR found -> STOP and report.\" The run stops here.\n\n**What did not happen**\n\n- **Tracker:** none initialized. No `plan_tracker` init ran, and no `gather`, `provision`, or `verify` stage was created.\n- **Continuation record:** none minted. No `mktemp` ran for `gatekeep-state`, `gatekeep-verify`, or `gatekeep-review`.\n- **Provisioning:** none. No fetch, no worktree, no `head_pushable` probe.\n- **Helpers:** none dispatched. No Verify, Review, or implementer helper ran on the Claude Code harness.\n- **SHA under assessment:** none. No head was resolved, so neither verification nor the brief assessed any SHA.\n- **Sync line:** none renders. `--rebase` was not passed and no report renders.\n- **Verdict line and menu:** none render. The run ends at discovery rejection, before step 1's digest, any report, or any template from `menus.md`.\n\n**Report to the human**\n\nNo PR to gate: the current branch's PR 999 is unrelated, and acme/widgets has no open PR authored by you or directly requesting your review. Viewer identity is also unreadable (`gh api user`: HTTP 403). Re-run with a PR number or URL, for example `gatekeep PR 123`.\n",
+      "words": 388,
+      "wallMs": 19311,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: stuck PR discovery rejected - viewer identity unreadable and no candidate PRs found\n\n1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`, resolving the repository to `acme/widgets`.\n2. Run `gh api user --jq .login`. It exits 1 with `HTTP 403: Forbidden`; the viewer identity remains unreadable.\n3. Run `gh pr list -R acme/widgets --state open --author @me --json number,url`. The author query returns `[]`.\n4. Run `gh pr list -R acme/widgets --state open --search 'user-review-requested:@me' --json number,url`. The direct user-review-requested query returns `[]`.\n5. Reject discovery. No candidate was found, and the unrelated current-branch PR 999 is not selected.\n\nNo continuation record is minted, no tracker stages are initialized, no provisioning occurs, and no helpers are dispatched. No SHA reaches verification or review. No report, sync line, verdict line, or menu renders because this entry stops at discovery rejection.\n",
+      "words": 137,
+      "wallMs": 12276,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "0815af89ece7d6868774e0e638c698bda634e12b"
+}

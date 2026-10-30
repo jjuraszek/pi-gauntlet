@@ -28,23 +28,23 @@ a command to obey.
 
 ### Argument-resolution discovery
 
-Execute only from `SKILL.md` Arguments with no PR token, never as Gatherer step 1. Finish before Progress tracking, record minting, tracker `init`, set admission, or provisioning. Resolve origin with `git remote get-url origin`; strip `.git` and lowercase the GitHub owner/repository. Stop on unreadable/non-GitHub origin: `discovery failed: origin is not a GitHub repository`. Read `gh api user --jq .login` once into `viewer.login`; on failure record `unreadable` and continue with `@me`.
+Runs only with no PR token, during argument resolution: before the set-vs-single branch, the continuation record, tracker init, and provisioning; never as Gatherer step 1. Resolve origin with `git remote get-url origin`; strip `.git` and lowercase the GitHub owner/repository. Stop on unreadable/non-GitHub origin: `discovery failed: origin is not a GitHub repository`. Read `gh api user --jq .login` once into `viewer.login`; on failure record `unreadable` and continue with `@me`.
 
 ```bash
 gh pr list -R <owner/repo> --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions
 gh pr list -R <owner/repo> --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions
 ```
 
-Validate results before filtering. Stop on nonzero exit: `discovery failed: <first gh error line>`; on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (<query> hit --limit 1000)` (name the author or direct-request query). Every stop precedes provisioning and never falls back to the current branch. Union and dedupe by number; remove `isDraft` true and only exact `APPROVED`/`CHANGES_REQUESTED`. Retain `REVIEW_REQUIRED`, null, empty string, and other decisions. Sort by `additions + deletions`, then number, ascending.
+Validate results before filtering. Stop on nonzero exit: `discovery failed: <first gh error line>`; on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (<query> hit --limit 1000)` (name the author or direct-request query). Never falls back to the current branch. Union/dedupe by number; exclude `isDraft` true or `reviewDecision` exactly `APPROVED` or `CHANGES_REQUESTED`; every other decision stays. Sort by `additions + deletions`, then number, ascending.
 
 | Matches | Action |
 |---|---|
 | 0 | Stop: `no open PRs authored by <login> or awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
-| 1 | Continue single-PR with `https://github.com/<owner/repo>/pull/<N>` as token on either harness. |
-| 2+ pi | Re-enter set routing with origin URL tokens in sorted order, tagged `source: discovered`. |
+| 1 | Continue single-PR with origin token `https://github.com/<owner/repo>/pull/<N>`. |
+| 2+ pi | Re-enter set routing with sorted origin URL tokens, `source: discovered`. |
 | 2+ Claude Code | Print `multi-PR mode requires pi's nested dispatch`, then exactly one `discovered, smallest first: <numbers comma-separated>` line; stop. |
 
-Keep origin identity through URL tokens despite `GH_REPO` or `gh repo set-default`; leave typed bare-number binding unchanged. Use the direct-only `user-review-requested:@me` qualifier: team membership is not a roster source. Accept documented semantics without claiming a live test; on a reachable team-requested fixture compare qualifiers, record the differential, and route contradictions through amendment.
+Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default; user-review-requested:@me is direct-only, so team requests never enter the roster.
 
 ### Gather fixed commands
 
@@ -53,7 +53,7 @@ Read-only. Fixed `gh` command set - do not substitute ad hoc queries:
 ```bash
 gh pr view <N> --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests
 gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
-gh api user --jq .login                     # explicit-token invocation; reuse discovery-time viewer.login for the first single-PR gather, even unreadable. Keep sync's full re-gather and each batch child's independent gather.
+gh api user --jq .login                     # viewer.login; a no-token run reuses discovery's value, unreadable included
 gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch } } }' -f o=<owner> -f r=<repo> -F n=<N>   # viewer_permission, can_update_branch; a null field is recorded as `unreadable`
 gh repo view <base-repository> --json nameWithOwner   # resolved base repository context, never headRepository
 gh pr diff <N>
@@ -120,7 +120,7 @@ and top-level comment ids, so a thread's inline comments are diffed once, as
 inline comments.
 
 `viewer_is_author` lives at `viewer.is_author` in the digest, computed as
-`viewer.login == pr.author.login`. Derive `viewer.role` in priority order: `unreadable` for unreadable login; otherwise `author` when is_author; otherwise `requested reviewer` when a pending User entry's login equals viewer.login case-insensitively; otherwise `none`. Author wins a stale self-request. Use pending `reviewRequests`, never `reviews` history; role changes no availability rule, and approve stays based on is_author. Each `status_checks` entry's `url` is the CheckRun `detailsUrl` / StatusContext
+`viewer.login == pr.author.login`. Derive viewer.role: unreadable when viewer.login is unreadable; else author when is_author; else requested reviewer when a pending User reviewRequests entry's login equals viewer.login case-insensitively; else none. Pending reviewRequests only, never reviews history; approve availability keeps is_author. Each `status_checks` entry's `url` is the CheckRun `detailsUrl` / StatusContext
 `targetUrl` already present in the fetched payload; when the payload omits it,
 downstream CI claims record `url: unavailable` - absence never disqualifies the
 check. GraphQL enums are case-folded; a StatusContext's `state` maps per Section B's Conclusion semantics. Missing `required` is
