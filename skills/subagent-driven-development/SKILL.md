@@ -41,7 +41,7 @@ Periodic "should I continue?" prompts add latency without adding safety. The pla
 - Approved plan or clear task scope
 - `plan_tracker` list initialized at writing-plans handoff with the full wave-ordered task list. Consume and preserve it on continuation; only direct recovery with no tracker initializes the full plan list once, before dispatch, and never over an existing list.
 
-Call `plan_check({ planPath })` for the manifest; stop on FAIL; for `manifest-size`, emit a stop note asking for plan reduction. Consume each task's `files`, `tests`, `leg`, `mode`, heading and explicit `orchestrator`. Union the `tests` arrays into `SCOPED_TEST_COMMANDS` without splitting or joining command strings; preserve each element as one command. Children read Tests metadata themselves.
+Call `plan_check({ planPath })` for the manifest; stop on FAIL; for `manifest-size`, emit a stop note asking for plan reduction. Consume each task's `files`, `tests`, `leg`, `mode`, heading and explicit `orchestrator`. Pass isolated implementers only their own task's `tests` as `SCOPED_TEST_COMMANDS`, or `none` when empty. Give in-place implementers, the integrated test gate and code reviews the wave union of `tests`. Preserve each array element as one command without splitting or joining command strings. Children read Tests metadata themselves.
 
 On a spec-defect citation, pause the fix loop and take the delegated amendment route for [amending an approved spec](../brainstorming/SKILL.md#amending-an-approved-spec) with amend permission on the `**Amend-grant:**` line decoded by the existing surface. Keep code-vs-spec mismatch in SR; an unreadable spec anchor blocks instead of falling back to task-only review.
 
@@ -55,7 +55,7 @@ Apply one rule to both review loops - spec-compliance and code-quality.
 
 **Behaviour-change reroute.** When the triggering CR structured result has `behaviourChange: true`, the fix round's re-review is SR first, then CR. Include `## Fix delta` on this SR-first behavior-change repair. Dispatch SR against the fix diff and the task's spec anchors as a first review (no `## Previous review report` marker, so no `TRAJECTORY:` line; SR carries anchored task paths and no test commands), but its ordinal continues the task's SR-loop count - a task whose SR loop ended at review 2 gets review 3 here, and an issue-bearing rerouted SR after review 4 escalates. Issues follow the normal sequence: fix, then SR re-review forwarding this SR's report path. CR round numbering is unchanged. `behaviourChange: false` re-reviews with CR only. Treat a missing or malformed required `behaviourChange` field as a failed attempt under [When a Subagent Fails](#when-a-subagent-fails); retain accepted siblings and never default to `no`. Use structured touchedTasks for affected owners; absent owners on a multi-task repair means all dispatched tasks. Target the SR re-review at the task(s) whose files the fix touched; after integration, dispatch it against the current implementation worktree, not a pre-integration snapshot.
 
-Every fix re-dispatch (implementer) and code-review re-review carries the consuming task/wave's `SCOPED_TEST_COMMANDS`; spec-reviewer re-reviews carry anchored paths, no commands - SR never executes.
+Scope every fix re-dispatch (implementer) and code-review re-review through the Prerequisites test-scope rule; spec-reviewer re-reviews carry anchored paths, no commands - SR never executes.
 
 **The sequence.** Each review that finds issues is a decision point: read structured `trajectory` before dispatching anything (review 1 has no line - on issues, dispatch fix 1). Any clean review ends the loop. For code review, *issue-bearing* means verdict `FIX_FIRST` and *clean* means verdict `SHIP`, whatever Minors the report lists; spec review keeps its gaps/acceptance meaning. `REJECT` is neither: stop and report per `stop-note.md`; the loop never enters.
 
@@ -218,7 +218,7 @@ subagent({
     { parallel: [
         { agent: "implementer", as: "impl_1", outputSchema: IMPLEMENTER_STATUS_SCHEMA,
           output: "<REPORT_DIR>/wave<w>-task1.md", outputMode: "file-only",
-          task: "planPath: <absolute plan>; anchor: ### Task N:; Spec: <absolute home spec>; SCOPED_TEST_COMMANDS: <manifest union>. pi-cohort saves your final report to the output path; do not write that file yourself, and it is not a concern about owned files." },
+          task: "planPath: <absolute plan>; anchor: ### Task N:; Spec: <absolute home spec>; SCOPED_TEST_COMMANDS: <this task's manifest tests; none when empty>. pi-cohort saves your final report to the output path; do not write that file yourself, and it is not a concern about owned files." },
         // one item per task in plan index order
       ], worktree: true, concurrency: 4,
       stopOn: { path: "/status", in: ["BLOCKED", "NEEDS_CONTEXT", "DONE_WITH_CONCERNS"] } },
@@ -233,7 +233,7 @@ subagent({
 })
 ```
 
-Keep `context`, `async` and `cwd` invocation-level; `worktree`, `concurrency`, `stopOn` step-level; `as`, `output`, `outputMode`, `outputSchema`, task cwd and acceptance item-level. For manifest `"mode":"in-place"`, use the branch checkout and omit `worktree: true`; skip patch integration and reset-soft folding. Give the SR step no worktree or stopOn. Keep snapshot-backed spec reviews and code review free of acceptance overrides. Read the dispatch-contract schemas now before using the recipe.
+Keep `context`, `async` and `cwd` invocation-level; `worktree`, `concurrency`, `stopOn` step-level; `as`, `output`, `outputMode`, `outputSchema`, task cwd and acceptance item-level. For manifest `"mode":"in-place"`, use the branch checkout and omit `worktree: true`; pass the wave union as `SCOPED_TEST_COMMANDS` and skip patch integration and reset-soft folding. Give the SR step no worktree or stopOn. Keep snapshot-backed spec reviews and code review free of acceptance overrides. Read the dispatch-contract schemas now before using the recipe.
 
 Read the tool-result text, not `details`: take statuses and verdicts from fenced `structured` JSON in `## Outputs` and `## Stop`, never from output reports or `Output saved to:` pointers. Preserve SR enums `COMPLIANT`, `NEEDS_REWORK`, `OUT_OF_SCOPE_CHANGES`. Read `Artifacts:` patch locations at `<Artifacts dir>/worktree-diffs/step-0/task-<i>-implementer.patch` (zero-based wave position); keep known output report paths. After each observed result print `wave <w> task <n> <status|verdict> <value> report <path> patch <path>`; omit no observations and invent no verdict or patch. Print `wave <w> review <k> tree <path>` at each materialized review-tree capture. Use paths for routing only.
 
@@ -253,7 +253,7 @@ subagent({ async: false, context: "fresh", cwd: "<owning checkout>",
 
 Omit agent on this sequential step; use no parallel item. Route from the diagnosis JSON and existing status matrix with bounded retries; missing/ambiguous artifacts or delegated failure stop with the visible diagnostic, not recursive diagnosis. Retain all accepted siblings. Dispatch only accepted patches without a verdict through one-step SR fan-out against snapshots. A missing/empty accepted patch takes When a Subagent Fails, not an unchanged review.
 
-For a pre-integration SR gap, reconstruct its original patch snapshot at WAVE_BASE_SHA and capture tree-before. Dispatch only the affected implementer through a one-step carrier, with isolated worktree for an ordinary wave and previous report path plus prior artifact patch. Materialize its replacement patch in a fresh detached WAVE_BASE_SHA snapshot and capture tree-after. Stop and retain setup evidence on snapshot/tree failure. Re-review through a one-step SR carrier with the saved report path under `## Previous review report (re-review trigger)`, trajectory block and `## Fix delta` tree pair. Replace only that patch after acceptance. For in-place waves, keep every repair and SR in the branch checkout, without nested worktrees or patch replacement.
+For a pre-integration SR gap, reconstruct its original patch snapshot at WAVE_BASE_SHA and capture tree-before. Dispatch only the affected implementer through a one-step carrier, with isolated worktree for an ordinary wave and previous report path plus prior artifact patch. Give isolated spec-gap redispatch only its own task's `tests` as `SCOPED_TEST_COMMANDS`, or `none` when empty. Materialize its replacement patch in a fresh detached WAVE_BASE_SHA snapshot and capture tree-after. Stop and retain setup evidence on snapshot/tree failure. Re-review through a one-step SR carrier with the saved report path under `## Previous review report (re-review trigger)`, trajectory block and `## Fix delta` tree pair. Replace only that patch after acceptance. For in-place waves, keep every repair and SR in the branch checkout, without nested worktrees or patch replacement.
 
 ### Recovery
 

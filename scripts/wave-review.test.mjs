@@ -19,6 +19,12 @@ const amendments = loadReference('implement-amendments');
 test('wave chain isolates anchored implementers and returns structured SR verdicts', () => {
   const chain = [...wave.matchAll(/```ts\n([\s\S]*?)\n```/g)].map(m => m[1]).find(b => b.includes('chain:'));
   assert.ok(chain);
+  assert.match(chain, /SCOPED_TEST_COMMANDS: <this task's manifest tests; none when empty>/);
+  assert.match(skill, /isolated implementers.*own task's `tests`.*`none` when empty/);
+  assert.match(skill, /in-place implementers.*wave union/);
+  assert.match(wave, /isolated spec-gap redispatch.*own task's `tests`/);
+  assert.match(dispatch, /isolated implementers.*own task's manifest `tests`/);
+  assert.match(dispatch, /integrated gate, in-place repairs and code reviews.*wave union/);
   assert.equal((chain.match(/parallel:/g) || []).length, 2);
   assert.equal((chain.match(/outputMode: "file-only"/g) || []).length, 2);
   for (const token of ['async: false', 'context: "fresh"', 'worktree: true', 'concurrency: 4', 'as: "impl_1"', 'as: "sr_1"', 'outputSchema: IMPLEMENTER_STATUS_SCHEMA', 'outputSchema: SPEC_VERDICT_SCHEMA', 'planPath:', 'anchor:', '{outputs.impl_1.treePath}', '{outputs.impl_1.patchPath}']) assert.ok(chain.includes(token), token);
