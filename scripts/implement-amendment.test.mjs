@@ -48,6 +48,13 @@ for (const path of ['agents/plan-writer.md', 'skills/brainstorming/reference/ame
   });
 }
 
+test('implement apply patches locally and compares semantic obligations against original inventory', () => {
+  const writer = read('agents/plan-writer.md');
+  for (const marker of ['anchored obligation text', 'task bodies and Tests', 'patch only affected task entries', 'meaning-preserving rewording', 'line offsets', '**Baseline policy:** implement-local', 'no endpoint-tree equivalence', 'nonzero executed-test count']) assert.ok(writer.includes(marker), marker);
+  const contract = read('skills/subagent-driven-development/reference/dispatch-contract.md');
+  assert.match(contract, /tasksAnchorChanged[^\n]*semantic obligation or work changes/);
+});
+
 test('failed apply retains original changed-task inventory for a fresh retry', () => {
   const writer = read('agents/plan-writer.md');
   const surface = read('skills/brainstorming/reference/amendment-surface.md');

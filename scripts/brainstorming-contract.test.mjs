@@ -136,6 +136,13 @@ test('evidenced drafted corrections are amend items while redraws retain the gat
   assert.ok(!aftermath.includes('Never auto-edit ticket or approved drafted AC row texts'));
 });
 
+test('baseline implement-only maintenance preserves staged repairs and truthful execution identity', () => {
+  const surface = read('skills/brainstorming/reference/amendment-surface.md');
+  for (const marker of ['preserve staged repairs', 'no test execution', 'failing command, assertion or path', 'corresponding repair evidence', 'unrelated regressions', 'budget-only', 'malformed', 'redraw', 'existing task gate loop', 'Repeated authorized intermediate evidence']) assert.ok(surface.includes(marker), marker);
+  const skill = read('skills/writing-plans/SKILL.md');
+  for (const marker of ['identified execution tree', 'nonzero executed-test count', 'zero tests', 'original per-leg declarations', 'no endpoint-tree equivalence']) assert.ok(skill.includes(marker), marker);
+});
+
 test('baseline recommendations use decoded amend permission and preserve writer boundaries', () => {
   const text = read('skills/writing-plans/SKILL.md');
   const branch = text.slice(text.indexOf('6. Branch'), text.indexOf('7. Clear'));

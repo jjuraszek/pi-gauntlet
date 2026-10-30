@@ -1114,6 +1114,7 @@ test("tests-block: no path normalization - ./x and x differ, as in Files:", () =
 });
 
 const BASELINE = "- baseline: abc1234 pass";
+const localBaseline = (plan: string) => plan.replace("---", "**Baseline policy:** implement-local\n---");
 const T1_COMMAND = "node --test extensions/lib/fixture-task1.test.ts";
 const T1_PATH = "extensions/lib/fixture-task1.test.ts";
 const baselineFindings = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, "baseline-line");
@@ -1145,10 +1146,46 @@ for (const [name, evidence, reason] of [
   ["via unanchored compound", BASELINE + " via `" + T1_COMMAND + " && echo hi`", "anchors no existing Test: path"],
 ]) {
   test(`baseline-line rejects ${name}`, () => {
+    if (name !== "sha mismatch") assert.ok(baselineFindings(localBaseline(VALID_PLAN.replace(BASELINE, evidence))).some(f => f.reason.includes(reason)));
     const findings = baselineFindings(VALID_PLAN.replace(BASELINE, evidence));
     assert.ok(findings.some(f => f.reason.includes(reason)), JSON.stringify(findings));
   });
 }
+
+test("implement-local baseline retains mixed historical evidence without changing ordinary checks", () => {
+  const plan = VALID_PLAN.replace(BASELINE, "- baseline: def5678 pass via `" + T1_COMMAND + "` - artifacts: scratch.log");
+  assert.ok(baselineFindings(plan).length);
+  assert.deepEqual(baselineFindings(localBaseline(plan)), []);
+  assert.deepEqual(checkPlan(localBaseline(legPlan().replace("def5678 pass", "fed9876 pass")), legPlanSpec, alwaysTruePort()).findings, []);
+});
+for (const [name, active] of [["fenced-only", false], ["active with fenced example", true]] as const) {
+  test(`baseline policy ignores ${name}`, () => {
+    const mixed = VALID_PLAN.replace(BASELINE, "- baseline: def5678 pass");
+    const plan = active ? localBaseline(mixed) : mixed;
+    for (const example of ["```markdown\n**Baseline policy:** implement-local\n```\n", "```markdown\n**Baseline policy:** other\n```\n"]) {
+      for (const withExample of [plan.replace("---", example + "---"), plan + "\n" + example]) {
+        const findings = baselineFindings(withExample);
+        if (active) assert.deepEqual(findings, []);
+        else assert.ok(findings.some(f => f.reason.includes("baseline SHAs differ")), JSON.stringify(findings));
+      }
+    }
+  });
+}
+for (const policy of ["", "other", "implement-local\n**Baseline policy:** implement-local"]) {
+  test(`baseline policy rejects ${JSON.stringify(policy)}`, () => {
+    assert.ok(baselineFindings(VALID_PLAN.replace("---", `**Baseline policy:** ${policy}\n---`)).length);
+  });
+}
+test("implement-local baseline distinguishes existing-created anchors and retained skips", () => {
+  const created = localBaseline(VALID_PLAN.replace("- Test: " + T1_PATH, "- Create: " + T1_PATH + "\n- Test: " + T1_PATH));
+  assert.deepEqual(baselineFindings(created.replace(BASELINE, BASELINE + " via `" + T1_COMMAND + "`")), []);
+  const skipped = `- baseline: abc1234 skipped - ${T1_PATH} created by this task`;
+  assert.ok(baselineFindings(created.replace(BASELINE, skipped)).length);
+  const retained = created.replace(BASELINE, skipped).replace("---", `Baseline provenance: retained home | ${T1_COMMAND} | ${skipped.slice(12)}\n---`);
+  assert.deepEqual(baselineFindings(retained), []);
+  assert.ok(baselineFindings(retained.replace("retained home", "retained foreign")).length);
+  assert.deepEqual(checkPlan(created.replace(BASELINE, skipped), SPEC_TEXT, { exists: p => p !== T1_PATH, glob: () => [] }).findings.filter(f => f.check === "baseline-line"), []);
+});
 
 test("baseline-line accepts 40-character SHAs and introduced-selector base commands", () => {
   assert.deepEqual(baselineFindings(VALID_PLAN.replaceAll("abc1234", "a".repeat(40))), []);
@@ -1269,6 +1306,14 @@ test("plan accepts distinct leg baselines, case-insensitive membership and absen
 test("wrong-leg baseline and mixed-leg waves fail", () => {
   assert.ok(checkPlan(legPlan().replace("def5678 pass", "abc1234 pass"), legPlanSpec, alwaysTruePort()).findings.some(f => f.check === "baseline-line"));
   assert.ok(checkPlan(legPlan().replace("## Wave 3 - Companion\n\n", ""), legPlanSpec, alwaysTruePort()).findings.some(f => f.check === "wave-leg"));
+});
+test("implement-local baseline keeps leg declarations and cross-leg ownership mandatory", () => {
+  for (const [name, plan] of [
+    ["missing", legPlan().replace("Baseline repo-a: abc1234\n", "")],
+    ["duplicate", legPlan().replace("Baseline repo-a: abc1234", "Baseline repo-a: abc1234\nBaseline repo-a: abc1234")],
+    ["foreign", legPlan().replace("Baseline repo-a: abc1234", "Baseline stranger: abc1234")],
+    ["cross-leg create", legPlan().replaceAll("extensions/lib/fixture-task2.test.ts", "extensions/lib/fixture-task1.ts").replace("def5678 pass", "def5678 skipped - extensions/lib/fixture-task1.ts created by this task")],
+  ]) assert.ok(checkPlan(localBaseline(plan), legPlanSpec, alwaysTruePort()).findings.some(f => f.check === "baseline-line"), name);
 });
 test("unknown legs fail before filesystem probing", () => {
   const probes: string[] = [];

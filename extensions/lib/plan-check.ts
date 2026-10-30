@@ -562,7 +562,16 @@ function checkTestsBlock(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
   return findings;
 }
 
-function checkBaselineLines(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
+function baselinePolicy(parsed: ParsedPlan): { policies: string[]; local: boolean } {
+  const mask = fenceMask(parsed.lines);
+  const declarations = parsed.lines.flatMap((line, index) => !mask[index] && line.startsWith("**Baseline policy:**") ? [{ line, index }] : []);
+  return {
+    policies: declarations.map(d => d.line),
+    local: declarations.length === 1 && declarations[0].index < (parsed.header.separatorLine ?? 0) && declarations[0].line === "**Baseline policy:** implement-local",
+  };
+}
+
+function checkBaselineLines(parsed: ParsedPlan, fs: FsPort, local: boolean): PlanCheckFinding[] {
   const findings: PlanCheckFinding[] = [];
   const shas = new Set<string>();
   const creates = new Set(parsed.tasks.flatMap(t => t.files.filter(f => f.kind === "create").map(f => stripLineSuffix(f.path))));
@@ -589,6 +598,7 @@ function checkBaselineLines(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] 
         for (const path of new Set([...expected, ...listed])) {
           if (!creates.has(path)) push(bullet, `baseline: skipped but \`${path}\` is not a Create: path`);
           else if (!expected.has(path) || !listed.includes(path)) push(bullet, `baseline: bullet malformed: ${bullet.text}`);
+          else if (local && fs.exists(path, task.leg) && !parsed.lines.includes(`Baseline provenance: retained ${task.leg ?? "home"} | ${command.value} | ${bullet.value}`)) push(bullet, `baseline: existing created anchor \`${path}\` needs matching retained provenance`);
         }
         if (!expected.size || listed.length !== new Set(listed).size) push(bullet, `baseline: bullet malformed: ${bullet.text}`);
       }
@@ -601,13 +611,13 @@ function checkBaselineLines(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] 
         for (const segment of segments) {
           const found = anchors(segment);
           const created = [...creates].filter(p => segment.split(" ").some(token => token === p || token.startsWith(p + "::") || token.startsWith(p + "#") || token.startsWith(p + ":")));
-          for (const path of created) push(bullet, `baseline: pass via \`${match[2]}\` segment \`${segment}\` anchors Create: path ${path}`);
-          if (!found.some(p => !creates.has(p) && fs.exists(p, task.leg))) push(bullet, `baseline: pass via \`${match[2]}\` segment \`${segment}\` anchors no existing Test: path`);
+          for (const path of created.filter(p => !local || !fs.exists(p, task.leg))) push(bullet, `baseline: pass via \`${match[2]}\` segment \`${segment}\` anchors Create: path ${path}`);
+          if (!found.some(p => (local || !creates.has(p)) && fs.exists(p, task.leg))) push(bullet, `baseline: pass via \`${match[2]}\` segment \`${segment}\` anchors no existing Test: path`);
         }
       }
     }
   }
-  if (shas.size > 1) findings.push({ check: "baseline-line", line: 0, text: "", reason: `baseline SHAs differ: ${[...shas].join(", ")}` });
+  if (!local && shas.size > 1) findings.push({ check: "baseline-line", line: 0, text: "", reason: `baseline SHAs differ: ${[...shas].join(", ")}` });
   return findings;
 }
 
@@ -1325,6 +1335,8 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): { fin
     findings.push(...checkAnchorResolution(parsed, specLines));
     findings.push(...checkPathsExist(parsed, fs));
     findings.push(...checkTestsBlock(parsed, fs));
+    const { policies, local } = baselinePolicy(parsed);
+    if (policies.length && !local) findings.push({ check: "baseline-line", line: 0, text: policies.join("\n"), reason: "expected one header Baseline policy: implement-local" });
     if (ownership.legs.length) {
       const declarations = parsed.lines.slice(0, parsed.header.separatorLine ?? 0).flatMap((line, i) => {
         const m = /^Baseline (\S+): ([a-f0-9]{7,40})$/.exec(line);
@@ -1332,13 +1344,13 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): { fin
       });
       for (const leg of ownership.legs) {
         const tasks = parsed.tasks.filter(t => t.leg === leg.repo);
-        findings.push(...checkBaselineLines({ ...parsed, tasks }, fs));
+        findings.push(...checkBaselineLines({ ...parsed, tasks }, fs, local));
         const declarationsForLeg = declarations.filter(d => d.repo === leg.repo);
         if (declarationsForLeg.length !== 1) findings.push({ check: "baseline-line", line: 0, text: leg.repo, reason: "expected one Baseline declaration per leg" });
-        for (const task of tasks) for (const bullet of task.testsBaseline) if (bullet.value.split(" ")[0] !== declarationsForLeg[0]?.sha) findings.push({ check: "baseline-line", line: bullet.line, text: bullet.text, reason: `Task ${task.number}: baseline differs from ${leg.repo} declaration` });
+        for (const task of tasks) for (const bullet of task.testsBaseline) if (!local && bullet.value.split(" ")[0] !== declarationsForLeg[0]?.sha) findings.push({ check: "baseline-line", line: bullet.line, text: bullet.text, reason: `Task ${task.number}: baseline differs from ${leg.repo} declaration` });
       }
       for (const declaration of declarations) if (!ownership.legs.some(l => l.repo === declaration.repo)) findings.push({ check: "baseline-line", line: declaration.line, text: declaration.repo, reason: "unknown baseline leg" });
-    } else findings.push(...checkBaselineLines(parsed, fs));
+    } else findings.push(...checkBaselineLines(parsed, fs, local));
     findings.push(...parsed.openQuestions.findings);
     const requiredLiterals = computeRequiredLiteralsPerTask(parsed, specLines);
     findings.push(...checkPlaceholderScan(parsed, requiredLiterals));

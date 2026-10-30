@@ -15,6 +15,8 @@ const PREPARE_SCHEMA = {"type":"object","required":["items","redraws"],"addition
 const APPLY_SCHEMA = {"type":"object","required":["amendedSections","tasksAdded","tasksAnchorChanged","tasksRemoved","passed"],"additionalProperties":false,"properties":{"amendedSections":{"type":"array","items":{"type":"string"}},"tasksAdded":{"type":"array","items":{"type":"integer"}},"tasksAnchorChanged":{"type":"array","items":{"type":"integer"}},"tasksRemoved":{"type":"array","items":{"type":"integer"}},"passed":{"type":"boolean"},"failLines":{"type":"array","items":{"type":"string"}}}};
 ```
 
+Keep `APPLY_SCHEMA` unchanged. Interpret `tasksAnchorChanged` as semantic obligation or work changes against the original anchored obligation text, task bodies and Tests, not line offsets or meaning-preserving rewording; reopen completed tasks only for those semantic changes. Preserve original inventory in the saved apply report through failures and idempotent retry.
+
 ## One-step carrier
 
 Use this shape for initial wave review, repair implementers and wave re-reviews, escalated/funded rounds, delegated answers and amendment workers. Set the persona and schema for each item; use `/status` for implementers and `/verdict` for reviewers with their non-clean enums. Put `output`, `outputMode` and `outputSchema` on every item, never on a `ParallelStep`. Keep `async: false` invocation-level. Set `context: "fresh"` for initial implementers and reviews, diagnosis, answers and amendments; omit context on repair, escalated and funded implementers. Omit `model` except a runtime-resolved setting or a user-named override. A reviewer `anchorUnreadable` is a hard stop; an implementer anchor failure is a failed attempt, not permission for the primary to inspect the file.
