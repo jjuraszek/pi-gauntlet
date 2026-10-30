@@ -29,7 +29,7 @@ import {
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
 import { checkoutOf, gitSync } from "./lib/checkout.ts";
-import { checkPlan, legOwnership, sha256, type FsPort, type PlanCheckFinding } from "./lib/plan-check.ts";
+import { checkPlan, renderManifest, legOwnership, sha256, type FsPort, type PlanCheckFinding } from "./lib/plan-check.ts";
 import {
   checkSubstep,
   dispatchLabel,
@@ -1054,8 +1054,14 @@ export default function (pi: ExtensionAPI) {
           exists: (p, leg) => existsSync(resolve(leg ? roots.get(leg)! : root, p)),
           glob: (pattern, leg) => globSync(pattern, { cwd: leg ? roots.get(leg)! : root }),
         };
-        const findings = checkPlan(planText, specText, port);
-        if (findings.length > 0) return fail(findings, planAbs);
+        const result = checkPlan(planText, specText, port);
+        if (result.findings.length > 0) return fail(result.findings, planAbs);
+        const passLine = gauntletEntered ? "PASS \u2014 plan verified and stamped for implement-start" : "PASS (no flow to stamp)";
+        const resultText = result.ledger ? passLine : `${passLine}\n\n${renderManifest(result.parsed!, planAbs, specAbs)}`;
+        if (resultText.length >= 32768) return fail([{
+          check: "manifest-size", line: 0, text: "",
+          reason: `manifest content is ${resultText.length} characters (limit 32,768); the plan is too large for the orchestrator's manifest - stop and ask the user to reduce it`,
+        }], planAbs);
 
         const planSha256 = sha256(planBytes);
         const specSha256 = sha256(specBytes);
@@ -1069,11 +1075,11 @@ export default function (pi: ExtensionAPI) {
         if (gauntletEntered) {
           planCheckStamp = { planPath: planAbs, planSha256, specPath: specAbs, specSha256 };
           return {
-            content: [{ type: "text" as const, text: "PASS \u2014 plan verified and stamped for implement-start" }],
+            content: [{ type: "text" as const, text: resultText }],
             details,
           };
         }
-        return { content: [{ type: "text" as const, text: "PASS (no flow to stamp)" }], details };
+        return { content: [{ type: "text" as const, text: resultText }], details };
       } catch (err) {
         return fail([{ check: "internal", line: 0, text: "", reason: String(err) }], planAbs);
       }

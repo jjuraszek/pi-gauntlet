@@ -25,6 +25,22 @@ function mk(kind, { fixture = true, fact = "- f1: judged: x\n" } = {}) {
   return { root, t };
 }
 
+test("baseline-aware new declarations and bundle additions are checked", () => {
+  const { t } = mk("text");
+  const path = "skills/x/new.md";
+  writeFileSync(join(t, "target.json"), JSON.stringify({ kind: "text", assembly: "concat", wordCap: 100, skillFiles: [{ path, new: true }] }));
+  writeFileSync(join(t, "samples/one/case.md"), `bundle+: ${path}\ncase\n`);
+  const context = { baselineHas: () => false, treeHas: () => true };
+  assert.deepEqual(lintTarget(t, context), []);
+  assert.match(lintTarget(t, { ...context, baselineHas: () => true }).join("\n"), /new.*baseline/);
+  assert.match(lintTarget(t, { ...context, treeHas: () => false }).join("\n"), /working tree/);
+  writeFileSync(join(t, "samples/one/case.md"), "bundle+: ordinary.md\ncase\n");
+  assert.match(lintTarget(t, context).join("\n"), /ordinary.md.*baseline/);
+  assert.deepEqual(lintTarget(t, { ...context, baselineHas: (p) => p === "ordinary.md" }), []);
+  for (const probe of ["baselineHas", "treeHas"]) assert.throws(() => lintTarget(t, { ...context, [probe]: () => { throw new Error("probe failed"); } }), /probe failed/);
+  assert.deepEqual(lintTarget(t), []);
+});
+
 test("valid text and edit targets pass", () => {
   assert.deepEqual(lintTarget(mk("text").t), []);
   assert.deepEqual(lintTarget(mk("edit").t), []);

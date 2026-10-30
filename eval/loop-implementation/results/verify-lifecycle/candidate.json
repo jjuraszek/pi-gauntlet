@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "041024af22f2ad4bc521619a4ba16dc349ef3fba7f6e307f7430a176bc3f9ff4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "42214159af94b2ba081cfb016936720102e192c6556b971dc0c73c0082dd6e47",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "2b080fff76a26c463f86b2f82667acf9be4ca993f504324661c72a861ebdaa87",
       "candidateOutputSha": "2b080fff76a26c463f86b2f82667acf9be4ca993f504324661c72a861ebdaa87",
       "facts": {
         "contract": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither output moved the contract fact: both complete implement before starting verify and before any review, read the three references in full (stopping if unreadable), reuse the clean unchanged exit run, treat the review repair as invalidating it and rerun the full ledger command once, sequence whole-diff code-reviewer → happy path (CLI row from the diff) → separate fresh conformance-reviewer fed spec path, verbatim prompt, full base..repair diff and the ledger-checked AC checklist, skip task-tracker lifecycle, and emit the exact `status: CONFORMS (0 open)` sentinel, repaired-HEAD audited-base, happy-path field and whole-diff minors before immediately invoking finishing-a-development-branch. After's only change-related addition is the explicit note that the implement-completion point is not a human stop and therefore carries no `gauntlet: question`, which correctly applies the new marker rule without weakening any step; if you extend this trace later, keep the `gauntlet: question` mention scoped to actual human stops (e.g. a dirty tree needing discard/reset authorization) and avoid attaching it to automatic steps like `phase_tracker` completion or the finishing skill's own menu, so the 'no extra prompt' expectation in this case stays intact.",
-      "wallMs": 13684,
+      "feedback": "Before and After are textually identical, so nothing moved: both complete implement (Snapshot 0) before starting verify (Snapshot 2) and before either review, reuse the clean unchanged exit run at `abc` (Snapshot 3), make the review repair `<R>` trigger a full foreground rerun before re-review (Snapshot 4), order whole-diff code-reviewer → happy path on the CLI row → a separate fresh conformance-reviewer fed the spec path, verbatim prompt, full diff `<ledger base>..<R>` and the ledger-checked AC checklist (Snapshot 5), explicitly skip task tracker/plan_check/waves (Snapshot 1), read all three references in full, and state the exact sentinel `status: CONFORMS (0 open)`, `audited-base` as the full SHA of `<R>`, the happy-path and `whole-diff minors` fields, and an immediate `/skill:finishing-a-development-branch` invocation (Snapshots 6–7). The Change's intents (gauntlet: question prefixing of human stops, no plan-writer/Amend-prepare/plan_check routing, cap persistence) are either untouched here or already consistent (Snapshot 0 correctly notes no `gauntlet: question` since it is not a human stop). No wording adjustment is needed to preserve this fact; if the author wants the After output to visibly reflect the Change, add a one-line note in Snapshot 7 that any human stop other than the finish menu would be prefixed `gauntlet: question`, without altering the closure block or finish call.",
+      "wallMs": 10719,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "041024af22f2ad4bc521619a4ba16dc349ef3fba7f6e307f7430a176bc3f9ff4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "60baab9691e1f2bdcb20a1405c0be9292411a41f9c7e520cf60c93425726011f",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "4acb82b56f7db69bf072ab3a1f2fc1293df84227aa8894a77725fcd067f8879a",
       "candidateOutputSha": "4acb82b56f7db69bf072ab3a1f2fc1293df84227aa8894a77725fcd067f8879a",
       "facts": {
         "contract": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every element of the contract fact that Before held: implement completes before verify starts and before either review, the clean unchanged exit run is reused with an explicit rerun of V after the review repair, the whole-diff code-reviewer precedes the CLI happy path which precedes a separate fresh conformance-reviewer fed the spec path, verbatim prompt, full diff and ledger-checked ACs, task-tracker initialization is explicitly forbidden, all three references are read in full from the installed skill location, the closure opens with the exact sentinel and post-repair audited-base plus happy-path, disposition and whole-diff minors fields, and finishing is invoked immediately with its menu as the human gate. Nothing in the Change applied here since this case contains no human stop or discard/reset authorization, so no gauntlet: question prefix was required. Two small drifts worth watching: After changes the finishing argument from `<scratch>` to `<W>` (harmless for this fact but a silent argument substitution the author may not intend), and After's closing disclaimer about 'honest present output' could be read as softening the immediate-invocation requirement—keeping that caveat in the preamble rather than after the finishing call would avoid any ambiguity while still delivering the Change's wording elsewhere.",
-      "wallMs": 14727,
+      "feedback": "Before and After are byte-identical for this case, so nothing moved: both complete implement before starting verify and before either review, reuse the unchanged clean exit run until the review repair forces a full foreground rerun of V, order whole-diff code-reviewer → CLI happy path → separate fresh conformance-reviewer fed the absolute spec, verbatim prompt, full current diff and ledger-checked ACs, forbid any task-tracker lifecycle, require full-file reads of the three references, state the exact closure sentinel with post-repair audited-base, happy-path result and whole-diff minors, and immediately invoke finishing-a-development-branch without a 'ready to finish?' question. The reworded After therefore preserved every element of the contract fact for this already-closed, no-amend scenario; since the Change targets amend preparation, cap persistence and coordinated-flow legs, which this case never exercises, no further wording adjustment is needed here—just ensure the new amend/cap/leg clauses do not later introduce a question-marker stop or tracker step into the post-closure continuation.",
+      "wallMs": 11174,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

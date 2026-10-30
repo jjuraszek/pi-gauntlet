@@ -2,4 +2,4 @@
 - reviewer-cwd: judged: Gives each spec-review task its corresponding materialized snapshot cwd, without worktree:true, rather than the unchanged parent or deleted worker checkout.
 - authority-and-isolation: judged: Keeps the spec's authoritative absolute path in /workspace/project, leaves the parent unchanged, and does not dispatch code review before accepted spec verdicts.
 - cleanup-after-report: judged: Retains snapshots until their terminal review reports have been saved, then removes only those snapshots.
-- stopped-chain: judged: Uses plain snapshot-backed SR dispatches after the chain stop, retaining accepted siblings without another chain or rerunning their implementers.
+- stopped-chain: judged: Uses fresh foreground one-step snapshot-backed SR chains with per-item output, file-only mode and schema plus verdict stopOn after the initial chain stop, retaining accepted siblings without repeating the initial wave chain or rerunning their implementers. Supplies absolute planPath, exact task anchors and authoritative spec; consumes structured Outputs rather than opening saved reports.

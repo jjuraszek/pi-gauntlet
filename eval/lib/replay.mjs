@@ -33,15 +33,16 @@ export function stripFrontmatter(text) {
 }
 
 // read(path) returns the file text for the arm (working tree or git show); extra = bundle+ paths.
-export function assemble(target, read, extra = []) {
+export function assemble(target, read, extra = [], { arm, newPaths = [] } = {}) {
+  const empty = (path) => arm === "baseline" && newPaths.includes(path);
   const parts = [];
   for (const f of target.skillFiles) {
-    let text = read(f.path);
-    if (f.body) text = stripFrontmatter(text);
-    if (f.slice) text = sliceText(text, f.slice, f.sliceTo);
+    let text = empty(f.path) ? "" : read(f.path);
+    if (!empty(f.path) && f.body) text = stripFrontmatter(text);
+    if (!empty(f.path) && f.slice) text = sliceText(text, f.slice, f.sliceTo);
     parts.push(target.assembly === "headed" ? `# ${f.path}\n${text}` : text);
   }
-  for (const p of extra) { const text = read(p); parts.push(target.assembly === "headed" ? `# ${p}\n${text}` : text); }
+  for (const p of extra) { const text = empty(p) ? "" : read(p); parts.push(target.assembly === "headed" ? `# ${p}\n${text}` : text); }
   return parts.join("\n");
 }
 

@@ -7,7 +7,8 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { sliceText, stripFrontmatter, assemble, parseCase, textArgs, editArgs, prepareFixture, captureEdit, inputSha } from "./replay.mjs";
 
-import { parseExpected, runMechanical } from "./checks.mjs";
+import { parseExpected, runMechanical, sha256 } from "./checks.mjs";
+import { runTarget } from "../run.mjs";
 
 test("chase-bug prose samples preserve slices and reject label leaks", () => {
   const read = replay.treeReader(new URL("../../", import.meta.url).pathname);
@@ -236,6 +237,67 @@ test("default slices ignore headings in code fences", () => {
     assert.equal(sliceText(text, "### A"), `### A\n${fence}\n# comment\n${fence}\nbody\n`);
   }
 });
+test("declared candidate-only assembly bypasses baseline reads and transforms only", () => {
+  const path = "new.md";
+  const skillFiles = [{ path, new: true, body: true, slice: "## New" }];
+  const baseline = { arm: "baseline", newPaths: [path] };
+  const missing = () => { throw new Error("missing file"); };
+  for (const assembly of ["concat", "headed"]) {
+    const target = { assembly, skillFiles };
+    assert.equal(assemble(target, missing, [], baseline), assembly === "headed" ? "# new.md\n" : "");
+    assert.equal(assemble({ ...target, skillFiles: [] }, missing, [path], baseline), assembly === "headed" ? "# new.md\n" : "");
+    assert.match(assemble(target, () => "---\nx: y\n---\n## New\ncontent\n"), /## New\ncontent/);
+    assert.throws(() => assemble(target, missing), /missing file/);
+    assert.throws(() => assemble(target, () => "wrong heading"), /heading not found/);
+    assert.throws(() => assemble({ ...target, skillFiles: [{ path: "other.md" }] }, missing, [], baseline), /missing file/);
+    assert.equal(assemble({ ...target, skillFiles: [] }, missing, [], baseline), "");
+  }
+});
+
+test("runner validates new files before calls and binds intent to candidate text", async (t) => {
+  const root = mkdtempSync(join(tmpdir(), "new-runner-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const put = (path, text) => { mkdirSync(join(root, path, ".."), { recursive: true }); writeFileSync(join(root, path), text); };
+  const git = (...args) => execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@localhost", "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  put("old.md", "OLD\n");
+  git("init", "-q"); git("add", "-A"); git("commit", "--no-verify", "-qm", "base");
+  put("new.md", "CANDIDATE\n");
+  const target = { kind: "text", assembly: "headed", wordCap: 50, skillFiles: [{ path: "old.md" }, { path: "new.md", new: true }] };
+  const save = () => put("eval/t/target.json", JSON.stringify(target));
+  save();
+  put("eval/t/replay.md", "Reply.\n"); put("eval/t/README.md", "# t\n"); put("eval/judge.md", "Judge.\n");
+  put("eval/t/samples/one/case.md", "bundle+: new.md\ncase\n");
+  put("eval/t/samples/one/expected.md", '- f1: mechanical: contains "hi"\n');
+  const candidate = "# old.md\nOLD\n\n# new.md\nCANDIDATE\n";
+  const baseline = "# old.md\nOLD\n\n# new.md\n";
+  const intent = (text) => put("eval/t/intent.md", `for: ${sha256(text)}\n\n## Change\nx\n\n## Expected to move\n`);
+  intent(candidate);
+  const prompts = [], records = [];
+  const spawn = (args) => {
+    prompts.push(readFileSync(args[args.indexOf("--system-prompt") + 1], "utf8"));
+    return { status: "error", stderr: "stub stopped", wallMs: 0 };
+  };
+  const run = () => runTarget({ root, target: "t", base: "HEAD", spawn, recordWriter: (...args) => records.push(args) });
+  target.skillFiles[0].new = true; save();
+  assert.match((await run()).message, /old.md.*baseline/);
+  assert.equal(prompts.length, 0); assert.equal(records.length, 0);
+  delete target.skillFiles[0].new; save();
+  intent(baseline);
+  assert.match((await run()).message, /intent:.*for:/);
+  assert.equal(prompts.length, 0);
+  intent(candidate);
+  await run();
+  assert.ok(prompts.includes(`${baseline}\n# new.md\n`));
+  assert.ok(prompts.includes(`${candidate}\n# new.md\nCANDIDATE\n`));
+  const calls = prompts.length;
+  put("new.md", "CHANGED\n");
+  assert.match((await run()).message, /intent:.*for:/);
+  assert.equal(prompts.length, calls);
+  rmSync(join(root, "new.md"));
+  assert.match((await run()).message, /new.md/);
+  assert.equal(prompts.length, calls);
+});
+
 test("baseline and tree readers work in a dirty tree", (t) => {
   const root = mkdtempSync(join(tmpdir(), "reader-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
@@ -252,6 +314,15 @@ test("baseline and tree readers work in a dirty tree", (t) => {
   assert.equal(typeof replay.baseReader, "function");
   assert.equal(assemble(target, replay.baseReader(root, "HEAD"), []), "BASE\n");
   assert.equal(assemble(target, replay.treeReader(root), []), "NEW\n");
+  writeFileSync(join(root, "skills/x/new.md"), "## Candidate\nnew reference\n");
+  const added = { path: "skills/x/new.md", new: true, slice: "## Candidate" };
+  const expanded = { ...target, skillFiles: [...target.skillFiles, added] };
+  const options = { arm: "baseline", newPaths: [added.path] };
+  assert.equal(assemble(expanded, replay.baseReader(root, "HEAD"), [], options), "BASE\n\n");
+  assert.equal(assemble(expanded, replay.treeReader(root)), "NEW\n\n## Candidate\nnew reference\n\n");
+  for (const [ref, path] of [["HEAD", "absent.md"], ["bad-ref", "skills/x/SKILL.md"]]) {
+    assert.throws(() => assemble({ ...target, skillFiles: [{ path }] }, replay.baseReader(root, ref)));
+  }
   assert.notEqual(git("status", "--porcelain"), "");
 });
 test("capture reports zero lines for an empty file", (t) => {

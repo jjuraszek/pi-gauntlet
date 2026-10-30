@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a377b81b57ecf6c0d31cc591a8e1a7fdeaa1e3557151d4649812f495005768d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "bef5ac7190eb06548d02419eb7ff3eb9bf8b32d93897a8f789c953a18c34cf36",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "9da24559a2f8b04791fe88182368217342c7151e5319abd609117a4502503055",
       "candidateOutputSha": "9da24559a2f8b04791fe88182368217342c7151e5319abd609117a4502503055",
       "facts": {
         "contract": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every element of the contract fact: snapshots 1–4 restore row 2 and the saved Decisions section, set row 1 to failed|1 with a concrete `iteration i: …` miss, commit `loop: repair row 1`, and redispatch with `previous decision: none`; snapshot 5 accepts the valid new line; the two-miss section stops under `gauntlet: question`; the retry commit restarts the validation-miss window so post-retry miss 1 repairs and continues while post-retry miss 2 stops; attempts (1→2→3→4) and iterations/cap are preserved throughout. Nothing moved. Two wording points to watch: After dispatches the retry with `previous decision: row 1 retry | …` instead of Before's `none` (the fact does not require `none` on the retry dispatch, so no movement, but keep that choice consistent with the skill's retry-dispatch rule), and the stop block now folds the reason into the `Stopped on` line and puts evidence under `Problem:`, which a reader could mistake for a changed stop format — keep Before's layout (`Stopped on …` then `Problem: … Evidence: … Last decision: …`) with the `gauntlet: question` prefix to deliver the Change without altering the stop text. The explicit `Recommendation:` line and the `i+2/i+3/i+4` iteration bookkeeping are correct and fine to keep.",
-      "wallMs": 16830,
+      "feedback": "Before and After are byte-identical, so no fact moved on this case. Both outputs satisfy the contract: each foreign/wrong-target/missing-new-line/malformed snapshot restores row 2 and the prior Decisions section from SAVED, marks row 1 failed|1 with a concrete iteration-tagged miss, commits `loop: repair row 1`, and sets the next previous decision to none; the valid new `row 1 failed | … | …` line is accepted with no parent commit; the second consecutive miss produces a `gauntlet: question` human stop; the `loop: retry row 1` commit restarts the validation-miss window so post-retry miss 1 repairs and continues while post-retry miss 2 stops; and attempts, iterations and the saved `cap:` header are preserved throughout. Since the wording change left this output untouched, there is nothing to repair here; if the author intended the Change to surface visibly in this case (e.g., cap persisted as an explicit value, funding-round line printed before each funded dispatch), that would need to be added without altering the repair/retry/stop sequence that both outputs already get right.",
+      "wallMs": 11959,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a377b81b57ecf6c0d31cc591a8e1a7fdeaa1e3557151d4649812f495005768d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "2dcfaad385f5a73e11ae05eff36d778ae5fdc5a9f6ce71a223c0f948455a2098",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "60a1cbb37d65e1ab0c1ebc2da176cba1c6ee03b9d9fd6970e6d4e98e715915e5",
       "candidateOutputSha": "60a1cbb37d65e1ab0c1ebc2da176cba1c6ee03b9d9fd6970e6d4e98e715915e5",
       "facts": {
         "contract": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every element of the contract fact that Before held: all four dirty returns (foreign row 2, wrong target, no new decision, malformed decision) restore non-target cells and prior decisions, set row 1 to failed/attempts 1 with concrete evidence, commit `loop: repair row 1`, and redispatch with `previous decision: none`; the valid new failed line is accepted without repair and resets the miss count; the second consecutive miss stops; the retry commit opens a new window so the first post-retry miss (attempts 3) repairs and redispatches while the second (attempts 4) stops; attempts, iterations and cap are preserved throughout. The Change is delivered cleanly—both stops now lead with `gauntlet: question`, the retry window is explicitly tied to the retry commit, and allowance for attempt 4 is correctly flagged as needing independent funding rather than being manufactured. Nothing moved; if anything, consider restoring Before's explicit note that a clean cap stop would separately offer `cap +N` (After keeps the negative form only) and the numbered option list, so the menu wording stays aligned with the shared stop template, but neither affects the contract fact.",
-      "wallMs": 10625,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both restore row 2 and prior decisions on each foreign/wrong/missing/malformed return, set row 1 to failed with attempts +1 and concrete iteration-tagged evidence, commit `loop: repair row 1`, redispatch with `previous decision: none`, accept the valid new failed decision as conforming, stop after the second consecutive miss, and treat the `loop: retry row 1` commit as opening a fresh window so the first post-retry miss repairs (window 1) and the second stops (window 2), with attempts, iterations and cap preserved throughout. The `gauntlet: question` prefix on both human stops and the preserved-state line already satisfy the Change's question-first intent here; no further wording adjustment is needed for this case, though if the author wants the Change to be observable in this output they could make the retry-window reset explicitly reference the retry commit SHA as the window anchor.",
+      "wallMs": 8380,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

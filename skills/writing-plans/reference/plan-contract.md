@@ -7,6 +7,7 @@ The grammar `plan_check` enforces. Each section names its check(s). Findings res
 A wave is a maximal set of tasks that have no ordering dependency on each other, own pairwise-disjoint files, and contend on no shared mutable runtime resource (same DB/schema, port, fixture file, external service, shared temp path).
 
 - Tasks nest under `## Wave N — <label>` headers; `### Task N` headers sit inside a wave.
+- Write an optional single-line `Orchestrator: <instruction>` in a task body only for coordination the orchestrator must perform between waves; the first line matching `^Orchestrator: (.+)$` wins. Keep all other task prose worker-only. Route spec or plan persistence through the approved amendment procedure.
 
 ## Legs (`leg-unknown`)
 

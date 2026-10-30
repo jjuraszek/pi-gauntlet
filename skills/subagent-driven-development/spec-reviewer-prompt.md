@@ -10,21 +10,24 @@ Dispatch a subagent with this prompt:
   prompt: |
     You are reviewing whether an implementation matches its specification.
 
-    ## What Was Requested
+    planPath: [absolute plan path]
+    anchor: "### Task N:"
+    anchors: [use instead of anchor for a multi-task review]
+    Spec: [absolute authoritative home spec path]
+    Work from: [review checkout]
+    SCOPED_TEST_COMMANDS: [dispatch-supplied values | none; evidence only, never execute]
+    Implementer report: [saved implementer report path]
 
-    [FULL TEXT of task requirements]
+    Read the selected task sections first. Read their Spec anchors, Tests:/via: and Files: Create:/Test: paths yourself; derive Rules from the task and home-spec leg as your persona directs. Read the saved implementer report, then verify its claims independently.
 
-    (The task text is a derivative of the spec — a lossy projection into an executable unit. See ## Spec Authority below.)
+    ## Previous review report (re-review trigger)
 
-    ## What Implementer Claims They Built
-
-    [From implementer's report]
+    [Re-review only: saved previous review report path; omit this section on initial review]
+    Read that report yourself before evaluating trajectory.
 
     ## Spec Authority
 
-    Spec: [absolute spec path]
-    Anchors: [the task's **Spec:** anchor list, e.g. § "Design" L34-L37 — or "omitted: anchor-less mechanical task"]
-    Task contract: [the task's **Tests:** block verbatim + its `Files:` paths]
+    Derive the spec anchor list and task contract from the selected sections; distinguish plan task anchors from spec clause anchors. The task text is a derivative of the spec, not its authority.
 
     The spec is the sole authority — human-approved; the task never wins a dispute. Read the anchored ranges from the spec file yourself. Requirements in scope are ONLY the cited anchor ranges; do not extract, review, or flag the rest of the spec file.
 
@@ -91,7 +94,7 @@ Dispatch a subagent with this prompt:
 
     **Verify by reading code, not by trusting report.**
 
-    Report in the output format `agents/spec-reviewer.md` defines in your system prompt.
+    Report in the output format `agents/spec-reviewer.md` defines in your system prompt. Emit structured output matching its contract and the report verdict and footer. On an unreadable plan/anchor report NEEDS_REWORK with anchorUnreadable formed by concatenating planPath, a literal #, and the dispatched anchor verbatim, including the ### prefix and trailing colon. Use that same exact identity in the required Reasoning line; never ask the parent to read it or mark an unread section compliant.
 
     ## Re-review: trajectory verdict
 

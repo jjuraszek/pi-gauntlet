@@ -990,7 +990,12 @@ test("plan_check pass: text, details, and stamp arming when a flow is entered", 
     content: { text: string }[];
     details: { status: string; planPath: string; planSha256: string; specPath: string; specSha256: string };
   };
-  assert.match(res.content[0].text, /^PASS/);
+  assert.match(res.content[0].text, /^PASS[^\n]*\n\nmanifest: /);
+  const manifestLines = res.content[0].text.split("\n").slice(2);
+  assert.equal(manifestLines[0], `manifest: ${planPath} | spec: ${specPath} | tasks: 2 | waves: 1`);
+  assert.deepEqual(manifestLines.slice(1).map(line => JSON.parse(line).task), [1, 2]);
+  const repeated = await tool.execute("repeat", { planPath }, undefined, undefined, h.ctx);
+  assert.deepEqual(repeated, res);
   assert.equal(res.details.status, "pass");
   assert.equal(res.details.planPath, planPath);
   assert.equal(res.details.specPath, specPath);
@@ -1043,7 +1048,7 @@ test("plan_check pass outside a flow: no stamp, plain-linter text", async () => 
   await h.emit("session_start");
   const tool = h.tools.find((t) => t.name === "plan_check")!;
   const res = (await tool.execute("t1", { planPath }, undefined, undefined, h.ctx)) as { content: { text: string }[] };
-  assert.match(res.content[0].text, /^PASS \(no flow to stamp\)/);
+  assert.match(res.content[0].text, /^PASS \(no flow to stamp\)\n\nmanifest: /);
 });
 
 test("plan_check fail: mutated plan body, no error key, clears stamp", async () => {
@@ -1059,6 +1064,7 @@ test("plan_check fail: mutated plan body, no error key, clears stamp", async () 
     details: { status: string; error?: string };
   };
   assert.match(res.content[0].text, /^FAIL/);
+  assert.ok(!res.content[0].text.includes("\nmanifest:"));
   assert.equal(res.details.status, "fail");
   assert.equal("error" in res.details, false);
 
@@ -1448,6 +1454,7 @@ test("ledger handler stamps after brainstorm and skipped plan, then admits imple
   await call("skip", "plan", "loop engine");
   const checked = await h.tools.find(t => t.name === "plan_check")!.execute("check", { planPath }, undefined, undefined, h.ctx) as any;
   assert.equal(checked.details.status, "pass");
+  assert.equal(checked.content[0].text, "PASS \u2014 plan verified and stamped for implement-start");
   assert.equal(checked.details.planSha256, sha256Hex(readFileSync(planPath)));
   const started = await call("start", "implement");
   assert.equal(started.details.error, undefined);
@@ -2649,3 +2656,54 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
   const missing = await tool.execute("legs-missing-root", { planPath }, undefined, undefined, h.ctx) as { details: { findings: { check: string }[] } };
   assert.ok(missing.details.findings.some(f => f.check === "input"));
 });
+
+for (const length of [32767, 32768, 32769]) {
+  test(`plan_check complete manifest JS length ${length} bounds stamping`, async () => {
+    const dir = gitPrimary().primary;
+    const { planPath, specPath } = writePlanFixture(dir);
+    const passLine = "PASS \u2014 plan verified and stamped for implement-start";
+    const prefix = `${passLine}\n\nmanifest: ${planPath} | spec: ${specPath} | tasks: 1 | waves: 1\n`;
+    const task = { task: 1, wave: 1, heading: "Docs", files: [{ kind: "Modify", path: "file-a.ts" }], tests: [], orchestrator: "é" };
+    task.orchestrator += "a".repeat(length - prefix.length - JSON.stringify(task).length);
+    const expected = prefix + JSON.stringify(task);
+    assert.equal(expected.length, length);
+    assert.ok(Buffer.byteLength(expected, "utf8") > length);
+    writeFileSync(planPath, `# Plan
+**Spec:** \`doc/specs/spec.md\`
+**Verification:** all-checks
+---
+## Wave 1 - Docs
+### Task 1: Docs
+Orchestrator: ${task.orchestrator}
+**Files:**
+- Modify: file-a.ts
+**Tests:**
+- none: docs
+## Spec coverage
+| anchor | requirement | owner |
+|---|---|---|
+| - | mechanical: docs | Task 1 |
+`);
+    const h = harness({ cwd: dir, branch: readyForImplementBranch });
+    await h.emit("session_start");
+    const tool = h.tools.find(t => t.name === "plan_check")!;
+    const result = await tool.execute("size", { planPath }, undefined, undefined, h.ctx) as {
+      content: { text: string }[]; details: { status: string; findings?: { check: string; line: number; reason: string }[] };
+    };
+    if (length < 32768) {
+      assert.equal(result.details.status, "pass");
+      assert.equal(result.content[0].text, expected);
+    } else {
+      assert.equal(result.details.status, "fail");
+      assert.equal(result.details.findings?.length, 1);
+      assert.equal(result.details.findings?.[0].check, "manifest-size");
+      assert.equal(result.details.findings?.[0].line, 0);
+      assert.equal(result.details.findings?.[0].reason, `manifest content is ${length} characters (limit 32,768); the plan is too large for the orchestrator's manifest - stop and ask the user to reduce it`);
+      assert.ok(!result.content[0].text.includes("\nmanifest:"));
+    }
+    const phase = h.tools.find(t => t.name === "phase_tracker")!;
+    const start = await phase.execute("start", { action: "start", phase: "implement" }, undefined, undefined, h.ctx) as { details: { error?: string; phases: { implement: { status: string } } } };
+    if (length < 32768) assert.equal(start.details.phases.implement.status, "in_progress");
+    else assert.match(start.details.error ?? "", /plan_check/);
+  });
+}

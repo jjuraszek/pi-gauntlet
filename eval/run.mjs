@@ -172,6 +172,14 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   let baseRef;
   try { baseRef = base ? git(root, "rev-parse", "--verify", `${base}^{commit}`) : git(root, "merge-base", "HEAD", "origin/main"); }
   catch { return refuse("no valid --base and no origin/main: cannot resolve the baseline ref"); }
+  try {
+    const baselineErrors = lintTarget(dir, {
+      baselineHas: (path) => git(root, "ls-tree", "-r", "--name-only", baseRef, "--", `:(literal)${path}`).split("\n").includes(path),
+      treeHas: (path) => { treeReader(root)(path); return true; },
+    });
+    if (baselineErrors.length) return refuse(`lint: ${name}:\n  ${baselineErrors.join("\n  ")}`);
+  } catch (e) { return refuse(e.message); }
+  const newPaths = target.skillFiles.filter((file) => file.new === true).map((file) => file.path);
   const repoSha = git(root, "rev-parse", "HEAD");
   const replayText = read(join(dir, "replay.md"));
   const judgeText = read(join(root, "eval", "judge.md"));
@@ -189,14 +197,16 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   const baseRead = checkedReader(baseRef, baseReader(root, baseRef));
   const treeRead = checkedReader("working tree", treeReader(root));
   const checkedAssembly = (reader, ref, skillFiles, bundle = []) => {
+    const arm = reader === baseRead ? "baseline" : "candidate";
+    const options = { arm, newPaths };
     const parts = skillFiles.map((file) => {
-      try { return assemble({ ...target, skillFiles: [file] }, reader); }
+      try { return assemble({ ...target, skillFiles: [file] }, reader, [], options); }
       catch (e) {
         if (e.message.startsWith(`${file.path} at `)) throw e;
         throw new Error(`${file.path} at ${ref}: ${e.message}`);
       }
     });
-    if (bundle.length) parts.push(assemble({ ...target, skillFiles: [] }, reader, bundle));
+    if (bundle.length) parts.push(assemble({ ...target, skillFiles: [] }, reader, bundle, options));
     return parts.join("\n");
   };
   let forSha, intentParsed;
@@ -204,7 +214,7 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   forSha = sha256(checkedAssembly(treeRead, "working tree", target.skillFiles));
   intentParsed = baselineOnly ? undefined : parseIntent(intentText, forSha, knownFacts);
   if (intentParsed && intentParsed.status !== "ok") return refuse(`intent: ${intentParsed.reason}`);
-  const rawFiles = (reader) => target.skillFiles.map((file) => ({ path: file.path, content: reader(file.path) }));
+  const rawFiles = (reader) => target.skillFiles.map((file) => ({ path: file.path, content: reader === baseRead && newPaths.includes(file.path) ? "" : reader(file.path) }));
   const baseFiles = target.kind === "edit" ? rawFiles(baseRead) : undefined;
   const candFiles = target.kind === "edit" ? rawFiles(treeRead) : undefined;
   for (const sample of names.filter((n) => !only || n === only)) {

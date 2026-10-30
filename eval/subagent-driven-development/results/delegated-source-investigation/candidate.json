@@ -1,0 +1,90 @@
+{
+  "sample": "delegated-source-investigation",
+  "arm": "candidate",
+  "skillSha": "f8d3769c43d09db984f63d7c5667b89fb4f9444d31b89e8689e2d80b506e7fe2",
+  "inputSha": "1a940e72d8c6dee874206dec269b5124b61c180e6d34abf92986c005c4ab93d2",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Task 4 routing: delegated source lookup and human escalation (recipes only)\n\nNothing below has been executed, and no verdict is implied. All reads go to children. The primary stays inside its implement boundary.\n\n## 0. Human request: \"open the report and git diff for provenance\"\n\nThe primary declines to open anything. During implement it does not run `cat` or `sed -n` on reports, and it does not run `git diff` without `--stat` or `git show <path>`. A file-only pointer never authorizes opening a report. Provenance and \"why does parse reject empty input\" go through the answer/evidence carrier, together with the source-constant question.\n\nThe only shell step sets the report directory, which already holds the expected saved answer:\n\n```bash\nREPORT_DIR=/tmp/reports\n```\n\n## 1. Delegated lookup carrier (source constant, plus parse provenance)\n\nThis uses the one-step carrier with:\n- fresh context and foreground execution,\n- saved, file-only output bound to `ANSWER_SCHEMA`,\n- carrier-only `stopOn` on `/status`.\n\n`ANSWER_SCHEMA` has no `status` field. So the stopOn pointer never matches, but its presence exposes the successful `## Outputs` JSON. No named persona exists for answers, so `agent` is omitted, and no `model` is passed.\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"/workspace/project\",\n  chain: [{\n    task: \"Question: which source constant defines the frame limit that task 4 routes on, and its value? Also: why does parse reject empty input (code location and provenance)? planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 4:; Spec: /workspace/project/doc/specs/feature.md; owning checkout: /workspace/project. Read the anchored task (ends at ^#{2,3}\\\\s; '### Task 4:' never matches '### Task 40:'), its Spec anchors, Files:, Rules:, Leg:, the source, and any provenance (git log/diff) yourself. Return one-paragraph answer plus one-line file:line evidence entries. Do not edit anything.\",\n    output: \"/tmp/reports/source-answer.md\", outputMode: \"file-only\", outputSchema: ANSWER_SCHEMA,\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n})\n```\n\n**Consuming the result.** Read only the fenced `structured` JSON in the tool-result `## Outputs`. Do not read `details`, the `Output saved to:` pointer, or `/tmp/reports/source-answer.md`.\n\n```json\n{\"answer\":\"FRAME_LIMIT defines the limit as 8.\",\"evidence\":[\"src/limits.ts:3\"]}\n```\n\nThe primary keeps only `answer` and `evidence`, then:\n- Routes task 4 on `FRAME_LIMIT = 8 (src/limits.ts:3)`.\n- If task 4 was waiting on this fact ask, re-dispatches the task-4 implementer through the one-step carrier with the found result added to its `task`:\n  - `planPath`\n  - `anchor: ### Task 4:`\n  - `Spec:`\n  - `SCOPED_TEST_COMMANDS` (own task's tests for an isolated task; the wave union for in-place)\n  - `Context: FRAME_LIMIT = 8 per src/limits.ts:3`\n- Answers the human's provenance question with the child's answer/evidence lines verbatim. The primary never opens the report or the diff.\n\n## 2. Missing protocol fixture: ordered lookup, then escalation wording (one delegated child)\n\nThe fixture is a `NEEDS_CONTEXT`/`BLOCKED` fact ask. The child does the lookups and drafts the note:\n- One bounded lookup per documented location (spec, then plan, then repo-documented locations), in documented order.\n- Stop at the first hit, recording every miss before it.\n- If all locations are exhausted, return the exact one-screen stop note as `answer`.\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"/workspace/project\",\n  chain: [{\n    task: \"Fact ask for task 4: locate the protocol fixture it requires. planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 4:; Spec: /workspace/project/doc/specs/feature.md; owning checkout: /workspace/project. Inputs: final review path <REPORT_DIR>/<final review report>, scoped-output paths <REPORT_DIR>/gate-<i>.log, structured routing fields {task:4, status:<observed>, question:<observed question>}, prior lookup observations: <none or recorded lines>. Search the locations documented by the spec, plan, or repo, one bounded lookup each, in documented order, stopping at the first hit; record every lookup and result as evidence 'Searched: <where> - <result>'. If found: answer = the fixture path. If exhausted: answer = the exact stop note per skills/subagent-driven-development/stop-note.md: first line 'gauntlet: question' alone, then 'Stopped on task 4 (<title>).', 'Problem:' stating exhausted lookups, Searched: lines in lookup order directly under Problem, a budget line only if an Amend-grant budget token exists, fix options offering (a) supply the fixture/access and (b) amend spec/plan task 4 to drop the requirement, no 'skip the task', no report paths or round history, ending 'Pick one, or give another fix.' and 'Recommendation: <option> - <why>'. Apply menu-layout. ASCII, one screen.\",\n    output: \"/tmp/reports/fixture-escalation.md\", outputMode: \"file-only\", outputSchema: ANSWER_SCHEMA,\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n})\n```\n\n**Consuming the result.**\n- **Fixture found:** re-dispatch task 4 with the fixture path from `answer` and its evidence line.\n- **Lookups exhausted:** emit `answer` verbatim as the inline reply, so it starts with `gauntlet: question`, and end the turn. Then:\n  - Phase stays `implement`.\n  - Task 4 stays `in_progress`.\n  - No further tasks start.\n\n## 3. Alternative: the delegated read fails\n\nThis covers any of: a dispatch error, a missing `## Outputs`, absent or malformed structured JSON, or a matched stop.\n\n- Stop with the visible delegated-failure diagnostic, for example: `delegated lookup for task 4 failed: <tool error text>; report /tmp/reports/source-answer.md`.\n- Do not dispatch a diagnosis child or retry for diagnosis; delegated failures are never recursively diagnosed.\n- Do not open the report, the source, or `git diff` in the primary.\n- Do not hand-write the escalation note from reconstructed source.\n- Leave task 4 `in_progress` in phase `implement`, start no further tasks, and wait for the human.\n\nStop here.\n",
+      "words": 797,
+      "wallMs": 33806,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### 1. Delegate the source lookup\n\nThe parent does not open source, reports, or a content-bearing `git diff`. No shell content reads or commits are needed for this investigation.\n\n```js\nconst ANSWER_SCHEMA = {\n  type: \"object\",\n  required: [\"answer\", \"evidence\"],\n  additionalProperties: false,\n  properties: {\n    answer: { type: \"string\" },\n    evidence: { type: \"array\", items: { type: \"string\" } }\n  }\n};\n\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  chain: [{\n    parallel: [{\n      output: \"/tmp/reports/source-answer.md\",\n      outputMode: \"file-only\",\n      outputSchema: ANSWER_SCHEMA,\n      task: `\nplanPath: /workspace/project/doc/plans/feature.md\nanchor: \"### Task 4:\"\nSpec: /workspace/project/doc/specs/feature.md\n\nRead the selected task and its authoritative spec anchors yourself.\nDetermine which source constant defines the frame limit and its value.\n\nUse the lookup locations documented by the task, spec, or repository:\none bounded lookup per location, in documented order, stopping at the first\nhit. Record earlier misses and the successful file:line evidence.\nDo not edit files or run tests.\n\nReturn a compact answer and evidence. pi-cohort saves your final report;\ndo not write the output report yourself.\n`\n    }],\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n});\n```\n\nConsume the fenced structured JSON in `## Outputs`, **not** the saved report:\n\n```json\n{\n  \"answer\": \"FRAME_LIMIT defines the limit as 8.\",\n  \"evidence\": [\"src/limits.ts:3\"]\n}\n```\n\nThe parent may retain and forward:\n\n> Delegated answer: FRAME_LIMIT defines the limit as 8.  \n> Evidence: `src/limits.ts:3`  \n> Report: `/tmp/reports/source-answer.md`\n\nThat observation does **not** establish why `parse` rejects empty input.\n\n### 2. Delegate the empty-input and provenance investigation\n\n```js\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  chain: [{\n    parallel: [{\n      output: \"/tmp/reports/parse-provenance-answer.md\",\n      outputMode: \"file-only\",\n      outputSchema: ANSWER_SCHEMA,\n      task: `\nplanPath: /workspace/project/doc/plans/feature.md\nanchor: \"### Task 4:\"\nSpec: /workspace/project/doc/specs/feature.md\n\nHuman question: Why does parse reject empty input?\nThe human also requests inspection of the report and git diff for provenance.\nPerform those reads yourself; the parent must not open them.\n\nRead the task and spec anchors, then locate the relevant report and review\nsource through their documented references. Use bounded lookups in documented\norder and record each lookup and result. Do not guess a report path or diff\nbase. If the required provenance cannot be identified, state precisely what\nis missing instead of inventing it.\n\nRead the identified report and relevant git diff yourself. Distinguish the\nobserved implementation behavior from an approved requirement and from any\ninference about intent. Return one compact explanatory paragraph plus\nfile:line, report, and diff-source evidence.\nDo not edit, stage, commit, or run tests.\n`\n    }],\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n});\n```\n\nConsume only its structured `answer` and `evidence`. Do not treat `/tmp/reports/parse-provenance-answer.md` as authorization to open the report. No answer to the empty-input question is supplied in this scenario, so none is asserted here.\n\n### 3. Delegate missing-fixture evidence and human escalation wording\n\n```js\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  chain: [{\n    parallel: [{\n      output: \"/tmp/reports/fixture-escalation.md\",\n      outputMode: \"file-only\",\n      outputSchema: ANSWER_SCHEMA,\n      task: `\nplanPath: /workspace/project/doc/plans/feature.md\nanchor: \"### Task 4:\"\nSpec: /workspace/project/doc/specs/feature.md\n\nPrepare human escalation wording about the missing protocol fixture.\nRead the selected task, spec anchors, and their documented lookup locations\nyourself. Do not assume which locations have already been searched.\n\nPerform one bounded lookup per documented location, in documented order,\nstopping at the first hit. Record every lookup and result, including earlier\nmisses. Do not reconstruct fixture contents. Do not edit files or run tests.\n\nIf the fixture is found, return its location and evidence; do not falsely\nproduce a missing-fixture escalation.\n\nIf documented locations are exhausted, inaccessible, or require an unavailable\nnamed tool, return the exact one-screen stop note as answer, following the\nSDD stop-note and menu-layout rules. Obtain the actual task title and any\ncurrent grant/budget requirements yourself. Include ordered Searched: lines.\nOffer supplying the fixture/access or amending the named spec/plan requirement;\nnever ask the human where the fixture is and never offer to skip the task.\nEnd with Recommendation: <option> - <why>.\nUse only findings and lookup results you actually observed.\n\nReturn lookup observations as evidence. The parent will consume your JSON,\nnot open this saved report.\n`\n    }],\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n});\n```\n\nOn successful delegation, consume `answer` and `evidence`. If it returns an evidence-backed stop note, emit that wording with `gauntlet: question` on the first line and stop. If it finds the fixture, retain the fact rather than issuing a false escalation.\n\n### Delegated-read failure alternative\n\nIf any delegated read fails, stop immediately and report the visible failure diagnostic. Do **not** open source or reports as a fallback, dispatch recursive diagnosis, or invent missing lookup evidence or escalation wording.\n\nThroughout this bounded investigation:\n\n- Checkout: `/workspace/project`.\n- Provenance source: identified and read by the child, never guessed by the parent.\n- No implementation, review verdict, staging, or commit occurs.\n- Task 4 remains `in_progress`; no subsequent task is dispatched.\n",
+      "words": 729,
+      "wallMs": 32211,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8c1038227f1e785e64d34caeca1f720b62e3b5a38439f80bf31d866332dff8a8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fec13289b464723e7df14ac92ac32ec4e4a6a91ee41a6bfc42ec8e28768c223c",
+      "baselineOutputSha": "2b769ff86e530ef93a3f148d14114aade6f62310c16d6f38b95ddfe2516c007d",
+      "candidateOutputSha": "42db8f29559a30724c843e2e6e160f0e88ae2723b6e947e57691d6dc1f0be101",
+      "facts": {
+        "delegated-answer": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-primary-read": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "bounded-failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After improves on Before without regressing anything: Before dispatched a flat subagent call (top-level output/outputSchema, no chain item, no outputMode file-only, no stopOn) and had the parent author the escalation note itself, so delegated-answer failed; Before also never distinguished allowed `git diff --stat` coordination from unbounded content diffs in the primary (it only said the parent runs no git diff at all, while its child ran both), so no-primary-read failed on that clause. After fixes both: the one-step chain item carries task, output, item-level outputMode file-only, outputSchema and carrier stopOn on /status BLOCKED, the escalation wording and ordered lookups are delegated to a child that returns the note as `answer`, and section 0 explicitly permits `--stat` while forbidding content diffs and `cat`/`sed -n` on reports. Both outputs keep bounded-failure (no recursive diagnosis, no guessed constant). One tightening for After: define `ANSWER_SCHEMA` inline (`required: [answer, evidence]`, answer string, evidence string[]) as Before did with LOOKUP_SCHEMA, so the schema-shape clause is visible in the text rather than inferred; keep the report-path forwarding and the `--stat`-only shell rule exactly as written.",
+      "wallMs": 24305,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8c1038227f1e785e64d34caeca1f720b62e3b5a38439f80bf31d866332dff8a8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fec13289b464723e7df14ac92ac32ec4e4a6a91ee41a6bfc42ec8e28768c223c",
+      "baselineOutputSha": "10c40effcc34b60439018c93adf3d8ba407f1ea42727ea542fd65316db8f1329",
+      "candidateOutputSha": "c41be95a952922589aa781e1cef2f2c0b509e9d0927ad515cf994f66a66c7913",
+      "facts": {
+        "delegated-answer": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-primary-read": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "bounded-failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change on the carrier shape: all three dispatches are fresh synchronous one-step chains with item-level outputMode file-only, an ANSWER_SCHEMA requiring answer string plus evidence string array, and stopOn /status BLOCKED, and the parent consumes the fenced Outputs JSON rather than the saved report, so delegated-answer moves to holds. After also states the parent avoids a content-bearing git diff (implying --stat coordination remains allowed) and forwards only paths, which is the explicit distinction Before lacked; no primary read, shell content load, or pasted source/report text appears, so no-primary-read holds. bounded-failure is preserved: the failure alternative stops on the visible diagnostic without recursive diagnosis or invention. Two wording risks worth tightening without losing any fact: section 2 tells the child to 'locate the relevant report ... through documented references' and 'do not guess a report path' even though the manifest already supplies /tmp/reports/source-answer.md — forward that path explicitly (as section 1 does) so the child is not pushed to rediscover a known artifact; and make the git diff --stat allowance explicit in the parent's boundary list ('parent may run git diff --stat for coordination; never a content diff') rather than leaving it implied by 'content-bearing', so a stricter reader cannot say the distinction is absent.",
+      "wallMs": 28100,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "0244a5744c6f81f392b76a9c73a3b57c731970b3"
+}

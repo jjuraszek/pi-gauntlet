@@ -1,0 +1,5 @@
+- next-read: judged: Requests the plan read and treats the missing exact Task 4 anchor as unreadable, not Task 40 or proof of compliance from the implementer report.
+- verdict: judged: Reports Verdict: NEEDS_REWORK and matching structured verdict, never COMPLIANT.
+- reasoning: mechanical: contains "Reasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:"
+- identity: judged: Sets anchorUnreadable to /workspace/project/plan.md#### Task 4: in structured JSON.
+- no-commands: judged: Never runs or proposes running a test, linter or type-checker and does not ask the parent to read the plan.

@@ -7,14 +7,19 @@ Use this template when dispatching a code quality reviewer subagent.
 **Only dispatch after spec compliance review passes.**
 
 ```
-Dispatch a subagent with the code-reviewer template:
-  Use the template at ../requesting-code-review/code-reviewer.md
+Dispatch one code-reviewer for the code-touching wave:
+  planPath: [absolute plan path]
+  anchor: "### Task N:"
+  anchors: [use instead of anchor for all tasks in the wave]
+  Spec: [absolute authoritative home spec path]
+  Work from: [integrated review checkout]
+  Implementer reports: [saved report paths]
+  BASE_SHA: [WAVE_BASE_SHA recorded before worker dispatch]
+  HEAD_SHA: [the literal WORKTREE for the integrated wave, including re-reviews]
+  SCOPED_TEST_COMMANDS: [dispatch-supplied union of scoped command values verbatim | none]
 
-  DESCRIPTION: [wave summary, from implementers' reports; whole-diff review: implementation summary]
-  PLAN_OR_REQUIREMENTS: [wave tasks from plan-file; whole-diff review: full plan/requirements]
-  BASE_SHA: [WAVE_BASE_SHA recorded before worker dispatch; whole-diff review: committed implementation base]
-  HEAD_SHA: [the literal WORKTREE for the integrated wave, including re-reviews; whole-diff review: committed HEAD]
-  SCOPED_TEST_COMMANDS: [the union of the wave's tasks' Tests: commands; `none` for the whole-diff verify-phase review]
+  Read the selected task sections, Spec anchors, Tests:/via: and Files: Create:/Test: paths yourself. Derive Rules from the task and home-spec leg as your persona directs. Read the implementer reports by path; verify against the integrated diff.
+  Keep the report layout and emit structured output matching the persona contract, verdict and footer, including behaviourChange on every report. On an unreadable plan/anchor report REJECT with anchorUnreadable and the required Reasoning line.
 ```
 
 **In addition to standard code quality concerns, the reviewer should check:**
@@ -23,13 +28,14 @@ Dispatch a subagent with the code-reviewer template:
 - Is the implementation following the file structure from the plan?
 - Did this implementation create new files that are already large, or significantly grow existing files? (Don't flag pre-existing file sizes — focus on what this change contributed.)
 
-Read `Verdict:` and the footer lines from the report; `agents/code-reviewer.md` defines its format.
+Keep inline callers of `../requesting-code-review/code-reviewer.md` unchanged; this local template carries the anchored SDD wave contract.
 
 ## Re-review: trajectory verdict
 
 Include the following in the reviewer's task text on every re-review, after
-the prior review report pasted verbatim under a
-`## Previous review report (re-review trigger)` heading:
+the prior review report path under a
+`## Previous review report (re-review trigger)` heading.
+Read the saved report yourself; retain the supplied `## Fix delta` block:
 
 If your task contains a "Previous review report (re-review trigger)" section
 and you found issues, append exactly one more line after `Behaviour-change:` — this

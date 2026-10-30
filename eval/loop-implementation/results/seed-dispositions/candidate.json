@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "93c687fc19ed2a20c4d7470583162c3d711c67636c97dbf0815a67a16f92c316",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "42fc12c7f8b53850bb556c9d83d34a4ec7d40da1a78f22aae14b41840eae61ea",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "6e99840bbd298891735028543f94f22b0ea01ab1055f8e5e409a0d1c2de23efb",
       "candidateOutputSha": "6e99840bbd298891735028543f94f22b0ea01ab1055f8e5e409a0d1c2de23efb",
       "facts": {
         "contract": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "The contract fact survives the change: After still initializes AC1/AC2/AC3 as open and only the deviates/deferred/elsewhere rows as cut, commits the stamped `loop: seed ledger` skeleton (plan_check, add, commit) before `phase_tracker start implement`, treats A (closed 1) and B (closed 3) as valid, stops on C/D/E with an explicit 'no automatic seed retry', and dispatches `loop-implementer` with `context: fresh`, `async: false`, `outputMode: file-only`, `cwd` = worktree, no model override and `acceptance: { level: 'none' }`. The `gauntlet: question` prefix is already present on every stop in both versions. Two wording drifts in After are worth tightening even though they did not move this fact: (1) in C/D/E the option-1 text changed from Before's explicit 'Authorize discarding the invalid seed commit (reset to `loop: seed ledger`)' to 'Retry seed with a hint (appends a retry decision, commits `loop: retry row …`)', which blurs the discard/reset authorization boundary the Change says to preserve and implies a `loop: retry row` commit for a seed target — keep Before's reset-authorization wording under the question marker instead; (2) in B's failing branch, listing an 'escalated implementer repair is allowed only if…' before 'Otherwise go to the human stop' could be read as a non-human-gated automatic action; phrase it as a menu option under the `gauntlet: question` stop so the ledger state and authorization boundary stay explicit. Also consider restoring Before's 'only one status changes' check in A, since After's 'Only open→done transitions occur' is weaker.",
-      "wallMs": 16889,
+      "feedback": "Before and After are textually identical, so nothing moved. Both satisfy the contract fact: the disposition table opens rows 1–3 and cuts only the deviates/deferred/elsewhere rows; the skeleton is stamped with base/verification/cap and committed as `loop: seed ledger` before `phase_tracker start implement`; (A) and (B) are validated as partial versus complete baseline closure; (C)/(D)/(E) each stop at a `gauntlet: question` human stop with no automatic seed retry; and the dispatch is `context: fresh`, `async: false`, `outputMode: file-only`, `cwd: /abs/wt`, `acceptance: { level: none }` with an explicit 'no model override' note. The Change's new material (amend-prepare routing, persisted cap history, leg iteration, escalation repair) is not exercised by this case's input, so the After wording produced no observable difference here; to see the intended fact movements the author needs cases whose inputs actually trigger those paths, while keeping this home-only seed walkthrough as-is since it already preserves every fact.",
+      "wallMs": 8320,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "93c687fc19ed2a20c4d7470583162c3d711c67636c97dbf0815a67a16f92c316",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "56db6f665d3ee7d31e02cc02a75037252cf8f9e59f3c89a7e4d473479a98dc5e",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "4b405720015cde52ffa431a844fefedf4890063eaf738b5267efdc5d37a68dc0",
       "candidateOutputSha": "4b405720015cde52ffa431a844fefedf4890063eaf738b5267efdc5d37a68dc0",
       "facts": {
         "contract": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "The contract fact holds in both outputs: both initialize AC1 (no disposition), AC2 (in-scope) and AC3 (venue) as open and cut only AC4–6; both commit the stamped, plan_check-admitted skeleton with `loop: seed ledger` before `phase_tracker start implement`; both accept A (closed 1, next target row 2) and B (closed 3, straight to exit verification) while rejecting C/D/E with explicit no-automatic-seed-retry handling; and both dispatch `loop-implementer` with `context: fresh`, `async: false`, `outputMode: file-only`, `cwd: W`, no model override and `acceptance.level: none`. The After wording delivered the Change by adding `gauntlet: question` framing with an explicit Choices block, a `Recommendation: none` line and a dedicated reset/discard authorization section for C–E, without touching skeleton, admission, dispatch shape or the A/B acceptance criteria. One small risk to watch: After's Return B drops Before's concrete `gauntlet: question` verification-failure stop text in favor of a pointer to the stop/escalation rules; keeping that concrete block (or an equivalent one with the question marker) would make the question-first intent of the Change more uniformly visible across every human stop while leaving the contract fact unaffected.",
-      "wallMs": 12587,
+      "feedback": "Before and After are textually identical, so nothing moved. Both show default/in-scope/venue rows (AC1–3) initializing open with only the three disposition exclusions (AC4–6) cut, a stamped skeleton committed via `loop: seed ledger` before `phase_tracker start implement`, A accepted with partial closure (row 1 done, rows 2–3 open, next target row 2) and B accepted with complete closure (next target none, straight to `make check`), C/D/E rejected with a human stop and explicit 'do not automatically retry seed', and a single fresh foreground `file-only` `loop-implementer` dispatch with `cwd: W`, no model override, and `acceptance: { level: 'none' }`. The After wording preserves every element of the contract fact; no further wording change is needed for this case, though note that none of the Change's intended movements (gauntlet-prefixed stops already present, cap persistence, coordinated-flow legs) surface here because this case never exercises those paths.",
+      "wallMs": 7346,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

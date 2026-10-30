@@ -12,98 +12,62 @@ const skill = readFileSync(new URL('../skills/subagent-driven-development/SKILL.
 const template = readFileSync(new URL('../skills/requesting-code-review/code-reviewer.md', import.meta.url), 'utf8');
 const wave = skill.split('## The Wave Loop')[1].split('## Spec-review snapshots')[0];
 
-test('wave chain isolates implementers then reviews their paired materialized trees', () => {
-  const blocks = [...wave.matchAll(/```ts\n([\s\S]*?)\n```/g)].map(match => match[1]);
-  const chain = blocks.find(block => block.includes('chain:'));
-  assert.ok(chain, 'primary dispatch must be a chain');
-  assert.equal((chain.match(/subagent\(/g) || []).length, 1);
+const loadReference = name => { const path = new URL(`../skills/subagent-driven-development/reference/${name}.md`, import.meta.url); return existsSync(path) ? readFileSync(path, 'utf8') : ''; };
+const dispatch = loadReference('dispatch-contract');
+const amendments = loadReference('implement-amendments');
+
+test('wave chain isolates anchored implementers and returns structured SR verdicts', () => {
+  const chain = [...wave.matchAll(/```ts\n([\s\S]*?)\n```/g)].map(m => m[1]).find(b => b.includes('chain:'));
+  assert.ok(chain);
+  assert.match(chain, /SCOPED_TEST_COMMANDS: <this task's manifest tests; none when empty>/);
+  assert.match(skill, /isolated implementers.*own task's `tests`.*`none` when empty/);
+  assert.match(skill, /in-place implementers.*wave union/);
+  assert.match(wave, /isolated spec-gap redispatch.*own task's `tests`/);
+  assert.match(dispatch, /isolated implementers.*own task's manifest `tests`/);
+  assert.match(dispatch, /integrated gate, in-place repairs and code reviews.*wave union/);
   assert.equal((chain.match(/parallel:/g) || []).length, 2);
-  assert.match(chain, /context: "fresh"/);
-  assert.match(chain, /async: false/);
-  assert.match(chain, /cwd: "<abs worktree path>"/);
-  const [impl, sr] = chain.split(/\},\s*\{\s*parallel:/);
-  const implTask = impl.match(/task: "([^"]*)"/)[1];
-  assert.match(implTask, /^<full task text \+ owned files \+ SCOPED_TEST_COMMANDS \+ Tests: block \+ status protocol>/);
-  assert.ok(implTask.endsWith('pi-cohort saves your final report to the output path; do not write that file yourself, and it is not a concern about owned files.'));
-  assert.match(impl, /as: "impl_1"/);
-  assert.match(impl, /outputSchema: IMPLEMENTER_STATUS_SCHEMA/);
-  assert.match(impl, /worktree: true/);
-  assert.match(impl, /concurrency: 4/);
-  assert.match(impl, /stopOn: \{ path: "\/status", in: \["BLOCKED", "NEEDS_CONTEXT", "DONE_WITH_CONCERNS"\] \}/);
-  assert.match(sr, /as: "sr_1"/);
-  const srTask = sr.match(/task: "([^"]*)"/)[1];
-  assert.doesNotMatch(srTask, /Review read-only; do not edit files\./);
-  assert.ok(srTask.endsWith("read it for the 'What Implementer Claims They Built' section."));
-  assert.match(sr, /output: "<REPORT_DIR>\/wave<w>-sr1\.md",\s*acceptance: \{ level: "none", reason: "the parent reads each SR Verdict: line; review trees are staged by design" \},\s*task:/);
-  assert.doesNotMatch(sr.slice(sr.lastIndexOf('],') + 2), /\bacceptance:/);
-  assert.doesNotMatch(impl, /\bacceptance:/);
-  assert.equal((chain.match(/\bacceptance:/g) || []).length, 1);
-  assert.doesNotMatch(sr, /\boutputSchema:/);
-  assert.match(sr, /cwd: "\{outputs.impl_1.treePath\}"/);
-  assert.match(sr, /\{outputs.impl_1.patchPath\}/);
-  assert.match(sr, /concurrency: 4/);
-  assert.doesNotMatch(sr, /\b(?:worktree|stopOn):/);
-  assert.doesNotMatch(wave, /Older-runtime fallback|two fan-outs/);
-  assert.match(wave, /structured_output` injection only for implementers carrying `outputSchema`/);
-  assert.match(wave, /Keep SR schema-free because no `stopOn` reads its verdict\./);
-  assert.doesNotMatch(wave, /acceptance contract identical to the plain fan-out/);
-  assert.match(wave, /snapshot-backed spec reviews and code review carry no `acceptance` field/);
-  assert.match(wave, /implementer statuses from fenced JSON in `## Outputs` and the `## Stop` line/);
-  const readback = wave.match(/^Read the tool-result text, not `details`:[^\n]*/m)[0];
-  assert.match(readback, /SR verdicts from the `Verdict:` line of each SR `output:` report/);
-  for (const verdict of ['COMPLIANT', 'NEEDS_REWORK', 'OUT_OF_SCOPE_CHANGES']) {
-    assert.ok(readback.includes(`\`${verdict}\``), `readback must name ${verdict}`);
-  }
-  assert.doesNotMatch(wave, /statuses and verdicts are fenced JSON/);
+  assert.equal((chain.match(/outputMode: "file-only"/g) || []).length, 2);
+  for (const token of ['async: false', 'context: "fresh"', 'worktree: true', 'concurrency: 4', 'as: "impl_1"', 'as: "sr_1"', 'outputSchema: IMPLEMENTER_STATUS_SCHEMA', 'outputSchema: SPEC_VERDICT_SCHEMA', 'planPath:', 'anchor:', '{outputs.impl_1.treePath}', '{outputs.impl_1.patchPath}']) assert.ok(chain.includes(token), token);
+  assert.match(chain, /the parent takes each SR verdict from the chain's ## Outputs structured JSON; review trees are staged by design/);
+  assert.equal((chain.match(/stopOn:/g) || []).length, 1);
+  assert.match(wave, /Read the tool-result text, not `details`/);
+  assert.match(wave, /statuses and verdicts from.*`## Outputs`/);
+  assert.match(skill, /Pasting task text, spec excerpts, or report contents into a dispatch, or opening the plan, spec, a report, or a source file in the primary/);
 });
 
-test('wave schema constrains only the implementer status vocabulary', () => {
-  assert.doesNotMatch(skill, /SPEC_VERDICT_SCHEMA/);
-  for (const [name, field, values] of [
-    ['IMPLEMENTER_STATUS_SCHEMA', 'status', ['DONE', 'DONE_WITH_CONCERNS', 'NEEDS_CONTEXT', 'BLOCKED']],
-  ]) {
-    const definitions = [...wave.matchAll(new RegExp(`${name} = (\\{[^;]*?\\n[^\\n]*\\}\\s*\\}\\s*\\})`, 'g'))];
-    assert.equal(definitions.length, 1, `${name} must be defined once`);
-    const schema = JSON.parse(JSON.stringify(runInNewContext(`(${definitions[0][1]})`, Object.create(null))));
-    assert.deepEqual(schema, { type: 'object', required: [field], additionalProperties: true,
-      properties: { [field]: { type: 'string', enum: values } } });
-  }
+test('dispatch schemas mirror persona reports and one-step carriers expose Outputs', () => {
+  const code = [...dispatch.matchAll(/```ts\n([\s\S]*?)\n```/g)][0][1];
+  const schemas = runInNewContext(code + '; ({ IMPLEMENTER_STATUS_SCHEMA, SPEC_VERDICT_SCHEMA, CODE_VERDICT_SCHEMA, ANSWER_SCHEMA, DIAGNOSIS_SCHEMA, PREPARE_SCHEMA, APPLY_SCHEMA })', Object.create(null));
+  for (const name of ['IMPLEMENTER_STATUS_SCHEMA', 'SPEC_VERDICT_SCHEMA', 'CODE_VERDICT_SCHEMA']) assert.ok(schemas[name].required.includes('reasoning'));
+  assert.equal(schemas.IMPLEMENTER_STATUS_SCHEMA.properties.reasoning.maxLength, 300);
+  assert.ok(schemas.CODE_VERDICT_SCHEMA.required.includes('behaviourChange'));
+  assert.deepEqual(Array.from(schemas.PREPARE_SCHEMA.required), ['items', 'redraws']);
+  assert.equal(schemas.PREPARE_SCHEMA.properties.redraws.items.properties.reason.maxLength, 300);
+  assert.deepEqual(Array.from(schemas.ANSWER_SCHEMA.required), ['answer', 'evidence']);
+  assert.match(dispatch, /chain: \[\{ parallel:/);
+  assert.match(dispatch, /outputMode: "file-only"/);
+  assert.match(dispatch, /stopOn: \{ path: "\/status", in: \["BLOCKED"\] \}/);
+  const diagnosis = wave.split('### Chain stopped or failed')[1];
+  const block = diagnosis.match(/```ts\n([\s\S]*?)\n```/)[1];
+  assert.match(block, /chain: \[\{/);
+  assert.match(block, /context: "fresh"/);
+  assert.match(block, /outputSchema: DIAGNOSIS_SCHEMA/);
+  assert.match(block, /stopOn: \{ path: "\/decision", in: \["retry", "repair", "stop"\] \}/);
+  assert.doesNotMatch(block, /agent:|parallel:|tasks:/);
 });
 
-test('version preflight and retained-result recovery surround the initial chain', () => {
-  const preflight = wave.indexOf('<!-- pi-cohort-preflight-shell -->');
-  assert.ok(preflight >= 0 && preflight < wave.indexOf('subagent({'));
-  assert.match(wave, /peerDependencies/);
-  assert.match(wave, /pi-cohort >= /);
-  assert.match(skill.split('## Dispatch')[1].split('## The Wave Loop')[0], /dispatching-parallel-agents/);
-  const after = skill.split('## After All Tasks Complete')[1];
-  assert.ok(after.indexOf('reference/happy-path-run.md') < after.indexOf('Before marking verify complete'));
-  assert.match(after, /absolute path/);
-  assert.doesNotMatch(skill, /<!-- happy-path-shell -->/);
-  assert.match(readFileSync(new URL('../skills/subagent-driven-development/reference/happy-path-run.md', import.meta.url), 'utf8'), /<!-- happy-path-shell -->/);
-  const recovery = wave.indexOf('### Chain stopped or failed');
-  assert.ok(recovery > wave.indexOf('chain:'));
-  assert.match(wave.slice(recovery), /successful siblings are never re-run/i);
-  assert.match(wave.slice(recovery), /only accepted patches without a verdict/);
-  assert.match(wave, /session `subagent-artifacts`/);
-  assert.match(wave, /<runId>_implementer_<index>_output\.md/);
-  assert.match(wave, /run\/task identity in the result or session transcript/);
-  assert.match(wave, /source-defined per-agent naming for a failed reviewer/);
-  assert.doesNotMatch(wave, /read its prose under `<Artifacts dir>\/parallel-0\//);
-  assert.match(wave, /artifacts are disabled, missing, or cannot be unambiguously matched[^\n]*When a Subagent Fails[^\n]*visible diagnostic[^\n]*never invent a status/);
-  const retained = wave.slice(recovery);
-  assert.match(retained, /Inspect failed tasks regardless of whether `## Stop` is also present/);
-  assert.match(retained, /stop condition before checking sibling failures/);
-  assert.match(retained, /Chain error, with or without `## Stop`/);
-  assert.match(retained, /Exit-0 stop \(`## Stop`\) with no failed siblings/);
-  assert.match(retained, /`DONE_WITH_CONCERNS`[^\n]*nonzero `BLOCKED`[^\n]*diagnose[^\n]*retain/i);
-  assert.match(retained, /recoverable `BLOCKED` or `NEEDS_CONTEXT`[^\n]*status matrix[^\n]*no patch/);
-  assert.match(retained, /no recoverable status, or an accepted task with a missing\/empty patch[^\n]*When a Subagent Fails[^\n]*visible diagnostic/);
-  const redispatch = retained.match(/^\*\*Re-dispatch by cause:\*\*[^\n]*/m)[0];
-  assert.match(redispatch, /Materialize the replacement patch in a new detached `WAVE_BASE_SHA` checkout with `git apply --index` per \[Spec-review snapshots\]\(#spec-review-snapshots\)/);
-  assert.match(redispatch, /on setup or tree-capture failure, stop dispatch and retain the failed snapshot directory and shell output/);
-  assert.match(redispatch, /After successful setup, record tree-after in that replacement snapshot before dispatching one plain re-review/);
-  assert.match(skill, /Second chain call in the same wave after a stop or a chain error - the retained results are the fan-out result; continue on the snapshot path\./);
+test('manifest routing, bounded recovery and transcript-only dynamic state', () => {
+  for (const token of ['## Orchestrator holds', 'plan_check({ planPath })', 'plan_tracker({ action: "status" })', 'manifest-size', 'tests', 'files', 'leg', 'mode', 'in-place', 'wave <w> base <sha>', 'wave <w> task <n> <status|verdict> <value> report <path> patch <path>', 'wave <w> review <k> tree <path>', 'never rerun accepted siblings', 'previous report path', 'exit status', 'orchestrator']) assert.ok(skill.includes(token), token);
+  assert.match(skill, /missing.*lines.*stop/i);
+  assert.match(skill, /never repeat the initial wave chain/i);
+  assert.match(skill, /required.*failed.*siblings/i);
+  assert.match(skill, /diff --stat/);
+  assert.match(skill, /git diff.*without.*--stat/);
+  assert.match(wave, /<!-- pi-cohort-preflight-shell -->/);
+});
+
+test('delegated amendments fail closed on redraws and retain first apply inventory for retry', () => {
+  for (const token of ['items', 'redraws', 'Fail malformed preparation', 'before grant evaluation or applying any sibling item', 'previousApplyReport', 'original task numbers, titles, spec anchors, and wave positions', 'including failures', 'Missing original inventory fails the retry', 'idempotently', 'failLines', 'second failure', 'parent PASS', 'tasksAnchorChanged', 'in_progress']) assert.ok(amendments.includes(token), token);
 });
 
 test('planning and wave dispatch bind task roots and Rules to admitted legs', () => {
@@ -116,6 +80,26 @@ test('planning and wave dispatch bind task roots and Rules to admitted legs', ()
     const persona = readFileSync(new URL(`../agents/${name}.md`, import.meta.url), 'utf8');
     assert.match(persona, /Read the combined spec\/task `Rules:` files before acting/);
   }
+});
+
+test('delegation eval scenarios use the six planned sample paths and snapshot carriers', () => {
+  const facts = {
+    'no-plan-read-wave': ['clean-wave', 'in-place', 'orchestrator', 'size'],
+    'delegated-source-investigation': ['delegated-answer', 'no-primary-read', 'bounded-failure'],
+    'repair-compaction-recovery': ['static-recovery', 'partial-transcript', 'missing-transcript', 'resumable-transcript'],
+    'report-by-path-fix': ['report-path', 'behaviour-routing', 'fix-delta', 'funded-carriers'],
+    'chain-error-diagnosis': ['sequential-diagnosis', 'structured-routing', 'missing-sibling'],
+    'delegated-amendment': ['preparation', 'grant-boundaries', 'redraw-gate', 'inventory-retry', 'failed-retry', 'measured-value'],
+  };
+  for (const [sample, names] of Object.entries(facts)) {
+    const root = new URL(`../eval/subagent-driven-development/samples/${sample}/`, import.meta.url);
+    assert.ok(existsSync(new URL('case.md', root)), sample);
+    const expected = readFileSync(new URL('expected.md', root), 'utf8');
+    for (const name of names) assert.ok(expected.includes(`- ${name}: judged:`), `${sample}/${name}`);
+  }
+  const snapshot = readFileSync(new URL('../eval/subagent-driven-development/samples/patch-review-snapshot/expected.md', import.meta.url), 'utf8');
+  assert.match(snapshot, /one-step.*file-only.*schema/);
+  assert.doesNotMatch(snapshot, /plain snapshot-backed SR dispatches/);
 });
 
 const quote = value => `'${value.replaceAll("'", "'\\''")}'`;
@@ -264,9 +248,10 @@ test('missing live index fails tree capture without a SHA or scratch residue', (
 
 test('implementer template carries task scope and evidence, not persona conduct', () => {
   const prompt = readFileSync(new URL('../skills/subagent-driven-development/implementer-prompt.md', import.meta.url), 'utf8');
-  const ordered = ["[FULL TEXT of task from plan - paste it here, don't make subagent read file]", 'SCOPED_TEST_COMMANDS: [', 'TEST_CONTRACT: [', 'Tests call the via: seam directly', 'Create every Create: path at exactly that path.', 'one line per SCOPED_TEST_COMMANDS command', 'Any `unmet` -> `DONE_WITH_CONCERNS`.', '**Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT', 'Conduct (TDD scenarios, test economy, scope discipline, escalation, report shape) is your persona; this prompt carries only the task and its test scope.'];
+  const ordered = ['planPath: [absolute plan path]', 'anchor: "### Task N:"', 'anchors: [use instead of anchor for a multi-task repair]', 'Spec: [absolute authoritative home spec path]', 'Work from: [worker checkout]', 'SCOPED_TEST_COMMANDS: [', 'Read the selected task sections, Spec anchors, Tests:/via: and Files: Create:/Test: paths yourself.', 'Tests call the via: seam directly', 'Create every Create: path at exactly that path.', 'one line per SCOPED_TEST_COMMANDS command', 'Any `unmet` -> `DONE_WITH_CONCERNS`.', '**Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT', 'Conduct (TDD scenarios, test economy, scope discipline, escalation, report shape) is your persona; this prompt carries only the task and its test scope.'];
   let previous = -1;
   for (const text of ordered) { const at = prompt.indexOf(text); assert.ok(at > previous, text); previous = at; }
+  assert.doesNotMatch(prompt, /FULL TEXT|paste it here|don't make subagent read file|TEST_CONTRACT:/);
   assert.match(prompt, /one line per via:/);
   assert.match(prompt, /quote the last output line/);
   assert.doesNotMatch(prompt, /Commit your work|Code Organization|Over Your Head|Self-Review|read the plan|OWNED_FILES|owned-files/);
@@ -330,7 +315,7 @@ test('amendment owners honor permission before fact and decision routing', () =>
   assert.match(status, /drafted AC row text correction.*quoted implementer evidence.*granted `amend:` audit body/);
   assert.match(status, /redraws: ticket rows, row add\/remove, reviewer-only or taste objections, problem changes, or component boundary changes/);
   assert.match(status, /another-round approval.*only.*no funded round left/);
-  for (const text of ['recommended', 'alt-n', 'amended the spec: <title> - <what>', 'plan-writer', 'plan_check', 'tracker update', 'amend:']) assert.ok(status.includes(text), text);
+  for (const text of ['recommended', 'alt-n', 'amended the spec: <title> - <what>', 'plan-writer', 'plan_check', 'tracker update', 'amend:']) assert.ok((status + amendments).includes(text), text);
   assert.match(skill, /`NEEDS_CONTEXT`, `BLOCKED`, a fix-loop escalation, a workflow warning, a redraw, or an amend with no standing grant\./);
 });
 
@@ -347,10 +332,24 @@ test('funded rounds preserve escalated isolation, task ownership and fail-closed
   assert.match(readFileSync(fixReference, 'utf8').split('## Funded rounds')[1], /escalated-round failure with no funded round left/);
 });
 
+test('recovery requires terminal funded outcomes, not merely transcript categories', () => {
+  const recovery = skill.split('### Recovery')[1].split('## Spec-review snapshots')[0];
+  assert.match(recovery, /all transcript line categories.*not sufficient/);
+  assert.match(recovery, /missing terminal funded-worker outcome.*repair state/);
+  const sample = new URL('../eval/subagent-driven-development/samples/repair-compaction-recovery/', import.meta.url);
+  const scenario = readFileSync(new URL('case.md', sample), 'utf8');
+  const expected = readFileSync(new URL('expected.md', sample), 'utf8');
+  assert.match(scenario, /In C.*terminal/s);
+  assert.match(scenario, /tree-before [a-f0-9]{40} tree-after [a-f0-9]{40}/);
+  assert.match(expected, /partial-transcript: judged:.*Stops.*terminal funded-worker outcome/);
+  assert.match(expected, /resumable-transcript: judged:.*round 2 of 2/);
+});
+
 test('funded rounds own stop-note funding rules and preserve the base stop note', () => {
   const funded = readFileSync(fixReference, 'utf8').split('## Funded rounds')[1];
   assert.match(funded, /While a budget token exists, include `budget: <spent> of <N> spent` in every stop note after `Problem:` and any `Searched:` lines and before the file finding/);
   for (const text of ['pre-escalation', 'missing `implModel`', 'exhausted fact lookups at spent zero', 'only round-history exception', '(not recovered on resume)', 'omit the line without a token']) assert.ok(funded.includes(text), text);
+  for (const token of ['gauntlet: question', 'Problem:', 'Searched:', 'Fix options:', 'Pick one, or give another fix.', 'One screen', 'delegated']) assert.ok(stopNote.includes(token), token);
   for (const block of [...stopNote.matchAll(/```\n([\s\S]*?)\n```/g)]) {
     assert.match(block[1], /^gauntlet: question\n/);
     assert.match(block[1], /Recommendation: (?:<option>|[a-c]|none) - [^\n]+$/);
@@ -371,7 +370,7 @@ test('execution failures take authorized decisions before a single isolated esca
   for (const text of ['Value decoding', 'took recommendation: <option> for task <n>',
     'count every re-dispatch as an ordinary attempt', 'escalated round for task <n> after 2 failed attempts',
     'gauntlet_setting({ key: "escalationLoop" })', 'model: <implModel>', 'context: "fresh"', 'async: false',
-    'SCOPED_TEST_COMMANDS', 'complete prior report verbatim', 'same payload and isolation',
+    'SCOPED_TEST_COMMANDS', 'the prior report path and the anchored task payload', 'same payload and isolation',
     'dispatch error or non-`DONE`', 'no fourth unnamed repair', 'unrecoverable means spent',
     'whitespace', 'file:line', 'failing command plus assertion',
     'Recommendation: none - evidence repeats task <n>', '/skill:shape-ticket',
@@ -399,7 +398,7 @@ test('execution eval assembly includes failure routing and remains within author
   const expected = readFileSync(join(root, 'eval/subagent-driven-development/samples/blocked-decision-auto-taken/expected.md'), 'utf8');
   assert.match(expected, /stop note ending in Recommendation: none - <why>/);
   const target = JSON.parse(readFileSync(join(root, 'eval/subagent-driven-development/target.json'), 'utf8'));
-  assert.equal(target.skillFiles[0].sliceTo, '## After All Tasks Complete');
+  assert.equal(target.skillFiles.find(file => file.slice === '## Fix-Loop Rounds').sliceTo, '## After All Tasks Complete');
   for (const sample of ['blocked-decision-auto-taken', 'third-attempt-escalated', 'ac-row-correction-amend']) {
     for (const file of ['case.md', 'expected.md']) assert.ok(existsSync(join(root, 'eval/subagent-driven-development/samples', sample, file)));
   }

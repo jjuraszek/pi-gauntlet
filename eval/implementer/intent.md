@@ -1,8 +1,12 @@
-for: 26c4e39b729dc51b46de7be681dc0169db8ab54551ded3b9be222d6d3d9e2f3a
+for: 7db4b1eebec6f602d87a36fa2fc68b1e4cc2f4f74914493c42eec0e7c53eb771
 
 ## Change
-Apply dispatched Leg and Rules in the supplied cwd without crossing sibling repositories; preserve existing completion and TDD facts.
-
-The persona-plus-template assembly retains the unchanged implementer persona and the short implementer template: full task and context slots, SCOPED_TEST_COMMANDS and TEST_CONTRACT, direct-seam and exact-Create requirements, met/unmet evidence, unmet -> DONE_WITH_CONCERNS, four exact statuses, and the persona conduct pointer. The template delegates TDD, test economy, escalation, and self-review to the persona instead of repeating that conduct. The trimmed-template-tdd-holds sample checks existing-test-first ordering, a table extension before the production edit, scoped-command discipline, direct-seam evidence, and DONE using fixed observations. The unmet-via-concerns sample checks that a passing command remains met while a wrapper-only test leaves the direct seam unmet and requires DONE_WITH_CONCERNS. Only these two samples permit narration and status/evidence reports; extend-existing-test and heavy-json-fixture retain test-code-only replies and their existing test-economy facts.
+Load task text conditionally from planPath and exact task anchors, including the union for multi-task repairs; derive Spec/Files/Tests and combined task/home-leg Rules in the worker checkout. Preserve inline callers, TDD, direct-seam/exact-Create test-contract evidence and scoped-command discipline. Mirror the written status into structured output and fail unreadable anchors with BLOCKED plus anchorUnreadable. The replay routes only the two new cases through supplied file observations and report/JSON output; legacy cases keep their existing response formats.
 
 ## Expected to move
+- anchored-task/next-read: fails -> holds - The worker requests its own anchored task read.
+- anchored-task/task-slice: fails -> holds - Exact Task 4 selection excludes Task 40 and the next wave.
+- anchored-task/rules: fails -> holds - The worker derives combined task and home-leg Rules.
+- anchored-task/mirror: fails -> holds - The written status is mirrored in JSON.
+- unreadable-anchor/blocked: fails -> holds - Missing anchors fail closed with BLOCKED.
+- unreadable-anchor/identity: fails -> holds - The failure carries the exact path#anchor identity.

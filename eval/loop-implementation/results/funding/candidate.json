@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4ed888a1c5924cb6aaaa945ee42368e9f3d99603f2a122b8380e3fed56491b02",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "29380dc4bc48bf6b467977a8593fcff1b11b1419cc6526bb510735e15cb93f35",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "33b8936a2f3743717c85007ed6dd1b020fa323a14492fc523b74e61008dcf3ed",
       "candidateOutputSha": "33b8936a2f3743717c85007ed6dd1b020fa323a14492fc523b74e61008dcf3ed",
       "facts": {
         "contract": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every element of the contract fact: allowance 5 with the two funded-round prints, spent recovered as attempts minus 3 (the `min(attempts, 5)` clamp is harmless at the stop but is a new formula the author should keep aligned with Before's plain `max(0, attempts − 3)`), budget 2 of 2 at the stop, prospective grant with no count reset, funding unable to bypass cap or rule-3 stagnation, both windows untouched by funding so the second miss and prior empties still stop, and retry starting fresh windows without touching attempts/iterations/cap. The one place a careful reader has to pause is the new 'If the grant had carried amend permission instead, I would escalate' block in snapshot 1: it is clearly fenced as a hypothetical tied to amend permission rather than funding, and the surrounding text repeatedly says budget-only funding never selects `implModel`, so the fact survives — but to keep that boundary unmistakable, phrase it as 'Funding alone, even when exhausted, never escalates; only a named amend permission does', and in snapshot 4 print the concrete `budget: 1 of 2 spent` as Before did rather than `<spent> of 2`, so the durable-spent accounting stays explicit at every stop while the new gauntlet: question prefix and amend-permission path are delivered.",
-      "wallMs": 19202,
+      "feedback": "The After text is byte-for-byte identical to Before, so nothing moved: both outputs print `funded round 1 of 2` then `2 of 2`, derive spent as `max(0, min(attempts, 5) − 3)` recovered from attempts, print `budget: 2 of 2 spent` at the rule-2 stop, state the grant applies prospectively without resetting attempts/iterations, keep the cap and rule-3 stagnation stop ahead of funding, keep `model:` off every funded round (escalation only under a hypothetical amend-permission grant), show that funding leaves the empty-child window and the validation-miss window open (section 2/3 re-stop on prior empties; section 4 second miss stops with count 2), and reserve fresh windows for the explicit `loop: retry row 1` commit while leaving attempts, iterations and cap untouched. Since the wording change produced no observable difference in this case, the contract fact holds in both; if the author intended the Change (ordinary-path amend preparation, `gauntlet: question` prefixes, persisted cap, independent windows) to be visible here, the current text already satisfies it, and any further edits should keep the explicit spent formula, the `budget:` line, the `funding resets no window` statements and the section-5 retry contrast exactly as written.",
+      "wallMs": 12785,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4ed888a1c5924cb6aaaa945ee42368e9f3d99603f2a122b8380e3fed56491b02",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bd99ea7b26d024565f707195162f1a85a14218a9f7a6a95aebeab43edfbede78",
-      "baselineOutputSha": "0a4489c1edfb1757d47a9b2d4c61f794c008f952a7c7fc26120d24cf9d6ef839",
+      "intentSha": "55bd9885ec2adec3447e5f87a85ef2b57ba038bee1026c202dd70b8f2e727fe8",
+      "baselineOutputSha": "625b7604121ff25b5ef5c8b231cabb7f7a002cf98ec0afde1f3977272b654640",
       "candidateOutputSha": "625b7604121ff25b5ef5c8b231cabb7f7a002cf98ec0afde1f3977272b654640",
       "facts": {
         "contract": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves the contract fact: allowance 5 with funded round 1 of 2 then 2 of 2, spent recovered from attempts (max(0, min(attempts,5)-3), which equals attempts−3 within the allowance), budget printed at every stop, grant prospective, no model escalation, funding resetting neither the empty-child nor validation-miss window, and only the committed `loop: retry row 1` starting fresh windows without touching attempts/iterations/cap. Two things drifted that are worth tightening even though they did not move the fact: After dispatches with `iteration: 5` after bumping iterations 4→5 (Before passed `iteration: 4`, i.e. the pre-bump value) — pick one convention and state it once in the common dispatch block; and the cap-stop menu in After drops the retry/funding option that Before offered alongside `cap +N`, which could be read as narrowing the authorization boundary — keep the Before option set (cap +N, retry with hint, amend, stop, with the note that retry/funding do not raise the cap) under the `gauntlet: question` prefix. Also consider restoring the explicit `max(0, attempts − 3)` wording rather than the min-clamped form so the 'durable spent attempts minus 3' reading is literal.",
-      "wallMs": 14357,
+      "feedback": "Before and After are textually identical, so no fact moved. Both satisfy the contract fact: allowance 5 is derived from 3 + 2, the trace prints `funded round 1 of 2 for row 1` then `funded round 2 of 2 for row 1`, durable spend is `max(0, min(attempts, 5) - 3)` with `budget: 2 of 2 spent` at the allowance stop, the grant is stated as prospective, funding is explicitly denied the power to reset attempts/iterations, bypass the cap or child-only empty-commit stop, or escalate the model (`No model override`), section 5 states funding does not reset the consecutive-validation-miss window and the next miss after one prior miss stops, section 3 states prior empties still stop regardless of funding, and section 6 has `loop: retry row 1` starting fresh child-empty and validation-miss windows while leaving attempts, iterations and cap unchanged. For the intended Change, the After wording already keeps everything; if the author later adds gauntlet-question prefixing or ordinary-path amend routing text, keep the existing explicit sentences about funding not resetting either window and the retry commit not touching attempts/iterations/cap, since those are the load-bearing phrases for this fact.",
+      "wallMs": 10423,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "a457f152d6ded103fbf7ef06524ff7a0c1eb4333"
 }

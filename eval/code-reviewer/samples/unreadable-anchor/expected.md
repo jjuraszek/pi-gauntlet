@@ -1,0 +1,5 @@
+- next-read: judged: Requests the plan read and fails the whole anchor-list review when Task 5 is missing, never substituting Task 50 or asking the parent to read it.
+- reject: judged: Reports Verdict: REJECT and structured verdict REJECT, not SHIP or FIX_FIRST.
+- reasoning: mechanical: contains "Reasoning: anchor unreadable: /workspace/project/plan.md#### Task 5:"
+- identity: judged: Sets anchorUnreadable to /workspace/project/plan.md#### Task 5: in JSON.
+- behaviour: judged: Includes Behaviour-change: no and structured behaviourChange false because no observable fix was established in the unreadable review.

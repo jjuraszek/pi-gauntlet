@@ -1,0 +1,110 @@
+{
+  "sample": "anchored-task",
+  "arm": "candidate",
+  "skillSha": "7db4b1eebec6f602d87a36fa2fc68b1e4cc2f4f74914493c42eec0e7c53eb771",
+  "inputSha": "50fa90ab2ee02971def89c65b6c5a7291a219b8b2c55798edb8ced72245e1171",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Anchored task: Task 4\n\n**Next read requested:** `/workspace/project/plan.md`. I would then read the authoritative spec at `/workspace/project/spec.md`, then the Rules files `task-rules.md` and `home-rules.md` in `/workspace/project`. The answers below use only the supplied observations.\n\n**Section selection:**\n- The heading-prefix match `### Task 4:` selects `### Task 4: Document a flag`.\n- It does not select `### Task 40: Decoy`, because the prefix includes the colon.\n- The section ends at the next `^#{2,3}\\s` line, which is `## Next wave`.\n- So `wrong.md` (from Task 40) and `wrong-wave.md` (from Next wave) are outside scope and were not created.\n\n**Combined Rules:**\n- From the task: `task-rules.md`.\n- From the leg: the task has no `Leg:` line, so the first `### Leg:` entry in the home spec applies. That is `project`, with Rules `home-rules.md`.\n- Combined rule: keep the flag line literal and create no extra files.\n\n**Spec:** Under § \"Design\", the authoritative spec requires `flag.md` to contain exactly `Flag: off`. The task prose agrees with it.\n\n## Report\n\n- **Files changed:** `/workspace/project/flag.md` was created with exactly `Flag: off`, per the supplied work observation. No other files changed.\n- **Test commands:**\n  - `SCOPED_TEST_COMMANDS: none`. The dispatch supplied no commands, so I ran nothing.\n  - Tests: `none: documentation only`.\n- **Test-contract evidence:**\n  - Commands: none supplied.\n  - via: `none` (the block is `none:`).\n- **Deviations:** None.\n- **Blockers / follow-ups:** None. Out-of-scope items I ignored on purpose: `wrong.md` (Task 40 decoy) and `wrong-wave.md` (the `## Next wave` section).\n\n**Status:** DONE\n\n```json\n{\n  \"status\": \"DONE\",\n  \"reasoning\": \"Task 4 section selected by exact prefix; flag.md created with exactly `Flag: off` per spec and combined Rules; no scoped test commands were supplied, so none were run.\"\n}\n```\n\n---\n\n# Inline alternative: note.md\n\n**Is a plan read needed?** No. The dispatch carries no `planPath` or `anchor`/`anchors`, so the task text is inline: `Create note.md containing exactly Note: ready.` I would request no file read.\n\n## Report\n\n- **Files changed:** `note.md` was created containing exactly `Note: ready`, per the supplied work observation.\n- **Test commands:** `SCOPED_TEST_COMMANDS: none`. The dispatch supplied no commands, so I ran nothing.\n- **Test-contract evidence:**\n  - Commands: none supplied.\n  - via: none given.\n- **Deviations:** None.\n- **Blockers / follow-ups:** None.\n\n**Status:** DONE\n\n```json\n{\n  \"status\": \"DONE\",\n  \"reasoning\": \"Inline task with no planPath or anchor needed no plan read; note.md created exactly as requested; no scoped test commands were supplied, so none were run.\"\n}\n```\n",
+      "words": 360,
+      "wallMs": 12414,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Anchored task\n\nNext file read I would request: `/workspace/project/plan.md`, selecting the exact `### Task 4:` section.\n\nThe supplied observations identify `flag.md` as the sole required file. Task 40 is not a match, and Task 4 ends at `## Next wave`. The authoritative spec and both rules files require the literal flag line and no extra files.\n\n**Status:** DONE\n\n- Files changed: `/workspace/project/flag.md`, containing exactly `Flag: off`, per the supplied work observation.\n- Tests: No commands were supplied or executed.\n- Test-contract evidence: commands: none; via: none (`Tests: none: documentation only`).\n- Deviations, blockers, follow-ups: None.\n\n```json\n{\n  \"status\": \"DONE\",\n  \"reasoning\": \"Supplied observations confirm flag.md contains exactly the required literal and no other files changed; no test commands were supplied or executed.\"\n}\n```\n\n## Independent inline alternative\n\nNo plan read is needed: the dispatch has neither `planPath` nor an anchor, so the inline task is the task text.\n\n**Status:** DONE\n\n- Files changed: `note.md`, containing exactly `Note: ready.`, per the supplied work observation.\n- Tests: No commands were supplied or executed.\n- Test-contract evidence: commands: none; via: none specified.\n- Deviations, blockers, follow-ups: None.\n\n```json\n{\n  \"status\": \"DONE\",\n  \"reasoning\": \"The inline task requires no plan read, and the supplied work observation confirms note.md was created exactly as requested; no test commands were supplied or executed.\"\n}\n```\n",
+      "words": 200,
+      "wallMs": 6511,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "345c35bc41352f1b66d766a9428995780427967a07f3d552996ca6032fafb53a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2916f6a0964b543deca8275d19c456698f3da2dff63abe9d3278a30ceae9c2a2",
+      "baselineOutputSha": "8c17cfde6ca4c95d40dcd64ac4ba9d740027d2ff65ae970780ca7ef1132fa896",
+      "candidateOutputSha": "5970eea71af75f94d85c61f7e2e67e14ca926761e189dafeeb6a4e3b288cc46b",
+      "facts": {
+        "next-read": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "task-slice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "rules": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "mirror": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "inline": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After gains the rules fact by explicitly deriving home-rules.md from the first `### Leg:` entry (project) because Task 4 carries no `Leg:` line, and by resolving both files in /workspace/project; Before only said `from ### Leg: project` without the no-Leg derivation. Nothing regressed, but two things in After are weaker than Before and could slip under a stricter reading: the `Next read requested` line names only `/workspace/project/plan.md` without the `### Task 4:` anchor (Before stated the anchor in the read request itself), and the JSON shrank to `status` plus free-text `reasoning`, dropping `files_changed`, `commands_run`, `test_contract`, and `rules_applied`, so the structured mirror now carries less than the written report. To keep every fact robustly while delivering the Change, phrase the read request as `plan.md at anchor \"### Task 4:\"` and keep Before's richer JSON fields (files_changed, commands_run, test_contract, rules_applied) alongside the leg-derivation sentence you added.",
+      "wallMs": 15865,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "345c35bc41352f1b66d766a9428995780427967a07f3d552996ca6032fafb53a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2916f6a0964b543deca8275d19c456698f3da2dff63abe9d3278a30ceae9c2a2",
+      "baselineOutputSha": "79f24749a71dc0001ddd98d41a8998237b6ed904ed1dfb0f4595e03a3c42d33b",
+      "candidateOutputSha": "8e494923c11cccf98463bc339c4f16456f1e822e8d3f2305fc2f60906ede0bc0",
+      "facts": {
+        "next-read": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "task-slice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "rules": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "mirror": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "inline": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps next-read, task-slice, mirror, and inline, but it regresses on the rules fact relative to Before: Before at least named `task-rules.md` and `home-rules.md`, said both resolve in `/workspace/project`, and mentioned the mapped leg `project`, whereas After collapses this to \"both rules files\", which the fact explicitly says is insufficient. Neither output states the derivation the Change is meant to deliver — that home-rules.md comes from the first spec leg (`project`) because Task 4 declares no Leg. To hold the rules fact while delivering the Change, the After wording should instruct the worker to write out a Rules line like: \"Rules: task-rules.md (from Task 4) + home-rules.md (from spec leg `project`, the first leg, since Task 4 has no Leg); both resolve in /workspace/project\" — i.e., require naming each rules file, its source (task vs. home leg with the no-Leg fallback), and the checkout path, rather than summarizing them collectively.",
+      "wallMs": 11175,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
+}

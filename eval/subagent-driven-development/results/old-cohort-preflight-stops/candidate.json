@@ -1,7 +1,7 @@
 {
   "sample": "old-cohort-preflight-stops",
   "arm": "candidate",
-  "skillSha": "66c86a75fa71f6d610eb001c2711e1d828d24ebb2fbf9fc6acba6dd7f972f882",
+  "skillSha": "f8d3769c43d09db984f63d7c5667b89fb4f9444d31b89e8689e2d80b506e7fe2",
   "inputSha": "aa0e62c256d5204a02636f24685ddc69987fb60e8b57fe2209f88bde4b8455ab",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Preflight blocked: pi-cohort is below the required version\n\nThis is a narration of the fixed observations you supplied. I have not run anything.\n\n## Primary observation\n\n**What was observed**\n- The installed gauntlet package is at `/opt/pi/node_modules/pi-gauntlet/package.json`. Its peer floor is `peerDependencies[\"pi-cohort\"] = \">=7.4.3\"`.\n- That floor is well-formed, so the minimum is `7.4.3`.\n- The installed `pi-cohort` package.json reports version `\"7.3.1\"`, which is also well-formed.\n\n**How the guard compares them**\n- Major: 7 = 7.\n- Minor: 3 < 4, so the check fails here.\n\n**Blocking diagnostic** (guard exits 1, the block exits with that status):\n```\npi-cohort >= 7.4.3 required, found 7.3.1\n```\n\n**Next permitted action:** Stop the implement phase before any dispatch and report the diagnostic to the human. The remedy is for the operator to install `pi-cohort` at version 7.4.3 or later. After that, the whole preflight block runs again as a new run.\n\nThis failure blocks the following:\n- the `REPORT_DIR` setup,\n- the implementer chain,\n- `worktree: true` children,\n- spec-reviewer (SR) and code-reviewer (CR) dispatches,\n- any wave commit.\n\nTask indices keep whatever state they already had. The task chain was never reached, so this is not a `gauntlet: question` stop note; it is a plain shell-error report. I will not:\n- assume a newer version,\n- lower or skip the floor,\n- read the peer floor from `/workspace/project` instead of the gauntlet package.\n\n## Independent alternatives\n\nEach of these is a separate observation, not a retry. In every case the guard exits nonzero, the dispatch boundary is \"stop before any worker dispatch,\" and the next action is to report the diagnostic.\n\n1. **`pi-cohort not installed`**\n   - Meaning: either `pi list` failed, or no listed package directory has `name: \"pi-cohort\"`.\n   - Action: report it. The operator must install `pi-cohort` at 7.4.3 or later; I will not assume it is present.\n\n2. **`cannot read peer floor`**\n   - Meaning: the pi-gauntlet `package.json` is unreadable, or its `pi-cohort` peer entry is missing or not in `>=X.Y.Z` form.\n   - Action: report it. I will not substitute a floor, guess one, or take one from the consumer repository.\n\n3. **`cannot parse pi-cohort version unknown`**\n   - Meaning: the installed version string `\"unknown\"` is not `X.Y.Z`.\n   - Action: report it. I will not treat an unparseable version as passing, or as either below or above the floor.\n\nI am stopping here, before any worker dispatch.\n",
-      "words": 368,
-      "wallMs": 15404,
+      "text": "# Preflight result: pi-cohort below the peer floor (blocked)\n\nThese are the supplied observations, not anything I executed:\n\n- **Peer floor:** `peerDependencies[\"pi-cohort\"]` is `\">=7.4.3\"`, read from the installed gauntlet package at `/opt/pi/node_modules/pi-gauntlet/package.json`. It does not come from the consumer repository at `/workspace/project`.\n- **Installed version:** the pi-cohort `package.json` reports `\"7.3.1\"`.\n\nThe guard compares the versions part by part:\n\n- The major versions match (7 = 7).\n- The minor version is lower (3 < 4).\n- The guard therefore fails with `pi-cohort >= 7.4.3 required, found 7.3.1` and exits nonzero.\n\n**Blocking diagnostic:** `pi-cohort >= 7.4.3 required, found 7.3.1`\n\n**Next permitted action:**\n\n1. Stop and report this shell error to the user.\n2. The operator must upgrade pi-cohort to at least 7.4.3.\n3. After the upgrade, rerun the once-per-phase preflight guard in full.\n\n**Boundary:**\n\n- No `subagent` dispatch is allowed: no initial wave chain, implementer, spec reviewer, code reviewer or diagnosis child.\n- I will not use a fallback dispatch shape, an async workaround or an assumed floor.\n- No worker runs, so nothing is integrated or committed.\n\n## Independent alternative observations\n\nEach of these is a separate case, not a retry of the one above.\n\n| Guard output | Meaning | Boundary |\n|---|---|---|\n| `pi-cohort not installed` | `pi list` failed, or no listed package resolved to `pi-cohort` with a readable `package.json`. | Stop before dispatch. Report the error; the operator must install pi-cohort at `>=` the gauntlet peer floor, then rerun the preflight. Do not assume an installation and dispatch nothing. |\n| `cannot read peer floor` | The pi-gauntlet `package.json` or its `peerDependencies[\"pi-cohort\"]` was unreadable or not in `>=X.Y.Z` form. | Stop before dispatch. Report the error. Do not substitute a floor from the consumer repository, a remembered value or `7.4.3`. The installed gauntlet package must expose a readable floor before the preflight is rerun. Dispatch nothing. |\n| `cannot parse pi-cohort version unknown` | The installed pi-cohort version `\"unknown\"` is not `X.Y.Z`, so no comparison is possible. | Stop before dispatch. Report the error. Do not treat the version as passing or estimate it. The operator must fix or reinstall pi-cohort so it reports a semver version at or above the floor, then rerun the preflight. Dispatch nothing. |\n\nIn every case, the workflow stops here, before any worker dispatch.\n",
+      "words": 352,
+      "wallMs": 14816,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The once-per-phase preflight in `/workspace/project` is blocked. The supplied observations are independent alternatives, not successive retries:\n\n| Observation | Blocking diagnostic | Next permitted action |\n|---|---|---|\n| Installed pi-gauntlet at `/opt/pi/node_modules/pi-gauntlet/package.json` requires `pi-cohort >=7.4.3`; installed cohort is `7.3.1` | `pi-cohort >= 7.4.3 required, found 7.3.1` | Stop and report. Have the installation updated to meet the declared floor, then rerun the preflight. |\n| Guard reports cohort absent | `pi-cohort not installed` | Stop and report. Restore/install pi-cohort, then rerun the preflight. |\n| Guard cannot read the peer floor | `cannot read peer floor` | Stop and report. Repair access to or validity of the installed gauntlet package metadata, then rerun the preflight. Do not infer a floor or use consumer-repository metadata. |\n| Installed cohort version is `\"unknown\"` | `cannot parse pi-cohort version unknown` | Stop and report. Repair the installation/version metadata so the guard can validate it, then rerun the preflight. |\n\n**Dispatch boundary in every alternative:** no implementer or other worker dispatch is permitted. No successful installation or passing preflight is assumed.\n",
-      "words": 155,
-      "wallMs": 5568,
+      "text": "Preflight is blocked in `/workspace/project` before any implementer dispatch. The supplied observations are independent alternatives, not successive retries.\n\n| Observation | Blocking diagnostic | Next permitted action |\n|---|---|---|\n| `/opt/pi/node_modules/pi-gauntlet/package.json` requires `pi-cohort >=7.4.3`; installed `pi-cohort` is `7.3.1` | `pi-cohort >= 7.4.3 required, found 7.3.1` | Stop. Correct the installed dependency to satisfy the declared minimum, then rerun the preflight guard before dispatching workers. |\n| Guard reports the package missing | `pi-cohort not installed` | Stop. Resolve the missing installation, then rerun preflight. |\n| Peer floor is unreadable | `cannot read peer floor` | Stop. Resolve access to or validity of the installed gauntlet package’s peer-dependency metadata, then rerun preflight. Do not assume a minimum version. |\n| Installed version is `\"unknown\"` | `cannot parse pi-cohort version unknown` | Stop. Resolve the installed cohort package’s version metadata or installation, then rerun preflight. Do not infer compatibility. |\n\n**Dispatch boundary:** No implementer or review dispatch is permitted in any of these cases. No successful installation, fallback, or passing preflight is assumed.\n",
+      "words": 150,
+      "wallMs": 5645,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "429cfae8c727b764a5c21b29c9c8233b8f59dfdf7e93cbe4c91696626d0ebac4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0fec1abdda8012b33843cfb09016d5d4ca3b7e39837c7b3c2b0fdf8c24bab7d3",
-      "baselineOutputSha": "240637f18ba5b4f312d4a557a3f07e3fa4646c5f8735e4ac332a3b9c3345d0f3",
-      "candidateOutputSha": "2f9b888c1e60b866d9df374bfd2e6eb9fc1c100cb7923e3c3a7fab28c83331ac",
+      "intentSha": "fec13289b464723e7df14ac92ac32ec4e4a6a91ee41a6bfc42ec8e28768c223c",
+      "baselineOutputSha": "7033809d8007b5fb54a7701327c2b045971fddf81cb60459c406ae7e3a2241d2",
+      "candidateOutputSha": "ae954ebd218ce73b2dbc9db15acf86a5ff20152a2f7c0edb8a094b7ee6fdddfd",
       "facts": {
         "declared-floor": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the floor is derived from the supplied pi-gauntlet package.json (>=7.4.3), the exact diagnostic `pi-cohort >= 7.4.3 required, found 7.3.1` is emitted, all three independent guard errors (`pi-cohort not installed`, `cannot read peer floor`, `cannot parse pi-cohort version unknown`) are preserved with a stop-before-dispatch boundary, and no implementer, chain, or older-runtime fallback is dispatched. After also correctly notes this is a plain shell-error report rather than a `gauntlet: question` stop note, which is consistent with the Change's prefix rule applying only to implementation stop notes. Two small wording tightenings would make After more robust: in alternative 1, restore Before's third cause (the pi-cohort `package.json` exists but could not be read) so the `not installed` diagnostic's meaning is complete, and in the primary section keep an explicit line stating that no task index moves to `failed` or `complete` (After says 'keep whatever state they already had', which is adequate but less direct about the D1 in_progress retention the Change makes explicit).",
-      "wallMs": 8188,
+      "feedback": "Nothing moved. Both outputs derive the 7.4.3 floor from the installed pi-gauntlet package.json rather than a hardcoded value and emit the exact `pi-cohort >= 7.4.3 required, found 7.3.1` diagnostic; both preserve all three independent alternative guard errors (`pi-cohort not installed`, `cannot read peer floor`, `cannot parse pi-cohort version unknown`) as pre-dispatch stops with no invented recovery; both refuse any implementer/chain/fallback dispatch and hand the error to the operator. After even strengthens the intended Change by stating the floor is not read from the consumer repo and by covering the `pi list`-based name resolution in the not-installed row. No wording adjustment is needed to keep these facts; if anything, After could keep Before's explicit 'no REPORT_DIR / no snapshots / no wave commit' enumeration so the dispatch boundary remains as concretely itemized as before.",
+      "wallMs": 7650,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "429cfae8c727b764a5c21b29c9c8233b8f59dfdf7e93cbe4c91696626d0ebac4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0fec1abdda8012b33843cfb09016d5d4ca3b7e39837c7b3c2b0fdf8c24bab7d3",
-      "baselineOutputSha": "69d028bf4d081890f701faddc362422ab984232f92c4c00a8903f8ca4aee8b55",
-      "candidateOutputSha": "a0b83dc48e6c8838bf6475100b964dbfa4c3b3eeedaf12c9804f0c602b062fa7",
+      "intentSha": "fec13289b464723e7df14ac92ac32ec4e4a6a91ee41a6bfc42ec8e28768c223c",
+      "baselineOutputSha": "1d5ba47bacfd553158accde0d3240d266ed0a408a156f7f8c838f9350e8bbf49",
+      "candidateOutputSha": "5b85bacf1e8d5ce7946d2512822ad89b0a9ee52f639ac4dd6ae15cac1ef46f6a",
       "facts": {
         "declared-floor": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: it emits the package-derived `pi-cohort >= 7.4.3 required, found 7.3.1` diagnostic (now also naming the pi-gauntlet package.json path, which strengthens the package-derived provenance), preserves all three independent guard alternatives with a stop before dispatch, and states a dispatch boundary that bars implementer and any other worker dispatch while assuming no successful installation or passing preflight. The only mild loosening is the boundary sentence: Before explicitly named 'implementer chain, worker, or review dispatch' and 'No installation, repair, or successful rerun is claimed', whereas After collapses this to 'implementer or other worker dispatch' and 'no successful installation or passing preflight is assumed'. A careful reader still reads this as excluding chain and older-runtime tasks fallbacks, but to make no-fallback unambiguous under the new 7.4.3 floor migration, keep the Before enumeration and add the tasks-fallback exclusion explicitly, e.g. 'no implementer, chain, review, or older-runtime tasks fallback dispatch is permitted; no installation, repair, or successful rerun is claimed; the blocking preflight error is reported for human resolution.' Retaining the quoted `\"unknown\"` version and the explicit 'do not infer a floor' guidance is good and should stay.",
-      "wallMs": 10501,
+      "feedback": "No fact moved between Before and After. Both outputs emit the exact package-derived diagnostic `pi-cohort >= 7.4.3 required, found 7.3.1` from the supplied `/opt/pi/node_modules/pi-gauntlet/package.json` peer floor rather than a hardcoded threshold; both preserve all three independent alternative diagnostics (`pi-cohort not installed`, `cannot read peer floor`, `cannot parse pi-cohort version unknown`) as separate stops before dispatch; and both refuse any implementer, chain, or older-runtime tasks fallback while leaving resolution to the human. After actually tightens the no-fallback story slightly with the explicit **Dispatch boundary** line covering implementer and review dispatch and the 'no successful installation, fallback, or passing preflight is assumed' sentence, which is a good addition. One minor softening in After: the `cannot read peer floor` and `unknown` rows dropped Before's explicit 'or dispatch a worker' clauses in favor of the consolidated boundary line; that is fine since the boundary line covers it, but keeping the per-row 'No worker dispatch' phrasing alongside the summary would make each row self-contained for a reader scanning a single case. Otherwise the After wording delivers the Change's old-cohort-preflight-stops intent without disturbing any Before fact.",
+      "wallMs": 10054,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6ce21879545a9d4b0962c2c753b726577b22b1b4"
+  "repoSha": "0244a5744c6f81f392b76a9c73a3b57c731970b3"
 }
