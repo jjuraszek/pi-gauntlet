@@ -6,7 +6,7 @@ wave 1 review 1 tree /tmp/review4
 funded round 1 of 2 for task 4
 No terminal funded-worker or funded-review result survives in A. The funded line was printed before dispatch.
 
-In B those dynamic lines are absent.
+In B those dynamic lines are absent. A current delegated grant read decoded two funded rounds for task 4, but no spending or terminal repair state survives. The active wave is known to be wave 1; its base, worker/review results and review-tree lines are missing.
 
 In C the same initial lines survive, plus these terminal observations from the primary's transcript:
 - Funded round 1 implementer returned structured status DONE, report /tmp/reports/funded1.md, in-place in /workspace/project. The scoped gate passed and the repaired deliverables were staged there.

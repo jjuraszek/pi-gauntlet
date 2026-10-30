@@ -1,4 +1,4 @@
-for: 867398469af42fc08121b5c131495374d55bf259fd57e5dc6e6526e7ef82863f
+for: 213d5858e914f6c15846bd463f80332b56bf3ad4a93216d3531a356ae8c7389f
 
 ## Change
 Continue authorized waves execution failures without changing review funding. Include When a Subagent Fails in the first slice. Take named in-task decisions within remaining attempts, stop on repeated evidence, and spend one isolated configured-model execution escalation after two failed attempts. Recover that exact task/site from the transcript fail-closed; grants and retry never re-arm it. Treat implementer-evidenced drafted-row text corrections as granted amendments, not redraws; preserve ticket/reviewer-only/add-remove/problem/component redraws. Every stop note ends in Recommendation. Preserve all review funding, convergence and lifecycle facts. These are intended movements, not observed model results; parent verification runs the full target and generates reports.
@@ -51,7 +51,7 @@ Cover coordinated-flow checkout-local task dispatch, Leg/Rules, per-repo baselin
 - integrated-wave-repair/gates-preserved: fails -> holds - Acceptance precedes a single wave commit folding the repair worker's moved HEAD before completion.
 - test-gate-repair/in-place-repair: fails -> holds - A failed test gate dispatches one worker in the dirty integrated checkout instead of a nested wave from stale HEAD.
 - test-gate-repair/scoped-rerun: fails -> holds - The repaired integrated wave reruns the whole scoped union before review.
-- test-gate-repair/affected-task-sr: fails -> holds - A behavior repair invalidates the affected task's earlier SR verdict and requires integrated-checkout SR.
+- test-gate-repair/affected-task-sr: fails -> holds - A behavior repair invalidates the affected task's earlier SR verdict and requires fresh integrated-checkout SR before initial CR, carrying planPath, the ### Task 1: anchor and the authoritative absolute spec path. The child loads its Spec anchors and Tests; the primary neither repeats spec line ranges or pasted task text nor reads a report.
 - test-gate-repair/sr-before-initial-cr: fails -> holds - Initial CR must await affected-task SR after the repaired gate passes.
 - singleton-apply-failure/no-empty-wave: fails -> holds - Zero integrated patches skip tests, CR and commit instead of reviewing an empty wave.
 - singleton-apply-failure/clean-base-retry: fails -> holds - The rejected singleton patch retries from the unchanged clean base, not an integrated dirty checkout.
