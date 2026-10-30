@@ -1,5 +1,7 @@
 # The implement orchestrator holds a wave manifest, never the plan
 
+> **Superseded by:** [doc/specs/2026-10-30-slim-subagent-dispatch.md](./2026-10-30-slim-subagent-dispatch.md) - Design section 2 "The orchestrator's state during implement": the delegated report-read clause and its carrier only; the plan/spec/source no-read boundary and the manifest contract stay live
+
 **Goal:** During the implement phase the primary agent coordinates from a compact manifest that `plan_check` derives from the plan on every pass; implementers and reviewers read their own task from the plan file and return a structured verdict with the full report filed away, so the plan, the spec, task bodies, review reports, and worktree source files never enter the primary's context.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves
