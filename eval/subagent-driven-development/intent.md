@@ -1,4 +1,4 @@
-for: 66c86a75fa71f6d610eb001c2711e1d828d24ebb2fbf9fc6acba6dd7f972f882
+for: 867398469af42fc08121b5c131495374d55bf259fd57e5dc6e6526e7ef82863f
 
 ## Change
 Continue authorized waves execution failures without changing review funding. Include When a Subagent Fails in the first slice. Take named in-task decisions within remaining attempts, stop on repeated evidence, and spend one isolated configured-model execution escalation after two failed attempts. Recover that exact task/site from the transcript fail-closed; grants and retry never re-arm it. Treat implementer-evidenced drafted-row text corrections as granted amendments, not redraws; preserve ticket/reviewer-only/add-remove/problem/component redraws. Every stop note ends in Recommendation. Preserve all review funding, convergence and lifecycle facts. These are intended movements, not observed model results; parent verification runs the full target and generates reports.
@@ -37,8 +37,8 @@ Cover coordinated-flow checkout-local task dispatch, Leg/Rules, per-repo baselin
 - lookup-second-location-hits/ordered-lookups: fails -> holds - Record earlier misses before the first hit.
 - lookup-second-location-hits/redispatch-found: fails -> holds - Carry the found artifact location into the implementer task.
 - lookup-second-location-hits/no-stop: fails -> holds - A found fact needs re-dispatch rather than a human stop.
-- chain-wave-dispatch/single-chain: fails -> holds - The supported runtime combines initial implementation and spec review in one chain.
-- chain-wave-dispatch/spec-gap-completes: fails -> holds - The chain ends at spec review; NEEDS_REWORK completes it without an SR stop condition.
+- chain-wave-dispatch/initial-chain: fails -> holds - The supported runtime combines initial implementation and spec review in one chain.
+- chain-wave-dispatch/initial-chain: fails -> holds - The chain ends at spec review; NEEDS_REWORK completes it without an SR stop condition.
 - chain-stop-blocked/status-routing: fails -> holds - Apply D1's identity-matched session-artifact recovery and unavailable-artifact fallback, and D3's independent failure diagnosis alongside exit-0 stop statuses.
 - chain-stop-blocked/never-rechain: fails -> holds - Apply D3's one-chain-per-wave boundary and retain successful siblings through one-step recovery dispatches and wave commit.
 - singleton-apply-failure/completion-withheld: fails -> holds - D1 keeps the failed apply task in_progress until its own wave commits; exhausted retries do not authorize a terminal tracker write.

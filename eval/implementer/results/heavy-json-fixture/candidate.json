@@ -1,8 +1,8 @@
 {
   "sample": "heavy-json-fixture",
   "arm": "candidate",
-  "skillSha": "26c4e39b729dc51b46de7be681dc0169db8ab54551ded3b9be222d6d3d9e2f3a",
-  "inputSha": "2564f21345c7c2a99744d3e58b86a86b0fe780821ea23be0d7ffdaac5481ff51",
+  "skillSha": "7db4b1eebec6f602d87a36fa2fc68b1e4cc2f4f74914493c42eec0e7c53eb771",
+  "inputSha": "4df943d15b870e41bba74459a4ef795d775bf1abe2670d5b99f8d44b3157ab1f",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```python\n# ledger/importer_test.py — add after test_rejects_invalid_posted_on\n\n\ndef test_rejects_future_posted_on():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-02\"}\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_today():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-01\"}\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == TODAY\n```\n",
-      "words": 38,
-      "wallMs": 7359,
+      "text": "```python\ndef test_rejects_future_posted_on():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-02\"}\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_today():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-01\"}\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == TODAY\n```\n",
+      "words": 34,
+      "wallMs": 7188,
       "mechanical": {
         "m1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "```python\ndef test_rejects_future_posted_on():\n    record = {\"account\": \"test\", \"amount\": \"1.00\", \"posted_on\": \"2026-03-02\"}\n    with pytest.raises(ImportRejected, match=\"^posted_on is in the future$\"):\n        import_record(record, TODAY)\n```\n",
-      "words": 19,
-      "wallMs": 5989,
+      "text": "def test_rejects_future_posted_on():\n    record = {\n        \"account\": \"4010\",\n        \"amount\": \"1.00\",\n        \"posted_on\": \"2026-03-02\",\n    }\n    with pytest.raises(ImportRejected, match=r\"^posted_on is in the future$\"):\n        import_record(record, TODAY)\n\n\n@pytest.mark.parametrize(\n    \"posted_on\",\n    [\n        pytest.param(\"2026-02-28\", id=\"before-today\"),\n        pytest.param(\"2026-03-01\", id=\"today\"),\n    ],\n)\ndef test_imports_nonfuture_posted_on(posted_on):\n    record = {\n        \"account\": \"4010\",\n        \"amount\": \"1.00\",\n        \"posted_on\": posted_on,\n    }\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == date.fromisoformat(posted_on)\n",
+      "words": 39,
+      "wallMs": 6051,
       "mechanical": {
         "m1": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "eed2c1b7a2b16e4dcfd9d2fc64141f75fd370c088e2db36003f534ea2e56af89",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b0bec12c2127a9efc2ff54345a880eb6491ff3565e9e96a6fdf79d08b68d21c0",
+      "intentSha": "2916f6a0964b543deca8275d19c456698f3da2dff63abe9d3278a30ceae9c2a2",
       "baselineOutputSha": "adcf1fe789c9cbd114ebc0a89ee2692904547dd93760f9f305c2b0e7b05864a7",
-      "candidateOutputSha": "9e993ee9a769ab134d7e3f4dbc0c115231c7a72cee1c232ca8436a69aedf84ae",
+      "candidateOutputSha": "adcf1fe789c9cbd114ebc0a89ee2692904547dd93760f9f305c2b0e7b05864a7",
       "facts": {
         "f1": {
           "before": "holds",
@@ -63,16 +63,16 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs are identical in test code: the new rejection test builds a hand-written dict literal with only account, amount, and posted_on (no fixture load), asserts pytest.raises(ImportRejected, match=\"posted_on is in the future\") against a 2026-03-02 record, and introduces no json.load of fixtures/ledger_400.json, so f1–f3 hold in both. The only difference in After is a leading comment line indicating the file and insertion point (\"add after test_rejects_invalid_posted_on\"), which does not alter any fact; it remains a test-code-only reply consistent with the heavy-json-fixture sample's expectations and the Change's intent of preserving test-economy facts. No wording adjustment is needed to keep these facts; if anything, the placement comment helpfully honors the context's instruction to add the regression alongside the existing rejection tests without adding narration or status reports.",
-      "wallMs": 7479,
+      "feedback": "Before and After are byte-for-byte identical, so nothing moved: both build the future-date record as a hand-written dict literal carrying only account, amount, and posted_on (memo falls back to the default), both assert ImportRejected with the exact message via pytest.raises(..., match=...), and neither adds a json.load of fixtures/ledger_400.json. The Change paragraph (anchored task reads, BLOCKED on unreadable anchors, structured status mirroring) and the Expected-to-move list concern a different replay scenario and are not exercised by this case, which is a legacy case that keeps its existing response format - consistent with the stated intent that only the two new cases route through the new observation/report path. No wording adjustment is needed to preserve f1-f3 here; the thing to verify is that the new anchored-task wording does not later leak fixture-loading or report-format instructions into legacy cases like this one, since the one regression risk for f1/f3 would be guidance nudging the worker to copy the existing fixture-loading rejection tests verbatim.",
+      "wallMs": 8485,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "eed2c1b7a2b16e4dcfd9d2fc64141f75fd370c088e2db36003f534ea2e56af89",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b0bec12c2127a9efc2ff54345a880eb6491ff3565e9e96a6fdf79d08b68d21c0",
-      "baselineOutputSha": "cc03606e0596372318f2d9ecdc2083df56f20c68b52f59074853778bc4c51b0c",
-      "candidateOutputSha": "317d8ca2009666cc1f92e3531be23c5f7f1ccdab0d9bb447e3381afbba390950",
+      "intentSha": "2916f6a0964b543deca8275d19c456698f3da2dff63abe9d3278a30ceae9c2a2",
+      "baselineOutputSha": "6f90ef4f51bcbe51a43b951b4805a4c22d8ce57c4b4973d017fb52edab8354a6",
+      "candidateOutputSha": "de9e30864c7f9ddc211d119054cef972211105e4ce484f0ed94e04205cc88728",
       "facts": {
         "f1": {
           "before": "holds",
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every fact Before held: the new test still hand-builds a single dict literal with only account, amount, and posted_on (no fixture load, no json.load), still asserts ImportRejected with an exact match on the message for a posted_on one day after TODAY, and adds no per-test fixture read. The only differences are cosmetic (a one-line dict, a plain string instead of a raw string for the regex, a `\"test\"` account value, and a fenced code block around the reply), none of which affect the facts. No wording adjustment is needed to keep these facts; if you want to tighten further, the Change's test-code-only requirement for this sample is already respected since the fence wraps only code and no narration.",
-      "wallMs": 5499,
+      "feedback": "After keeps every fact Before kept: the future-date regression is still a hand-built dict literal with only account/amount/posted_on, still asserts `pytest.raises(ImportRejected, match=...)`, and still adds no `json.load` of the fixture. Nothing moved. Two things to watch in the After wording, though: it dropped the fenced code block that Before had (the task asked for file edits, so an unfenced blob is harder to apply cleanly), and it appended a second parametrized `test_imports_nonfuture_posted_on` that the task context did not ask for (the context says to add the future-date regression alongside the rejection tests, singular). That extra test only asserts an Entry is constructed, so if a reader took it as 'the new test' it would read as a near-miss on f2; it also relies on `date` already being imported, which happens to be true here. To deliver the Change without that ambiguity, keep the single rejection test as the reply's new test, present it inside a fenced block, and if boundary coverage of today/before-today is wanted, state explicitly that it is an optional additional test rather than letting it sit unlabeled next to the required regression.",
+      "wallMs": 12996,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
 }

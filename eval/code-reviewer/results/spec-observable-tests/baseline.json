@@ -1,8 +1,8 @@
 {
   "sample": "spec-observable-tests",
   "arm": "baseline",
-  "skillSha": "59784facd665ba809bf0c51e9deebcf8df21e74ee5d874a5e42d27e7233d24e1",
-  "inputSha": "49a5705e836b862754f7b688b6cdadda3757a09b487b2e913cc09ba51afa3453",
+  "skillSha": "5f1b04becf6225f9f87e7f57b45c14bb84e70e3f265f024b2d80ea328b3b92dd",
+  "inputSha": "f9dea1788dd22948f12981c1ef297d4036b11265aa415a471f26fc5b85f48252",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Verdict: FIX_FIRST\nReasoning: `test_label_keeps_mixed_case` proves a behavior that neither the spec's `## Acceptance criteria` nor its `## Design` section names, which is a Moderate finding.\nConfidence: medium (I read the full inlined diff; no commands were supplied, so I ran no tests)\n\nFindings:\n  - [Moderate] F1: [delete] test_labels.py:14 — `test_label_keeps_mixed_case` proves no observable that the supplied spec names, so it costs a run without proving any approved commitment.\n        - I searched `## Acceptance criteria` (AC1: outer whitespace stripped) and `## Design` (Keep: empty label remains empty). Neither commits to mixed-case preservation.\n        - Only the DESCRIPTION summary mentions mixed case, so I treat it as uncommitted.\n        - Unlike the other two tests, this test has no justification comment citing an approved row or clause.\n        - It is not the single smoke test or an `assert`-based self-check, so no exemption applies.\n        Fix: Delete `test_label_keeps_mixed_case`. If mixed-case preservation is a real requirement, send it through the scope decision so it is added to the spec as an acceptance row or Design clause. Then restore the test with a comment citing that row.\n        touched-files: test_labels.py\n        touched-resources: none\n\nNotes (no findings):\n- Correctness: `name.strip()` meets AC1 and the Design Keep rule (`\"\".strip() == \"\"`).\n- `str.strip()` also trims tabs and newlines. That is consistent with \"outer whitespace\" in AC1.\n- The spec does not specify behavior for non-`str` input such as `None`, so I raise no finding on it.\n- Tests: `test_label_trims_outer_space` proves AC1 and `test_label_keeps_empty` proves the Design Keep rule. Each cites its commitment, and they are not equivalent cases, so they do not need to become a table. Both use minimal input.\n- Security, error handling, performance: none apply to a one-line pure function.\n\nComplexity: net -4 lines\n\nVerification: Not run. `SCOPED_TEST_COMMANDS` was `none`, so the orchestrator gate owns test execution.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
-      "words": 286,
-      "wallMs": 13686,
+      "text": "Verdict: FIX_FIRST\nReasoning: `test_label_keeps_mixed_case` proves an observable that neither the approved Acceptance criteria nor the Design section names, which is a Moderate economy finding.\nConfidence: high (the whole diff is two trivial files, all read. No commands were supplied, so nothing was executed.)\n\nFindings:\n  - [Moderate] F1: [delete] test_labels.py:14 — `test_label_keeps_mixed_case` asserts mixed-case preservation, but the spec does not commit to it.\n        I searched `## Acceptance criteria` (AC1: outer whitespace stripped) and `## Design` (Keep: empty label remains empty). Neither names case handling. The behavior appears only in the DESCRIPTION summary, which is uncommitted. The test also carries no justification citing an approved row or clause, unlike the other two tests.\n        Fix: Delete `test_label_keeps_mixed_case`. If mixed-case preservation is a required commitment, route it through the scope decision so it becomes an approved acceptance row or Design `Keep:` clause. Then restore the test with a comment citing that clause.\n        touched-files: test_labels.py\n        touched-resources: none\n\nNotes on code read (no finding):\n- labels.py:1-2: `name.strip()` satisfies AC1 (outer whitespace stripped, inner whitespace untouched) and Design Keep (`\"\".strip() == \"\"`). Non-`str` input such as `None` would raise `AttributeError`, but the spec defines no contract for it, so this is not a finding.\n- test_labels.py:4-6 proves AC1 and cites it.\n- test_labels.py:9-11 proves the Design Keep clause and cites it.\n- Both tests are minimal one-assertion tests with no oversized input or shared expensive setup. They prove distinct commitments, so they are not redundant.\n\nVerification: none run. The dispatch supplied `SCOPED_TEST_COMMANDS: none`, and the orchestrator gate owns test execution.\n\nComplexity: net -4 lines\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 252,
+      "wallMs": 15307,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Verdict: FIX_FIRST\nReasoning: The mixed-case test asserts summary-only behavior not committed in the approved Acceptance criteria or Design.\nConfidence: high\n\nFindings:\n  - [Moderate] F1: test_labels.py:14 — delete: `test_label_keeps_mixed_case` proves neither outer-whitespace removal (Acceptance criteria AC1) nor empty-label preservation (Design Keep); mixed-case preservation appears only in the description, not the approved scope.\n        Fix: Delete this test. If mixed-case preservation needs dedicated coverage, route that behavior through the scope decision and obtain an approved commitment first.\n        touched-files: test_labels.py\n        touched-resources: none\n\nComplexity: net -4 lines\n\nVerification: No commands run; SCOPED_TEST_COMMANDS is `none`. Review was limited to the supplied diff.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
-      "words": 99,
-      "wallMs": 11645,
+      "text": "Verdict: FIX_FIRST\nReasoning: The mixed-case test asserts summary-only behavior not committed by the approved Acceptance criteria or Design.\nConfidence: high\n\nFindings:\n  - [Moderate] F1: [delete:] test_labels.py:14 — `test_label_keeps_mixed_case` proves no observable named in the approved `## Acceptance criteria` (AC1: strip outer whitespace) or `## Design` (Keep: empty remains empty); mixed-case preservation appears only in the implementation description.\n        Fix: Delete this test, or route mixed-case preservation through the scope decision and obtain an approved acceptance or Design commitment before retaining it.\n        touched-files: test_labels.py\n        touched-resources: none\n\nVerification: No commands run; `SCOPED_TEST_COMMANDS: none`. Review was limited to the supplied diff and spec excerpt.\n\nComplexity: net -4 lines\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 105,
+      "wallMs": 5822,
       "mechanical": {}
     }
   },
-  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
 }

@@ -1,8 +1,8 @@
 {
   "sample": "spec-observable-tests",
   "arm": "candidate",
-  "skillSha": "ded3c76d317f3332b22cf8d18b7e51d12813d2d3da897b69d81d6a06b95d2f07",
-  "inputSha": "49a5705e836b862754f7b688b6cdadda3757a09b487b2e913cc09ba51afa3453",
+  "skillSha": "5d62497a3e7b6bce814ad9ee058c6edcfd584923be1095cb0aa53e25dad8aaab",
+  "inputSha": "f9dea1788dd22948f12981c1ef297d4036b11265aa415a471f26fc5b85f48252",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Verdict: FIX_FIRST\nReasoning: `test_label_keeps_mixed_case` proves behavior that neither the spec's Acceptance criteria nor its Design section names, so it is a Moderate `delete:` finding.\nConfidence: medium (the diff is small and fully read; no tests were run because the dispatch supplied none)\n\nFindings:\n  - [Moderate] F1: [delete] test_labels.py:14 — `test_label_keeps_mixed_case` asserts case preservation, but neither spec section names it.\n        - Searched `## Acceptance criteria`: AC1 covers outer-whitespace stripping only.\n        - Searched `## Design`: `Keep:` covers the empty label only.\n        - The test carries no justification citing an approved row or clause.\n        - Mixed case appears only in the DESCRIPTION summary, which counts as uncommitted.\n        - It adds no coverage. `\" label \"` already exercises `strip()` returning the content unchanged apart from outer whitespace.\n        Fix: Delete `test_label_keeps_mixed_case`. If case preservation is meant to be a commitment, take it through the scope decision so it becomes an approved AC or Design clause, then keep the test with a comment citing that clause.\n        touched-files: test_labels.py\n        touched-resources: none\n\nNotes (no finding):\n- `labels.py`: `name.strip()` satisfies AC1 and the Design `Keep:` (`\"\".strip() == \"\"`). A whitespace-only label becomes `\"\"`, which is consistent with AC1.\n- `None` or non-str input raises `AttributeError`. The spec makes no commitment for that input, so this is not flagged.\n- `test_label_trims_outer_space` cites AC1, and `test_label_keeps_empty` cites the Design `Keep:` clause. Both are exempt and economical.\n- Plan deviation: the DESCRIPTION's \"preserving mixed case\" claim goes beyond the spec. The code adds no case-specific logic, so the only deviation is the uncommitted test in F1.\n\nVerification: none run. The dispatch supplied `SCOPED_TEST_COMMANDS: none`, so the orchestrator gate owns execution.\n\nComplexity: net -4 lines\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
-      "words": 259,
-      "wallMs": 11864,
+      "text": "Verdict: FIX_FIRST\nReasoning: `test_label_keeps_mixed_case` proves case preservation, but neither the approved `## Acceptance criteria` nor `## Design` names that behavior, so it is a Moderate economy finding.\nConfidence: high (two-line implementation and three tests fully read; nothing executed)\n\nFindings:\n  - [Moderate] F1: [delete] test_labels.py:14 — `test_label_keeps_mixed_case` proves case preservation, which neither the approved spec's `## Acceptance criteria` (AC1 covers only stripping outer whitespace) nor its `## Design` (`Keep:` covers only empty labels) names. The test has no justification citing an approved row. \"Preserving mixed case\" appears only in the summary DESCRIPTION, which does not commit the spec to it. The test therefore pins behavior the spec never approved.\n        Fix: Delete `test_label_keeps_mixed_case` (lines 13–15 plus the preceding blank lines). If case preservation is a real requirement, send it through the scope decision as a new acceptance row first, then restore the test with a justification citing that row.\n        touched-files: test_labels.py\n        touched-resources: none\n\nRequirements check:\n- AC1 (strip outer whitespace): met by `name.strip()` and proven by `test_label_trims_outer_space`, which cites AC1.\n- Design `Keep:` (empty label stays empty): met, because `\"\".strip() == \"\"`. It is proven by `test_label_keeps_empty`, which cites the Keep clause.\n- Plan deviations: none in `labels.py`. The only out-of-spec item is the test in F1.\n- Correctness: `str.strip()` removes leading and trailing whitespace only, so interior characters and case are untouched. A non-`str` input such as `None` raises `AttributeError`. The spec makes no claim about that, so it is not a finding.\n\nComplexity: net -4 lines\nParallel-safe: F1 disjoint\nBehaviour-change: no\n\nVerification: No commands were run. SCOPED_TEST_COMMANDS was `none`, so the orchestrator gate owns test execution.\n",
+      "words": 254,
+      "wallMs": 15297,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Verdict: FIX_FIRST\nReasoning: The implementation satisfies the approved contract, but the mixed-case test asserts behavior committed only in the description, not in the approved spec.\nConfidence: high\n\nFindings:\n  - [Moderate] F1: [delete:] test_labels.py:14 — `test_label_keeps_mixed_case` proves no observable named in the supplied `## Acceptance criteria` or `## Design`; mixed-case preservation appears only in the description and is therefore uncommitted scope.\n        Fix: Delete this test. If mixed-case preservation is intended as an additional contract, route it through the scope decision before retaining its test.\n        touched-files: test_labels.py\n        touched-resources: none\n\nVerification:\n  No commands run; SCOPED_TEST_COMMANDS was `none`, and the dispatch prohibited git and test execution. Review was limited to the supplied diff.\n\nComplexity: net -4 lines\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
-      "words": 114,
-      "wallMs": 7192,
+      "text": "Verdict: FIX_FIRST\nReasoning: The mixed-case test asserts behavior not committed by the approved Acceptance criteria or Design.\nConfidence: high\n\nFindings:\n  - [Moderate] F1: [delete:] test_labels.py:14 — `test_label_keeps_mixed_case` proves neither AC1’s whitespace stripping nor Design’s empty-label preservation; mixed-case preservation appears only in the implementation summary, not the approved commitments.\n        Fix: Delete this test, or obtain approval for mixed-case preservation through the scope decision before retaining it.\n        touched-files: test_labels.py\n        touched-resources: none\n\nVerification:\n  No commands run; `SCOPED_TEST_COMMANDS: none`. Review was limited to the supplied diff and approved spec excerpt.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 89,
+      "wallMs": 8133,
       "mechanical": {}
     }
   },
@@ -34,57 +34,57 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6a586af89a0ec16c0b282a12cd3d8d03d275cadcefd828e41990f2fc9a025c20",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0b6e0c7c0810d1f38ba04e2ca6db8e9f52a84a6971153d0a6c8f7834af8d274b",
-      "baselineOutputSha": "d70a261e26ccb3db1592f94c72dec6e0492100e9ce239f76416f360a7887bcff",
-      "candidateOutputSha": "9c4046da1ab9e42986bd01a627432fe597d03b209eb533541a68f0de33926606",
+      "intentSha": "cdf68547860918db6b54a03aa4f213938500b45086e4bfb4d77c0668fa7e34c4",
+      "baselineOutputSha": "fd82d86d26afae2b9511e2fbba59359a25d9516ad64173e8961e2473ca9afab4",
+      "candidateOutputSha": "1fd7fd428e31958ab8200cfac200af5656ab4903828c8ebf0a933f92909a79ed",
       "facts": {
         "uncommitted-delete": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "acceptance-kept": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "preservation-kept": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved: both Before and After report test_label_keeps_mixed_case as a [Moderate] [delete] finding, state that mixed case appears only in the DESCRIPTION summary and is therefore uncommitted, and explicitly cite having searched `## Acceptance criteria` (AC1) and `## Design` (Keep:), while leaving test_label_trims_outer_space and test_label_keeps_empty untouched because each cites its commitment. Note that the Expected-to-move list predicted fails->holds for these three facts, but Before already satisfied them, so the After wording preserves rather than creates this behavior. One caution for the After wording: it adds a fifth bullet ('It adds no coverage. `\" label \"` already exercises `strip()`...') that frames the delete partly as a duplicate-coverage economy argument; that is fine here, but if the persona's Tests check list ever ranks duplicate tests as Minor, this bullet could tempt the reviewer to downgrade the spec-observable finding to Minor. Keeping the spec-observable rule stated as 'unmatched spec observable is Moderate regardless of overlap with other tests' would guard uncommitted-delete across other cases while still delivering the Change.",
-      "wallMs": 10094,
+      "feedback": "No fact moved. Both outputs raise a single Moderate delete: finding on test_label_keeps_mixed_case, state that case preservation appears only in DESCRIPTION rather than an approved commitment, and name the `## Acceptance criteria` and `## Design` sections searched; neither output raises a delete: on test_label_trims_outer_space or test_label_keeps_empty, and both explicitly credit those tests' AC1 and Design Keep citations. After's wording is equivalent on every fact (its restructured 'Requirements check' section still records the two kept tests and their cited clauses), so nothing in the Change regressed this case; keep the explicit section-name citations in F1 and the per-test 'cites AC1 / cites the Keep clause' notes as-is when extending the prompt for anchored union tasks.",
+      "wallMs": 5411,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6a586af89a0ec16c0b282a12cd3d8d03d275cadcefd828e41990f2fc9a025c20",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0b6e0c7c0810d1f38ba04e2ca6db8e9f52a84a6971153d0a6c8f7834af8d274b",
-      "baselineOutputSha": "39bd48f58e651773f9fb88e9a9a0942d5ee2296ce0fe4bcf9abf438c0c166a70",
-      "candidateOutputSha": "d7e8d47518c4ab7c761fa5c9726ff2a1c6c501c9b94ab09468b5b954941d9814",
+      "intentSha": "cdf68547860918db6b54a03aa4f213938500b45086e4bfb4d77c0668fa7e34c4",
+      "baselineOutputSha": "9da18825f37d1f3ae942e9dbc00a5c9120ec98bbb8a24cbbf74921f9262882e0",
+      "candidateOutputSha": "6ff498fdd7d1a8160550dbd1db28264a2033c27d8d514301d4bfe3a7f84114ce",
       "facts": {
         "uncommitted-delete": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "acceptance-kept": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "preservation-kept": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs report test_label_keeps_mixed_case as the sole Moderate delete finding, ground it in the mixed-case behavior appearing only in the description, and cite the Acceptance criteria and Design sections searched, while leaving test_label_trims_outer_space and test_label_keeps_empty untouched. The Before output already satisfied all three facts, so this case does not demonstrate the fails -> holds transition the Change intended; the After wording merely reshapes the citation into explicit `## Acceptance criteria` / `## Design` section names and adds a bracketed `[delete:]` tag. That is fine and arguably clearer, but if you want the After to prove the new spec-observable check is what drives the finding, consider having the finding state that the two kept tests were matched to AC1 and Design Keep respectively (one line, no new findings), so a reader can see the matched/unmatched split rather than inferring it from the absence of findings.",
-      "wallMs": 10701,
+      "feedback": "No fact moved: both outputs issue a single Moderate delete: finding against test_label_keeps_mixed_case grounded in its absence from the approved commitments, and neither touches test_label_trims_outer_space or test_label_keeps_empty. Two small regressions to watch: After's finding names \"AC1\" and \"Design\" but drops Before's explicit section identifiers (`## Acceptance criteria`, `## Design` with the Keep clause quoted), which is what makes the \"section searched\" citation unambiguous, and After silently drops the `Complexity:` line from the footer. To keep the structured mirroring the Change asks for while preserving Before's precision, have the SDD-local prompt require the delete: rationale to name the spec sections searched verbatim (heading text plus the matched commitment id/clause) and keep every footer line (Complexity, Parallel-safe, Behaviour-change) so the structured behaviourChange field mirrors a complete footer rather than a trimmed one.",
+      "wallMs": 9763,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
+  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
 }

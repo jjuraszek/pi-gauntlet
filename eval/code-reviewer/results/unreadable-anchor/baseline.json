@@ -1,0 +1,38 @@
+{
+  "sample": "unreadable-anchor",
+  "arm": "baseline",
+  "skillSha": "5f1b04becf6225f9f87e7f57b45c14bb84e70e3f265f024b2d80ea328b3b92dd",
+  "inputSha": "4d862b12458e94a586e5a9c1cb2e4321ed0bf440428cb0e10eba8b1e112d7108",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Next read requested:** `/workspace/project/plan.md`, to resolve the dispatch anchors `### Task 4:` and `### Task 5:` into the task union under review.\n\n**Consumed observation:** `/workspace/project/plan.md` (supplied above; no live tools were used).\n\n- `### Task 4:` resolves to `### Task 4: Present task` (Files: Create: flag.mjs).\n- `### Task 5:` does not appear anywhere in the file. `### Task 50: Decoy, not Task 5` does not match, because the colon in the anchor does not follow `5`.\n\nWithout Task 5, there is no complete task union to review. I did not review the Task 4 portion alone, and I did not read the spec or diff further.\n\n```\nVerdict: FIX_FIRST\nReasoning: Dispatch anchor \"### Task 5:\" is absent from /workspace/project/plan.md, so no complete task union exists to review and the review cannot pass.\nConfidence: low   (only plan.md was observed; no spec, diff, or worktree content was read; no commands run)\n\nFindings:\n  - [Critical] F1: /workspace/project/plan.md — dispatch anchor \"### Task 5:\" is missing (only \"### Task 4:\" and the non-matching \"### Task 50:\" exist); the anchored task union is incomplete, so this review cannot approve anything without the missing task's requirements.\n        Fix: Re-dispatch with an anchor set that fully resolves in plan.md. Either add the intended \"### Task 5:\" section to the plan, or correct the anchors list to name existing task headings.\n        touched-files: /workspace/project/plan.md\n        touched-resources: none\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n```\n\nVerification: none run. The dispatch supplied `SCOPED_TEST_COMMANDS: none`, and no live tools exist.\n\n```json\n{\n  \"sample\": \"unreadable-anchor\",\n  \"next_read_requested\": \"/workspace/project/plan.md\",\n  \"observations_consumed\": [\"/workspace/project/plan.md\"],\n  \"anchor_resolution\": {\n    \"### Task 4:\": \"found\",\n    \"### Task 5:\": \"missing (\\\"### Task 50:\\\" is a non-matching decoy)\"\n  },\n  \"complete_task_union\": false,\n  \"partial_union_reviewed\": false,\n  \"verdict\": \"FIX_FIRST\",\n  \"reasoning\": \"Dispatch anchor \\\"### Task 5:\\\" is absent from /workspace/project/plan.md, so no complete task union exists to review and the review cannot pass.\",\n  \"confidence\": \"low\",\n  \"findings\": [\n    {\n      \"id\": \"F1\",\n      \"severity\": \"Critical\",\n      \"tag\": null,\n      \"location\": \"/workspace/project/plan.md\",\n      \"problem\": \"Dispatch anchor \\\"### Task 5:\\\" is missing (only \\\"### Task 4:\\\" and the non-matching \\\"### Task 50:\\\" exist); the anchored task union is incomplete, so this review cannot approve anything without the missing task's requirements.\",\n      \"fix\": \"Re-dispatch with an anchor set that fully resolves in plan.md. Either add the intended \\\"### Task 5:\\\" section to the plan, or correct the anchors list to name existing task headings.\",\n      \"touched_files\": [\"/workspace/project/plan.md\"],\n      \"touched_resources\": \"none\"\n    }\n  ],\n  \"parallel_safe\": \"F1 disjoint\",\n  \"behaviour_change\": \"no\",\n  \"verification\": \"none run; dispatch supplied SCOPED_TEST_COMMANDS: none and no live tools exist\"\n}\n```\n",
+      "words": 373,
+      "wallMs": 16403,
+      "mechanical": {
+        "reasoning": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next file read I would request: `/workspace/project/plan.md`, to resolve both exact task anchors and establish the complete review scope.\n\nVerdict: FIX_FIRST\nReasoning: The supplied plan observation lacks `### Task 5:`, so the complete dispatched task union cannot be established or reviewed.\nConfidence: high\n\nFindings:\n  - [Moderate] F1: /workspace/project/plan.md — `### Task 5:` is absent; `### Task 50:` is not a match, and reviewing Task 4 alone would leave the dispatched scope incomplete.\n        Fix: Correct the dispatched anchor or restore the missing Task 5 section before restarting review of the complete task union.\n        touched-files: none\n        touched-resources: dispatch task anchors or /workspace/project/plan.md\n\nVerification:\nNo commands executed; `SCOPED_TEST_COMMANDS: none`. Only the supplied plan observation was consumed. No code or spec contents were supplied or reviewed; test economy is unverified.\n\nStructured JSON:\n```json\n{\n  \"verdict\": \"FIX_FIRST\",\n  \"reasoning\": \"The supplied plan observation lacks ### Task 5:, so the complete dispatched task union cannot be established or reviewed.\",\n  \"confidence\": \"high\",\n  \"findings\": [\n    {\n      \"id\": \"F1\",\n      \"severity\": \"Moderate\",\n      \"path\": \"/workspace/project/plan.md\",\n      \"problem\": \"### Task 5: is absent; ### Task 50: is not a match. Reviewing Task 4 alone would leave the dispatched scope incomplete.\",\n      \"fix\": \"Correct the dispatched anchor or restore the missing Task 5 section before restarting review of the complete task union.\",\n      \"touched-files\": [],\n      \"touched-resources\": [\n        \"dispatch task anchors or /workspace/project/plan.md\"\n      ]\n    }\n  ],\n  \"verification\": {\n    \"commands_executed\": [],\n    \"scoped_test_commands\": \"none\",\n    \"observations_consumed\": [\"/workspace/project/plan.md\"],\n    \"code_reviewed\": false,\n    \"spec_reviewed\": false,\n    \"test_economy\": \"unverified\"\n  },\n  \"parallel_safe\": \"F1 disjoint\",\n  \"behaviour_change\": \"no\"\n}\n```\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 224,
+      "wallMs": 12783,
+      "mechanical": {
+        "reasoning": "fails"
+      }
+    }
+  },
+  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
+}

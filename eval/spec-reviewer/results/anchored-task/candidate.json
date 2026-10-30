@@ -1,0 +1,110 @@
+{
+  "sample": "anchored-task",
+  "arm": "candidate",
+  "skillSha": "e76c54ba31f9bc795f403c5561620c2128825fb81e99ca5ffab99da5a6d976b7",
+  "inputSha": "f94168e086b8d937897f2fca7d77d959a60f04fc8f32a22c596da73f2ec05dca",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Next read requested:** `/workspace/project/plan.md`, to locate the `### Task 4:` section first. After that I would read the spec, the rules files, the implementer report, the diff, and every touched file in full. All of these are supplied above, and I use only those observations.\n\n**Anchor resolution:**\n- `### Task 4:` matches the line `### Task 4: Default flag`. It does not match `### Task 40: Decoy`, so `wrong.mjs` is excluded.\n- The section ends at `## Next wave`, so `wrong-wave.mjs` is also out of scope.\n\n**Rules resolution:**\n- The combined rules come from two files, both read in `/workspace/project`:\n  - the task's own `Rules: task-rules.md`\n  - the explicit leg `Leg: worker`, whose `Rules:` entry is `worker-rules.md`\n- The rules are: keep the function pure, and add no extra exports.\n- `wrong-rules.md` (Leg: home) does not apply.\n\n**Implementer report:**\n- It claims Task 4 is complete and the tests passed.\n- I treat this as a claim only. I did not run any tests, and the supplied command (`node --test flag.test.mjs`) was used only as a contract to inspect.\n\n```\nPer-clause status:\n  - [MET]          C-1: defaultFlag() returns false (spec.md § Design L9) — evidence: flag.mjs:1\n        spec-condition: \"defaultFlag() returns false.\"\n        code-condition: `return false;` flag.mjs:1\n  - [MET]          C-2: Files: Create: flag.mjs — evidence: diff adds flag.mjs (flag.mjs:1); not created elsewhere\n  - [MET]          C-3: Files: Test: flag.test.mjs — evidence: existing file, unchanged in diff (existing files need no diff touch); flag.test.mjs:1-3\n  - [MET]          C-4: via: defaultFlag — test calls the via entry point — evidence: flag.test.mjs:1 imports defaultFlag from './flag.mjs'; flag.test.mjs:3 calls defaultFlag()\n  - [MET]          C-5: Tests: block (node --test flag.test.mjs) not contradicted by diff — evidence: flag.test.mjs:3 `assert.equal(defaultFlag(), false)` agrees with spec L9 and flag.mjs:1 (inspected, not executed)\n  - [MET]          C-6: Rule: keep the function pure — evidence: flag.mjs:1 has no side effects, no external state, and a constant return\n  - [MET]          C-7: Rule: no extra exports — evidence: flag.mjs:1 is the sole export, `defaultFlag`\n\nScope creep (not in spec, but present):\n  - none (diff adds only flag.mjs; no wrong.mjs or wrong-wave.mjs)\n\nMissing from implementation:\n  - none\n\nWhole-file reads: flag.mjs (1 line) and flag.test.mjs (3 lines) were each read to the end.\nPlan fidelity: the task prose matches spec L9; no divergence.\n\nVerdict: COMPLIANT\nConfidence: high\n```\n\nThere are no findings, so no `Parallel-safe:` line is required. This is a first review, so there is no `TRAJECTORY:` line.\n\n```json\n{\n  \"verdict\": \"COMPLIANT\",\n  \"reasoning\": \"flag.mjs:1 exports only a pure defaultFlag() returning false per spec L9, the existing test calls the via entry point, and nothing outside the Task 4 slice was added.\",\n  \"findingCount\": 0\n}\n```\n",
+      "words": 396,
+      "wallMs": 16552,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next read requested: `/workspace/project/plan.md`, selecting the exact `### Task 4:` section through the next level-2 or level-3 heading, excluding Task 40.\n\n\n## Review: Task 4 — Default flag\n\nReviewed the exact Task 4 section, its cited spec clause, both applicable rules files, the implementer report, the diff, and the complete implementation and test files supplied. Task 40 and “Next wave” are outside this task.\n\nAuthority: `/workspace/project/spec.md`, Design L9. Combined rules: `task-rules.md` and the explicitly selected worker leg’s `worker-rules.md`.\n\nPer-clause status:\n- [MET] C-1: `defaultFlag()` returns false — evidence: `flag.mjs:1`.\n  - spec-condition: “defaultFlag() returns false.”\n  - code-condition: `defaultFlag()` unconditionally executes `return false;` at `flag.mjs:1`.\n- [MET] C-2: Keep the function pure — the function returns a literal without side effects or external state access. Evidence: `flag.mjs:1`.\n- [MET] C-3: No extra exports — the complete file exports only `defaultFlag`. Evidence: `flag.mjs:1`.\n- [MET] C-4: Create `flag.mjs` at the specified path — the supplied diff adds that file; its complete contents implement the required function. Evidence: `flag.mjs:1`.\n- [MET] C-5: Provide the specified test file — `flag.test.mjs` already exists and need not be changed. Evidence: `flag.test.mjs:1–3`.\n- [MET] C-6: Test through the `defaultFlag` entry point and assert the required result — the test imports `defaultFlag` and directly asserts `defaultFlag() === false`. The supplied test contents do not contradict the task’s `Tests:` contract. Evidence: `flag.test.mjs:1–3`.\n\nScope creep (not in spec, but present): None.\n\nMissing from implementation: None.\n\nThe complete touched file was read. The existing test was also read in full. No tests, linters, or type-checkers were executed; the implementer’s claim of passing tests was not treated as proof.\n\nVerdict: COMPLIANT  \nConfidence: high\n\n```json\n{\n  \"verdict\": \"COMPLIANT\",\n  \"reasoning\": \"The supplied implementation and test satisfy the anchored false-return requirement, applicable purity and export rules, and task file and entry-point contracts without extra changes.\",\n  \"findingCount\": 0,\n  \"touchedTasks\": [4]\n}\n```\n",
+      "words": 284,
+      "wallMs": 11335,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "09cbdcff3eeb0f3b6fc4d7c78640b9fd134c6ed56e284287ac229aba0abc7551",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d135af49a9091d55c227f2560528dbbb2c642b12304d3e0e323c884f0601c6ee",
+      "baselineOutputSha": "88d7d8eff0a3f842c656f21f286ea0f8332174989fb29fef30f110214d2d2144",
+      "candidateOutputSha": "bcf92fd36480417f217d9eb8990e05a4f2737aa11455e098b2c8a73f4f2473ef",
+      "facts": {
+        "next-read": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "rules": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "authority": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-commands": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "mirror": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both outputs request the plan read first, resolve the exact `### Task 4:` anchor while excluding Task 40 and the Next wave section, combine task-rules.md with worker-rules.md from the explicit worker leg (rejecting wrong-rules.md), verify the spec clause against flag.mjs:1 with a spec-condition/code-condition pair rather than the implementer report, inspect Tests/via/Create without executing anything, and emit Verdict: COMPLIANT mirrored in JSON with no invented missing-file finding for the unchanged flag.test.mjs. The After wording successfully delivers the Change on this sample, so the Expected-to-move entries listed as fails->holds were already holding in Before here. One thing worth tightening: the Change says to mirror the verdict *and footer* into structured output, but After's JSON dropped the footer fields (parallel_safe, trajectory, confidence) that Before carried; if the footer mirror is meant to be checked structurally, have the After wording require explicit null/absent entries for the Parallel-safe and TRAJECTORY lines (e.g. `\"parallelSafe\": null, \"trajectory\": null`) alongside verdict and findingCount so the structured block stays a faithful mirror of the written report.",
+      "wallMs": 11980,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "09cbdcff3eeb0f3b6fc4d7c78640b9fd134c6ed56e284287ac229aba0abc7551",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d135af49a9091d55c227f2560528dbbb2c642b12304d3e0e323c884f0601c6ee",
+      "baselineOutputSha": "45931a3d3fd660a93fe752c182b809cd7458eaa67e2a439c1f45744cf22b7950",
+      "candidateOutputSha": "648536331e5894149b2a8ba85e4273fdd572e40d63939ca6c9bbab645a15a434",
+      "facts": {
+        "next-read": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "rules": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "authority": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-commands": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "mirror": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "No fact moved: both outputs request the plan read scoped to `### Task 4:`, exclude Task 40 and Next wave, combine task-rules.md with the explicit worker leg's worker-rules.md, verify the L9 clause against flag.mjs:1 with a spec/code condition pair, refrain from running or proposing the test command, and mirror a written COMPLIANT verdict into the JSON without inventing a missing-file finding for the unchanged flag.test.mjs. The After wording does tighten the anchor selection (\"through the next level-2 or level-3 heading\") and makes the no-execution statement explicit, which is good. One regression worth noting even though no fact tests it: After's JSON dropped the authority block, per-clause entries, and the footer object that Before carried, while the Change says to mirror the footer into structured output; to keep that goal, have the After wording require the JSON to carry at least verdict, task identity, rules/authority paths, and a footer (parallel_safe/trajectory, null when absent) alongside the new findingCount/touchedTasks fields, and keep the explicit 'excluded Task 40 and Next wave' sentence so the next-read fact stays visibly satisfied in the review body, not just the first line.",
+      "wallMs": 14293,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
+}

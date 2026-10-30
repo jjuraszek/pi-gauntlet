@@ -1,0 +1,34 @@
+{
+  "sample": "anchored-task",
+  "arm": "baseline",
+  "skillSha": "26c4e39b729dc51b46de7be681dc0169db8ab54551ded3b9be222d6d3d9e2f3a",
+  "inputSha": "50fa90ab2ee02971def89c65b6c5a7291a219b8b2c55798edb8ced72245e1171",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Primary dispatch: anchored task\n\n**Next read requested:** `/workspace/project/plan.md`, taking only the section that begins exactly at `### Task 4:` and ends at the next heading of the same or higher level. Then the spec at `/workspace/project/spec.md` and the combined `Rules:` files, resolved in the `project` leg checkout.\n\n**Using the supplied observations:**\n- **Anchor resolution:** `### Task 40: Decoy` does not match the anchor `### Task 4:`. I ignored it and its `wrong.md`.\n- **Task boundary:** The Task 4 section ends at `## Next wave`. I ignored `Create wrong-wave.md too.` because it is outside the task.\n- **Task 4 contents:**\n  - Spec: § \"Design\".\n  - Rules: `task-rules.md`.\n  - Files: Create `flag.md`.\n  - Tests: `none: documentation only`.\n- **Spec § \"Design\":** Create `flag.md` containing exactly `Flag: off`.\n- **Rules applied:** These are the task rules (`task-rules.md`) plus the leg rules (`home-rules.md`, from `### Leg: project`). Both say to keep the flag line literal and create no extra files.\n- **Work observation:** `flag.md` was created with exactly `Flag: off`. No other files changed.\n\n**Report**\n- **Files changed:** `/workspace/project/flag.md` (created).\n- **Test commands run:** None. `SCOPED_TEST_COMMANDS: none`, so I ran nothing.\n- **Test-contract evidence:**\n  - Commands: none.\n  - via: `none` (the block is `none: documentation only`).\n- **Deviations:** None.\n- **Follow-ups:**\n  - The task cites spec § \"Design\" at L7. In the supplied spec, the Design content is at line 5 (heading at line 4).\n  - The section name resolved without ambiguity, so this did not block the work. The parent may want to correct the line reference.\n  - The decoy `Task 40` and the out-of-section `wrong-wave.md` instruction were not acted on.\n\n**Status:** DONE\n\n```json\n{\n  \"case\": \"anchored-task\",\n  \"status\": \"DONE\",\n  \"next_read_requested\": \"/workspace/project/plan.md (section at anchor \\\"### Task 4:\\\")\",\n  \"files_changed\": [\"/workspace/project/flag.md\"],\n  \"commands_run\": [],\n  \"test_contract\": {\"commands\": [], \"via\": \"none\"},\n  \"rules_applied\": [\"task-rules.md\", \"home-rules.md\"],\n  \"ignored\": [\"### Task 40: Decoy (wrong.md)\", \"## Next wave (wrong-wave.md)\"],\n  \"deviations\": [],\n  \"follow_ups\": [\"Spec citation L7 does not match the Design content line (5) in the supplied spec; section name resolved unambiguously\"]\n}\n```\n\n---\n\n## Independent inline alternative\n\n**Plan read needed?** No. The dispatch has no `planPath` or anchor and carries the full task inline, so there is nothing to look up and no plan file is requested.\n\n**Report**\n- **Task:** Create `note.md` containing exactly `Note: ready.`\n- **Files changed:** `note.md` (created), per the supplied work observation.\n  - The dispatch gave no `Work from:` directory, so the exact absolute path is unstated.\n- **Test commands run:** None. `SCOPED_TEST_COMMANDS: none`, so I ran nothing.\n- **Test-contract evidence:** No commands. via: `none`.\n- **Deviations:** None.\n- **Follow-ups:** None. The parent may want to confirm the intended checkout, since no `Work from:` was supplied.\n\n**Status:** DONE\n\n```json\n{\n  \"case\": \"inline-alternative\",\n  \"status\": \"DONE\",\n  \"plan_read_needed\": false,\n  \"files_changed\": [\"note.md\"],\n  \"commands_run\": [],\n  \"test_contract\": {\"commands\": [], \"via\": \"none\"},\n  \"deviations\": [],\n  \"follow_ups\": [\"No Work from: directory supplied; absolute path of note.md unstated\"]\n}\n```\n",
+      "words": 420,
+      "wallMs": 16723,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Anchored task\n\n**Next file read I would request:** `/workspace/project/plan.md`, locating the exact `### Task 4:` heading—not `### Task 40:`—and stopping at `## Next wave`.\n\nUsing only the supplied observations:\n- Task 4 requires creating `flag.md`; the next wave is outside its scope.\n- The authoritative spec is `/workspace/project/spec.md`, with mapped leg `project`.\n- Both rules files resolve in `/workspace/project`: `task-rules.md` and `home-rules.md`. Their supplied contents require the literal flag line and no extra files.\n- The work observation confirms `/workspace/project/flag.md` contains exactly `Flag: off`, with no other files changed.\n\n**Status:** DONE\n\n- **Files changed:** `/workspace/project/flag.md`\n- **Command evidence:** `none` — no scoped test commands were supplied or executed.\n- **via evidence:** `none`\n- **Deviations/blockers:** None.\n\n```json\n{\n  \"case\": \"anchored-task\",\n  \"status\": \"DONE\",\n  \"files_changed\": [\"/workspace/project/flag.md\"],\n  \"scoped_test_commands\": [],\n  \"commands_executed\": [],\n  \"test_contract_evidence\": \"none\",\n  \"via_evidence\": \"none\",\n  \"deviations\": [],\n  \"blockers\": []\n}\n```\n\n## Independent inline alternative\n\n**No plan read is needed.** The inline dispatch supplies the complete task: create `note.md` containing exactly `Note: ready.`\n\nThe supplied work observation confirms `note.md` was created exactly as requested.\n\n**Status:** DONE\n\n- **Files changed:** `note.md`\n- **Command evidence:** `none` — no scoped test commands were supplied or executed.\n- **via evidence:** `none`\n- **Deviations/blockers:** None.\n\n```json\n{\n  \"case\": \"inline-alternative\",\n  \"status\": \"DONE\",\n  \"plan_read_needed\": false,\n  \"files_changed\": [\"note.md\"],\n  \"scoped_test_commands\": [],\n  \"commands_executed\": [],\n  \"test_contract_evidence\": \"none\",\n  \"via_evidence\": \"none\",\n  \"deviations\": [],\n  \"blockers\": []\n}\n```\n",
+      "words": 188,
+      "wallMs": 7870,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
+}

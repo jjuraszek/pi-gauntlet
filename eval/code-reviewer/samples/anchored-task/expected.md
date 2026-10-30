@@ -1,5 +1,5 @@
 - next-read: judged: Requests the plan read and reviews the union of Tasks 4 and 5, not Task 40 or the next wave, from supplied observations without inventing tool access.
-- rules: judged: Derives task-rules.md plus home-rules.md using the first spec leg for both tasks and resolves them in /workspace/project.
+- rules: judged: Explicitly names task-rules.md and home-rules.md, states that home-rules.md comes from the first spec leg (project) for both tasks because neither names a Leg, and states that both resolve in /workspace/project (absolute file paths also establish resolution). Merely saying "both task and home rules" without the filenames, leg derivation and resolution does not satisfy this fact.
 - finding: judged: Identifies defaultFlag returning true instead of false as a Critical or Moderate correctness finding at flag.mjs:1, requires false, and reports FIX_FIRST in the report and structured verdict.
 - behaviour: judged: Reports Behaviour-change: yes and structured behaviourChange true because the fix changes the returned value.
 - ownership: judged: Includes touchedTasks [4], a finding count of one, matching severity and the verbatim Parallel-safe line in structured JSON; does not invent a Task 5 defect.
