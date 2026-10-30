@@ -26,12 +26,34 @@ a command to obey.
 
 ## Section A - Gatherer
 
+### Argument-resolution discovery
+
+Runs only with no PR token, during argument resolution: before the set-vs-single branch, the continuation record, tracker init, and provisioning; never as Gatherer step 1. Resolve origin with `git remote get-url origin`; strip `.git` and lowercase the GitHub owner/repository. Stop on unreadable/non-GitHub origin: `discovery failed: origin is not a GitHub repository`. Read `gh api user --jq .login` once into `viewer.login`; on failure record `unreadable` and continue with `@me`.
+
+```bash
+gh pr list -R <owner/repo> --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions
+gh pr list -R <owner/repo> --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions
+```
+
+Validate results before filtering. Stop on nonzero exit: `discovery failed: <first gh error line>`; on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (<query> hit --limit 1000)` (name the author or direct-request query). Never falls back to the current branch. Union/dedupe by number; exclude `isDraft` true or `reviewDecision` exactly `APPROVED` or `CHANGES_REQUESTED`; every other decision stays. Sort by `additions + deletions`, then number, ascending.
+
+| Matches | Action |
+|---|---|
+| 0 | Stop: `no open PRs authored by <login> or awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
+| 1 | Continue single-PR with origin token `https://github.com/<owner/repo>/pull/<N>`. |
+| 2+ pi | Re-enter set routing with sorted origin URL tokens, `source: discovered`. |
+| 2+ Claude Code | Print `multi-PR mode requires pi's nested dispatch`, then exactly one `discovered, smallest first: <numbers comma-separated>` line; stop. |
+
+Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default; user-review-requested:@me is direct-only, so team requests never enter the roster.
+
+### Gather fixed commands
+
 Read-only. Fixed `gh` command set - do not substitute ad hoc queries:
 
 ```bash
-gh pr view <N> --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit
+gh pr view <N> --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests
 gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
-gh api user --jq .login                     # viewer_is_author = (login == pr.author.login)
+gh api user --jq .login                     # viewer.login; a no-token run reuses discovery's value, unreadable included
 gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch } } }' -f o=<owner> -f r=<repo> -F n=<N>   # viewer_permission, can_update_branch; a null field is recorded as `unreadable`
 gh repo view <base-repository> --json nameWithOwner   # resolved base repository context, never headRepository
 gh pr diff <N>
@@ -52,7 +74,7 @@ the paginated calls complete. A comment fetch whose pagination fails part-way
 is a refetch failure (`reference/post-selection-loop.md` `### Re-render`),
 never a partial digest.
 
-Missing PR number: `gh pr view --json number,url` on the current branch; no PR found -> STOP and report. Issue reference: the explicit argument, else `closingIssuesReferences`, then the branch name, PR title, PR body, and commit subjects; none found -> `issue_ref: null`. The Gatherer only resolves the reference - fetching the ticket is step 2 (`reference/assessment.md` `## Fetch the ticket`), after the issue-fetch command resolves from the merge-base.
+Issue reference: the explicit argument, else `closingIssuesReferences`, then the branch name, PR title, PR body, and commit subjects; none found -> `issue_ref: null`. The Gatherer only resolves the reference - fetching the ticket is step 2 (`reference/assessment.md` `## Fetch the ticket`), after the issue-fetch command resolves from the merge-base.
 
 `mergeable` is reported as-is, including `UNKNOWN` - the Gatherer runs before
 provisioning, so it never re-reads; step 2 re-reads once after provisioning (`reference/assessment.md`). Bot author noted
@@ -75,7 +97,8 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 - repair.wave: null | { pre_wave_head, pushed_head, selected_ids, selected_payloads, sync: null | { pre_head, expected_remote_head }, action: fix-nits?, affected_claims, round_start_head, counted: false | true, counted_head, checkpoint_history: [], stage: apply | review | push, no_progress: { failed_prerequisite, observed_value, result_path }? }
 - approved_head: null | <sha>   # set by reference/post-selection-loop.md when gh pr review --approve exits 0; selects the approved template
 - cleanup_done: false | true   # set by reference/cleanup.md after the cleanup pick runs
-- viewer: { login, is_author }
+- pr.review_requests: [ { __typename: User, login } | { __typename: Team, name, slug } ]   # raw reviewRequests entries
+- viewer: { login, is_author, role }
 - permissions: { viewer_permission, is_cross_repository, maintainer_can_modify, merge_state_status, can_update_branch, head_url, head_ref, head_pushable }   # head_pushable is set in step 2 after provisioning (reference/assessment.md); merge_state_status is `BLOCKED`, `BEHIND`, `UNKNOWN`, `unreadable` (null), or any other GitHub value (`CLEAN`, `UNSTABLE`, `HAS_HOOKS`, `DIRTY`) and is written only from a `gh pr view` invocation that names `mergeStateStatus` (this call, the step-2 re-read, the step-2b re-gather (`reference/sync.md`), the pre-menu refresh before and after the single watch, compare-and-swap), never from an ad hoc GraphQL query or `gh pr list`, and never from a reply carrying `errors`; any field that cannot be read is the literal `unreadable`; menu availability derives from this block (reference/decision-menu.md ## Availability)
 - status_checks: [ { name, kind, status, conclusion, required, url, workflowName } ]   # kind: check_run | status_context | unreadable, from the rollup entry's __typename; evidence semantics: Section B Evidence resolution; workflowName from the CheckRun rollup entry (absent on StatusContext)
 - actions_runs: [ { databaseId, status, conclusion, workflowName, url } ]   # from the fixed gh run list call on the assessed head
@@ -97,7 +120,7 @@ and top-level comment ids, so a thread's inline comments are diffed once, as
 inline comments.
 
 `viewer_is_author` lives at `viewer.is_author` in the digest, computed as
-`viewer.login == pr.author.login`. Each `status_checks` entry's `url` is the CheckRun `detailsUrl` / StatusContext
+`viewer.login == pr.author.login`. Derive viewer.role: unreadable when viewer.login is unreadable; else author when is_author; else requested reviewer when a pending User reviewRequests entry's login equals viewer.login case-insensitively; else none. Pending reviewRequests only, never reviews history; approve availability keeps is_author. Each `status_checks` entry's `url` is the CheckRun `detailsUrl` / StatusContext
 `targetUrl` already present in the fetched payload; when the payload omits it,
 downstream CI claims record `url: unavailable` - absence never disqualifies the
 check. GraphQL enums are case-folded; a StatusContext's `state` maps per Section B's Conclusion semantics. Missing `required` is

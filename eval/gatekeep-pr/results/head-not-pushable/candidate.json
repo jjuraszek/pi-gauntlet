@@ -1,8 +1,8 @@
 {
   "sample": "head-not-pushable",
   "arm": "candidate",
-  "skillSha": "d0178e251324a2f8b7588dc69ac624690ed4229c863be039e9604b56ffb3146e",
-  "inputSha": "1f48c1c5e5f34bff4d77a384ba297186d636f529a9fe4494234b9b9374664c7a",
+  "skillSha": "46f27c2f7a73e3c239b1b4010f28d02e4fbf9196fac20babbe6e237a09d34b91",
+  "inputSha": "7c28e07a18ad79d8c08635db7b411def136ad3063e09ed5f54e5c9338ea5faed",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/sync-preconditions recommended=1\n\n**Narration from the end of step 2**\n\n1. **State at entry.** The continuation record was minted before progress tracking began. Its `state:` path sits in the first tracker task's name. `plan_tracker` was initialized with four stages because `--rebase` is present: `gather`, `provision`, `sync`, `verify`. `gather` and `provision` are complete.\n\n2. **Arguments.** `412 --rebase` has no token after `--rebase`. The base is therefore the digest's `baseRefName`, so `<base>` is `main`. `origin/release/2` plays no part.\n\n3. **Step 2b opens.** I read `reference/sync.md` and check its preconditions in order:\n   - **Precondition 1 (helper facility):** pi has the subagent facility, so this passes. I run no command.\n   - **Precondition 2 (head pushable):** `permissions.head_pushable` is `false`. Step 2's push probe already failed: `git -C .worktrees/pr-412 push --dry-run --no-verify --no-follow-tags git@git.example.invalid:orchard/ledger.git HEAD:refs/heads/feature/ledger-rounding` exited non-zero. This is a terminal stop before any write.\n\n4. **What does not run.** The stop means I skip all of the following:\n   - `git fetch origin main` (precondition 3 is never reached).\n   - The `## Baseline` `gh pr view 412 --json headRefOid`.\n   - The other-author confirmation, which would not fire anyway because the viewer is the author.\n   - `git rebase origin/main`.\n   - The conflict-stop `implementer` and the sync-review `code-reviewer`.\n   - The lease push and the re-gather.\n\n   I dispatch no helper.\n\n5. **Tracker.** `plan_tracker` closes the `sync` stage as `failed`. `verify` stays pending. I add no further stages, because step 3 does not run.\n\n6. **SHAs.** Verification does not run and no brief helper assesses anything. Step 3 (Verify) and step 4 (Review) are never dispatched. The worktree and PR head remain unsynced at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. `origin/main` stays at `3f0b8d2e…`, 4 commits ahead.\n\n7. **Report lines.** No step-5 report renders, so there is no `Sync:` line and no `Verdict:` line. The terminal stop prints its reason instead, and the digest's `sync` field records it as below.\n\nsync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding (head_pushable false), so no rebase or push ran\n\nPick one:\n1. stop - remove the worktree and leave PR 412 unsynced and unchanged. [recommended]\n\nType a number; `show evidence` prints the digest's head-dependent fields (head 7c1e9a2, BEHIND by 4 on main, ci / test green on 7c1e9a2) and the sync record.\n",
-      "words": 351,
-      "wallMs": 22588,
+      "text": "gauntlet: gate=gatekeep-pr/sync-preconditions recommended=1\n\n**Narration, from the end of step 2 through the first menu**\n\n1. **Arguments.** `412 --rebase` has one PR token and no token after `--rebase`. The base is therefore the digest's `baseRefName`, which is `main`. There is no issue argument, so `gh-388` comes from step 1's resolution.\n\n2. **Continuation record and tracker.** The `mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"` run record was minted and initialized before progress initialization. It holds course null, zero usage, and target `{base_repository, 412, main}`. `plan_tracker` `init` ran with four stages because `--rebase` is present: `gather, provision, sync, verify`. `gather` and `provision` are `complete`. The `sync` stage opens now.\n\n3. **Step 2b, preconditions, checked in order.** I run no commands here and dispatch no helpers.\n   - **Precondition 1 passes.** The harness is pi with the subagent facility.\n   - **Precondition 2 fails.** `permissions.head_pushable` is `false`; step 2's `push --dry-run` probe was refused. This is a terminal stop: no rebase and no push.\n   - **Nothing after precondition 2 runs:**\n     - no `git fetch origin main` (precondition 3), so `origin/release/2` is irrelevant;\n     - no `merge-base --is-ancestor` check;\n     - no `## Baseline` `gh pr view 412 --json headRefOid`;\n     - no other-author confirmation (the author is the viewer anyway);\n     - no `git rebase`;\n     - no conflict-stop `implementer`;\n     - no sync `code-reviewer`;\n     - no lease push;\n     - no re-gather.\n\n4. **Tracker after the stop.** The `sync` stage closes `failed`. Step 3 does not run, so `verify` stays `pending` and no `worker` Verify helper is dispatched. Step 4 does not run, so no `code-reviewer` Review helper is dispatched. No claim tasks are added, and `review`/`report`/`menu` stages are never added.\n\n5. **Which SHA is assessed.** None. Neither verification nor the brief's Sections B and C assess any SHA. Head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c` stays provisioned in `.worktrees/pr-412`, unsynced and unassessed. The worktree is tracked-clean.\n\n6. **Menu.** I render the stop-only sync-preconditions menu. `show evidence` is hint-only and prints the digest's head-dependent fields and the `sync` record.\n\n---\n\nSync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding (head_pushable false), so no rebase onto origin/main ran.\n\nVerdict: not ready - sync stopped before verification (cannot push to feature/ledger-rounding)\n\nPick one:\n1. stop - end the gate here and leave the PR and its branch as they are. [recommended]\n\nType a number; show evidence prints the head fields and the sync record.\n",
+      "words": 361,
+      "wallMs": 20864,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/sync-preconditions recommended=1\n\n1. The invocation includes `--rebase` without a base argument, so the sync target is `origin/main`.\n\n2. The run's initialization precedes progress tracking:\n   ```sh\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"\n   ```\n   I initialize the returned continuation record with the digest, immutable target, course unset, zero usage counters, and null deadline and wave. I initialize tracker stages `gather`, `provision`, `sync`, and `verify`, putting `state: <returned absolute path>` in the first task's name. At this supplied step-2 checkpoint, `gather` and `provision` are complete.\n\n3. I start `sync` and evaluate its preconditions in order. The pi helper facility is available, so the first precondition passes. The second fails because `permissions.head_pushable` is `false`. I record:\n   ```text\n   sync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding\n   ```\n   I close `sync` as `failed`. `verify` remains pending.\n\nNo further command runs. In particular, I do not fetch `origin/main`, check ancestry, rebase, review a rewritten head, or push. No helper is dispatched.\n\nVerification and the review brief assess no SHA because step 3 never starts. The checkout remains at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\nNo report `Sync:` line renders because this terminal sync-precondition stop never reaches step 5.\n\nVerdict: not ready - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding\n\nPick one:\n1. stop - end the gate without rebasing or pushing. [recommended]\n\nType a number; show evidence prints the digest's head-dependent fields and sync record.\n",
-      "words": 211,
-      "wallMs": 15910,
+      "text": "gauntlet: gate=gatekeep-pr/sync-preconditions recommended=1\n\n1. The invocation initializes the continuation record before initializing the tracker with `gather`, `provision`, `sync`, and `verify`. At this entry point, `gather` and `provision` are complete.\n2. I start `sync` and check its preconditions in order. The pi helper facility is available, so the first precondition passes.\n3. The second precondition fails: `permissions.head_pushable` is `false`. I record `sync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding` and mark `sync` failed.\n4. I run no commands and dispatch no helpers. In particular, I do not fetch `origin/main`, rebase, review a rewritten head, push, or proceed to step 3.\n\n`verify` remains unstarted. Neither verification nor review assesses a SHA; the worktree remains at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\nNo report `Sync:` line renders because step 5 is not reached.\n\nVerdict: not ready - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding\n\nPick one:\n1. stop - end the gate without changing the PR. [recommended]\n\nType a number; `show evidence` prints the digest's head-dependent fields and sync record.\n",
+      "words": 155,
+      "wallMs": 15794,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
-      "baselineOutputSha": "2a2da6f4abf12d6418e551d63794380555dcf6c0d517cdf1b029210cac8ae6b0",
-      "candidateOutputSha": "2a2da6f4abf12d6418e551d63794380555dcf6c0d517cdf1b029210cac8ae6b0",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
+      "baselineOutputSha": "e2e05552c1d04f5d6ab28c922ef51b59031f9b66a67d3af227e70a43628a4ac6",
+      "candidateOutputSha": "0ab8a382ff676c7cf0f45c1c9bda928047f7d866e23896d35755748f123e618d",
       "facts": {
         "f1": {
           "before": "holds",
@@ -59,16 +59,16 @@
           "label": "held"
         }
       },
-      "feedback": "After is byte-identical to Before on this case, so no fact moved: both outputs stop at step 2b's precondition 2 with a sync record naming the non-pushable head (head_pushable false), list `git rebase origin/main` and the lease push among the things that do not run, dispatch no helper, and close the `sync` stage as `failed`. This is expected, since the Change targets the batch summary round (one PR's report and menu per turn) and `412 --rebase` is a single-PR invocation that never reaches that round. The rewording is therefore safe for this case; to confirm the Change actually lands, run a multi-PR batch case where s8 can be observed, and keep the single-PR terminal-stop path untouched as it is here.",
-      "wallMs": 9075,
+      "feedback": "Nothing moved on this case: both outputs stop at step 2b precondition 2, name `permissions.head_pushable false` for `git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding` as the reason, run no `git rebase` and no push, dispatch no Verify helper, and close the `sync` stage as `failed`. The Change (one PR's report and menu per turn in the batch summary round) is not exercised by a single-PR `--rebase` stop, so the After wording only reshapes the narration (moving the `gauntlet:` header to the top, enumerating the skipped sub-steps, and dropping 'remove the worktree' from the stop option's label in favor of 'leave the PR and its branch as they are'). That last wording change is harmless for these facts but is a small behavioral drift relative to Before's `cleanup_done`/worktree-removal framing; if the stop option is meant to remove the worktree, keep Before's 'remove the worktree' phrasing in the menu line so the single-PR stop path stays identical while the batch-summary sequencing change lands elsewhere.",
+      "wallMs": 9210,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
-      "baselineOutputSha": "0afa97d9f9ab6c1509fc2ef9b1f6e3c3483491470932e010c1209cc577768567",
-      "candidateOutputSha": "0afa97d9f9ab6c1509fc2ef9b1f6e3c3483491470932e010c1209cc577768567",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
+      "baselineOutputSha": "172f5b6e541bed9374930f1266f35c6f57e156ea3944b7a5faf1e1b4cc271e76",
+      "candidateOutputSha": "01005f38afcad0e968d45260abf7f6aa74ff47e831c3c0bcc7d4249afb599492",
       "facts": {
         "f1": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical on this case, so nothing moved: both stop at the sync precondition check immediately after the step-2 checkpoint, record `sync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding`, close `sync` as `failed`, dispatch no helper, and explicitly state that no fetch, rebase, or push runs. This is a single-PR sync-precondition case, so the batch-summary sequencing change has no surface here; the After wording left the sync-preconditions path untouched, which is exactly what you want. One minor clarity point that exists in both versions (not introduced by the Change): the output's own numbered item 3 starts `sync` while the prose later says \"step 3 never starts\" — the two \"step 3\"s refer to different numberings (the output's narrative list vs. the skill's step sequence). Consider labelling the narrative items differently (e.g. letters) or saying \"the skill's step 3 (sync body) never starts\" so a reader doesn't read that as a contradiction with f1's \"stops right after step 2\".",
-      "wallMs": 13871,
+      "feedback": "No fact moved on this case: both outputs stop at the second sync precondition, name the non-pushable head `git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding` as the reason, run no rebase or push, dispatch no helper, and record `sync` as failed with `verify` untouched. The Change (one PR's report and menu per turn in the batch summary round) is not exercised by a single-argument `412 --rebase` invocation, so the After wording only differs cosmetically here: it drops the explicit `mktemp` continuation-record command from step 1 and rephrases the verdict to quote the remote rather than say 'PR head is not pushable'. Both are acceptable, but if you want the verdict to remain maximally legible as a pushability stop, keep Before's phrasing ('sync stopped because the PR head is not pushable') alongside the remote URL, and keep the explicit 'close `sync` as `failed`' wording so f4 stays unambiguous; neither adjustment conflicts with the per-turn batch-menu change.",
+      "wallMs": 10803,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

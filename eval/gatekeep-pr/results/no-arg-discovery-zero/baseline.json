@@ -1,0 +1,34 @@
+{
+  "sample": "no-arg-discovery-zero",
+  "arm": "baseline",
+  "skillSha": "1698e07dc33937780f79499f6759f5695952f7242b99f3a13e21be50154ad419",
+  "inputSha": "2ddd1aa87f6d567a964c496ece31be5a3bb1e84fc0e1420edcfcc21870134a73",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: stuck no PR to gate - discovery found no candidate PR on acme/widgets\n\n**Narration (argument resolution only)**\n\n1. **Arguments.** The line has no PR token, no issue reference, and no `--rebase`. This is the single-PR path with the PR left unresolved. Set routing does not apply, and the Claude Code harness is not checked for multi-PR admission.\n\n2. **`git remote get-url origin`** returns `git@github.com:acme/widgets.git`. The base repository for every discovery query is `acme/widgets`.\n\n3. **`gh api user --jq .login`** exits 1 with `HTTP 403: Forbidden`.\n   - The viewer login is recorded as `unreadable`.\n   - No login-specific query or author comparison is built from it.\n   - Nothing downstream may treat the viewer as author or non-author.\n\n4. **Current branch.** The current branch resolves to PR 999. The digest marks PR 999 as unrelated to this invocation, so it is not adopted. Taking an unrelated PR would gate, and later execute, code the human never named.\n\n5. **Author query.** `gh pr list -R acme/widgets --author @me --state open --json number,url,title,headRefName` exits 0 with `[]`. The viewer has no open authored PRs.\n\n6. **Review-requested query.** `gh pr list -R acme/widgets --search \"user-review-requested:@me\" --state open --json number,url,title,headRefName` exits 0 with `[]`. No open PR directly requests the viewer's review.\n\n7. **Discovery outcome.** Discovery found zero candidates, so the run stops and reports, as the rule requires when no PR is found.\n   - No continuation record is minted.\n   - No `plan_tracker` stages are initialized.\n   - No worktree is provisioned.\n   - No helper is dispatched, on either the `worker` or the `code-reviewer` duty.\n   - No SHA is verified or assessed.\n   - No sync line renders, because `--rebase` was not passed.\n   - No verdict line renders, because no assessment ran.\n   - No menu renders. This is a rejection, not a gate.\n\nRe-run with an explicit PR, for example `gatekeep PR <number>` or a PR URL on acme/widgets.\n",
+      "words": 297,
+      "wallMs": 16190,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The supplied discovery-rejection endpoint conflicts with this procedure's no-PR rule. With no PR token, Section A resolves the PR from the current branch; it does not discover candidates through author or review-request queries.\n\n1. I run `gh pr view --json number,url` on the current branch. It resolves PR 999.\n2. I select PR 999 under that explicit rule. Its being unrelated does not authorize replacing branch resolution with open-list discovery.\n\nI do not run `git remote get-url origin`, the viewer lookup, or either open-list query during argument resolution. An unreadable viewer identity is not a specified rejection condition for resolving the current branch's PR.\n\nNo continuation record is minted, no tracker stages are initialized, and no provisioning, verification, or helper dispatch occurs within this requested argument-resolution narration. No sync line, verdict, or menu renders.\n\nThere is no discovery rejection to narrate under the supplied procedure; inventing one would replace its explicit no-PR rule.\n",
+      "words": 153,
+      "wallMs": 13731,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
+}

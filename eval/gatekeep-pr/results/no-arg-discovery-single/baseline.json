@@ -1,0 +1,34 @@
+{
+  "sample": "no-arg-discovery-single",
+  "arm": "baseline",
+  "skillSha": "1698e07dc33937780f79499f6759f5695952f7242b99f3a13e21be50154ad419",
+  "inputSha": "e372302133032eeacd66dc78c475b66e9f3cb7e3601a0e10eab8e9957c6e3aae",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Argument resolution with no PR token, stopping at the single-PR handoff.\n\n**Commands, in order**\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. The base repository is therefore `acme/widgets`.\n   - `GH_REPO=other/project`, and the gh default repo, both point at a different repository.\n   - So every `gh` call below pins `-R acme/widgets` explicitly. The flag overrides `GH_REPO` and the default.\n   - Nothing resolves against `other/project`.\n\n2. `gh api user --jq .login` returns `alex`. This is the viewer identity for the queue queries.\n\n3. I do not use the current branch's PR. A bare `gh pr view --json number,url` would resolve through `GH_REPO`. The branch's PR 999 is also unrelated to this invocation. So it is neither queried as the target nor adopted.\n\n4. Author query:\n   - Command: `gh pr list -R acme/widgets --author alex --state open --json number,isDraft,reviewDecision,additions,deletions`\n   - Exit 0, rows: PR 101 (non-draft, `REVIEW_REQUIRED`, +1/-1).\n\n5. Direct user-review-requested query:\n   - Command: `gh pr list -R acme/widgets --state open --search \"user-review-requested:alex\" --json number,isDraft,reviewDecision,additions,deletions`\n   - Exit 0, rows: `[]`.\n\n6. The union of the two complete result sets, deduplicated by number, is **{101}**.\n\n**Discovery outcome**\n\nThere is exactly one candidate. This is a single-PR handoff, not set routing:\n- One PR token means the batch path (`reference/batch.md`) and `parallel.maxTasks 4` do not apply.\n- There is no ambiguity to ask about, so no question turn.\n\nThe invocation proceeds as `gatekeep-pr 101`:\n- No issue reference; step 1 resolves it later.\n- No `--rebase`.\n- Repo pinned to `acme/widgets`.\n\nI stop here, before step 1 Gather and before step 2 provisioning.\n\n**State at the stop point**\n\n- **Helpers and tracker:** none dispatched. The continuation record is not yet minted, and no `plan_tracker` stages are initialized. Init would follow at the start of the run with `gather, provision, verify`, since there is no `--rebase`.\n- **Assessed SHA:** none yet. No `headRefOid` has been gathered, so neither verification nor the brief has assessed anything.\n- **Sync line:** none renders, because `--rebase` was not passed and no report exists yet.\n- **Verdict line:** none. The run stops before step 5.\n- **Menu:** none. The handoff continues automatically without a human turn, so no gate or marker line is emitted.\n",
+      "words": 344,
+      "wallMs": 22106,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`, so the repository context is `acme/widgets`, not the ambient `GH_REPO=other/project`.\n\n2. Run `GH_REPO=acme/widgets gh pr view --json number,url` to resolve the current branch's PR. The supplied branch observation identifies PR 999.\n\n3. Hand off PR 999 to the single-PR path. The no-token rule resolves the current branch's PR; it does not select an authored or review-requested PR from open-list queries. I therefore run neither list query and do not select PR 101.\n\nThis is the requested stopping point, before gathering or provisioning. No continuation record, tracker stages, or helpers are initialized. No SHA is assessed, and no report, Sync line, verdict, or menu renders.\n",
+      "words": 113,
+      "wallMs": 12442,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
+}

@@ -4,11 +4,13 @@ Use this contract only for two or more PR tokens. Keep the single-PR path and it
 
 ## Admit before effects
 
-Reject with a one-line error before any fetch, confirmation, provisioning, or dispatch: positional issue references, duplicate identities (normalize number and URL to the same repository/number), URLs from different repositories or not matching origin, an oversized set, and Claude Code. Multi-PR mode requires pi's nested dispatch. Resolve each issue from its PR, never from a positional issue argument.
+Reject with a one-line error before any fetch, confirmation, provisioning, or dispatch: positional issue references, duplicate identities (normalize number and URL to the same repository/number), URLs from different repositories or not matching origin, an oversized set, and Claude Code. For Claude Code print exactly: `multi-PR mode requires pi's nested dispatch`. Resolve each issue from its PR, never from a positional issue argument.
 
 Read the active pi-cohort configuration's `parallel.maxTasks`, default `8`; gauntlet_setting is not its source. Never chunk the set. For an oversized set print exactly:
 
 `multi-PR mode takes at most <max> PRs (pi-cohort parallel.maxTasks); got <n>`
+
+For `source: discovered`, append exactly one `discovered, smallest first: <numbers comma-separated>` line after either cap or harness rejection, in supplied sorted order; for example after cap 4 got 6: `discovered, smallest first: 101, 97, 112, 88, 130, 104`. Print no discovered list for explicit sets. Preserve supplied token order through provisioning, summary rows, and queued menus; never trim.
 
 Gather each PR with `gh pr view --json number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files`. Resolve trusted worktree configuration from the base merge-base, never from PR-controlled files.
 

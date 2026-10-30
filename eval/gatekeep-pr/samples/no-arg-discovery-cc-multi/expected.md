@@ -1,0 +1,1 @@
+- f1: judged: Print exactly `multi-PR mode requires pi's nested dispatch` followed by `discovered, smallest first: 101, 97, 112`; no provisioning, dispatch, continuation record or tracker init occurs.

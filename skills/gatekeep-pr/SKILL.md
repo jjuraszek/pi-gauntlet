@@ -1,7 +1,7 @@
 ---
 name: gatekeep-pr
 description: Use only when explicitly asked to gatekeep, verify, or gate a named pull request before it merges - or on pi a set of them - ("gatekeep PR 123", "gatekeep PRs 123 124 125", a loop task naming the PR and the verb); post-merge delivery proof belongs to /skill:check-delivery.
-argument-hint: "<pr> [issue-ref] [--rebase [base]] | <pr> <pr>... [--rebase [base]]  (e.g. 123, 123 gh-45, 123 --rebase, 123 gh-45 --rebase release/2, 123 124 125 on pi only)"
+argument-hint: "[no argument: my open PRs] | <pr> [issue-ref] [--rebase [base]] | <pr> <pr>... [--rebase [base]]  (e.g. 123, 123 gh-45, 123 --rebase, 123 gh-45 --rebase release/2, 123 124 125 on pi only)"
 ---
 
 # gatekeep-pr
@@ -10,8 +10,8 @@ Verify, don't trust: a PR description is a claim, and over-claimed coverage, hal
 
 ## Arguments
 
-- Route two or more PR tokens (numbers or URLs, space-separated, before any `--rebase`) through the set-routing row before steps 1-7; reject a positional issue reference in a set with a one-line error. Apply `--rebase [base]` to every PR in the set; keep zero or one PR token on the existing single-PR path below.
-- PR number or URL; omitted -> resolved from the current branch per `verification-brief.md` Section A.
+- Route two or more PR tokens (numbers or URLs, space-separated, before any `--rebase`) through the set-routing row before steps 1-7; reject a positional issue reference in a set with a one-line error. Apply `--rebase [base]` to every PR in the set; keep one PR token on the single-PR path below; zero tokens discover per verification-brief.md Section A before this row runs and re-enter it with the discovered roster when the roster holds two or more; a trailing comma on a PR token is stripped before identity normalization, so a pasted discovered, smallest first: list is a valid set.
+- PR number or URL; omitted -> discovered per verification-brief.md Section A during argument resolution (my open PRs in origin: authored or directly requested, no drafts or decided PRs, smallest first); one match gates on this path, two or more re-enter the set-routing row on pi and stop with the discovered list on Claude Code.
 - Optional issue reference; omitted -> resolved in step 1 (`verification-brief.md` Section A) and fetched in step 2; none found -> select the scope contract in step 2 (spec at the head, else the PR's stated intent), never invent acceptance criteria.
 - Optional `--rebase [base]`, parsed after `<pr> [issue-ref]`: the token after it, when present, is the base branch name (`123 --rebase gh-45` means base `gh-45`, not an issue ref); absent, the base is the digest's `baseRefName`. Step 2b fetches `origin/<base>` and validates it: a missing ref stops with a one-line error before any rebase or push. Without `--rebase` the run performs no additional fetch, rebase, or push before a menu pick and renders no sync line.
 

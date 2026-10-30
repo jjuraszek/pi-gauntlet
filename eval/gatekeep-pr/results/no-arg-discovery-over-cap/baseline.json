@@ -1,0 +1,34 @@
+{
+  "sample": "no-arg-discovery-over-cap",
+  "arm": "baseline",
+  "skillSha": "1698e07dc33937780f79499f6759f5695952f7242b99f3a13e21be50154ad419",
+  "inputSha": "cd9cf6175c6696c99e474edad788c3d870bc8c1a14575323cb2441d249a70d37",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narration: argument resolution with no PR token\n\n**1. Parse arguments.** The arguments line has no PR token, no issue reference, and no `--rebase`. That is zero PR tokens, so set routing (`reference/batch.md`) does not apply and the run stays on the single-PR path. The `parallel.maxTasks` value of 4 is never consulted.\n\n**2. Resolve the PR.** SKILL.md `## Arguments` says an omitted PR is \"resolved from the current branch per `verification-brief.md` Section A\". Section A names one command for this:\n\n```\ngh pr view --json number,url\n```\n\nIt runs on the current branch and returns PR 999.\n\n**3. Commands I do not run.** The loaded skill has no open-list discovery step. So I do not use:\n- the author query rows (104, 88, 101, 130, 200, 201);\n- the review-requested query rows (112, 97, 101, 202);\n- `git remote get-url origin`;\n- `gh api user --jq .login`.\n\nNo candidate set forms. That means no de-duplication, no draft or approved filtering, and no oversize check. The skill also has no rule that judges whether the current branch's PR is \"related\", so PR 999 is not rejected for that reason.\n\n**4. Stop point.** Discovery produces no rejection under this skill. It ends with PR 999 resolved as the PR to gate. The narration stops here, before step 1's gather and before step 2. Nothing has been minted, provisioned, or dispatched:\n- no continuation record;\n- no tracker stages initialized;\n- no worktree;\n- no helpers.\n\n**5. Report outputs.**\n- **Verification SHA:** none. Verification and the brief have not run, so no SHA is assessed.\n- **Sync line:** none renders, because `--rebase` was not passed.\n- **Verdict line:** none, because no report renders.\n- **Menu:** none, because the stop comes before step 6.\n",
+      "words": 274,
+      "wallMs": 19174,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "At argument resolution, I run:\n\n```bash\ngh pr view --json number,url\n```\n\nThe command resolves the current branch to PR 999. The no-PR-token rule uses the current branch; it does not discover a set from authored or directly review-requested PRs.\n\nNo author-list or review-requested-list query runs. The supplied rows do not become a roster, so the four-PR limit causes no discovery rejection.\n\nNo tracker is initialized, no continuation record is minted, and no worktree or helper is provisioned within this argument-resolution narration.\n\nThe requested discovery rejection does not occur under the supplied procedure. PR 999 resolves successfully; no assessment SHA, Sync line, verdict, or menu exists at this boundary.\n",
+      "words": 108,
+      "wallMs": 11862,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
+}

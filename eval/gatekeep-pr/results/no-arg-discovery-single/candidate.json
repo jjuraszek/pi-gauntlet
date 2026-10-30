@@ -1,0 +1,70 @@
+{
+  "sample": "no-arg-discovery-single",
+  "arm": "candidate",
+  "skillSha": "96deee1e36feeba82ae56e119f44366ea42aae43f7473a65b33c909c2a7e1398",
+  "inputSha": "e372302133032eeacd66dc78c475b66e9f3cb7e3601a0e10eab8e9957c6e3aae",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Narration: argument resolution with no PR token\n\nNo PR token was supplied, so argument-resolution discovery runs per `verification-brief.md` Section A. This happens before the set-vs-single branch, the continuation record, tracker init, and provisioning.\n\n1. **`git remote get-url origin`** returns `git@github.com:acme/widgets.git`.\n   - This is a GitHub origin.\n   - I strip `.git` and lowercase the result, giving `acme/widgets`.\n   - Discovery uses this repository. `GH_REPO=other/project` and the gh default repo are not consulted, because every query passes `-R acme/widgets`.\n\n2. **`gh api user --jq .login`** returns `alex`, which becomes `viewer.login = alex`.\n\n3. **`gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`**\n   - It exits 0 and returns one row: `#101`, not a draft, `REVIEW_REQUIRED`, 1+1 lines.\n   - Validation passes:\n     - The output is an array.\n     - The row is an object.\n     - `number` is an integer.\n     - The count of 1 is below the 1000 limit.\n\n4. **`gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`**\n   - It exits 0 and returns `[]`.\n   - Validation passes: the output is an array with a count of 0.\n   - The query covers direct requests only, so team requests stay excluded.\n\n5. **Filter and sort.**\n   - The union and dedupe by number gives `{101}`.\n   - `#101` is not excluded: it is not a draft, and `REVIEW_REQUIRED` is neither `APPROVED` nor `CHANGES_REQUESTED`.\n   - Sorting by `additions + deletions`, then by number, gives `[101]`.\n\n6. **Outcome: one match.**\n   - The run continues on the single-PR path with the origin URL token `https://github.com/acme/widgets/pull/101`.\n   - The URL token keeps the repository identity pinned to `acme/widgets` in every later `gh pr view`, despite `GH_REPO`.\n   - The current branch's unrelated PR 999 is never used, because discovery never falls back to the current branch.\n   - The set-routing row is not entered, since there is only one PR.\n\n**Stop:** this is the single-PR handoff, before gathering or provisioning.\n\n- **Helpers dispatched:** none.\n- **Tracker stages initialized:** none yet. The continuation record and the tracker init (`gather, provision, verify`, with no `sync` because `--rebase` was not passed) come after this handoff.\n- **SHA under verification:** none yet. Nothing has been gathered, so no head SHA is assessed.\n- **Sync line:** none renders, because `--rebase` was not passed and no report exists.\n- **Verdict line:** none.\n- **Menu:** none is rendered at this stopping point.\n",
+      "words": 361,
+      "wallMs": 14688,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`, so discovery resolves the repository as `acme/widgets`, regardless of `GH_REPO` and the gh default.\n\n2. Run `gh api user --jq .login`. It returns `alex`; retain that value for the later Gatherer.\n\n3. Run the origin-scoped author query:\n   ```bash\n   gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions\n   ```\n   It returns PR 101.\n\n4. Run the origin-scoped direct-review-request query:\n   ```bash\n   gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions\n   ```\n   It returns an empty array.\n\n5. Validate both outputs, union and deduplicate by PR number, then filter drafts and PRs with `APPROVED` or `CHANGES_REQUESTED` decisions. PR 101 remains, with two changed lines.\n\n**Single-PR handoff:** `https://github.com/acme/widgets/pull/101`.\n\nStop before gathering or provisioning. The unrelated current-branch PR 999 is not selected. No continuation record is minted, no tracker stages are initialized, no helpers are dispatched, and no verification, report, sync line, verdict, or menu renders.\n",
+      "words": 156,
+      "wallMs": 6043,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0b5cada8224787d510c2196e6969fb6d845bed1bd6e7071fbc33f00359bb18a2",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
+      "baselineOutputSha": "30d5e2917df039d454d52facc4933bfe9bd73b2a61ca105ac4c88fcf52aaee38",
+      "candidateOutputSha": "4d9c5cc75d564c72756a7e9c89f3863aa7582972bfbb03c5292175effb49fffc",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before narrates both gh pr list commands with -R acme/widgets, but hands the single-PR path a bare numeric token (`gatekeep-pr 101`, 'Repo pinned to acme/widgets') rather than the required URL token https://github.com/acme/widgets/pull/101, so a bare `gh pr view 101` would in practice resolve through GH_REPO=other/project; that is why f1 fails in Before. After fixes this by explicitly producing 'the origin URL token https://github.com/acme/widgets/pull/101' and explaining that the URL keeps repository identity pinned in every later gh pr view despite GH_REPO, while still running both list queries with -R acme/widgets, excluding the branch's PR 999, and not entering set routing — so f1 holds. To keep this behavior, retain the wording that discovery emits a full origin URL token (not a bare number) and that every list query passes -R <origin repo>; nothing in the per-PR menu sequencing change needs to touch this single-PR handoff text.",
+      "wallMs": 11428,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0b5cada8224787d510c2196e6969fb6d845bed1bd6e7071fbc33f00359bb18a2",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
+      "baselineOutputSha": "13dc14da42f9405496d9438c9ab60bb3ef902d1964f3c65f1ac1395048d6baf6",
+      "candidateOutputSha": "ea741638e27ef818db769efc774b3186765c8e1a54ca14ccfa836d25cdc9deda",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After satisfies f1 exactly: it narrates both gh pr list commands with -R acme/widgets, ignores GH_REPO=other/project, and hands only https://github.com/acme/widgets/pull/101 to the single-PR path with no batch dispatch or discovery stop. Before failed because it treated no-token as 'use the current branch PR' (999) and ran neither list query. The After wording that fixed this is the explicit no-arg discovery procedure: origin-derived repo, two -R-scoped list queries, union/filter, then single-PR handoff when exactly one remains. Keep that procedure as written; if you tighten anything, keep the explicit statement that the current-branch PR is not consulted in no-token discovery, since that was the exact misreading in Before.",
+      "wallMs": 4918,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
+}

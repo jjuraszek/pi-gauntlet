@@ -1,0 +1,1 @@
+- f1: judged: Stop with exactly `no open PRs authored by @me or awaiting @me's review in acme/widgets` before provisioning; the failed user read is not an identity error that stops discovery, and there is no current-branch fallback.

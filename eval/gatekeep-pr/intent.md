@@ -1,13 +1,25 @@
-for: 56790d4fd3938d1894efbdf08b2cac55356a1951f9f4d2ea59d3dc2193ad9918
+for: 5e4657e3439fc47fb3523d19f52630eaae4c3f031be1d0e049824a213222093a
 
 ## Change
 
 Render one PR's report and menu per turn in the batch summary round: include the first PR with the summary, then collect each pick before presenting the next PR's report and menu instead of asking for all picks at once.
 
+Exercise no-arg-discovery-over-cap, no-arg-discovery-single, no-arg-discovery-zero, no-arg-discovery-cc-multi, no-arg-discovery-failed and no-arg-discovery-under-cap for argument-resolution outcomes; exercise role-line-requested for refreshed pending relationships and report shape.
+
 ## Comparison scope
 
-Compare the batch-summary-queue sample against the base commit's skill text. Preserve verbatim reports, roster order, and queued consequences; this partial report covers only batch-summary-queue, not the full target.
+The full-target comparison includes the no-arg-discovery-* samples and role-line-requested targeted by this change, compared against the base commit's skill text. Judgments were refreshed for every sample because the intent text changed. The rebase did not re-stale any replay cell; the skill assembly's for: SHA is unchanged.
 
 ## Expected to move
 
 - batch-summary-queue/s8: fails -> holds - Explicitly sequence each PR's report and menu after the previous pick instead of rendering multiple menus or requesting a combined reply.
+- no-arg-discovery-over-cap/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- no-arg-discovery-single/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- no-arg-discovery-zero/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- no-arg-discovery-cc-multi/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- no-arg-discovery-failed/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- no-arg-discovery-under-cap/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- role-line-requested/r1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- role-line-requested/r2: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- role-line-requested/r3: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- role-line-requested/r4: fails -> holds - Exercise the approved discovery and refreshed-role contract.

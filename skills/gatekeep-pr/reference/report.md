@@ -18,6 +18,8 @@ Delivers: <one sentence: what the PR does. With source: spec, a second sentence 
           order ("3, 5 deferred per spec to <ref>"); deviating rows ("2 deviates per spec: <why>"); elsewhere rows grouped by repo ("6 elsewhere per spec: <repo>");
           observation halves ("4's observable half (<what>) is checked after merge, not here").>
 
+Role: <author | requested reviewer | none | unreadable>
+
 PR comments:             (replyable review comments, a pending reviewer run, a blocked or unknown merge state, a binding pending check, a failed refresh, or an incomplete source review - see the paragraph above)
 - <reviewer>'s comment on <topic> <verdict clause>, so the drafted reply <what it says>. (<locator>)
 - The reviewer run is still in progress, so merge waits. (<run url>)
@@ -39,7 +41,9 @@ Verdict: mergeable - <evidence clause> | fixable - <N> blockers | not ready - <w
 <menu>
 ```
 
-Render `Sync:` only when `--rebase` was passed. Open the `Sync:` line with the digest's `sync` field value verbatim (for example `Sync: declined - other author's branch`). Put any explanation after that value as a second clause or sentence. Never paraphrase the status value into prose. Exempt this line from SKILL.md wording rule 5 (passing facts only under `show evidence`): name the resolved files even when the sync succeeded.
+Print exactly one `Role:` directly under `Delivers` on every report from the refreshed `viewer.role` and `pr.review_requests`; append `(also requested: <entries>)` for requested reviewer, `(requested: <entries>)` otherwise, omitted when `<entries>` is empty. `<entries>`: the User and Team entries other than the viewer, API order (Keep API order, exclude the viewer by case-insensitive User login comparison, exclude nobody when the login is unreadable), User as login, Team as `slug`; render missing login/slug as `unknown`. Example: `Role: requested reviewer (also requested: robin, acme/reviewers)`.
+
+Render `Sync:` only when `--rebase` was passed. Open the `Sync:` line with the digest's `sync` field value verbatim (for example `Sync: declined - other author's branch`). Put any explanation after that value as a second clause or sentence. Never paraphrase the status value into prose. Exempt `Sync:` and `Role:` from SKILL.md wording rule 5 (passing facts only under `show evidence`): name the resolved files even when the sync succeeded.
 
 For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head, immediately before the verdict (for example `Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)`). Use the resolved local verification summary instead when local evidence owns the assessment; do not invent a passing result when evidence is unavailable. Carry the same source summary into the obstacle menu's evidence hint. Exempt this compact source summary and the final template's `Evidence:` line from the evidence-only rules below and SKILL.md wording rule 5; keep the full record under `show evidence`.
 
@@ -51,7 +55,7 @@ For ordinary assessments, use `mergeable`, `fixable`, or `not ready`. Carry the 
 
 ## What stays out
 
-Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. CI run URLs and conclusions (the pending-reviewer locator in `PR comments` is the one URL that prints in the report), drafted file edits and full description bodies, drafted replies, matched claims, per-row AC outcomes, internal IDs, and disposition annotations print only under the `show evidence` command. A clean run with a spec renders `Delivers`, the verdict line, and the menu - about four lines.
+Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. CI run URLs and conclusions (the pending-reviewer locator in `PR comments` is the one URL that prints in the report), drafted file edits and full description bodies, drafted replies, matched claims, per-row AC outcomes, internal IDs, and disposition annotations print only under the `show evidence` command. A clean run with a spec renders `Delivers`, `Role`, the verdict line, and the menu - about five lines.
 
 Print the compact exact old-to-new description preview under its blocker; keep the full replacement body under `show evidence`. Keep a declined correction's proposal open and its preview line under the blocker on every re-render until the claim resolves. Uncertainty alone preserves the mergeable verdict.
 
@@ -63,6 +67,7 @@ Own PR, ticket gh-45:
 
 ```
 Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.
+Role: author
 
 PR comments:
 - maria's comment on the missing CSV header is already addressed, so the drafted reply points her at the fix. (3f2a1c0)
@@ -86,6 +91,7 @@ A clean own PR with ticket gh-45 and CI green:
 
 ```
 Delivers: the reports page exports CSV on demand. ACs 1-5.
+Role: author
 
 Verdict: mergeable - CI green on the assessed head (test)
 
