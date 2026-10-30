@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Under an active amend grant, an implementer-execution failure in either implement engine (the waves third attempt, a loop row at its allowance, the loop exit-verification repair) spends one escalated round on `escalationLoop.implModel` before stopping. A stop whose `Recommendation:` names work the grant already authorizes (an amend, a narrower test filter, a fix-first ticket) is taken; `Recommendation: none`, budget- or consent-spending recommendations, a third human-facing aftermath outcome, and repeated evidence still stop for the human, and every implement-phase stop note ends with a `Recommendation:` line. An approved drafted AC-row correction backed by implementer evidence is an amend item under the grant; cap, stagnation, and boundary stops are unchanged. (#101)
+
 ## v7.41.1 - 2026-10-29
 
 ### Changed
