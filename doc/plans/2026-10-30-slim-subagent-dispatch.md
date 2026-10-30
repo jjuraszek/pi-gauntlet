@@ -4,47 +4,23 @@
 
 **Goal:** Replace SDD's separate spec and code reviews with one integrated wave review, bounded direct report reads, and repairs on the current tree.
 
-**Architecture:** Keep manifest-driven task ownership and the existing verification and conformance gates. Merge the reviewer persona, migrate its callers, and replace SDD's implement-phase protocol with one wave loop that integrates before review and exports repair deltas from committed snapshots. Extend existing telemetry reducers and cadence bookkeeping without changing the sealed record schema or pi-cohort's dispatch API.
+**Architecture:** Keep manifest-driven task ownership and the existing verification and conformance gates. Merge the reviewer persona, migrate its callers, and replace SDD's implement-phase protocol with one wave loop that integrates before review and exports repair deltas from committed snapshots. Extend existing telemetry reducers and cadence bookkeeping without changing the sealed record schema or pi-cohort's dispatch API. Add implement-local plan maintenance to the existing writer/checker route without changing ordinary planning or final verification.
 
 **Tech Stack:** Markdown skills and personas, Node.js native TypeScript tests, JSON-schema output contracts, esbuild bundles, and the existing model-eval harness.
 
 **Spec:** `doc/specs/2026-10-30-slim-subagent-dispatch.md`
 
-**Verification:** `npm test` && `node eval/run.mjs subagent-driven-development` && `node eval/run.mjs wave-reviewer`
+**Verification:** `npm test` && `node eval/run.mjs subagent-driven-development` && `node eval/run.mjs wave-reviewer` && `node eval/run.mjs writing-plans`
 
-Baseline jjuraszek/pi-gauntlet: 02ca8d22
+Baseline jjuraszek/pi-gauntlet: 4bb924dd
 
 ---
 
-## Open Questions
-
-- Task 3: `node --test scripts/wave-review.test.mjs` fails on 02ca8d22 (exit 1): jjuraszek/pi-gauntlet cannot load the removed skills/requesting-code-review/code-reviewer.md template (ENOENT); 1 test, 0 pass, 1 fail.
-  ```text
-    syscall: 'open',
-    path: '/Users/jacek/repos/pi-gauntlet/.worktrees/slim-subagent-dispatch/skills/requesting-code-review/code-reviewer.md'
-  }
-  
-  Node.js v26.11.1
-  ✖ scripts/wave-review.test.mjs (41.016458ms)
-  ℹ tests 1
-  ℹ suites 0
-  ℹ pass 0
-  ℹ fail 1
-  ℹ cancelled 0
-  ℹ skipped 0
-  ℹ todo 0
-  ℹ duration_ms 45.042667
-  
-  ✖ failing tests:
-  
-  test at scripts/wave-review.test.mjs:1:1
-  ✖ scripts/wave-review.test.mjs (41.016458ms)
-    'test failed'
-  ```
-
 ## Baseline and reconnaissance
 
-Initial provenance for this amendment: repo jjuraszek/pi-gauntlet, HEAD 02ca8d22; porcelain inventory empty, In-flight none. The only admitted workflow paths are `doc/specs/2026-10-30-slim-subagent-dispatch.md` and `doc/plans/2026-10-30-slim-subagent-dispatch.md`. Endpoint proof command: `git diff --quiet 70baf9f0 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 1. All three unchanged Tests commands were freshly executed on 02ca8d22 rather than retaining prior evidence: Task 1 passed 340 tests, Task 2 passed 76 tests and Task 3 failed loading the removed requesting-code-review template (1 test, 0 pass, 1 fail). After each run HEAD remained 02ca8d22 and porcelain contained only the admitted spec edit; no artifact suffixes exist. Baselines describe the checkout before the remaining implementation, not evidence that the new behavior exists.
+Initial provenance for this amendment: repo jjuraszek/pi-gauntlet, HEAD 4bb924dd; porcelain inventory empty, In-flight none. The only admitted workflow paths are `doc/specs/2026-10-30-slim-subagent-dispatch.md` and `doc/plans/2026-10-30-slim-subagent-dispatch.md`. Endpoint proof `git diff --quiet 02ca8d22 4bb924dd -- . ':!doc/specs/' ':!doc/plans/'` exited 1. The installed writer/checker still require ordinary uniform per-leg evidence; Task 5 implements the local historical policy, so this amendment does not pretend that policy already exists. Fresh runs on 4bb924dd: Task 1 passed 340 tests, Task 2 passed 76 tests, Task 3 passed 15 tests, all exit 0. Status after each remained clean and HEAD unchanged. Task 5's exact combined checker/amendment command then passed 200 tests and its baseline-selected brainstorming command passed 1 test, both exit 0 with no skipped tests. Those two runs used the same committed implementation with only the admitted spec and plan edits; post-run status showed precisely those two unstaged paths, no artifacts or contamination, and unchanged HEAD. No clean-HEAD claim includes unrecorded source changes. The final document-only repair retained these same-revision execution results; proof from 4bb924dd to itself exited 0 and no SHA was restamped.
+
+Historical evidence: the prior amendment used 02ca8d22 with an initially empty inventory and the same admitted paths. Its proof from 70baf9f0 failed, and it freshly ran Tasks 1-3: 340 pass, 76 pass, then Task 3 exit 1 with ENOENT on the removed requesting-code-review/code-reviewer.md template (1 test, 0 pass, 1 fail). The original failure row/output and immutable pre-apply task inventory are retained in the saved apply report. The integrated template-test repair at 4bb924dd resolves that exact command: its current 15-test passing run removes the stale Open Questions row. This is measured resolution, not attribution by task membership. No source was changed for this amendment.
 
 The first extension command on the original baseline omitted the CI stub loader and failed on missing host-runtime packages. Recon of `scripts/ci.mjs:436-449` corrected the command to the file-addressable loader invocation below; its replacement run passed 334 tests.
 
@@ -52,7 +28,9 @@ The single admitted leg is jjuraszek/pi-gauntlet at the supplied checkout. No co
 
 Source seams: `extensions/lib/telemetry-collect.ts:32-57` owns reviewer recognition and tag counts; `extensions/telemetry.ts:678-721` consumes per-child results and findings; `extensions/phase-tracker.ts:139-147,811-816` owns cadence identities and the explicit comparison; `extensions/lib/phase-tracker-helpers.ts:33-74` owns dispatch labels. pi-cohort's installed `src/shared/formatters.ts:56-100` renders `## Outputs`, per-task headings and fenced JSON with a nested `structured` object, separately from `## Stop`. Keep parser fixtures faithful to that observed format.
 
-The change is one non-deployable package change, not separately deployable stages. Wave 1's tasks own disjoint files and run independent temp-directory test fixtures. Wave 2 consumes the merged persona and extension identities. Wave 3 owns cross-cutting docs only. Intermediate commits need their scoped tests green; the final package gate runs after all waves. The cross-task migration inventories below transcribe shared spec-line literals; each worker edits only its own Files, not every path in those inventories.
+Local-maintenance seams: `extensions/lib/plan-check.ts:565-629` validates baseline adjacency, forms, created anchors and uniform SHAs; `:1327-1344` enforces per-leg declarations. Its pure `checkPlan` API already receives plan text and leg-aware FsPort, so plan header metadata can specialize checks without a new tool or state store. Existing cases at `extensions/lib/plan-check.test.ts:1116-1183,1259-1282` pin ordinary evidence and leg boundaries. `scripts/implement-amendment.test.mjs` pins prepare/apply shapes, original-inventory retries and writer frontmatter. `scripts/brainstorming-contract.test.mjs:139-146` pins baseline consent; its later in-place sync assertion still quotes the superseded SR/CR sentence, outside this task's scoped baseline selection and requiring attention at the integrated gate. Keep unrelated regressions substantive rather than rewriting tests to hide them.
+
+Tasks 1-3 are complete per the parent at 4bb924dd. Preserve their task bodies and completed deliverables; shifted anchors and freshly measured baseline bullets do not instruct reimplementation. Task 5 is new, not delivered. Task 4 retains its id/title, remains pending and moves only to keep the dedicated documentation wave last. The change remains one non-deployable package change. Wave 1's tasks own disjoint files and independent temp fixtures; Wave 2 consumes those foundations; Wave 3 owns local maintenance; Wave 4 owns cross-cutting docs. Intermediate commits need scoped tests green; final verification remains mandatory.
 
 ## Files
 
@@ -62,7 +40,9 @@ The change is one non-deployable package change, not separately deployable stage
 
 **SDD protocol - modify:** `skills/subagent-driven-development/SKILL.md`, `skills/subagent-driven-development/reference/dispatch-contract.md`, `skills/subagent-driven-development/stop-note.md`, `scripts/wave-review.test.mjs`, the SDD assertions in `scripts/anchored-task.test.mjs`, `scripts/ci.mjs`, and the SDD eval target metadata, retained samples and results. Create the merged SDD prompt and eleven sample pairs enumerated by Task 3. Delete both old SDD reviewer prompts, `reference/fix-loop.md`, and the four superseded sample/result directories.
 
-**Cross-cutting docs - modify:** `doc/personas.md`, `doc/implement-engines.md`, `doc/configuration.md`, `README.md`, `CHANGELOG.md` with an Unreleased entry now, and the predecessor spec only if its already-present supersession banner needs correction. Do not edit the approved current spec during implementation except through amendment.
+**Implement-local maintenance - modify:** the existing writer, planning skill/contract, amendment surface, SDD amendment/dispatch references, checker and deterministic tests enumerated by Task 5. Create three synthetic sample pairs; update both existing targets' intent/report/result files and regenerate the existing bin bundles. No new persona, registration, tool or state store.
+
+**Cross-cutting docs - modify:** `doc/personas.md`, `doc/implement-engines.md`, `doc/configuration.md`, `README.md`, `CHANGELOG.md` with an Unreleased entry now including local amendment/revalidation, and the predecessor spec only if its already-present supersession banner needs correction. Do not edit the approved current spec during implementation except through amendment.
 
 ## Wave 1 - Reviewer and extension foundations
 
@@ -71,7 +51,7 @@ Leg: jjuraszek/pi-gauntlet
 
 **TDD scenario:** Modifying tested code - run existing tests first.
 
-**Spec:** doc/specs/2026-10-30-slim-subagent-dispatch.md § "Acceptance criteria" L52, § "Extensions" L184, § "Extensions" L185, § "Extensions" L186, § "Extensions" L187, § "Removals and additions" L195, § "Removals and additions" L196, § "Removals and additions" L200, § "Errors and edge cases" L223, § "Tests" L243, § "Tests" L244
+**Spec:** doc/specs/2026-10-30-slim-subagent-dispatch.md § "Acceptance criteria" L52, § "Extensions" L184, § "Extensions" L185, § "Extensions" L186, § "Extensions" L187, § "Removals and additions" L195, § "Removals and additions" L196, § "Removals and additions" L200, § "Errors and edge cases" L235, § "Tests" L255, § "Tests" L256
 
 **Files:**
 - Modify: `extensions/lib/telemetry-collect.ts:32-57`
@@ -92,7 +72,7 @@ Leg: jjuraszek/pi-gauntlet
 
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/telemetry-collect.test.ts extensions/lib/phase-tracker-helpers.test.ts extensions/phase-tracker.test.ts extensions/telemetry.test.ts`
-- baseline: 02ca8d22 pass
+- baseline: 4bb924dd pass
 - via: `countStructuredFindings(text)`, `countFindings`, `REVIEWER_AGENTS`, `dispatchLabel`, `CADENCE_AGENTS`, Guard 5 and the telemetry subagent tool-result handler
 
 Decision: use the CI stub loader for extension integration tests, not an installed host-runtime dependency - `scripts/ci.mjs:436-449`. Keep `countFindings` tag parsing and the historical sealed schema unchanged; active collection and historical interpretation are separate concerns.
@@ -115,7 +95,7 @@ Rules: skills/forge-skill/SKILL.md
 
 **TDD scenario:** Modifying tested instruction behavior - update deterministic assertions before the persona and callers.
 
-**Spec:** doc/specs/2026-10-30-slim-subagent-dispatch.md § "Acceptance criteria" L48, § "Acceptance criteria" L50, § "Acceptance criteria" L54, § "The merged persona" L171, § "The merged persona" L173, § "The merged persona" L174, § "The merged persona" L175, § "The merged persona" L176, § "The merged persona" L178, § "The merged persona" L180, § "Removals and additions" L195, § "Removals and additions" L196, § "Removals and additions" L198, § "Removals and additions" L200, § "Removals and additions" L202, § "Errors and edge cases" L224, § "Tests" L240, § "Tests" L241, § "Out of scope" L258, § "Out of scope" L259, § "Out of scope" L260, § "Out of scope" L261
+**Spec:** doc/specs/2026-10-30-slim-subagent-dispatch.md § "Acceptance criteria" L48, § "Acceptance criteria" L50, § "Acceptance criteria" L54, § "The merged persona" L171, § "The merged persona" L173, § "The merged persona" L174, § "The merged persona" L175, § "The merged persona" L176, § "The merged persona" L178, § "The merged persona" L180, § "Removals and additions" L195, § "Removals and additions" L196, § "Removals and additions" L198, § "Removals and additions" L200, § "Removals and additions" L202, § "Errors and edge cases" L236, § "Tests" L252, § "Tests" L253, § "Out of scope" L274, § "Out of scope" L275, § "Out of scope" L276, § "Out of scope" L277
 
 **Files:**
 - Create: `agents/wave-reviewer.md`
@@ -163,7 +143,7 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/anchored-task.test.mjs scripts/loop-engine-contract.test.mjs scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 02ca8d22 pass
+- baseline: 4bb924dd pass
 - via: `wave-reviewer`, anchored task selection, loop verification and gatekeep sync dispatch contracts
 
 Decision: preserve the old code-reviewer's frontmatter byte-for-byte except the explicitly authorized `name:` and routing-label `description:`. Its existing tool profile already supports read-only scoped tests; do not introduce a model or thinking pin. Existing deterministic frontmatter hashes in anchored-task.test.mjs must become field-aware comparisons for those two allowed edits, rather than accepting arbitrary frontmatter drift. Leave that test's SDD template assertions on the existing templates in this wave; Task 3 migrates those assertions with the SDD prompt.
@@ -196,7 +176,7 @@ Rules: skills/forge-skill/SKILL.md
 
 **TDD scenario:** Modifying tested instruction behavior - add the new structural and shell-fixture assertions before replacing the protocol.
 
-**Spec:** doc/specs/2026-10-30-slim-subagent-dispatch.md § "Problem" L20, § "Acceptance criteria" L38, § "Acceptance criteria" L40, § "Acceptance criteria" L42, § "Acceptance criteria" L44, § "Acceptance criteria" L46, § "Acceptance criteria" L48, § "Acceptance criteria" L50, § "Acceptance criteria" L54, § "Acceptance criteria" L56, § "Acceptance criteria" L58, § "Orchestrator frame (kept)" L96, § "Orchestrator frame (kept)" L98, § "The wave loop (rewritten)" L102-L104, § "The wave loop (rewritten)" L105, § "The wave loop (rewritten)" L106, § "The wave loop (rewritten)" L107, § "The wave loop (rewritten)" L108, § "The wave loop (rewritten)" L109, § "The wave loop (rewritten)" L110, § "The wave loop (rewritten)" L111, § "The wave loop (rewritten)" L113, § "The wave loop (rewritten)" L114-L116, § "The wave loop (rewritten)" L118-L134, § "The wave loop (rewritten)" L136, § "The wave loop (rewritten)" L140, § "The wave loop (rewritten)" L141, § "The wave loop (rewritten)" L142, § "The wave loop (rewritten)" L143, § "The wave loop (rewritten)" L144-L145, § "The wave loop (rewritten)" L146, § "The wave loop (rewritten)" L147, § "The wave loop (rewritten)" L148, § "The wave loop (rewritten)" L149-L150, § "The wave loop (rewritten)" L151-L152, § "The wave loop (rewritten)" L154, § "Rebuild (the one automatic path)" L158, § "Escalation and funding (folded in, semantics kept)" L162, § "Escalation and funding (folded in, semantics kept)" L163, § "Escalation and funding (folded in, semantics kept)" L164, § "Escalation and funding (folded in, semantics kept)" L165-L167, § "The merged persona" L178, § "The merged persona" L180, § "Transcript lines and recovery" L191, § "Removals and additions" L195, § "Removals and additions" L196, § "Removals and additions" L198, § "Removals and additions" L200, § "Removals and additions" L202, § "Errors and edge cases" L208-L213, § "Errors and edge cases" L214-L219, § "Errors and edge cases" L220-L222, § "Tests" L228, § "Tests" L229, § "Tests" L230, § "Tests" L231, § "Tests" L232, § "Tests" L233, § "Tests" L234, § "Tests" L235, § "Tests" L236, § "Tests" L237, § "Tests" L238, § "Tests" L239, § "Tests" L241, § "Tests" L242, § "Tests" L245, § "Tests" L246, § "Out of scope" L258, § "Out of scope" L260, § "Out of scope" L263
+**Spec:** doc/specs/2026-10-30-slim-subagent-dispatch.md § "Problem" L20, § "Acceptance criteria" L38, § "Acceptance criteria" L40, § "Acceptance criteria" L42, § "Acceptance criteria" L44, § "Acceptance criteria" L46, § "Acceptance criteria" L48, § "Acceptance criteria" L50, § "Acceptance criteria" L54, § "Acceptance criteria" L56, § "Acceptance criteria" L58, § "Orchestrator frame (kept)" L96, § "Orchestrator frame (kept)" L98, § "The wave loop (rewritten)" L102-L104, § "The wave loop (rewritten)" L105, § "The wave loop (rewritten)" L106, § "The wave loop (rewritten)" L107, § "The wave loop (rewritten)" L108, § "The wave loop (rewritten)" L109, § "The wave loop (rewritten)" L110, § "The wave loop (rewritten)" L111, § "The wave loop (rewritten)" L113, § "The wave loop (rewritten)" L114-L116, § "The wave loop (rewritten)" L118-L134, § "The wave loop (rewritten)" L136, § "The wave loop (rewritten)" L140, § "The wave loop (rewritten)" L141, § "The wave loop (rewritten)" L142, § "The wave loop (rewritten)" L143, § "The wave loop (rewritten)" L144-L145, § "The wave loop (rewritten)" L146, § "The wave loop (rewritten)" L147, § "The wave loop (rewritten)" L148, § "The wave loop (rewritten)" L149-L150, § "The wave loop (rewritten)" L151-L152, § "The wave loop (rewritten)" L154, § "Rebuild (the one automatic path)" L158, § "Escalation and funding (folded in, semantics kept)" L162, § "Escalation and funding (folded in, semantics kept)" L163, § "Escalation and funding (folded in, semantics kept)" L164, § "Escalation and funding (folded in, semantics kept)" L165-L167, § "The merged persona" L178, § "The merged persona" L180, § "Transcript lines and recovery" L191, § "Removals and additions" L195, § "Removals and additions" L196, § "Removals and additions" L198, § "Removals and additions" L200, § "Removals and additions" L202, § "Errors and edge cases" L220-L225, § "Errors and edge cases" L226-L231, § "Errors and edge cases" L232-L234, § "Tests" L240, § "Tests" L241, § "Tests" L242, § "Tests" L243, § "Tests" L244, § "Tests" L245, § "Tests" L246, § "Tests" L247, § "Tests" L248, § "Tests" L249, § "Tests" L250, § "Tests" L251, § "Tests" L253, § "Tests" L254, § "Tests" L257, § "Tests" L258, § "Out of scope" L274, § "Out of scope" L276, § "Out of scope" L279
 
 **Files:**
 - Modify: `skills/subagent-driven-development/SKILL.md`
@@ -252,6 +232,7 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/wave-review.test.mjs`
+- baseline: 4bb924dd pass
 - via: `## The Wave Loop`, `repair-base-shell`, `fix-delta-tree-shell`, `WAVE_VERDICT_SCHEMA`, direct report reading and transcript recovery
 
 Decision: use a one-step chain, not top-level tasks, because the installed pi-cohort carrier exposes item outputSchema and `## Outputs` through step-level stopOn. Preserve the existing diagnosis and amendment carriers; this task changes report relays, not delegated source/spec reads. The existing predecessor banner already resolves to the current spec; add a CI assertion rather than manufacture a second banner. The deterministic scoped file exercises protocol and schema changes; the header gate also runs the migrated anchored-template assertions.
@@ -302,16 +283,81 @@ Sample path literals in Tests are relative to the SDD target: `eval/subagent-dri
 
 Orchestrator: observed-value forwarding - retain this run's implement `phase` start/complete observations and unique `plan_tracker` indices that reached `in_progress`; carry them to finishing with the request to report one `kind: "dispatch"` event per `details.results` child of `subagent`, divided by attempted tasks, beside 6.14 from `## Problem`. Report incomparable for `events_dropped > 0` or missing phase endpoints. Do not add a session-log analysis script or make the ratio a pass threshold.
 
-## Wave 3 - Public migration documentation
+## Wave 3 - Implement-local amendment maintenance
 
-Depends on Waves 1-2: describe the delivered identities and protocol, not an intermediate mixture. This trailing doc-only wave owns the shared hub documents once.
+Depends on Wave 2: reuse its completed amendment carrier and repair-on-top protocol. One task owns the coupled writer/checker change and its evals; it runs after all earlier edits to dispatch-contract and the generated bins.
+
+### Task 5: Localize implement amendments and preserve historical baselines
+Leg: jjuraszek/pi-gauntlet
+Rules: skills/forge-skill/SKILL.md
+
+**TDD scenario:** Modifying tested code and instruction behavior - add checker and protocol regressions before changing the policy.
+
+**Spec:** doc/specs/2026-10-30-slim-subagent-dispatch.md § "Implement-local plan maintenance" L206, § "Implement-local plan maintenance" L208, § "Implement-local plan maintenance" L210, § "Implement-local plan maintenance" L212, § "Implement-local plan maintenance" L214, § "Tests" L259, § "Tests" L260, § "Documentation impact" L267
+
+**Files:**
+- Modify: `agents/plan-writer.md`
+- Modify: `skills/writing-plans/SKILL.md`
+- Modify: `skills/writing-plans/reference/plan-contract.md`
+- Modify: `skills/brainstorming/reference/amendment-surface.md`
+- Modify: `skills/subagent-driven-development/reference/implement-amendments.md`
+- Modify: `skills/subagent-driven-development/reference/dispatch-contract.md`
+- Modify: `extensions/lib/plan-check.ts:565-629`
+- Modify: `extensions/lib/plan-check.test.ts`
+- Modify: `scripts/implement-amendment.test.mjs`
+- Modify: `scripts/brainstorming-contract.test.mjs`
+- Modify: `eval/writing-plans/intent.md`
+- Modify: `eval/writing-plans/report.md`
+- Modify: `eval/writing-plans/results/**`
+- Modify: `eval/subagent-driven-development/intent.md`
+- Modify: `eval/subagent-driven-development/report.md`
+- Modify: `eval/subagent-driven-development/results/**`
+- Modify: `bin/gauntlet-telemetry-seal.mjs`
+- Modify: `bin/gauntlet-performance.mjs`
+- Modify: `bin/gauntlet-spec-index.mjs`
+- Create: `eval/writing-plans/samples/implement-amend-historical-baseline/case.md`
+- Create: `eval/writing-plans/samples/implement-amend-historical-baseline/expected.md`
+- Create: `eval/writing-plans/samples/implement-amend-changed-command/case.md`
+- Create: `eval/writing-plans/samples/implement-amend-changed-command/expected.md`
+- Create: `eval/subagent-driven-development/samples/local-amend-revalidation/case.md`
+- Create: `eval/subagent-driven-development/samples/local-amend-revalidation/expected.md`
+- Test: `extensions/lib/plan-check.test.ts`
+- Test: `scripts/implement-amendment.test.mjs`
+- Test: `scripts/brainstorming-contract.test.mjs`
+
+**Tests:**
+- `node --test extensions/lib/plan-check.test.ts scripts/implement-amendment.test.mjs`
+- baseline: 4bb924dd pass
+- via: `checkPlan`, `checkBaselineLines`, `Amend-apply:`, `tasksAnchorChanged`, original inventory and retry classification
+- `node --test --test-name-pattern=baseline scripts/brainstorming-contract.test.mjs`
+- baseline: 4bb924dd pass
+- via: baseline recommendations and implement-only grant/attribution boundaries
+
+Decision: use `**Baseline policy:** implement-local` in the existing plan header for the mechanical checker, written only by implement-phase `Amend-apply:`; absence keeps ordinary initial-planning checks. Explicit full refresh executes all commands and restores ordinary uniform evidence; do not infer mode from differing SHAs. `checkPlan(planText, specText, fs)` already receives the whole plan and leg-aware path probes, so this needs no API, settings key or state store. Keep `APPLY_SCHEMA` unchanged; document semantic `tasksAnchorChanged` beside that schema rather than adding a second delta field.
+
+Decision: keep per-command execution identity and admission evidence in the existing Baseline provenance and saved apply report, scoped to leg and exact command. A historical bullet does not assert freshness at the current revision. Retain the original declaration, suffixes and evidence for unchanged commands; changed/missing/invalid evidence needs an identified execution and nonzero tests. Fail closed on unidentified dirty executions, not on declared staged repairs when no execution is needed. Source: existing Baseline/Tests grammar and spec's local historical policy.
+
+- [ ] **Step 1: Run the scoped Tests commands.** Record nonzero counts. The brainstorming selection exercises its existing baseline consent test without running unrelated PR lifecycle assertions; name new consent/attribution tests with the same baseline prefix so this command exercises them too. Full repository verification still runs every test.
+- [ ] **Step 2: Add checker regression tables and confirm red.** Extend the baseline and leg fixtures around plan-check.test.ts:1116-1183,1259-1282. In implement-local mode accept unchanged command bullets at two valid historical SHAs with initial leg declarations preserved; in ordinary mode retain differing-SHA failures. Keep malformed SHA, missing/duplicate/misplaced bullets, unanchored derived commands, foreign legs and cross-leg Create paths failing. Cover an existing Test path still declared Create versus an absent all-created path, including new skipped evidence and retained historical skipped evidence. Keep pass-via and artifact suffixes byte-identical in retention cases. Exercise a shifted spec anchor without changed obligation text and a real semantic change separately in protocol fixtures.
+- [ ] **Step 3: Specialize the existing checker and contract.** Parse the one allowed header mode from existing plan text; reject duplicate, empty or unknown values rather than treating them as permission. In `checkBaselineLines` and the per-leg checks at plan-check.ts:1327-1344 allow mixed revisions only under the implement-local policy. Keep one valid original declaration per admitted leg, path probes in that leg, baseline grammar and adjacency. For new evidence, count existing-created anchors as existing; permit new skips only for truly absent all-created anchors. Retained historical skips refer to the recorded revision, not current existence; require matching retained provenance rather than inventing an execution. Document this distinction in plan-contract.md without relaxing ordinary planning tests.
+- [ ] **Step 4: Localize writer application and inventory.** In agents/plan-writer.md and the existing writing-plans sections, route implement apply to affected-entry patching instead of regeneration. Before editing, capture original numbers/titles/waves/anchors plus anchored obligation text, task bodies and Tests in the existing saved apply report; retain it on failure and use `previousApplyReport` on retry. Compare semantic obligations/work, ignoring line shifts and meaning-preserving rewording; return no completed task for a pure offset move. Preserve unaffected text, state and evidence. Keep full-file write mechanics, mechanical `plan_check`, coverage updates, parent stamp and missing-original-inventory failure. Preserve persona frontmatter and no-source-edit/no-restoration limits.
+- [ ] **Step 5: Implement scoped historical Baseline execution.** Keep unchanged valid evidence and original per-leg declarations at their measured revisions, with no endpoint proof sweep or rerun-all. Execute changed/added/missing/invalid commands using the exact or documented derived scoped command on an identified current/retained implementation or existing parent-owned committed snapshot. Record leg, checkout, revision, admitted changes, command, exit and executed-test count; zero tests fail. A dirty checkout needs an identified execution tree, never a clean-HEAD pass. Read status before/after any run, stop on unknown dirty paths, contamination or moved test revision, and retain failed output and subsequent resolution. Keep initial planning and `Findings: rerun baseline` semantics distinct and unchanged.
+- [ ] **Step 6: Preserve staged repairs and consent boundaries.** In implement-amendments.md and amendment-surface.md's implement-only branches, admit declared in-flight repairs for spec/plan maintenance requiring no execution; never commit, restore or discard them merely to plan. Match a retained failure by failing command/assertion/path plus corresponding repair evidence, not task membership; route an actual outstanding repair to its existing task gate loop and keep unrelated regressions substantive. Decode the standing grant per batch, apply the named recommendation without reviewer/menu under amend permission, and do not treat repeated authorized intermediate evidence as new consent or a refresh trigger. Preserve budget-only, malformed, redraw-only/mixed, unidentified-test-tree and unrelated-regression stops, the single audit and unchanged funding. Update dispatch-contract prose for the same apply schema and semantic delta meaning; add no persona, tool, state store, install or registration edit.
+- [ ] **Step 7: Extend deterministic contract assertions.** In implement-amendment.test.mjs pin local patch ownership, semantic versus offset changes, inventory preservation through a failed apply and idempotent retry, exact schema/frontmatter preservation, and parent stamp before reconciliation. In brainstorming-contract.test.mjs add baseline-prefixed assertions for staged preservation with no execution, identified changed-command runs with nonzero counts, retained template-rename repair with resolving evidence versus unrelated regression, and grant/budget/malformed/redraw boundaries. Retain ordinary restamp and delegated-amendment tests; do not weaken another phase's guard to make these pass.
+- [ ] **Step 8: Add the three synthetic eval pairs.** `implement-amend-historical-baseline` supplies two historical command revisions, unchanged evidence suffixes, offset-only anchors and staged declared repair paths; require no rerun, restamp, cleanup or unrelated reopening. `implement-amend-changed-command` supplies a changed command and compares a known clean snapshot, unidentified dirty tree, zero-test result and a truly absent created anchor; require exact/derived scoped execution and truthful provenance or a stop. `local-amend-revalidation` contrasts a retained template-rename failure plus matching repair with an unrelated regression, then amend permission, budget-only, malformed and mixed-redraw batches and retry inventory. Use portable synthetic paths, not this run's private transcript. Keep existing ordinary planning restamp cases and `delegated-amendment` byte-identical. Existing target slices include the changed rules; use sample bundle additions for the existing writer/amendment reference when needed, not a new target or registration.
+- [ ] **Step 9: Run scoped tests, format and build.** Run both Tests commands to green, inspect modified rules for imperative voice/minimal diff and compact ASCII Markdown, and preserve untouched frontmatter. Run `npm run build:bins`; keep generated changes in the three declared bundles, never hand-edit them. Run targeted sample comparisons while iterating; refresh both intent assembly hashes from the actual candidate, naming only approved expected moves. Final verification owns the full target runs, including `node eval/run.mjs writing-plans`, and commits their real reports/results; no model evidence is fabricated.
+- [ ] **Step 10: Commit the bounded change.** Stage only this task's paths and use `git commit -m "Keep implement amendments local to changed obligations"`, identifying the instruction behavior change in the body. Leave Task 4's cross-cutting docs to the final wave and preserve all completed reviewer/telemetry/protocol deliverables.
+
+## Wave 4 - Public migration documentation
+
+Depends on Waves 1-3: describe the delivered identities, wave loop and local amendment policy, not an intermediate mixture. Task 4 keeps its original identity and is the trailing doc-only wave.
 
 ### Task 4: Document the reviewer migration and supersession
 Leg: jjuraszek/pi-gauntlet
 
 **TDD scenario:** Documentation-only change - check published contract against the accepted implementation.
 
-**Spec:** doc/specs/2026-10-30-slim-subagent-dispatch.md § "Acceptance criteria" L56, § "Removals and additions" L200, § "Documentation impact" L250, § "Documentation impact" L251
+**Spec:** doc/specs/2026-10-30-slim-subagent-dispatch.md § "Acceptance criteria" L56, § "Removals and additions" L200, § "Documentation impact" L265, § "Documentation impact" L266
 
 **Files:**
 - Modify: `doc/personas.md`
@@ -326,7 +372,7 @@ Leg: jjuraszek/pi-gauntlet
 
 - [ ] **Step 1: Update persona and operator guidance.** Replace two roster rows with wave-reviewer, describe clause-table versus findings-only dispatch, and preserve the frontmatter knob guidance. Update the `agentOverrides` example pins at `doc/personas.md:32-35`: `subagents.agentOverrides.code-reviewer` and `.spec-reviewer` move to `agentOverrides.wave-reviewer`; remove old example keys rather than silently keeping two ineffective settings.
 - [ ] **Step 2: Update execution and cadence docs.** In doc/implement-engines.md describe one integrated review per wave and point to The Wave Loop instead of the deleted fix-loop reference. In doc/configuration.md update the wave-review label, code/doc cadence reminder and pin migration note, including `doc/configuration.md:69`. Do not change settings keys or the loop engine protocol.
-- [ ] **Step 3: Update the package definition and changelog.** Change README's persona count from 11 to 10 and update overlapping persona descriptions. Write the `CHANGELOG.md` `## Unreleased` entry in this change, naming removed personas, operator pin migration and the pi-cohort pairing note: no dispatch-shape change, so sibling docs need no update.
+- [ ] **Step 3: Update the package definition and changelog.** Change README's persona count from 11 to 10 and update overlapping persona descriptions. Write the `CHANGELOG.md` `## Unreleased` entry in this change, naming removed personas, operator pin migration and the pi-cohort pairing note: no dispatch-shape change, so sibling docs need no update. Include the delivered implement-local amendment/revalidation contract: semantic-only reopening, historical command evidence, scoped new evidence and preserved staged repairs, with integrated/final verification unchanged.
 - [ ] **Step 4: Check the predecessor banner.** The current header already names this spec and section 2. Keep that valid single `Superseded by` banner rather than duplicate it; edit only if the final link-resolution check reveals drift. Do not alter the predecessor's preserved historical design body.
 - [ ] **Step 5: Review and commit.** Check compact Markdown tables, ASCII punctuation, existing links and present-tense wording. Use bare git to stage only the documentation edits and `git commit -m "Document the wave-reviewer migration"`.
 
@@ -395,36 +441,45 @@ Shared additions inventory for accurate documentation (implementation belongs to
 | § "Removals and additions" L198 | Rewrite retained samples, preserve delegated-amendment, migrate test/target references; Rules-sentence check covers `implementer` and `wave-reviewer` only | Task 2, Task 3 |
 | § "Removals and additions" L200 | Add merged persona/protocol, CI guards, sample suites, docs and pin migration | Task 1, Task 2, Task 3, Task 4 |
 | § "Removals and additions" L202 | Unlisted moving parts require approved amendment | Task 2, Task 3 |
-| § "Errors and edge cases" L208-L213 | Gate/apply/empty-delta edge outcomes | Task 3 |
-| § "Errors and edge cases" L214-L219 | Reject, blocked, escalation, funding, unowned finding and oversized report stops | Task 3 |
-| § "Errors and edge cases" L220-L222 | Missing-output diagnosis, doc-only review and transcript-only resume | Task 3 |
-| § "Errors and edge cases" L223 | Historical reviewer records still parse | Task 1 |
-| § "Errors and edge cases" L224 | Non-SDD calls remain findings-only | Task 2 |
-| § "Tests" L228 | Code/doc one-review scenario | Task 3 |
-| § "Tests" L229 | Report-bound, delegated-source and unchanged amendment scenarios | Task 3 |
-| § "Tests" L230 | Isolated delta and in-place repair scenario | Task 3 |
-| § "Tests" L231 | Red gate before review scenario | Task 3 |
-| § "Tests" L232 | Empty-delta attempt scenario | Task 3 |
-| § "Tests" L233 | Rebuild and initial apply failure scenario | Task 3 |
-| § "Tests" L234 | Same-tree escalation and funded failure scenarios | Task 3 |
-| § "Tests" L235 | One convergence exception scenario | Task 3 |
-| § "Tests" L236 | Reject hard-stop scenario | Task 3 |
-| § "Tests" L237 | Blocked same-tree resume scenario | Task 3 |
-| § "Tests" L238 | Mid-wave recovery scenario | Task 3 |
-| § "Tests" L239 | Leg-owned implementer dispatch | Task 3 |
-| § "Tests" L240 | Merged reviewer clause scenarios | Task 2 |
-| § "Tests" L241 | Non-SDD caller migration and retired-dispatch CI check | Task 2, Task 3 |
-| § "Tests" L242 | One-step carrier deterministic assertions | Task 3 |
-| § "Tests" L243 | File-only structured findings and historical-name tests | Task 1 |
-| § "Tests" L244 | Cadence and label tests | Task 1 |
-| § "Tests" L245 | Supersession link CI check | Task 3 |
-| § "Tests" L246 | Runtime ratio observation, not a target threshold | Task 3 |
-| § "Documentation impact" L250 | Roster, knobs, execution guide, cadence, README count and Unreleased entry now | Task 4 |
-| § "Documentation impact" L251 | Predecessor's section-2 supersession banner | Task 4 |
-| § "Out of scope" L257 | No persona-body slimming project | waived: out of scope per spec |
-| § "Out of scope" L258 | Keep pi-cohort mechanics, builtin personas and settings/API unchanged | Task 2, Task 3 |
-| § "Out of scope" L259 | Loop protocol unchanged except reviewer rename | Task 2 |
-| § "Out of scope" L260 | Verify conformance reviewer unchanged | Task 2, Task 3 |
-| § "Out of scope" L261 | Gatekeep semantics unchanged except persona reference | Task 2 |
-| § "Out of scope" L262 | No pi-condense cache-rewrite project | waived: out of scope per spec |
-| § "Out of scope" L263 | No shippable session-log analysis script | Task 3 |
+| § "Implement-local plan maintenance" L206 | Affected-entry patch, original semantic inventory, offset preservation, same schema, parent check/stamp and no new machinery | Task 5 |
+| § "Implement-local plan maintenance" L208 | Historical revisions and suffixes, scoped identified executions, existing-created anchors, ordinary/full-refresh/final gates unchanged | Task 5 |
+| § "Implement-local plan maintenance" L210 | Preserve staged repairs; evidence-based attribution and resolving output; existing repair loop versus unrelated-regression stop | Task 5 |
+| § "Implement-local plan maintenance" L212 | Batch grant decoding, authorized disposition reuse, distinct budgets, safety stops and one audit | Task 5 |
+| § "Implement-local plan maintenance" L214 | Existing component inventory, three new eval pairs, real intent/reports, ordinary/delegated cases intact, bins and privacy | Task 5 |
+| § "Errors and edge cases" L220-L225 | Gate/apply/empty-delta edge outcomes | Task 3 |
+| § "Errors and edge cases" L226-L231 | Reject, blocked, escalation, funding, unowned finding and oversized report stops | Task 3 |
+| § "Errors and edge cases" L232-L234 | Missing-output diagnosis, doc-only review and transcript-only resume | Task 3 |
+| § "Errors and edge cases" L235 | Historical reviewer records still parse | Task 1 |
+| § "Errors and edge cases" L236 | Non-SDD calls remain findings-only | Task 2 |
+| § "Tests" L240 | Code/doc one-review scenario | Task 3 |
+| § "Tests" L241 | Report-bound, delegated-source and unchanged amendment scenarios | Task 3 |
+| § "Tests" L242 | Isolated delta and in-place repair scenario | Task 3 |
+| § "Tests" L243 | Red gate before review scenario | Task 3 |
+| § "Tests" L244 | Empty-delta attempt scenario | Task 3 |
+| § "Tests" L245 | Rebuild and initial apply failure scenario | Task 3 |
+| § "Tests" L246 | Same-tree escalation and funded failure scenarios | Task 3 |
+| § "Tests" L247 | One convergence exception scenario | Task 3 |
+| § "Tests" L248 | Reject hard-stop scenario | Task 3 |
+| § "Tests" L249 | Blocked same-tree resume scenario | Task 3 |
+| § "Tests" L250 | Mid-wave recovery scenario | Task 3 |
+| § "Tests" L251 | Leg-owned implementer dispatch | Task 3 |
+| § "Tests" L252 | Merged reviewer clause scenarios | Task 2 |
+| § "Tests" L253 | Non-SDD caller migration and retired-dispatch CI check | Task 2, Task 3 |
+| § "Tests" L254 | One-step carrier deterministic assertions | Task 3 |
+| § "Tests" L255 | File-only structured findings and historical-name tests | Task 1 |
+| § "Tests" L256 | Cadence and label tests | Task 1 |
+| § "Tests" L257 | Supersession link CI check | Task 3 |
+| § "Tests" L258 | Runtime ratio observation, not a target threshold | Task 3 |
+| § "Tests" L259 | Checker and local-amendment regression matrix | Task 5 |
+| § "Tests" L260 | Historical/changed-command/staged-repair/consent/retry synthetic scenarios | Task 5 |
+| § "Tests" L261 | Added full planning-target verification with real reports and existing repository/target gates | Verification |
+| § "Documentation impact" L265 | Roster, knobs, execution guide, cadence, README count and Unreleased entry including local maintenance | Task 4 |
+| § "Documentation impact" L266 | Predecessor's section-2 supersession banner | Task 4 |
+| § "Documentation impact" L267 | Existing internal protocol docs and both eval targets' intent/reports | Task 5 |
+| § "Out of scope" L273 | No persona-body slimming project | waived: out of scope per spec |
+| § "Out of scope" L274 | Keep pi-cohort mechanics, builtin personas and settings/API unchanged | Task 2, Task 3 |
+| § "Out of scope" L275 | Loop protocol unchanged except reviewer rename | Task 2 |
+| § "Out of scope" L276 | Verify conformance reviewer unchanged | Task 2, Task 3 |
+| § "Out of scope" L277 | Gatekeep semantics unchanged except persona reference | Task 2 |
+| § "Out of scope" L278 | No pi-condense cache-rewrite project | waived: out of scope per spec |
+| § "Out of scope" L279 | No shippable session-log analysis script | Task 3 |
