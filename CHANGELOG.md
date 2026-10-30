@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `/skill:gatekeep-pr` with no PR argument gates the viewer's open PR queue: it lists the origin repository's open PRs the viewer authored or is requested to review (drafts and PRs already approved or with changes requested excluded), sorts them by diff size, routes one match through the single-PR path and two to `parallel.maxTasks` through set routing, and stops with a `discovered, smallest first:` line over the cap or on Claude Code with two or more. Discovery stops with a `discovery failed:` line on a non-zero `gh pr list`, malformed output, or a query that fills `--limit 1000`, and never falls back to the current branch's PR. Every report carries a `Role:` line under `Delivers` naming the viewer's relationship to the PR (`author`, `requested reviewer`, `none`, or `unreadable`, with requested reviewers listed), refreshed with merge state before each render. (#104)
+
 ## v7.42.0 - 2026-10-30
 
 ### Changed
