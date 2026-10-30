@@ -6,7 +6,7 @@ import { parseExpected } from "./checks.mjs";
 export const KINDS = ["text", "edit"];
 export const ASSEMBLIES = ["concat", "headed"];
 
-export function lintTarget(dir) {
+export function lintTarget(dir, context) {
   const errs = [];
   for (const f of ["target.json", "replay.md", "intent.md", "README.md"]) if (!existsSync(join(dir, f))) errs.push(`${f} missing`);
   let target = null;
@@ -19,6 +19,10 @@ export function lintTarget(dir) {
     if (!Array.isArray(target.skillFiles) || target.skillFiles.length === 0) errs.push("skillFiles empty");
     else for (const f of target.skillFiles) {
       if (!f.path) errs.push("skillFiles entry without path");
+      if (context && f.new === true && f.path) {
+        if (context.baselineHas(f.path)) errs.push(`${f.path}: new file exists at baseline`);
+        if (!context.treeHas(f.path)) errs.push(`${f.path}: new file missing from working tree`);
+      }
       if (target.kind === "edit" && f.path && target.skillFiles[0].path) {
         const base = dirname(target.skillFiles[0].path);
         const rel = relative(base, f.path);
@@ -43,6 +47,9 @@ export function lintTarget(dir) {
       if (target?.kind === "edit" && /^bundle\+:/m.test(caseText)) errs.push(`${n}: bundle+ not allowed for kind edit`);
       if (target?.kind === "edit" && drop.length) errs.push(`${n}: bundle- not allowed for kind edit`);
       const paths = Array.isArray(target?.skillFiles) ? target.skillFiles.map((f) => f.path) : [];
+      if (context) for (const p of bundle) {
+        if (!context.baselineHas(p) && !target?.skillFiles?.some((f) => f.path === p && f.new === true)) errs.push(`${n}: bundle+ ${p} absent at baseline without new declaration`);
+      }
       for (const p of drop) if (!paths.includes(p)) errs.push(`${n}: bundle- ${p} not in skillFiles`);
       if (drop.length && paths.length && paths.every((p) => drop.includes(p))) errs.push(`${n}: bundle- leaves an empty assembly`);
       for (const p of drop) if (bundle.includes(p)) errs.push(`${n}: ${p} in both bundle+ and bundle-`);

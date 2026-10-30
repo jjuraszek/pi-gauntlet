@@ -49,6 +49,8 @@ Declaring drops: a sample keeps a reference file when any of its facts belongs t
 
 A skill file with no version at the baseline refuses the run; use `--base <ref>` to pick a base that has it. Unreadable skill files or unresolved slice headings also refuse with the file and ref.
 
+Declare a candidate-only `skillFiles` entry with `"new": true` to assemble empty baseline text while retaining its `# <path>` line in headed assembly. The working tree must contain the file, and lint refuses the declaration if the selected baseline already contains it. A `bundle+` path absent at the baseline requires a matching declared-new entry. Candidate reads and slice headings remain strict, and `for:` still binds to the bundle-free candidate assembly.
+
 | Exit | Meaning |
 |---|---|
 | `0` | Pass: improved or unchanged; baseline-only succeeded |
