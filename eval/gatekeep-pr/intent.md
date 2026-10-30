@@ -8,7 +8,7 @@ Exercise no-arg-discovery-over-cap, no-arg-discovery-single, no-arg-discovery-ze
 
 ## Comparison scope
 
-Compare the batch-summary-queue sample against the base commit's skill text. Preserve verbatim reports, roster order, and queued consequences; this partial report covers only batch-summary-queue, not the full target.
+Compare the no-arg-discovery-* samples and role-line-requested against the rebased base commit's skill text. The committed report is the per-sample partial for no-arg-discovery-failed, not a full target pass; the rebase onto main (batch.md changed in #103) re-staled samples this change does not touch.
 
 ## Expected to move
 

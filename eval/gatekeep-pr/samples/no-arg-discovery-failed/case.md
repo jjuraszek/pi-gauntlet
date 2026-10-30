@@ -9,6 +9,7 @@ Pi harness; parallel.maxTasks 4; viewer login alex. `git remote get-url origin` 
 Two isolated invocations, each starting fresh.
 Scenario A: author query exits 1, stderr first line `HTTP 503: Service Unavailable`, second line `try later`; direct query has no supplied result.
 Scenario B: author query exits 0 at --limit 1000 with this deterministic inline family: exactly one object for each integer n=2000..2999 inclusive, {"number":n,"isDraft":true,"reviewDecision":"REVIEW_REQUIRED","additions":0,"deletions":0}. This describes all 1000 returned valid rows, not a truncated output. Direct query returns [].
+Scenario C: author query (`gh pr list --author @me ...`) exits 0 and prints `[{"isDraft":false,"reviewDecision":"REVIEW_REQUIRED","additions":1,"deletions":0}]` (an object without `number`); the review-requested query exits 0 and prints `[]`.
 
 
 ## Entry
