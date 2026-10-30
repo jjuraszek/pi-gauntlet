@@ -1,0 +1,1 @@
+- protocol: judged: Answer the fact through delegated answer/evidence, append answer to unchanged repair payload on same current tree, count failure; never rebuild or discard integrated siblings for BLOCKED/NEEDS_CONTEXT. Use task anchors and scoped tests; no report relay child.

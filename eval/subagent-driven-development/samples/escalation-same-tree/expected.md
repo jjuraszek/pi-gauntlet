@@ -1,0 +1,1 @@
+- protocol: judged: Print escalated round for task 1 after 2 failed attempts independently of grant; one implementer with model runtime implModel and same current-tree payload, no context fresh or prior patch; missing settings/model ends in stop note; no funded token supplies model.

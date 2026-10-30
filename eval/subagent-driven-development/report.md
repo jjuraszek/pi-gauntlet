@@ -1,3 +1,5 @@
+> Historical report only. The integrated-wave candidate and rewritten samples have not been replayed; the worker was authorized only `node --test scripts/wave-review.test.mjs`. Parent verification must run the full target before treating results below or cached results as evidence for this change.
+
 # eval report: subagent-driven-development
 
 for: f8d3769c43d09db984f63d7c5667b89fb4f9444d31b89e8689e2d80b506e7fe2

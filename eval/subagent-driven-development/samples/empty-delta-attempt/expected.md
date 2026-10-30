@@ -1,0 +1,1 @@
+- protocol: judged: Count the empty delta as another failed attempt, dispatch no unchanged-tree re-review, resend previous report with your fix changed no tracked file; at 2 resolve execution escalation, not another unnamed ordinary repair.

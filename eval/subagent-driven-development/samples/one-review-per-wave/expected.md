@@ -1,0 +1,1 @@
+- protocol: judged: One initial implementer-only parallel step per wave; green gate before exactly one initial wave-reviewer over the integrated diff and wave anchors; doc review uses SCOPED_TEST_COMMANDS none; commit precedes tracker completion.

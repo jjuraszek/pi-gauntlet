@@ -12,13 +12,39 @@
 
 **Verification:** `npm test` && `node eval/run.mjs subagent-driven-development` && `node eval/run.mjs wave-reviewer`
 
-Baseline jjuraszek/pi-gauntlet: 70baf9f0
+Baseline jjuraszek/pi-gauntlet: 02ca8d22
 
 ---
 
+## Open Questions
+
+- Task 3: `node --test scripts/wave-review.test.mjs` fails on 02ca8d22 (exit 1): jjuraszek/pi-gauntlet cannot load the removed skills/requesting-code-review/code-reviewer.md template (ENOENT); 1 test, 0 pass, 1 fail.
+  ```text
+    syscall: 'open',
+    path: '/Users/jacek/repos/pi-gauntlet/.worktrees/slim-subagent-dispatch/skills/requesting-code-review/code-reviewer.md'
+  }
+  
+  Node.js v26.11.1
+  ✖ scripts/wave-review.test.mjs (41.016458ms)
+  ℹ tests 1
+  ℹ suites 0
+  ℹ pass 0
+  ℹ fail 1
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 45.042667
+  
+  ✖ failing tests:
+  
+  test at scripts/wave-review.test.mjs:1:1
+  ✖ scripts/wave-review.test.mjs (41.016458ms)
+    'test failed'
+  ```
+
 ## Baseline and reconnaissance
 
-Initial provenance for this amendment: repo jjuraszek/pi-gauntlet, HEAD 70baf9f0; porcelain inventory empty, In-flight none. The only admitted workflow paths are `doc/specs/2026-10-30-slim-subagent-dispatch.md` and `doc/plans/2026-10-30-slim-subagent-dispatch.md`. Endpoint proof command: `git diff --quiet 78ddf553 70baf9f0 -- . ':!doc/specs/' ':!doc/plans/'`. All three unchanged Tests commands were freshly executed on 70baf9f0 rather than retaining prior evidence: Task 1 passed 334 tests, Task 2 passed 77 tests and Task 3 passed 20 tests. After each run HEAD remained 70baf9f0 and porcelain remained empty; no artifact suffixes exist. Baselines describe the unmodified implementation, not evidence that the new behavior exists.
+Initial provenance for this amendment: repo jjuraszek/pi-gauntlet, HEAD 02ca8d22; porcelain inventory empty, In-flight none. The only admitted workflow paths are `doc/specs/2026-10-30-slim-subagent-dispatch.md` and `doc/plans/2026-10-30-slim-subagent-dispatch.md`. Endpoint proof command: `git diff --quiet 70baf9f0 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 1. All three unchanged Tests commands were freshly executed on 02ca8d22 rather than retaining prior evidence: Task 1 passed 340 tests, Task 2 passed 76 tests and Task 3 failed loading the removed requesting-code-review template (1 test, 0 pass, 1 fail). After each run HEAD remained 02ca8d22 and porcelain contained only the admitted spec edit; no artifact suffixes exist. Baselines describe the checkout before the remaining implementation, not evidence that the new behavior exists.
 
 The first extension command on the original baseline omitted the CI stub loader and failed on missing host-runtime packages. Recon of `scripts/ci.mjs:436-449` corrected the command to the file-addressable loader invocation below; its replacement run passed 334 tests.
 
@@ -66,7 +92,7 @@ Leg: jjuraszek/pi-gauntlet
 
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/telemetry-collect.test.ts extensions/lib/phase-tracker-helpers.test.ts extensions/phase-tracker.test.ts extensions/telemetry.test.ts`
-- baseline: 70baf9f0 pass
+- baseline: 02ca8d22 pass
 - via: `countStructuredFindings(text)`, `countFindings`, `REVIEWER_AGENTS`, `dispatchLabel`, `CADENCE_AGENTS`, Guard 5 and the telemetry subagent tool-result handler
 
 Decision: use the CI stub loader for extension integration tests, not an installed host-runtime dependency - `scripts/ci.mjs:436-449`. Keep `countFindings` tag parsing and the historical sealed schema unchanged; active collection and historical interpretation are separate concerns.
@@ -137,7 +163,7 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/anchored-task.test.mjs scripts/loop-engine-contract.test.mjs scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 70baf9f0 pass
+- baseline: 02ca8d22 pass
 - via: `wave-reviewer`, anchored task selection, loop verification and gatekeep sync dispatch contracts
 
 Decision: preserve the old code-reviewer's frontmatter byte-for-byte except the explicitly authorized `name:` and routing-label `description:`. Its existing tool profile already supports read-only scoped tests; do not introduce a model or thinking pin. Existing deterministic frontmatter hashes in anchored-task.test.mjs must become field-aware comparisons for those two allowed edits, rather than accepting arbitrary frontmatter drift. Leave that test's SDD template assertions on the existing templates in this wave; Task 3 migrates those assertions with the SDD prompt.
@@ -226,12 +252,11 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/wave-review.test.mjs`
-- baseline: 70baf9f0 pass
 - via: `## The Wave Loop`, `repair-base-shell`, `fix-delta-tree-shell`, `WAVE_VERDICT_SCHEMA`, direct report reading and transcript recovery
 
 Decision: use a one-step chain, not top-level tasks, because the installed pi-cohort carrier exposes item outputSchema and `## Outputs` through step-level stopOn. Preserve the existing diagnosis and amendment carriers; this task changes report relays, not delegated source/spec reads. The existing predecessor banner already resolves to the current spec; add a CI assertion rather than manufacture a second banner. The deterministic scoped file exercises protocol and schema changes; the header gate also runs the migrated anchored-template assertions.
 
-- [ ] **Step 1: Run Tests and replace obsolete assertions.** Migrate old SR-chain, spec-review-snapshot-shell and fix-loop-file assertions into implementer-only dispatch, post-gate wave review and current-tree repair assertions. Keep actual `fix-delta-tree-shell` execution coverage and runtime peer-floor fixtures. Change the Rules sentence check to implementer, wave-reviewer and conformance-reviewer. Assert deletion of the retired personas/prompts/samples, the new sample inventory, and retained diagnosis/amendment behavior. Update the SDD-template cases in anchored-task.test.mjs when replacing their prompts. Expected red until the new protocol exists.
+- [ ] **Step 1: Run Tests and replace obsolete assertions.** Migrate old SR-chain, spec-review-snapshot-shell and fix-loop-file assertions into implementer-only dispatch, post-gate wave review and current-tree repair assertions. Keep actual `fix-delta-tree-shell` execution coverage and runtime peer-floor fixtures. Change the Rules sentence check to `implementer` and `wave-reviewer` only; keep `conformance-reviewer` unchanged and outside this check. Assert deletion of the retired personas/prompts/samples, the new sample inventory, and retained diagnosis/amendment behavior. Update the SDD-template cases in anchored-task.test.mjs when replacing their prompts. Expected red until the new protocol exists.
 - [ ] **Step 2: Add executable snapshot and delta fixtures.** Reuse wave-review.test.mjs's mkdtemp/git helpers. Create a base, sibling patch and task patch containing both additions and edits; execute the spec's `repair-base-shell`, require a clean committed RP_TREE with both siblings present, commit a repair there and apply only its delta to the integrated tree once. Verify siblings and additions survive, branch HEAD stays at WAVE_BASE_SHA until the accepted-wave commit, and scratch tree capture does not mutate live staging. Add a rebuild partition fixture proving a new `Test`/`Create` path is removed rather than restored and sibling paths survive; deduplicate existing `Modify`/`Test` paths after excluding all Create paths. Fixtures use isolated temp directories and no shared runtime port.
 - [ ] **Step 3: Rewrite the orchestrator read boundary.** Preserve preflight, mode selection, `plan_tracker` lifecycle, `## Implementer Status` and `## Leg routing`. Keep plan/spec/source reads delegated and `planPath`/heading anchors manifest-driven through `plan_check`. Consume structured `status`, `verdict`, `maxSeverity`, `findingCount`, `findings`, `touchedTasks`, `trajectory`, `concerns`, `question`, `anchorUnreadable` first. Allow one `read` with `limit: 300` per printed report-path observation only when `DONE_WITH_CONCERNS` concerns, `BLOCKED` / `NEEDS_CONTEXT` question evidence or `FIX_FIRST`/`REJECT` findings are needed. Never paginate beyond the bound. If the `Verdict`/`TRAJECTORY:` footer is not reached, re-dispatch the same reviewer once with `Compact report: findings and footer only, at most 150 lines`; a second oversized report stops. Remove report-relay wording from both owning files. Migrate stop-note.md's delegated-report-read mandate at `:3-11`, removed `reference/fix-loop.md` link and unavailable-settings-tool exemption at `:36-44`, preserving its human-facing template. Do not dispatch `scout` or `delegate` to read child reports; retain their source-fact lookup role.
 - [ ] **Step 4: Replace initial dispatch and integration.** Keep the independence check over manifest `files`, fixed `WAVE_BASE_SHA` and increasing tracker-index starts. Dispatch only implementers in one `parallel` chain step: invocation `async: false`, `context: "fresh"`, owning checkout `cwd`; step `worktree: true`, concurrency 4 and status `stopOn`; item `IMPLEMENTER_STATUS_SCHEMA`, as/output/file-only/task metadata. Top-level `tasks` is not the carrier. Isolated workers get only their own manifest `tests` as `SCOPED_TEST_COMMANDS`; `"mode":"in-place"` workers get the wave union and no `worktree:` flag. Integrate `DONE`/`DONE_WITH_CONCERNS` patches in plan order with `git apply --index`. Initial `apply failed` retains staged siblings and stops; it does not rebuild or split a new wave. In-place workers require no apply.
@@ -367,7 +392,7 @@ Shared additions inventory for accurate documentation (implementation belongs to
 | § "Transcript lines and recovery" L191 | Exact observations, dynamic-state proof and old-brief missing-state stop | Task 3 |
 | § "Removals and additions" L195 | Remove retired personas, prompts, protocol references, active names, evals and pins | Task 1, Task 2, Task 3 |
 | § "Removals and additions" L196 | Migrate stop-note report reads/settings failure and telemetry active-review assertions; Task 2 owns both gatekeep intent hash-only refreshes and scoped rerun, preserving bodies, moves and gates | Task 1, Task 2, Task 3 |
-| § "Removals and additions" L198 | Rewrite retained samples, preserve delegated-amendment, migrate test/target references | Task 2, Task 3 |
+| § "Removals and additions" L198 | Rewrite retained samples, preserve delegated-amendment, migrate test/target references; Rules-sentence check covers `implementer` and `wave-reviewer` only | Task 2, Task 3 |
 | § "Removals and additions" L200 | Add merged persona/protocol, CI guards, sample suites, docs and pin migration | Task 1, Task 2, Task 3, Task 4 |
 | § "Removals and additions" L202 | Unlisted moving parts require approved amendment | Task 2, Task 3 |
 | § "Errors and edge cases" L208-L213 | Gate/apply/empty-delta edge outcomes | Task 3 |

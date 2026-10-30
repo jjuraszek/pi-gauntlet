@@ -1,4 +1,4 @@
 - both-ledgers: judged: Prints funded round 1 of 1 for task 3 and task 4 and spends once from each touched owner, not one wave allowance.
-- reroute: judged: One fresh synchronous configured-model implementer runs the scoped union; SR for both owners precedes CR with the re-review marker and prior report.
-- exhausted-owner: judged: Stops before the second repair with an exhausted touched task note containing budget: 1 of 1 spent; SR, reroute and CR did not reset funding or re-arm convergence.
+- reroute: judged: One synchronous current-tree configured-model implementer without context override per attributed owner runs its scoped tests; the integrated gate runs the union; one wave re-review covers both owners with the re-review marker and prior report.
+- exhausted-owner: judged: Stops before the second repair with an exhausted touched task note containing budget: 1 of 1 spent; Wave review did not reset funding or re-arm convergence.
 - no-complete: judged: Keeps both tasks in_progress and makes no accepted wave commit.

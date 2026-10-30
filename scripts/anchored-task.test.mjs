@@ -40,17 +40,16 @@ for (const [role, failure, frontmatter] of roles) {
 }
 
 test('SDD local templates pass paths, independent scope and preserve review triggers', () => {
-  for (const name of ['implementer', 'spec-reviewer', 'code-quality-reviewer']) {
+  for (const name of ['implementer', 'wave-reviewer']) {
     const text = read(`skills/subagent-driven-development/${name}-prompt.md`);
     for (const field of ['planPath:', 'anchor:', 'anchors:', 'Spec:', 'SCOPED_TEST_COMMANDS:', 'structured output']) assert.ok(text.includes(field), `${name} missing ${field}`);
     assert.doesNotMatch(text, /FULL TEXT|paste it here|pasted verbatim|\[From implementer's report\]|Read `Verdict:`/);
     assert.match(text, /Previous review report \(re-review trigger\)/);
   }
-  const cr = read('skills/subagent-driven-development/code-quality-reviewer-prompt.md');
+  const cr = read('skills/subagent-driven-development/wave-reviewer-prompt.md');
   assert.match(cr, /HEAD_SHA:.*WORKTREE/);
   assert.match(cr, /TRAJECTORY: CONVERGING/);
-  assert.match(cr, /after `Behaviour-change:`/);
-  const sr = read('skills/subagent-driven-development/spec-reviewer-prompt.md');
-  assert.match(sr, /spec is the sole authority/);
-  assert.match(sr, /You never run the commands/);
+  assert.doesNotMatch(cr, /Behaviour-change:|behaviourChange/);
+  assert.match(cr, /sole authority/);
+  assert.match(cr, /met \| unmet \| out-of-scope/);
 });

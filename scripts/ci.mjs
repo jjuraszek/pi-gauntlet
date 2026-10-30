@@ -177,6 +177,24 @@ if (evalHits.length) fail(`eval/ hygiene:\n    ${evalHits.join("\n    ")}`);
 else ok("eval/ hygiene: no private paths, stray owner handles, secrets or denylist tokens");
 
 // ---- subtractive review pass (over-spec kind + closure removal) -------------
+// wave-contract-checks:begin
+function retiredDispatch(path, text) {
+  return (/^skills\/.*\.md$/.test(path) || /^agents\/[^/]+\.md$/.test(path)) && /^.*\bagent:\s*["'](?:spec-reviewer|code-reviewer)["'].*$/m.test(text);
+}
+function supersessionTarget(text) {
+  return text.match(/^> \*\*Superseded by:\*\*[^\n]*\[[^\]]+\]\(([^)]+)\)/m)?.[1] ?? null;
+}
+// wave-contract-checks:end
+for (const base of ["skills", "agents"]) {
+  for (const file of walk(R(base)).filter(file => file.endsWith(".md"))) {
+    const path = file.slice(root.length + 1);
+    if (retiredDispatch(path, readFileSync(file, "utf8"))) fail(`${path}: retired reviewer dispatch`);
+  }
+}
+const predecessor = R("doc/specs/2026-10-29-orchestrator-delegation-guard.md");
+const successor = supersessionTarget(readFileSync(predecessor, "utf8"));
+if (successor !== "./2026-10-30-slim-subagent-dispatch.md" || !existsSync(join(dirname(predecessor), successor))) fail("delegation guard: missing or wrong supersession target");
+
 const subtractiveErrorsBefore = errors.length;
 const txt = (p) => readFileSync(R(p), "utf8");
 const tokenChecks = [
@@ -188,12 +206,9 @@ const tokenChecks = [
   ["skills/roasting-the-spec/SKILL.md", "Human input (verbatim", true],
   ["skills/shape-ticket/SKILL.md", "`^lean:` line", true],
   ["agents/conformance-reviewer.md", "(over-spec)", true],
-  // #25 SR/CR drift contracts
-  ["skills/subagent-driven-development/spec-reviewer-prompt.md", "A plausible condition is not the specified condition", true],
-  ["agents/spec-reviewer.md", "A plausible condition is not the specified condition", true],
-  ["agents/spec-reviewer.md", "code-condition:", true],
-  ["agents/code-reviewer.md", "`Behaviour-change:` on **every** report", true],
-  ["skills/subagent-driven-development/SKILL.md", "never default to `no`", true],
+  ["agents/wave-reviewer.md", "met | unmet | out-of-scope", true],
+  ["skills/subagent-driven-development/wave-reviewer-prompt.md", "TRAJECTORY: CONVERGING", true],
+  ["skills/subagent-driven-development/reference/dispatch-contract.md", "WAVE_VERDICT_SCHEMA", true],
   ["skills/writing-plans/SKILL.md", "is never waivable", true],
   // council provenance / probe-before-apply / standing amend approval
   ["agents/spec-council-member.md", "probed:", true],
