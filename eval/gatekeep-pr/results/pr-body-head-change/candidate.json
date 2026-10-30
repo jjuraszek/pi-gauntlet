@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "514dd6da75cd0feefeb3c49c5f38fb5146b5769953ab8a230cfbbe32c16ad7ab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "59b26f7e0c5481c9e412a797941f602c1b8295bd8da0ffe0440636f695685aaa",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "a252e8e9f5a6b8a97b5ff946d0709148fb357e9cf917a91f055f68a5de3cd31a",
       "candidateOutputSha": "a252e8e9f5a6b8a97b5ff946d0709148fb357e9cf917a91f055f68a5de3cd31a",
       "facts": {
         "f2": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f2: each detects that the live head 2222… no longer matches the proposal's assessed_head 1111…, invalidates the old proposal with no write, sync, or push, fast-forwards the worktree, re-runs Verify and Review on the new head, and only then redrafts the P1 description payload at assessed_head 2222… from the unchanged current body before the compare-and-swap write on the next iteration. After additionally emits the gauntlet gate line first and labels the redraft as preserving unrelated body text, which is consistent with the Change. Nothing in After moved f2; if anything, it would be worth stating explicitly in step 6 that the redraft reads original_body from the fresh pre-write fetch (as Before's 'unchanged original_body' does) so the 'from the current body' half of the fact is visibly tied to the fetched text rather than the persisted record.",
-      "wallMs": 7900,
+      "feedback": "The After output is textually identical to Before for this case, so f2 is unaffected: both reject the stale-head proposal in step 2 (head 2222… no longer matches assessed_head 1111…, iteration ends with no write), both re-sync and redraft the P1 payload against the refreshed head and body in step 6, and both only write in step 7 after a compare-and-swap re-fetch confirms head and body match the new proposal. This case is a single-PR run (argument `642`), so the batch-summary-round sequencing change has no surface here; nothing in the After wording touched the description-repair compare-and-swap path. To confirm the Change actually lands, the batch-summary-queue/s8 case needs to be exercised directly; for this case no wording adjustment is needed, and keeping the batch sequencing rule scoped to the batch summary round (not the per-PR D3 loop) will avoid disturbing the stale-head invalidation and re-proposal steps that f2 depends on.",
+      "wallMs": 8309,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "514dd6da75cd0feefeb3c49c5f38fb5146b5769953ab8a230cfbbe32c16ad7ab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "106d18339674deefd50d5c2c8a632ffd4d97570530fa17d7ac92069f3a77c9f8",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "19a295f887d51f148712e3b912840af07a15f7f8781c24ced0770030df9bd02d",
       "candidateOutputSha": "19a295f887d51f148712e3b912840af07a15f7f8781c24ced0770030df9bd02d",
       "facts": {
         "f2": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f2: each detects the external head 2222… at the pre-write fetch, explicitly invalidates the proposal bound to 1111…, ends the iteration with no description write, sync, or push, then fast-forwards, runs fresh Verify and Review on the new head, redrafts the exact correction against the current body (persisting the refreshed original/replacement snapshots), and only performs the gh pr edit after a second freshness comparison confirms head and body match the re-proposal. After adds a useful explicit statement that the stored proposal is bound to the old SHA and that the held course continues into the next iteration without an intermediate menu, which makes the stale-head rejection and re-proposal ordering clearer than Before. No wording in After moved this fact; keep the explicit 'stored proposal is bound to <old head>, so I invalidate it' sentence and the separate 'next iteration' freshness check before the write, since those two lines are what make the re-propose-before-write sequence unambiguous to a reader.",
-      "wallMs": 8545,
+      "feedback": "Before and After are textually identical for this single-PR case, so nothing moved: both detect the external head 2222… at the pre-write freshness check, invalidate the proposal bound to 1111…, perform no write in that iteration, fast-forward, re-verify, and redraft the exact correction against the current body before the eventual `gh pr edit`, which keeps f2 holding. The Change targets the batch summary round (one PR report and menu per turn, collecting each pick before the next), which this `642` single-PR invocation never enters, so the new wording neither helped nor hurt here; keep the stale-head rejection and re-proposal steps in sections 1 and 3 as written, and confine the per-PR sequencing instruction to the batch summary branch so single-PR flows like this one stay unchanged.",
+      "wallMs": 6777,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

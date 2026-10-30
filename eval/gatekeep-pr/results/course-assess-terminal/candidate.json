@@ -34,67 +34,67 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3571860ca2310189c3239f943005daa0dfce7560d284e5b5185f99f18ef3d44e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "5118d4ad98862eafa428dd8089341abb1a0e722cc4f4db222b929c57082ef26c",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "f2c18be7c6fb7435b32891ef89be343e053d40130912424ff3250ba2502593d1",
       "candidateOutputSha": "f2c18be7c6fb7435b32891ef89be343e053d40130912424ff3250ba2502593d1",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps every fact Before kept. A still posts one `gh pr review --request-changes` and B one `--comment` with no request-changes; C and D explicitly post nothing and the common prefix states assess performs no repair, sync, or source write; approve appears only in C's menu with `Not offered: approve` for A, B and D while stop is last and marked recommended everywhere; and A's step 5 'Leave C1 alone' plus the reply row keeps the drafted thread reply behind a pick with no approval inferred. The added `gauntlet: gate=... recommended=N` first line and the restructured common prefix deliver the Change without disturbing these facts. Two small things worth tightening in After, though neither affects the facts here: A's PR-comments bullet dropped the `C1` locator (Before cited `review thread C1`), so consider restoring the id so the reply row and the comment are visibly linked, and the post switched from `--body-file <tmp>` to inline `--body \"<body>\"`, which Before's mktemp step made more auditable.",
-      "wallMs": 13602,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: A posts the blocker once via --request-changes and B posts via --comment (f1); C and D post nothing and no checkpoint repairs or syncs (f2); approve appears only in C's menu while stop is last and recommended in all four (f3); and C1 stays unposted behind the reply pick with no inferred approval (f4). This single-PR assess case never enters the batch summary round, so the wording change about sequencing one PR's report and menu per pick has no observable effect here. That is the right outcome for this case; to confirm the Change delivers s8 you need a multi-PR batch case, and the only thing to guard when writing that wording is that it stays scoped to the batch summary round so single-PR assess terminals (like these) keep rendering exactly once with the same approve/stop rules and no reply auto-post.",
+      "wallMs": 10313,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3571860ca2310189c3239f943005daa0dfce7560d284e5b5185f99f18ef3d44e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "8d64b9c03becf418aa5300091324c8f89c3094dd276f98e934d36b9a1f413733",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "29e8087298461962c2e1c08cac1e537fa736b09f052943c80473ef8f9fd3f638",
       "candidateOutputSha": "29e8087298461962c2e1c08cac1e537fa736b09f052943c80473ef8f9fd3f638",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps every fact Before kept. A still posts exactly one `gh pr review --request-changes` and B exactly one `--comment` review with an explicit refusal of request-changes on the own PR; C and D state no review body and no `gh pr review` run, and every case asserts no helper, repair, sync, push or watch; the terminal menus offer `approve` only in C (row 2, non-merging), omit it in A/B/D with a `Not offered:` line, and put stop last and recommended in all four; A's drafted C1 reply stays on a separate `reply` row and is explicitly not posted. The new `gauntlet: gate=gatekeep-pr/assess-terminal recommended=N` marker is consistent with the rendered recommendation number in each menu and does not disturb the row ordering. The only drift to watch is cosmetic: After rewrote the PR-comment locator from `(ci / test)` to `(PR 42 checks)` and reworded the verdict to `binding CI check pending`; if other facts or templates key on the exact check name, retain `ci / test` in the comment and verdict strings while keeping the gate line and shared menus.md layout.",
-      "wallMs": 11943,
+      "feedback": "After is textually identical to Before on this case, so no fact moved: A still posts the single --request-changes review once and B posts --comment; C and D run no gh pr review and nothing repairs or syncs; approve appears only in C's menu while stop is last and recommended in all four; and the drafted C1 reply remains behind the reply pick and is never posted or treated as approval. This case exercises single-PR assess-terminal continuations rather than the batch summary round, so the Change (one PR report and menu per turn, collecting each pick before the next) has no observable effect here. That is the desired outcome for this case; keep the batch-sequencing wording scoped to the batch summary gate so single-PR terminal menus keep rendering exactly once as they do now.",
+      "wallMs": 7011,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8c6d5e79a03c67ce9803a0ca8a64923024b63a19b8679a36431a3d8d0c294418",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "04436b213b488c85c0d9275ced27dee95f8166a6c93c683b4425cbc7c56dabd8",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "4e90ce363a507442b1efeae94c24edb2ddd9df17bb08b5ddd191ffd8b7cbd0a3",
       "candidateOutputSha": "4e90ce363a507442b1efeae94c24edb2ddd9df17bb08b5ddd191ffd8b7cbd0a3",
       "facts": {
         "f1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: in both Before and After every checkpoint fails record validation on its own (number 643, truncated JSON, meadow/other, Main vs main), takes the Exit check's record-unreadable row ahead of the CONFLICTING sync row, runs only read-only refreshes, dispatches no helper, mints no replacement record, leaves repair.* untouched, and renders an obstacle menu with stop as the sole row while deliver/assess are omitted. After delivers the Change cleanly (gauntlet gate line first, shared obstacle template, explicit 'no case-folding' note for D). Two things After dropped that cost nothing to keep and make the no-write guarantee more legible: the Before menus named the specific mismatched field in a 'PR comments' bullet (e.g. 'consent.target.number 643', 'consent.target.baseRefName Main') and listed 'merge (mergeable CONFLICTING)' under 'Not offered'; After's 'Not offered' only lists deliver/assess, so a reader has to infer merge is withheld. Restore a one-line obstacle bullet naming the offending field and add the merge omission reason to 'Not offered' while keeping the gauntlet line and shared template.",
-      "wallMs": 10853,
+      "feedback": "After is byte-for-byte identical to Before, so nothing moved: in every checkpoint (A mismatched PR number, B truncated JSON, C wrong base repository, D case-mismatched baseRefName) the output validates the record first, refuses to trust it, runs only the read-only refresh, and takes the 'Missing/malformed/mismatched record' exit row with a stop-only menu and an explicit 'No writes' statement, so f1–f4 hold in both. This case invokes a single PR (`642`) and never enters the batch summary round, so the Change about sequencing one PR's report and menu per pick has no surface here; the s8 expectation cannot be observed in this case and should be checked against a multi-PR batch case instead. No wording adjustment is needed to preserve these four facts; keep the record-validation-before-any-course-work ordering and the 'No writes' paragraph unchanged when you add the per-PR sequencing language to the batch summary section.",
+      "wallMs": 7915,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8c6d5e79a03c67ce9803a0ca8a64923024b63a19b8679a36431a3d8d0c294418",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "9368133779d04f07183ffa3782288b8608c17159d790c63478afdb197c650189",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "d2840aed7d83b6696b1a02c25195fcc963b22230d726039f7284830f76f0e7ae",
       "candidateOutputSha": "d2840aed7d83b6696b1a02c25195fcc963b22230d726039f7284830f76f0e7ae",
       "facts": {
         "f1": {
@@ -91,8 +91,8 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep every fact: no checkpoint in Before or After authorizes repair, sync, push, or helper dispatch from the mismatched-PR, malformed-JSON, other-repository, or case-mismatched-base record, and After even states explicitly that course authority is not inferred and the record is not reconstructed or overwritten. Nothing moved among f1-f4. However, After changed behaviour the facts here don't measure: it declares record-validation failure a 'hard stop' with no report verdict and no menu, whereas the entry asks to narrate each checkpoint 'through its next menu' and the Change says to use the shared menus.md templates; Before rendered the obstacle template (Delivers/Evidence/Verdict/Not offered/stop recommended last/evidence hint) with the stuck id, which is what sibling facts like course-obstacle-unknown/f4 and menu-rows-omitted/f5 expect. After also opens with a 'gauntlet:' header rather than the exact obstacle id as its first line. To keep this case's facts while serving the rest of the suite, keep After's crisp validation steps and 'no write from the supplied course' statements, but emit `stuck - run record unreadable` as the literal first line, keep the forge reads clearly read-only (or drop them, as After does) and still render the obstacle menu per checkpoint: Not offered: deliver/assess/merge with the specific identity reason, a single stop row marked recommended, and show evidence as a hint only.",
-      "wallMs": 11920,
+      "feedback": "Before and After are byte-identical here, so no fact moved: every checkpoint (A: PR 643 mismatch, B: truncated bytes `{\"consent\":`, C: meadow/other, D: `Main` vs exact `main`) stops at record validation with no forge write, sync, helper dispatch, or menu, which satisfies f1–f4 in both outputs. The Change (sequencing one PR's report and menu per pick in the batch summary round) does not touch this single-PR continuation case, and the wording correctly left the record-validation hard stop untouched; keep the explicit 'no report verdict or menu renders' line and the exact-match base-branch rule so that batch-round sequencing never gets read as applying to a continuation whose record failed validation.",
+      "wallMs": 5147,
       "verdict": "unchanged"
     }
   },
@@ -311,5 +311,5 @@
       }
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

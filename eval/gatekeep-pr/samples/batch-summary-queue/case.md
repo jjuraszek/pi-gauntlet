@@ -26,6 +26,6 @@ Records: PR12 source ci, open P1; PR15 source local (local verification: always)
 
 ## Entry
 
-Narrate this observed batch (not tool execution), including its task envelope and helper isolation, summary and roster-order menus. The human picks numeric 2 (deliver) for 12, numeric 2 (deliver) for 15, numeric 1 (retry) for 18. Show the queue immediately after the 12 numeric deliver pick before presenting 15, then describe the next parallel batch only after all picks. Do not invent updated reports from that next batch.
+Narrate this observed batch (not tool execution), including its task envelope and helper isolation, summary and roster-order menus. The human picks numeric 2 (deliver) for 12, numeric 2 (deliver) for 15, numeric 1 (retry) for 18. Describe the next parallel batch only after all picks. Do not invent updated reports from that next batch.
 
 All supplied records retain PR-local course, repair.rounds_cap 6, repair.syncs_cap 6 and both usage fields; unspecified usage is zero. These are text-only simulated snapshots, not requests to call tools.

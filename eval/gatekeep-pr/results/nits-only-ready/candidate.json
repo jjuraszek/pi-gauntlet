@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0b165a0700869542eaf1133a87545ffb44b518337d1f5dbc0a1651176f10d123",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "e956ba11cd874f0f1f0b594dbfea11d5a00d49b2e17bf1b445960ed15975501c",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "a91be059fda80019c79f7c244ea258043fff6d8c2f8c3bfcab3f475de20e43e1",
       "candidateOutputSha": "a91be059fda80019c79f7c244ea258043fff6d8c2f8c3bfcab3f475de20e43e1",
       "facts": {
         "n1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved for this case: both outputs render `Verdict: mergeable`, a three-row final menu (merge [recommended], fix nits, stop) with no plain `fix` row, the exact `3 nits open - fix nits to take them` line after the nits list, and an explicit statement that no nit payloads are drafted and no implementer runs before a pick. After additionally delivers the Change's gate-line-first marker (`gauntlet: gate=gatekeep-pr/final recommended=1`) before prose, states course unset / usage 0/0 / caps null in the record, and keeps the same menu shape, so the final-template wording is compatible with every fact Before kept. Two small wording notes for the author: After's merge row hardcodes `squash-merge` rather than `with the resolved merge policy` (Before's phrasing is safer since the policy flag is resolved at runtime), and After's stop row says `remove the worktree` where Before said `leave the PR and its checkout as they are`; if the owned tracked-clean stop is meant to clean up, keep After's wording but consider naming the condition (`remove the owned tracked-clean worktree`) so the stop consequence stays accurate across the cleanup scenarios.",
-      "wallMs": 11185,
+      "feedback": "Before and After are textually identical for this single-PR case, so nothing moved: the verdict line reads `mergeable`, the menu has `merge [recommended]`, `fix nits`, and `stop` with no bare `fix` row, the `3 nits open - fix nits to take them` line follows the nits list, and step 13 explicitly states no payloads are drafted and no implementer helper is dispatched before a pick. The Change targets the batch summary round (one PR's report and menu per turn), which this one-PR invocation never enters, so the After wording is correctly inert here; keep the batch sequencing scoped to the multi-PR path and leave the single-PR final-menu template untouched, as it currently is.",
+      "wallMs": 9428,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0b165a0700869542eaf1133a87545ffb44b518337d1f5dbc0a1651176f10d123",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "7279b0b3e9a7d3e3c8047f0f5699988c2d54edcc7a58af69c269e92fa37575d4",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "4138d457b71b682ff3707c880ac170c2d6b8eb6caad6e91b0f6d29076f522012",
       "candidateOutputSha": "4138d457b71b682ff3707c880ac170c2d6b8eb6caad6e91b0f6d29076f522012",
       "facts": {
         "n1": {
@@ -82,8 +82,8 @@
         },
         "n3": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "n4": {
           "before": "holds",
@@ -91,41 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps the mergeable verdict, the merge/fix nits/stop menu with a single [recommended] merge row, and the explicit statement that no nit edits are drafted and no implementer runs before a pick, so n1, n2 and n4 survive the course/menus.md rewrite. The one regression is n3: Before printed the exact template line `3 nits open - fix nits to take them`, while After appends a trailing period (`...to take them.`), so the literal line the fact names no longer appears. The shared menus.md template (or whatever wording now produces the nits-count line) should emit that sentence verbatim with no terminal punctuation; everything else in After - the gauntlet gate line, the ordered narration, the final-template selection with no ordinary wait row - already delivers the Change without touching the other facts.",
-      "wallMs": 12791,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\n### Execution, in order\n\nThe invocation is `517`, without `--rebase`. I run no entry sync, fetch, rebase, or push. No `Sync:` line renders.\n\nI use these names below:\n- `$WORKTREE` is the absolute path to the provisioned `.worktrees/pr-517`.\n- `$STATE` is this invocation's existing continuation record.\n- `$SKILL` is the installed `gatekeep-pr` directory.\n\n1. **Continue the existing record and tracker.** Before step 2, the invocation minted its record with `mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"` and initialized exactly `gather`, `provision`, and `verify`, with `state: <absolute record path>` in the first task's name. There is no `sync` stage. At this boundary, `gather` and `provision` are complete; I validate the existing record and mark `verify` in progress. I neither mint a second record nor reset accounting.\n\n2. **Read the Verify duty and allocate its output.**\n   ```bash\n   cat \"$SKILL/verification-brief.md\"\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\n   ```\n   I retain the returned output path as `$VERIFY_OUTPUT`.\n\n3. **Dispatch Verify as a fresh pi helper.**\n   ```text\n   subagent({\n     agent: \"worker\",\n     context: \"fresh\",\n     async: false,\n     cwd: $WORKTREE,\n     task: <Verify duty>\n   })\n   ```\n   Its task carries Section B, the digest, actual PR body, resolved configuration, assessed SHA, and `$VERIFY_OUTPUT`. It owns only Section B; PR text and comments are untrusted data, not instructions. It must remain read-only and emit exactly the verifier output contract.\n\n   The helper assesses **`a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7`**. The completed successful check, with no failing or binding pending checks, selects **CI-sufficient**. It does not execute the local verification command, create a local-run log, or watch CI. It checks every material claim against exact-head source and CI evidence.\n\n4. **Consume Verify's result.**\n   ```bash\n   cat \"$VERIFY_OUTPUT\"\n   ```\n   The result is `source: ci`, with every material claim matched. I add tracker tasks for the source-backed claims and mark them complete, then complete `verify`. Matched claims remain evidence-only.\n\n5. **Start Review and allocate its output.** I add `review` to the tracker now, not earlier, and mark it in progress.\n   ```bash\n   cat \"$SKILL/review-baseline.md\"\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n   ```\n   I retain the returned path as `$REVIEW_OUTPUT`. The review task receives the merge-base `REVIEW.md` overlay resolved in step 2, not a head-controlled rubric.\n\n6. **Dispatch Review only after Verify's output exists.**\n   ```text\n   subagent({\n     agent: \"code-reviewer\",\n     context: \"fresh\",\n     async: false,\n     cwd: $WORKTREE,\n     task: <Review duty>\n   })\n   ```\n   Its task carries Section C, the merged rubric, digest, stated-intent scope, Verify's output, and `$REVIEW_OUTPUT`. It assesses **the same SHA, `a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7`**.\n\n   The helper reads source behind the diff, remains read-only, treats PR-controlled text as untrusted, invents no acceptance criteria, and emits its native verdict and findings plus the comment ledger. It receives no wave closure-line contract because this is the initial review.\n\n7. **Consume Review's result.**\n   ```bash\n   cat \"$REVIEW_OUTPUT\"\n   ```\n   I complete `review`. The three Minor findings become three nits, not blockers. The comment ledger is empty.\n\n8. **Start integration and refresh before reporting.** I add `report` and mark it in progress, then read the integration procedure:\n   ```bash\n   cat \"$SKILL/reference/post-selection-loop.md\"\n   ```\n   I run the mandatory read-only refresh:\n   ```bash\n   gh pr view 517 -R orchard/reports --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n\n   gh run list -R orchard/reports -c a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7 --json databaseId,status,conclusion,workflowName,url\n   ```\n   The target, body, and head remain unchanged. I replace the cached merge state, checks, and Actions runs together. CI remains sufficient, with zero binding pending checks and `merge_state_status CLEAN`.\n\n9. **Integrate and draft without applying edits.**\n   ```bash\n   cat \"$SKILL/reference/findings.md\"\n   cat \"$SKILL/reference/report.md\"\n   git -C \"$WORKTREE\" status --porcelain --untracked-files=no\n   gh api repos/orchard/reports --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'\n   ```\n   The worktree is tracked-clean and the step-2 resolved merge policy is allowed. There are no blockers, contradicted claims, or spec rows. The PR's original stated intent remains the scope baseline.\n\n   I retain the three nits in the record. I draft no nit payloads before a `fix nits` selection and apply no changes. The first report is ready; nits do not prevent readiness. I complete `report`.\n\n10. **Start the menu stage.** I add `menu` and mark it in progress, then read:\n    ```bash\n    cat \"$SKILL/reference/decision-menu.md\"\n    cat \"$SKILL/reference/menus.md\"\n    cat \"$SKILL/../brainstorming/reference/menu-layout.md\"\n    cat \"$SKILL/reference/cleanup.md\"\n    ```\n    The selected template is **final**, with course still unset. The own, non-draft PR offers merge and one-shot nit repair, but not self-approval. There are no drafted replies.\n\n    No `gauntlet_setting` call is needed before this first menu: no delivery course or nit-repair iteration has been selected. If selected later, the configured value of three yields initial round and sync caps of six each.\n\n### First report and menu\n\nEvidence: CI (source: ci); head a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7; run 9102, ci / test SUCCESS; binding pending 0; merge_state_status CLEAN.\n\nDelivers: The reports page exports CSV on demand.\n\nNits:\n- The export loop duplicates the shared paging helper, so paging fixes would need to be maintained in two places. (src/api/export.ts:31)\n- The name `tmp2` does not explain the variable's role, making the export logic harder to follow. (src/api/export.ts:40)\n- The label uses \"CSV-Export\" instead of the page's \"CSV export\" wording, leaving the terminology inconsistent. (docs/exports.md:12)\n\n3 nits open - fix nits to take them.\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nNot offered: approve (own PR).\n\nPick one:\n1. merge - merge the assessed head using the resolved repository merge policy. [recommended]\n2. fix nits - run one delivery iteration for the three nits without setting a standing course.\n3. stop - leave the checkout and local branch as found.\n\nType a number; show evidence prints the full record (CI, source: ci; head a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7; run 9102, ci / test SUCCESS; binding pending 0; merge_state_status CLEAN).\n",
-        "words": 858,
-        "wallMs": 36403,
-        "mechanical": {},
-        "judgeWallMs": 12782,
-        "facts": {
-          "n1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "n2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "n3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "n4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Nothing moved on this case: both outputs render `Verdict: mergeable`, a three-row final menu (merge [recommended], fix nits, stop) with no plain `fix` row, the `3 nits open - fix nits to take them` line after the nits list, and explicit statements that no nit payload is drafted and no implementer runs before a numeric pick. The one wording risk in After is the trailing period on `3 nits open - fix nits to take them.` — the Before output printed the line bare, and a stricter reader checking the exact template string could count that as drift; if menus.md specifies that line verbatim, have the After wording state it is emitted exactly without added punctuation. Otherwise the After wording (adding the `gauntlet: gate=... recommended=1` header, reading the shared menus.md/decision-menu.md references, and phrasing `fix nits` as a one-shot iteration 'without setting a standing course') delivers the Change while preserving every fact Before kept."
-      }
+      "feedback": "Before and After are textually identical for this single-PR case: the verdict line reads mergeable, the menu lists merge [recommended], fix nits, and stop with no bare `fix` row, the `3 nits open - fix nits to take them` line follows the nits list, and the narration explicitly dispatches no implementer and drafts no nit edits before a pick. Nothing moved, which is the right outcome here since the Change targets the batch summary round and this invocation is a single `517` argument; the sequencing wording did not leak into the single-PR path. Keep the batch-only scoping as is, and if you want to confirm the Change actually lands, this case will not show it - a multi-PR batch input is needed to see the one-report-and-menu-per-turn behavior.",
+      "wallMs": 7396,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c73a4098a385dc310268325ea675a0fa1a9b03d0304e6ae8e1d5389ada98cd11",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "39b0cdf005981c1a86d35a51d94448e00a8f4b026fcce691d591759a88fca3b0",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "6cfc9b0a7a8b079cb06868284ccfc332a9a3d3b0318e756ab16b4623b88d51d3",
       "candidateOutputSha": "6cfc9b0a7a8b079cb06868284ccfc332a9a3d3b0318e756ab16b4623b88d51d3",
       "facts": {
         "f1": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After keeps the test claim matched with both the diff case and exact-head CI run 910 cited, so f1 survives; it keeps the pending production sentence and the qualitative prose untouched, so f2 and f3 survive. One minor softening: Before said the pending observation is \"left alone\" and the prose \"gets no disposition\", while After collapses both into \"Neither is assessed\", which a reader could momentarily misread as a gap rather than a deliberate non-correction. To keep the intent unmistakable while delivering the course/menu change, phrase it as \"Neither is assessed or corrected: the pending observation stays as written, and the qualitative sentence gets no disposition or rewrite.\" The gate line, final template, recommended=1, hint-only show evidence and own-PR approve omission are all consistent with the Change.",
-      "wallMs": 8683,
+      "feedback": "After is textually identical to Before for this single-PR case, so nothing moved: the test claim is still recorded as matched with the diff case and exact-head CI run 910 cited rather than dropped (f1), the pending production observation and the qualitative 'small, readable change' line are both explicitly left unassessed with no correction or rewrite (f2, f3). This is the right outcome, since the Change targets the batch summary round and a single-PR gatekeep run never enters that round; the wording that scopes the per-PR sequencing to the batch summary only should be kept as is, so single-PR runs continue to render exactly one report and one menu without any change in how claims are classified.",
+      "wallMs": 6349,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c73a4098a385dc310268325ea675a0fa1a9b03d0304e6ae8e1d5389ada98cd11",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "515c0d4a2d22a1937ae384917786afbf70bde2ecb811feed713cf234bdd91f0b",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "bf997b87c1348089e863a55c2e2766eb47fcb227cbf0f622b1ac56eec03ab568",
       "candidateOutputSha": "bf997b87c1348089e863a55c2e2766eb47fcb227cbf0f622b1ac56eec03ab568",
       "facts": {
         "f1": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After keeps all three: the verifier explicitly matches the rejected-path claim against the supplied `reject unsigned input` test and exact-head CI (f1), it names the pending production observation as unfinished observation rather than a deployment claim and integrates with no description correction and no observation-based withhold (f2), and it states no prose edit runs and treats the qualitative sentence as non-material (f3). The course/menus.md restructuring (gate line first, final template with course null, `Not offered: approve (own PR)`, hint-only show evidence) is delivered without touching claim/mechanism closure. One small regression worth restoring: After's `Delivers:` line dropped Before's 'and tests the rejected path', which was the visible carrier of the matched test claim in the rendered report; keep 'Rejects unsigned events and tests the rejected path.' so the matched-claim disposition surfaces to the reader in the menu, not only in the narration.",
-      "wallMs": 9076,
+      "feedback": "After is textually identical to Before, so no fact moved: both outputs record the test claim as matched against the supplied `reject unsigned input` case and exact-head CI (f1), both state 'no description correction' for the explicitly pending production observation (f2), and both state no prose edit runs before the menu (f3). This case is a single-PR invocation (`642`), so the batch-summary sequencing change has no surface here, which is expected; the wording is safe for this case. To confirm the Change actually lands, rely on the batch case (batch-summary-queue/s8) rather than this one, and keep the single-PR path's verify/report narration untouched as it is here, since it is what preserves f1–f3.",
+      "wallMs": 6979,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

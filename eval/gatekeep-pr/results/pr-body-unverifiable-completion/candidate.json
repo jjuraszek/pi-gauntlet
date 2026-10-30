@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8881a77a0ac5c64887937e2c8404efe11050a71fa2e7e1c34200a2289ed6b36f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "3af50393d7d40f693f7412c5b7e31530ab1a000a57ab67e04371a5004cc65cd4",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "cfd71767dd8a370fe0c9ece7df0cfa9a2724849f3d86ddb50588299713169e40",
       "candidateOutputSha": "cfd71767dd8a370fe0c9ece7df0cfa9a2724849f3d86ddb50588299713169e40",
       "facts": {
         "f1": {
@@ -56,7 +56,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every fact: A still renders the production claim as a non-blocking Description line under a mergeable verdict with no P# or correction drafted, the ticket/record conflict is explicitly left uncertain, and B writes the author-statement/gate-evidence split only after the numeric 2 maps to deliver, charging no round and promising no future observation. The gate line and recommended=1 marker are delivered without disturbing the course model. Two small things worth tightening in After: the drafted new text contains a stray double period (\"successfully. (not verified by this gate).\"), and Before's explicit sentence \"No pending-work wording is used, because no record of pending work exists\" was dropped from the draft rationale - keeping that one line makes f5 self-evident to a reader rather than requiring them to infer it from the payload text.",
-      "wallMs": 12092,
+      "feedback": "The After output is textually identical to Before, so nothing moved: A still reports the production claim as 'unverifiable-pre-merge' with 'zero blockers, zero nits' and 'optional and non-blocking' (f1), invents no pending work (f2), and keeps the ticket/observation-record conflict as 'stays uncertain' (f3); B drafts the 'Author's statement ... Gate evidence ...' split on the typed request but only runs `gh pr edit` after the numeric 2 is mapped to deliver and the course is persisted (f4), and adds no future-work promise (f5). This single-PR case never reaches the batch summary round, so the Change (one PR's report and menu per turn, collecting each pick before the next) is neither exercised nor at risk here; the wording is safe for these facts, and the only thing to watch when the batch-round sequencing is applied is that the per-PR 'Description:' uncertainty line and the draft-then-write-on-numeric-pick ordering carry over unchanged into each sequentially rendered menu.",
+      "wallMs": 10159,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8881a77a0ac5c64887937e2c8404efe11050a71fa2e7e1c34200a2289ed6b36f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "ef5ca7b92aa2f2bdd47b8f5da0de7e9624de295b7fbf23dee75936f3384a65d3",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "22888f512f1201be428724d75a1aeef0fc3f0d4a0c58923b7d3b486d53345025",
       "candidateOutputSha": "22888f512f1201be428724d75a1aeef0fc3f0d4a0c58923b7d3b486d53345025",
       "facts": {
         "f1": {
@@ -93,7 +93,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved for this case. After keeps the production-completion assertion as a non-blocking description uncertainty in A (explicitly 'non-blocking description uncertainty', zero blockers/nits, no observation work item or inferred pending work), leaves the ticket/record conflict unresolved rather than treating either as proof, and in B shows the exact author-vs-gate clarification before the numeric 2 and writes only after the pick and freshness check, charging no round and promising no future work. Two minor wording notes to keep this stable under the new course model: After's B replacement sentence 'The linked ticket reports completion, but the supplied observation record contains no observation results' is accurate but edges toward narrating the ticket's claim as a finding; the Before phrasing 'the linked ticket and supplied observation record provide no verifiable production results' more plainly keeps both sources at parity and is safer for f3. Also, A in After dropped Before's explicit sentence that 'uncertainty alone does not authorize an unsolicited clarification, deletion, or pending-work promise' — retaining a one-line statement of why no description write or pending-work item is created under course-unset would make f2/f5 unambiguous across the eight course scenarios.",
-      "wallMs": 17899,
+      "feedback": "Before and After are textually identical for this single-PR case, so no fact moved: A still integrates zero blockers and zero nits and labels the production assertion a non-blocking description uncertainty (f1), creates no observation work item and infers no pending work (f2), keeps the assertion dispositioned as unverifiable-pre-merge rather than contradicted while the ticket and observation record stay in conflict (f3); B resumes only after the numeric pick of 2, drafts the replacement that splits the author statement from gate evidence, and only then runs gh pr edit with readback (f4), and the replacement body contains no future-work promise (f5). The Change concerns the batch-summary round, which this invocation (a single argument 642) never enters, so the new sequencing wording is unobserved here; that is the desired outcome - keep the batch rule scoped to multi-PR batch summaries (one PR report and menu per turn, collecting each pick before rendering the next) and avoid wording that would make a single-PR run defer or split its final menu, so these facts continue to hold while batch-summary-queue/s8 moves.",
+      "wallMs": 22980,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

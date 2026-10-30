@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "cc149a144778a3f78730b3914447dddd91b3cb9dc86c77b4cd82c16f7d274278",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "34cc62bb25aa469182945a0bb9b53ed2c641969a215e2c077e9ede957ebf5440",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "6f93435acbd0d3e9b058f6e24f32019bc1b7424d1831e70e814547a574589bd1",
       "candidateOutputSha": "6f93435acbd0d3e9b058f6e24f32019bc1b7424d1831e70e814547a574589bd1",
       "facts": {
         "f1": {
@@ -51,7 +51,7 @@
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs sync, lease-push, re-gather on <new_head>, let the verifier resolve to the Failed CI row with source: ci, mint one P# from the three failing assertions without dispatching a fixer, and render the initial template with assess / deliver [recommended] / stop, no fix or wait row, the Sync: line and a fixable verdict. The After wording is weaker on f1 only in presentation: Before's verifier result line explicitly names `head_sha <new_head>`, `ci / test` FAILURE and `reviewer` queued, and its re-gather paragraph states what the pushed head shows, whereas After says the output is `source: ci` 'with the check list' and only surfaces the queued reviewer run later in step 5 and the menu. To keep f1 robust under the course model, have the Step 3 result bullet list the check list explicitly ('ci / test FAILURE; reviewer queued (binding pending)') on <new_head>, and consider carrying the entry-state 'course null, usage 0/0, caps' line through to the pre-menu refresh so a reader can see the cumulative caps are unchanged when deliver is offered, which also makes f3's cap clause self-evident rather than inferred.",
-      "wallMs": 15728,
+      "feedback": "After is textually identical to Before for this single-PR `412 --rebase` case: verification still records the FAILURE on \"ci / test\" and the queued reviewer run against `<new_head>`, the verifier stays report-only with no fix helper dispatched, the menu still offers assess/deliver/stop with numeric deliver recommended and no fix row, usage stays 0/0, and the verdict is fixable with the `Sync:` line rendered. Nothing moved here, which is the right outcome since the Change targets the batch-summary round (one PR's report and menu per turn) and this case has no batch. Keep the per-turn sequencing wording scoped to the batch summary path so single-PR runs like this one continue to render one report and one menu exactly as before.",
+      "wallMs": 8900,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "cc149a144778a3f78730b3914447dddd91b3cb9dc86c77b4cd82c16f7d274278",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "b09ebc84c2291734b36529127245d30d0553a5f30acf86cf5772dc7e4d3fb9e1",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "c9787b75189442af34dc83c018c956c2411e86b7c8726c63870ef2b716da8ad3",
       "candidateOutputSha": "c9787b75189442af34dc83c018c956c2411e86b7c8726c63870ef2b716da8ad3",
       "facts": {
         "f1": {
@@ -83,7 +83,7 @@
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs record the failed `ci / test` and queued reviewer run on the rebased head after the lease push, dispatch no implementer after the red check, render an initial menu with numeric assess/deliver/stop and no fix or wait row, and keep the `Sync:` line under a `fixable - 1 blocker` verdict. After additionally delivers the Change well: it prepends the `gauntlet: gate=gatekeep-pr/initial recommended=2` marker before prose, states explicitly that the entry-sync push is not a fix-wave push and that the old green run is not evidence for `$NEW_HEAD`, and separates the failed-run log capture from the verifier dispatch. Two small wording points worth tightening so later facts stay stable: After's PR-comments row cites `(src/ledger/round.ts)` where Before cited `(comment 501)` — keep the comment id (or both) so the inline-comment snapshot remains traceable to the thread it drafts a reply for; and neither output names the two cumulative caps (e.g. `rounds 0/6, syncs 0/6` at twice `maxFixRounds 3`) when initializing the record, so a sentence like 'caps 6/6 frozen at twice the entry setting, usage 0/0' in the record-initialization step would make f3's 'caps unchanged' directly readable rather than inferred from the absence of any extension.",
-      "wallMs": 15464,
+      "feedback": "The After output is textually identical to Before for this single-PR `412 --rebase` case, so nothing moved: verification still records the failed `ci / test` check and the queued reviewer run on `$NEW_HEAD` after the lease push, no fix helper is dispatched (the worker is report-only and the failed assertions are explicitly said not to authorize an automatic repair), the initial menu still offers numeric `deliver` with no fix row and usage counters untouched, and the verdict reads `fixable - 1 blocker` with the `Sync:` line rendered. This is expected since the Change targets the batch summary round (per-PR sequential report/menu) and this case never enters a batch flow; the wording that scopes the sequencing rule to the batch-summary path is correctly not leaking into the single-PR initial template. Keep the new sequencing instruction explicitly conditioned on the batch summary round so single-PR invocations continue to render exactly one initial report and menu as they do here.",
+      "wallMs": 9974,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

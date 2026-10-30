@@ -34,47 +34,47 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4e652c21dc93589a8315387f00e4e3084f1d7cf8ac2c9a2b68fb61bf3f481466",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "2df78d3b68045a7e8d3d997b18caf90cfc9851dafc8d1841ebba66f414053578",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "b3e8e31dc1379de3d0c585f72c4957bd7e5803e3b94fe48bca3e13bc7e10071a",
       "candidateOutputSha": "b3e8e31dc1379de3d0c585f72c4957bd7e5803e3b94fe48bca3e13bc7e10071a",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both facts hold in both outputs, so nothing moved here. Before already classified `fix 1` as a change request under `### Next action`, kept course null, noted that display row 1 is now P4 while the empty-signature blocker retains stable ID P1 (now row 2), and stated outright that no implementer is dispatched and no write occurs. After preserves all of that verbatim in substance and adds the `gauntlet: gate=gatekeep-pr/initial recommended=2` first line plus an explicit 'no numeric course pick has occurred, so no delivery authority exists' sentence, which strengthens f2 without disturbing f1. The only drift worth watching is After's phrase 'the reply is also ambiguous', which could invite a future wording to resolve the ambiguity by guessing a target; keep the current framing that `fix 1` is never remapped and that the human must pick a numeric course, and the facts stay stable while the gate-line-first change still lands.",
-      "wallMs": 9338,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both classify `fix 1` as a non-numeric change request that sets no course, both keep P1 as the stable ID (now display row 2) rather than remapping it to the newly displayed P4, and both explicitly dispatch no implementer, edit nothing, and push nothing before a numeric pick. This is expected, since the Change targets the batch summary round (one PR's report and menu per turn, collecting each pick before the next) and this single-PR entry never reaches that round. The After wording is safe for this path; to deliver the Change without regressing here, keep the per-PR sequencing instruction scoped to the batch summary round so it does not alter the single-PR initial-menu rendering or the non-numeric reply handling in `### Next action`.",
+      "wallMs": 6515,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4e652c21dc93589a8315387f00e4e3084f1d7cf8ac2c9a2b68fb61bf3f481466",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "9cd581b423d9e430cdc923ffe4aba50e925bdb3ba216dcaf06ae2d6c8eced2e1",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "c13fc1a4e13d8f6d6df5f2a41626783f280bfc6c229a29a0cf9f073f5c812484",
       "candidateOutputSha": "c13fc1a4e13d8f6d6df5f2a41626783f280bfc6c229a29a0cf9f073f5c812484",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs explicitly treat `fix 1` as a change request that sets no course and does not remap the stable empty-signature P1 onto the newly displayed row-1 unsigned-array finding, and both state that no helper is dispatched and no repair, verification, or mutation occurs before a numeric selection. After additionally gains the gate line (`gauntlet: gate=gatekeep-pr/initial recommended=2`) and the explicit 'retains its stable identity ... does not replace it' sentence, which is good; the 'Expected to move' entry listing these facts as fails -> holds overstates the Before, since Before already satisfied both. To keep this behaviour robust, retain After's explicit statements that the typed request names the original finding by stable ID (not display row) and that no implementer is dispatched for P1, P4, or P5 until an explicit numeric course pick, and keep the gate line first before any narration.",
-      "wallMs": 7979,
+      "feedback": "Before and After are textually identical for this single-PR case, so nothing moved: both treat `fix 1` as a change request that sets no course, keep the empty-signature blocker's stable identity distinct from the unsigned-array bypass now shown in row 1, and dispatch no helper or implementer before a numeric pick. The batch-summary sequencing change does not touch this path, which is expected since the entry is a single PR resuming an existing menu; keep the new wording confined to the batch summary round (first PR with summary, then one report-and-menu per pick) and leave the single-PR nonnumeric-input handling untouched so f1 and f2 continue to hold here.",
+      "wallMs": 5903,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

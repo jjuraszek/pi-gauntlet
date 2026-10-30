@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "896f9ad372be29958e9c03857148b4ea33be39f6d71f75133e1adb1703eabe64",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "41b7f5c372910559bea7f6ca27923b6d58997c6aac93c1afcc2b925fea6f8b41",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "f285380bf81daf6d6e9fc8ba9093fee56f8cc05afc647279da7233b35b0d39ee",
       "candidateOutputSha": "f285380bf81daf6d6e9fc8ba9093fee56f8cc05afc647279da7233b35b0d39ee",
       "facts": {
         "f1": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps P1 open in A-D with no blind retry, treats the 502 write as unconfirmed, redrafts C and D under the same ID against the actual body, and in E marks the original edit unconfirmed, discards 1111111-bound evidence, and resolves P1 only after a fresh Verify helper claim-checks the actual body at 2222222 with a local run and clean review, without replaying the stale write. The gate line and course-menu wording deliver the Change cleanly. Small regressions worth restoring from Before: A-D dropped the `Not offered: merge (blocker 1 open)` line (and B's `merge state not refreshed` note), which made the merge omission explicit; E's merge row lost `--match-head-commit` and its stop row now says it leaves the worktree rather than removing it, which conflicts with the terminal-cleanup ownership the Change says to preserve; and E's Evidence line dropped `no conclusive check on head`, which documents why the Fallback row applied. Keeping the `Not offered` lines, the `--match-head-commit` flag, the worktree-removal stop wording, and the fallback reason in the Evidence line would retain Before's explicitness while still using the shared templates.",
-      "wallMs": 14906,
+      "feedback": "The After output is textually identical to Before for this single-PR case, so nothing moved: A reports the 503 and retains the proposal without retrying, B marks the write unconfirmed and keeps P1 open on the unreadable readback, C keeps P1 open under the same ID and redrafts against the actual body, D keeps P1 open on the narrow recheck's surviving contradiction, and E discards the 1111111 evidence, re-syncs to 2222222, and closes P1 only after a fresh verify helper run plus a claim check against the body and source at the new head, with no stale write and no independent blocker ignored. Since the Change targets batch-summary sequencing (one PR's report and menu per turn, collecting each pick before the next), it has no bearing on this `642`-only run; the wording that keeps every fact here is simply to leave the single-PR checkpoint rendering and the description-repair / head-move rules untouched and scope the new sequencing language strictly to the multi-PR batch summary round, so that per-checkpoint menus for a single PR remain rendered as independent blocks as they are now.",
+      "wallMs": 12426,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "896f9ad372be29958e9c03857148b4ea33be39f6d71f75133e1adb1703eabe64",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "0316ecfc1b180c8bed028e7e54ab0b9a44fb640a16a7af01c3613360b4f640b6",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "75ec238a9ae27f7f5e28e74246ec9f9b844970e3201e35f9ce8448dc8fe2dbed",
       "candidateOutputSha": "75ec238a9ae27f7f5e28e74246ec9f9b844970e3201e35f9ce8448dc8fe2dbed",
       "facts": {
         "f1": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: A and B record the 503/502 as a failed or unconfirmed write with P1 explicitly open and no blind retry, C and D retain P1 on the narrow `open` result, and E is actually stronger than Before because it names P1 as initially open, fetches the actual new-head body, dispatches fresh Section B/C helpers at SHA 2222, and states the CI evidence is a fresh exact-head resolution rather than reuse of the stored SHA-1111 record. The new gauntlet gate line and the shared obstacle/final templates land cleanly. One regression worth fixing even though no fact here pinned it: After A and B dropped the rendered `Blockers:` list that Before showed (C and D still render it), so the unresolved P1 is visible only in the Record paragraph and verdict; keep the single-row blockers list in A and B (e.g. 'The description's test-coverage assertion remains unverified/contradicted because the correction was not applied / could not be read back. (PR description)') so the obstacle template matches the other checkpoints and the open finding stays reader-visible. Also consider keeping the explicit usage figures (rounds 0/6, syncs 0/6) in the deliver row as Before did, since 'preserving cumulative usage' is less checkable than the numbers.",
-      "wallMs": 25071,
+      "feedback": "After is textually identical to Before for all five checkpoints, so nothing moved: A keeps P1 open and reports the 503 without a blind retry; B persists the write as unconfirmed and refuses to treat API success as closure; C keeps P1 open on the unexpected body and redrafts rather than repeating the stale write; D retains P1 as open on the narrow helper's surviving contradiction; E invalidates old-head evidence, declines retroactive confirmation, and only reaches the mergeable verdict after a fresh worker and reviewer assess the actual body and source at SHA 2222 with a freshly resolved rollup. The Change targets the batch summary round (one PR's report and menu per pick), which this single-PR invocation never enters, so the wording is inert here and need not be adjusted for these facts; just keep the sequencing clause scoped to the batch path so single-PR checkpoints like A-E continue rendering each independent menu exactly as they do now.",
+      "wallMs": 9187,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

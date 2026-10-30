@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "266938b3d2e2d383a212fdbb3fd59fce895efa724dbb7c9c8f5f189cffb0899d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "08e3b1e88ec3a0345563259bf2c4fdaf09a8eb952fea4181bbcae3524472d493",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "7b0fc2a274312f1f4542f9b3dd86228ae92398608e85184fc7fe6cf909de66c6",
       "candidateOutputSha": "7b0fc2a274312f1f4542f9b3dd86228ae92398608e85184fc7fe6cf909de66c6",
       "facts": {
         "f1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs state explicitly that step 2b is skipped with no fetch/rebase/push before the menu pick, both initialize the tracker with exactly gather/provision/verify and explain the absent sync stage, both name 7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c as the assessed head for the verifier and reviewer, and both narrate that no `Sync:` line renders (the bold 'Sync line: none renders' narration is a statement about absence, not a rendered Sync line). After additionally surfaces the run record mint, null course, and zero counters, which fits the persistent-course model without disturbing any of the four facts. One minor wording risk worth watching in After: the assess row says 'post nothing (no blockers)' while Before said 'post the review to the PR' — this doesn't touch f1–f4 but should match whatever the assess-course spec says a zero-blocker own-PR assess does, so keep that row text aligned with menus.md rather than improvising per case.",
-      "wallMs": 10783,
+      "feedback": "Before and After are textually identical for this single-PR case: no sync stage, no fetch/rebase/push before the menu, three tracker stages, verification assessed on 7c1e9a2f…0b1c, and no Sync: line, so nothing moved. This is expected since the Change targets the batch summary round (one PR's report and menu per turn), which does not apply when the argument is a single PR number. The current After wording is safe for this case; to deliver the Change without touching single-PR runs, keep the per-PR sequencing instruction scoped to the batch summary path (e.g. 'In the batch round, render the first PR's report and menu with the summary, collect its pick, then render the next PR's report and menu') rather than in the shared menu or sync steps.",
+      "wallMs": 6120,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "266938b3d2e2d383a212fdbb3fd59fce895efa724dbb7c9c8f5f189cffb0899d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "8fd962a17ad4808b1d68f3f7c6075e9cc891654b88269271f12e7ad20663649d",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "23538d1d58179b8463a91ebaf191b4dbe02dd1a18d3714926c04235828ea76fc",
       "candidateOutputSha": "23538d1d58179b8463a91ebaf191b4dbe02dd1a18d3714926c04235828ea76fc",
       "facts": {
         "f1": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After. Both outputs explicitly skip the entry fetch/rebase/push when `--rebase` is absent (After: \"Skip entry sync... I run no additional fetch, rebase, sync review, or push\"), both initialize the tracker with exactly gather/provision/verify and only add review/report/menu later, both bind Verify and Review to the digest head `7c1e9a2f...` rather than a rebased head, and neither renders a `Sync:` line before the verdict (After states this explicitly and the report body omits it). The After wording additionally delivers the Change well: it leads with the gauntlet marker and recommendation number, offers the persistent assess/deliver/stop courses, shows the `Not offered: deliver with nits (no nits)` omission reason, and keeps `show evidence` as a hint rather than a numeric row. Keep the explicit \"no additional fetch, rebase, sync review, or push\" sentence and the \"No Sync line renders\" statement as-is in future revisions; they are what makes f1 and f4 unambiguous. One minor tightening that would not affect these facts: After's tracker initialization is narrated retroactively (\"Before Gather, I minted...\") rather than as a numbered step with an exact three-item list like Before; stating the three stage names as an explicit list keeps f2 easier to verify at a glance.",
-      "wallMs": 12677,
+      "feedback": "Before and After are byte-identical for this single-PR invocation, so nothing moved: step 2 still skips entry sync with no fetch/rebase/push (f1), the tracker is still initialized with exactly gather/provision/verify (f2), Verify and Review both assess 7c1e9a2f…0b1c (f3), and the report carries no Sync: line (f4). This is the expected outcome, since the Change targets only the batch summary round and this case exercises the single-PR initial menu; the batch wording did not leak into the non-batch path. Keep the batch per-turn sequencing instruction scoped explicitly to the batch summary round (e.g. 'In the batch summary round, render the first PR's report and menu with the summary, then collect its pick before rendering the next PR's report and menu') so the single-PR flow, the three-stage tracker initialization, and the no-sync entry path remain untouched as they are here.",
+      "wallMs": 9330,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

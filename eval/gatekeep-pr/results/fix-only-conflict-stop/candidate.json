@@ -34,47 +34,47 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "011b879d8731b2974ad64a84ff621b3f3d4dcee3c09ff786fe5e4d0e2ad36648",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "9f9d4af8db5d1f133d126ec5762ab840111eae6405131623f4097dda97752740",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "0afd95a9f9be0afeed0397e945fdd0ff60669e937ca14febed8674dfa4f60519",
       "candidateOutputSha": "0afd95a9f9be0afeed0397e945fdd0ff60669e937ca14febed8674dfa4f60519",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs keep both facts: each treats CONFLICTING under the retained deliver course as a trigger for a reviewed rebase sync with no intermediate menu, persists syncs_used 0→1, states explicitly that the base-only sync charges no source round so rounds_used stays 1, pushes with the lease against the P1 head, watches binding CI on 2222…, and renders only the final template with merge offered but not selected. After additionally emits the gate line first (as intended by the Change) and makes the deadline renewal on own push explicit, which is an improvement. Two drift points worth tightening in After even though they do not move f1/f2: the final menu dropped the `Not offered: approve (your own PR)` line and the stop row changed from 'remove the worktree' to 'leave the checkout as is', which weakens terminal cleanup ownership and omission-reason visibility that the Change says to preserve; keep Before's stop wording and the Not offered line in the shared final template so other facts (menu-rows-omitted, course-stop-cleanup) stay satisfied.",
-      "wallMs": 11186,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both run the CONFLICTING-triggered sync under course deliver with no base-decision menu, charge no round for the conflict-only rebase (rounds_used stays 1), increment syncs_used 0 → 1, review before the single force-with-lease push, re-check readiness on the fresh exact head 2222…, render only the final menu, and stop without selecting merge. This is expected, since the Change only alters the batch summary round's per-PR report/menu sequencing and this case is a single-PR deliver path with no batch summary; the wording is safe here. To keep it that way, make sure the new per-PR sequencing text is scoped explicitly to the batch summary round (e.g. 'In the batch summary round, after the summary render the first PR's report and menu, collect its pick, then render the next PR's report and menu') so it cannot be read as inserting an extra menu or pick-collection step into the single-PR D3 iteration, which must still proceed from sync to final without a menu.",
+      "wallMs": 8363,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "011b879d8731b2974ad64a84ff621b3f3d4dcee3c09ff786fe5e4d0e2ad36648",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "11f424b6ee56d2aafdace65be9e1de783e80a11ee98d1e613267a74c4bfdbc2d",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "d4d231459c1f7d33ab149062370de5dce3e6028aac367e72027ed241af69b34a",
       "candidateOutputSha": "d4d231459c1f7d33ab149062370de5dce3e6028aac367e72027ed241af69b34a",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both Before and After treat the CONFLICTING state as a continuation of the retained deliver course (Before: \"requires Loop sync, not a new course selection\"; After: \"Exit check permits the delivery course to continue into loop sync; it does not render a menu\"), both dispatch a fresh conflict helper and a fresh read-only reviewer before the single leased push, both keep rounds at 1/6 while incrementing syncs to 1/6, and both end at a single final menu with merge recommended but unselected. After additionally adds the gauntlet gate line first, the explicit `repair.wave.sync.pre_head`/`expected_remote_head` persistence, a `$PRE_HEAD` range-diff against the recorded recovery head, and a `Not offered: approve` line, which strengthens the course-model story without altering the accounting or menu outcome. Keep this wording; the only thing to watch is the sentence \"Only an existing watch deadline would be renewed by this own push\" — it is correct here (no watch was active) but phrase it so it cannot be read as the push itself opening a new window.",
-      "wallMs": 9786,
+      "feedback": "Before and After are textually identical for this single-PR case, so nothing moved: both continue the retained deliver course straight into loop sync without rendering a base-decision menu, keep rounds at 1/6 while incrementing syncs to 1/6, bind readiness to the fresh exact-head CI on 2222…, and render only the final menu without selecting merge. This is expected, since the Change targets the batch summary round (one PR's report and menu per turn, picks collected sequentially) and this argument set is a single PR `642` with no batch, so the new wording is not exercised here. To confirm the Change lands where intended without regressing these facts, keep the batch-round sequencing wording scoped to the batch summary path (e.g., 'in the batch summary round, render the first PR's report and menu with the summary, then after each pick render the next PR's report and menu') and avoid any phrasing that could be read as adding a menu or pick step to the single-PR loop-sync continuation, which these facts require to proceed menu-free until final.",
+      "wallMs": 7527,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

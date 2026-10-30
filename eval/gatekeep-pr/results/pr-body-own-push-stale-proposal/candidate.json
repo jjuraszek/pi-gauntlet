@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e6dde74b61fd47c551a91b7fda09f535bad0d376b98ed917bb7c65bf09f694d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "4e753330560e5b9e5d2fb135a34d9ec4372a0f46459c03eeeb7326b47cbdeb81",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "516e3ebf341a63b9aca1d9ec5c7930c882b95d4e0bdae69a5dd1f3e966e76ea4",
       "candidateOutputSha": "516e3ebf341a63b9aca1d9ec5c7930c882b95d4e0bdae69a5dd1f3e966e76ea4",
       "facts": {
         "f4": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f4: Before (step 5) invalidates the stale P1 proposal keyed to 1111111 and re-proposes under the same P1 with assessed_head 2222222 and the actual body as original_body; After (step 7) explicitly names the head mismatch, invalidates the stored proposal, re-proposes from the current body at 2222222 with the same old/new text, and persists the refreshed payload before the write iteration. No fact moved. After additionally delivers the Change's gate-line-first marker (`gauntlet: gate=gatekeep-pr/final recommended=1`) and separates the invalidation/re-proposal iteration from the write iteration more clearly, which is fine; keep that explicit 'bound to 1111111 but current head is 2222222 -> invalidate and re-propose' phrasing, since it is what makes f4 unambiguous in After.",
-      "wallMs": 8199,
+      "feedback": "Before and After are textually identical for this case, and both satisfy f4: step 7 explicitly notes the stored P1 proposal was bound to head 1111111, invalidates it because the current head is 2222222, and re-proposes from the current body with assessed_head 2222222 and the current body as original_body. The Change concerns batch-summary sequencing of multiple PR reports and menus, which does not engage on this single-PR run (`642`), so nothing moved here; keep the mismatch-path wording in the description-repair section untouched when you land the batch sequencing change, since it is what carries f4.",
+      "wallMs": 5570,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e6dde74b61fd47c551a91b7fda09f535bad0d376b98ed917bb7c65bf09f694d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "02cba2ce8cdd34f1fcd27e5e40a095d7f331f44ca75562f32a660ecbde872780",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "1527e42d5565a18a38fedafcc7974a4b567895a4dbadca85fc5d0da1a33ece9a",
       "candidateOutputSha": "1527e42d5565a18a38fedafcc7974a4b567895a4dbadca85fc5d0da1a33ece9a",
       "facts": {
         "f4": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved for f4: both outputs explicitly state that the saved description proposal targets the old head 1111…, that the own push made it inapplicable, and that a refreshed proposal is persisted against the actual pushed head 2222… and the freshly fetched unchanged body before any write. After's section 4 wording ('The stored description proposal targets head 1111…, so it cannot be applied after the push. I invalidate that snapshot and persist a refreshed proposal … targeting 2222… and the freshly fetched unchanged body') delivers this as clearly as Before, while adding the gauntlet gate line first and the shared final template with 'Not offered' above the pick list; keep that phrasing as is.",
-      "wallMs": 7634,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both section 4 explicitly state that the stored description proposal targets head 1111…, that it cannot be applied after the push, that the snapshot is invalidated, and that a refreshed proposal is persisted against head 2222… and the freshly fetched unchanged body, which is exactly what f4 requires. This is a single-PR invocation (`642`), so the batch-summary sequencing change has no surface here and the After wording neither helped nor hurt. To deliver the Change without risk to f4, keep the per-PR sequencing wording confined to the batch summary round (e.g. 'In the batch summary round, render the first PR's report and menu with the summary, collect that pick, then render the next PR's report and menu') and leave the single-PR delivery-course and proposal-invalidation text untouched.",
+      "wallMs": 6725,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a7091b00b79f22754b532510f5066461f89232de6a83acbeb4f9b7a48102eaf0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "6e9fe91371668fd48d984be2f12d06cdc6c0ba4da27e2fd0d980e8cd7804bec6",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "3be0ee8e70cd2e427b7e44bde9d175f2de4f479ccec751f76a099f108deb89f5",
       "candidateOutputSha": "3be0ee8e70cd2e427b7e44bde9d175f2de4f479ccec751f76a099f108deb89f5",
       "facts": {
         "f1": {
@@ -46,7 +46,7 @@
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
@@ -79,15 +79,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps every fact Before kept while adding the gate line (gauntlet: gate=…/initial recommended=2) first, the persisted course/caps before any write, and the description-only accounting rule (no round charged, syncs_used stays 0). Two small things worth tightening in After so the facts stay robust: the Case A preview lost the `Proposed:` label (it still shows the compact old -> new line under the blocker, so f1 holds, but the label makes the 'preview' reading unambiguous and matches the report template), and Case D's final hint appends `merge_state_status CLEAN` next to pending evidence, which a reader could misread as readiness-adjacent; keeping the hint to `pending: ci / test queued on 1111111` (as Before did) keeps f8's 'evidence stays insufficient' reading unmistakable. Otherwise the readback-then-recheck ordering, the untouched `source: local` block with `log_path /tmp/guard-log.synthetic`, and the absence of implementer/commit/full-suite work all survive the course-model rewrite.",
-      "wallMs": 16422,
+      "feedback": "The After output is textually identical to Before, so no fact moved: Case A still prints the old-to-new preview under the blocker and performs no write without a numeric pick; Case B still does compare-and-swap, readback, and a narrow description-recheck helper before closing P1, preserves unrelated body text, dispatches no file implementer, makes no commit, runs no tests, and re-renders the final menu without re-proposing the correction; Case C keeps the local run and /tmp/guard-log.synthetic without inventing CI; Case D keeps source: pending and explicitly says the evidence stays insufficient despite P1 resolved. The Change (sequencing one PR's report and menu per pick in the batch summary round) is not exercised by this single-PR `642` invocation, so this case cannot show the intended movement on batch-summary-queue/s8; the wording is safe for these facts, and to confirm the Change you need a batch case with multiple PRs where After shows one report+menu, a pick, then the next report+menu rather than a combined reply request.",
+      "wallMs": 11226,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a7091b00b79f22754b532510f5066461f89232de6a83acbeb4f9b7a48102eaf0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "bfc3d663004d1b7edba96a92d0b73e90e22e03f4f16a44c5473ff6ad8ae71e6b",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "3163c430ece9d176f9667525f71c20ace861df030907c9471e4503f599daa869",
       "candidateOutputSha": "3163c430ece9d176f9667525f71c20ace861df030907c9471e4503f599daa869",
       "facts": {
         "f1": {
@@ -98,7 +98,7 @@
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
@@ -131,10 +131,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After for this case: After still prints the compact old-to-new correction under A's blocker and writes nothing on refusal, B shows the full three-line replacement body, performs a WRITE-CHECK readback plus a fresh narrow recheck worker before closing P1, renders final without re-proposing the correction, and dispatches no implementer, commit, or full verification; C keeps the local run and /tmp/guard-log.synthetic with no invented CI, and D keeps source: pending through the bounded watch and explicitly refuses to let the narrow closure count as evidence. The After wording successfully layered the Change (gate line first, persisted deliver course, shared initial/final/obstacle templates, cap display, timeout continuation without cap extension) onto the same operation sequence. The only soft spot worth tightening is that neither output lists the retained log_path in C's rendered evidence line; if the author wants f7 to be checkable from the menu text alone rather than from prose, add the log path (log: /tmp/guard-log.synthetic) to C's Evidence line and show-evidence hint while keeping everything else as written.",
-      "wallMs": 14651,
+      "feedback": "Before and After are textually identical for this single-PR case, so no fact moved: A still prints the exact old-to-new correction under its blocker and authorizes no write; B preserves every other body character, performs WRITE-CHECK readback and a fresh narrow recheck before closing P1, and its final menu no longer re-proposes the resolved correction; the description-only repair dispatches no file implementer, makes no commit, and runs no full verification; C keeps the local run and /tmp/guard-log.synthetic without inventing CI checks; D keeps source: pending and does not promote the narrow claim result into sufficient evidence. The Change concerns the batch summary round (one PR report and menu per turn, collecting each pick before the next), which this `642` single-PR invocation never reaches, so the wording change is neither exercised nor harmful here. Keep the batch-round sequencing wording scoped strictly to the batch summary path (e.g., 'in the batch summary round, after the summary render the first PR's report and menu, then wait for its pick before rendering the next PR's report and menu') so that single-PR continuations like these retain their existing per-case menu rendering unchanged.",
+      "wallMs": 11591,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

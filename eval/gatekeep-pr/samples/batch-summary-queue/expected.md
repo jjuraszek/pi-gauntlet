@@ -5,3 +5,4 @@
 - s5: judged: The supplied PR12 and PR15 reports print verbatim in roster order at their menu turns, rather than being replaced by a combined menu or rewritten reports.
 - s6: judged: No non-sync write executes until all numeric picks are collected; deliver12 is queued before menu15.
 - s7: judged: Only after every pick does a next foreground batch execute deliver12 and deliver15 plus report-mode retry18, preserving each independent course, both caps/usage and supplied record/report paths.
+- s8: judged: Each PR's report and menu render in their own turn: the turn with #12's menu carries no #15 or #18 menu, #15's report and menu appear only after the 12 pick is collected, and the parent never asks for all picks in one combined reply.

@@ -34,57 +34,57 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1a9c58587ebc0f6763df77304b1df489e3418e71727ee9bbd1374a24aee98073",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "2d411173ccc58e327a1a5feabd70b29d996201a32a428cd29ffcfed524d9a80a",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "e6fbf4abad572ffaac5a698a9b9c22d314d263bd6dd36ea5f7fee32f8006774c",
       "candidateOutputSha": "e6fbf4abad572ffaac5a698a9b9c22d314d263bd6dd36ea5f7fee32f8006774c",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "After keeps all three facts: numeric 2 is persisted as course assess before any write, no repair or sync fires on CONFLICTING under assess, and the review is posted once with --comment on the own PR while usage stays 1/6 and 1/6 and show evidence settles nothing. The one drift to watch is sequencing: the Entry says show evidence arrives right after the numeric pick and before the refresh, but After moves it to step 9 after the post and labels the refresh/post as responses to '2' alone; keep the Before ordering (pick -> show evidence printout -> refresh -> post -> terminal) so the hint demonstrably grants nothing and does not look like it triggered the terminal render. Also prefer the Before phrasing 'never --request-changes' alongside the --comment rationale, and keep the gate line's recommended=2 consistent with the rendered stop row as you did here.",
-      "wallMs": 10511,
+      "feedback": "The After output is textually identical to Before for this case, so nothing moved: step 2 still records the numeric `2` selection and persists the deliver-to-assess switch before the refresh and the review post (f1); steps 4 and 8 still state that assess performs no repair, no sync, and dispatches no helpers despite the CONFLICTING state and the source-backed P1, with Payload 1 only drafted (f2); and `show evidence` only prints the record and re-renders the assess terminal with rounds 1 of 6 and syncs 1 of 6 intact, while the single review is posted with `--comment` on the own PR and no request-changes (f3). The Change targets the batch summary round (one PR report and menu per turn, collecting each pick before presenting the next), which this single-PR recovery case never enters, so the wording change has no footprint here. To keep this behavior stable while delivering the Change, scope the new sequencing language explicitly to the batch summary round (e.g., 'In the batch summary round, render the first PR's report and menu with the summary, then collect its pick before rendering the next PR's report and menu') and avoid generalizing it into the shared menu-layout or next-action boundary sections that this single-PR path reads.",
+      "wallMs": 9971,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1a9c58587ebc0f6763df77304b1df489e3418e71727ee9bbd1374a24aee98073",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "619852edf96fc9e4ba5d096e4936a849f3db5fd6053ff0d555463666f990c432",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "e99b263d08c1863a8e46b24881dbcf0ac73d9e1c784e8420f467b2ebd5c2a9b3",
       "candidateOutputSha": "e99b263d08c1863a8e46b24881dbcf0ac73d9e1c784e8420f467b2ebd5c2a9b3",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs persist `course: assess` from the bare `2` before the review write, dispatch no helpers and run no repair or sync after the switch, keep rounds 1/6 and syncs 1/6 through `show evidence`, and post exactly one `--comment` review (explicitly not request-changes) on the own PR. After adds the gauntlet gate line, the explicit note that selecting assess does not extend either cap, the hypothetical-locator/no-line-number guard, and the 'A small, readable change' non-claim note, all of which strengthen the course model without touching the three facts. Two small divergences worth keeping in mind for future cases: Before states that `show evidence` runs no forge command at all, whereas After repeats the pre-menu refresh pair and the tracked-cleanliness check before re-rendering, so if a later fact asserts that evidence display is purely record-backed with no forge reads, After would fail it; and After silently drops the `Not offered: approve (own PR and an open blocker)` line from the assess-terminal menu, which Before retained, so if a menus.md omission-reason fact is exercised on this scenario, restore that line. Otherwise the After wording delivers the Change while preserving everything Before kept.",
-      "wallMs": 12709,
+      "feedback": "The After output is textually identical to Before, so no fact moved: both persist `course: assess` before the review write at unchanged 1/6 rounds and 1/6 syncs (f1), both explicitly skip the local test command, repairs, fetch, rebase, merge, and sync after the switch (f2), and both treat exact `show evidence` as a non-mutating read that grants no authority while posting a single comment review rather than request-changes on the author's own PR (f3). This makes sense because the Change targets the batch summary round (one PR's report and menu per turn, collecting each pick before rendering the next), and this case is a single-PR same-run continuation that never enters that round, so the new wording is not exercised here. The sequencing wording appears safely scoped to the batch summary path; keep it conditioned on the batch round only, so single-PR assess-terminal rendering, show-evidence handling, and the own-PR comment-review rule remain untouched as they are here.",
+      "wallMs": 8367,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

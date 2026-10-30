@@ -142,7 +142,7 @@ test('PR sets route before the unchanged single-PR steps', () => {
 });
 
 for (const [sample, ids] of [
-  ['batch-summary-queue', ['s1', 's2', 's3', 's4', 's5', 's6', 's7']],
+  ['batch-summary-queue', ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8']],
   ['batch-failure-retry', ['f1', 'f2', 'f3', 'f4', 'f5', 'f6']],
   ['batch-rebase-answers', ['r1', 'r2', 'r3', 'r4', 'r5']],
   ['batch-cleanup-stop', ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7']],

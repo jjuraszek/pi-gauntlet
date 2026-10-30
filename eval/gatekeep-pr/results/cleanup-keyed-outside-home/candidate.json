@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "37f0348fbee98949cf20bc03b87996c613f4643f8df1f92ce1319c0304f393ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "cc12f82f48d7a9d628a676f437a074058d4f5ccb50ad7fae0eaafc30da7a8993",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "27da093b5546225b1ccc650f28c11506696635314e4a28d888d0480363f00acd",
       "candidateOutputSha": "27da093b5546225b1ccc650f28c11506696635314e4a28d888d0480363f00acd",
       "facts": {
         "o1": {
@@ -58,15 +58,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs print the exact `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` and `branch: skipped - checked out at /home/dev/scratch/backoff` lines, run no destroy/`git worktree remove`, and run no `git branch -D`. The one thing worth tightening in After is unrelated to these facts but risks other scenarios: After asserts that this run executed `gh pr merge --match-head-commit` and selects the own-merge template with a `post coverage to PR` row, whereas the digest shows the PR was already MERGED at entry (Before correctly chose the closed-PR cleanup/stop template). To keep the Change's menus.md template wiring while staying faithful to the digest, have the After wording key the template on whether the merge was performed by this run (persisted merge consequence) versus found MERGED at gather, and fall back to the closed-PR cleanup/stop template in the latter case so no coverage post or fabricated merge call appears.",
-      "wallMs": 8542,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both print `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` with no destroy or `git worktree remove`, and both print `branch: skipped - checked out at /home/dev/scratch/backoff` with no branch deletion. This is expected, since the Change targets the batch summary round (one PR's report and menu per turn, collecting each pick before presenting the next), while this case is a single-PR own-merge cleanup path that never enters the batch round. No wording adjustment is needed for this case; the batch-summary sequencing wording should stay scoped to the batch round so single-PR cleanup narration continues to behave exactly as it does here.",
+      "wallMs": 6539,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "37f0348fbee98949cf20bc03b87996c613f4643f8df1f92ce1319c0304f393ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "d2e6301ca20f6afa07b00fe648b11abf0ad7ac389920932e800af1c342129274",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "94b1072019a1aab837ec1700c09dac7fe01867a39ae442c90e08b166b552f4af",
       "candidateOutputSha": "94b1072019a1aab837ec1700c09dac7fe01867a39ae442c90e08b166b552f4af",
       "facts": {
         "o1": {
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: After prints the exact `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` line after the realpath comparison and explicitly runs no removal, destroy, or prune, and it prints the exact `branch: skipped - checked out at /home/dev/scratch/backoff` line after `worktree list --porcelain` with no `git branch -D`. The After wording changes that do not touch these facts (the leading `gauntlet:` marker, the action-boundary `gh pr view` refresh moved ahead of cleanup, `symbolic-ref` instead of `branch --show-current`, dropping the `Verdict:` line, omitting the `gh run list` refresh and the `Delivers:` line) are safe for o1/o2; if you want to keep parity with Before beyond these two facts, consider retaining the post-cleanup refresh and the `Delivers:` summary line, but no change is needed to preserve o1 or o2.",
-      "wallMs": 6615,
+      "feedback": "Before and After are textually identical for this case: both print `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` without any worktree removal, destroy, or prune, and both print `branch: skipped - checked out at /home/dev/scratch/backoff` without running `git branch -D`. Nothing moved here, which is expected since this case is a single-PR cleanup resume rather than a batch summary round, so the per-PR sequencing change does not touch this path. The wording change appears correctly scoped to the batch summary round; keep it isolated there and avoid altering the shared cleanup narration or terminal menu rendering, which is what preserved o1 and o2 unchanged in this case.",
+      "wallMs": 5896,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }

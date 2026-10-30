@@ -34,98 +34,67 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "abf5d98099d85a9ecc1e105755d26b240a938cbe1507cb291ce3765e2c411f8a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "44b769ee345ee08eaf8a9045acdd0b16f09387c88a3d042c0106fbb3357a7b2d",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "6f894d1ed5cbb5c31c220bd695ad1d9ad0477f9733fa6b442eea7bd221ed0bc0",
       "candidateOutputSha": "6f894d1ed5cbb5c31c220bd695ad1d9ad0477f9733fa6b442eea7bd221ed0bc0",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: all three cases in both outputs re-poll once (A), refuse to recreate or search for the record (B), decline to attribute a named rule or demand an approver (C), and render the obstacle template with stop recommended last, evidence in the hint, and no ordinary wait row or automatic merge. After additionally delivers the Change's intent by emitting the `gauntlet: gate=gatekeep-pr/obstacle recommended=N` marker before each menu, naming the owned checkout path in the stop row, and recording the UNKNOWN re-poll into `permissions.merge_state_status`, which are improvements rather than regressions. Two small things worth keeping an eye on in the After wording: the cumulative-cap text in the deliver row ('rounds 1 of 20, syncs 2 of 20') is terser than Before's 'rounds 1 of 10 -> 1 of 20' and slightly hides that the extension is a pick-time increment rather than the current cap, so retaining the '10 -> 20' form would make the cap-freeze rule more legible; and Case B's hint now states 'state: /tmp/gatekeep-state.synthetic missing', which is fine as long as it stays descriptive and never becomes a suggestion to look for a different record.",
-      "wallMs": 13399,
+      "feedback": "Before and After are textually identical for this single-PR re-entry case, so nothing moved: A re-polls once and exits stuck with usage held at 1/2 and no repair or sync; B stops on the ENOENT row without recreating or searching for a record or inferring course from chat; C renders the BLOCKED verdict with reviewDecision used only as a locator and no demand for another approver; all three end at an obstacle menu with stop as the last (recommended) row, evidence surfaced via the show-evidence hint, and no wait row or automatic merge. The Change targets the batch summary round (one PR's report and menu per turn, sequencing picks), which this `42` single-PR invocation never reaches, so the new wording neither helps nor harms here. To keep it that way, scope the per-PR sequencing instruction explicitly to the batch summary path (e.g. 'when more than one PR is in the batch, render the first PR's report and menu with the summary, then present each subsequent PR's report and menu only after the previous pick') so single-PR re-entries continue to render exactly one report and one obstacle menu as they do now.",
+      "wallMs": 9866,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "abf5d98099d85a9ecc1e105755d26b240a938cbe1507cb291ce3765e2c411f8a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
-      "baselineOutputSha": "5660b41f5f9f5b54a410c31d8d82f14762f048b797850b00333832c62bee1a71",
+      "intentSha": "96c9d6cd37fad1201a8a4bbb605a614593ff5184b88bf9d7d75208c9714360af",
+      "baselineOutputSha": "5a696cfe14b6a9f7c819d4fb0d3c47a6d7e894833460107600de627a911213ea",
       "candidateOutputSha": "5a696cfe14b6a9f7c819d4fb0d3c47a6d7e894833460107600de627a911213ea",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
-          "before": "holds",
+          "before": "fails",
           "after": "fails",
-          "label": "regression"
+          "label": "pre-existing"
         }
       },
-      "feedback": "After keeps f1-f3 intact (A re-polls exactly once and exits stuck without spending either budget; B refuses to recreate the record, reconstruct counters, or hunt for another record; C names the actor-framed BLOCKED obstacle without attributing a rule or demanding another developer's approval), but it breaks f4 in checkpoint B: it declares that a missing continuation record 'cannot reach an obstacle menu' and emits only a bare `gauntlet: stuck run record unreadable` line, so B renders no obstacle menu, no stop row, and no evidence hint. Before rendered B through the obstacle template with a single recommended stop row and a show-evidence hint noting the record-read failure, which is what the Entry asks for ('narrate each through obstacle menu'). To deliver the Change (gate line first, shared menus.md templates, no ordinary wait row) while preserving f4, word the unreadable-record rule so that it forbids recreating the record, inferring authority, or searching for siblings, but still routes to the obstacle menu: the read-only forge refresh is permitted (it grants no write authority), the gate line reads `gauntlet: gate=gatekeep-pr/obstacle recommended=1`, deliver/assess/merge are listed under `Not offered` because accounting cannot be validated, and the sole row is `1. stop [recommended]` with evidence kept in the hint alongside the ENOENT note. Also note that A and C in After say 'retaining rounds 1/20 and syncs 2/20' in the deliver row, which is fine for the cumulative-extension wording but should be phrased as 'rounds 1/10 and syncs 2/10 retained; caps become 20/20 on selection' to avoid implying the caps are already extended before the pick.",
-      "wallMs": 16005,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "These are three independent continuations from Entry, not successive states of one run. All commands below are narrated simulations; no tools run.\n\nNo continuation initializes the tracker or recreates the record. The retained course is `deliver`, with 1 repair round and 2 syncs used against caps of 10 each. No verification, repair, sync, push, or helper dispatch runs: each case reaches an obstacle before further course work.\n\n## A. Merge state remains UNKNOWN\n\n1. Read `/tmp/gatekeep-state.synthetic` and validate its structure and immutable target against `acme/widgets`, PR 42, base `main`. Preserve course, usage, caps, and checkpoints.\n2. Run the pre-menu refresh:\n\n   ```bash\n   gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   ```\n\n3. Run the single merge-state re-poll:\n\n   ```bash\n   gh pr view 42 --json mergeable,mergeStateStatus\n   ```\n\n   `mergeStateStatus` remains `UNKNOWN`. The head, body, and base are unchanged.\n4. Retain the exact-head CI evidence. Verification and the brief remain bound to `1111111111111111111111111111111111111111`; no new verification or claim-check helper runs.\n5. Apply Exit check before any watch or repair. Record the unresolved merge-state prerequisite without charging a round or sync.\n6. Add and complete the `report` tracker stage; add `menu` when rendering starts. Do not initialize stages or reopen `verify`.\n7. Dispatch no helpers. Run no CI watch, policy query, sync, or write to the forge.\n\nNo `Sync:` line renders because the invocation contains no `--rebase`.\n\n```text\ngauntlet: gate=gatekeep-pr/obstacle recommended=3\n\nDelivers: Rejects unsigned events.\n\nPR comments:\n- GitHub's merge state remains unknown after one re-poll, so merge waits. (merge_state_status UNKNOWN)\n\nEvidence: CI (source: ci; run 910, ci / test success on 1111111111111111111111111111111111111111)\nVerdict: not ready - stuck - merge state unknown\n\nRepair rounds used: 1/10. Syncs used: 2/10.\nNot offered: merge (merge state unknown)\n\nPick one:\n1. deliver - resume the retained course; retry the merge-state read, no round charged; add 10 to each cap, changing usage/caps from 1/10 rounds and 2/10 syncs to 1/20 and 2/20.\n2. assess - post the current open blockers to the PR without repairs.\n3. stop - end this gate and remove the eligible non-primary worktree. [recommended]\n\nType a number; show evidence prints the full record (CI, run 910, ci / test success on 1111111111111111111111111111111111111111).\n```\n\n## B. The continuation record is missing\n\n1. Attempt to read `/tmp/gatekeep-state.synthetic`. The read returns `ENOENT`.\n2. Stop record validation immediately. Do not create another record, recover authority from the transcript, or recreate the earlier counters.\n3. Run no forge refresh, policy query, worktree command, verification, watch, sync, or push.\n4. Dispatch no helpers.\n5. Record validation fails before further course work. The existing tracker may record that failure and add `report` and then `menu`; it does not initialize a new run or claim that usage was recovered.\n\nThe previously assessed SHA is `1111111111111111111111111111111111111111`. No new verification or brief assessment occurs, and the retained CI snapshot does not restore course authority.\n\nNo `Sync:` line renders.\n\n```text\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nDelivers: Rejects unsigned events.\n\nPR comments:\n- The continuation record cannot be read, so this gate cannot resume authorized work. (/tmp/gatekeep-state.synthetic; ENOENT)\n\nEvidence: retained CI snapshot (source: ci; run 910, ci / test success on 1111111111111111111111111111111111111111; no refresh performed)\nVerdict: not ready - stuck - run record unreadable\n\nNot offered: deliver (run record unreadable).\nNot offered: assess (run record unreadable).\nNot offered: merge (run record unreadable).\n\nPick one:\n1. stop - end this gate without recreating the missing record or its counters. [recommended]\n\nType a number; show evidence prints the available evidence and the record-read failure (retained CI snapshot, run 910, ci / test success on 1111111111111111111111111111111111111111).\n```\n\n## C. GitHub reports BLOCKED with no local repair\n\n1. Read `/tmp/gatekeep-state.synthetic` and validate its structure and immutable target. Preserve course `deliver`, rounds `1/10`, and syncs `2/10`.\n2. Run the pre-menu refresh:\n\n   ```bash\n   gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   ```\n\n3. Retain the unchanged exact-head green CI evidence. Verification and the brief remain bound to `1111111111111111111111111111111111111111`.\n4. Apply Exit check. GitHub reports `BLOCKED`, and no local repair or dispositionable check applies. Record that obstacle without attributing it to a review requirement or any other named rule. `REVIEW_REQUIRED` remains a locator only.\n5. Add and complete `report`; add `menu` when rendering starts. Do not initialize new stages or reset accounting.\n6. Dispatch no helpers. Run no watch, repair, sync, policy query, or forge write.\n\nNo `Sync:` line renders.\n\n```text\ngauntlet: gate=gatekeep-pr/obstacle recommended=3\n\nDelivers: Rejects unsigned events.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (source: ci; run 910, ci / test success on 1111111111111111111111111111111111111111)\nVerdict: not ready - GitHub reports BLOCKED, no local repair applies\n\nRepair rounds used: 1/10. Syncs used: 2/10.\nNot offered: merge (blocked by GitHub).\n\nPick one:\n1. deliver - resume the retained course; retry after GitHub's blocking prerequisite changes, no round charged; add 10 to each cap, changing usage/caps from 1/10 rounds and 2/10 syncs to 1/20 and 2/20.\n2. assess - post the current open blockers to the PR without repairs.\n3. stop - end this gate and remove the eligible non-primary worktree. [recommended]\n\nType a number; show evidence prints the full record (CI, run 910, ci / test success on 1111111111111111111111111111111111111111).\n```\n\nNo selection is made in any case. Caps remain unchanged, and no teardown runs.\n",
-        "words": 852,
-        "wallMs": 37682,
-        "mechanical": {},
-        "judgeWallMs": 18688,
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "No fact moved: both outputs re-poll A exactly once and exit stuck - merge state unknown without charging either budget, exit B stuck - run record unreadable without recreating counters or borrowing authority, report C as GitHub BLOCKED with REVIEW_REQUIRED kept as a locator, and render stop recommended last with evidence hint-only and no wait/merge rows. After adds the obstacle gate line and explicit usage/caps lines, which is the intended delivery. Two small drifts worth tightening in After: the assess row now reads 'post the current open blockers' even though both A and C have zero blockers (Before's 'post no review because no blockers remain' was more accurate to the assess terminal rule), and the Evidence line dropped the binding-pending-check count and merge_state_status that Before carried; restoring 'assess - switch course and post no review because no blockers remain' and keeping the fuller evidence tuple would preserve Before's precision while retaining the new gate-line-first layout and cumulative-cap wording."
-      }
+      "feedback": "After is textually identical to Before, so the wording change moved nothing on this case: the Change targets the batch-summary round (one PR's report and menu per turn), and this single-PR continuation never enters that round, so no fact changed. The one shared failure, f4, is pre-existing: continuation B deliberately refuses to render an obstacle menu (\"This case cannot reach an obstacle menu\") and emits only a two-line stuck notice, so 'all three render obstacle' with stop recommended last and evidence in a hint is not satisfied in either output, even though A and C do. If the author wants f4 to hold, the skill wording should let a missing-record stop still render the obstacle header, a stop-recommended-last menu (with deliver/assess marked not offered rather than omitted), and the evidence hint without performing the forge refresh; the per-PR sequencing wording for batch summaries can be added independently without touching these continuation paths.",
+      "wallMs": 11570,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+  "repoSha": "212752254db134c7ebe26fd7e61925855bbdef46"
 }
