@@ -23,6 +23,7 @@ systemPromptMode: replace
 
 test('implement surface delegates through the gate and reconciles only after parent checking', () => {
   const text = read('skills/brainstorming/reference/amendment-surface.md');
+  assert.match(text, /## 1\. Prepare - never apply yet\n\n\*\*Implement callers only, with a task plan:\*\*/);
   for (const marker of ['Implement callers only', 'Amend-prepare:', 'Amend-apply:', 'one-step chain', 'granted items verbatim', 'fresh manifest', 'pre-apply task numbers', 'passed: false', 'failLines', 'second failure', 'without reading the plan or spec', 'Planning callers keep', 'structured `concerns`/`question`']) assert.ok(text.includes(marker), marker);
   for (const marker of ['**Value decoding**', 'malformed -> stop', '## 4. Human batch', 'In-flight:', 'One commit per batch:', 'never the plan-writer or implementer']) assert.ok(text.includes(marker), marker);
 });
