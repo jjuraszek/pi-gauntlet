@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v7.41.3 - 2026-10-30
 
 ### Fixed
 
