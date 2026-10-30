@@ -1,0 +1,1 @@
+- f1: judged: Narrate both gh pr list commands with -R acme/widgets despite GH_REPO=other/project, then hand only https://github.com/acme/widgets/pull/101 to the single-PR path; no batch dispatch or discovery stop error.

@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
-import { assemble } from '../eval/lib/replay.mjs';
+import { assemble, parseCase } from '../eval/lib/replay.mjs';
 import { parseIntent } from '../eval/lib/intent.mjs';
 import { lintTarget } from '../eval/lib/lint.mjs';
 import { test } from 'node:test';
@@ -699,3 +699,21 @@ test('batch courses preserve two budgets and parent lifecycle ownership', () => 
   assert.match(gatekeeper, /course,.*repair.rounds_cap.*repair.syncs_cap/);
   assert.doesNotMatch(gatekeeper, /In `assess`|retained grants|next-action\/fix-wave/);
 });
+
+const discoverySamples = ['over-cap', 'single', 'zero', 'cc-multi', 'failed', 'under-cap'].map((suffix) => `no-arg-discovery-${suffix}`);
+for (const sample of [...discoverySamples, 'role-line-requested']) {
+  test(`discovery and role replay structure: ${sample}`, () => {
+    const root = `../eval/gatekeep-pr/samples/${sample}`;
+    const input = readOrEmpty(`${root}/case.md`);
+    assert.match(input, /## Entry\n/);
+    assert.match(input, /## Arguments\n/);
+    const config = JSON.parse(read('../eval/gatekeep-pr/target.json'));
+    const { bundle } = parseCase(input);
+    const wanted = sample === 'role-line-requested' ? [] : ['skills/gatekeep-pr/reference/batch.md', ...(sample.endsWith('under-cap') ? ['agents/pr-gatekeeper.md'] : [])];
+    assert.deepEqual(bundle, wanted);
+    for (const path of bundle) assert.ok(!config.skillFiles.some((file) => file.path === path), `global-manifest duplicate: ${path}`);
+    const facts = parseExpected(readOrEmpty(`${root}/expected.md`));
+    assert.deepEqual(facts.facts.map((fact) => fact.id), sample === 'role-line-requested' ? ['r1', 'r2', 'r3', 'r4'] : ['f1']);
+    assert.match(read('../eval/gatekeep-pr/replay.md'), /argument resolution with no PR token/);
+  });
+}
