@@ -1,6 +1,7 @@
-for: 7095729dd21ac87cd7b6a6bf004fc83d420452d17a8487477a8ce0c4f0ad1e4e
+for: 46a7d2f3957534efeaa0011af916cf085536bf3c669cc8c3a7ea764885e3e0e3
 
 ## Change
+The bounded-read overflow check names the `Parallel-safe:` line as the report footer (`TRAJECTORY:` on a re-review), not the first-line `Verdict:`.
 Localize implement amendments to affected entries and historical evidence, preserving staged repairs during no-execution maintenance. Attribute retained failures by command/assertion/path plus corresponding repair evidence, not task membership. Preserve semantic inventory through failed apply and retry; keep grant, redraw and unrelated-regression stops and parent stamping. The local-amend-revalidation sample exercises these distinctions. Full model reports/results remain parent verification-owned.
 Replace per-task spec and per-wave code review with one post-gate integrated wave review. Read unresolved child reports directly once at limit 300 with one compact retry; retain delegated source/spec/plan reads. Repair on the current integrated tree, using committed clean snapshots and delta-only apply for isolated waves, direct edits in-place. Rebuild only after repair delta apply failure; preserve siblings and original wave base. Fold escalation, convergence, funding and transcript-only recovery into one transition table. These are behavior-changing instructions; parent verification owns model results.
 
