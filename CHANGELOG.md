@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- `/skill:gatekeep-pr` on a set of PRs renders one PR's report and menu per turn: the summary turn carries only the first PR's report and menu, each later PR renders only after the previous pick is collected, and no message asks for all picks at once. (#103)
+
 ## v7.41.2 - 2026-10-30
 
 ### Changed
