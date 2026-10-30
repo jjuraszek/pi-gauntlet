@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- The task-plan implement engine (`/skill:subagent-driven-development`) coordinates from a wave manifest and never holds the plan, spec, task bodies, review reports, or source in the orchestrating session. `plan_check` returns a per-task manifest on every pass (one JSON line per task: wave, heading, files, tests, leg, `Orchestrator:` note) and fails with a `manifest-size` finding when the pass text reaches 32,768 characters; a loop ledger gets no manifest. Implementer and reviewer dispatches carry `planPath` plus the `### Task N:` anchor instead of pasted task text and return structured verdicts through one-step chains, an unreadable anchor returns `BLOCKED` / `NEEDS_REWORK` / `REJECT` with `anchorUnreadable`, fix rounds forward the prior report by path, compaction recovery is one `plan_check` plus `plan_tracker status`, and mid-implement amendments run as `Amend-prepare` / `Amend-apply` plan-writer dispatches for task-plan callers only. Isolated implementers receive only their own task's tests; the wave union stays the integrated gate. (#102)
+
 ## v7.41.3 - 2026-10-30
 
 ### Fixed
