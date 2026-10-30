@@ -135,6 +135,8 @@ The `:48` amendment route keeps `amendment-surface.md`'s gate, grant, and `Amend
 
 `doc/configuration.md` `plan_check` paragraph: a pass returns the wave manifest (header plus JSON lines); the `Orchestrator:` grammar; the `manifest-size` finding and the 32,768-character limit with its pi-condense `spillThreshold` assumption. `doc/implement-engines.md` task-plan engine: the orchestrator holds the manifest and delegates every read; children read their anchored task. `README.md` runtime-extensions bullet: a pass stamps the plan and returns the manifest. `eval/subagent-driven-development/`: revise the judged facts that still demand the old contract (`samples/chain-wave-dispatch/expected.md` reads SR verdicts from the report file; `samples/test-gate-repair/expected.md` and `samples/integrated-wave-repair/expected.md` carry the full task or the report verbatim; `samples/chain-stop-blocked/expected.md` reads exit-0 reports from the output files) to the structured-output and path-forwarding rules, add samples for the no-plan-read wave, delegated source investigation, compaction recovery during an active repair, the report-by-path fix round, and the delegated amendment, with `intent.md` updated; `eval/implementer/` and `eval/code-reviewer/`: an anchored-task sample and an unreadable-anchor sample each; `eval/spec-reviewer/`: created from `eval/_template` with the same two samples.
 
+Eval runner, candidate-only skill files: a `target.json` `skillFiles` entry may carry `"new": true`. On the baseline arm the runner assembles that entry as empty text (headed assembly still emits its `# <path>` heading line); the working tree must contain the file; eval lint refuses `new: true` when the baseline ref has a version of the file, and refuses a `bundle+` path absent at the baseline unless a `new: true` skillFiles entry names it. `for:` keeps binding to the candidate assembly. `eval/subagent-driven-development/target.json` lists `skills/subagent-driven-development/reference/dispatch-contract.md` and `skills/subagent-driven-development/reference/implement-amendments.md` with `new: true`.
+
 Pattern: follows #69 (`doc/specs/2026-10-18-gh-69-fresh-planner-child.md`), which moved plan authoring out of the parent and kept the parent's stamp - this spec removes the one plan read #69 kept and the per-wave re-reads it never addressed.
 
 ## Errors and edge cases
@@ -175,10 +177,11 @@ Pattern: follows #69 (`doc/specs/2026-10-18-gh-69-fresh-planner-child.md`), whic
 - Code-reviewer reads the anchor list; unreadable anchor returns `REJECT` with `anchorUnreadable`; `behaviourChange` mirrors the footer - `eval/code-reviewer/` new samples
 - Session-level zero plan/spec/source reads - none: a live gauntlet run, recorded as the `venue:` row
 - Bin bundles fresh after the `extensions/lib/` edit - existing `npm test` freshness check
+- Candidate-only eval skill files assemble as baseline-empty text with headed paths preserved; require working-tree file presence; reject existing-baseline files marked new and undeclared missing-baseline `bundle+` paths; keep candidate intent binding unchanged - `eval/lib/replay.test.mjs` and `eval/lib/lint.test.mjs`; rerun the full `node eval/run.mjs subagent-driven-development` target.
 
 ## Documentation impact
 - Feature / user-facing docs introduced: none
-- Materially amended existing docs: `doc/configuration.md` (operations: the `plan_check` pass output, `Orchestrator:` grammar, `manifest-size` finding and limit assumption); `doc/implement-engines.md` (architecture: what the task-plan orchestrator holds and delegates); `CHANGELOG.md - deferred: release`
+- Materially amended existing docs: `doc/configuration.md` (operations: the `plan_check` pass output, `Orchestrator:` grammar, `manifest-size` finding and limit assumption); `doc/implement-engines.md` (architecture: what the task-plan orchestrator holds and delegates); `eval/README.md` (a paragraph immediately after the baseline-refusal sentence documenting the explicit candidate-only exception and its refusal rules); `CHANGELOG.md - deferred: release`
 - Derived / memory docs invalidated: `README.md` runtime-extensions bullet on `plan_check`
 
 Materiality bar: `reference/documentation-impact.md`. Skill and persona bodies are implementation surface, listed under Design, not here.

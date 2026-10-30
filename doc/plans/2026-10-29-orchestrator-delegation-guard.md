@@ -12,7 +12,7 @@
 
 **Verification:** `npm test; node eval/run.mjs subagent-driven-development; node eval/run.mjs implementer; node eval/run.mjs spec-reviewer; node eval/run.mjs code-reviewer`
 
-Baseline jjuraszek/pi-gauntlet: a265f923
+Baseline jjuraszek/pi-gauntlet: af6f04e7
 
 ---
 
@@ -106,6 +106,15 @@ All files belong to the single admitted leg `jjuraszek/pi-gauntlet`. The dispatc
 - `doc/implement-engines.md`
 - `README.md`
 
+**Candidate-only eval assembly - modify:**
+- `eval/lib/replay.mjs`
+- `eval/lib/lint.mjs`
+- `eval/run.mjs`
+- `eval/lib/replay.test.mjs`
+- `eval/lib/lint.test.mjs`
+- `eval/README.md`
+- `eval/subagent-driven-development/target.json` (after Task 4)
+
 **Generated evidence:** The verification stage owns harness-generated `report.md` and `results/` under the four named eval targets. Commit actual generated results after the full-target runs; never hand-author reports. Regenerate bins and retain only actual bundle differences.
 
 **Delete:** None. Remove superseded instruction sentences in their owning files rather than preserving alternate recipes. CHANGELOG release notes remain deferred to release.
@@ -120,12 +129,35 @@ All files belong to the single admitted leg `jjuraszek/pi-gauntlet`. The dispatc
 - Scoped syntax: `node --experimental-strip-types --check extensions/lib/plan-check.ts`, `node --experimental-strip-types --check extensions/phase-tracker.ts`, and `node --check` with each owned JavaScript test path.
 - Scoped instruction lint uses exported `lintStageSkill` from `scripts/stage-skill-lint.mjs` on the owned Markdown files; reject hits. Use exported `lintModelLiterals` from `scripts/model-literal-lint.mjs` and filter its repo-relative results to owned files. Exported `lintTarget` from `eval/lib/lint.mjs` checks each owned target. These modules have no lint CLI. The header's repository entrypoint runs the complete lint set.
 - No shared-core, setting, dependency floor, version, or membership change is needed. Apply forge-skill's imperative voice, minimal diff, byte-identical persona frontmatter, and oversized-skill extraction rules.
+- Task 6 recon: `eval/lib/replay.mjs:35-45` reads and slices every entry in `assemble`; `:69-75` defines baseline/tree readers. `eval/lib/lint.mjs:9-61` owns target/bundle validation and has no baseline context. `eval/run.mjs:159-231` resolves the baseline after structural lint, wraps readers, hashes candidate assembly for intent, and assembles both sample arms. `eval/lib/replay.test.mjs:177-194,250-268` covers assembly/readers; `eval/lib/lint.test.mjs:13-26,74-121` provides temporary targets and bundle assertions. `eval/README.md:50` documents the current baseline refusal. No extra rules files exist on the new eval paths.
 
 ## Baseline provenance
 
-Repo jjuraszek/pi-gauntlet, initial inventory at BASE `a265f923`: ` M doc/plans/2026-10-29-orchestrator-delegation-guard.md`; no other tracked or untracked changes. Admit only `doc/plans/2026-10-29-orchestrator-delegation-guard.md` and `doc/specs/2026-10-29-orchestrator-delegation-guard.md`; the caller supplied `In-flight: doc/plans/2026-10-29-orchestrator-delegation-guard.md` and owns its pending changes. Proof `git diff --quiet 57f33d2e a265f923 -- . ':!doc/specs/' ':!doc/plans/'` exited 1. Retain no prior evidence; the explicit `Findings: rerun baseline` also requires a fresh pass over every task command.
+Repo jjuraszek/pi-gauntlet, initial inventory at BASE `af6f04e7`:
 
-Executed at `a265f923`: Task 1 checker 194 passed; Task 1 runtime handler 202 passed; Task 2 existing brainstorming contract 52 passed; Task 3 eval structure 14 passed; Task 4 wave contract 15 passed; Task 4 eval structure 14 passed. Every command exited 0 with tests executed. After each run, HEAD remained `a265f923` and full porcelain status remained exactly the admitted plan modification. No commands were blocked, no source was dirtied, and no artifacts appeared. Regenerated the four all-created-anchor skip bullets under the contract, including Task 4's consumers of tests created in Wave 1. The previously failing wave-template assertion now passes, resolving its baseline question through execution. Model calls and header verification were not run.
+```text
+ M doc/plans/2026-10-29-orchestrator-delegation-guard.md
+ M doc/specs/2026-10-29-orchestrator-delegation-guard.md
+```
+
+Admit exactly these dispatched plan and spec paths. The caller's in-flight set contains only these two doc paths. No source edits or untracked artifacts remain. Findings requests a full baseline rerun, so retain no old evidence or tree-equivalence claim. Tasks 1-5 are already committed; execute all 12 command occurrences unchanged, including the formerly created test anchors now present at HEAD. Task 5 has no tests.
+
+Every run returned status 0 with at least one test executed. After each run, `git rev-parse --short HEAD` remained `af6f04e7` and `git status --porcelain --untracked-files=all` remained the two admitted paths above. No command contaminated the checkout or generated repository artifacts. Regenerate the baseline bullets from these runs and remove the resolved global blocker. Full verification and model evals remain for verify.
+
+| Task | Test anchor | Executed / passed | Captured output |
+|---|---|---|---|
+| 1 | `extensions/lib/plan-check.test.ts` | 194 / 194 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task1-check.log` |
+| 1 | `extensions/phase-tracker.test.ts` | 202 / 202 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task1-runtime.log` |
+| 2 | `scripts/implement-amendment.test.mjs` | 5 / 5 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task2-amendment.log` |
+| 2 | `scripts/brainstorming-contract.test.mjs` | 52 / 52 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task2-brainstorming.log` |
+| 3 | `scripts/anchored-task.test.mjs` | 4 / 4 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task3-anchored.log` |
+| 3 | `eval/lib/lint.test.mjs` | 14 / 14 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task3-lint.log` |
+| 4 | `scripts/wave-review.test.mjs` | 18 / 18 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task4-wave.log` |
+| 4 | `scripts/implement-amendment.test.mjs` | 5 / 5 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task4-amendment.log` |
+| 4 | `scripts/anchored-task.test.mjs` | 4 / 4 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task4-anchored.log` |
+| 4 | `eval/lib/lint.test.mjs` | 14 / 14 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task4-lint.log` |
+| 6 | `eval/lib/replay.test.mjs` | 26 / 26 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task6-replay.log` |
+| 6 | `eval/lib/lint.test.mjs` | 14 / 14 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task6-lint.log` |
 
 ## Wave 1 - Runtime and worker contracts
 
@@ -136,7 +168,7 @@ Leg: jjuraszek/pi-gauntlet
 
 **TDD scenario:** Modifying tested code - run existing tests first, then add manifest and handler boundary assertions.
 
-**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "Acceptance criteria" L21-L22, § "Acceptance criteria" L23-L24, § "Acceptance criteria" L25-L26, § "Acceptance criteria" L27-L28, § "1. `plan_check` returns the manifest" L77-L84, § "1. `plan_check` returns the manifest" L86-L86, § "1. `plan_check` returns the manifest" L88-L91, § "Errors and edge cases" L142-L144, § "Errors and edge cases" L146-L146, § "Errors and edge cases" L147-L147, § "Errors and edge cases" L154-L155, § "Tests" L159-L162, § "Tests" L163-L164, § "Tests" L177-L177, § "Out of scope" L189-L190, § "Out of scope" L193-L193
+**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "Acceptance criteria" L21-L22, § "Acceptance criteria" L23-L24, § "Acceptance criteria" L25-L26, § "Acceptance criteria" L27-L28, § "1. `plan_check` returns the manifest" L77-L84, § "1. `plan_check` returns the manifest" L86-L86, § "1. `plan_check` returns the manifest" L88-L91, § "Errors and edge cases" L144-L146, § "Errors and edge cases" L148-L148, § "Errors and edge cases" L149-L149, § "Errors and edge cases" L156-L157, § "Tests" L161-L164, § "Tests" L165-L166, § "Tests" L179-L179, § "Out of scope" L192-L193, § "Out of scope" L196-L196
 
 Rules: skills/forge-skill/SKILL.md
 
@@ -154,10 +186,10 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test extensions/lib/plan-check.test.ts`
-- baseline: a265f923 pass
+- baseline: af6f04e7 pass
 - via: `checkPlan` and `renderManifest`
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts`
-- baseline: a265f923 pass
+- baseline: af6f04e7 pass
 - via: registered `plan_check` tool
 
 - [ ] **Step 1: Run the existing scoped tests.** Preserve all validation assertions while adapting calls to inspect `.findings`. Do not add a production compatibility shim returning the old array.
@@ -185,7 +217,7 @@ Leg: jjuraszek/pi-gauntlet
 
 **TDD scenario:** New instruction behavior - pin preparation/apply boundaries, then implement the modes.
 
-**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "4. Amendments mid-implement" L132-L132, § "Errors and edge cases" L145-L145, § "Tests" L171-L171, § "Out of scope" L188-L188
+**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "4. Amendments mid-implement" L132-L132, § "Errors and edge cases" L147-L147, § "Tests" L173-L173, § "Out of scope" L191-L191
 
 Rules: skills/forge-skill/SKILL.md
 
@@ -198,10 +230,10 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/implement-amendment.test.mjs`
-- baseline: a265f923 skipped - scripts/implement-amendment.test.mjs created by this task
+- baseline: af6f04e7 pass
 - via: implement-only `Amend-prepare:` and `Amend-apply:` persona modes
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: a265f923 pass
+- baseline: af6f04e7 pass
 - via: `skills/brainstorming/reference/amendment-surface.md`
 
 - [ ] **Step 1: Add failing contract assertions.** Create the Node test beside the existing brainstorming contract test. Assert read-only preparation, named/granted spec-section apply, normal plan-only five-path/Findings/Amend behavior, both return schemas, unaffected task preservation, baseline ownership, parent stamping, and the one-failure retry. Pin required items/redraws arrays, empty arrays, rejection of malformed preparation, redraw-only and mixed redraw/amend batches holding the whole batch before grants or sibling applies. Pin a first apply that changes anchors then fails self-check: the saved report retains original task numbers/titles/anchors/wave positions, and a fresh retry uses that inventory rather than the changed plan, returns the original anchor changes, and applies idempotently; missing inventory fails. Read instruction files in tests rather than implementing a second amendment engine.
@@ -223,7 +255,7 @@ Leg: jjuraszek/pi-gauntlet
 
 **TDD scenario:** New anchored-payload behavior - add contract tests and eval cases while retaining inline callers.
 
-**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "Acceptance criteria" L37-L38, § "3. Dispatch shapes and the verdict carrier" L112-L112, § "3. Dispatch shapes and the verdict carrier" L114-L118, § "3. Dispatch shapes and the verdict carrier" L126-L128, § "5. Documentation and evals" L136-L136, § "Errors and edge cases" L149-L149, § "Tests" L173-L175
+**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "Acceptance criteria" L37-L38, § "3. Dispatch shapes and the verdict carrier" L112-L112, § "3. Dispatch shapes and the verdict carrier" L114-L118, § "3. Dispatch shapes and the verdict carrier" L126-L128, § "5. Documentation and evals" L136-L136, § "Errors and edge cases" L151-L151, § "Tests" L175-L177
 
 Rules: skills/forge-skill/SKILL.md
 
@@ -261,10 +293,10 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/anchored-task.test.mjs`
-- baseline: a265f923 skipped - scripts/anchored-task.test.mjs created by this task
+- baseline: af6f04e7 pass
 - via: three worker personas and SDD-local templates
 - `node --test eval/lib/lint.test.mjs`
-- baseline: a265f923 pass
+- baseline: af6f04e7 pass
 - via: `lintTarget` and `lintAll`
 
 - [ ] **Step 1: Add failing anchor-contract tests.** Table the three personas and unreadable outcomes. Assert number-plus-colon matching, next level-2/3 boundary, anchor-list union, task/home-leg Rules derivation, report/structured mirroring, and inline compatibility. Pin unchanged frontmatter and path-based SDD template fields.
@@ -294,7 +326,7 @@ Leg: jjuraszek/pi-gauntlet
 
 **TDD scenario:** Modifying tested instruction code - update obsolete assertions, add scenarios, then rewrite the coordinator.
 
-**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "Acceptance criteria" L29-L30, § "Acceptance criteria" L31-L32, § "Acceptance criteria" L33-L34, § "Acceptance criteria" L35-L36, § "Acceptance criteria" L37-L38, § "Acceptance criteria" L39-L40, § "2. The orchestrator's state during implement" L95-L95, § "2. The orchestrator's state during implement" L97-L97, § "2. The orchestrator's state during implement" L99-L99, § "2. The orchestrator's state during implement" L101-L101, § "2. The orchestrator's state during implement" L103-L103, § "3. Dispatch shapes and the verdict carrier" L107-L110, § "3. Dispatch shapes and the verdict carrier" L112-L112, § "3. Dispatch shapes and the verdict carrier" L114-L118, § "3. Dispatch shapes and the verdict carrier" L120-L120, § "3. Dispatch shapes and the verdict carrier" L122-L122, § "3. Dispatch shapes and the verdict carrier" L124-L124, § "4. Amendments mid-implement" L132-L132, § "5. Documentation and evals" L136-L136, § "Errors and edge cases" L145-L145, § "Errors and edge cases" L146-L146, § "Errors and edge cases" L147-L147, § "Errors and edge cases" L148-L148, § "Errors and edge cases" L149-L149, § "Errors and edge cases" L150-L151, § "Errors and edge cases" L152-L152, § "Errors and edge cases" L153-L153, § "Tests" L165-L172, § "Tests" L176-L176, § "Out of scope" L188-L188, § "Out of scope" L191-L191, § "Out of scope" L192-L192, § "Out of scope" L193-L193
+**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "Acceptance criteria" L29-L30, § "Acceptance criteria" L31-L32, § "Acceptance criteria" L33-L34, § "Acceptance criteria" L35-L36, § "Acceptance criteria" L37-L38, § "Acceptance criteria" L39-L40, § "2. The orchestrator's state during implement" L95-L95, § "2. The orchestrator's state during implement" L97-L97, § "2. The orchestrator's state during implement" L99-L99, § "2. The orchestrator's state during implement" L101-L101, § "2. The orchestrator's state during implement" L103-L103, § "3. Dispatch shapes and the verdict carrier" L107-L110, § "3. Dispatch shapes and the verdict carrier" L112-L112, § "3. Dispatch shapes and the verdict carrier" L114-L118, § "3. Dispatch shapes and the verdict carrier" L120-L120, § "3. Dispatch shapes and the verdict carrier" L122-L122, § "3. Dispatch shapes and the verdict carrier" L124-L124, § "4. Amendments mid-implement" L132-L132, § "5. Documentation and evals" L136-L136, § "Errors and edge cases" L147-L147, § "Errors and edge cases" L148-L148, § "Errors and edge cases" L149-L149, § "Errors and edge cases" L150-L150, § "Errors and edge cases" L151-L151, § "Errors and edge cases" L152-L153, § "Errors and edge cases" L154-L154, § "Errors and edge cases" L155-L155, § "Tests" L167-L174, § "Tests" L178-L178, § "Out of scope" L191-L191, § "Out of scope" L194-L194, § "Out of scope" L195-L195, § "Out of scope" L196-L196
 
 Rules: skills/forge-skill/SKILL.md
 
@@ -334,16 +366,16 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/wave-review.test.mjs`
-- baseline: a265f923 pass
+- baseline: af6f04e7 pass
 - via: wave recipe, scratch-index capture, and review snapshot shell
 - `node --test scripts/implement-amendment.test.mjs`
-- baseline: a265f923 skipped - scripts/implement-amendment.test.mjs created by this task
+- baseline: af6f04e7 pass
 - via: amendment caller/worker agreement
 - `node --test scripts/anchored-task.test.mjs`
-- baseline: a265f923 skipped - scripts/anchored-task.test.mjs created by this task
+- baseline: af6f04e7 pass
 - via: path payload and persona agreement
 - `node --test eval/lib/lint.test.mjs`
-- baseline: a265f923 pass
+- baseline: af6f04e7 pass
 - via: headed target assembly and sample structure
 
 - [ ] **Step 1: Replace obsolete assertions with failing new checks.** Expect schemas on both wave steps; item-level output/file-only; path payloads; structured SR verdicts; exact new SR acceptance reason. Add one-step CR/repair/re-review/delegated-read assertions. Pin the diagnosis exception: one sequential step, omitted agent, no parallel item, invocation-level fresh context, decision stopOn, output and schema. Remove only full-task/report, schema-free SR, and blanket no-second-chain assertions; still forbid repeating the initial wave chain. Replace the stop-note file hash with assertions preserving its gate/format while permitting delegated prose. Keep executable snapshot/index tests. Add caller contract checks for required items/redraws arrays, malformed preparation rejection, redraw-only and mixed batches stopping before grants or sibling apply, and a failed first apply forwarding its report path to a fresh retry that returns original anchor changes.
@@ -363,7 +395,7 @@ Rules: skills/forge-skill/SKILL.md
 - [ ] **Step 12: Update assembly and run scoped checks.** Include Orchestrator holds and the two references in the SDD target; keep sample bundle exclusions valid. Update intent, including whole-batch redraw gating and original-inventory retry. Run all four scoped Tests commands and `node --check scripts/wave-review.test.mjs`, then Recon instruction/target lint. Keep the skill below 500 lines by placing schemas and amendment mechanics in the references with read-now pointers, not unrelated extractions.
 - [ ] **Step 13: Commit and retain live-session venue.** Run `git commit -m "Coordinate implement waves from manifests and structured results"`, recording instruction behavior change. This enables the local-pi-session venue at spec L39-L40: after loading the changed package, audit primary read/bash calls between implement start and completion for zero plan/spec/source reads and content-loading commands. Structural tests and synthetic evals do not claim live-session proof; keep that obligation for verification.
 
-Exact coordination contract: read `plan_check({ planPath })` and `plan_tracker({ action: "status" })` for static recovery (`plan_tracker status` in the eval observation). Retain `WAVE_BASE_SHA`, `in_progress`, `Artifacts:`, `Worktree ready`, `content`, `structured`, `output:`, `outputMode: "file-only"`, `outputSchema`, `REPORT_DIR`, `stopOn`, `## Outputs`, and `## Stop` as the routing carriers. For a regular `ParallelStep`, `outputMode` belongs on each item; never allow the default `inline`. One-step diagnosis uses `chain: [{ task, ... }]` as the sequential form, not `tasks:` or a single `subagent()`. The `ParallelTaskSchema` requires `required: ["agent"]`; `ChainItem` makes `agent` optional. Required-output errors route as failed attempts; the primary never opens `single-output.ts:120-121` artifacts. Keep `/status` or `/verdict` stops for named verdict-bearing children and the decision stop for diagnosis.
+Exact coordination contract: read `plan_check({ planPath })` and `plan_tracker({ action: "status" })` for static recovery (`plan_tracker status` in the eval observation). Retain `WAVE_BASE_SHA`, `in_progress`, `Artifacts:`, `Worktree ready`, `content`, `structured`, `output:`, `outputMode: "file-only"`, `outputSchema`, `outputSchema`, `REPORT_DIR`, `stopOn`, `## Outputs`, and `## Stop` as the routing carriers. For a regular `ParallelStep`, `outputMode` belongs on each item; never allow the default `inline`. One-step diagnosis uses `chain: [{ task, ... }]` as the sequential form, not `tasks:` or a single `subagent()`. The `ParallelTaskSchema` requires `required: ["agent"]`; `ChainItem` makes `agent` optional. Required-output errors route as failed attempts; the primary never opens `single-output.ts:120-121` artifacts. Keep `/status` or `/verdict` stops for named verdict-bearing children and the decision stop for diagnosis.
 
 Use anchored `planPath`, `anchor` or `anchors` (`### Task N:`), including the Task 4/40 boundary `### Task 4:`, `### Task 40:`, and `^#{2,3}\s`. Children read `Spec:`, `Files:`, `Tests:`, `Rules:`, `Leg:` and home `## Legs`/`### Leg:`. The parent unions `tests` into `SCOPED_TEST_COMMANDS`, checks `files`, routes `leg`, and selects `in-place` from `"mode":"in-place"`; preserve no `worktree: true` or `reset --soft` fold for in-place waves. At a completed-wave boundary consume only explicit `orchestrator` from `Orchestrator:`; allow `plan_tracker`, `phase_tracker`, `gauntlet_setting` and the named git operations. A `manifest-size` result stops for plan reduction. Ordinary primary-directed prose stays invisible.
 
@@ -394,14 +426,14 @@ Cross-task documentation/eval contract at L136: Task 5 updates `doc/configuratio
 
 ## Wave 3 - User documentation
 
-Depends on Wave 2: publish the implemented pass-output and coordination contracts after all consumers agree. This is the trailing documentation-only wave.
+Depends on Wave 2: publish the implemented pass-output and coordination contracts after all consumers agree. Task 6 follows this accepted documentation wave only because the verify-phase amendment requires a new final wave; keep Tasks 1-5 in their original positions.
 
 ### Task 5: Document the manifest and delegated task-plan engine
 Leg: jjuraszek/pi-gauntlet
 
 **TDD scenario:** Documentation-only - verify the contract against implemented behavior and leave unrelated units intact.
 
-**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "5. Documentation and evals" L136-L136, § "Documentation impact" L181-L182
+**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "5. Documentation and evals" L136-L136, § "Documentation impact" L184-L185
 
 **Files:**
 - Modify: `doc/configuration.md`
@@ -416,7 +448,52 @@ Leg: jjuraszek/pi-gauntlet
 - [ ] **Step 3: Amend README runtime bullet.** State that plan_check stamps passing hashes and returns a bounded manifest. Link the configuration guide rather than repeating schemas; retain other runtime bullets.
 - [ ] **Step 4: Review and commit.** Check touched paths/values against Tasks 1-4. Add no new guide/shared-core/change-history block; CHANGELOG remains deferred. Run `git commit -m "Document manifest-based implement orchestration"`.
 
-Exact documentation terms: `plan_check`, `Orchestrator:`, `manifest-size`, `spillThreshold`; honor `CHANGELOG.md - deferred: release`. Check the guides against the companion eval evidence without taking ownership of it: `eval/subagent-driven-development/`, `samples/chain-wave-dispatch/expected.md`, `samples/test-gate-repair/expected.md`, `samples/integrated-wave-repair/expected.md`, `samples/chain-stop-blocked/expected.md`, `intent.md`; `eval/implementer/`, `eval/code-reviewer/`, `eval/spec-reviewer/` and `eval/_template`.
+Exact documentation terms: `plan_check`, `Orchestrator:`, `manifest-size`, `spillThreshold`; honor `CHANGELOG.md - deferred: release`. Check the guides against the companion eval evidence without taking ownership of it: `eval/subagent-driven-development/`, `samples/chain-wave-dispatch/expected.md`, `samples/test-gate-repair/expected.md`, `samples/integrated-wave-repair/expected.md`, `samples/chain-stop-blocked/expected.md`, `intent.md`; `eval/implementer/`, `eval/code-reviewer/`, `eval/spec-reviewer/` and `eval/_template`. The amended documentation-impact line also names `eval/README.md`; Task 6 owns that candidate-only runner paragraph, not this accepted task.
+
+## Wave 4 - Candidate-only eval assembly
+
+Depends on Waves 2 and 3: Task 6 consumes Task 4's new reference files and target assembly and follows Task 5's accepted documentation. This single-task final wave is the caller's explicit amendment order. The target overlaps Task 4 only across waves; no parallel resource contention exists. The eval README update is local to this runner behavior.
+
+### Task 6: Assemble candidate-only eval skill files
+Leg: jjuraszek/pi-gauntlet
+
+**TDD scenario:** Modifying tested code - run existing reader and lint tests, add failing candidate-only cases, then implement the minimum runner and validation changes.
+
+**Spec:** doc/specs/2026-10-29-orchestrator-delegation-guard.md § "5. Documentation and evals" L138-L138, § "Tests" L180-L180, § "Documentation impact" L184-L184
+
+**Files:**
+- Modify: `eval/lib/replay.mjs`
+- Modify: `eval/lib/lint.mjs`
+- Modify: `eval/run.mjs`
+- Modify: `eval/lib/replay.test.mjs`
+- Modify: `eval/lib/lint.test.mjs`
+- Modify: `eval/README.md`
+- Modify: `eval/subagent-driven-development/target.json`
+- Test: `eval/lib/replay.test.mjs`
+- Test: `eval/lib/lint.test.mjs`
+
+**Tests:**
+- `node --test eval/lib/replay.test.mjs`
+- baseline: af6f04e7 pass
+- via: `assemble`, `baseReader`, `treeReader`, and `runTarget` candidate intent binding
+- `node --test eval/lib/lint.test.mjs`
+- baseline: af6f04e7 pass
+- via: `lintTarget` baseline-aware candidate-only and `bundle+` validation
+
+- [ ] **Step 1: Run both existing test files.** Use the two Tests commands unchanged. Confirm existing slicing, frontmatter, reader errors, bundle exclusions, and real-target structural lint remain green before adding behavior.
+- [ ] **Step 2: Add failing assembly and reader cases.** Extend the temporary Git reader fixture in `eval/lib/replay.test.mjs` with a tracked baseline file and an untracked candidate-only reference. A `target.json` `skillFiles` entry with `"new": true` yields empty baseline text, while headed assembly keeps its `# <path>` line; candidate assembly reads actual file content. Cover concat and headed assembly, body/slice options on the declared-new entry without attempting to slice nonexistent baseline text, sample drops, declared-new bundle additions, and unchanged errors for undeclared missing files, bad refs, and missing candidate headings. A missing candidate file must still fail rather than turning into empty text.
+- [ ] **Step 3: Add failing lint cases.** Extend `eval/lib/lint.test.mjs` temporary targets with explicit resolved-baseline context. Refuse `new: true` for a file already at that baseline, missing working-tree files, and missing-baseline `bundle+` paths without a matching declared-new entry. Accept declared-new absent-baseline files and ordinary existing-baseline bundle paths. Preserve the current structural-only `lintTarget(dir)` callers and all bundle/drop constraints. Assert read/probe errors do not become proof of absence.
+- [ ] **Step 4: Implement at the owning boundaries.** In `eval/lib/lint.mjs`, add baseline-aware validation supplied with the resolved ref and repository root or explicit baseline/tree probes; keep structural lint usable without a Git baseline for CI and fixture callers. In `eval/run.mjs`, invoke this validation after baseline resolution and before any model calls, record writes, or arm assembly. Supply the declared-new paths to the baseline reader/assembly boundary in `eval/lib/replay.mjs`; use an explicit baseline-arm discriminator so only validated new entries bypass reads and slicing, including their declared bundle additions. Candidate reads and heading checks stay strict. Preserve headed path lines even for empty baseline entries. Do not blanket-catch Git/read failures as absence.
+
+  Decision: `lintTarget(dir)` is also called by `lintAll` and tests whose fixtures have no repository (`eval/lib/lint.mjs:64-72`, `eval/lib/lint.test.mjs:13-34`), while `runTarget` already resolves the actual baseline and owns checked readers (`eval/run.mjs:159-214`). Add optional baseline context to the validator and pass it from the runner after resolution, keeping structural-only use intact. A reader returning an empty string alone is insufficient: `assemble` currently slices every returned string (`eval/lib/replay.mjs:39-41`), so the explicit arm/declared-new path must bypass baseline transforms without weakening candidate checks.
+
+- [ ] **Step 5: Pin runner wiring and intent binding.** Add deterministic `runTarget` tests in `eval/lib/replay.test.mjs` using a synthetic temporary target and injected spawn stub, not model calls. Assert invalid new declarations refuse before spawn or record creation, declared-new baseline and candidate prompts differ as specified, and `for:` still hashes the bundle-free candidate assembly. Changing candidate-only content must stale intent; hashing the empty baseline must not satisfy candidate intent. Keep existing checked-reader diagnostics and ordinary baseline-only behavior.
+- [ ] **Step 6: Add the two SDD references to target metadata.** In `eval/subagent-driven-development/target.json`, include `skills/subagent-driven-development/reference/dispatch-contract.md` and `skills/subagent-driven-development/reference/implement-amendments.md` with `new: true`. Preserve other entries, order, slices, assembly, and word cap. Do not change sample facts or intent variance in this task. The header verification reruns the full SDD target after its candidate-bound intent is current; workflow evidence and intent refresh remain with the existing verification owner.
+- [ ] **Step 7: Document the explicit exception.** Add one paragraph immediately after the baseline-refusal sentence in `eval/README.md:50`: describe `"new": true`, baseline-empty assembly with headed paths retained, required candidate presence, refusal for files present at the selected baseline, undeclared missing-baseline `bundle+` refusal, and unchanged `for:` candidate binding. Leave other refusal rules and unrelated guide units intact.
+- [ ] **Step 8: Run scoped tests and syntax checks.** Expect both Tests commands green with all new cases executed. Run `node --check eval/lib/replay.mjs`, `node --check eval/lib/lint.mjs`, `node --check eval/run.mjs`, `node --check eval/lib/replay.test.mjs`, and `node --check eval/lib/lint.test.mjs`. Existing lint tests exercise target structure; preserve repository style because no formatter is configured. Full-suite and full-target commands stay exclusively in the header.
+- [ ] **Step 9: Commit the task's files.** Stage only the seven owned files and run `git commit -m "Assemble declared candidate-only eval skill files"`. Never hand-author model results; retain actual verification evidence through the existing verification stage.
+
+The amended Tests clause names `node eval/run.mjs subagent-driven-development`; it remains the header's verification-stage obligation, not a task Tests or Run command. The shared documentation-impact line assigns `doc/configuration.md` (`plan_check`, `Orchestrator:`, `manifest-size`) and `doc/implement-engines.md` to Task 5 and retains `CHANGELOG.md - deferred: release`; this task owns only `eval/README.md` from that line.
 
 ## Spec coverage
 
@@ -452,26 +529,29 @@ Exact documentation terms: `plan_check`, `Orchestrator:`, `manifest-size`, `spil
 | § "4. Amendments mid-implement" L132-L132 | Save original task inventory in first apply report on every return; forward previousApplyReport for an idempotent retry deriving original deltas; missing inventory fails | Task 2, Task 4 |
 | § "4. Amendments mid-implement" L132-L132 | Keep apply schema, report artifact, one-retry budget and no sidecar; test redraw batches and first-failed-apply anchor changes surviving a fresh retry | Task 2, Task 4 |
 | § "5. Documentation and evals" L136-L136 | Guides and all four eval targets cover new contract | Task 3, Task 4, Task 5 |
-| § "Errors and edge cases" L142-L144 | Ordinary failure, no-flow pass and repeated stamp | Task 1 |
-| § "Errors and edge cases" L145-L145 | Amendment invalidates hashes and replaces manifest/tracker | Task 2, Task 4 |
-| § "Errors and edge cases" L146-L146 | Oversize stop for plan reduction | Task 1, Task 4 |
-| § "Errors and edge cases" L147-L147 | Unmarked body prose stays invisible | Task 1, Task 4 |
-| § "Errors and edge cases" L148-L148 | Unsupported action stops quoting text | Task 4 |
-| § "Errors and edge cases" L149-L149 | Unreadable anchor fails without a parent read | Task 3, Task 4 |
-| § "Errors and edge cases" L150-L151 | Diagnose missing structured data and retain siblings | Task 4 |
-| § "Errors and edge cases" L152-L152 | Missing repair transcript stops without re-dispatch | Task 4 |
-| § "Errors and edge cases" L153-L153 | File-only paired with output path | Task 4 |
-| § "Errors and edge cases" L154-L155 | Bounded outside-caller pass and no ledger manifest | Task 1 |
-| § "Tests" L159-L162 | Pure rendering, commands, omission, normalized legs and ledger tests | Task 1 |
-| § "Tests" L163-L164 | Registered-tool cap, pass/fail, repeated stamp and ledger tests | Task 1 |
-| § "Tests" L165-L172 | SDD no-read carriers, repair, diagnosis, recovery and amendment cases | Task 4 |
-| § "Tests" L173-L175 | Three worker targets test anchors, failures and inline compatibility | Task 3 |
-| § "Tests" L176-L176 | Live-session evidence remains a venue | Task 4 |
-| § "Tests" L177-L177 | Regenerate bin bundles after library edit | Task 1 |
-| § "Documentation impact" L181-L182 | Existing guide units and deferred release notes | Task 5 |
-| § "Out of scope" L188-L188 | Other phase authoring/resume/verification unchanged | Task 2, Task 4 |
-| § "Out of scope" L189-L190 | No read guard, budget, telemetry or FAIL capping | Task 1 |
-| § "Out of scope" L191-L191 | Integration/tests/commits remain primary-owned | Task 4 |
-| § "Out of scope" L192-L192 | Existing pi-cohort transport without dependency changes | Task 4 |
-| § "Out of scope" L193-L193 | Preserve loop engine | Task 1, Task 4 |
+| § "5. Documentation and evals" L138-L138 | Candidate-only metadata, baseline-empty headed assembly, candidate presence, baseline-aware lint refusals, candidate intent and two SDD references | Task 6 |
+| § "Errors and edge cases" L144-L146 | Ordinary failure, no-flow pass and repeated stamp | Task 1 |
+| § "Errors and edge cases" L147-L147 | Amendment invalidates hashes and replaces manifest/tracker | Task 2, Task 4 |
+| § "Errors and edge cases" L148-L148 | Oversize stop for plan reduction | Task 1, Task 4 |
+| § "Errors and edge cases" L149-L149 | Unmarked body prose stays invisible | Task 1, Task 4 |
+| § "Errors and edge cases" L150-L150 | Unsupported action stops quoting text | Task 4 |
+| § "Errors and edge cases" L151-L151 | Unreadable anchor fails without a parent read | Task 3, Task 4 |
+| § "Errors and edge cases" L152-L153 | Diagnose missing structured data and retain siblings | Task 4 |
+| § "Errors and edge cases" L154-L154 | Missing repair transcript stops without re-dispatch | Task 4 |
+| § "Errors and edge cases" L155-L155 | File-only paired with output path | Task 4 |
+| § "Errors and edge cases" L156-L157 | Bounded outside-caller pass and no ledger manifest | Task 1 |
+| § "Tests" L161-L164 | Pure rendering, commands, omission, normalized legs and ledger tests | Task 1 |
+| § "Tests" L165-L166 | Registered-tool cap, pass/fail, repeated stamp and ledger tests | Task 1 |
+| § "Tests" L167-L174 | SDD no-read carriers, repair, diagnosis, recovery and amendment cases | Task 4 |
+| § "Tests" L175-L177 | Three worker targets test anchors, failures and inline compatibility | Task 3 |
+| § "Tests" L178-L178 | Live-session evidence remains a venue | Task 4 |
+| § "Tests" L179-L179 | Regenerate bin bundles after library edit | Task 1 |
+| § "Tests" L180-L180 | Deterministic candidate-only assembly, validation and intent tests enable full SDD target rerun | Task 6 |
+| § "Documentation impact" L184-L185 | Existing guide units and deferred release notes | Task 5 |
+| § "Documentation impact" L184-L184 | Document candidate-only exception immediately after baseline refusal in the eval guide | Task 6 |
+| § "Out of scope" L191-L191 | Other phase authoring/resume/verification unchanged | Task 2, Task 4 |
+| § "Out of scope" L192-L193 | No read guard, budget, telemetry or FAIL capping | Task 1 |
+| § "Out of scope" L194-L194 | Integration/tests/commits remain primary-owned | Task 4 |
+| § "Out of scope" L195-L195 | Existing pi-cohort transport without dependency changes | Task 4 |
+| § "Out of scope" L196-L196 | Preserve loop engine | Task 1, Task 4 |
 
