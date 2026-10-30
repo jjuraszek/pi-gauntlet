@@ -200,7 +200,7 @@ Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track 
 | `merge: unresolved` | Merge the named base and resolve the listed files; preserve the original commits. |
 | `sync: unresolved - <files>` | Run `git rebase --no-rebase-merges origin/<base>` and resolve `<files>`. |
 | `Member replay: #<N> unresolved - <files>` | Replay #<N> onto home and resolve `<files>`. |
-Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-form Task 1 as an ordinary wave task.
+Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-form Task 1 as an ordinary wave task. In both forms, keep Task 1 alone in Wave 1 and place every thread fix task in Wave 2 or later, behind Task 1.
 For both rebase forms, consume every `pending` member in listed order, run `git update-ref refs/gauntlet/rework-base/pr-<home> HEAD`, and persist `Rework base: <sha>` plus final `Member replay:` outcomes through the existing [amendment path](../brainstorming/SKILL.md#amending-an-approved-spec) before finishing. Use [pr-head's sync and helper contract](../using-git-worktrees/reference/pr-head.md), including replay commands, conflict checks, continuation and abort assertions; do not duplicate it. Make each `fix` thread exactly one task whose title carries that thread id. Name the thread's request in its `Tests:` block through the scoped command and `via:` seam that exercises it. Keep `keep open` and `decline: <reason>` as recorded dispositions, not repair tasks. Apply the existing file-disjoint wave, spec-anchor, baseline and checker rules to these tasks without changing executor or spec-commit mechanics.
 
 ```markdown
