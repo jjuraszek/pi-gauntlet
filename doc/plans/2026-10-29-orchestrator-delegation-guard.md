@@ -12,7 +12,7 @@
 
 **Verification:** `npm test; node eval/run.mjs subagent-driven-development; node eval/run.mjs implementer; node eval/run.mjs spec-reviewer; node eval/run.mjs code-reviewer`
 
-Baseline jjuraszek/pi-gauntlet: af6f04e7
+Baseline jjuraszek/pi-gauntlet: 23337279
 
 ---
 
@@ -133,31 +133,32 @@ All files belong to the single admitted leg `jjuraszek/pi-gauntlet`. The dispatc
 
 ## Baseline provenance
 
-Repo jjuraszek/pi-gauntlet, initial inventory at BASE `af6f04e7`:
+Repo jjuraszek/pi-gauntlet, initial inventory for this Amend dispatch at BASE `23337279`:
 
 ```text
  M doc/plans/2026-10-29-orchestrator-delegation-guard.md
- M doc/specs/2026-10-29-orchestrator-delegation-guard.md
 ```
 
-Admit exactly these dispatched plan and spec paths. The caller's in-flight set contains only these two doc paths. No source edits or untracked artifacts remain. Findings requests a full baseline rerun, so retain no old evidence or tree-equivalence claim. Tasks 1-5 are already committed; execute all 12 command occurrences unchanged, including the formerly created test anchors now present at HEAD. Task 5 has no tests.
+Admit exactly the dispatched plan and spec paths: `doc/plans/2026-10-29-orchestrator-delegation-guard.md` and `doc/specs/2026-10-29-orchestrator-delegation-guard.md`. The caller's sole In-flight path is the same plan path. No source edits remain. The endpoint-tree equivalence check from recorded `af6f04e7` to BASE, excluding `doc/specs/` and `doc/plans/`, returned exit 1. Retain no prior-run evidence; `Findings: rerun baseline` independently requires every task command to run.
 
-Every run returned status 0 with at least one test executed. After each run, `git rev-parse --short HEAD` remained `af6f04e7` and `git status --porcelain --untracked-files=all` remained the two admitted paths above. No command contaminated the checkout or generated repository artifacts. Regenerate the baseline bullets from these runs and remove the resolved global blocker. Full verification and model evals remain for verify.
+Executed all 12 command occurrences unchanged in the owning checkout at `23337279`. Every run returned exit 0 with the positive test counts below, zero failures, and zero skipped tests. After each run, HEAD remained `23337279` and the only status entry remained the admitted plan path. No artifacts or blocked commands were collected. Baseline regenerated the evidence SHAs from these executions and removed the resolved in-flight-source row; command text, bullet forms, task titles and wave positions remain unchanged. Full verification and model evals remain for verify.
+
+Captured output files are under the run's TMPDIR `/var/folders/ww/xlm_qdzd2vn1k7gb4gs8kh8w0000gn/T/`; the table gives their basenames.
 
 | Task | Test anchor | Executed / passed | Captured output |
 |---|---|---|---|
-| 1 | `extensions/lib/plan-check.test.ts` | 194 / 194 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task1-check.log` |
-| 1 | `extensions/phase-tracker.test.ts` | 202 / 202 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task1-runtime.log` |
-| 2 | `scripts/implement-amendment.test.mjs` | 5 / 5 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task2-amendment.log` |
-| 2 | `scripts/brainstorming-contract.test.mjs` | 52 / 52 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task2-brainstorming.log` |
-| 3 | `scripts/anchored-task.test.mjs` | 4 / 4 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task3-anchored.log` |
-| 3 | `eval/lib/lint.test.mjs` | 14 / 14 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task3-lint.log` |
-| 4 | `scripts/wave-review.test.mjs` | 18 / 18 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task4-wave.log` |
-| 4 | `scripts/implement-amendment.test.mjs` | 5 / 5 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task4-amendment.log` |
-| 4 | `scripts/anchored-task.test.mjs` | 4 / 4 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task4-anchored.log` |
-| 4 | `eval/lib/lint.test.mjs` | 14 / 14 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task4-lint.log` |
-| 6 | `eval/lib/replay.test.mjs` | 26 / 26 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task6-replay.log` |
-| 6 | `eval/lib/lint.test.mjs` | 14 / 14 | `/tmp/orchestrator-w2-review.hPFYWp/baseline-repair2-task6-lint.log` |
+| 1 | `extensions/lib/plan-check.test.ts` | 194 / 194 | `orchestrator-baseline-23337279-0.wY6Sfd` |
+| 1 | `extensions/phase-tracker.test.ts` | 202 / 202 | `orchestrator-baseline-23337279-1.WOOGAY` |
+| 2 | `scripts/implement-amendment.test.mjs` | 5 / 5 | `orchestrator-baseline-23337279-2.UT8uRN` |
+| 2 | `scripts/brainstorming-contract.test.mjs` | 52 / 52 | `orchestrator-baseline-23337279-3.D9Gqts` |
+| 3 | `scripts/anchored-task.test.mjs` | 4 / 4 | `orchestrator-baseline-23337279-4.vpNC3v` |
+| 3 | `eval/lib/lint.test.mjs` | 15 / 15 | `orchestrator-baseline-23337279-5.F6Ey0n` |
+| 4 | `scripts/wave-review.test.mjs` | 18 / 18 | `orchestrator-baseline-23337279-6.a0dTsb` |
+| 4 | `scripts/implement-amendment.test.mjs` | 5 / 5 | `orchestrator-baseline-23337279-7.2HxjmI` |
+| 4 | `scripts/anchored-task.test.mjs` | 4 / 4 | `orchestrator-baseline-23337279-8.NYDDrw` |
+| 4 | `eval/lib/lint.test.mjs` | 15 / 15 | `orchestrator-baseline-23337279-9.gDRtvB` |
+| 6 | `eval/lib/replay.test.mjs` | 28 / 28 | `orchestrator-baseline-23337279-10.GlM4hD` |
+| 6 | `eval/lib/lint.test.mjs` | 15 / 15 | `orchestrator-baseline-23337279-11.L4O015` |
 
 ## Wave 1 - Runtime and worker contracts
 
@@ -186,10 +187,10 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test extensions/lib/plan-check.test.ts`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: `checkPlan` and `renderManifest`
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: registered `plan_check` tool
 
 - [ ] **Step 1: Run the existing scoped tests.** Preserve all validation assertions while adapting calls to inspect `.findings`. Do not add a production compatibility shim returning the old array.
@@ -230,10 +231,10 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/implement-amendment.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: implement-only `Amend-prepare:` and `Amend-apply:` persona modes
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: `skills/brainstorming/reference/amendment-surface.md`
 
 - [ ] **Step 1: Add failing contract assertions.** Create the Node test beside the existing brainstorming contract test. Assert read-only preparation, named/granted spec-section apply, normal plan-only five-path/Findings/Amend behavior, both return schemas, unaffected task preservation, baseline ownership, parent stamping, and the one-failure retry. Pin required items/redraws arrays, empty arrays, rejection of malformed preparation, redraw-only and mixed redraw/amend batches holding the whole batch before grants or sibling applies. Pin a first apply that changes anchors then fails self-check: the saved report retains original task numbers/titles/anchors/wave positions, and a fresh retry uses that inventory rather than the changed plan, returns the original anchor changes, and applies idempotently; missing inventory fails. Read instruction files in tests rather than implementing a second amendment engine.
@@ -293,10 +294,10 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/anchored-task.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: three worker personas and SDD-local templates
 - `node --test eval/lib/lint.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: `lintTarget` and `lintAll`
 
 - [ ] **Step 1: Add failing anchor-contract tests.** Table the three personas and unreadable outcomes. Assert number-plus-colon matching, next level-2/3 boundary, anchor-list union, task/home-leg Rules derivation, report/structured mirroring, and inline compatibility. Pin unchanged frontmatter and path-based SDD template fields.
@@ -309,6 +310,8 @@ Rules: skills/forge-skill/SKILL.md
 - [ ] **Step 8: Commit.** Stage listed worker/template/sample files; run `git commit -m "Load anchored tasks in implementer and review workers"`, recording instruction behavior change.
 
 Exact anchor contract: `### Task 40:` is the negative control for Task 4. Read `Spec:`, `Files:`, `Tests:`, `Rules:` and the home `## Legs`; use task `Leg:` else first `### Leg:`. Pass `SCOPED_TEST_COMMANDS` independently. Keep `requesting-code-review` callers inline and one wave CR (`:183`). The local basenames are `implementer-prompt.md`, `spec-reviewer-prompt.md`, `code-quality-reviewer-prompt.md`; report `Verdict:` and footers remain worker-owned. Emit `BLOCKED`, `NEEDS_REWORK`, or `REJECT` as specified; CR retains `SHIP`/`FIX_FIRST`/`REJECT`.
+
+For an initial or re-dispatched implementer in an isolated `worktree: true` checkout, carry only that task's manifest `tests` commands verbatim in `SCOPED_TEST_COMMANDS`, or `none` when empty. Keep the wave union for the parent's integrated gate, in-place repairs and code review. Preserve dispatch-supplied scope independently of the task's Tests metadata the child reads, as the anchored payload contract requires.
 
 Copy the structured field contracts verbatim into role instructions, converting the type notation to the caller's outputSchema in Task 4:
 - implementer: `{ status: DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED, reasoning: string (one sentence, 300 chars), concerns?: string[] (required for DONE_WITH_CONCERNS, one line each), question?: string (required for NEEDS_CONTEXT), anchorUnreadable?: string, measured?: object (values an `orchestrator:` instruction consumes) }`.
@@ -366,25 +369,25 @@ Rules: skills/forge-skill/SKILL.md
 
 **Tests:**
 - `node --test scripts/wave-review.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: wave recipe, scratch-index capture, and review snapshot shell
 - `node --test scripts/implement-amendment.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: amendment caller/worker agreement
 - `node --test scripts/anchored-task.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: path payload and persona agreement
 - `node --test eval/lib/lint.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: headed target assembly and sample structure
 
-- [ ] **Step 1: Replace obsolete assertions with failing new checks.** Expect schemas on both wave steps; item-level output/file-only; path payloads; structured SR verdicts; exact new SR acceptance reason. Add one-step CR/repair/re-review/delegated-read assertions. Pin the diagnosis exception: one sequential step, omitted agent, no parallel item, invocation-level fresh context, decision stopOn, output and schema. Remove only full-task/report, schema-free SR, and blanket no-second-chain assertions; still forbid repeating the initial wave chain. Replace the stop-note file hash with assertions preserving its gate/format while permitting delegated prose. Keep executable snapshot/index tests. Add caller contract checks for required items/redraws arrays, malformed preparation rejection, redraw-only and mixed batches stopping before grants or sibling apply, and a failed first apply forwarding its report path to a fresh retry that returns original anchor changes.
+- [ ] **Step 1: Replace obsolete assertions with failing new checks.** Expect schemas on both wave steps; item-level output/file-only; path payloads; structured SR verdicts; exact new SR acceptance reason. Pin task-local manifest `tests` for initial and re-dispatched isolated `worktree: true` implementers, including isolated spec-gap redispatch and the empty-task `none` payload; pin the wave union for the parent's integrated gate, in-place repairs and code review. Add one-step CR/repair/re-review/delegated-read assertions. Pin the diagnosis exception: one sequential step, omitted agent, no parallel item, invocation-level fresh context, decision stopOn, output and schema. Remove only full-task/report, schema-free SR, and blanket no-second-chain assertions; still forbid repeating the initial wave chain. Replace the stop-note file hash with assertions preserving its gate/format while permitting delegated prose. Keep executable snapshot/index tests. Add caller contract checks for required items/redraws arrays, malformed preparation rejection, redraw-only and mixed batches stopping before grants or sibling apply, and a failed first apply forwarding its report path to a fresh retry that returns original anchor changes.
 - [ ] **Step 2: Define `## Orchestrator holds` near the top.** Enumerate manifest, tracker, absolute skill resources, structured JSON, Artifacts patch paths, coordination/scoped-gate output, Worktree ready values, and delegated essence. Prohibit parent plan/spec/task/report/source reads and content-loading shell commands. Invert the old red flag; a file-only pointer never authorizes opening a report. Scope the rule to implement, leaving other phases and the loop engine unchanged.
 - [ ] **Step 3: Add dispatch-contract reference.** Put full outputSchema definitions and common one-step carrier in `reference/dispatch-contract.md`, with a read-now pointer. Match Task 3's field names and enums; bound reasoning, conditional concerns/question, measured values, partition/owners/trajectory and required CR behaviourChange. Add the Task 2 preparation schema with both arrays required, redraw entries carrying location/reason and reason maxLength 300, and the unchanged apply result schema. Apply output/file-only/schema to every item. Retain foreground/fresh semantics and runtime-selected models. Route from chain Outputs JSON, never details.
 
   Decision: delegated answer/items/apply carriers need stopOn to expose Outputs but no extra field in their approved schemas. Use carrier-only `stopOn: { path: "/status", in: ["BLOCKED"] }`: pi-cohort `src/runs/shared/stop-conditions.ts:32-79` requires a schema and treats an absent pointer as no match; `src/runs/foreground/chain-execution.ts:475-488` renders successful Outputs whenever a step has stopOn. Decision: the diagnosis child uses a one-step sequential chain with `agent` omitted, never a parallel item - amended spec L110/L122 and pi-cohort `src/extension/schemas.ts:172-206` settle that boundary. Keep invocation-level `context: "fresh"` and `async: false`.
 
-- [ ] **Step 4: Rewrite initial wave dispatch and manifest consumers.** Use manifest files for independence, tests arrays for the scoped union without command splitting/joining, leg for the provisioned checkout, and mode for in-place behavior. Every worker gets absolute planPath, exact heading-prefix anchor/list, and manifest spec path. Dependent context is status line plus prior report path. Preserve isolated implementers, paired materialized SR trees, step concurrency and implementer-only stopOn, followed by one initial integrated CR as a one-step chain per code wave. Doc-only stays SR-only. Transcribe the chained-SR acceptance reason from spec L124 exactly.
+- [ ] **Step 4: Rewrite initial wave dispatch and manifest consumers.** Use manifest files for independence, tests arrays for the parent's integrated scoped union without command splitting/joining, leg for the provisioned checkout, and mode for in-place behavior. Pass only its own task's manifest `tests` commands as `SCOPED_TEST_COMMANDS` to every initial or re-dispatched isolated `worktree: true` implementer, including isolated spec-gap redispatch; use `none` when that array is empty. Keep the wave union for the parent's integrated gate, in-place repairs and code review; initial in-place implementers also receive the union. Apply the same scope rule in Prerequisites, the initial chain recipe, the anchored-payload reference and repair routing. Every worker gets absolute planPath, exact heading-prefix anchor/list, and manifest spec path. Dependent context is status line plus prior report path. Preserve isolated implementers, paired materialized SR trees, step concurrency and implementer-only stopOn, followed by one initial integrated CR as a one-step chain per code wave. Doc-only stays SR-only. Transcribe the chained-SR acceptance reason from spec L124 exactly.
 - [ ] **Step 5: Preserve primary coordination.** Keep serial apply, conflict survivor handling, scoped union test gate, pre-review staging, fixed WAVE_BASE_SHA, HEAD_SHA WORKTREE, and commit-before-complete. Run each tests element separately with output redirected under REPORT_DIR and retain its exit status. Repairs receive failed-output paths. In-place waves skip nested worktrees and reset-soft folding.
 - [ ] **Step 6: Rewrite repairs and failure diagnosis.** All repair implementers, SR fan-outs, re-reviews, escalated/funded rounds use one-step carriers, anchors, and saved prior report under `## Previous review report (re-review trigger)`. Workers read findings; the parent routes by status/concerns/question, trajectory, severity/count, behaviourChange, partition and touched owners. Missing trajectory escalates; absent partition serializes; absent multi-task owners means all dispatched tasks. Required-output failure marks only that task failed; accepted siblings remain valid. Missing Outputs delegates artifact diagnosis and consumes compact statuses plus retry/repair/stop. Use `chain: [{ task, output, outputMode: "file-only", outputSchema, stopOn }]`, no `parallel:`, with `stopOn: { path: "/decision", in: ["retry", "repair", "stop"] }` on the sequential step and `agent` omitted. Keep bounded retry and never rerun accepted siblings.
 - [ ] **Step 7: Preserve fix-delta semantics without loading bytes.** Keep snapshots, scratch-index capture, tree-before/after, failed setup retention and tree lifetimes. Delegate producing/reading binary diff contents from the recorded trees under the existing `## Fix delta` contract; the parent does not run a content diff. Keep trajectory rules unchanged. Empty changes count as failed attempts under the existing two-attempt limit. Snapshot cleanup follows the structured terminal result, not a parent report read.
@@ -397,7 +400,7 @@ Rules: skills/forge-skill/SKILL.md
 
 Exact coordination contract: read `plan_check({ planPath })` and `plan_tracker({ action: "status" })` for static recovery (`plan_tracker status` in the eval observation). Retain `WAVE_BASE_SHA`, `in_progress`, `Artifacts:`, `Worktree ready`, `content`, `structured`, `output:`, `outputMode: "file-only"`, `outputSchema`, `outputSchema`, `REPORT_DIR`, `stopOn`, `## Outputs`, and `## Stop` as the routing carriers. For a regular `ParallelStep`, `outputMode` belongs on each item; never allow the default `inline`. One-step diagnosis uses `chain: [{ task, ... }]` as the sequential form, not `tasks:` or a single `subagent()`. The `ParallelTaskSchema` requires `required: ["agent"]`; `ChainItem` makes `agent` optional. Required-output errors route as failed attempts; the primary never opens `single-output.ts:120-121` artifacts. Keep `/status` or `/verdict` stops for named verdict-bearing children and the decision stop for diagnosis.
 
-Use anchored `planPath`, `anchor` or `anchors` (`### Task N:`), including the Task 4/40 boundary `### Task 4:`, `### Task 40:`, and `^#{2,3}\s`. Children read `Spec:`, `Files:`, `Tests:`, `Rules:`, `Leg:` and home `## Legs`/`### Leg:`. The parent unions `tests` into `SCOPED_TEST_COMMANDS`, checks `files`, routes `leg`, and selects `in-place` from `"mode":"in-place"`; preserve no `worktree: true` or `reset --soft` fold for in-place waves. At a completed-wave boundary consume only explicit `orchestrator` from `Orchestrator:`; allow `plan_tracker`, `phase_tracker`, `gauntlet_setting` and the named git operations. A `manifest-size` result stops for plan reduction. Ordinary primary-directed prose stays invisible.
+Use anchored `planPath`, `anchor` or `anchors` (`### Task N:`), including the Task 4/40 boundary `### Task 4:`, `### Task 40:`, and `^#{2,3}\s`. Children read `Spec:`, `Files:`, `Tests:`, `Rules:`, `Leg:` and home `## Legs`/`### Leg:`. The parent unions `tests` into `SCOPED_TEST_COMMANDS` for its integrated gate and the in-place repair / code-review payload. An initial or re-dispatched implementer in an isolated `worktree: true` checkout receives only its own task's manifest `tests` commands verbatim, not the wave union; an empty array passes `none`. Keep dispatch-supplied commands independent of the Tests metadata the child reads. The parent checks `files`, routes `leg`, and selects `in-place` from `"mode":"in-place"`; preserve no `worktree: true` or `reset --soft` fold for in-place waves. At a completed-wave boundary consume only explicit `orchestrator` from `Orchestrator:`; allow `plan_tracker`, `phase_tracker`, `gauntlet_setting` and the named git operations. A `manifest-size` result stops for plan reduction. Ordinary primary-directed prose stays invisible.
 
 Primary shell allowlist: `rev-parse`, `status --porcelain`, `diff --stat`, `apply`, `reset --soft`, `add -A`, `commit`, `update-ref`. Prohibit `read` of deliverable artifacts and content-loading `cat`, `sed -n`, `git diff` without `--stat`, and contextual `grep`/`rg` over source. The exact inverse red flag is "Pasting task text, spec excerpts, or report contents into a dispatch, or opening the plan, spec, a report, or a source file in the primary". Keep `phase_tracker start implement` through completion as the live `venue:` window; no read guard, transport change or loop change.
 
@@ -474,10 +477,10 @@ Leg: jjuraszek/pi-gauntlet
 
 **Tests:**
 - `node --test eval/lib/replay.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: `assemble`, `baseReader`, `treeReader`, and `runTarget` candidate intent binding
 - `node --test eval/lib/lint.test.mjs`
-- baseline: af6f04e7 pass
+- baseline: 23337279 pass
 - via: `lintTarget` baseline-aware candidate-only and `bundle+` validation
 
 - [ ] **Step 1: Run both existing test files.** Use the two Tests commands unchanged. Confirm existing slicing, frontmatter, reader errors, bundle exclusions, and real-target structural lint remain green before adding behavior.
@@ -515,10 +518,10 @@ The amended Tests clause names `node eval/run.mjs subagent-driven-development`; 
 | § "2. The orchestrator's state during implement" L95-L95 | Allowed state, forbidden reads and primary coordination | Task 4 |
 | § "2. The orchestrator's state during implement" L97-L97 | Delegate investigations, content questions and escalation prose | Task 4 |
 | § "2. The orchestrator's state during implement" L99-L99 | Remove parent task/spec/report read and write instructions | Task 4 |
-| § "2. The orchestrator's state during implement" L101-L101 | Manifest tests/files/leg/mode and boundary actions | Task 4 |
+| § "2. The orchestrator's state during implement" L101-L101 | Task-local tests for initial/re-dispatched isolated implementers; wave union for integrated gate, in-place repairs and CR; manifest files/leg/mode and boundary actions | Task 4 |
 | § "2. The orchestrator's state during implement" L103-L103 | Static recovery plus required dynamic transcript | Task 4 |
 | § "3. Dispatch shapes and the verdict carrier" L107-L110 | Two-step wave, named one-step parallel carriers, anonymous sequential diagnosis | Task 4 |
-| § "3. Dispatch shapes and the verdict carrier" L112-L112 | Anchors, unions, Rules and dependent path context | Task 3, Task 4 |
+| § "3. Dispatch shapes and the verdict carrier" L112-L112 | Anchors, Rules and dependent path context; isolated implementers receive only their task's manifest tests, integrated gate/in-place repairs/CR retain wave union | Task 3, Task 4 |
 | § "3. Dispatch shapes and the verdict carrier" L114-L118 | Structured role shapes mirror reports | Task 3, Task 4 |
 | § "3. Dispatch shapes and the verdict carrier" L120-L120 | Field-based routing and conservative absence defaults | Task 4 |
 | § "3. Dispatch shapes and the verdict carrier" L122-L122 | Missing-Outputs sequential diagnosis with accepted siblings retained | Task 4 |
