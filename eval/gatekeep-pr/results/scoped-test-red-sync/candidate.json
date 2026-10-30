@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "61a9ad85de93cd97e72165d91109fa79b8751fb4d7677fa6496759059a99ad2a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "59c619f40693d3fd225c183ef13cdbab80f135ee067535df88e6c2bcdea33e98",
       "candidateOutputSha": "1e5cf6a5f35e24e773400181b3aa310d7c3ac54106aacaa7ca09eeb74554153b",
       "facts": {
@@ -61,17 +61,17 @@
         "S5": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After; both narrate the continue after the out-of-list test-only `open`, a fresh code-reviewer over `range-diff` before the menu, an explicitly skipped push, the correct `Sync:` line, and an initial assess/deliver/stop menu with no merge, update-branch or push row and no local verification run. After actually improves S1 by writing the command correctly as `GIT_EDITOR=true git -C <wt> rebase --continue`, whereas Before's `git -C .worktrees/pr-412 GIT_EDITOR=true git rebase --continue` is malformed (env assignment after `git -C`), which a strict reader could flag. One residual softness shared by both: S5 asks that merge be omitted *because* the rewritten head is unpushed, but neither output states the reason - the initial template simply lacks a merge row. If the author wants S5 to hold unambiguously, add an explicit `Not offered: merge (rebased head not yet pushed; source: pending)` line beside the existing `Not offered: deliver with nits (no nits)` so the omission reason is visible rather than implied by the template.",
-      "wallMs": 18744,
+      "feedback": "No fact moved on this case: After still runs the continue only on the helper's out-of-list failing-test reason, dispatches a fresh code-reviewer over the range-diff before the menu, narrates no push, keeps the `rebased locally` Sync line with the file and test name, and offers assess/deliver/stop with no merge, update-branch, or push row and no local verification run. After actually improves on Before by writing the continue as `GIT_EDITOR=true git -C <wt> rebase --continue` instead of Before's malformed `git -C <wt> GIT_EDITOR=true git rebase --continue`, and the added `Role: author` line lands cleanly between Delivers and PR comments as the Change intends. Two small drift points worth watching under the new wording: After's blocker and comment-reply text now assert that main 'expects bankers rounding' as a settled fact, which is fine here because the digest says so but is one step more interpretive than Before's phrasing, and After's verify step says the head is 'checked first with `rev-parse HEAD`' inside the worker task, which Before did not claim - keep the verify helper's duty to Section B only so S5's 'no local full verification' stays unambiguous. For the single-PR path the per-PR sequencing of the batch-summary change is not exercised, so the wording that sequences 'report and menu, then collect the pick, then the next PR' should be scoped to the batch round explicitly so it cannot be read as adding a second menu or a combined-reply prompt to this one-PR initial menu.",
+      "wallMs": 17403,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "61a9ad85de93cd97e72165d91109fa79b8751fb4d7677fa6496759059a99ad2a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "2eeb2de7d039fcd66ccc79840fa9a47bb44a6c5c3660e7be94a79c0f71e9c0a5",
       "candidateOutputSha": "b8f4b393d81eddc2dccc819316b1f37939fbc2ad43bbb9c194fc0a78317c5403",
       "facts": {
@@ -98,11 +98,11 @@
         "S5": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs run `GIT_EDITOR=true git rebase --continue` only after the helper returns `open` solely for the scoped failure in src/ledger/round.test.ts (outside its list), dispatch a fresh code-reviewer on the rewritten head both for the replay review and the Section C assessment before the menu, narrate no push, render the `Sync: rebased locally ...` line naming src/ledger/round.test.ts and \"totals round half-up at exactly .5\", and offer assess/deliver/stop with deliver recommended, no merge, no update-branch or push row, and no local full verification. The Expected-to-move entry for S5 already held in Before, so the After wording delivers the Change (persistent course menu, `2 x maxFixRounds` cap accounting, no usage charged for the entry sync) without regressing anything. Two small things worth keeping an eye on in After: the `gauntlet:` marker now appears at the very top of the transcript and the menu is placed under a `## First report and menu` heading rather than immediately preceded by the marker, which is fine for these facts but could matter for gate-line-first scenarios; and the pre-menu refresh adds `git show b2c3d4e`, which is harmless but unmotivated — dropping it keeps the refresh identical to the specified reads.",
-      "wallMs": 12472,
+      "feedback": "No fact moved on this single-PR case: After still continues the rebase with `GIT_EDITOR=true git rebase --continue` only after the helper's `open` is traced to the test-file failure outside the conflict list, dispatches a fresh code-reviewer on the range-diff before the menu, narrates no push, renders the `rebased locally` Sync line with the file and test name, and offers assess/deliver/stop with no merge, update-branch, or push row and no local verification run. The Change (per-PR sequencing in the batch summary round) is not exercised here since only one PR is in play, so it is unsurprising nothing moved. Two drifts worth watching though they do not affect these facts: After's menu accounting says delivery 'resolves to six repair rounds and six syncs from `2 x maxFixRounds`' whereas Before reported `maxFixRounds` 3 directly, and After adds `git show b2c3d4e` and a `reviewRequests` field to the pre-menu refresh that Before did not have; keep the delivery budget wording tied to the configured `closureReview.maxFixRounds` value and keep the refresh command set fixed so batch-mode sequencing changes do not leak into single-PR accounting.",
+      "wallMs": 12189,
       "verdict": "unchanged"
     }
   },
@@ -382,5 +382,5 @@
       }
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

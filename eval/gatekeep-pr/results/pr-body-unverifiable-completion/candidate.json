@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8881a77a0ac5c64887937e2c8404efe11050a71fa2e7e1c34200a2289ed6b36f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "9204bb0edcb0c1c4474f6829dc34734a7fa3b46476dd128611de659456ce03e0",
       "candidateOutputSha": "7e7269fbd0cdd223decf442a3987a3c00e201670775e20c1edf83cbccdd363c8",
       "facts": {
@@ -56,7 +56,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. In both outputs A renders the production claim as a non-blocking Description uncertainty with zero blockers/nits and no invented pending work; B drafts a two-part 'Author's statement ... Gate evidence ...' clarification, shows it before the pick, persists course deliver and caps, and only then runs gh pr edit, with no future-observation promise in the new text. The one drift worth noting is that After's branch A drops the explicit ticket-vs-observation-record conflict from both the Verify claim disposition ('because it is a deployed-state claim') and the Description line (sourced to 'PR body' only), whereas Before cited issue 73 and the observation record and said they disagree; f3 still holds because After B names the conflict and nothing in After picks a side, but to keep f3 robust under the new course model you should have the Verify disposition and the A Description uncertainty line continue to name both conflicting sources (issue 73 and /tmp/deployment-observation.synthetic) and state that neither is treated as proved. Otherwise the shared final menu template, the 'Role: author' line, and the deferred policy-flag read deliver the Change without touching these facts.",
-      "wallMs": 19749,
+      "feedback": "No fact moved on this single-PR case; the batch-summary sequencing change does not apply here and both outputs keep the production claim as non-blocking Description uncertainty, draft the two-part author-statement/gate-evidence clarification only in B, and write only after the numeric 2. Two wording drifts in After are worth tightening so f3 stays robust: A's verify step now justifies `unverifiable-pre-merge` only with 'it is a deployed-state claim' and the integration step says 'nothing is contradicted', which a careful reader could take as denying the ticket-vs-observation-record conflict that Before named explicitly; and A's Description line cites only '(PR body)' where Before cited issue 73 and the observation record. Keep Before's phrasing in the claim disposition ('the ticket ... conflicts with the observation record ...; neither gives verifiable results') and keep the three-source citation on the uncertainty line, while leaving the new per-turn batch rendering logic untouched for multi-PR cases.",
+      "wallMs": 14798,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8881a77a0ac5c64887937e2c8404efe11050a71fa2e7e1c34200a2289ed6b36f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "c5bfa3c84bb0905ed91372fe111b72d2a338f9457b4eb6ef6a5bdc16cf6c9e58",
       "candidateOutputSha": "a96fc027ccea90dae3f1d5b5384e4e2056aa0502e06f3fc75d2102fc46e34374",
       "facts": {
@@ -93,7 +93,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After. In A, both outputs record production completion as `unverifiable-pre-merge` (not contradicted), explicitly call it a non-blocking description uncertainty rather than a blocker or nit, treat the closed ticket and the observation record as non-proof without picking either as settled, and invent no pending work or future observation promise. In B, both outputs show the 'Author's statement: ... Gate evidence: ...' proposal and perform the `gh pr edit` only after persisting the numeric deliver course (After's step 1 makes this ordering slightly more explicit than Before by persisting course and payload 'before writing'), with zero rounds/syncs charged and no future-work commitment. One cosmetic risk worth tightening in After B: the 'full replacement' block places the unrelated paragraph 'A small, readable change.' directly on the line after the new sentence with no blank line, which in Markdown would merge the two paragraphs; keep Before's phrasing that the second paragraph is preserved as a separate paragraph (or show the blank line in the block) so the 'preserves unrelated body text' claim is unambiguous while still delivering the course/menus.md changes.",
-      "wallMs": 13789,
+      "feedback": "No fact moved on this case. After A still integrates production completion as a 'non-blocking description uncertainty' that is explicitly 'not a blocker or nit', records it as unverifiable-pre-merge rather than contradicted, treats the closed ticket and the observation record as non-proof on both sides, and invents no pending work. After B still presents the 'Author's statement ... Gate evidence ...' split, anchors the write to the already-supplied numeric deliver selection ('Persist the selected deliver course ... before writing'), and creates no future-work commitment. The added 'Role: author' line and the rendered-one-PR-per-turn sequencing are orthogonal to these facts, so the Change can stay as written. Two small drifts worth tightening so they do not become regressions elsewhere: After B's post-edit readback drops `state` from the `gh pr view --json` fields that Before included (keep `headRefOid,body,baseRefName,state` so the freshness/readback contract stays identical), and the 'full replacement' block in After B collapses the two body paragraphs onto adjacent lines where the digest body has a paragraph break — preserve the blank line so 'preserves the unrelated paragraph' is literally true of the previewed text.",
+      "wallMs": 15179,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

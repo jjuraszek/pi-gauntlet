@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "95a3c43dceac119113827f42a9d9ee86f81d65b0fec234b335fe94e880100de7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "1d73dc8227914a73432be9c0d2fbb292c5505381fbe63b1a00ef6361a6755dce",
       "candidateOutputSha": "57721a03f7f65c4a97a640b0f360d3bdc5c51bc697b010231a4035f76ab030a1",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved for this case: both Before and After draft the same single in-repo change (pin registry.example.invalid/cache/redis:7 to the public redis:7.4.1 in src/queue.test.ts and docker-compose.test.yml, with a one-sentence reason and the rejection test preserved), neither proposes infrastructure, dependency or module edits, and both carry the standing `Verdict: fixable - 1 blocker` forward rather than calling P1 unfixable. After additionally makes the payload shape explicit (target/finding_id/cause/files/edit/reason block) and persists course/caps before dispatch under the new course model, which is consistent with the Change without disturbing f1 or f3. One minor tightening worth keeping: After's helper rule 2 ('smallest in-repo edit that turns ci / test green') is slightly open-ended next to the verbatim-payload rule 1; keeping Before's phrasing that the helper applies the payload 'verbatim' and that the constraints are properties of the drafted payload (not instructions to find an edit) would make it unambiguous that the payload itself is the one change, which protects f1 against a reading that the helper might substitute a different repair.",
-      "wallMs": 11459,
+      "feedback": "Neither fact moved on this case. Both Before and After draft a single in-repo change — replacing the image reference `registry.example.invalid/cache/redis:7` with the public `redis:7.4.1` in `src/queue.test.ts` and `docker-compose.test.yml`, both files already in the PR — and both keep the rejection test, add no infrastructure/dependency/module, and treat P1 as repairable (`Verdict: fixable - 1 blocker`, 'P1 is a repairable check gap, so delivery continues'). After in fact makes f3 more explicit by stating the 'no new infrastructure, dependency, or module' constraint directly in the helper's task rules and keeping the payload cause/edit/reason structured in an evidence-pack block. Since this case is a single-argument resume path, the batch-summary sequencing change has no surface here; the After wording is safe to keep as is for this scenario.",
+      "wallMs": 10045,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "95a3c43dceac119113827f42a9d9ee86f81d65b0fec234b335fe94e880100de7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "013cd1b1956cedbcdda0575e5a0a593cdd45cba1927bdf274eb4386de6717145",
       "candidateOutputSha": "b6ebe7f1f8ea2d99d3c37bcef9a6da23baaa5f073f6b390ae0c91202f9a1cfe8",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f1 and f3: each drafts a single finding-keyed payload that pins the unavailable image to the documented public redis:7.4.1 in the PR's own src/queue.test.ts and docker-compose.test.yml, keeps rejection coverage, explicitly forbids infrastructure/dependency/module additions, and treats the blocker as fixable rather than unfixable. After adds useful course-model detail (persisting course: deliver before writes, unchanged 6/6 caps with 0/0 usage, poll_deadline null, charging a round only on a confirmed source-changing commit, and the merge-base-resolved scoped fix command), and none of it moved a fact. One minor wording risk to watch: After's helper rule 6 introduces an `open - needs <what>` exit; keep that phrased as the helper's fallback for an external prerequisite, not as a judgment that this blocker is unfixable, so f3 stays unambiguous. Otherwise the After wording delivers the Change while preserving everything Before kept.",
-      "wallMs": 8421,
+      "feedback": "Nothing moved in this case: both outputs draft the same single in-repo payload (pin registry.example.invalid/cache/redis:7 to the documented public redis:7.4.1 in src/queue.test.ts and docker-compose.test.yml, with the stated reason), both explicitly forbid infrastructure, dependency, or module additions, keep required rejection coverage, and neither reports the blocker as unfixable. The Change (sequencing per-PR reports and menus in the batch round, plus the no-arg-discovery and role-line exercises) does not touch the single-PR deliver path, and After's wording of the dispatch contract (rule 6's 'Add no infrastructure, dependency, or module' and the 'open - needs <what>' escape) preserves everything Before kept; keep that rule phrased as a prohibition on scope expansion rather than as a general fallback so f3 continues to hold.",
+      "wallMs": 8405,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

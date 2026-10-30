@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c3e86bbe72068fdfbbeb27e719459f0def60d6e460a47ecd5cc428001f6254a0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "26a3e7f5e43beee07e3ba968f04169a48def8825d6634b6eca5775e52b8299b4",
       "candidateOutputSha": "f813888305773b3b08d2bf81676376553d5e449800bb8e328db8d34818c4359e",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs dispatch exactly two synchronous implementer helpers in order (P1 then P2), keep N1 and N2 outside the wave with no payload drafted or helper sent, give P1 the scoped pytest command while explicitly withholding `sh scripts/run-all-tests.sh` from every task, and give P2 the dashboard rspec runner chosen by its `dashboard/` prefix with the path made relative to that directory. After preserves everything Before had while adding the persistent course/accounting model (course persisted before writes, caps 6/6, poll_deadline, wave checkpoint, stage handoff to review). One small inconsistency worth tightening: After's subagent call uses the relative cwd `.worktrees/pr-523` while the task text says it carries the absolute worktree path - make the `cwd` argument absolute (as Before does) so the dispatch and the task description agree, and keep the explicit 'prefix matches, so the dashboard runner wins over the Python runner' phrasing so b4's selection rationale stays visible.",
-      "wallMs": 10367,
+      "feedback": "No fact moved on this case: After still dispatches exactly two synchronous implementer helpers (P1 then P2), keeps N1/N2 outside the wave with only P1/P2 payload snapshots persisted, carries the scoped pytest command for P1 and the dashboard rspec command for P2 by prefix match, and never passes `sh scripts/run-all-tests.sh` to any helper. Two small drifts worth watching, though neither is a fact here: After passes `cwd: \".worktrees/pr-523\"` (relative) where Before used the absolute worktree path, which may conflict with the task's own 'absolute worktree path' rule, and After spends its opening re-rendering the first menu that the entry already describes as rendered, which the per-PR-menu Change wording should not require for a single-PR run; keeping the Before phrasing for the dispatch call (`cwd: \"<abs>/.worktrees/pr-523\"`) and only adding the one-menu-per-turn sequencing to the batch summary round would deliver the Change without touching this case at all.",
+      "wallMs": 11738,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c3e86bbe72068fdfbbeb27e719459f0def60d6e460a47ecd5cc428001f6254a0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "bcde271d3f8aa2a2c09ff605c59a479cb4af3646a42ba58eb0246d5f53b2c664",
       "candidateOutputSha": "44a8c6622e44cab1b5d8e275c7ffa2eb0b4a64e6560ff2ad8b8b9d14213dd574",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: two sequential fresh implementers (P1 then P2), nits explicitly left outside the wave with no drafted nit payload or nit helper, the Python runner `uv run --group test python -m pytest projects/x/tests/test_y.py -q` and the dashboard runner `cd dashboard && mise x -- bin/rspec spec/models/widget_spec.rb` resolved from the merge-base overrides, and an explicit refusal to substitute `sh scripts/run-all-tests.sh`. One fragility worth tightening: in After, the P1 task bullet says only \"Run the scoped Python command\" and relies on the resolved-commands section above and the helper's observed run to show which command that is, whereas the P2 task quotes its command inline and Before quoted both inline. A strict reader could argue the P1 *task* does not itself carry the exact string. Restore the inline quote in the P1 task bullet (as you already do for P2) so b3 stays unambiguous. Also, neither version states that the dashboard runner was selected because `dashboard/` is the file's directory prefix in the `## routing` section; adding one clause like \"selected by the `dashboard/` path prefix from `## routing`, not the Python runner\" would make b4 explicit rather than inferred. The course persistence, cap initialization (6/6, no obstacle extension), single-round accounting, and stop-before-reviewer boundary all deliver the Change without disturbing these facts.",
-      "wallMs": 19223,
+      "feedback": "No fact moved between Before and After for this deliver-wave case: both outputs dispatch exactly two sequential implementers for P1 then P2, leave N1/N2 undrafted and undispatched, bind the Python payload to `uv run --group test python -m pytest projects/x/tests/test_y.py -q`, route the dashboard payload to `cd dashboard && mise x -- bin/rspec spec/models/widget_spec.rb`, and only mention `sh scripts/run-all-tests.sh` in a negation. One fragility to watch in After: the P1 task bullet says \"Run the scoped Python command\" by reference rather than inlining the literal command the way the P2 task and the Before P1 task do; it still reads as carried because section 2 resolves it and the helper's run shows the exact string, but a stricter reader could call that a gap, so keep the literal scoped command inside each implementer's task bullets (as Before did) while making the per-PR sequential report-and-menu change in the batch summary round, which does not touch this single-PR wave at all.",
+      "wallMs": 15300,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

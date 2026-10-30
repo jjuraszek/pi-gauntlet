@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "55bc993f25f395fb3037098bd6660944233220400632258cd1e3be83e524729a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "86d34345fac1f0880ee20e56d124b1ee0f6fa9eeb767ca833aa4976905ae0caa",
       "candidateOutputSha": "5134e5d3707b9724d9f33ec7b4c611dc46eec11c41989a54ee92bea2b45422bd",
       "facts": {
@@ -56,7 +56,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every fact Before kept: the rebase targets origin/release/2 before Verify, a fresh code-reviewer range-diffs 7c1e9a2..HEAD against origin/release/2 before the push, the lease push names the head ref, pre-sync SHA, head_url and head_ref exactly, no watch runs inside sync, the first report renders the initial template with no wait row, and both the 'Assessed SHA' paragraph and a `Sync:` line directly above the verdict are present. Nothing moved. One drift worth tightening in After that is outside these facts but conflicts with the Change's assess-course semantics: the assess row reads 'post the review to the PR; then approve or stop' even though the viewer is the author with zero blockers — on an own PR assess should never offer approve and should post a comment review (or nothing when there are no blockers). Before's wording ('post nothing (no blockers to post), then reply or stop, no repairs') is the safer template; keep that row text, and keep the added `Role: author` line and the explicit BEHIND comment bullet, which are harmless and match the refreshed-role contract.",
-      "wallMs": 11373,
+      "feedback": "Nothing moved on this case: After still rebases onto origin/release/2 before any helper runs, dispatches a fresh code-reviewer on `git range-diff origin/release/2 7c1e9a2 HEAD` before the push despite no conflict, pushes with the identical --force-with-lease=feature/ledger-rounding:<pre_head> command to the digest head_url/head_ref, runs no watch inside sync, binds the Pending evidence row to <new_head>, renders the initial template, states the assessed SHA explicitly, and places the `Sync:` line immediately before the verdict. The only deltas are additions consistent with the Change (a `Role: author` line, a third PR-comment bullet for BEHIND) and a reworded assess option (\"post the review to the PR; then approve or stop\" vs Before's \"post nothing (no blockers to post), then reply or stop\") — that assess wording drifts from the zero-blockers state and is worth reverting to Before's phrasing, but it does not touch any fact listed here. The single-PR path is unaffected by the per-turn batch sequencing, so keep the After wording as-is for this case.",
+      "wallMs": 12441,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "55bc993f25f395fb3037098bd6660944233220400632258cd1e3be83e524729a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "8fc782f34d6e393b5d79ecba3017b9d21b39a00bc8b6dedad19f1ebbcf320637",
       "candidateOutputSha": "40c2288397a1d0fb1532d6014a29d7f4b6cda6a16df3ab9277542f47ccf79365",
       "facts": {
@@ -91,9 +91,9 @@
           "label": "held"
         },
         "f4": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept and fixes f4: Before asserted that the pushed head's `ci / test` success was already in hand at first report without any watch, which is a fabricated completion given the digest says the check only completes within a later poll window, so its first report neither honestly reflected pending binding checks nor could be said to bind real exact-head evidence; After instead records `source: pending`, explicitly refuses `gh pr checks --watch` before the first report, binds evidence to `H`, renders the initial template with `Not offered: merge (ci / test pending)` and no wait row. The rebase onto `origin/release/2`, the pre-push fresh code-reviewer with `range-diff origin/release/2 <pre_head> HEAD`, the `--force-with-lease=feature/ledger-rounding:<pre_head>` push to the digest head_url/head_ref, the bolded statement that verification and the brief assess `H`, and the `Sync:` line placed immediately before `Verdict:` all survive. One small refinement worth keeping in future wording: After's verdict names only the pending check, while the PR is also still BEHIND `main`; stating both prerequisites in the verdict (e.g. `not ready - ci / test pending; branch behind main`) would make the deliver row's 'resolve remaining merge prerequisites' concrete without reintroducing a wait row or a pre-report watch.",
-      "wallMs": 23291,
-      "verdict": "improved"
+      "feedback": "No fact moved on this case: both outputs rebase onto origin/release/2 before any verifier runs, dispatch a fresh code-reviewer with a range-diff against 7c1e9a2 before the push, use --force-with-lease=feature/ledger-rounding:7c1e9a2… to git@git.example.invalid:orchard/ledger.git, run no watch inside sync, and state that verification and the brief assess H with a `Sync:` line directly above `Verdict:`. Two incidental differences are worth noticing even though they did not flip a fact: After treats the pushed-head `ci / test` as still pending at first report (Before read it as SUCCESS and withheld merge on the BEHIND prerequisite instead), and After adds a `Role: author` line to the report header — both are plausibly the refreshed-role contract leaking into a single-PR explicit-argument case. Since the Change is scoped to the batch summary round (one PR's report and menu per turn, collecting each pick before the next), keep that sequencing language confined to the batch path and avoid altering the single-PR first-report evidence reading; the current After wording is safe for f1–f5 as written, so no rewording is required to preserve them.",
+      "wallMs": 17928,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

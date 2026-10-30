@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "dfda00b2319b98ee317880eba825e3be956df7242c4e83b677e5cc733e95d27d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "85816ad7a25602992fab649777de297adfd38b84f193eb3211b4afb4309add27",
       "candidateOutputSha": "cf067cb5b5554f9740e400bcdc30a5dee6e8db0673e7bbdcfe697ccc6283e6b7",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After still stops at precondition 1 with no fetch, rebase or push, names the missing helper facility as the reason, closes the sync stage as failed, dispatches no helpers, and never runs Verify or Review in its own context, so all four facts hold in both outputs. Two observations for the After wording that are outside these facts but worth keeping an eye on: the stop row changed from Before's 'remove the worktree' to 'leaving the worktree as found', which is a cleanup-ownership statement the Change says to preserve (the provisioned, owned, tracked-clean .worktrees/pr-412 would ordinarily be eligible for owned cleanup at a terminal stop), and After drops Before's explicit 'running those duties in the orchestrator's own context is a red flag' sentence, which was the clearest textual anchor for f4. If you want After to be as unambiguous as Before, consider adding one line under the helper-facility bullet such as 'I do not resolve conflicts or review the branch myself' and reconciling the stop row's worktree disposition with the cleanup-ownership rules.",
-      "wallMs": 13635,
+      "feedback": "No fact moved on this case: After still stops at precondition 1 before any fetch/rebase/push, names the missing helper facility as the reason, closes `sync` as `failed`, dispatches no helpers, and runs nothing in its own context. Two drifts worth watching, though neither is covered by a fact here: After's `stop` option now says \"leaving the worktree as found\" where Before said \"remove the worktree\", and After drops the `Verdict:` line entirely, which Before rendered even on the terminal stop. If the per-PR-sequencing change is meant to touch only the batch-summary round, keep the single-PR terminal-stop menu text and Verdict line identical to Before so this case stays a pure no-op; also consider keeping Before's explicit sentence that running resolution/review duties in the orchestrator's own context is forbidden, since After only implies it via \"nobody can resolve ... or run the required pre-push review\".",
+      "wallMs": 10960,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "dfda00b2319b98ee317880eba825e3be956df7242c4e83b677e5cc733e95d27d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "28dd301a2736e632e4dec609b1938fc75afa8e863f1a5780b58879d5ba62d2b6",
       "candidateOutputSha": "0c6bf5949e22cfddf75ca1ac0e55117ba57237693a72615c01dc1ba29eaeac60",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs stop at the first sync precondition, name the missing helper facility as the reason, mark the sync stage failed and persist the stopped record, dispatch no verification helper, and explicitly refuse to fetch, rebase, review, or push in their own context. After adds a visible `sync: stopped - ...` record line and a 'course remains unset' note, which fit the new course model without weakening any fact. One small wording caution: After step 1 narrates `mktemp ...` as part of initialization while step 4 says 'I run no git or forge commands' — that is consistent, but Before's blanket 'No shell commands run from this entry' was crisper; if you want to keep the mktemp detail, phrase it as having occurred before this entry (as Before did with 'minted before tracker initialization') so the no-command claim stays unambiguous, and keep the obstacle-first marker line and single recommended stop row exactly as they are.",
-      "wallMs": 9232,
+      "feedback": "No fact moved on this case. Both outputs stop at the first sync precondition before any fetch, rebase, or push, name the missing helper facility as the reason, mark `sync` failed with the persisted record, dispatch no helpers, and explicitly state the orchestrator does not review or resolve anything itself. The After wording's reordering (continuation record and tracker first, then `--rebase` routing to step 2b, then the precondition stop) and the extra `mktemp` detail do not disturb any of the four facts; the batch-summary sequencing change is simply not exercised by this single-PR `--rebase` invocation. Keep the explicit 'I do not fetch, rebase, review, or push. I dispatch no helpers.' sentence and the 'sync: stopped - no helper facility ...' record line as-is in After, since together they are what carry f1–f4 here.",
+      "wallMs": 10020,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

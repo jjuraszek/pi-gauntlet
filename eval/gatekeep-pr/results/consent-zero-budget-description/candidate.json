@@ -34,37 +34,37 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "ecce501d9b50064fd667c3c9b55b245bc55b1d377d006104a656ac33e4bee724",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "8d91c7d2ee7e5c44a2ea0eef66a83113f53722e81d1b1d2a090cbf31d2c43d9d",
       "candidateOutputSha": "11d74964a0979b68f5af9a2995bd58c39fcb753448f31f4553becf0e39b4fc02",
       "facts": {
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f2: each classifies the typed correction request as a change request rather than a pick, runs no `gh pr edit` or helper write, omits both delivery rows with the explicit cap-zero reason, and leaves the record's caps and counters untouched. After is slightly stronger on the budget half because it states outright that both caps and both usage counters are 0 and that no `repair.*` field is reset, whereas Before only implies this via 'the record is validated and not re-initialized' and the cap values; if you want the fact unambiguously evidenced, keep After's explicit 'both usage counters are 0 ... I do not reset any repair.* field' line. Nothing in After moved the fact, and the shared-menu template (initial, two rows, stop last, 'Not offered' line, evidence hint) is rendered consistently with the Change.",
-      "wallMs": 9231,
+      "feedback": "Both outputs keep f2: each omits the deliver rows under the zero cap, states that the typed correction request is a change request that confers no write authority, runs no `gh pr edit`, and leaves the repair counters alone (After even states explicitly that no `repair.*` field is reset; Before implies it by reporting caps of 0 and no course). The After wording adds a `Role: author` line and a `reviewRequests` field to the refresh read, which is the refreshed-role contract the Change targets, and it does so without touching the cap-zero gating; keep that gating paragraph (\"Applying the correction needs a delivery course, and delivery is not offered at this cap, so the description is unchanged\") and the explicit no-reset statement as written, since they are what makes f2 unambiguous for a reader.",
+      "wallMs": 6481,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ecce501d9b50064fd667c3c9b55b245bc55b1d377d006104a656ac33e4bee724",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "ecfe6333265477bc5795bca179bd0f0c572678d45f0970047b70705c297701ce",
       "candidateOutputSha": "96e073565e1335e7581e1f7cf1e7015d2c9134f4d06c560616b85e62b923eaf8",
       "facts": {
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f2: each omits both delivery rows with the explicit 'Not offered: deliver and deliver with nits (closureReview.maxFixRounds is zero)' line, each treats the typed correction as a change request and states that no `gh pr edit` runs, and each confirms both caps remain zero without a reset. After carries the fact just as well as Before, but it dropped Before's explicit 'I do not ... reset accounting' clause in the resume step, leaving 'no budget reset' inferable only from 'both caps remain zero, and no wave is active'; to keep every fact robustly while delivering the course-model change, keep a one-line statement such as 'I do not reset rounds_used, syncs_used or either cap' alongside the cap-zero omission reason and the explicit 'no gh pr edit despite the typed request' sentence, so the budget-preservation half of f2 is stated rather than implied.",
-      "wallMs": 9610,
+      "feedback": "After keeps f2 intact: it states delivery remains unavailable because closureReview.maxFixRounds is zero, lists only assess and stop with the 'Not offered' note, runs no gh pr edit, and reports both caps remaining zero with no record minting or tracker re-initialization. The visible deltas from the Change are the added 'Role: author' report line and the reviewRequests field on the pre-menu refresh, neither of which touches cap handling or budget accounting. One small tightening would help a careful reader: Before said explicitly 'I do not ... reset accounting', whereas After only implies it via 'both caps remain zero' and 'no wave is active'; restoring an explicit 'rounds_used and syncs_used are unchanged' sentence in the resume step would make the no-reset half of f2 unambiguous while still delivering the sequential report/menu and refreshed-role contract.",
+      "wallMs": 8311,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

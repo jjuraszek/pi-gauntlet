@@ -34,47 +34,47 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4e652c21dc93589a8315387f00e4e3084f1d7cf8ac2c9a2b68fb61bf3f481466",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "5d77df8ea47f7357de5b6d1ed86cc3a59b3858c9ed1d23125a549f2461f7c9a7",
       "candidateOutputSha": "4483c52dae1bc1605a98831abd0158a9c9f49c28e07984320f582414ca7266d4",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs explicitly classify the nonnumeric `fix 1` as a change request under `### Next action`, keep course null, note that P1 retains its stable ID/evidence while P4 now occupies display row 1, and state that no implementer or other helper is dispatched and nothing is written before a numeric pick. After's prose is slightly tighter on the identity point (\"'1' no longer names the blocker you typed it for, so I did not act on it\"), which is a good addition. One regression unrelated to the facts: After drops the `Nits:` section from the rendered report even though the verdict says \"1 nit\" and row 3 offers \"fold the 1 nit\"; keep the Nits list (as Before does) so the shared menus.md template stays self-consistent, and prefer Before's `Verdict: fixable - 2 blockers` phrasing if that is the template's verdict vocabulary rather than introducing \"not ready\".",
-      "wallMs": 8298,
+      "feedback": "Both facts hold in Before and After: each output classifies the nonnumeric `fix 1` as a change request under `### Next action`, keeps course null, preserves P1's stable ID and evidence while explaining the display-row shift so the typed \"1\" is never remapped to P4, and states plainly that nothing was dispatched or written before a numeric pick. The After wording did not move either fact, and its added per-PR narration (assessed head in the header, explicit \"read as a request, not a pick\" closing line, Role line) is compatible with the sequencing Change. One cosmetic drift to watch when delivering the one-PR-per-turn rendering: After's verdict says \"2 blockers, 1 nit\" and the menu offers `deliver with nits`, yet the Nits section that Before rendered (the unused-import row for P5) is missing from the report body; keep the Nits block in the per-PR report so the menu row and verdict count have a visible referent, and consider keeping Before's `fixable` verdict label rather than `not ready` unless the Change intends to rename it.",
+      "wallMs": 10401,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4e652c21dc93589a8315387f00e4e3084f1d7cf8ac2c9a2b68fb61bf3f481466",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "917a3905b32675f7bed012c614b7676fa13aa34b6867e74bd0b836b53f157d0e",
       "candidateOutputSha": "f0b663dc6e7263647cedeb2628118c60528ff9c81d4ebaad441660a9e4accca6",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs open by stating that `fix 1` is a change request rather than a numeric course selection, that it names the stable empty-signature finding rather than the newly displayed unsigned-array row, that course stays null, and that no helper, repair, push, or mutation occurs; both then render the initial assess/deliver/deliver-with-nits/stop menu with deliver recommended and no action dispatched. One structural difference worth noting for other cases in this suite: Before puts the `gauntlet: gate=gatekeep-pr/initial recommended=2` line first, while After buries it below the narration and a `---` separator, which would fail any gate-line-first requirement even though it is irrelevant to f1/f2 here. If the After wording is meant to satisfy the marker-first contract everywhere, move the gauntlet line to the very top of the response and keep the explicit 'change request, not course selection; P1 keeps its identity; no dispatch before a numeric pick' sentences, which already deliver the intended course-model behavior for this scenario.",
-      "wallMs": 11736,
+      "feedback": "Nothing moved in this case: both outputs explicitly treat `fix 1` as a change request that selects no course and does not retarget the stable empty-signature blocker to the newly displayed row-1 unsigned-array finding, and both state that no helper is dispatched and no mutation occurs before a numeric pick. The After wording's additions (the `Role: author` line, `reviewRequests` in the refresh read, the 'not a readiness exit or GitHub obstacle' framing) are consistent with the Change and did not disturb either fact. One small regression worth noting even though no fact covers it: After dropped the `(src/guard.ts)` file attribution from the blocker rows that Before rendered; keep the file reference on each blocker line while adding the role line so the single-PR report stays as locatable as before.",
+      "wallMs": 9237,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

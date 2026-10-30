@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "5ffaaf10b02344f3cb3d7c746566070e202b5462ca455ea024aa7fe1fef7d863",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f9ed8224fed3166586f55c0e1b616f8bcda20db8896fb528a6816b748da4c504",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "c3ed62e9c879314eb63017602502b5eb12be309645985b720835eb43476bff3f",
       "candidateOutputSha": "6b9dc2948fe0b87c8307d6e995f4c88fb1ce78b7bde4694fba457a3bcdcfc7ca",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before narrated the right control flow (fail closed, no fallback to PR 999, no provisioning) but emitted its own ad hoc error strings — `author query exited 1 - HTTP 503...`, `returned 1000 rows at --limit 1000, so the open-PR list cannot be proven complete`, and `returned a row with no number field` — none of which match the contract strings in f1. After fixes this by printing exactly `discovery failed: HTTP 503: Service Unavailable`, `discovery failed: incomplete (author query hit --limit 1000)`, and `discovery failed: malformed gh pr list output`, and it explicitly states that B stops before the draft filter and that C stops before union/filter with no fallback, so f1 moves to holds. Nothing in After regressed relative to Before on this case; to keep it stable, keep the stop messages verbatim from the skill's discovery contract (quote only the first gh stderr line for the nonzero-exit case, use the fixed `incomplete (...)` and `malformed gh pr list output` strings) and retain the explicit 'no fallback to the current branch's PR' and 'stops before filtering' sentences rather than paraphrasing them.",
-      "wallMs": 12498,
+      "feedback": "Before failed f1 only on the exact stop strings: its rejections read `discovery failed: author query exited 1 - HTTP 503: Service Unavailable`, `...returned 1000 rows at --limit 1000, so the open-PR list cannot be proven complete`, and `...returned a row with no number field`, none of which match the contract text even though the behavior (no provisioning, no tracker, no continuation, no fallback to PR 999, stop before filtering) was already right. After emits the three exact strings `discovery failed: HTTP 503: Service Unavailable`, `discovery failed: incomplete (author query hit --limit 1000)`, and `discovery failed: malformed gh pr list output`, states explicitly that B stops before the draft filter despite every row being a draft and that C stops before union/filter, and keeps the global no-fallback/no-provisioning preamble, so f1 moves to holds as expected. Keep the per-scenario fenced stop line as the final literal and keep the 'validation runs before filtering' step; the only wording to watch is the `gauntlet: stuck` prefix — it is harmless here because the required substring is intact, but avoid inserting any text between `discovery failed:` and the canonical reason, since that is exactly what broke Before.",
+      "wallMs": 12202,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5ffaaf10b02344f3cb3d7c746566070e202b5462ca455ea024aa7fe1fef7d863",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f9ed8224fed3166586f55c0e1b616f8bcda20db8896fb528a6816b748da4c504",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "ca4ae4fb43832d238edc0c2153c6c804836faca575c4a6a26cfed36f2e00c1bb",
       "candidateOutputSha": "8aae359581432b836208a2db916276b7bc99fa146aaa5d5bf9efac8ed27adf37",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before fell back to `gh pr view` and resolved PR 999 in every scenario, never running the author query, so none of the three discovery-failure messages appeared and the current-branch fallback explicitly occurred. After now exercises the discovery contract: Scenario A stops on the first stderr line with the exact `discovery failed: HTTP 503: Service Unavailable`, Scenario B rejects the 1000-row result on count-equals-limit before draft filtering with the exact incomplete wording, and Scenario C rejects the row missing `number` with the exact malformed wording, and the closing paragraph states no minting, tracker init, provisioning, dispatch, or PR 999 fallback. Nothing regressed; to keep this stable, retain the verbatim error strings as standalone lines, the explicit 'before filtering' ordering in B, and the sentence that PR 999 is never used as a fallback, since those are the elements the fact checks most literally.",
-      "wallMs": 8901,
+      "feedback": "Before never ran the open-list discovery contract: it resolved `(no PR token)` via `gh pr view`, landed on the unrelated current-branch PR 999 in every scenario, and emitted no discovery rejection, so f1 failed on all three counts (no 503 wording, no limit-hit rejection, no malformed-output rejection, and a current-branch fallback). After adds the author query with `--limit 1000`, halts on the exact first stderr line (`discovery failed: HTTP 503: Service Unavailable`), rejects a result whose row count equals the limit before any draft filtering (`discovery failed: incomplete (author query hit --limit 1000)`), rejects the row lacking `number` (`discovery failed: malformed gh pr list output`), and explicitly states that PR 999 is never used as a fallback and that no tracker, continuation, provisioning, or dispatch occurs — every clause of f1 now holds. Keep the current wording; the only thing to watch is that the Change's per-PR report/menu sequencing must not leak into these rejection paths (After correctly renders no menu here), so leave the discovery-failure stop unconditional and keep the three error strings verbatim.",
+      "wallMs": 8967,
       "verdict": "improved"
     }
   },
-  "repoSha": "35bc259c8641986e07c89d28832892b61d51b1dc"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

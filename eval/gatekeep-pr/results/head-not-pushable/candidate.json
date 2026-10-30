@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "e2e05552c1d04f5d6ab28c922ef51b59031f9b66a67d3af227e70a43628a4ac6",
       "candidateOutputSha": "0ab8a382ff676c7cf0f45c1c9bda928047f7d866e23896d35755748f123e618d",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs stop at precondition 2 immediately after step 2, name the non-pushable head (git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding, head_pushable false) as the reason, run no git rebase and no push, dispatch no Verify/Review helper, and close the sync stage as failed. After additionally leads with the exact gate line before any prose and enumerates the skipped steps explicitly, which is consistent with the Change's gate-line-first intent while preserving every fact Before kept. One small point to watch: After's Verdict line names only `feature/ledger-rounding` rather than the full remote:ref; keep the full push destination in the Sync line (as it does) so the non-pushable head stays unambiguously identified.",
-      "wallMs": 9340,
+      "feedback": "Nothing moved on this case: both outputs stop at step 2b precondition 2, name `permissions.head_pushable false` for `git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding` as the reason, run no `git rebase` and no push, dispatch no Verify helper, and close the `sync` stage as `failed`. The Change (one PR's report and menu per turn in the batch summary round) is not exercised by a single-PR `--rebase` stop, so the After wording only reshapes the narration (moving the `gauntlet:` header to the top, enumerating the skipped sub-steps, and dropping 'remove the worktree' from the stop option's label in favor of 'leave the PR and its branch as they are'). That last wording change is harmless for these facts but is a small behavioral drift relative to Before's `cleanup_done`/worktree-removal framing; if the stop option is meant to remove the worktree, keep Before's 'remove the worktree' phrasing in the menu line so the single-PR stop path stays identical while the batch-summary sequencing change lands elsewhere.",
+      "wallMs": 9210,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "172f5b6e541bed9374930f1266f35c6f57e156ea3944b7a5faf1e1b4cc271e76",
       "candidateOutputSha": "01005f38afcad0e968d45260abf7f6aa74ff47e831c3c0bcc7d4249afb599492",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs stop at the sync pushability precondition, record `sync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding`, mark `sync` failed, run no fetch/rebase/push, dispatch no helpers, and leave `verify` unstarted, so f1-f4 hold in Before and After alike. After is slightly tighter in that it names the non-pushable head directly in the Verdict line and explicitly enumerates what is not done (fetch `origin/main`, rebase, review a rewritten head, push, step 3), which aligns with the menus.md 'Not offered'/omission-reason direction; it also drops the `mktemp` state-path detail, which is fine for this scenario but worth keeping somewhere if other cases check state-path evidence. To keep this case stable while delivering the Change, retain the explicit 'no commands, no helpers, sync marked failed, verify unstarted' sentences and the exact push destination in both the record line and the verdict.",
-      "wallMs": 10012,
+      "feedback": "No fact moved on this case: both outputs stop at the second sync precondition, name the non-pushable head `git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding` as the reason, run no rebase or push, dispatch no helper, and record `sync` as failed with `verify` untouched. The Change (one PR's report and menu per turn in the batch summary round) is not exercised by a single-argument `412 --rebase` invocation, so the After wording only differs cosmetically here: it drops the explicit `mktemp` continuation-record command from step 1 and rephrases the verdict to quote the remote rather than say 'PR head is not pushable'. Both are acceptable, but if you want the verdict to remain maximally legible as a pushability stop, keep Before's phrasing ('sync stopped because the PR head is not pushable') alongside the remote URL, and keep the explicit 'close `sync` as `failed`' wording so f4 stays unambiguous; neither adjustment conflicts with the per-turn batch-menu change.",
+      "wallMs": 10803,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

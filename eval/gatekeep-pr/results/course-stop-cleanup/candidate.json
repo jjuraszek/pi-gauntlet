@@ -34,67 +34,67 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7c09683060b9f8d1f0e798ca0a5bfeb55f1c7439bebcc6ba8a889dac7ba595ba",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "d4a9b4c98c2078b0db7e0fef1ef428531011b39eef2f17502ed34dffd91715d8",
       "candidateOutputSha": "cb7fd28d3db04198af08df7d2aa14d6e65c2848b6ce29b6b1d87c9df88f2f19b",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs remove the owned tracked-clean fully pushed trees in A and B via the recorded destroy from the primary (deleting untracked tmp.out), keep C/D/E/F with the correct reason strings and the explicit statement that discard is a separate human decision never offered or performed, enumerate that branch deletion, base pull, release and close-ticket stay unrun with the PR OPEN and nothing posted/approved/merged, and confine teardown to this PR's run record, helper output and log_path files while leaving the primary (and any sibling) untouched. After improves on Before by emitting the gate line first, stating the actual rendered rows before the numeric pick, checking that no path is the primary, and adding the boundary `gh pr view` refresh (a read-only call, so f3 is unaffected). Two small tightenings that would make the author's intent unambiguous without risking any fact: in step 8 add the phrase 'only PR 42's record/helper/log files; no sibling PR records or other checkouts are touched' so f4 is stated rather than inferred, and in checkpoint F say why ownership is ambiguous (two worktree matches on the keyed pattern) so the kept reason is as concrete as E's realpath mismatch.",
-      "wallMs": 13629,
+      "feedback": "After keeps every fact Before kept: A and B still run the recorded destroy plus prune and delete tmp.out with the tree; C names the unpushed commit and states discard is a separate human decision; D, E and F each keep the tree with the matching reason; step 7 explicitly skips branch deletion, base fetch/pull and the release/close-ticket overrides; step 8 limits teardown to the record, helper outputs, log_path files and body files, and step 5 confirms none of the paths is the primary. The one new element is step 3, a boundary refresh via `gh pr view 42 --json ...`; this is a read-only forge query whose results match the digest, so it does not move f3 or f4, but it is a tool invocation that Before avoided entirely and the Entry says to never run live tools. If the Change wording introduced a mandatory boundary refresh, consider scoping it so a non-final stop at the initial menu narrates the retained snapshot state rather than issuing a fresh forge read, which would keep After identical to Before on tool discipline while still delivering the per-PR sequential report/menu behaviour the Change targets (which this single-PR case does not exercise).",
+      "wallMs": 14902,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7c09683060b9f8d1f0e798ca0a5bfeb55f1c7439bebcc6ba8a889dac7ba595ba",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "21828514ab82d0cc7a2d731d5c24f337efcd12662a90c578bdb7bc5823a4b04c",
       "candidateOutputSha": "1019294bb2ad747f5fffb0e5650a64ec4f783acc7ba23b0d02230cedf7d11a47",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "No fact moved: After still removes A and B via the recorded destroy from /work/widgets (naming tmp.out in A and untracked residue in B), keeps C/D/E/F with concrete reasons and names the separate discard decision for C, disclaims branch deletion, base fetch/pull, release and close-ticket in its closing paragraph, and retires only the run record (plus supplied helper/log/description files, none present) while leaving the primary checkout alone. Two things got thinner relative to Before and are worth restoring to keep f3/f4 unmistakable under the course model: Before explicitly stated 'The PR remains OPEN, the primary checkout remains untouched, and both usage counters remain zero', whereas After only implies these; adding one line like 'The PR remains OPEN with no merge or approval; the primary checkout and any sibling worktrees are untouched; usage stays 0/0 against caps 10/10' would make the no-merge-consequence and no-sibling/primary-removal claims explicit rather than inferred. Also, the Change asks for the stop to go 'directly through non-final stop' with no new menu, which After does well; keep that, but consider retaining Before's note that the stop is recorded without setting a course so the null-course persistence is visible in the text.",
-      "wallMs": 18215,
+      "feedback": "No fact moved on this case: both outputs run the recorded destroy from /work/widgets for A and B (deleting tmp.out), keep C/D/E/F with the correct reason and name the discard decision for C, run no branch deletion, base sync, release or close-ticket override, and retire only the PR record. The Change (one PR report and menu per turn in the batch summary round) does not touch this single-PR stop scenario, so the per-turn sequencing wording is not exercised here. One regression risk worth tightening in After: it dropped Before's explicit closing sentence that 'the PR remains OPEN, the primary checkout remains untouched, and both usage counters remain zero' and the explicit record/forge validation commands, replacing them with prose ('I do not reset counters or establish delivery authority'). A careful reader still infers f3/f4, but to keep them unambiguous, keep the Before closing sentence verbatim in the teardown-boundaries paragraph (OPEN state, untouched primary/sibling checkouts, zero counters) alongside the new per-turn batch wording, since the batch change only needs to alter how multiple PR menus are presented, not what a single-PR non-final stop reports.",
+      "wallMs": 15052,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

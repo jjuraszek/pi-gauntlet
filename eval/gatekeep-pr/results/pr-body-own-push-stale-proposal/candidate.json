@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e6dde74b61fd47c551a91b7fda09f535bad0d376b98ed917bb7c65bf09f694d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "16e85f81d6d320d02637f8740f21710259e11c9e4bc0a08829fd3bba59a5367f",
       "candidateOutputSha": "0468a2cd6df413fa8d28ab0a8a057fcfeb4e48307c8e83888a28dca8efe9f29a",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f4: Before (step 14) and After (step 5) each explicitly treat the own push to 2222222 as making the 1111111-bound P1 proposal stale, invalidate it, and re-propose the same old→new correction against the freshly fetched current body with assessed_head 2222222 before any body write. After relocates the invalidation into the recheck step rather than a separate Description-repair iteration, which is fine, but to keep this fact robust under the course model it would help to state explicitly that the re-proposal is built from the body returned by the pre-menu refresh (not from the stored assessed_body) — e.g. 'I re-propose from the current body fetched at 2222222' — so a reader cannot read 'same original body' as reuse of the stale snapshot rather than a fresh derivation that happens to match.",
-      "wallMs": 9046,
+      "feedback": "Nothing moved on f4: both outputs explicitly treat the own-push head 2222222 as making the 1111111-bound proposal stale, invalidate it, and re-propose the same correction against the current body at 2222222. After does this in step 5 (\"The old proposal is bound to head 1111111 and is now stale. I invalidate it. I re-propose ... now assessed_head 2222222\"), which a careful reader accepts since the fresh fetch body is byte-identical and the recheck carried \"the actual body\". One minor fragility worth tightening: After says it re-proposes with \"the same original body\", which leans on the body happening to be unchanged; phrasing it as \"re-propose from the body returned by the fresh fetch at 2222222\" (as Before does in step 14) would make the current-body sourcing unambiguous even in cases where the body had drifted. The Change (sequencing one PR's report/menu per turn in the batch round, and the no-arg discovery / role-line cases) does not touch this single-PR resume path, so the After wording can keep step 5 as is with that small clarification and still deliver the batch-sequencing and discovery changes elsewhere.",
+      "wallMs": 10333,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e6dde74b61fd47c551a91b7fda09f535bad0d376b98ed917bb7c65bf09f694d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "f231963177831ac66400823dda4b3e9c4289971150bf3c9a6428fbbbda1c5e47",
       "candidateOutputSha": "8819b35ed29b8cf7f033f99f7dacf2aecc4d904fb60851bee4ee55df5ef30e8d",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "f4 is unchanged: both outputs explicitly treat the pushed head 2222... as invalidating the stored payload bound to 1111... and re-propose the same exact correction from the actual current body (Before section 4; After step 11 \"Invalidate that stale proposal and persist a refreshed proposal at 2222...\"). The After wording keeps that behavior cleanly, so nothing here needs restoring. One caution for other facts in this scenario: After reads the Entry's \"unspecified reads keep the last supplied state\" rule as meaning the post-edit readback still returns the old body, and from that invents an unconfirmed-readback obstacle menu instead of the readiness menu Before reaches; if the Change intends simulated writes to succeed and be read back (as Before assumes), consider wording the simulation rule as \"unspecified reads reflect the last supplied state or the output's own successful simulated writes\" so the deliver course proceeds to final rather than fabricating a stuck prerequisite.",
-      "wallMs": 10332,
+      "feedback": "f4 is unmoved by the change: both outputs recognise that the mixed-pass push advanced the head from 1111… to 2222…, explicitly refuse to use the stored payload bound to the old SHA (Before: 'It cannot authorize a stale-head write'; After step 11: 'Invalidate that stale proposal and persist a refreshed proposal at 2222…'), and re-derive the proposal from the actually fetched current body with the same exact correction. The Change wording about sequencing one PR's report and menu per turn in the batch summary round does not touch this path, so nothing in After needed adjusting for f4. One caution for the author unrelated to f4 but visible in After: step 15 applies the 'unspecified reads keep the last supplied state' simulation rule to a readback immediately following a simulated successful `gh pr edit`, producing an invented readback failure and an obstacle menu where Before reached readiness; if that was not intended, clarify in the skill that simulated writes update the state subsequent simulated reads return, so the refreshed-proposal logic (which is correct in both) flows into a confirmed correction rather than a stuck gate.",
+      "wallMs": 14124,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

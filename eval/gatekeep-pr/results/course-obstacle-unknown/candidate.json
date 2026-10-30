@@ -34,67 +34,67 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "abf5d98099d85a9ecc1e105755d26b240a938cbe1507cb291ce3765e2c411f8a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "9bb3549931fe881b70466bd95255dd30135d1d736411c2c70df3ad6c1a535937",
       "candidateOutputSha": "86efa421e39ddce54e3b7e24e26c85137f357132e5ca5c1806641e145c1b49b2",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both narrate A with exactly one re-poll, the `stuck - merge state unknown` verdict, unchanged 1/2 usage and no sync/watch/repair; both narrate B with ENOENT producing `stuck - run record unreadable`, no counter recreation, no chat-inferred authority and no record search; both narrate C with the exact `GitHub reports BLOCKED, no local repair applies` verdict, reviewDecision kept as a locator, no rule named and no approve demand; and all six rendered menus are obstacle templates with stop recommended and last, evidence only in the trailing hint, no wait row and merge under Not offered. After actually improves on Before by removing the garbled 'syncs 1... (see below)' counter line and adding the explicit comment-refetch step and `Role: author` line without changing menu shape; the only risk to watch is in B, where After says the re-poll and refresh still run after the failed record read while Before said no forge refresh follows failed validation - keep B's forge reads clearly read-only and clearly not persisting anything so the 'does not reset counters' fact stays unambiguous.",
-      "wallMs": 11266,
+      "feedback": "Nothing moved on this case: both outputs re-poll once in A and exit `stuck - merge state unknown` with usage untouched and no sync, both treat ENOENT in B as `stuck - run record unreadable` without recreating counters, searching another record or inferring authority from chat, both name the BLOCKED verdict in C without attributing a rule or demanding an approval, and all six menus are obstacle renders with stop last/recommended, evidence in the hint, and no wait or auto-merge rows. The After wording's additions (the `Role: author` line, the explicit comment-refetch step, the clearer `1 of 10 -> 20` cap arithmetic) are neutral here and even clean up Before's `syncs 1... (see below)` slip. One thing to watch: After B performs the read-only forge refresh after the record failed validation, whereas Before explicitly skips it; no fact here penalizes that, but if the per-PR sequencing change is meant to apply to the batch summary round only, keep the single-PR re-entry path's ordering (validate record, then refresh only when the record is readable) unchanged so this case stays stable while the batch-summary and no-arg-discovery cases pick up the new contract.",
+      "wallMs": 13341,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "abf5d98099d85a9ecc1e105755d26b240a938cbe1507cb291ce3765e2c411f8a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "4473d2fd8093a4e3d23802e95f8c3d727716969e99f60d733aebb89cdf21c7ec",
       "candidateOutputSha": "017421e47fd28f8c0df2fcad5b8066de73545e5250fafcc0795a1036a97db253",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs re-poll exactly once in A, exit on the merge-state obstacle with counters at 1/10 rounds and 2/10 syncs, refuse to reconstruct or hunt for another record in B (After adds the explicit 'do not discover another record' which is a welcome tightening), and in C report BLOCKED without naming a rule or demanding another developer's approval; all three menus are gate=obstacle with stop recommended and last, evidence only in the hint, and no wait row or automatic merge. Two small things in After are worth watching so they don't erode facts in neighboring scenarios: the verdict strings are now prefixed 'not ready - ' (e.g. 'not ready - stuck - merge state unknown'), which still contains the required phrase but could fail a judge reading the fact as the exact verdict text, so consider emitting the bare 'stuck - merge state unknown' / 'GitHub reports BLOCKED, no local repair applies' as the Verdict; and After dropped the Before 'Usage: 1/10 rounds; 2/10 syncs.' line from the A and C menus, moving the counter evidence into the deliver row's parenthetical only — keeping a standalone Usage line (and 'Usage: not reconstructed' in B) makes 'spending neither budget' and 'does not reset counters' visible in the rendered report itself rather than only in the narration.",
-      "wallMs": 18716,
+      "feedback": "No fact moved: both outputs re-poll once in A and exit stuck without spending budget, refuse to recreate or search for the record in B, attribute no rule and demand no approval in C, and all three menus render the obstacle gate with stop last and recommended, evidence in the show-evidence hint, and no wait row or auto-merge. After does introduce drift worth tightening: the Usage line was dropped from the rendered menus (the unchanged 1/10 and 2/10 now only appear inside the deliver row's cap arithmetic), the assess row now says 'finish without posting a review because there are no open blockers' while the PR comments section lists an open blocker, and B prints 'Role: author' even though the role contract (rederived from the pre-menu refresh) was never exercised there since no forge refresh ran. To deliver the per-PR sequencing change while keeping Before's shape, keep the explicit Usage line, keep the assess row as 'post the current open blockers to the PR, with no repairs or sync', and only emit the Role line in cases where the refresh actually re-derived it.",
+      "wallMs": 13911,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

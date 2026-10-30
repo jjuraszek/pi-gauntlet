@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "d335e747bde2fda4d8bf5209520059da08db38f6c2582b8c01da11ba284e1583",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "75e1d312b332b68b93ceef141683ad21030b207585e32ff93da229ba71acba9a",
       "candidateOutputSha": "ddea3af35062fab3e872e90e31ee25afc3c02587e3fee72d682fd6c32924ab64",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs show the other-author check printing the four-line explanation block in a `gauntlet: question` turn after only read-only preconditions (fetch, merge-base, rev-list, baseline SHA reads) and before any rewrite; both record `sync: declined - other author's branch`, run no rebase/review/push, dispatch Verify on the unsynced head 7c1e9a2f, and render `Sync: declined` in the report. After actually tightens f1/f2 slightly by quoting the explicit 'Rebase this branch onto origin/main? (yes/no)' prompt inside the block, which is worth keeping. The After wording for the deliver row ('merge main into the branch, repair any blockers, watch CI...') and the added 'Role: none' / BEHIND PR-comment row deliver the course-model Change without touching the consent path; keep the question block, the `sync: declined` record string, and the unsynced-head Verify dispatch exactly as written and the four facts stay intact.",
-      "wallMs": 12708,
+      "feedback": "None of the four facts moved: both outputs fetch, run read-only checks, print the fixed four-line explanation under `gauntlet: question`, stop on the human's `no`, record `sync: declined - other author's branch`, skip rebase/review/push, and verify on `7c1e9a2f` with a `Sync: declined` line. The After wording changed only surface details for this single-PR case — it added a `Role: none` line, an extra PR-comments bullet restating the BEHIND state, dropped the explanatory tail after `Sync: declined`, and reordered the `deliver` menu text — none of which touch f1–f4. Keep the sequential report-then-menu change scoped to the batch-summary round (one PR's report and menu per turn, next PR only after the pick) and leave the single-PR sync/verify narration as-is; if you want parity with Before, retain the short reason clause on the `Sync:` line so readers see why the head was assessed unsynced.",
+      "wallMs": 14006,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d335e747bde2fda4d8bf5209520059da08db38f6c2582b8c01da11ba284e1583",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "bfabf77db9f5a9de11dfeaa974a5ea04431d1f8fc6c24534103be521120fd74e",
       "candidateOutputSha": "9b747437a838537e54410f78060a72de1c0b4127799a12dc6717ba8d5db4fa9c",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case: After still fetches, reads the baseline, detects the viewer/author mismatch, prints the four-line rebase explanation verbatim, asks for an explicit yes/no before any rewrite, records `sync: declined - other author's branch`, skips rebase/push, and runs Verify/Review on the original SHA with the `Sync:` line reading declined. The course-model changes land cleanly in the menu (initial template with assess/deliver/stop, evidence as a hint, no ordinary wait row). Two small things worth keeping stable as the wording evolves: both outputs run read-only ancestry/merge-commit/baseline/identity checks between the fetch and the confirmation question, so if the author wants f1 read literally (\"only a fetch may precede the question\") the skill text should either state that read-only inspection is permitted before the question or move the identity check immediately after the fetch; and After now wraps the `gauntlet:` marker inside the menu code fence rather than emitting it as the literal first line, which is fine for this case but could collide with the gate-line-first expectation elsewhere, so prefer keeping the marker as the first bare line of the report.",
-      "wallMs": 16098,
+      "feedback": "No fact moved in this case: both outputs fetch, run only read-only precondition checks, present the four-line rebase explanation, ask for a yes before any rewrite, persist `sync: declined - other author's branch` after the `no`, skip rebase/push, verify the original SHA, and render `Sync: declined` in the report. The Change (sequencing per-PR reports in the batch summary round) is orthogonal to this single-PR `--rebase` path, so the After wording left this flow intact. Two minor drifts worth watching: After dropped the explicit `gh api user --jq .login` identity check in favor of asserting 'the viewer and author differ' from the digest, and it paraphrased the Delivers line ('Ledger totals use half-up rounding') rather than echoing the PR title; neither breaks a fact here, but keeping the explicit identity command and the literal title would make the author-mismatch gate and report more traceable while still allowing the per-PR menu sequencing you added for the batch round.",
+      "wallMs": 14540,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

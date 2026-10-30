@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8c6d5e79a03c67ce9803a0ca8a64923024b63a19b8679a36431a3d8d0c294418",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "2ac555b470870ea940cdb47c0c8dd5dd3621732ee3a442d53611cfe5c0815542",
       "candidateOutputSha": "ca6bae7e13e62a6490ffe3114ae5606d26595039540732ed680beaf71f93d80f",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs validate the record before Exit check at every checkpoint, refuse to act on CONFLICTING, omit deliver and assess, offer only stop, and state that no forge write or record overwrite occurs for the wrong-number (A), malformed (B), wrong-repository (C) and case-mismatched-branch (D) records. After actually improves on Before by giving each checkpoint its own menu with a concrete omission reason and by stating explicitly that baseRefName is compared without case folding, and it adds the 'approve workflow run' row to the withheld set, which is consistent with the shared menus.md course model. The only thing to watch in After is template fidelity rather than authority: the `Not offered:` line now appears above `Evidence:`/`Verdict:` instead of after the pick list as in Before, so if menus.md fixes that ordering, move the line back below the numbered rows; otherwise the wording already delivers the Change while keeping every identity-validation fact intact.",
-      "wallMs": 9108,
+      "feedback": "Nothing moved on this case: both Before and After validate the record before any write, treat each of the four checkpoints (number 643, truncated JSON, meadow/other, baseRefName Main) as a mismatch or parse failure, exit at `stuck - run record unreadable`, withhold `deliver` and `assess`, leave the record and repair counters untouched, and offer only `stop`. After additionally does not refresh the forge or dispatch helpers, and its per-checkpoint `Not offered` reasons are more specific, which is a mild improvement in readability without changing authority. The Change (one PR per turn in the batch summary round, plus the no-arg discovery and role-line contracts) does not touch this re-entry path, so the only visible effect here is the new `Role: author` line in each report; that is harmless, but if the role line is meant only for refreshed pending relationships, the wording should scope it so it does not imply a forge refresh ran on a failed-validation re-entry where After explicitly says no `gh pr view` runs.",
+      "wallMs": 9402,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8c6d5e79a03c67ce9803a0ca8a64923024b63a19b8679a36431a3d8d0c294418",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "088d7668344cc30c43b1763c93c9a6e87c40eb4ce601ef007cb3304af718c24d",
       "candidateOutputSha": "b671a4c99b57205cb90b3dbd9f1d42dd083768d70320d843793317efe6d92dc8",
       "facts": {
@@ -91,8 +91,8 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs reject each of the four records (wrong PR number, truncated JSON, wrong base repository, case-mismatched base branch) before any forge refresh, helper dispatch, sync, repair, push, or record replacement, and both explicitly refuse to borrow authority from the stored course or the conversation, so no write is authorized at any checkpoint. The After wording preserves everything Before kept while adding the course-model framing (\"do not infer delivery authority from its stored course\", \"do not mint another record or reset accounting\"), which fits the Change. One minor consistency point for the author: After prints the stop line as `gauntlet: stuck run record unreadable` inside each checkpoint while Before used the bare `stuck - run record unreadable` marker; if the gate-line-first facts elsewhere require a single bare marker, keep the `gauntlet:` prefix only on the first line and use the bare `stuck - run record unreadable` tag in the per-checkpoint stop lines.",
-      "wallMs": 7939,
+      "feedback": "Nothing moved in this case: both Before and After validate the continuation record before any forge refresh or write, reject each checkpoint on the specific mismatch (PR 643, truncated JSON, meadow/other, Main vs main), and explicitly state that no fetch, sync, rebase, merge, push, record replacement, report, or menu occurs. After actually tightens the no-write guarantees with 'Do not reconstruct or replace the record' in B and 'Do not infer delivery authority from its stored course' in A, plus the explicit case-sensitivity note in D, all of which keep f1–f4 holding. The batch-summary sequencing change is not exercised here since no menu renders, so no wording adjustment is needed for this case; keep the per-checkpoint 'Stop with' terminal and the shared execution-boundary list as written.",
+      "wallMs": 7676,
       "verdict": "unchanged"
     }
   },
@@ -311,5 +311,5 @@
       }
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

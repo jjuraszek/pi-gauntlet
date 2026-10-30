@@ -34,47 +34,47 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "bb1352588eb330a04fe80c1c53ecbfa4e2cdd1c1d8e6075d3dfad3c51b057d2d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "a97c8ca886bbd47cd4860267e45569180cda3bbc82de201b9355b3f32a2f3b73",
       "candidateOutputSha": "d00a39e7e8160c6956d1370129adbc0ab5ba02ee337dd6f4b3a793290e321e3b",
       "facts": {
         "layout": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "mapped-pick": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Neither fact moved. In After, Checkpoint 1 still renders the three Blockers as one ordered list and the four initial options (assess, deliver [recommended], deliver with nits, stop) as a second list numbered from 1, separated by the `Verdict:` prose line and `Pick one:`; the narration explicitly explains that this prevents renumbering, and evidence stays hint-only via `show evidence` prints the full record. The one visible wording difference is that After dropped the `---` horizontal rule Before used between the report and the menu, relying on prose lines alone; that is a permitted separator so the fact holds, but if you want belt-and-braces against renderers that merge lists across a single non-blank line, keep the `---` or an explicit blank line plus prose as Before did. Checkpoint 2 in After maps displayed 6 to raw option 3 with the N/L arithmetic shown, echoes `Taking 6 as option 3 - reply - ...` before the freshness check and the simulated post, dispatches no repair, and re-renders rather than silently re-asking, so mapped-pick holds as it did in Before.",
-      "wallMs": 12052,
+      "feedback": "Neither fact moved. In After, Checkpoint 1 still renders the three Blockers (1-3) and the four initial options (1-4) as distinct ordered lists, now separated by the `Verdict:` and `Pick one:` prose lines rather than Before's `---`, and both outputs explicitly note that this prevents renumbering; evidence stays in parenthesized hints with no compose syntax. Checkpoint 2 in both outputs maps displayed `6` to raw option 3 (reply), echoes `Taking 6 as option 3 - reply - ...` before the post, and dispatches no repair wave or re-ask. Two things to watch in After: the added seven-item narration list before the rendered report is itself an ordered list, so keep the `Rendered report:` prose line between it and the Blockers list (it is present here); and the maria hint changed from a file locator `(src/api/export.ts)` to `(maria, CSV header thread)`, which still counts as hint-only evidence but is weaker as a locator - keep the file path in the hint. Note also that neither output actually exercises the per-PR sequencing of the batch summary round or the no-arg-discovery/role-line cases the Change targets, since this entry only covers a single PR's initial menu and a final-menu numeric reply; the `Role: author` line is the only visible trace of the refreshed-role contract.",
+      "wallMs": 15741,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "bb1352588eb330a04fe80c1c53ecbfa4e2cdd1c1d8e6075d3dfad3c51b057d2d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "4ac5bced9e2570fd8567b6e69eeb5433f39ad06f4c857569289d24ebca36167c",
       "candidateOutputSha": "5c96fbb6b3a3d33cf4d98dcd9ef6708015962e3a4bd8d2fac84ddd97226a6335",
       "facts": {
         "layout": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "mapped-pick": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps the three ordered blockers and the four initial rows as separate Markdown lists split by a `---` separator, both starting at 1, with `show evidence` confined to the hint line, and checkpoint 2 still echoes \"Taking 6 as option 3 - reply\" (with the explicit three-findings subtraction) before the simulated post, dispatching no helper and never re-asking. The added `Role:`, `PR comments:` and `Nits:` sections are unordered bullets, so they do not disturb the ordered-list numbering. The only regression in wording is informational, not fact-breaking: row 3 now says \"fold the 1 nit into the repairs\" where Before named the duplicate-paging nit, and the hint drops the mention of the drafted reply to Maria; restoring \"fold the duplicate paging nit into the repairs\" (or a bare count only when nits are unnamed) would keep the menu as self-explanatory as Before while preserving the shared menus.md template.",
-      "wallMs": 11658,
+      "feedback": "Neither fact moved: both outputs render the three blockers and the four initial options as separate ordered lists split by a `---` separator, both start the option rows at 1 and keep evidence in the `show evidence` hint, and both checkpoint-2 passages echo \"Taking 6 as option 3 - reply\" before the simulated post with no repair dispatch or re-ask. The After wording added a `Role: author` line, a `PR comments:` bullet list and a `Nits:` bullet list above the blockers (bullets, not ordered lists, so no renumbering risk), moved the Maria reply out of the hint into the report body, and inserted an explicit `gh pr view` freshness-read command inside a checkpoint the entry says passes freshness already and uses no tools - none of these break the listed facts, but the extra command and the generic \"1 nit\" phrasing in option 3 are drift unrelated to the Change. Since this case is a single-PR entry, the per-PR sequencing Change has no observable effect here; to keep it that way, scope the new sequencing and refreshed-role wording to the batch summary round and the discovery cases, and leave the single-PR report/menu block, hint contents, and checkpoint-2 echo-then-post order exactly as Before.",
+      "wallMs": 16369,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

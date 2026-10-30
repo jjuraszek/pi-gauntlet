@@ -34,14 +34,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8108f9e42669ceab9981669e331021b9e18b2311496ef542c9e974c896d9edde",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "cf048a5fb3bb9493d58e344733c5c2f660a0202671b80cac9f74074ab4397336",
       "candidateOutputSha": "dd7a624e802d970c1e3b99a2d966c23dea9f94d5ef033703c2f0eb77bc81c438",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -51,12 +51,12 @@
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -74,114 +74,21 @@
           "label": "held"
         }
       },
-      "feedback": "After drops f2: Before's run record said each rebase stop went to a fresh conflict-stop implementer and that P1's closure line came from the range review after both rebase stops, so a reader could see the second pre-push base resolution got its own helper and review; After collapses this to \"Both were base-only resolutions after CONFLICTING, before push, and charged no round\", which keeps the syncs_used=2/no-round accounting but says nothing about a fresh helper or a review for the second resolution. Keep the compact course-based record, but add one sync line such as \"Syncs: 2 of 6 used, each a fresh conflict-stop implementer plus range review (second resolution was pre-push after main advanced again); no round charged, no new pick needed\". Also tighten f1 by stating the round was charged for the new source commit (e.g. \"P1 round charged on its source-changing commit\") rather than \"counted on the first wave\", and avoid \"carried from the own-push re-renders\", which hints at intermediate renders the course model forbids; \"carried across own pushes\" preserves f4 cleanly.",
-      "wallMs": 34898,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\n**Run record** (`state: ${TMPDIR}/gatekeep-state.<id>`)\n- Target: meadow/events #642, base `main` (target unchanged on every re-fetch). Course: `deliver`, from the human's numeric pick `2`.\n- Tracker stages initialized: `gather`, `provision`, `verify`. No `sync` stage, because `--rebase` was not passed. `review`, `report`, `menu` were added as each started.\n- Scope: `source: pr`. The original intent is \"reject unsigned events\". The body is unchanged.\n- Rounds: 2 of 6.\n  - Round 1: the P1 commit.\n  - Round 2: the P3 commit.\n- Syncs: 2 of 6.\n  - Both were loop syncs: own head, author not a bot, no merge commits. Each rebased onto a freshly fetched `origin/main`.\n  - Each conflict stop went to one fresh conflict-stop implementer.\n  - Each rewritten range got its own range-diff review.\n  - Each push used `--force-with-lease=feature/event-guard:<expected_remote_head>`.\n- Findings:\n  - P1 is resolved: it accepted an empty signature (src/guard.ts:9).\n  - P3 is resolved: an unsigned-array bypass, Critical, minted from source review of comment 71 (src/guard.ts:18).\n  - P2 is an open nit outside the course.\n- Comment ledger: C1 is comment 71 (updated_at 2030-01-01T00:01:00Z), labeled already-addressed, with a reply drafted.\n- Remaining state:\n  - The wave checkpoint is cleared.\n  - The poll deadline was renewed only on the gate's own pushes.\n  - `approved_head` is null and `cleanup_done` is false.\n- Assessed head: `3333333333333333333333333333333333333333`. Verification evidence and the review closure lines are bound to this SHA. Claim dispositions carry over from the own push.\n\nNo `Sync:` line renders, because `--rebase` was not passed.\n\nEvidence: CI (source: ci) on 3333333; workflow ci, check `ci / test` success; reviewer run success; 0 binding pending; merge_state_status CLEAN.\nDelivers: the guard rejects unsigned events, including unsigned arrays and empty signatures.\nRole: author\n\nPR comments:\n- The reviewer's comment on the unsigned-array bypass is already addressed, so the drafted reply points at the fix. (comment 71, src/guard.ts:18)\n\nNits:\n- The guard imports a module it never uses, so readers chase a dependency that does nothing. (src/guard.ts:1)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash-merge PR 642 at 3333333. [recommended]\n2. fix nits - run one delivery iteration that removes the unused import, then return here.\n3. reply - post the drafted reply to the reviewer's comment.\n4. stop - remove the worktree, leave the PR as is.\n\nNot offered: approve (own PR)\n\nType a number; show evidence prints the full record (CI source ci, head 3333333, ci / test success, 0 binding pending, merge_state_status CLEAN).\n",
-        "words": 389,
-        "wallMs": 30033,
-        "mechanical": {},
-        "judgeWallMs": 25046,
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "f5": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f6": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f7": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "No fact moved: both outputs record rounds 2/6 charged only on the P1 and P3 commits, syncs 2/6 charged separately for the two conflict-only rebases, a fresh conflict-stop implementer per stop, closure and evidence bound to 3333333, P2 left as an open nit behind the fix-nits row, and a final menu that offers merge without executing it. After actually tightens f2 by stating 'Each rewritten range got its own range-diff review' (Before only mentions one range review 'after both rebase stops', which a reader could take as a single review covering both syncs), and f4 by saying the deadline 'was renewed only on the gate's own pushes' rather than Before's 'renewed once'. Keep those two sentences. The remaining differences (the added 'Role: author' line, the stop row now saying 'remove the worktree' instead of 'keep the checkout as found', and the slightly expanded show-evidence hint) are neutral for these facts; if you want the stop row to stay consistent with the terminal-cleanup ownership rule, consider phrasing it as 'stop - remove the owned worktree (tracked-clean, fully pushed), leave the PR as is' so the cleanup condition is visible rather than implied."
-      }
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "8108f9e42669ceab9981669e331021b9e18b2311496ef542c9e974c896d9edde",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
-      "baselineOutputSha": "0325404df5d9203b9b6d234a2c15fb15f8267943182241ceb88914c54286ca86",
-      "candidateOutputSha": "f055d3d247db80491f324c54d6a7a99853d3ccd32ada8c4e09625a2fd07c7d75",
-      "facts": {
-        "f1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f2": {
-          "before": "holds",
-          "after": "fails",
-          "label": "regression"
-        },
-        "f3": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f4": {
-          "before": "holds",
-          "after": "fails",
-          "label": "regression"
-        },
-        "f5": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "f6": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "f7": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "After compressed the run record to bare counters (rounds 2/6, syncs 2/6, wave settled) and dropped the two things Before used to make f2 and f4 visible: the sequential helper roster (second base-resolution implementer plus its own fresh range reviewer, no new pick) and the explicit statement that the only watches ran at delivery step 4 covering the queued checks and reviewer workflow. A reader of After can infer the totals but cannot confirm the second pre-push sync got a fresh helper and review, nor that a binding-CI watch happened at all. Keep the compact one-line record, but add one line like 'Syncs: 2 (pre-push conflict resolutions, each with fresh implementer + range review, no new pick); watches: delivery step 4 only, deadline renewed on own pushes 2222…/3333…'. Also, After introduces a 'reply' menu row for a drafted comment response that neither the digest ('no comment reply selected') nor the entry supplies; drop it or ground it in a drafted reply, since it is an invented action under the shared menu template.",
-      "wallMs": 21304,
+      "feedback": "After keeps the round/sync accounting, the own-push-renewed deadline, final-head evidence, the unrepaired P2 nit, and the single ready menu, but it drops the statement that each base resolution went to a fresh conflict-stop implementer with its own range review, so a reader can no longer confirm f2 (fresh helper and review on the second pre-push resolution). Before made this explicit in its Sync path line ('each rebase stop went to a fresh conflict-stop implementer' plus the range review over the replayed range after both stops). Since the Change is about per-PR menu sequencing in the batch summary and argument-resolution/role-line coverage, it does not require trimming the sync narrative; keep the compact run record but add one line under Syncs such as 'each resolution used a fresh base-resolution helper and a clean range review; no new pick was needed', which preserves every fact Before held while still delivering the Role line and the one-PR-per-turn sequencing.",
+      "wallMs": 34095,
       "verdict": "regressed",
       "confirmation": {
         "status": "ok",
-        "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nRun record:\n- Course remains `deliver`; the existing continuation record and tracker are retained, not initialized again.\n- Two source-changing repair rounds resolve the empty-signature acceptance and unsigned-array bypass. Rounds used: 2/6.\n- Two base-resolution syncs complete before the first push. Syncs used: 2/6.\n- The reviewed pushes are `2222222222222222222222222222222222222222`, then `3333333333333333333333333333333333333333`.\n- Both pushes complete the bounded CI and reviewer watch, comment reconciliation, and readiness refresh. Comment 71 receives source review before its confirmed bypass enters repair.\n- Verification evidence and the final assessment are bound to `3333333333333333333333333333333333333333`. No local verification command runs; exact-head CI supplies the evidence.\n- The unused-import nit remains outside the selected course. A reply to comment 71 is drafted but not posted.\n- No `Sync:` line renders because the invocation did not include `--rebase`. No merge or approval executes.\n\nEvidence: CI (source: ci), head 3333333333333333333333333333333333333333; ci / test success; reviewer workflow completed successfully; binding pending 0; merge_state_status CLEAN.\n\nDelivers: Rejects unsigned events, including empty signatures and the unsigned-array bypass.\nRole: author\n\nNits:\n- The guard retains an unused import that adds no behavior. (src/guard.ts:1)\n\n1 nit open - fix nits to take it.\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash-merge the assessed head after fresh merge-precondition and comment checks. [recommended]\n2. fix nits - run one delivery iteration to remove the unused import.\n3. reply - post the drafted reply to comment 71.\n4. stop - leave the checkout and local branch in place.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record (CI, head 3333333333333333333333333333333333333333; ci / test success; reviewer workflow success; binding pending 0; merge_state_status CLEAN).\n",
-        "words": 265,
-        "wallMs": 23053,
+        "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nRun record: `state: /tmp/gatekeep-state.XXXXXX`; course deliver; target meadow/events#642 on main; scope source pr, with the original intent to reject unsigned events; rounds_used 2 of 6 (P1, P3); syncs_used 2 of 6 (two base resolutions, no round charged); poll deadline renewed on each own push; wave cleared; no failed prerequisites retained. No `--rebase` was passed, so no Sync line renders.\n\nEvidence: CI (source: ci); head 3333333; ci / test success; reviewer run success; 0 binding pending; merge_state_status CLEAN.\n\nDelivers: the guard rejects unsigned events, including empty signatures and unsigned arrays.\nRole: author\n\nPR comments:\n- The reviewer's comment on the unsigned-array bypass is already addressed, so the drafted reply points to the fix. (src/guard.ts:18)\n\nNits:\n- An unused import stays in the guard, so readers chase a dependency that does nothing. (src/guard.ts:1)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash-merge the PR at 3333333. [recommended]\n2. fix nits - run one delivery iteration to remove the unused import, then return here.\n3. reply - post the drafted reply to the reviewer's comment.\n4. stop - remove the worktree and leave the PR as is.\n\nType a number; show evidence prints the full record (CI ci / test success on 3333333, reviewer run success, 0 binding pending, merge_state_status CLEAN).\n",
+        "words": 218,
+        "wallMs": 19866,
         "mechanical": {},
-        "judgeWallMs": 28831,
+        "judgeWallMs": 16838,
         "facts": {
           "f1": {
             "before": "holds",
             "after": "holds",
-            "label": "intended but unchanged"
+            "label": "held"
           },
           "f2": {
             "before": "holds",
@@ -191,12 +98,12 @@
           "f3": {
             "before": "holds",
             "after": "holds",
-            "label": "intended but unchanged"
+            "label": "held"
           },
           "f4": {
-            "before": "fails",
+            "before": "holds",
             "after": "holds",
-            "label": "intended change"
+            "label": "held"
           },
           "f5": {
             "before": "holds",
@@ -214,7 +121,100 @@
             "label": "held"
           }
         },
-        "feedback": "After compresses the run record so much that f2 loses its support: Before explicitly lists 'the second base-resolution implementer, its range reviewer' in the sequential helper roster, so a reader can see the second pre-push conflict got a fresh helper and a fresh review; After only says 'Two base-resolution syncs complete before the first push. Syncs used: 2/6', which proves the counter but not that the second resolution was independently implemented and reviewed. Keep one roster line (or a per-sync 'fresh base-resolution implementer + fresh range review, syncs_used 1 -> 2, no new pick') while still staying compact. On the plus side, After's 'bounded CI and reviewer watch' per push is what let f4 hold where Before never mentioned a deadline at all; make that stronger and unambiguous with an explicit 'watch deadline renewed on each own push (2222..., 3333...)' phrase. Also note the new 'reply - post the drafted reply to comment 71' row: the digest's source review said no comment reply was selected, so if you keep this row, state in the record that the reply is drafted from comment 71 after the P3 closure so it does not read as fabricated, and keep reply distinct from any repair or approval authority."
+        "feedback": "The After output compacted the run record so aggressively that the sync-path evidence disappeared: Before stated that each rebase stop went to a fresh conflict-stop implementer and that the range review covered `<pushed_head_after_replay>..HEAD` after both stops, which is what shows the second pre-push base resolution got its own helper and review (f2). After only says \"two base resolutions, no round charged\", so a reader can confirm syncs_used reached 2 without a round charge but cannot confirm a fresh helper and review were used for the second one. The per-PR-report-and-menu sequencing change does not require dropping this; keep a single compact sync line in the run record such as \"Syncs 2 of 6: two rebase stops, each sent to a fresh conflict-stop implementer and closed by its own range review; no round charged; no pick requested\" and the ledger's P1/P3 closure provenance. Also consider retaining the \"Not offered: approve (own PR)\" line, since it makes f7's no-approval reading explicit rather than inferred from option absence."
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8108f9e42669ceab9981669e331021b9e18b2311496ef542c9e974c896d9edde",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
+      "baselineOutputSha": "0325404df5d9203b9b6d234a2c15fb15f8267943182241ceb88914c54286ca86",
+      "candidateOutputSha": "f055d3d247db80491f324c54d6a7a99853d3ccd32ada8c4e09625a2fd07c7d75",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f7": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After run record collapsed to bare totals (\"Rounds: 2/6; syncs: 2/6; wave settled\") and dropped the lines that let a reader verify the accounting sequence: Before stated that both base resolutions occurred before the first iteration's single push, listed the second base-resolution implementer and its fresh range reviewer in the sequential helper list, and said watches occur only at delivery step 4 covering the queued checks and reviewer workflow. Without those, After no longer shows that the first wave spent one round and one sync before base resolution (f1), that the pre-push re-resolution got its own fresh helper and review and only bumped syncs (f2), or that the delivery body watched binding CI with a renewed deadline (f4). After also added a \"reply\" menu option even though the digest says no comment reply was selected, and renamed the state path. To deliver the Change (per-PR sequencing in the batch summary round) without moving these facts, keep the per-PR final report's run-record bullets on helper sequence, base-resolution timing relative to pushes, and the step-4 watch; the batch-round change only needs to alter when each PR's report and menu are presented, not the content of the single-PR deliver report.",
+      "wallMs": 19532,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nRun record (hypothetical):\n```text\nstate: /tmp/gatekeep-state.exercise642\ntarget: meadow/events PR 642, base main\ncourse: deliver\nscope: original intent to reject unsigned events\ntracker: continued existing record; no initialization or counter reset\nassessed_head: 3333333333333333333333333333333333333333\nrounds_used: 2 / 6\nsyncs_used: 2 / 6\nblockers: resolved\nnits: unused import retained outside the selected course\ncomment 71: source-reviewed; unsigned-array bypass repaired and reviewed\nreply: drafted, not posted\nbody: unchanged\nclaims: carried across own pushes\nworktree: tracked-clean and synced with remote\nverification: exact-head CI; local verification command not run\nreview: bound to each pushed head's pre-push closure lines\nentry_sync: not requested; no Sync line renders\n```\n\nEvidence: CI on 2222222222222222222222222222222222222222 and its reviewer workflow succeeded after the bounded delivery watch; the subsequent comment source review found the unsigned-array bypass.\n\nEvidence: CI (source: ci; head 3333333333333333333333333333333333333333; ci / test success; known reviewer workflow success; binding pending 0; merge_state_status CLEAN).\n\nDelivers: Rejects unsigned events, including empty signatures and the unsigned-array bypass.\nRole: author\n\nPR comments:\n- The unsigned-array bypass comment is now addressed, so the drafted reply points to the repair. (comment 71)\n\nNits:\n- An unused import remains after the repair. (src/guard.ts:1)\n\n1 nit open - fix nits to take it.\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - merge the assessed head using squash. [recommended]\n2. fix nits - run one delivery iteration to remove the unused import.\n3. reply - post the drafted reply to the reviewed comment.\n4. stop - leave the checkout and local branch as found.\n\nType a number; show evidence prints the full record (CI; head 3333333333333333333333333333333333333333; ci / test success; reviewer workflow success; binding pending 0; merge_state_status CLEAN).\n",
+        "words": 266,
+        "wallMs": 22147,
+        "mechanical": {},
+        "judgeWallMs": 20668,
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f7": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After compacted the run record into a key/value block and dropped the helper-sequence and sync-attribution lines that Before carried (\"second base-resolution implementer, its range reviewer\" and \"Both base resolutions occur before the first iteration's single push\"), so a reader of After can see syncs_used 2/6 but cannot confirm that the second pre-push CONFLICTING got its own fresh helper plus review rather than reusing the first (f2). The accounting totals, final-head evidence, retained nit, and no-merge menu all survive, so f1/f3–f7 still hold. To deliver the Change (per-PR sequential menus, discovery/role-line coverage) without losing f2, keep one line in the compact record such as \"syncs: 2 (pre-push base resolutions, each with fresh implementer + range review, no menu between)\" alongside the new Role line; also note After introduces a `reply` option and drafted-reply claim that the digest did not select, which is unrelated to the Change and worth removing."
       }
     }
   },
@@ -554,5 +554,5 @@
       }
     }
   },
-  "repoSha": "9c5a231cb1a405b117d07bd9ec5d19802e9ffcd9"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

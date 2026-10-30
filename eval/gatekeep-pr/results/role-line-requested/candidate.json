@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0c5d3a74140b5e044638517cd3cd6e16989e354913190c61538bf22e90564934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "bbb8842a75f5eaa8c342d4bf9bbd76abbbe3e7326efa8eaa5352082d5c763bba",
       "candidateOutputSha": "0e7cea165671a2117d8367583efe5d3ea30af878fb9770f7d8adb3024f7ef9d9",
       "facts": {
@@ -49,9 +49,9 @@
           "label": "intended change"
         },
         "r3": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "r4": {
           "before": "fails",
@@ -59,14 +59,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves r1, r2 and r4 from fails to holds by adding `reviewRequests` to the pre-menu refresh field set, re-deriving `viewer.role` from the refreshed pending list only (never from `reviews` history), and rendering exactly one Role line directly under Delivers in every snapshot: A `Role: author (requested: robin, acme/reviewers)`, B `Role: requested reviewer (also requested: acme/reviewers, robin)` in API order with case-insensitive self exclusion, C/D/E tracking the refreshed list (none → pat added → robin removed), F `Role: unreadable (requested: unknown, unknown, alex)` with no guessed exclusion, G/H/I omitting empty parentheses, and the batch child printed verbatim. r3 held in both outputs since neither ran `gh pr list` or any current-branch fallback; After makes this explicit by stating PR 999 plays no part. No fact regressed, so the current After wording should be kept as-is; the only cosmetic nit is the stray `gauntlet: gate=gatekeep-pr/final recommended=1` marker above the top-level heading, which precedes per-snapshot markers with differing recommendation numbers and could confuse a gate-first reader — drop that leading line or make it clearly a document header rather than a gate marker.",
-      "wallMs": 17767,
+      "feedback": "After moves every fact from fails to holds: Before never read reviewRequests and rendered no Role line at all (it even asserted the field is not in the pre-menu set), while After adds reviewRequests to the refresh, re-derives viewer.role from the refreshed list without consulting reviews history, and renders exactly one Role line under Delivers in every snapshot with the expected API-order, case-insensitive self-exclusion, org/slug teams, omitted empty parentheses, and the F unreadable/unknown form; it also states the explicit 123 target makes PR 999 play no part, and prints the child report verbatim. Two small things to tighten in After's wording: the stray `gauntlet: gate=gatekeep-pr/final recommended=1` line at the very top of the output before the heading is noise that could confuse a reader into thinking a report was emitted without a snapshot, and r3 would be more clearly demonstrated by saying outright that no `gh pr list`, current-branch fallback, or queue admission runs for an explicit token rather than only that PR 999 'plays no part'.",
+      "wallMs": 16701,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0c5d3a74140b5e044638517cd3cd6e16989e354913190c61538bf22e90564934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "ce3e1e6e32f64b475e3f979ee0666ad516bac4e361c7e46fb66fadd5bd887b4b",
       "candidateOutputSha": "88883e1adff251689707795d081ad9f6af58bd4f2b44953ad59d19dcf6bad22b",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After delivers the Change for this case cleanly: every snapshot now carries exactly one Role line directly under Delivers with the expected API-ordered request lists (A author with robin/acme/reviewers; B requested reviewer excluding the mixed-case ALEx self entry; C/D/E none with the refreshed lists; G/H/I without empty parentheses; F unreadable with unknown placeholders and no guessed self-exclusion), and the supplied child report is still printed verbatim. Before had no Role line at all, so r1, r2 and r4 could only fail there; After's explicit 'replace the cached requests and rederive the role from the available viewer identity' plus 'review history never substitutes for pending review requests' is what moved r4. r3 is preserved in both: After keeps the explicit-token bypass by stating every forge command targets PR123 and running only gh pr view/gh run list, never gh pr list or a current-branch fallback — keep that sentence as the wording also adds reviewRequests to the gh pr view --json list. One caution: After rewrote the menu row text ('squash PR123 at the assessed head' instead of 'merge the assessed head using the resolved policy'); no fact here checks it, but if the shared menus.md templates fix that wording, revert to the template rows so the Role-line addition stays the only report-shape change.",
-      "wallMs": 15497,
+      "feedback": "After moved r1, r2 and r4 from fails to holds by adding exactly one Role line directly under Delivers in every snapshot, deriving it from the refreshed reviewRequests (added to the gh pr view --json field list) rather than from reviews history, excluding the viewer case-insensitively (ALEx in B/I), preserving API order (acme/reviewers, robin in B/C; pat first in D/E), omitting empty parentheses in G/H/I, and rendering missing User login and Team slug as unknown with no viewer exclusion in F; the supplied child report is still printed verbatim. r3 is kept in both: After explicitly states every forge command targets PR123 and never runs gh pr list or branch fallback. Nothing regressed, so the After wording can stand; if you touch it again, keep the explicit 'reviewRequests replaces cached requests, reviews history never implies pending requests' sentence and the one-Role-line-under-Delivers shape, since those are what carry r1/r4, and keep the explicit 'explicit token bypasses discovery' narration that carries r3.",
+      "wallMs": 13663,
       "verdict": "improved"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

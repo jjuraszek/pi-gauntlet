@@ -1,7 +1,7 @@
 {
   "sample": "no-arg-discovery-cc-multi",
   "arm": "baseline",
-  "skillSha": "d611c2c4b70b3925b35405b488eced14733b3c531ee267684e3f4b7613011f89",
+  "skillSha": "1698e07dc33937780f79499f6759f5695952f7242b99f3a13e21be50154ad419",
   "inputSha": "d4bdf3510e8075f2621dd3fd58628056bb455073b6cee0725d575997f6745856",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# gatekeep-pr: discovery narration (no PR token)\n\nThe skill text I have does not fully define this path. It says an omitted PR token resolves from the current branch, which here returns unrelated PR 999 and would not stop. The open-list discovery below comes from your digest and Entry block, not from the written procedure.\n\n## Argument resolution\n\n1. **Repository.** `git remote get-url origin` returns `git@github.com:acme/widgets.git`, so the base repository is `acme/widgets`.\n\n2. **Viewer.** `gh api user --jq .login` returns `alex`.\n\n3. **Current branch.** The current branch's PR 999 is unrelated to the request, so I do not adopt it.\n\n4. **Author query.** I run `gh pr list -R acme/widgets --state open --author @me --json number,isDraft,reviewDecision,additions,deletions`. It exits 0 with rows #112 and #101, both non-draft and `REVIEW_REQUIRED`.\n\n5. **Review-requested query.** I run `gh pr list -R acme/widgets --state open --search \"user-review-requested:@me\" --json number,isDraft,reviewDecision,additions,deletions`. It exits 0 with row #97, non-draft and `REVIEW_REQUIRED`.\n\n6. **Discovered set.** The union, deduplicated by repository and number, is {#112, #101, #97}. That is three PR tokens from origin `acme/widgets`, so it takes the set-routing row (`reference/batch.md`).\n\n## Admission (before any effects)\n\n- No positional issue reference was given.\n- There are no duplicates.\n- All three PRs come from one repository, which matches origin.\n- The set size is 3, within `parallel.maxTasks` 4, so the set is not oversized.\n- **The harness is Claude Code.** Multi-PR mode needs pi's nested dispatch, so admission rejects the set here.\n\n## Not done\n\n- No fetch, confirmation, provisioning, or dispatch.\n- No continuation record minted.\n- No `plan_tracker` init, so there are no tracker stages.\n- No SHA was verified or assessed.\n- No sync line renders, no verdict line renders, and no menu renders.\n\n## Output\n\nOne-line error, then stop:\n\n```text\nmulti-PR mode requires pi's nested dispatch; discovery found 3 PRs (#112, #101, #97) on Claude Code - name one PR to gate it\n```\n",
-      "words": 302,
-      "wallMs": 23269,
+      "text": "# Discovery narration (no PR token, Claude Code harness)\n\n1. **`git remote get-url origin`** returns `git@github.com:acme/widgets.git`. The base repository for discovery is `acme/widgets`.\n2. **`gh api user --jq .login`** returns `alex`. The viewer is alex.\n3. **Current branch check.** The current branch carries PR 999, which the digest marks as unrelated. I do not take it as the gate target, and I fetch nothing for it.\n4. **Author open-list query** (`gh pr list -R acme/widgets --author @me --state open --json number,isDraft,reviewDecision,additions,deletions`) exits 0. It returns:\n   - #112: non-draft, REVIEW_REQUIRED, +3/-3\n   - #101: non-draft, REVIEW_REQUIRED, +1/-1\n5. **Direct review-requested open-list query** (`gh pr list -R acme/widgets --search \"user-review-requested:@me\" --state open --json number,isDraft,reviewDecision,additions,deletions`) exits 0. It returns:\n   - #97: non-draft, REVIEW_REQUIRED, +2/-2\n6. **Discovery outcome.** Three candidates resolve: #112, #101, and #97. They are distinct identities in `acme/widgets`, which matches origin. The count is 3, within `parallel.maxTasks` 4.\n   - Two or more PRs route to the set-routing row (`reference/batch.md`).\n   - Batch admission rejects Claude Code before any effect, because multi-PR mode requires pi's nested dispatch.\n7. **What does not happen:**\n   - No `git fetch`.\n   - No worktree provisioning.\n   - No continuation-record `mktemp`.\n   - No `plan_tracker` init, so no tracker stages exist.\n   - No helper dispatch.\n\nNo SHA is verified or assessed. No sync line renders, since `--rebase` was absent and no report is produced. No verdict line or menu renders.\n\n```text\ngauntlet: stuck multi-PR mode requires pi nested dispatch; discovery found PRs #112, #101, #97 on Claude Code\n```\n\nRe-run with a single PR token, such as `gatekeep PR 112`, to gate one PR on this harness.\n",
+      "words": 253,
+      "wallMs": 25430,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. With no PR token, I run `gh pr view --json number,url` on the current branch. It resolves PR 999. The skill explicitly uses the current branch when the PR argument is omitted; it does not discover PRs through author or review-requested list queries.\n\nThe requested discovery rejection does not follow from these instructions. The supplied list rows do not authorize selecting PRs 112, 101, and 97, so Claude Code's multi-PR restriction does not apply.\n\nNo continuation record is minted, no tracker stages are initialized, and no provisioning or helper dispatch occurs within this argument-resolution narration. No SHA is assessed, and no sync line, verdict, or menu renders. The exercise needs a discovery rule to produce the named rejection outcome.\n",
-      "words": 120,
-      "wallMs": 11524,
+      "text": "The supplied procedure does not produce a discovery rejection for this invocation.\n\n1. With no PR token, I run `gh pr view --json number,url` on the current branch. It resolves PR 999; being unrelated does not disqualify it under the supplied rule.\n2. I do not run author or review-requested open-list queries. The procedure does not define those queries as a no-token discovery path.\n3. I do not apply the Claude Code multi-PR rejection. That admission rule requires two or more PR tokens, and this invocation supplies none.\n\nThe requested stopping outcome therefore conflicts with the procedure. No tracker is initialized, continuation record is minted, worktree is provisioned, or helper is dispatched within this narration. No SHA is assessed, and no sync line, verdict, or menu renders.\n",
+      "words": 127,
+      "wallMs": 11544,
       "mechanical": {}
     }
   },
-  "repoSha": "0815af89ece7d6868774e0e638c698bda634e12b"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

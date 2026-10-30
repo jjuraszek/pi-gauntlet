@@ -8,7 +8,7 @@ Exercise no-arg-discovery-over-cap, no-arg-discovery-single, no-arg-discovery-ze
 
 ## Comparison scope
 
-Compare the no-arg-discovery-* samples and role-line-requested against the rebased base commit's skill text. The committed report is the per-sample partial for no-arg-discovery-failed, not a full target pass; the rebase onto main (batch.md changed in #103) re-staled samples this change does not touch.
+The full-target comparison includes the no-arg-discovery-* samples and role-line-requested targeted by this change, compared against the base commit's skill text. Judgments were refreshed for every sample because the intent text changed. The rebase did not re-stale any replay cell; the skill assembly's for: SHA is unchanged.
 
 ## Expected to move
 

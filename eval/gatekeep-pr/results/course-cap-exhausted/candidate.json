@@ -34,77 +34,77 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7c740a7015d2c58bd87415909cde0600c3edfb2ab2e67ab9ec991b2e4e4f6e73",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "aa1d620a5d4517955e3febe77b9ce1fa4497ba70c2c82433ef5f2412a7f5ae17",
       "candidateOutputSha": "211e0888b0f908a118cae39e9b721f102f97a97d0d6c1dcd2f177d1aba01c669",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "No fact moved: After still derives the 10/10 caps from 2 x 5, persists 20/20 with usage 10/10 (and 2/1 in D) before any work, keeps conflict-only syncs and body-only writes off the round budget while charging the mixed wave one round and one sync, surfaces the runtime guard verdict verbatim in B without bypassing it, and exits C through the no-progress row without a dispatch. Two things worth tightening in After so the obstacle rendering stays as clean as Before: the Exit check paragraph says 'No obstacle row matches' and then 'The cap row matches' in the same list, which reads as a contradiction (say 'no other obstacle row matches before the cap row'), and the main and D menus dropped Before's 'Not offered: merge (...)' line, which is the only place the reader sees why merge is absent while BEHIND/held; also B's git fetch/merge-tree before the refused dispatch is harmless but could be stated as read-only to avoid implying a sync started. Conversely, After fixed Before's confusing B narration that incremented syncs_used to 11 before the refusal; keep that correction.",
-      "wallMs": 22744,
+      "feedback": "No fact moved in this single-PR case: After still derives the 10/10 caps from 2 x maxFixRounds 5, adds ten once per cap on the numeric deliver pick to 20/20 while holding usage at 10/10 (and 2/1 in D, with the cumulative 2 of 20 / 1 of 20 shown in D's menu before the pick), keeps the conflict-only/description-only/mixed accounting table intact, surfaces B's `stuck - phase-tracker fix-round guard: closureReview.enforce: maximum fix rounds reached` verbatim without bypass, and exits C through the unchanged no-progress row without a dispatch or a spent round. The Change (one PR's report and menu per turn in the batch round, plus the new no-arg-discovery and role-line cases) is not exercised by this argument-driven single-PR entry, so the only visible effect is the added `Role: author` line, which is harmless. Two small regressions in presentation worth restoring: After dropped the `Not offered: merge (round cap reached; merge_state_status BEHIND)` line and the in-report sentence noting that the branch is behind main and local commits are kept, both of which Before rendered; keep those lines in the obstacle template so the single-PR path stays as explicit as before while the batch sequencing and role-line additions land. Also, After's B now persists a `repair.wave` checkpoint with `counted: false` before the refused dispatch and retains it—that is consistent with no round charged, but make sure the wording states the retained checkpoint is not itself a spent round so f4/f5 stay unambiguous.",
+      "wallMs": 21265,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7c740a7015d2c58bd87415909cde0600c3edfb2ab2e67ab9ec991b2e4e4f6e73",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "4afe5d18d89745a0ad83586be3a1fa691319bf869e4701b2e85bc4e73a70c267",
       "candidateOutputSha": "efc4de19455abb8a1843991929a072f99bc61b52f52110c78590cfbf4e5d17ab",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "After keeps everything Before kept and closes the one gap: Before's accounting list said description-only writes \"consume no rounds\" and only implied (via \"ten source-changing passes = ten rounds\" plus \"loop syncs including conflict-only\") that a conflict-only sync charges no source round, leaving a careful reader unsure whether description work touches the sync budget; After states each rule explicitly (\"conflict-only sync spends one sync and no source round\", \"description-only write spends neither\", \"source-changing wave with a sync spends one source round and one sync\"), which is exactly the wording that satisfies f3. The cap arithmetic (2 x 5 = 10, 20/20 persisted with 10/10 and 2/1 before work, D's row showing 2/20 and 1/20 below both caps), the verbatim `stuck - phase-tracker fix-round guard: closureReview.enforce: maximum fix rounds reached` verdict, and C's no-dispatch/no-round exit with \"spare cap does not authorize repeating\" all survive. Two small cautions for future edits: the B/C deliver rows advertise a hypothetical 10/30 extension, which is fine as an offer but should never be persisted unless selected, and After's C adds the unsigned-array item as a second blocker alongside the no-progress one—keep the no-progress verdict and the unchanged prerequisite as the controlling exit so the added blocker does not read as a new finding that could be repaired with spare cap.",
-      "wallMs": 28161,
-      "verdict": "improved"
+      "feedback": "No fact moved on this case: both outputs derive the initial 10/10 caps from maxFixRounds 5, extend each cap by exactly 2x5=10 once (to 20/20 in A, 2/20 and 1/20 in D) while leaving usage untouched before work, surface the exact `stuck - phase-tracker fix-round guard: closureReview.enforce: maximum fix rounds reached` verdict in B without bypassing it, and exit C as no-progress with no dispatch and no round spent. After is actually slightly stronger on f3 because it states explicitly that a conflict-only sync spends one sync and no source round and that a description-only write spends neither, whereas Before only said description-only writes 'consume no rounds' and left the sync side implicit; keep that explicit accounting bullet list. The Change (one PR report/menu per turn in the batch summary round, plus the no-arg discovery and role-line cases) is not exercised by this single-PR, argument `42` case, so nothing here constrains that wording — the only After additions visible (a `Role: author` line, a `reviewRequests` field in the refresh, an extra boundary `gh pr view` before persisting the pick, and a second blocker row in C) are harmless to these facts, but ensure the added `Role:` line and the extra pre-persist refresh are specified consistently in the skill so they do not drift between A and D in other cases.",
+      "wallMs": 24375,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

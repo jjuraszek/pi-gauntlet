@@ -34,35 +34,35 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2d4f4ea62eb3a4afda8cd9423a29ebfc0d41141c8eb33df1e548adfcecd8c12f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "8908e16c11cca5a0417876b6172bcd1bde969594e6886f9ec6e044cdba3aac24",
       "candidateOutputSha": "462a044eaf64cd5f2db1f655cbe4cc24106c9432c77130f2132724711786cf59",
       "facts": {
         "f6": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f6: each keeps course null, states explicitly that no CI watch runs before a course is set (Before: \"no CI watch now, and no merge\"; After: \"No CI watch runs, because a watch is only admitted at delivery step 4 after a course is set\"), selects the initial template, and renders exactly assess / deliver [recommended] / stop with no wait row and evidence confined to the `show evidence` hint. The After wording did not move anything on this fact; it adds a `Role: author` line, a run-910 citation in the PR-comments line, and reorders the deliver row's description to lead with \"watch ci / test\" — none of which introduces a watch or a wait row. If anything, After's step 6 sentence tying watch admission to delivery step 4 is the clearer guard and is worth keeping; just make sure the deliver row's \"watch ci / test\" phrasing is read as the course's future behaviour, not as a watch already starting, which the narration already makes unambiguous.",
-      "wallMs": 8338,
+      "feedback": "Both outputs keep f6: each states course is unset, explicitly declines to start a binding-pending CI watch (Before: \"no CI watch now\"; After: \"No CI watch runs, because a watch is only admitted at delivery step 4 after a course is set\"), selects the initial template, and renders a three-item menu of assess, eligible deliver (recommended), and stop with no wait option. The After wording did not move this fact; its additions (the explicit watch-admission rationale, the Role: author line, the run 910 reference in the PR comments) are consistent with the single-PR initial flow and do not touch the batch-summary sequencing or no-arg discovery behavior this Change targets, which are not exercised by a numeric single-PR argument like `642`. Keep the sentence tying the watch to a set course and a numeric deliver pick, and keep the menu fixed at assess/deliver/stop; any batch-summary wording should be scoped to the no-argument multi-PR path so it does not introduce extra menus or combined-pick prompts into this single-PR report.",
+      "wallMs": 9735,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2d4f4ea62eb3a4afda8cd9423a29ebfc0d41141c8eb33df1e548adfcecd8c12f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "a1ee91f9dffef866b8dd4d03fa5be38a727bcb4a171204532d8e3ff0f7b2e16c",
       "candidateOutputSha": "99c3eed060fb06f6bdb199852a664919941949a92632bd5d0ffcb8eb58a2a362",
       "facts": {
         "f6": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs keep f6: each preserves course null, explicitly declines to watch CI or start a deadline before a numeric deliver selection, and renders the initial template with assess, an eligible deliver, and stop, with no wait row. The After wording changed nothing that moved this fact; the differences are cosmetic (gate line moved to the top, `Not offered:` moved below the menu, a `Role: author` line, and the deliver row now reads 'repair blockers' even though there are none). If you want After to stay robust, consider conditioning the deliver row text on whether blockers exist (as Before's 'rebase on main if needed, watch CI, and repeat' did) so the row never implies a repair dispatch when the finding set is empty, but as written the fact still holds in After.",
-      "wallMs": 7626,
+      "feedback": "Both outputs keep f6: course stays null, no CI watch or deadline starts, and the menu rendered is the initial template with assess, an eligible deliver (recommended), and stop, with no wait option. After did not move this fact. Two small drifts worth watching in After that are unrelated to the Change: the `gauntlet:` header is emitted before the narration rather than directly atop the rendered report/menu, and the `Delivers:` line dropped the 'tests the rejected path' clause that Before carried from the PR body. If the new wording for per-PR sequencing in the batch round touches the single-PR template, keep the header attached to the report block and keep `Delivers:` as a one-line summary of the whole PR description so the single-PR initial menu stays byte-equivalent to Before.",
+      "wallMs": 7440,
       "verdict": "unchanged"
     }
   },
@@ -222,5 +222,5 @@
       }
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

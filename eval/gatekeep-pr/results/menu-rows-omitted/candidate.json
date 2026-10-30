@@ -34,97 +34,97 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "141d14e2992948361e4be6d8dcfb37825fec376cdcf579a10955ca427a01d36e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "d8e5f6d08b283e09fec29328e721503d2d3e6ccb37712b3aa42c251c1ac98857",
       "candidateOutputSha": "45eeee147f21e34ba0f195ed37774fb596d1c6b87c3b0b551cae106841591467",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         },
         "f6": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f7": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept and additionally repairs f5: Before rendered checkpoint E with `recommended=1` in the header but no `[recommended]` marker on any row, and left two self-described 'mis-draft' menus (G and H) in the output whose header `recommended=1` conflicted with a `[recommended]` marker on the stop row, so a careful reader could not say every checkpoint showed exactly one consistent recommendation; After renders E with `1. cleanup ... [recommended]`, drops the mis-drafts, and every checkpoint A-J has one marked recommendation matching the header, stop last, and show evidence only in the hint line. The After wording that delivers the Change cleanly is the shared template shape (Delivers/Role/Blockers/Verdict then `Pick one:` then `Not offered:` then the hint line) applied uniformly, plus describing C and D by reference to B rather than redrafting them. One small point to watch: After's B gives `deliver (fix-round cap is 0), deliver with nits (no nits)`, which attributes the nits-row omission to zero nits rather than the cap; both rows are still omitted so f2 holds, but if a later case has cap zero with nits present, keep the cap reason on both rows (as Before's `deliver, deliver with nits (fix-round cap is 0)` did) so the omission reason stays tied to the cap.",
-      "wallMs": 29948,
+      "feedback": "After kept every fact Before kept and additionally fixed f5: Before's checkpoint E rendered `recommended=1` in the header but no `[recommended]` marker on any row, and Before's G and H each emitted a contradictory 'mis-draft' menu (header `recommended=1`, marker on a different row) before the real one, so a careful reader could not say every checkpoint had exactly one clearly marked recommendation. After marks `cleanup` in E and renders each menu once, cleanly. Nothing in After moved a fact; the batch-summary sequencing change does not touch this single-PR case. One small thing to watch: After's B attributes the `deliver with nits` omission to `(no nits)` rather than the cap, which is still true here but could drift from the 'both delivery rows omitted for cap zero' reading if a future run has nits — consider listing the cap reason for both rows when the cap is zero (as Before did) so the omission reason stays anchored to the cap regardless of nit count.",
+      "wallMs": 30384,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "141d14e2992948361e4be6d8dcfb37825fec376cdcf579a10955ca427a01d36e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "ec87990a2ae21137317a876eb6926a52eea4b24e647f77fe3efdf83ff709cda4",
       "candidateOutputSha": "03c661749166abce0e4d82cdc85dcd75f7c5140e9f8a3bb280e0459112c02580",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f6": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f7": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: A now renders an explicit `Not offered: deliver with nits (no nits)` and treats typed `deliver` as a change request with course null; B/C/D omit both delivery rows with the exact push destination in D; E stays on the closed-PR cleanup/stop overlay; F and G carry the exact `Not offered: merge (draft)` / `Not offered: merge (needs WRITE on acme/widgets)` lines; every menu has one `[recommended]`, stop last, evidence hint-only; H maps row 2 to the reply alone and drops it afterward; I keeps the failed post as row 1 with stop at 2 and J collapses to stop=1. Two things worth tightening so the shared menus.md wording stays as safe as Before: After inserts a synthesized blocker line (`The supplied source blocker remains unresolved...`) and a synthesized nit line in F even though the prose says it will not invent them - Before stated the entry gave no blocker/nit text and rendered none; prefer a placeholder that quotes the supplied id only (e.g. `P1 - <supplied source blocker>`) rather than fabricated prose. Also, After's H section narrates the post-pick menu only and never shows the pre-pick `[recommended]` row; rendering the current menu first (as Before did) makes the row-2 mapping verifiable from the output itself. Keeping the `Role:` line and the `Not offered:` block below the rows is fine as long as the template guarantees stop remains the last numeric row.",
-      "wallMs": 18342,
+      "feedback": "No fact moved in this case: After keeps every omission row and reason (including the exact push destination), keeps closed-PR cleanup/stop distinct from own-merge, keeps the draft and WRITE-permission merge omissions, keeps one recommendation per menu with stop last and evidence only in the hint, maps H's numeric row 2 to the reply alone, and preserves I's failed post as row 1 / stop as row 2 versus J's lone stop row 1. The batch-summary sequencing Change is not exercised here (single PR), so its wording is neutral for this case. Two things worth watching in After: the new `Role:` line and the moved `Not offered:` block (now after the rows) are fine, but the `Blockers:`/`Nits:` placeholder lines (\"The supplied source blocker remains unresolved...\", \"The supplied checkpoint retains one optional nit.\") edge toward inventing finding text the snapshot does not supply; if the wording that added these also drives the batch round, keep it explicit that unsupplied finding text renders as a count only, so the no-invention constraint holds while the per-PR report/menu sequencing lands.",
+      "wallMs": 21418,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

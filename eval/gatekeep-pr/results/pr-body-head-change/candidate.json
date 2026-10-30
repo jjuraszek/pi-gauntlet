@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "514dd6da75cd0feefeb3c49c5f38fb5146b5769953ab8a230cfbbe32c16ad7ab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "6be0d48df90a3b78de75c74eabdbb7cd572fc29b0cc8ea0c1ea048e5ca8f9716",
       "candidateOutputSha": "51e0cefdfc17f7a72777e10be61c05076d2d5f4a340926c58cb42a956be9e79d",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f2: each rejects the P1 proposal bound to head 1111 at the first description-repair step, performs no gh pr edit, sync or push in that iteration, re-enters Verify/Review on head 2222, and only then redrafts the payload against the current body (assessed_head 2222, original_body unchanged) before the compare-and-swap write in the next iteration. After is slightly more explicit than Before here (it names the compare-and-swap re-fetch command and states the stale-write check failed), which is good; nothing in the Change moved this fact, so no wording adjustment is needed. If anything, After could tighten step 3 by stating directly that the redraft happens 'from the refreshed body after the head-move re-verify' rather than 'carried under the held course', to make the re-proposal-before-write ordering unambiguous to a quick reader.",
-      "wallMs": 8953,
+      "feedback": "Both outputs keep f2: Before invalidates the 1111-bound proposal at step 4 with no write and re-proposes P1 from the current body at head 2222 in step 9 before the first gh pr edit in step 12; After does the same at step 3 (invalidate, no gh pr edit/sync/push), redrafts the payload with assessed_head 2222 and the unchanged original_body in step 7, and only then writes in step 8 after a fresh compare-and-swap. Nothing in After moved this fact; the per-PR sequencing change is orthogonal to this single-PR deliver case, so no wording adjustment is needed here—just keep the explicit 'invalidate first, redraft from the live body, then compare-and-swap before gh pr edit' ordering intact when the batch-summary round is restructured to render one PR's report and menu at a time.",
+      "wallMs": 8561,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "514dd6da75cd0feefeb3c49c5f38fb5146b5769953ab8a230cfbbe32c16ad7ab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "83b2cf24737a9d24ae1267963123655f5e0ccd5d447fd5b71d19c785a896c736",
       "candidateOutputSha": "5abf62ac21671015556b81df5038388b9f81b309850d9dcb9e849a98a056c03f",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f2: each runs the immediate pre-write fetch, sees head 2222…, explicitly declines the gh pr edit bound to head 1111…, invalidates the stale payload, re-verifies and re-reviews the new head, and only then redrafts the identical correction against the actual unchanged body before performing the description write in a later iteration. After actually states the rejection more explicitly ('The recorded payload names head 1111…, so I do not run gh pr edit' and 'I persist the refreshed payload') and adds a second fresh pre-write comparison right before the edit, which strengthens rather than weakens the fact. Nothing moved; keep After's wording. If anything, consider restating in step 3 that the redrafted payload is now bound to head 2222… in the record (After says 'against head 2222…' but could say 'bound to assessed_head 2222…') so the identity validation the Change preserves is unmistakable to a reader.",
-      "wallMs": 9743,
+      "feedback": "Both outputs satisfy f2: each runs the immediate pre-write `gh pr view`, sees head 2222… against the proposal bound to 1111…, explicitly invalidates the stale payload without running `gh pr edit`, and only after verify/review redrafts the identical correction against the current head and the actual unchanged body before the later write. Nothing in After moved this fact; the extra `Role: author` line and the slightly more verbose record-persistence language are additive and do not disturb the reject-then-re-propose sequence. To keep f2 intact while delivering the Change, preserve the current ordering (pre-write freshness fetch → invalidate → verify/review → redraft from fetched body → fresh pre-write comparison → write) and keep the one-PR-per-turn menu sequencing confined to the batch summary round so it does not alter single-PR continuation flows like this one.",
+      "wallMs": 9562,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

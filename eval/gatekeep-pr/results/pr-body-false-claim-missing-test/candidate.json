@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e83b33ab40a92086774e5a76d4ee59ca78c2fc8b948bcf395b9859a1ac4d3934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "d1b4012198cc13453293c99d23d27e9ac1fc436fd03471c8c529bc43b4df7fb6",
       "candidateOutputSha": "ceede99f9b6d45317a8ae9f64a9bf23b3f7107dc7c4244545bd12cc6fd569ffd",
       "facts": {
@@ -56,7 +56,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs run the body correction before the file push, resolve only the P1 claim contribution while leaving the missing-test contribution open until the implementer commits, charge the round only for the new source commit (rounds_used 1/6) while body writes stay uncharged, recheck the corrected sentence against head 2222 with that head's CI evidence, and mint a scoped P2 proposal that is applied via compare-and-swap in the next iteration rather than silently rewriting the body. Note that f4 was expected to move from fails to holds, but Before already shows an explicit P2 proposal and a compare-and-swap/readback application in Iteration 2, so the Change was not needed to make this fact hold here. The After wording adds useful structure (explicit two-contribution framing of P1, `affected_claims` carrying the sentence, a Role line, and the persisted course/caps before any write) and should be kept; if you want this case to actually discriminate the new course model, add a fact that checks the persisted `course: deliver` plus `rounds_cap/syncs_cap = 6` before the first write and the absence of any intermediate menu between the P2 mint and the next iteration, since those are where After differs most visibly from the previous model.",
-      "wallMs": 14161,
+      "feedback": "After keeps every fact Before kept: the body repair resolves only the P1 claim contribution and explicitly leaves the test contribution open until the implementer runs; the description write, readback and narrow recheck all happen before the push that moves the head to 2222; the mixed-pass recheck re-targets the just-corrected sentence against head 2222 and that head's CI evidence; the resulting contradiction mints P2 with an exact sentence-level proposal that is applied via compare-and-swap in the next iteration rather than a silent rewrite; and the file round is charged (rounds_used 1, counted true) while both body writes charge nothing. The Change's deliverables in this case show up as the added `Role: author` line and the per-PR report/menu rendering, which did not disturb the delivery sequence. One small tightening for the next-iteration body write in After: state explicitly that the new body file changes only the P2 sentence (as the first repair does), so the 'never a silent rewrite of unrelated body text' property is visible in the text rather than inferred from the proposal shape.",
+      "wallMs": 12649,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e83b33ab40a92086774e5a76d4ee59ca78c2fc8b948bcf395b9859a1ac4d3934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "dfe18fbddddefb9259972b59fec00ef9141910617868042c76d2c461803f1edc",
       "candidateOutputSha": "81df8cede392b3c638b28dcd14a0964482d125b7cc5134f0c3a1f3e3e1d81587",
       "facts": {
@@ -93,7 +93,7 @@
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps every fact Before kept. The body correction (step 2) still resolves only the claim contribution and explicitly leaves the missing-test contribution open; the body write precedes the single push (steps 2 → 4); the recheck after the push (step 5) is narrow, affected-only, and bound to 2222...2222 with exact-head CI; the newly false 'has no test' sentence gets an explicit drafted proposal that is applied in a distinct 'next delivery iteration' (step 6) restoring only the affected sentence; and file progress is persisted as rounds_used 1 while description-only work charges no round. The After wording is slightly less explicit than Before in one spot - step 6 says 'restoring only the affected sentence' without showing the full pre-write replacement body as step 2 does - so if you want to harden f4 against stricter readers, print the full three-line replacement before the `gh pr edit` in step 6 just as step 2 does, and keep the phrase 'preserving unrelated text'. Otherwise the course-based framing, the 'Role: author' line, and the persistent-deliver continuation ('I do not render a menu. The selected delivery course continues.') deliver the Change while leaving the independent claim/mechanism closure and accounting intact.",
-      "wallMs": 14171,
+      "feedback": "Nothing moved on this case: both outputs resolve only the claim contribution after the first body write while keeping the missing-test contribution open (§2 in each), both land the body correction before the single push, both run a narrow affected-only description recheck against 2222… with exact-head CI evidence after the push, both draft and apply the reversed correction in a following description-only iteration that restores just the affected sentence, and both record the file round (1 of 6) independently of the no-round description iterations. The After wording's additions — the `Role: author` line, the `reviewRequests` field in refreshes, the §1 exact-head run refresh — are consistent with the refreshed-role part of the Change and did not disturb the delivery-course mechanics; the batch-summary sequencing and no-arg discovery parts of the Change are not exercised by this single-numeric-argument case, so they are neutral here. One small tightening for After: it replaced Before's `$BODY1`/`$BODY2` variables with `<temporary-body-file>` placeholders and reused the `gatekeep-verify` mktemp prefix for recheck outputs; keeping distinct, bound output-path names (e.g. `gatekeep-description-recheck`) as Before did makes the 'narrow recheck' and 'new correction proposal' steps unambiguously separate artifacts and avoids any reader doubt about which path a given helper wrote to.",
+      "wallMs": 18473,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

@@ -34,37 +34,37 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "da5de2070ddb697e56dec9a82520d2861c3eb52cc118f265b2b4a952776060bb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "26df3f9cee5f10721a8932b51e6cc7b097f74e7604380fd9e60b6b64e5044ea6",
       "candidateOutputSha": "ccc738b0e92bcac7d63cd8e9fafb2a0cdca565621f3ea53ef66439d6e3109896",
       "facts": {
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f3: each persists the wave checkpoint (pre_wave_head, round_start_head, counted false, stage apply) before any implementer dispatch, bumps syncs_used to 1 independently when the merge-tree conflict triggers the loop sync, charges no round for the P2 body write or recheck, and only sets rounds_used 2 after the 4444… source commit lands. After is slightly tighter than Before because it records the checkpoint (with selected_ids [P1, P2] and affected_claims) before the P2 description recheck helper runs, whereas Before dispatches that recheck at step 8 and only persists repair.wave at step 9; the fact still holds for Before since the checkpoint precedes the source-changing dispatches, but if the author wants f3 to be unambiguous under the new wording, keep After's ordering (checkpoint first, then body work, then sync, then payload) and keep the explicit 'no round is spent on the sync' / 'no round charged' lines next to the syncs_used and rounds_used persist statements.",
-      "wallMs": 13512,
+      "feedback": "The After wording keeps f3 intact: the wave checkpoint is persisted before any implementer dispatch (and in After even before the P2 body edit, with selected_ids [P1, P2] and the affected claim snapshotted), syncs_used goes 0->1 and is persisted before the base-resolution helper, no round is charged for the sync or the orchestrator-only description repair, and rounds_used moves 1->2 exactly once, only after the P1 commit 4444… is confirmed by status/rev-parse. Nothing in the Change (per-PR report/menu sequencing in the batch summary round, no-arg discovery, role line) touches this single-PR resume path, so no fact moved here; the only drift worth watching is that After switched the merge-style sync to an ordinary push (justified as non-rewriting history) and added a Role line and a state-path mention in the menu footer — those are fine for f3, but if you want the checkpoint/round accounting to stay unambiguous, keep the explicit 'persisted before dispatch' phrasing for repair.wave and the 'counted true, counted_head 4444…' triple exactly as both outputs render it.",
+      "wallMs": 13428,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "da5de2070ddb697e56dec9a82520d2861c3eb52cc118f265b2b4a952776060bb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "5e1877b7881efd87eb58c4b6e258686719dea736283154d563e86793ce182b72",
       "candidateOutputSha": "0ba126a18a175e9239461072df5e114c7eaaaeed4c04b9ccb3214e4586c3fdca",
       "facts": {
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f3: each records a checkpoint before dispatching the repair implementer (Before: step 4 'Persist the wave checkpoint before dispatching work'; After: step 4 'I persist a fresh, uncounted repair-pass checkpoint'), each increments repair usage from one to two exactly once only after the helper's commit 4444444 is confirmed, each bumps sync usage to one of six separately for the conflict sync, and each states explicitly that the description write charges no round. Nothing in After moved this fact, so the expected fails->holds transition is not visible here; Before already held. If you want After to demonstrate the independent accounting more sharply, keep the explicit 'uncounted' vs 'counted' checkpoint wording (it is the clearest evidence of the source-commit rule) and consider adding a one-line ledger such as 'rounds_used 1 -> 2 (new source commit), syncs_used 0 -> 1 (conflict sync), body write: 0' near the integration step. Separately, note that After abandons Before's rebase/force-with-lease path for a helper merge commit and an ordinary push on the grounds that the rev-list result was unsupplied; this does not affect f3 but is a change in sync mechanics worth checking against the lease/restore-head facts in other scenarios.",
-      "wallMs": 12954,
+      "feedback": "The After wording preserves f3: it records the wave's starting head before the sync dispatch, persists an explicitly uncounted repair-pass checkpoint before dispatching the file implementer, increments sync usage separately to one of six before syncing, states the description write and base-only sync cost no round, and only increments repair usage from one to two after confirming exactly one new source commit at 4444444444444444444444444444444444444444. The Change (per-PR sequential batch rendering and discovery/role-line exercises) does not touch this single-PR delivery path, so nothing moved here; the one wording to watch is the After's decision to override the digest's rebase path with a helper-authored merge commit and ordinary push — that does not affect the accounting fact, but keeping the Before's rebase-with-force-with-lease narration while adding the new 'Role:' report line would deliver the Change without introducing procedure drift in this case.",
+      "wallMs": 10822,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

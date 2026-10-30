@@ -38,14 +38,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a516113f95baa8f6a71f2c09c26fb7fb82614c073935c997d35f746ffcccfe72",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "b4772a3c3de2fb29b7580fac2c098527a22d8acb2be078e89a561f4657f15a3c",
       "candidateOutputSha": "04cbd8db5ea6994af564ffc6fdac5dc7a6f02233697438c6b86765e83398896a",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -58,21 +58,21 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. In After, the single numeric `2` starts course deliver, and within that one iteration the orchestrator performs the P1 body write (explicitly 'no round charged', rounds_used only incremented to 1 after the P2 source commit) and the P2 file repair lands via the implementer, with no intermediate menu or re-selection before the push, so f1 holds as it did in Before. After also keeps the compare-and-swap fetch, the `gh pr view --json headRefOid,body` readback confirming the submitted text and unchanged unrelated lines, and the post-push affected-claims recheck against head 2222…, which surfaces the newly contradicted no-test sentence as a drafted P3 proposal rather than a silent rewrite, so f2 holds too. The After wording delivers the course/menu change (persisted course before any write, shared obstacle template, retained-course deliver row, stop recommended last) while preserving both facts; the only incidental drift is dropping the `approve (own PR)` omission reason from the Not offered line, which these facts do not test but which other menu-shape facts may, so consider keeping that reason in the obstacle template.",
-      "wallMs": 12208,
+      "feedback": "Neither fact moved for this case. In both outputs the single `2` pick drives one delivery iteration in which the P1 body swap (orchestrator, explicitly \"no round charged\") and the P2 implementer commit (the only thing that bumps rounds_used to 1/6) land together, and both outputs read the body back via `gh pr view … --json headRefOid,body` immediately after `gh pr edit`, then dispatch a post-push `description recheck` against the actual body at head 2222… that correctly mints P3 instead of silently rewriting. After's wording is in fact slightly stronger on f1/f2 because it names `assessed_head`/`original_body` in the compare-and-swap, states the P1 recheck assessed 1111… while the post-push recheck assessed 2222…, and keeps the recheck's evidence block preserved. The batch-summary sequencing change does not touch this single-PR path, so nothing here needs adjusting; keep the explicit \"no round charged\" line next to the description repair and the separate readback-then-post-push-recheck steps as written, and the new per-PR menu sequencing can be added to the batch round without altering this flow.",
+      "wallMs": 10426,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a516113f95baa8f6a71f2c09c26fb7fb82614c073935c997d35f746ffcccfe72",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "4cec4b800e21ae812623b1bc8b7acdb4d5fe91063f260ea54079b09a015a6057",
       "candidateOutputSha": "009a702a271f6fbcb82102a790ece6f0281a8477c440b728e75b507302bab0b1",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -85,8 +85,8 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs land the description write (section 2) and the test payload (section 3) inside the single iteration started by the numeric 2, and both read the body back immediately after `gh pr edit` and dispatch a second description recheck at pushed head 2222…, so f1 and f2 hold in Before and After alike. One softness in After worth tightening: Before states outright 'This description write charges no round,' whereas After only implies it (usage 'remains zero' in section 1, then 'rounds used becomes 1' after the source commit in section 3). A careful reader still infers the description work cost nothing, but adding the explicit sentence after the body readback in section 2 (e.g. 'This body-only write spends no round; usage stays 0 of 6') would make f1 unambiguous under the new independent-accounting model the Change introduces, without disturbing any other fact.",
-      "wallMs": 12667,
+      "feedback": "Neither fact moved: both outputs apply the description payload and then the test payload inside the single resumed deliver iteration with no intervening menu, both read the body back right after `gh pr edit`, and both run a second affected-only description recheck at the pushed head 2222... before minting a new proposal (P3) rather than silently rewriting the body. One soft spot in After worth tightening: Before states outright that 'This description write charges no round,' whereas After only implies it through 'Usage remains zero' in Section 1 and 'rounds used becomes 1' after the implementer commit; a reader has to infer that the description write sat between those two without charging. Since the Change is about per-PR sequencing in the batch summary round and does not touch this single-PR continuation, keep After's structure but restore an explicit sentence after the description readback (e.g., 'This description write charges no round; usage stays 0 of 6 until the file payload is counted') so f1 is stated rather than inferred, and leave the readback-then-recheck-at-pushed-head ordering exactly as it is.",
+      "wallMs": 12834,
       "verdict": "unchanged"
     }
   },
@@ -282,5 +282,5 @@
       }
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

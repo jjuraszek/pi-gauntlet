@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "37f0348fbee98949cf20bc03b87996c613f4643f8df1f92ce1319c0304f393ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "2a5370584542ba602b0b003b9bde41034d287b57f6ff6ac448ef4b16785e5c7f",
       "candidateOutputSha": "d3d8ed7a16c1964c823dc762c1cf4715773e5a54478ec8ed66b5d5643e97cf85",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both facts hold in Before and After: each narration prints `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` with no destroy/remove executed, and `branch: skipped - checked out at /home/dev/scratch/backoff` with no `git branch -D`; After is in fact more explicit (no destroy, no `git worktree remove`, no prune; destroy-failure rule not applicable because `worktree.destroy` is null). The one regression worth fixing is unrelated to these facts: After reframes the entry as `gatekeep-pr/own-merge` and asserts 'This run's merge returned MERGED', whereas the digest shows the PR was already MERGED at step 1 and this run performed no merge, so Before's `closed PR` template with `Verdict: not ready - the PR is already merged` was the faithful reading. To keep terminal cleanup ownership intact while delivering the shared menus.md templates, condition the template choice on whether this run executed the merge (digest says it did not), keep the closed-PR verdict and `cleanup`/`stop` rows, and retain After's explicit 'no destroy / no worktree remove / no prune' and 'no branch -D' wording in the step results.",
-      "wallMs": 10194,
+      "feedback": "Both facts hold in both outputs: After still prints the exact `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` line and explicitly runs no destroy/remove/prune, and prints `branch: skipped - checked out at /home/dev/scratch/backoff` with no `git branch -D`. The one regression worth flagging is unrelated to these facts: After reclassifies the run as `gatekeep-pr/own-merge` and renders a merged-verdict menu with `post coverage to PR`, even though the digest shows the PR was already `MERGED` at step 1 and this run performed no merge, which Before correctly handled with the `closed PR` template and a `not ready` verdict. To deliver the per-PR sequencing change without this drift, keep the template-selection wording tied to whether *this run* performed the merge (digest `state: MERGED` on entry with no merge step means closed-PR template), and only change how reports/menus are ordered across PRs in the batch round, not which template a single already-merged PR receives.",
+      "wallMs": 9934,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "37f0348fbee98949cf20bc03b87996c613f4643f8df1f92ce1319c0304f393ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "0bf7b469d56fe33e2b1f8b86d6b7c3851eec0f46fb2928b17c104a668c203f05",
       "candidateOutputSha": "33049158f93d34fb0592ebfee7a5654a33f582e251cda9a45de86c444525dd56",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both Before and After print the exact `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` and `branch: skipped - checked out at /home/dev/scratch/backoff` lines and execute no `git worktree remove`/prune or `git branch -D`. After does introduce some incidental noise that is worth tightening so it does not drift into a fact failure later: the chained `git -C /work/mono -C /home/dev/scratch/backoff ...` form (the second `-C` is relative to the first, so the literal command would not resolve as intended) and an extra `log origin/main..HEAD` probe the digest does not supply; emitting the plain `git -C /home/dev/scratch/backoff ...` commands as Before does keeps the eligibility narration literal and verifiable. The Verdict line in After also shifts from the tagged `merged - PR 732 is merged` to a prose summary about cleanup; keeping the tagged verdict and putting the cleanup summary in the body would preserve the stop/verdict shape the other scenarios expect while still delivering the new course/menu model.",
-      "wallMs": 9130,
+      "feedback": "Neither fact moved: both Before and After print the exact `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` and `branch: skipped - checked out at /home/dev/scratch/backoff` lines, and neither runs `git worktree remove`/`prune` or `git branch -D`. The Change (one PR report and menu per turn in the batch summary round) does not touch this single-PR cleanup path, so the outcome is unaffected. Two minor wording wobbles in After are worth tidying so they don't become drift later: the eligibility block uses a doubled `git -C /work/mono -C /home/dev/scratch/backoff ...` form (the second -C wins, but it reads as a mistake) and adds an unspecified `log origin/main..HEAD` step; keep the Before command list (`status`, `merge-base --is-ancestor`, `realpath` pair) and only add new steps the skill actually specifies. Otherwise the After wording preserves everything Before kept.",
+      "wallMs": 8689,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

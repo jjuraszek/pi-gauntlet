@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "173f6710efc7f955af3b10732ed99b2b0a6dda0a20157ae9b94df5e530b22311",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "f9e88b904e3dd1daad8c59ec928e2cbc762c5dd9b41af6de9f3928b152b6c2a6",
       "candidateOutputSha": "e517e3a411aa6756e9b134ce76ddec9e8eb6f7eb4613d7ffb72a14bcb38692aa",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f1: the iteration that observes the same-head body edit (Before steps 3-4, After iteration 1 steps 2-5) runs the narrow recheck, invalidates the stale proposal, re-proposes from the current 4-line body including the reviewer note, and ends with no write, sync, push, round charge or mid-course menu; the next iteration (Before step 7, After iteration 2 steps 7-8) performs a fresh compare-and-swap `gh pr view` against head and body before `gh pr edit --body-file`, and the only menu rendered is the final template after readiness. After's wording is safe here and slightly more explicit than Before in naming the `original_body` mismatch check at the `### Description repair` step and in stating the orchestrator makes the write itself; the one stylistic shift worth watching is hoisting the `gauntlet: gate=...` marker to the top of the response, which could be misread as a menu boundary if a future scenario has multiple iterations - keep the explicit 'no mid-course menu renders' sentence at the end of the observing iteration, as After does, to make the no-menu invariant unambiguous.",
-      "wallMs": 11894,
+      "feedback": "Both outputs keep f1: the iteration that sees the same-head body edit performs no write, re-proposes P1 from the four-line body (preserving the reviewer note), and ends without a menu; the next iteration under the held deliver course re-fetches, confirms head and body against the refreshed proposal's assessed_head/original_body, and only then runs gh pr edit. After is actually slightly more explicit than Before about the compare-and-swap (step 7 names the original_body match before step 8 writes), so nothing moved here. The only wording to tidy in After is the closing line 'The rebased verification and the brief both assessed …' — there was no rebase on this run, so say 'verification evidence and the brief' as Before did to avoid implying a sync happened; the added Role line and 'Not offered: approve (own PR)' are consistent with the refreshed-role contract and do not affect f1.",
+      "wallMs": 8992,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "173f6710efc7f955af3b10732ed99b2b0a6dda0a20157ae9b94df5e530b22311",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "23f69e5928f496289ef326854f3be5ca1bb448ea14d119a979f93382ac2b9ef2",
       "candidateOutputSha": "f140a04f7da0ef7cbf0b7c90823d26360c04d5e73f5e5f46ba07499975a90d6f",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves f1 intact: Section 1 observes the reviewer-note mismatch, explicitly writes nothing, and redrafts the correction from the current body retaining the reviewer paragraph; Section 2 states the standing deliver course authorizes the next iteration without an intermediate menu, re-fetches head/body, confirms the read matches the refreshed proposal, and only then runs gh pr edit, followed by a readback and a second recheck worker that keeps P1 open. This matches Before's structure step for step (Before splits the same behavior across its Sections 2 and 3). No wording in After moved the fact; the main differences are cosmetic (merging the resume and mismatch detection into one section, adding a Role line and reviewRequests field, dropping the explicit $W variable). If anything, keep After's explicit sentence 'The returned head and body match the refreshed proposal' immediately before the edit command, since that is the phrase that most directly evidences the fresh compare-and-swap; avoid collapsing the two iterations into a single narrative paragraph in future rewordings, because the fact depends on a reader seeing that the write happens in a distinct later iteration after a new fetch.",
-      "wallMs": 10849,
+      "feedback": "Both outputs keep f1: the iteration that observes the `Reviewer note` paragraph performs no `gh pr edit`, redrafts the correction from the current body while retaining the reviewer paragraph, and the following iteration re-fetches head/body, confirms the match against the refreshed proposal, and only then writes, with no menu rendered between the two iterations under the retained deliver course. After's wording ('The returned head and body match the refreshed proposal' immediately before the write, and 'no intermediate menu or additional consent is needed') is as explicit as Before's, so nothing in the Change moved this fact; the Change targets the batch-summary and no-arg discovery paths, which this single-PR re-entry case never reaches. To stay safe when editing the batch-summary sequencing, keep the per-iteration pre-write fetch and the 'standing course authorizes the next iteration without a menu' sentence in the delivery-loop section unchanged, and avoid phrasing the one-PR-per-turn rule in a way that could be read as inserting a menu or pick between delivery iterations of a single PR.",
+      "wallMs": 10134,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0b165a0700869542eaf1133a87545ffb44b518337d1f5dbc0a1651176f10d123",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "01d167a657fb755b20eb39bf37127e8495a7efcdbf24ee4f9bee58f6cbecd892",
       "candidateOutputSha": "6f4c17bd33312c76eeb70e0e05ddc0ecadc7de2a73722b28d122cee80aed8ce0",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs render a mergeable verdict, a three-row menu of merge [recommended] / fix nits / stop with no plain `fix` row, the exact `3 nits open - fix nits to take them` line directly after the nits list, and no implementer dispatch; After additionally states explicitly that nit payloads are not drafted before a pick, which makes n4 easier to confirm than Before's silence. Two incidental differences worth noting for the author: After drops the `Not offered: approve (your own PR)` line that Before printed, and adds a `Role: author` line in the report header — neither touches these four facts, but if a menu-rows-omitted fact elsewhere expects the approve omission reason to be visible, consider keeping the `Not offered:` line in the final template; otherwise the After wording delivers the Change (course model, shared menus, explicit nit-payload deferral) while keeping every fact Before kept.",
-      "wallMs": 9585,
+      "feedback": "After moved none of the four facts on this single-argument case: the verdict line is still `mergeable`, the menu still has exactly `merge [recommended]`, `fix nits`, and `stop` with no bare `fix` row, the `3 nits open - fix nits to take them` line still follows the nits list, and After even states explicitly (step 5.5) that nit payloads are not drafted and no implementer is dispatched before a pick, which is stronger than Before's silence. The batch-summary sequencing change is not exercised here because `517` resolves a single PR, so this case only confirms the single-PR report shape survived. Two incidental drifts worth watching: After adds a `Role: author` line to the report and drops the `Not offered: approve (your own PR)` line, and its `stop` row now says \"remove the worktree\" where Before said \"leave the checkout at .worktrees/pr-517 as they are\" - neither touches a fact here, but if other cases assert the stop row's semantics or the not-offered line, keep Before's phrasing for those rows and add the Role line without removing the not-offered line.",
+      "wallMs": 11175,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0b165a0700869542eaf1133a87545ffb44b518337d1f5dbc0a1651176f10d123",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "f4cbb1304f9bb8bebfb6fb5a41b5e58be586566bb8150ac68d4b06af903ae8f2",
       "candidateOutputSha": "2f65a1245ba4a64686151911e5c1412ccd79611fa0bd5216e6ca96e58d089e25",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the Verdict line is `mergeable`, the menu rows are merge [recommended] / fix nits / stop with no ordinary `fix` row, the `3 nits open - fix nits to take them` line follows the nits list, and the narration states explicitly that no nit edits are drafted and no implementer is dispatched before a nit-repair pick (step 5 and step 8's note that offering `fix nits` initializes no delivery accounting and authorizes no repairs). The After wording also adds the `Role: author` line and the explicit `-R orchard/reports` on `gh pr view` plus a `ls-remote` pushability check, which align with the course/menus.md model without touching these facts. Nothing moved, so no wording change is needed for this case; the only cosmetic drift is that the nit descriptions were lightly rephrased (e.g. 'reimplements' -> 'duplicates', backticks dropped from `tmp2`), which does not affect any fact here but could matter for cases that quote finding text verbatim, so prefer carrying the reviewer's finding wording through unchanged.",
-      "wallMs": 9854,
+      "feedback": "Nothing moved on this single-PR case: both outputs render a mergeable verdict with rows merge/fix nits/stop (no bare `fix` row), `merge` is the sole `[recommended]`, the `3 nits open - fix nits to take them` line follows the nits list, and both explicitly state no nit edits are drafted and no implementer is dispatched before a pick. After's additions - the `Role: author` line (the refreshed-role contract), the extra `ls-remote` head check, and the `-R orchard/reports` / `reviewRequests` on the refresh - are consistent with the Change and did not disturb any fact. One wording regression worth noting though not fact-breaking: After's `fix nits` row dropped Before's 'then reassess readiness' tail; keep that clause so the row still conveys that an iteration ends in a fresh readiness check rather than implying it goes straight to merge.",
+      "wallMs": 10983,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

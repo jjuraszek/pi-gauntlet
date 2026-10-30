@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b77b1d53aa9a1b96d5de50e56d3038e15f91b1fd27707f1c8d2d34ade1c7f375",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "3ce46f14277931291842c38d210950e0999475022b71efecf615d49975018dee",
       "candidateOutputSha": "8464f3598209cd4b80e112accf63868a18be21cbcff9c57feea320420309a76f",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs resolve `home: ../mono-<name>` against /work/mono, run `realpath` on pattern and path, recover `pr-731` as the unique match before any removal (g1), run the recorded `script/worktree destroy 'pr-731'` from /work/mono with no `git worktree remove --force` and print `worktree: done` (g2), then run `git -C /work/mono branch -D feature/csv-export` and print `branch: done` (g3). After adds a pick-boundary record/`gh pr view` validation and an explicit `rev-parse --verify` before branch deletion, which is consistent with the Change's identity-validation and terminal-cleanup-ownership goals and does not disturb any fact. One minor drift worth watching: After abbreviates the merge commit to `9b9b9b9` in the `base: synced` line and menu row while Before printed the full SHA; no fact here checks it, but if other cases assert exact-head evidence in the rendered lines, keep the full 40-char SHA in `base: synced` and reserve short forms for prose.",
-      "wallMs": 11511,
+      "feedback": "No fact moved on this case: both outputs match /work/mono-pr-731 against the resolved home pattern /work/mono-<name> and recover pr-731 before any removal, both run the recorded `script/worktree destroy 'pr-731'` from /work/mono (exit 0, then prune) and print `worktree: done` with no `git worktree remove --force`, and both follow with `git -C /work/mono branch -D feature/csv-export` and `branch: done`. The After wording's additions (pick-boundary re-validation via `gh pr view`, the explicit `rev-parse --verify` existence check, and the Delivers/Role lines in the re-rendered menu) are consistent with the intended Change and do not disturb the cleanup contract; keep the step ordering as-is so the ownership match stays strictly ahead of the destroy call, and keep the full-SHA assessed head in the merge-base check even while abbreviating the merge commit in the rendered lines.",
+      "wallMs": 9074,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b77b1d53aa9a1b96d5de50e56d3038e15f91b1fd27707f1c8d2d34ade1c7f375",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "8a468fab909e4047e8c52d4eb3b4cd98829c073a9557301013c0c75ae3c5ef2a",
       "candidateOutputSha": "b6b5629e8c700bb79979c0cd15e9e6956eebea3b30fc89f8cfaa83f9687095ff",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps all three facts: the home-pattern match with name pr-731 happens before the destroy, the recorded destroy runs from /work/mono followed by `worktree: done` with no `git worktree remove --force`, and `git branch -D feature/csv-export` is followed by `branch: done`. Two wording risks to tighten: After emits `realpath '/work/mono-<name>'` with the literal `<name>` placeholder unexpanded, which a strict reader could take as not actually resolving the home for pr-731 (Before resolved both sides to concrete paths); have the narration substitute the identifier so the command reads `realpath /work/mono-pr-731` for the home side and state the equality explicitly. Also the chained `git -C /work/mono -C /work/mono-pr-731 …` form is unusual and may read as anchoring at the wrong checkout; the simpler `git -C /work/mono-pr-731 …` from Before conveys the same thing without ambiguity. Otherwise the explicit `worktree: done`/`branch: done` text blocks and the 'no override commands' statement are clearer than Before and deliver the Change cleanly.",
-      "wallMs": 13142,
+      "feedback": "Nothing moved: both outputs match /work/mono-pr-731 against the ../mono-<name> home with identifier pr-731 before destroying anything, both run the recorded destroy from /work/mono (never `git worktree remove --force`) and print `worktree: done`, and both run `git branch -D feature/csv-export` and print `branch: done`. Two wording wobbles in After are worth tightening even though they did not flip a fact here: `realpath '/work/mono-<name>'` passes the literal placeholder to the shell rather than the resolved `/work/mono-pr-731`, so a stricter reader could doubt the match was actually computed - substitute the identifier before the command, as Before did; and the doubled `git -C /work/mono -C /work/mono-pr-731` form is unusual and could be read as anchoring the inspection at the wrong checkout - keep the single `-C /work/mono-pr-731` form for worktree inspections. Keeping the explicit 'resolve home with pr-731, canonicalize both, unique match' sentence from Before alongside the per-PR sequencing in the batch summary round would deliver the Change without risking g1.",
+      "wallMs": 24108,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

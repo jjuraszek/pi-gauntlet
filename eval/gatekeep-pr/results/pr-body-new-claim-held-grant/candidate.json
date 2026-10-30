@@ -34,14 +34,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "ef4f60926f6d72b9dce018d2828e07174a212c58cf6cfb012fe46af9611c7770",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "b052236a0fa834dad7602930c4390cf811b0993db3f4929093c379911fcd97da",
       "candidateOutputSha": "3108347eb76ee12bd0226b70cf52678658f3ca5631b5ce36f14b76e90d332ed4",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -49,21 +49,21 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs print the exact old→new proposal (\"The rejected path has a test.\" → \"The rejected path has no test.\") under the retained deliver course, apply it on the same iteration after a body-vs-assessed_body snapshot comparison and a compare-and-swap re-fetch, and never ask for a fresh course pick; both read the body back with `gh pr view ... --json headRefOid,body` and dispatch a fresh description-recheck helper that returns `matched` / `P4: resolved` before readiness closes. After differs mainly in re-deriving the P4 contradiction itself via a fresh recheck before minting the proposal (rather than taking it as already minted) and in persisting/clearing `repair.wave`, which is additive and does not weaken either fact. One small regression worth restoring: After's trailing show-evidence hint drops the \"0 binding pending; merge_state_status CLEAN\" detail that Before carried, so keep the fuller hint text (\"...ci / test success on 2222222; 0 binding pending; merge_state_status CLEAN\") in the shared menus.md final template so the evidence hint remains complete while the course-model narration stays as written.",
-      "wallMs": 12100,
+      "feedback": "Neither fact moved in this case. Both outputs print the exact P4 proposal (\"The rejected path has a test.\" -> \"The rejected path has no test.\"), apply it under the held deliver course right after the compare-and-swap re-fetch, and show no mid-course menu; both read the body back with `gh pr view 642 --json headRefOid,body` and dispatch a fresh description-recheck helper that returns `matched` / `P4: resolved` before the exit check and final menu. The After wording did restructure the narration (it re-runs the narrow claim recheck and mints P4 inside this turn rather than treating it as already minted from the Entry, and moves the merge-tree check ahead of the description repair), which is harmless here but adds redundant work relative to the Entry state; if you want to keep the narration tight while delivering the batch-summary change, leave the single-PR deliver path as Before had it (proposal already minted -> CAS -> write -> readback -> recheck) and confine the new one-PR-per-turn sequencing language to the batch summary round only.",
+      "wallMs": 9972,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ef4f60926f6d72b9dce018d2828e07174a212c58cf6cfb012fe46af9611c7770",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "07718b798a98548ca5632a13143add82320f93f31cb36ca4f53f97947522fbc0",
       "candidateOutputSha": "12c94782d9ea69b1add4c505761a70bc57b990dd32ede51ebd07b35e235f5c8b",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs compare the refreshed body against the saved assessment, identify the new sentence as a material claim with no inherited disposition, print the exact proposal (\"The rejected path has a test.\" -> \"The rejected path has no test.\"), and apply it under the retained deliver course without rendering another initial menu or asking for a description-consent pick (f1). Both also execute the gh pr edit, read the body back with gh pr view, and dispatch a second fresh description-recheck worker that judges the corrected assertion against source before persisting closure and rendering final (f2). After keeps everything Before kept while adding the explicit \"no contract-exception menu nor separate description-consent pick\" sentence, the record re-validation via cat before the write, and the Role: author line in the shared final template; those additions are consistent with the Change. One optional tightening: After could state the snapshot comparison more explicitly (e.g., \"comparing the refreshed body to assessed_body in the saved record\") so a reader sees the comparison step itself rather than inferring it from \"absent from the saved assessment.\"",
-      "wallMs": 9951,
+      "feedback": "Neither fact moved. Both outputs compare the refreshed body against the saved assessment, print the exact proposal (\"The rejected path has a test.\" -> \"The rejected path has no test.\"), and apply it via `gh pr edit --body-file` under the retained `deliver` course with no fresh consent pick or contract-exception menu, satisfying f1; both then read the body back with `gh pr view` and dispatch a second description-recheck worker before recording closure, satisfying f2. The After wording is slightly more compact (combining the edit and readback in one block, adding a `Role: author` line and `reviewRequests` to the refresh), which is consistent with the Change's role-line work and does not disturb either fact. Keep the explicit 'read back, then recheck, then persist closure' sequence as written, since it is what carries f2; no further wording adjustment is needed for this case.",
+      "wallMs": 9377,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

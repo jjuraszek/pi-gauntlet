@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e7ee0f703e766ca6ca43e769d4244f3f529d479fe5cbfb4cbc059c991dba8eab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "4b25f6e5a5531399de24208bd7cf9c160bdd7169e6af691a60f5ef456e217493",
       "candidateOutputSha": "a877319c75f25170902b44f6e31330352198d38f80d37a9f1e8f732c3aac7410",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f5: each aborts the selected merge on the same-head body change (step 1, explicitly declining `gh pr merge`), dispatches a narrow description recheck scoped to P1 with evidence preserved, reopens P1 under the same ID, re-proposes from the current body, applies the correction under the held deliver course, rechecks to `P1: resolved`, and only then re-renders the final template for a fresh numeric pick. After moved nothing; it adds the gate line first, an explicit D3 exit check and a base-conflict `merge-tree` probe before the description write (harmless here since MERGEABLE/CLEAN, but not required by the entry and could be dropped to keep the description-only iteration lean), and a `Role: author` line. If you want to tighten the After wording further, keep the explicit 'invalidates readiness and the selected merge' sentence and the affected-only recheck limits (no tests, no evidence resolver, unrelated dispositions preserved) exactly as written, since those are what make the narrow-recheck-before-fresh-selection reading unambiguous.",
-      "wallMs": 8754,
+      "feedback": "Both outputs keep f5: each detects the same-head body drift in the pre-merge compare-and-swap, explicitly refuses to run `gh pr merge`, dispatches a narrow `description recheck` helper scoped to P1 with the CI evidence preserved, re-proposes the correction from the current body, writes and reads back, runs a closure recheck, and only then re-renders the final template for a fresh numeric pick. After did not move this fact, so nothing in the Change wording regressed it here. After adds a `Role: author` line and a base-conflict `merge-tree` step that Before lacked; these are consistent with the Change's refreshed-role contract and do not disturb the abort-then-recheck sequence, so the wording that produced After is safe for this case. To keep it that way while delivering the batch-summary sequencing, make sure the per-PR report-then-menu rule is phrased as applying only to the batch summary round and does not alter the single-PR delivery loop's requirement to abort a selected write on any head or body drift and recheck changed claims before offering a new selection.",
+      "wallMs": 9801,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e7ee0f703e766ca6ca43e769d4244f3f529d479fe5cbfb4cbc059c991dba8eab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "0d52d3e5ddacc41b7fb0052a294781b6fbb74a17d0283c881432e4b57bede151",
       "candidateOutputSha": "691ce5cc07858134166d4d7c62de2f9bc1b348697a5dd71534af9bda5ddf541a",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs cancel the selected merge on the same-head body change without running gh pr merge, dispatch a fresh affected-claim-only description recheck helper that reconfirms the P1 contradiction before any write, redraft and apply the exact correction under the retained deliver course, re-recheck to closure, and then render a fresh final menu rather than reusing the canceled pick. After keeps f5 while delivering the course model (explicit retained deliver authority, no mid-course menu, description work charging no round, usage persisted at 1/6 and 0/6). Minor stylistic differences in After (splitting detection and repair across iterations, adding the ls-remote and Role line) do not weaken the fact; keep the explicit phrases 'cancels the selected merge', 'assess only the affected description claim', and the two-helper recheck sequence, as they are what make the abort and narrow recheck unambiguous to a reader.",
-      "wallMs": 8315,
+      "feedback": "After preserves f5 exactly as Before did: on the same-head body edit the freshness fetch invalidates readiness, the selected merge is explicitly canceled (\"I do not run `gh pr merge`\"), and a fresh worker is dispatched with an affected-only description-recheck duty scoped to the single changed claim under existing P1 before the corrected body is written, read back, rechecked again, and a fresh menu is rendered without reusing the canceled pick. Nothing in the Change wording (per-PR sequential batch rendering, discovery/role-line contract) disturbed this single-PR path; the only visible additions in After are the `Role: author` line and the `ls-remote` readiness check, which are additive and do not touch the abort-and-narrow-recheck behavior. Keep the current After wording for this path; if you further edit the role-line or batch-sequencing instructions, keep the \"cancel selected merge on body change, recheck only affected claims, then re-render\" sentence intact and untouched by the new batch-round text so it continues to apply outside the batch round as well.",
+      "wallMs": 9250,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

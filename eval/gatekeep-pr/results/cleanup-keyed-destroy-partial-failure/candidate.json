@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f4fc75ddbc43da58798c06691346a7fd3a59e572b198fb20795b601709017189",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "c8d00703aca1d037b6489e42b574bfb3a517157c5b8ad0082432fcefae4ee8ac",
       "candidateOutputSha": "097d78ea9f8fa8bfca2c2332703be4cd8681feb720c1c27d93d502718af6f32a",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both facts hold in both outputs. Before and After each run the recorded `script/worktree destroy 'pr-733'` from `/work/mono`, report its exit 1 with `error: database teardown failed for pr-733`, explicitly refuse the `git worktree remove --force` fallback, print `worktree: failed - error: database teardown failed for pr-733`, then skip the branch step with `branch: skipped - worktree destroy failed` and run no `git branch -D` despite `git worktree list --porcelain` no longer listing the branch. After adds helpful explicit 'Result:' lines per step and a clearer 'kept no matter what git worktree list shows' statement, which reinforces p2 rather than weakening it. Nothing in After moved either fact; the Change's course/menu restructuring (shared menus.md template, verdict wording changed to `merged - PR 733 landed on main as aaaaaaa.`, Not offered moved above the list) is orthogonal to the cleanup contract, so the current After wording already preserves everything Before kept.",
-      "wallMs": 7617,
+      "feedback": "Both outputs keep p1 and p2: each runs `script/worktree destroy 'pr-733'` from /work/mono, reports the exit-1 error verbatim as `worktree: failed - error: database teardown failed for pr-733`, explicitly declines the `git worktree remove --force` fallback, and then prints `branch: skipped - worktree destroy failed` with no `git branch -D`. The After wording did not move either fact; the Change only affects batch-summary and no-arg-discovery cases, which this own-merge cleanup case does not exercise. Minor unrelated drift worth noting: After rewrites the terminal Verdict line to `merged - PR 733 landed on main as aaaaaaa.` and reorders the `Not offered` line above the picks, whereas Before preserved the original `Verdict: mergeable - CI green on the assessed head (ci / test)` and ordering; if other facts cover verdict text or menu layout, keep the own-merge template's re-render byte-identical apart from dropping the `cleanup` row while adding the per-PR sequencing language only to the batch-summary path.",
+      "wallMs": 5948,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f4fc75ddbc43da58798c06691346a7fd3a59e572b198fb20795b601709017189",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "2886376992f68d01ee24b85ea3437f697c22cd7c7d8b80a5a784f88906ff002a",
       "candidateOutputSha": "6f985547729dc13eaf4cf1c71a7fd8fec4ef250f0d4a671f251a36e0e36f552d",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs run `script/worktree destroy 'pr-733'` from /work/mono, report the exact `worktree: failed - error: database teardown failed for pr-733` line on the non-zero exit, explicitly refuse forced removal/prune, and print `branch: skipped - worktree destroy failed` while refusing `git branch -D`. After relocates the result lines into a single consolidated `Cleanup results` block after the step narration instead of printing each inline at the step where it occurs, which is fine for these facts but makes the per-step outcome slightly less traceable; keep the exact wording of those two lines verbatim as After does. One drift worth watching: After prints `base: synced aaaaaaaa…` using the merge commit SHA rather than the primary's resolved HEAD after `pull --ff-only` (Before printed the resolved HEAD), which could become incorrect when main has advanced past the merge commit—word it as the `rev-parse HEAD` result, not the merge commit.",
-      "wallMs": 12737,
+      "feedback": "Neither fact moved: After still runs `script/worktree destroy 'pr-733'` from /work/mono, reports the non-zero exit with the exact `worktree: failed - error: database teardown failed for pr-733` line, explicitly declines forced removal and prune, and prints `branch: skipped - worktree destroy failed` without `git branch -D`. The only structural shift is that After defers the three result lines to a consolidated `Cleanup results` block rather than printing each at its step; that is acceptable for these facts, but keep the exact wording of both lines intact in that block, since a judge looking for the printed text at the step itself would otherwise find only prose. One unrelated drift worth checking against the skill contract: After's `base: synced` line echoes the merge commit SHA rather than the primary's resolved HEAD after pull (Before ran `git rev-parse HEAD` and printed that), and After's verdict line changed from `mergeable - CI green ...` to `merged - PR 733` — neither is covered by p1/p2 here but may trip facts in other cases.",
+      "wallMs": 9437,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

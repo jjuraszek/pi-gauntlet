@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "04a1db7b974bb73e5d86126a890c13dded2120df82a1eb5e2bab22eca26ecfb5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "f7667f846a3a078f243e0fbe6bb877cb80d47c53a86aa4d9c44f1b925744b8d0",
       "candidateOutputSha": "9c3a38d66b47176169f76df57827e5da3b71843693f93716f10cd4a3f65b7cd3",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs exit through the no-progress obstacle (`stuck - no progress: node --test src/guard.test.ts: signature comparison is constant-time`), neither re-dispatches the unchanged P1 payload, neither starts a watch, and neither treats green CI run 910 as readiness because P1 stays an open source blocker and the menu withholds merge. After actually strengthens the fact by stating explicitly that the exit check fired before any watch and that repeating the attempt would fail identically. Two small wording notes for After: the Verdict line dropped Before's `not ready -` prefix in favor of the bare `stuck - no progress: ...` form, which is fine for the obstacle template but you should keep it consistent with whatever menus.md specifies so the first-line/gate-first facts elsewhere stay stable; and the extra no-progress paragraph between Blockers and Evidence is helpful prose, but keep it from being mistaken for a second numbered blocker (it is unnumbered here, which is correct). Otherwise the After wording keeps every fact Before kept while delivering the course-based obstacle menu.",
-      "wallMs": 8413,
+      "feedback": "Both outputs keep f4: each runs the Exit check before any dispatch or watch, compares the actual failed inputs (test, source, payload, command, base) against the retained no_progress checkpoint, finds them unchanged with no new human decision, and emits the stuck - no progress obstacle with no re-dispatch of the unchanged payload and no readiness drawn from the green run 910 (both explicitly note the run covers only rejection tests, so P1 stays open). After also adds a Role line and a plainer no-progress paragraph, which does not affect f4. The Change (sequencing one PR's report and menu per turn in the batch summary round) is not exercised by this single-PR resume, so nothing in After moved f4; the only wording drift worth watching is that After's Verdict drops the leading 'not ready -' prefix that Before used — keep 'Verdict: not ready - stuck - no progress: ...' so the obstacle verdict stays unambiguous across both the single-PR and batch-summary renderings while the per-PR sequencing change lands.",
+      "wallMs": 9834,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "04a1db7b974bb73e5d86126a890c13dded2120df82a1eb5e2bab22eca26ecfb5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "7c35e1e54117f73ad38384efefa1b26684c3a32601e4648f25a83a51c07e9241",
       "candidateOutputSha": "643283f7c6b48a9028b7ca2b073adf2fd924805bc1086caeffb2e2dc94947313",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy f4: each reads the retained no-progress checkpoint before any repair or watch, confirms the failed scoped test and open P1 are unchanged, refuses to retry the payload or charge a round, explicitly states that green CI run 910 does not establish the constant-time mechanism, and renders the obstacle template with stop recommended last rather than a wait or readiness state. After did not move this fact. Two small notes for the After wording: the verdict line now reads \"not ready - stuck - no progress: ...\", which stacks two markers where Before used the single \"stuck - no progress:\" tag — if the shared menus.md template expects exactly one gate marker, keep just the stuck tag; and After says the helper \"restored its edits\" while the entry says it discarded them and made no commit — \"discarded its edits and made no commit\" tracks the supplied state more precisely. Otherwise the course/cap/obstacle structure is intact.",
-      "wallMs": 7970,
+      "feedback": "After preserves f4: step 2 evaluates the retained no-progress checkpoint before any repair or watch, exits to the stuck/no-progress obstacle, dispatches no helper, charges no round, and the report's verdict is explicitly 'stuck - no progress' rather than treating green CI run 910 as readiness (it even states CI does not establish constant-time comparison). Nothing moved on this case, and since it is a single-PR obstacle resume the batch-summary sequencing change has no surface here. Two small wording notes for the author: After's no-progress text quotes the helper's result ('selected compare helper still uses an ordinary equality fallback') instead of the stored failed_prerequisite string ('node --test src/guard.test.ts: signature comparison is constant-time'), which Before used and which ties the exit directly to the recorded checkpoint - keeping the prerequisite name in the Verdict line (optionally followed by the observed result) would make the no-progress binding unambiguous. Also, 'Verdict: not ready - stuck - no progress' stacks two verdict labels; prefer a single 'stuck - no progress: <prerequisite>' form so the obstacle verdict stays clearly distinct from an ordinary not-ready assessment.",
+      "wallMs": 12139,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }

@@ -34,67 +34,67 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c713c4a698fc34486251ed7d0a18b429635b2f3c9ea28f58fbe31f308d97d884",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "81a114c08b3aa82d3d1af8688bef207e50c7a057fe8a052d4cd6ebd4b59c6cc3",
       "candidateOutputSha": "e51f8563a2224620bc571fca228bd8da8db5a801355ff6ace46f735ac175a464",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
-          "before": "fails",
-          "after": "fails",
-          "label": "intended but unchanged"
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         },
         "f3": {
           "before": "fails",
           "after": "fails",
-          "label": "intended but unchanged"
+          "label": "pre-existing"
         },
         "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "After moved nothing relative to Before: both outputs persist the N1 payload/action before work, keep course null, retain the one-shot checkpoint through the timeout, and render final/obstacle correctly (f1, f4 hold in both). Both still fail f2 and f3 for the same reason: after the own push the narration says 'no whole-wave review runs after an own push' and 'the N2 finding is therefore never surfaced', so the authorized iteration omits the re-review step and the post-reconciliation final offers only merge/stop instead of exposing N2 and a fresh 'fix nits' row. After's wording reproduced that rule verbatim. To deliver the Change while fixing this, the After wording should state that a selected one-shot nit iteration (and any deliver-course wave) ends with an exact-head source re-review after the push/watch, that findings from that re-review are recorded but not repaired without a new numeric pick, and that the resulting final re-renders the nit list and offers 'fix nits' again when any nit is open — keep the 'no comment-delta review' rule scoped to comment reconciliation only, not to the wave's closing re-review.",
-      "wallMs": 21616,
+      "feedback": "No fact moved between Before and After on this case: both render the first report directly as final with merge recommended, fix nits exposed and course null (f1); both persist repair.wave with action fix-nits and the N1 payload before dispatching the implementer and then run exactly one review → push → watch → re-render cycle (f2); and in run B both retain the fix-nits checkpoint through the timeout, fabricate no completion, and offer only a single extra watch window rather than standing nit authority (f4). f3 fails in both outputs for the same reason: each declares that no source re-review runs after an own push, so N2 is never surfaced and the post-reconciliation final menu offers only merge/stop, not fix nits again — the Entry's conditional 'if source re-review runs' is a hook the skill text apparently doesn't trigger, so if the author wants f3 to hold the wording needs to make the own-push re-render include a source re-review (or a comment-delta/independent-finding re-review) that would surface N2 and re-expose fix nits while still leaving N2 unrepaired. Separately, After's run-B obstacle menu dropped 'approve (your own PR)' from the Not offered line that Before had; it didn't move a fact here but is a regression in completeness worth restoring, since the Change (per-PR sequencing in batch mode) has no bearing on single-PR menu contents and shouldn't alter them.",
+      "wallMs": 19241,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c713c4a698fc34486251ed7d0a18b429635b2f3c9ea28f58fbe31f308d97d884",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1dfeb4dc57a78162663073391bbd45bf8414e3f23891ad79cd88be49179f4e3a",
+      "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
       "baselineOutputSha": "8f41b3dad7e0b1a035e60f71b1fc0fde95e9c8f541517fc833b4bf6e29c08f71",
       "candidateOutputSha": "d9bbd635ca2fd7ed7690aa2f73396d2167993c7dbbae03d824220efbbbd10bc5",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "fails",
           "after": "fails",
-          "label": "intended but unchanged"
+          "label": "pre-existing"
         },
         "f3": {
           "before": "fails",
           "after": "fails",
-          "label": "intended but unchanged"
+          "label": "pre-existing"
         },
         "f4": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "After fixes the main regression in Before: it admits the bounded binding-CI watch on the pushed head instead of arguing the snapshots forbid watch admission, so variant B now actually reaches the timeout obstacle while keeping course null, usage 1/10, the completed N1 repair and the one-shot checkpoint (f4 holds). What still fails in both outputs is the iteration contract: f2 names review, push, watch and re-review as the one authorized iteration, and f3 depends on the re-review discovering N2 so final re-offers fix nits with N2 left unrepaired. After explicitly states 'I do not dispatch a whole-diff or source re-review after the own push', so N2 is never discovered and the A final menu drops the fix nits row. The wording should make the post-push source re-review of the pushed head a mandatory step of the one-shot fix-nits iteration (e.g. 'after exact-head evidence settles, dispatch one fresh read-only reviewer over the full merge-base diff of the pushed head; new nits are recorded, not repaired, and reappear as fix nits on the final menu'), rather than treating the pre-push closure review as the review basis for the pushed head. With that line added, After would keep f1 and f4 and move f2 and f3 to holds while preserving the one-shot, no-standing-authority semantics it already conveys.",
-      "wallMs": 22066,
+      "feedback": "After is a clear improvement over Before on the watch path: it admits the bounded watch at delivery step 4, narrates both the success and the timeout branches, and in B keeps the expired deadline, the completed N1 repair, the one-shot checkpoint and course null without claiming completion, so f4 now holds where Before refused to reach the timeout at all. The remaining failures are shared and come from one sentence in After, 'I do not dispatch a whole-diff or source re-review after the own push', which means the authorized iteration never executes the re-review the Entry describes, N2 is never discovered, and the post-reconciliation final menu drops the fix nits row (f2 and f3 fail). The wording that keeps f1 and f4 while fixing f2/f3 is to state that the one-shot selection authorizes exactly one iteration consisting of implementer, pre-push review, single push, bounded watch, and then a fresh read-only source re-review of the pushed head before reconciliation; any new independent finding from that re-review is recorded as open, not repaired, course stays null, and the final menu re-exposes fix nits for it. The batch-summary sequencing change itself is orthogonal to this single-PR case and did not move anything here.",
+      "wallMs": 19997,
       "verdict": "improved"
     }
   },
-  "repoSha": "684706b675a3755abbad960889b4a3abef700d4c"
+  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
 }
