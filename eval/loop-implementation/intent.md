@@ -19,7 +19,7 @@ Supply row 1's attempts value in the cap snapshot so its existing fact is observ
 
 ## Expected to move
 - gate-line-first/question-first: fails -> holds - Dirty returns await explicit authorization under a question marker.
-- cap-and-exit-verification/contract: fails -> holds - Explicit cap:2 replaces the removed setting while retaining seed-inclusive cap stop and closed-row exit failure.
+- cap-and-exit-verification/contract: fails -> holds - Replace the closed-row fact with the ledger gate at verify step 1, verify active and implement complete, and amend/stop only on failure; preserve the seed-inclusive cap stop.
 - commit-boundary/seed-recovery: fails -> holds - Explicit continuing cap:97 and cap:1 alternative preserve authorized interrupted-seed recovery, target validation and consumed iterations.
 
 - leg-iteration/seed: fails -> holds - Enforce the new coordinated-flow must-hold fact: Expands shared ACs into original-AC/membership ordered rows, preserves cut disposition, records one base/seed flag per leg and Leg mapping; cap 14, seeds repo-a then repo-b only, never seeds wholly cut repo-c.

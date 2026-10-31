@@ -110,6 +110,10 @@ test('ledger refresh owns entry, dispatch and implement completion', () => {
   assert.match(dispatch, /`home` for zero or one.*actual member identifier for coordinated/);
   assert.match(dispatch, /Persist the consumed count and tuple before every home or companion dispatch; then refresh/);
   assert.match(dispatch, /Commit nothing extra/);
+  assert.match(dispatch, /Set the task's `iteration:` line to the bumped ledger `iterations:` value.*admission.*child commit body/);
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
+  assert.match(reference, /Set the task's `iteration:` line to the bumped ledger `iterations:` value.*admission.*child commit body/);
+  assert.match(reference, /Treat.*`loop: record <repo> row <n>`.*parent commit.*does not count toward the child empty-commit stagnation window/);
   assert.doesNotMatch(driver, /plan_tracker\(.*(?:init|add|update)|phase_tracker\(\{ action: "complete", phase: "implement"/);
   assert.ok(driver.trimEnd().split('\n').length < 150);
 });
@@ -142,6 +146,12 @@ test('verify owns the per-leg gate, bounded repair and authorized ledger re-boun
   const gate = after.split('\n1. ')[1].split('\n2. ')[0];
   for (const token of ['ledger', 'verification:', 'contract:', '- verification:', 'once foreground', 'owning checkout', 'iterations < cap', 'escalationLoop.implModel', 'loop: repair verification', 'exactly one commit', 'all ledger rows unchanged', 'failing leg only', 'verify active and implement complete', 'amend or stop only', 'no `Retry with hint` or `cap +N`']) assert.ok(gate.includes(token), token);
   assert.match(driver, /Implement-phase stops only: leave implement active/);
+  assert.match(driver, /clean cap stop.*`cap \+N` alongside.*`Retry with hint`.*Amend.*Stop/);
+  assert.match(driver, /Only the verify-step-1 verification-failure stop restricts.*amend\/stop/);
+  const expected = readFileSync(new URL('eval/loop-implementation/samples/cap-and-exit-verification/expected.md', root), 'utf8');
+  assert.match(expected, /Closed rows run the ledger gate once at verify step 1; failure quotes output, never reopens\/reruns, keeps verify active and implement complete, and offers amend or stop only/);
+  const intent = readFileSync(new URL('eval/loop-implementation/intent.md', root), 'utf8');
+  assert.match(intent, /cap-and-exit-verification\/contract: fails -> holds - .*verify step 1/);
   assert.match(after, /Gn tasks.*same tracker/);
   assert.match(after, /Stopped: row <n> reopened by amendment during verify/);
   assert.match(after, /authorize the row's return to ledger implementation or stop/);

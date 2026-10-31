@@ -69,7 +69,7 @@ Select `seed` until a validated `loop: seed evidence` commit with its `row 0 don
 
 ## Dispatch
 
-For home dispatch, record `HEAD_BEFORE`, save the ledger before the iterations bump and tuple write, and take i from the current iterations count. Increment `iterations:` in the working tree. Record the dispatch identity separately and write `pending: <row or seed> | <repo> | <HEAD sha>` using `home` for zero or one spec leg, the actual member identifier for coordinated runs, and the selected checkout's HEAD. Persist the consumed count and tuple before every home or companion dispatch; then refresh. Commit nothing extra. Create a unique absolute output path with `mktemp` outside the repository. Dispatch exactly one foreground child in the main implementation worktree, not a nested worktree:
+For home dispatch, record `HEAD_BEFORE`, save the ledger before the iterations bump and tuple write, and increment `iterations:` in the working tree. Set the task's `iteration:` line to the bumped ledger `iterations:` value i, the same value admission requires in the child commit body. Record the dispatch identity separately and write `pending: <row or seed> | <repo> | <HEAD sha>` using `home` for zero or one spec leg, the actual member identifier for coordinated runs, and the selected checkout's HEAD. Persist the consumed count and tuple before every home or companion dispatch; then refresh. Commit nothing extra. Create a unique absolute output path with `mktemp` outside the repository. Dispatch exactly one foreground child in the main implementation worktree, not a nested worktree:
 
 ```text
 subagent({ agent: "loop-implementer", context: "fresh", async: false,
@@ -105,7 +105,7 @@ Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Start t
 
 Implement-phase stops only: leave implement active and use the row/cap offers below. For verify stops use the menus in After the loop, retaining verify active. Use one screen of plain words: `Stopped on row <n> (<row text>)` for row failures, or the concrete boundary/cap/verification header. `Problem:` quotes the evidence cell verbatim, identifying the actual spec/code contradiction, failing assertion/output or missing capability, and quotes the last decision line. Include funding budget only when funded. At every stop print `Preserve every row's attempts and the total iteration cap.` Name `escalated round spent` when applicable; omit round history and reasoning traces.
 
-Offer these concrete actions. Offer `cap +N` only at a clean cap or legacy missing-cap stop; dirty-tree and commit-boundary stops keep discard authorization and never offer `cap +N`. When both the row allowance and total cap are exhausted, list independent funding and cap offers despite rule 2 priority. Take separate replies: funding follows the spec's `**Amend-grant:**` contract, cap follows the row below; define no combined syntax.
+Offer these concrete actions. At a clean cap stop offer `cap +N` alongside the standard `Retry with hint`, Amend and Stop options. Only the verify-step-1 verification-failure stop restricts its menu to amend/stop. Offer `cap +N` only at a clean cap or legacy missing-cap stop; dirty-tree and commit-boundary stops keep discard authorization and never offer `cap +N`. When both the row allowance and total cap are exhausted, list independent funding and cap offers despite rule 2 priority. Take separate replies: funding follows the spec's `**Amend-grant:**` contract, cap follows the row below; define no combined syntax.
 
 | Human choice | Durable action |
 |---|---|
