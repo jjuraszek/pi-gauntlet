@@ -71,9 +71,10 @@ export const planTotals = (tasks: { status: string }[]): PlanTotals => ({
   skipped: tasks.filter((t) => t.status === "skipped").length,
 });
 
-// A plan_tracker update that moves a task from complete back to in_progress.
-export const hasReopen = (prev: { status: string }[] | undefined, next: { status: string }[]): boolean =>
-  !!prev && next.some((t, i) => prev[i]?.status === "complete" && t.status === "in_progress");
+export const countReopens = (prev: { name?: string; status: string }[] | undefined, next: { name?: string; status: string }[]): number => {
+  const complete = new Set(prev?.filter((t) => typeof t.name === "string" && t.status === "complete").map((t) => t.name));
+  return new Set(next.filter((t) => typeof t.name === "string" && complete.has(t.name) && (t.status === "failed" || t.status === "in_progress")).map((t) => t.name)).size;
+};
 
 // The text an edit/write call inserts: joined newText values, or the write body.
 export const insertedText = (input: unknown): string => {

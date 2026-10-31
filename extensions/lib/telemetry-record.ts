@@ -93,7 +93,7 @@ export interface Derived {
   engine: "loop" | "waves"; iterations?: number;
   duration_s: number; phases: Partial<Record<PhaseKey, PhaseAcc & { started_at?: string; completed_at?: string; duration_s?: number; model?: string; thinking?: string }>>;
   personas: Record<string, PersonaAcc>; reviews?: Record<string, ReviewAcc>; conformance_loops: number; conformance_open_gaps?: number; gates: Gates & { ship_option?: string };
-  plan?: { tasks: number; complete: number; failed: number; skipped: number }; tests?: { command: string; result: "pass" | "fail" }; amendments: number;
+  plan?: { tasks: number; complete: number; failed: number; skipped: number }; tests?: { command: string; result: "pass" | "fail" }; verification_runs?: number; amendments: number;
   spec_edits_after_ship: number; diff?: DiffSummary; modified_files?: string[]; council?: CouncilBlock; spec_writes: Accumulators["spec_writes"]; events_dropped: number;
 }
 export type RecordStatus = "in_progress" | "shipped" | "abandoned";
@@ -130,7 +130,7 @@ export function derive(rec: TelemetryRecord, now: string): Derived {
   }
   for (const k of Object.keys(acc.phases) as PhaseKey[]) phases[k] = compact({ ...(phases[k] ?? {}), ...acc.phases[k] });
   const live = liveShipEvent(rec.events);
-  return compact({ engine: rec.events.findLast((e) => e.kind === "engine")?.engine ?? "waves", iterations: acc.personas["loop-implementer"]?.dispatches, duration_s: seconds(rec.created_at, rec.shipped_at ?? rec.abandoned_at ?? now), phases, personas: acc.personas, reviews: Object.keys(acc.reviews).length ? acc.reviews : undefined, conformance_loops: acc.conformance_loops, conformance_open_gaps: acc.conformance_open_gaps, gates: compact({ ...acc.gates, ship_option: live?.option }), plan: rec.derived.plan, tests: rec.derived.tests, amendments: acc.amendments, spec_edits_after_ship: acc.spec_edits_after_ship, diff: rec.derived.diff, modified_files: rec.derived.modified_files, council: rec.derived.council, spec_writes: acc.spec_writes, events_dropped: acc.events_dropped }) as Derived;
+  return compact({ engine: rec.events.findLast((e) => e.kind === "engine")?.engine ?? "waves", iterations: acc.personas["loop-implementer"]?.dispatches, duration_s: seconds(rec.created_at, rec.shipped_at ?? rec.abandoned_at ?? now), phases, personas: acc.personas, reviews: Object.keys(acc.reviews).length ? acc.reviews : undefined, conformance_loops: acc.conformance_loops, conformance_open_gaps: acc.conformance_open_gaps, gates: compact({ ...acc.gates, ship_option: live?.option }), plan: rec.derived.plan, tests: rec.derived.tests, verification_runs: rec.derived.verification_runs, amendments: acc.amendments, spec_edits_after_ship: acc.spec_edits_after_ship, diff: rec.derived.diff, modified_files: rec.derived.modified_files, council: rec.derived.council, spec_writes: acc.spec_writes, events_dropped: acc.events_dropped }) as Derived;
 }
 
 const stripUndefined = (v: unknown): unknown => {

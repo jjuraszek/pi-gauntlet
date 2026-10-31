@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countOpenGaps, hasReopen, insertedText, planTotals, textOf, usageToTokens } from "./telemetry-collect.ts";
+import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countOpenGaps, countReopens, insertedText, planTotals, textOf, usageToTokens } from "./telemetry-collect.ts";
 
 const usage = (input: number, output = 0, cost = 0) => ({ input, output, cacheRead: 0, cacheWrite: 0, totalTokens: input + output, cost: { input: cost, output: 0, cacheRead: 0, cacheWrite: 0, total: cost } });
 
@@ -32,11 +32,18 @@ test("planTotals counts tasks by terminal status", () => {
   assert.deepEqual(planTotals([{ status: "complete" }, { status: "skipped" }, { status: "failed" }, { status: "complete" }]), { tasks: 4, complete: 2, failed: 1, skipped: 1 });
 });
 
-test("hasReopen detects complete -> in_progress at the same index only", () => {
-  assert.equal(hasReopen([{ status: "complete" }, { status: "pending" }], [{ status: "in_progress" }, { status: "pending" }]), true);
-  assert.equal(hasReopen([{ status: "complete" }], [{ status: "complete" }]), false);
-  assert.equal(hasReopen(undefined, [{ status: "in_progress" }]), false);
-  assert.equal(hasReopen([{ status: "pending" }], [{ status: "in_progress" }]), false);
+test("reopens match distinct string names, not position", () => {
+  for (const [from, to, expected] of [
+    ["complete", "failed", 1], ["complete", "in_progress", 1],
+    ["failed", "in_progress", 0], ["complete", "skipped", 0],
+    ["complete", "pending", 0], ["complete", "complete", 0],
+  ] as const) assert.equal(countReopens([{ name: "a", status: from }], [{ name: "a", status: to }]), expected, `${from} -> ${to}`);
+  assert.equal(countReopens([{ name: "a", status: "complete" }, { name: "b", status: "complete" }], [{ name: "b", status: "failed" }, { name: "a", status: "in_progress" }]), 2);
+  assert.equal(countReopens([{ name: "a", status: "complete" }, { name: "b", status: "pending" }], [{ name: "b", status: "pending" }, { name: "a", status: "complete" }]), 0);
+  assert.equal(countReopens([{ name: "a", status: "complete" }], [{ name: "a", status: "failed" }, { name: "a", status: "in_progress" }]), 1);
+  assert.equal(countReopens(undefined, [{ name: "a", status: "in_progress" }]), 0);
+  assert.equal(countReopens([{ name: "a", status: "complete" }], [{ name: "b", status: "failed" }]), 0);
+  assert.equal(countReopens([{ status: "complete" }], [{ status: "in_progress" }]), 0);
 });
 
 test("insertedText joins edit newText values or returns write content", () => {

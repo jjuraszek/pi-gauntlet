@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import registerPlanTracker, { validateSnapshot } from "./plan-tracker.ts";
 
 type ToolResult = {
@@ -7,7 +10,7 @@ type ToolResult = {
   details: { action: string; tasks: { name: string; status: string }[]; error?: string };
 };
 
-function harness(branch: unknown[] = []) {
+function harness(branch: unknown[] = [], cwd = process.cwd()) {
   const tools: {
     name: string;
     description: string;
@@ -29,6 +32,7 @@ function harness(branch: unknown[] = []) {
   let widgetText: string | undefined;
   const theme = { fg: (_c: string, s: string) => s, bold: (s: string) => s };
   const ctx = {
+    cwd,
     hasUI: true,
     ui: {
       setWidget(_id: string, cb?: (tui: unknown, theme: unknown) => { text: string }) {
@@ -378,6 +382,101 @@ test("legacy-invalid snapshot: first update is rejected listing legacy offenders
   });
   assert.equal(repaired.details.error, undefined);
   assert.deepEqual(repaired.details.tasks.map((t) => t.status), ["complete", "skipped", "complete"]);
+});
+
+const ledger = (rows: string[], tail = "", pending = "") => [
+  "# Ledger - loop engine", pending,
+  "| row | status | attempts | evidence |", "|---|---|---|---|",
+  ...rows.map(row => `| ${row} |`), "", "## Decisions", tail,
+].join("\n");
+
+test("refresh projects ledger states, numeric pending targets and live leg mappings", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "plan-refresh-"));
+  const path = join(dir, "ledger.md");
+  const cases = [
+    {
+      name: "cut, baseline, dispatched, failed, in flight and pending without cap",
+      text: ledger(["1 | cut | 0 | deferred: #1", "2 | done | 0 | baseline", "3 | done | 1 | check \\| passed", "4 | failed | 1 | check failed", "5 | open | 0 |", "6 | open | 0 |"], "row 3 done | passed | row 4\n## Notes\nrow 2 done | not a decision | none", "pending: 5 | home | abc1234"),
+      expected: [["row 1", "skipped"], ["row 2", "skipped"], ["row 3", "complete"], ["row 4", "failed"], ["row 5", "in_progress"], ["row 6", "pending"]],
+    },
+    { name: "retry overrides failed", text: ledger(["1 | failed | 1 | failed"], "", "pending: 1 | home | abc1234"), expected: [["row 1", "in_progress"]] },
+    { name: "leading-zero target names its numeric row", text: ledger(["1 | open | 0 |"], "", "pending: 01 | home | abc1234"), expected: [["row 1", "in_progress"]] },
+    { name: "done beats stale pending", text: ledger(["1 | done | 1 | passed"], "row 1 done | passed | none", "pending: 1 | home | abc1234"), expected: [["row 1", "complete"]] },
+    { name: "cut beats stale pending and all cut are skipped", text: ledger(["1 | cut | 0 | deferred: #1"], "", "pending: 1 | home | abc1234"), expected: [["row 1", "skipped"]] },
+    { name: "seed names no row", text: ledger(["1 | failed | 1 | failed", "2 | open | 0 |"], "", "pending: seed | home | abc1234"), expected: [["row 1", "failed"], ["row 2", "pending"]] },
+    {
+      name: "mapped home and companion tasks sort non-pending first",
+      text: ledger(["1 | open | 0 |", "2 | done | 1 | passed", "3 | failed | 1 | failed"], "row 2 done | passed | row 3\n\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-a |", "pending: 3 | repo-a | abc1234"),
+      expected: [["row 2 (repo-b)", "complete"], ["row 3 (repo-a)", "in_progress"], ["row 1 (repo-a)", "pending"]],
+    },
+  ];
+  for (const row of cases) {
+    writeFileSync(path, row.text);
+    const h = harness([], dir);
+    const result = await h.call({ action: "refresh", path: "ledger.md" });
+    assert.equal(result.details.error, undefined, row.name);
+    assert.equal(result.details.action, "refresh", row.name);
+    assert.deepEqual(result.details.tasks.map(t => [t.name, t.status]), row.expected, row.name);
+    assert.deepEqual(validateSnapshot(result.details.tasks as any), [], row.name);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, result.details.tasks, row.name);
+    const done = result.details.tasks.filter(t => ["complete", "skipped"].includes(t.status)).length;
+    assert.ok(h.widget()!.includes(`(${done}/${row.expected.length})`), row.name);
+  }
+});
+
+test("refresh replaces only whole ledger names, preserves Gn statuses and replays its snapshot", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "plan-refresh-kept-"));
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | open | 0 |", "2 | open | 0 |", "3 | done | 1 | passed"], "row 3 done | passed | row 1"));
+  const h = harness();
+  await h.call({ action: "init", tasks: [
+    { name: "row 99", status: "complete" }, { name: "row 8 (old-repo)", status: "failed" },
+    { name: "G1: closed", status: "complete" }, { name: "G2: working", status: "in_progress" },
+    "row 4 notes", "G3: pending",
+  ] });
+  const result = await h.call({ action: "refresh", path });
+  assert.equal(result.details.error, undefined);
+  assert.deepEqual(result.details.tasks, [
+    { name: "row 3", status: "complete" },
+    { name: "G1: closed", status: "complete" }, { name: "G2: working", status: "in_progress" },
+    { name: "row 1", status: "pending" }, { name: "row 2", status: "pending" },
+    { name: "row 4 notes", status: "pending" }, { name: "G3: pending", status: "pending" },
+  ]);
+  assert.deepEqual(validateSnapshot(result.details.tasks as any), []);
+  const replay = harness([{ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: result.details } }]);
+  await replay.fire("session_start");
+  assert.deepEqual((await replay.call({ action: "status" })).details.tasks, result.details.tasks);
+  assert.equal(replay.widget(), h.widget());
+});
+
+test("refresh rejects unreadable or malformed ledgers atomically, including absent numeric pending rows", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "plan-refresh-error-"));
+  const path = join(dir, "ledger.md");
+  const valid = ledger(["1 | open | 0 |"]);
+  const h = harness();
+  const initial = await h.call({ action: "init", tasks: [{ name: "G1: closed", status: "complete" }, "G2: pending"] });
+  const widget = h.widget();
+  const cases = [
+    { name: "missing path", path: undefined, text: valid, error: /refresh: cannot read .*path required/ },
+    { name: "unreadable path", path: join(dir, "absent.md"), text: valid, error: /refresh: cannot read .*absent\.md:/ },
+    { name: "wrong discriminator", path, text: "# Plan", error: /line 1 is "# Plan", not a loop ledger/ },
+    { name: "missing header", path, text: valid.replace("| row | status | attempts | evidence |", "| row | state | attempts | evidence |"), error: /row table malformed at line \d+/ },
+    { name: "nonnumeric row", path, text: valid.replace("| 1 | open", "| x | open"), error: /row table malformed at line 5/ },
+    { name: "invalid status", path, text: valid.replace("| 1 | open", "| 1 | unknown"), error: /row table malformed at line 5/ },
+    { name: "absent pending row", path, text: "pending: 2 | home | abc1234", error: /pending: names row 2 which is absent/ },
+    { name: "zero pending row", path, text: "pending: 0 | home | abc1234", error: /pending: names row 0 which is absent/ },
+    { name: "leading-zero absent row", path, text: "pending: 02 | home | abc1234", error: /pending: names row 2 which is absent/ },
+    { name: "absent mapping row", path, text: valid + "\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 2 | 1 | repo-a |", error: /leg mapping names row 2 which is absent/ },
+  ];
+  for (const row of cases) {
+    writeFileSync(path, row.text.startsWith("pending:") ? ledger(["1 | open | 0 |"], "", row.text) : row.text);
+    const result = await h.call({ action: "refresh", path: row.path });
+    assert.match(result.details.error!, row.error, row.name);
+    assert.equal(result.details.tasks, undefined, row.name);
+    assert.equal(h.widget(), widget, row.name);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, initial.details.tasks, row.name);
+    if (row.path) assert.ok(result.content[0].text.includes(row.path), row.name);
+  }
 });
 
 test("registration: sequential, tasks schema is Array<Union<String, Object>>, description carries the contract", () => {

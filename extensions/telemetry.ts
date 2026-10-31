@@ -21,7 +21,7 @@
   import { sha256 } from "./lib/plan-check.ts";
   import { SUPERSEDED_BY_RE, isPlanPath, isSpecPath, isSupersededByBanner, matchTestStatement, parseSpecLinks, planSpecHeader, recordPathFor, repoRelativeToolPath, toPosix, truncateCommand } from "./lib/telemetry-paths.ts";
   import { computeJjDiff } from "./lib/telemetry-diff.ts";
-  import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countStructuredFindings, countOpenGaps, hasReopen, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
+  import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countStructuredFindings, countOpenGaps, countReopens, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
   import { addTokens, capEvents, compact, currentPhase, derive, diffPhases, emptyAccumulators, emptyPhases, foldAccumulators, implementAutoCompletes, liveShipEvent, newRecord, parseRecord, serializeRecord, type Accumulators, type BaseEvent, type PhaseAcc, type PhaseKey, type PhaseMap, type TelemetryEvent, type TelemetryRecord, type Tokens } from "./lib/telemetry-record.ts";
   import { guardReason } from "./lib/telemetry-ship.ts";
   import { buildCouncil, parseAudit, parseChairReport, resolveMembers, type Cluster, type MemberResult } from "./lib/telemetry-council.ts";
@@ -445,6 +445,7 @@
               : { kind: "phase", action: t.action, name: t.name },
         );
         if (t.action === "start" && t.name === "brainstorm") councilPending = undefined;
+        if (record && t.action === "start" && t.name === "implement") record.derived.verification_runs ??= 0;
         phases = details.phases;
         if (record && boundSpec && t.name === "brainstorm" && (t.action === "complete" || t.action === "skip")) {
           if (e) record.approved_at ??= e.ts;
@@ -632,7 +633,7 @@
     let onOtherSpecEdit: (rel: string, event: { input: unknown }, specDirs: string[]) => void;
 
     let amendmentOpen = false;
-    let lastPlanTasks: { status: string }[] | undefined;
+    let lastPlanTasks: { name?: string; status: string }[] | undefined;
     const pendingTest = new Map<string, string>(); // toolCallId -> matched statement
 
     const phaseAcc = (k: PhaseKey = phaseNow()): PhaseAcc => (live().phases[k] ??= {});
@@ -724,8 +725,9 @@
     const onPlanTracker = async (details: unknown, snap: SettingsSnapshot) => {
       const d = details as { tasks?: { name?: string; status: string }[]; error?: string; action?: string } | undefined;
       if (!d || d.error || !Array.isArray(d.tasks)) return;
-      if (d.action === "update" && hasReopen(lastPlanTasks, d.tasks)) {
-        live().gates.task_reopens += 1;
+      const reopens = countReopens(lastPlanTasks, d.tasks);
+      if (reopens) {
+        live().gates.task_reopens += reopens;
         pushEvent({ kind: "gate", gate: "task_reopen" });
       }
       lastPlanTasks = d.tasks;
@@ -771,9 +773,15 @@
       if (event.toolName === "bash") {
         const command = String((event.input as { command?: unknown }).command ?? "");
         if (phaseNow() === "brainstorm" && /\bgit\b[^\n]*\bcommit\b/.test(command)) onCouncilAudit(command);
-        if (record && (phases.verify.status === "in_progress" || phases.ship.status === "in_progress")) {
+        if (record && !frozen) {
           const statement = matchTestStatement(command, snap.testCommands ?? DEFAULT_TEST_COMMANDS);
-          if (statement) pendingTest.set(event.toolCallId, statement);
+          if (statement) {
+            if (record.events.some((e) => e.kind === "phase" && e.action === "start" && e.name === "implement")) {
+              record.derived.verification_runs = (record.derived.verification_runs ?? 0) + 1;
+              flush();
+            }
+            if (phases.verify.status === "in_progress" || phases.ship.status === "in_progress") pendingTest.set(event.toolCallId, statement);
+          }
         }
       }
       return undefined;

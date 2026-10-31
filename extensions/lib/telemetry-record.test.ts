@@ -239,3 +239,17 @@ test("legs round-trip and malformed stored legs are rejected", () => {
     assert.equal(parseRecord(serializeRecord({ ...rec, legs } as any)), undefined);
   }
 });
+
+test("derive and YAML preserve verification runs and legacy absence", () => {
+  for (const count of [undefined, 0, 4]) {
+    const rec = newRecord({ spec: "doc/specs/a.md", session: "s1", now: "2026-09-17T10:00:00Z", runId: "r1" });
+    if (count !== undefined) rec.derived.verification_runs = count;
+    rec.derived = derive(rec, "2026-09-17T10:01:00Z");
+    const loaded = parseRecord(serializeRecord(rec))!;
+    assert.equal(loaded.derived.verification_runs, count);
+    loaded.status = "shipped";
+    loaded.shipped_at = "2026-09-17T10:02:00Z";
+    loaded.derived = derive(loaded, loaded.shipped_at);
+    assert.equal(parseRecord(serializeRecord(loaded))!.derived.verification_runs, count);
+  }
+});
