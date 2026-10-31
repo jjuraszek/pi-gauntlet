@@ -16,7 +16,7 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   }
   for (const token of ['context: "fresh"', 'async: false', 'outputMode: "file-only"', 'the parent validates the ledger and the commit', '# Ledger - loop engine', 'iterations: 0', 'loop: repair row', 'whole-diff minors:', 'audited-base:', 'plan_check']) assert.ok(driver.includes(token), token);
   const steps = ['## Before each dispatch', '## Dispatch', '## Validate the return', '## Exit verification', '## After the loop'];
-  for (let i = 1; i < steps.length; i++) assert.ok(driver.indexOf(steps[i]) > driver.indexOf(steps[i - 1]), steps[i]);
+  for (let i = 1; i < steps.length; i++) assert.ok(driver.indexOf('\n' + steps[i] + '\n') > driver.indexOf('\n' + steps[i - 1] + '\n'), steps[i]);
   const continuation = driver.slice(driver.indexOf('## After the loop'));
   assert.ok(driver.indexOf('action: "complete", phase: "implement"') < driver.indexOf('## After the loop'));
   assert.ok(continuation.indexOf('whole-diff `wave-reviewer`') < continuation.indexOf('separate fresh `conformance-reviewer`'));
@@ -43,23 +43,55 @@ test('amend permission bounds row escalation and one exit repair', () => {
   assert.match(driver, /Omit the model override except on an escalated round/);
   assert.match(driver, /no permission or spent identity: no reopening and no automatic rerun/);
   assert.match(driver, /empty parent marker/);
-  assert.match(driver, /once per flow, not per failing leg/);
+  assert.match(driver, /This marker is once per flow\./);
+  for (const token of ['the implementation worktree as cwd and its Rules', 'absolute spec path and the exact verification command', 'On success record verified HEAD and clean status']) assert.ok(driver.includes(token), token);
   assert.ok(Buffer.byteLength(driver) < 50000);
   assert.deepEqual(lintTarget(new URL('eval/loop-implementation', root).pathname), []);
 });
 
 test('coordinated loop owns stable mappings, attributed returns and pending recovery', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
-  for (const token of ['missing/duplicate scope lines', 'duplicate indices within a list', 'malformed tokens', 'out-of-range original indices', 'cut original AC indices', 'absent from every valid list to home', 'repeat shared indices', 'independent of scope-list order', 'duplicate/missing mappings', 'All-cut cap stays 1', 'unseeded leg with non-cut entries in membership order', 'wholly cut legs', 'legacy and single-member ledger bytes unchanged', 'scope: AC 1, AC 3', 'scope: none', 'original AC order', 'membership order', '## Leg mapping', 'row | ac | leg', 'base repo-a:', 'seeded repo-a:', 'cap 14', 'pending: 2 | repo-b | abc1234', 'without another attempt or iteration bump', 'zero commits', 'foreign entry', 'disposition-only cut', 'design:']) assert.ok(driver.includes(token), token);
+  for (const token of ['missing/duplicate scope lines', 'duplicate indices within a list', 'malformed tokens', 'out-of-range original indices', 'cut original AC indices', 'absent from every valid list to home', 'repeat shared indices', 'independent of scope-list order', 'duplicate/missing mappings', 'All-cut cap stays 1', 'unseeded leg with non-cut entries in membership order', 'wholly cut legs', 'scope: AC 1, AC 3', 'scope: none', 'original AC order', 'membership order', '## Leg mapping', 'row | ac | leg', 'base repo-a:', 'seeded repo-a:', 'cap 14', 'pending: 2 | repo-b | abc1234', 'without another attempt or iteration bump', 'zero commits', 'foreign entry', 'disposition-only cut', 'design:']) assert.ok(reference.includes(token), token);
   for (const token of ['pending:', 'iteration:', 'four-column', 'home ledger untouched', 'loop: seed evidence', 'loop: row', 'mapped original AC', 'Rules:']) assert.ok(persona.includes(token), token);
-  assert.match(driver, /Read each member's verification from the home spec's `## Legs` `contract:` `- verification:` line before dispatch/);
-  assert.match(driver, /For coordinated exit, read each leg's verification from the home spec's `## Legs` `contract:` `- verification:` line/);
-  assert.doesNotMatch(driver, /record each member's verification contract|each leg's recorded verification/);
-  assert.ok(driver.indexOf('Recover pending companion work') < driver.indexOf('## Before each dispatch'));
+  assert.match(reference, /Read each member's verification from the home spec's `## Legs` `contract:` `- verification:` line before dispatch/);
+  assert.match(reference, /For coordinated exit, read each leg's verification from the home spec's `## Legs` `contract:` `- verification:` line/);
+  assert.doesNotMatch(reference, /record each member's verification contract|each leg's recorded verification/);
+  const headings = ['## Entry', '## Resume', '## Targeting and dispatch', '## Companion return validation', '### Companion commit admission', '## Exit verification', '## Amendments'];
+  for (let i = 1; i < headings.length; i++) assert.ok(reference.indexOf('\n' + headings[i] + '\n') > reference.indexOf('\n' + headings[i - 1] + '\n'), headings[i]);
+  assert.ok(reference.indexOf('Recover pending companion work') < reference.indexOf('\n## Targeting and dispatch\n'));
+  const exit = reference.split('\n## Exit verification\n')[1].split('\n## Amendments\n')[0];
+  for (const token of ['once per flow, not per failing leg', 'Success only after every leg passes']) assert.ok(exit.includes(token), token);
+  assert.ok(Buffer.byteLength(reference) < 50000);
+  assert.ok(reference.split('\n').length < 2000);
+  assert.ok(driver.includes('legacy and single-member ledger bytes unchanged'));
   const legacySkeleton = driver.match(/```markdown\n([\s\S]*?)```/)[1];
   assert.doesNotMatch(legacySkeleton, /Leg mapping|base repo-|seeded repo-|pending:|legs:|--leg/);
   assert.ok(driver.includes('single-member/legacy paths free of a companion loop, leg file, `legs:` brief or `--leg` argument'));
+});
+
+test('coordinated reference reads gate fresh entry and every restore before dispatch decisions', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const path = 'reference/coordinated-legs.md';
+  assert.equal(driver.split(path).length - 1, 2);
+  const entry = driver.split('\n## Entry\n')[1].split('\n## Before each dispatch\n')[0];
+  const dispatch = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0].trimStart();
+  const entryRead = entry.split('\n').find(line => line.includes(path));
+  const dispatchRead = dispatch.split('\n')[0];
+  for (const line of [entryRead, dispatchRead]) {
+    assert.ok(line.includes(path));
+    assert.match(line.split('. ')[0], /spec whose `## Legs` section has more than one `### Leg:` block/);
+    assert.match(line.split('. ')[0], /stop on an unreadable reference naming its path, never reconstruct it/);
+  }
+  assert.match(entryRead, /On fresh entry and on every ledger restore/);
+  assert.match(entryRead, /On fresh entry apply its `## Entry` section instead of the home-only skeleton and cap calculation below/);
+  assert.match(entryRead, /On a restore apply its `## Resume` section before the dirty-tree stop and before any pending recovery/);
+  assert.ok(dispatch.startsWith('For a spec whose'));
+  assert.ok(dispatch.indexOf(path) < dispatch.indexOf('| 1 |'));
+  assert.match(dispatchRead, /Apply its `## Resume`, `## Targeting and dispatch`, `## Companion return validation`, `### Companion commit admission`, `## Exit verification` and `## Amendments` sections together with this driver; never apply `## Entry` here/);
+  assert.doesNotMatch(driver, /^## Coordinated Entry and resume$|^### Companion commit admission$/m);
+  assert.doesNotMatch(driver, /pending:|companion-return-shell|## Leg mapping/);
 });
 
 const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
@@ -83,8 +115,8 @@ function companionFixture(target) {
   const preDispatch = join(dir, 'pre-dispatch.md');
   writeFileSync(preDispatch, readFileSync(ledger, 'utf8'));
   writeFileSync(ledger, saved);
-  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  assert.match(driver, /After persisting the bump and pending tuple, bind `SAVED_LEDGER` to the durable home ledger/);
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
+  assert.match(reference, /After persisting the bump and pending tuple, bind `SAVED_LEDGER` to the durable home ledger/);
   const admissionLedger = ledger;
   assert.notEqual(readFileSync(preDispatch, 'utf8'), readFileSync(admissionLedger, 'utf8'));
   return { home, companion, base, pending, ledger, saved, target, admissionLedger, preDispatch };
@@ -99,9 +131,9 @@ function returnCommit(f, { tuple = f.pending, iteration = 1, row = 2, extra = fa
   if (extra) git(f.companion, 'commit', '--allow-empty', '-qm', 'extra');
 }
 function validateCompanion(f) {
-  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  const block = driver.match(/<!-- companion-return-shell -->\s*```bash\n([\s\S]*?)\n```/);
-  assert.ok(block, 'driver must supply executable companion commit admission');
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
+  const block = reference.match(/<!-- companion-return-shell -->\s*```bash\n([\s\S]*?)\n```/);
+  assert.ok(block, 'reference must supply executable companion commit admission');
   const script = block[1];
   return spawnSync('bash', ['-c', script], { encoding: 'utf8', env: { ...process.env, CHECKOUT: f.companion, PENDING: f.pending, ITERATION: '1', SAVED_LEDGER: f.admissionLedger } });
 }
@@ -153,7 +185,7 @@ test('ledger cap is durable across grants, child validation and legacy admission
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   assert.match(driver, /iterations: 0\ncap: <n>/);
   for (const fact of ['maxIterationsPerRow', '`iterations` >= `cap`', 'loop: raise cap', 'ledger has no cap: line - seeded under the old loopEngine contract', 'latest operational `row <n> ...` decision', 'including cap', 'cap +50 |', '[1-9][0-9]*', 'cap +50x', 'separate replies', 'cap grant resets neither window']) assert.ok(driver.includes(fact), fact);
-  const entry = driver.split('## Entry')[1].split('## Before each dispatch')[0];
+  const entry = driver.split('\n## Entry\n')[1].split('\n## Before each dispatch\n')[0];
   assert.match(entry, /\(rows not initialized cut\) \* maxIterationsPerRow \+ 1/);
   assert.match(entry, /Later cuts, reopens and requirement-preserving amendments leave cap unchanged/);
   assert.doesNotMatch(entry, /`maxIterations`/);
