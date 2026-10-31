@@ -1,0 +1,110 @@
+{
+  "sample": "worker-critique-pr-source",
+  "arm": "candidate",
+  "skillSha": "a0a8d06f17b6e67e40dc92f728c7d75860b2e7cd6354c72ca81de0232d84a2bb",
+  "inputSha": "1617ffe5f2fded29c15a1e21535c533670edea6fce816e3be2c1aef8a156f29c",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions: worker critique pass (no council)\n\n1. **Stage: critique pass entry.** The inline lint passed: placeholder scan, internal consistency, documentation named, and ticket contract present. Brainstorming owns the critique-pass gate.\n\n2. **`read` (narrated, not a live call): `skills/brainstorming/reference/spec-finalization.md`, `## Spec Council`.** This read is required because the bundled copy does not count as session context. The case gives no unreadable observation, so the narration proceeds. Had it been unreadable, the step would stop with a blocking error and the payload would not be reconstructed from memory.\n\n3. **Stage: resolve the council setting.** The fixed observation is that `gauntlet_setting({ key: \"specCouncil\" })` returns `verdict: \"worker\"`, `members: []`, `malformed: false`, `errors: []`.\n   - No warning line is emitted.\n   - The flow branches strictly on `verdict`, which selects the worker route.\n   - `/skill:roasting-the-spec` is not invoked and no council runs.\n\n4. **Stage: resolve the guideline path.** The path to `documentation-impact.md` is resolved relative to the loaded `spec-finalization.md` and becomes one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` value.\n   - That value goes into the worker task only, never into the spec.\n   - The spec keeps the portable citation `reference/documentation-impact.md`.\n\n5. **Stage: dispatch one fresh `worker`.** The call is `context: \"fresh\"`, `async: false`, `cwd` set to the worktree, and no `model:`. The task carries:\n   - **Problem statement:** \"Export the current user's widgets as CSV with id and name columns.\"\n   - **Scope of edits:** edit only the spec file.\n   - **Protected text:** preserve the guideline citation, and never touch `**Amend-grant:**`.\n   - **Drafted-row rules:**\n     - Drafted rows are spec requirements, not Human input.\n     - A drafted row may be rewritten before approval only for integrity, using Design-sourced values.\n     - The worker never drafts rows, never deletes a row without a user scope cut, and never replaces the section with `none`.\n   - **The three checks:**\n     - **(1) Scope:** cut filler and state out-of-scope items explicitly.\n     - **(2) Ambiguity:** turn every \"we should\" into \"we will\" or \"we won't\".\n     - **(3) PR-source:** flag a clause whose stated source is a PR title or body as a `[major]` gap marked `pr-source`. Re-source it from approved human input or the agreed design. Without that evidence, flag it for the main loop to obtain the user's Design scope decision.\n   - **Exemptions:** the `supersedes` line, `## Rework record`, the `## Problem` thread lists, `## PR under rework`, and other provenance mentions of PR numbers.\n   - **External references:** flag any the spec relies on, and do not fetch them.\n\n6. **Observed worker outcome, derived from the fixed observations.**\n   - **Acceptance row:** \"Export contains only the current user's widgets with id and name columns.\"\n     - It is retained unchanged as `in-scope`, under `Drafted from the design, no ticket rows:`.\n     - It is sourced from the approved input and the agreed design, so no integrity rewrite is needed.\n   - **D1** (\"Use the existing owner-scoped query and CSV encoder\"):\n     - It is sourced from the agreed design, so it passes and is not edited.\n     - The agreed design's two-owner handler test stays the owner-isolation proof.\n   - **D2** (\"Compress the export with gzip, per the PR title\"):\n     - It is flagged as `[major] gap — pr-source: D2's only source is the PR title; the spec produces the PR, never the reverse.`\n     - **What evidence would permit a correction:** approved human input or agreed-design text that commits to compression. With that text, the worker would re-source D2's citation in place.\n     - **What is actually available:** neither source mentions compression. The worker therefore makes no correction, keeps D2, and returns the flag to the main loop.\n   - **Provenance controls:** all are exempt and retained verbatim:\n     - `supersedes doc/specs/old-export.md, CSV export scope (PR #12)`;\n     - `## Rework record` (PR acme/widget#12, Threads T1 owner isolation addressed);\n     - the `## Problem` thread list (PR #12, T1);\n     - `## PR under rework` (title and body kept as provenance only).\n   - **Scope and ambiguity checks:** nothing beyond D2 is found in the observations given.\n\n7. **Stage: main loop after the worker returns.**\n   - **Placeholder scan:** re-run it over the applied spec.\n   - **Ticket-contract predicate:** reapply it. Drafted provenance with one valid row and a disposition passes, so no repair is needed and no `Drafted AC repair:` line is added. The worker-path commit body stays empty.\n   - **`**Amend-grant:**`:** confirm it appears exactly once with the value `none`.\n   - **Banner check:** confirm the `doc/specs/old-export.md` banner's scope (\"CSV export scope\") still matches and its link resolves to this spec.\n\n8. **Stage: the Design decision the main loop needs, before the gate.** The main loop asks the user for D2's Design scope decision as a `gauntlet: question` in questionary format. The choice is between two outcomes:\n   - **Re-source:** the user's answer commits to gzip, and that answer becomes D2's approved source.\n   - **Cut:** D2's commitment is removed and recorded under `## Out of scope`.\n\n   Two constraints apply to this question:\n   - The CSV outcome row is unaffected either way, because D2 is a Design clause, not an acceptance row.\n   - If the user never answers, the issue is carried to the gate as an unresolved ambiguity rather than silently cut.\n\n9. **Ownership on this no-council route.** Drafting and any integrity recovery that needs clarification belong to the main loop, under `ticket-acceptance.md`. The worker only applies the three checks, re-sources a clause when evidence exists, and flags otherwise. When the gate is later rendered, it omits the `Council:` line and option 3, since no council audit exists.\n",
+      "words": 843,
+      "wallMs": 29157,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Stage — Select the worker critique route.** The fixed settings result is `verdict: worker`, with no malformed setting or errors. No council runs. Inline lint has already passed.\n\n2. **Stage — Prepare the fresh worker dispatch.** The required task is to read the spec and edit **only that file**, applying:\n   - **Scope:** remove filler and state exclusions explicitly.\n   - **Ambiguity:** replace tentative language with concrete decisions.\n   - **PR-source:** flag any requirement sourced solely from a PR title or body; correct its source only when approved human input or agreed design supplies evidence.\n\n   The dispatch supplies the problem statement and approved input, resolves the documentation-impact guideline to an absolute skill-resource path, and instructs the worker to preserve its portable citation and the gate-owned `**Amend-grant:**` field. These are narrated requirements, not live calls or observed edits.\n\n3. **Read — Inspect the spec against the supplied evidence.** The fixed observations establish that the CSV acceptance row is valid and in scope. D1 is supported by the agreed design: reuse the owner-scoped widget query and CSV encoder, with a two-owner handler test proving isolation. D2 introduces gzip solely “per the PR title”; neither approved human input nor agreed design supports compression.\n\n4. **Stage — Report the worker finding.** The worker flags D2 as a **[major] pr-source gap**. No separate scope or ambiguity correction is established by the observations. A correction would be permitted if approved human input or agreed design supported gzip: the worker could then re-source the clause to that evidence. Here, that evidence is absent, so the worker cannot safely re-source or silently delete the compression commitment.\n\n5. **Stage — Return the unresolved decision to the main loop.** The main loop must obtain the user’s Design scope decision on compression before cutting or changing that commitment. This checkpoint is not a gate, and no correction is claimed to have been applied.\n\n6. **Stage — Preserve the valid contract and provenance.** Retain the current-user-only CSV outcome, its `id` and `name` columns, its drafted provenance, and its `in-scope` disposition. Retain D1 and the owner-isolation proof. Preserve the supersession clause, `## Rework record`, Problem thread list, and `## PR under rework` title/body record: these are provenance controls, not PR-sourced behavioral requirements.\n\n7. **Stage — Keep drafting ownership with the main loop.** On this no-council route, the worker may perform evidence-backed pre-approval integrity rewrites while preserving every committed outcome. It must not invent missing inputs, draft new acceptance rows, delete an outcome without an authorized scope cut, or replace the section with `none`. Any required drafting, integrity recovery needing clarification, or scope decision belongs to the main loop.\n",
+      "words": 421,
+      "wallMs": 23058,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a7fdb3aa0a86107e18597e1d7f853c0ca292ebcea41f1f4798a45e0738a1a91e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "baselineOutputSha": "ab28b082570e50b5cf470f95e9ae6cb838bcdb90fc50711a953fd4bf7230ecf8",
+      "candidateOutputSha": "8086a0b55715345df6f9ad06202ba6241ebd4248ecd08b53ea6a4a235a0dfbe4",
+      "facts": {
+        "dispatch": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "finding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "correction": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "controls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ownership": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: step 5's third check is now the PR-source predicate with the `[major]` gap / `pr-source` vocabulary, the provenance exemptions, and the re-source-or-ask rule, and step 6 renders the D2 finding with that exact text while keeping D2 in place pending the main loop's user decision. Before failed dispatch and finding because its third check was the generic external-reference rule with no pr-source vocabulary or exemptions, and it failed correction because step 9 let the worker cut D2 on its own when the agreed Design explicitly excluded compression, bypassing the user's Design scope decision. Controls and ownership held in both: After keeps the supersedes line, Rework record, Problem thread list, PR under rework, D1 and the acceptance row verbatim, and leaves drafting/integrity recovery to the main loop without a council or live edits. One small tightening for After: step 5 phrases the predicate as 'a clause whose stated source is a PR title or body'; wording it as 'a Design or acceptance commitment whose only stated source is a PR title or body' would make the commitment predicate explicit for a reader checking the dispatch fact literally, with no cost to the other facts.",
+      "wallMs": 21089,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a7fdb3aa0a86107e18597e1d7f853c0ca292ebcea41f1f4798a45e0738a1a91e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "baselineOutputSha": "3d8a63f6a7167c03e7426172ae5deaafdf591678f2ef11d58b1aabaf50eadc2e",
+      "candidateOutputSha": "6b48daeb42b278f4a8f0f5d0039b3f76ef5260834ed3851341b3ed15eab7ab34",
+      "facts": {
+        "dispatch": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "finding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "correction": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "controls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ownership": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change: step 2 replaces Before's \"Grounding and references\" check with an explicit PR-source check carrying the commitment predicate and the re-source-only-with-evidence rule, step 4 names D2 a \"[major] pr-source gap\", and steps 4-5 withhold the cut pending the user's Design scope decision instead of Before's step 5, which treated gzip removal as permitted \"scope cleanup\" without a human decision (the fact Before failed on correction). Controls and ownership are preserved in both. One tightening worth making: the dispatch fact says the actual task text includes the major gap/pr-source vocabulary, provenance exemptions, and the re-source-or-ask rule, but in After those appear in steps 4, 6, and 5 rather than inside the narrated task in step 2; add to the PR-source bullet something like \"report a [major] pr-source gap; supersedes/Rework record/Problem thread list/PR under rework and PR-number provenance are exempt; re-source only from approved human input or agreed design, otherwise flag for the main loop to ask\" so the task itself carries all four elements while every retained fact stays as is.",
+      "wallMs": 26235,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+}

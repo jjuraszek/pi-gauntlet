@@ -1,7 +1,7 @@
 {
   "sample": "extend-existing-test",
   "arm": "candidate",
-  "skillSha": "7db4b1eebec6f602d87a36fa2fc68b1e4cc2f4f74914493c42eec0e7c53eb771",
+  "skillSha": "9e82598000a5bb3eb0c6c287f01e8534a914c39544fe62d584aaf78559866c48",
   "inputSha": "f2154031928acfb02c5e6ab2573c0866fd8a2f50312cc96e53c116136783d0dc",
   "kind": "text",
   "assembly": "headed",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```python\nCASES = [\n    (\"plain\", \"12.50\", Decimal(\"12.50\")),\n    (\"negative\", \"-3.00\", Decimal(\"-3.00\")),\n    (\"integer\", \"7\", Decimal(\"7\")),\n    (\"thousands separator\", \"1,250.00\", Decimal(\"1250.00\")),\n]\n```\n",
-      "words": 15,
-      "wallMs": 4916,
+      "text": "```python\nCASES = [\n    (\"plain\", \"12.50\", Decimal(\"12.50\")),\n    (\"negative\", \"-3.00\", Decimal(\"-3.00\")),\n    (\"integer\", \"7\", Decimal(\"7\")),\n    (\"thousands_separator\", \"1,250.00\", Decimal(\"1250.00\")),\n]\n```\n",
+      "words": 14,
+      "wallMs": 4259,
       "mechanical": {
         "m1": "holds"
       }
@@ -28,7 +28,7 @@
       "status": "ok",
       "text": "```python\nCASES = [\n    (\"plain\", \"12.50\", Decimal(\"12.50\")),\n    (\"negative\", \"-3.00\", Decimal(\"-3.00\")),\n    (\"integer\", \"7\", Decimal(\"7\")),\n    (\"thousands_separator\", \"1,250.00\", Decimal(\"1250.00\")),\n]\n```\n",
       "words": 14,
-      "wallMs": 2287,
+      "wallMs": 4111,
       "mechanical": {
         "m1": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "ab5c3bf54f1c29e6e4873a5f5122dcd5d7ca5f7c4ba1f291976c128fb2aaee46",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2916f6a0964b543deca8275d19c456698f3da2dff63abe9d3278a30ceae9c2a2",
+      "intentSha": "7ffe6cc8df20952b20bc45dcc6f29c3b3af4a7787cbc9927881c7471c14cfc8c",
       "baselineOutputSha": "6f25b015221d6cd3b7c0436d85c1ff7eae6653f918f7bbb941b61c2bf33f5b4b",
-      "candidateOutputSha": "6f25b015221d6cd3b7c0436d85c1ff7eae6653f918f7bbb941b61c2bf33f5b4b",
+      "candidateOutputSha": "d1c7df986d662d25c8fc4e9e8a7829fbece0f8e5f09af926db21a133a0d72e8d",
       "facts": {
         "f1": {
           "before": "holds",
@@ -63,14 +63,14 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical: both extend the existing CASES table with a single new row (\"thousands separator\", \"1,250.00\", Decimal(\"1250.00\")), leave the three original rows untouched, and do not touch test_rejects_empty_amount (which is simply not shown, consistent with no change). No fact moved on this legacy case, which matches the Change's stated intent that only the two new anchored-task/unreadable-anchor cases are routed through the new file-observation and report/JSON output while legacy cases keep their existing response format. Nothing in the After wording needs adjusting for this case; keep the legacy-path carve-out as written so inline TDD outputs like this one continue to pass through unchanged.",
-      "wallMs": 4580,
+      "feedback": "Nothing moved between Before and After for this case: both outputs extend the existing CASES table with a single new row asserting \"1,250.00\" parses to Decimal(\"1250.00\"), and both leave the three original rows and (by omission of any rewrite) test_rejects_empty_amount intact. The only difference is the case name string (\"thousands separator\" vs \"thousands_separator\"), which is cosmetic and affects no fact. The anchored-task, NEEDS_CONTEXT, BLOCKED, and sentinel behaviors described in the Change are not exercised by this case, so the After wording is safe here; just note that the implementer output shows only the CASES block, so if you want stronger evidence that importer.py was also modified and tests run via the scoped command, consider having the worker echo the file edit and the `pytest ledger/importer_test.py` invocation in its report.",
+      "wallMs": 5707,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ab5c3bf54f1c29e6e4873a5f5122dcd5d7ca5f7c4ba1f291976c128fb2aaee46",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2916f6a0964b543deca8275d19c456698f3da2dff63abe9d3278a30ceae9c2a2",
+      "intentSha": "7ffe6cc8df20952b20bc45dcc6f29c3b3af4a7787cbc9927881c7471c14cfc8c",
       "baselineOutputSha": "d1c7df986d662d25c8fc4e9e8a7829fbece0f8e5f09af926db21a133a0d72e8d",
       "candidateOutputSha": "d1c7df986d662d25c8fc4e9e8a7829fbece0f8e5f09af926db21a133a0d72e8d",
       "facts": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical for this legacy case: both extend the existing CASES table with a single ('thousands_separator', '1,250.00', Decimal('1250.00')) row, add no new test function, and leave the three original rows and test_rejects_empty_amount untouched. Nothing moved, which is consistent with the Change stating that legacy cases keep their existing response formats; the anchored-task and unreadable-anchor routing did not leak into this output. No wording adjustment is needed for this case.",
-      "wallMs": 4734,
+      "feedback": "Before and After are byte-identical: both extend the existing CASES table with a (\"thousands_separator\", \"1,250.00\", Decimal(\"1250.00\")) row, keep the three original rows intact, and show no change to test_rejects_empty_amount, so all three facts hold in both outputs and nothing moved. The Change text concerns anchored task loading, status mirroring, and BLOCKED handling, none of which is exercised by this single-task test-edit case, so this case is not a useful signal for the wording change; the author should expect movement only on the anchored-task, needs-context, and unreadable-anchor cases listed under Expected to move, and can keep the current wording as far as this case is concerned.",
+      "wallMs": 6337,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

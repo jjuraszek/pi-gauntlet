@@ -1,0 +1,90 @@
+{
+  "sample": "pr-sourced-clause",
+  "arm": "candidate",
+  "skillSha": "124fc7e127d9ada3f5df4d74191592cac03af42ea0dba49874e3952e418873ef",
+  "inputSha": "057ea2ee08f5e53db5cadedcc170d2031aec71c457b20d38d7a069ee1a39e4cb",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — The agreed design returns the current user's widgets as CSV with id and name columns, which meets \"Export widgets as CSV.\" The defects are an extra PR-sourced commitment and some underspecified details.\nfindings:\n- [major] gap @ \"D1: Compress the CSV with gzip, per the PR body.\" — pr-source: this Design clause names a PR body as its source. The spec produces the PR, not the reverse. Neither the Human input (\"Export widgets as CSV.\") nor the agreed design (\"returns the current user's widgets with id and name columns as CSV\") mentions compression. → Re-source D1 from the approved human input or the agreed design. Without that evidence, ask for the user's Design scope decision on gzip compression before keeping or cutting D1. Do not silently drop it, and do not add an AC row for it until that decision is made. — probed: none\n- [major] not-actionable @ \"### Tests — Verify id and name columns in the download.\" — D1 commits to gzip, but no test or AC covers it. An implementer cannot tell whether the download should be raw CSV or gzip-compressed. The two choices also lead to different behavior for Content-Type, Content-Encoding and the file extension. → After the D1 scope decision, make Tests and AC consistent with it: either specify gzip delivery (header vs. .csv.gz file) and test it, or confirm uncompressed CSV only. — probed: none\n- [minor] ambiguity @ \"Export contains id and name columns.\" — The row does not say whether there is a header row, what the column order and header labels are, or what the encoding is. → State \"header row `id,name` first, UTF-8, one row per widget\" and test it. — probed: none\n- [minor] oversimplification @ \"returns the current user's widgets with id and name columns as CSV\" — The spec does not address names that contain commas, quotes or newlines. It also does not say what happens when the user has no widgets. → Require RFC 4180 quoting and a header-only file for zero widgets, and add a test for each. — probed: none\n- [minor] gap @ \"### Design\" — The spec does not specify the endpoint or trigger, the download filename, or how unauthenticated requests are handled. → Name the route or UI entry point, the Content-Disposition filename, and the behavior for unauthenticated requests. — probed: none\nlean: nothing to cut\n",
+      "words": 372,
+      "wallMs": 13885,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — The design exports the current user's widgets as CSV with id and name columns, but compression lacks an approved basis.\nfindings:\n- [major] gap @ Design, \"D1: Compress the CSV with gzip, per the PR body.\" — pr-source: A PR body is not a valid source for a Design commitment; neither the human input nor the agreed design requires compression. The spec should produce the PR, not derive requirements from it → Re-source compression from approved human input or the agreed design; without that evidence, ask the user for a Design scope decision before retaining or cutting D1. — probed: none\nlean: nothing to cut\n",
+      "words": 104,
+      "wallMs": 8142,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "582d1f7a9a563a5171612bd94198ca4b236d25803a186029a576db3676941718",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
+      "baselineOutputSha": "5e2cc97060089a99f01567006a0f4abc249fb928a4ab29013e0668c96e5c7dba",
+      "candidateOutputSha": "638d6541624f1486414154bb03ae31c53462ff1eae9320e82030131023854acc",
+      "facts": {
+        "finding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "correction": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rows": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the D1 finding is now a [major] gap whose text opens with \"pr-source:\" and names the PR body as the unapproved source (Before filed it as external-ref plus a lean over-spec cut, which failed the finding fact), and its correction first asks to re-source from the Human input or agreed design and, absent that evidence, asks for the user's Design scope decision before keeping or cutting rather than ordering removal (Before said \"Remove D1\" outright, failing the correction fact). The rows fact survives: After neither empties the acceptance criteria nor drafts replacement rows, explicitly defers any gzip AC row until the scope decision, and treats the valid id/name row only as an ambiguity about header/order/encoding, not as a PR-source problem. One thing to watch in the After wording: the second [major] not-actionable finding is essentially a consequence of D1 and could read as pre-committing to gzip tests; keeping its remedy conditional on the scope decision (\"after the D1 scope decision\"), as it does now, is what prevents it from drifting into drafting a compression row or cutting the drafted id/name row. Also keep the tests-vs-AC distinction so suggestions like \"state header row id,name ... and test it\" remain corrections to the existing drafted row rather than new replacement rows.",
+      "wallMs": 16118,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "582d1f7a9a563a5171612bd94198ca4b236d25803a186029a576db3676941718",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
+      "baselineOutputSha": "c678c4b1e41ee11c44cb4d9c9651e3c8f4de5d7af12eca859bc0b5b3c2e1e599",
+      "candidateOutputSha": "9e701c55704c15509f897b97835b8a773bdc39af5084673f46499bc6d68ab8af",
+      "facts": {
+        "finding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "correction": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rows": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved both target facts in the intended direction without losing anything Before kept. Before classified D1 as an external-ref (unreviewable PR body) plus a minor over-spec with a direct '→ cut', so it neither named the PR-body authority problem as a major gap with pr-source nor asked for the user's Design scope decision before cutting. After reports '[major] gap @ Design … pr-source: …' and its correction is exactly the two-step the Change asks for: re-source from approved human input or agreed design, else ask the user for a Design scope decision before retaining or cutting D1. It also leaves the drafted id/name acceptance row alone, does not draft replacements, and does not treat the valid id/name outcome as a PR-source gap, so rows holds in both. One thing to keep deliberate: After drops Before's over-spec finding and reports 'lean: nothing to cut'; that is consistent with deferring the cut to the user's decision, but if you want to preserve the lean signal, you could note in the lean line that D1 is pending a scope decision rather than silently removing it, without reintroducing a '→ cut' that would violate the correction fact.",
+      "wallMs": 13754,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+}

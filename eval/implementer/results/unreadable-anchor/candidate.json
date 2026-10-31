@@ -1,7 +1,7 @@
 {
   "sample": "unreadable-anchor",
   "arm": "candidate",
-  "skillSha": "7db4b1eebec6f602d87a36fa2fc68b1e4cc2f4f74914493c42eec0e7c53eb771",
+  "skillSha": "9e82598000a5bb3eb0c6c287f01e8534a914c39544fe62d584aaf78559866c48",
   "inputSha": "9acd64fac111da869893110b00f2f793a20ae94bb9044c3bb1043ffdfe19eac4",
   "kind": "text",
   "assembly": "headed",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Next read requested:** `/workspace/project/plan.md`. The dispatch gives `planPath` and `anchor: \"### Task 4:\"`, so I read the plan before anything else and use that section as the task text.\n\n**Observation consumed:** The supplied read of `/workspace/project/plan.md` has one task heading, `### Task 40: Similar but not selected`, followed by `## End`. No heading line starts with `### Task 4:`. Under exact-prefix matching with number plus colon, `### Task 40:` does not match `### Task 4:`, so I cannot select it.\n\n---\n\n## Report\n\n**Status:** BLOCKED\n\nReasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:\n\n- **Files changed:** none. No implementation was done because the task text could not be found.\n- **Test commands run:** none. The dispatch has `SCOPED_TEST_COMMANDS: none`, and with the task blocked there was nothing to verify.\n- **Test-contract evidence:**\n  - SCOPED_TEST_COMMANDS: `none`\n  - via: `none`. I could not determine any `via:` because the task section is missing.\n- **Deviations from plan:** none. I did not use `### Task 40:` in place of Task 4 because it fails the exact-prefix rule and is not the selected task.\n- **Blockers / follow-ups for parent:**\n  - The anchor `### Task 4:` is missing from `/workspace/project/plan.md`. The plan needs a `### Task 4:` section, or the dispatch needs the correct anchor.\n  - I did not read the spec (`/workspace/project/spec.md`) or derive Rules/Leg, because there are no task `Spec:` anchors or `Leg:` to resolve.\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"reasoning\": \"anchor unreadable: /workspace/project/plan.md#### Task 4: — plan contains only ### Task 40:, which does not match the exact ### Task 4: prefix; no implementation performed.\",\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 4:\"\n}\n```\n",
-      "words": 239,
-      "wallMs": 8007,
+      "text": "**Next read requested:** `/workspace/project/plan.md`, to locate the section whose heading line begins with the exact prefix `### Task 4:`.\n\n**Consuming the supplied observation:** The plan's only task heading is `### Task 40: Similar but not selected`. The prefix `### Task 4:` requires a colon right after `4`, so `### Task 40:` does not match. No other heading in the file matches, so the selected anchor is absent. I did not substitute Task 40, and I did not read the Spec, Rules or any other file.\n\n## Report\n\n**Status:** BLOCKED\n\nReasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:\n\n- **Files changed:** none. No implementation was performed.\n- **Test commands run:** none. The dispatch supplied `SCOPED_TEST_COMMANDS: none`, and nothing was executed.\n- **Test-contract evidence:**\n  - Commands: none.\n  - via: none. The task section could not be read, so no `via:` seam was identified.\n- **Deviations from plan:** none. Work stopped before implementation.\n- **Blockers / follow-ups for the parent:**\n  - The plan at `/workspace/project/plan.md` has no `### Task 4:` section.\n  - The only near-match is `### Task 40:`, which was deliberately not used.\n  - The dispatch needs a plan that contains the Task 4 section, or a corrected anchor.\n\n## Structured output\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"reasoning\": \"Anchor ### Task 4: is absent from /workspace/project/plan.md (only ### Task 40: exists, which does not match), so no implementation was performed.\",\n  \"anchor\": \"### Task 4:\",\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 4:\"\n}\n```\n",
+      "words": 210,
+      "wallMs": 7073,
       "mechanical": {
         "anchor": "holds",
         "reasoning": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Next file read I would request: `/workspace/project/plan.md`, selecting the exact heading prefix `### Task 4:`.\n\n**Status:** BLOCKED\n\nReasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:\n\nThe supplied observation contains only `### Task 40:`, which does not match the requested anchor.\n\n- Files changed: none; no implementation performed.\n- Tests: none supplied (`SCOPED_TEST_COMMANDS: none`); no commands run.\n- Test-contract evidence: commands: none; via: unavailable because the task anchor is absent.\n- Deviations: none.\n- Blocker: the requested task section is absent.\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"reasoning\": \"Reasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:\",\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 4:\"\n}\n```\n",
-      "words": 85,
-      "wallMs": 4159,
+      "text": "Next file read I would request: `/workspace/project/plan.md`, selecting the exact heading prefix `### Task 4:`.\n\n**Status:** BLOCKED\nReasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:\n\n- Observation: The supplied plan contains `### Task 40:`, not the requested `### Task 4:`. No substitute task was selected.\n- Files changed: None; no implementation performed.\n- Tests: No commands supplied (`SCOPED_TEST_COMMANDS: none`); none run.\n- Test-contract evidence: commands: none; via: unavailable because the selected task anchor is absent.\n- Deviations: None.\n- Follow-up: The requested task anchor must be made available before implementation can proceed.\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"reasoning\": \"anchor unreadable: /workspace/project/plan.md#### Task 4:\",\n  \"anchor\": \"### Task 4:\",\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 4:\"\n}\n```\n",
+      "words": 97,
+      "wallMs": 5298,
       "mechanical": {
         "anchor": "holds",
         "reasoning": "holds"
@@ -40,9 +40,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "18d37d68e3f62c6ce5a9eb3dc2a0b018f3d7b6e9c81d406eb8c24b38f396a266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2916f6a0964b543deca8275d19c456698f3da2dff63abe9d3278a30ceae9c2a2",
-      "baselineOutputSha": "7f46b5cf1c191493e28eb879aa97c34fd960e39a33e36b85f120e01dc04d4f14",
-      "candidateOutputSha": "6f05abcbb74b30b24e01ecad184e266df3430c08e0975f72db6db73b61214473",
+      "intentSha": "7ffe6cc8df20952b20bc45dcc6f29c3b3af4a7787cbc9927881c7471c14cfc8c",
+      "baselineOutputSha": "6f05abcbb74b30b24e01ecad184e266df3430c08e0975f72db6db73b61214473",
+      "candidateOutputSha": "579256ba1832e202023c716c57a9b2ae3d53785594bb83673d52bddbe8df93a0",
       "facts": {
         "next-read": {
           "before": "holds",
@@ -55,31 +55,31 @@
           "label": "intended but unchanged"
         },
         "identity": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "anchor": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "reasoning": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         }
       },
-      "feedback": "After keeps everything Before kept: it states the plan read as its next read, rejects Task 40 under exact-prefix matching without asking the parent to open the plan, and reports BLOCKED in both prose and JSON. It also gains the identity fact by adding the `anchorUnreadable` field with the exact `/workspace/project/plan.md#### Task 4:` value, which Before lacked (Before only had separate `anchor` and `anchor_found` fields). One caution: After's JSON drops several structured fields Before carried (files_changed, test_commands_run, test_contract_evidence, deviations, follow_ups); no fact here requires them, but if other cases check for structured test-contract evidence or follow-ups, keep those fields alongside `status`, `reasoning`, and `anchorUnreadable` rather than collapsing the JSON to three keys.",
-      "wallMs": 6118,
-      "verdict": "improved"
+      "feedback": "Nothing moved on this sample: both outputs request the plan read first, reject `### Task 40:` under exact-prefix matching without asking the parent to open the plan, report BLOCKED in prose and in JSON, and set anchorUnreadable to the exact `/workspace/project/plan.md#### Task 4:` identity. After additionally echoes the dispatched anchor verbatim in an `anchor` field and labels the JSON as structured output, which matches the Change's 'copy exactly the dispatched anchor into every anchored status' and 'mirror the written status' intents without disturbing any fact; keep that wording. One minor note: After's reasoning string drops the literal 'anchor unreadable: path#anchor' phrasing that the prose and Before's JSON use—retaining that exact string in the JSON reasoning as well would keep the identity redundantly consistent across report and structured output if a stricter identity check is ever added.",
+      "wallMs": 9159,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "18d37d68e3f62c6ce5a9eb3dc2a0b018f3d7b6e9c81d406eb8c24b38f396a266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2916f6a0964b543deca8275d19c456698f3da2dff63abe9d3278a30ceae9c2a2",
-      "baselineOutputSha": "d83533601fc15aecf5920031b780c6cc8e5f2055bbe7caf73ea72d5fe299876d",
-      "candidateOutputSha": "3fd734ac8fafc6bad7189bdd8329f8be1200850fe22890b85e62589719b657c9",
+      "intentSha": "7ffe6cc8df20952b20bc45dcc6f29c3b3af4a7787cbc9927881c7471c14cfc8c",
+      "baselineOutputSha": "3fd734ac8fafc6bad7189bdd8329f8be1200850fe22890b85e62589719b657c9",
+      "candidateOutputSha": "efa5835060e6763208749d8329c6e6adf295475f2cf7886b471b461f6297dff5",
       "facts": {
         "next-read": {
           "before": "holds",
@@ -92,25 +92,25 @@
           "label": "intended but unchanged"
         },
         "identity": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "anchor": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "reasoning": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         }
       },
-      "feedback": "After delivers the Change on this case: it states the plan read with the exact `### Task 4:` heading prefix, refuses the Task 40 near-match, writes BLOCKED in both the prose status and the JSON status, and adds the exact `anchorUnreadable` value `/workspace/project/plan.md#### Task 4:` that Before lacked, so identity moves fails -> holds. The `blocked` fact already held in Before (prose and JSON status were both BLOCKED), so no movement there despite the expectation. One thing to watch: Before's follow-up 'Provide a corrected anchor or the missing task content' edges toward asking the parent to supply plan content, which the dispatch forbids; After's wording avoids this by stopping at 'the requested task section is absent' without a parent request, which is the safer phrasing to keep. Minor polish: the JSON `reasoning` field duplicates the literal 'Reasoning:' prefix inside its value; dropping the prefix in the JSON would keep the mirror cleaner without affecting any fact.",
-      "wallMs": 13228,
-      "verdict": "improved"
+      "feedback": "Nothing moved on this case: both Before and After request the plan read with the exact `### Task 4:` prefix, treat the missing anchor as unreadable without substituting Task 40 or asking the parent, report BLOCKED in prose and in structured status, and carry anchorUnreadable as the exact path#anchor `/workspace/project/plan.md#### Task 4:`. After is a mild improvement in form rather than in fact coverage: it drops the duplicated `Reasoning:` prefix inside the JSON reasoning string, adds an explicit `anchor` field echoing the dispatched anchor verbatim, states outright that no substitute task was selected, and keeps `**Status:** BLOCKED` off the first line so the BLOCKED: sentinel is not tripped. To keep these facts stable, retain the explicit 'exact heading prefix' phrasing for the next-read, the verbatim copy of the dispatched anchor into both `anchor` and `anchorUnreadable`, and the structured-status mirror; avoid any wording that would let the worker 'select the nearest task' or 'request the parent read the plan', since either would break next-read.",
+      "wallMs": 10687,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

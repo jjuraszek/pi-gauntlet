@@ -1,4 +1,4 @@
-for: 9c1f282587d243c744ed86460c830c135a59a2f1d8bbd241c7ea3cdbec48e312
+for: 89dc5928c4555e6ebb40f700877ab7f009b2dee005245e009089f5f54ccfe69f
 
 ## Change
 Recover suppressed apply JSON from exactly one bounded success capture satisfying unchanged APPLY_SCHEMA. Stop without retry only on the exact baseline-read marker, quoting command/stderr; preserve the ordinary one-retry gate. Establish committed plan/spec originals through path-scoped entry commits before dispatch. The missing-baseline and uncommitted-entry samples cover these changes; delegated-amendment and local-amend-revalidation now use committed originals while retaining failure history and parent gates. Model evidence remains verification-owned.
@@ -8,6 +8,7 @@ Localize implement amendments to affected entries and historical evidence, prese
 Replace per-task spec and per-wave code review with one post-gate integrated wave review. Read unresolved child reports directly once at limit 300 with one compact retry; retain delegated source/spec/plan reads. Repair on the current integrated tree, using committed clean snapshots and delta-only apply for isolated waves, direct edits in-place. Rebuild only after repair delta apply failure; preserve siblings and original wave base. Fold escalation, convergence, funding and transcript-only recovery into one transition table. These are behavior-changing instructions; parent verification owns model results.
 
 ## Expected to move
+- chain-stop-blocked/protocol: fails -> holds - Retain siblings and dispatch one sequential delegate diagnosis step only after bounded capture recovery finds no identity-matched success; preserve ladder routing and no recursive diagnosis, initial-chain repeat or per-task reviews.
 - amend-baseline-missing-stop/recovery: fails -> holds - Recover schema-valid JSON despite guard suppression.
 - amend-baseline-missing-stop/exact-stop: fails -> holds - Exact baseline marker skips retry; ordinary findings retain one retry.
 - amend-baseline-missing-stop/cardinality: fails -> holds - Stop on zero/two captures and malformed output.

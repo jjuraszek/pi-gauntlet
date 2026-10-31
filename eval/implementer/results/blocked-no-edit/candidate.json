@@ -1,0 +1,90 @@
+{
+  "sample": "blocked-no-edit",
+  "arm": "candidate",
+  "skillSha": "e603f5b46d4bf96330f93229042b9d5dac96a91fb293c564d121682eecb77c29",
+  "inputSha": "b637ae5249a430d4c237ab9a0cce260f872dd7e25448d3178ee82a1ecae52b89",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Next read requested:** `/workspace/project/plan.md`, to locate the section whose heading line begins with the exact prefix `### Task 5:`.\n\n**Consuming the supplied observation:** The plan has three task headings: `### Task 40: Decoy`, `### Task 4: Known task` and `### Task 6: Other task`. None of these lines begins with `### Task 5:`. Exact prefix matching rules out `### Task 40:` and `### Task 4:`, and the plan has no Task 5 section anywhere. The anchored task text therefore cannot be read. I did not fall back to inline implementation, invent a Task 5, or read the task's Spec/Files/Tests/Rules, because there is no task section to derive them from.\n\n## Report\n\n- **Status:** BLOCKED\n- **Dispatched anchor:** `### Task 5:` in `/workspace/project/plan.md`\n- **Files changed:** none\n- **Test commands run:** none. The dispatch supplied `SCOPED_TEST_COMMANDS: none`, and no implementation took place.\n- **Deviations from plan:** none. Nothing was implemented because the anchored task section is missing.\n- **Blockers / follow-ups for parent:** The plan has no `### Task 5:` heading. The nearby headings `### Task 4:`, `### Task 40:` and `### Task 6:` do not match. Re-dispatch with a corrected anchor, or add Task 5 to the plan.\n- Reasoning: anchor unreadable: /workspace/project/plan.md#### Task 5:\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"reasoning\": \"anchor unreadable: /workspace/project/plan.md#### Task 5: - the plan contains no heading with the exact prefix '### Task 5:'; nothing was edited and no command ran.\",\n  \"anchor\": \"### Task 5:\",\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 5:\"\n}\n```\n",
+      "words": 218,
+      "wallMs": 9492,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next read requested: `/workspace/project/plan.md`, locating the exact heading prefix `### Task 5:`.\n\n**Status:** BLOCKED  \nReasoning: anchor unreadable: /workspace/project/plan.md#### Task 5:\n\nThe supplied complete-plan observation contains no matching Task 5 heading. Implementation stopped.\n\n- Files changed: none.\n- Tests: none supplied; no commands ran.\n- Deviations: none.\n- Blocker: restore the missing task anchor or provide a corrected dispatch.\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"reasoning\": \"anchor unreadable: /workspace/project/plan.md#### Task 5:\",\n  \"anchor\": \"### Task 5:\",\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 5:\"\n}\n```\n",
+      "words": 69,
+      "wallMs": 4002,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0c9c4bc1290c775889acab4aa1ad13596069a52a24aa2e04c38005830b41b67b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7ffe6cc8df20952b20bc45dcc6f29c3b3af4a7787cbc9927881c7471c14cfc8c",
+      "baselineOutputSha": "93e32fb937191dc15dc1334698d870bcd1dfc03fb063ee7eb15af374daed917c",
+      "candidateOutputSha": "1b925cc0ea0b75267bcf5115783d8edc4f9b00bfe7df23d3f90d27164f2c1da3",
+      "facts": {
+        "blocked": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "identity": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-sentinel": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved `identity` from fails to holds by adding the top-level `\"anchor\": \"### Task 5:\"` field to the structured JSON (Before carried only status/reasoning/anchorUnreadable, so the dispatched anchor identity was absent from the JSON); it keeps `anchorUnreadable` byte-exact, omits any `anchors` field, and retains a Reasoning line naming the path#anchor. Nothing regressed: both outputs report BLOCKED with no edits, no commands, no fabricated Task 5, and explicitly reject Task 40/Task 4, and neither opens its message with `BLOCKED:` — note that `no-sentinel` already held in Before, so the wording change did not need to move it. One minor robustness point for After: the `Reasoning:` line is now rendered as the last bullet of the report list rather than a standalone line; if any consumer looks for a line starting with `Reasoning:` at column zero, keep it as an unindented standalone line (as Before did) while retaining the new `anchor` field in the JSON.",
+      "wallMs": 11585,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0c9c4bc1290c775889acab4aa1ad13596069a52a24aa2e04c38005830b41b67b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7ffe6cc8df20952b20bc45dcc6f29c3b3af4a7787cbc9927881c7471c14cfc8c",
+      "baselineOutputSha": "9a1faf7926f825d2f1a8e37b944fa21c15e3cf2e0ab937a29e69868e93ba3f78",
+      "candidateOutputSha": "e2871a63015dba607e6dcc0e21c95af667a0fe7587a26c569fbdb456cd63cf6f",
+      "facts": {
+        "blocked": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "identity": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-sentinel": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved the identity fact to holds by adding the `\"anchor\": \"### Task 5:\"` field to the structured JSON alongside the exact `anchorUnreadable` path#anchor and a `Reasoning: anchor unreadable: ...` line; Before had the anchorUnreadable value and Reasoning line but omitted the `anchor` field, so it failed identity. Both outputs avoid the `BLOCKED:` first-line sentinel (each opens with the requested next read), report no edits, no commands, and no fabricated Task 5 text, and neither selects Task 40, so blocked and no-sentinel hold in both. Nothing regressed. One small drift worth noting for the author: Before's JSON `reasoning` repeated the `Reasoning:` prefix while After drops it to just `anchor unreadable: ...`; if the mirror contract requires the JSON reasoning string to exactly match the prose Reasoning line, the wording should say so explicitly (e.g., \"copy the Reasoning line verbatim into `reasoning`\") so the field stays stable across edits.",
+      "wallMs": 11844,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+}

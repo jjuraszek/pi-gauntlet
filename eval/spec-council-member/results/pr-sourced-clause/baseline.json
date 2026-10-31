@@ -1,0 +1,34 @@
+{
+  "sample": "pr-sourced-clause",
+  "arm": "baseline",
+  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
+  "inputSha": "057ea2ee08f5e53db5cadedcc170d2031aec71c457b20d38d7a069ee1a39e4cb",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — the agreed design returns the current user's widgets as CSV with id and name columns, which meets \"Export widgets as CSV\"; the gaps are in specification detail and one unagreed addition.\nfindings:\n- [major] external-ref @ \"D1: Compress the CSV with gzip, per the PR body.\" — D1 rests on a PR body that is not inlined, and no approved human input or agreed design mentions compression. An implementer cannot see what the PR body requires or why. The design's own sentence (\"The agreed design returns ... as CSV\") does not include gzip. → Remove D1. If compression truly is wanted, inline the requirement and get it confirmed in Human input first. — probed: none\n- [major] not-actionable @ \"### Design\" — The spec never says how the download is triggered or delivered. It names no route or endpoint, no HTTP method, no UI entry point, no Content-Type or Content-Disposition, and no filename. An implementer cannot build the feature, and a tester cannot locate \"the download\" in \"### Tests\". → Name the route, for example `GET /widgets.csv` or `GET /widgets/export`. State the response headers (`text/csv`, attachment filename) and where the user starts the export. — probed: none\n- [major] oversimplification @ \"returns the current user's widgets with id and name columns as CSV\" — CSV encoding rules are assumed away. The spec says nothing about a header row, column order, quoting or escaping of names that contain commas, quotes, or newlines, character encoding, or formula-injection guarding for names starting with `=`, `+`, `-`, or `@`. → Specify a header row `id,name` in that order, RFC 4180 quoting, UTF-8, and whether to neutralise formula-leading cells. Add matching test cases. — probed: none\n- [minor] gap @ \"returns the current user's widgets\" — The spec does not cover these states: a user with zero widgets (header-only file or an error?), an unauthenticated request, or very large widget sets (streaming versus buffering, pagination limits). → State the empty-set output, the auth failure response, and whether the export streams or has a size cap. — probed: none\n- [minor] gap @ \"### Tests\" — The test checks only the presence of the columns. It does not check that only the current user's widgets appear, which is the core scoping rule. It also does not check escaping. → Add tests for exclusion of another user's widgets, for a name containing a comma or quote, and for the empty-set output. — probed: none\n- [minor] over-spec @ \"D1: Compress the CSV with gzip, per the PR body.\" — no human input requires this (closest human input: \"Export widgets as CSV.\"); adds: 0 files / 1 tests / 0 ACs; if cut, unprotected: nothing → cut\nlean: 1 over-spec findings above\n",
+      "words": 419,
+      "wallMs": 14337,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — The design exports the current user's widgets as CSV with id and name columns, but adds unsupported compression.\nfindings:\n- [major] external-ref @ Design, “D1: Compress the CSV with gzip, per the PR body.” — The PR body is not inlined, so the justification for this requirement cannot be reviewed; the supplied human input does not authorize compression → Remove this dependency or inline the relevant content and obtain an explicit decision on compression. — probed: none\n- [minor] over-spec @ \"D1: Compress the CSV with gzip, per the PR body.\" — no human input requires this (closest human input: \"Export widgets as CSV.\"); adds: 0 files / 1 tests / 0 ACs; if cut, unprotected: nothing; an uncompressed CSV download preserves the current-user selection and id/name columns without compression handling → cut\nlean: 1 over-spec findings above\n",
+      "words": 131,
+      "wallMs": 15447,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+}

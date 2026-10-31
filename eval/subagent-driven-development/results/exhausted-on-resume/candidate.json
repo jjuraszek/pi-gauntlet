@@ -1,7 +1,7 @@
 {
   "sample": "exhausted-on-resume",
   "arm": "candidate",
-  "skillSha": "46a7d2f3957534efeaa0011af916cf085536bf3c669cc8c3a7ea764885e3e0e3",
+  "skillSha": "89dc5928c4555e6ebb40f700877ab7f009b2dee005245e009089f5f54ccfe69f",
   "inputSha": "07717aaa8cb506b392304b09495ee3c2fc27a4afa7255754f597c5d05f8f052d",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Next parent action: emit the stop note and end the turn (no dispatch)\n\n**Why no funded round runs**\n\n- The transition table says a failed escalated round leads to a funded round only \"while the task's ledger has one left, else stop note\".\n- The escalated round failed: the attributed re-review returned `FIX_FIRST`.\n- The restored grant `**Amend-grant:** fund 2 fix rounds` gives N = 2. The header value is a fixed observation, so I do not re-dispatch a grant-decoding child.\n- On resume, spent rounds are recovered only from `funded round <k> of <N> for task <n>` lines. None exist for task 3.\n- Missing history means the ledger is exhausted, not reset. So the ledger reads `2 of 2 spent (not recovered on resume)`.\n- No funded dispatch has a budget left. I print no `funded round 1 of 2 for task 3` line, and no new carrier exists.\n\n**State held**\n\n- Phase stays `implement`.\n- `plan_tracker` task 3 stays `in_progress`. There is no wave commit, so nothing completes.\n- `WAVE_BASE_SHA`, report paths and tree IDs are kept for a later resume.\n\n**What I do not run**\n\n- No shell commands. There is no integration, gate, snapshot or `update-ref`.\n- No report read. The residual finding is already in the structured observation, so a bounded read would add nothing.\n- No relay child, no rebuild, and no refund of the token on my own.\n\n---\n\n**Reply (turn ends here):**\n\n```\ngauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: the frame validator still accepts frames without checking their length, and the funding for further fix rounds is used up.\nbudget: 2 of 2 spent (not recovered on resume)\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) refund funding by newly writing the plan header line `**Amend-grant:** fund <N> fix rounds` (for example `fund 2 fix rounds`) and reply \"resume\"; I then run funded rounds on <configured-impl-model> that add the length guard at src/frame.ts:21, each followed by the scoped test gate and a wave re-review\n  b) give the length-guard rule directly (for example: reject when the buffer is shorter than the declared frame length) and I dispatch it as your chosen fix\n  c) amend spec / plan task 3 if the length guard is not actually required by the approved validation rules\n\nPick one, or give another fix.\nRecommendation: a - a fresh grant restores funded rounds on the same tree and model without changing the approved spec.\n```\n",
-      "words": 399,
-      "wallMs": 20787,
+      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: the frame validator still reads past the end of short input, and the funding grant cannot pay for another round because no spending was recovered on resume.\nbudget: 2 of 2 spent (not recovered on resume)\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) add a length guard at src/frame.ts:21 that rejects a frame shorter than its declared header and payload length before any field is read. You can make this edit yourself or name it as the fix to run.\n  b) refund funding. Reply with a newly written grant, for example `fund 2 fix rounds`, or write a fresh `**Amend-grant:**` value in the plan header. The next decode starts a new task-3 ledger at zero. Each funded dispatch then prints `funded round <k> of <N> for task 3` and runs on <configured-impl-model> with the escalated payload. A funded re-review that reports STAGNANT stops immediately.\n  c) amend plan task 3 or its spec anchor if the length rule should be owned by another task.\n\nPick one, or give another fix.\nRecommendation: b - one more funded round on <configured-impl-model> targets the single remaining Moderate finding without changing the approved spec.\n\n---\n\nParent action this turn (nothing else runs):\n\n- **Funding ledger.** The transition table sends a failed escalated round to a funded round only while the task's ledger has one left. The restored transcript has no `funded round` lines for task 3. On resume, spending is recovered only from those lines, so absent history counts as exhausted, not as reset. The ledger therefore has no round left, and this stop note is the next operation.\n- **What I did not do.**\n  - I did not dispatch a funded carrier or print a `funded round` line.\n  - I did not re-dispatch a review to obtain a trajectory.\n  - I did not do a direct report read; the final finding was already supplied verbatim.\n  - I ran no shell commands.\n- **State held.**\n  - Phase stays `implement`, and task 3 stays `in_progress` in `plan_tracker`.\n  - The wave is not committed and no further task starts.\n  - WAVE_BASE_SHA, the report paths and the last review tree stay recorded for resume.\n- **Turn ends here.**\n",
+      "words": 364,
+      "wallMs": 22630,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The length guard is still missing, and funding is exhausted on resume because no funded spending history is recoverable. Restoring the unchanged grant does not refund it.\nbudget: 2 of 2 spent (not recovered on resume)\n  src/frame.ts:21 - missing length guard\n\nNo shell command or subagent carrier runs next. Task 3 stays in_progress; no wave commit or completion is authorized.\n\nFix options:\n  a) Explicitly issue a newly written `fund 2 fix rounds` grant through the existing grant surface, then resume repairs. This refunds funding; merely restoring or rereading the existing header does not.\n  b) Add the missing length guard manually, then resume the scoped gate and integrated wave review before committing.\n\nPick one, or give another fix.\nRecommendation: a - explicitly renews repair funding without changing handoff or resume grammar or bypassing the acceptance gates.\n",
-      "words": 150,
-      "wallMs": 12481,
+      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The length guard is still missing. Restored funding has no recoverable spending history, so it is exhausted on resume; no further repair dispatch is authorized.\nbudget: 2 of 2 spent (not recovered on resume)\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) explicitly refund two fix rounds for task 3, then repair the length guard and rerun the scoped gate and integrated wave review\n  b) supply a length-guard repair for the owning checkout, then resume its scoped gate and integrated wave review\n\nTo refund funding, explicitly authorize a new grant of two fix rounds for task 3. Merely restoring or repeating the existing `**Amend-grant:** fund 2 fix rounds` header does not reset its ledger.\n\nNo shell command or subagent carrier runs at this stop. Task 3 remains in_progress; completion still requires a green gate, SHIP, and the wave commit.\n\nPick one, or give another fix.\nRecommendation: a - explicitly renewed funding permits another delegated repair without treating unrecovered spending as zero.\n",
+      "words": 176,
+      "wallMs": 17777,
       "mechanical": {}
     }
   },
@@ -34,19 +34,19 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "73762c9b912437cbe621930f70abdb5c4b608b41aee99bd5200a735cd6340409",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
-      "baselineOutputSha": "62bb3cbb62002c5cae8eef29db7f9c5428825be6618cae7be05f1dfba30267cd",
-      "candidateOutputSha": "416bb4d4a9b3a2b946ea9d77efe96fe012365cd67867b401e738125865cfbec4",
+      "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
+      "baselineOutputSha": "416bb4d4a9b3a2b946ea9d77efe96fe012365cd67867b401e738125865cfbec4",
+      "candidateOutputSha": "d78c44133d78d8e5a155a5e5d5703c92a7a69532702e74848bb75cd7ef156508",
       "facts": {
         "exhausted": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "suffix": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "refund": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "After moves both target facts the right way: Before refused to infer any spend state (\"cannot establish remaining funding\"), which stops the dispatch but never treats the ledger as exhausted and emits no budget suffix; After states \"Missing history means the ledger is exhausted, not reset\" and prints `budget: 2 of 2 spent (not recovered on resume)` immediately after the Problem: paragraph and before the `src/frame.ts:21` finding, exactly as required. Refund still holds in both: After names newly writing `**Amend-grant:** fund <N> fix rounds` as the refund and does not invent spent state. One risk to tighten in After: option (a) tells the human to write the header and then 'reply \"resume\"', which a reader could mistake for a new resume carrier; phrase it as 'newly write the header line and I resume from that grant, printing `funded round 1 of <N> for task 3` before the next repair' so the refund is clearly the rewritten token alone, keeping handoff/resume grammar unchanged while still delivering the exhausted-ledger stop.",
-      "wallMs": 22036,
-      "verdict": "improved"
+      "feedback": "After keeps all three facts: it reasons that absent `funded round` lines on resume count as exhausted rather than reset, dispatches nothing, keeps the exact `budget: 2 of 2 spent (not recovered on resume)` line between `Problem:` and the `src/frame.ts:21` finding, and names a newly written `**Amend-grant:**` value as the refund without printing a spent line. Two things to tighten so the refund fact stays robust: option b currently offers two carriers (\"Reply with a newly written grant, for example `fund 2 fix rounds`, or write a fresh `**Amend-grant:**` value\"), which a reader could take as a new chat-level resume carrier; keep only the plan-header token as the refund path (as Before did) and state that the next resume decode starts the ledger at zero. Also the added sentence about a STAGNANT funded re-review stopping immediately is not in the observations and is unnecessary here; drop it to keep the note to what the transition table and the given facts support, while retaining the moved behavior (funded rounds on the same tree and model, `funded round <k> of <N> for task 3` lines only on actual dispatch).",
+      "wallMs": 14693,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "73762c9b912437cbe621930f70abdb5c4b608b41aee99bd5200a735cd6340409",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
-      "baselineOutputSha": "675f96dbc0b77168bab1d775f1dca203fcd2620428b575ec5cb057224432d65a",
-      "candidateOutputSha": "e47acee2a8dd01046a79a791970f56eef2dfeef73d6e3d73523db8701fbc3d02",
+      "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
+      "baselineOutputSha": "e47acee2a8dd01046a79a791970f56eef2dfeef73d6e3d73523db8701fbc3d02",
+      "candidateOutputSha": "2545d6bc829445fb76a3f74e06d77bad637a92ce7448b7646ef75dabaae78b9f",
       "facts": {
         "exhausted": {
           "before": "holds",
@@ -71,9 +71,9 @@
           "label": "held"
         },
         "suffix": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "refund": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moves `suffix` from fails to holds: Before never emitted the stop note itself (it delegated the wording to a one-step subagent carrier and promised to echo the result), so no `budget: 2 of 2 spent (not recovered on resume)` line appears in its text, whereas After writes the note directly with the budget line placed after the Problem paragraph and before the `src/frame.ts:21` finding. Both outputs keep `exhausted` (no funded dispatch, no automatic reset on resume, task 3 left in_progress without a wave commit) and `refund` (the human refunds by newly issuing the grant token, not by restoring the header; no new resume carrier is requested). One small tightening for After: option (a) says `fund 2 fix rounds` grant \"through the existing grant surface\" — quoting the full literal token `**Amend-grant:** fund 2 fix rounds`, as Before does, would make the refund instruction unambiguous while leaving the budget suffix, the no-dispatch stop, and the handoff/resume grammar untouched.",
-      "wallMs": 16889,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept: funding is stated as exhausted with no dispatch and no automatic reset, the `budget: 2 of 2 spent (not recovered on resume)` line sits between the Problem paragraph and the file finding, and the refund path is a new explicit grant rather than a reread header, with no spent carrier or new resume carrier invented. The only softening is that After says 'authorize a new grant of two fix rounds' and 'does not reset its ledger' rather than Before's 'newly written `fund 2 fix rounds` grant through the existing grant surface'; to leave no ambiguity about the carrier, keep the phrase 'newly written grant through the existing grant surface' (and avoid introducing 'ledger', which could read as a new state surface) while retaining After's clearer structure of a dedicated refund paragraph and the explicit completion requirements (green gate, SHIP, wave commit).",
+      "wallMs": 12911,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "054296ef6278390bdde50b90780eaadd2d0795c8"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

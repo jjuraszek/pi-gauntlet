@@ -1,0 +1,80 @@
+{
+  "sample": "uncommitted-plan-at-entry",
+  "arm": "candidate",
+  "skillSha": "29a749e2ea85a715291c46a46f2a71ede32edc9b6bc0bcbc7dd4f4fba2a69068",
+  "inputSha": "31edd2043ef4791943786ea0d6b0010371f672d201581a49d586899ffdc5311a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Implement entry: committing the originals, then the first-wave order\n\nThis is a plan of commands only. Nothing below was run, and no results are claimed. I treat `/workspace/app` as the home worktree and the owning checkout for home-leg waves.\n\n## 1. Commit the plan and spec originals (before any dispatch)\n\nObserved scoped status:\n\n```\n?? doc/plans/config.md\n M doc/specs/config.md\n```\n\nThis is nonempty, so stage and commit only those two paths:\n\n```bash\ngit -C \"/workspace/app\" status --porcelain -- \"doc/plans/config.md\" \"doc/specs/config.md\"\ngit -C \"/workspace/app\" add -- \"doc/plans/config.md\" \"doc/specs/config.md\"\ngit -C \"/workspace/app\" commit -m \"plan: config validation\" -- \"doc/plans/config.md\" \"doc/specs/config.md\"\n```\n\n- The `add` must come first. The plan file is untracked (`??`), and a pathspec commit only accepts paths git already knows.\n- The `-- <paths>` pathspec on `commit` limits the commit to the plan and spec. The already-staged `src/config.mjs` is not committed and stays staged. I never run `git add -A`, `add .` or a bare `commit` here.\n- After this commit, these become the committed originals. Later amendment children read them with `git -C \"/workspace/app\" show HEAD:doc/plans/config.md` and `HEAD:doc/specs/config.md`.\n\n### How the three cases differ\n\n| Case | Scoped status | Action | Next |\n|---|---|---|---|\n| Observed | `?? plan`, ` M spec` | Run the path-scoped `add`, then the path-scoped `commit` | Continue to section 2 |\n| Plan and spec already clean | empty | Run no `add` and no `commit` | Continue to section 2; the existing HEAD copies are the originals |\n| Commit fails | nonempty, and `add` or `commit` exits nonzero | Stop before any dispatch and report the quoted git error | Do not retry by staging more, and do not treat the dirty working copies as a baseline |\n\nIn the failure case:\n- `phase_tracker` is not started.\n- No wave base is captured.\n- The staged `src/config.mjs` is left as it is.\n\n## 2. Order before the first dispatch (only after section 1 succeeds or is a no-op)\n\n1. **Start the phase:** `phase_tracker({ action: \"start\", phase: \"implement\" })`.\n\n2. **Check the plan:** `plan_check({ planPath: \"/workspace/app/doc/plans/config.md\" })`.\n   - Stop on FAIL. For `manifest-size`, the stop note asks for plan reduction.\n   - Otherwise, take each task's `files`, `tests`, `leg`, `mode`, heading and `orchestrator` fields.\n\n3. **Use the existing tracker:** call `plan_tracker` status and keep the list initialized at handoff. Never re-init it. Only a direct recovery with no tracker initializes the full list, once.\n\n4. **Run the pi-cohort preflight once:** the marked `pi-cohort-preflight-shell` block (it runs `pi list` and checks the peer floor from the installed pi-gauntlet). No observation for this was supplied. Dispatch is gated on its exit 0; any error stops before dispatch.\n\n5. **Create the report directory:** `REPORT_DIR=$(mktemp -d)`.\n\n6. **Route legs and check independence:**\n   - Make each wave leg-homogeneous, splitting mixed waves.\n   - Confirm task `files` are pairwise disjoint across the wave; split any overlap into singleton waves.\n\n7. **Capture the wave base after the originals commit**, so the base includes them:\n   ```bash\n   git -C \"/workspace/app\" rev-parse HEAD\n   ```\n   Print `wave 1 base <sha>` using the real output only.\n\n8. **Mark the wave in progress:** call `plan_tracker` to set each wave-1 index `in_progress`, in increasing index order.\n\n9. **Dispatch** with the foreground one-step carrier in the owning checkout (isolated mode shown):\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"/workspace/app\",\n  chain: [{ parallel: [\n    { agent: \"implementer\", as: \"impl_<n>\", outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave1-task<n>.md\", outputMode: \"file-only\",\n      task: \"planPath: /workspace/app/doc/plans/config.md; anchor: ### Task <n>:; Spec: /workspace/app/doc/specs/config.md; Leg: <owning leg>; Rules: <task Rules> + <leg> Rules from home ## Legs, resolved in the owning checkout; SCOPED_TEST_COMMANDS: <task n manifest tests or none>. Return DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED. pi-cohort saves your final report; do not write it yourself.\" }\n  ], worktree: true, concurrency: 4,\n     stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } }]\n})\n```\n\nFor in-place mode:\n- Omit `worktree: true`.\n- Pass the wave-union tests as `SCOPED_TEST_COMMANDS`.\n\nNo reviewer step goes in this chain.\n\n## Boundary\n\nI stop here, before running anything. The preflight result, `plan_check` output, base SHA and child statuses are not supplied, so none are invented.\n",
+      "words": 614,
+      "wallMs": 24146,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "No commands have been run. The supplied scoped status is **nonempty**, so the committed-originals preparation is required.\n\n### 1. Commit only the home plan and spec\n\nThe next shell commands for the supplied status are:\n\n```bash\ngit -C \"/workspace/app\" add -- \\\n  \"doc/plans/config.md\" \"doc/specs/config.md\"\n```\n\nOnly if that succeeds:\n\n```bash\ngit -C \"/workspace/app\" commit -m \"plan: config validation\" -- \\\n  \"doc/plans/config.md\" \"doc/specs/config.md\"\n```\n\nBoth commands are path-scoped. Do **not** use `add -A` here: unrelated `src/config.mjs` is already staged and must not enter the plan/spec commit.\n\nThe status comparison is:\n\n| Observation | Next action |\n|---|---|\n| Supplied `??` plan and `M` spec | Run the path-scoped `add`, then the path-scoped `commit` above. |\n| Both plan and spec already clean | Skip both commands; committed-originals preparation needs no new commit. |\n| Either `add` or `commit` fails | Stop before dispatch. Preserve unrelated staged source; do not substitute dirty documents as the baseline or claim originals were committed. |\n\nIf checking scoped status in a later execution, the command is:\n\n```bash\ngit -C \"/workspace/app\" status --porcelain -- \\\n  \"doc/plans/config.md\" \"doc/specs/config.md\"\n```\n\n### 2. First-dispatch ordering\n\nAfter successful committed-originals preparation—or the already-clean alternative—the ordering is:\n\n1. Establish the **absolute owning implementation worktree** from the worktree report or handoff. Home `/workspace/app` does not, by itself, establish that implementation checkout.\n2. Consume the existing tracker and obtain the manifest:\n\n   ```js\n   plan_tracker({ action: \"status\" })\n   plan_check({ planPath: \"/workspace/app/doc/plans/config.md\" })\n   ```\n\n   Stop on `FAIL`. Preserve an existing tracker; initialize the full wave-ordered list only if recovery confirms none exists.\n3. Enter implement before the first wave:\n\n   ```js\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n4. Admit the supplied preflight observation. **None is supplied here**, so the preflight prerequisite is unresolved; do not claim it passed or run an alternative probe.\n5. Once prerequisites are satisfied, form the first leg-homogeneous, file-disjoint wave from the manifest, mark its indices `in_progress` in increasing order, and capture its base:\n\n   ```bash\n   git -C \"$OWNING_CHECKOUT\" rev-parse HEAD\n   ```\n\n   Print `wave <w> base <returned SHA>` only after an actual successful result.\n\n### 3. Foreground one-step carrier shape\n\nThe following is a **conditional template, not a dispatch**. Its variables must come from admitted workflow state; no task identity, tests, report directory, or checkout is invented. `IMPLEMENTER_STATUS_SCHEMA` means the exact schema supplied in the dispatch contract.\n\n```js\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: OWNING_CHECKOUT,\n  chain: [{\n    parallel: wave.tasks.map(task => ({\n      agent: \"implementer\",\n      as: `impl_${task.number}`,\n      outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: `${REPORT_DIR}/wave${wave.number}-task${task.number}.md`,\n      outputMode: \"file-only\",\n      task: [\n        \"planPath: /workspace/app/doc/plans/config.md\",\n        `anchor: ${task.anchor}`,\n        \"Spec: /workspace/app/doc/specs/config.md\",\n        `Leg: ${wave.leg}`,\n        \"Rules: selected task Rules + owning leg Rules from home ## Legs; \" +\n          \"resolve rule files in the owning checkout and read before acting.\",\n        `SCOPED_TEST_COMMANDS: ${JSON.stringify(\n          wave.mode === \"in-place\" ? wave.tests : task.tests\n        )}`,\n        \"Read the selected anchored task and its Files, Tests, Rules and Leg.\",\n        \"Return DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED \" +\n          \"using the supplied schema and copy the dispatched anchor exactly.\",\n        \"pi-cohort saves your final report; do not write it yourself.\"\n      ].join(\"\\n\")\n    })),\n    ...(wave.mode === \"in-place\" ? {} : { worktree: true }),\n    concurrency: 4,\n    stopOn: {\n      path: \"/status\",\n      in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"]\n    }\n  }]\n})\n```\n\nUse `SCOPED_TEST_COMMANDS: none` for an empty command array; preserve nonempty command strings verbatim.\n\n**Stopped before first dispatch:** the owning implementation worktree and successful preflight observation are missing. Establish the worktree through `/skill:using-git-worktrees` first. No source investigation, report read, or happy-path reference alternative is warranted at this boundary.\n",
+      "words": 507,
+      "wallMs": 33011,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5a037b7ebddb7588e2cd194f6bf1f7e25d978cc7bde42df43e396a66768a0027",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
+      "baselineOutputSha": "7bf4fc7e4eec244f6e260d904153e0aadd4bb21b58d65fa5a4687ebf948dd687",
+      "candidateOutputSha": "45281858d9bf683d23e71b01db8453e43189730b5529d31b996613a959ed185d",
+      "facts": {
+        "scoped": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "dispatch": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before already scoped the porcelain and pathspec commit to the two doc paths and kept src/config.mjs staged, but its subject was \"docs: config validation spec and plan\" rather than \"plan: config validation\", and it never framed the commit as establishing committed originals that later retries must read instead of dirty working copies, nor did it cover a status-command failure, so both facts fail in Before. After fixes both: the exact subject \"plan: config validation\", explicit `add -- <paths>` then `commit -- <paths>` with a stated ban on `add -A`/bare commit, a clean-status no-op row, a failure row that stops before any dispatch and refuses to treat dirty working copies as a baseline, and `git show HEAD:` reads for amendment children. One small hardening for After: the failure row names only nonzero `add` or `commit`; adding \"or the scoped `status` itself\" to the trigger column would make the status/stage/commit triple explicit without changing anything else.",
+      "wallMs": 15348,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5a037b7ebddb7588e2cd194f6bf1f7e25d978cc7bde42df43e396a66768a0027",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
+      "baselineOutputSha": "86df9d2b134dc10105db0536907b72dcb3f9f0982718321ea1fa8e827f620318",
+      "candidateOutputSha": "322ded37b1bf926547c95e81997a6b0b2b4c942e94112a2f400ee02f40bfd577",
+      "facts": {
+        "scoped": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "dispatch": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves both facts to holding: the commit subject is now exactly `plan: config validation` (Before used `docs: record config validation plan`), both `add` and `commit` are path-scoped to the two home-relative documents with `src/config.mjs` explicitly kept out of the commit, and the failure row now states that dirty documents are never substituted for committed originals and that originals are not claimed committed on failure, which Before omitted. Two small gaps remain in After worth tightening so the facts stay robust: the scoped `status --porcelain` command is framed as something to run \"in a later execution\" rather than as the entry check that decides whether the commit is needed, and the failure table lists `add`/`commit` failures but not a failed or still-nonempty scoped status read; adding a row such as \"status read fails or scoped status remains nonempty after commit → stop before dispatch\" would make the stop-on-any-failure clause of the dispatch fact unambiguous while keeping the Change's committed-originals ordering intact.",
+      "wallMs": 16539,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+}

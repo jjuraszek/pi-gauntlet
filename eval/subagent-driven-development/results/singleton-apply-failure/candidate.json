@@ -1,7 +1,7 @@
 {
   "sample": "singleton-apply-failure",
   "arm": "candidate",
-  "skillSha": "46a7d2f3957534efeaa0011af916cf085536bf3c669cc8c3a7ea764885e3e0e3",
+  "skillSha": "89dc5928c4555e6ebb40f700877ab7f009b2dee005245e009089f5f54ccfe69f",
   "inputSha": "b8129cbedb11b5552e1eeb003d3faec09c515b407fcba6fb2377c89b66cc35ba",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Wave 1, Task 1: initial patch failed to apply (hard stop)\n\nThe singleton wave's initial isolated patch failed `git apply --index`. No sibling was integrated before it. The skill classifies this as a **hard stop**: it does not trigger a rebuild, re-dispatch, diagnosis child or escalation. I do not read the patch. The tracker index for Task 1 stays `in_progress`, and nothing is marked `failed`. Task 2 does not start.\n\n## 1. Record the observation\n\nI print this immediately, in the recovery transcript grammar:\n\n```text\nwave 1 task 1 apply failed\n```\n\nThe earlier lines for this wave stay valid as already printed: `wave 1 base 1111111111111111111111111111111111111111` and the `wave 1 task 1 <status> report <path> patch <path>` line.\n\n## 2. Coordination check before the stop note\n\nThis step is optional and limited to coordination commands. It loads no content.\n\n```bash\ngit -C /workspace/project rev-parse HEAD\ngit -C /workspace/project status --porcelain\ngit -C /workspace/project diff --stat --cached 1111111111111111111111111111111111111111\n```\n\nThese commands only confirm that HEAD is still `WAVE_BASE_SHA` and that nothing is staged. I have no output for them and do not invent any. If the output shows unexpected staged or dirty state, that also goes into the stop note as a dirty-tree hard stop.\n\nThe following are **not** run here:\n- the repair-base recipe\n- the rebuild `rm`/`restore` commands\n- any `subagent(...)` dispatch\n- `reset --soft` or a commit\n- any `plan_tracker` update\n\n## 3. Stop note (the turn ends here)\n\n```\ngauntlet: question\nStopped on task 1 (<task 1 title>).\n\nProblem: the implementer's initial isolated patch for task 1 does not apply with git apply --index onto the wave base 11111111; no task in this wave is integrated, task 1 failed integration, and task 2 has not started.\n\nFix options:\n  a) rebuild task 1: remove its Create paths and restore its Modify/Test paths from the wave base, snapshot via the repair-base recipe, and re-dispatch one implementer from that snapshot with the original task 1 payload (counts as the next attempt; a second apply failure is a hard stop)\n  b) amend plan task 1's Files: list if the patch touches paths outside the declared manifest, then re-run the wave\n\nPick one, or give another fix.\nRecommendation: a - the tree is clean at the wave base, so a rebuild from a fresh snapshot is the smallest path back to an integrable patch without changing the approved plan.\n```\n\n## If the human picks (a): what runs next\n\nNothing below runs before the human answers.\n\n1. Print `rebuild: task 1 - delta apply failed`.\n2. In `/workspace/project`, run `git rm -q -f --ignore-unmatch -- <task 1 Create paths>`.\n3. Run `git restore --source=1111111111111111111111111111111111111111 --staged --worktree -- <task 1 Modify/Test paths>`. The paths come from the `plan_check` manifest.\n4. Run the `repair-base-shell` block with `RP_ROOT=/workspace/project` and `RP_BASE=1111111111111111111111111111111111111111`, then print `repair-base: <path> <sha>`.\n5. Dispatch one foreground carrier, then apply its `Artifacts:` patch with `git -C /workspace/project apply --index`. A failure there is a hard stop. On success, run the wave gate and a `wave-reviewer` re-review.\n\nThe carrier:\n\n```ts\nsubagent({ async: false, cwd: \"<RP_TREE>\",\n  chain: [{ parallel: [\n    { agent: \"implementer\", as: \"impl_1\", outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave1-task1-rebuild.md\", outputMode: \"file-only\",\n      task: \"planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 1:; Spec: /workspace/project/doc/specs/feature.md; Leg: <owning leg>; Rules: <combined task/leg Rules>; SCOPED_TEST_COMMANDS: <task 1 manifest tests or none>. pi-cohort saves your final report; do not write it yourself.\" }\n  ], worktree: true, concurrency: 4,\n     stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } }]\n})\n```\n",
-      "words": 550,
-      "wallMs": 22286,
+      "text": "# Wave 1: initial patch apply failure, stop and await the human\n\n**Assumption:** the singleton wave is wave 1 holding `### Task 1:`. If it is Task 2, substitute `2` everywhere below.\n\n## 1. Observation, printed as the apply returned\n\n```text\nwave 1 task 1 apply failed\n```\n\nUnder step 3 and the Hard stops list, a nonempty initial patch that fails `git apply --index` is a hard stop:\n\n- There is no automatic rebuild.\n- No sibling was integrated, so nothing is left staged and there is nothing to retain.\n- I run no further shell commands and dispatch nothing. That rules out a repair round, an escalated round, the repair-base snapshot and any rebuild.\n\n## 2. State held\n\n- **Tracker:** index for Task 1 stays `in_progress`. There is no `complete` and no `failed`, because no human decision has been made.\n- **Phase:** stays `implement`.\n- **Wave base:** `WAVE_BASE_SHA` stays `1111111111111111111111111111111111111111`.\n- **Reports:**\n  - I make no direct report read. The status was accepted, and there is no unresolved concern, question or finding.\n  - I do not read the patch.\n  - The apply stderr was not supplied, so I do not quote any.\n\n## 3. Stop note (reply ends here)\n\n```\ngauntlet: question\nStopped on task 1 (<Task 1 title>).\n\nProblem: The implementer's nonempty initial patch failed `git -C /workspace/project apply --index` against wave base 1111111; no sibling was integrated, so the wave holds nothing staged and no rebuild runs automatically.\n  integrated: none\n  failed: task 1 - git -C /workspace/project apply --index <Artifacts>/worktree-diffs/step-0/task-0-implementer.patch\n\nFix options:\n  a) rebuild task 1: snapshot the current integrated tree and re-run the implementer on it from its original payload, then gate and review the wave\n  b) amend plan task 1 (Files:/scope) if the patch targets paths the wave base does not carry\n  c) supply the apply stderr or a corrected patch and I resume integration from it\n\nPick one, or give another fix.\nRecommendation: a - the task's work is otherwise accepted, and a rebuild from the current tree is the defined recovery for an unapplied patch.\n```\n\n## 4. If the human picks (a): the defined Rebuild path\n\nThis is shown only, not executed.\n\n**Step 1: partition Task 1's manifest `files` in `/workspace/project`.** The manifest comes from `plan_check`.\n\n```bash\ngit -C /workspace/project rm -q -f --ignore-unmatch -- <Task 1 Create paths>\ngit -C /workspace/project restore --source=1111111111111111111111111111111111111111 --staged --worktree -- <Task 1 Modify/Test paths, deduped, excluding Create>\n```\n\n**Step 2: run the repair-base recipe.** Use `RP_ROOT='/workspace/project'` and `RP_BASE='1111111111111111111111111111111111111111'`, run the whole block, and print the `repair-base: <path> <sha>` line.\n\n**Step 3: dispatch one implementer from the snapshot.** It runs foreground, in a one-step carrier.\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"<RP_TREE>\",\n  chain: [{ parallel: [\n    { agent: \"implementer\", as: \"impl_1\", outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave1-task1-rebuild.md\", outputMode: \"file-only\",\n      task: \"planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 1:; Spec: /workspace/project/doc/specs/feature.md; Leg: <owning leg>; Rules: <combined task/leg Rules, resolved in /workspace/project>; SCOPED_TEST_COMMANDS: <Task 1 manifest tests or none>. pi-cohort saves your final report; do not write it yourself.\" }\n  ], worktree: true, concurrency: 4,\n     stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } }]\n})\n```\n\n**Step 4: apply the rebuild patch and finish the wave.**\n\n1. Run `test -s <Artifacts>/worktree-diffs/step-0/task-0-implementer.patch`.\n2. Run `git -C /workspace/project apply --index <that patch>`. A failure here is a hard stop; there is no second rebuild.\n3. Run the wave gate.\n4. Dispatch one `wave-reviewer` re-review with `BASE_SHA: 1111111111111111111111111111111111111111` and `HEAD_SHA: WORKTREE`.\n5. Commit at step 7.\n",
+      "words": 539,
+      "wallMs": 24408,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\n\nStopped on the failed singleton task (its task number was not supplied).\n\nProblem: The initial patch failed `git apply --index`. No sibling was integrated. This is a hard stop; an automatic retry, rebuild, or repair dispatch is not permitted. The task remains `in_progress`.\n\nThe only next coordination check is:\n```bash\ngit -C /workspace/project status --porcelain\n```\nThis command has not been run. No implementation or review carrier is dispatched.\n\nFix options:\n  a) Authorize rebuilding the failed task from the recorded wave base, preserving any unrelated changes.\n  b) Supply a corrected initial patch for the failed task.\n\nPick one, or give another fix.\nRecommendation: a - an explicitly authorized rebuild follows the workflow's recovery recipe; the failed task number and its manifest file ownership are required before constructing its commands and schema-bound foreground carrier.\n",
-      "words": 133,
-      "wallMs": 9836,
+      "text": "gauntlet: question\nStopped on the initial singleton task (task number was not supplied).\n\nProblem: The initial nonempty patch failed `git apply --index`; this is a hard stop, not an automatic repair or rebuild trigger. No sibling was integrated. The tracker remains `in_progress`.\n\nNo further shell command or subagent dispatch is authorized at this boundary. In particular, do not reset the checkout, create a repair snapshot, or relaunch the implementer. No additional execution results are assumed.\n\nFix options:\n  a) authorize a rebuild of the failed singleton task from the recorded wave base, 1111111111111111111111111111111111111111\n  b) request delegated investigation of the patch-application failure before choosing a repair\n\nPick one, or give another fix.\nRecommendation: a - an explicitly authorized rebuild uses the prescribed recovery path without treating the failed initial patch as an automatic repair.\n",
+      "words": 131,
+      "wallMs": 12188,
       "mechanical": {}
     }
   },
@@ -34,26 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c1295f8f3e1b4fa7f41269dc9e04b3cac39f419c21072cbe3558a0d1815dbaca",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
-      "baselineOutputSha": "9aa82b20ee5e791aa25fb8a4dbd635ea8bbbaabe802dfae328ea1bbb23767f29",
-      "candidateOutputSha": "6d965803f3ae51ba0c85e105a6753264eb9c9393ac4268c21886401f4855ed99",
-      "facts": {
-        "protocol": {
-          "before": "fails",
-          "after": "holds",
-          "label": "unplanned improvement"
-        }
-      },
-      "feedback": "Before fails the fact because it treats the singleton apply failure as a retryable condition: it runs an `apply --index --check` and dispatches a fresh implementer retry (attempt 1 of 2) from the wave base, and its transcript line is a `status apply-failed` record rather than a `task apply failed` print, so there is no stop. After moves the fact to holds: it prints `wave 1 task 1 apply failed`, keeps Task 1 `in_progress` with no `plan_tracker` call, explicitly rules out gate, review, commit, retry dispatch, `reset --soft`, and the rebuild `rm`/`restore` commands, and ends the turn on a stop note, only describing the rebuild as a human-chosen option. This is the right shape; keep the explicit 'not run here' list and the 'nothing below runs before the human answers' guard, since without them a reader could mistake the conditional rebuild section for an automatic rebuild. The optional `rev-parse`/`status`/`diff --stat --cached` block is harmless to the fact because it is non-mutating, but to stay unambiguous, state that even that block never changes the stop decision or the `in_progress` state.",
-      "wallMs": 11842,
-      "verdict": "improved"
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "c1295f8f3e1b4fa7f41269dc9e04b3cac39f419c21072cbe3558a0d1815dbaca",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
-      "baselineOutputSha": "e8911583cffa86ce8d40f3a3556fa8d0cf18567f32270da561997b063007dc13",
-      "candidateOutputSha": "d1c33a872e954f3317faf4fd598a4a7adc4e0fb641847c3ea2dc0f2d57c9eb58",
+      "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
+      "baselineOutputSha": "6d965803f3ae51ba0c85e105a6753264eb9c9393ac4268c21886401f4855ed99",
+      "candidateOutputSha": "959cd8ea1dd94d77ae8af472ac79e0cfdcdb4c0ab05e949b87687996f09f2db3",
       "facts": {
         "protocol": {
           "before": "holds",
@@ -61,10 +44,27 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep the fact: Before explicitly skips gates, review and commit, keeps the index in_progress, retries no wave and dispatches only a read-only plan lookup before any implementer; After states the apply failure outright, declares a hard stop, keeps in_progress and forbids automatic retry, rebuild or repair dispatch. After is actually the cleaner statement of the fact because it names the apply failure and the stop in plain words, where Before buries it under 'zero surviving patches' and still schedules a carrier. Two things to watch in After so it does not drift: the opening 'gauntlet: question' token and the recommendation of option (a) read like steering toward a rebuild - keep the wording that the rebuild is only on explicit authorization and that nothing executes meanwhile, and consider restoring Before's explicit sentence that integration gate, code review and commit are skipped (not merely 'not dispatched') so a reader sees every prohibited step named rather than implied.",
-      "wallMs": 21279,
+      "feedback": "Both outputs print `wave 1 task 1 apply failed`, end the turn on a gauntlet stop note, keep the Task 1 tracker index `in_progress` with no `failed` mark, and run no gate, review, commit, retry wave or automatic rebuild; the rebuild steps in both are explicitly gated on the human choosing (a). After is actually tighter than Before here: it drops Before's optional read-only coordination commands (rev-parse/status/diff --stat) and states 'I run no further shell commands and dispatch nothing', which makes the no-retry/no-rebuild stop unambiguous. Two wording nits worth keeping clean in After so a reader does not misread the stop as a soft pause: the stop note's 'the task's work is otherwise accepted' and option (c) 'I resume integration from it' could be read as implying integration continues by default - phrase (c) as 'I re-attempt the apply only after you supply it' and drop 'otherwise accepted' so the hard-stop framing stays as crisp as the bullet list in section 1.",
+      "wallMs": 10815,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c1295f8f3e1b4fa7f41269dc9e04b3cac39f419c21072cbe3558a0d1815dbaca",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
+      "baselineOutputSha": "d1c33a872e954f3317faf4fd598a4a7adc4e0fb641847c3ea2dc0f2d57c9eb58",
+      "candidateOutputSha": "a6c331cf3ce21b30ad9b17c5b593bd8f62e5afdd47edb87bc7910ea4c95f9bf7",
+      "facts": {
+        "protocol": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs satisfy the protocol fact: each prints that the initial patch failed `git apply --index`, declares a hard stop, keeps the tracker `in_progress`, and explicitly rules out automatic retry, rebuild, repair dispatch, gate, review and commit. After is actually tighter than Before, because it drops Before's dangling `git status --porcelain` suggestion (which Before hedged as 'not run') and instead states that no shell command or subagent dispatch is authorized at this boundary, and it anchors the rebuild option to the recorded WAVE_BASE_SHA. Nothing moved. If you want to make After's alignment with the Change even clearer without risking this fact, you could add one sentence noting that the apply-failure stop applies specifically to the initial nonempty patch (a missing/zero-byte initial patch would instead be counted as a failed attempt, and only a repair delta apply failure would trigger automatic rebuild), while keeping the current 'no further command or dispatch' phrasing so the stop remains unconditional.",
+      "wallMs": 7560,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "054296ef6278390bdde50b90780eaadd2d0795c8"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

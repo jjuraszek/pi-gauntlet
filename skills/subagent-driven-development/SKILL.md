@@ -127,7 +127,7 @@ Run every plan task through this loop in a wave of N >= 1 tasks. Run waves in se
    - *In-place waves* dispatch with `cwd` the branch checkout and no `worktree:`; the child edits the checkout directly; apply no patch and run no snapshot recipe; print the same line with `delta none applied n/a`.
 
    After the round: `git -C <worktree> add -A`; `git -C <worktree> diff --stat` against the recorded pre-repair tree decides emptiness; re-run the test gate for the touched tasks' `tests`; on green, one `wave-reviewer` re-review with the marker `## Previous review report (re-review trigger)`, the prior report path, the `## Fix delta` tree pair, the same `BASE_SHA` / `HEAD_SHA: WORKTREE`. Transitions follow the table below.
-7. **Commit.** Only when the gate is green and the latest `wave-reviewer` verdict is `SHIP`: isolated waves `git -C <worktree> reset --soft "$WAVE_BASE_SHA" && git -C <worktree> add -A && git -C <worktree> commit -m <message>`; in-place waves commit a descendant commit without amending or `reset --soft`. Then mark every index of the original wave `complete` together; execute manifest `orchestrator` instructions at the completed-wave boundary.
+7. **Commit.** Only when the gate is green and the latest `wave-reviewer` verdict is `SHIP`: isolated waves `git -C <worktree> reset --soft "$WAVE_BASE_SHA" && git -C <worktree> add -A && git -C <worktree> commit -m <message>`; in-place waves commit a descendant commit without amending or `reset --soft`. Then mark every index of the original wave `complete` together; execute manifest `orchestrator` instructions at the completed-wave boundary. For an explicit FORWARD instruction, append `predecessor: <status line> <report path> measured: <JSON verbatim>` to the next wave's implementer task text, never route it into `Amend-prepare:`. Only an explicit PERSIST instruction to write the value into spec or plan takes the delegated amendment route.
 
 `WAVE_BASE_SHA` is fixed across repair rounds, so every re-review diffs against the same root the first review saw.
 
@@ -261,11 +261,13 @@ List captures once with `ls <Artifacts>/structured-output/*/output.json`. Read e
 | Two captures claim the same dispatched identity | Stop naming both paths; never guess. |
 | No file, error envelope, missing value, malformed/rejected schema, stale or unmatched identity, or a read truncated before the closing brace | Treat the task's capture as absent; diagnose below. |
 
-Only a task with no accepted capture takes delegated identity-matched artifact diagnosis, once:
+Only a task with no accepted capture takes delegated identity-matched artifact diagnosis, once. Dispatch one sequential chain step, never a `parallel` item, with `agent: "delegate"`, `DIAGNOSIS_SCHEMA` and `stopOn` on `/decision`; put the literal sentence `Do not edit any file.` on its own line in the task text. After `decision: repair`, use the ordinary one-step implementer carrier.
 
 ```ts
 subagent({ async: false, context: "fresh", cwd: "<owning checkout>",
-  chain: [{ agent: "delegate", task: "Diagnose <run/task identities>; Artifacts: <dir>; known reports: <paths>; session artifacts: <locations>. Do not edit any file. Return compact statuses and retry/repair/stop; never invent a verdict.",
+  chain: [{ agent: "delegate", task: `Diagnose <run/task identities>; Artifacts: <dir>; known reports: <paths>; session artifacts: <locations>.
+Do not edit any file.
+Return compact statuses and retry/repair/stop; never invent a verdict.`, 
     output: "<REPORT_DIR>/wave<w>-diagnosis.md", outputMode: "file-only", outputSchema: DIAGNOSIS_SCHEMA,
     stopOn: { path: "/decision", in: ["retry", "repair", "stop"] } }]
 })
