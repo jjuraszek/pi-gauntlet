@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a377b81b57ecf6c0d31cc591a8e1a7fdeaa1e3557151d4649812f495005768d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "557f05d0acfdc4d5e76f99b2a24e92b41c56b04d7e0445d5024e14cc6585e8fb",
       "candidateOutputSha": "5ac88b9d4c9d1c3064d06a755ff7612b346dd4efc2c279b79a9818e40a9d64b3",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every element of the contract fact that Before kept: snapshots 1–4 restore row 2, headers and prior decisions from the saved copy, set row 1 to failed | 1 | iteration N: <concrete miss>, commit `loop: repair row 1` as a parent commit and reset previous decision to none; snapshot 5 accepts the valid new `row 1 failed | … | …` line with no repair; the second consecutive miss produces a stop; the `loop: retry row 1` commit opens a new validation-miss window so post-retry miss 1 only repairs while post-retry miss 2 stops; attempts (row 1 4, row 2 0) and iterations/cap (7/9) are preserved. The new `gauntlet: question` prefix on both stops delivers the Change without disturbing ledger state. Two minor wording points worth tightening so the fact stays unambiguous under stricter reading: in snapshot 1 After says 'any appended row-1 decision is discarded because the repair rewrites status' — state explicitly that this is the ordinary-miss rule (a foreign-cell miss invalidates the whole return, so the appended line is dropped and previous decision is none) rather than implying a conforming line might otherwise survive; and in post-retry dispatch 2 the task field `previous decision: none` is correct after a repair but sits beside a kept retry hint, so a one-line note ('previous decision is none after the repair; the hint persists because row 1 remains the retry target') would prevent a reader from thinking the retry line was lost.",
-      "wallMs": 15742,
+      "feedback": "Both outputs satisfy the contract fact: snapshots 1–4 restore row 2, headers and prior decisions, set row 1 to failed | 1 with a concrete miss, commit a parent `loop: repair row 1` and reset previous decision to none; the valid new line is accepted; the second consecutive miss stops; the human retry commit opens a new miss window so the first post-retry miss repairs without stopping and the second stops; attempts, iterations and cap are preserved throughout. After also adds the `gauntlet: question` prefix and the numeric budget/cap snapshot in both stops, which delivers the Change. Two things in After to watch, since neither moved the fact but could in a stricter reading: the fixture begins at `iterations: 3` rather than the post-seed value implied by the case (the Before used 1), which makes the iteration arithmetic harder to map onto the case's 'saved' state; and the second post-retry dispatch passes `previous decision: none` while Before kept the retry line as the operational decision — pick one convention and state why, so the retry-target selection and the hint carry-over are visibly derived from the same decision. Keeping Before's opening fixture (`iterations: 1`) while retaining After's explicit `budget: N of 2 spent` line and recorded `cap: 9` in each stop would deliver the Change with the least drift.",
+      "wallMs": 16180,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a377b81b57ecf6c0d31cc591a8e1a7fdeaa1e3557151d4649812f495005768d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "d17ec12c7a8fbcf2ba4cddc634bff4178c18edd9dc1567f366e82ef008c54e9d",
       "candidateOutputSha": "ca6136f2dbbd43e40fa403ff5fa43f450189102b78f40643dc75012288f848e3",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every element of the contract fact: snapshots 1–4 restore non-target cells and prior decisions, set row 1 failed attempts 1 with a concrete miss, commit `loop: repair row 1`, and dispatch with `previous decision: none`; snapshot 5 accepts the valid new line; snapshot 6 stops on the second consecutive miss; snapshots 7–8 start the window at the retry commit, repair the first post-retry miss without stopping (count 1), stop on the second, and preserve attempts, iterations and cap throughout. The `gauntlet: question` prefix is now present on both stops, which is the intended Change. Two incidental wording drifts worth watching, though they do not move this fact: the final stop's recommendation changed from `retry with hint` to `none`, and snapshot 6 introduces a `read(\"../brainstorming/reference/menu-layout.md\")` step that Before did not have — if other cases carry facts about recommendation content or about the stop being rendered without extra reads, keep Before's `Recommendation: retry with hint - ...` line and drop or make conditional the menu-layout read so the gauntlet prefix is delivered without altering the stop's substantive content.",
-      "wallMs": 12700,
+      "feedback": "After keeps every element of the contract fact that Before kept: all four inadmissible returns restore row 2 and prior decisions, set row 1 failed attempts 1 with a concrete miss, commit `loop: repair row 1`, and dispatch with `previous decision: none`; the valid new failed line is accepted without repair; the second consecutive miss stops under `gauntlet: question`; the explicit retry commit opens a new window so the first post-retry miss repairs at attempts 3 without stopping and the second stops at attempts 4, with attempts, iterations and cap preserved throughout. The only drifts worth watching are outside this fact: After inserts a mandatory `read(\"../brainstorming/reference/menu-layout.md\")` before rendering the stop and then admits it cannot assert the layout, and the final post-retry stop changes Before's `Recommendation: retry with hint` to `Recommendation: none`; if other facts key on a stable recommendation or on not introducing unverifiable prerequisite reads, keep Before's recommendation line and drop the reference read while retaining the `gauntlet: question` prefix and the numeric attempts/iterations/cap preservation line that the Change asks for.",
+      "wallMs": 10763,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "428c42110afc8b08d366c60b9d9fe3d53bd85fe2"
+  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
 }

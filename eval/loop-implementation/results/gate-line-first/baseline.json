@@ -2,7 +2,7 @@
   "sample": "gate-line-first",
   "arm": "baseline",
   "skillSha": "32d0ec512cb84eebc0be1a480b27c68ca95d8f3c3b68eed924f532dda326471b",
-  "inputSha": "a1a3f0fc2fce24982ddce157aca8b97f6c714d605dd237ea0057dee2ed1857a0",
+  "inputSha": "910d70acf17258eb6e05ae44907508950fc2028fb30795c903e7b0ad314d00ad",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nRow 1 is open, with 1 attempt. Iterations are 2 of cap 9.\n\nProblem: the loop child made 1 commit but left uncommitted changes in the implementation worktree. Its commit and the uncommitted changes are both preserved, and nothing has been discarded or reset.\nRow 1 evidence: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nPreserve every row's attempts and the total iteration cap.\n\nOptions:\n1. **Authorize discard/reset, then retry row 1 with a hint.** This discards the uncommitted changes and resets to the last valid commit. Iterations are then set to the restored HEAD's value + 1, so the consumed dispatch is not repeated silently. A durable `row 1 retry | <your hint> | allowed attempts 2` decision is committed as `loop: retry row 1` before dispatch.\n2. **Amend.** This goes through `/skill:brainstorming`'s amendment surface for row 1 and reconciles the spec and ledger in one commit.\n3. **Stop.** Implement stays active, and the branch, commit and uncommitted changes stay as they are for you to inspect.\n\nRecommendation: none - the uncommitted changes need human review before anything is discarded or reset, and hard boundaries never auto-take a recommendation.\n",
-      "words": 202,
-      "wallMs": 13959,
+      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nThe loop child returned one commit, but its working tree still has uncommitted changes. The return failed the commit boundary, so the ledger was not read from HEAD or validated. All changes and the commit are still in place. Nothing has been discarded or reset.\n\nLedger snapshot:\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 1 | check parser: expected colon, got comma |\n\niterations: 2 · cap: 9\n\nProblem: The tree is dirty after the child's commit. The row 1 evidence reads `check parser: expected colon, got comma`. The last decision reads `row 1 failed | delimiter still wrong | retry`.\n\nPreserve every row's attempts and the total iteration cap.\n\nOptions:\n1. **Authorize discard and reset, then retry with a hint.** This discards the uncommitted changes and resets to the last valid commit. Before the next normal bump, iterations is set to the restored HEAD's value plus 1, so the consumed dispatch is still counted. Then append `row 1 retry | <your hint> | allowed attempts 2` and commit it as `loop: retry row 1`. Attempts and the cap stay as they are.\n2. **Amend.** Use the `/skill:brainstorming` amendment surface. Spec and ledger changes are reconciled in one commit.\n3. **Stop.** Implement stays active, and the branch, the commit and the dirty changes are kept for you to inspect.\n\nRecommendation: none - the content of the uncommitted changes is unknown, so inspect the worktree before authorizing any discard or reset.\n",
+      "words": 240,
+      "wallMs": 16058,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\n\nStopped: the child returned one commit but left the working tree dirty.\n\nProblem: Uncommitted changes prevent admitting the return. Row 1 evidence: “check parser: expected colon, got comma”. Last decision: “row 1 failed | delimiter still wrong | retry”.\n\nNo cleanup authorization has been given. No discard, reset, ledger repair, or further dispatch will run.\n\nPreserve every row's attempts and the total iteration cap.\n\n1. Authorize discarding uncommitted changes and resetting to the last valid commit. Preserve the consumed dispatch count of 2 before any subsequent dispatch; cap remains 9.\n2. Stop and preserve the branch, commit, and working-tree changes unchanged.\n\nRecommendation: none - discard/reset requires your explicit authorization.\n",
-      "words": 108,
-      "wallMs": 9483,
+      "text": "gauntlet: question\nStopped: the child returned one commit but left the working tree dirty.\n\nLedger snapshot: iterations: 2; cap: 9; row 1: open; attempts: 1.\nProblem: evidence is `check parser: expected colon, got comma`. Last decision: `row 1 failed | delimiter still wrong | retry`. No cleanup authorization has been given.\n\nPreserve every row's attempts and the total iteration cap. The consumed dispatch count must also be preserved.\n\n1. Authorize discarding uncommitted changes and resetting to the last valid commit, then retry row 1 with your hint.\n2. Stop and preserve the current branch, commit and working-tree changes.\n\nNo cleanup, reset, ledger change or dispatch has run. Implement remains active.\n\nRecommendation: 2 - preserve the current state until you explicitly authorize discard/reset.\n",
+      "words": 119,
+      "wallMs": 9809,
       "mechanical": {
         "question-first": "holds"
       }
     }
   },
-  "repoSha": "428c42110afc8b08d366c60b9d9fe3d53bd85fe2"
+  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
 }

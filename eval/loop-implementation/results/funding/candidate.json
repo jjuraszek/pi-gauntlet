@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4ed888a1c5924cb6aaaa945ee42368e9f3d99603f2a122b8380e3fed56491b02",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "52b13fd6ea8cbe05a60d7ec1a2bd2e71b41a7bb1ce903ea427cc7bce1968313b",
       "candidateOutputSha": "482b4d3a2334b868e1e3a1a70b16e645848bbc21b75dbc0a26adbf0342f77424",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "The contract fact holds in both outputs: both print `funded round 1 of 2` then `2 of 2` under allowance 5, compute spent as attempts minus 3 (0/1/2) and print `budget: 2 of 2 spent` at the rule-2 stop, treat the grant as prospective with no reset of attempts/iterations/cap, no cap or empty-commit bypass, and no `implModel` escalation on a budget-only grant; both show the funding-only miss case stopping on the second consecutive miss (Before §4, After §6), stagnation stopping regardless of funding (Before §2, After §4b), and only the `loop: retry row 1` commit starting fresh windows without touching attempts, iterations or cap (Before §5, After §7). After did not move anything here; its additions (explicit `gauntlet: question` first-line rule, separated cap stop in §4a with `cap +N` and the `loop: raise cap` commit that resets no window, and the funded-round line surviving the retry in §7) all stay consistent with the contract. If you keep editing, preserve the explicit statements in §5 (\"The empty-commit and validation-miss windows are unchanged\") and §6 (\"funding resets nothing\"), since those are the sentences a reader relies on to confirm the window-independence half of the fact; the §7 `allowed attempts 5` at attempts 4 is correct but worth keeping as `<attempts + 1>` phrasing so the example doesn't read as a fixed value.",
-      "wallMs": 13763,
+      "feedback": "Nothing moved on the contract fact: After still derives allowance 5, prints `funded round 1 of 2` then `2 of 2`, computes spent as `min(attempts, 3+N) - 3`, shows `budget: 2 of 2 spent` at the rule 2 stop, applies the mid-loop grant prospectively from resume (section 5), refuses to bypass the cap (4a) or the empty-child stop (4b) on funding, passes no `model:` override, lets the second miss after an unretried first miss stop in section 6, and reserves fresh windows for the `loop: retry row 1` commit in section 7 with attempts, iterations and cap untouched. The Change is delivered cleanly here: every stop now opens with `gauntlet: question` alone on line 1, the cap stop names `row 1 (attempts 3)` as the observable snapshot, and the cap-grant path (`cap +6`, one `loop: raise cap` commit, no window reset) is spelled out without disturbing funding semantics. If you edit further, keep the explicit line in section 5 that 'the empty-commit and validation-miss windows are unchanged' and the section 6 sentence 'funding resets nothing', since those are the clauses a reader uses to confirm the independence half of the fact; also keep section 7's 'Attempts and iterations are not reset' adjacent to the retry commit so the no-reset conjunct stays tied to the retry rather than to funding.",
+      "wallMs": 14496,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4ed888a1c5924cb6aaaa945ee42368e9f3d99603f2a122b8380e3fed56491b02",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "4180ee2a4f585a1f49c1e4912eb0223b6d38407085aaef53f31ca0df685394c5",
       "candidateOutputSha": "05d5ac7fc2c9be8bdfd395ab2f0032342f5243eba5d617dda25a22f3f90c9abf",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy the contract fact: each computes allowance 5, prints `funded round 1 of 2` then `2 of 2`, derives spent as max(0, min(attempts,5) − 3), reports `budget: 2 of 2 spent` at the stop, treats the grant as prospective (After's 'Recover spent funding as 0 of 2' makes this explicit on resume), refuses any model override, keeps the cap stop and child-only-empty stop in force, keeps one prior miss in the window so a second miss stops, and reserves fresh windows for the explicit `loop: retry row 1` commit that leaves attempts, iterations and cap unchanged. After also delivers the Change's `gauntlet: question` prefix on every human stop and keeps row funding, cap, validation and child-only windows independent. Nothing in the After wording moved this fact; if anything, consider keeping Before's explicit statement that a cap grant 'resets neither stagnation nor validation-miss history' near the cap section in After (it is currently only implied in sections 5 and 7), so the independence of all four windows stays stated in one place.",
-      "wallMs": 12819,
+      "feedback": "Nothing moved on this fact: After, like Before, computes allowance 5 with spent = max(0, min(attempts,5) - 3), prints `funded round 1 of 2` then `2 of 2`, reports `budget: 2 of 2 spent` at the allowance stop, treats the grant as prospective (restore recovers spent as 0 of 2, no retroactive labeling), refuses to bypass the cap-4 stop or the two-empty-child stop, supplies no model override, keeps the validation-miss window across a funding-only grant so the second miss stops, and reserves fresh windows for the explicit `loop: retry row 1` commit while leaving attempts, iterations and cap unchanged. The After wording also delivered the Change cleanly here (every stop now opens with `gauntlet: question`, numeric budget line retained in each stop). If you want to tighten After further without risking this fact, keep the explicit sentence from Before that a cap grant \"resets neither stagnation nor validation-miss history\" in section 4 (After only states it indirectly in sections 5 and 7), and keep section 8's \"starts new child-empty and validation-miss windows\" phrased as happening at the retry commit so the window-start point stays explicit.",
+      "wallMs": 13413,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "428c42110afc8b08d366c60b9d9fe3d53bd85fe2"
+  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
 }

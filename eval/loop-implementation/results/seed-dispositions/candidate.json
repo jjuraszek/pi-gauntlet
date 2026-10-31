@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "93c687fc19ed2a20c4d7470583162c3d711c67636c97dbf0815a67a16f92c316",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "ffe8b125b90746834c151cbf94cec20cd641bb637b8ac8732be5145581650bd3",
       "candidateOutputSha": "2718db56eb0dc2318deb86ffcc075c68468549f8789dd12bdfa73efb1dac94c4",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every element of the contract fact that Before kept: AC1/AC2/AC3 start open and only the three disposition rows (deviates/deferred/elsewhere) start cut; the skeleton is written, admitted via plan_check, committed as `loop: seed ledger`, and only then is phase implement started; A and B both validate (partial vs complete baseline closure, attempts 0, one seed decision); C/D/E go to a human stop with no automatic seed retry and no parent repair; and the dispatch is `context: \"fresh\"`, `async: false`, `outputMode: \"file-only\"` to `loop-implementer` with `cwd: \"<WT>\"`, explicit `acceptance: { level: \"none\" }` and no model override. The only wording risk in After is the typo in (A) — \"Row 1 changes from `done`\" should read \"changes to `done`\" (open → done) so a reader does not misread the transition; also tighten the seed-miss bullet \"No new commit is made\" to \"No new commit is made at the stop\" since the authorized retry path later commits `loop: retry row 0`. Otherwise the After wording delivers the Change (question-marker stops, `Recommendation: none` for unamended contract violations, authorization boundary preserved) without moving this fact.",
-      "wallMs": 11826,
+      "feedback": "After keeps every conjunct of the contract fact: AC1/AC2/AC3 start open and only the deviates/deferred/elsewhere rows start cut; the skeleton is written, admitted via plan_check, committed as `loop: seed ledger` and only then is `phase_tracker start implement` called; A passes as partial closure and B as complete closure; C/D/E go straight to a human stop with 'never an automatic seed retry'; and the subagent call is `loop-implementer`, `context: fresh`, `async: false`, `outputMode: file-only`, `cwd: <WT>`, no model override, `acceptance: { level: none }`. Two wording issues to tighten without affecting the fact: (1) in (A) 'Row 1 changes from `done` with baseline-pass evidence' should read 'changes from `open` to `done`', since as written it misstates the transition; (2) the authorized-retry tail now has the parent commit `loop: retry row 0 | allowed attempts 1`, which imports the numbered-row retry lifecycle into seed recovery—the Change explicitly asked not to extend that lifecycle to seed rows, so prefer Before's phrasing (reset to ⟨S⟩, set `iterations: 1` for the consumed dispatch, bump to 2, redispatch `target: seed` with the hint) and avoid an attempts-bearing retry decision for row 0. The `gauntlet: question` prefix, preserved ledger state and explicit discard/reset authorization in the rendered stop are correctly present.",
+      "wallMs": 13465,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "93c687fc19ed2a20c4d7470583162c3d711c67636c97dbf0815a67a16f92c316",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "c794d8474e7d6ef9e96eea7c52c08f0d9d8faf1347f83c71054995f4377896df",
       "candidateOutputSha": "21cad4c6e453eed7a617c8ffa3b2439c8897cba746097326e468455e45549a35",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "The contract fact holds in both outputs and nothing moved: After still initializes AC1–AC3 open and only the three disposition exclusions cut, writes and plan_checks the skeleton, commits it as `loop: seed ledger` before `phase_tracker start implement`, treats A and B as valid with partial versus complete baseline closure, stops C/D/E under a `gauntlet: question` marker with no automatic seed retry, and dispatches `loop-implementer` once with `context: \"fresh\"`, `async: false`, `outputMode: \"file-only\"`, the same worktree cwd, no model override and explicit `acceptance: { level: \"none\" }`. One wording risk worth tightening in After: the task hint now says \"keep the ledger's iterations unchanged\" while the next sentence says the child commits \"including the bumped ledger\"; reverting the hint to Before's \"Apply the seed contract because target is seed, regardless of iteration number\" avoids a reader concluding the child is told to undo the parent's bump, while still preserving the Change's question-marker stops and authorization boundary.",
-      "wallMs": 10077,
+      "feedback": "Both outputs satisfy every conjunct of the contract fact: AC1–3 initialize open while only the three disposition rows (AC4–6) start cut and the venue row is explicitly not cut; the skeleton is stamped (plan_check), explicitly staged and committed as `loop: seed ledger` before `phase_tracker start implement`; A and B are both judged valid with 1-of-3 versus 3-of-3 baseline closure; C/D/E stop with the child commit preserved and no automatic seed retry or dispatch; and the seed dispatch is `context: fresh`, `async: false`, `outputMode: file-only`, same `cwd` worktree, no model override, and `acceptance: { level: 'none' }` with a reason. After did not move the fact. Its changes are mostly structural (the overrides-file order, the coordinated-reference check for multi-Leg specs, consolidating the C–E stops into a table with `gauntlet: question` first and the seed hint rewording) and none weaken the contract conjuncts. One caution for future wording: After's C–E stop table uses the header `Stopped on row <actual row> (<actual AC text>)`, which borrows the ordinary-row stop shape for a seed-contract violation; keeping Before's `Stopped: seed return violates the seed contract` (or stating both forms explicitly) would avoid a reader inferring that the numbered-row retry lifecycle now applies to seed recovery, which the Change text says must not be extended. Also preserve Before's explicit note that an authorized reset restores `iterations: 1` and reselects `seed`, since After's stop section only says implement remains active and no ordinary-row advance is authorized, leaving the recovery target implicit.",
+      "wallMs": 11881,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "428c42110afc8b08d366c60b9d9fe3d53bd85fe2"
+  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
 }

@@ -19,4 +19,4 @@ iteration: 3
 row 2 done | parser check passed | next row 3
 ```
 
-Home HEAD remains aaaaaaa. Recover this interrupted companion return before continuation. Show read timing, expected-dirt admission, validation, the one parent recording commit and resulting ledger, then continue at Before each dispatch. Stop the narration there before a subsequent dispatch; describe no new child execution.
+Home HEAD remains aaaaaaa. Recover this interrupted companion return before continuation. Enumerate all prescribed file reads in execution order, then show expected-dirt admission, validation, the one parent recording commit and resulting ledger, and continue at Before each dispatch. Stop the narration there before a subsequent dispatch; describe no new child execution.

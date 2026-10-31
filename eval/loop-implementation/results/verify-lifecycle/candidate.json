@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "be1a8c9ccac4d15f1f6f4d634205d1b19284a444e3f9031c5f554bf9ff353966",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "bc1edf06024e647f756fb75d782f208be5d8cdac659d084e2c37e69bd408ee47",
       "candidateOutputSha": "d010dbdd4771058078db067b2687bf9438325e3e5a16dbc1b5346d7823966e83",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every element of the contract: implement completes before verify starts, the clean exit run is reused and the repair forces a full foreground rerun, wave-reviewer precedes the happy path which precedes a separate fresh conformance-reviewer fed spec/prompt/full diff/ledger checklist, the three references are read in full, plan_tracker/task lifecycle is explicitly absent, and finishing-a-development-branch is invoked immediately. Two spots weaken precision without breaking the fact and are worth tightening: the closure block says the auto-applied fix commits index 'lists the review repair commit', but that index is for conformance fix commits (Before correctly said it is empty here since the repair was a review fix) — say 'no conformance fix commits; the review repair is not listed there'. And `audited-base` is hedged as 'abc in Snapshot 1, the post-repair HEAD in Snapshot 2' even though the case specifies a repair occurred; state it as the post-repair HEAD outright. Showing the full sentinel inline rather than describing the trailing fields in prose would also make 'exact sentinel' unambiguous.",
-      "wallMs": 18048,
+      "feedback": "After preserves every element of the contract: implement is completed before verify starts and before any review, the clean exit run is reused and the repair forces a full rerun, wave-reviewer precedes the happy path which precedes a separate fresh conformance-reviewer fed spec/prompt/full diff/ledger checklist, task lifecycle is explicitly excluded, all three references are read in full, and the closure block names audited-base, happy-path and whole-diff minors followed by an immediate finishing invocation. Two details to tighten rather than fix: the statement that the auto-applied fix commits index 'lists the review repair commit' conflicts with Before's reading that this index covers conformance fix commits only (there are none here) — say 'no conformance fix commits; the review repair is reflected in audited-base' to avoid misrepresenting the reference schema; and Snapshot 1's 'SHIP with no changes' followed by Snapshot 2's repair reads as two alternative branches, so phrase Snapshot 1 as 'if SHIP with no changes, carry minors forward; otherwise Snapshot 2' to make the sequence unambiguous while keeping the no-changes-first then repair ordering the case asked for.",
+      "wallMs": 13460,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "be1a8c9ccac4d15f1f6f4d634205d1b19284a444e3f9031c5f554bf9ff353966",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "436e8f339e03946bdd5c2aa8d24a6de7aadd6255ce4c993ad8ccce21cc66b57e",
       "candidateOutputSha": "2bd956df1e183e005f792fadafc8972b9b96687ef963a77d86be4eba8cedb163",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy the contract fact: each completes implement before starting verify and before either review, reuses the clean unchanged exit verification at abc, mandates a full foreground rerun after the review repair, sequences whole-diff wave-reviewer → CLI happy path → a separate fresh conformance-reviewer fed the absolute spec, verbatim prompt, full diff and ledger-checked AC rows, declines any task-tracker lifecycle, requires full reference reads, and renders the exact `## Closure / conformance` / `status: CONFORMS (0 open)` / `audited-base:` sentinel with happy-path fields, whole-diff minors and an immediate `/skill:finishing-a-development-branch` invocation. The After wording did not move this fact; the only drift worth watching is that After places `phase_tracker complete verify` ahead of emitting the closure report (Before emits the report first), and the tools-unavailable stop now recommends option 1 instead of `none` — neither touches this fact, but if you want to stay closest to Before, keep the closure report before the verify-complete call and retain `Recommendation: none` when no continuation can be admitted without the mandatory reads.",
-      "wallMs": 12753,
+      "feedback": "After preserves every conjunct of the contract fact: implement is completed before the full reference reads and the verify start, the clean unchanged exit verification is reused and the repair forces a full foreground rerun before re-review, the sequence is whole-diff wave-reviewer → CLI happy path → separate fresh conformance-reviewer fed spec path, verbatim prompt, full diff and ledger-checked AC rows, no task tracker is initialized, and the closure block carries the exact sentinel, audited-base, happy-path fields, whole-diff minors and the immediate finishing-skill invocation. The only wording drift worth tightening is in section 3, where After places `phase_tracker complete verify` ahead of the closure report and summary, whereas Before emitted the closure report first and then completed verify immediately before the finishing invocation; keeping Before's order (closure report → complete verify → immediately invoke finishing) would make the 'immediate' finishing invocation and the report-before-phase-close relationship unambiguous while still delivering the gauntlet: question stop and ledger-preservation wording the Change asks for. The rendered stop's numbered options and Recommendation 1 are fine for this case since they preserve attempts and cap and do not alter the authorization boundary.",
+      "wallMs": 13779,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "428c42110afc8b08d366c60b9d9fe3d53bd85fe2"
+  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
 }

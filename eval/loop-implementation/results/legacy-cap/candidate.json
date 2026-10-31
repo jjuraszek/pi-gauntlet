@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "612151d6f3168db4e989e6906aa14fe09e47a241608aaafcb6d856fe09e49bfb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "866a7324b1cf91e54f0b130c0492a85d5c584e672f73992972b1b905027566fe",
       "candidateOutputSha": "c294da93e7552fc1e453c10ba2d9cb8b66bdf41ed50e5336a3a225836e204c9b",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still gates on `cap:` before rule 1 (including the all-closed branch) with the exact legacy message, skips `gauntlet_setting` and the multiplier, writes `cap: 12` directly after `iterations: 7`, appends `cap +5 |` in a single `loop: raise cap` commit with iterations 7 and attempts 1 preserved, returns to the ordered table, and keeps both dirty-tree and commit-boundary stops cap-offer-free with explicit human authorization before any discard/reset. Two drifts are worth tightening so the next wording change does not slip: After reframes the commit-boundary variant as occurring only after the `cap +5` path (\"even though the cap exists\"), whereas the case asks for the variant under the same missing cap - keep a sentence stating that a commit-boundary stop on a capless ledger likewise withholds `cap +N` and that the legacy stop fires only on the subsequent clean read, as Before's \"Afterwards\" section did. Also, After's Problem line dropped Before's explicit \"records iterations: 7 but no total iteration cap, so no dispatch is allowed until a cap is granted\"; restoring that clause keeps the stop self-explanatory under the `gauntlet: question` prefix without changing the routing or authorization boundary the Change introduces.",
-      "wallMs": 15252,
+      "feedback": "No fact moved. After keeps the capless stop ahead of rule 1 in both the row-1-failed and all-done branches with the exact `ledger has no cap: line - seeded under the old loopEngine contract` message, skips `gauntlet_setting` and the multiplier, writes `cap: 12` directly after `iterations: 7` with `cap +5 |` appended in a single `loop: raise cap` commit, preserves iterations 7 and attempts 1, re-enters the ordered table, and withholds `cap +N` at dirty-tree and commit-boundary stops while requiring explicit discard/reset authorization. Both stops now carry the `gauntlet: question` prefix, which delivers the Change. One drift worth tightening: After reframes the commit-boundary variant as occurring only after the `cap +5` dispatch (\"even though the cap exists\"), whereas the prompt asked about the variants with the cap still missing; keeping Before's wording (\"`cap +N` is not offered here either, even though the cap is missing\" and that the subsequent clean read re-triggers the legacy stop) would answer the prompt as asked while retaining the question prefix and authorization boundary. The stray \"the ledger is not read\" clause in the commit-boundary bullet is also unexplained and could be dropped.",
+      "wallMs": 13286,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "612151d6f3168db4e989e6906aa14fe09e47a241608aaafcb6d856fe09e49bfb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "70138bc639f83f3710b4de52a0db8de642a63fabd9017f2cdbc895a0eeefc2ef",
       "candidateOutputSha": "8698c8f849e8bf2881cbeb87a47828283b3a9f47af314919f8245b155f420414",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps all three facts: it still requires the cap: header before rule 1 in both the failed-row and all-closed branches, prints the exact legacy stop line under a gauntlet: question prefix, refuses the loopEngine setting call and verification, writes cap: 12 directly after iterations: 7, appends the bare cap +5 | decision, makes exactly one loop: raise cap commit with iterations 7 / attempts 1 preserved, and returns to the ordered checks; the dirty-tree and commit-boundary sections preserve state, explicitly withhold cap +N, and gate reset/discard on explicit authorization. Nothing moved. Two wording points worth watching so later edits do not regress: After inserts a mandatory menu-layout.md read 'before presenting the human stop' between the cap check and the stop output—keep that read clearly non-blocking on the cap stop itself (or place it before step 5) so a reader never infers the stop is withheld pending another file; and After replaces Before's 'quote the actual last decision verbatim' with 'was not supplied in this snapshot', which is fine for the facts but drops the instruction that the live run must quote it—restoring 'quote the actual last decision verbatim when available' would keep the Before behavior while retaining the gauntlet: question prefix and ordinary-path amend routing the Change asks for.",
-      "wallMs": 15309,
+      "feedback": "After preserves all three facts: it still gates the `cap:` header check before rule 1 in both the failed-row and all-closed branches, prints the exact legacy stop line, explicitly refuses `gauntlet_setting({ key: \"loopEngine\" })` and verification, and on `cap +5` inserts `cap: 12` directly after `iterations: 7`, appends `cap +5 |`, makes a single `loop: raise cap` commit with iterations 7 / attempts 1 intact, then re-enters the ordered checks; dirty-tree and commit-boundary stops keep state, withhold `cap +N`, and require explicit discard/reset authorization with the `gauntlet: question` prefix. Two wording points worth tightening: the new sentence requiring a proposed read of `../brainstorming/reference/menu-layout.md` before the human stop is extraneous to the ledger-restore read order and could be read as an additional gate between the cap check and the stop, so either drop it or state it does not delay or alter the legacy stop; and the After stop replaces Before's \"Last decision: [quote the actual last decision verbatim]\" with \"not supplied in this snapshot\", which is honest but drops the instruction that the real stop must quote the ledger's last decision verbatim—restating that requirement (while noting the snapshot omits the text) would keep the rendered stop fully specified without inventing data.",
+      "wallMs": 15152,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "428c42110afc8b08d366c60b9d9fe3d53bd85fe2"
+  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
 }

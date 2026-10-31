@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4882a8ae5eba718a595d3d3209774ac0f694c10a374a366dbb083fded5513be2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "45a098bf76d26523f23923793aab839aa5572385b883f910cb475c227172478b",
       "candidateOutputSha": "e38ffbf411f696f543d7d543277645cd5bd616a91e3f54068afbda41a5dcf36e",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy the contract: A and B let rule 1 fire with no dispatch, no iteration bump and no stagnation check before exit verification; C picks the unresolved retry target (row 1) over the previously named failed row; D picks the previous-decision failed row (row 2) over the earlier open row; E lets durable `done` status override the decision's suggestion and falls to the first failed row. After adds the gauntlet: question prefix, the explicit cap: 1, the repair-round branch and escalation prints without disturbing any of that, so nothing moved. One caution for the After wording: in C it says rule 2 is checked against row 2's allowance and that the driver 'would escalate or stop before ever reaching row 1' — that reads as if a non-target row's exhaustion can preempt a still-unresolved human retry target, which muddies the priority the contract asserts. Rephrase so rule 2 is evaluated for the selected target (row 1, whose allowance the retry raised to m) or state that row 2's allowance is irrelevant while a retry target is pending; that keeps the ordering crisp while still delivering the escalation and cap-history behavior the Change asks for.",
-      "wallMs": 11266,
+      "feedback": "Nothing moved on this fact. Both outputs have A fire rule 1 on the third-attempt done row with no stagnation or dispatch, B seed cap: 1 and go straight to exit verification, C pick the unresolved retry target (row 1) over the previous-decision failed row, D pick the previous-decision failed row 2 over the earlier open row 1, and E let durable `done` status override the decision's suggestion and fall to the first failed row. After additionally keeps the `gauntlet: question` prefix, the `cap:` pre-check and the escalated-round branch without disturbing selection order; one small risk to watch is C's new 'If row 2 were at its allowance, the driver would escalate or stop before ever reaching row 1' sentence, which could be read as a non-target row pre-empting the retry target - phrasing it as 'rule 2 is evaluated for the selected target only after target selection' would keep the retry-beats-previous-decision ordering unambiguous while preserving the Change.",
+      "wallMs": 12089,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4882a8ae5eba718a595d3d3209774ac0f694c10a374a366dbb083fded5513be2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "6ba7109a07a34fdc5c5086e6cd9b9802f00d33d33286eb2b79d3183fb8a23df5",
       "candidateOutputSha": "875d03cc9fe439d2890ff529b900f7e8640bdf2b03bd7adfeab4689cc52ba415",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy the contract: A exits to verification with no escalation despite a third attempt, B treats all-cut as immediate exit verification without a seed child or stagnation, C lets the unresolved human retry on row 1 outrank the previous failed-row-2 decision, D falls to the first failed row, and E lets durable done status override the stale suggestion. After additionally delivers the Change by prefixing the A verification-failure stop with `gauntlet: question`, requiring the `cap:` header, and making the explicit funded-round notice and seed-first fallback conditional, none of which disturbed the contract. One wording nit in After to watch: the shared dispatch writes `iterations: i + 1` to the tree but passes `iteration: <i>` in the task line, whereas Before passed `<iteration>` consistently; to avoid a future judge reading that as a consumed-counter mismatch, write `iteration: <i + 1>` (or define `i` as the post-bump value) so the dispatched iteration number equals the durable one.",
-      "wallMs": 11259,
+      "feedback": "Both outputs satisfy the contract: A routes a successful third attempt straight to exit verification with no escalation or stagnation stop (After even states this explicitly \"even if iterations have reached cap\"), B exits via verification with no seed child, C lets the unresolved human retry on row 1 outrank the previous row-2 failed decision, D selects row 2 from the previous failed decision, and E lets durable done status override the stale suggestion and picks the first failed row. After did not move this fact. One wording risk to tidy in After's shared dispatch block: you write `iterations: i + 1` to the working tree but pass `iteration: <i>` in the child task, which contradicts \"keep the actual consumed iteration number\" — pass `<i + 1>` (or define `i` as the post-increment value) so the dispatched iteration matches the durable bump; this keeps every Before fact and still delivers the Change.",
+      "wallMs": 8819,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "428c42110afc8b08d366c60b9d9fe3d53bd85fe2"
+  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
 }

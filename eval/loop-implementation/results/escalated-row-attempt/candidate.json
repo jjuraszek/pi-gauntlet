@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0b560395f83f9115f94c1bea11584059e65e31a880543dcb29779d146377fe78",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "d03e36550b57e21aee0791c9cafeb0f7ea251d5eb7d606372e4520a5e4cf1cd2",
       "candidateOutputSha": "bd9399c73884c3fe255fc515c88847b2a8055b3d39f1b61c776b285661ac327c",
       "facts": {
@@ -49,19 +49,19 @@
           "label": "intended but unchanged"
         },
         "amend": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         }
       },
-      "feedback": "The only movement is on `round`, and it is the intended one: Before narrates the escalate commit, decision line, `escalated round for row 2` print, single `model:` override and funded rounds 4/5, but never states that the parent `loop: escalate row 2` commit starts no window, so a careful reader cannot confirm that clause; After adds the explicit bullets 'This is a parent commit, so it is excluded from child-only stagnation' and 'It starts no new window', plus the clamped `min(7,5)−3 = 2` for attempts 7, which completes the fact. `ledger-prepare-local` and `amend` hold in both: both outputs route the grant-backed amend through the ordinary ledger path with plan-writer/plan_check/plan_tracker skipped and no Amend-prepare block, both print `took recommendation: amend for row 2`, commit `loop: cut row 2` / `loop: amend` with counts and cap preserved before re-entering the table, render `Recommendation: none - evidence repeats row 2` after whitespace normalization, leave unnamed repair/cap/retry to the human, and open the stop with `gauntlet: question` carrying `budget: 2 of 2 spent` and `escalated round spent`. To keep every fact that Before kept while still delivering the Change, keep After's two explicit window/stagnation bullets under the escalate commit, keep the `gauntlet: question` first line on every human stop (After currently renders only the post-escalation stop; stating that the cap, stagnation, budget-only and missing-model stops also open with `gauntlet: question` would make the 'every human stop' clause unmistakable), and keep the ledger-route sentence in section 5 worded as 'skipped because a ledger exists' rather than as a general skill-wide rule so delegated preparation for task-plan callers is not implied to be removed.",
-      "wallMs": 23202,
+      "feedback": "After closes the two gaps Before left open: it states outright that the `loop: escalate row 2` parent commit \"starts no new window\" and is excluded from child-only stagnation (Before never said what window the escalation marker does or does not open), and it renders the post-escalation human stop with the `gauntlet: question` prefix while no longer describing a cap stop whose header is `Stopped: iteration cap 20 reached` (Before's cap variant explicitly named that line as the header, contradicting the every-human-stop prefix). Ledger-engine amend preparation stays on the ordinary path in both outputs (no plan-writer, no plan_check/plan_tracker, no Amend-prepare block), so that fact is unchanged. Two things to tighten so the After wording stays robust: the variant table in section 2 only says the cap/stagnation/budget-only/missing-model stops \"name\" things—add one sentence that every one of those stops is rendered with the same `gauntlet: question` header and the `budget: 2 of 2 spent` line where a grant exists, so the prefix fact is visible rather than merely not contradicted; and After changed the dispatch's `previous decision:` from the escalated line (Before) to the last child-conforming `row 2 failed` line—if that is intentional, say explicitly that the escalated line is a parent allowance record so readers do not read it as a regression in the handoff contents.",
+      "wallMs": 31254,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0b560395f83f9115f94c1bea11584059e65e31a880543dcb29779d146377fe78",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "82f543bcd591d380c77cb537da983fec83663772f61c55d07f06913b9871c27b",
       "candidateOutputSha": "a751d57b81e7550873c2a327c5bc29965694492ca7e10f96bde27ea61c31a292",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs already satisfy all three. Before's section 1/2a/3/4 and After's cases 1–7 each show the single escalated round at attempts 5 (decision line, `loop: escalate row 2`, announcement, fresh synchronous loop-implementer dispatch with the model override, normal bump/validation), the attempts-7/no-prior-escalation case triggering at allowed attempts 8, funding rounds 4/5 paid with budget fixed at 2 of 2, cap/stagnation precedence, budget-only yielding no escalation, the missing model named in Problem, and no rearm on resume/grant/retry; both route the amend through the ordinary ledger path without plan-writer, plan_check, an Amend-prepare block or a task-tracker lifecycle; both print `took recommendation: amend for row 2`, commit `loop: cut row 2` / `loop: amend` before reentering the ordered table, deny a free retry, end repeated evidence with `Recommendation: none - evidence repeats row 2`, treat unnamed repair/cap/retry as none/wait, and open every human stop with `gauntlet: question` carrying budget and `escalated round spent` where applicable. After is slightly less explicit than Before on two points the fact names: it never directly states that the parent escalation commit resets no stagnation/validation windows (it relies on case 4's 'only an explicit retry starts new windows') and section 8 only implies the ordinary preparation path rather than naming what it excludes. To keep the facts robustly held while delivering the Change, add one sentence after the escalate commit ('starts no stagnation or validation-miss window') and restore Before's explicit 'prepare through the ledger's ordinary amendment path—no plan-writer, Amend-prepare: block, plan_check or task-tracker lifecycle' clause in the amend section.",
-      "wallMs": 25157,
+      "feedback": "No fact moved: both outputs satisfy all three. Before already escalated once at attempts 5 with the exact decision text, `loop: escalate row 2` commit, announcement, fresh synchronous model-override dispatch, normal bump/validation, 4/5-funded accounting, cap/stagnation precedence, budget-only refusal, missing-model Problem line and no rearm on resume; it also explicitly prepared the amend through the ordinary ledger path with no plan-writer/plan_check/task-tracker, and started every stop with `gauntlet: question` plus budget and `escalated round spent`. After keeps all of that, but two places became weaker and risk a future reader marking them as fails: (1) section 8 dropped Before's explicit sentence 'Prepare through the ledger's ordinary amendment path—no plan-writer, plan_check or task-tracker lifecycle', so ledger-prepare-local now holds only by silence (nothing prohibited is invoked, no Amend-prepare: block is emitted); restore that sentence verbatim so the routing is stated rather than inferred. (2) Step 4 of case 1 no longer says the escalation commit 'does not reset stagnation windows'; it is recoverable only from case 4's 'Only an explicit retry starts new ... windows', so add 'starts no stagnation or validation-miss window' to the escalation commit step. Also consider keeping Before's full option lists in each stop body (funding/cap/retry/amend/stop lines inside the fenced block) so the gauntlet: question stops remain self-contained while still delivering the Change.",
+      "wallMs": 26694,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "428c42110afc8b08d366c60b9d9fe3d53bd85fe2"
+  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
 }

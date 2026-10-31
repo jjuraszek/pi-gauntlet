@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e9c75d176eda514403b6f4b8fc3c9c1623d7d01140a12f16e158317a410bfde0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "cc56dbefa1c9e36d9cc7a1df6b275c739404c55dce45fc7667dfbd9e7e79fdc5",
       "candidateOutputSha": "e668a2c2c0891f101b2c1cd0c3eed50aff2f3b95722103e1a2a97d640682d11e",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy the contract fact: each stop quotes the concrete assertion and last decision with no round history or model escalation, the retry appends `row 1 retry | map delimiter | allowed attempts 4` without touching attempts/iterations/cap, cut goes through the amendment surface, stop leaves `implement` active, two child-only empty commits stop despite interleaved parent repair commits, the explicit retry opens a fresh window at `loop: retry row 1` (0 → 1 passes, 2 stops), and all counts are preserved. The After wording adds the explicit `gauntlet: question` prefix, a 'Do not run plan_check or a task tracker' line on the cut path, and the 'Rule 3 cannot be bypassed' list, all of which deliver the Change without disturbing the fact. One small divergence worth tightening: After's Choice 1a dispatch sets `previous decision:` to the prior failed line rather than the retry line that Before used; if the skill expects the retry line to be the previous decision, restore that in After (e.g. `previous decision: row 1 retry | map delimiter | allowed attempts 4`) so the dispatch payload matches the newly appended durable decision.",
-      "wallMs": 12630,
+      "feedback": "Nothing in After moved the contract fact: both outputs quote the concrete assertion and last decision without round history or model escalation, append `row 1 retry | map delimiter | allowed attempts 4` while leaving attempts 3 and iterations/cap unchanged, require a disposition amendment for the cut, keep implement active on stop, stop on two child-only empty commits while excluding interleaved parent repair commits, reset the empty-child window at `loop: retry row 1` (0 → pass, 1 → pass, 2 → stop), and preserve all row attempts and the run cap. After also adds the `gauntlet: question` prefix and the explicit 'Options:' layout and the 'Do not run plan_check or a task tracker' line, which deliver the Change without disturbing the fact. Two small things worth tightening in After so a stricter reader does not wobble: in Choice 1a the dispatch's `previous decision:` is the old failed line rather than the just-appended retry line (Before used the retry line, which is the more defensible reading of 'previous decision' after a human retry), and the Snapshot 2 'Recommendation: retry with hint' differs from Before's 'none' — the fact does not constrain the recommendation, but if the skill text expects a conservative recommendation after stagnation, keep Before's wording there.",
+      "wallMs": 12889,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e9c75d176eda514403b6f4b8fc3c9c1623d7d01140a12f16e158317a410bfde0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50a9b5c13f26d151ea9f522def03b639e4c5589f73e9a523665e8f651d9338cc",
+      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
       "baselineOutputSha": "8d2e88ea3e03be4af2d2a652f6488f5c2dfe80a3260082969becaf44ede518e8",
       "candidateOutputSha": "345458b69c085e9beaa0f2a236960734cd11cfe30d9c8e410bbe7c38913b79c9",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy the contract: each stop quotes the assertion and last decision with no round history or model escalation, the retry appends `allowed attempts 4` while leaving attempts 3/iterations/cap untouched, the cut path explicitly requires an approved disposition amendment, the stop choice leaves implement active, section 2 stops on two child-only empties while ignoring interleaved parent repairs, and section 3 restarts the window at the retry commit (zero → one → two, stopping only at two post-retry empties) without resetting any counts. After is essentially at parity; the only drift is cosmetic — After appends a period inside the quoted evidence and decision strings (`...found comma.\"`), which a strict reader could flag as not verbatim, and the section 2/3 stop headers drop `Stopped on row 1` in favor of a generic `Stopped:` line. To keep the fact robust, quote the evidence and decision cells exactly as stored (no added punctuation) and keep the row-identifying heading, while retaining the new `gauntlet: question` prefix and the explicit allowance caveat that After already carries.",
-      "wallMs": 13180,
+      "feedback": "After keeps every element of the contract that Before kept: the stop quotes the parser assertion and the last decision with no round history or model escalation, the retry appends `allowed attempts 4` while leaving attempts 3/iterations/cap untouched, the cut routes through an approved disposition amendment, the stop leaves implement active, two child-only empty commits stop while interleaved parent repairs are ignored, and the post-retry window counts zero → one (no stop) → two (stop) with attempts/iterations accumulating. Two small drifts to tighten so the quotation stays strictly verbatim: After adds trailing periods inside the quoted evidence and decision (`...found comma.\"`, `...delimiter mapping.\"`) that are not in the supplied ledger text, and the section 2/3 stop headings drop the `Stopped on row 1` line in favor of a generic `Stopped:` summary, so the row is only implied by the option text. Keep the `gauntlet: question` prefix and the `Preserve every row's attempts and the total iteration cap.` snapshot line as After does, but quote the cells exactly as supplied (no added punctuation) and retain an explicit `Stopped on row 1 (…)` heading so the concrete row and assertion remain unambiguous.",
+      "wallMs": 15394,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "428c42110afc8b08d366c60b9d9fe3d53bd85fe2"
+  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
 }
