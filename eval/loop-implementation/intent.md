@@ -18,12 +18,6 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the cap snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
-- escalated-row-attempt/ledger-prepare-local: holds -> replaced - Preserve ordinary ledger amend preparation without plan-writer, Amend-prepare: or plan_check; replace the no-task-tracker clause with the next path-only refresh projecting amended statuses.
-- verify-lifecycle/contract: holds -> replaced - Replace explicit implement completion and passing-exit reuse with refresh-owned completion and the first full gate at verify step 1 once per leg; use normal Gn tasks on the same tracker. Preserve review order, references, repair reruns, closure schema and immediate finishing.
-- tracker-refresh/seed, baseline, retry-order, cut-completion: new -> holds - Cover post-start seed refresh, all-cut and baseline completion, home pending persistence, extension-owned ordering, retry visibility and approved cuts without re-init.
-- tracker-boundary/attribution: new -> holds - Home row and seed commit bodies retain the exact tuple and bumped ledger iteration, with parent checks before projection and no new carrier or commit.
-- tracker-boundary/stops, admission, immediate, resume: new -> holds - Cover allowance/cap states and both done-plus-dirt and two-commit boundary returns, restoring before-image and pending before refresh at immediate stops and resume.
-- tracker-verify/per-leg, repair, failure, conformance, rebound: new -> holds - Cover verify-only gates, one failing-leg repair, restricted failure menus, Gn preservation and authorized on-disk re-bound closure without phase reset.
 - gate-line-first/question-first: fails -> holds - Dirty returns await explicit authorization under a question marker.
 - cap-and-exit-verification/contract: fails -> holds - Explicit cap:2 replaces the removed setting while retaining seed-inclusive cap stop and closed-row exit failure.
 - commit-boundary/seed-recovery: fails -> holds - Explicit continuing cap:97 and cap:1 alternative preserve authorized interrupted-seed recovery, target validation and consumed iterations.

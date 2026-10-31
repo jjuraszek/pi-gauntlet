@@ -42,7 +42,7 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - ledger-tracker-recovery/implement-order: fails -> holds - Restore phases, recover pending, then refresh before unresolved dirt; never init an implement ledger list.
 - ledger-tracker-recovery/home-return: fails -> holds - Recover attribution from the commit body after a tuple-free restart and admit a clean bounded home return through the driver without consuming the iteration twice.
 - ledger-tracker-recovery/rejected-return: fails -> holds - Recover the child's attribution even behind unrelated HEAD, validate the full dispatch range and restore target/tuple before projection on dirty or multiple-commit terminal returns; preserve child changes.
-- ledger-tracker-recovery/missing-attribution: new -> holds - Stop before refresh when the child body supplies no recoverable identity; completed rows or HEAD^ never establish admission.
+- ledger-tracker-recovery/missing-attribution: fails -> holds - Stop before refresh when the child body supplies no recoverable identity; completed rows or HEAD^ never establish admission.
 - ledger-tracker-recovery/interrupted: fails -> holds - Project the zero-commit pending row before stopping, without redispatch.
 - ledger-tracker-recovery/legacy: fails -> holds - Refresh legacy No plan active ledger briefs without init/settings/reseed.
 - ledger-tracker-recovery/mixed-verify: fails -> holds - Preserve the full verify/ship mixed task snapshot and fresh conformance across refresh.
