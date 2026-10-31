@@ -1,3 +1,4 @@
+bundle-: skills/loop-implementation/reference/coordinated-legs.md
 All continuing ledgers below carry cap:97, except the explicit cap:1 alternative.
 
 Independent returns after dispatch: zero commits clean; two commits clean; one commit dirty; dispatch error; async handle. Then human authorizes reset of interrupted iteration to prior valid HEAD iterations4. Show next durable counts.
