@@ -1,4 +1,5 @@
 - f1: judged: The new test builds its single record by hand as a dict literal carrying only the keys the rejection path reads (posted_on plus the keys import_record requires), rather than loading fixtures/ledger_400.json.
 - f2: judged: The new test asserts that import_record raises ImportRejected for a posted_on after today, not merely that an Entry is constructed.
 - f3: judged: The reply adds no new per-test json.load of the fixture file.
+- inline: judged: Preserves the inline test-code-only response without inventing a plan read, task identity, or structured completion report.
 - m1: mechanical: lacks "/Users"

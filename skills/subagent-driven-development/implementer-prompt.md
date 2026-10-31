@@ -38,7 +38,7 @@ Dispatch a subagent with this prompt:
     BLOCKED: Cannot complete the task.
     NEEDS_CONTEXT: Need information not provided.
 
-    Keep the report layout and emit structured output matching the persona contract and report status. On an unreadable plan/anchor report BLOCKED with anchorUnreadable and the required Reasoning line.
+    Keep the report layout and emit structured output matching the persona contract and report status, copying exactly the dispatched anchor or anchors in every status. On an unreadable plan/anchor report BLOCKED with that identity, anchorUnreadable and the required Reasoning line; follow the persona's blocked-message rule.
 
     Conduct (TDD scenarios, test economy, scope discipline, escalation, report shape) is your persona; this prompt carries only the task and its test scope.
 ```

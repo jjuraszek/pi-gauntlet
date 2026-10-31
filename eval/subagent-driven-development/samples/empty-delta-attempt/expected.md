@@ -1,1 +1,3 @@
 - protocol: judged: Count the empty delta as another failed attempt, dispatch no unchanged-tree re-review, resend previous report with your fix changed no tracked file; at 2 resolve execution escalation, not another unnamed ordinary repair.
+- initial: judged: Missing and zero-byte initial patches each fail admission before apply, increment only Task 1 once and enter current-tree repair with your work produced no patch, retaining Task 2 and its integration. A nonempty initial patch that fails git apply remains a hard stop, not an automatic rebuild.
+- in-place: judged: The independent in-place DONE goes to the scoped gate then wave review; it needs no exported patch and no new diff-stat emptiness detector.

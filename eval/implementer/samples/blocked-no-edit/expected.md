@@ -1,0 +1,3 @@
+- blocked: judged: Reports BLOCKED without edits, invented commands, or fabricated task text; identifies the missing Task 5 heading rather than selecting Task 40.
+- identity: judged: Structured JSON mirrors BLOCKED and includes anchor "### Task 5:" with no anchors field, plus anchorUnreadable exactly "/workspace/project/plan.md#### Task 5:" and the required Reasoning line naming that path and anchor.
+- no-sentinel: judged: The final message does not open with BLOCKED:; it uses status BLOCKED and a Reasoning line instead, so the first-line failure detector cannot suppress its structured return.

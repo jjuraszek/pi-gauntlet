@@ -12,11 +12,15 @@
 
 **Verification:** `npm test && node eval/run.mjs implementer && node eval/run.mjs subagent-driven-development && node eval/run.mjs writing-plans && node eval/run.mjs spec-council-member && node eval/run.mjs brainstorming`
 
+**Baseline policy:** implement-local
+
 Baseline jjuraszek/pi-gauntlet: 7efcae89
 
 ---
 
 Baseline provenance: home jjuraszek/pi-gauntlet, checkout .worktrees/fix-implement-failure-paths, HEAD 7efcae89. Initial porcelain inventory: only `?? doc/plans/2026-10-31-implement-failure-path-recovery.md`; admit that exact plan path and the dispatched spec path, no In-flight paths. Task 1 derived command executed 18 tests, Task 2 exact command 54 tests, Task 3 derived command 7 tests; all exited 0. HEAD and inventory were unchanged after each run; no artifacts or contamination. The created runtime test does not yet exist, so mixed-anchor baseline commands drop only that token. All three commands were executed again after correcting the header separator; the same counts, exits and clean-source inventory held.
+
+Baseline provenance: implement-local amendment on home jjuraszek/pi-gauntlet, checkout .worktrees/fix-implement-failure-paths, observed HEAD 6939cd7e. Retain all three unchanged Tests commands and their 7efcae89 evidence byte-for-byte, including both pass-via suffixes; these are historical measurements, not passes on the current tree. No tree-equivalence claim, SHA rewrite, dependency installation or test execution occurs during this amendment. Initial staged inventory exactly matches parent In-flight: `M  agents/spec-council-member.md`, `M  eval/brainstorming/intent.md`, `A  eval/brainstorming/samples/worker-critique-pr-source/case.md`, `A  eval/brainstorming/samples/worker-critique-pr-source/expected.md`, `M  eval/spec-council-member/intent.md`, `A  eval/spec-council-member/samples/pr-rework-design-sourced/case.md`, `A  eval/spec-council-member/samples/pr-rework-design-sourced/expected.md`, `A  eval/spec-council-member/samples/pr-sourced-clause/case.md`, `A  eval/spec-council-member/samples/pr-sourced-clause/expected.md`, `M  scripts/brainstorming-contract.test.mjs`, `M  skills/brainstorming/reference/spec-finalization.md`. Admit those exact paths plus the dispatched spec and plan; preserve staged source. No unknown dirty path or missing/invalid baseline evidence was observed. Task 1 owns the new dependency prerequisite and the unchanged runtime command's implementation-time verification; parent stamp, task gates, review and final verification remain required.
 
 ## Files
 
@@ -31,10 +35,11 @@ The task Files blocks enumerate all exact Create paths and existing Modify paths
 - Amendment originals: `agents/plan-writer.md`, `skills/writing-plans/SKILL.md`, `skills/writing-plans/reference/plan-contract.md`, `skills/subagent-driven-development/reference/implement-amendments.md`, `skills/brainstorming/reference/amendment-surface.md`.
 - Critique: `agents/spec-council-member.md`, `skills/brainstorming/reference/spec-finalization.md`.
 - Tests/CI: `scripts/anchored-task.test.mjs`, `scripts/brainstorming-contract.test.mjs`, `scripts/implement-amendment.test.mjs`, `scripts/ci.mjs`.
+- Runtime-test development dependency: `package.json` (Task 1).
 - Existing eval case/expected pairs and intents: exact paths/globs in Tasks 1-3.
 - Documentation: `doc/personas.md`, `doc/implement-engines.md`, `CHANGELOG.md`.
 
-**Generated at verification:** the five affected targets' existing `report.md` and `results/` records. Let the runner generate real evidence and commit it during verification; do not manufacture records. No bin-source, shared-extension, dependency or peer-floor change is needed.
+**Generated at verification:** the five affected targets' existing `report.md` and `results/` records. Let the runner generate real evidence and commit it during verification; do not manufacture records. No bin-source, shared-extension, production-dependency or peer-floor change is needed; Task 1 adds only the granted typebox development dependency and keeps package-lock.json ignored.
 
 ## Recon and execution conventions
 
@@ -53,7 +58,7 @@ Leg: jjuraszek/pi-gauntlet
 
 **TDD scenario:** Modifying tested code - existing tests first, then runtime fixtures and failing contract assertions.
 
-**Spec:** doc/specs/2026-10-31-implement-failure-path-recovery.md § "Acceptance criteria" L28-L37, § "1. Implementer return carries identity; guard off" L72-L85, § "2. Failed-chain recovery reads the original" L89-L98, § "Errors and edge cases" L129-L134, § "Tests" L143-L149, § "Tests" L156-L158, § "Out of scope" L168, § "Out of scope" L170
+**Spec:** doc/specs/2026-10-31-implement-failure-path-recovery.md § "Acceptance criteria" L28-L37, § "1. Implementer return carries identity; guard off" L72-L85, § "2. Failed-chain recovery reads the original" L89-L98, § "Errors and edge cases" L129-L134, § "Tests" L143-L149, § "Tests" L156-L158, § "Tests" L160, § "Out of scope" L170, § "Out of scope" L172
 
 Rules: skills/forge-skill/SKILL.md
 
@@ -65,6 +70,7 @@ Rules: skills/forge-skill/SKILL.md
 - Modify: `skills/subagent-driven-development/reference/dispatch-contract.md`
 - Modify: `scripts/anchored-task.test.mjs`
 - Modify: `scripts/ci.mjs`
+- Modify: `package.json`
 - Create: `scripts/implement-failure-paths.test.mjs`
 - Create: `eval/subagent-driven-development/samples/artifact-status-read/case.md`
 - Create: `eval/subagent-driven-development/samples/artifact-status-read/expected.md`
@@ -93,6 +99,9 @@ Rules: skills/forge-skill/SKILL.md
 
 Decision: parse the existing schema declaration in dispatch-contract.md for runtime assertions, as wave-review.test.mjs does for the reviewer schema; do not create a test-owned schema. Exactly one identity is enforced by `oneOf: [{ required: ["anchor"] }, { required: ["anchors"] }]`, with `additionalProperties: false` unchanged. The persona copies an `anchor:` or `anchors:` dispatch, including `### Task N:` identity; inline non-wave callers are not assigned invented identities.
 
+Decision: supply `"typebox": "^1.3.11"` through this repository's `package.json` devDependencies, matching node_modules/pi-cohort/package.json's development range and optional peer declaration. Its structured-output.ts:4 imports `typebox/compile`; the home development install lacks node_modules/typebox/package.json. Keep production dependencies, the pi-cohort peer floor and .gitignore's package-lock.json convention unchanged.
+
+- [ ] **Step 0: Supply the runtime-test development dependency.** Add only `"typebox": "^1.3.11"` to `package.json` devDependencies, then install development dependencies with `npm install --include=dev` in the task's owning checkout before the required peer-source runtime tests. Do not stage the ignored package-lock.json or change production dependencies or the pi-cohort peer floor. After the runtime file exists, verify the existing Tests command unchanged; import the real peer source and do not replace these required tests with mocks or skipped tests.
 - [ ] **Step 1: Run existing tests, then add red runtime fixtures.** Run the Tests command without the new failure-path file before creation. Create that file with node:test and unique temp capture directories. Import `node_modules/pi-cohort/src/runs/shared/completion-guard.ts` and `structured-output.ts`. Extract `IMPLEMENTER_STATUS_SCHEMA` and write `{"status":"success","value":{"status":"NEEDS_CONTEXT","question":"q","reasoning":"r","anchor":"### Task 5:"}}`; assert readStructuredOutput returns the value. Add rejection rows for neither/both identities, missing `question`/`concerns`, invalid status, missing `value`, malformed JSON and error envelopes; add a valid batch `anchors` row. Assert blockedLine detects a `BLOCKED: ...` first line but not `Status: BLOCKED` followed by `Reasoning:`. Pin implementer false and `agents/plan-writer.md` true.
 - [ ] **Step 2: Add original-state fixtures.** In the same new runtime file, allocate a unique temp git repository with fixture-local git identity. Commit relative plan/spec paths, dirty both working files, and assert relative HEAD reads still return originals. Assert absolute paths after HEAD and an untracked plan fail. Parse unchanged APPLY_SCHEMA and assert readStructuredOutput can recover a success capture carrying passed:false and a baseline-read failLines marker. These runtime facts already hold; Task 3 adds their instruction contract assertions.
 - [ ] **Step 3: Add carrier/patch contract assertions and confirm red.** Extract the actual sequential carrier, assert `agent: "delegate"` and `Do not edit any file.`, and call expectsImplementationMutation with delegate and that text; require false. Pin read-first ordering, duplicate-identity stopping, bounded reads, the initial-patch failure row and unchanged nonempty apply-failure stop. Run Tests; expect failures on old guard/schema/carrier wording, not import errors.
@@ -211,7 +220,7 @@ Leg: jjuraszek/pi-gauntlet
 
 **TDD scenario:** Trivial change - documentation review against the implemented contract.
 
-**Spec:** doc/specs/2026-10-31-implement-failure-path-recovery.md § "Documentation rows" L121-L123, § "Documentation impact" L162-L163, § "Out of scope" L171
+**Spec:** doc/specs/2026-10-31-implement-failure-path-recovery.md § "Documentation rows" L121-L123, § "Documentation impact" L164-L165, § "Out of scope" L173
 
 **Files:**
 - Modify: `doc/personas.md`
@@ -297,10 +306,13 @@ Excluded triage stays excluded: do not change `~/.pi/agent/agents/*.md`, `.workt
 | § "Tests" L156-L158 | Update schema/read-boundary and inventory replays | Task 1, Task 3 |
 | § "Tests" L156-L158 | Duplicate identity stays skill-text covered, no model sample | Task 1 |
 | § "Tests" L156-L158 | Peer runtime fixtures, scratch HEAD reads, CI and amendment assertions | Task 1, Task 3 |
-| § "Documentation impact" L162-L163 | Unreleased rationale; heading promotion deferred to release | Task 4 |
-| § "Documentation impact" L162-L163 | Persona and engine derived documentation | Task 4 |
-| § "Out of scope" L167 | No cross-repo status-aware guard implementation | waived: excluded by spec |
-| § "Out of scope" L168 | Identity avoids peer directory-naming change | Task 1 |
-| § "Out of scope" L169 | No jj-only inventory implementation | waived: excluded by spec |
-| § "Out of scope" L170 | No new edit-less detector for in-place/non-wave callers | Task 1 |
-| § "Out of scope" L171 | No local persona symlink or stale consumer cleanup | Task 4 |
+| § "Tests" L160 | Add `"typebox": "^1.3.11"` to `package.json` devDependencies for the peer's `typebox/compile` import | Task 1 |
+| § "Tests" L160 | Install development dependencies and verify the unchanged scoped runtime-test command with real peer imports, no mocks or skipped tests | Task 1 |
+| § "Tests" L160 | Preserve production dependencies, pi-cohort peer floor and ignored package-lock.json convention | Task 1 |
+| § "Documentation impact" L164-L165 | Unreleased rationale; heading promotion deferred to release | Task 4 |
+| § "Documentation impact" L164-L165 | Persona and engine derived documentation | Task 4 |
+| § "Out of scope" L169 | No cross-repo status-aware guard implementation | waived: excluded by spec |
+| § "Out of scope" L170 | Identity avoids peer directory-naming change | Task 1 |
+| § "Out of scope" L171 | No jj-only inventory implementation | waived: excluded by spec |
+| § "Out of scope" L172 | No new edit-less detector for in-place/non-wave callers | Task 1 |
+| § "Out of scope" L173 | No local persona symlink or stale consumer cleanup | Task 4 |

@@ -1,6 +1,8 @@
-for: 6098be34c8e4cde45340174f7566a53222aaaca70b7afb04fb51f3e0b8df8cf4
+for: 5ba6db21f31d8e89afded5d57a5ecccaeb273e352eb7307fbb8760afd6b02b73
 
 ## Change
+
+The worker critique applies the council's PR-source predicate and re-source-or-ask correction as its third check. The tool-free worker-critique-pr-source sample adds the full spec-finalization reference locally, drops the unrelated amendment reference, and judges a rendered dispatch from a fixed checkpoint. Preserve every prior fact, accepted variance, target configuration, and frontmatter. Deterministic structural tests do not prove model behavior; the parent runs the full target replay.
 
 Publish N>1 committed spec handles in companion-first/home-last preflight and publication passes, with per-repo spec directories, absent/equal/foreign remote observations, retry inventories and branch-preserving cleanup. Re-settle only original-head marked coordinated Legs at the pinned base, preflight every companion before provisioning and preserve all partial worktrees and proven base-sync recovery. The synthetic spec-pr-publish-legs and spec-pr-regate-legs checkpoints require every publication, failure, recovery and home-only approval/shared-amendment fact; spec-pr-regate zero/one-block controls and pr-list-per-pr-attribution retain home-only and ordinary multi-PR behavior. Admission, relatedness and rework instructions remain unchanged. Structural lint RED names the two missing expected files; GREEN proves fixture shape only. Model replay is a separate parent verification gate for brainstorming and spec-gate, with no accepted failure or target configuration change here.
 
@@ -55,6 +57,8 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
 
 ## Expected to move
+- worker-critique-pr-source/dispatch: fails -> holds - Dispatch the three-check worker, not council members.
+- worker-critique-pr-source/correction: fails -> holds - Re-source from human input or agreed design, otherwise ask before cutting.
 - spec-pr-unmarked/provision: fails -> holds - Provision via pr-head with no thread fetch on the unmarked route.
 - spec-pr-unmarked/skips: fails -> holds - Skip binding, context-builder, the PR scout block, and gather on the unmarked route.
 - spec-pr-unmarked/carried-path: fails -> holds - Keep the carried spec path as the draft; mint no pr-42 filename.

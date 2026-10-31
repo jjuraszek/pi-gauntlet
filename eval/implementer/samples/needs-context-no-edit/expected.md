@@ -1,0 +1,4 @@
+- context: judged: Reports NEEDS_CONTEXT and an explicit question selecting HTTP 400 or HTTP 422, without choosing one or claiming implementation.
+- identity: judged: Structured JSON mirrors the report status and carries anchor exactly "### Task 5:", not anchors, with reasoning and question.
+- no-write: judged: Reports no edits and no commands, makes no dummy write and does not ask to re-enable a completion guard.
+- no-sentinel: mechanical: lacks "BLOCKED:"

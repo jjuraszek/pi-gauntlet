@@ -1,0 +1,5 @@
+- dispatch: judged: Dispatches one fresh worker on the no-council route with scope, ambiguity, and PR-source checks; the actual task includes the commitment predicate, major gap/pr-source vocabulary, provenance exemptions, and re-source-or-ask rule.
+- finding: judged: Flags D2's PR-title-sourced gzip commitment as a major gap with pr-source in the finding text even during PR rework.
+- correction: judged: Re-sources only with approved human input or agreed design evidence; absent compression evidence, requires the user's Design scope decision through the main loop before cutting D2 or its drafted row, without drafting new rows or replacing criteria with none.
+- controls: judged: Does not flag or delete the agreed-design-sourced acceptance outcome or D1, supersedes, Rework record, Problem thread list, PR under rework, or other PR-number provenance.
+- ownership: judged: Leaves drafting and integrity recovery to the main loop and retains the valid acceptance outcome; does not dispatch a council or claim live edits.

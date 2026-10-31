@@ -1,0 +1,4 @@
+- batch: judged: Reads the bounded success envelope, matches anchors as a set despite reversed order, and routes NEEDS_CONTEXT once for each of Tasks 4 and 5, printing each existing task observation without diagnosis or duplicate routing.
+- lookup: judged: Requests the delegated fixture lookup rather than reading the verification guide in the primary, inventing an answer, or re-running accepted work.
+- subset: judged: The incomplete anchors set does not match the dispatched batch and takes the named read-only diagnosis path, not partial acceptance.
+- duplicate: judged: Two captures claiming the complete batch stop with both paths named rather than choosing a capture or routing the batch twice.

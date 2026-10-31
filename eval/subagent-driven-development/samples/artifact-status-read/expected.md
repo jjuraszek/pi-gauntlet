@@ -1,0 +1,4 @@
+- recover: judged: Lists this run's structured-output captures and reads each with limit 300, no offset or pagination, matches value.anchor rather than directory names, and recovers both task statuses from success envelopes without diagnosis.
+- sibling: judged: Checks the nonempty Task 4 Artifacts patch and integrates Task 4 before routing Task 5's question; prints existing per-task observations and retains Task 4 without rerunning the wave or marking it complete before wave commit.
+- question: judged: Routes NEEDS_CONTEXT to the fact-lookup ladder with an anchored foreground answer/evidence carrier for doc/verification.md, not a new implementation or diagnosis dispatch, and invents no answer.
+- rejected: judged: Treats a missing required question or truncated capture as absent and takes named diagnosis only for that task; two captures claiming Task 5 stop naming both paths without choosing one.
