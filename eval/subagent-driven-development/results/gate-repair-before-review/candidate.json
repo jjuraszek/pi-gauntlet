@@ -1,0 +1,70 @@
+{
+  "sample": "gate-repair-before-review",
+  "arm": "candidate",
+  "skillSha": "46a7d2f3957534efeaa0011af916cf085536bf3c669cc8c3a7ea764885e3e0e3",
+  "inputSha": "05340eda8b7c3b880e65fd209dde56f96c5819e25d39d57501447741db50ad0a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Wave 1: red gate, Task 1 repair before any review\n\n## Gate observations (fixed, not re-run)\n\n```text\nwave 1 task 1 DONE report <REPORT_DIR>/wave1-task1.md patch <Artifacts dir>/worktree-diffs/step-0/task-0-implementer.patch\nwave 1 task 2 DONE report <REPORT_DIR>/wave1-task2.md patch <Artifacts dir>/worktree-diffs/step-0/task-1-implementer.patch\nwave 1 gate 1 exit 1      # node --test tests/parse.test.mjs  -> <REPORT_DIR>/gate-1.log\nwave 1 gate 2 exit 0      # Task 2 command                   -> <REPORT_DIR>/gate-2.log\n```\n\n## Transition\n\n- The transition table's row is **red gate at step 4, any status including `DONE`**.\n- Task 1 owns the failing test, so `failed[1] = 1`. `failed[2] = 0`.\n- **No `wave-reviewer` dispatch until the gate is green.**\n- Tracker indices for Tasks 1 and 2 stay `in_progress`.\n- Task 1's `DONE` carries no concerns or question, so I read no report.\n- The child reads the gate log; I pass only its path.\n\n## 1. Record the pre-repair tree\n\nThis is the fix-delta scratch-index block. Its printed SHA becomes `<PRE_REPAIR_TREE>`. Stop on a nonzero exit.\n\n```bash\nFD_ROOT='/workspace/project'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\n\n## 2. Repair base (isolated wave)\n\nThis snapshots the current integrated tree; it is not a rebuild. Stop on a nonzero exit and keep `RP_DIR` for diagnosis.\n\n```bash\nRP_ROOT='/workspace/project'\nRP_BASE='1111111111111111111111111111111111111111'\nRP_DIR=$(mktemp -d) || exit 1\nRP_TREE=\"$RP_DIR/tree\"\ngit -C \"$RP_ROOT\" add -A || exit 1\ngit -C \"$RP_ROOT\" diff --binary --cached \"$RP_BASE\" > \"$RP_DIR/integrated.patch\" || exit 1\ngit -C \"$RP_ROOT\" worktree add --detach \"$RP_TREE\" \"$RP_BASE\" || exit 1\nif [ -s \"$RP_DIR/integrated.patch\" ]; then git -C \"$RP_TREE\" apply --index \"$RP_DIR/integrated.patch\" || exit 1; fi\ngit -C \"$RP_TREE\" -c user.name=gauntlet -c user.email=gauntlet@local commit -q --allow-empty -m \"wave integrated snapshot\" || exit 1\nprintf 'repair-base: %s %s\\n' \"$RP_TREE\" \"$(git -C \"$RP_TREE\" rev-parse HEAD)\"\n```\n\nUse the printed `repair-base: <RP_TREE> <sha>` value. I have not invented it.\n\n## 3. Repair dispatch: one-step, schema-bound, file-only, foreground\n\n- No `context: \"fresh\"` (this is a repair implementer).\n- No `model:`.\n- No prior-patch path.\n- No previous review report, because no review has run yet.\n\n```ts\nsubagent({ async: false, cwd: \"<RP_TREE>\",\n  chain: [{ parallel: [\n    { agent: \"implementer\", as: \"repair_1\",\n      outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave1-repair1-task1.md\", outputMode: \"file-only\",\n      task: \"Gate repair. planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 1:; Spec: /workspace/project/doc/specs/feature.md; SCOPED_TEST_COMMANDS: [\\\"node --test tests/parse.test.mjs\\\"]. Failing scoped-gate output: <REPORT_DIR>/gate-1.log (exit 1) - read it yourself and fix Task 1 so the command passes. Return DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT. pi-cohort saves your final report; do not write it yourself.\" }\n  ], worktree: true,\n     stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } }]\n})\n```\n\n## 4. After the dispatch returns\n\nDo these only once a real result exists. The delta is the `Artifacts:` patch, task 0.\n\n```bash\ngit -C '/workspace/project' apply --index '<Artifacts dir>/worktree-diffs/step-0/task-0-implementer.patch'\n# print: wave 1 repair 1 task 1 <status> report <REPORT_DIR>/wave1-repair1-task1.md delta <that patch> applied <yes|no>\ngit -C '/workspace/project' worktree remove --force '<RP_TREE>'\ngit -C '/workspace/project' add -A\ngit -C '/workspace/project' diff --stat --cached '<PRE_REPAIR_TREE>'\n(cd '/workspace/project' && node --test tests/parse.test.mjs) > '<REPORT_DIR>/gate-3.log' 2>&1; echo \"wave 1 gate 3 exit $?\"\n```\n\n## Boundary: stop here, no outcomes assumed\n\n| Result | Next action |\n|---|---|\n| Gate 3 `exit 0` and a non-empty `--stat` | Step 5: the first `wave-reviewer` dispatch. It uses anchors `### Task 1:` and `### Task 2:`, `BASE_SHA: 1111111111111111111111111111111111111111`, `HEAD_SHA: WORKTREE`, and the wave union as `SCOPED_TEST_COMMANDS`. It has no Fix delta and no trajectory. |\n| Delta apply fails | `failed[1] = 2`, then rebuild for Task 1. |\n| Empty `--stat` | `failed[1] = 2`, then repair with \"your fix changed no tracked file\". |\n| Gate 3 red | `failed[1] = 2`, then repair. |\n| Task 1 reaches `failed[1] = 2` from any of the rows above | The next Task 1 attempt is the escalated round via `gauntlet_setting({ key: \"escalationLoop\" })`. |\n| `BLOCKED` or `NEEDS_CONTEXT` | Takeable-decision ladder, then re-dispatch into the same `<RP_TREE>`. |\n",
+      "words": 585,
+      "wallMs": 33062,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The red gate overrides Task 1’s `DONE`: record **one failed attempt for Task 1**, leave both tracker indices `in_progress`, and repair Task 1 only. Do not redispatch Task 2 or dispatch a reviewer.\n\nTwo repair prerequisites are not supplied: the manifest’s execution mode and the saved failing gate-log path. I will not assume an isolated repair, invent a log path, or claim preflight passed.\n\n### Next coordination command\n\n```bash\ngit -C /workspace/project status --porcelain\n```\n\nRecover the manifest through:\n\n```ts\nplan_check({\n  planPath: \"/workspace/project/doc/plans/feature.md\"\n})\n```\n\nConsume its mode, file ownership, test arrays, Rules and leg metadata; stop on `FAIL`. Preserve the existing tracker.\n\n### Delegated source lookup\n\nThe following foreground carrier obtains source facts—not report contents. `/tmp/feature-repair-context.md` is a requested output destination, not an observed existing report.\n\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  chain: [{\n    parallel: [{\n      output: \"/tmp/feature-repair-context.md\",\n      outputMode: \"file-only\",\n      outputSchema: {\n        type: \"object\",\n        required: [\"answer\", \"evidence\"],\n        additionalProperties: false,\n        properties: {\n          answer: { type: \"string\" },\n          evidence: {\n            type: \"array\",\n            items: { type: \"string\" }\n          }\n        }\n      },\n      task: `\nSource-fact lookup only. Do not edit any file.\n\nOwning checkout: /workspace/project\nplanPath: /workspace/project/doc/plans/feature.md\nanchors: [\"### Task 1:\", \"### Task 2:\"]\nSpec: /workspace/project/doc/specs/feature.md\n\nRead the selected plan sections and their cited spec/rules yourself.\nResolve the owning leg and combined task/leg Rules, and report any\nexecution-mode declaration and the exact Tests command arrays.\nUse only documented source locations. State explicitly if a needed\nfact is absent or unreadable.\n\nReturn one compact answer paragraph and one-line source evidence entries.\nDo not inspect or relay implementer or reviewer reports.\n`\n    }],\n    stopOn: {\n      path: \"/status\",\n      in: [\"BLOCKED\"]\n    }\n  }]\n})\n```\n\n### Repair boundary\n\n**Stop here until the manifest/context result and the actual failing gate-log path are available.** No repair outcome, patch, tree ID or reviewer verdict is implied.\n\nThe next repair must then use a **schema-bound, file-only, foreground one-step implementer carrier**, anchored to `### Task 1:`, with the failing log path and these fixed observations:\n\n- Task 1 returned `DONE`.\n- Its owned command `node --test tests/parse.test.mjs` exited `1`.\n- Task 2’s command was green.\n- `WAVE_BASE_SHA` remains `1111111111111111111111111111111111111111`.\n\nFor isolated mode, first run the prescribed repair-base snapshot recipe, dispatch from its printed `RP_TREE` with step-level `worktree: true`, and pass only Task 1’s scoped commands. For in-place mode, dispatch directly in `/workspace/project`, omit `worktree`, and pass the exact wave test union.\n\nAfter that worker returns, integrate its delta if isolated and rerun the applicable scoped gate with redirected logs. **Do not dispatch any reviewer unless the required gate is observed green.**\n",
+      "words": 388,
+      "wallMs": 32367,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6a756c4bcaff8a06e50b0b7ab23b528ef9ea55a1c1c93dd32a87f75851b99278",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
+      "baselineOutputSha": "d47e8d45265e2b74bb0453971035270175d0ce7e55ff635f971a6e7e1d5f7991",
+      "candidateOutputSha": "95419a901a8a9f618b49ae14f1f67f96507b14ae7b08e62139d4b32be030e2b2",
+      "facts": {
+        "protocol": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every part of the protocol fact: it explicitly books `failed[1] = 1` despite Task 1's `DONE`, passes the gate log path and the `### Task 1:` anchor plus planPath/Spec into the repair payload, snapshots the current integrated tree as the repair base (stated as 'not a rebuild'), never re-dispatches Task 2's implementation, and gates the first `wave-reviewer` dispatch on a green gate. Two places where the After wording drifts from what Before kept and could cost the fact under a stricter reader: the repair payload's `SCOPED_TEST_COMMANDS` carries only Task 1's command and the post-repair gate 3 reruns only that command, so the 'green gate' that authorizes the review was never re-verified against Task 2's command after the repair delta landed on the integrated tree; Before kept the wave union in both the payload and the rerun. Restore the union (`[\"node --test tests/parse.test.mjs\", \"<Task 2 manifest command, verbatim>\"]`) in the repair task string and rerun both commands as gate 3/gate 4 before the review row, which preserves the Change (snapshot repair base, delta-only apply, rebuild only on apply failure, single post-gate integrated review) while making the 'green gate' claim unambiguous.",
+      "wallMs": 15259,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6a756c4bcaff8a06e50b0b7ab23b528ef9ea55a1c1c93dd32a87f75851b99278",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
+      "baselineOutputSha": "8695c30836ba5fd45aa8ecb1902b10caf8c8acb8256f38bcbc50ce451986c085",
+      "candidateOutputSha": "8d7041d4621e5e07beb29503adff938d210951fa67390668dfa9945d3c552f80",
+      "facts": {
+        "protocol": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before never records a failed attempt against Task 1 (it only says DONE does not override the gate) and explicitly tolerates the absence of a saved failing gate log rather than requiring it be carried into the repair, and it routes a green gate into per-task spec review plus a separate wave code review rather than one integrated wave review, so the protocol fact fails there. After fixes each piece: it states 'record one failed attempt for Task 1', makes the failing gate-log path a hard prerequisite alongside both task anchors, repairs on the current tree (in-place or via a committed repair-base snapshot with delta-only integration), forbids redispatching Task 2, and gates any reviewer on an observed green gate. To keep this stable, retain the explicit 'one failed attempt' sentence and the gate-log prerequisite in any future rewording; if the author wants to shorten the mode-conditional paragraph, keep the clause 'integrate its delta if isolated' and 'Do not dispatch any reviewer unless the required gate is observed green' verbatim, since those two lines are what deliver the repair-on-top and green-gate-only-review halves of the fact.",
+      "wallMs": 11714,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "054296ef6278390bdde50b90780eaadd2d0795c8"
+}

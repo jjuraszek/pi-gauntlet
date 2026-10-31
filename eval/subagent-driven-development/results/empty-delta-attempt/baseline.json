@@ -1,0 +1,34 @@
+{
+  "sample": "empty-delta-attempt",
+  "arm": "baseline",
+  "skillSha": "5b6bc825574b9dbe62d09799dcef907c7e808b3fa3a567d0f2f71c891e4edf34",
+  "inputSha": "949583285e823f4fe76ac49961eebf31a826421a46d76e3bb367e92661c7b851",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Next operation: empty-delta repair for Task 1\n\n## What the observations mean\n\n- **The repair changed nothing.** The FIX_FIRST repair returned `DONE`, but scratch tree-before equals tree-after. Under [Fix delta](#fix-delta), an empty delta means:\n  - no CR re-review is dispatched;\n  - the result counts as a failed attempt under [When a Subagent Fails](#when-a-subagent-fails).\n- **Task 1 has reached the attempt limit.** Its failed counter was 1 before this result and is now **2**. That is the two-attempt limit, so I do not resend the prior report with \"your fix changed no tracked file\". Doing so would be a third attempt.\n- **Tracker state stays as is.**\n  - Tasks 1 and 2 remain `in_progress` pending the human decision.\n  - No `update` to `complete`, `failed` or `skipped`.\n  - No wave commit and no `reset --soft`.\n  - `WAVE_BASE_SHA` stays `1111111111111111111111111111111111111111`.\n- **The next branch depends on amend permission.** After two failed attempts, the route is:\n  - with amend permission: [Implementer-failure stops](reference/fix-loop.md#implementer-failure-stops), one escalated attempt;\n  - without it: STOP and report.\n- **Grant status is not observed, so I delegate it.** The primary does not read the spec.\n\n## Concrete next commands (primary coordination only)\n\nThe placeholders `<the observed tree-before SHA>` and `<the observed tree-after SHA>` stand for the scratch trees already recorded. No values are invented here.\n\n```bash\nREPORT_DIR=${REPORT_DIR:?wave REPORT_DIR from this implement run}\ngit -C /workspace/project status --porcelain\ngit -C /workspace/project diff --stat <the observed tree-before SHA> <the observed tree-after SHA>\n```\n\nTranscript line to print (dynamic-state recovery record):\n\n```\nwave <w> task 1 status DONE report <REPORT_DIR>/wave<w>-fix<k>.md patch none\n```\n\nI also read `reference/fix-loop.md` at its absolute path beside this skill, before any escalation dispatch.\n\n## Next dispatch: delegated Amend-grant read (answer/evidence carrier)\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"/workspace/project\",\n  chain: [{ parallel: [\n    { output: \"<REPORT_DIR>/wave<w>-task1-grant.md\", outputMode: \"file-only\", outputSchema: ANSWER_SCHEMA,\n      task: \"Question: does the approved spec grant amend permission for implementer-failure stops? Spec: /workspace/project/doc/specs/feature.md; planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 1:. Read the **Amend-grant:** line yourself and decode it per brainstorming/reference/amendment-surface.md Standing grants. Answer one paragraph: malformed (quote it) | absent/none/no permission | amend permission. Evidence: the quoted line with file:line. Edit no file.\" }\n  ], stopOn: { path: \"/status\", in: [\"BLOCKED\"] } }]\n})\n```\n\nI consume only `answer` and `evidence`. A delegated failure stops the run; I do not recursively diagnose it.\n\n## Conditional follow-up (not dispatched yet; depends on the grant answer)\n\n- **Malformed grant:** stop and quote the evidence line.\n- **Absent, none or no permission:** STOP and report through the delegated stop-note carrier below. Phase stays `implement`; Task 1 stays `in_progress`; no further tasks start.\n\n  ```ts\n  subagent({ async: false, context: \"fresh\", cwd: \"/workspace/project\",\n    chain: [{ parallel: [\n      { output: \"<REPORT_DIR>/wave<w>-task1-stopnote.md\", outputMode: \"file-only\", outputSchema: ANSWER_SCHEMA,\n        task: \"Write the exact one-screen stop note per subagent-driven-development/stop-note.md for task 1 (### Task 1: in /workspace/project/doc/plans/feature.md; Spec: /workspace/project/doc/specs/feature.md). Final review report: <REPORT_DIR>/wave<w>-cr<k>.md (FIX_FIRST). Routing facts: repair attempt 1 and attempt 2 exhausted; latest repair returned DONE with an empty fix delta (no tracked file changed); no escalated round ran. Read findings yourself; quote only residual issues; begin with 'gauntlet: question'; end with Recommendation. Return the note as answer.\" }\n    ], stopOn: { path: \"/status\", in: [\"BLOCKED\"] } }]\n  })\n  ```\n\n- **Amend permission present:** follow Implementer-failure stops from `reference/fix-loop.md` for one escalated attempt. I will not shape that dispatch until I have read that reference.\n\n**Boundary:** stop here until the grant carrier returns.\n",
+      "words": 516,
+      "wallMs": 27270,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The unchanged repair is **Task 1’s second failed attempt**: counter `1 → 2`. `DONE` does not override the empty tracked delta.\n\n**Next operation: stop the ordinary repair loop.**\n- Do not dispatch a re-review of the unchanged tree.\n- Do not dispatch a third ordinary repair.\n- Keep both tracker indices `in_progress`; do not commit or start another task.\n\nOptional coordination commands—not claimed as executed:\n\n```bash\ngit -C /workspace/project status --porcelain\ngit -C /workspace/project diff --stat\n```\n\nThe required next routing depends on `reference/fix-loop.md`, current amendment permission, and escalation configuration. Those observations were not supplied. The previous review report path and output directory are also missing, so a concrete schema-bound, file-only carrier cannot be instantiated without inventing paths.\n\n**Stopped at that prerequisite boundary.** Preserve the prior report and the identical tree observations. Any subsequently authorized repair must carry the prior report path and the instruction: **“your fix changed no tracked file”**. No further carrier is dispatched here.\n",
+      "words": 152,
+      "wallMs": 19923,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

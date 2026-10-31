@@ -93,7 +93,7 @@ test("dispatchAgents: walks dispatch shapes in order and ignores non-string agen
     ["single", { agent: "scout" }, ["scout"]],
     ["tasks", { tasks: [{ agent: "scout" }, { agent: "context-builder" }] }, ["scout", "context-builder"]],
     ["recursive chain", { chain: [{ chain: [{ agent: "plan-writer" }] }] }, ["plan-writer"]],
-    ["root and nested", { agent: "root", tasks: [{ agent: "task" }], chain: [{ agent: "step", parallel: [{ agent: "implementer" }, { agent: "spec-reviewer" }] }] }, ["root", "task", "step", "implementer", "spec-reviewer"]],
+    ["root and nested", { agent: "root", tasks: [{ agent: "task" }], chain: [{ agent: "step", parallel: [{ agent: "implementer" }, { agent: "wave-reviewer" }] }] }, ["root", "task", "step", "implementer", "wave-reviewer"]],
     ["bare top-level array", [{ agent: "scout" }], []],
     ["nested array ignored", { tasks: [[{ agent: "scout" }]] }, []],
     ["object nodes", { tasks: { agent: "context-builder" } }, ["context-builder"]],
@@ -103,23 +103,22 @@ test("dispatchAgents: walks dispatch shapes in order and ignores non-string agen
   for (const [name, input, expected] of cases) assert.deepEqual(dispatchAgents(input), expected, name);
 });
 
-test("dispatchLabel: maps the vocabulary and combined implementation dispatch", () => {
+test("dispatchLabel: maps the vocabulary without fused review labels", () => {
   const cases: [string, unknown, string][] = [
     ["subagent", { agent: "scout" }, "gather"],
     ["subagent", { agent: "context-builder" }, "gather"],
     ["subagent", { agent: "spec-council-design" }, "council"],
     ["subagent", { agent: "spec-council-security" }, "council"],
-    ["subagent", { agent: "spec-reviewer" }, "spec-review"],
     ["subagent", { agent: "plan-writer" }, "plan-write"],
     ["plan_check", {}, "plan-check"],
     ["subagent", { agent: "implementer" }, "implement"],
-    ["subagent", { agent: "code-reviewer" }, "code-review"],
+    ["subagent", { agent: "wave-reviewer" }, "wave-review"],
     ["subagent", { agent: "conformance-reviewer" }, "conformance"],
-    ["subagent", { chain: [{ parallel: [{ agent: "implementer" }] }, { parallel: [{ agent: "spec-reviewer" }] }] }, "implement+sr"],
+    ["subagent", { chain: [{ parallel: [{ agent: "implementer" }] }, { parallel: [{ agent: "wave-reviewer" }] }] }, "implement"],
     ["subagent", { tasks: [{ agent: "worker" }, { agent: "scout" }] }, "gather"],
-    ["subagent", { tasks: [{ agent: "scout" }, { agent: "code-reviewer" }] }, "gather"],
-    ["subagent", { tasks: [{ agent: "code-reviewer" }, { agent: "scout" }] }, "code-review"],
-    ["subagent", { tasks: [{ agent: "scout" }, { agent: "spec-reviewer" }, { agent: "implementer" }] }, "implement+sr"],
+    ["subagent", { tasks: [{ agent: "scout" }, { agent: "wave-reviewer" }] }, "gather"],
+    ["subagent", { tasks: [{ agent: "wave-reviewer" }, { agent: "scout" }] }, "wave-review"],
+    ["subagent", { tasks: [{ agent: "scout" }, { agent: "wave-reviewer" }, { agent: "implementer" }] }, "gather"],
   ];
   for (const [tool, input, expected] of cases) assert.equal(dispatchLabel(tool, input), expected);
 });

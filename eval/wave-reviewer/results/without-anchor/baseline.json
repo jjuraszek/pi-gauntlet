@@ -1,0 +1,40 @@
+{
+  "sample": "without-anchor",
+  "arm": "baseline",
+  "skillSha": "aa04a4f3b2e8c75884c259daed7d85e1ca61526f7df6028513eb75bb3fdfcee5",
+  "inputSha": "5e5a6f4e776f5e78f9af3cababed5117f887e208b0196212f5f22f653d118d4c",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Wave Review: `render_label(name)` (`3f1c2a9..8d04b7e`)\n\n## Next file read\n\n**For anchored dispatches:** I would request the file at `planPath` and read it at the cited Spec anchors. That would let me check the diff against the approved text rather than a summary of it.\n\n**For this dispatch:** There is no `planPath`, no anchors and no Spec anchors, so there is no file read to request. I reviewed against the approved spec excerpt included in the dispatch (AC1 and Design Keep), using the requesting-code-review template. The diff contents were supplied as complete files, and I treated them as the whole change. I did not run git or the tests. All conclusions below come from reading the code.\n\n## Strengths\n- **AC1 is met.** `labels.py:2` returns `name.strip()`, which strips outer whitespace as required.\n- **Design Keep is met.** `\"\".strip()` returns `\"\"`, so an empty label stays empty.\n- **Both spec items are tested.** `test_labels.py:3-5` covers AC1 and `test_labels.py:11-13` covers the Design Keep. Each test's comment names the spec item it covers.\n- **The implementation is minimal.** It adds nothing beyond what the spec asks for.\n\n## Issues\n\n### Critical (Must Fix)\nNone.\n\n### Important (Should Fix)\nNone.\n\n### Minor (Nice to Have)\n1. **Duplicate test adds no coverage.** `test_labels.py:7-9`\n   - `test_label_trims_same_input_again` repeats the exact input (`\" label \"`), expected value and spec item (AC1) as `test_label_trims_outer_space` at `test_labels.py:3-5`.\n   - It adds no new behavior or edge case, so it is maintenance cost with no added assurance.\n   - **Fix:** Delete it. Alternatively, change it to a case AC1 covers but the suite doesn't yet test, such as tabs or newlines (`\"\\tlabel\\n\"`), or whitespace on only one side.\n   - This is Minor because it is redundant, not wrong. It doesn't hide a defect or weaken coverage of any spec item.\n\n### Not a finding: no mixed-case test\n- \"Preserve mixed case\" appears only in DESCRIPTION.\n- The dispatch states that summary-only behavior is not a new commitment, and neither AC1 nor the Design Keep mentions case.\n- So the missing mixed-case test is not a spec gap. For reference, `str.strip()` does not change case, so the implementation would preserve it anyway.\n\n## Recommendations\n- Remove the duplicate AC1 test or turn it into an edge case as described above.\n\n## Assessment\n\n**Ready to merge?** Yes.\n\n**Reasoning:** Both approved spec items (AC1 and Design Keep) are implemented correctly and each has a test. The only finding is one Minor test-economy issue, a redundant test, which does not block merge.\n\n```json\n{\n  \"verdict\": \"approve\",\n  \"findingCounts\": {\n    \"critical\": 0,\n    \"important\": 0,\n    \"minor\": 1\n  }\n}\n```\n",
+      "words": 399,
+      "wallMs": 14880,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Strengths\n- `labels.py:1–2` satisfies AC1 by stripping outer whitespace.\n- The empty-label behavior is preserved and explicitly covered at `test_labels.py:11–13`.\n- The implementation is minimal and consistent with the supplied requirements.\n\n## Issues\n\n### Critical\nNone.\n\n### Important\nNone.\n\n### Minor\n**Redundant test adds no distinct coverage — `test_labels.py:7–9`**\n\n`test_label_trims_same_input_again` repeats the same input and assertion as `test_label_trims_outer_space`. It adds maintenance and execution overhead without checking another requirement, boundary, or failure mode.\n\n**Recommendation:** Remove the duplicate test. This is a minor test-economy issue, not a merge blocker.\n\nThe missing mixed-case test is **not a finding**: mixed-case preservation appears only in the summary, not in the approved acceptance criteria or Design Keep commitments.\n\n## Assessment\n**Ready to merge? Yes, with a minor cleanup suggestion.**\n\nThe supplied implementation meets the approved requirements. This assessment is based solely on the complete file observations; no commands or tests were run.\n\n**Contract limitation:** The referenced persona and template contents were not supplied, so their exact output schema cannot be verified. The JSON below uses only the requested verdict and finding counts.\n\n```json\n{\n  \"verdict\": \"approve_with_nits\",\n  \"finding_counts\": {\n    \"critical\": 0,\n    \"important\": 0,\n    \"minor\": 1\n  }\n}\n```\n",
+      "words": 177,
+      "wallMs": 26785,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

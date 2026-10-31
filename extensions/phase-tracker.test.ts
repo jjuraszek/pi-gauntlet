@@ -685,20 +685,31 @@ const commitResult = (id: string) => ({
   content: [{ type: "text", text: "ok" }],
 });
 
-test("implement-phase commit with implementer newer than both reviewers warns", async () => {
-  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
-  delete process.env.PI_SUBAGENT_DEPTH; // isolate from an ambient subagent depth in the test-runner's own process
-  try {
-    const h = harness({ branch: implementBranch([subagentResult(["implementer"])]) });
-    await h.emit("session_start");
-    await h.emitEvent("tool_call", commitCall("c1"));
-    const warned = (await h.emitEvent("tool_result", commitResult("c1")))[0] as { content: { text: string }[] };
-    assert.match(warned.content[0].text, /no spec-reviewer or code-reviewer observed/);
-  } finally {
-    if (priorDepth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
-    else process.env.PI_SUBAGENT_DEPTH = priorDepth;
+for (const path of ["README.md", "extensions/example.ts"]) {
+  for (const [name, agents, warns] of [
+    ["missing review", ["implementer"], true],
+    ["stale review", ["wave-reviewer", "implementer"], true],
+    ["newer review", ["implementer", "wave-reviewer"], false],
+  ] as const) {
+    test(`cadence for ${path}: ${name}`, async () => {
+        const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+        delete process.env.PI_SUBAGENT_DEPTH; // isolate from an ambient subagent depth in the test-runner's own process
+        try {
+          const h = harness({ branch: implementBranch(agents.map((agent) => subagentResult([agent]))) });
+          await h.emit("session_start");
+          const call = commitCall("c1");
+          call.input.command = `git commit -m 'integrate wave' -- ${path}`;
+          await h.emitEvent("tool_call", call);
+          const warned = (await h.emitEvent("tool_result", commitResult("c1")))[0] as { content: { text: string }[] } | undefined;
+          assert.equal(warned !== undefined, warns);
+          if (warned) assert.match(warned.content[0].text, /no wave-reviewer observed/);
+        } finally {
+          if (priorDepth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+          else process.env.PI_SUBAGENT_DEPTH = priorDepth;
+        }
+    });
   }
-});
+}
 
 test("cadence guard silent in subagent children", async () => {
   const priorDepth = process.env.PI_SUBAGENT_DEPTH;
@@ -715,15 +726,14 @@ test("cadence guard silent in subagent children", async () => {
   }
 });
 
-test("fresh SR and CR after the implementer keep the commit silent", async () => {
+test("fresh wave review after the implementer keeps the commit silent", async () => {
   const priorDepth = process.env.PI_SUBAGENT_DEPTH;
   delete process.env.PI_SUBAGENT_DEPTH;
   try {
     const h = harness({
       branch: implementBranch([
         subagentResult(["implementer"]),
-        subagentResult(["spec-reviewer"]),
-        subagentResult(["code-reviewer"]),
+        subagentResult(["wave-reviewer"]),
       ]),
     });
     await h.emit("session_start");
@@ -734,12 +744,12 @@ test("fresh SR and CR after the implementer keep the commit silent", async () =>
   }
 });
 
-test("AND-logic: fresh SR with stale CR stays silent (doc-only wave shape)", async () => {
+test("fresh wave review stays silent for a doc-only wave", async () => {
   const priorDepth = process.env.PI_SUBAGENT_DEPTH;
   delete process.env.PI_SUBAGENT_DEPTH;
   try {
     const h = harness({
-      branch: implementBranch([subagentResult(["implementer"]), subagentResult(["spec-reviewer"])]),
+      branch: implementBranch([subagentResult(["implementer"]), subagentResult(["wave-reviewer"])]),
     });
     await h.emit("session_start");
     await h.emitEvent("tool_call", commitCall("c1"));
@@ -754,7 +764,7 @@ test("fused implementer+reviewer results in one dispatch stay silent", async () 
   delete process.env.PI_SUBAGENT_DEPTH;
   try {
     const h = harness({
-      branch: implementBranch([subagentResult(["implementer", "spec-reviewer", "code-reviewer"])]),
+      branch: implementBranch([subagentResult(["implementer", "wave-reviewer"])]),
     });
     await h.emit("session_start");
     await h.emitEvent("tool_call", commitCall("c1"));
@@ -815,7 +825,7 @@ test("live tool_result observation updates the ledger", async () => {
       toolName: "subagent",
       toolCallId: "s1",
       content: [],
-      details: { results: [{ agent: "spec-reviewer", exitCode: 0 }, { agent: "code-reviewer", exitCode: 0 }] },
+      details: { results: [{ agent: "wave-reviewer", exitCode: 0 }, { agent: "wave-reviewer", exitCode: 0 }] },
     });
     await h.emitEvent("tool_call", commitCall("c1"));
     assert.equal((await h.emitEvent("tool_result", commitResult("c1")))[0], undefined);
@@ -831,15 +841,14 @@ test("second implementer after reviews re-arms the warning", async () => {
     const h = harness({
       branch: implementBranch([
         subagentResult(["implementer"]),
-        subagentResult(["spec-reviewer"]),
-        subagentResult(["code-reviewer"]),
+        subagentResult(["wave-reviewer"]),
         subagentResult(["implementer"]),
       ]),
     });
     await h.emit("session_start");
     await h.emitEvent("tool_call", commitCall("c1"));
     const warned = (await h.emitEvent("tool_result", commitResult("c1")))[0] as { content: { text: string }[] };
-    assert.match(warned.content[0].text, /no spec-reviewer or code-reviewer observed/);
+    assert.match(warned.content[0].text, /no wave-reviewer observed/);
   } finally {
     if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
   }
@@ -1596,15 +1605,14 @@ for (const delivery of ["live", "session_start", "session_switch", "session_fork
     const implementer = { agent: "implementer", exitCode: 0 };
     for (const row of [
       { name: "interrupted implementer", results: [{ ...implementer, interrupted: true }], prior: false, warns: false },
-      { name: "interrupted SR", results: [{ agent: "spec-reviewer", exitCode: 0, interrupted: true }], prior: true, warns: true },
-      { name: "interrupted CR", results: [{ agent: "code-reviewer", exitCode: 0, interrupted: true }], prior: true, warns: true },
+      { name: "interrupted wave reviewer", results: [{ agent: "wave-reviewer", exitCode: 0, interrupted: true }], prior: true, warns: true },
       { name: "legacy implementer", results: [implementer], prior: false, warns: true },
-      { name: "explicit uninterrupted SR", results: [{ agent: "spec-reviewer", exitCode: 0, interrupted: false }], prior: true, warns: false },
-      { name: "failed reviewer", results: [{ agent: "code-reviewer", exitCode: 1 }], prior: true, warns: true },
+      { name: "explicit uninterrupted wave reviewer", results: [{ agent: "wave-reviewer", exitCode: 0, interrupted: false }], prior: true, warns: false },
+      { name: "failed reviewer", results: [{ agent: "wave-reviewer", exitCode: 1 }], prior: true, warns: true },
       { name: "wrong agent", results: [{ agent: "spec-reviewer-extra", exitCode: 0 }], prior: true, warns: true },
       { name: "empty async/management", results: [], prior: true, warns: true },
-      { name: "mixed parallel tie", results: [implementer, { agent: "spec-reviewer", exitCode: 0 }, { agent: "code-reviewer", exitCode: 0, interrupted: true }], prior: false, warns: false },
-      { name: "earlier review in errored chain", results: [{ agent: "code-reviewer", exitCode: 0 }, { ...implementer, interrupted: true }], prior: true, isError: true, warns: false },
+      { name: "mixed parallel tie", results: [implementer, { agent: "wave-reviewer", exitCode: 0 }, { agent: "wave-reviewer", exitCode: 0, interrupted: true }], prior: false, warns: false },
+      { name: "earlier review in errored chain", results: [{ agent: "wave-reviewer", exitCode: 0 }, { ...implementer, interrupted: true }], prior: true, isError: true, warns: false },
     ]) {
       const prior = row.prior ? [subagentResult(["implementer"])] : [];
       const result = waveResult("work", row.results, row.isError);
@@ -1618,7 +1626,7 @@ for (const delivery of ["live", "session_start", "session_switch", "session_fork
       await h.emitEvent("tool_call", commitCall("commit"));
       const [warning] = await h.emitEvent("tool_result", commitResult("commit")) as ({ content: { text: string }[] } | undefined)[];
       assert.equal(warning !== undefined, row.warns, row.name);
-      if (warning) assert.match(warning.content[0].text, /no spec-reviewer or code-reviewer observed/, row.name);
+      if (warning) assert.match(warning.content[0].text, /no wave-reviewer observed/, row.name);
     }
   });
 }
@@ -1722,7 +1730,7 @@ test("cap guard: non-implementer dispatches never blocked; enforce false passes 
   const h = guardedHarness({ piGauntlet: { closureReview: { maxFixRounds: 0 } } });
   await h.emit("session_start");
   assert.equal(await firstCallResult(h, "r1", { agent: "conformance-reviewer", task: "re-audit" }), undefined);
-  assert.equal(await firstCallResult(h, "r2", { agent: "code-reviewer", task: "review" }), undefined);
+  assert.equal(await firstCallResult(h, "r2", { agent: "wave-reviewer", task: "review" }), undefined);
 
   const off = guardedHarness({ piGauntlet: { closureReview: { enforce: false, maxFixRounds: 0 } } });
   await off.emit("session_start");
@@ -1735,7 +1743,7 @@ test("counter: blocked, errored, empty, non-implementer, and out-of-window resul
   await h.emit("session_start");
   await h.emitEvent("tool_result", waveResult("e1", [{ agent: "implementer", exitCode: 0 }], true));
   await h.emitEvent("tool_result", waveResult("e2", []));
-  await h.emitEvent("tool_result", waveResult("e3", [{ agent: "code-reviewer", exitCode: 0 }]));
+  await h.emitEvent("tool_result", waveResult("e3", [{ agent: "wave-reviewer", exitCode: 0 }]));
   const blockedLone = await firstCallResult(h, "b1", loneImplementer());
   assert.equal(blockedLone?.block, true);
   assert.equal(await firstCallResult(h, "c1", implementerWave(1)), undefined, "budget untouched");
@@ -1795,7 +1803,7 @@ test("counter reset: start implement and reset zero it; start verify --force kee
 test("replay: two implementer waves after the audit in verify restore fixRounds 2; the same waves in ship restore 0", async () => {
   const inVerify = guardedHarness({ piGauntlet: { closureReview: { maxFixRounds: 2 } } }, [
     subagentResult(["implementer"]),
-    subagentResult(["implementer", "code-reviewer"]),
+    subagentResult(["implementer", "wave-reviewer"]),
   ]);
   await inVerify.emit("session_start");
   assert.equal((await firstCallResult(inVerify, "c1", implementerWave(1)))?.block, true);
@@ -1910,7 +1918,7 @@ test("grant: only qualifying synchronous parent task waves spend credits", async
   const h = guardedHarness({ piGauntlet: { closureReview: { maxFixRounds: 0 } } });
   await h.emit("session_start");
   await grant(h, "g", { rounds: 1, reason: "ok" });
-  await h.emitEvent("tool_result", waveResult("e1", [{ agent: "code-reviewer", exitCode: 0 }]));
+  await h.emitEvent("tool_result", waveResult("e1", [{ agent: "wave-reviewer", exitCode: 0 }]));
   await h.emitEvent("tool_result", waveResult("e2", [{ agent: "implementer", exitCode: 0 }], true));
   await h.emitEvent("tool_result", waveResult("e3", []));
   assert.equal((await firstCallResult(h, "a", { ...implementerWave(1), async: true }))?.block, true);
@@ -2224,14 +2232,14 @@ for (const action of ["complete", "skip"] as const) {
       const h = harness({ hasUI: true });
       const tool = h.tools.find(t => t.name === "phase_tracker")!;
       await startPhase(h, "verify");
-      await h.emitEvent("tool_call", subagentCall("review", { agent: "code-reviewer" }));
+      await h.emitEvent("tool_call", subagentCall("review", { agent: "wave-reviewer" }));
       const result = await tool.execute("transition", { action, phase: "ship", reason: "not needed" }, undefined, undefined, h.ctx) as any;
       assert.equal(result.details.error, undefined);
-      assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+      assert.match(h.widgets.at(-1)!, /verify\(wave-review\)/);
       await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "review", isError, details: {}, content: [] });
       assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
-      await h.emitEvent("tool_call", subagentCall("next", { agent: "code-reviewer" }));
-      assert.ok(h.widgets.at(-1)!.includes(`verify(code-review${isError ? "" : " #2"})`));
+      await h.emitEvent("tool_call", subagentCall("next", { agent: "wave-reviewer" }));
+      assert.ok(h.widgets.at(-1)!.includes(`verify(wave-review${isError ? "" : " #2"})`));
     });
   }
 }
@@ -2256,17 +2264,17 @@ for (const isError of [false, true]) {
     const shipStart = startPhase(h, "ship");
     await modelEntered;
     await startPhase(h, "verify");
-    await h.emitEvent("tool_call", subagentCall("review", { agent: "code-reviewer" }));
+    await h.emitEvent("tool_call", subagentCall("review", { agent: "wave-reviewer" }));
     release();
     assert.equal((await shipStart).status, "in_progress");
-    assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+    assert.match(h.widgets.at(-1)!, /verify\(wave-review\)/);
     await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "review", isError, details: {}, content: [] });
     assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
     const tool = h.tools.find(t => t.name === "phase_tracker")!;
     const status = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
     assert.equal(status.details.phases.ship.status, "in_progress");
-    await h.emitEvent("tool_call", subagentCall("next", { agent: "code-reviewer" }));
-    assert.ok(h.widgets.at(-1)!.includes(`verify(code-review${isError ? "" : " #2"})`));
+    await h.emitEvent("tool_call", subagentCall("next", { agent: "wave-reviewer" }));
+    assert.ok(h.widgets.at(-1)!.includes(`verify(wave-review${isError ? "" : " #2"})`));
   });
 }
 
@@ -2292,10 +2300,9 @@ test("live dispatch labels repaint and keep ordinals out of status snapshots", a
 });
 
 for (const row of [
-  { phase: "implement", input: { chain: [{ parallel: [{ agent: "implementer" }] }, { parallel: [{ agent: "spec-reviewer" }] }] }, label: "implement+sr" },
-  { phase: "implement", input: { agent: "code-reviewer" }, label: "code-review" },
+  { phase: "implement", input: { chain: [{ parallel: [{ agent: "implementer" }] }, { parallel: [{ agent: "wave-reviewer" }] }] }, label: "implement" },
   { phase: "implement", input: { agent: "implementer" }, label: "implement" },
-  { phase: "implement", input: { agent: "spec-reviewer" }, label: "spec-review" },
+  { phase: "implement", input: { agent: "wave-reviewer" }, label: "wave-review" },
   { phase: "plan", toolName: "plan_check", input: {}, label: "plan-check" },
   { phase: "verify", toolName: "plan_check", input: {}, label: "plan-check" },
 ]) {
@@ -2317,15 +2324,15 @@ for (const row of [
 }
 
 for (const agents of [
-  ["code-reviewer", "implementer", "code-reviewer", "conformance-reviewer"],
-  ["conformance-reviewer", "implementer", "conformance-reviewer", "code-reviewer", "code-reviewer", "code-reviewer"],
+  ["wave-reviewer", "implementer", "wave-reviewer", "conformance-reviewer"],
+  ["conformance-reviewer", "implementer", "conformance-reviewer", "wave-reviewer", "wave-reviewer", "wave-reviewer"],
 ]) {
   test(`live repair sequence: ${agents.join(" -> ")}`, async () => {
     const h = harness({ hasUI: true });
     await startPhase(h, "verify");
     const counts: Record<string, number> = {};
     for (const [i, agent] of agents.entries()) {
-      const label = ({ "code-reviewer": "code-review", implementer: "implement", "conformance-reviewer": "conformance" })[agent]!;
+      const label = ({ "wave-reviewer": "wave-review", implementer: "implement", "conformance-reviewer": "conformance" })[agent]!;
       const n = counts[label] = (counts[label] ?? 0) + 1;
       await h.emitEvent("tool_call", subagentCall(String(i), { tasks: [{ agent }] }));
       assert.ok(h.widgets.at(-1)!.includes(`verify(${label}${n > 1 ? ` #${n}` : ""})`));
@@ -2343,7 +2350,7 @@ for (const row of [
     test(`live terminal: ${row.name}, execution-end-only=${endOnly}`, async () => {
       const h = harness({ hasUI: true });
       await startPhase(h, "verify");
-      await h.emitEvent("tool_call", subagentCall("a", { agent: "code-reviewer" }));
+      await h.emitEvent("tool_call", subagentCall("a", { agent: "wave-reviewer" }));
       const paints = h.widgets.length;
       await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "other", details: {}, content: [] });
       assert.equal(h.widgets.length, paints);
@@ -2354,8 +2361,8 @@ for (const row of [
       assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
       await h.emitEvent("tool_execution_end", { ...terminal, result: { details: row.details } });
       assert.equal(h.widgets.length, paints + 1);
-      await h.emitEvent("tool_call", subagentCall("b", { agent: "code-reviewer" }));
-      assert.ok(h.widgets.at(-1)!.includes(`verify(code-review${row.refund ? "" : " #2"})`));
+      await h.emitEvent("tool_call", subagentCall("b", { agent: "wave-reviewer" }));
+      assert.ok(h.widgets.at(-1)!.includes(`verify(wave-review${row.refund ? "" : " #2"})`));
     });
   }
 }
@@ -2366,20 +2373,20 @@ test("live overlap forgets older calls and explicit overwrite survives cleanup",
   const tool = h.tools.find(t => t.name === "phase_tracker")!;
   const explicit = (substep: string) => tool.execute("explicit", { action: "substep", phase: "verify", substep }, undefined, undefined, h.ctx);
   await explicit("before");
-  for (const id of ["a", "b"]) await h.emitEvent("tool_call", subagentCall(id, { agent: "code-reviewer", async: true }));
-  assert.match(h.widgets.at(-1)!, /verify\(code-review #2\)/);
+  for (const id of ["a", "b"]) await h.emitEvent("tool_call", subagentCall(id, { agent: "wave-reviewer", async: true }));
+  assert.match(h.widgets.at(-1)!, /verify\(wave-review #2\)/);
   const paints = h.widgets.length;
   await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "a", details: {}, content: [] });
   assert.equal(h.widgets.length, paints);
   await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "b", details: {}, content: [] });
   assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
-  await h.emitEvent("tool_call", subagentCall("c", { agent: "code-reviewer" }));
+  await h.emitEvent("tool_call", subagentCall("c", { agent: "wave-reviewer" }));
   const snapshot = await explicit("custom") as any;
   await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "c", isError: true, details: {}, content: [] });
   assert.match(h.widgets.at(-1)!, /verify\(custom\)/);
   assert.equal(snapshot.details.phases.verify.substep, "custom");
-  await h.emitEvent("tool_call", subagentCall("d", { agent: "code-reviewer" }));
-  assert.match(h.widgets.at(-1)!, /verify\(code-review #3\)/);
+  await h.emitEvent("tool_call", subagentCall("d", { agent: "wave-reviewer" }));
+  assert.match(h.widgets.at(-1)!, /verify\(wave-review #3\)/);
 });
 
 for (const action of ["start", "complete", "skip", "reset"]) {
@@ -2387,10 +2394,10 @@ for (const action of ["start", "complete", "skip", "reset"]) {
     const h = harness({ hasUI: true });
     const tool = h.tools.find(t => t.name === "phase_tracker")!;
     await startPhase(h, "verify");
-    await h.emitEvent("tool_call", subagentCall("old", { agent: "code-reviewer" }));
+    await h.emitEvent("tool_call", subagentCall("old", { agent: "wave-reviewer" }));
     const rejected = await tool.execute("bad", { action: "start", phase: "plan" }, undefined, undefined, h.ctx) as any;
     assert.ok(rejected.details.error);
-    assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+    assert.match(h.widgets.at(-1)!, /verify\(wave-review\)/);
     await tool.execute("transition", { action, phase: "verify", reason: "test" }, undefined, undefined, h.ctx);
     if (action === "reset") assert.equal(h.widgets.at(-1), undefined);
     if (action !== "start") await tool.execute("restart", { action: "start", phase: "verify", force: true }, undefined, undefined, h.ctx);
@@ -2399,18 +2406,18 @@ for (const action of ["start", "complete", "skip", "reset"]) {
     await h.emitEvent("tool_execution_end", { toolName: "subagent", toolCallId: "old", result: { details: {} } });
     assert.equal(h.widgets.length, paints);
     assert.match(h.widgets.at(-1)!, /verify\(custom\)/);
-    await h.emitEvent("tool_call", subagentCall("new", { agent: "code-reviewer" }));
-    assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+    await h.emitEvent("tool_call", subagentCall("new", { agent: "wave-reviewer" }));
+    assert.match(h.widgets.at(-1)!, /verify\(wave-review\)/);
   });
 }
 
 test("live plan backstop clears ownership only on actual implement completion", async () => {
   const h = harness({ hasUI: true });
   await startPhase(h, "implement");
-  await h.emitEvent("tool_call", subagentCall("old", { agent: "code-reviewer" }));
+  await h.emitEvent("tool_call", subagentCall("old", { agent: "wave-reviewer" }));
   for (const tasks of [undefined, [{ status: "in_progress" }]]) {
     await h.emitEvent("tool_execution_end", { toolName: "plan_tracker", result: { details: { tasks } } });
-    assert.match(h.widgets.at(-1)!, /implement\(code-review\)/);
+    assert.match(h.widgets.at(-1)!, /implement\(wave-review\)/);
   }
   await h.emitEvent("tool_execution_end", { toolName: "plan_tracker", result: { details: { tasks: [{ status: "complete" }] } } });
   await startPhase(h, "verify");
@@ -2418,8 +2425,8 @@ test("live plan backstop clears ownership only on actual implement completion", 
   await tool.execute("label", { action: "substep", phase: "verify", substep: "custom" }, undefined, undefined, h.ctx);
   await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "old", details: {}, content: [] });
   assert.match(h.widgets.at(-1)!, /verify\(custom\)/);
-  await h.emitEvent("tool_call", subagentCall("new", { agent: "code-reviewer" }));
-  assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+  await h.emitEvent("tool_call", subagentCall("new", { agent: "wave-reviewer" }));
+  assert.match(h.widgets.at(-1)!, /verify\(wave-review\)/);
 });
 
 test("live observation is dormant without a phase and in a subagent child", async () => {
@@ -2509,7 +2516,7 @@ for (const row of [
     if (status.details.phases[row.phase].status !== "in_progress") await startPhase(h, row.phase);
     const restarted = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
     assert.equal(restarted.details.phases[row.phase].substep, row.expected);
-    await h.emitEvent("tool_call", subagentCall("new", { agent: "code-reviewer" }));
+    await h.emitEvent("tool_call", subagentCall("new", { agent: "wave-reviewer" }));
     await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "new", details: {}, content: [] });
     assert.deepEqual(row.branch, original);
   });
@@ -2521,11 +2528,11 @@ for (const event of ["session_start", "session_switch", "session_fork", "session
       const h = harness({ hasUI: true });
       const tool = h.tools.find(t => t.name === "phase_tracker")!;
       await startPhase(h, "verify");
-      await h.emitEvent("tool_call", subagentCall("first", { agent: "code-reviewer" }));
+      await h.emitEvent("tool_call", subagentCall("first", { agent: "wave-reviewer" }));
       await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "first", details: {}, content: [] });
-      await h.emitEvent("tool_call", subagentCall("old", { agent: "code-reviewer" }));
-      assert.match(h.widgets.at(-1)!, /verify\(code-review #2\)/);
-      const branch = kind === "empty" ? [assistant()] : kind === "explicit" ? explicitReplay("verify", "custom") : [phaseResult("start", replaySnapshot("verify")), phaseResult("status", replaySnapshot("verify", "code-review"))];
+      await h.emitEvent("tool_call", subagentCall("old", { agent: "wave-reviewer" }));
+      assert.match(h.widgets.at(-1)!, /verify\(wave-review #2\)/);
+      const branch = kind === "empty" ? [assistant()] : kind === "explicit" ? explicitReplay("verify", "custom") : [phaseResult("start", replaySnapshot("verify")), phaseResult("status", replaySnapshot("verify", "wave-review"))];
       const original = structuredClone(branch);
       h.setBranch(branch);
       await h.emit(event);
@@ -2540,11 +2547,11 @@ for (const event of ["session_start", "session_switch", "session_fork", "session
       await h.emitEvent("tool_execution_end", { toolName: "subagent", toolCallId: "old", result: { details: {} } });
       assert.equal(h.widgets.length, paints);
       if (kind === "empty") await startPhase(h, "verify");
-      await h.emitEvent("tool_call", subagentCall("next", { agent: "code-reviewer" }));
-      assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+      await h.emitEvent("tool_call", subagentCall("next", { agent: "wave-reviewer" }));
+      assert.match(h.widgets.at(-1)!, /verify\(wave-review\)/);
       await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "next", details: {}, content: [] });
-      await h.emitEvent("tool_call", subagentCall("again", { agent: "code-reviewer" }));
-      assert.match(h.widgets.at(-1)!, /verify\(code-review #2\)/);
+      await h.emitEvent("tool_call", subagentCall("again", { agent: "wave-reviewer" }));
+      assert.match(h.widgets.at(-1)!, /verify\(wave-review #2\)/);
       assert.deepEqual(branch, original);
     });
   }

@@ -1,0 +1,110 @@
+{
+  "sample": "implement-amend-changed-command",
+  "arm": "candidate",
+  "skillSha": "d6cd7056b497af03c4beca0335cd8f817767dcf8e236f1e9b84c4cbd91a96e4c",
+  "inputSha": "9cbe488a913e69f48f6d1d5e0c8d96ac71178a3ccacb15bf39e7fe065d10e7f1",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Plan-writer (implement-phase `Amend-apply:`): four independent baseline observations\n\nThese rules apply to every state:\n\n- **Header.** I write `**Baseline policy:** implement-local`.\n- **Task 1 is kept as is.** The `Baseline home: abc1234` declaration and Task 1's `- baseline: abc1234 pass` bullet stay byte-identical. I do not re-run them, and I do not run an endpoint-tree equivalence check or a rerun-all sweep.\n- **Only Task 2 is re-baselined.** Its command text changed. Task 2's old `abc1234 pass` was measured for `node --test tests/old.test.mjs`, so it can never stand as evidence for `node --test tests/new.test.mjs`.\n- **Evidence location.** Original inventory and execution identity come from the existing saved apply report and its `Baseline provenance` note. There is no sidecar file.\n- **I do not stamp.** I never call `plan_tracker`, `phase_tracker` or `subagent`. The parent's stamping `plan_check`, the integrated gate, review and final verification all stay mandatory in every state.\n- **Deltas.** They come from pre-apply task numbers. Task 2 is `tasksAnchorChanged: [2]` because its Tests and obligation changed, not just a line offset.\n\n## A: clean committed snapshot def5678, exit 0, 2 tests\n\n- **Action:** run the exact new command on the parent-supplied snapshot.\n- **Provenance recorded:**\n  - leg: home\n  - checkout: `/workspace/snapshot`\n  - revision: def5678\n  - admitted changes: none\n  - status: empty before and after, revision stable\n  - command: `node --test tests/new.test.mjs`\n  - result: exit 0, 2 tests executed\n- **Evidence:** `- baseline: def5678 pass`. Mixed per-command SHAs (abc1234 for Task 1, def5678 for Task 2) are allowed in local mode. This evidence describes def5678, not freshness at the current HEAD.\n- **Result:** self-check passes, so `passed: true`.\n\n## B: unknown dirty `src/unrelated.mjs`, no identified execution tree\n\n- **Action:** stop and run nothing. The unknown dirty path blocks.\n- **Prohibited:**\n  - No clean, stash, restore or snapshot by me.\n  - No dirty run labelled as clean HEAD.\n  - The old-command abc1234 pass cannot be reused as Task 2 evidence.\n- **Row and result:** regenerate the row below and return `passed: false` with it verbatim in `failLines`.\n  ```\n  - Baseline: worktree dirty on abc1234: src/unrelated.mjs\n    blocked: Task 2 `node --test tests/new.test.mjs`\n  ```\n- **Provenance:** the inventory is recorded in the existing provenance note.\n- **Unrelated work:** preserved untouched. The human or parent commits, moves or discards it.\n\n## C: clean snapshot def5678, exit 0, 0 tests\n\n- **Action:** treat this as a failure. Exit 0 with zero tests executed is not a pass.\n- **Provenance recorded:**\n  - checkout: snapshot\n  - revision: def5678\n  - command, exit 0 and executed count 0\n- **Row and result:** return `passed: false` with the row below in `failLines`. No pass bullet of any kind may be written.\n  ```\n  - Task 2: `node --test tests/new.test.mjs` fails on def5678 (exit 0, no tests ran): tests 0, pass 0, fail 0\n    ```\n    <last 20 output lines, verbatim>\n    ```\n  ```\n\n## D: added Task 3 with `tests/future.test.mjs` as both Create and Test\n\n- **Truly absent at the identified revision def5678:**\n  - Evidence: `- baseline: def5678 skipped - tests/future.test.mjs created by this task`.\n  - Provenance: revision def5678, absence verified.\n  - Delta: `tasksAdded: [3]`.\n- **Path already exists but is still declared Create:**\n  - The anchor counts as existing, so no new skipped evidence may be created.\n  - I run the exact command on an identified tree and require a nonzero executed-test count.\n  - A \"retained\" skip would need matching original inventory plus a `Baseline provenance: retained home | <cmd> | <value>` note. Task 3 is new, so it has no historical skip to retain, and inventing one is forbidden.\n\n## Plan excerpt (state A applied)\n\n```markdown\n**Spec:** doc/specs/config.md\n**Baseline policy:** implement-local\nBaseline home: abc1234\n\n### Task 2: Switch config test to new suite\n**Spec:** doc/specs/config.md § \"<amended section>\" L<a>-L<b>\n**Files:**\n- Modify: `<impl path from original Task 2>`\n- Test: `tests/new.test.mjs`\n\n**Tests:**\n- `node --test tests/new.test.mjs`\n- baseline: def5678 pass\n\n- [ ] Step 1: Write the failing test (amended assertion) in tests/new.test.mjs\n- [ ] Step 2: Run `node --test tests/new.test.mjs`. Expected: FAIL\n- [ ] Step 3: Minimal implementation\n- [ ] Step 4: Re-run. Expected: PASS\n- [ ] Step 5: Scoped fmt/lint on the task's files\n- [ ] Step 6: Commit\n\nBaseline provenance: home | /workspace/snapshot | def5678 | admitted: none | `node --test tests/new.test.mjs` | exit 0 | tests 2\n```\n\n## Final reply\n\nThe four states taken together leave rows B and C open, so the final reply is `OPEN QUESTIONS`. State A alone would end with `PLAN WRITTEN /workspace/app/doc/plans/config.md`.\n\nOPEN QUESTIONS /workspace/app/doc/plans/config.md\n",
+      "words": 657,
+      "wallMs": 28162,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "For all four observations, use `**Baseline policy:** implement-local`. Preserve Task 1’s `abc1234 pass` evidence and `Baseline home: abc1234` unchanged. Do not perform endpoint-tree equivalence or rerun unrelated commands.\n\n| State | Decision | Evidence and reporting |\n|---|---|---|\n| **A** | **Run the exact new command** in `/workspace/snapshot`. | Record `node --test tests/new.test.mjs`, home leg, snapshot path, revision `def5678`, clean before/after status, stable revision, exit 0, and 2 executed/passing tests in the existing provenance and saved apply report. Task 2 may receive `- baseline: def5678 pass`. Do not describe this as execution at the current checkout’s HEAD. |\n| **B** | **Stop; run nothing.** | Record unknown dirty `src/unrelated.mjs` and the missing execution-tree identity as blockers. Preserve the file untouched. The old command’s `abc1234 pass` cannot establish evidence for the new command; neither retention nor relabeling it as a new-command pass is permitted. Human resolution or a parent-supplied identified execution tree is required. |\n| **C** | **Run, then report a baseline failure.** | Record the identified clean snapshot, `def5678`, exact command, exit 0, and **“no tests ran.”** Preserve the observed output and failure history in the saved report. Zero executed tests cannot produce a passing bullet or a harmless skip. Task 2 remains blocked pending resolving evidence. |\n| **D** | **Skip only when every anchor is truly absent at `def5678`.** | For the genuinely absent new anchor, record `- baseline: def5678 skipped - tests/future.test.mjs created by this task`. This is skipped evidence, not a pass. If the file already exists despite still being declared `Create:`, treat it as existing and run the applicable command under the ordinary selector rules; `Create:` alone does not justify a new skip. |\n\nPreserve the original inventory in the existing saved apply report and record truthful execution identity and admitted changes in the existing Baseline provenance. Do not commit, restore, discard, or otherwise alter unrelated work.\n\nThe parent’s stamping `plan_check`, integrated gate, review, and final verification remain mandatory. These observations alone do not justify `passed: true` or `PLAN WRITTEN`.\n",
+      "words": 312,
+      "wallMs": 14965,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ee6abe081409e8f55a1cd19d2e6896277eedf380679833b22bb72b18df9fd56a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cc71f2cea9e5d50487a24f4d950e23390e0be1fe4c7b6abe1eb7beb4543463a4",
+      "baselineOutputSha": "8b3fab8342a2ac8db48722c4a29cb023d0f98bda8505d81e7d1d179eb593e2cf",
+      "candidateOutputSha": "44dd32fcd9861d10ed64d1a6067bcad672d45a81f18444b0d2ca7b47d701cf04",
+      "facts": {
+        "changed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unknown": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "zero": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "created": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "safety": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording gained `changed` without losing anything: Before re-stamped Task 1 to def5678 (and rewrote `Baseline home:`) after a tree-equivalence diff, which is exactly the restamp the fact forbids for implement-phase local amendments, whereas After keeps the `Baseline home: abc1234` header and Task 1's `abc1234 pass` bullet byte-identical, explicitly declines both the equivalence check and the rerun-all sweep, and records leg, checkout `/workspace/snapshot`, revision, admitted changes, status stability, command, exit and the two-test count in a `Baseline provenance` line. The B/C/D sections preserve the same stop, zero-test-failure and existing-Create-path behaviors Before already had, keep failure output fenced, leave `src/unrelated.mjs` untouched, forbid clean/stash/snapshot-by-writer, and keep the parent `plan_check` stamp and final verification mandatory. The one spot worth tightening: in state C, After only lists `checkout: snapshot` rather than the full path and leg, so mirroring A's provenance block (leg, `/workspace/snapshot`, admitted: none) there would make the failure row's execution identity as unambiguous as the pass evidence; otherwise this wording delivers the Change cleanly.",
+      "wallMs": 18196,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ee6abe081409e8f55a1cd19d2e6896277eedf380679833b22bb72b18df9fd56a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cc71f2cea9e5d50487a24f4d950e23390e0be1fe4c7b6abe1eb7beb4543463a4",
+      "baselineOutputSha": "76d675da8bfcb44f5752087c0bcf6869ba3eec0f596ec2bdeaaccfcba7b44113",
+      "candidateOutputSha": "49f552c01f452340a987e92e642984017b4eafc31a7850ee456be41e5c1e3e1c",
+      "facts": {
+        "changed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unknown": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "zero": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "created": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "safety": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The only fact that moved is `changed`, and it moved in the intended direction: Before hedged A by questioning whether the snapshot could replace the dispatched worktree, demanded an endpoint-tree-equivalence proof, floated re-stamping Task 1 to def5678, omitted the leg and admitted-changes records, and ended with 'do not report the amended plan as passed' despite a clean identified run—so a careful reader could not say A simply executed the changed command on the identified tree and preserved Task 1 untouched. After fixes this by naming the home leg, snapshot path, revision, clean/stable status, exit and two executed tests, stamping Task 2 only, preserving `Baseline home: abc1234` without rerun or restamp, and explicitly disclaiming equivalence/refresh work. The other four facts held in both outputs: B still stops and refuses to borrow abc1234 evidence, C still treats exit 0 with zero tests as a substantive failure (After adds the explicit 'nor a harmless skip' clause, which is a useful tightening), D still gates skips on truly absent Create anchors and runs when the path exists, and the closing paragraphs still preserve unrelated work, reuse the existing report/provenance surfaces, and keep the parent stamp and final verification mandatory. To keep this stable, retain the explicit 'Do not perform endpoint-tree equivalence' line and the leg/admitted-changes recording for A, keep D's 'treat it as existing and run under ordinary selector rules' phrasing (Before's 'correct the false Create: declaration' is also fine and could be re-added without harm), and preserve the final sentence that these observations alone never justify `passed: true`.",
+      "wallMs": 19829,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

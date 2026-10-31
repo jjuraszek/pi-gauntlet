@@ -1,0 +1,1 @@
+- protocol: judged: Red gate counts one failed attempt for owning Task 1 even with DONE; carry failed gate log and task anchors; repair current integrated tree, never rerun Task 2 implementation; only a green gate authorizes the initial wave review.

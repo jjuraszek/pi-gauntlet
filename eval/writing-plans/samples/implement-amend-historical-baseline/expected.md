@@ -1,0 +1,5 @@
+- local: judged: Patches only shifted anchors and affected coverage; preserves task ids, titles, wave order, completed state and unaffected text without wholesale regeneration.
+- historical: judged: Writes implement-local policy and retains original declaration and both exact historical bullets including derived-pass, skipped and artifact suffixes; adds matching retained skip provenance from the original evidence rather than restamping it.
+- no-refresh: judged: Performs no endpoint-tree equivalence or baseline execution and preserves staged repair without commit, restoration or discard for planning.
+- semantic: judged: Captures original obligations, bodies, Tests and positions in the existing apply report and returns tasksAnchorChanged empty for offset-only or meaning-preserving changes.
+- gates: judged: Keeps mechanical checker, coverage and parent stamp before reconciliation; distinguishes ordinary initial planning and explicit full refresh from this implement-local branch.

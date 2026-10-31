@@ -1,0 +1,128 @@
+{
+  "sample": "unreadable-anchor",
+  "arm": "candidate",
+  "skillSha": "d89fe7c03af0185c760c12417c38943f39c424d6252427d19205b801f370f96b",
+  "inputSha": "0a2182cfaa6c73649d317abe5afaa4201ac164aec7ce522adff1d338ec40c564",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Next read requested:** `/workspace/project/plan.md`, the dispatch `planPath`. The task sections there are the task text for anchored dispatches.\n\n**Consuming the observation.** I matched the exact heading-line prefixes, including the number and colon:\n- `### Task 4:` matches line 3, `### Task 4: Default flag`. Its section ends at the next `^#{2,3}\\s` line, which is `### Task 70:`. The section contains `Spec: Design L9` and `Files: Create: flag.mjs`.\n- `### Task 7:` matches nothing. `### Task 70: Another decoy` does not match, just as `### Task 4:` does not match `### Task 40:`.\n\nOne dispatched anchor is unreadable, so the review stops. I did not read the spec slice, the diff or any other files.\n\n---\n\n```\nVerdict: REJECT\nReasoning: anchor unreadable: /workspace/project/plan.md#### Task 7:\nConfidence: high\n\nFindings:\n  (none; the review stopped because a dispatched anchor is unreadable. The union of the Task 4 and Task 7 sections cannot be formed. Task 7 is not reviewed and is not treated as passing. Task 4 is not reviewed on its own.)\n\nVerification:\n  No SCOPED_TEST_COMMANDS supplied (`none`); no commands were run.\n```\n\n---\n\n```json\n{\n  \"verdict\": \"REJECT\",\n  \"reasoning\": \"anchor unreadable: /workspace/project/plan.md#### Task 7:\",\n  \"findingCount\": 0,\n  \"findings\": { \"critical\": 0, \"moderate\": 0, \"minor\": 0 },\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 7:\"\n}\n```\n",
+      "words": 189,
+      "wallMs": 9524,
+      "mechanical": {
+        "identity": "holds",
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next file read I would request: `/workspace/project/plan.md`, to locate the exact `### Task 4:` and `### Task 7:` sections.\n\nVerdict: REJECT\nReasoning: anchor unreadable: /workspace/project/plan.md#### Task 7:\nConfidence: high\n\nFindings: none. Review stopped because the supplied complete plan observation lacks the exact `### Task 7:` heading; `### Task 70:` is not a match.\n\nVerification: No commands ran. Dispatch supplied `SCOPED_TEST_COMMANDS: none`.\n\n```json\n{\n  \"verdict\": \"REJECT\",\n  \"reasoning\": \"anchor unreadable: /workspace/project/plan.md#### Task 7:\",\n  \"findingCount\": 0,\n  \"findings\": {\n    \"critical\": 0,\n    \"moderate\": 0,\n    \"minor\": 0\n  },\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 7:\"\n}\n```\n",
+      "words": 79,
+      "wallMs": 5339,
+      "mechanical": {
+        "identity": "holds",
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "44cd51fe257a6643b687fec3951fd1e487ea4c8c8e74c93d69063e3d4a2b87f0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e8582c084d5cb5ce7de1415bda9246c10b1b029cd16c66c22e9e875ba9e97c2a",
+      "baselineOutputSha": "4eaba5deb374a6c018e6a8ecd5a3f3589653c0687ac5d36caaeafa8b1cedb9cb",
+      "candidateOutputSha": "18030a115559469eff1775ab2a4fcb4b61c30892bb43aa54bd635cb6bcda582f",
+      "facts": {
+        "reject": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "structured": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "identity": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-behaviour": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-boolean": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the intended move: the unresolved `### Task 7:` now produces a literal REJECT in both the prose verdict and the JSON, the `anchorUnreadable` field carries the exact `/workspace/project/plan.md#### Task 7:` identity with prefix and colon intact, and `findingCount` plus the three severity counts are present as nonnegative integers, whereas Before used BLOCKED and omitted the anchor field entirely. Both outputs preserve the stop behavior (no invented spec/code observations, no compliance claim, Task 4 not passed alone, Task 70 not substituted), so nothing regressed. One residual risk shared by both: each opens with a 'Next read requested: plan.md' line before consuming the already-supplied observation; the After wording should tell the reviewer to skip the read-request preamble when the dispatch states the plan observation is complete, since a stricter reader could treat that line as asking the parent to read.",
+      "wallMs": 15599,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "44cd51fe257a6643b687fec3951fd1e487ea4c8c8e74c93d69063e3d4a2b87f0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e8582c084d5cb5ce7de1415bda9246c10b1b029cd16c66c22e9e875ba9e97c2a",
+      "baselineOutputSha": "6c6a83aa769fbce22ffd01446a31267ee276f4ba9de14fa4f556d7eda997c627",
+      "candidateOutputSha": "2419c8d70836c1e1643613ecbdea10064422e7c35d85b8b487c7b311220f45c9",
+      "facts": {
+        "reject": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "structured": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "identity": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-behaviour": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-boolean": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change on this case: it emits REJECT in both the prose verdict and the structured block, carries the exact `/workspace/project/plan.md#### Task 7:` identity (prefix and trailing colon intact) in `anchorUnreadable` and `reasoning`, supplies `findingCount: 0` with all three severity counts, and explicitly stops without inventing spec/code observations or claiming compliance. Before failed all three facts because it used BLOCKED rather than REJECT, had no `anchorUnreadable`/`findingCount` fields, and opened with 'Next file read requested: plan.md' — an actual request to re-read the already-supplied plan, which the dispatch forbade. After's opening 'Next file read I would request: plan.md' is only hypothetical so it does not trip the stop fact, but it is needless friction and could be read as a request by a stricter judge; the wording should either drop that line entirely when the plan observation is already complete, or phrase it as 'No further reads requested; the complete plan was supplied and lacks the exact `### Task 7:` heading.' That keeps every fact After now holds while removing the one ambiguity.",
+      "wallMs": 17327,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

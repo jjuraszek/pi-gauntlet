@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "d6d59ee0b3469d2c07642924dd069176dae95a46d0572f38c8f63cff8884380e",
+  "skillSha": "8e8b37d7923f9e51ac6becd9c56f2729bc71a394f89223986f60fce543ee2118",
   "inputSha": "dad4216a7c8c200b506422e517993fe001294bc0afdd56f8666b26563b237c55",
   "kind": "text",
   "assembly": "concat",
@@ -17,30 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nTask 1's baseline test fails on the base commit, so the plan is paused. How should we proceed?\n\n- Task: Task 1\n- Command: `node --test tests/timeout.test.ts`\n- Base SHA: `def5678`\n- Result: exit 1, `tests 1, pass 0, fail 1: existing timeout lookup failed`\n\nOptions:\n- `fix-first`: run `/skill:shape-ticket` to fix the base failure, which has its own approval gate. The plan stays paused. After the fix lands, the worktree picks up the new base and the baseline is rerun.\n- `narrow <filter>`: limit Task 1's baseline to a narrower test filter or path. The output gives no basis for choosing one, since the file has only one test and it fails. If you want this option, supply the exact filter.\n- `amend`: amend the approved spec through the amendment path, for example to make fixing the existing timeout lookup part of this change.\n\nRecommendation: fix-first. The only test in the anchored file already fails on `def5678`, so no narrower filter would give a passing baseline. The existing timeout lookup should be fixed before this plan builds on it.\n",
-      "words": 175,
-      "wallMs": 7925,
+      "text": "gauntlet: question\nPlan paused: Task 1's baseline fails on the base revision, before any change from this plan.\n\n- Task: Task 1\n- Command: `node --test tests/timeout.test.ts`\n- SHA: `def5678`\n- Exit: 1\n- Summary: tests 1, pass 0, fail 1: existing timeout lookup failed\n\n```text\ntests 1, pass 0, fail 1: existing timeout lookup failed\n```\n\nHow should I proceed?\n\n`fix-first` - run `/skill:shape-ticket` for the base failure (its own gate applies), and keep this plan paused until that fix lands.\n`narrow <filter>` - narrow Task 1's Tests to a passing subset. The evidence does not point to a filter, so please name the test filter or path.\n`amend` - amend the approved spec to account for the existing failing timeout lookup.\n\nRecommendation: fix-first - the only test in the anchored file fails on the base, so no narrower filter is available and the plan has no passing baseline to build on.\n\nThe plan phase stays `in_progress` (substep `plan-write`). Nothing has been stamped and `plan_tracker` is not initialized.\n",
+      "words": 159,
+      "wallMs": 6670,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
-      "status": "ok",
-      "text": "gauntlet: question\nTask 1’s baseline command, `node --test tests/timeout.test.ts`, failed on `def5678` with exit 1:\n\n```text\ntests 1, pass 0, fail 1: existing timeout lookup failed\n```\n\nfix-first — Run `/skill:shape-ticket` for the existing baseline failure; this plan remains paused.\nnarrow <filter> — Supply a concrete test filter or path; the available evidence does not establish a safe narrower scope.\namend — Amend the approved spec through brainstorming’s amendment procedure.\n\nRecommendation: fix-first - the existing timeout test fails before implementation, and no supported narrower scope is available.\n\nWhich option should we take? Planning remains `in_progress` at `plan-write`; execution has not been initialized.\n",
-      "words": 97,
-      "wallMs": 7550,
-      "mechanical": {
-        "first-line": "holds"
-      }
+      "status": "error",
+      "error": "github-copilot API error (429): 429 quota exceeded",
+      "wallMs": 1185
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
       "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
-      "baselineOutputSha": "47319eecd2f838653f95f0a5243ce8311bfa97820d7c0f7c6b6396b7e284229c",
-      "candidateOutputSha": "33199cf4c362bcb3593a43a9217fe93f9b588919f67cfb793bc3514521332d32",
+      "intentSha": "cc71f2cea9e5d50487a24f4d950e23390e0be1fe4c7b6abe1eb7beb4543463a4",
+      "baselineOutputSha": "33199cf4c362bcb3593a43a9217fe93f9b588919f67cfb793bc3514521332d32",
+      "candidateOutputSha": "c4dade8a3f8f707e18459d5b8b037d34032261a166d1213c1581ba7787592239",
       "facts": {
         "failure": {
           "before": "holds",
@@ -63,42 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all three facts: it still names Task 1, `node --test tests/timeout.test.ts`, base `def5678` and exit 1 as the base failure; it lists fix-first, narrow and amend each on its own line and closes with a single Recommendation line; and it keeps the plan paused with no plan_tracker init, stamping or completion marking (the only rerun mentioned is conditional on a fix landing, which is future narration, not an action taken now). Two small wording risks worth tightening: the narrow option's aside that 'the output gives no basis for choosing one' edges toward disqualifying the option rather than offering it, so a reader could argue only two real routes are presented—keep narrow as a neutral offer and move the 'single test already fails' reasoning into the Recommendation line as Before did; and Before's explicit 'I re-dispatch the plan-writer with `Task 1 Tests: narrow to <your text>`' made the retained paused planning state and resumption path clearer, so restoring a short clause like that would make the pause/substep retention unambiguous while still delivering the Change's fix-first/narrow/amend menu.",
-      "wallMs": 10918,
+      "feedback": "No fact moved. Both outputs name Task 1, `node --test tests/timeout.test.ts` and exit 1 on `def5678` as the base failure; both list fix-first, narrow and amend one per line and close with a Recommendation line; both pause for the human without stamping, initializing plan_tracker or marking the plan complete. After adds an explicit trailing state line (`in_progress`, substep `plan-write`, nothing stamped, tracker uninitialized), which makes the pause fact easier to verify but was not needed for it to hold - Before already held it by simply asking the question and performing none of the forbidden actions. Note that the Expected-to-move entry `parent-offers-fix-first-narrow-amend/menu: fails -> holds` does not match this sample: Before already satisfied the menu fact, so this case is a no-regression control rather than a mover. If the author wants the After wording to be the stable no-grant control going forward, keep the three bare-labelled option lines plus the single Recommendation line and the closing state sentence; avoid turning the state sentence into a narrated procedure, since the prompt asks for only the recovery question.",
+      "wallMs": 16391,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ac217d83d63c2f48764770bd1272e53ea15f98e8f8eba414d480ea5eb805aba2",
-      "baselineOutputSha": "d4304b8c27a30dba99b9174a4539c355094de42d8a8fa7f3e5a54ca66554483d",
-      "candidateOutputSha": "2f241a1c7e961d80bff25ab64c6bf356fa4bc9f82341a7862181531450ffd96a",
-      "facts": {
-        "failure": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "menu": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "pause": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "first-line": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "Nothing moved: both outputs name Task 1, `node --test tests/timeout.test.ts` and exit 1 on def5678 as the base failure, list fix-first, narrow and amend one per line followed by a Recommendation line, and end by waiting for the human with planning paused at plan-write and no tracker init, stamping or completion. After actually strengthens pause by stating `in_progress` and that execution has not been initialized, and it quotes the failure block verbatim rather than paraphrasing it. Two small cautions so future wording keeps the menu fact crisply: the option label `narrow <filter>` is still recognizably the narrow route, but a stricter reader might want the bare label `narrow -` with the filter requirement described in the sentence, and the Recommendation line mixes an em dash in the options with a hyphen in the recommendation—pick one separator so the three options and the Recommendation line read as a uniform menu. Otherwise the After wording delivers the Change (no invented narrower scope, explicit paused state) without regressing any fact Before held.",
-      "wallMs": 11454,
-      "verdict": "unchanged"
+      "verdict": "error",
+      "error": "github-copilot API error (429): 429 quota exceeded"
     }
   },
-  "repoSha": "23b71007df5065d013c51329067a7bedf136b22e"
+  "repoSha": "bf9eb40e41fe2abc093a5a3657aa5d023253b2c0"
 }

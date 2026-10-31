@@ -120,7 +120,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    file or ticket is not-a-gap. Real gaps -> one implementer round -> re-run step
    5 -> no second audit; unfixable -> abort. Dispatch failure or malformed output
    -> note it, continue.
-7. **Review - last mutation gate.** One fresh `code-reviewer` over
+7. **Review - last mutation gate.** One fresh `wave-reviewer` over
    `<base-sha>..HEAD` in the worktree. Task text: the record path,
    `SCOPED_TEST_COMMANDS`, invariants 1-3 and predicates 4-6 as named review items
    (a predicate miss is Moderate unless it trips an invariant). `SHIP` -> step 8.

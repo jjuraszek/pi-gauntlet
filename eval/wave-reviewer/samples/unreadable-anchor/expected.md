@@ -1,0 +1,6 @@
+- reject: judged: Rejects the entire union with REJECT in report and structured output instead of treating Task 4 alone as a successful review or selecting Task 70.
+- identity: mechanical: contains "Reasoning: anchor unreadable: /workspace/project/plan.md#### Task 7:"
+- structured: judged: Sets anchorUnreadable to the exact string /workspace/project/plan.md#### Task 7:, retains the dispatched heading prefix and trailing colon, and supplies nonnegative integer findingCount and all three severity counts.
+- stop: judged: Stops without asking the parent to read, inventing spec/code observations, or claiming the slice is compliant.
+- no-behaviour: mechanical: lacks "Behaviour-change:"
+- no-boolean: mechanical: lacks "behaviourChange"

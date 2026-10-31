@@ -1,0 +1,136 @@
+{
+  "sample": "with-anchor",
+  "arm": "candidate",
+  "skillSha": "d89fe7c03af0185c760c12417c38943f39c424d6252427d19205b801f370f96b",
+  "inputSha": "d7c3401aee8cb1b59bfdf67e98868154794d866e5450a78b78ed03cf3ae97475",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Next read requested:** `/workspace/project/plan.md`. This is an anchored dispatch, so the plan section comes before any other file.\n\nThe anchor `### Task 4:` matches only `### Task 4: Default flag`; `### Task 40: Decoy` does not match because of the colon boundary. The section ends at `## Next wave`. Task 4 names `Leg: worker` explicitly, so the leg rules are `worker-rules.md`, not the first entry `home`. Combined Rules are `task-rules.md` + `worker-rules.md`: keep the function pure, and add no extra exports. The cited spec slice is Design L9–L10. L11 belongs to Task 40, so it is not a row.\n\n```\nVerdict: FIX_FIRST\nReasoning: Spec Design L10 is unmet because defaultFlag ignores its argument and always returns false, and no test proves the true-argument behavior.\nConfidence: high\n\nClauses:\n| Clause | Status | Evidence |\n|---|---|---|\n| C1: defaultFlag() returns false with no arguments (Design L9) | met | flag.mjs:1 `return false;`; flag.test.mjs:3 `assert.equal(defaultFlag(), false)` |\n| C2: defaultFlag(true) returns true (Design L10) | unmet | spec-condition: \"defaultFlag(true) returns true.\" / code-condition: flag.mjs:1 `export function defaultFlag() { return false; }`, which declares no parameter and returns false for every input |\n| C3: Files contract: Create flag.mjs | met | diff adds flag.mjs |\n| C4: Files/Tests contract: Test flag.test.mjs via `node --test flag.test.mjs`, entry `defaultFlag` | met | flag.test.mjs exists (pre-existing, unchanged; existing files need not change) and imports defaultFlag at flag.test.mjs:1 |\n\nRules (task-rules.md + worker-rules.md, leg `worker`): purity is met (flag.mjs:1 has no side effects), and \"no extra exports\" is met (only `defaultFlag` is exported).\n\nPlan fidelity note (not a finding): Task 4 prose omits the true-argument requirement, but it cites Design L9–L10. The spec is the authority, so C2 is in scope and still unmet. The implementer report's claim of completion and passing tests is not evidence. Code at flag.mjs:1 contradicts it for L10.\n\nFindings:\n  - [Critical] F1: flag.mjs:1 - defaultFlag takes no parameter and hard-codes `false`, so `defaultFlag(true)` returns false. This breaks the Design L10 contract.\n        Fix: Change to `export function defaultFlag(value = false) { return value === true; }`. This keeps it pure, adds no new exports, and preserves L9.\n        touched-files: flag.mjs\n        touched-resources: none\n  - [Moderate] F2: flag.test.mjs:3 - The only assertion covers L9. No test proves the spec-observable behavior of Design L10, which is that `defaultFlag(true)` returns true. That is why the defect in F1 passes unnoticed.\n        Fix: Add `assert.equal(defaultFlag(true), true);` after line 3 in flag.test.mjs.\n        touched-files: flag.test.mjs\n        touched-resources: none\n\nVerification: No SCOPED_TEST_COMMANDS were supplied (`none`). I ran nothing, and the orchestrator gate owns execution. All judgments come from the supplied read observations.\n\nParallel-safe: F1 conflicts F2 (F2's new assertion, run via `node --test flag.test.mjs`, exercises flag.mjs and only passes once F1 lands)\n```\n\n```json\n{\n  \"verdict\": \"FIX_FIRST\",\n  \"reasoning\": \"Spec Design L10 is unmet because defaultFlag ignores its argument and always returns false, and no test proves the true-argument behavior.\",\n  \"findingCount\": 2,\n  \"findings\": { \"critical\": 1, \"moderate\": 1, \"minor\": 0 },\n  \"maxSeverity\": \"Critical\",\n  \"parallelSafe\": \"Parallel-safe: F1 conflicts F2 (F2's new assertion, run via `node --test flag.test.mjs`, exercises flag.mjs and only passes once F1 lands)\",\n  \"touchedTasks\": [4],\n  \"clauses\": [\n    { \"clause\": \"C1: defaultFlag() returns false with no arguments (Design L9)\", \"status\": \"met\", \"evidence\": \"flag.mjs:1 return false; flag.test.mjs:3\" },\n    { \"clause\": \"C2: defaultFlag(true) returns true (Design L10)\", \"status\": \"unmet\", \"evidence\": \"spec-condition: 'defaultFlag(true) returns true.' / code-condition: flag.mjs:1 export function defaultFlag() { return false; }\" },\n    { \"clause\": \"C3: Files contract: Create flag.mjs\", \"status\": \"met\", \"evidence\": \"diff adds flag.mjs\" },\n    { \"clause\": \"C4: Files/Tests contract: Test flag.test.mjs via node --test flag.test.mjs, entry defaultFlag\", \"status\": \"met\", \"evidence\": \"flag.test.mjs exists unchanged; imports defaultFlag at flag.test.mjs:1\" }\n  ]\n}\n```\n",
+      "words": 542,
+      "wallMs": 26600,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next file read requested: `/workspace/project/plan.md`, selecting the exact `### Task 4:` section through the next level-two or level-three heading.\n\nVerdict: FIX_FIRST\nReasoning: `defaultFlag(true)` returns `false`, violating the cited spec’s explicit true-argument requirement.\nConfidence: high\n\nClauses:\n| Clause | Status | Evidence |\n|---|---|---|\n| C1: No arguments returns false | met | spec-condition: “defaultFlag() returns false with no arguments.” code-condition: `flag.mjs:1` unconditionally returns `false`; `flag.test.mjs:3` asserts this behavior. |\n| C2: A true argument returns true | unmet | spec-condition: “defaultFlag(true) returns true.” code-condition: `flag.mjs:1` ignores arguments and unconditionally returns `false`. |\n\nFindings:\n- [Critical] F1: `flag.mjs:1` — `defaultFlag(true)` returns `false`, breaking the explicit L10 contract. The existing assertion at `flag.test.mjs:3` checks only the no-argument case and cannot detect this defect.\n  Fix: Accept an argument defaulting to `false` and return it, preserving purity and the single export. Add an assertion that `defaultFlag(true)` equals `true` to the existing self-check.\n  touched-files: flag.mjs, flag.test.mjs\n  touched-resources: none\n\nReview notes:\n- Reviewed the supplied complete file observations. The exact Task 4 section cites L9–L10; Task 40, L11, and the next wave are outside this review.\n- Applied both task and worker-leg rules: the current implementation is pure and has no extra exports.\n- The exact implementation path and existing test entry point are present. An unchanged test file is acceptable, but its assertions do not establish L10 compliance.\n- The task prose’s omission of the true-argument requirement does not narrow the authoritative cited spec.\n\nVerification:\n`SCOPED_TEST_COMMANDS: none`. No commands were run; test execution remains with the orchestrator. The implementer’s claimed test results were not treated as verification.\n\nParallel-safe: F1 disjoint\n\n```json\n{\n  \"verdict\": \"FIX_FIRST\",\n  \"reasoning\": \"defaultFlag(true) returns false, violating the cited spec’s explicit true-argument requirement.\",\n  \"findingCount\": 1,\n  \"findings\": {\n    \"critical\": 1,\n    \"moderate\": 0,\n    \"minor\": 0\n  },\n  \"maxSeverity\": \"Critical\",\n  \"parallelSafe\": \"Parallel-safe: F1 disjoint\",\n  \"touchedTasks\": [4],\n  \"clauses\": [\n    {\n      \"clause\": \"C1: No arguments returns false\",\n      \"status\": \"met\",\n      \"evidence\": \"spec-condition: “defaultFlag() returns false with no arguments.” code-condition: flag.mjs:1 unconditionally returns false; flag.test.mjs:3 asserts this behavior.\"\n    },\n    {\n      \"clause\": \"C2: A true argument returns true\",\n      \"status\": \"unmet\",\n      \"evidence\": \"spec-condition: “defaultFlag(true) returns true.” code-condition: flag.mjs:1 ignores arguments and unconditionally returns false.\"\n    }\n  ]\n}\n```\n",
+      "words": 324,
+      "wallMs": 13059,
+      "mechanical": {
+        "no-behaviour": "holds",
+        "no-boolean": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "34dd523ff78c2e4b8d284c1ea3ba5cbc5ad0d1476a00377ce9cd78e935a74e38",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e8582c084d5cb5ce7de1415bda9246c10b1b029cd16c66c22e9e875ba9e97c2a",
+      "baselineOutputSha": "5783021d97f93539c0fce4d0f8fbd35e281f61e5d401e9decbd6d263e837148a",
+      "candidateOutputSha": "daa5be82a5b4b4cbfd4087ab131df5b241f9637468b6c5940321e091cac07577",
+      "facts": {
+        "selection": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "rules": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "authority": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "metadata": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-behaviour": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-boolean": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing regressed: After keeps selection (requests plan.md, matches only `### Task 4:` on the colon boundary, drops Task 40, L11 and `## Next wave`) and rules (task-rules.md + worker-rules.md via the explicit worker leg). The three expected moves landed: C2 is explicitly unmet with a spec-condition/code-condition pair while C1 is met on `flag.mjs:1 return false;`, the verdict is FIX_FIRST in both the report block and JSON with clause rows ahead of a Critical and a Moderate finding, and the JSON mirrors findingCount/severity counts, carries clauses with statuses and evidence, per-finding touched-files ownership and exactly one Parallel-safe line, without inventing a missing-file finding for the unchanged flag.test.mjs. One soft spot to harden: C1 pairs the clause condition with the quoted code but does not use the `spec-condition: ... / code-condition: ...` labels that C2 uses; requiring that label pair on every met and unmet row (not just unmet) would make the condition-match evidence unambiguous for strict judges. Also keep the explicit note that the implementer report's pass claim is not evidence and that no commands were run under `SCOPED_TEST_COMMANDS: none`, since that is what lets the unmet clause override the completion claim.",
+      "wallMs": 24829,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "34dd523ff78c2e4b8d284c1ea3ba5cbc5ad0d1476a00377ce9cd78e935a74e38",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e8582c084d5cb5ce7de1415bda9246c10b1b029cd16c66c22e9e875ba9e97c2a",
+      "baselineOutputSha": "f08d5b58ebe86d62f63cddba40ad6ecc4113e752e498681e5727ddef7cc9483b",
+      "candidateOutputSha": "1024229b21c6345ccf98c146eea453b572ab18bcec15f0cab6d60dd01c0b80f9",
+      "facts": {
+        "selection": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "rules": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "authority": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "metadata": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-behaviour": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-boolean": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After kept every fact Before kept and gained verdict and metadata: it requests the plan read for the exact `### Task 4:` section, scopes out Task 40/L11/Next wave, applies task plus worker-leg rules, marks C1 met with a labeled spec-condition/code-condition pair at flag.mjs:1 and C2 unmet despite the prose omission, emits FIX_FIRST in both the prose and JSON with clause rows ahead of a Critical finding, mirrors findingCount and the per-severity counts, carries touched-files ownership and one Parallel-safe line, and correctly treats the unchanged existing test as acceptable rather than inventing a missing-file finding. Before already caught the L10 drop but spent it on a non-canonical 'Changes requested'/P2 verdict and a schema-less JSON stub, which is what the After wording fixes. No fact regressed; if anything, keep the explicit `spec-condition:`/`code-condition:` labels and the single `Parallel-safe:` line as mandatory output elements so future wording tweaks don't let them collapse back into free-form evidence cells.",
+      "wallMs": 22811,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
+}

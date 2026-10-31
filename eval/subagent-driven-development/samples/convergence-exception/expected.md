@@ -1,0 +1,1 @@
+- protocol: judged: Permit one ordinary convergence exception only without Critical and unset converged; next FIX_FIRST escalates whatever trajectory; Critical gets no exception; do not redispatch merely to obtain a missing trajectory.

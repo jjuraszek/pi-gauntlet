@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "baseline",
-  "skillSha": "137e706b78798d6e37ad85a9ed266940bf8deaf991e2516551e198f524f1abc0",
+  "skillSha": "d6d59ee0b3469d2c07642924dd069176dae95a46d0572f38c8f63cff8884380e",
   "inputSha": "dad4216a7c8c200b506422e517993fe001294bc0afdd56f8666b26563b237c55",
   "kind": "text",
   "assembly": "concat",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nPlanning is paused on a baseline failure. Task 1's test command already fails on the base commit, before any plan work runs.\n\n- Task: Task 1\n- Command: `node --test tests/timeout.test.ts`\n- Base SHA: `def5678`\n- Exit: 1\n- Summary: tests 1, pass 0, fail 1: existing timeout lookup failed\n\nChoose one option:\n\nfix-first - run `/skill:shape-ticket` for the base failure under its own gate. The plan stays paused until that fix lands. I then bring the advanced base into the worktree and re-plan with a fresh baseline run.\nnarrow - you supply filter or path text that limits Task 1's Tests command to tests that pass on the base. I re-dispatch the plan-writer with `Task 1 Tests: narrow to `<your text>``.\namend - amend the approved spec through the amendment surface, for example to take the failing lookup into scope or out of scope. The plan is then rewritten against the amended spec.\n\nRecommendation: fix-first - the failing test is the existing coverage for the timeout lookup that this change builds on. Narrowing would hide that behavior from the change's own anchor test, and amending would fold an unrelated base defect into this spec.\n",
-      "words": 188,
-      "wallMs": 7681,
+      "text": "gauntlet: question\nTask 1's baseline test fails on the base commit, so the plan is paused. How should we proceed?\n\n- Task: Task 1\n- Command: `node --test tests/timeout.test.ts`\n- Base SHA: `def5678`\n- Result: exit 1, `tests 1, pass 0, fail 1: existing timeout lookup failed`\n\nOptions:\n- `fix-first`: run `/skill:shape-ticket` to fix the base failure, which has its own approval gate. The plan stays paused. After the fix lands, the worktree picks up the new base and the baseline is rerun.\n- `narrow <filter>`: limit Task 1's baseline to a narrower test filter or path. The output gives no basis for choosing one, since the file has only one test and it fails. If you want this option, supply the exact filter.\n- `amend`: amend the approved spec through the amendment path, for example to make fixing the existing timeout lookup part of this change.\n\nRecommendation: fix-first. The only test in the anchored file already fails on `def5678`, so no narrower filter would give a passing baseline. The existing timeout lookup should be fixed before this plan builds on it.\n",
+      "words": 175,
+      "wallMs": 7925,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nTask 1’s baseline command, `node --test tests/timeout.test.ts`, failed on `def5678` with exit 1: existing timeout lookup failed (`tests 1, pass 0, fail 1`).\n\nfix-first - Run `/skill:shape-ticket` for the base failure under its own gate; planning then pauses until the fix lands.\nnarrow - Supply filter or path text to narrow Task 1’s tests.\namend - Amend the approved spec through brainstorming’s amendment procedure.\n\nRecommendation: fix-first - The existing timeout lookup already fails on the base, so repair it before proceeding.\n\nWhich option would you like? Planning remains paused in `plan-write`.\n",
-      "words": 89,
-      "wallMs": 6550,
+      "text": "gauntlet: question\nTask 1’s baseline command, `node --test tests/timeout.test.ts`, failed on `def5678` with exit 1:\n\n```text\ntests 1, pass 0, fail 1: existing timeout lookup failed\n```\n\nfix-first — Run `/skill:shape-ticket` for the existing baseline failure; this plan remains paused.\nnarrow <filter> — Supply a concrete test filter or path; the available evidence does not establish a safe narrower scope.\namend — Amend the approved spec through brainstorming’s amendment procedure.\n\nRecommendation: fix-first - the existing timeout test fails before implementation, and no supported narrower scope is available.\n\nWhich option should we take? Planning remains `in_progress` at `plan-write`; execution has not been initialized.\n",
+      "words": 97,
+      "wallMs": 7550,
       "mechanical": {
         "first-line": "holds"
       }
     }
   },
-  "repoSha": "8eec61ee5c0430c24d5576008638b5fb2dfd33c3"
+  "repoSha": "d6514643b3f4ddecf24d4471140af9502a6263ea"
 }

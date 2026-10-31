@@ -1,0 +1,1 @@
+- protocol: judged: Print funded round 1 of 2 for task 1 before dispatch and spend once; STAGNANT stops despite remaining funding; budget: 1 of 2 spent follows Problem and Searched before findings. Missing resume spending means exhausted with budget: 2 of 2 spent (not recovered on resume), never reset.

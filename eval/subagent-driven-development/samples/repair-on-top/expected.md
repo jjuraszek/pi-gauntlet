@@ -1,0 +1,1 @@
+- protocol: judged: Commit the whole integrated tree in clean RP_TREE using repair-base-shell, dispatch isolated repair there without context fresh or prior-patch path, apply delta once atop siblings; keep WAVE_BASE_SHA fixed. In-place repair edits branch with no snapshot/apply and prints delta none applied n/a.

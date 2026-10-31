@@ -1,0 +1,70 @@
+{
+  "sample": "empty-delta-attempt",
+  "arm": "candidate",
+  "skillSha": "46a7d2f3957534efeaa0011af916cf085536bf3c669cc8c3a7ea764885e3e0e3",
+  "inputSha": "949583285e823f4fe76ac49961eebf31a826421a46d76e3bb367e92661c7b851",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Next operation: escalated round for Task 1 after an empty-delta repair\n\n## 1. Classify the returned repair\n\nThese are the fixed observations:\n\n- The repair status was `DONE`.\n- No tracked file changed.\n- The Fix-delta trees are identical: tree-before equals tree-after.\n\nThis matches the transition-table row \"Repair delta or in-place repair leaves `diff --stat` empty\".\n\n- **No re-review.** The unchanged tree is not reviewed again.\n- **Counter.** `failed[1]` goes from 1 to 2.\n- **Convergence exception does not apply.** That exception needs a `CONVERGING` re-review, and this event is an empty delta.\n- **Escalation.** `failed[1] == 2` and `escalated[1]` is unset, so the next operation is the escalated round with `model: <implModel>`.\n- **Tracker.** Indices for Task 1 and Task 2 stay `in_progress`. There is no tracker call.\n- **Commit and gate.** There is no wave commit. The gate does not rerun, because the tree is unchanged.\n\nPrint:\n\n```text\nescalated round for task 1 after 2 failed attempts\n```\n\n## 2. Resolve the escalation model\n\n```ts\ngauntlet_setting({ key: \"escalationLoop\" })\n```\n\n- **Usable `implModel`.** Pass the string verbatim as `model:`. Do not edit or substitute it.\n- **Missing model or tool.** If `implModel` is `undefined`, or the tool is unavailable, emit the stop note and do not dispatch. The note's `Problem:` line reads \"no escalation model resolvable\".\n\n## 3. Fresh repair-base snapshot of the current integrated tree\n\nThis step assumes an isolated wave. For an in-place wave, skip it and dispatch with `cwd: \"/workspace/project\"` and no `worktree:`.\n\nThe previous `RP_TREE` was already removed after its round. Run the whole block in one call and stop on a nonzero exit.\n\n```bash\nRP_ROOT='/workspace/project'\nRP_BASE='1111111111111111111111111111111111111111'\nRP_DIR=$(mktemp -d) || exit 1\nRP_TREE=\"$RP_DIR/tree\"\ngit -C \"$RP_ROOT\" add -A || exit 1\ngit -C \"$RP_ROOT\" diff --binary --cached \"$RP_BASE\" > \"$RP_DIR/integrated.patch\" || exit 1\ngit -C \"$RP_ROOT\" worktree add --detach \"$RP_TREE\" \"$RP_BASE\" || exit 1\nif [ -s \"$RP_DIR/integrated.patch\" ]; then git -C \"$RP_TREE\" apply --index \"$RP_DIR/integrated.patch\" || exit 1; fi\ngit -C \"$RP_TREE\" -c user.name=gauntlet -c user.email=gauntlet@local commit -q --allow-empty -m \"wave integrated snapshot\" || exit 1\nprintf 'repair-base: %s %s\\n' \"$RP_TREE\" \"$(git -C \"$RP_TREE\" rev-parse HEAD)\"\n```\n\nRecord the printed `repair-base: <path> <sha>` line exactly as printed. Do not invent it.\n\nAlso record the pre-repair tree per the `## Fix delta` scratch-index block with `FD_ROOT='/workspace/project'`, and keep its SHA as the new tree-before.\n\n## 4. Escalated implementer dispatch (foreground, one-step, schema-bound, file-only)\n\nThis round repeats the failed round's payload. It runs on the snapshot, with no `context: \"fresh\"` and no prior-patch path.\n\nPlaceholders not supplied by the scenario come from the manifest and transcript:\n- `<RP_TREE>`\n- `<REPORT_DIR>`\n- `<w>`\n- the prior review report path\n- Task 1's manifest `tests`\n\n```ts\nsubagent({ async: false, cwd: \"<RP_TREE>\",\n  chain: [{ parallel: [\n    { agent: \"implementer\", as: \"impl_1\", model: \"<implModel verbatim>\",\n      outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave<w>-task1-escalated.md\", outputMode: \"file-only\",\n      task: \"planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 1:; Spec: /workspace/project/doc/specs/feature.md; SCOPED_TEST_COMMANDS: <Task 1 manifest tests verbatim, or none>.\\n\\n## Previous review report (re-review trigger)\\n<prior FIX_FIRST review report path>\\nRead the saved report yourself before repairing. Your previous fix changed no tracked file; the FIX_FIRST findings remain unaddressed. pi-cohort saves your final report; do not write it yourself.\" }\n  ], worktree: true, concurrency: 4,\n     stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } }]\n})\n```\n\n## Boundary: stop here and await the terminal result\n\nNothing is assumed about the outcome. When the result returns:\n\n1. **Print the observation:**\n   `wave <w> repair <k> task 1 <status> report <path> delta <Artifacts dir>/worktree-diffs/step-0/task-0-implementer.patch applied <yes|no>`\n2. **Apply the delta:** `git -C /workspace/project apply --index <delta>`. If the apply fails, go to rebuild.\n3. **Remove the snapshot:** `git -C /workspace/project worktree remove --force <RP_TREE>`.\n4. **Check for change:** `git -C /workspace/project add -A`, then `git -C /workspace/project diff --stat` against the recorded pre-repair tree.\n   - An empty diff spends the escalated round.\n5. **On a non-empty diff, run the gate:** run the gate for Task 1's `tests`.\n6. **On a green gate, re-review:** dispatch one `wave-reviewer` re-review with:\n   - anchors `### Task 1:` and `### Task 2:`\n   - `BASE_SHA: 1111111111111111111111111111111111111111`\n   - `HEAD_SHA: WORKTREE`\n   - the wave-union tests\n   - the prior report under `## Previous review report (re-review trigger)`\n   - a `## Fix delta` tree pair\n7. **If the escalated round fails** (non-`DONE`, red gate, empty delta, or attributed `FIX_FIRST`), route it to a funded round if the grant ledger has one left. Otherwise emit the stop note.\n",
+      "words": 674,
+      "wallMs": 29575,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The unchanged repair counts as **one failed attempt**: `failed[1]` becomes **2**. Keep Task 1 `in_progress`. **Do not re-review the identical tree.** The next operation is execution escalation, not another ordinary repair.\n\nNext shell command in the owning checkout:\n\n```bash\ncd /workspace/project &&\nprintf '%s\\n' 'escalated round for task 1 after 2 failed attempts'\n```\n\nThen resolve the escalation configuration:\n\n```ts\ngauntlet_setting({ key: \"escalationLoop\" })\n```\n\nNo `gauntlet_setting` tool or resolved `implModel` observation is available here, so **stop before dispatch**. Do not invent a model, report path, repair-base path, or tree ID.\n\nThe pending escalated dispatch must use the existing task anchors and prior report, explicitly say **“your fix changed no tracked file”**, and use a foreground, schema-bound, file-only one-step implementer carrier. A runnable carrier cannot yet be supplied: besides the unresolved model, the observations do not identify the prior report, task test commands, execution mode, or current repair-tree lifecycle. Those determine its payload and `cwd`; guessing them could discard repair state or dispatch from the wrong tree.\n\ngauntlet: question\nStopped on task 1.\n\nProblem: The repair changed no tracked file and reached the escalation threshold, but no escalation model is resolvable because the settings tool is unavailable.\n\nFix options:\n  a) restore access to the escalation settings tool and provide the missing repair-dispatch observations\n  b) provide the resolved escalation configuration and missing repair-dispatch observations\n\nPick one, or give another fix.\nRecommendation: a - preserves the configured model and existing repair state without guessing.\n",
+      "words": 237,
+      "wallMs": 17324,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a564d420a27a0a73ff9b611f37b71ac95c3a02a0a4672e915775a03dc0a4c097",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
+      "baselineOutputSha": "c491af55241a895d423a0540115a63c4faeda3269d87c3162ec228236dc230f6",
+      "candidateOutputSha": "c8c540e6c79f69e18ee8159bfe44a0b60351e16d9ea14aaa8cb689bb76ef1a08",
+      "facts": {
+        "protocol": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After satisfies the fact in full: it counts the empty delta as failed attempt 2, dispatches no re-review of the unchanged tree, resends the prior FIX_FIRST report under the re-review header with the literal 'Your previous fix changed no tracked file', and at failed==2 resolves the escalation model via gauntlet_setting and dispatches a named escalated round on a committed current-tree snapshot rather than an ordinary repair. Before failed the fact on two points: it explicitly refuses to resend the prior report with that note (treating it as a third attempt) and it does not resolve execution escalation at 2, instead gating the escalated attempt on a delegated Amend-grant read and stopping if no grant exists. Nothing in After moved the fact backwards. To keep this holding while tightening the Change, keep the transition-table row for the empty-delta event explicit that the resend-with-note happens as the payload of the escalated round (not as an extra ordinary attempt), and keep the 'no grant required for escalation; grant only governs funded rounds after escalation' distinction stated in the same row so a reader cannot reintroduce the Before-style grant gate.",
+      "wallMs": 15871,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a564d420a27a0a73ff9b611f37b71ac95c3a02a0a4672e915775a03dc0a4c097",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
+      "baselineOutputSha": "737fba5c0a4a48111c9e6e64d4634f3104b6b215904a12334284a14629975d47",
+      "candidateOutputSha": "ea2c97d5b80be152bc491d8724dc443db38b8ea063e14fa134db60fef9863c81",
+      "facts": {
+        "protocol": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After satisfies every clause of the fact: it counts the empty delta as failed attempt 2, refuses an unchanged-tree re-review, requires the pending dispatch to carry the prior report with the literal instruction “your fix changed no tracked file”, and names execution escalation as the next operation, moving to resolve the escalation configuration (gauntlet_setting escalationLoop) before stopping on the missing tool rather than falling back to an unnamed ordinary repair. Before kept the counter, no-re-review and resend-with-instruction clauses but did not resolve execution escalation at 2 — it stopped at a generic prerequisite boundary and said routing depends on fix-loop.md/amendment permission/escalation configuration without committing to escalation as the next operation, so the fact's final clause was not shown. Nothing in After regressed a clause Before held; to keep it that way while delivering the Change, retain After's explicit sentence 'The next operation is execution escalation, not another ordinary repair' and the concrete escalation-setting resolution step, and keep the explicit 'your fix changed no tracked file' instruction tied to the prior report rather than letting it become implicit in the transition table.",
+      "wallMs": 18702,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "054296ef6278390bdde50b90780eaadd2d0795c8"
+}

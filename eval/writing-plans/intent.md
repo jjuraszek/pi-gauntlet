@@ -1,6 +1,8 @@
-for: f837d41c69b7755a9843192aef5a1678bfd15a17bf9ca94facc7d7ce5c25cbbf
+for: 9289dd5356dab5276a733fd9e154ac50234409facfab7a61bfed6f6933eb27bf
 
 ## Change
+
+Specialize implement-phase Amend-apply for local patches and historical per-command evidence. Preserve original declarations, evidence suffixes and staged repairs when no execution is needed; compare semantic obligations rather than offsets. Execute changed commands only on identified trees with nonzero counts, and retain failure/resolution evidence. Initial planning and explicit full refresh remain unchanged. The two implement-amend samples exercise these boundaries; parent verification owns full model runs and real report/result updates.
 
 Rebase-mode unresolved home/member synchronization becomes Task 1 before thread repairs. Consume pending members in record order, update the home rework-base ref and amend the approved record with final full Rework base/member outcomes before finishing. Retain legacy merge Task 1, scoped thread tests, wave/checker/baseline and approval gates. The synthetic pr-subject-sync-repair sample narrates these transitions without live writes; every new candidate fact must hold, with no regression acceptance.
 
@@ -19,6 +21,14 @@ Keep Leg before Files and leg-specific test baselines and rule routing; preserve
 Add grant variants as two new samples, baseline-menu-under-grant and baseline-menu-aftermath, while preserving the existing parent-offers-fix-first-narrow-amend sample's failure/menu/pause as the no-grant control. Decode amend permission before taking baseline recommendations in initial planning and unchanged-command amendment aftermath. No model replay runs during implementation; verification owns the generated report.
 
 ## Expected to move
+- implement-amend-historical-baseline/local: fails -> holds - Patch only affected entries and anchors.
+- implement-amend-historical-baseline/historical: fails -> holds - Preserve historical revisions and exact suffixes.
+- implement-amend-historical-baseline/no-refresh: fails -> holds - Preserve staged repair with no baseline sweep.
+- implement-amend-historical-baseline/semantic: fails -> holds - Offset-only changes do not reopen tasks.
+- implement-amend-changed-command/changed: fails -> holds - Execute changed scoped commands with identified provenance.
+- implement-amend-changed-command/unknown: fails -> holds - Stop rather than invent clean dirty-tree evidence.
+- implement-amend-changed-command/zero: fails -> holds - Zero executed tests cannot pass.
+- implement-amend-changed-command/created: fails -> holds - Skip only truly absent created anchors.
 - pr-subject-sync-repair/inplace-wave: fails -> holds - Place rebase Task 1 alone in Wave 1 marked in-place while retaining ordinary merge-task wave placement.
 - baseline-equivalent-restamp/restamp: fails -> holds - Retain unchanged commands across planning-only commits.
 - baseline-equivalent-restamp/provenance: fails -> holds - Record tree-equivalent retention in the existing provenance note.

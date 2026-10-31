@@ -35,13 +35,11 @@ export const DISPATCH_LABELS = {
   scout: "gather",
   "context-builder": "gather",
   "spec-council-": "council",
-  "spec-reviewer": "spec-review",
   "plan-writer": "plan-write",
   plan_check: "plan-check",
   implementer: "implement",
-  "code-reviewer": "code-review",
+  "wave-reviewer": "wave-review",
   "conformance-reviewer": "conformance",
-  "implement+sr": "implement+sr",
 } as const;
 
 export function dispatchAgents(input: unknown): string[] {
@@ -65,9 +63,8 @@ export function dispatchLabel(toolName: string, input: unknown): string | undefi
   if (toolName !== "subagent") return undefined;
   if (input && typeof input === "object" && "action" in input) return undefined;
   const agents = dispatchAgents(input);
-  if (agents.includes("implementer") && agents.includes("spec-reviewer")) return DISPATCH_LABELS["implement+sr"];
   for (const agent of agents) {
-    for (const name of ["scout", "context-builder", "spec-reviewer", "plan-writer", "implementer", "code-reviewer", "conformance-reviewer"] as const) {
+    for (const name of ["scout", "context-builder", "plan-writer", "implementer", "wave-reviewer", "conformance-reviewer"] as const) {
       if (agent === name) return DISPATCH_LABELS[name];
     }
     if (agent.startsWith("spec-council-")) return DISPATCH_LABELS["spec-council-"];

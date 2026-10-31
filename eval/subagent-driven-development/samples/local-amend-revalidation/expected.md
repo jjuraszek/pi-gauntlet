@@ -1,0 +1,7 @@
+- attribution: judged: Matches render failure by command, assertion/path and corresponding rename repair evidence, preserves failed revision/output and resolving evidence, and keeps auth regression substantive rather than attributing it by task membership.
+- staged: judged: Allows spec/plan-only maintenance with no execution over declared staged repair, without committing, restoring or discarding it merely to plan; outstanding repairs return to the existing task gate loop.
+- consent: judged: Decodes grant each batch; amend permission applies the recommendation without reviewer/menu/confirmation, budget-only does not, malformed stops, and mixed redraws hold the entire batch before grant application.
+- repeated: judged: Repeated authorized intermediate render evidence is neither new consent nor a refresh trigger; no fabricated execution, restoration permission or funded round results.
+- retry: judged: Fresh retry reads original inventory from previousApplyReport and applies idempotently; missing inventory fails and a second false apply escalates, without sidecar inventory or deltas against mutated plan.
+- semantic: judged: Pure anchor offsets return no tasksAnchorChanged and do not reopen Task 4; real semantic obligation/work changes can reopen only after parent plan_check PASS, stamp and fresh manifest reconciliation.
+- audit: judged: Preserves historical baseline evidence and single amendment audit, existing funding, integrated gate, review and final verification.

@@ -136,6 +136,13 @@ test('evidenced drafted corrections are amend items while redraws retain the gat
   assert.ok(!aftermath.includes('Never auto-edit ticket or approved drafted AC row texts'));
 });
 
+test('baseline implement-only maintenance preserves staged repairs and truthful execution identity', () => {
+  const surface = read('skills/brainstorming/reference/amendment-surface.md');
+  for (const marker of ['preserve staged repairs', 'no test execution', 'failing command, assertion or path', 'corresponding repair evidence', 'unrelated regressions', 'budget-only', 'malformed', 'redraw', 'existing task gate loop', 'Repeated authorized intermediate evidence']) assert.ok(surface.includes(marker), marker);
+  const skill = read('skills/writing-plans/SKILL.md');
+  for (const marker of ['identified execution tree', 'nonzero executed-test count', 'zero tests', 'original per-leg declarations', 'no endpoint-tree equivalence']) assert.ok(skill.includes(marker), marker);
+});
+
 test('baseline recommendations use decoded amend permission and preserve writer boundaries', () => {
   const text = read('skills/writing-plans/SKILL.md');
   const branch = text.slice(text.indexOf('6. Branch'), text.indexOf('7. Clear'));
@@ -698,7 +705,15 @@ test('rework finish selects recorded mode and guards first and later pushes', ()
 test('planning completes interrupted sync and persists pending outcomes before finish', () => {
   const plan = read('skills/writing-plans/SKILL.md');
   assert.match(plan, /Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-form Task 1 as an ordinary wave task\./);
-  assert.ok(read('skills/subagent-driven-development/SKILL.md').includes("For an `in-place` wave, dispatch one `implementer` with `cwd` the branch checkout and no `worktree: true`; skip step 4 integration and step 7's `reset --soft` fold, retain the test gate, SR against the branch checkout, and CR, and record the next wave's `WAVE_BASE_SHA` after completion. Repair every SR gap (including initial `NEEDS_REWORK` / `OUT_OF_SCOPE_CHANGES`), stopped chain, test-gate failure, and CR finding with a plain in-place `implementer` in the branch checkout; record Fix-delta trees from that checkout, never use the snapshot/patch-replacement path, and after the gates accept, commit any remaining changes as one new descendant commit on the branch before marking indices `complete`, without amending or running `reset --soft` across the recorded rework base."));
+  const sdd = read('skills/subagent-driven-development/SKILL.md');
+  for (const clause of [
+    'For manifest `"mode":"in-place"`: `cwd` the branch checkout, no `worktree:`, the wave union as `SCOPED_TEST_COMMANDS`.',
+    'In-place waves: nothing to apply; the checkout already carries the work.',
+    '*In-place waves* dispatch with `cwd` the branch checkout and no `worktree:`; the child edits the checkout directly; apply no patch and run no snapshot recipe; print the same line with `delta none applied n/a`.',
+    "After the round: `git -C <worktree> add -A`; `git -C <worktree> diff --stat` against the recorded pre-repair tree decides emptiness; re-run the test gate for the touched tasks' `tests`;",
+    'Only when the gate is green and the latest `wave-reviewer` verdict is `SHIP`:',
+    'in-place waves commit a descendant commit without amending or `reset --soft`. Then mark every index of the original wave `complete` together;',
+  ]) assert.ok(sdd.includes(clause), clause);
   for (const marker of ['merge: unresolved', 'preserve the original commits', 'sync: unresolved', 'rebase --no-rebase-merges origin/<base>', 'Member replay: #<N> unresolved', 'every `pending` member in listed order', 'update-ref refs/gauntlet/rework-base/pr-<home> HEAD', 'Rework base: <sha>', 'final `Member replay:` outcomes', 'amendment path', 'before finishing', '../using-git-worktrees/reference/pr-head.md']) assert.ok(plan.includes(marker), marker);
 });
 

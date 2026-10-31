@@ -1,0 +1,6 @@
+- slice: judged: Selects only Task 4 and its cited Acceptance criteria L1 and Design L9, not Task 40 or Task 5.
+- clauses: judged: Renders met clause rows with flag.mjs:1 or direct test evidence for the wave-one requirements; emits no clause row or unmet finding for laterFlag, later.mjs, or the decoy rule.
+- ship: judged: Emits SHIP in report and structured output, findingCount zero and all three severity counts zero, with matching met clauses and no invented missing-test or scope-creep finding.
+- rules: judged: Uses task-rules.md and worker-rules.md, not the home leg's wrong-rules.md.
+- no-behaviour: mechanical: lacks "Behaviour-change:"
+- no-boolean: mechanical: lacks "behaviourChange"

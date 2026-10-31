@@ -53,7 +53,7 @@ Continue by running `GIT_EDITOR=true git rebase --continue` spelled exactly so, 
 
 ## Review before push
 
-Runs on every rewritten head, with or without a stop; only a `no-op` skips it. One fresh `code-reviewer`, `cwd` the PR worktree, read-only, dispatched per SKILL.md `## Harness notes` (Claude Code: the sync review duty), over `git range-diff origin/<base> <pre_head> HEAD` and, when stops were resolved, `git diff <pre_head> HEAD -- <resolved files>`; the task asks for the reviewer's native findings report with "rebase replay and conflict resolutions" as the review subject and no closure lines. Write out the dispatch as the harness call with `context: "fresh"`, `async: false`, and the worktree `cwd` (pi: `subagent({ agent: "code-reviewer", context: "fresh", async: false, cwd: <worktree> })`). A Critical or Moderate finding takes `## Failure path`; no second helper.
+Runs on every rewritten head, with or without a stop; only a `no-op` skips it. One fresh `wave-reviewer`, `cwd` the PR worktree, read-only, dispatched per SKILL.md `## Harness notes` (Claude Code: the sync review duty), over `git range-diff origin/<base> <pre_head> HEAD` and, when stops were resolved, `git diff <pre_head> HEAD -- <resolved files>`; the task asks for the reviewer's native findings report with "rebase replay and conflict resolutions" as the review subject and no closure lines. Write out the dispatch as the harness call with `context: "fresh"`, `async: false`, and the worktree `cwd` (pi: `subagent({ agent: "wave-reviewer", context: "fresh", async: false, cwd: <worktree> })`). A Critical or Moderate finding takes `## Failure path`; no second helper.
 
 ## Push
 

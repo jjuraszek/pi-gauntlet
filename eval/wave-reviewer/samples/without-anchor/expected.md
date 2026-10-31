@@ -1,0 +1,7 @@
+- findings-only: judged: Omits the clause table and structured clauses because the dispatch supplies no spec anchors, while checking the supplied Acceptance criteria and Design excerpt for test observables.
+- economy: judged: Reports the duplicate trim assertion as a Minor delete: or shrink: finding with test_labels.py evidence, not a blocking severity, and preserves direct trim coverage and the empty-label Keep test.
+- calibration: judged: Does not demand a mixed-case test because DESCRIPTION alone is not an approved spec commitment, and does not invent an uncommitted-test finding against the tests justified by AC1 and Design Keep.
+- ship: judged: Emits SHIP in report and JSON with no Critical or Moderate findings, positive Minor count, findingCount equal to the severity sum, and one Parallel-safe line covering the finding IDs.
+- initial: judged: Does not emit a TRAJECTORY footer or structured trajectory on this initial review.
+- no-behaviour: mechanical: lacks "Behaviour-change:"
+- no-boolean: mechanical: lacks "behaviourChange"

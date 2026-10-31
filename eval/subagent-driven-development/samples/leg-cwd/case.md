@@ -1,10 +1,8 @@
-bundle-: skills/subagent-driven-development/reference/fix-loop.md
 bundle-: skills/subagent-driven-development/stop-note.md
 bundle+: skills/brainstorming/reference/legs.md
 bundle+: skills/subagent-driven-development/SKILL.md
 bundle+: agents/implementer.md
-bundle+: agents/spec-reviewer.md
-bundle+: agents/code-reviewer.md
+bundle+: agents/wave-reviewer.md
 bundle+: skills/writing-plans/reference/plan-contract.md
 bundle+: agents/plan-writer.md
 # Input

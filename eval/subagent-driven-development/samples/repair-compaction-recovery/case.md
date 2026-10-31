@@ -1,18 +1,20 @@
-Resume during an active repair after compaction in /workspace/project. plan_check({ planPath: "/workspace/project/doc/plans/feature.md" }) and plan_tracker status are available; tracker says task 4 in_progress. Compare three alternatives. In A the transcript contains:
+bundle+: skills/brainstorming/reference/amendment-surface.md
+# Mid-wave recovery
+
+The checkout is /workspace/project, planPath /workspace/project/doc/plans/feature.md, Spec /workspace/project/doc/specs/feature.md, anchor ### Task 1:. plan_check and tracker restore a singleton isolated wave in_progress. The current delegated grant decodes to fund 2 fix rounds; escalation was already spent. Give concrete next operations separately for each transcript; invent no tree or terminal worker outcome.
+
+A:
 wave 1 base 1111111111111111111111111111111111111111
-wave 1 task 4 status DONE report /tmp/reports/impl4.md patch /tmp/run/task4.patch
-wave 1 task 4 verdict FIX_FIRST report /tmp/reports/cr4.md patch /tmp/run/task4.patch
-wave 1 review 1 tree /tmp/review4
-funded round 1 of 2 for task 4
-No terminal funded-worker or funded-review result survives in A. The funded line was printed before dispatch.
+funded round 1 of 2 for task 1
 
-In B those dynamic lines are absent. A current delegated grant read decoded two funded rounds for task 4, but no spending or terminal repair state survives. The active wave is known to be wave 1; its base, worker/review results and review-tree lines are missing.
+B: no base, repair, gate, review, or funding observation survived.
 
-In C the same initial lines survive, plus these terminal observations from the primary's transcript:
-- Funded round 1 implementer returned structured status DONE, report /tmp/reports/funded1.md, in-place in /workspace/project. The scoped gate passed and the repaired deliverables were staged there.
-- Funded round 1 CR re-review returned structured verdict FIX_FIRST, maxSeverity Moderate, findingCount 1, behaviourChange false, touchedTasks [4], trajectory { verdict: "CONVERGING", line: "TRAJECTORY: CONVERGING (3 -> 1, max severity Moderate)" }, report /tmp/reports/funded1-cr.md. The initial triggering CR also had behaviourChange false; no SR reroute is pending.
-- The CR reviewed the integrated checkout /workspace/project, BASE_SHA 1111111111111111111111111111111111111111 and HEAD_SHA WORKTREE; its terminal result is recorded and no later dispatch occurred.
-- Recorded Fix delta object IDs: tree-before aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa tree-after bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb. The latter is the tree recorded at the funded CR dispatch, retained for the next re-review's tree-before.
-- The current grant was delegated and decoded as two funded rounds for task 4, with one spent; escalationLoop resolved implModel to the configured runtime string. The next funded dispatch still requires the current grant read/decoding prescribed by the skill.
+C:
+wave 1 base 1111111111111111111111111111111111111111
+escalated round for task 1 after 2 failed attempts
+funded round 1 of 2 for task 1
+wave 1 repair 4 task 1 DONE report /tmp/reports/fix1.md delta /tmp/artifacts/fix.patch applied yes
+wave 1 gate 1 exit 0
+wave 1 review 5 verdict FIX_FIRST report /tmp/reports/review5.md tree 2222222222222222222222222222222222222222
 
-Give recovery actions in all alternatives, without opening plan/spec/reports/source or guessing whether integration or acceptance happened. Do not issue verdicts or reset funded spending. In C identify the next operation solely from the terminal observations, forwarding the saved review report path and retaining the recorded tree IDs.
+The terminal structured review in C is FIX_FIRST, touchedTasks [1], findingCount 1, findings critical 0/moderate 1/minor 0, trajectory CONVERGING (2 -> 1, max severity Moderate). Its saved finding is src/frame.ts:21 - add the remaining length guard. The wave's test command is node --test frame.test.mjs. Compare an old tree-only review line without any applied or terminal outcome. Preserve budget spending and original base; do not reconstruct source or redispatch an interrupted worker.

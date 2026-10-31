@@ -1,8 +1,8 @@
 {
   "sample": "snapshot-apply-failure",
   "arm": "candidate",
-  "skillSha": "f8d3769c43d09db984f63d7c5667b89fb4f9444d31b89e8689e2d80b506e7fe2",
-  "inputSha": "43fa8fb5721bf0e716a3422ef57c0b2a332adda0224794e0b569dd638a09bd94",
+  "skillSha": "46a7d2f3957534efeaa0011af916cf085536bf3c669cc8c3a7ea764885e3e0e3",
+  "inputSha": "d16d2b5ef0838a161b8746357847464320ca6b18398acef13ac5dc4e87b9f5f0",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,64 +17,54 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Snapshot failure: no spec reviewer is dispatched\n\nThe spec-review snapshot block failed at `git -C \"$SR_TREE\" apply --index \"$SR_PATCH\"` with exit 1 and `error: patch failed: src/parse.ts:8`. It printed no `snapshot:` line. Under [Spec-review snapshots](#spec-review-snapshots), this is a setup failure. The rule is: stop dispatch, keep the failed snapshot directory and shell output for diagnosis, dispatch no review, and do no snapshot cleanup.\n\n## Next actions\n\n1. **Stop review dispatch for this task.** No Fix-delta tree capture runs, and no `spec-reviewer` goes out.\n\n2. **Read no checkout as a fallback:**\n   - **`/workspace/project` (parent worktree):** it holds only the `WAVE_BASE_SHA` files. A review there would be an unchanged review of code the worker never touched, which the skill forbids. Post-integration spec review of the parent only applies after a successful `apply --index` in step 4. This patch has no spec-review verdict, so it cannot be integrated.\n   - **The worker's temporary checkout:** it is gone, and pi-cohort deleted it by design. Nothing to read.\n   - **`/tmp/review-snapshot/tree`:** it never got a successful snapshot path, so it is not a valid reviewer `cwd`.\n\n3. **Keep the evidence and clean up nothing:**\n   - Leave `/tmp/review-snapshot` and its registered detached worktree `/tmp/review-snapshot/tree` in place.\n   - Do not run `git -C /workspace/project worktree remove --force /tmp/review-snapshot/tree`.\n   - Keep the shell output verbatim, including the exit 1 and the `src/parse.ts:8` error.\n   - Keep the patch file at its `Artifacts:` path, the worker's saved report path, and the recorded `wave <w> base <sha>` line.\n\n4. **Leave the parent and tracker alone:**\n   - Do not run `apply`, `add -A`, or `commit` in `/workspace/project` for this patch.\n   - Do not rerun accepted siblings or the initial wave chain.\n   - Do not open the patch, `src/parse.ts`, or the report in the primary. That means no `cat`, no `git show`, and no full `git diff`.\n   - The task's `plan_tracker` index stays `in_progress`.\n\n5. **Record the observation:** `wave <w> task <n> status DONE report <saved report path> patch <artifact patch path>`. Leave the verdict empty, since none exists.\n\n## Boundary\n\nStop here at the failure decision. No reviewer is dispatched against any checkout. The worker's `DONE` is not acceptance: the task has no spec-review verdict, so it cannot be integrated, code-reviewed, or committed. Any later diagnosis or redispatch is a separate decision that keeps the retained snapshot directory and shell output as evidence.\n",
-      "words": 376,
-      "wallMs": 15756,
+      "text": "# Repair-base snapshot failed: stopping before any repair dispatch\n\n## Observed state (fixed inputs, not re-run)\n\n- Owning checkout: `/workspace/project`\n- Wave tasks: `### Task 1:` and `### Task 2:`\n- `WAVE_BASE_SHA`: `1111111111111111111111111111111111111111`\n- Tracker: both indices are `in_progress`.\n- The repair-base recipe exited non-zero at this line:\n\n```bash\ngit -C \"$RP_TREE\" apply --index \"$RP_DIR/integrated.patch\" || exit 1\n```\n\nThis was the recipe instance that failed:\n\n<!-- repair-base-shell -->\n```bash\nRP_ROOT='/workspace/project'\nRP_BASE='1111111111111111111111111111111111111111'\nRP_DIR=$(mktemp -d) || exit 1\nRP_TREE=\"$RP_DIR/tree\"\ngit -C \"$RP_ROOT\" add -A || exit 1\ngit -C \"$RP_ROOT\" diff --binary --cached \"$RP_BASE\" > \"$RP_DIR/integrated.patch\" || exit 1\ngit -C \"$RP_ROOT\" worktree add --detach \"$RP_TREE\" \"$RP_BASE\" || exit 1\nif [ -s \"$RP_DIR/integrated.patch\" ]; then git -C \"$RP_TREE\" apply --index \"$RP_DIR/integrated.patch\" || exit 1; fi   # <- failed here\ngit -C \"$RP_TREE\" -c user.name=gauntlet -c user.email=gauntlet@local commit -q --allow-empty -m \"wave integrated snapshot\" || exit 1\nprintf 'repair-base: %s %s\\n' \"$RP_TREE\" \"$(git -C \"$RP_TREE\" rev-parse HEAD)\"\n```\n\n## What follows from that failure\n\n- **No repair dispatch.** The recipe says to stop on a non-zero exit. No clean snapshot commit exists, so there is no valid `RP_TREE` to use as the repair `cwd`. Any delta exported from a dirty root would not be a pure repair delta.\n- **No `repair-base:` line.** The block exited before printing it. I record no `RP_TREE` SHA and no `wave <w> repair <k> ...` line.\n- **Diagnostics kept in place.** `RP_DIR`, `integrated.patch` and the detached worktree stay where they are. I run no `git worktree remove --force` on them.\n- **Integrated tree left as is.** I run no `reset --soft` and no `restore`/`rm`, so the staged integrated state stays intact. A rebuild runs only if the human asks for one.\n- **Attempt counters unchanged.** No implementer operation ran, so `failed[n]` does not change for either task.\n- **Tracker unchanged.** Tasks 1 and 2 stay `in_progress`. Nothing is marked `failed`, `complete` or `skipped`, and no new wave starts.\n- **No diagnosis subagent.** The diagnosis carrier only covers missing Outputs or structured JSON. This is a shell error, so it gets reported directly. There are no report reads and no relay children.\n- **Not recorded:** the `RP_DIR` path and the git error text. Neither was among the supplied observations, so I have not filled them in.\n\n## Next concrete commands and dispatches\n\nNone. Every shell command and `subagent` dispatch is halted at this boundary until the human decides.\n\n---\n\ngauntlet: question\nStopped on task 1 and task 2 (wave repair round): the repair-base snapshot could not be built.\n\nProblem: the repair-base recipe failed when applying the staged integrated diff (from base 1111111111111111111111111111111111111111) onto a clean detached worktree of that base, before the snapshot commit. With no clean snapshot, the repair delta cannot be isolated, so no repair implementer was dispatched.\n  shell: `git -C \"$RP_TREE\" apply --index \"$RP_DIR/integrated.patch\"` exited non-zero; RP_DIR and its detached worktree are retained for diagnosis.\n\nFix options:\n  a) Inspect the retained RP_DIR (integrated.patch, plus the git error you hold), fix whatever stops the integrated diff from applying cleanly at the base (for example binary or mode content), then have me rerun the repair-base recipe and continue the repair round.\n  b) Ask for a rebuild of the affected task. That removes its Create paths, restores its Modify/Test paths from the wave base, re-snapshots, and re-dispatches its original payload as the next attempt.\n  c) Amend plan task 1 or task 2 so the wave runs in-place, where repairs edit the branch checkout directly and need no snapshot.\n\nPick one, or give another fix.\nRecommendation: a - the integrated tree is intact and the failure is in the snapshot step, so diagnosing the patch keeps all accepted work without discarding any task.\n",
+      "words": 577,
+      "wallMs": 26982,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Stop at the snapshot-setup failure.\n\n- Retain `/tmp/review-snapshot/tree` and the setup output:\n  ```text\n  git apply --index exited 1\n  error: patch failed: src/parse.ts:8\n  ```\n- Do not clean up or retry the snapshot at this boundary. No successful snapshot path was printed, so the review-source prerequisite is unmet.\n- **Dispatch no reviewer.** The worker’s `DONE` status does not establish a readable review tree:\n  - Its temporary checkout has been deleted.\n  - `/tmp/review-snapshot/tree` is a failed materialization, not an accepted review source.\n  - `/workspace/project` still contains the wave-base files and cannot substitute for the patched snapshot.\n\n**Next shell commands:** none at this failure decision.  \n**Dispatch payloads:** none.  \n**Commit timing:** no integration or wave commit; retain the task’s `in_progress` state and the failure evidence.\n",
-      "words": 114,
-      "wallMs": 7110,
+      "text": "The repair-base recipe requires stopping on any nonzero exit. The failed `apply --index` means there is no clean committed repair snapshot, so **do not dispatch an implementer or reviewer**.\n\nSafe, read-only coordination commands in the owning checkout are:\n\n```bash\ngit -C /workspace/project rev-parse HEAD\ngit -C /workspace/project status --porcelain\ngit -C /workspace/project diff --stat\n```\n\nThese are proposed commands, not executed results.\n\nRetain the existing `RP_DIR` and its partial snapshot for diagnosis. Do not remove the snapshot, re-run the recipe, rebuild task files, or commit the partially applied state. Preserve the integrated checkout, the fixed wave base `1111111111111111111111111111111111111111`, and both tracker indices as `in_progress`.\n\n**Stopped at the repair-base failure boundary.** The actual `RP_DIR` / `RP_TREE` paths and shell error were not supplied; I cannot invent them or provide a valid repair carrier targeting an unconfirmed snapshot. No foreground carrier is authorized before this failure is resolved.\n",
+      "words": 144,
+      "wallMs": 12587,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
+      "factsSha": "471e7b2cdb456a40d2296555f3786159629262fe2b03425d09e26c677f24e3bf",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fec13289b464723e7df14ac92ac32ec4e4a6a91ee41a6bfc42ec8e28768c223c",
-      "baselineOutputSha": "a78e9f377a7eca75b127d0ab57873c8200ebb06c8e672a41edae865a786dc872",
-      "candidateOutputSha": "fbdb4745ede459e36255273b24891f810e41f94cf0c135980b371404cda8c6fa",
+      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
+      "baselineOutputSha": "70d98936c620a33d153d28bacf666e0c4ebd710467e62d49842e429893454a88",
+      "candidateOutputSha": "005e031f831814a2317a80dfbc011ac51e9009360cd8114dd0155a2351dc7047",
       "facts": {
-        "fail-closed": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "evidence-retained": {
+        "protocol": {
           "before": "holds",
           "after": "holds",
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs stop spec-review dispatch, refuse to read the unchanged parent or the deleted worker checkout, treat DONE as non-acceptance, retain /tmp/review-snapshot and the verbatim apply error without cleanup, leave /workspace/project unintegrated, and keep the tracker at in_progress. After additionally spells out the numbered next-actions list, the status/report/patch observation line, and the no-cat/no-git-show primary-read restriction, which fits the structured-status and file-only-report direction of the Change without weakening either fact. If you keep iterating, preserve the explicit failure report contents from Before (task number/title, patch path, recorded WAVE_BASE_SHA, retained snapshot dir, verbatim error) alongside After's structured observation line, since that list is what most directly evidences 'reports the failed snapshot setup'; After currently implies it through the observation record and boundary paragraph but no longer enumerates it.",
-      "wallMs": 11062,
+      "feedback": "Nothing moved on this fact: both outputs stop before any worker or reviewer dispatch, retain the failed snapshot directory and shell output, and run no worktree removal or review of the parent checkout. After is actually tighter than Before here — it names RP_DIR explicitly, quotes the failed recipe line, states no `worktree remove --force`, no `reset --soft`/`restore`/`rm`, and no diagnosis or relay children, and it correctly refrains from inventing the RP_DIR path and git error text it was not given. Before still passes but drifts slightly from the Change's framing (it calls the directory `SR_DIR`, frames the snapshot path as pre-integration-only, and sketches a conditional in-place SR dispatch), so After's wording is the one to keep; the only thing to watch is that the 'rebuild only if the human asks' and option (b) phrasing stays consistent with the Change's rule that only a repair *delta* apply failure (not the repair-base snapshot apply) triggers automatic rebuild — After gets this right by making rebuild a human choice rather than an automatic step.",
+      "wallMs": 14776,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
+      "factsSha": "471e7b2cdb456a40d2296555f3786159629262fe2b03425d09e26c677f24e3bf",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fec13289b464723e7df14ac92ac32ec4e4a6a91ee41a6bfc42ec8e28768c223c",
-      "baselineOutputSha": "a23d5240e2037719bbf310134268b27a1d0781912ca1b16149aa5c629248d889",
-      "candidateOutputSha": "0c87d06a6ca4d29843fc838cf7136f6735aef82b0b0e779654cd9837e004d8dd",
+      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
+      "baselineOutputSha": "634c5b8a357fcd1c91335668da73719031f42b3f73b831d4f1cf197ea8849ac7",
+      "candidateOutputSha": "9f304ec731c7cd58f319d7ee7d235e0e646f3cf2e8c188fff790503746ea1273",
       "facts": {
-        "fail-closed": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "evidence-retained": {
+        "protocol": {
           "before": "holds",
           "after": "holds",
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs stop review dispatch, name the failed git apply as the reason, explicitly refuse the unchanged parent and the deleted worker checkout as review sources, and reject the worker's DONE as acceptance; both retain /tmp/review-snapshot/tree plus the shell output and leave the worktree uncommitted and the task incomplete. After actually tightens evidence-retained slightly by stating the task's in_progress state explicitly and separating next shell commands / dispatch payloads / commit timing, which matches the D1 lifecycle wording in the Change. One minor regression to watch: Before said retain the tree 'and its containing directory' and explicitly forbade recreating the snapshot or capturing a review tree at this boundary, while After only says retain the tree and 'do not clean up or retry'; keeping the 'retain the failed directory, no recreate, no tree capture' phrasing from Before would make the explicit no-cleanup/no-capture rule in the Change unambiguous without losing anything After added.",
-      "wallMs": 8520,
+      "feedback": "Both outputs stop before any worker/reviewer dispatch, keep the failed snapshot directory, refuse cleanup/retry/commit, and avoid reviewing anything, so the protocol fact holds in each. After is actually tighter on naming (`RP_DIR`, `RP_TREE`, 'no foreground carrier authorized') and on the retained invariants, but it only says to retain `RP_DIR` and its partial snapshot 'for diagnosis' and separately notes the shell error 'was not supplied' — it never explicitly instructs retaining the captured shell error output as Before does ('retain the failed snapshot directory and shell error output'). To keep every fact robustly while delivering the Change, add one clause such as 'Retain the existing `RP_DIR`, its partial snapshot, and the captured shell error output' and keep the explicit 'no review of the partial snapshot or unchanged parent files' phrasing from Before alongside the new repair-base stop-on-nonzero language.",
+      "wallMs": 10686,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "0244a5744c6f81f392b76a9c73a3b57c731970b3"
+  "repoSha": "054296ef6278390bdde50b90780eaadd2d0795c8"
 }
