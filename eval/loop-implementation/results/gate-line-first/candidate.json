@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "1c22cd74c952ae0087e66880cb82d5d75bd0d08e5afada62668630faef354482",
+  "skillSha": "643da1ec0ee169ee965d25d859428c38d55f6f94fce1efe5af769489df04c227",
   "inputSha": "910d70acf17258eb6e05ae44907508950fc2028fb30795c903e7b0ad314d00ad",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nThe loop child made one commit but left uncommitted changes in the implementation worktree. I have not cleaned, reset or committed anything. The extra changes and the child's commit are still in place.\n\nProblem: The return failed the clean-tree boundary, so I did not read or validate the ledger from HEAD. The last validated ledger evidence for row 1 is `check parser: expected colon, got comma`. The last decision is `row 1 failed | delimiter still wrong | retry`.\n\nLedger snapshot (last validated copy):\n\n| field | value |\n|---|---|\n| iterations | 2 |\n| cap | 9 |\n| row 1 | open, attempts 1 |\n\nPreserve every row's attempts and the total iteration cap.\n\nOptions:\n\n1. **Authorize discard/reset and retry.** This discards the uncommitted changes and resets to the last valid commit. Then I append `row 1 retry | <your hint> | allowed attempts 2` and commit `loop: retry row 1`. Before the next normal bump, I set iterations to the restored HEAD's value + 1, so the consumed dispatch still counts. Attempts are never reset. You can include a hint with this reply.\n2. **Amend.** Revise the spec through the brainstorming amendment surface. Spec and ledger are reconciled in one commit.\n3. **Stop.** The implement phase stays active, and the branch, the dirty changes and the commit stay exactly as they are for inspection.\n\nRecommendation: none - nobody has inspected the uncommitted changes yet, and discarding them needs your explicit authorization.\n",
-      "words": 235,
-      "wallMs": 15009,
+      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nProblem: the loop child for row 1 made one commit but left uncommitted changes, so its result cannot be admitted. Row 1's evidence is restored from before the dispatch: `check parser: expected colon, got comma`. Last decision: `row 1 failed | delimiter still wrong | retry`.\n\nLedger snapshot:\n- iterations: 2\n- cap: 9\n- row 1: open, attempts 1, evidence `check parser: expected colon, got comma`\n\nPreserve every row's attempts and the total iteration cap.\n\nRetrying needs your authorization first. The uncommitted changes will be discarded and the branch reset to the last valid commit. The consumed dispatch count is kept: on the next bump, iterations is set to the restored HEAD's value +1. No row attempts are reset.\n\n1. Authorize discard/reset, then retry with hint: reply with a hint for row 1. This appends `row 1 retry | <hint> | allowed attempts 2` and commits `loop: retry row 1`.\n2. Amend: go through the `/skill:brainstorming` amendment surface for row 1.\n3. Stop: implement stays active and the branch state is preserved. Nothing is discarded.\n\nRecommendation: 1 - row 1 is still within its attempt allowance and the cap has room. Once the dirty tree is discarded and the branch reset, a retry with a concrete delimiter hint can try again.\n",
+      "words": 213,
+      "wallMs": 15567,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty\n\nThe child added one commit but left uncommitted changes. No cleanup is authorized.\n\nLedger snapshot: iterations: 2; cap: 9; row 1: open; attempts: 1.\nProblem: evidence is `check parser: expected colon, got comma`; last decision is `row 1 failed | delimiter still wrong | retry`.\n\nPreserve every row's attempts and the total iteration cap.\n\n1. Authorize discarding uncommitted changes and resetting to the last valid commit, then retry. You may supply a hint. Preserve the consumed dispatch count during recovery; re-evaluate targeting before dispatch.\n2. Stop and preserve the current branch, commit, and uncommitted changes.\n\nRecommendation: none - discard/reset requires your explicit authorization.\n",
-      "words": 109,
-      "wallMs": 10457,
+      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty.\n\nProblem: The child returned one commit but left uncommitted changes. Row 1 evidence: \"check parser: expected colon, got comma\". Last decision: \"row 1 failed | delimiter still wrong | retry\".\n\nLedger snapshot: row 1 open; attempts: 1; iterations: 2; cap: 9.\n\nPreserve every row's attempts and the total iteration cap.\n\n1. Authorize discarding uncommitted changes and resetting to the last valid commit, preserving the consumed dispatch count before resuming.\n2. Stop — keep implement active and preserve the current branch state.\n\nNo cleanup has been authorized or executed.\n\nRecommendation: 1 - restore a valid boundary before any further dispatch.\n",
+      "words": 104,
+      "wallMs": 10109,
       "mechanical": {
         "question-first": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "05bacdfb77f11ea0d0e5b421bfbea86b817c7280c6f1528790e7f2103f71aa5a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
-      "baselineOutputSha": "321b2ec6c160c958442bc32291704cb2030f25427663b8685881b899ca8d1797",
-      "candidateOutputSha": "b7924f773aa6265a45280a9f6fde125705a3993fe168235543acf6891344423d",
+      "intentSha": "3012aee21ff9d05ef7d260e29287356852dc33c56c1b4445df53f5972aedcdbe",
+      "baselineOutputSha": "b7924f773aa6265a45280a9f6fde125705a3993fe168235543acf6891344423d",
+      "candidateOutputSha": "eac40d544c3a60416d0ebcc66c8d0d342b92cb43912cdfe53ed2331685220819",
       "facts": {
         "authorization": {
           "before": "holds",
@@ -58,16 +58,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved between Before and After: both outputs open with the `gauntlet: question` marker, explicitly require human authorization before any discard or reset (After adds the useful line that discarding 'needs your explicit authorization'), offer no cap-grant option, and preserve the supplied ledger state. After's field/value snapshot still surfaces iterations 2, cap 9 and row 1 open with attempts 1, keeps 'Preserve every row's attempts and the total iteration cap', states the implement phase stays active, says nothing was cleaned/reset/committed, and carries no done or stuck terminal marker. The After wording delivers the Change (question-prefixed stop plus observable numeric snapshot) without losing anything Before kept; the only suggestion is to keep the 'attempts' column visible as a distinct value rather than folded into prose ('open, attempts 1') so the preserved-attempts fact remains trivially checkable if the table layout is later changed.",
-      "wallMs": 10065,
+      "feedback": "Both facts survive in After: the gauntlet: question marker is present, option 1 is still labelled \"Authorize discard/reset\" with \"Retrying needs your authorization first\" stated ahead of the menu, no cap increment is offered, and the snapshot carries iterations 2 / cap 9 / row 1 open attempts 1 with implement left active and no done/stuck marker. Two wordings weaken the preservation evidence, though, and are worth tightening: Before said outright \"I have not cleaned, reset or committed anything\" and that the commit and dirty changes \"are still in place\", whereas After only implies this through future-tense \"will be discarded\" and option 3's \"Nothing is discarded\"; and \"Row 1's evidence is restored from before the dispatch\" can be read as the driver having already written to the ledger on a rejected return, which sits awkwardly next to the authorization boundary. Suggest keeping the new structured snapshot (with the attempts value and evidence row) but reinstating one present-tense sentence such as \"I have not discarded, reset or committed anything; the child's commit and the uncommitted changes are still in place\" and rephrasing the evidence line to \"Row 1's evidence is the last validated value from before dispatch\" so a reader sees the tree and ledger untouched without inferring it. Also consider whether Recommendation 1 (favouring discard) is intended; it does not move a fact, but Before's \"none\" more clearly signalled that nobody had inspected the uncommitted changes.",
+      "wallMs": 18546,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "05bacdfb77f11ea0d0e5b421bfbea86b817c7280c6f1528790e7f2103f71aa5a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4107978122c086a0e19dda97d75fdbf622d88523c295a3538740722eeb39837d",
-      "baselineOutputSha": "af2fb2e9f6c3ae4ddbce61a4d318054592b3bcd939b587d727b1ffa9bce8d606",
-      "candidateOutputSha": "eca699b39b192cf65a4038839dc1d4a2bbd4dc9fea2718596f35e0908ae2760b",
+      "intentSha": "3012aee21ff9d05ef7d260e29287356852dc33c56c1b4445df53f5972aedcdbe",
+      "baselineOutputSha": "eca699b39b192cf65a4038839dc1d4a2bbd4dc9fea2718596f35e0908ae2760b",
+      "candidateOutputSha": "d36a78d30ebd5dd323f370161573fcfbc783e80da07faae8e083116cd1fcb0d6",
       "facts": {
         "authorization": {
           "before": "holds",
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps both facts: it still opens with `gauntlet: question`, carries the numeric snapshot (iterations: 2; cap: 9; row 1: open; attempts: 1), asks explicit authorization in option 1 before any discard/reset, offers no cap grant, and ends on Recommendation: none with no done/stuck marker. The risk is in what was dropped and what was added. Before stated outright that no cleanup, reset, ledger change or dispatch has run and that Implement remains active; After only implies this via 'No cleanup is authorized' and the preserve-everything option 2, so a careful reader has to infer tree-untouched and implement-active rather than read them. Also the new headline 'iteration 1 left the tree dirty' conflicts with the ledger's iterations: 2, which invites doubt about whether the consumed count is really preserved. To keep preservation observable while delivering the change, keep the gauntlet prefix, snapshot and Recommendation: none, but restore a one-line status such as 'No cleanup, reset, ledger change or dispatch has run; implement remains active and the tree is untouched', and either drop the iteration number from the Stopped line or make it match the ledger (iteration 2).",
-      "wallMs": 13851,
+      "feedback": "Both facts hold in both outputs: After keeps the `gauntlet: question` prefix, renders the full numeric snapshot (row 1 open; attempts: 1; iterations: 2; cap: 9), states 'No cleanup has been authorized or executed', explicitly says 'keep implement active', and offers no cap grant or done/stuck marker. The one risky shift is `Recommendation: 1 - restore a valid boundary...` replacing Before's `Recommendation: none - discard/reset requires your explicit authorization`; a careful reader still sees option 1 as an authorization request rather than an action, so the fact survives, but recommending the destructive option edges toward implying the skill wants to proceed. To keep the authorization boundary unambiguous while still delivering the Change (question prefix, snapshot, preserved state, 'authorized reset followed by ordinary loop continuation'), prefer `Recommendation: none - discard/reset requires your explicit authorization` or, if a recommendation is desired, phrase it as 'Recommendation: 1, pending your explicit authorization - nothing is discarded or reset until you grant it.' Also consider restoring Before's 're-evaluate targeting before dispatch' clause in option 1 so authorized recovery explicitly resumes the ordinary loop path.",
+      "wallMs": 15881,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "8ffc0d51ec9bf0fb10917528d99a22e07c1d52a8"
+  "repoSha": "f2e63eb8a411934875389e9e27daf98b745533fa"
 }
