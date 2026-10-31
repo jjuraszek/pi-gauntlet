@@ -1,0 +1,80 @@
+{
+  "sample": "pr-rework-design-sourced",
+  "arm": "candidate",
+  "skillSha": "124fc7e127d9ada3f5df4d74191592cac03af42ea0dba49874e3952e418873ef",
+  "inputSha": "ab2840bf9547453cc79506413c0a5a7694946d428808a7b1d763deec673991a3",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: sound\naddresses-problem: yes — The spec delivers a CSV export limited to the current user's widgets with id and name columns. It also includes a two-owner test, which matches the human input \"Export only the current user's widgets as CSV with id and name columns. Test owner isolation.\" The acceptance row comes from the agreed design. PR #12 appears only as provenance (the supersedes line, Problem thread list, PR under rework and Rework record), so it is not a pr-source issue.\nfindings:\n- [minor] ambiguity @ Design: \"using the existing owner-scoped widget query and CSV encoder\" — The spec does not name the query, the encoder, or the route/handler that serves the download, so an implementer must work out which ones are meant. → Name the query method, the encoder, and the route path (e.g. `GET /widgets.csv`), or say the handler is added to the existing widgets controller. — probed: none\n- [minor] ambiguity @ Acceptance criteria: \"Export contains only the current user's widgets with id and name columns.\" — The spec does not say whether there is a header row, what the column order is, or what an empty export looks like. Without that, the handler test's column assertion has no exact expected output to check. → Add \"header row `id,name`, columns in that order; a user with no widgets gets the header only\". — probed: none\n- [minor] other @ PR under rework / Rework record: \"acme/widget#12\" — This repo is acme/widgets, but the provenance ref says acme/widget, so the PR link may resolve to the wrong repo. → Change to `acme/widgets#12`. — probed: none\nlean: nothing to cut\n",
+      "words": 255,
+      "wallMs": 10235,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: sound\naddresses-problem: yes — The design and acceptance criterion require current-user-only CSV exports with id and name columns, and the two-owner handler test verifies owner isolation.\nfindings:\nlean: nothing to cut\n",
+      "words": 31,
+      "wallMs": 4416,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "2ccd359a6a183a049f128a54a78d7a734b46b1fef6ee01b2fc52b174185b377e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
+      "baselineOutputSha": "5db90229916f031772e1053a58e67ee391e1bfe07baab2b6f52311a9bd6f85f1",
+      "candidateOutputSha": "14b05c7dcd90cba80cadf5252e9578791ae232c5c922d08dfe4e582fedc08e25",
+      "facts": {
+        "design": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "provenance": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved. Both outputs avoid any pr-source finding on the agreed-design-sourced acceptance row and Design commitment, and both treat the PR #12 mentions (supersedes, Problem thread list, PR under rework, Rework record) purely as provenance, correcting the acme/widget typo rather than recommending deletion. After even states the exemption explicitly in addresses-problem (\"PR #12 appears only as provenance ... so it is not a pr-source issue\"), which is a clean demonstration that the new pr-source instruction respected the drafting-ownership and provenance exemptions. The only drift worth noting is unrelated to these facts: After downgraded the route/response-contract issue to minor and dropped Before's major gap on unauthenticated requests and empty exports (folding the empty case into a minor row). If the Change wording is meant only to add pr-source detection, consider phrasing it so it does not shift severity calibration on ordinary gap/not-actionable findings — e.g. add the pr-source rule as a separate major-gap trigger without restating or softening the existing gap criteria.",
+      "wallMs": 9469,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "2ccd359a6a183a049f128a54a78d7a734b46b1fef6ee01b2fc52b174185b377e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
+      "baselineOutputSha": "cfdbeea6f4637e920ed7ed4d337ae88b5f6ef4a1db12de79df1358ba30bcd6ce",
+      "candidateOutputSha": "14b7e87316883ad762d81c427eebc0f0aac1c96315ae0a1bd332952425b0bdcc",
+      "facts": {
+        "design": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "provenance": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs are sound verdicts with an empty findings list and a lean of \"nothing to cut\", so neither raises any pr-source finding against the agreed-design-sourced acceptance row or Design commitment, and neither flags or recommends deleting the supersedes line, Rework record, Problem thread list, PR under rework, or other PR-number provenance mentions; both facts hold in Before and After. After's addresses-problem line is slightly stronger in that it explicitly names the design and acceptance criterion as the source of the current-user requirement, which signals the pr-source rule correctly distinguished drafting ownership from PR-body authority. No fact moved; the After wording preserves the design and provenance exemptions on this control case. To keep this stable while the Change lands, keep the pr-source rule scoped to clauses whose only stated source is the PR title/body, and keep the explicit carve-out that acceptance rows marked as drafted from the design and the Design section itself are not PR-sourced, and that supersedes/Rework record/thread/PR-under-rework mentions are provenance, never requirement authority to be cut.",
+      "wallMs": 7698,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+}

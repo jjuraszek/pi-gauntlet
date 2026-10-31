@@ -12,6 +12,10 @@ for (const [role, failure, frontmatter] of roles) {
   test(`${role}: anchored loading, inline fallback, mirrored failure and unchanged knobs`, () => {
     const text = read(`agents/${role}.md`);
     let knobs = text.match(/^---\n[\s\S]*?\n---\n/)[0];
+    if (role === 'implementer') {
+      assert.match(knobs, /^completionGuard: false$/m);
+      knobs = knobs.replace(/^completionGuard: false$/m, 'completionGuard: true');
+    }
     if (role === 'wave-reviewer') {
       assert.match(knobs, /^name: wave-reviewer$/m);
       assert.match(knobs, /^description: Wave review over an integrated diff: spec-clause table when a spec anchor is supplied plus prioritized code findings \(Critical and Moderate block, Minor is a nit\)\. Read-only - does not edit\.$/m);

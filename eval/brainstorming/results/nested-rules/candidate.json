@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a3ccb87ff55c91db8e48722f6d0577efc4b433cea6b1acc49b4a638647720295",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
-      "baselineOutputSha": "a4ca0f55837a1da310287a072f0ceb82e90a62cb162e612837c4f283637d6f85",
+      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "baselineOutputSha": "7c84d1fa0b2b10670bccc9493b85b23c9829f4c36d36763c58517b88f8d87951",
       "candidateOutputSha": "7c84d1fa0b2b10670bccc9493b85b23c9829f4c36d36763c58517b88f8d87951",
       "facts": {
         "walk": {
@@ -54,21 +54,21 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved in this pair: both outputs dispatch one scout per leg with its own worktree as cwd (Before uses `<abs repo-a worktree>` placeholders, After names the `Worktree ready at` path per leg), both list the five required repo-a `Rules:` lines in a code block plus `pkg-x/CLAUDE.md` and `Rules: missing: outside.md`, both keep repo-b's `Rules: AGENTS.md` in its own block, both dedupe the root CLAUDE.md symlink by realpath, exclude untouched `pkg-y/AGENTS.md` and the unfollowed `second-hop.md`, and record `outside.md` as missing without inventing contents, and both emit `Rules: root only - paths unresolved` for the independent run while deferring task path walks to the plan-writer. The expected-to-move note says the walk fact fails in After because the cwd/rules walk was rendered in prose rather than the exact listing, but this After output does render the exact listing (now under `### Leg:` headings, which arguably strengthens the per-leg separation); if the author wants to guard against the prose-only variant seen in another run, the safest wording is to state explicitly in the gather instructions that each leg's `Rules:` lines must appear as a verbatim fenced listing under its `### Leg:` heading and that the scout table must show each leg's worktree cwd, so the model cannot satisfy the walk by narrating it in paragraphs.",
-      "wallMs": 12197,
+      "feedback": "Before and After are textually identical here, so nothing moved: both render the scout dispatch table with per-leg worktree cwds, the exact repo-a Rules listing (AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md, pkg-x/doc/parser.md, plus pkg-x/CLAUDE.md and `Rules: missing: outside.md`), the realpath dedupe of the symlinked root CLAUDE.md, the exclusion of untouched pkg-y/AGENTS.md and the unfollowed second-hop.md, and the independent Run 2 emitting `Rules: root only - paths unresolved` with the plan-writer deferral. The accepted-variance note anticipating a prose-only rendering of the walk did not materialize in this pair; if that drift appears on other model cells, pinning it would mean adding wording to the nested-rules slice that requires the per-leg `### Leg:` block with one `Rules:` line per file as a fenced listing, not as prose — that is untouched by the amendment-surface section 5 edit and can be done without disturbing the three facts kept here.",
+      "wallMs": 11231,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a3ccb87ff55c91db8e48722f6d0577efc4b433cea6b1acc49b4a638647720295",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
-      "baselineOutputSha": "a6af4fd15a4e58c16d71084e7f20cbcbfbefa95cb7fcf5706e85d38a632ceec3",
+      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "baselineOutputSha": "ca08e5147b1739768982d0c4b4100c67183686b7ee00b54d4a8c0e667bf1ae1a",
       "candidateOutputSha": "ca08e5147b1739768982d0c4b4100c67183686b7ee00b54d4a8c0e667bf1ae1a",
       "facts": {
         "walk": {
           "before": "holds",
-          "after": "fails",
-          "label": "intended change"
+          "after": "holds",
+          "label": "intended but unchanged"
         },
         "bounded": {
           "before": "holds",
@@ -76,15 +76,15 @@
           "label": "intended but unchanged"
         },
         "unresolved": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After gets the Rules listings exactly right and gains the plan-writer deferral sentence that Before lacked, but it moves the walk fact by setting each scout's cwd to `/work/repo-a` and `/work/repo-b` — the primary checkouts named in the input (the same `/work/repo-a` under which `outside.md` is reported missing) — and never says the scouts run in their own worktrees; Before made that explicit with `<repo-a worktree>` placeholders and a sentence that the cwd must be the resolved worktree whose absolute path was not supplied. To keep walk while retaining the new unresolved coverage, have the After wording render the cwd as the resolved worktree (a placeholder such as `<repo-a worktree>` or an explicit note that the path is the scout's worktree, not the primary checkout) and keep the closing sentence that the plan-writer's later touched-path walk fills in directory-specific rules; the dedupe/exclusion/missing-outside.md prose can stay as is.",
-      "wallMs": 17582,
-      "verdict": "improved"
+      "feedback": "The Before and After outputs for this case are textually identical, so nothing moved: both show each scout under its own worktree cwd (/work/repo-a, /work/repo-b) with explicit `Rules:` listing lines covering root AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md and pkg-x/doc/parser.md, keep repo-b's rules separate, state that root CLAUDE.md resolves to AGENTS.md and is counted once, exclude pkg-y/AGENTS.md and second-hop.md, record outside.md as missing without reconstructing it, and emit `Rules: root only - paths unresolved` on the independent run while deferring directory-specific walks to the plan-writer. The accepted variance noted for nested-rules/walk (prose instead of exact listing) does not appear in this After text; if the author wants to guard against it in other runs, a sentence in the nested-rules slice requiring the scout to render the cwd and every `Rules:` entry as literal listing lines in a code block would pin the format without touching the amendment-surface section 5 change.",
+      "wallMs": 10701,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

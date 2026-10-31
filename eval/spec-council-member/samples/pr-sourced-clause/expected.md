@@ -1,0 +1,3 @@
+- finding: judged: Reports D1's PR-body-sourced compression commitment as a major gap with pr-source in the finding text, not a new kind or an external-ref-only finding.
+- correction: judged: Suggests re-sourcing compression from approved human input or agreed design; absent that evidence, asks for the user's Design scope decision before cutting the commitment or a drafted row.
+- rows: judged: Does not replace acceptance criteria with none, draft replacement rows, or treat the valid id/name outcome as a PR-source gap.

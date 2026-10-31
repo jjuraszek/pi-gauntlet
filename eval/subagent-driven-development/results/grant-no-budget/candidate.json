@@ -1,7 +1,7 @@
 {
   "sample": "grant-no-budget",
   "arm": "candidate",
-  "skillSha": "46a7d2f3957534efeaa0011af916cf085536bf3c669cc8c3a7ea764885e3e0e3",
+  "skillSha": "2fff485270548a0f88677e525545e336a90291660e557117742e752b85340ceb",
   "inputSha": "94045851e9ee8fa59dd2b9d8c7ee02a314f80c3ce710311a7e3e5cc883b55261",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The escalated repair still leaves frame validation without a length guard, and the review is still FIX_FIRST. The standing grant `auto-apply amends` permits amendments but funds no extra rounds, so no attempt is left.\n  src/frame.ts:21 - missing length guard\n  node --test frame.test.mjs: passes, which shows the scoped tests do not exercise this guard\n\nFix options:\n  a) Add a length check at src/frame.ts:21 that rejects a frame shorter than its required length before any field is read. Add a frame.test.mjs case with a short frame that must be rejected.\n  b) Amend spec section for frame validation / plan task 3 to state the exact length rule and the rejection behavior. The task contract then names the guard and its test, and task 3 is re-run against it.\n  c) Add funded rounds to the `**Amend-grant:**` line, for example a funded budget token, so task 3 gets another escalated repair on <configured-impl-model>.\n\nPick one, or give another fix.\nRecommendation: a - It is a direct code fix inside task 3's files and needs no change to the approved spec.\n",
-      "words": 190,
-      "wallMs": 18332,
+      "text": "**Parent action:** The escalated round for task 3 failed: its re-review returned attributed `FIX_FIRST`. The transition table now allows a funded round only if task 3's ledger has one left.\n\n- The header `**Amend-grant:** auto-apply amends` grants amend permission but carries no funding token. So `N = 0`, the ledger has nothing to spend, and no `funded round` line is printed.\n- Execution escalation ran independently of the grant and is now spent.\n- The round cap is not reached: 3 re-reviews, under the cap of 4 + 0.\n- `TRAJECTORY: DIVERGING` is not `STAGNANT`, so the outcome is the ordinary exhausted-escalation stop note.\n\nThe workflow says this note comes from held observations, with no further dispatch, no shell command and no report read. The residual finding is already held from the structured observation. The note omits the `budget:` line because there is no token.\n\nThe wave is not committed and nothing is integrated beyond the staged repair. Task 3 stays `in_progress`, the phase stays `implement`, and no further tasks start.\n\n---\n\ngauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The frame validator still reads the frame without checking its length first, so a short or truncated frame is not rejected safely.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) add a length check at src/frame.ts:21 that rejects any frame shorter than the required header/payload size before reading it, with a frame.test.mjs case for a truncated frame\n  b) amend plan task 3 to state the exact minimum-length rule and rejection behavior for short frames, then repair against that rule\n  c) grant funded rounds for task 3 (add a funding token to the Amend-grant line) so the configured implementation model gets another attempt\n\nPick one, or give another fix.\nRecommendation: a - it closes the one remaining finding directly without changing the approved spec.\n",
+      "words": 303,
+      "wallMs": 16534,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The length guard remains missing after the escalated fix. The grant `auto-apply amends` authorizes amendments, not funded repair rounds, so no further repair dispatch is authorized.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) Authorize another repair round to implement the missing length guard.\n  b) Amend the approved validation requirement and task 3 to explicitly remove the length-guard obligation.\n\nTask 3 remains in_progress; do not commit the wave or run further shell commands or subagent dispatches pending this decision.\n\nPick one, or give another fix.\nRecommendation: a - preserves the approved validation requirement.\n",
-      "words": 108,
-      "wallMs": 14031,
+      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The length guard remains missing after escalation. `auto-apply amends` grants amendment permission, not funded repair rounds; no further execution round is authorized.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) authorize another repair round to add the required length guard\n  b) amend the approved length-validation requirement and task 3's corresponding obligation\n\nTask 3 remains in_progress and the wave is uncommitted. No further shell command or dispatch is issued.\n\nPick one, or give another fix.\nRecommendation: a - preserves the approved validation requirement.\n",
+      "words": 97,
+      "wallMs": 9545,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e2156c5b0db4824161fbfb7d78a4ebe0c4ac322fa4e6ea596fd2bfcf1d2abbff",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
-      "baselineOutputSha": "ffd6dd8c7b4b3d384fd64dc687ef693aeb94d642955cc439dfcf3e91d994c9b6",
-      "candidateOutputSha": "dbd2dccfc386f007959d6c9a3bb9bf4ccb6a40c1288aeca87b5d9fe5d0f863b7",
+      "intentSha": "b81041f7ff7eb244cf77ede17604d6607614b045d2e2b9ab11a13d3912eb164e",
+      "baselineOutputSha": "dbd2dccfc386f007959d6c9a3bb9bf4ccb6a40c1288aeca87b5d9fe5d0f863b7",
+      "candidateOutputSha": "9a8011435683dfd8c6f248995b8a02cb2859c1c99b9c8bc8d1ac0459fdfab8c6",
       "facts": {
         "original-stop": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps all three facts: it stops after the failed escalated re-review with no further fix or review dispatch, the note carries no `budget:` line (it says the `auto-apply amends` grant funds no rounds), and nothing commits or completes task 3. The one weakening is that After never states tracker state explicitly; Before said 'phase implement, task 3 in_progress, no commit, no reset --soft/add -A' in so many words, whereas After leaves the reader to infer it from the absence of a commit. If the Change intends the parent to emit the note inline rather than delegate it (which is what After does, and is cleaner than Before's unobserved carrier), add one short line after the note, or in a preceding parent-action header, such as 'Tracker: phase implement, task 3 in_progress; no wave commit' so in-progress holds on the text itself rather than by omission; the rest of After's wording (first line `gauntlet: question`, concrete options with the spec/plan amendment first-class, explicit Recommendation) can stay as is.",
-      "wallMs": 13793,
+      "feedback": "No fact moved on this case. After keeps every fact Before kept and makes them more explicit: it states there is no further dispatch, no shell command and no report read; it names the absent funding token and explicitly omits the `budget:` line; and it states that the wave is not committed and task 3 stays `in_progress` in phase `implement`. Before conveyed the same outcomes only implicitly (a stop note with no dispatch, no budget line, 'Stopped on task 3' with no commit), so After's transition-table preamble is an improvement in legibility rather than a behavior change. One small thing to watch in the After wording: the preamble's cap arithmetic ('3 re-reviews, under the cap of 4 + 0') and the phrase 'nothing is integrated beyond the staged repair' are the kind of derived claims that could drift under replay; if you want to harden this case, have the stop note cite the exhausted-escalation condition (escalated round spent, re-review still FIX_FIRST, ledger N = 0) directly rather than computing a cap comparison, and keep the explicit 'no wave commit, task stays in_progress' sentence as-is.",
+      "wallMs": 11710,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e2156c5b0db4824161fbfb7d78a4ebe0c4ac322fa4e6ea596fd2bfcf1d2abbff",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "eea475db42ade9d526769b34dfa91a516a5950de015fc4114332f91f78718137",
-      "baselineOutputSha": "d42ed63fc5d678e5accafad31f12d2bd18081d488f8fea006611e3e982901096",
-      "candidateOutputSha": "609275e8b40fe0d82963db988df3536a928464a699f148f8e8c4f8f15cc71bf7",
+      "intentSha": "b81041f7ff7eb244cf77ede17604d6607614b045d2e2b9ab11a13d3912eb164e",
+      "baselineOutputSha": "609275e8b40fe0d82963db988df3536a928464a699f148f8e8c4f8f15cc71bf7",
+      "candidateOutputSha": "3c307fb109e62090d530d17a833f5a5a6094c290d6921a16fee3c8b4644af077",
       "facts": {
         "original-stop": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs stop after the failed escalated re-review without dispatching another fix or review, neither emits a budget: line, and both keep task 3 in_progress with no wave commit. After is actually the cleaner stop — it cites the concrete finding (src/frame.ts:21 - missing length guard), names the escalated model, and states explicitly that the amend-grant does not fund further repair rounds, whereas Before stalled on an unavailable reference file and a speculative git status command. One caution for the After wording: the transition-table language should keep the stop note minimal and not imply the parent may still run maintenance shell commands or re-reads after the stop; After's 'do not ... run further shell commands or subagent dispatches pending this decision' is good, keep that phrasing so the no-dispatch and no-budget facts stay stable across future cases.",
-      "wallMs": 9667,
+      "feedback": "Nothing moved on this case: both Before and After stop immediately after the failed escalated re-review, neither dispatches a further fix or review, neither emits a budget: token (correctly, since no funded round exists), and both state task 3 remains in_progress with the wave uncommitted. After's phrasing is actually slightly tighter — 'the wave is uncommitted' and 'No further shell command or dispatch is issued' make the in-progress and original-stop facts explicit without hedging. Keep this wording; if anything, retain the explicit 'do not commit the wave' framing from Before as a directive (rather than only a state description) so the no-commit constraint reads as binding on the resumed turn as well.",
+      "wallMs": 7640,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "054296ef6278390bdde50b90780eaadd2d0795c8"
+  "repoSha": "e57328a3bd686e0a92961d8486b04c91279610fa"
 }

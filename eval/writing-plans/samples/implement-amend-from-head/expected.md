@@ -1,0 +1,3 @@
+- originals: judged: Reads both originals with git -C /workspace/app show HEAD:doc/plans/config.md and HEAD:doc/specs/config.md before any write; no absolute HEAD path or report-copy prerequisite.
+- semantic: judged: Initial apply and partial retry return passed true, amendedSections naming Config and tasksAnchorChanged [4] because the committed anchored obligation changed despite unchanged Tests; offset-only clarification returns an empty changed list.
+- retry: judged: Reads previousApplyReport for prior findings only, applies idempotently without duplicate bullets, preserves unaffected tasks and historical evidence, and keeps self-check and parent stamp.

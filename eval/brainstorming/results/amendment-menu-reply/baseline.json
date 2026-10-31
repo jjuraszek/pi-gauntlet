@@ -1,7 +1,7 @@
 {
   "sample": "amendment-menu-reply",
   "arm": "baseline",
-  "skillSha": "46230ac73e4c7b5113a163f24e5ccaa63fb52be65622b5210b286d3ec2351e00",
+  "skillSha": "867a7be98b5d40c8722e85f07add513969691c9e792c647432c4f78a21a40bf4",
   "inputSha": "8f4082006f803aa6f314147c6b6a600eec45f09c1691c03a1600bc1a62ef6a17",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Both items are resolved: item 1 takes alt-1, and item 2 keeps exit 126 as `failed` and documents it. Item 2's custom answer is a spec edit, not a redirect, so it applies. Because no plan or ledger exists, the aftermath is a spec-only commit with no task or phase change. I haven't edited or committed anything in this replay; below are the edits and the commit to make.\n\n**Spec edits for `doc/specs/report-runner.md`**\n\n- **Design / retries:** Old: each report adapter owns its retry policy. New: the existing report coordinator owns the shared retry policy, and adapters keep execution.\n- **Design / run status:** The rule \"exit 126 is failed\" stays as written. A documentation clause will be added saying exit 126 deliberately stays `failed`, even though a launch can return 126 before the report runs.\n\namended the spec: Share retry policy - move retry policy into the existing report coordinator; adapters keep execution\namended the spec: Classify blocked execution - keep exit 126 classified as failed and document that retained classification\n\n**Commit to create**\n\n```\namend: 2 item(s) - Share retry policy, Classify blocked execution\n\n- crosscut | Share retry policy | move retry policy into the existing report coordinator; adapters keep execution | alt-1 | changing retry ownership needs a human architecture choice - probed: adapter retry limits - different limits | adapters/alpha.ts:18 uses two retries; adapters/beta.ts:22 uses four\n- exit126 | Classify blocked execution | keep exit 126 classified as failed and document that retained classification | custom(keep 126 as failed, document it) | operator-visible status changes need a human decision - probed: launch test - exit 126 before execution | synthetic launch test returns 126 before report execution\n```\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nOnce this commit lands, the spec review resumes on the amended spec. No standing grant is in effect, so any later amendment will come back to you as a menu.\n",
-      "words": 296,
-      "wallMs": 14917,
+      "text": "Both picks are valid. Item 2 is a spec edit, not a redirect, so it stays in the batch. In this text-only replay I can't write to disk or commit. Below are the edits, commit, and recorded choices this batch produces.\n\n**Spec edits for `doc/specs/report-runner.md`**\n\n- **Design / retries:** \"each report adapter owns its retry policy\" becomes \"the existing report coordinator owns the single shared retry policy, including the retry limit; adapters keep execution and apply the coordinator's policy.\" No new service is added.\n- **Design / run status:** \"exit 126 is failed\" stays. A clause is added: exit 126 means a launch failure before report execution (the synthetic launch test shows this). It is deliberately classified as failed, not as a separate blocked status.\n\namended the spec: Share retry policy - the report coordinator owns the shared retry policy; adapters keep execution\namended the spec: Classify blocked execution - exit 126 stays failed, now documented as a pre-execution launch failure\n\n**Aftermath:** No plan or loop ledger exists, so there's no plan-writer dispatch, no tracker change, and no phase change. Only the spec gets committed.\n\n**Commit for this batch:**\n\n```\namend: 2 item(s) - Share retry policy, Classify blocked execution\n\n- crosscut | Share retry policy | move retry policy into one owner | alt-1 | changing retry ownership needs a human architecture choice | adapters/alpha.ts:18 uses two retries; adapters/beta.ts:22 uses four\n- exit126 | Classify blocked execution | classify exit 126 as blocked rather than failed | custom(keep 126 as failed, document it) | operator-visible status changes need a human decision | synthetic launch test returns 126 before report execution\n```\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNext, the spec review resumes on the amended spec.\n",
+      "words": 268,
+      "wallMs": 13845,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Recorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nSelected edits to `doc/specs/report-runner.md`:\n- **Design / retries:** The existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service is added.\n- **Design / run status:** Exit 126 remains **failed**, with that classification explicitly documented.\n\nNo tasks reopen and no phase changes. No standing grant was given. This text-only replay has not written files or created a commit.\n",
-      "words": 67,
-      "wallMs": 7626,
+      "text": "Selected edits for `doc/specs/report-runner.md`:\n\n- **Design / retries:** The existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service is added.\n- **Design / run status:** Keep exit 126 classified as **failed** and explicitly document that retained classification. This custom instruction edits the spec; it does not redirect work elsewhere.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNo tasks reopen and no phase changes. No standing grant was given. This text-only replay has not written files or created a commit.\n",
+      "words": 82,
+      "wallMs": 8289,
       "mechanical": {}
     }
   },
-  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

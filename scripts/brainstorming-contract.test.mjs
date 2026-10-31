@@ -167,9 +167,9 @@ test('finalization retains ordered write checks, verdict routing and dispatches'
   const ordered = ['1. `Read` the draft in full', '2. Write the spec', '3. **Immediately after the write**', '4. **After the line-1 check**', '5. **After the second predecessor pass'];
   let previous = -1;
   for (const marker of ordered) { const position = text.indexOf(marker); assert.ok(position > previous, marker); previous = position; }
-  assert.match(text, /Read all six bullets first/);
+  assert.match(text, /Read all seven bullets first/);
   assert.match(text, /first four are the inline \*\*lint\*\*/);
-  assert.match(text, /last two are the \*\*critique pass\*\*, dispatched/);
+  assert.match(text, /last three are the \*\*critique pass\*\*, dispatched/);
   for (const marker of ['branch strictly on `verdict`', 'never infer the worker path from `malformed` alone', 'If `gauntlet_setting` is unavailable, stop and report', 'agent: "worker", context: "fresh", async: false', 'agent: "spec-summarizer", context: "fresh", async: false', 'outputMode: "file-only"', 'Human input (verbatim; off-limits for over-spec)', 'ticket AC snapshot', 'passes no `model:`']) assert.ok(text.includes(marker), marker);
   assert.match(text, /relative to this loaded reference as one absolute/);
   assert.match(text, /portable citation `reference\/documentation-impact.md`/);
@@ -715,6 +715,23 @@ test('planning completes interrupted sync and persists pending outcomes before f
     'in-place waves commit a descendant commit without amending or `reset --soft`. Then mark every index of the original wave `complete` together;',
   ]) assert.ok(sdd.includes(clause), clause);
   for (const marker of ['merge: unresolved', 'preserve the original commits', 'sync: unresolved', 'rebase --no-rebase-merges origin/<base>', 'Member replay: #<N> unresolved', 'every `pending` member in listed order', 'update-ref refs/gauntlet/rework-base/pr-<home> HEAD', 'Rework base: <sha>', 'final `Member replay:` outcomes', 'amendment path', 'before finishing', '../using-git-worktrees/reference/pr-head.md']) assert.ok(plan.includes(marker), marker);
+});
+
+test('both critique routes reject PR-sourced commitments without cutting design or provenance', () => {
+  const member = read('agents/spec-council-member.md');
+  const finalization = read('skills/brainstorming/reference/spec-finalization.md');
+  const worker = finalization.slice(finalization.indexOf('When `verdict` is `"worker"`, dispatch one'), finalization.indexOf('`worker`\'s model resolves'));
+  for (const [route, text] of [['member', member], ['worker', worker]]) {
+    for (const marker of ['pr-source', 'PR title or body', 'requirement, acceptance-criteria row, or Design clause', 'major', 'gap', 'approved human input or the agreed design', "user's Design scope decision", 'supersedes', '## Rework record', '## Problem', '## PR under rework', 'provenance mention', 'rework', 'never draft']) assert.ok(text.includes(marker), `${route}: ${marker}`);
+    assert.match(text, /never replace[^.\n]*`none`/i, route);
+  }
+  assert.ok(finalization.includes('The last three are the **critique pass**'));
+  assert.ok(worker.includes('Apply three checks'));
+  assert.match(member, /`<kind>` is one of: gap, oversimplification, ambiguity, scope, not-actionable, external-ref, other, over-spec\./);
+  for (const [target, names] of Object.entries({ 'spec-council-member': ['pr-sourced-clause', 'pr-rework-design-sourced'], brainstorming: ['worker-critique-pr-source'] })) {
+    for (const name of names) for (const file of ['case.md', 'expected.md']) assert.ok(existsSync(new URL(`../eval/${target}/samples/${name}/${file}`, import.meta.url)));
+    assert.deepEqual(lintTarget(fileURLToPath(new URL(`../eval/${target}`, import.meta.url))), []);
+  }
 });
 
 const legsPath = 'skills/brainstorming/reference/legs.md';

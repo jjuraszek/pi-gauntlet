@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Implementer identity and guard exception.** Structured returns copy the dispatched `anchor` or `anchors` so failed tasks remain identifiable. Explicit `completionGuard: false` preserves edit-less `NEEDS_CONTEXT` and `BLOCKED` returns; isolated waves reject edit-less `DONE` through their patch requirement, while in-place and non-wave callers retain gate/review coverage.
+- **Artifact-first failed-chain recovery.** Recover missing structured results from identity-matched `output.json` captures before diagnosis, retaining accepted siblings. The fallback carrier names `agent: "delegate"` and `Do not edit any file.` so it is addressable and stays read-only. Missing or empty initial patches count as failed attempts; nonempty apply failures still hard-stop.
+- **Committed amendment originals and plan handoff.** Commit the plan after the parent check passes and before tracker initialization, and commit dirty plan/spec originals before the first wave. Amend-apply reads both originals from git HEAD instead of copying inventory into its report, preserving semantic comparisons after partial attempts. Failed baseline reads write nothing and stop without retry; prior reports carry findings only.
+- **PR-source critique direction.** Council and worker critiques flag requirements justified by a PR title or body: the approved input or agreed design produces the PR, not the reverse. Re-source the clause or ask for a Design scope decision before cutting it; PR provenance mentions and design-sourced rework remain exempt.
+
 ## v8.0.1 - 2026-10-31
 
 - Single-repo loops omit coordinated instructions; coordinated entry and resume load the extracted reference before admission. (#107)

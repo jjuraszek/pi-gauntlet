@@ -1,7 +1,7 @@
 {
   "sample": "unreadable-anchor",
   "arm": "baseline",
-  "skillSha": "26c4e39b729dc51b46de7be681dc0169db8ab54551ded3b9be222d6d3d9e2f3a",
+  "skillSha": "7db4b1eebec6f602d87a36fa2fc68b1e4cc2f4f74914493c42eec0e7c53eb771",
   "inputSha": "9acd64fac111da869893110b00f2f793a20ae94bb9044c3bb1043ffdfe19eac4",
   "kind": "text",
   "assembly": "headed",
@@ -17,24 +17,24 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Next read requested:** `/workspace/project/plan.md`, to find the heading that exactly matches `### Task 4:` and take the task text from it.\n\n**Observation consumed:** The supplied file contains only `### Task 40: Similar but not selected` (Files: Create: `decoy.md`) and then `## End`. No heading matches `### Task 4:`. \"Task 40:\" is not a match, because the character after `Task 4` is `0`, not `:`. I did not use Task 40 in its place.\n\n## Report\n\n**Status:** BLOCKED\n\n- **Files changed:** none\n- **Test commands run:** none. The dispatch supplies `SCOPED_TEST_COMMANDS: none`. I have no tools and executed nothing.\n- **Test-contract evidence:**\n  - SCOPED_TEST_COMMANDS: `none`\n  - via: `none`. The task's **Tests:** block could not be read because the anchor did not resolve.\n- **Deviations:** none. No implementation was attempted.\n- **Blockers:**\n  - The plan anchor `### Task 4:` is absent from `/workspace/project/plan.md`. The only similar heading is `### Task 40:`, which I deliberately left unused. Without the task text there is no approved plan to implement, and guessing would break scope discipline.\n  - The dispatch supplied no `Rules:` files and no `Leg:` checkout, so I resolved and read no rules files.\n- **Follow-ups for parent:**\n  - Supply Task 4's full text inline (Files, Tests block, acceptance criteria), or give a corrected anchor that resolves in the plan.\n  - Supply the `Leg:` checkout and `Rules:` paths if they apply.\n  - I did not read `/workspace/project/spec.md`, since no observation of it was supplied.\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"next_read_requested\": \"/workspace/project/plan.md\",\n  \"observations_consumed\": [\"/workspace/project/plan.md\"],\n  \"anchor\": \"### Task 4:\",\n  \"anchor_found\": false,\n  \"near_miss_ignored\": \"### Task 40: Similar but not selected\",\n  \"implementation_performed\": false,\n  \"files_changed\": [],\n  \"test_commands_run\": [],\n  \"test_contract_evidence\": {\n    \"scoped_test_commands\": \"none\",\n    \"via\": \"none\"\n  },\n  \"deviations\": [],\n  \"blockers\": [\n    \"Anchor '### Task 4:' not present in /workspace/project/plan.md; task text unavailable\",\n    \"No Rules: files or Leg: checkout supplied\"\n  ],\n  \"follow_ups\": [\n    \"Provide Task 4 full text inline or a corrected resolvable anchor\",\n    \"Provide Leg: checkout and Rules: paths if applicable\"\n  ]\n}\n```\n",
-      "words": 286,
-      "wallMs": 13554,
+      "text": "**Next read requested:** `/workspace/project/plan.md`. The dispatch gives `planPath` and `anchor: \"### Task 4:\"`, so I read the plan before anything else and use that section as the task text.\n\n**Observation consumed:** The supplied read of `/workspace/project/plan.md` has one task heading, `### Task 40: Similar but not selected`, followed by `## End`. No heading line starts with `### Task 4:`. Under exact-prefix matching with number plus colon, `### Task 40:` does not match `### Task 4:`, so I cannot select it.\n\n---\n\n## Report\n\n**Status:** BLOCKED\n\nReasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:\n\n- **Files changed:** none. No implementation was done because the task text could not be found.\n- **Test commands run:** none. The dispatch has `SCOPED_TEST_COMMANDS: none`, and with the task blocked there was nothing to verify.\n- **Test-contract evidence:**\n  - SCOPED_TEST_COMMANDS: `none`\n  - via: `none`. I could not determine any `via:` because the task section is missing.\n- **Deviations from plan:** none. I did not use `### Task 40:` in place of Task 4 because it fails the exact-prefix rule and is not the selected task.\n- **Blockers / follow-ups for parent:**\n  - The anchor `### Task 4:` is missing from `/workspace/project/plan.md`. The plan needs a `### Task 4:` section, or the dispatch needs the correct anchor.\n  - I did not read the spec (`/workspace/project/spec.md`) or derive Rules/Leg, because there are no task `Spec:` anchors or `Leg:` to resolve.\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"reasoning\": \"anchor unreadable: /workspace/project/plan.md#### Task 4: — plan contains only ### Task 40:, which does not match the exact ### Task 4: prefix; no implementation performed.\",\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 4:\"\n}\n```\n",
+      "words": 239,
+      "wallMs": 8007,
       "mechanical": {
-        "anchor": "fails",
-        "reasoning": "fails"
+        "anchor": "holds",
+        "reasoning": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Next file read I would request: `/workspace/project/plan.md`, locating the exact anchor `### Task 4:`.\n\nThe supplied observation contains only `### Task 40:`; the requested anchor is absent. Task 40 was not substituted.\n\n**Status:** BLOCKED\n\n- **Files changed:** None. No implementation was performed.\n- **Tests:** `SCOPED_TEST_COMMANDS: none`. No commands were run.\n- **Test-contract evidence:** none.\n- **Deviations:** None.\n- **Blocker:** Task 4 cannot be identified from the supplied plan observation. The parent must provide a corrected anchor or the missing task content.\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"next_read\": {\n    \"path\": \"/workspace/project/plan.md\",\n    \"anchor\": \"### Task 4:\"\n  },\n  \"observation\": \"The requested anchor is absent; only Task 40 is present.\",\n  \"files_changed\": [],\n  \"commands_run\": [],\n  \"test_contract_evidence\": \"none\",\n  \"implementation_performed\": false,\n  \"deviations\": [],\n  \"blockers\": [\n    \"Task 4 cannot be identified from the supplied plan observation.\"\n  ],\n  \"follow_up\": \"Provide a corrected anchor or the missing task content.\"\n}\n```\n",
-      "words": 122,
-      "wallMs": 5208,
+      "text": "Next file read I would request: `/workspace/project/plan.md`, selecting the exact heading prefix `### Task 4:`.\n\n**Status:** BLOCKED\n\nReasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:\n\nThe supplied observation contains only `### Task 40:`, which does not match the requested anchor.\n\n- Files changed: none; no implementation performed.\n- Tests: none supplied (`SCOPED_TEST_COMMANDS: none`); no commands run.\n- Test-contract evidence: commands: none; via: unavailable because the task anchor is absent.\n- Deviations: none.\n- Blocker: the requested task section is absent.\n\n```json\n{\n  \"status\": \"BLOCKED\",\n  \"reasoning\": \"Reasoning: anchor unreadable: /workspace/project/plan.md#### Task 4:\",\n  \"anchorUnreadable\": \"/workspace/project/plan.md#### Task 4:\"\n}\n```\n",
+      "words": 85,
+      "wallMs": 4159,
       "mechanical": {
-        "anchor": "fails",
-        "reasoning": "fails"
+        "anchor": "holds",
+        "reasoning": "holds"
       }
     }
   },
-  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

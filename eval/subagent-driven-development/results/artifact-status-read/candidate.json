@@ -1,0 +1,100 @@
+{
+  "sample": "artifact-status-read",
+  "arm": "candidate",
+  "skillSha": "967376f685b4c12b813f90af66ae02aaf5a202fbf2b49171ba95756c17c72ece",
+  "inputSha": "5095c0eacee51f4d9409be6aef39af44a70f55ad9b6d428680f5e119d7bd1937",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Wave recovery: initial chain failed with no structured results\n\nThe chain returned neither `## Outputs` nor a matched `## Stop`. I therefore reconcile both dispatched tasks from this run's capture files. I do not repeat the chain, rerun any task, or read saved reports to relay statuses.\n\n## 1. Capture listing (run once)\n\n```bash\nls /tmp/chain-run/structured-output/*/output.json\n```\n\nSupplied observation:\n```text\n/tmp/chain-run/structured-output/a/output.json\n/tmp/chain-run/structured-output/b/output.json\n```\n\n## 2. Bounded capture reads (one file per read, no offset, no pagination)\n\n```ts\nread({ path: \"/tmp/chain-run/structured-output/a/output.json\", limit: 300 })\nread({ path: \"/tmp/chain-run/structured-output/b/output.json\", limit: 300 })\n```\n\nSupplied complete reads, validated against `IMPLEMENTER_STATUS_SCHEMA`:\n\n| File | Envelope | `value.status` | Conditional field | Identity | Result |\n|---|---|---|---|---|---|\n| a | `\"status\":\"success\"`, closing brace present | `DONE` | none required | `anchor: \"### Task 4:\"` matches the dispatched anchor exactly | **accepted for Task 4** |\n| b | `\"status\":\"success\"`, closing brace present | `NEEDS_CONTEXT` | `question` present | `anchor: \"### Task 5:\"` matches the dispatched anchor exactly | **accepted for Task 5** |\n\nEach task has exactly one valid matching capture, so no diagnosis dispatch is needed.\n\nObservations:\n```text\nwave <w> task 4 DONE report /tmp/reports/task4.md patch /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\nwave <w> task 5 NEEDS_CONTEXT report /tmp/reports/task5.md patch /tmp/chain-run/worktree-diffs/step-0/task-1-implementer.patch\n```\n\nI do not read either saved report:\n- Task 4 is `DONE` with no concerns.\n- Task 5's question is already in the structured `question` field.\n\n## 3. Integrate accepted `DONE` first (plan index order)\n\nPatch admission, then apply:\n\n```bash\ntest -s /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\ngit -C /workspace/project apply --index /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\n```\n\nSupplied observations: the patch is nonempty and apply exited 0.\n```text\nwave <w> integrated task 4\n```\n\nTask 5's zero-byte patch is not an integration failure. Patch admission applies only to `DONE` / `DONE_WITH_CONCERNS`, and a `NEEDS_CONTEXT` attempt is expected to produce no edits. Nothing is applied for Task 5.\n\nThe test gate (step 4) does not run yet, because Task 5 is still unresolved.\n\n## 4. Route Task 5's question\n\n**Classification:** the question asks for the value of a named artifact (\"Which fixture is named in the verification guide?\"). That makes it a fact ask, not a decision and not an amendment batch, so it goes to [lookup handling](./stop-note.md).\n\n**Lookup dispatch:** one delegated answer/evidence child. It is foreground, uses a fresh context, runs in the owning checkout, and uses the one-step carrier:\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"/workspace/project\",\n  chain: [{ parallel: [\n    { agent: \"delegate\",\n      output: \"/tmp/reports/wave<w>-task5-answer.md\", outputMode: \"file-only\",\n      outputSchema: ANSWER_SCHEMA,\n      task: \"Fact ask from implementer on planPath: /workspace/project/doc/plans/feature.md; anchor: ### Task 5:; Spec: /workspace/project/doc/specs/feature.md; Leg: project; Rules: <combined task/leg Rules from the manifest>, resolved in /workspace/project. Question: Which fixture is named in the verification guide? Documented location: /workspace/project/doc/verification.md. Perform one bounded lookup per documented location in documented order, stopping at the first hit; record each lookup and its result, including misses. Read the source yourself. Return a one-paragraph `answer` and one-line `evidence` entries (file:line + quoted text). Do not edit any file.\" }\n  ], stopOn: { path: \"/status\", in: [\"BLOCKED\"] } }]\n})\n```\n\n**Stopping here,** as requested. I will consume only `answer` and `evidence` from this dispatch. A delegated failure is a stop, with no recursive diagnosis.\n\n**Next step after the answer (not executed now):**\n- Re-dispatch Task 5's retained original payload verbatim, with the answer appended under `## Answer to your BLOCKED question`.\n- Because Task 4's patch has changed the integrated tree, dispatch from the repair-base snapshot with `worktree: true`.\n- Task 5's counter `failed[5]` takes +1 per the transition-table row at that re-dispatch.\n\n**Current state:**\n- Both tracker indices stay `in_progress`.\n- `failed[4]` is 0.\n- Task 4 will not be rerun.\n\n## Fallbacks\n\n**Missing conditional field or truncated capture.** Either of these makes the capture absent, never \"best-effort\" accepted:\n- `NEEDS_CONTEXT` without `question`, or `DONE_WITH_CONCERNS` without `concerns`\n- an error envelope or missing `value`\n- a stale or unmatched anchor\n- a read that ends before the closing brace\n\nRecovery for an absent capture:\n- I never re-read with an offset or paginate.\n- That task alone gets one delegated diagnosis.\n- The diagnosis is a sequential chain step (not a `parallel` item) with `agent: \"delegate\"`, `DIAGNOSIS_SCHEMA`, and `stopOn: { path: \"/decision\", in: [\"retry\",\"repair\",\"stop\"] }`.\n- The task text includes the literal line `Do not edit any file.`\n- `repair` leads to the ordinary one-step implementer carrier, and the failed counter takes +1.\n- Missing or ambiguous artifacts, or a delegated failure, lead to a stop.\n\n**Two captures claiming Task 5.** If two files both validly carried `anchor: \"### Task 5:\"`, I would stop and name both paths, without guessing which is authoritative and without dispatching diagnosis or the fact lookup for Task 5.\n",
+      "words": 701,
+      "wallMs": 33606,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The supplied captures are complete, identity-matched, and satisfy `IMPLEMENTER_STATUS_SCHEMA`. Recover Task 4 as `DONE` and Task 5 as `NEEDS_CONTEXT`; do not repeat the initial chain or diagnose either task.\n\n### Capture recovery\n\nThese are the concrete listing and bounded-read operations corresponding to the supplied observations—not additional executions:\n\n```bash\nls /tmp/chain-run/structured-output/*/output.json\n```\n\n```text\nread({ path: \"/tmp/chain-run/structured-output/a/output.json\", limit: 300 })\nread({ path: \"/tmp/chain-run/structured-output/b/output.json\", limit: 300 })\n```\n\nNo offset, pagination, or saved-report reads are needed.\n\n### Integrate the accepted sibling first\n\nPrint the recovered Task 4 observation:\n\n```text\nwave <w> task 4 DONE report /tmp/reports/task4.md patch /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\n```\n\nThe concrete patch-admission and integration commands are:\n\n```bash\ntest -s /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\ngit -C /workspace/project apply --index /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\n```\n\nThe supplied nonempty-patch and apply-exit-0 observations authorize:\n\n```text\nwave <w> integrated task 4\n```\n\n`<w>` denotes the existing wave identifier, which was not supplied. Task 4 stays `in_progress` until the wave passes its gate and review and commits.\n\n### Route Task 5’s fact question\n\nPrint its recovered observation:\n\n```text\nwave <w> task 5 NEEDS_CONTEXT report /tmp/reports/task5.md patch /tmp/chain-run/worktree-diffs/step-0/task-1-implementer.patch\n```\n\nDo not apply its zero-byte patch. This is a `NEEDS_CONTEXT` result, not the missing-patch failure rule for `DONE` / `DONE_WITH_CONCERNS`. The explicit structured question is sufficient; do not open `/tmp/reports/task5.md`.\n\nDispatch the documented fact lookup in the owning checkout:\n\n```js\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  chain: [{\n    parallel: [{\n      agent: \"delegate\",\n      output: \"/tmp/reports/task5-fixture-answer.md\",\n      outputMode: \"file-only\",\n      outputSchema: {\n        type: \"object\",\n        required: [\"answer\", \"evidence\"],\n        additionalProperties: false,\n        properties: {\n          answer: { type: \"string\" },\n          evidence: {\n            type: \"array\",\n            items: { type: \"string\" }\n          }\n        }\n      },\n      task: `Resolve Task 5's fact question: \"Which fixture is named in the verification guide?\"\nplanPath: /workspace/project/doc/plans/feature.md\nanchor: \"### Task 5:\"\nSpec: /workspace/project/doc/specs/feature.md\nLeg: project; Rules: combined task/leg Rules carried in the manifest, resolved in the owning checkout.\n\nDo not edit any file.\nThis is a source fact lookup, not a design choice.\nPerform one bounded lookup in /workspace/project/doc/verification.md, the supplied documented location. Stop at the first hit and return the named fixture with source evidence. Record the lookup and its result, including a miss if applicable. Do not invent another lookup location.\nDo not read or relay saved implementer reports.\nReturn ANSWER_SCHEMA JSON: answer as one paragraph, evidence entries one line each.\npi-cohort saves your final report; do not write it yourself.`\n    }],\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n})\n```\n\nThe carrier-only `/status` condition exposes successful answer JSON despite `ANSWER_SCHEMA` having no status field. Stop here: no lookup answer, Task 5 retry, test gate, or further counter change is asserted. Both supplied failed counters remain zero at this boundary.\n\n### Capture fallback and ambiguity\n\n- A capture missing a required conditional field—such as `question` for `NEEDS_CONTEXT` or `concerns` for `DONE_WITH_CONCERNS`—is not accepted. A read truncated before the closing brace is likewise absent; do not paginate.\n- For an absent capture, retain accepted siblings and dispatch one identity-matched artifact diagnosis using `DIAGNOSIS_SCHEMA` in a **sequential** foreground chain step, with `Do not edit any file.` on its own line. Diagnose once; follow its structured decision, not an inferred saved-report status.\n- If two valid captures claim `\"### Task 5:\"`, stop and name both capture paths. Do not choose one, perform a fact lookup, or recursively diagnose the ambiguity.\n",
+      "words": 501,
+      "wallMs": 19080,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "61072227b632f1891e617e492dec927d6d0ff0c5262acb7cb44b5e550489a715",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b81041f7ff7eb244cf77ede17604d6607614b045d2e2b9ab11a13d3912eb164e",
+      "baselineOutputSha": "699a813ab0666891ac00ba8f9cdfeb4651a5e97ea43bdef55061bd44d42b7a61",
+      "candidateOutputSha": "a9b5c750f50e0690a954604d0598ebdc1e7793f946a95b88573d99cef91f94eb",
+      "facts": {
+        "recover": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "sibling": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "rejected": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and additionally lands `rejected`: Before dispatched the fallback diagnosis with explicitly \"no `agent`\" and, for the duplicate-Task-5 case, only said \"I stop with a stop note\" without naming both capture paths, so it failed the named-diagnosis and both-paths requirements. After fixes both by giving the diagnosis step `agent: \"delegate\"` with the literal `Do not edit any file.` line and by stating the duplicate stop \"name[s] both paths, without guessing which is authoritative.\" Recovery (listing once, limit-300 reads with explicit no-offset/no-pagination, anchor identity table), sibling integration (`test -s` admission, apply with supplied exit 0, observations printed, indices in_progress, Task 4 not rerun), and question routing (foreground `async:false` ANSWER_SCHEMA carrier with the anchor and doc/verification.md, no invented answer, stop after dispatch) are all intact. Nothing to repair; if you want extra robustness, keep the duplicate-identity wording as a concrete stop-note line listing both file paths so it survives future compaction.",
+      "wallMs": 17222,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "61072227b632f1891e617e492dec927d6d0ff0c5262acb7cb44b5e550489a715",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b81041f7ff7eb244cf77ede17604d6607614b045d2e2b9ab11a13d3912eb164e",
+      "baselineOutputSha": "e4509d64da3b9880b9299aa761003b08e8ebd45279bb506a37228ae123da66fb",
+      "candidateOutputSha": "ef8e0ad0bb2481841f13c15ec1d4f0669f3821fed5e18b692a3effac6de00db6",
+      "facts": {
+        "recover": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "sibling": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "rejected": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves every fact in the intended direction: Before performed the bounded reads but still gated everything behind a whole-chain DIAGNOSIS_SCHEMA dispatch, made Task 4 integration and Task 5 routing conditional on that diagnosis, and handled duplicates by asking the diagnosis to flag them rather than stopping and naming both paths. After recovers both statuses directly from the identity-matched success captures with no diagnosis, shows the `test -s` admission and `git apply --index` for Task 4 before printing both per-task observations and routing Task 5, dispatches an anchored foreground answer/evidence delegate scoped to doc/verification.md with no invented answer, and reserves a sequential identity-matched diagnosis only for absent/invalid captures while stopping on duplicate identity with both paths named. One small tightening would make the recovery fact more explicit: state once that identity comes from `value.anchor` in the envelope rather than the `a`/`b` directory names (Before said this; After only implies it via 'identity-matched'), and avoid calling the envelopes direct instances of IMPLEMENTER_STATUS_SCHEMA when they are success envelopes wrapping it—neither point flips a fact, but both would keep the wording precise while delivering the Change.",
+      "wallMs": 19845,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e57328a3bd686e0a92961d8486b04c91279610fa"
+}

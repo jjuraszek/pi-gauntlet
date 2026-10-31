@@ -1,7 +1,7 @@
 {
   "sample": "flat-conforming",
   "arm": "candidate",
-  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
+  "skillSha": "124fc7e127d9ada3f5df4d74191592cac03af42ea0dba49874e3952e418873ef",
   "inputSha": "f9c163d858dbfe8e67a5c065a21ad44b2f6c9141d08461795bf3170fc2bda43a",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: yes — the spec covers all four widgets ticket rows verbatim with concrete design and verification. It correctly routes the mailer row to acme/mailer, which sits under a repo-group heading naming another repo.\nfindings:\n- [major] gap @ \"the mailer handoff reuses the existing export-ready event\" — The spec does not say whether widgets emits this event, when it fires, or what payload it carries. The download is a synchronous GET, so it is unclear what \"export-ready\" means. The mailer row needs a download link, but the spec never says how mailer gets that URL. Without this, mailer cannot satisfy its row. → State the emitter (widgets or none), the trigger point, and the payload fields, including the download URL (for example, `/widgets/export.csv`). If widgets emits nothing, say so and name who does. Add a widgets-side test that the event is emitted with that payload, or state that none is required. — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope\" — The row is already marked in-scope, so the conditional reads as optional. The spec also never states the pass criterion. → Reword to \"Run the 10000-widget benchmark; it passes when the complete response arrives within 60s.\" — probed: none\n- [minor] gap @ \"Request tests check the download headers, column order and CSV escaping, and header-only empty output\" — The verification plan does not cover the session-auth and owner-scoping behavior the Design asserts. Examples are an unauthenticated request being rejected and another user's widgets being excluded. → Add request tests for an unauthenticated request and for a cross-user exclusion. — probed: none\nlean: nothing to cut\n",
-      "words": 262,
-      "wallMs": 12981,
+      "text": "verdict: needs-work\naddresses-problem: yes — all four widgets ticket rows are carried verbatim and disposed `in-scope`, and the Design covers each one. The mailer row is `elsewhere: acme/mailer` and sits under the `### acme/mailer` repo-group heading, which names a repo other than acme/widgets, so that disposition is valid.\nfindings:\n- [major] ambiguity @ Design: \"the mailer handoff reuses the existing export-ready event\" — The spec never says whether widgets emits this event, when it fires, or what the payload holds. Export is a synchronous `GET /widgets/export.csv`, so an \"export-ready\" moment is not defined. The mailer row needs \"the download link\", but the spec does not say who supplies that link or in what form. An implementer cannot tell whether widgets must publish anything. → State whether widgets publishes the export-ready event and at what point, for example on Export click or never. Name the payload fields, including the download URL (`/widgets/export.csv` or a signed variant). Add a Verification line asserting the emission, or state explicitly that widgets emits nothing. — probed: none\n- [major] gap @ Verification: \"Request tests check the download headers, column order and CSV escaping, and header-only empty output\" — The Design puts the endpoint behind session authentication and limits it to the signed-in user's widgets. No test covers either property, so a cross-user data leak or unauthenticated access to a new data-export endpoint would go uncaught. → Add request tests asserting that an unauthenticated request is rejected or redirected. Add a test asserting that the CSV contains only the signed-in user's widgets when another user's widgets exist. — probed: none\n- [minor] ambiguity @ Verification: \"Run the 10000-widget benchmark for the 60s row when in-scope\" — The row is already disposed `in-scope`, so the conditional is dead wording that could be read as optional. The spec also does not say whether the benchmark is an automated test, a CI job, or a manual run, or what environment it runs in beyond \"local\". → Replace with \"Run the 10000-widget benchmark and assert the complete response arrives within 60s.\" Name where the benchmark lives and how it runs, for example a tagged test or a script path. — probed: none\n- [minor] ambiguity @ Design: \"Encode id, name, and status with standard CSV quoting\" — \"Standard\" is not pinned to a definition. The spec leaves open the line terminator (CRLF vs LF), whether to emit a BOM, and how to render a null name or status. The escaping test cannot assert exact bytes without these. → Cite RFC 4180, choose a line terminator, state that there is no BOM (or that there is one), and say how null or empty values render. — probed: none\nlean: nothing to cut\n",
+      "words": 429,
+      "wallMs": 16514,
       "mechanical": {
         "f2": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: sound\naddresses-problem: yes — The design covers CSV download, ordered columns, the 60-second benchmark, and header-only empty exports. The notification is correctly assigned to acme/mailer, matching the Human input repo grouping.\nfindings:\nlean: nothing to cut\n",
-      "words": 36,
-      "wallMs": 14404,
+      "text": "verdict: needs-work\naddresses-problem: yes — The design covers all four widgets requirements and correctly assigns the notification row to acme/mailer, matching the Human input repo grouping.\nfindings:\n- [major] ambiguity @ Design: “the mailer handoff reuses the existing export-ready event” — The event identifier, required payload, download-link construction, and emission trigger are unspecified. An implementer cannot determine how the synchronous download connects to the separately owned notification → Inline the existing event contract and specify whether this endpoint emits it or relies on an existing producer; keep email delivery outside widgets. — probed: none\nlean: nothing to cut\n",
+      "words": 92,
+      "wallMs": 11588,
       "mechanical": {
         "f2": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f08ffd7f891c2e0eb30016f0aa9f8ee643b4e1a52b9a712e15c966a76a0adb0d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "fa640095cdcb3d1abe1c714ff34c8556aa6a56b306ad2f1fa332a660fff6474f",
-      "candidateOutputSha": "fa640095cdcb3d1abe1c714ff34c8556aa6a56b306ad2f1fa332a660fff6474f",
+      "candidateOutputSha": "189f8f83d6adf94afd1412726a2fbc71b17783f8159313619ea0fc8f20a7d96e",
       "facts": {
         "f1": {
           "before": "holds",
@@ -53,16 +53,16 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical here: both carry three findings of kinds gap, ambiguity, and gap, none of kind scope, and none targets an acceptance-criteria row or its disposition, so f1 holds in both. The wording change produced no observable movement on this case, which is consistent with the Change's intent that ordinary spec reviews retain their existing assembly and behavior while only ticket-idea-overflow receives the new caller and wording-reference files. Nothing in After needs adjusting for this sample; if the author wants evidence that the revised brief is actually reaching the reviewer, a sample that exercises the expected-to-move ids (in-scope-excess/implementation-shrink and proof-shrink) is where the difference should surface, not this guard case.",
-      "wallMs": 5136,
+      "feedback": "Nothing moved on f1: neither Before nor After emits a finding of kind scope, and neither targets an acceptance-criteria row or its disposition — both outputs explicitly accept the five rows, the four `in-scope` dispositions, and the `elsewhere: acme/mailer` routing under the repo-group heading. After's additional findings (session-auth test gap promoted to major, benchmark mechanics, CSV quoting ambiguity) all target Design and Verification clauses with kinds gap/ambiguity, so the pr-source wording did not leak into scope findings on this case. The After wording as applied here keeps every fact Before kept; to stay safe as the pr-source instruction is exercised on specs that actually contain PR-sourced rows, keep the rule phrased so the finding kind remains gap with `pr-source` in the text rather than introducing or re-labeling a scope-kind finding against the row.",
+      "wallMs": 6689,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f08ffd7f891c2e0eb30016f0aa9f8ee643b4e1a52b9a712e15c966a76a0adb0d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "4e26c64bde536fd66d9d9988ac687c46575513e1ca643be246cbd257909c6d05",
-      "candidateOutputSha": "4e26c64bde536fd66d9d9988ac687c46575513e1ca643be246cbd257909c6d05",
+      "candidateOutputSha": "5a780c3d72f0920fd06438ddab017ae41da5a42acb10b9a0ea4e41e77a2ad6d9",
       "facts": {
         "f1": {
           "before": "holds",
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs are identical: no findings at all, so no scope finding targets any acceptance-criteria row or its disposition, and f1 holds in Before and After. The Change did not move anything on this already-passing baseline, which is the intended guard behavior for ordinary spec reviews that retain their existing assembly; keep the ticket-idea-overflow-specific wording (product-aware reader, example/Context bounds, displaced-detail recognition) scoped so it only loads for that skill, and nothing here needs adjusting.",
-      "wallMs": 3685,
+      "feedback": "f1 is unmoved: Before has no findings at all, and After's single finding is kind ambiguity aimed at the Design sentence about the export-ready event, not kind scope and not aimed at any acceptance-criteria row or its disposition, so a careful reader finds no scope finding against an AC row in either output. Nothing in the After wording disturbed this fact, and the case contains no PR-sourced clause, so the absence of a pr-source finding is consistent with the Change. To keep f1 safe while delivering the Change, keep the pr-source rule keyed to clauses whose only provenance is a PR title/body, and keep it from recasting an 'elsewhere' disposition on an AC row as a scope gap; if the author also wants to avoid the new ambiguity finding on a clause the spec explicitly assigns to mailer, add wording that a handoff to an owned-elsewhere component is not under-specified merely because its contract lives in the other repo.",
+      "wallMs": 9879,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

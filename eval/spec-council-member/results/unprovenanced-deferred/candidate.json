@@ -1,7 +1,7 @@
 {
   "sample": "unprovenanced-deferred",
   "arm": "candidate",
-  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
+  "skillSha": "124fc7e127d9ada3f5df4d74191592cac03af42ea0dba49874e3952e418873ef",
   "inputSha": "a60d261ef8ad0233723cb1cdb61a156355c8f830cfe0441139500cce8d1b7c26",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — the CSV download, column order and empty-header rows are designed. Mailer is correctly routed elsewhere. But the 60s performance row is deferred with no user authorization, and the design never limits the export to the requesting user's own widgets.\nfindings:\n- [blocker] scope @ \"An export of 10000 widgets completes within 60s. - deferred: acme/widgets#78\" (also Goal: \"The 60s performance row is deferred\") — `Human input` has no cut question and no user answer choosing to defer this row. The ticket lists it as an acme/widgets acceptance criterion, and the only instruction is \"Implement the widgets CSV export described in this ticket.\" The `deferred:` disposition is unauthorized. → Mark the row `in-scope`, remove the deferral sentence from Goal, and make the benchmark a required verification step. Alternatively, get a recorded user answer that explicitly picks this cut. — probed: Human input block - no cut question or answer present\n- [major] gap @ Design \"Read widgets in id order in batches of 1000\" — the problem says users download \"their widgets\". The design never scopes the query to the requesting user or account, and never states the authentication or authorization rule for GET /widgets/export.csv. As written, an implementer could export every widget in the table. → State that the endpoint requires an authenticated session and filters to the current user's or account's widgets, matching the collection page's scope. Add a request test showing another user's widgets are excluded and an unauthenticated request is rejected. — probed: none\n- [minor] ambiguity @ Verification \"Run the 10000-widget benchmark for the 60s row when in-scope\" — the conditional wording leaves it unclear whether the benchmark is a gate. The benchmark environment (\"10000 local widgets\") is also undefined: hardware, DB seeding, and whether the run happens in CI. → Make the benchmark unconditional, and name where it runs and what pass/fail threshold it asserts. — probed: none\n- [minor] oversimplification @ Design \"Read widgets in id order in batches of 1000\" — the design does not say whether the response is streamed as batches are read or buffered in full before sending. That choice affects memory use and the 60s target. → Specify streamed (chunked) output, or explicitly accept buffering with justification. — probed: none\nlean: nothing to cut\n",
-      "words": 357,
-      "wallMs": 13966,
+      "text": "verdict: needs-work\naddresses-problem: partial — the spec defers the ticket's \"An export of 10000 widgets completes within 60s\" row, and no recorded user answer approves that cut. It also never says which widgets an export contains, though the problem says users download \"their widgets\".\nfindings:\n- [blocker] scope @ Acceptance criteria \"An export of 10000 widgets completes within 60s. - deferred: acme/widgets#78\" and Goal \"The 60s performance row is deferred\" — The Human input contains only the verbatim ticket and the prompt sentence. It has no cut question and no user answer choosing to defer this row, so the deferral is unapproved. The tracker destination is well-formed, but that does not cure the missing approval. → Mark the row in-scope and verify it with the benchmark the Design already describes. Alternatively, ask the user a cut question about the 60s row and record their quoted answer in `## Human input` before keeping `deferred:`. — probed: none\n- [major] gap @ Design \"Read widgets in id order in batches of 1000\" — The problem says users export \"their widgets\", but the Design never defines the export's scope. It does not say whether the export covers the current user's widgets, an account's widgets, or every widget. It also does not say what authentication or authorization GET /widgets/export.csv requires, or how unauthenticated and unauthorized requests are handled. An implementer could expose every widget. → State the query scope, for example \"widgets owned by the authenticated user\". State the auth requirement and the response for unauthenticated and unauthorized requests. Add a request test proving that another user's widgets are excluded. — probed: none\n- [minor] ambiguity @ Verification \"Run the 10000-widget benchmark for the 60s row when in-scope\" — The conditional leaves it unclear whether this change runs the benchmark at all. The benchmark is also underspecified: it names no environment, runner, or row content and size, and gives no pass and fail threshold assertion. → Once the 60s row is in-scope, state that the benchmark runs in this change and name its environment and runner. Specify the representative widget field sizes and the assertion \"complete response under 60s\". — probed: none\nlean: nothing to cut\n",
+      "words": 344,
+      "wallMs": 11919,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — The design covers CSV download, column order, and empty exports, and correctly assigns email delivery to mailer, but defers the required 10000-widget performance criterion without human approval.\nfindings:\n- [blocker] scope @ Goal; Acceptance criteria, “An export of 10000 widgets completes within 60s. - deferred: acme/widgets#78”; Verification — Human input explicitly requires this performance criterion for acme/widgets and contains no cut question or user answer authorizing its deferral. Making the benchmark conditional leaves required performance unverified → Restore the row as in-scope and require the 10000-widget benchmark to demonstrate completion within 60s from request start to complete response. — probed: none\nlean: nothing to cut\n",
-      "words": 103,
-      "wallMs": 5910,
+      "text": "verdict: needs-work\naddresses-problem: partial — The design covers CSV downloads, required columns, and empty exports, and correctly assigns notification delivery to acme/mailer, but drops the required 60s performance commitment without human approval.\nfindings:\n- [blocker] scope @ Goal; Acceptance criteria: “An export of 10000 widgets completes within 60s. - deferred: acme/widgets#78”; Verification — The verbatim ticket requires this performance outcome in acme/widgets. Human input contains no cut question and user answer approving its deferral; naming a tracker destination does not authorize the cut. Conditional benchmark execution also leaves the requirement unverified → Restore the performance row as in-scope and require the specified 10000-widget benchmark to pass within 60s, or obtain an explicit human answer approving this row’s deferral. — probed: none\nlean: nothing to cut\n",
+      "words": 118,
+      "wallMs": 9408,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "d42fe855edd3f09545a9a4d3c5c99f2282bd6cfcd1bd30ba9250858588873355",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "81471d8bba926bf4a8ab1064a7ba77cb06b27fd8c67694d14cd354f1da0d1d58",
-      "candidateOutputSha": "81471d8bba926bf4a8ab1064a7ba77cb06b27fd8c67694d14cd354f1da0d1d58",
+      "candidateOutputSha": "80f0af0c5a0cd8be343e286be5ab303397fbd3e2f38e19e7f859d4e06d0cf866",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical for this case: both carry a [blocker] scope finding anchored on the 60s row's `deferred: acme/widgets#78` disposition (f1) and both return verdict needs-work (f2), so nothing moved here. This case is an already-passing baseline acting as a guard, and the Change (ticket-idea-overflow persona and the in-scope-excess implementation/proof-shrink simplifications) correctly left ordinary spec review assembly untouched. No wording adjustment is needed for this case; keep the unauthorized-deferral blocker logic as is and confirm the expected movement only on the in-scope-excess samples.",
-      "wallMs": 4648,
+      "feedback": "Both outputs keep every fact: each opens with a [blocker] scope finding anchored on the 60s row's `deferred: acme/widgets#78` disposition and both verdicts are needs-work, so the After wording did not move anything in this case. The After text actually tightens the blocker by naming the exact Human input contents and the remedy of recording a quoted cut answer, which is a good fit for the Change's emphasis on approved human input and asking the user for a scope decision before cutting. One drift worth noting: Before's blocker carried `probed: Human input block - no cut question or answer present` while After reports `probed: none` despite describing the same inspection, and After dropped the streaming/buffering oversimplification finding; neither affects f1 or f2, but if the Change wording causes the model to under-report its probes or trim unrelated findings, consider keeping the probe-reporting and finding-retention instructions explicit alongside the new pr-source rule.",
+      "wallMs": 8274,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d42fe855edd3f09545a9a4d3c5c99f2282bd6cfcd1bd30ba9250858588873355",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "2b59661633db92f7a95d051f4792fba360dffc22b5e093d4fcc3d6645ae68ead",
-      "candidateOutputSha": "2b59661633db92f7a95d051f4792fba360dffc22b5e093d4fcc3d6645ae68ead",
+      "candidateOutputSha": "37e400f510b58940abdda96fb8ac454228c039e3e6f4df712e5447a2e17df71f",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical: both carry a needs-work verdict and a single [blocker] scope finding that quotes the deferred 60s row and its acme/widgets#78 disposition, so f1 and f2 hold on both sides and nothing moved. This case is a passing baseline guard rather than one of the Expected-to-move samples, which is the intended outcome: the Change's reassembly for ticket-idea-overflow and the in-scope-excess simplifications did not alter how an ordinary spec review treats an unauthorized deferral of a verbatim human acceptance row. Keep the wording that anchors severity to the original clause and requires a cut question or human answer before a deferral is accepted; if the implementation-shrink and proof-shrink samples still fail elsewhere, address them with the named-sufficient-alternative language without touching the deferral rule exercised here.",
-      "wallMs": 5846,
+      "feedback": "Both outputs keep every fact: each has a blocker finding of kind scope anchored on the 60s row's deferred disposition, and each verdict is needs-work. After preserves Before's structure while tightening the reasoning (that naming a tracker destination does not authorize a cut, and offering the explicit-human-answer alternative), which aligns with the Change's intent to require an approved source or the user's scope decision before cutting. No fact moved; this case exercises only the unchanged scope-coverage path, so the pr-source wording did not fire here, which is correct since nothing in this spec is PR-sourced. Keep the current After wording; if anything, ensure the pr-source rule stays scoped so that deferred rows with human-input provenance like this one continue to be reported as scope blockers rather than pr-source gaps.",
+      "wallMs": 4821,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

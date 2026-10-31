@@ -1,4 +1,8 @@
+bundle-: skills/subagent-driven-development/implementer-prompt.md
+
 You are implementing Task 5: Reject a record posted in the future
+
+This is an inline dispatch without planPath, anchor or anchors. Preserve the replay's test-code-only response; invent no task identity or structured report.
 
 ## Task Description
 

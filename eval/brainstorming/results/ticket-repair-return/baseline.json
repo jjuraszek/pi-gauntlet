@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "baseline",
-  "skillSha": "46230ac73e4c7b5113a163f24e5ccaa63fb52be65622b5210b286d3ec2351e00",
+  "skillSha": "867a7be98b5d40c8722e85f07add513969691c9e792c647432c4f78a21a40bf4",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nThe repaired acme/widgets#77 row now reads \"The report-view setting uses the shared settings resolver,\" so I'm treating it as `in-scope` as written. The setting's default goes in `settings/resolver.ts:12`, and `ui/report-view.ts:30` reads the resolved value. I'll record that in the draft. What should a workspace switch do to the report filters?\nA) Always clear filters on a workspace switch. The setting only controls something else, and the hidden-rows bug is fixed for everyone.\nB) Clear filters on a workspace switch by default. The setting lets a user keep filters across workspaces.\nC) Keep filters across workspaces by default, as they behave today. The setting lets a user opt in to clearing them.\nD) Other - name it.\nRecommendation: B - it fixes the reported hidden-rows problem by default and keeps today's carry-over behavior available through the resolver.\n",
-      "words": 136,
-      "wallMs": 9504,
+      "text": "gauntlet: question\nThe repaired acme/widgets#77 now has one criterion, \"The report-view setting uses the shared settings resolver.\" I am treating that row as `in-scope`. It matches the path already traced from `settings/resolver.ts:12` into `ui/report-view.ts:30`, so it needs no further cut question. The framing stays kept.\n\nOne behavior is still undecided: what the new setting controls when the user switches workspaces. Today, filters stay active after a switch and can hide rows in the new workspace. Which outcome should ship?\nA) A setting `resetFiltersOnWorkspaceChange`, default on - switching workspaces clears all report filters unless the user turns it off.\nB) The same setting, default off - today's carry-over stays the default, and users opt in to clearing.\nC) A setting with a \"prune\" mode - on a switch, only filters that reference values missing from the new workspace are dropped, and valid filters carry over.\nD) other - name it.\nRecommendation: A - the reported harm is rows hidden by stale filters, and a default-on reset fixes that for every user while still letting anyone who wants carry-over keep it.\n",
+      "words": 174,
+      "wallMs": 10454,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nThe saved repair to acme/widgets#77 is verified, and its acceptance criterion now requires the shared settings resolver. That settles settings ownership; filter behavior on workspace changes remains undecided.\n\nWhat should the new setting let users choose?\nA) Reset filters on workspace changes versus keep the current filters.\nB) Restore each workspace’s last-used filters versus keep the current filters.\nC) other - name it.\nRecommendation: A - resetting directly addresses filters hiding rows in the newly selected workspace, without adding per-workspace filter storage.\n",
-      "words": 82,
-      "wallMs": 11307,
+      "text": "gauntlet: question\nThe saved repair to acme/widgets#77 now requires the shared settings resolver, matching the verified resolver-to-report-view path. I’ll retain that ownership decision. What behavior should the new setting select when switching workspaces?\nA) Reset report filters so filters from the previous workspace cannot hide rows.\nB) Preserve report filters across workspace changes.\nC) Restore each workspace’s own last-used filters.\nD) other - name it.\nRecommendation: A - it directly addresses the reported hidden-row problem without introducing per-workspace filter storage.\n",
+      "words": 78,
+      "wallMs": 8283,
       "mechanical": {}
     }
   },
-  "repoSha": "775bf0a2788e77aa278cb75bf25cbcc0dfceef8d"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

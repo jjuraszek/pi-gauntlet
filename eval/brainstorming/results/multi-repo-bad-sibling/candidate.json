@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "613ff3840a138612092c7a6ed3db6b35c885c934ce7db66ce74b6ecb8ca3e8ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
-      "baselineOutputSha": "111f0775e7f7a8801c990c92aeed920a1b73d93cc8e717aaab25b55bcaa4f724",
+      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "baselineOutputSha": "a0e011151d9735bca6064c469bd7fa0a60883b79b0d1283fd8982e38057e9878",
       "candidateOutputSha": "a0e011151d9735bca6064c469bd7fa0a60883b79b0d1283fd8982e38057e9878",
       "facts": {
         "reject": {
@@ -44,15 +44,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this sample: both outputs stop all three runs at membership validation before any tree is created, quote the selected declaration `- sibling: git@github.com:acme/repo-b.git`, give the correct per-run cause (A missing PATH, B symlink canonicalized to `/work/repo-a` equal to home, C existing non-repository), and state that unselected repo-c is never probed so its missing checkout raises nothing. After's wording is slightly tighter (explicit 'After canonicalization', explicit 'no preserved legs', the PATH derivation `<home PRIMARY parent>/<NAME>`) and keeps every element the fact keys on; no change to the After wording is needed for this fact, though keeping an explicit 'stopped before probing its origin' note in Run B, as Before had, would make the pre-remote-check ordering even more unambiguous for future readers.",
-      "wallMs": 7856,
+      "feedback": "Before and After are textually identical, so nothing moved: both narrate Runs A, B, and C stopping with a blocking error before any worktree creation, each naming the selected `- sibling: git@github.com:acme/repo-b.git` declaration under `## shape-ticket` and its specific cause (A: PATH `/work/repo-b` does not exist; B: canonicalized to `/work/repo-a`, which equals the home checkout, with the canonicalization stated before the comparison; C: exists but is not a git checkout), and both explicitly state that the unselected `git@github.com:acme/repo-c.git` is never probed and its missing checkout causes no error. The Expected-to-move entry anticipates a fails->holds transition, but the Before output already satisfies every clause of the fact, so the After wording preserves it without delivering any observable change on this sample; if the author intended the Change to be visible here, the wording would need to add something not already present (e.g., an explicit per-run statement that validation ran before the creator was invoked), but no wording adjustment is required to keep this fact holding.",
+      "wallMs": 8720,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "613ff3840a138612092c7a6ed3db6b35c885c934ce7db66ce74b6ecb8ca3e8ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
-      "baselineOutputSha": "a24345424b94f43c240d34163d6cea5dacf6fc3385de3756ba232427c10da052",
+      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "baselineOutputSha": "e4ee0d5b91d4886bd823624dc65c2db44ff6c67274f1feaf28e89aeafc8f347a",
       "candidateOutputSha": "e4ee0d5b91d4886bd823624dc65c2db44ff6c67274f1feaf28e89aeafc8f347a",
       "facts": {
         "reject": {
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps the fact: each run blocks before any tree creation, names the selected companion and its declaration (Run A quotes `git@github.com:acme/repo-b.git`; B and C name `acme/repo-b` and `/work/repo-b`), gives the missing/equal-home/non-checkout cause, canonicalizes B explicitly before the home comparison, and states the unselected `acme/repo-c` checkout is not probed. Nothing moved. Minor polish: Runs B and C name the companion by slug and path but not the declared remote string the way Run A does — if a stricter judge keys on 'naming the selected declaration' per run, repeat `git@github.com:acme/repo-b.git` in B and C's first lines; and the 'Approaches message: Deferred' framing is fine but could drop the implied design-exploration step since the fact only requires a stop before creation.",
-      "wallMs": 9047,
+      "feedback": "Before and After are textually identical, so nothing moved on this case: both outputs stop all three runs before any creation (\"No trees have been created\"), identify the selected declaration (Run A quotes git@github.com:acme/repo-b.git with its /work/repo-b path; Runs B and C name the selected companion acme/repo-b and its path), give the correct cause per run (missing, equal-home after canonicalizing /work/repo-b to /work/repo-a, not a Git checkout), and explicitly leave the unselected acme/repo-c checkout unprobed. The expected fails -> holds movement for multi-repo-bad-sibling/reject is not observable here because the Before arm already satisfied the fact; the After wording preserved it. If you want the fact to key more strictly on the declaration, have Runs B and C also quote the full git@github.com:acme/repo-b.git declaration string as Run A does, but no change is needed to keep the fact holding while delivering the coordinated-flow change.",
+      "wallMs": 10792,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

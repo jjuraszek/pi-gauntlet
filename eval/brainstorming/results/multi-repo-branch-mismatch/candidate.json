@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
-      "baselineOutputSha": "7e376b66ddc0c8582a07da440f4a1fc81fa660cea1d0dc48d30290fc66d7e0b2",
+      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "baselineOutputSha": "31595bf46d1e8bd2bc5aeead8bd07451a9d537aa2108ba8f9b0757608bef0c3c",
       "candidateOutputSha": "31595bf46d1e8bd2bc5aeead8bd07451a9d537aa2108ba8f9b0757608bef0c3c",
       "facts": {
         "mismatch": {
@@ -49,15 +49,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Run A and Run F in After still stop naming repo-b with the requested `feature/shared-change` against `feature/other` / no result, treat the absent read-back as a failed condition rather than equality, emit no `Worktree ready at` for repo-b, and print a `Preserved created legs:` block with both the home tree and the created repo-b tree while stating nothing is removed. Runs B, C, D stop before the creator without suffixing or reusing, D aborts on decline, and E asks exactly once without guessing. The one place After weakens the text is the retention inventory for B–E: Before listed the home leg concretely (`repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change`), whereas After hedges to \"the repo-a home tree, if this run created it\" and never prints the path, which a stricter reader of \"retains already-created legs\" could question. To keep every fact robustly while still delivering the Change, keep the explicit assumption Before made (home succeeded at the known path, as in A and F) and render the same `Preserved created legs:` listing with the home path in B–E; also note that E's `Recommendation: none - ...` line is a departure from Before's concrete recommendation that the preflight fact does not key on, but if the questionary rules require a labeled recommendation elsewhere, prefer Before's `Recommendation: A - ...` form.",
-      "wallMs": 15036,
+      "feedback": "Before and After are textually identical for this sample, so nothing moved: Run A names repo-b with requested feature/shared-change versus observed feature/other and lists both the home tree and the repo-b tree under `Preserved created legs:` with nothing removed; Run F treats the absent branch read-back as a failed read-back rather than equality, emits no `Worktree ready at` for repo-b, and lists both created trees; Runs B and C stop before the creator on branch/path collision without suffixing or reuse, D stops on the human's decline with no auto-stash, and E asks exactly once for `<subproject>` without guessing, each retaining the home tree. The amendment-surface section 5 change did not touch this coordinated-flow narration, so no wording adjustment is needed here; keep the shared-setup paragraph and the per-run `Preserved created legs:` blocks as they are.",
+      "wallMs": 10483,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "cdf08397ddfeb98021724400f463536362101a297ff7e52942731c095f4974a2",
-      "baselineOutputSha": "0c71d2b81c03e50aa581bcd068083d6751046b9a61f1a83af786030669f85ce2",
+      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "baselineOutputSha": "398d299068bbb050a782acc74af3de7e64390e3bfb8c6b3dd494785222d6e0cf",
       "candidateOutputSha": "398d299068bbb050a782acc74af3de7e64390e3bfb8c6b3dd494785222d6e0cf",
       "facts": {
         "mismatch": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. In After, Run A still stops naming repo-b with observed `feature/other` versus requested `feature/shared-change`, withholds the repo-b `Worktree ready at` line, and lists both created legs under `Preserved created legs:`; Run F now states the requested branch and the unavailable read-back explicitly (an improvement over Before, which only implied the expected branch via step 1) and keeps the same two-leg preservation list. Runs B and C stop before the creator without suffixing or reuse and name the colliding ref/path, D stops on decline without stash/clean/test fallback, and E asks once and waits. The one soft spot shared by both outputs is Run E, which never says the already-created home tree is retained; adding a short 'Preserve any already-created home tree' line to E (as B, C and D have) would make the 'each retains already-created legs' clause explicit rather than inferred from the absence of any deletion.",
-      "wallMs": 16076,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both run A stops repo-b naming expected feature/shared-change vs observed feature/other and lists the preserved home leg; both run F stops on the unavailable read-back, withholds the repo-b `Worktree ready at` line, and lists `Preserved created legs:` with both the home tree and the unverified repo-b tree; B and C stop before the creator without suffixing or reusing, D stops on the decline, and E asks once for the subproject and waits. The only soft spot in both outputs is run E, which never states explicitly that the already-created home leg is retained (it is only implied by waiting without executing); if the After wording wants to make the preflight fact unambiguous, add an explicit 'Preserve any already-created home tree' line to E matching B/C/D while leaving everything else as is.",
+      "wallMs": 11434,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "c2b7b4a3807aa37371fd47ebd2e1b55014c706fc"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

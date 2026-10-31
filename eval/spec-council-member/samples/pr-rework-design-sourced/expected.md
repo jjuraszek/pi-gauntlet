@@ -1,0 +1,2 @@
+- design: judged: Produces no PR-source finding on the agreed-design-sourced acceptance row or Design commitment, despite reviewing a PR rework spec.
+- provenance: judged: Produces no PR-source finding on supersedes, Rework record, Problem thread lists, PR under rework, or other PR-number provenance; does not recommend deleting these mentions.

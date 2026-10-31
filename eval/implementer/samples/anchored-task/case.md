@@ -1,3 +1,5 @@
+bundle-: skills/subagent-driven-development/implementer-prompt.md
+
 Sample: anchored-task
 
 Dispatch:

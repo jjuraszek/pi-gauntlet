@@ -1,0 +1,80 @@
+{
+  "sample": "implement-amend-plan-untracked",
+  "arm": "candidate",
+  "skillSha": "639814fc19399a93031910a4187eda28318b480210ba824af14ca798cbdf28a2",
+  "inputSha": "d737d6c9720c6dcca6b86127b836d2adf332416a43bfee1122d0428b58da5db4",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Plan-writer: implement-phase `Amend-apply:` fails at the committed-original read\n\n## Routing\n\nThe task carries an implement-phase `Amend-apply:` block. That routes me to the implement-only amendment mode, not the ordinary procedure. My output is the mode's structured object, written in full to the saved report. I do not produce a regenerated plan body or the one-line `PLAN WRITTEN` / `OPEN QUESTIONS` reply. I do not call trackers and do not dispatch any children.\n\n## What I read\n\n1. **The current spec and plan.**\n   - `/workspace/app/doc/specs/new.md` exists on disk.\n   - `/workspace/app/doc/plans/new.md` exists on disk.\n\n2. **The committed home plan original, before any edit.**\n   - Command: `git -C /workspace/app show HEAD:doc/plans/new.md`\n   - Result: exit 128.\n   - stderr: `fatal: path 'doc/plans/new.md' exists on disk, but not in 'HEAD'`\n\n3. **No substitutes for the missing original.** The contract requires the comparison inventory to come from both committed originals. That inventory covers task numbers, titles, anchors, wave positions, anchored obligation text, task bodies, Tests, and historical baseline evidence.\n   - The on-disk plan does not qualify. It may already differ from HEAD.\n   - `previousApplyReport` is for prior findings only, never baseline or inventory copies.\n   - I add no sidecar and do not reconstruct an original.\n\n   Without the original I cannot compute pre-apply task deltas. I also cannot validate retained baseline provenance.\n\n4. **The committed spec read** (`git -C /workspace/app show HEAD:doc/specs/new.md`) cannot rescue the apply. Both originals are required. The rule \"if either read fails, write nothing\" is already triggered by the plan read.\n\n## Writes\n\nNone.\n- I do not write the granted one-bullet correction into `doc/specs/new.md`, even though it was granted.\n- I make no edit to `doc/plans/new.md`.\n- I run no Baseline commands, no `Tests:` commands, and no `plan_check`.\n- I make no commit, stash, restore, or clean.\n\n## Structured result\n\n```json\n{\n  \"amendedSections\": [],\n  \"tasksAdded\": [],\n  \"tasksAnchorChanged\": [],\n  \"tasksRemoved\": [],\n  \"passed\": false,\n  \"failLines\": [\n    \"baseline read failed: git -C /workspace/app show HEAD:doc/plans/new.md - fatal: path 'doc/plans/new.md' exists on disk, but not in 'HEAD'\"\n  ]\n}\n```\n\nThe saved report records:\n- the exact command, exit code 128, and the first stderr line;\n- that no file was written;\n- that the granted edit is still pending.\n\nThe parent owns the one-failure retry and escalation, plus stamping and tracker reconciliation. A retry would need the plan committed on the home branch first. Even then I would reread both committed originals and use `previousApplyReport` only for findings.\n\n## Comparison: jj-only checkout without a git HEAD\n\nIn plain jj (no `.git`), the two admitted reads are git-specific (`git -C <home> show HEAD:<path>`), and they have no git HEAD to read from. The contract says to **fail closed for jj-only without git HEAD**.\n\nI do not substitute jj commands such as `jj file show`. Only those two git reads are admitted as extra bash permission in this mode, and the jj commands allowed elsewhere are Baseline-provenance diffs, not original reads.\n\nThe outcome is identical:\n- no writes, no Baseline, no checker;\n- `passed: false`;\n- `failLines[0]` begins `baseline read failed: git -C /workspace/app show HEAD:doc/plans/new.md`, followed by that command's actual first stderr line (for example, a not-a-git-repository diagnostic), preserved verbatim.\n\nThe difference is in the cause:\n- **Git case:** the repository exists, but the plan was never committed. Committing the plan makes a retry possible.\n- **jj-only case:** the mode is structurally unavailable. No retry can succeed until a git HEAD exists, so this escalates to the parent and human rather than to a mechanical retry.\n",
+      "words": 542,
+      "wallMs": 20344,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Before editing, attempt the required committed-plan read:\n   ```bash\n   git -C \"/workspace/app\" show HEAD:doc/plans/new.md\n   ```\n   Observed: exit 128; first stderr line:\n   ```text\n   fatal: path 'doc/plans/new.md' exists on disk, but not in 'HEAD'\n   ```\n\n2. Stop without writing anything. Neither the on-disk plan nor `previousApplyReport` substitutes for the committed original. Do not apply the granted spec correction, patch the plan, run Baseline, or call `plan_check`.\n\n3. Return the implement-only structured failure:\n   ```json\n   {\n     \"amendedSections\": [],\n     \"tasksAdded\": [],\n     \"tasksAnchorChanged\": [],\n     \"tasksRemoved\": [],\n     \"passed\": false,\n     \"failLines\": [\n       \"baseline read failed: git -C \\\"/workspace/app\\\" show HEAD:doc/plans/new.md — fatal: path 'doc/plans/new.md' exists on disk, but not in 'HEAD'\"\n     ]\n   }\n   ```\n\nA jj-only checkout without git HEAD also fails closed, with no writes. Report the exact failed committed-original read and its actual diagnostic; do not substitute jj history or invent baseline evidence.\n\nThis mode returns structured output, not a `PLAN WRITTEN` or `OPEN QUESTIONS` line.\n",
+      "words": 138,
+      "wallMs": 10759,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5a8d604b76eb3f92959655ba9a1adea10a28b61c587385885565f14e87039c69",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "d99b75b6d5992f4022b371b04b0edacc0e65b0dca4d03715bc9f72edc6b803c7",
+      "candidateOutputSha": "5577093f8a2396436ad15e3c40d34a079a5db6d2498c89cb628d5b1939c2b1ee",
+      "facts": {
+        "write-free": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "marker": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves both facts to holds: it treats the failed `git -C /workspace/app show HEAD:doc/plans/new.md` read as terminal, writes neither spec nor plan, explicitly refuses the on-disk plan and `previousApplyReport` as inventory substitutes, fails closed in the jj-only comparison, and emits `passed: false` with `failLines[0]` starting `baseline read failed: git -C /workspace/app show HEAD:doc/plans/new.md` followed by the verbatim stderr line. Before failed both because it declared the HEAD miss a non-failure, rebuilt the inventory from the saved report, performed full-file writes to both files, and only produced a failure object in a conditional branch with a different, prose-style message. Nothing in After regressed; one minor sharpening would be to state in the jj-only section that the stderr fragment is not illustrative but the literal first line the failed command emits, so a reader does not mistake the parenthetical example for an approved ellipsis.",
+      "wallMs": 10875,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5a8d604b76eb3f92959655ba9a1adea10a28b61c587385885565f14e87039c69",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "8b71108a005464a083ce3a0c29b2846aaaba2e0079b3ff96c832c86d65a5f922",
+      "candidateOutputSha": "c6210394a7960e8fd646df0ad54aad9b703004a9184560f5aa2391a2fc17b1a7",
+      "facts": {
+        "write-free": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "marker": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before failed both facts because it explicitly declined to require the committed original, substituted the saved previousApplyReport inventory for the failed HEAD read, and in the inventory-present branch went on to full-file-write both the spec and the plan; its failure line was also the generic 'Missing original inventory...' rather than the command/stderr marker. After moved both facts to holds: it attempts the committed-plan read, stops with no spec/plan writes, refuses both disk content and the saved report as substitutes, states that jj-only without git HEAD fails closed, and returns passed false with failLines[0] beginning 'baseline read failed: git -C ' followed by the real stderr line naming doc/plans/new.md with no ellipsis. One risk to tighten: the case and fact spell the command as `git -C /workspace/app show HEAD:doc/plans/new.md` without quotes, while After renders `git -C \"/workspace/app\"`; a stricter reader could call that not literally exact, so emit the command unquoted (verbatim as supplied) in both the bash block and failLines[0] to keep the marker fact robust while preserving everything else in the current wording.",
+      "wallMs": 15565,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+}

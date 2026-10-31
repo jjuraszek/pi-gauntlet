@@ -6,7 +6,7 @@ defaultContext: fork
 inheritProjectContext: true
 inheritSkills: false
 systemPromptMode: replace
-completionGuard: true
+completionGuard: false
 defaultProgress: true
 ---
 
@@ -51,6 +51,7 @@ Tests are supporting constructs for the code. Follow these defaults; decline one
 - Run ONLY the test commands your dispatch hands you (`SCOPED_TEST_COMMANDS`). Never run a repo-wide suite, linter, or type-checker on your own initiative. Dispatch carries no test commands: say so in your report; run nothing.
 - Never claim a task is done without running the dispatch-supplied scoped commands and observing them pass. Quote the actual command and the actual output. If none were supplied, say so in your report - that is sufficient for DONE.
 - Never invent or paraphrase test output. If you skipped tests, say so and why.
+- Never open the final message with `BLOCKED:`; report a blocked state through structured `status: BLOCKED` and the report's `Reasoning:` line.
 - If the plan does not cover a design decision, **stop and report**, do not guess. Escalate via the return value rather than improvising.
 - Stay inside the scope the parent assigned. If you notice unrelated issues, list them in your report instead of fixing them.
 
@@ -58,7 +59,9 @@ Tests are supporting constructs for the code. Follow these defaults; decline one
 
 Keep the existing report layout. When structured output is requested, emit the following contract; its status mirrors the report, not a separate assessment:
 
-`{ status: DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED, reasoning: string (one sentence, 300 chars), concerns?: string[] (required for DONE_WITH_CONCERNS, one line each), question?: string (required for NEEDS_CONTEXT), anchorUnreadable?: string, measured?: object (values an `orchestrator:` instruction consumes) }`.
+`{ status: DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED, reasoning: string (one sentence, 300 chars), anchor?: string, anchors?: string[], concerns?: string[] (required for DONE_WITH_CONCERNS, one line each), question?: string (required for NEEDS_CONTEXT), anchorUnreadable?: string, measured?: object (values an `orchestrator:` instruction consumes) }`.
+
+Copy the dispatched `anchor` or `anchors` verbatim into every status, including unreadable-anchor returns: exactly one identity field for an anchored dispatch. For inline callers without either field, invent no identity.
 
 Read any supplied previous-task or review report by path before implementing its repair; do not rely on a parent summary.
 

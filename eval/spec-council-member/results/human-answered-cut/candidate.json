@@ -1,7 +1,7 @@
 {
   "sample": "human-answered-cut",
   "arm": "candidate",
-  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
+  "skillSha": "124fc7e127d9ada3f5df4d74191592cac03af42ea0dba49874e3952e418873ef",
   "inputSha": "b283a91fbb4bccc3821ab9fbce4af854c4a0f5cc04e4beb2dbdb0e2c85c89577",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: yes — The spec delivers the three in-scope widgets rows: Export link download, id/name/status column order, and header-only empty output. The 60s row is deferred to acme/widgets#78, which the user picked by answering C to the cut question. The mailer row is routed `elsewhere: acme/mailer` and sits under the `### acme/mailer` group, which is a different repo from acme/widgets.\nfindings:\n- [major] gap @ Design: \"the mailer handoff reuses the existing export-ready event\" — The export is a synchronous GET that streams the CSV straight back. The spec never says whether widgets emits the export-ready event, when it does so (request start, after the last byte, never), or what payload it sends (download link, user id). The mailer row depends on that handoff, but no widgets-side trigger is specified. Verification also has no test that the event fires. → State whether and when `/widgets/export.csv` emits the export-ready event and list its payload fields, including the download URL. Add a request test that asserts the event is emitted with that payload, or state explicitly that widgets emits nothing and mailer subscribes some other way. — probed: none\n- [minor] ambiguity @ Design: \"Read widgets in id order in batches of 1000\" — The ticket answer says \"paging ships next sprint\" (acme/widgets#78). The spec does not say whether this batching is a server-side read detail or the paging that was deferred. An implementer could build part of #78 here. → Clarify that batching is an internal read strategy only, with no paging in the response or API, and that #78 owns paging. — probed: none\n- [minor] over-spec @ \"The benchmark uses 10000 local widgets and measures from request start to the complete response.\" — no human input requires this (closest human input: \"A: C) deferred: acme/widgets#78 - paging ships next sprint\"); adds: 0 files / 1 tests / 0 ACs; if cut, unprotected: nothing → cut (move the benchmark definition, and the matching \"Run the 10000-widget benchmark for the 60s row when in-scope\" Verification line, to acme/widgets#78)\nlean: 1 over-spec findings above\n",
-      "words": 325,
-      "wallMs": 17823,
+      "text": "verdict: needs-work\naddresses-problem: yes — The spec covers the widgets-owned rows (download, column order, header-only empty export). The 60s row is deferred to acme/widgets#78, and Human input carries the cut question with the user's answer \"C) deferred: acme/widgets#78\". The mailer row is `elsewhere: acme/mailer`, and its Human input row sits under the `### acme/mailer` repo group, which is not this repo (acme/widgets). All five ticket AC rows appear verbatim.\nfindings:\n- [major] gap @ Design: \"The endpoint sits behind the existing session authentication and reads only the signed-in user's widgets through the existing owner-scoped repository\" vs Verification — No test covers the access-control claims. An unauthenticated request, or a CSV that leaks another user's widgets, would still pass every listed test. → Add request tests to Verification: an unauthenticated GET /widgets/export.csv is rejected (name the expected status or redirect), and a signed-in user's export excludes widgets owned by another user. — probed: none\n- [major] ambiguity @ Design: \"the mailer handoff reuses the existing export-ready event\" — The spec never says when or where widgets emits this event, what payload carries the download link, or whether the synchronous GET emits it at all. The download is immediate, so the trigger point is unclear. An implementer cannot tell whether to emit the event per request, before or after the response completes, or not at all. → State the emitting call site and trigger (e.g. \"after the export response completes, publish export-ready with {user_id, url: /widgets/export.csv}\"), or state that widgets emits nothing new and mailer consumes an existing emission. Add a test asserting the emission, or its absence. — probed: none\n- [minor] oversimplification @ Design: \"Read widgets in id order in batches of 1000\" — The spec does not say whether the response is streamed or buffered, or what happens if a batch read fails after headers and partial rows are sent. A truncated but well-formed-looking CSV is possible. → Choose buffered or streamed. If streamed, state the failure behavior (e.g. abort the connection so the client sees an incomplete download rather than a silently short file). — probed: none\n- [minor] ambiguity @ Verification: \"Run the 10000-widget benchmark for the 60s row when in-scope\" — That row is deferred in this spec, so it is unclear whether the benchmark runs in this change. → State explicitly that no benchmark runs here and that the procedure is recorded for acme/widgets#78. — probed: none\nlean: nothing to cut\n",
+      "words": 384,
+      "wallMs": 15434,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: sound\naddresses-problem: yes — Delivers CSV downloads with the required columns and header-only empty output. The timing row is deferred to the tracker issue explicitly chosen by the user, and notification ownership correctly remains with acme/mailer.\nfindings:\nlean: nothing to cut\n",
-      "words": 41,
-      "wallMs": 6772,
+      "text": "verdict: sound\naddresses-problem: yes — Delivers the CSV download requirements remaining in scope, preserves the explicitly approved timing deferral to acme/widgets#78, and correctly assigns the notification requirement to acme/mailer.\nfindings:\nlean: nothing to cut\n",
+      "words": 33,
+      "wallMs": 7123,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "127f9fdae51f93fb4ce1e1c2ce18d72498a1bac8ea178181b316253a24cd34a8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "29b1c06f66bdd0fb8e9d4afe9eaeaa7dbfb07fa4ea4c068ebf86990518bb6c48",
-      "candidateOutputSha": "29b1c06f66bdd0fb8e9d4afe9eaeaa7dbfb07fa4ea4c068ebf86990518bb6c48",
+      "candidateOutputSha": "d2670c60a619ada43496393369b7367969e8203d27de6a438ba04bb996afabfe",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical on this case, so no fact moved. Both outputs emit three findings (gap, ambiguity, over-spec) and none of kind scope: the 60s row is never the target of a scope finding (the over-spec finding addresses the benchmark sentence, not the row's deferral), and the mailer row's elsewhere: acme/mailer disposition is accepted in addresses-problem rather than contested. This confirms the Change's intent that ordinary spec reviews keep their existing assembly and behavior untouched; the revised wording for ticket-idea-overflow and the in-scope-excess simplifications did not leak into this review. No wording adjustment is needed for this case — keep the gating that limits the new caller-brief and wording-reference files to ticket-idea-overflow so ordinary reviews continue to produce this unchanged output.",
-      "wallMs": 6811,
+      "feedback": "Neither fact moved: Before and After both leave the 60s row's deferred disposition and the mailer row's elsewhere: acme/mailer disposition untouched by any finding of kind scope, and both addresses-problem paragraphs explicitly credit the user's C answer and the ### acme/mailer repo group as the source of those dispositions. The only drift is in surrounding kinds, not scope: Before raised the benchmark sentence as a minor over-spec cut (anchored to the deferred row, with the cut routed to acme/widgets#78 and an explicit unprotected-nothing assessment), while After instead files a minor ambiguity on the \"when in-scope\" Verification line and adds a new major gap on untested access-control claims plus an oversimplification on streamed/buffered failure behavior. Since the Change is about pr-sourced clauses and in-scope excess simplifications, and this case has no PR-sourced text, After's wording is already safe for these facts; to keep the over-spec/cut behavior Before showed on the benchmark clause, the After instructions should state that deferred-row residue in Design and Verification is still reported as over-spec with a named sufficient alternative (move it to the deferral ticket) rather than being recast as ambiguity, while continuing to never issue a kind-scope finding against a human-chosen deferred disposition or an elsewhere disposition that matches a different repo group.",
+      "wallMs": 16285,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "127f9fdae51f93fb4ce1e1c2ce18d72498a1bac8ea178181b316253a24cd34a8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "c2750d0854e96f117c2d2c28a3749c0004c38ae04178822e262afa0de84dc940",
-      "candidateOutputSha": "c2750d0854e96f117c2d2c28a3749c0004c38ae04178822e262afa0de84dc940",
+      "candidateOutputSha": "578d9fc543da4854df62275ff5046d3d8e38d65854f047a28072af4025552057",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical: both return verdict sound with an empty findings list, so no scope finding targets the deferred 60s row and none targets the mailer row's elsewhere disposition; f1 and f2 hold in both and nothing moved. This case is a guard, not a case the Change was expected to alter — the expected-to-move ids (in-scope-excess/implementation-shrink and proof-shrink) belong to a different sample, and here the human's explicit choice C and the mailer-owns-notification line are respected without a finding, which is the correct outcome. No wording adjustment is needed for this case; keep the After wording as is, and confirm the implementation-shrink and proof-shrink movement on the sample that actually exercises it.",
-      "wallMs": 4906,
+      "feedback": "Both Before and After return verdict sound with an empty findings list, so neither emits any scope finding against the deferred 60s row or against the mailer row's elsewhere: acme/mailer disposition; f1 and f2 hold in both. After's addresses-problem line is slightly tighter (it names acme/widgets#78 and 'explicitly approved timing deferral'), which is a harmless phrasing shift. The Change's pr-source and in-scope-excess moves are not exercised by this case because nothing here is PR-sourced and the design has no excess to shrink, so no wording adjustment is needed; keep the current behavior of honoring the human's deferral answer and the elsewhere disposition without scope findings, and make sure the new pr-source rule stays gated on an actual PR title/body source so it never fires on ticket- or answer-sourced rows like these.",
+      "wallMs": 5296,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

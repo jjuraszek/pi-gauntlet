@@ -1,0 +1,90 @@
+{
+  "sample": "implement-amend-from-head",
+  "arm": "candidate",
+  "skillSha": "639814fc19399a93031910a4187eda28318b480210ba824af14ca798cbdf28a2",
+  "inputSha": "35d489fc9a4c0abebb97df3daa6ee7c5bcb2c01eb96e3defd79e81f0288efc91",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Simulated `plan-writer`: implement-phase `Amend-apply:` retry for the Config bullet\n\n**Paths**\n- Home worktree: `/workspace/app`\n- Plan: `/workspace/app/doc/plans/config.md`\n- Spec: `/workspace/app/doc/specs/config.md`\n\n**Mode:** an explicit `Amend-apply:` block. The worker returns its result as structured output (the `APPLY_SCHEMA` object). The case harness asks for the plan text and a one-line final reply, so both follow.\n\n## 1. Commands, in order (narrated, not run live)\n\n1. **Read the prior report.** Read `/tmp/reports/apply.md` (`previousApplyReport`), but only for its prior findings: the \"Task anchor mismatch\" lines.\n   - It holds no inventory.\n   - I do not use it as a source of original anchors, task text or baselines.\n2. **Read the committed plan original:** `git -C \"/workspace/app\" show HEAD:doc/plans/config.md`.\n   - This succeeds.\n   - Original Task 4 is completed, anchors § \"Config\", and has Tests `node --test tests/config.test.mjs`.\n3. **Read the committed spec original:** `git -C \"/workspace/app\" show HEAD:doc/specs/config.md`.\n   - This succeeds.\n   - The original Config obligation is \"reject empty\".\n   - Both reads happen before any write. If either had failed, I would write nothing and return `passed: false` with `failLines[0]` = `baseline read failed: git -C ...`.\n4. **Read the current files** with `read`:\n   - `doc/specs/config.md` is dirty. It already says \"reject whitespace-only\", left by the failed first apply.\n   - `doc/plans/config.md` has repaired offsets, but its task work is unchanged.\n5. **Take the provenance inventory:**\n   - `git -C \"/workspace/app\" rev-parse --short HEAD`\n   - `git -C \"/workspace/app\" status --porcelain --untracked-files=all`\n   - Only the plan and spec paths are dirty, and both are admitted. There are no unknown paths, so nothing blocks.\n6. **Implement-local Baseline:**\n   - No Tests command changed, and the retained evidence is valid.\n   - So no command runs, there is no endpoint-tree proof, and there is no rerun-all sweep.\n   - The original per-leg declaration and the Task 4 bullet are preserved byte for byte.\n7. **Idempotent edits with full-file `write`:**\n   - **Spec:** the granted bullet already reads \"reject whitespace-only\". I write the file with that content unchanged, so the bullet is not duplicated and every other section is preserved.\n   - **Plan:** I keep the repaired anchor offset.\n     - The header carries `**Baseline policy:** implement-local`.\n     - Task 4's body and coverage row are patched to the whitespace-only obligation.\n     - The Tests command stays identical.\n   - **Retry rule:** deltas are computed against the HEAD originals, not against the already-mutated files.\n8. **Check:** `plan_check({ planPath: \"/workspace/app/doc/plans/config.md\" })` returns PASS. The judgment checks cause no further edit.\n\n## 2. Comparison of `APPLY_SCHEMA` deltas\n\n| Scenario | Spec edit | Plan edit | Result |\n|---|---|---|---|\n| Initial one-bullet apply | Config bullet changes from \"reject empty\" to \"reject whitespace-only\" | Task 4 anchor and offsets plus a body patch for the new obligation. Tests and baseline are retained. | `{ amendedSections: [\"Config\"], tasksAdded: [], tasksAnchorChanged: [4], tasksRemoved: [], passed: true }` |\n| This retry (partial state already on disk) | No new change; it is already whitespace-only. Written idempotently. | Offsets are already repaired; the obligation patch is confirmed. | The same object: `{ amendedSections: [\"Config\"], tasksAdded: [], tasksAnchorChanged: [4], tasksRemoved: [], passed: true }`. Compared against the committed \"reject empty\", the obligation did change semantically. I do not return `[]` just because the current files already match. |\n| Meaning-preserving clarification (offsets only) | Config rewording that shifts lines but keeps the meaning | Anchor line range updated only | `{ amendedSections: [\"Config\"], tasksAdded: [], tasksAnchorChanged: [], tasksRemoved: [], passed: true }`. A pure offset move does not mark the completed Task 4. |\n\n## 3. The written plan\n\nThe SHA and line numbers below are illustrative. The real values are copied from the committed original.\n\n```markdown\n# Config validation plan\n\n**Spec:** doc/specs/config.md\n**Baseline policy:** implement-local\n**Baseline app: 9f3c2e1**\n**Verification:** `npm test`\n\nBaseline provenance: implement-local apply on app; no Tests command changed; retained evidence unchanged; no commands executed.\n\n## Wave 1 — Config validation\n\n### Task 4: Reject whitespace-only config values\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/config.md § \"Config\" L12-L18\n\n**Files:**\n- Modify: `src/config.mjs`\n- Test: `tests/config.test.mjs`\n\n**Tests:**\n- `node --test tests/config.test.mjs`\n- baseline: 9f3c2e1 pass\n- via: `validateConfig()`\n\n- [ ] **Step 1: Add failing case** — add a row asserting `validateConfig({ name: \"   \" })` throws, alongside the existing empty-string row.\n- [ ] **Step 2: Run** `node --test tests/config.test.mjs` — Expected: FAIL on the whitespace-only row.\n- [ ] **Step 3: Implement** — in `validateConfig`, reject when `value.trim() === \"\"`.\n- [ ] **Step 4: Run** `node --test tests/config.test.mjs` — Expected: PASS.\n- [ ] **Step 5: Format/lint** the two files with the project's scoped command — Expected: clean.\n- [ ] **Step 6: Commit** `git add src/config.mjs tests/config.test.mjs && git commit -m \"Reject whitespace-only config values\"`\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Config\" L12-L18 | reject whitespace-only values | Task 4 |\n| § \"Acceptance\" L30 | full suite passes: `npm test` | Verification |\n```\n\n## 4. Structured result for this retry\n\n```json\n{ \"amendedSections\": [\"Config\"], \"tasksAdded\": [], \"tasksAnchorChanged\": [4], \"tasksRemoved\": [], \"passed\": true }\n```\n\nPLAN WRITTEN /workspace/app/doc/plans/config.md\n",
+      "words": 711,
+      "wallMs": 33818,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Commands and reads\n\nFor both the initial apply and the retry, before any edit, read the committed originals:\n\n```bash\ngit -C \"/workspace/app\" show HEAD:doc/plans/config.md\ngit -C \"/workspace/app\" show HEAD:doc/specs/config.md\n```\n\nBoth succeed. These committed originals—not the partially amended working files—supply the comparison inventory.\n\nInventory the execution tree before maintenance:\n\n```bash\ngit -C \"/workspace/app\" rev-parse --short HEAD\ngit -C \"/workspace/app\" status --porcelain --untracked-files=all\n```\n\nAdmit the supplied spec and plan paths; any unknown dirty path would block. On the retry, read `/tmp/reports/apply.md` for prior findings only. It supplies no task inventory or baseline copies.\n\n### Edits and checks\n\n- Apply the granted Config bullet verbatim: reject whitespace-only rather than reject empty. On the retry, the spec already contains this edit, so do not duplicate it.\n- Patch Task 4’s actual implementation and test instructions to enforce the whitespace-only obligation. Repaired offsets alone do not satisfy the amendment.\n- Update affected anchors and coverage while preserving Task 4’s number, title, completed state, wave position, and unaffected text.\n- Add `**Baseline policy:** implement-local`.\n- Preserve committed baseline declarations and valid unchanged evidence byte-for-byte. The command remains `node --test tests/config.test.mjs`; no test execution or endpoint-tree-equivalence sweep is needed.\n- Run `plan_check({ planPath: \"/workspace/app/doc/plans/config.md\" })`, then the judgment checks. The supplied checker result is PASS.\n\n### APPLY_SCHEMA deltas\n\n**Initial one-bullet apply:**\n\n```json\n{\n  \"amendedSections\": [\"Config\"],\n  \"tasksAdded\": [],\n  \"tasksAnchorChanged\": [4],\n  \"tasksRemoved\": [],\n  \"passed\": true\n}\n```\n\n**Successful retry:**\n\n```json\n{\n  \"amendedSections\": [\"Config\"],\n  \"tasksAdded\": [],\n  \"tasksAnchorChanged\": [4],\n  \"tasksRemoved\": [],\n  \"passed\": true\n}\n```\n\nThe retry still reports Task 4 because its semantic obligation differs from the committed original, even though the dirty spec already contains the amendment. Completion does not exclude it from this delta.\n\n**Meaning-preserving, offset-only clarification**, where the committed original already expresses the same obligation:\n\n```json\n{\n  \"amendedSections\": [\"Config\"],\n  \"tasksAdded\": [],\n  \"tasksAnchorChanged\": [],\n  \"tasksRemoved\": [],\n  \"passed\": true\n}\n```\n\nIf that clarification is part of the same uncommitted whitespace-only amendment, comparison against HEAD still yields `[4]`. Implement-only mode returns the structured result, not a `PLAN WRITTEN` line.\n",
+      "words": 305,
+      "wallMs": 18036,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4820aecb0979c579d4e39775d91144998adafa8f356803db656bcc8f838db14b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "2b83901d31e6d3f81872e90c929f5b225a383e982e246d63f640e1d8b2d2a1ab",
+      "candidateOutputSha": "a502a451f06162c57d6ac2d0efdda8fe9160934c30a4cea501d90808a99cb9b7",
+      "facts": {
+        "originals": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "semantic": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "retry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved all three facts in the intended direction: it reads both committed originals via home-relative `git -C \"/workspace/app\" show HEAD:...` before any write with no report-copy prerequisite, uses `/tmp/reports/apply.md` for prior findings only, computes deltas against HEAD rather than the already-mutated files (so initial apply and retry both return passed true with amendedSections [\"Config\"] and tasksAnchorChanged [4], while the offset-only clarification leaves tasksAnchorChanged empty), writes the spec idempotently without duplicating the bullet, retains the baseline evidence byte for byte, and runs plan_check. Before failed all three because it treated the report as the sole inventory source and refused to consult HEAD, returning passed false and an empty delta. One wording risk in After worth tightening: the illustrative plan rewrites completed Task 4 with unchecked `[ ]` step boxes and freshly invented step bodies, which reads like a refresh of a completed task rather than a local obligation patch; keep the `[x]` completed marks and say explicitly that only the anchor, obligation wording and coverage row are patched, so the 'preserves historical evidence' part of the retry fact is unambiguous. Also state in one line that the parent stamp line is carried over unchanged from the committed plan rather than only implied by the illustrative SHA.",
+      "wallMs": 18698,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4820aecb0979c579d4e39775d91144998adafa8f356803db656bcc8f838db14b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "651d237593f82a01c17a4e4fab892527d6f3891a628bac28c7d6e973cd6f90a7",
+      "candidateOutputSha": "f5b6edcd40d3a00c417fa3e3acb4034af29ca35f3618568ce2554946a2c96d46",
+      "facts": {
+        "originals": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "semantic": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "retry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves all three facts in the intended direction: it reads both committed originals with `git -C \"/workspace/app\" show HEAD:doc/plans/config.md` and `HEAD:doc/specs/config.md` before any edit for both the initial apply and the retry, treats `/tmp/reports/apply.md` as findings-only rather than a required inventory copy, returns `passed: true` with `amendedSections: [\"Config\"]` and `tasksAnchorChanged: [4]` for both the initial apply and the retry, returns an empty anchor-changed list for the offset-only clarification, avoids duplicating the already-applied bullet, and preserves unaffected text and byte-for-byte evidence while still running plan_check and the judgment checks. Before failed all three because it demanded a saved report inventory, declared the `git show` reads outside permitted Bash, and halted the retry with `passed: false`. One soft spot in After: the retry fact mentions keeping the parent stamp, and After never names it—add a short clause such as 'keep the self-check and the parent stamp/handoff unchanged on retry' alongside the plan_check line so a reader does not have to infer it. Otherwise the wording is sound and delivers the Change without regressing anything Before held.",
+      "wallMs": 17154,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+}

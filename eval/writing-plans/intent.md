@@ -1,6 +1,8 @@
-for: 9289dd5356dab5276a733fd9e154ac50234409facfab7a61bfed6f6933eb27bf
+for: 1ebe05c54d7d7f7667003d0999807376e7c6dd53a0e80114717a64fef92e68aa
 
 ## Change
+
+Derive implement amendment deltas and retained evidence from committed home plan/spec originals read before edits and on retry; previousApplyReport holds findings only. Commit only the plan at handoff after parent PASS and before tracker initialization. Missing originals fail write-free with exact command/stderr marker. The from-head, untracked-plan and handoff samples exercise these changes; existing historical/changed-command samples retain staged-repair and truthful execution requirements. Model evidence remains verification-owned.
 
 Specialize implement-phase Amend-apply for local patches and historical per-command evidence. Preserve original declarations, evidence suffixes and staged repairs when no execution is needed; compare semantic obligations rather than offsets. Execute changed commands only on identified trees with nonzero counts, and retain failure/resolution evidence. Initial planning and explicit full refresh remain unchanged. The two implement-amend samples exercise these boundaries; parent verification owns full model runs and real report/result updates.
 
@@ -21,6 +23,14 @@ Keep Leg before Files and leg-specific test baselines and rule routing; preserve
 Add grant variants as two new samples, baseline-menu-under-grant and baseline-menu-aftermath, while preserving the existing parent-offers-fix-first-narrow-amend sample's failure/menu/pause as the no-grant control. Decode amend permission before taking baseline recommendations in initial planning and unchanged-command amendment aftermath. No model replay runs during implementation; verification owns the generated report.
 
 ## Expected to move
+- baseline-menu-aftermath/repeated-evidence-stop: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
+- implement-amend-from-head/originals: fails -> holds - Read both committed originals before edits and retry.
+- implement-amend-from-head/semantic: fails -> holds - Detect an anchored spec obligation change after a partial apply.
+- implement-amend-from-head/retry: fails -> holds - Retry without report inventory or duplicate edits.
+- implement-amend-plan-untracked/write-free: fails -> holds - Missing committed originals prohibit writes.
+- implement-amend-plan-untracked/marker: fails -> holds - Preserve exact failed command and stderr.
+- handoff-plan-commit/persistence: fails -> holds - Commit only the plan, preserving staged source.
+- handoff-plan-commit/order: fails -> holds - Commit after parent PASS and before initialization.
 - implement-amend-historical-baseline/local: fails -> holds - Patch only affected entries and anchors.
 - implement-amend-historical-baseline/historical: fails -> holds - Preserve historical revisions and exact suffixes.
 - implement-amend-historical-baseline/no-refresh: fails -> holds - Preserve staged repair with no baseline sweep.

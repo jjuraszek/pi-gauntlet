@@ -1,0 +1,90 @@
+{
+  "sample": "amend-baseline-missing-stop",
+  "arm": "candidate",
+  "skillSha": "7223fd1bfc99d22f4927ce4621495314a9b986c4c633a352892d0d0ef10c08d5",
+  "inputSha": "0b6fc4d058c0ad33a79d639a1f94772840adcaa87baa1f925e42d3773286049e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Apply-capture recovery for a one-task `Amend-apply` dispatch\n\n## Observed state\n\n- The `plan-writer` `Amend-apply:` dispatch printed no structured JSON.\n- It reported a completion guard failure. `completionGuard` stays true, so this is expected.\n- `Artifacts: /tmp/apply`.\n- I do not run parent `plan_check`, tracker update, amendment print or the `amend:` commit until there is a `passed: true` result.\n- I open no spec, plan, source or prose report.\n\n## Step 1 – Admit the capture (second source after result text)\n\nList captures once. This is the only `ls` the shell allowlist permits, used for missing-result recovery:\n\n```bash\nls /tmp/apply/structured-output/*/output.json\n```\n\nObserved result: exactly one file, `/tmp/apply/structured-output/step1/output.json`.\n\nRead it once, with no offset and no pagination:\n\n```ts\nread({ path: \"/tmp/apply/structured-output/step1/output.json\", limit: 300 })\n```\n\nThe file is 600 bytes, well under 300 lines, so the read reaches the closing brace. It is not truncated.\n\nAdmission checks:\n\n| Check | Result |\n|---|---|\n| Envelope is complete `{\"status\":\"success\",\"value\":{...}}` | yes |\n| `value` satisfies unchanged `APPLY_SCHEMA` (required `amendedSections`, `tasksAdded`, `tasksAnchorChanged`, `tasksRemoved`, `passed`; optional `failLines` as a string array; no extra keys) | yes |\n| Exactly one capture for this one-task dispatch | yes |\n\nThe capture is admitted. I route it exactly like printed JSON: `passed: false`, with `failLines[0]` as follows.\n\n```\nbaseline read failed: git -C /workspace/app show HEAD:doc/plans/new.md - fatal: path 'doc/plans/new.md' exists on disk, but not in 'HEAD'\n```\n\n## Step 2 – Route\n\n`failLines[0]` begins exactly with `baseline read failed: git -C `. That makes it an immediate stop:\n\n- No fresh retry.\n- No `previousApplyReport`.\n- No further dispatch or shell command.\n\nThe plan original is not committed at home `HEAD`. The committed-originals prerequisite should have caught this before the first wave. I do not repair it in this turn: no `add`/`commit` now, and no use of dirty disk content as a baseline. The fix goes into the note as an option.\n\nPhase stays `implement`. Affected task indices stay in their current tracker state, and no further tasks start.\n\n```\ngauntlet: question\nStopped on task <n> (<title of the task the amendment batch serves>).\n\nProblem: the granted amendment could not be applied because the committed plan original is missing from home HEAD, so no baseline exists to diff the amendment against.\n  git -C /workspace/app show HEAD:doc/plans/new.md\n    fatal: path 'doc/plans/new.md' exists on disk, but not in 'HEAD'\n\nFix options:\n  a) commit the plan and spec originals at home with a path-scoped commit (git -C /workspace/app add -- doc/plans/new.md <spec path>; commit -m \"plan: <spec title>\" -- same paths), then re-run the granted amendment apply against that baseline\n  b) point the run at an already-committed plan revision if doc/plans/new.md is a renamed or relocated copy, then re-run the apply\n\nPick one, or give another fix.\nRecommendation: a - restores the committed-originals prerequisite the apply baseline depends on, without staging unrelated source.\n```\n\n## Comparison of the alternative observations\n\n| Observation | Admission | Routing |\n|---|---|---|\n| **Zero captures** (`ls` matches nothing) | No capture; never recover from prose or the guard message | Stop, naming `/tmp/apply/structured-output/*/output.json` as empty. No diagnosis child, no retry. |\n| **Two captures** (`/tmp/apply/structured-output/step1/output.json` and `/tmp/apply/structured-output/step2/output.json`) | Ambiguous; never guess | Stop, naming both paths. Neither file is read for routing. |\n| **Malformed `APPLY_SCHEMA`** (missing required key, extra key, wrong type, error envelope, or truncated before the closing brace) | Rejected | Stop as malformed apply output. No retry; recovery never comes from prose. |\n| **Valid `passed: false`, `failLines: [\"Task anchor mismatch\"]`** | Admitted | Not the exact baseline prefix, so one fresh retry (carrier below). A second `passed: false` escalates; granted edits are never repeated blindly. |\n\nRetry carrier for the `\"Task anchor mismatch\"` case only:\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"/workspace/app\",\n  chain: [{ parallel: [\n    { agent: \"plan-writer\", output: \"<REPORT_DIR>/amend-apply-2.md\",\n      outputMode: \"file-only\", outputSchema: APPLY_SCHEMA,\n      task: `Amend-apply: <granted items verbatim, as held from preparation>\nAmend: <existing Amend: entry>\nIn-flight: <paths from status --porcelain, incl. staged in-place repairs>\nPaths: worktree /workspace/app; spec <abs home spec>; plan <abs plan>; plan skill <abs>; plan contract <abs>\nRule (from prior failLines): Task anchor mismatch\npreviousApplyReport: <REPORT_DIR>/amend-apply-1.md (prior findings only, never a baseline)\nRe-read both committed home originals via git -C \"/workspace/app\" show HEAD:<home-relative plan path> and HEAD:<home-relative spec path> before any edit; apply granted edits idempotently without duplicates; compute tasksAnchorChanged and other deltas against those originals only.` }\n  ], stopOn: { path: \"/status\", in: [\"BLOCKED\"] } }]\n})\n```\n\nOn `passed: true`, I run parent `plan_check({ planPath })`. After it passes, I:\n\n- replace the manifest;\n- reconcile the tracker (`add` new tasks, reopen semantic anchor changes as `in_progress`, handle removals);\n- print `amended the spec: <title> - <what>`;\n- make the single `amend:` commit.\n\nI stop here; no results beyond the supplied observations are assumed.\n",
+      "words": 718,
+      "wallMs": 29413,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The completion-guard failure does **not** authorize a retry by itself. First recover the missing structured result; leave `completionGuard: true`.\n\n### Capture admission\n\nThe permitted capture inventory command is:\n\n```bash\nls /tmp/apply/structured-output/*/output.json\n```\n\nFor the supplied **exactly-one-capture** observation, admit this single bounded read:\n\n```js\nread({\n  path: \"/tmp/apply/structured-output/step1/output.json\",\n  limit: 300\n})\n```\n\nNo offset, pagination, prose-report read, or source read. The supplied 600-byte capture is complete and contains a success envelope whose `value` satisfies unchanged `APPLY_SCHEMA`. Envelope `status: \"success\"` means the capture succeeded—not that amendment application passed.\n\n### Supplied baseline failure: immediate stop\n\nRecovered routing fields:\n\n```json\n{\n  \"amendedSections\": [],\n  \"tasksAdded\": [],\n  \"tasksAnchorChanged\": [],\n  \"tasksRemoved\": [],\n  \"passed\": false,\n  \"failLines\": [\n    \"baseline read failed: git -C /workspace/app show HEAD:doc/plans/new.md - fatal: path 'doc/plans/new.md' exists on disk, but not in 'HEAD'\"\n  ]\n}\n```\n\nThe failure line begins **exactly** with `baseline read failed: git -C `. Therefore stop immediately, quoting:\n\n> baseline read failed: git -C /workspace/app show HEAD:doc/plans/new.md - fatal: path 'doc/plans/new.md' exists on disk, but not in 'HEAD'\n\nDo **not** retry Amend-apply, run the quoted command, read source, perform parent `plan_check`, reconcile the tracker, or make an amendment commit. No further dispatch is authorized on this branch.\n\n### Alternative observations\n\n| Supplied observation | Admission and routing |\n|---|---|\n| Zero captures | No capture can be admitted. Stop: missing Amend-apply structured output. Do not recover from prose or retry blindly. |\n| Two captures: `/tmp/apply/structured-output/step1/output.json` and `/tmp/apply/structured-output/step2/output.json` | Stop naming both paths. Do not choose one, merge values, or read reports to decide. |\n| Sole capture with malformed `APPLY_SCHEMA` | Read that capture once under the same bound; reject it and stop. Do not repair the schema or infer fields from prose. |\n| Sole valid capture with `passed: false`, `failLines: [\"Task anchor mismatch\"]` | This is **not** the special baseline-read failure. Authorize exactly one fresh Amend-apply retry using that failure as the rule and the first saved apply report as `previousApplyReport`. |\n\n### Authorized one-step retry carrier for `Task anchor mismatch`\n\nUse the **retained** original owning checkout, absolute paths, granted edits, in-flight inventory, and first apply report path. Those values are not supplied here, so the following is a carrier template, **not a dispatched operation**; inventing replacement values would be invalid.\n\n```js\nconst APPLY_SCHEMA = {\n  type: \"object\",\n  required: [\n    \"amendedSections\",\n    \"tasksAdded\",\n    \"tasksAnchorChanged\",\n    \"tasksRemoved\",\n    \"passed\"\n  ],\n  additionalProperties: false,\n  properties: {\n    amendedSections: { type: \"array\", items: { type: \"string\" } },\n    tasksAdded: { type: \"array\", items: { type: \"integer\" } },\n    tasksAnchorChanged: { type: \"array\", items: { type: \"integer\" } },\n    tasksRemoved: { type: \"array\", items: { type: \"integer\" } },\n    passed: { type: \"boolean\" },\n    failLines: { type: \"array\", items: { type: \"string\" } }\n  }\n};\n\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: retainedOwningCheckout,\n  chain: [{\n    parallel: [{\n      agent: \"plan-writer\",\n      output: retainedRetryReportPath,\n      outputMode: \"file-only\",\n      outputSchema: APPLY_SCHEMA,\n      task: `${retainedOriginalAmendApplyPayload}\n\npreviousApplyReport: ${retainedFirstApplyReportPath}\n\nRetry rule: Task anchor mismatch.\nThis is the single fresh retry. Keep completionGuard true.\nReread both committed home plan/spec originals through their\nhome-relative git show HEAD:<path> commands before editing.\nUse previousApplyReport for prior findings only, never as a baseline.\nApply the retained granted edits idempotently, without duplicates;\nderive task deltas against the committed originals, not dirty retry text.\nPreserve declared in-flight repairs and protected-path constraints.\npi-cohort saves your final report; do not write it yourself.`\n    }],\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n});\n```\n\nNo `model` override, worktree isolation, or report-relay child is added. A second failed apply escalates; it does not receive another fresh retry. No retry outcome is supplied, so execution stops at this carrier boundary.\n",
+      "words": 518,
+      "wallMs": 30259,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3aa14fd3ba86aadebb164b4647c5da5eceaabfc2beee867ecce9ebaa0b59b103",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b81041f7ff7eb244cf77ede17604d6607614b045d2e2b9ab11a13d3912eb164e",
+      "baselineOutputSha": "b6329e909dc73a22472d2ff2fe782269fbbf2520a3d5fba5e095db932c6fda12",
+      "candidateOutputSha": "a3abc177df6914f177acf9d39e76d9b62a203c1ce263c37746fd7d58ef830e83",
+      "facts": {
+        "recovery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "exact-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "cardinality": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change on all three facts: it lists `/tmp/apply/structured-output/*/output.json` once, reads the sole capture with `limit: 300`, checks the success envelope and unchanged `APPLY_SCHEMA` in a table, and routes the recovered `passed: false` exactly as printed JSON; the `baseline read failed: git -C ` prefix then bypasses retry with a stop note quoting both the command and the literal `fatal:` stderr while withholding `plan_check`, tracker edits and the `amend:` commit, and the `Task anchor mismatch` row keeps exactly one fresh retry carrying `previousApplyReport` as prior findings only. The comparison table names the glob for zero captures and both paths for two captures and stops on malformed output without picking a first file or disabling the guard. Before failed all three because it treated artifacts as inadmissible and refused to open `/tmp/apply`, so its stop was admission-based rather than marker-based, its note paraphrased rather than quoted stderr, and its two-capture row never said the paths are named. Nothing in After regressed a fact Before kept; one small hardening would be to state the 300-line read bound as the shared bounded-read limit explicitly so a reader can't mistake it for a case-specific choice.",
+      "wallMs": 16674,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3aa14fd3ba86aadebb164b4647c5da5eceaabfc2beee867ecce9ebaa0b59b103",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b81041f7ff7eb244cf77ede17604d6607614b045d2e2b9ab11a13d3912eb164e",
+      "baselineOutputSha": "a9ff387ee24632d9c96b2d19c00a1cc827b37d2094119d36eb98fbbd08aa80ac",
+      "candidateOutputSha": "040ef68c26db282d2531c01e5d1d7e9e3431bd9b74b0cbff33257cc44187d52d",
+      "facts": {
+        "recovery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "exact-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "cardinality": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves all three facts from fails to holds and regresses nothing. Before never listed or bounded-read the capture, treated the baseline-read failure as an ordinary passed:false eligible for the single retry, and routed zero/two/malformed captures to a delegated diagnosis step rather than stopping; After adds the `ls` inventory plus a `limit: 300` read of the sole capture, requires the success envelope and unchanged APPLY_SCHEMA while keeping completionGuard true, stops immediately on the exact `baseline read failed: git -C ` marker quoting the command and stderr with no plan_check/tracker/commit, stops naming both paths on two captures and stops on zero or malformed captures, and reserves exactly one fresh retry with previousApplyReport for `Task anchor mismatch`. The current wording delivers the Change cleanly; keep it as is, and if anything, the only tightening worth considering is stating explicitly that the retry carrier's `${retained...}` placeholders must come from the first dispatch (already implied by 'retained') so a reader does not mistake the template for an invented payload.",
+      "wallMs": 13869,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e57328a3bd686e0a92961d8486b04c91279610fa"
+}

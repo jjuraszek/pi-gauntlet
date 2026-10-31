@@ -1,0 +1,3 @@
+- recovery: judged: Lists captures for this one-task dispatch, reads the sole file at the existing bounded limit, requires success envelope and unchanged APPLY_SCHEMA despite guard suppression, and routes captured JSON rather than prose.
+- exact-stop: judged: Baseline marker bypasses retry and produces a stop note quoting command and actual stderr with no parent stamp, tracker change or amendment audit commit; Task anchor mismatch retains exactly one fresh retry with previousApplyReport for prior findings.
+- cardinality: judged: Zero/two captures stop naming available paths, malformed capture stops, and no arbitrary first-file selection or guard disabling occurs.

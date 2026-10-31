@@ -1,0 +1,90 @@
+{
+  "sample": "handoff-plan-commit",
+  "arm": "candidate",
+  "skillSha": "9d7ec666a302e834399d8f716c3c8ed28c727715be9cb42ddde09d456e563f19",
+  "inputSha": "348e813e8787be6e1e226b471fc8e07918a0f1cc5cb154c21c99486a892d50c3",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Execution handoff (parent, after the stamping `plan_check` returns PASS)\n\nThe plan phase is already `in_progress`, with substep `plan-write`. Step 5's parent `plan_check({ planPath: \"/workspace/app/doc/plans/config.md\" })` returned PASS. That call wrote the execution stamp. The branch in step 6 is `PLAN WRITTEN` + `PASS`, so I go to step 7.\n\n## Step 7: close out authoring\n\n1. **Clear the substep:**\n   `phase_tracker({ action: \"substep\", phase: \"plan\", substep: null })`\n2. **Read the plan once:** `/workspace/app/doc/plans/config.md`. I take the `W<k>: <title>` list from its wave and task headings. I do not re-review or rewrite the plan.\n\n## Execution Handoff: plan-scoped commit on the home worktree branch\n\n3. **Plan-scoped status:**\n   `git -C \"/workspace/app\" status --porcelain -- \"doc/plans/config.md\"`\n   - Result: `?? doc/plans/config.md`. The output is nonempty because the plan is untracked.\n   - The pathspec limits this check to the plan. The staged `src/config.mjs` does not appear and is not considered.\n4. **Stage only the plan:**\n   `git -C \"/workspace/app\" add -- \"doc/plans/config.md\"`\n   - There is no `git add -A`, `.`, or `-u`. Nothing else is touched.\n5. **Commit only the plan:**\n   `git -C \"/workspace/app\" commit -m \"plan: config validation\" -- \"doc/plans/config.md\"`\n   - The trailing pathspec makes this an `--only` commit, so the commit contains just `doc/plans/config.md`.\n   - The pre-existing staged change to `src/config.mjs` stays in the index, uncommitted. That is required: I never stage, unstage, commit, or discard unrelated source.\n   - The spec `doc/specs/config.md` is already committed, so it is not part of this commit.\n   - The commit lands on the worktree branch, never on `main`.\n\n**Failure handling:**\n- If any of the three git calls fails (status, add, or commit), I stop and report the failing command and its output.\n- I do not retry with broader paths, and I do not clean or reset anything.\n- I do not proceed to `phase_tracker complete`, `plan_tracker init`, or execution. The plan phase stays `in_progress`.\n\n6. **Mark planning complete:**\n   `phase_tracker({ action: \"complete\", phase: \"plan\" })`\n7. **Initialize the execution list once, in wave order:**\n   `plan_tracker({ action: \"init\", tasks: [\"W1: <task 1 title>\", …, \"W<k>: <last task title>\"] })`\n   - There is one entry per plan task, each prefixed with its containing wave.\n8. **Auto-invoke `/skill:subagent-driven-development`** in this session. I do not wait for confirmation, because the spec gate already happened. The only pauses from here belong to the executor: `BLOCKED` / `NEEDS_CONTEXT` and the end gate.\n\n## Restored continuation (plan already committed and unchanged)\n\nHere `/skill:gauntlet-resume` restores the flow, and the plan already exists at `/workspace/app/doc/plans/config.md`.\n\n1. **Step 3 entry branch:** the restored plan is checked before anything overwrites it. There is no dispatch.\n2. **Step 5:** I run the parent `plan_check({ planPath: \"/workspace/app/doc/plans/config.md\" })`.\n3. **Step 6 \"no child reply\" rule:** the plan has no substantive Open Questions rows, so I treat it as `PLAN WRITTEN`. With PASS, I go to step 7: clear the substep and read the plan once.\n4. **Plan-scoped status:**\n   `git -C \"/workspace/app\" status --porcelain -- \"doc/plans/config.md\"`\n   - It succeeds with **empty output**, because the plan is committed and unchanged.\n5. **Skip staging and commit entirely.** There is no `git add` and no `git commit`.\n   - `src/config.mjs` is staged, but it lies outside the pathspec. It is invisible to this check and remains staged and untouched.\n   - An empty plan-scoped status is a success, not a failure, so I continue.\n6. **Complete the phase and initialize the list once:**\n   `phase_tracker({ action: \"complete\", phase: \"plan\" })`\n   then `plan_tracker({ action: \"init\", tasks: [\"W1: …\", …] })`\n   - I init only if the restored state has not already initialized the execution list. The list is initialized once and never re-initialized on continuation.\n7. **Auto-invoke `/skill:subagent-driven-development`.**\n",
+      "words": 564,
+      "wallMs": 21015,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Initial execution handoff\n\nThe parent `plan_check` has passed. Step 7 clears the substep before the parent’s single read of the completed plan:\n\n```text\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: null })\n```\n\nThe parent reads `/workspace/app/doc/plans/config.md` once. It does not write the plan.\n\n1. **Check only the plan’s status on the home worktree branch:**\n   ```text\n   git -C \"/workspace/app\" status --porcelain -- \"doc/plans/config.md\"\n   ```\n   The case reports the plan as untracked, so the successful status output is nonempty. Unrelated staged `src/config.mjs` is outside this path-scoped query.\n\n2. **Stage only the plan:**\n   ```text\n   git -C \"/workspace/app\" add -- \"doc/plans/config.md\"\n   ```\n\n3. **Commit only the plan on the existing worktree branch—the same branch as the spec, not `main`:**\n   ```text\n   git -C \"/workspace/app\" commit -m \"plan: config validation\" -- \"doc/plans/config.md\"\n   ```\n   The path-scoped commit excludes `src/config.mjs`; that file remains staged. Do not use an unscoped commit or stage unrelated source.\n\n4. **Only after the commit succeeds, complete planning:**\n   ```text\n   phase_tracker({ action: \"complete\", phase: \"plan\" })\n   ```\n\n5. **Initialize the execution list once**, using every actual task title from the already-read plan, in wave order:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [each task's \"W<k>: <title>\" from the completed plan]\n   })\n   ```\n   The case does not supply the task titles, so their literal values cannot be reconstructed here.\n\n6. **Auto-invoke `/skill:subagent-driven-development`** in this session, without requesting confirmation.\n\n**Failure handling:** If the plan-scoped status, staging, or commit command fails, stop and report the failure. Do not proceed to phase completion, tracker initialization, or execution. Do not clean, unstage, discard, or commit the unrelated source file, and do not substitute an unscoped commit.\n\n### Restored continuation: plan already committed and unchanged\n\nAfter the restored-plan check passes and the required substep clearing and single plan read have occurred:\n\n1. Run:\n   ```text\n   git -C \"/workspace/app\" status --porcelain -- \"doc/plans/config.md\"\n   ```\n2. The command succeeds with empty output. **Skip both staging and committing.** The staged `src/config.mjs` does not change that decision and remains staged.\n3. Complete the planning phase and initialize the task list **if this is its first execution handoff**. If the execution list was already initialized before the session break, **do not initialize it again**.\n4. Auto-invoke `/skill:subagent-driven-development` to enter or continue execution, without a confirmation prompt.\n",
+      "words": 352,
+      "wallMs": 16171,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8531bcc234cd59f5ecafceaa507a485da2e442eaafa14ecafd2cd09f4fc6dbb7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "0028278d0a2969f660b9d39174f68e24d97bd7538dcdbfd84f0aefa0bff6af1d",
+      "candidateOutputSha": "7f549da2d8e8738ff4985ca902cb3f29f00ea5fd31804be9a6a8a49ef3ae6051",
+      "facts": {
+        "persistence": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "order": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "restored": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The only fact that moved is persistence, and it moved because After uses the exact commit subject `plan: config validation` while Before used `Add implementation plan for config validation`; both outputs already run the path-scoped status/add/commit on the worktree branch and keep `src/config.mjs` staged, so the subject wording was the sole blocker. The order and restored facts already held in Before and still hold in After: both sequence `phase_tracker complete` → wave-ordered `plan_tracker init` → unprompted `/skill:subagent-driven-development` strictly after a successful commit or an empty plan-scoped status, both stop before completion/init/dispatch on any status/add/commit failure, and both skip add/commit on empty status with no empty commit and the unrelated staged file untouched. To keep everything Before kept, retain the explicit 'failure stops before phase complete, tracker init, or execution' clause, the 'status empty is success, skip staging and commit' clause, and the init-once-on-restore note, while fixing the commit subject to the literal `plan: config validation` form — After does all of this, so no further wording change is needed; optionally keep Before's post-check (`diff --cached --name-only` still lists `src/config.mjs`) as extra reassurance for the unrelated-staged-source requirement.",
+      "wallMs": 16591,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8531bcc234cd59f5ecafceaa507a485da2e442eaafa14ecafd2cd09f4fc6dbb7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "cf6e7a6359ebeef01fe7c3c9a36b283fbbd9bc9ea50a4e5e3f594fba30f71623",
+      "candidateOutputSha": "eb26f7d8cd50a6aec3ef845a79317bfe14bcb28b3adba2a1c64fcd2bd08be8d3",
+      "facts": {
+        "persistence": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "restored": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved persistence and order from fails to holds while keeping restored intact. Before failed persistence because its commit subject was \"docs: add config validation implementation plan\" rather than \"plan: config validation\" and it framed the whole status/add/commit sequence as conditional (\"if describing the requested plan-commit operation\"), which also broke order: phase completion and tracker init were gated on \"any plan-commit operation being performed\" rather than on a successful commit or a clean plan-scoped status. After states the exact path-scoped status, add, and `commit -m \"plan: config validation\" -- doc/plans/config.md`, explicitly keeps src/config.mjs staged, gates `phase_tracker complete` and `plan_tracker init` on commit success, auto-invokes subagent-driven-development without confirmation, and stops before completion/init/dispatch on any status/staging/commit failure. The restored section preserves Before's skip-on-empty-status behavior, no empty commit, src/config.mjs untouched, and idempotent tracker init. Minor polish: add `--only` to the commit for explicit clarity (pathspec already implies it), and drop the stray \"Step 7\" reference since the case gives no step numbering; neither affects the facts.",
+      "wallMs": 14553,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+}

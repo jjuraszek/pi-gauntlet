@@ -1,0 +1,2 @@
+- scoped: judged: Checks porcelain scoped exactly to home-relative plan and spec, then on nonempty status stages and commits only those two paths at home with subject plan: config validation, preserving unrelated staged source.
+- dispatch: judged: Successful committed originals precede first-wave dispatch; clean scoped status needs no commit, while any status/stage/commit failure stops before dispatch. Dirty retry content is never substituted for committed originals.

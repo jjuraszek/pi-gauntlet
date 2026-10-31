@@ -1,8 +1,8 @@
 {
   "sample": "heavy-json-fixture",
   "arm": "baseline",
-  "skillSha": "26c4e39b729dc51b46de7be681dc0169db8ab54551ded3b9be222d6d3d9e2f3a",
-  "inputSha": "4df943d15b870e41bba74459a4ef795d775bf1abe2670d5b99f8d44b3157ab1f",
+  "skillSha": "0435172de4d7b00d449de0450afe410b210b54aef4d5837fbbe7516a38a17c3e",
+  "inputSha": "0dbefc7e1fc5c477d1eb0067666c5560f2127908feff04302c8cf75e4a3a3580",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```python\ndef test_rejects_future_posted_on():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-02\"}\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_today():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-01\"}\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == TODAY\n```\n",
-      "words": 34,
-      "wallMs": 5761,
+      "text": "```python\ndef _record(**overrides):\n    return {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-01-15\", **overrides}\n\n\ndef test_rejects_future_posted_on():\n    record = _record(posted_on=\"2026-03-02\")\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_today():\n    entry = import_record(_record(posted_on=\"2026-03-01\"), TODAY)\n    assert entry.posted_on == TODAY\n```\n",
+      "words": 32,
+      "wallMs": 4933,
       "mechanical": {
         "m1": "holds"
       }
@@ -28,11 +28,11 @@
       "status": "ok",
       "text": "```python\ndef test_rejects_future_posted_on():\n    record = {\n        \"account\": \"4010\",\n        \"amount\": \"1.00\",\n        \"posted_on\": \"2026-03-02\",\n    }\n    with pytest.raises(ImportRejected, match=r\"^posted_on is in the future$\"):\n        import_record(record, TODAY)\n```\n",
       "words": 19,
-      "wallMs": 4828,
+      "wallMs": 5569,
       "mechanical": {
         "m1": "holds"
       }
     }
   },
-  "repoSha": "2a5f1e62f711b2db5b730d34107e6adc3b13e8fb"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

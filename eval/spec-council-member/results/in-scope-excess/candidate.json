@@ -1,7 +1,7 @@
 {
   "sample": "in-scope-excess",
   "arm": "candidate",
-  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
+  "skillSha": "124fc7e127d9ada3f5df4d74191592cac03af42ea0dba49874e3952e418873ef",
   "inputSha": "a1608831032c82454dddd182dccc6fc8845c75e9282c8e1faef1ab6b110b470a",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: yes — the direct listForOwner(session.userId) -> csvEncode handler delivers the id/name CSV, escaping, header-only empty output and owner isolation, and V2/V3 prove them at the real endpoint; the extra clauses are surplus, not missing coverage.\nfindings:\n- [minor] ambiguity @ \"V2: Keep a real HTTP request test for the download headers.\" — V2 does not name which headers or values it asserts, and the Design does not state the Content-Type. An implementer cannot tell what V2 must check → state the expected headers, e.g. `Content-Type: text/csv; charset=utf-8` and `Content-Disposition: attachment; filename=\"widgets.csv\"`, and have V2 assert both — probed: none\n- [minor] gap @ \"The authenticated GET /widgets/export.csv handler\" — the spec does not say what an unauthenticated request receives (401, or a redirect like the collection page). This matters for \"Never export another user's widgets\" when no session.userId exists → specify the unauthenticated response and add a matching assertion to V2 or V3 — probed: none\n- [major] over-spec @ \"D1: Add ExportCoordinator and ExportRowAdapter files to wrap listForOwner and map each row to id and name before passing it to csvEncode.\" — no human input requires this (closest human input: \"Use the existing csvEncode function.\"); adds: 2 files / 0 tests / 0 ACs; if cut, unprotected: nothing → shrink to \"the handler passes listForOwner(session.userId) rows directly to csvEncode (rows are already {id, name})\"\n- [major] over-spec @ \"V1: Add a new export simulator file with six simulator tests duplicating column order, escaping, empty output, and row mapping checks.\" — no human input requires this (closest human input: \"standard CSV escaping, and a header-only response for an empty collection\"); adds: 1 file / 6 tests / 0 ACs; if cut, unprotected: nothing → shrink to \"add the export's {id, name} row as one row in the existing csvEncode unit table\"\n- [major] over-spec @ \"D3: Add an unrelated weekly export-count dashboard and its storage job.\" — no human input requires this (closest human input: none); adds: 2 files / 0 tests / 0 ACs; if cut, unprotected: nothing → cut\nlean: 3 over-spec findings above\n",
-      "words": 319,
-      "wallMs": 14229,
+      "text": "verdict: needs-work\naddresses-problem: yes — the Design's direct path, authenticated GET /widgets/export.csv → listForOwner(session.userId) → csvEncode → widgets.csv attachment, delivers every human requirement, and V2/V3 prove the headers and owner isolation; the problems are extra surface (D1, V1, D3) plus two small ambiguities.\nfindings:\n- [minor] ambiguity @ \"V3: Keep the cross-owner HTTP request test with two users\" — GET /widgets/export.csv is a new endpoint, so \"Keep\" suggests an existing test the implementer cannot locate. It is unclear whether this test is new or extends an existing file → reword to \"Add a cross-owner HTTP request test against GET /widgets/export.csv with two users, asserting that user B's widget ids and names are absent from user A's CSV\", and name the target test file — probed: none\n- [minor] ambiguity @ \"The existing collection page links to that endpoint.\" — it is unclear whether this describes current state or a change to make, and the link's location and label are not given → state \"Add a link to /widgets/export.csv on the collection page\" with its placement, or remove the sentence if no UI change is intended — probed: none\n- [minor] gap @ \"The authenticated GET /widgets/export.csv handler\" — behavior for an unauthenticated request is not specified (401 vs. redirect), and the response Content-Type is not specified even though V2 tests the download headers → state the unauthenticated response and the exact headers V2 asserts (e.g. `Content-Type: text/csv; charset=utf-8`, `Content-Disposition: attachment; filename=\"widgets.csv\"`) — probed: none\n- [major] over-spec @ \"D1: Add ExportCoordinator and ExportRowAdapter files to wrap listForOwner and map each row to id and name before passing it to csvEncode.\" — no human input requires this (closest human input: \"Use the existing csvEncode function.\"); adds: 2 files / 0 tests / 0 ACs; if cut, unprotected: nothing → cut (call listForOwner(session.userId) → csvEncode directly; the supplied evidence says rows are already {id, name} and csvEncode accepts them, so the wrappers add no behavior)\n- [major] over-spec @ \"V1: Add a new export simulator file with six simulator tests duplicating column order, escaping, empty output, and row mapping checks.\" — no human input requires this (closest human input: \"standard CSV escaping, and a header-only response for an empty collection.\"); adds: 1 file / 6 tests / 0 ACs; if cut, unprotected: nothing → shrink to one {id, name} export row added to the existing csvEncode unit table (that table already covers column order, commas/quotes, and header-only empty output; V2 and V3 cover the endpoint)\n- [major] over-spec @ \"D3: Add an unrelated weekly export-count dashboard and its storage job.\" — no human input requires this (closest human input: none); adds: 2 files / 2 tests / 0 ACs; if cut, unprotected: nothing → cut\nlean: 3 over-spec findings above\n",
+      "words": 420,
+      "wallMs": 15201,
       "mechanical": {
         "lean-format": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: yes — The owner-scoped handler and retained HTTP tests cover the requested CSV download, but the design adds unnecessary wrappers, duplicate verification, and an unrelated dashboard.\nfindings:\n- [major] over-spec @ \"D1: Add ExportCoordinator and ExportRowAdapter files\" — no human input requires this (closest human input: \"Use the existing csvEncode function.\"); adds: 2 files / 0 tests / 0 ACs; if cut, unprotected: nothing → shrink to a direct listForOwner(session.userId) -> csvEncode call; the supplied evidence establishes that repository rows already have the required shape and the wrappers add no behavior.\n- [major] over-spec @ \"D3: Add an unrelated weekly export-count dashboard and its storage job.\" — no human input requires this (closest human input: \"Add a widgets CSV download with id and name columns, standard CSV escaping, and a header-only response for an empty collection.\"); adds: 2 files / 0 tests / 0 ACs; if cut, unprotected: nothing → cut.\n- [major] over-spec @ \"V1: Add a new export simulator file with six simulator tests duplicating column order, escaping, empty output, and row mapping checks.\" — no human input requires this (closest human input: \"Keep a real HTTP request test for the download headers.\"); adds: 1 file / 6 tests / 0 ACs; if cut, unprotected: nothing → shrink to one export-shaped row in the existing csvEncode unit table, retaining V2 and V3; the supplied evidence establishes existing encoder coverage, while those HTTP tests preserve header and owner-isolation verification.\nlean: 3 over-spec findings above\n",
-      "words": 228,
-      "wallMs": 12735,
+      "text": "verdict: needs-work\naddresses-problem: yes — The design covers the requested CSV behavior, owner isolation, existing encoder, and real HTTP header verification, but adds unnecessary implementation and verification surface.\nfindings:\n- [major] over-spec @ \"D1: Add ExportCoordinator and ExportRowAdapter files\" — no human input requires this (closest human input: \"Use the existing csvEncode function.\"); adds: 2 files / 0 tests / 0 ACs; if cut, unprotected: nothing, because the supplied evidence establishes that repository rows already have the required shape and the wrappers add no behavior → shrink to a direct listForOwner(session.userId) -> csvEncode call\n- [major] over-spec @ \"D3: Add an unrelated weekly export-count dashboard and its storage job.\" — no human input requires this (closest human input: none); adds: 2 files / 0 tests / 0 ACs; if cut, unprotected: nothing, because neither component contributes to CSV output, owner isolation, or required HTTP verification → cut\n- [major] over-spec @ \"V1: Add a new export simulator file with six simulator tests duplicating column order, escaping, empty output, and row mapping checks.\" — no human input requires this (closest human input: \"Add a widgets CSV download with id and name columns, standard CSV escaping, and a header-only response for an empty collection.\"); adds: 1 file / 6 tests / 0 ACs; if cut, unprotected: nothing with the supplied smaller replacement, because the existing encoder table covers CSV formatting and empty output while V2 and V3 retain actual endpoint header and isolation coverage → shrink to one export-shaped {id, name} row in the existing csvEncode unit table, retaining V2 and V3\nlean: 3 over-spec findings above\n",
+      "words": 245,
+      "wallMs": 10374,
       "mechanical": {
         "lean-format": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3426b3a82ad4ccf5e2f5dd4019b113f75f14762451cd4b67f190fd56806b56f2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "40b0e3e2765200023d74c485deecdca0f8c83d62f6b3b049a25a2c26250e963b",
-      "candidateOutputSha": "40b0e3e2765200023d74c485deecdca0f8c83d62f6b3b049a25a2c26250e963b",
+      "candidateOutputSha": "55c02d30bfd4d3b7c1b530f8bb5fbb0422fa8a96ed1f7629f69d4d8791765b2e",
       "facts": {
         "implementation-shrink": {
           "before": "holds",
@@ -48,9 +48,9 @@
           "label": "intended but unchanged"
         },
         "proof-shrink": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "protected-choices": {
           "before": "holds",
@@ -78,16 +78,16 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical, so nothing moved: both already flag D1 with the direct listForOwner -> csvEncode handoff as the shrink, flag V1 with the existing csvEncode table row as the shrink, cut D3, leave D2/V2/V3 untouched, and use the full finding-format fields with major severity anchored to the original clause's file/test counts. The expected fails->holds for implementation-shrink and proof-shrink cannot be observed here because the baseline already passes; this sample acts as a guard rather than evidence of the Change. One small hardening that would make proof-shrink unambiguous under a strict reader: have the V1 shrink text explicitly say the single encoder-table row is sufficient 'together with the retained V2 and V3 HTTP tests', rather than relying on the addresses-problem line to carry that part of the justification.",
-      "wallMs": 13491,
-      "verdict": "unchanged"
+      "feedback": "After moved proof-shrink to holds: the V1 finding's replacement now explicitly names the existing csvEncode table with the one {id, name} handoff row and states that V2 and V3 cover the endpoint, whereas Before's V1 finding only named the encoder table row and left the retained HTTP tests implicit (mentioned only in addresses-problem). Both outputs keep D2/V2/V3 untouched by over-spec findings, cut D3, and use the full finding format with correct major severities. One wording nit in After: the D1 finding labels its action 'cut' while actually supplying a sufficient replacement in parentheses; using 'shrink to \"the handler passes listForOwner(session.userId) rows directly to csvEncode\"' would match the cut-or-shrink-to field more cleanly without changing any fact. Also keep the V3 ambiguity finding phrased as a reword that preserves the two-user HTTP test, as After does, so protected-safety stays intact.",
+      "wallMs": 16070,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3426b3a82ad4ccf5e2f5dd4019b113f75f14762451cd4b67f190fd56806b56f2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "807a44e0f35b08094a72b191f3976468f84c146c05ef97fd8a604462f47d0df4",
-      "candidateOutputSha": "807a44e0f35b08094a72b191f3976468f84c146c05ef97fd8a604462f47d0df4",
+      "candidateOutputSha": "a01ba616bcbf490d5b436099743e2b0f0b2e1f67465be5fa7ac150ada1ab861a",
       "facts": {
         "implementation-shrink": {
           "before": "holds",
@@ -125,10 +125,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical, so nothing moved. Both outputs already satisfy every fact: the D1 finding names the direct listForOwner(session.userId) -> csvEncode call as the sufficient smaller replacement, the V1 finding names one export-shaped row in the existing csvEncode table plus retained V2 and V3, D3 is cut, D2/V2/V3 are untouched, and each finding carries the quoted clause, closest human input, adds:, if cut, unprotected:, and cut/shrink fields with severities correctly set to major (2 files, 2 files, 1 file/6 tests) and unprotected: nothing after each sufficient action. The Expected-to-move list anticipated implementation-shrink and proof-shrink failing in Before, but Before's text already holds them, so this case acts as a guard rather than a demonstration of the Change; the After wording preserves everything and introduces no regression. If the author wants a case that actually exercises the Change, a baseline where the in-scope D1/V1 shrink findings are omitted would be needed; the current wording is safe to keep as-is.",
-      "wallMs": 9554,
+      "feedback": "No fact moved between Before and After on this case: both outputs produce the three over-spec findings (D1 shrunk to the direct listForOwner -> csvEncode call, V1 shrunk to one {id, name} row in the existing encoder table with V2/V3 retained, D3 cut), neither touches D2, V2, or V3, and every finding carries the quoted clause, closest human input, adds:, if cut, unprotected:, and cut/shrink fields with major severity anchored to the original clause's file/test surface. The one wording risk in After is the D3 finding's 'closest human input: none' — the field is still present so the format fact holds, but the Before wording (citing the CSV download sentence as the nearest human clause) is safer against a reader who expects a real clause in that slot; keep After's improved 'unprotected: nothing, because ...' justifications and the explicit 'with the supplied smaller replacement' phrasing on V1, since they make the after-action assessment clearer without disturbing any protected fact, but prefer naming the nearest human clause over 'none' when a human input exists.",
+      "wallMs": 15426,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

@@ -2,7 +2,7 @@
 
 Deep reference for the 10 personas in [`agents/`](../agents/), dispatched via [pi-cohort](https://github.com/jjuraszek/pi-cohort). See the [README](../README.md) for the workflow overview; the frontmatter-knobs table and the rationale behind each pin are in [Frontmatter knobs](#frontmatter-knobs) below.
 
-- `implementer` — strict RED→GREEN→REFACTOR TDD with test-economy defaults, completion-guarded.
+- `implementer` - strict RED -> GREEN -> REFACTOR TDD with test-economy defaults.
 - `wave-reviewer` - read-only integrated wave review: a clause table over supplied spec anchors plus Critical/Moderate/Minor findings; without spec anchors, findings only. Critical and Moderate findings block; Minor findings are nits.
 - `conformance-reviewer` — closing-loop intent gate; confronts the delivered code+docs against the *origin* (spec + verbatim prompt), skipping the plan, and emits a per-requirement coverage verdict. Spec clauses no human input required and nothing depends on are reported once as `UNAUTHORIZED` (over-spec), with `recommended: fix` only when removal is contained. Read-only; proposes remediation, never fixes or decides. Ships model-free — pin its model per preset (see [Configuration: conformance gate model](./configuration.md#conformance-gate-model)).
 - `spec-summarizer` - produces a plain-language briefing (at most 300 words) of one spec for the brainstorming user review gate. Fresh context, read-only (`tools: read`), reads only the spec it is given; output is ephemeral (rendered at the gate, never committed). Dispatched only by `brainstorming`; not for direct dispatch. Ships model-free - set `subagents.agentOverrides.spec-summarizer.model` per preset to override (unset -> inherits the main loop).
@@ -51,7 +51,7 @@ Body text becomes the child's system prompt (`systemPromptMode: replace`). Front
 | `defaultContext` | `fresh` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | - | `fresh` | `fresh` |
 | `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` | `true` | `false` | `false` | `true` | `true` |
 | `inheritSkills` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` |
-| `completionGuard` | `true` | `true` | `false` | `false` | `false` | `false` | `false` | `true` | `false` | `false` |
+| `completionGuard` | `true` | `false` | `false` | `false` | `false` | `false` | `false` | `true` | `false` | `false` |
 
 Why each pin:
 
@@ -60,7 +60,7 @@ Why each pin:
 - **`plan-writer` runs baseline commands and writes only the plan.** It uses `bash` for git/jj provenance and task test commands on the base commit, never for source edits or VCS mutations, and validates the plan with `plan_check`, the extension tool a `tools:` allowlist would otherwise exclude; `defaultContext` is unset because `writing-plans` names `context: "fresh"` on every dispatch, `inheritProjectContext: false` because the body reads `AGENTS.md` and the overrides file itself, and `completionGuard: true` because it is an implementing persona.
 
 - **Reviewers are fresh and read-only** (no edit tools) so they stay skeptical of the parent's context.
-- **`implementer` forks** the parent's session but `inheritSkills: false` avoids dispatch loops through skill discovery.
+- **`implementer` forks** the parent's session but `inheritSkills: false` avoids dispatch loops through skill discovery. Its explicit `completionGuard: false` lets structured `NEEDS_CONTEXT` and `BLOCKED` returns survive without edits; the guard hid those statuses. The isolated-wave caller owns the equivalent edit-less-completion check: its patch requirement rejects an edit-less `DONE` as a failed attempt before integration. In-place waves and non-wave callers retain gate/review coverage, not a new patch detector.
 - **`inheritProjectContext: true`** lets agents adapt to the consumer's `AGENTS.md`; `spec-summarizer` sets it `false` and takes `tools: read` only, so it reads nothing but the spec passed to it - a confused briefing or a long Missing-from-the-spec block signals a thin spec.
 - **`thinking` unset on `implementer`/`wave-reviewer`** so each preset supplies it (see [Thinking budgets](#thinking-budgets)). `conformance-reviewer` and the two pinned council personas pin `xhigh`: the gate often inherits the main session's model (`closureReview.model` unset) and must run at max budget regardless of preset config; the applier is unpinned.
 - **`spec-council-applier` leaves `thinking` unset** so it tracks the main loop unless `agentOverrides` supplies a budget. Its edit/write tools serve spec-only edits; `completionGuard: false` keeps this spec executor outside the implementation completion guard.

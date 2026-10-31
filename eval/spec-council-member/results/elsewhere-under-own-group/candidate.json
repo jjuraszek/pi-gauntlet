@@ -1,7 +1,7 @@
 {
   "sample": "elsewhere-under-own-group",
   "arm": "candidate",
-  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
+  "skillSha": "124fc7e127d9ada3f5df4d74191592cac03af42ea0dba49874e3952e418873ef",
   "inputSha": "d3f954f8f410726fa7aefaf9222488c10f6e55471374ea4034cb7ee23d815432",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — the download, empty-header and 10000-widget rows are covered, but the column row (id, name, status) is marked `elsewhere: acme/mailer` even though the ticket lists it under `### acme/widgets`, so the CSV's required contents are left unspecified in this repo.\nfindings:\n- [blocker] scope @ \"The CSV contains id, name, and status columns in that order. - elsewhere: acme/mailer\" — In Human input this row sits under the `### acme/widgets` heading. That heading equals this repo (acme/widgets), so `elsewhere:` is invalid. Mailer cannot decide which columns the widgets download contains. → Change the disposition to `in-scope` and specify the header `id,name,status` and the per-row field order in Design. — probed: none\n- [major] gap @ \"Column selection is assigned to mailer; write the header even when no rows exist.\" — Design hands column selection to mailer but still requires a header. The header contents are never defined, so the empty-collection row cannot be implemented or tested. → Replace this with \"Columns are id, name, status in that order; the header row `id,name,status` is always written, including for an empty collection.\" — probed: none\n- [major] ambiguity @ \"This change delivers all four widgets rows.\" — This contradicts the acceptance list, which marks one of the four widgets rows `elsewhere`. It also contradicts Verification, which tests \"column order\" in this repo. → Make Goal, Design, AC and Verification agree on one position: all four widgets rows are in-scope. — probed: none\n- [major] gap @ \"Read widgets in id order in batches of 1000.\" — The problem says users download \"their widgets\". The spec never says which widgets are included (the current user's, or an account's) or what authentication or authorization the GET requires. → State the collection scope (for example, widgets owned by the current user) and the response for unauthenticated requests (401 or a redirect). — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope.\" — \"when in-scope\" is conditional wording, but the row is already marked in-scope. The benchmark environment and pass condition are also not pinned down. → Say \"Run the 10000-widget benchmark; it passes when the complete response arrives in ≤60s\", and name the environment (local dev DB, seeded fixture). — probed: none\n- [minor] ambiguity @ \"Request tests check ... CSV escaping\" — Escaping rules are not specified in Design. Commas, quotes, newlines and formula-leading characters in `name` are undefined. → Specify RFC 4180 quoting, and decide whether values beginning with =, +, - or @ are neutralized. — probed: none\n- [minor] ambiguity @ \"Read widgets in id order in batches of 1000.\" — The spec does not say whether the response is streamed per batch or buffered. This affects memory use and how a mid-export error appears after headers have been sent. → State streamed or buffered, and the behavior when an error occurs mid-stream. — probed: none\nlean: nothing to cut\n",
-      "words": 446,
-      "wallMs": 15554,
+      "text": "verdict: needs-work\naddresses-problem: partial — the spec covers download, the 60s benchmark, and header-only empty output, but it sends the widgets CSV column row to acme/mailer, so the widgets export's contents are left unspecified in widgets.\nfindings:\n- [blocker] scope @ \"The CSV contains id, name, and status columns in that order. - elsewhere: acme/mailer\" — In Human input this row sits under the `### acme/widgets` heading, which is this repo (acme/widgets). It does not sit under a group naming another repo, so `elsewhere:` is not allowed here. Mailer never produces the CSV, so delegating its columns there leaves the widgets download with no defined contents. → Change the disposition to `in-scope` and specify the header `id,name,status` in that order in Design. — probed: Human input `### acme/widgets` group vs. spec AC row - row is listed under acme/widgets, not acme/mailer\n- [blocker] gap @ Design \"Column selection is assigned to mailer\" — The Design defines the widgets export endpoint but gives its columns to mailer. The implementer cannot know what columns the widgets CSV should hold, and \"write the header even when no rows exist\" has no defined header. → Replace with \"Columns are id, name, status in that order; the header row is always written.\" — probed: none\n- [major] ambiguity @ Goal \"This change delivers all four widgets rows.\" — This contradicts the AC table, which marks only three widgets rows `in-scope` and one widgets row `elsewhere`. → Fix the disposition per the first finding so all four widgets rows are `in-scope`, which makes the Goal statement true. — probed: none\n- [major] ambiguity @ Verification \"Request tests check the download headers, column order and CSV escaping\" — Widgets tests verify column order for a row the spec marks `elsewhere`. Either the disposition or the test is wrong. → Keep the column-order test and make the row `in-scope`. — probed: none\n- [minor] ambiguity @ Verification \"Run the 10000-widget benchmark for the 60s row when in-scope\" — The row is unconditionally `in-scope`, so \"when in-scope\" is a dead conditional. The benchmark's environment and pass criterion are also unstated: hardware/CI runner, DB seeding, and whether it is a gating test. → Drop \"when in-scope\". State where the benchmark runs and that exceeding 60s fails it. — probed: none\n- [minor] ambiguity @ Verification \"CSV escaping\" — No escaping rules are defined in Design. It does not say how commas, quotes, newlines, and nulls in name/status are handled, or whether a BOM or CRLF line endings are used. → Add \"RFC 4180 quoting, CRLF line endings, no BOM, nulls as empty fields\" (or the chosen rules) to Design. — probed: none\nlean: nothing to cut\n",
+      "words": 411,
+      "wallMs": 13652,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — The download endpoint, empty export, and performance requirement are covered, but the required CSV schema is incorrectly assigned to mailer.\nfindings:\n- [blocker] scope @ Acceptance criteria: “The CSV contains id, name, and status columns in that order. - elsewhere: acme/mailer” — This row belongs to the acme/widgets group in Human input, so assigning it elsewhere is not authorized. Design’s “Column selection is assigned to mailer” also contradicts the Goal’s promise to deliver all four widgets rows and leaves widgets without ownership of its CSV schema → Mark this row in-scope and specify that widgets emits id, name, and status in that order for both the header and data rows; retain only the email notification row as elsewhere: acme/mailer — probed: none\nlean: nothing to cut\n",
-      "words": 124,
-      "wallMs": 11523,
+      "text": "verdict: needs-work\naddresses-problem: partial — The download, performance, and empty-output requirements are covered, but the spec incorrectly transfers the widgets CSV schema requirement to mailer.\nfindings:\n- [blocker] scope @ Acceptance criteria: “The CSV contains id, name, and status columns in that order. - elsewhere: acme/mailer” and Design: “Column selection is assigned to mailer” — This ticket row belongs to the acme/widgets group, not acme/mailer. Human input assigns mailer only the notification; it does not authorize transferring CSV column selection. The disposition also contradicts the Goal’s claim to deliver all four widgets rows and leaves CSV generation dependent on an undefined mailer contribution → Mark the column-order row in-scope and specify that widgets writes the id, name, and status header and corresponding row values in that order; retain mailer ownership only for the email and download link — probed: none\nlean: nothing to cut\n",
+      "words": 137,
+      "wallMs": 7923,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2efb798eeaf73a48fdaaee0b9ef240576645f84594be81d009225919aca6f8b5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "d186e1a2500f231bf084e9669fc4d20bdea33c59603ad0761fe67cafcd62e91b",
-      "candidateOutputSha": "d186e1a2500f231bf084e9669fc4d20bdea33c59603ad0761fe67cafcd62e91b",
+      "candidateOutputSha": "89c11d148363ad4a9e6c70765fb44fe451f2bff5f11519b91043506f53670da2",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "After is byte-for-byte identical to Before, so nothing moved: the [blocker] scope finding still quotes the column row with its `elsewhere: acme/mailer` disposition and names the `### acme/widgets` heading as the reason it is invalid (f1), and no finding targets the mailer row's `elsewhere: acme/mailer`, which is left alone as a legitimate handoff (f2). This case is an already-passing baseline acting as a guard for the Change, not a forced failure; the revised wording preserved ordinary spec-review assembly and behavior exactly as intended. Keep the current wording for ordinary spec reviews — the only thing to confirm separately is that the new caller-brief and wording-reference files are routed solely to ticket-idea-overflow, since this sample shows the member persona's spec-review path unaffected by that addition.",
-      "wallMs": 6510,
+      "feedback": "Neither fact moved. Both Before and After open with a [blocker] scope finding quoting the column row together with its `elsewhere: acme/mailer` disposition and correcting it to `in-scope` (f1), and neither output raises any finding against the mailer row's own `elsewhere: acme/mailer`, which is correctly left alone since that row sits under `### acme/mailer` in the human input (f2). After in fact tightens the scope finding by adding a probe citing the `### acme/widgets` group heading, and it promotes the Design column-selection gap to blocker while splitting the Goal/Verification contradiction into two findings; none of this affects the facts under test. The only wording caution for the After change: the new pr-source/major-gap language should stay keyed to clauses sourced from a PR title/body, so that a row legitimately dispositioned `elsewhere` under a heading naming another repo (like the mailer row here) continues to draw no finding, and the invalid-elsewhere case continues to surface as a scope blocker rather than being reclassified as a provenance gap.",
+      "wallMs": 9677,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2efb798eeaf73a48fdaaee0b9ef240576645f84594be81d009225919aca6f8b5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "intentSha": "e4be5dcc8b90157b291ce34711cd6998e68a7b852c1ae5ef3bf517117f2ff9e4",
       "baselineOutputSha": "305186cfb017ed5ab3a6892188933c6191934040abea2f71e099657379ad4b4c",
-      "candidateOutputSha": "305186cfb017ed5ab3a6892188933c6191934040abea2f71e099657379ad4b4c",
+      "candidateOutputSha": "8d39ddb44f32163afdcebfcbd8d364641c25c03527b0ea3250873eedf1373a27",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical, so nothing moved on this case: both carry a single blocker of kind scope quoting the column row with its “elsewhere: acme/mailer” disposition (f1), and neither raises any finding on the mailer notification row — the fix line explicitly retains it as elsewhere (f2). The Change's revised caller brief and the in-scope-excess simplifications are not exercised here, which is consistent with the instruction that ordinary spec reviews keep their existing assembly and behavior; this case functions as the intended guard. No wording adjustment is needed for these facts; just ensure the ticket-idea-overflow routing remains gated so ordinary reviews like this one continue to produce the same scope blocker and leave the legitimately-delegated mailer row untouched.",
-      "wallMs": 4877,
+      "feedback": "Neither fact moved. Both outputs raise a single blocker finding of kind scope that quotes the column row and its 'elsewhere: acme/mailer' disposition verbatim (f1 holds in both), and neither output raises any finding on the mailer notification row's elsewhere: acme/mailer disposition — both explicitly direct retaining it (f2 holds in both). After additionally quotes the Design clause 'Column selection is assigned to mailer' inside the same finding, which is a reasonable sharpening and does not introduce a separate finding kind or touch the mailer row. No wording adjustment is needed to preserve f1 and f2; the Change's pr-source behavior is not exercised by this case since no PR-sourced clause exists in the input, so the After wording's effect here is neutral.",
+      "wallMs": 6191,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }
