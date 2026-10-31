@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.0.2 - 2026-10-31
 
 - **Implementer identity and guard exception.** Structured returns copy the dispatched `anchor` or `anchors` so failed tasks remain identifiable. Explicit `completionGuard: false` preserves edit-less `NEEDS_CONTEXT` and `BLOCKED` returns; isolated waves reject edit-less `DONE` through their patch requirement, while in-place and non-wave callers retain gate/review coverage.
 - **Artifact-first failed-chain recovery.** Recover missing structured results from identity-matched `output.json` captures before diagnosis, retaining accepted siblings. The fallback carrier names `agent: "delegate"` and `Do not edit any file.` so it is addressable and stays read-only. Missing or empty initial patches count as failed attempts; nonempty apply failures still hard-stop.
