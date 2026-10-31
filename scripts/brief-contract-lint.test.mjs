@@ -196,6 +196,7 @@ for (const line of legBlock.split('\n')) {
 }
 assert.ok(actualContract.includes('worktree: missing'));
 assert.ok(actualContract.includes('## Coordinated admission'));
+assert.ok(actualContract.includes('Render that derivation in the stop: name the recorded `home:` pattern and the shared NAME it was resolved from, and state that the pattern locates the tree without authorizing its recreation, a synthesized receipt or inferred approval.'));
 assert.ok(routes.includes('3b. **Coordinated admission.**'));
 
 for (const [name, text, tokens] of [
