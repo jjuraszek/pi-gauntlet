@@ -82,8 +82,6 @@ const mutated = realFiles.map((f) =>
 );
 assert.deepEqual(rules(mutated), ["grammar-outside-contract:skills/gauntlet-handoff/SKILL.md"]);
 
-console.log("brief-contract lint fixtures pass");
-
 const reconstruction = realFiles.find(f => f.rel === "skills/gauntlet-resume/reference/reconstruction.md").text;
 const ledgerRestore = reconstruction.split("## Spec with ledger")[1].split("## Spec with plan")[0];
 for (const token of ["Shared cap boundary", "cap:", "Skip Entry step 1 entirely", "ledger has no cap: line - seeded under the old loopEngine contract", "After the loop", "latest operational"]) assert.ok(ledgerRestore.includes(token), token);
@@ -105,6 +103,39 @@ for (const token of ["after check 6", "start brainstorm", "skip brainstorm resum
 const actualContract = realFiles.find(f => f.rel === CONTRACT_FILE).text;
 const implementRow = actualContract.split("\n").find(line => line.startsWith("| implement with ledger"));
 assert.ok(implementRow.includes("shared cap boundary"));
+const ledgerGrammar = actualContract.split("## Brief grammar")[1].split("## Producers")[0];
+assert.match(ledgerGrammar, /Permit task rows beside a ledger/);
+assert.match(ledgerGrammar, /Reject a block mixing these fields with `Active task` or missing either loop field/);
+assert.doesNotMatch(ledgerGrammar, /carrying task rows with a ledger|Never initialize a task tracker/);
+const ledgerStatus = "Plan: 0/1 done (1 in progress)\n\n  → [0] row 1\n";
+assert.deepEqual(rules(files({ [CONTRACT_FILE]: contract.replace("Ledger: ", "```\n```text\n" + ledgerStatus + "Ledger: ") })), []);
+for (const [name, text, pattern] of [
+  ["implement", implementRow, /`start implement`.*pending recovery.*refresh.*no `init`/],
+  ["verify and ship", actualContract, /For verify\/ship ledger briefs[^\n]*`start verify`[^\n]*saved task list[^\n]*`plan_tracker init`[^\n]*refresh/],
+]) assert.match(text, pattern, `${name}: phase and ledger task restoration order`);
+assert.match(ledgerRestore, /pending recovery.*before.*refresh/i);
+assert.match(ledgerRestore, /refresh[^\n]*before[^\n]*dirty-tree stop/);
+for (const token of ["exactly one new home commit", "zero new commits", "multiple commits", "pre-dispatch", "## Validate the return", "restore the target row and the tuple", "preserve other child changes"]) assert.ok(ledgerRestore.includes(token), token);
+const recovery = ledgerRestore.split("### Pending recovery")[1];
+assert.match(recovery, /no `pending:`.*home commit history.*before.*refresh/i);
+assert.match(recovery, /latest home child row\/seed commit.*unrelated commits follow it/);
+assert.match(recovery, /commit body's first two lines.*`pending:` tuple.*consumed `iteration:`/);
+assert.match(recovery, /pre-dispatch SHA.*ancestor.*live HEAD/);
+assert.match(recovery, /entire.*pre-dispatch HEAD>\.\.HEAD.*never.*HEAD\^/);
+assert.match(recovery, /missing.*malformed.*mismatched.*stop before refresh/i);
+assert.match(recovery, /parent admission\/repair or approved ledger mutation.*never replay/);
+for (const [name, pattern] of [
+  ["saved admission evidence", /saved post-admission snapshot.*HEAD.*dirty/],
+  ["snapshot binding", /ancestor of live HEAD.*ledger.*unchanged/],
+  ["ordinary admission has no marker", /ordinary home admission.*no parent commit or ledger mutation/i],
+  ["ambiguous history question", /Was home return <sha> admitted before the later commits or dirty changes/],
+  ["read-only ambiguity stop", /ledger bytes, counters and task list unchanged.*no refresh.*no target\/tuple restoration/],
+  ["settled continuation", /Confirmed settled.*preserve the current ledger.*normal restore/i],
+]) assert.match(recovery, pattern, name);
+assert.match(recovery, /read-only admission-evidence check.*before phase\/task restoration/);
+assert.match(ledgerRestore, /unrecoverable attribution or before-image.*stop before refresh/i);
+assert.match(actualContract, /legacy ledger brief without task rows[^\n]*directly to refresh/i);
+assert.match(actualContract, /Never send a ledger task list through task-plan repair/);
 assert.match(actualContract, /For every ledger brief apply the shared cap boundary[^\n]+before dispatch or verification/);
 
 const producer = actualContract.split("## Producers")[1].split("## Tracker output grammar")[0];
@@ -126,6 +157,12 @@ const candidateRules = reconstruction.split("## Candidates")[1].split("## Spec w
 for (const token of ["first pair's", "## Problem", "Read candidate contents before choosing", "exclude exactly those paths", "before the multi-spec prompt", "Keep this explicit exclusion set authoritative through plan/ledger pairing", "skip that pair", "Never promote an excluded member spec", "Never choose by filename"]) assert.ok(candidateRules.includes(token), token);
 const realHandoff = realFiles.find(f => f.rel === "skills/gauntlet-handoff/SKILL.md").text;
 assert.ok(realHandoff.includes("every top-level PR identity"));
+assert.match(realHandoff, /Never refresh or mutate either tracker/);
+const amendment = realFiles.find(f => f.rel === "skills/brainstorming/reference/amendment-surface.md").text;
+assert.match(amendment, /skip `plan-writer` and `plan_check`/);
+assert.match(amendment, /commit[^\n]*refresh/i);
+assert.match(amendment, /Stopped: row <n> reopened by amendment during verify/);
+assert.match(amendment, /## Dispatch[^\n]*## Validate the return/);
 assert.match(realHandoff, /copy the optional top-level rework base after the pairs as the contract specifies/);
 assert.match(candidateRules, /use its full `Rework base:` SHA as `<base>` when present, else the first pair's full `Pre-rework head:` SHA/);
 assert.match(candidateRules, /Without the optional pairs, including a bare worktree, use the ordinary base/);
@@ -170,3 +207,5 @@ for (const [name, text, tokens] of [
 ]) {
   for (const token of tokens) assert.ok(text.includes(token), `${name}: ${token}`);
 }
+
+console.log("brief-contract lint fixtures pass");

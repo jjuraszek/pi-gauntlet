@@ -1,2 +1,2 @@
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
-All rows closed, exit verification passed at clean HEAD abc. Trace implement completion to finish, with no changes first; then a review repair; then conformance returns CONFORMS. Overrides Happy path selects CLI row. State exact closure sentinel and read references.
+All rows closed in an admitted clean single loop commit at HEAD abc. No full verification has run. The next ledger refresh reports every task complete or skipped and implement complete. Trace the refresh through verify to finish, with no changes first; then a review repair; then conformance returns CONFORMS. Overrides Happy path selects CLI row. State exact closure sentinel and read references.

@@ -1,6 +1,21 @@
-for: 75c078b472a40dc3eeab0a8332b92eeb85ddffcfabeda37c0dd37ef0a2ee0bc3
+for: 451dbc80b46134a26dd70237d2a39205beae98507f5688a4a8af78d1bf4c6baa
 
 ## Change
+
+Recover home return attribution from the child commit body when a restart finds no pending tuple on disk or in session memory. Distinguish settled home admission from interruption using an existing post-admission snapshot bound to a clean HEAD, ancestry and an unchanged ledger, or a confirmed parent disposition; ordinary admission has no parent ledger commit. Ask before phase/task restoration or ledger mutation when later commits or dirty changes leave admission ambiguous. For confirmed interrupted returns, validate the full pre-dispatch-SHA..HEAD range, including a child behind unrelated live HEAD; restore target/tuple on dirt or extra commits and stop before refresh when attribution cannot be recovered. Extend ledger-tracker-recovery with settled-home-verify and ambiguous-home-history facts: preserve an admitted child across a later code-only verification commit, or ask rather than replaying an unproven return. Keep the existing clean/dirty/multiple-commit/missing-attribution, settled parent repair/amendment and restore facts. Reuse existing snapshot fields and the companion attribution prefix without a new carrier. Parent verify owns model runs, assembly-hash updates and result records.
+
+Restore ledger-derived tasks after legal phase reconstruction and pending recovery, before unresolved dirty-tree stops. Implement uses one ledger-path refresh without init; verify/ship restores the full saved mixed list before refresh, preserving Gn states and fresh conformance. Recover clean attributed home returns without double counting; preserve rejected child changes and restore target/tuple before projection. Require explicit authorization for a verify-phase re-bound, an on-disk row close and a gate rerun. The new synthetic ledger-tracker-recovery sample checks these narrated boundaries, not live tool execution. Parent verify owns full-target model runs and records; deterministic worker tests attest only the contract assertions.
+
+Approved replacements (holds -> replaced), limited to these existing facts; all other expected facts stay byte-identical:
+
+| Sample/fact | Replacement |
+|---|---|
+| loop-ledger-worktree/restore | One refresh after implement start, no init. |
+| durable-cap/route | One refresh after implement start, no init, no reseed. |
+| loop-ledger-brief/consumer | Implement start then one ledger-path refresh. |
+| loop-ledger-brief/verify-ledger | Restore saved mixed statuses when present, then refresh; legacy No plan active goes directly to refresh; retain the ledger gate and fresh conformance. |
+| legacy-cap-brief/continue | No reseed; one refresh. |
+| loop-no-ledger/route | No writing-plans or plan_tracker init; refresh follows Entry step 5's implement start. |
 
 Recover the active base-tracked spec/plan pair through the brief's PR identities in its Rework record despite an empty added-file diff; use Rework base as the tracked plan's evidence boundary, retaining exclusions and human confirmation.
 
@@ -14,7 +29,7 @@ PR-subject baseline: `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58`. Handoff carries
 
 Resume routes baseline-line and substantive baseline-form open-questions findings to a fresh foreground plan-writer with Findings: rerun baseline before citation classification. The parent rechecks, returns to the originating restore with snapshot task identities and statuses on PASS, and retains plan in_progress without tracker initialization while presenting the fix-first/narrow/amend menu or restore-and-rerun on remaining baseline failures. Contract questions use the answers path. Citation repair retains its mechanical table and rollback. Discovery applies the shared menu-layout contract when presenting candidates and resolving numeric picks.
 
-Resume verify-stage Ledger briefs, including ship-stage briefs restored at verify, in loop-implementation's After the loop from full ledger verification after the restored start verify, retaining whole-diff review, happy path when triggered, fresh conformance and finishing without task-tracker calls.
+Resume verify-stage Ledger briefs, including ship-stage briefs restored at verify, in loop-implementation's After the loop from full ledger verification after the restored start verify, retaining whole-diff review, happy path when triggered, fresh conformance and finishing with the saved mixed task list restored before a ledger-path refresh.
 
 Carry all PR/head pairs consecutively in record order, home first, while retaining terminal gate history. Validate actual worktree branch against home before tracker writes and reject branch or pair-order mismatch with both observations. Reconstruct from home's original head; member-spec exclusions remain authoritative through plan pairing. Preserve untouched single-PR and ordinary no-pair reconstruction, grants, snapshots and gate-history checks. The named pr-list-brief sample contains pr-list-brief-mismatch and pr-list-brief-order variants. New narrated cases are setup-only coverage until genuine before/after outcomes establish a move; held/pre-existing facts are not wording improvements and must-hold facts are not relaxed. The current run uses the runner's merge-base baseline; the explicit baseline above describes the earlier single-PR edit.
 
@@ -24,6 +39,14 @@ Cover home-bound coordinated admission, informational HEAD/dirt drift, membershi
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
 
 ## Expected to move
+- ledger-tracker-recovery/implement-order: fails -> holds - Restore phases, recover pending, then refresh before unresolved dirt; never init an implement ledger list.
+- ledger-tracker-recovery/home-return: fails -> holds - Recover attribution from the commit body after a tuple-free restart and admit a clean bounded home return through the driver without consuming the iteration twice.
+- ledger-tracker-recovery/rejected-return: fails -> holds - Recover the child's attribution even behind unrelated HEAD, validate the full dispatch range and restore target/tuple before projection on dirty or multiple-commit terminal returns; preserve child changes.
+- ledger-tracker-recovery/missing-attribution: new -> holds - Stop before refresh when the child body supplies no recoverable identity; completed rows or HEAD^ never establish admission.
+- ledger-tracker-recovery/interrupted: fails -> holds - Project the zero-commit pending row before stopping, without redispatch.
+- ledger-tracker-recovery/legacy: fails -> holds - Refresh legacy No plan active ledger briefs without init/settings/reseed.
+- ledger-tracker-recovery/mixed-verify: fails -> holds - Preserve the full verify/ship mixed task snapshot and fresh conformance across refresh.
+- ledger-tracker-recovery/rebound: fails -> holds - Require authorization, an on-disk close and gate rerun for a verify re-bound; cuts and re-bounds do not increment reopens.
 - pr-subject-rebase-repair-brief/candidates: fails -> holds - Resolve the base-tracked active pair by Rework record identity and route to Spec with plan.
 - pr-subject-rebase-repair-brief/evidence: fails -> holds - Use Rework base as the tracked plan commit and derive task status from post-base evidence.
 - pr-list-brief/producer: fails -> holds - Carry all three ordered pairs home first, preserving tracker output, Active task and terminal gate history; N=1 and no-record remain intact.

@@ -6,11 +6,18 @@
 **Architecture:** Add explicit refresh to the existing snapshot tracker, not a second lifecycle. Keep dispatch admission in the driver, put the full gate at verify step 1, and extend existing telemetry reducers and CLI output.
 **Tech Stack:** TypeScript, Node test runner, Markdown skills/evals, YAML, esbuild.
 **Spec:** `doc/specs/2026-10-31-gh-106-universal-task-tracking.md`
-**Verification:** `npm test`
+**Verification:** `npm test`; `node eval/run.mjs loop-implementation`; `node eval/run.mjs gauntlet-resume`; `node eval/run.mjs gauntlet-handoff`; `node eval/run.mjs brainstorming`
 **Ticket:** `jjuraszek/pi-gauntlet#106`
+**Baseline policy:** implement-local
 Baseline jjuraszek/pi-gauntlet: 5135218e
 
 Baseline provenance: HEAD 5135218e; initial porcelain empty. Every subsequent inventory contains only the untracked plan, an admitted workflow file; no source changes or generated artifacts. Task 1 executed 431 tests, Task 2 executed 111, Task 3 executed 19, Task 4 executed 7, Task 5 executed 1, Task 6 executed 91, all exit 0. Initial Task 1/2 commands without the CI loader failed on missing host Pi packages (204 tests/2 failures and 26 tests/1 failure). Recon of scripts/ci.mjs:452-479 identified the pi-stubs loader; both corrected commands were executed successfully at the same HEAD, resolving those failures. Unchanged commands retain their directly executed evidence at HEAD, not inferred evidence. A subsequent git diff --quiet 5135218e 5135218e excluding doc/specs/ and doc/plans/ exited 0; no evidence SHA changed.
+
+Baseline provenance: implement-local amendment at home jjuraszek/pi-gauntlet revision b4fb5e44; initial porcelain empty. Retain all six unchanged task command groups and their measured 5135218e evidence, including the original declaration and failure/resolution history above. No changed, added, missing or invalid task-command evidence requires execution. No endpoint-tree equivalence or baseline rerun performed. Admit only doc/specs/2026-10-31-gh-106-universal-task-tracking.md and doc/plans/2026-10-31-gh-106-universal-task-tracking.md for these workflow edits; do not describe the amended working tree as clean HEAD.
+
+Baseline provenance: implement-local retry at home jjuraszek/pi-gauntlet revision b4fb5e44; initial porcelain contains only unstaged changes to doc/plans/2026-10-31-gh-106-universal-task-tracking.md and doc/specs/2026-10-31-gh-106-universal-task-tracking.md, both explicitly admitted. Retain all six command groups byte-for-byte against the first apply report's original inventory; no command or evidence changed, so no task tests or endpoint-tree equivalence run. Execution tree is b4fb5e44 plus these workflow edits, not clean HEAD.
+
+**Verification ownership:** The parent runs the complete header command set at verify step 1 in the integrated home worktree, not in implementation workers or between-wave gates. Record each full target's command, exit and result; commit its report and required eval records. Require every non-superseded fact to hold before whole-diff review and finish. A failed, refused, interrupted or inconclusive run blocks verification. Route repairs to Task 4 for loop behavior or Task 5 for restoration/handoff/amendment behavior, then rerun affected full targets without widening approved fact replacements or the scoped-command restriction. Task completion attests only its manifest-supplied deterministic scoped tests, not model-eval success.
 
 ---
 
@@ -18,9 +25,11 @@ Baseline provenance: HEAD 5135218e; initial porcelain empty. Every subsequent in
 
 **Modify - runtime:** `extensions/plan-tracker.ts`, `extensions/plan-tracker.test.ts`, `extensions/phase-tracker.test.ts`, `extensions/lib/plan-check.ts`, `extensions/lib/plan-check.test.ts`, `extensions/lib/telemetry-collect.ts`, `extensions/lib/telemetry-collect.test.ts`, `extensions/lib/telemetry-record.ts`, `extensions/lib/telemetry-record.test.ts`, `extensions/telemetry.ts`, `extensions/telemetry.test.ts`, `src/bins/gauntlet-performance.mjs`, `src/bins/performance/runs.mjs`, `bin/gauntlet-performance.test.mjs`.
 
-**Modify - loop:** `skills/loop-implementation/SKILL.md`, `skills/loop-implementation/reference/coordinated-legs.md`, `agents/loop-implementer.md`, `scripts/loop-engine-contract.test.mjs`, `eval/loop-implementation/intent.md`, `eval/loop-implementation/report.md`, `eval/loop-implementation/samples/verify-lifecycle/case.md`, `eval/loop-implementation/samples/verify-lifecycle/expected.md`, `eval/loop-implementation/samples/escalated-row-attempt/expected.md`.
+**Modify - loop:** `skills/loop-implementation/SKILL.md`, `skills/loop-implementation/reference/coordinated-legs.md`, `agents/loop-implementer.md`, `scripts/loop-engine-contract.test.mjs`, `eval/loop-implementation/intent.md`, `eval/loop-implementation/samples/verify-lifecycle/case.md`, `eval/loop-implementation/samples/verify-lifecycle/expected.md`, `eval/loop-implementation/samples/escalated-row-attempt/expected.md`.
 
-**Modify - restore:** `skills/gauntlet-resume/SKILL.md`, `skills/gauntlet-resume/reference/reconstruction.md`, `skills/gauntlet-resume/reference/brief-contract.md`, `skills/gauntlet-handoff/SKILL.md`, `skills/brainstorming/reference/amendment-surface.md`, `scripts/brief-contract-lint.test.mjs`, the three target intent/report pairs and six expected-fact files enumerated in Task 5.
+**Modify - restore:** `skills/gauntlet-resume/SKILL.md`, `skills/gauntlet-resume/reference/reconstruction.md`, `skills/gauntlet-resume/reference/brief-contract.md`, `skills/gauntlet-handoff/SKILL.md`, `skills/brainstorming/reference/amendment-surface.md`, `scripts/brief-contract-lint.test.mjs`, the three target intent files and six expected-fact files enumerated in Task 5.
+
+**Parent verification outputs:** `eval/loop-implementation/report.md`, `eval/gauntlet-resume/report.md`, `eval/gauntlet-handoff/report.md`, `eval/brainstorming/report.md` and required records under each target's results directory. The parent generates and commits these at verify step 1; they are not implementation-worker file ownership.
 
 **Create:** Task 4's tracker-refresh, tracker-boundary and tracker-verify case.md/expected.md pairs; Task 5's ledger-tracker-recovery and ledger-task-list pairs. Exact paths appear in their ownership blocks.
 
@@ -34,7 +43,7 @@ Baseline provenance: HEAD 5135218e; initial porcelain empty. Every subsequent in
 
 Single member, home-owned spec and plan; every command runs in the caller's worktree. Read the spec's Rules list plus `skills/forge-skill/SKILL.md`; no extra nested AGENTS.md or CLAUDE.md was found. Keep persona frontmatter byte-identical. No deployment topology or Happy path table exists. Keep this one plan.
 
-CI uses `--experimental-loader ./extensions/test-support/pi-stubs.mjs` for extension tests. There is no separate scoped formatter/linter in package.json: preserve neighboring style and run `git diff --check` for owned files. Full CI bundles style, bin freshness and deterministic tests, not model evals. Use OS-temp fixtures. Wave 1 tests own independent scratch roots; Wave 2 tasks own different eval targets/reports. Model runs write those reports and ignored result caches, not source fixtures.
+CI uses `--experimental-loader ./extensions/test-support/pi-stubs.mjs` for extension tests. There is no separate scoped formatter/linter in package.json: preserve neighboring style and run `git diff --check` for owned files. Full CI bundles style, bin freshness and deterministic tests, not model evals. Use OS-temp fixtures. Wave 1 tests own independent scratch roots; Wave 2 tasks own different instructions, samples and intent files. Model runs and their reports/records belong only to parent verification after integration.
 
 Preserve `skills/subagent-driven-development/` and `skills/writing-plans/`. At verify require `git diff --stat 5135218e..HEAD -- skills/subagent-driven-development skills/writing-plans` empty. The first real loop-run observation belongs to the post-merge venue, not a nested flow during implementation; do not post or close #106 without that observation and explicit comment-text approval.
 
@@ -43,7 +52,7 @@ Preserve `skills/subagent-driven-development/` and `skills/writing-plans/`. At v
 ### Task 1: Add atomic ledger refresh and home-pending admission
 Leg: jjuraszek/pi-gauntlet
 **TDD scenario:** Modifying tested code - existing tests first.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L33, § "Acceptance criteria" L39, § "Design" L89, § "The `refresh` action" L93, § "The `refresh` action" L95-L103, § "The `refresh` action" L105, § "The `refresh` action" L107-L116, § "The `refresh` action" L118, § "The `refresh` action" L120, § "Resume, handoff, amendment, coordinated legs" L144, § "Errors and edge cases" L186, § "Errors and edge cases" L187, § "Errors and edge cases" L188, § "Errors and edge cases" L191, § "Errors and edge cases" L192, § "Errors and edge cases" L193, § "Errors and edge cases" L198, § "Errors and edge cases" L199, § "Out of scope" L237
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L33, § "Acceptance criteria" L39, § "Design" L89, § "The `refresh` action" L93, § "The `refresh` action" L95-L103, § "The `refresh` action" L105, § "The `refresh` action" L107-L116, § "The `refresh` action" L118, § "The `refresh` action" L120, § "Resume, handoff, amendment, coordinated legs" L144, § "Errors and edge cases" L186, § "Errors and edge cases" L187, § "Errors and edge cases" L188, § "Errors and edge cases" L191, § "Errors and edge cases" L192, § "Errors and edge cases" L193, § "Errors and edge cases" L198, § "Errors and edge cases" L199, § "Out of scope" L239
 
 **Files:**
 - Modify: `extensions/plan-tracker.ts`
@@ -61,6 +70,8 @@ Leg: jjuraszek/pi-gauntlet
 - via: `plan_tracker`, `validateSnapshot`, `applyPlanActivity`, `homePending`
 
 Decision: use the existing tool-error convention without a successful snapshot or completion; resolve relative path against execute context cwd, absolute unchanged. Existing consumers ignore error details. `PlanTrackerDetails`, `latestPlanSnapshot` and widget replay remain the transport. Keep `init`, `add`, `update`, `status`, `clear` behavior unchanged.
+
+Verification ownership: `npm test` is the parent-only header gate for these unchanged regression assertions; this task runs only its scoped Tests commands.
 
 - [ ] Run the scoped tests. Add temp-file cases to the existing harness and confirm red: cut, baseline done, dispatched done, failed with/without pending, open with pending, stale pending on done/cut, `pending: seed`, all-cut, no-cap, mapped home/companion, out-of-order row 3 before row 2, and retained pending/started/finished Gn tasks.
 - [ ] Implement local parser/projection inside `extensions/plan-tracker.ts`, not a registry. Require line 1 `# Ledger - loop engine`; parse the row table, `## Decisions`, optional `## Leg mapping` and `pending:`. Use the existing grammar in `reference/coordinated-legs.md` (`coordinated-legs.md:43`). Ignore `cap:`/`iterations:` for projection and treat every mapping entry as live. Respect escaped evidence pipes and section boundaries. The spec displays the header as `\| row \| status \| attempts \| evidence \|` and allowed statuses as `open\|done\|failed\|cut`.
@@ -93,6 +104,8 @@ Leg: jjuraszek/pi-gauntlet
 - via: `hasReopen`, `onPlanTracker`, `matchTestStatement`, `derive`
 
 Decision: replace boolean `hasReopen` with `countReopens(prev, next): number`, retaining optional string names in `lastPlanTasks` at extensions/telemetry.ts:632 and calling it on any successful `plan_tracker` snapshot at :725-739. Two distinct names reopening must count twice. Existing dispatch-result collection at :688-722 and implement plan-total capture stay unchanged.
+
+Verification ownership: `npm test` is the parent-only header gate for these unchanged regression assertions; this task runs only its scoped Tests commands.
 
 - [ ] Run existing tests, then replace only index-based cases at `extensions/lib/telemetry-collect.test.ts:35-39`. Add named transition tests: `complete -> failed`, `complete -> in_progress`, two names, reorder, `failed -> in_progress`, `complete -> skipped`, `complete -> pending`, absent and nameless tasks. Add any-action collector cases and confirm red.
 - [ ] Count each matching string name once per transition; increment `task_reopens` by the count and emit one existing gate event per transition. Remove update-only gating; repeated refresh never recounts. Preserve `extensions/telemetry.test.ts:1144-1154` unchanged. A `done -> cut` amendment and done-to-open (`reopened by amendment`) are not reopens; the latter's verify stop belongs to Tasks 4/5.
@@ -127,12 +140,12 @@ Decision: follow loadRecord's numeric/null JSON convention with `dispatches_per_
 
 ## Wave 2 - Loop and restoration protocols
 
-Depends on Wave 1: refresh, admission and measurements exist. Tasks 4/5 own disjoint instructions and model-target outputs; the spec fixes their shared protocol.
+Depends on Wave 1: refresh, admission and measurements exist. Tasks 4/5 own disjoint instructions, samples and intent files; the spec fixes their shared protocol. Parent verification owns model-target execution and outputs after integration.
 
 ### Task 4: Route loop dispatch and verification through the tracker lifecycle
 Leg: jjuraszek/pi-gauntlet
-**TDD scenario:** Tested instruction change - deterministic red/green plus model evals.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Acceptance criteria" L51, § "Design" L89, § "The loop driver" L126, § "The loop driver" L127, § "The loop driver" L128, § "The loop driver" L129, § "The loop driver" L130, § "The loop driver" L131, § "The loop driver" L132, § "The loop driver" L133, § "Verification at verify step 1" L137, § "Verification at verify step 1" L139, § "Resume, handoff, amendment, coordinated legs" L147, § "Resume, handoff, amendment, coordinated legs" L148, § "Docs and evals" L161, § "Superseded eval facts and contract assertions" L165, § "Superseded eval facts and contract assertions" L175-L176, § "Superseded eval facts and contract assertions" L179, § "Errors and edge cases" L187, § "Errors and edge cases" L188, § "Errors and edge cases" L189, § "Errors and edge cases" L190, § "Errors and edge cases" L194, § "Errors and edge cases" L195, § "Errors and edge cases" L196, § "Errors and edge cases" L199, § "Out of scope" L239, § "Out of scope" L242
+**TDD scenario:** Tested instruction change - deterministic red/green; model evals belong to parent verify step 1.
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Acceptance criteria" L51, § "Design" L89, § "The loop driver" L126, § "The loop driver" L127, § "The loop driver" L128, § "The loop driver" L129, § "The loop driver" L130, § "The loop driver" L131, § "The loop driver" L132, § "The loop driver" L133, § "Verification at verify step 1" L137, § "Verification at verify step 1" L139, § "Resume, handoff, amendment, coordinated legs" L147, § "Resume, handoff, amendment, coordinated legs" L148, § "Docs and evals" L161, § "Superseded eval facts and contract assertions" L165, § "Superseded eval facts and contract assertions" L175-L176, § "Superseded eval facts and contract assertions" L179, § "Errors and edge cases" L187, § "Errors and edge cases" L188, § "Errors and edge cases" L189, § "Errors and edge cases" L190, § "Errors and edge cases" L194, § "Errors and edge cases" L195, § "Errors and edge cases" L196, § "Errors and edge cases" L199, § "Tests" L228, § "Out of scope" L241, § "Out of scope" L244
 
 **Files:**
 - Modify: `skills/loop-implementation/SKILL.md`
@@ -140,7 +153,6 @@ Leg: jjuraszek/pi-gauntlet
 - Modify: `agents/loop-implementer.md`
 - Modify: `scripts/loop-engine-contract.test.mjs`
 - Modify: `eval/loop-implementation/intent.md`
-- Modify: `eval/loop-implementation/report.md`
 - Modify: `eval/loop-implementation/samples/verify-lifecycle/case.md`
 - Modify: `eval/loop-implementation/samples/verify-lifecycle/expected.md`
 - Modify: `eval/loop-implementation/samples/escalated-row-attempt/expected.md`
@@ -161,7 +173,7 @@ Decision: keep targeting, validation and human stops inside the driver. Reduce p
 
 - [ ] Run the contract test, add new refresh/pending/admission/verify assertions and confirm red. Change only the named old assertions: remove Exit verification from two headings lists, replace its reference slice with whole-reference checks, remove its dispatch-read reference and replace `assert.doesNotMatch(driver, /pending:|companion-return-shell|## Leg mapping/)` with a positive Dispatch pending assertion. Keep `companion-return-shell` and `## Leg mapping` excluded from the driver, and pending excluded from the legacy seed skeleton. Keep every other existing assertion intact.
 - [ ] Add tracker-refresh scenarios: all-cut/baseline seed, out-of-order close, in-flight retry, cut after dispatch, completion via refresh. Add tracker-boundary scenarios: allowance failed, dirty/commit boundary in_progress, cap with no active row; done+dirty and two commits at immediate stop and resume. Add tracker-verify: per-leg gate, once-per-flow repair, restricted failure menu and authorized re-bound closure. Keep raw row-status explanations in expected facts, never in the skill.
-- [ ] Rewrite only `verify-lifecycle` `contract` and `escalated-row-attempt` `ledger-prepare-local` facts, recording `holds -> replaced` in intent. Update verify-lifecycle input to remove its already-passed exit premise. Preserve all other facts. Task 5 owns `eval/gauntlet-handoff` and `eval/gauntlet-resume` and their intent.md changes; run `node eval/run.mjs loop-implementation` after the instruction changes.
+- [ ] Rewrite only `verify-lifecycle` `contract` and `escalated-row-attempt` `ledger-prepare-local` facts, recording `holds -> replaced` in intent. Update verify-lifecycle input to remove its already-passed exit premise. Preserve all other facts. Task 5 owns `eval/gauntlet-handoff` and `eval/gauntlet-resume` and their intent.md changes. Retain ownership of the loop instruction changes, samples, expected facts and intent file; leave full-target execution, reports and required records to parent verification under the header contract.
 - [ ] Entry step 5: `plan_check`, commit `loop: seed ledger`, `phase_tracker({ action: "start", phase: "implement" })`, then `plan_tracker({ action: "refresh", path: <absolute ledger path> })`. All-cut needs this after `start implement`. Rule 1 becomes `No open or failed row | Refresh; require implement complete; continue at ## After the loop step 0. All-cut and baseline-complete ledgers exit here.` Do not start verify when a refresh leaves implement active.
 - [ ] In `## Dispatch`, take the home saved ledger before iterations bump/tuple write. Persist the consumed count and tuple before every home/companion dispatch, then refresh with absolute path only. Use home for zero/one `## Legs`; actual member for coordinated. Preserve companion SAVED_LEDGER's post-bump/pending meaning. No extra commit. The extension, not skill prose, maps `open`, `failed`, `done`, `cut`, `pending`, `in_progress`, `complete`, `skipped`.
 - [ ] In the persona add removal of pending in the home commit and its header-preservation exception, leaving companion body attribution and frontmatter unchanged. In `## Validate the return`, permit only iterations+1 and tuple removal alongside existing row/decision rules; a tuple left in an admitted clean single commit is an ordinary miss. Clear it in failed-row repair. Retry/cut/amend/raise-cap/escalate do not clear it. Home `loop: row ...` and `loop: seed evidence` commits remove it only on a valid return; validate both seed and ordinary paths.
@@ -171,12 +183,12 @@ Decision: keep targeting, validation and human stops inside the driver. Reduce p
 - [ ] Verify failure prints `Stopped: verification failed with every row closed`, keeps verify active and implement complete, offers amend/stop only, not `Retry with hint` or `cap +N`. Limit `## Human stop`'s implement-active and row/cap offers to implement stops. Preserve raw output handling; do not implement #109's gate set, selective checks or `loop: regress row <m>`. Task 7 updates `doc/implement-engines.md` compatibly.
 - [ ] Drop tracker exclusions from the conformance continuation and use normal Gn tasks. A done-to-open `reopened by amendment` triggers `Stopped: row <n> reopened by amendment during verify`: authorize row return or stop. On approval use normal Dispatch/Validate/refresh with verify still active, no phase reset; close on disk and rerun step 1. `phase-tracker.ts:1227-1243` blocks `complete verify` until closure, not a `plan_tracker update` workaround. Verify `done -> cut` projects `complete -> skipped` and a re-bound projects `complete -> pending`, neither a telemetry reopen.
 - [ ] Check coordination naming and pending semantics with `plan_tracker status`; `# Ledger - loop engine`, `## Decisions` and mapped row naming remain owned by the extension. Task 5 updates `skills/gauntlet-resume/SKILL.md`, `skills/gauntlet-resume/reference/reconstruction.md`, `skills/gauntlet-resume/reference/brief-contract.md`, `skills/gauntlet-handoff/SKILL.md`, `skills/brainstorming/reference/amendment-surface.md`; the brief keeps `## Process state`, `Ledger:` and `Last decision:`. Check `/skill:gauntlet-handoff` and `/skill:gauntlet-resume` continuation against that contract. Use `rg -n -i "tracker|initiali"` on the touched loop reference to find remaining carve-outs; do not alter Task 5's owned files here.
-- [ ] Rerun scoped tests and the full loop target green; `node eval/run.mjs` evidence must hold all non-superseded facts. Run `git diff --check`, inspect driver below 150 lines and record before/after counts in PR body. Commit `Drive loop lifecycle with ledger refresh (ref #106)` as a behavior-changing instruction edit.
+- [ ] Rerun only the manifest-supplied deterministic scoped tests; completion does not attest `node eval/run.mjs` success. Leave model runs to parent verify step 1, not a between-wave gate. Repair loop findings routed back by the parent without changing other facts; the parent reruns the affected full target. Run `git diff --check`, inspect driver below 150 lines and record before/after counts in PR body. Commit `Drive loop lifecycle with ledger refresh (ref #106)` as a behavior-changing instruction edit.
 
 ### Task 5: Restore ledger task views and preserve conformance tasks
 Leg: jjuraszek/pi-gauntlet
-**TDD scenario:** Tested instruction change - deterministic red/green plus model evals.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Acceptance criteria" L51, § "Resume, handoff, amendment, coordinated legs" L143, § "Resume, handoff, amendment, coordinated legs" L145, § "Resume, handoff, amendment, coordinated legs" L146, § "Resume, handoff, amendment, coordinated legs" L147, § "Docs and evals" L161, § "Superseded eval facts and contract assertions" L165, § "Superseded eval facts and contract assertions" L169-L174, § "Superseded eval facts and contract assertions" L177, § "Errors and edge cases" L189, § "Errors and edge cases" L191, § "Errors and edge cases" L193, § "Errors and edge cases" L195, § "Errors and edge cases" L197
+**TDD scenario:** Tested instruction change - deterministic red/green; model evals belong to parent verify step 1.
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Acceptance criteria" L51, § "Resume, handoff, amendment, coordinated legs" L143, § "Resume, handoff, amendment, coordinated legs" L145, § "Resume, handoff, amendment, coordinated legs" L146, § "Resume, handoff, amendment, coordinated legs" L147, § "Docs and evals" L161, § "Superseded eval facts and contract assertions" L165, § "Superseded eval facts and contract assertions" L169-L174, § "Superseded eval facts and contract assertions" L177, § "Errors and edge cases" L189, § "Errors and edge cases" L191, § "Errors and edge cases" L193, § "Errors and edge cases" L195, § "Errors and edge cases" L197, § "Tests" L228
 
 **Files:**
 - Modify: `skills/gauntlet-resume/SKILL.md`
@@ -186,16 +198,13 @@ Leg: jjuraszek/pi-gauntlet
 - Modify: `skills/brainstorming/reference/amendment-surface.md`
 - Modify: `scripts/brief-contract-lint.test.mjs`
 - Modify: `eval/gauntlet-resume/intent.md`
-- Modify: `eval/gauntlet-resume/report.md`
 - Modify: `eval/gauntlet-resume/samples/loop-ledger-worktree/expected.md`
 - Modify: `eval/gauntlet-resume/samples/loop-ledger-brief/expected.md`
 - Modify: `eval/gauntlet-resume/samples/durable-cap/expected.md`
 - Modify: `eval/gauntlet-resume/samples/legacy-cap-brief/expected.md`
 - Modify: `eval/gauntlet-resume/samples/loop-no-ledger/expected.md`
 - Modify: `eval/gauntlet-handoff/intent.md`
-- Modify: `eval/gauntlet-handoff/report.md`
 - Modify: `eval/brainstorming/intent.md`
-- Modify: `eval/brainstorming/report.md`
 - Modify: `eval/brainstorming/samples/loop-ledger-amend/expected.md`
 - Create: `eval/gauntlet-resume/samples/ledger-tracker-recovery/case.md`
 - Create: `eval/gauntlet-resume/samples/ledger-tracker-recovery/expected.md`
@@ -217,7 +226,7 @@ Decision: keep grammar centralized in `skills/gauntlet-resume/reference/brief-co
 - [ ] Remove no-task-tracker clauses at each owning sentence in resume SKILL, reconstruction and contract. Keep `plan_tracker init` allowed only to restore a saved verify/ship mixed list. Refresh on restore must keep all non-ledger names/statuses; output `plan_tracker status` is exact observed state, not inferred state. Keep failed row allowance, boundary in_progress and cap no-active-row distinctions.
 - [ ] In the ledger aftermath now at :224 (spec citation `skills/brainstorming/reference/amendment-surface.md:172`), retain no `plan-writer` and no `plan_check`, reconcile/cut/reopen, commit `loop: amend` or the existing cut subject, then refresh. No task-plan add/update/init lifecycle. Keep attempts/iterations/cap. Replace exclusions in loop restore without touching waves. A re-bound row in verify stops with `Stopped: row <n> reopened by amendment during verify`, no automatic implement rewind and no `plan_tracker update` closure; approved row return invokes `loop-implementer` through Task 4's `## Dispatch` and `## Validate the return`, changes the ledger on disk and reruns the gate. A `done -> cut` maps `complete -> skipped`; a re-bound maps `complete -> pending`, neither a reopen counter increment.
 - [ ] Replace only authorized facts: loop-ledger-worktree `restore`; durable-cap `route`; loop-ledger-brief `consumer` and `verify-ledger`; legacy-cap-brief `continue`; loop-no-ledger `route`; loop-ledger-amend `bypass`. Preserve all other facts byte-for-byte; intent entries mark each old fact `holds -> replaced`. Task 4 owns verify-lifecycle and escalated-row-attempt replacements. Record new sample must-hold facts in resume/handoff intent files.
-- [ ] Run `node eval/run.mjs gauntlet-resume`, `node eval/run.mjs gauntlet-handoff`, `node eval/run.mjs brainstorming`; require full targets to hold all non-superseded facts, save reports, inspect only new behavioral regressions. Run scoped tests and `git diff --check`; no Markdown formatter is configured. Commit `Restore ledger-backed task snapshots (ref #106)` as a behavior-changing instruction edit.
+- [ ] Retain ownership of restoration, handoff and amendment instruction changes, samples, expected facts and intent files. Run only the manifest-supplied deterministic scoped tests; completion does not attest model-eval success. Leave all three full-target runs, reports and required records to parent verify step 1 under the header contract, not implementation workers or between-wave gates. Repair findings routed back by the parent without widening approved fact replacements; the parent reruns affected full targets. Run `git diff --check`; no Markdown formatter is configured. Commit `Restore ledger-backed task snapshots (ref #106)` as a behavior-changing instruction edit.
 
 Contract literal cross-references for these restore edits: `skills/loop-implementation/SKILL.md`, `phase_tracker complete implement`, `phase_tracker complete verify`, `phase-tracker.ts:1227-1243`, `row 0 done`, `loop: seed evidence`, `pending:`, `in_progress`, `failed`, `done`, `open`, `cut`, `reopened by amendment`, `## After the loop`, `start verify`, `start implement`, `init`, `refresh`, `verify`, `ship`, `eval/loop-implementation`, `eval/gauntlet-resume`, `eval/gauntlet-handoff`, `intent.md`, `node eval/run.mjs`, `eval/brainstorming`, `loop-ledger-worktree`, `restore`, `durable-cap`, `route`, `loop-ledger-brief`, `consumer`, `verify-ledger`, `legacy-cap-brief`, `continue`, `loop-no-ledger`, `loop-ledger-amend`, `bypass`. They identify the existing routing and facts above, not new runtime fields.
 
@@ -244,6 +253,8 @@ Leg: jjuraszek/pi-gauntlet
 - baseline: 5135218e pass
 - via: `gauntlet-performance`, `gauntlet-telemetry-seal`, `gauntlet-spec-index`
 
+Verification ownership: `npm test` is the parent-only header gate for bundle freshness through `scripts/ci.mjs`; this task runs only its scoped Tests commands and the build below.
+
 - [ ] Run baseline tests, extend Task 3's new source behavior assertions to shipped CLI and confirm red before regeneration.
 - [ ] Run `npm run build:bins`, the `scripts/build-bins.mjs` source owner. Do not hand-edit `bin/*.mjs`. Rerun scoped tests: all cases pass, new derived counter survives seal and ratios match source. Repeat build and require no further generated differences.
 - [ ] Run `git diff --check`; retain only generated changes and the shipped-harness extension. Header verification at verify covers the existing `scripts/ci.mjs` bundle-freshness check; do not run the full suite in this task. Commit `Regenerate telemetry and performance bundles (ref #106)`.
@@ -255,7 +266,7 @@ Depends on Waves 1-3: documentation names the implemented lifecycle and released
 ### Task 7: Document ledger tracking and the post-merge evidence venue
 Leg: jjuraszek/pi-gauntlet
 **TDD scenario:** Documentation-only change - manual source/link check.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L49, § "Acceptance criteria" L53-L54, § "Docs and evals" L158, § "Docs and evals" L159, § "Docs and evals" L160, § "Documentation impact" L230, § "Documentation impact" L231, § "Out of scope" L239, § "Out of scope" L243
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L49, § "Acceptance criteria" L53-L54, § "Docs and evals" L158, § "Docs and evals" L159, § "Docs and evals" L160, § "Documentation impact" L232, § "Documentation impact" L233, § "Out of scope" L241, § "Out of scope" L245
 
 **Files:**
 - Modify: `doc/configuration.md`
@@ -290,7 +301,7 @@ Leg: jjuraszek/pi-gauntlet
 | § "Acceptance criteria" L45 | Comparable ratio and unavailable conditions | Task 3 |
 | § "Acceptance criteria" L47 | Sealed coordination flag | Task 3 |
 | § "Acceptance criteria" L49 | Configuration/engine docs and predecessor banner | Task 7 |
-| § "Acceptance criteria" L51 | Model samples and retained facts | Task 4, Task 5 |
+| § "Acceptance criteria" L51 | Model samples, retained facts and intents; execution belongs to Tests ownership below | Task 4, Task 5 |
 | § "Acceptance criteria" L53-L54 | Enable gated post-merge observation | Task 2, Task 3, Task 7 |
 | § "Design" L89 | Explicit refresh, not watcher or parser registry | Task 1, Task 4 |
 | § "The `refresh` action" L93 | Path boundary and existing actions | Task 1 |
@@ -321,7 +332,7 @@ Leg: jjuraszek/pi-gauntlet
 | § "Docs and evals" L158 | Configuration enum, aftermath and metrics | Task 7 |
 | § "Docs and evals" L159 | Engine guide completion, gate and restoration | Task 7 |
 | § "Docs and evals" L160 | Predecessor scoped supersession | Task 7 |
-| § "Docs and evals" L161 | New samples, intents and full target runs | Task 4, Task 5 |
+| § "Docs and evals" L161 | New samples and intents; parent runs full targets under Tests ownership below | Task 4, Task 5 |
 | § "Superseded eval facts and contract assertions" L165 | Preserve facts except named replacements | Task 4, Task 5 |
 | § "Superseded eval facts and contract assertions" L169-L174 | Six resume replacements | Task 5 |
 | § "Superseded eval facts and contract assertions" L175-L176 | Two loop replacements | Task 4 |
@@ -346,12 +357,13 @@ Leg: jjuraszek/pi-gauntlet
 | § "Errors and edge cases" L202 | Nameless snapshots never match | Task 2 |
 | § "Errors and edge cases" L203 | Dropped events make ratio unavailable | Task 3 |
 | § "Tests" L223 | Fresh generated bundles | Task 6 |
-| § "Documentation impact" L230 | Public docs and changelog | Task 7 |
-| § "Documentation impact" L231 | Existing scoped banner remains accurate | Task 7 |
-| § "Out of scope" L237 | Preserve waves source and omit waves parser | Task 1 |
-| § "Out of scope" L238 | No automatic tool-end refresh | waived: out of scope per spec |
-| § "Out of scope" L239 | Gate-set design stays with #109 | Task 4, Task 7 |
-| § "Out of scope" L240 | Budget unification and multi-row closure | waived: out of scope per spec |
-| § "Out of scope" L241 | No timing, ratio target, historical denominator or live identification | waived: out of scope per spec |
-| § "Out of scope" L242 | Targeting, validation and stops remain in driver | Task 4 |
-| § "Out of scope" L243 | Exact-text approval for first-run comment | Task 7 |
+| § "Tests" L228 | Parent runs all full model targets at integrated verify step 1; records and commits results, blocks unsuccessful runs, routes repairs and reruns before review/finish; workers retain inputs and scoped tests only | Verification |
+| § "Documentation impact" L232 | Public docs and changelog | Task 7 |
+| § "Documentation impact" L233 | Existing scoped banner remains accurate | Task 7 |
+| § "Out of scope" L239 | Preserve waves source and omit waves parser | Task 1 |
+| § "Out of scope" L240 | No automatic tool-end refresh | waived: out of scope per spec |
+| § "Out of scope" L241 | Gate-set design stays with #109 | Task 4, Task 7 |
+| § "Out of scope" L242 | Budget unification and multi-row closure | waived: out of scope per spec |
+| § "Out of scope" L243 | No timing, ratio target, historical denominator or live identification | waived: out of scope per spec |
+| § "Out of scope" L244 | Targeting, validation and stops remain in driver | Task 4 |
+| § "Out of scope" L245 | Exact-text approval for first-run comment | Task 7 |

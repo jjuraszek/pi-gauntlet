@@ -6,6 +6,8 @@ Read `## Legs` with [the scope grammar](../../brainstorming/reference/legs.md#sc
 
 Retain the home skeleton's `**Spec:**`, `verification:`, `iterations:`, `cap:` and `## Decisions` fields and its `plan_check`/commit admission. Read each member's verification from the home spec's `## Legs` `contract:` `- verification:` line before dispatch; keep the existing home verification header.
 
+For coordinated exit, read each leg's verification from the home spec's `## Legs` `contract:` `- verification:` line and apply the driver's `## After the loop` step 1 in verify. Keep `loop: repair verification` once per flow, not per failing leg. Success only after every leg passes; retain each verified HEAD and clean status.
+
 Assign numeric entries in original AC order, then membership order for shared ACs, independent of scope-list order. Leave spec rows untouched and copy each cut disposition to every expanded entry. Keep the four-column table and add `## Leg mapping` with `row | ac | leg`, one mapping per entry exactly once. Reject duplicate/missing mappings. Keep `base:` as home base; record one actual `base repo-a: <sha>` / `seeded repo-a: no` pair per member, including home. Resolve bases with each member's `git -C`, not home HEAD.
 
 Compute initial cap as non-cut entry count times `maxIterationsPerRow` plus one seed dispatch per leg with non-cut entries. One shared home/companion AC and one home-only AC produce three entries, two seeds and cap 14 at default 4; a wholly cut third leg adds no seed. All-cut cap stays 1 and exits without seed. Preserve cap after cuts, reopens, amendments, funding and recovery; only an explicit cap grant raises it.
@@ -18,7 +20,7 @@ Recover pending companion work before generic dirty checks and before any new di
 
 For coordinated targeting, select the next unseeded leg with non-cut entries in membership order before ordinary targeting. Use the existing retry/failed/open priority only after those seeds validate. Skip wholly cut legs; never mark foreign legs seeded. Map each numeric target to its original AC and leg via `## Leg mapping`.
 
-For coordinated dispatch, capture home and selected leg heads and save a pre-dispatch ledger snapshot for the expected-dirt comparison. Select the leg worktree as `cwd` and git root, its own base, mapped original AC, `Leg:` and combined spec/task `Rules:` as additive task inputs. Read spec and ledger by absolute home paths. Bump iterations exactly once. Before every companion dispatch, including seed, persist the exact tuple such as `pending: 2 | repo-b | abc1234` (or `pending: seed | repo-b | abc1234`) with actual target, repo and pre-dispatch HEAD in the home ledger. Keep that expected bump/tuple durable on disk before generic dirty checks; admit no other dirt. After persisting the bump and pending tuple, bind `SAVED_LEDGER` to the durable home ledger for companion admission, not the pre-dispatch snapshot. Pass consumed `iteration:` and the exact `pending:` as attribution. Leave home iterations on the existing single child commit path, validating only home entries and home seeded state.
+For coordinated dispatch, capture home and selected leg heads and save a pre-dispatch ledger snapshot before the iterations bump and tuple write for the expected-dirt comparison. Select the leg worktree as `cwd` and git root, its own base, mapped original AC, `Leg:` and combined spec/task `Rules:` as additive task inputs. Read spec and ledger by absolute home paths. Bump iterations exactly once. Before every dispatch, home or companion including seed, persist the exact tuple such as `pending: 2 | repo-b | abc1234` (or `pending: seed | repo-b | abc1234`) with actual target, member repo and pre-dispatch HEAD in the home ledger. Keep that expected bump/tuple durable on disk before generic dirty checks; admit no other dirt. After persisting the bump and pending tuple, bind `SAVED_LEDGER` to the durable home ledger for companion admission, not the pre-dispatch snapshot. Pass consumed `iteration:` and the exact `pending:` as attribution. Leave home iterations on the existing single child commit path, validating only home entries and home seeded state, with tuple removal in the admitted home commit. Apply the driver's pre-dispatch refresh after the durable write.
 
 ## Companion return validation
 
@@ -86,18 +88,6 @@ if (target === 'seed') {
 console.log(JSON.stringify({ sha: commit, rows: resultLines, decision }));
 NODE
 ```
-
-## Exit verification
-
-For coordinated exit, read each leg's verification from the home spec's `## Legs` `contract:` `- verification:` line and run it once foreground in its owning checkout. Require every leg to pass before completing implement.
-
-With amend permission, `iterations < cap`, resolved `escalationLoop.implModel` and no spent `loop: repair verification` identity, bump home iterations once and record `HEAD_BEFORE` in the failing leg. Dispatch exactly one `implementer` with `model: <implModel>`, `context: "fresh"`, `async: false`, that leg's cwd/Rules, failing output, absolute home spec path and exact leg verification command.
-
-Require all ledger rows unchanged, preserving mapping, cap and prior decisions. The home child's sole commit includes the already-bumped home ledger; after validation parent commits `loop: repair verification`, using an empty parent marker when no dirt remains. A companion child commits its leg only; parent commits the bumped home ledger as `loop: repair verification`, preserving rows and mapping. This marker is once per flow, not per failing leg.
-
-Rerun that command once in the failing leg only. Never spend another leg's verification or verify-phase credits.
-
-Success only after every leg passes: record verified HEAD and clean status.
 
 ## Amendments
 
