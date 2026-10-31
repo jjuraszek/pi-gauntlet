@@ -1,4 +1,4 @@
-for: e5f1f65589f26b53fe16283b1501f88bcafda39081ef5554fc0d50066cee8240
+for: 2fff485270548a0f88677e525545e336a90291660e557117742e752b85340ceb
 
 ## Change
 Recover suppressed apply JSON from exactly one bounded success capture satisfying unchanged APPLY_SCHEMA. Stop without retry only on the exact baseline-read marker, quoting command/stderr; preserve the ordinary one-retry gate. Establish committed plan/spec originals through path-scoped entry commits before dispatch. The missing-baseline and uncommitted-entry samples cover these changes; delegated-amendment and local-amend-revalidation now use committed originals while retaining failure history and parent gates. Model evidence remains verification-owned.
