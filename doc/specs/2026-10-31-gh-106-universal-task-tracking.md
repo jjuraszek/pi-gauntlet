@@ -1,0 +1,248 @@
+# Universal task tracking: derive the loop engine's task view from the ledger
+
+**Goal:** Make `plan_tracker` the one task-tracking tool for every implement engine by teaching the extension to derive a task view from the loop ledger, so the widget, implement auto-completion, unfinished-task guards, verify-phase Gn tasks, handoff/resume task lists, plan totals and reopen counting apply to loop runs unchanged; delete the loop skill's hand-rolled lifecycle; and add `verification_runs` plus a dispatches-per-task ratio to telemetry so the two engines can be compared.
+**Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
+**Engine:** waves
+**Ticket:** #106
+**Predecessor:** `doc/specs/2026-10-23-gh-68-loop-implement-engine.md` - supersedes its "no task tracker" clauses and its implement-exit verification section only.
+
+## Problem
+
+The loop engine (`skills/loop-implementation/SKILL.md`, 150 lines) runs its own lifecycle beside the extension-owned one every other flow uses: it never initializes the task tracker (line 8), completes implement by hand after an `## Exit verification` section, and its resume, handoff, coordinated-legs and amendment references all carry "no task tracker" carve-outs. The tracker's consumers therefore do nothing for a loop run: the widget shows no rows, implement cannot auto-complete, the unfinished-task guard sees nothing, `plan` totals are never captured (`extensions/telemetry.ts:724-735` records them only on tracker-driven auto-completion), and a sealed loop record has no task count to divide dispatches by. In the primary checkout's 96 sealed records, 0 carry `engine: loop` and the 14 `loop-implementer` entries are all `agent_overrides`, so the loop has never been measured.
+
+Current machinery, verified in primary code: the tracker holds a flat `Task[]` replayed from successful `plan_tracker` tool-result snapshots; `validateSnapshot` enforces the pending-suffix rule on `init` and `update`; `update` never sets pending; `complete` and `skipped` count as done, `failed` does not (`extensions/plan-tracker.ts`). Implement auto-completes on any successful `plan_tracker` result whose tasks are all complete/skipped (`extensions/phase-tracker.ts:517-527`); the guard blocks implement/verify completion on pending or in_progress only (`:1227-1243`). `hasReopen` is index-based and counts only `complete -> in_progress` on `update` (`extensions/lib/telemetry-collect.ts:74-76`). `tests` is the latest parent bash call matching `DEFAULT_TEST_COMMANDS` / `verifyBeforeShip.testCommands` (`extensions/lib/gauntlet-settings.ts:203-212`, matcher `extensions/lib/telemetry-paths.ts:65`) and is captured only while verify or ship is in progress (`extensions/telemetry.ts:772-777`). `engine` comes from the bound spec's `**Engine:**` header; `iterations` is the `loop-implementer` dispatch count (`extensions/lib/telemetry-record.ts:131`); events carry `phase` and are capped at 300 with non-lifecycle kinds dropped first (`:38-50`). The ledger's `pending: <row|seed> | <repo> | <sha>` tuple exists today for companion dispatches only (`skills/loop-implementation/reference/coordinated-legs.md:21-27`, regex `:43`).
+
+Corrected premise: the scout named `scripts/loop-engine-contract.mjs` and `scripts/finish-verification.mjs` as test dependencies; those files do not exist. The real files are `scripts/loop-engine-contract.test.mjs` and `scripts/finish-verification.test.mjs`, both run by `npm test`. Unverified: #109 (OPEN) will replace the ledger's full `verification:` run with a gate set of the rows' own recorded checks; its final shape is not on `main`. The named comment (https://github.com/jjuraszek/pi-gauntlet/issues/106#issuecomment-6542036716) asks this ticket to use gate-set wording for verify step 1, `verification_runs` and the `doc/implement-engines.md` row so #109 does not have to undo them. This spec reads "the ledger's gate" as the `verification:` command until #109 lands (Design, "Verification at verify step 1").
+
+User direction (prompt): task tracking is one universal tool for any engine; the change simplifies orchestration and makes the main loop skill shorter. Carried as Design clauses: the tracker never learns engine semantics beyond how to read one artifact into tasks, and the loop skill ends shorter than 150 lines.
+
+Framing: kept - the ticket body after its 09:42 repair already asks for an extension-derived view, which is the user's "universal tool" direction; the scout's "second state machine" objection targets the superseded 08:15 driver-mirror design and names no alternative to the current one.
+
+## Acceptance criteria
+
+Ticket #106, checkbox list, rows verbatim:
+
+- [ ] After the `loop: seed ledger` commit (so an all-cut ledger, which has no seed dispatch, is covered too), `plan_tracker status` in a loop run lists one task per ledger row - in a coordinated run one per `## Leg mapping` entry, home entries included, named with its row number and repository, every entry's status read from the home ledger - with `cut` rows and rows the seed closed on baseline (a `done` row no `row <n> done` decision names, read from the ledger's `## Decisions` section) `skipped`, other `done` rows `complete`, `failed` rows `failed`, the row the ledger's `pending:` tuple names `in_progress`, and every other row `pending`; the list order satisfies the tracker's pending-suffix rule whatever order the ledger rows close in, and the task widget shows these counts for the rest of the run.
+  in-scope
+- [ ] The driver refreshes that view by passing only the ledger path, once after every `loop:` commit and once before every dispatch; a path whose line 1 is not `# Ledger - loop engine` is rejected with an error and leaves the current task list unchanged. Before every dispatch, home or companion, the driver persists the existing `pending:` tuple (today written only for companion dispatches) naming the target row, and the return's `loop:` commit clears it, so the in-flight row is on disk for the refresh, a handoff brief and a resume. `skills/loop-implementation/SKILL.md` contains no `plan_tracker` `init`, `add` or `update` call and no sentence naming a row's tracker status, and a ledger whose row statuses were changed on disk by an approved cut or amendment shows the new statuses after the next refresh with no re-init step in the skill.
+  in-scope
+- [ ] A loop whose every row is `done`, `cut` or baseline-closed completes the implement phase through the tracker's existing auto-completion on the next refresh; the loop skill contains no `phase_tracker complete implement` call and no implement-phase exit-verification section; a `failed` or `in_progress` task keeps implement active; the ledger's full verification command runs once per leg at verify step 1 with today's output handling (#109 changes how that output is handled, at whichever location exists when it lands) and a failure there uses the existing once-per-flow escalated repair.
+  in-scope
+- [ ] A human stop leaves implement active and the view as the ledger stands: a row stopped at its allowance shows `failed`, a dirty-tree or commit-boundary stop after a dispatch shows that row `in_progress`, and a cap stop (before dispatch) shows no `in_progress` row.
+  in-scope
+- [ ] Verify-phase conformance fix rounds in a loop run append their gaps as Gn tasks to the same view, exactly as a waves run does, and a refresh keeps appended non-ledger tasks with their statuses; a verify-phase resume restores the brief's saved task list like a waves run, so an open Gn task stays open and blocks verify completion; the loop skill's "without plan_tracker initialization or lifecycle updates" clause is gone.
+  in-scope
+- [ ] A `/skill:gauntlet-handoff` brief written during a loop run carries the ledger task list in `## Process state` (one line per row with its status, the dispatched row marked as in progress) beside the existing `Ledger:` and `Last decision:` fields; `/skill:gauntlet-resume` on that brief, or on the bare worktree, rebuilds the view from the ledger with one refresh after phase reconstruction and the ledger-derived part of `plan_tracker status` then matches the ledger row by row; the "no task tracker" and "never initialize" clauses are removed from `skills/loop-implementation/SKILL.md`, `skills/loop-implementation/reference/coordinated-legs.md`, `skills/gauntlet-resume/SKILL.md`, `skills/gauntlet-resume/reference/reconstruction.md`, `skills/gauntlet-resume/reference/brief-contract.md` and `skills/brainstorming/reference/amendment-surface.md`, and the brief contract no longer rejects task rows beside a ledger.
+  in-scope
+- [ ] The telemetry `task_reopens` count increments, for either engine, exactly once each time a task leaves `complete` for `failed` or `in_progress`, matched by task name rather than list position, so a `done` row flipped to `failed` by a later check counts once, the dispatch that follows it does not count again, and a `done` row cut by amendment (`complete -> skipped`) does not count; the seed refresh, a resume refresh and an amendment refresh that only reorder the list leave it unchanged.
+  in-scope
+- [ ] `skills/subagent-driven-development/` and `skills/writing-plans/` are byte-unchanged (`git diff --stat <base>..HEAD -- <those paths>` is empty), every existing test in `extensions/plan-tracker.test.ts`, `extensions/phase-tracker.test.ts` and `extensions/telemetry.test.ts` passes unchanged under `npm test`, `plan_tracker` `init`/`add`/`update`/`status`/`clear` behave as before for a waves run, and `extensions/plan-tracker.test.ts` gains cases for the ledger refresh: an all-cut ledger, a baseline-closed `done` row, a `pending:` row shown `in_progress`, an out-of-order close that still satisfies the pending-suffix rule, appended Gn tasks surviving a refresh, and a non-ledger file rejected.
+  in-scope
+- [ ] A loop-engine gauntlet run on this repo (any spec, in a worktree) produces a sealed telemetry record whose `engine` is `loop`, whose `iterations` equals the number of `loop-implementer` dispatches, and whose plan totals are present, with tasks minus skipped equal to the rows still in scope when implement completed.
+  in-scope
+- [ ] The sealed record of any run carries, as `verification_runs` beside the existing `tests` latest-result field, the number of times the parent ran the resolved full verification command (per leg in a coordinated run; a rerun after a repair counts again) between seed (or implement start, for waves) and seal; child-run tests and a row's own check are not counted, and two runs in one phase count as two.
+  in-scope
+- [ ] `gauntlet-performance` prints, for every record, dispatches per task = child results recorded during the implement phase in that record (companion-leg dispatches are in the home record) / (plan tasks minus skipped), the same rule for both engines, and `n/a` when the record has no plan totals, the denominator is 0, or `events_dropped` is above 0.
+  in-scope
+- [ ] `gauntlet-performance` marks a record as coordinated when its sealed `legs:` list is non-empty, so single-repo and multi-repo ratios can be filtered apart.
+  in-scope
+- [ ] `doc/configuration.md`'s telemetry section documents `verification_runs` and the dispatches-per-task rule; `doc/implement-engines.md` states that the loop engine's task view is derived from the ledger and that the full verification run sits at verify step 1, and its resume and amendment sections no longer say the loop skips task tracking; the loop engine spec (`doc/specs/2026-10-23-gh-68-loop-implement-engine.md`) carries an amendment note superseding its "no task tracker" and exit-verification statements.
+  in-scope
+- [ ] `eval/loop-implementation` gains samples for the seed refresh (including an all-cut ledger and rows closing out of ledger order), an in-flight row showing `in_progress` during a dispatch, a cut after dispatch, and implement completion through the refresh; `eval/gauntlet-handoff` gains a mid-loop brief carrying the task list; `eval/gauntlet-resume` gains a ledger restore that rebuilds the view; `node eval/run.mjs` on each target holds every existing fact.
+  in-scope
+- [ ] The first real loop run on this repo after the change is posted as a comment on this ticket before it closes, by the requester or by an agent after explicit confirmation of the comment text: dispatches, tasks minus skipped, verification runs and the printed ratio, with `events_dropped` equal to 0 (PR #105's comparability condition).
+  venue: post-merge loop run on this repo - the sealed record's dispatches, tasks minus skipped, `verification_runs` and printed ratio, posted on #106 only after explicit confirmation of the comment text
+
+## Legs
+
+### Leg: jjuraszek/pi-gauntlet
+branch: gh-106-universal-task-tracking
+contract:
+- create: git worktree add <home> -b <branch>
+- destroy: git worktree remove <home> && git worktree prune
+- home: .worktrees/<name>
+- spec-dir: doc/specs
+- plan-dir: doc/plans
+- verification: `npm test` run in the worktree (AGENTS.md "Testing"; no `## verification-before-completion` or `## PR gate` section in the overrides file); `npm run build:bins` before it whenever `src/bins/` or `extensions/lib/` changed
+Rules: AGENTS.md
+Rules: AGENTS.core.md
+Rules: .pi/gauntlet-overrides.md
+Rules: README.md
+Rules: CHANGELOG.md
+Rules: doc/personas.md
+Rules: doc/configuration.md
+Rules: doc/implement-engines.md
+Rules: doc/install-internals.md
+Rules: doc/gate-contract.md
+Rules: eval/README.md
+Rules: .agents/skills/release/SKILL.md
+Rules: skills/gauntlet-handoff/SKILL.md
+Rules: skills/gauntlet-resume/SKILL.md
+Rules: skills/gauntlet-resume/reference/brief-contract.md
+Rules: skills/brainstorming/reference/legs.md
+Rules: skills/finishing-a-development-branch/reference/legs.md
+scope: none
+design: owns every path in Design; observable outcomes are the AC rows above
+
+## Design
+
+The axis settled in brainstorming: the ledger-to-task projection runs inside the extension and the driver triggers it with one explicit action. Approach 1 (explicit `refresh`, snapshot replace) was chosen over a bind-once auto-refresh (no tool result to replay from, deviates from AC 2's explicit refresh points) and over a line-1 parser registry with a waves plan parser (dead code under AC 8).
+
+### The `refresh` action
+
+`plan_tracker` gains `action: "refresh"` with a `path` parameter. The driver passes the absolute ledger path it already carries for dispatch (`ledger: <absolute ledger path>`), because the main session's cwd is the primary checkout, not the implementation worktree; a relative path resolves against the session cwd and exists for ad-hoc calls only. Nothing else in the tracker learns what a ledger means; `init`, `add`, `update`, `status` and `clear` are byte-for-byte unchanged in behavior for a waves run.
+
+Refresh reads the file and rejects it whole - a tool error naming the path and the observed first line, no snapshot emitted, current list untouched, no auto-completion - when any of these holds:
+
+| Condition | Error |
+|---|---|
+| `path` missing or file unreadable | `refresh: cannot read <path>: <reason>` |
+| line 1 is not exactly `# Ledger - loop engine` | `refresh: <path> line 1 is "<observed>", not a loop ledger` |
+| row table header is not `\| row \| status \| attempts \| evidence \|` or a row has a non-numeric `row` or a status outside `open\|done\|failed\|cut` | `refresh: <path> row table malformed at line <n>` |
+| `pending:` tuple names a row absent from the table | `refresh: <path> pending: names row <n> which is absent` |
+| a `## Leg mapping` entry names a row absent from the table | `refresh: <path> leg mapping names row <n> which is absent` |
+
+Parsed inputs: the row table; the `## Decisions` section (a `row <n> done | ... | ...` decision line marks row n as closed by a dispatch; its absence on a `done` row marks baseline closure); an optional `## Leg mapping` section in `reference/coordinated-legs.md`'s existing grammar; the optional `pending: (seed|<n>) | <repo> | <sha>` line (existing regex at `coordinated-legs.md:43`). The `cap:` and `iterations:` headers are not part of the projection, so a legacy ledger without `cap:` refreshes.
+
+Projection, one task per row (name `row <n>`), or one per `## Leg mapping` entry (name `row <n> (<repo>)`, home entries included):
+
+| Ledger state | Task status |
+|---|---|
+| `cut` | `skipped` |
+| `done` with no `row <n> done` decision (baseline-closed) | `skipped` |
+| `done` with a `row <n> done` decision | `complete` |
+| `failed`, not named by `pending:` | `failed` |
+| `open` or `failed` row named by a numeric `pending:` tuple | `in_progress` |
+| `open` otherwise | `pending` |
+
+Precedence: a valid numeric `pending:` tuple overrides both `open` and `failed` - a retry dispatch leaves the row `failed` on disk while the tuple names it, and that row projects `in_progress`, not `failed`; `done` and `cut` take precedence over a stale tuple naming them (no rejection). `pending: seed` names no row and marks nothing `in_progress`.
+
+The emitted list replaces every ledger-derived task (recognized by the `row <n>` / `row <n> (<repo>)` name shape) and keeps every other task with its status. Order: non-pending ledger tasks in row order, then kept non-pending tasks in their existing order, then pending ledger tasks in row order, then kept pending tasks. The extension orders the list itself, so the pending-suffix rule holds whatever order rows close in and `validateSnapshot` never rejects a projection. The result is emitted as the same `PlanTrackerDetails` snapshot `init` emits; the widget, `latestPlanSnapshot` replay, auto-completion, guards, handoff and resume consume it unchanged.
+
+### The loop driver
+
+The loop skill becomes a thin driver over the extension's lifecycle:
+
+- Entry step 5 runs in this order: `plan_check`, commit `loop: seed ledger`, `phase_tracker({ action: "start", phase: "implement" })`, then `plan_tracker({ action: "refresh", path: <absolute ledger path> })`. The refresh must follow the start: `applyPlanActivity` auto-completes only while implement is `in_progress` (`phase-tracker.ts:517-527`), and an all-cut ledger has no later dispatch or commit to trigger another refresh. An all-cut ledger therefore projects every task `skipped` on this one seed refresh, auto-completion fires, and the driver reaches verify with no dispatch. This is the one seed refresh; AC 2's "after every `loop:` commit" is satisfied by it.
+- Rule 1 of the ordered table reads: `No open or failed row | Refresh; require implement complete; continue at ## After the loop step 0. All-cut and baseline-complete ledgers exit here.` When that refresh leaves implement active (a `failed` or `in_progress` task - a resumed ledger whose rejected return was restored, or a tuple the recovery below left in place), the driver takes the matching human stop below, never `start verify`.
+- Before every dispatch, home or companion, it writes `pending: <row or seed> | <repo> | <HEAD sha>` into the ledger in the working tree - the repo field is the leg identifier for a coordinated run and `home` for a spec without `## Legs` or with one block - commits nothing extra, and calls refresh so the widget shows the row `in_progress`; the tuple rides uncommitted exactly as it does for companions today. The home saved ledger copy (`## Validate the return` step 2's comparison base) is taken before the iterations bump and the tuple write; home header validation admits exactly two header deltas, `iterations` +1 and the `pending:` line removed, and rejects every other header change as today. `agents/loop-implementer.md` gains the step "remove the `pending:` line from the ledger in your commit" and its line-61 header-preservation sentence names that removal as its one exception.
+- Return admission is the boundary for projecting a child's terminal result. The driver refreshes after a child `loop: row ...` / `loop: seed evidence` commit only once `## Validate the return` step 1 (clean tree, exactly one commit) has admitted it; the tuple-left-in-place miss (validation table row: an admitted return whose committed ledger still carries the tuple is an ordinary miss) applies only after that admission. On a rejected boundary return (dirty tree, zero or multiple commits) the driver restores the pre-dispatch target row cells and the `pending:` tuple from the saved copy into the working-tree ledger - leaving every other child change and commit in place, as the boundary stop already preserves them - then refreshes, so the stop and a later handoff or resume show that row `in_progress` (AC 4) even though the child's commit may already have written `done` and removed the tuple.
+- `pending:` is cleared only by the commit that closes the dispatch: the admitted child `loop: row ...` / `loop: seed evidence` commit (home), the `loop: record <repo> row <n>` parent commit (companion, as today), or a home `loop: repair row <n>` that records the target `failed`. A rejected companion return keeps the tuple as `coordinated-legs.md` already requires, so resume can recover it; the parent retry, cut, amend, raise-cap and escalate commits never touch the tuple.
+- After every admitted `loop:` commit (child or parent) it calls refresh once. When every row is `done`, `cut` or baseline-closed, that refresh auto-completes implement through `phase-tracker.ts:517-527`; the driver then continues to `## After the loop` step 0.
+- Remove: the `## Exit verification` section; the `phase_tracker({ action: "complete", phase: "implement" })` call; line 8 "Never initialize a task tracker or run reviewers inside implement" (keep "never run reviewers inside implement" as its own sentence); rule 1's `Exit verification` action text (replaced above); `## After the loop` step 1's "Reuse the passing exit run only when HEAD and clean/no-change worktree still match" (no referent once exit verification is gone); the step 3 clause "without plan_tracker initialization or lifecycle updates"; the human-stop sentence "no plan writer, plan_check or task-tracker lifecycle" loses its task-tracker clause (plan writer and `plan_check` stay skipped); every sentence that states a row's tracker status.
+- The skill ends shorter than its 150 lines on `main`; the PR body states both line counts.
+
+### Verification at verify step 1
+
+The ledger's gate - the `verification:` command until #109 lands, #109's gate set after - runs once per leg at `## After the loop` step 1 with today's output handling. The implement phase runs no full verification command: `coordinated-legs.md`'s `## Exit verification` section (per-leg `contract:` `- verification:` run in its owning checkout, "require every leg to pass before completing implement") is removed and its per-leg gate, `loop: repair verification` identity and once-per-flow rule fold into step 1, where a coordinated run executes each leg's command in that leg's checkout and a single-member run executes the ledger command in the worktree. The `verification:` header stays in the ledger.
+
+A step 1 failure uses the existing once-per-flow escalated repair (amend permission, `iterations < cap`, resolved `escalationLoop.implModel`, one `implementer` dispatch in the failing leg, `loop: repair verification` marker, one rerun in the failing leg only) or a human stop. That stop is a verify-phase stop, not the implement-phase one it inherits from `## Exit verification`: `Stopped: verification failed with every row closed` leaves verify active, implement stays complete, and the menu offers amend or stop only - no `Retry with hint` (a row dispatch has no implement phase to run in) and no `cap +N` (no dispatch to fund). An authorized repair reruns the gate successfully before step 2. The sentence "Leave implement active" and the row/cap offers in `## Human stop` keep applying to implement-phase stops only.
+
+### Resume, handoff, amendment, coordinated legs
+
+- `skills/gauntlet-handoff/SKILL.md` and `reference/brief-contract.md`: a ledger brief's `## Process state` carries one line per task with its status, the dispatched row `in_progress`, beside `Ledger:` and `Last decision:`; the contract no longer rejects task rows beside a ledger.
+- `extensions/lib/plan-check.ts:1230`: the coordinated `pending:` admission accepts a tuple whose repo is any `## Legs` member, home (`legs[0]`) included, instead of `legs.slice(1)`; the row-to-leg mapping check (`pairs[n-1].leg === repo`) stays. The `homePending` fixture in `extensions/lib/plan-check.test.ts:1286` flips from a finding to a pass. A single-member ledger's `pending: <n> | home | <sha>` is outside `coordinatedMetadata` and needs no admission change.
+- `skills/gauntlet-resume/SKILL.md` and `reference/reconstruction.md`: the implement-with-ledger restore runs in this order - entry checks and phase reconstruction (brainstorm start/skip, plan start/`plan_check`/skip, `start implement`), pending recovery, one refresh, and only then any unresolved dirty-tree stop - so the stop already shows the in-flight row `in_progress` (AC 4). The parent's uncommitted iterations bump plus `pending:` tuple is expected dirt for a home dispatch exactly as it is for a companion one. Pending recovery has two contracts: the existing companion one in `coordinated-legs.md` `## Resume` (attribution through the companion commit body, unchanged home HEAD, admission recipe) and a new home one for a tuple whose repo is the home leg or `home`: reconstruct the pre-dispatch ledger from `HEAD:<ledger path>`; exactly one new home commit after the tuple's sha with subject `loop: row <n> <status>` / `loop: seed evidence` is validated through the driver's `## Validate the return` table as an interrupted return (tuple cleared by that commit or by the ordinary-miss repair); zero new commits take the driver's interrupted-dispatch boundary with the tuple left in place (row `in_progress`, consumed count preserved); unrelated movement or multiple commits stop preserving state, tuple in place. A verify-phase restore re-inits the brief's saved task list first (as waves does), then one refresh, so Gn tasks survive and the ledger part matches row by row. "No task tracker" / "never initialize" / "no `plan_tracker init`" clauses are removed from the SKILL.md routing rows, `reconstruction.md` steps 3-4 and the brief-contract call table.
+- `skills/brainstorming/reference/amendment-surface.md:172`: the ledger aftermath keeps "skip `plan-writer` and `plan_check`" (deleting the whole sentence would dispatch `plan-writer` on a ledger in the next paragraph) and drops only `plan_tracker` from that skip list; it commits `loop: amend` / `loop: cut row <n>` and states that the driver's next refresh projects the new statuses. "Continue without task-plan aftermath" stays.
+- Verify-phase re-bound: an amendment approved during verify that re-bounds a `done` row to `open` (`reopened by amendment`) makes the next refresh project it `pending`, and the unfinished-task guard (`phase-tracker.ts:1227-1243`) then blocks `complete verify`; `## After the loop` dispatches no `loop-implementer`, AC 2 forbids a `plan_tracker update` in the skill, and a conformance-fix `update` would be overwritten by the next refresh while the row stays `open` on disk. So a verify-phase re-bound is an explicit stop: `Stopped: row <n> reopened by amendment during verify`, verify stays active, menu = authorize the row's return to ledger implementation or stop. The authorized return dispatches that row through the driver's `## Dispatch` and `## Validate the return` path (tuple written, refresh, admission, refresh) with verify still the active phase and no phase reset; the row closes on disk through the loop return contract, the refresh projects it `complete`, and the step 1 gate reruns before verify continues. Only an on-disk close unblocks verify; no tracker write does.
+- `skills/loop-implementation/reference/coordinated-legs.md`: the `pending:` tuple is written for every dispatch, home included; the `## Leg mapping` projection names tasks `row <n> (<repo>)`; its `## Exit verification` section goes (folded into verify step 1 above); `loop: record <repo> row <n>` clears the tuple as today and a rejected companion return keeps it. The file carries no "task tracker" / "never initialize" / `plan_tracker` wording (`rg -n -i "tracker|initiali"` finds none), so AC 6's removal clause is satisfied vacuously for it - the implementer invents no edit there beyond the pending and verification changes.
+
+### Telemetry
+
+- Reopens (`extensions/lib/telemetry-collect.ts`, `extensions/telemetry.ts`): on every successful `plan_tracker` snapshot (any action), match tasks by name against the previous snapshot; each name whose status goes `complete -> failed` or `complete -> in_progress` increments `task_reopens` once. `complete -> skipped`, a name absent from the previous snapshot, and reordering never count. A task without a string `name` never matches a previous task, so the nameless snapshots in the protected `extensions/telemetry.test.ts:1144-1154` fixture count nothing and that test passes unchanged. The index-based `hasReopen` goes, and its index-based unit test in `extensions/lib/telemetry-collect.test.ts:35-39` is replaced by name-based cases.
+- `verification_runs` (`extensions/telemetry.ts`, `extensions/lib/telemetry-record.ts`): a counter beside `tests`, incremented for every parent-session bash call that `matchTestStatement` matches with `snap.testCommands ?? DEFAULT_TEST_COMMANDS`, from `phase_tracker start implement` (the loop's seed) through seal, in any phase. The count is matcher hits only: a parent command the matcher does not match - including a ledger `verification:` command whose text the matcher misses - contributes zero. The existing `tests` latest-result capture keeps its verify/ship window. Child sessions never have a bound record, so child-run tests and a row's own check are invisible. Under #109 a gate set counts one increment per bash call; #109 decides whether it runs as one call or N. Durability: `derive()` in `extensions/lib/telemetry-record.ts:131` rebuilds `derived` and copies `plan` and `tests` by name, so it copies `verification_runs: rec.derived.verification_runs` the same way (an uncopied counter is wiped on flush and at seal); a session reload continues from the loaded value. Serialized as `verification_runs: <n>` in the schema-1 YAML next to `tests`; absent in legacy records.
+- `gauntlet-performance` (`src/bins/gauntlet-performance.mjs`, `src/bins/performance/runs.mjs`): a `disp/task` column = count of `dispatch`-result events with `phase: implement` in the record / (`plan.tasks - plan.skipped`); `n/a` when `plan` is absent, the denominator is 0, or `events_dropped > 0`. A `coord` column: `yes` when the sealed `legs:` list is non-empty, else `no`. Rebuild `bin/*.mjs` with `npm run build:bins`.
+
+### Docs and evals
+
+- `doc/configuration.md` telemetry section: `verification_runs` definition and window; the dispatches-per-task rule and its `n/a` conditions; the `coord` column. Also in that file: line 128 "no plan writer, plan check or task tracker runs for this aftermath" becomes "no plan writer or plan check runs for this aftermath; the driver's next refresh projects the new statuses", and the `plan_tracker` action enum at line 148 gains `"refresh"` with its `path` parameter.
+- `doc/implement-engines.md`: the loop engine's task view is derived from the ledger by `plan_tracker refresh`; the ledger's gate set runs once per leg at verify step 1; line 34's "Complete implement only after full project verification passes" and "The loop reuses its passing exit run only while the verified HEAD and clean worktree still match" are replaced by "The loop completes implement through the tracker when every ledger row is closed; verify step 1 runs the ledger's gate set once per leg"; line 42's "without a plan writer, `plan_check`, or task-tracker lifecycle" keeps the plan-writer and `plan_check` clauses and drops the task-tracker one; line 44's "Never initialize the task tracker" goes and the resume row says the restore refreshes the view from the ledger.
+- `doc/specs/2026-10-23-gh-68-loop-implement-engine.md`: supersession banner per `brainstorming/reference/superseding.md` citing this spec, scoped to its "no task tracker" and exit-verification statements.
+- `eval/loop-implementation`: samples for the seed refresh (all-cut ledger; rows closing out of ledger order), an in-flight row `in_progress` during a dispatch, a cut after dispatch, implement completion through the refresh, the three human-stop states, and the rejected-return cases (a `done` commit plus dirt; two commits) both at the immediate stop and on resume. `eval/gauntlet-handoff`: a mid-loop brief carrying the task list. `eval/gauntlet-resume`: a ledger restore that rebuilds the view, including an interrupted home dispatch whose tuple is still on disk. Each target's `intent.md` updated; `node eval/run.mjs <target>` run per target before finish.
+
+### Superseded eval facts and contract assertions
+
+These existing judged facts pin the carve-outs this change removes; each is rewritten to its replacement and recorded in the target's `intent.md` as an intended `holds -> replaced` move. No other existing fact changes. AC row 14's "holds every existing fact" is read as every fact outside this table; AC rows 3 and 13's "full verification command" and "full verification run" are read as the ledger's gate (above), and AC row 10's "ran the resolved full verification command" as a matcher hit in the parent session (Telemetry, below).
+
+| Target / sample / fact | Superseded expectation | Replacement |
+|---|---|---|
+| `eval/gauntlet-resume` `loop-ledger-worktree` `restore` | "without task tracker initialization" | "then one `plan_tracker refresh` on the ledger path, no `init`" |
+| `eval/gauntlet-resume` `durable-cap` `route` | "no task tracker" | "one refresh after implement start, no `init`" |
+| `eval/gauntlet-resume` `loop-ledger-brief` `consumer` | "implement start without plan_tracker init" | "implement start, then one refresh" |
+| `eval/gauntlet-resume` `loop-ledger-brief` `verify-ledger` | "restores verify without task-tracker calls" | "re-inits the brief's saved task list, then one refresh" |
+| `eval/gauntlet-resume` `legacy-cap-brief` `continue` | "no reseed or task tracker" | "no reseed; one refresh" |
+| `eval/gauntlet-resume` `loop-no-ledger` `route` | "not writing-plans or task tracker initialization" | "not writing-plans or `plan_tracker init`" (refresh follows Entry step 5) |
+| `eval/loop-implementation` `verify-lifecycle` `contract` | "Complete implement before start verify ... Reuse clean unchanged exit verification ... no task-tracker lifecycle" | "implement completes through the refresh; verify step 1 runs the gate once per leg; Gn tasks ride the same tracker" |
+| `eval/loop-implementation` `escalated-row-attempt` `ledger-prepare-local` | "never invokes plan_check or a task-tracker lifecycle" | "never invokes plan_check; the next refresh projects the amended statuses" |
+| `eval/brainstorming` `loop-ledger-amend` `bypass` | "no plan-writer, plan_check, or plan_tracker" | "no plan-writer or plan_check; the driver's next refresh projects the statuses" |
+
+`scripts/loop-engine-contract.test.mjs` assertions that change, named so the implementer edits only these: line 18 drops `## Exit verification` from the driver headings list; line 61 drops it from the reference headings list; line 64's exit-section slice goes; line 92's dispatch-read sentence drops `## Exit verification`; line 94's `assert.doesNotMatch(driver, /pending:|companion-return-shell|## Leg mapping/)` becomes a positive assertion that `## Dispatch` writes the `pending:` tuple while `companion-return-shell` and `## Leg mapping` stay excluded. Line 70's legacy-skeleton exclusion of `pending:` stays (the seed grammar block carries no tuple).
+
+Remove: loop SKILL.md `## Exit verification`, rule 1's exit-verification action, step 1's passing-exit-run reuse; the `phase_tracker complete implement` call; line 8 "Never initialize a task tracker"; the step-3 "without plan_tracker initialization or lifecycle updates" clause; `coordinated-legs.md` `## Exit verification`; no-tracker clauses in `gauntlet-resume/SKILL.md`, `reconstruction.md`, `brief-contract.md` (including its task-rows-beside-ledger rejection), the `plan_tracker` item of `amendment-surface.md:172`'s skip list; index-based `hasReopen` in `telemetry-collect.ts` and its index-based test; `doc/implement-engines.md:14` "no task tracker or implement-phase reviewers" wording (reviewers stay out of implement; the tracker clause goes), `:34` implement-before-verification and exit-run reuse sentences, `:44` "Never initialize the task tracker"; `doc/configuration.md:128` task-tracker clause.
+Add: `refresh` action, `path` param, ledger parser and projection in `extensions/plan-tracker.ts` + cases in `extensions/plan-tracker.test.ts`; home-leg `pending:` admission in `extensions/lib/plan-check.ts` + flipped `homePending` case; seed/start/refresh/verify sequence case in `extensions/phase-tracker.test.ts`; `pending:` write on home dispatch in SKILL.md Dispatch, saved-copy-before-bump rule and two admitted header deltas in `## Validate the return`, rejected-return restore step, clear step and header-preservation exception in `agents/loop-implementer.md`, validation-table row; verify-step-1 per-leg gate and verify-phase stop menu, verify-phase re-bound stop; home pending recovery contract in `reconstruction.md`; name-based reopen in `telemetry-collect.ts` + `telemetry-collect.test.ts` + `telemetry.test.ts`; `verification_runs` carried through `derive()`; `verification_runs` counter in `telemetry.ts` and field in `telemetry-record.ts`; `disp/task` and `coord` columns in `src/bins/gauntlet-performance.mjs` / `src/bins/performance/runs.mjs` + `bin/gauntlet-performance.test.mjs`; rebuilt `bin/*.mjs`; brief `## Process state` task lines; `doc/configuration.md`, `doc/implement-engines.md`, gh-68 banner; samples and `intent.md` in `eval/loop-implementation`, `eval/gauntlet-handoff`, `eval/gauntlet-resume`; `CHANGELOG.md` `## Unreleased` entry (#106).
+
+## Errors and edge cases
+
+- Every refresh rejection is whole-file (table above): no partial projection, no snapshot, current list and phase untouched.
+- All-cut ledger: the seed refresh runs after `start implement` (Entry step 5 order), projects every task `skipped`, auto-completion fires, and rule 1 continues to `## After the loop` step 0 with no dispatch. A refresh before the start would be a no-op for completion and nothing would fire again.
+- Retry of a `failed` row: the tuple names it, so it projects `in_progress`, not `failed`; the same row without a tuple projects `failed`.
+- Rejected boundary return (child committed `done` and removed the tuple, then left dirt or a second commit): the driver restores the target row and the tuple in the working-tree ledger from the saved copy before refreshing, so the stop, a handoff brief and a resume show the row `in_progress`; the child's commits and other changes stay for the discard/reset decision. Implement never auto-completes from an unadmitted child result.
+- Home header validation: a conforming home return differs from the saved copy by exactly `iterations` +1 and the removed `pending:` line; any other header change is still a miss.
+- Home pending on resume: `plan_check` admits the home-leg tuple; the uncommitted bump plus tuple is expected dirt; recovery (one new home commit -> validate as an interrupted return; none -> interrupted-dispatch boundary; several or unrelated -> stop) runs before the refresh, and the refresh runs before any dirty-tree stop. Companion recovery keeps its attribution checks.
+- Out-of-order close: row 3 `done` while row 2 `open` orders `row 3` (complete) before `row 2` (pending); the projection never violates the pending-suffix rule.
+- Appended Gn tasks survive every refresh with their statuses, placed after the ledger tasks in their block; an open Gn task blocks verify completion as in a waves run.
+- Human stops: allowance stop leaves the row `failed`; a dirty-tree or commit-boundary stop after a dispatch leaves the tuple on disk, so that row shows `in_progress`; a cap stop happens before dispatch, no tuple, no `in_progress`.
+- Amendment cut `done -> cut` projects `complete -> skipped`: not a reopen. A row re-bounded to `open` by amendment projects `complete -> pending`: not a reopen either (only `failed` and `in_progress` count). During verify that re-bound is the explicit stop above; verify cannot complete until the row closes on disk.
+- Verify step 1 failure: verify stays active, implement stays complete; menu is amend or stop; the once-per-flow repair reruns the gate before step 2.
+- Resume: implement restore = phase reconstruction, pending recovery, one refresh; verify restore = saved task list re-init, then one refresh. Neither overwrites the other's tasks.
+- Legacy ledger without `cap:` refreshes; cap belongs to the driver's rule 4, not the projection.
+- Single-member spec: the tuple's repo field is `home`; task names carry a repo only when `## Leg mapping` exists.
+- Reopen counting: a name present in both snapshots whose status leaves `complete` for `failed` or `in_progress` counts once per transition; the dispatch following a `failed` row (`failed -> in_progress`) does not count; a name absent from the previous snapshot never counts.
+- `verification_runs`: window opens at `phase_tracker start implement`, closes at seal; `derive()` copies it like `tests` so flush and seal keep it; a session reload continues from the loaded value; an unmatched parent command counts zero; a bash call in a child session never reaches the recorder; a run without a bound record counts nothing.
+- Nameless task in a snapshot: never matches a previous task, never counts as a reopen.
+- `disp/task` on a record with `events_dropped > 0` prints `n/a` because implement-phase dispatch counts come from events and are exact only when none were dropped.
+
+## Tests
+
+- Seed view per ledger row with cut/baseline `skipped`, `done` `complete`, `failed` without tuple `failed`, `failed` with tuple `in_progress` (separate case), `open` with tuple `in_progress`, stale tuple on a `done` row projecting `complete` - `extensions/plan-tracker.test.ts` (refresh projection cases)
+- Refresh by path only; non-ledger line 1 rejected with the list unchanged; malformed table, `pending:` naming an absent row, unmapped leg entry rejected - `extensions/plan-tracker.test.ts`
+- Sequence seed commit -> `start implement` -> refresh of an all-cut ledger auto-completes implement and `start verify` succeeds; the same refresh before `start implement` completes nothing - `extensions/phase-tracker.test.ts` (new case beside the existing auto-completion fixtures)
+- Coordinated `pending:` tuple naming the home leg passes `plan_check`; a tuple naming an unmapped leg still fails - `extensions/lib/plan-check.test.ts` (`homePending` flipped)
+- All-cut ledger projects all `skipped`; out-of-order close satisfies the pending-suffix rule; Gn tasks survive a refresh; coordinated `row <n> (<repo>)` names - `extensions/plan-tracker.test.ts`
+- `pending:` written before home dispatch and cleared in the child commit; no `init`/`add`/`update` and no row-status sentence in SKILL.md; no `## Exit verification` in SKILL.md or `coordinated-legs.md`; no `phase_tracker complete implement`; the named assertion changes in Design "Superseded eval facts and contract assertions" and no others - `scripts/loop-engine-contract.test.mjs`
+- Implement auto-completes on a refresh whose tasks are all complete/skipped; `failed` / `in_progress` keep it active - `extensions/phase-tracker.test.ts` (existing auto-completion and guard fixtures, unchanged)
+- Human-stop states (allowance `failed`, boundary `in_progress`, cap none); rejected returns (`done` plus dirt, two commits) restore the row and tuple and show `in_progress` at the stop and on resume - `eval/loop-implementation`, `eval/gauntlet-resume` samples
+- Verify step 1 failure stop leaves verify active with amend/stop only; verify-phase re-bound stops and closes through the loop return contract - `eval/loop-implementation` samples
+- Verify-phase resume restores Gn tasks then refreshes; implement resume refreshes after pending recovery; clauses removed - `eval/gauntlet-resume`, `scripts/loop-engine-contract.test.mjs`
+- Handoff brief carries task lines beside `Ledger:`; contract accepts task rows beside a ledger - `eval/gauntlet-handoff`
+- Name-based reopen once per `complete -> failed|in_progress`; `complete -> skipped`, `complete -> pending`, reorder, absent and nameless tasks excluded - `extensions/lib/telemetry-collect.test.ts`, `extensions/telemetry.test.ts` (the existing nameless fixture at `:1144-1154` passes unchanged)
+- SDD and writing-plans byte-unchanged; existing tracker/phase/telemetry tests pass - `npm test` plus `git diff --stat <base>..HEAD -- skills/subagent-driven-development skills/writing-plans` at verify
+- Sealed loop record carries `engine: loop`, `iterations` = loop-implementer dispatches, plan totals from the ledger-derived snapshot - `extensions/telemetry.test.ts`
+- `verification_runs` counts parent matches from implement start in any phase, two in one phase count two, unmatched commands count zero, child calls excluded, survives `derive()` on flush and seal and a reload, serialized beside `tests` - `extensions/telemetry.test.ts`
+- `disp/task` ratio and each `n/a` condition; `coord` from `legs:`; legacy records - `bin/gauntlet-performance.test.mjs`
+- Bin bundles fresh - `npm test` (`scripts/ci.mjs` bundle freshness check)
+- Docs rows (`doc/configuration.md`, `doc/implement-engines.md`, gh-68 banner) - conformance check against this spec
+- Eval samples hold every existing fact except the superseded ones named in Design, each replaced and recorded in `intent.md` - `node eval/run.mjs loop-implementation`, `node eval/run.mjs gauntlet-handoff`, `node eval/run.mjs gauntlet-resume`, `node eval/run.mjs brainstorming` (its `loop-ledger-amend` `bypass` fact changes with `amendment-surface.md`)
+- First real loop run comment - none: post-merge human-gated observation, carried as the `venue:` row
+
+## Documentation impact
+- Feature / user-facing docs introduced: none
+- Materially amended existing docs: `doc/configuration.md` (operations / tunable parameters: `verification_runs`, dispatches-per-task rule, `coord` column, `plan_tracker` action enum gains `refresh`, aftermath sentence at line 128 drops its task-tracker clause); `doc/implement-engines.md` (architecture: loop view derived from the ledger, gate set at verify step 1 replacing the implement-before-verification and exit-run reuse sentences, resume and amendment rows); `CHANGELOG.md - deferred: release`
+- Derived / memory docs invalidated: `doc/specs/2026-10-23-gh-68-loop-implement-engine.md` (supersession banner on its "no task tracker" and exit-verification statements)
+
+Materiality bar: `reference/documentation-impact.md`. Skill, persona and reference edits are implementation surface, tracked in Design, not here.
+
+## Out of scope
+
+- A parser for the waves plan file or a line-1 parser registry (approach 3); waves keeps calling `init`/`update` from `skills/subagent-driven-development/`, byte-unchanged (AC 8).
+- Auto-refresh on tool end without a driver call (approach 2).
+- #109's gate set, selective row checks, log-by-path handoff and `loop: regress row <m>`; this spec only words verify step 1 as "the ledger's gate" so #109 lands on top without undoing it. Whichever ticket lands second rebases the `doc/implement-engines.md` row.
+- #108's budget unification and #110's multi-row closure; the extension-owned ordering means #110 acquires no tracker-order constraint.
+- A per-row timing, a ratio target, a historical ever-dispatched denominator, live between-commit refresh, or pre-seal coordinated identification.
+- Moving target selection, return validation or human stops out of the loop skill.
+- Posting the first-run comment: agent-initiated, gated on explicit confirmation of the exact text (overrides `## Issue tracker`).
+
+## Open questions
+
+- #109's final gate-set shape (one bash call or N per leg) decides whether a gate run adds 1 or N to `verification_runs`; this spec counts per matching bash call and #109 picks when it lands.
+- Whether a `## Leg mapping` entry for a repo that was later dropped from `## Legs` should be rejected or ignored by refresh; the current coordinated contract never removes mapping entries, so refresh treats every entry as live.
