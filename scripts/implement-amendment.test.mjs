@@ -55,16 +55,34 @@ test('implement apply patches locally and compares semantic obligations against 
   assert.match(contract, /tasksAnchorChanged[^\n]*semantic obligation or work changes/);
 });
 
-test('failed apply retains original changed-task inventory for a fresh retry', () => {
+test('apply uses committed home originals at every binding site and fails before writes', () => {
+  for (const path of ['agents/plan-writer.md', 'skills/brainstorming/reference/amendment-surface.md', 'skills/writing-plans/SKILL.md', 'skills/writing-plans/reference/plan-contract.md', 'skills/subagent-driven-development/reference/dispatch-contract.md', 'skills/subagent-driven-development/reference/implement-amendments.md']) {
+    const text = read(path);
+    assert.match(text, /committed (?:home )?plan\/spec originals/, path);
+    assert.doesNotMatch(text, /Missing original inventory fails the retry|capture the original task numbers[^.]*saved apply report/i, path);
+  }
   const writer = read('agents/plan-writer.md');
-  const surface = read('skills/brainstorming/reference/amendment-surface.md');
-  assert.match(writer, /original task numbers, titles, spec anchors, and wave positions in the existing saved apply report/);
-  assert.match(writer, /retain that original inventory on every return, including failures/);
-  assert.match(writer, /`previousApplyReport`[^.]*read the original inventory/);
-  assert.match(writer, /deltas against that original inventory rather than the already-mutated plan/);
-  assert.match(writer, /Missing original inventory fails the retry/);
-  assert.match(writer, /idempotently without duplicating already-applied edits/);
-  assert.match(surface, /`previousApplyReport` set to the first apply report path/);
-  assert.match(surface, /original inventory rather than the already-mutated plan/);
-  assert.match(surface, /Missing original inventory fails the retry/);
+  for (const marker of ['git -C "<abs home worktree>" show HEAD:<home-relative plan path>', 'git -C "<abs home worktree>" show HEAD:<home-relative spec path>', 'before the first edit', 'baseline read failed: git -C ', 'first stderr line', 'writes nothing', 'previousApplyReport', 'findings only', 'idempotently without duplicating already-applied edits']) assert.ok(writer.includes(marker), marker);
+});
+
+test('suppressed apply capture is schema-checked and only the exact baseline marker skips retry', () => {
+  for (const path of ['skills/subagent-driven-development/reference/implement-amendments.md', 'skills/brainstorming/reference/amendment-surface.md']) {
+    const text = read(path);
+    for (const marker of ['APPLY_SCHEMA', 'success envelope', 'zero or two', 'baseline read failed: git -C ', 'retry once', 'previousApplyReport', 'parent PASS']) assert.ok(text.includes(marker), `${path}: ${marker}`);
+  }
+});
+
+test('handoff and implement entry establish originals with path-scoped staging', () => {
+  const plans = read('skills/writing-plans/SKILL.md');
+  const handoff = plans.slice(plans.indexOf('\n## Execution Handoff\n'));
+  assert.ok(handoff.indexOf('git -C') < handoff.indexOf('action: "init"'));
+  assert.match(handoff, /status --porcelain -- "<home-relative plan path>"/);
+  assert.ok(handoff.indexOf('status --porcelain') < handoff.indexOf('add --'));
+  assert.match(handoff, /On empty output, skip staging and commit/);
+  assert.match(handoff, /Stop on any status, staging or commit failure/);
+  assert.match(handoff, /add -- "<home-relative plan path>"/);
+  assert.match(handoff, /commit -m "plan: <spec title>" -- "<home-relative plan path>"/);
+  const sdd = read('skills/subagent-driven-development/SKILL.md');
+  assert.match(sdd, /status --porcelain -- "<home-relative plan path>" "<home-relative spec path>"/);
+  assert.match(sdd, /add -- "<home-relative plan path>" "<home-relative spec path>"/);
 });

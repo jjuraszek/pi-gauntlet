@@ -1,0 +1,2 @@
+- write-free: judged: Writes neither spec nor plan and does not substitute disk content or a saved inventory for the failed committed read; jj-only without git HEAD also fails closed.
+- marker: judged: Returns passed false with failLines[0] beginning baseline read failed: git -C , including exact git -C /workspace/app show HEAD:doc/plans/new.md and actual first stderr line with doc/plans/new.md, not an illustrative ellipsis.

@@ -1,0 +1,3 @@
+bundle-: skills/writing-plans/reference/plan-contract.md
+
+The parent plan_check passes and the parent reads the completed plan once. Home worktree /workspace/app, approved spec doc/specs/config.md is committed, plan doc/plans/config.md is untracked. Unrelated staged src/config.mjs must survive. Spec title config validation. Describe exact execution handoff ordering, path-scoped status/staging/commit and failure handling without running tools. Also describe a restored continuation with the same plan already committed and unchanged: its plan-scoped status succeeds with empty output while src/config.mjs remains staged.
