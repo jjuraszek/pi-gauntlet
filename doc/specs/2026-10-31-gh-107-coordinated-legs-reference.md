@@ -1,7 +1,7 @@
 # Move coordinated-legs rules out of the loop-implementation skill into a reference file
 
 **Goal:** Relocate every coordinated-only paragraph and the companion admission script from `skills/loop-implementation/SKILL.md` into `skills/loop-implementation/reference/coordinated-legs.md`, read at exactly two sites gated on the spec's `### Leg:` count, so single-repo loop runs stop carrying ~100 lines of rules they never apply while coordinated fresh runs, resumes, handoffs and finishes behave exactly as before.
-**Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
+**Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.; fund 3 fix rounds
 **Engine:** waves
 **Ticket:** #107
 **Predecessor:** `doc/specs/2026-10-28-multi-repo-coordinated-flow.md` (Design: Implement engines; Handoff and resume) - stays live; this spec relocates its loop-engine text without changing any contract it set.
