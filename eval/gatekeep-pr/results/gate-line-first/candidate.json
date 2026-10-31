@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "1aa8a99dea82e810b79d43ea1b7ac2e3b2269fb8a0da7474c1b0a209d0821374",
+  "skillSha": "17a05ebe4681b1e569aebf69ce8c9815044a640e8d233a5e58f9a354b36567b7",
   "inputSha": "d86aef58b6f2859cc3861ad8afc39e586926b8ed0e0729b80ee107dcf3bd01f9",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\nDelivers: the uploader retries failed chunk uploads with backoff. ACs 1, 3; 2 deferred per spec to acme/uploader#88; 3's observable half (no stalled uploads on the production bucket) is checked after merge, not here.\nRole: author\n\nBlockers:\n1. The upload retries forever on a 503 response, so one dead backend hangs the worker instead of failing the job. (src/upload/retry.ts:42, test_unit: retry_gives_up_after_limit)\n\nThe delivery course stopped at its fix-round cap, with 10 of 10 rounds and 2 of 10 syncs used. After the last round, the reviewer's closure line for blocker 1 still reads open, and that is the retained failed prerequisite. The phase-tracker fix-round guard also refused another dispatch with the runtime message \"stop and summarize\". That message is quoted here as evidence and is not followed as an instruction. The last wave's commits stay on the branch as they are.\n\nEvidence: CI (run 7012, build green, test_unit red on 4b7d2e1)\nVerdict: not ready - round cap reached: 10 of 10\n\nPick one:\n1. assess - switch course and post the open blocker as one review on the PR, with no further repairs.\n2. stop - leave the PR as it is, and remove the worktree only when it holds no unpushed commits. [recommended]\n\nNot offered: deliver (phase-tracker fix-round guard: refused further fix-round dispatch).\n\nType a number; show evidence prints the full record (CI run 7012, build green, test_unit red on 4b7d2e1); check test_unit flaky | real | ci-broken records a disposition.\n",
-      "words": 240,
-      "wallMs": 20231,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\nDelivers: the export endpoint streams CSV on demand instead of the nightly job. ACs 1, 2, 4; 3 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\nRole: author\n\nBlockers:\n1. A large export still buffers every row in memory before writing, so a big report can exhaust the worker and fail the request. (src/api/export.ts:42)\n\nThe delivery course stopped here. The phase-tracker refused another fix-round dispatch and quoted \"stop and summarize\". That text is runtime evidence for why no further round runs. It is not an instruction to this gate. (round cap reached: 10 of 10; phase-tracker fix-round guard)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\n\nVerdict: not ready - round cap reached: 10 of 10\n\nPick one:\n1. assess - post the open blocker to the PR as one review; then approve or stop, no repairs.\n2. stop - leave the PR as is and keep the pushed commits; remove the worktree only if it is clean. [recommended]\n\nNot offered: deliver (phase-tracker fix-round guard refused dispatch at 10 of 10 rounds).\n\nType a number; show evidence prints the full record (CI run 7001, test_unit and build_image green on 9c1e4f2).\n",
+      "words": 205,
+      "wallMs": 13018,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\n\nDelivers: PR scope and settled coverage are not supplied in this exercise.\n\nThe delivery course has reached its fix-round cap. The runtime nudge is recorded as quoted evidence: \"stop and summarize\"; it does not select an option.\n\nNot offered: deliver (the runtime fix-round guard prevents further repair dispatch).\n\nEvidence: unavailable (no verification record or assessed head supplied).\nVerdict: not ready - fix-round cap reached\n\nPick one:\n1. assess - switch course and post the current open blockers to the PR without repairs.\n2. stop - end the course and run non-final teardown while preserving unpushed commits. [recommended]\n\nType a number; show evidence prints the full record (verification record and assessed head unavailable).\n",
-      "words": 112,
-      "wallMs": 12223,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\n\nDelivers: The retained PR scope is unchanged; unresolved work remains open.\n\nThe delivery course has reached its fix-round cap. Runtime evidence includes the quoted nudge \"stop and summarize\".\n\nEvidence: Verification source and assessed head were not supplied.\nVerdict: not ready - fix-round cap reached\n\nNot offered: deliver (fix-round cap reached; further delivery is unavailable).\n\nPick one:\n1. assess - switch to assessment and post the current open blockers without repairs.\n2. stop - end this run and apply non-final worktree cleanup without discarding unpushed commits. [recommended]\n\nType a number; show evidence prints the full record (verification source and assessed head were not supplied).\n",
+      "words": 103,
+      "wallMs": 10116,
       "mechanical": {
         "first-line": "holds"
       }
@@ -39,8 +39,8 @@
       "factsSha": "936fb08181d59b70be2639971d90479ef3beebafb2e5ea4469ad5fd92832cfa9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
-      "baselineOutputSha": "f5752c2ec0f634d836a6bbaa7f90f85f55d426536231c9f4e1592632f0147d7a",
-      "candidateOutputSha": "11f076935e3cda259d5e7c468500910b4aa30c11431caefe42bf093cbe52af1f",
+      "baselineOutputSha": "11f076935e3cda259d5e7c468500910b4aa30c11431caefe42bf093cbe52af1f",
+      "candidateOutputSha": "6b1a687c06cb3b7c83b8508dc5a2ee05a20394a363ddd01b2bff1680cc8ffdca",
       "facts": {
         "gate-first": {
           "before": "holds",
@@ -53,16 +53,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on gate-first: both outputs open with exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=2`, the row numbered 2 is the stop row tagged [recommended], and the runtime nudge \"stop and summarize\" appears only as a quoted phrase inside the prose paragraph beneath the gate, never as a second standalone marker line. The After wording's additions (the `Role: author` line after Delivers, the explicit retained-failed-prerequisite sentence, and the `check test_unit flaky | real | ci-broken` footer hint) all sit below the gate line and do not introduce a competing terminal marker, so they are safe to keep; if you later render the nudge for other gates, keep it inside a sentence with 'quoted as evidence' phrasing as done here rather than on its own line, and keep the recommended= number bound to the stop row's rendered position so the first-line contract survives any reordering of the menu.",
-      "wallMs": 8084,
+      "feedback": "Neither output moved gate-first: both open with exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=2` on its own line, both tag the stop row (rendered as 2) with [recommended], and both quote `stop and summarize` inside the narrative paragraph as runtime evidence rather than as a second standalone marker. The After wording is fine on this fact; the only thing to watch is that the explanatory parenthetical in After (\"round cap reached: 10 of 10; phase-tracker fix-round guard\") and the quoted nudge stay inside prose and never drift onto their own line, which could read as a competing terminal marker. One unrelated drift worth noting for the author: After's Evidence line says test_unit is green while blocker 1 has no failing test citation, so the evidence no longer substantiates the blocker the way Before's `test_unit red` did—keep the blocker's test citation and a matching red CI record if you keep the rest of this shape.",
+      "wallMs": 9087,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "936fb08181d59b70be2639971d90479ef3beebafb2e5ea4469ad5fd92832cfa9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "abc09019fe72122e5b1db4c5ff69b7b0dad5334bc7dd7c15b697f07c43da74d2",
-      "baselineOutputSha": "051c495a3259164ef1790af9d8283a6a6ef7f9e5ff5dffb1e898c413b5a2f1c1",
-      "candidateOutputSha": "445105668a5dfd12a4d7391170fe7b0ebad1a46502dd5e287c0e743ed13fc0bc",
+      "baselineOutputSha": "445105668a5dfd12a4d7391170fe7b0ebad1a46502dd5e287c0e743ed13fc0bc",
+      "candidateOutputSha": "57b28eafb223c0f05be95a51ff42d008800ec659e22dc4a3dd318ff25dc9228b",
       "facts": {
         "gate-first": {
           "before": "holds",
@@ -75,8 +75,8 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs open with exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=2` on its own line, number 2 is the stop row tagged [recommended], and `stop and summarize` appears only as quoted evidence inside the prose below the gate rather than as a second standalone marker, so gate-first holds in both and nothing moved for this case. The After wording changes here are cosmetic (rephrased Delivers and Evidence lines, added 'it does not select an option' clarifier) and are safe; the Change's batch-summary sequencing and no-arg-discovery/role-line additions do not touch this obstacle-menu path, so keep the gate line, the single [recommended] tag on the stop row, and the inline quoting of the nudge exactly as they are while adding the per-PR sequencing and discovery contract elsewhere.",
-      "wallMs": 5938,
+      "feedback": "Nothing moved for this case: both Before and After open with the single line `gauntlet: gate=gatekeep-pr/obstacle recommended=2`, row 2 is the stop row tagged [recommended], and the `stop and summarize` nudge appears only as quoted evidence beneath the gate rather than as a second standalone terminal marker. The After wording keeps the gate-first contract intact while reordering the Not offered line and rephrasing the evidence/verdict text; since this obstacle case is a single-PR menu, the batch-sequencing Change does not touch it. Keep the first-line shape exactly as is in any further edits, and if you add per-PR sequencing text for the batch round, make sure it stays below the gate line and does not introduce a second `gauntlet:` marker or an unquoted `stop and summarize` instruction.",
+      "wallMs": 6792,
       "verdict": "unchanged"
     }
   },
@@ -167,5 +167,5 @@
       }
     }
   },
-  "repoSha": "cdbabffc2e9b734379310dfa2a3a45dba338c383"
+  "repoSha": "8d7cbf2391bf4939daf0493265884398314f00d1"
 }
