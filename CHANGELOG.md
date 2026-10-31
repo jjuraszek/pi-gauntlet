@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.0.1 - 2026-10-31
 
 - Single-repo loops omit coordinated instructions; coordinated entry and resume load the extracted reference before admission. (#107)
 
