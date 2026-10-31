@@ -39,7 +39,7 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
 
 test('amend permission bounds row escalation and one exit repair', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  for (const token of ['attempts >= allowance', 'row <n> escalated | implModel round | allowed attempts <attempts + 1>', 'loop: escalate row <n>', 'escalated round for row <n>', 'max(0, min(attempts, 3 + N) - 3)', 'model: <implModel>', 'gauntlet_setting({ key: "escalationLoop" })', 'rules 3-4', 'starts no new window', 'unrecoverable means spent', 'loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun that command once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
+  for (const token of ['attempts >= allowance', 'row <n> escalated | implModel round | allowed attempts <attempts + 1>', 'loop: escalate row <n>', 'escalated round for row <n>', 'max(0, min(attempts, 3 + N) - 3)', 'model: <implModel>', 'gauntlet_setting({ key: "escalationLoop" })', 'rules 3-4', 'starts no new empty-child or validation-miss window', 'unrecoverable means spent', 'loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun that command once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
   assert.match(driver, /Omit the model override except on an escalated round/);
   assert.match(driver, /no permission or spent identity: no reopening and no automatic rerun/);
   assert.match(driver, /empty parent marker/);
@@ -110,10 +110,10 @@ test('ledger refresh owns entry, dispatch and implement completion', () => {
   assert.match(dispatch, /`home` for zero or one.*actual member identifier for coordinated/);
   assert.match(dispatch, /Persist the consumed count and tuple before every home or companion dispatch; then refresh/);
   assert.match(dispatch, /Commit nothing extra/);
-  assert.match(dispatch, /Set the task's `iteration:` line to the bumped ledger `iterations:` value.*admission.*child commit body/);
+  assert.match(dispatch, /Send `iteration: i`.*write `iterations: i \+ 1` before dispatch.*admission requires.*child commit body.*`i \+ 1`.*ledger header/);
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
-  assert.match(reference, /Set the task's `iteration:` line to the bumped ledger `iterations:` value.*admission.*child commit body/);
-  assert.match(reference, /Treat.*`loop: record <repo> row <n>`.*parent commit.*does not count toward the child empty-commit stagnation window/);
+  assert.match(reference, /Send `iteration: i`.*write `iterations: i \+ 1` before dispatch.*admission requires.*child commit body.*`i \+ 1`.*ledger header/);
+  assert.match(reference, /That home-ledger commit.*`loop: record <repo> row <n>`.*parent commit, not a child `loop: row .*` commit: it never counts toward child-only empty-commit stagnation; only the companion.*own commits are counted at the boundary/);
   assert.doesNotMatch(driver, /plan_tracker\(.*(?:init|add|update)|phase_tracker\(\{ action: "complete", phase: "implement"/);
   assert.ok(driver.trimEnd().split('\n').length < 150);
 });
