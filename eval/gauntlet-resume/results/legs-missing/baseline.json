@@ -1,7 +1,7 @@
 {
   "sample": "legs-missing",
   "arm": "baseline",
-  "skillSha": "7a232da7dcf80b9e7965a364fcfda555db88c4d05cabd647a92fd69e18ec77f6",
+  "skillSha": "1f442e0a139015061f6f9b2873295b53b952a31e0a35b11b26f1739e52af2b2a",
   "inputSha": "6f5021067388e82d7d7495d0696add577fb4cbab6002fddf0c46672a96933d83",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Coordinated admission: run home repo-a, companion repo-b\n\nThis happens before any tracker write. The restore halts here and never reaches the call table's `plan_check`.\n\n**1. Membership comparison.**\n- The brief's `legs:` block lists `repo-a`, then `repo-b`.\n- The home spec `doc/specs/shared.md` has `### Leg:` blocks `repo-a`, then `repo-b`.\n- The order matches exactly, so there is no stop.\n\n**2. Home leg (repo-a).**\n- Entry check 3's binding is preserved: the run home is `/work/repo-a/.worktrees/feature-shared-change` with primary `/work/repo-a`.\n- The live branch `feature/shared-change` matches the shared branch.\n\n**3. Companion leg (repo-b): resolve the declared primary.**\n- The primary comes from the home overrides' selected sibling line, which resolves to `/work/repo-b`.\n- Tool call: `git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir`, then `realpath`. Result: `/work/repo-b/.git`. This matches the declared primary.\n\n**4. Companion leg (repo-b): resolve the absent location from the recorded contract.**\n- The recorded contract is `home: .worktrees/<name>`.\n- The shared NAME is `feature/shared-change` with `/` replaced by `-`, giving `feature-shared-change`.\n- The expected worktree is `/work/repo-b/.worktrees/feature-shared-change`.\n- Tool call: `git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --is-inside-work-tree`. Result: the path is missing.\n- The brief agrees: the leg shows `worktree: missing` and has no `receipt:` field.\n\n**5. Missing-tree admission.**\n- A missing companion tree is admitted only after live receipt validation under `finishing-a-development-branch/reference/legs.md`.\n- No receipt exists, so there is nothing to validate.\n- Missing files never imply delivery, so the leg is treated as unlanded, and a missing unlanded worktree is a stop.\n\nNo `phase_tracker` call, no `plan_tracker` call, no `plan_check`, and no worktree creation were made.\n\nPrinted:\n\n```\ngauntlet: stuck missing companion worktree without a receipt: leg repo-b expected /work/repo-b/.worktrees/feature-shared-change (recorded home: .worktrees/<name>, branch feature/shared-change), observed missing; brief carries no receipt, so the missing tree cannot be admitted\n```\n\nThe turn ends here. To continue, either recreate repo-b's worktree on `feature/shared-change` through `/skill:using-git-worktrees` with `$ROOT=/work/repo-b`, or supply the delivered leg's home-owned receipt. Then re-run `/skill:gauntlet-resume`.\n",
-      "words": 293,
-      "wallMs": 15767,
+      "text": "# Coordinated admission: the repo-b leg is missing, so the restore stops\n\n**1. Run-home binding (entry check 3).** The supplied observations satisfy this check, so it is unchanged.\n- Session common dir: `/work/repo-a/.git`\n- Run home `/work/repo-a/.worktrees/feature-shared-change` resolves to the same common dir.\n\n**2. Home spec.** Resolved through Candidates to `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`. Its approval comes from the human, not from the file being present.\n\n**3. Ordered membership.** The two lists match exactly.\n- Brief `legs:`: `repo-a`, `repo-b`\n- Spec `### Leg:` blocks: `repo-a`, `repo-b`\n\n**4. Home leg (repo-a).**\n- `git -C /work/repo-a/.worktrees/feature-shared-change branch --show-current` returns `feature/shared-change`, which matches.\n\n**5. Companion leg (repo-b).**\n- **Declared primary:** the home overrides declare sibling `git@github.com:acme/repo-b.git`. The shared parser gives NAME `repo-b`, so the primary is `/work/repo-b`.\n- **Common dir:** `git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir` returns `/work/repo-b/.git`, the declared canonical common dir.\n- **Worktree location:** the leg's recorded `home: .worktrees/<name>` with NAME `feature-shared-change` (shared branch with `/` replaced by `-`) gives `/work/repo-b/.worktrees/feature-shared-change`.\n- **Live tree:** missing. The brief also records `worktree: missing`.\n- **Receipt:** the brief's repo-b entry has no `receipt:` field, so there is nothing to validate live.\n- **Rule applied:** a missing companion tree may be admitted only after live receipt validation (`finishing-a-development-branch/reference/legs.md`). With no receipt, the leg cannot be admitted, and the restore cannot continue as an unlanded leg without a checkout.\n\n**6. Stop, before any tracker write.**\n- No `phase_tracker` call.\n- No `plan_tracker` call.\n- No `plan_check`.\n- No plan repair.\n- No worktree creation.\n- The `HEAD`/`dirty` drift notice and the grant line are not reached.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated admission: leg repo-b worktree missing at /work/repo-b/.worktrees/feature-shared-change (expected live tree on feature/shared-change, observed missing) and the brief carries no delivery receipt; a missing companion tree is admitted only after live receipt validation - restore the repo-b worktree or supply a valid receipt, then re-run /skill:gauntlet-resume\n```\n",
+      "words": 284,
+      "wallMs": 13566,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: stuck repo-b: missing worktree /work/repo-b/.worktrees/feature-shared-change and no delivery receipt; coordinated admission cannot validate delivery. Stopping before any tracker write or plan_check call.\n",
-      "words": 23,
-      "wallMs": 6204,
+      "text": "Print:\n```text\ngauntlet: stuck repo-b: missing worktree /work/repo-b/.worktrees/feature-shared-change and no delivery receipt; coordinated admission cannot proceed.\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nNo tool calls. Stop before any tracker write or `plan_check`: a missing companion worktree requires a live-validated delivery receipt. The recorded `home:` pattern resolves its location but does not authorize recreating it or prove delivery.\n",
+      "words": 61,
+      "wallMs": 13617,
       "mechanical": {}
     }
   },
-  "repoSha": "d2e35168c92e6dd5e2a1bac003344a377448be67"
+  "repoSha": "63988593d8ef62b79a8d75098a61788ac46b499a"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "legs-wrong-repo",
   "arm": "baseline",
-  "skillSha": "7a232da7dcf80b9e7965a364fcfda555db88c4d05cabd647a92fd69e18ec77f6",
+  "skillSha": "1f442e0a139015061f6f9b2873295b53b952a31e0a35b11b26f1739e52af2b2a",
   "inputSha": "40a960450aaf7581f93522d830749ce5e79dfb41e8ee59331e447ffdbd3027c7",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Coordinated admission (entry check 3b): read-only, before any tracker write**\n\n1. Read home spec `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`, `## Legs`. The `### Leg:` order is `repo-a`, `repo-b`.\n2. Compare that with the brief's `legs:` order, `repo-a`, `repo-b`. They match exactly.\n3. For companion `repo-b`, resolve the declared primary from the home overrides' selected sibling line (`git@github.com:acme/repo-b.git`). Canonical primary common dir: `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-b/.git`.\n4. Check the companion worktree's common dir: `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-c/.git`.\n5. The two common dirs differ. Coordinated admission requires them to be equal, so this is a stop, not informational drift.\n\nPrinted:\n\n```\ngauntlet: stuck leg repo-b: worktree /work/repo-b/.worktrees/feature-shared-change has git common directory /work/repo-c/.git, expected the declared primary's /work/repo-b/.git\nBrief legs: repo-a, repo-b; spec legs: repo-a, repo-b (membership matches; the common-directory binding fails).\nNo tracker state was changed.\n```\n\nNone of the following calls run:\n- `phase_tracker` start or skip\n- `plan_check`\n- `plan_tracker init`\n\nAdmission stopped before these, so I also print no closing gate-history line and no standing-grant line.\n",
-      "words": 164,
-      "wallMs": 10926,
+      "text": "Coordinated admission (entry check 3b) runs before any tracker write, so the restore never reaches the `plan_check` call-table step.\n\n**Tool calls, in order**\n\n1. Parse the home overrides' `## shape-ticket` sibling `git@github.com:acme/repo-b.git` with shape-ticket's shared parser.\n   - Result: `NAME` = `repo-b`, `IDENTITY` = `acme/repo-b`.\n   - Declared primary: `<home PRIMARY parent>/<NAME>` = `/work/repo-b`.\n2. `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-b/.git`\n3. `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-c/.git`\n\nThe two values differ. The companion worktree's canonical git common directory must equal its declared primary's, so admission stops here. It names the offending leg and the expected and observed paths.\n\nThere are no `phase_tracker` or `plan_tracker` calls, no `plan_check`, no `plan_tracker init`, and no receipt validation.\n\n**Printed**\n\n```\ngauntlet: stuck leg repo-b: worktree /work/repo-b/.worktrees/feature-shared-change has git common dir /work/repo-c/.git, expected declared primary /work/repo-b/.git (from sibling git@github.com:acme/repo-b.git)\n```\n",
+      "words": 132,
+      "wallMs": 7013,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: stuck repo-b worktree /work/repo-b/.worktrees/feature-shared-change belongs to canonical git common directory /work/repo-c/.git; expected declared primary common directory /work/repo-b/.git. Coordinated admission failed; no tracker calls or plan_check.\n",
-      "words": 26,
-      "wallMs": 5696,
+      "text": "gauntlet: stuck repo-b worktree /work/repo-b/.worktrees/feature-shared-change belongs to canonical git common directory /work/repo-c/.git; expected declared primary common directory /work/repo-b/.git.\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\nStop at coordinated admission before any tracker write. No `plan_check` or tracker calls.\n",
+      "words": 41,
+      "wallMs": 9719,
       "mechanical": {}
     }
   },
-  "repoSha": "d2e35168c92e6dd5e2a1bac003344a377448be67"
+  "repoSha": "63988593d8ef62b79a8d75098a61788ac46b499a"
 }
