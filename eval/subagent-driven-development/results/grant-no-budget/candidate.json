@@ -1,7 +1,7 @@
 {
   "sample": "grant-no-budget",
   "arm": "candidate",
-  "skillSha": "d3dc2693143fa7b1906a8e8c16cbe9df1270327a5506f14371bb155d52b0e574",
+  "skillSha": "e5f1f65589f26b53fe16283b1501f88bcafda39081ef5554fc0d50066cee8240",
   "inputSha": "94045851e9ee8fa59dd2b9d8c7ee02a314f80c3ce710311a7e3e5cc883b55261",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The frame validator still accepts input without checking its length. The grant `auto-apply amends` allows amends but funds no extra rounds, so no further repair round is available.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) Add an explicit length guard at src/frame.ts:21 that rejects a frame shorter than its declared or required length before any field is read. Add one case to frame.test.mjs that proves the rejection.\n  b) Amend the spec section and plan task 3 so the length-validation rule is stated precisely, such as the minimum length and the error returned. Then rerun task 3 against the amended text.\n  c) Rebuild task 3 from the wave base: discard its current changes and dispatch a fresh implementer with the original task payload.\n\nPick one, or give another fix.\nRecommendation: a - it fixes the one remaining finding directly without changing the approved spec or discarding work that already passes the scoped test.\n",
-      "words": 168,
-      "wallMs": 17485,
+      "text": "## Next parent action\n\nThe transition table puts this run in the row **\"Escalated round fails ... attributed `FIX_FIRST`: funded round while the task's ledger has one left, else stop note.\"**\n\n- **Escalation is spent.** The escalated round on `<configured-impl-model>` ran. Its re-review returned `FIX_FIRST`, `TRAJECTORY: DIVERGING (3 -> 3, max severity Moderate)`.\n- **No funding exists.** The held header is `**Amend-grant:** auto-apply amends`. It grants amend permission but carries no funded-round budget, so the ledger is 0 of 0 and no funded round is available.\n- **No convergence exception applies.** It was already used or unavailable, and the result is `DIVERGING`, not `CONVERGING`.\n- **No other route applies.** No amendment route applies because the finding is a code defect, not a spec defect. The takeable-decision ladder covers only `BLOCKED` / `NEEDS_CONTEXT`, so it does not apply either.\n- **No report read is needed.** The finding needed for the note (`src/frame.ts:21 - missing length guard`) is already held from the structured observation.\n\nSo I emit the exhausted-escalation stop note now, in this parent turn, from held observations only:\n\n- No further dispatch, shell command or report read.\n- No wave commit and no `reset --soft`.\n- Task 3 stays `in_progress` in `plan_tracker`.\n- Phase stays `implement`, and no further wave starts.\n- The note has no `budget:` line because there is no funding token.\n\n## Reply (turn ends after this)\n\n```\ngauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: frame validation still reads the frame without first checking its length, so short or truncated frames are not rejected before use; the escalated fix left this open.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) add an explicit length guard at src/frame.ts:21 that rejects frames shorter than the required header/payload length before any field is read, with a scoped test in frame.test.mjs for a truncated frame\n  b) amend plan task 3 (and its spec section) to state the required minimum frame length and rejection behavior explicitly, then re-run the task against the amended text\n  c) add a funded-round budget to the Amend-grant line so another round on <configured-impl-model> can attempt option a\n\nPick one, or give another fix.\nRecommendation: a - a direct guard closes the one remaining Moderate finding without changing the approved spec.\n```\n",
+      "words": 364,
+      "wallMs": 20762,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The escalated round has failed. `auto-apply amends` authorizes amendments, not funded implementation rounds. No further fix or re-review is authorized. Keep task 3 `in_progress`; do not commit the wave or mark it complete.\n\nThe remaining parent action is a foreground answer/evidence carrier for grant decoding and escalation wording—not another implementation attempt or a report relay:\n\n```bash\nREPORT_DIR=$(mktemp -d) || exit 1\n```\n\nUse the absolute directory printed/returned by that command as `REPORT_DIR` below:\n\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  chain: [{\n    parallel: [{\n      agent: \"delegate\",\n      output: `${REPORT_DIR}/task3-stop-evidence.md`,\n      outputMode: \"file-only\",\n      outputSchema: {\n        type: \"object\",\n        required: [\"answer\", \"evidence\"],\n        additionalProperties: false,\n        properties: {\n          answer: { type: \"string\" },\n          evidence: {\n            type: \"array\",\n            items: { type: \"string\" }\n          }\n        }\n      },\n      task: `Decode the supplied standing grant and formulate compact human\nescalation wording using only these fixed observations:\nHeader: **Amend-grant:** auto-apply amends\nTask 3: Validate frame; in_progress.\nThe escalated implementation round and its re-review have already run.\nLatest verdict: FIX_FIRST.\nLatest trajectory: DIVERGING (3 -> 3, max severity Moderate).\nResidual finding: src/frame.ts:21 - missing length guard.\nNo funded round has been dispatched.\nConfirm whether the header grants any funded rounds. Offer actionable\nlength-guard repair and approved-requirement amendment options.\nDo not read or relay saved reports. Do not invent source or spec details.\nDo not edit any file.`\n    }],\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n})\n```\n\nNo carrier result is supplied, so I cannot claim that this delegated action succeeded or emit its wording as an observed result. Stop here pending its terminal answer/evidence result. No implementation dispatch, gate, review, commit, or tracker completion follows in this turn.\n",
-      "words": 246,
-      "wallMs": 27798,
+      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: Frame validation still lacks the length guard. The escalation is spent; `auto-apply amends` authorizes amendments, not funded fix rounds.\n  src/frame.ts:21 - \"missing length guard\"\n\nFix options:\n  a) authorize another fix round to add the required length guard and repeat the scoped test and integrated review gates\n  b) amend the approved length-validation requirement if accepting frames without that guard is intended\n\nTask 3 remains in_progress. No wave commit, shell command, or further dispatch occurs at this stop.\n\nPick one, or give another fix.\nRecommendation: a - resolves the remaining defect without changing the approved contract.\n",
+      "words": 109,
+      "wallMs": 11376,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
       "baselineOutputSha": "dbd2dccfc386f007959d6c9a3bb9bf4ccb6a40c1288aeca87b5d9fe5d0f863b7",
-      "candidateOutputSha": "a8120937405e1dbe839f970c9c705ae50e8b9b4b1916c883f19b10cd45250481",
+      "candidateOutputSha": "474fafe17795f2e8cc9ff4778414dd865ff9792ed9020c4c8e1e43feabc50f46",
       "facts": {
         "original-stop": {
           "before": "holds",
@@ -54,8 +54,8 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs stop after the failed escalated re-review as a gauntlet question, neither dispatches a fix or review, neither emits a `budget:` token, and neither commits or completes task 3. The one substantive drift in After is option c, which replaces Before's funding option (adding a funded-round token to the `**Amend-grant:**` line) with a from-wave-base rebuild that discards task 3's changes; this sits uneasily with the Change's rule that rebuild is triggered only after repair-delta apply failure and that the current tree is preserved, and it removes the only option that actually addresses the stated cause of the stop (no funded round). After also dropped the `node --test frame.test.mjs: passes` line that explained why the scoped command does not catch the finding. Keep After's tighter problem wording and option a/b phrasing, but restore Before's option c (add funded rounds to the grant line) and the scoped-command observation so the stop note stays consistent with the transition table's funding and rebuild-only-on-apply-failure rules.",
-      "wallMs": 12462,
+      "feedback": "Nothing moved on this case: both outputs stop after the failed escalated re-review, dispatch no further fix or review, leave task 3 in_progress with no wave commit, and emit a stop note with no `budget:` line. After actually improves legibility by naming the transition-table row and stating the parent's non-actions explicitly (no dispatch, no commit, no reset, task stays in_progress, no `budget:` line), which makes the facts verifiable rather than merely implied as in Before. One caution for the author: the preamble mentions the literal `budget:` token while explaining its absence; that is fine as long as it stays outside the fenced note (as it does here), so keep the reasoning block and the emitted note clearly separated so a reader never mistakes commentary for note content. The dropped `node --test frame.test.mjs: passes` observation from the Problem section is a harmless omission for these facts, though retaining it would keep the note closer to Before's evidence.",
+      "wallMs": 13554,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -63,12 +63,12 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
       "baselineOutputSha": "609275e8b40fe0d82963db988df3536a928464a699f148f8e8c4f8f15cc71bf7",
-      "candidateOutputSha": "df3c564da5770539bff766d5e5f423c391bb6765a243f67a7fe918de55a7ac73",
+      "candidateOutputSha": "92374bcaf932bfdffa611cf9b6d6d2c52c84f5b03f455f0f59c035c3d6c65d34",
       "facts": {
         "original-stop": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "no-budget": {
           "before": "holds",
@@ -81,36 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before stops cleanly after the failed escalated re-review: it states the problem and finding, names the grant limitation, offers fix options, and halts with no further shell or subagent activity. After still preserves the in_progress state and omits any budget: line, but it no longer stops — it runs a `mktemp` shell command and dispatches a synchronous subagent 'carrier' to decode the grant and draft escalation wording, and then says it is waiting on that delegate's result. A careful reader sees a new dispatch after the failed re-review, which breaks original-stop even though the delegate is neither a fix nor a review; the whole point of the stop transition is that the parent emits the escalation note itself from the fixed observations. The new wording appears to have over-generalized the 'named read-only delegate' and 'direct report read / carrier' language from the recovery and report-read changes into the convergence stop row of the transition table. To keep every Before fact while delivering the Change, make the transition table's DIVERGING-after-escalation row explicit that the parent writes the stop note directly (grant decoding, finding, options, in_progress/no-commit) with zero further shell commands or subagent dispatches, and scope the read-only delegate and answer/evidence carrier language strictly to the missing-capture diagnosis and bounded report-read paths, e.g. 'On a post-escalation DIVERGING re-review, stop in the parent turn: no delegate, carrier, fix, review, or shell command follows; the parent itself emits the stop note from the observations.'",
-      "wallMs": 17454,
-      "verdict": "regressed",
-      "confirmation": {
-        "status": "ok",
-        "text": "The escalated round has failed. `auto-apply amends` is amendment permission, not an extra-round budget; it does not authorize another implementation dispatch. Task 3 remains `in_progress`, and no wave commit is permitted.\n\nThe next parent action is a delegated current-grant/evidence lookup, including evidence-backed escalation wording—not another repair and not a report relay.\n\nShown below are next actions, **not commands already run**. `planPath`, `specPath`, and the task’s anchors refer to the existing held values.\n\n```bash\nREPORT_DIR=$(mktemp -d) || exit 1\n```\n\n```js\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  chain: [{\n    parallel: [{\n      agent: \"delegate\",\n      output: `${REPORT_DIR}/task3-stop-evidence.md`,\n      outputMode: \"file-only\",\n      outputSchema: {\n        type: \"object\",\n        required: [\"answer\", \"evidence\"],\n        additionalProperties: false,\n        properties: {\n          answer: { type: \"string\" },\n          evidence: {\n            type: \"array\",\n            items: { type: \"string\" }\n          }\n        }\n      },\n      task: `\nplanPath: ${planPath}\nanchor: \"### Task 3:\"\nSpec: ${specPath}\nOwning checkout: /workspace/project\n\nDo not edit any file.\n\nRead the current Amend-grant and decode it using the Standing grants\ncontract. The supplied observation is exactly:\n**Amend-grant:** auto-apply amends\n\nDetermine whether any funded execution round is available.\nNo funded round has been dispatched; the escalated round already failed.\n\nInvestigate the selected task's cited spec anchors and src/frame.ts:21\nin documented lookup order, one bounded lookup per location, stopping\nat the first hit. The supplied residual finding is:\nsrc/frame.ts:21 - missing length guard\n\nReturn one compact paragraph containing the grant decoding and\nevidence-backed human escalation wording: problem, actionable fix\noptions, and recommendation. Do not read or relay saved review reports.\nDo not propose or authorize an additional repair dispatch.\n`\n    }],\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n})\n```\n\n**Turn-end reply:** Stopped before dispatching another fix. The delegated answer/evidence result has not been supplied, so I cannot invent its lookup results or final escalation wording. Task 3 stays `in_progress`; phase stays `implement`; no further task, re-review, or commit starts.\n",
-        "words": 279,
-        "wallMs": 26623,
-        "mechanical": {},
-        "judgeWallMs": 15776,
-        "facts": {
-          "original-stop": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "no-budget": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "in-progress": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After moved original-stop from holds to fails by inventing a new parent action: after the failed escalated re-review it dispatches a `subagent` delegate to re-read spec anchors and `src/frame.ts:21` and draft escalation wording, which is an additional investigative/review dispatch even though it is labeled read-only and not a repair. Before stopped outright with a human-facing stop note (problem, fix options, recommendation) built from the already-held report text and explicitly forbade further shell commands or subagent dispatches. The Change's transition table folds escalation/funding/transcript-only recovery into one path, but nothing in it requires a lookup delegate when the residual finding and grant are already fixed observations; the bounded direct-report-read rule is for unresolved child reports, not for a post-escalation stop. To keep original-stop while delivering the Change, After should state the transition-table row that fired (escalated re-review still FIX_FIRST/DIVERGING, grant `auto-apply amends` decodes to amendments only, no funded round) and then emit the stop note directly, with the finding quoted verbatim and fix options a/b, without any `subagent(...)` call. Both outputs correctly omit the `budget:` token (the prose word \"budget\" in After is fine) and both keep task 3 in_progress with no wave commit."
-      }
+      "feedback": "Nothing moved on this case: both outputs stop immediately after the spent escalated re-review with no further fix or review dispatch, neither emits a `budget:` line (correct, since the grant header carries no funded-round token), and both hold task 3 in_progress with an explicit no-wave-commit, no-shell, no-dispatch stance. After is actually slightly better aligned with the Change: option (a) now names the scoped test and integrated wave review gates that a new fix round would re-run, and the finding is quoted verbatim. Keep the sentence 'Task 3 remains in_progress. No wave commit, shell command, or further dispatch occurs at this stop.' as-is; it pins all three facts. If you later add transition-table wording for the DIVERGING/escalation-spent branch, make sure it still terminates in this same stop note rather than implying a funded round can be assumed from `auto-apply amends`.",
+      "wallMs": 8399,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "b0abd1fe373562bea9b77c6998d3e16e7116cb3a"
+  "repoSha": "e25ec0abe372cc4b66b6bc328a66f896e226cd73"
 }
