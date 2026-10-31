@@ -6,7 +6,7 @@
 **Architecture:** Add explicit refresh to the existing snapshot tracker, not a second lifecycle. Keep dispatch admission in the driver, put the full gate at verify step 1, and extend existing telemetry reducers and CLI output.
 **Tech Stack:** TypeScript, Node test runner, Markdown skills/evals, YAML, esbuild.
 **Spec:** `doc/specs/2026-10-31-gh-106-universal-task-tracking.md`
-**Verification:** `npm test`; `node eval/run.mjs loop-implementation`; `node eval/run.mjs gauntlet-resume`; `node eval/run.mjs gauntlet-handoff`; `node eval/run.mjs brainstorming`
+**Verification:** `npm test`; `node eval/run.mjs loop-implementation`; `node eval/run.mjs gauntlet-resume`; `node eval/run.mjs gauntlet-handoff`; `node eval/run.mjs brainstorming` - includes the loop-ledger-amend bypass fact
 **Ticket:** `jjuraszek/pi-gauntlet#106`
 **Baseline policy:** implement-local
 Baseline jjuraszek/pi-gauntlet: 5135218e
@@ -19,7 +19,9 @@ Baseline provenance: implement-local retry at home jjuraszek/pi-gauntlet revisio
 
 Baseline provenance: implement-local verify amendment at home jjuraszek/pi-gauntlet revision 860db823c2c272005b2550c8acfc4fdc24c2716e; initial porcelain empty, In-flight none. The owning checkout is the supplied gh-106-universal-task-tracking worktree. Admit only doc/specs/2026-10-31-gh-106-universal-task-tracking.md and doc/plans/2026-10-31-gh-106-universal-task-tracking.md. Retain all six unchanged command groups and their measured 5135218e evidence byte-for-byte; no changed, added, missing or invalid command evidence requires execution. No tests, endpoint-tree equivalence or rerun-all sweep run. The amended tree is the identified revision plus these workflow edits, not clean HEAD. Original task inventory and anchored obligation text are retained in the saved verify-amend-apply report.
 
-**Verification ownership:** The parent runs the complete header command set at verify step 1 in the integrated home worktree, not in implementation workers or between-wave gates. Record each full target's command, exit and result; commit its report and required eval records. Require every non-superseded fact to hold before whole-diff review and finish. A failed, refused, interrupted or inconclusive run blocks verification. Route repairs to Task 4 for loop behavior or Task 5 for restoration/handoff/amendment behavior, then rerun affected full targets without widening approved fact replacements or the scoped-command restriction. Task completion attests only its manifest-supplied deterministic scoped tests, not model-eval success.
+Baseline provenance: implement-local second verify amendment at home jjuraszek/pi-gauntlet revision 4e66666107f53f75ce24002b6755ab4b2949c338; initial porcelain empty, In-flight none. Read committed home plan/spec originals at their home-relative paths before editing. The owning checkout is the supplied gh-106-universal-task-tracking worktree; admitted changes are only doc/specs/2026-10-31-gh-106-universal-task-tracking.md and doc/plans/2026-10-31-gh-106-universal-task-tracking.md. Retain the original declaration and all six unchanged command groups with their measured 5135218e evidence byte-for-byte. No changed, added, missing or invalid command evidence requires execution; no tests, endpoint-tree equivalence or rerun-all sweep run. The amended tree is the identified revision plus these workflow edits, not clean HEAD.
+
+**Verification ownership:** The parent runs the complete header command set at verify step 1 in the integrated home worktree, not in implementation workers or between-wave gates. The parent records each full target's command, actual exit and result and commits the resulting `eval/<target>/report.md` and required eval records. Before whole-diff review and finish, require improved or unchanged results under the runner's exit-code classification for every fact this change touches: the superseded table rows, the new ledger-tracker samples, and the `loop-ledger-amend` bypass fact. This gate replaces the requirement that every non-superseded fact hold; improved or unchanged is a comparative result, not a claim that every candidate fact holds. Record provider refusals and fails -> fails cells whose facts this diff does not touch in the committed report; they do not block and do not turn an actual nonzero target exit into exit 0. For an inconclusive cell on a touched fact, rerun its sample once with `node eval/run.mjs <target> <sample> --refresh-judgments`, then run the full target to commit its integrated report; a refresh does not itself count as acceptance. A remaining regressed, inconclusive or error result on a touched fact, except a recorded provider refusal, or an interrupted run blocks verification. Route repairs to Task 4 for loop behavior or Task 5 for restoration/handoff/amendment behavior, then rerun affected full targets without widening approved fact replacements or the scoped-command restriction. Task completion attests only its manifest-supplied deterministic scoped tests, not model-eval success.
 
 ---
 
@@ -27,7 +29,7 @@ Baseline provenance: implement-local verify amendment at home jjuraszek/pi-gaunt
 
 **Modify - runtime:** `extensions/plan-tracker.ts`, `extensions/plan-tracker.test.ts`, `extensions/phase-tracker.test.ts`, `extensions/lib/plan-check.ts`, `extensions/lib/plan-check.test.ts`, `extensions/lib/telemetry-collect.ts`, `extensions/lib/telemetry-collect.test.ts`, `extensions/lib/telemetry-record.ts`, `extensions/lib/telemetry-record.test.ts`, `extensions/telemetry.ts`, `extensions/telemetry.test.ts`, `src/bins/gauntlet-performance.mjs`, `src/bins/performance/runs.mjs`, `bin/gauntlet-performance.test.mjs`.
 
-**Modify - loop:** `skills/loop-implementation/SKILL.md`, `skills/loop-implementation/reference/coordinated-legs.md`, `agents/loop-implementer.md`, `scripts/loop-engine-contract.test.mjs`, `eval/loop-implementation/intent.md`, `eval/loop-implementation/samples/verify-lifecycle/case.md`, `eval/loop-implementation/samples/verify-lifecycle/expected.md`, `eval/loop-implementation/samples/escalated-row-attempt/expected.md`, `eval/loop-implementation/samples/cap-and-exit-verification/expected.md`.
+**Modify - loop:** `skills/loop-implementation/SKILL.md`, `skills/loop-implementation/reference/coordinated-legs.md`, `agents/loop-implementer.md`, `scripts/loop-engine-contract.test.mjs`, `eval/loop-implementation/intent.md`, `eval/loop-implementation/samples/verify-lifecycle/case.md`, `eval/loop-implementation/samples/verify-lifecycle/expected.md`, `eval/loop-implementation/samples/escalated-row-attempt/expected.md`, `eval/loop-implementation/samples/cap-and-exit-verification/expected.md`, `eval/loop-implementation/samples/gate-line-first/expected.md`.
 
 **Modify - restore:** `skills/gauntlet-resume/SKILL.md`, `skills/gauntlet-resume/reference/reconstruction.md`, `skills/gauntlet-resume/reference/brief-contract.md`, `skills/gauntlet-handoff/SKILL.md`, `skills/brainstorming/reference/amendment-surface.md`, `scripts/brief-contract-lint.test.mjs`, the three target intent files and six expected-fact files enumerated in Task 5.
 
@@ -54,7 +56,7 @@ Preserve `skills/subagent-driven-development/` and `skills/writing-plans/`. At v
 ### Task 1: Add atomic ledger refresh and home-pending admission
 Leg: jjuraszek/pi-gauntlet
 **TDD scenario:** Modifying tested code - existing tests first.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L33, § "Acceptance criteria" L39, § "Design" L89, § "The `refresh` action" L93, § "The `refresh` action" L95-L103, § "The `refresh` action" L105, § "The `refresh` action" L107-L116, § "The `refresh` action" L118, § "The `refresh` action" L120, § "Resume, handoff, amendment, coordinated legs" L144, § "Errors and edge cases" L187, § "Errors and edge cases" L188, § "Errors and edge cases" L189, § "Errors and edge cases" L192, § "Errors and edge cases" L193, § "Errors and edge cases" L194, § "Errors and edge cases" L199, § "Errors and edge cases" L200, § "Out of scope" L240
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L33, § "Acceptance criteria" L39, § "Design" L89, § "The `refresh` action" L93, § "The `refresh` action" L95-L103, § "The `refresh` action" L105, § "The `refresh` action" L107-L116, § "The `refresh` action" L118, § "The `refresh` action" L120, § "Resume, handoff, amendment, coordinated legs" L144, § "Errors and edge cases" L188, § "Errors and edge cases" L189, § "Errors and edge cases" L190, § "Errors and edge cases" L193, § "Errors and edge cases" L194, § "Errors and edge cases" L195, § "Errors and edge cases" L200, § "Errors and edge cases" L201, § "Out of scope" L241
 
 **Files:**
 - Modify: `extensions/plan-tracker.ts`
@@ -87,7 +89,7 @@ Verification ownership: `npm test` is the parent-only header gate for these unch
 ### Task 2: Count name-based reopens and durable verification runs
 Leg: jjuraszek/pi-gauntlet
 **TDD scenario:** Modifying tested code - existing tests first.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L37, § "Acceptance criteria" L39, § "Acceptance criteria" L41, § "Acceptance criteria" L43, § "Acceptance criteria" L53-L54, § "Telemetry" L152, § "Telemetry" L153, § "Errors and edge cases" L196, § "Errors and edge cases" L201, § "Errors and edge cases" L202, § "Errors and edge cases" L203
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L37, § "Acceptance criteria" L39, § "Acceptance criteria" L41, § "Acceptance criteria" L43, § "Acceptance criteria" L53-L54, § "Telemetry" L152, § "Telemetry" L153, § "Errors and edge cases" L197, § "Errors and edge cases" L202, § "Errors and edge cases" L203, § "Errors and edge cases" L204
 
 **Files:**
 - Modify: `extensions/lib/telemetry-collect.ts:62-76`
@@ -120,7 +122,7 @@ Verification ownership: `npm test` is the parent-only header gate for these unch
 ### Task 3: Expose comparable dispatch ratios in the performance digest
 Leg: jjuraszek/pi-gauntlet
 **TDD scenario:** Modifying tested code - existing tests first.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L45, § "Acceptance criteria" L47, § "Acceptance criteria" L53-L54, § "Telemetry" L154, § "Errors and edge cases" L204
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L45, § "Acceptance criteria" L47, § "Acceptance criteria" L53-L54, § "Telemetry" L154, § "Errors and edge cases" L205
 
 **Files:**
 - Modify: `src/bins/gauntlet-performance.mjs:84-167`
@@ -147,7 +149,7 @@ Depends on Wave 1: refresh, admission and measurements exist. Tasks 4/5 own disj
 ### Task 4: Route loop dispatch and verification through the tracker lifecycle
 Leg: jjuraszek/pi-gauntlet
 **TDD scenario:** Tested instruction change - deterministic red/green; model evals belong to parent verify step 1.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Acceptance criteria" L51, § "Design" L89, § "The loop driver" L126, § "The loop driver" L127, § "The loop driver" L128, § "The loop driver" L129, § "The loop driver" L130, § "The loop driver" L131, § "The loop driver" L132, § "The loop driver" L133, § "Verification at verify step 1" L137, § "Verification at verify step 1" L139, § "Resume, handoff, amendment, coordinated legs" L147, § "Resume, handoff, amendment, coordinated legs" L148, § "Docs and evals" L161, § "Superseded eval facts and contract assertions" L165, § "Superseded eval facts and contract assertions" L175-L176, § "Superseded eval facts and contract assertions" L177, § "Superseded eval facts and contract assertions" L180, § "Errors and edge cases" L188, § "Errors and edge cases" L189, § "Errors and edge cases" L190, § "Errors and edge cases" L191, § "Errors and edge cases" L195, § "Errors and edge cases" L196, § "Errors and edge cases" L197, § "Errors and edge cases" L200, § "Tests" L229, § "Out of scope" L242, § "Out of scope" L245
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Acceptance criteria" L51, § "Design" L89, § "The loop driver" L126, § "The loop driver" L127, § "The loop driver" L128, § "The loop driver" L129, § "The loop driver" L130, § "The loop driver" L131, § "The loop driver" L132, § "The loop driver" L133, § "Verification at verify step 1" L137, § "Verification at verify step 1" L139, § "Resume, handoff, amendment, coordinated legs" L147, § "Resume, handoff, amendment, coordinated legs" L148, § "Docs and evals" L161, § "Superseded eval facts and contract assertions" L165, § "Superseded eval facts and contract assertions" L175-L176, § "Superseded eval facts and contract assertions" L177, § "Superseded eval facts and contract assertions" L179, § "Superseded eval facts and contract assertions" L181, § "Errors and edge cases" L189, § "Errors and edge cases" L190, § "Errors and edge cases" L191, § "Errors and edge cases" L192, § "Errors and edge cases" L196, § "Errors and edge cases" L197, § "Errors and edge cases" L198, § "Errors and edge cases" L201, § "Tests" L230, § "Out of scope" L243, § "Out of scope" L246
 
 **Files:**
 - Modify: `skills/loop-implementation/SKILL.md`
@@ -159,6 +161,7 @@ Leg: jjuraszek/pi-gauntlet
 - Modify: `eval/loop-implementation/samples/verify-lifecycle/expected.md`
 - Modify: `eval/loop-implementation/samples/escalated-row-attempt/expected.md`
 - Modify: `eval/loop-implementation/samples/cap-and-exit-verification/expected.md`
+- Modify: `eval/loop-implementation/samples/gate-line-first/expected.md`
 - Create: `eval/loop-implementation/samples/tracker-refresh/case.md`
 - Create: `eval/loop-implementation/samples/tracker-refresh/expected.md`
 - Create: `eval/loop-implementation/samples/tracker-boundary/case.md`
@@ -176,7 +179,7 @@ Decision: keep targeting, validation and human stops inside the driver. Reduce p
 
 - [ ] Run the contract test, add new refresh/pending/admission/verify assertions and confirm red. Change only the named old assertions: remove Exit verification from two headings lists, replace its reference slice with whole-reference checks, remove its dispatch-read reference and replace `assert.doesNotMatch(driver, /pending:|companion-return-shell|## Leg mapping/)` with a positive Dispatch pending assertion. Keep `companion-return-shell` and `## Leg mapping` excluded from the driver, and pending excluded from the legacy seed skeleton. Keep every other existing assertion intact.
 - [ ] Add tracker-refresh scenarios: all-cut/baseline seed, out-of-order close, in-flight retry, cut after dispatch, completion via refresh. Add tracker-boundary scenarios: allowance failed, dirty/commit boundary in_progress, cap with no active row; done+dirty and two commits at immediate stop and resume. Add tracker-verify: per-leg gate, once-per-flow repair, restricted failure menu and authorized re-bound closure. Keep raw row-status explanations in expected facts, never in the skill.
-- [ ] Rewrite only `verify-lifecycle` `contract`, `escalated-row-attempt` `ledger-prepare-local`, and the closed-row half of `cap-and-exit-verification` `contract`, recording `holds -> replaced` in intent. For cap-and-exit-verification preserve the cap-stop half verbatim; replace the closed-row expectation with "Closed rows run the ledger gate once at verify step 1; failure quotes output, never reopens/reruns, keeps verify active and implement complete, and offers amend or stop only". Update verify-lifecycle input to remove its already-passed exit premise. Preserve all other facts. Task 5 owns `eval/gauntlet-handoff` and `eval/gauntlet-resume` and their intent.md changes. Retain ownership of the loop instruction changes, samples, expected facts and intent file; leave full-target execution, reports and required records to parent verification under the header contract.
+- [ ] Rewrite only `verify-lifecycle` `contract`, `escalated-row-attempt` `ledger-prepare-local`, the closed-row half of `cap-and-exit-verification` `contract`, and the tree-untouched clause of `gate-line-first` `preserved`, recording `holds -> replaced` in intent. For cap-and-exit-verification preserve the cap-stop half verbatim; replace the closed-row expectation with "Closed rows run the ledger gate once at verify step 1; failure quotes output, never reopens/reruns, keeps verify active and implement complete, and offers amend or stop only". For gate-line-first replace "leaves implement active and tree untouched" with "leaves implement active; the only tree write is the restored target cells and `pending:` tuple in the working ledger, nothing discarded or reset"; preserve attempts, consumed iterations/cap and no done or stuck terminal marker clauses. Update verify-lifecycle input to remove its already-passed exit premise. Preserve all other facts. Task 5 owns `eval/gauntlet-handoff` and `eval/gauntlet-resume` and their intent.md changes. Retain ownership of the loop instruction changes, samples, expected facts and intent file; leave full-target execution, reports and required records to parent verification under the header contract.
 - [ ] Entry step 5: `plan_check`, commit `loop: seed ledger`, `phase_tracker({ action: "start", phase: "implement" })`, then `plan_tracker({ action: "refresh", path: <absolute ledger path> })`. All-cut needs this after `start implement`. Rule 1 becomes `No open or failed row | Refresh; require implement complete; continue at ## After the loop step 0. All-cut and baseline-complete ledgers exit here.` Do not start verify when a refresh leaves implement active.
 - [ ] In `## Dispatch`, take the home saved ledger before iterations bump/tuple write. Persist the consumed count and tuple before every home/companion dispatch, then refresh with absolute path only. Use home for zero/one `## Legs`; actual member for coordinated. Preserve companion SAVED_LEDGER's post-bump/pending meaning. No extra commit. The extension, not skill prose, maps `open`, `failed`, `done`, `cut`, `pending`, `in_progress`, `complete`, `skipped`.
 - [ ] In the persona add removal of pending in the home commit and its header-preservation exception, leaving companion body attribution and frontmatter unchanged. In `## Validate the return`, permit only iterations+1 and tuple removal alongside existing row/decision rules; a tuple left in an admitted clean single commit is an ordinary miss. Clear it in failed-row repair. Retry/cut/amend/raise-cap/escalate do not clear it. Home `loop: row ...` and `loop: seed evidence` commits remove it only on a valid return; validate both seed and ordinary paths.
@@ -191,7 +194,7 @@ Decision: keep targeting, validation and human stops inside the driver. Reduce p
 ### Task 5: Restore ledger task views and preserve conformance tasks
 Leg: jjuraszek/pi-gauntlet
 **TDD scenario:** Tested instruction change - deterministic red/green; model evals belong to parent verify step 1.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Acceptance criteria" L51, § "Resume, handoff, amendment, coordinated legs" L143, § "Resume, handoff, amendment, coordinated legs" L145, § "Resume, handoff, amendment, coordinated legs" L146, § "Resume, handoff, amendment, coordinated legs" L147, § "Docs and evals" L161, § "Superseded eval facts and contract assertions" L165, § "Superseded eval facts and contract assertions" L169-L174, § "Superseded eval facts and contract assertions" L178, § "Errors and edge cases" L190, § "Errors and edge cases" L192, § "Errors and edge cases" L194, § "Errors and edge cases" L196, § "Errors and edge cases" L198, § "Tests" L229
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Acceptance criteria" L51, § "Resume, handoff, amendment, coordinated legs" L143, § "Resume, handoff, amendment, coordinated legs" L145, § "Resume, handoff, amendment, coordinated legs" L146, § "Resume, handoff, amendment, coordinated legs" L147, § "Docs and evals" L161, § "Superseded eval facts and contract assertions" L165, § "Superseded eval facts and contract assertions" L169-L174, § "Superseded eval facts and contract assertions" L178, § "Errors and edge cases" L191, § "Errors and edge cases" L193, § "Errors and edge cases" L195, § "Errors and edge cases" L197, § "Errors and edge cases" L199, § "Tests" L230
 
 **Files:**
 - Modify: `skills/gauntlet-resume/SKILL.md`
@@ -240,7 +243,7 @@ Depends on Waves 1-2: shared telemetry libraries and CLI source are final; all g
 ### Task 6: Regenerate shipped bins and validate integration
 Leg: jjuraszek/pi-gauntlet
 **TDD scenario:** Generated code integration - run before and after the build.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Tests" L224
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Tests" L225
 
 **Files:**
 - Modify: `bin/gauntlet-performance.mjs`
@@ -269,7 +272,7 @@ Depends on Waves 1-3: documentation names the implemented lifecycle and released
 ### Task 7: Document ledger tracking and the post-merge evidence venue
 Leg: jjuraszek/pi-gauntlet
 **TDD scenario:** Documentation-only change - manual source/link check.
-**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L49, § "Acceptance criteria" L53-L54, § "Docs and evals" L158, § "Docs and evals" L159, § "Docs and evals" L160, § "Documentation impact" L233, § "Documentation impact" L234, § "Out of scope" L242, § "Out of scope" L246
+**Spec:** doc/specs/2026-10-31-gh-106-universal-task-tracking.md § "Acceptance criteria" L49, § "Acceptance criteria" L53-L54, § "Docs and evals" L158, § "Docs and evals" L159, § "Docs and evals" L160, § "Documentation impact" L234, § "Documentation impact" L235, § "Out of scope" L243, § "Out of scope" L247
 
 **Files:**
 - Modify: `doc/configuration.md`
@@ -341,33 +344,34 @@ Leg: jjuraszek/pi-gauntlet
 | § "Superseded eval facts and contract assertions" L175-L176 | Two loop replacements | Task 4 |
 | § "Superseded eval facts and contract assertions" L177 | Replace only the closed-row half of `cap-and-exit-verification` `contract`: gate once at verify step 1, quote failure output, never reopen/rerun, keep verify active and implement complete, offer amend or stop only; preserve cap-stop half and record `holds -> replaced` in `intent.md` | Task 4 |
 | § "Superseded eval facts and contract assertions" L178 | Brainstorm bypass replacement | Task 5 |
-| § "Superseded eval facts and contract assertions" L180 | Only named old loop assertions change | Task 4 |
-| § "Errors and edge cases" L187 | Atomic rejection | Task 1 |
-| § "Errors and edge cases" L188 | All-cut completion after start | Task 1, Task 4 |
-| § "Errors and edge cases" L189 | Retry tuple overrides failed | Task 1, Task 4 |
-| § "Errors and edge cases" L190 | Rejected done result retains tuple and child changes | Task 4, Task 5 |
-| § "Errors and edge cases" L191 | Only bump/removal header changes | Task 4 |
-| § "Errors and edge cases" L192 | Home recovery ordering and admission | Task 1, Task 5 |
-| § "Errors and edge cases" L193 | Out-of-order closure | Task 1 |
-| § "Errors and edge cases" L194 | Gn preservation and verify guard | Task 1, Task 5 |
-| § "Errors and edge cases" L195 | Three stop states | Task 4 |
-| § "Errors and edge cases" L196 | Cut/re-bound not reopens; disk closure at verify | Task 2, Task 4, Task 5 |
-| § "Errors and edge cases" L197 | Verify failure preserves phase and menu | Task 4 |
-| § "Errors and edge cases" L198 | Implement and verify restoration differ | Task 5 |
-| § "Errors and edge cases" L199 | Legacy no-cap accepted | Task 1 |
-| § "Errors and edge cases" L200 | Single-member home tuple and mapped names | Task 1, Task 4 |
-| § "Errors and edge cases" L201 | Reopen once per named transition | Task 2 |
-| § "Errors and edge cases" L202 | Counter persistence, misses, children and unbound runs | Task 2 |
-| § "Errors and edge cases" L203 | Nameless snapshots never match | Task 2 |
-| § "Errors and edge cases" L204 | Dropped events make ratio unavailable | Task 3 |
-| § "Tests" L224 | Fresh generated bundles | Task 6 |
-| § "Tests" L229 | Parent runs all full model targets at integrated verify step 1; records and commits results, blocks unsuccessful runs, routes repairs and reruns before review/finish; workers retain inputs and scoped tests only | Verification |
-| § "Documentation impact" L233 | Public docs and changelog | Task 7 |
-| § "Documentation impact" L234 | Existing scoped banner remains accurate | Task 7 |
-| § "Out of scope" L240 | Preserve waves source and omit waves parser | Task 1 |
-| § "Out of scope" L241 | No automatic tool-end refresh | waived: out of scope per spec |
-| § "Out of scope" L242 | Gate-set design stays with #109 | Task 4, Task 7 |
-| § "Out of scope" L243 | Budget unification and multi-row closure | waived: out of scope per spec |
-| § "Out of scope" L244 | No timing, ratio target, historical denominator or live identification | waived: out of scope per spec |
-| § "Out of scope" L245 | Targeting, validation and stops remain in driver | Task 4 |
-| § "Out of scope" L246 | Exact-text approval for first-run comment | Task 7 |
+| § "Superseded eval facts and contract assertions" L179 | Replace only the tree-untouched clause of `gate-line-first` `preserved`: implement stays active; only target cells and `pending:` tuple are restored in the working ledger, nothing discarded or reset; preserve the fact's other clauses and record the replacement in intent | Task 4 |
+| § "Superseded eval facts and contract assertions" L181 | Only named old loop assertions change | Task 4 |
+| § "Errors and edge cases" L188 | Atomic rejection | Task 1 |
+| § "Errors and edge cases" L189 | All-cut completion after start | Task 1, Task 4 |
+| § "Errors and edge cases" L190 | Retry tuple overrides failed | Task 1, Task 4 |
+| § "Errors and edge cases" L191 | Rejected done result retains tuple and child changes | Task 4, Task 5 |
+| § "Errors and edge cases" L192 | Only bump/removal header changes | Task 4 |
+| § "Errors and edge cases" L193 | Home recovery ordering and admission | Task 1, Task 5 |
+| § "Errors and edge cases" L194 | Out-of-order closure | Task 1 |
+| § "Errors and edge cases" L195 | Gn preservation and verify guard | Task 1, Task 5 |
+| § "Errors and edge cases" L196 | Three stop states | Task 4 |
+| § "Errors and edge cases" L197 | Cut/re-bound not reopens; disk closure at verify | Task 2, Task 4, Task 5 |
+| § "Errors and edge cases" L198 | Verify failure preserves phase and menu | Task 4 |
+| § "Errors and edge cases" L199 | Implement and verify restoration differ | Task 5 |
+| § "Errors and edge cases" L200 | Legacy no-cap accepted | Task 1 |
+| § "Errors and edge cases" L201 | Single-member home tuple and mapped names | Task 1, Task 4 |
+| § "Errors and edge cases" L202 | Reopen once per named transition | Task 2 |
+| § "Errors and edge cases" L203 | Counter persistence, misses, children and unbound runs | Task 2 |
+| § "Errors and edge cases" L204 | Nameless snapshots never match | Task 2 |
+| § "Errors and edge cases" L205 | Dropped events make ratio unavailable | Task 3 |
+| § "Tests" L225 | Fresh generated bundles | Task 6 |
+| § "Tests" L230 | Parent runs all full model targets at integrated verify step 1 and commits reports/records with actual exits; require improved or unchanged results for touched facts, not universal holds; record nonblocking provider refusals and untouched fails-to-fails without masking exits; refresh touched inconclusive samples once then integrate through full target; remaining touched regressions/inconclusive/errors except recorded provider refusals, or interruption, block; route repairs and rerun before review/finish; workers keep scoped tests only | Verification |
+| § "Documentation impact" L234 | Public docs and changelog | Task 7 |
+| § "Documentation impact" L235 | Existing scoped banner remains accurate | Task 7 |
+| § "Out of scope" L241 | Preserve waves source and omit waves parser | Task 1 |
+| § "Out of scope" L242 | No automatic tool-end refresh | waived: out of scope per spec |
+| § "Out of scope" L243 | Gate-set design stays with #109 | Task 4, Task 7 |
+| § "Out of scope" L244 | Budget unification and multi-row closure | waived: out of scope per spec |
+| § "Out of scope" L245 | No timing, ratio target, historical denominator or live identification | waived: out of scope per spec |
+| § "Out of scope" L246 | Targeting, validation and stops remain in driver | Task 4 |
+| § "Out of scope" L247 | Exact-text approval for first-run comment | Task 7 |
