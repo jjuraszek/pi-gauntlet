@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Single-repo loops omit coordinated instructions; coordinated entry and resume load the extracted reference before admission. (#107)
+
 ## v8.0.0 - 2026-10-31
 
 - Replace `spec-reviewer` and `code-reviewer` with `wave-reviewer`: one integrated spec/code review per wave, bounded direct report reads and repairs on the current tree. Move model/thinking pins from both removed `subagents.agentOverrides` entries to `wave-reviewer` and remove the old keys. No pi-cohort dispatch-shape change; sibling docs need no update or paired release.
