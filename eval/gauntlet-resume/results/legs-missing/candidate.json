@@ -1,7 +1,7 @@
 {
   "sample": "legs-missing",
   "arm": "candidate",
-  "skillSha": "1f442e0a139015061f6f9b2873295b53b952a31e0a35b11b26f1739e52af2b2a",
+  "skillSha": "d3b09ce397a6ab1599eab737718e4bb9fa298f72a7a90f5cb9a989d7a78fe9b7",
   "inputSha": "6f5021067388e82d7d7495d0696add577fb4cbab6002fddf0c46672a96933d83",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Coordinated admission: the repo-b leg is missing, so the restore stops\n\n**1. Run-home binding (entry check 3).** The supplied observations satisfy this check, so it is unchanged.\n- Session common dir: `/work/repo-a/.git`\n- Run home `/work/repo-a/.worktrees/feature-shared-change` resolves to the same common dir.\n\n**2. Home spec.** Resolved through Candidates to `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`. Its approval comes from the human, not from the file being present.\n\n**3. Ordered membership.** The two lists match exactly.\n- Brief `legs:`: `repo-a`, `repo-b`\n- Spec `### Leg:` blocks: `repo-a`, `repo-b`\n\n**4. Home leg (repo-a).**\n- `git -C /work/repo-a/.worktrees/feature-shared-change branch --show-current` returns `feature/shared-change`, which matches.\n\n**5. Companion leg (repo-b).**\n- **Declared primary:** the home overrides declare sibling `git@github.com:acme/repo-b.git`. The shared parser gives NAME `repo-b`, so the primary is `/work/repo-b`.\n- **Common dir:** `git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir` returns `/work/repo-b/.git`, the declared canonical common dir.\n- **Worktree location:** the leg's recorded `home: .worktrees/<name>` with NAME `feature-shared-change` (shared branch with `/` replaced by `-`) gives `/work/repo-b/.worktrees/feature-shared-change`.\n- **Live tree:** missing. The brief also records `worktree: missing`.\n- **Receipt:** the brief's repo-b entry has no `receipt:` field, so there is nothing to validate live.\n- **Rule applied:** a missing companion tree may be admitted only after live receipt validation (`finishing-a-development-branch/reference/legs.md`). With no receipt, the leg cannot be admitted, and the restore cannot continue as an unlanded leg without a checkout.\n\n**6. Stop, before any tracker write.**\n- No `phase_tracker` call.\n- No `plan_tracker` call.\n- No `plan_check`.\n- No plan repair.\n- No worktree creation.\n- The `HEAD`/`dirty` drift notice and the grant line are not reached.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated admission: leg repo-b worktree missing at /work/repo-b/.worktrees/feature-shared-change (expected live tree on feature/shared-change, observed missing) and the brief carries no delivery receipt; a missing companion tree is admitted only after live receipt validation - restore the repo-b worktree or supply a valid receipt, then re-run /skill:gauntlet-resume\n```\n",
-      "words": 284,
-      "wallMs": 13566,
+      "text": "Coordinated admission (entry check 3b) runs before any tracker write, so I do not reach `plan_check`.\n\n**Admission steps, in order**\n\n1. **Run home binding (check 3).** Home is `/work/repo-a/.worktrees/feature-shared-change`. Its common dir resolves to `/work/repo-a/.git`, which matches the session cwd. Pass.\n\n2. **Membership.** The home spec `doc/specs/shared.md` has `### Leg:` blocks in the order `repo-a`, `repo-b`. The brief's `legs:` lists `repo-a`, `repo-b`. They match exactly. Pass.\n\n3. **Companion repo-b, declared primary.**\n   - The sibling clone URL `git@github.com:acme/repo-b.git` parses through the shared parser to NAME `repo-b`.\n   - The declared primary is therefore `<home PRIMARY parent>/<NAME>`, which is `/work/repo-b`.\n   - Its canonical git common dir is `/work/repo-b/.git`. Pass.\n\n4. **Companion repo-b, worktree location.**\n   - The brief records `worktree: missing`.\n   - I resolve the absent location from the leg's recorded `home: .worktrees/<name>`. NAME is `feature/shared-change` with `/` replaced by `-`, giving `/work/repo-b/.worktrees/feature-shared-change`.\n   - Observed: the tree is missing.\n\n5. **Missing-tree admission.** A missing companion tree is admitted only after live receipt validation under `finishing-a-development-branch/reference/legs.md`. The brief's repo-b leg has no `receipt:` field. With nothing to validate, I cannot infer delivery from a missing tree.\n\n**Result:** stop. No `phase_tracker` or `plan_tracker` call is made. There is no `start brainstorm`, no `plan_check`, and no `plan_tracker init`. Drift notice and the later checks are not reached.\n\n**Printed:**\n\n```\ngauntlet: stuck leg repo-b: worktree missing - expected /work/repo-b/.worktrees/feature-shared-change on feature/shared-change (from recorded home: .worktrees/<name>), observed missing with no receipt; a missing companion tree is admitted only after live receipt validation. Restore the repo-b worktree on feature/shared-change (or supply a delivery receipt), then re-run /skill:gauntlet-resume.\n```\n",
+      "words": 246,
+      "wallMs": 14618,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Print:\n```text\ngauntlet: stuck repo-b: missing worktree /work/repo-b/.worktrees/feature-shared-change and no delivery receipt; coordinated admission cannot proceed.\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nNo tool calls. Stop before any tracker write or `plan_check`: a missing companion worktree requires a live-validated delivery receipt. The recorded `home:` pattern resolves its location but does not authorize recreating it or prove delivery.\n",
-      "words": 61,
-      "wallMs": 13617,
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\ngauntlet: stuck repo-b: worktree /work/repo-b/.worktrees/feature-shared-change is missing and no delivery receipt is available for live validation; coordinated admission stops before any tracker write or plan_check call.\n",
+      "words": 36,
+      "wallMs": 10835,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "5e8a86ca28188ac230c45b444795bc1b81c2d6425bc586c10b641a1bb8697af2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2049792b9304d1092ff15d94213bbc3d9c337bee3db7b58c1f27858a3873df4c",
-      "baselineOutputSha": "80f0bdd02d67da12e63cf4a118b8b617e12cafd6af994315f917028b03b05039",
-      "candidateOutputSha": "19148230858eb261145359994d477c455b7796a5ce0eca499fff7c22df766b50",
+      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "baselineOutputSha": "19148230858eb261145359994d477c455b7796a5ce0eca499fff7c22df766b50",
+      "candidateOutputSha": "1986a2409f3799effc239d8e85abec520e4ac2b53e78d7ef24dbe14ed928231c",
       "facts": {
         "stop": {
           "before": "holds",
@@ -44,27 +44,27 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs resolve the companion path from the recorded `home: .worktrees/<name>` contract and the shared NAME `feature-shared-change`, confirm the tree is missing and no receipt exists, and stop naming repo-b with an explicit list of tracker calls not made; neither invents a tree, receipt or approval (After even states spec approval comes from the human). Nothing moved for this case, so the After wording is safe here; if you want it tighter, keep the explicit 'Rule applied' line and the stop line's enumeration of skipped `phase_tracker`/`plan_tracker`/`plan_check` calls, since those are what make the before-tracker-write boundary unambiguous to a reader.",
-      "wallMs": 6047,
+      "feedback": "Both outputs satisfy the fact as written, so no fact moved. Before resolves the companion path from the recorded `home: .worktrees/<name>` plus the shared NAME in step 5, stops naming repo-b with no phase_tracker/plan_tracker/plan_check calls, and invents no tree, receipt or approval; After does the same in step 4 and the Result block, and its printed stop line is slightly stronger because it cites the derivation `(from recorded home: .worktrees/<name>)` and the shared branch explicitly. The Expected-to-move entry anticipated a fails->holds move, but Before already held on this input, so this case is setup-only coverage rather than evidence of improvement. If you want the After wording to visibly deliver the Change here, keep the explicit resolution derivation in the printed message and the ordered `no phase_tracker / no plan_tracker / no plan_check` list; one small tightening would be to state the NAME as the already-transformed `feature-shared-change` (as Before does) rather than `feature/shared-change with / replaced by -`, to avoid a reader momentarily thinking the slash form is the worktree name.",
+      "wallMs": 9743,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5e8a86ca28188ac230c45b444795bc1b81c2d6425bc586c10b641a1bb8697af2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2049792b9304d1092ff15d94213bbc3d9c337bee3db7b58c1f27858a3873df4c",
-      "baselineOutputSha": "c74794df7dad5fb5f66ae534055f5f8260e68a0e828d6c4332a8b7a62a61ec8c",
-      "candidateOutputSha": "3f13711b30b7aaa28aaa1d8cdc08162ea6593a22b351d4a6427b3e1a17f16e37",
+      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "baselineOutputSha": "3f13711b30b7aaa28aaa1d8cdc08162ea6593a22b351d4a6427b3e1a17f16e37",
+      "candidateOutputSha": "cf59ba500d095e89e00156a6d3747a31fc337432b4b0569d1f786bb1c96a78f4",
       "facts": {
         "stop": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "Before names repo-b, prints the missing worktree path, and stops before tracker writes without inventing anything, but it never shows the path being resolved from the recorded `home: .worktrees/<name>` pattern plus the shared NAME — the path could just as well have been copied from the brief's legs list — so the 'resolves missing path from recorded home and shared NAME' clause is not demonstrated. After adds exactly that sentence ('The recorded `home:` pattern resolves its location but does not authorize recreating it or prove delivery'), keeps the repo-b name, the stop before any tracker write or `plan_check`, and explicitly refuses to invent a tree, receipt, or approval, so the fact holds. Two minor wording notes: the 'I'm using the gauntlet-resume skill' announcement is printed after the stop line, which reads out of order — emit it first or drop it from the stop block; and consider stating the derivation inline in the stop message itself (e.g. 'resolved from recorded home .worktrees/<name> with NAME feature-shared-change') so the resolution is visible to the user rather than only in the narration.",
-      "wallMs": 12581,
-      "verdict": "improved"
+      "feedback": "Both outputs satisfy the fact: each names repo-b, states the resolved companion path /work/repo-b/.worktrees/feature-shared-change (home's recorded .worktrees/<name> pattern with the shared NAME), stops before any tracker write or plan_check, and invents no tree, receipt or approval. Before is slightly stronger because it says outright that the recorded `home:` pattern resolved the location and that this neither authorizes recreating the tree nor proves delivery; After only implies the derivation by printing the path. To keep the fact unambiguously held while delivering the Change's missing-tree live-receipt stop, After should add one clause such as 'resolved from recorded home .worktrees/<name> and shared NAME feature-shared-change; a missing companion needs a live-validated delivery receipt and the pattern does not authorize recreating the tree', and keep the stuck line before the skill-announcement line so the stop is the first thing a reader sees.",
+      "wallMs": 12722,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "d2e35168c92e6dd5e2a1bac003344a377448be67"
+  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
 }
