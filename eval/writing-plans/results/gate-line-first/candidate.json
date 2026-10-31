@@ -25,9 +25,13 @@
       }
     },
     "github-copilot/gpt-6.1-sol": {
-      "status": "error",
-      "error": "github-copilot API error (429): 429 quota exceeded",
-      "wallMs": 1185
+      "status": "ok",
+      "text": "gauntlet: question\nTask 1’s baseline command `node --test tests/timeout.test.ts` failed on `def5678` (exit 1): existing timeout lookup failed. Results: 1 test, 0 passed, 1 failed.\n\nfix-first - Run `/skill:shape-ticket` for the existing baseline failure; this plan remains paused.\nnarrow <filter> - Provide a concrete test filter or path; the supplied evidence does not establish a safe narrower scope.\namend - Amend the approved spec through the approved-spec amendment workflow.\n\nRecommendation: fix-first - Repair the existing timeout lookup failure before planning this change.\n\nPlanning remains paused at `plan-write`, awaiting your choice.\n",
+      "words": 86,
+      "wallMs": 6880,
+      "mechanical": {
+        "first-line": "holds"
+      }
     }
   },
   "judge": {
@@ -35,7 +39,7 @@
       "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "cc71f2cea9e5d50487a24f4d950e23390e0be1fe4c7b6abe1eb7beb4543463a4",
-      "baselineOutputSha": "33199cf4c362bcb3593a43a9217fe93f9b588919f67cfb793bc3514521332d32",
+      "baselineOutputSha": "c4dade8a3f8f707e18459d5b8b037d34032261a166d1213c1581ba7787592239",
       "candidateOutputSha": "c4dade8a3f8f707e18459d5b8b037d34032261a166d1213c1581ba7787592239",
       "facts": {
         "failure": {
@@ -59,14 +63,42 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs name Task 1, `node --test tests/timeout.test.ts` and exit 1 on `def5678` as the base failure; both list fix-first, narrow and amend one per line and close with a Recommendation line; both pause for the human without stamping, initializing plan_tracker or marking the plan complete. After adds an explicit trailing state line (`in_progress`, substep `plan-write`, nothing stamped, tracker uninitialized), which makes the pause fact easier to verify but was not needed for it to hold - Before already held it by simply asking the question and performing none of the forbidden actions. Note that the Expected-to-move entry `parent-offers-fix-first-narrow-amend/menu: fails -> holds` does not match this sample: Before already satisfied the menu fact, so this case is a no-regression control rather than a mover. If the author wants the After wording to be the stable no-grant control going forward, keep the three bare-labelled option lines plus the single Recommendation line and the closing state sentence; avoid turning the state sentence into a narrated procedure, since the prompt asks for only the recovery question.",
-      "wallMs": 16391,
+      "feedback": "Before and After are byte-identical, so no fact moved: both name Task 1, `node --test tests/timeout.test.ts`, SHA def5678 and exit 1 as the base failure; both list `fix-first`, `narrow <filter>` and `amend` one per line followed by a Recommendation line; and both close by stating the plan phase stays `in_progress` (substep `plan-write`) with nothing stamped and `plan_tracker` uninitialized while waiting on the human. The Expected-to-move list claims the menu fact goes fails -> holds for this sample, but the Before text already satisfies it, so the Change wording did not need to (and did not) alter this no-grant control output; if the author wants this sample to serve as evidence of the Change, the Before baseline should be re-examined, since the After wording preserves every fact Before kept without any observable difference here.",
+      "wallMs": 7195,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "verdict": "error",
-      "error": "github-copilot API error (429): 429 quota exceeded"
+      "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cc71f2cea9e5d50487a24f4d950e23390e0be1fe4c7b6abe1eb7beb4543463a4",
+      "baselineOutputSha": "ba3c29aa2384a62cefe9f960db20af48357b8f90ac26df11a4fca763cf35231c",
+      "candidateOutputSha": "b605c7acb4bcf25f3c928bae2a65171dc6a6b5f2c589b5ba3e31041d9f996b54",
+      "facts": {
+        "failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "pause": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps all three facts: Task 1, the exact `node --test tests/timeout.test.ts` command and exit 1 are named in the opening line; fix-first, narrow <filter> and amend appear one per line followed by a Recommendation line; and the closing line keeps the plan paused at `plan-write` with no tracker init, stamping or completion. The one wording risk is the final line: Before explicitly said `in_progress`, while After says only 'remains paused at `plan-write`'. A reader infers in_progress from 'remains paused', but the fact literally asks for the plan to stay in_progress, so a stricter judge could mark it as not shown. To deliver the Change (tighter baseline-failure narrative, no invented evidence, three routes with recommendation) while keeping every Before fact unambiguous, restore the state name, e.g. 'Planning remains `in_progress` (paused) at `plan-write`, awaiting your choice.' Everything else in After—the compact failure summary, the clearer narrow rationale, and the 'repair before planning' recommendation—is an improvement that moves no facts.",
+      "wallMs": 14536,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "bf9eb40e41fe2abc093a5a3657aa5d023253b2c0"
+  "repoSha": "72e69d890660f266044870d09929934ad2912bdb"
 }

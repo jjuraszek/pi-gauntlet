@@ -23,9 +23,11 @@
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
-      "status": "error",
-      "error": "github-copilot API error (429): 429 quota exceeded",
-      "wallMs": 1276
+      "status": "ok",
+      "text": "## Plan structure\n\nThis is a description of the plan and verification procedure, not a tool dispatch or a claim that I ran commands.\n\nThe approved spec’s `## Rework record` selects the **PR-subject** specialization. Use three tasks in two waves. Preserve the original commits and retry API; do not create repair tasks for `THREAD_metrics` (`keep open`) or `THREAD_rewrite` (`decline: rewriting the API is out of scope`).\n\n### Header\n\nThe header cites the approved spec:\n\n```markdown\n**Spec:** `doc/specs/retry.md`\n**Verification:** `npm run lint` && `npm run format:check`\n```\n\nNeither scoped test command belongs in the header. `npm test` is excluded from this PR-subject verification flow.\n\n### Wave 1 — Merge the named base\n\n**Task 1: Merge origin/main and resolve retry conflicts**\n\nKeep this task alone in Wave 1. Because the record says `merge: unresolved`, it is an ordinary merge task, **not** an `in-place` rebase task.\n\nFiles:\n- Modify: `src/retry.mjs`\n- Test: `tests/retry.test.mjs` — read-only run anchor, not a test-file edit.\n\nTests block:\n\n```markdown\n**Tests:**\n- `node --test tests/retry.test.mjs`\n- baseline: 702a851 pass\n- via: `retryRequest()`\n```\n\nSteps use checkbox syntax and direct the implementer to:\n1. Run the existing scoped retry tests before the merge.\n2. Merge `origin/main`.\n3. Resolve `src/retry.mjs`, preserving original commits and the retry API.\n4. Check that no unresolved conflicts remain and rerun the scoped retry tests.\n5. Format and lint the task-owned file using scoped commands established by recon; do not invent unsupported formatter flags.\n6. Complete the merge commit using bare `git`.\n\nThe merge task does not need an artificial failing-test cycle.\n\n### Wave 2 — Repair the two fix threads\n\nDepends on Wave 1: both fixes apply after the base merge and conflict resolution.\n\n**Task 2: THREAD_timeout — Retain timeout across retries**\n\nFiles:\n- Modify: `src/retry.mjs`\n- Modify: `tests/retry.test.mjs`\n- Test: `tests/retry.test.mjs`\n\nTests block:\n\n```markdown\n**Tests:**\n- `node --test tests/retry.test.mjs`\n- baseline: 702a851 pass\n- via: `retryRequest()` — THREAD_timeout: retain timeout across retries\n```\n\nCheckbox steps: run existing tests first; add a regression demonstrating timeout retention across retries; confirm it fails; make the minimal repair; confirm the scoped tests pass; format and lint owned files; commit using bare `git`.\n\n**Task 3: THREAD_delay — Clamp negative delay**\n\nFiles:\n- Modify: `src/delay.mjs`\n- Modify: `tests/delay.test.mjs`\n- Test: `tests/delay.test.mjs`\n\nTests block:\n\n```markdown\n**Tests:**\n- `node --test tests/delay.test.mjs`\n- baseline: 702a851 pass\n- via: `retryDelay()` — THREAD_delay: clamp negative delay\n```\n\nCheckbox steps: run existing tests first; add a regression for negative-delay clamping; confirm it fails; implement the clamp without rewriting the API; confirm the scoped tests pass; format and lint owned files; commit using bare `git`.\n\nTasks 2 and 3 have disjoint owned files and can share Wave 2 only if recon confirms no shared mutable runtime-resource contention. Task 2 cannot share Wave 1 because both tasks modify `src/retry.mjs`.\n\nThe baseline bullets above reflect the **supplied observed evidence**: both scoped commands passed at `702a851`, executed tests, and passed clean-worktree and post-run provenance checks. They are not fresh implementation-verification evidence.\n\nEach task needs resolved spec anchors. The final Spec coverage table must map the merge and both repair requirements to their deciding tasks and preserve the recorded non-repair dispositions without inventing repair work. Exact line numbers must come from the actual spec, not this excerpt.\n\n## Verify-phase command set and evidence\n\nFor this PR subject, verification uses the union of **every task’s Tests commands plus the header’s lint/format commands**, deduplicating the repeated retry command:\n\n```text\nnode --test tests/retry.test.mjs\nnode --test tests/delay.test.mjs\nnpm run lint\nnpm run format:check\n```\n\nDo **not** run `npm test`.\n\nBefore verification, start phase `verify`. Run the complete applicable command set against the implementation revision, inspect full output and exit codes, and require nonzero executed-test counts with no failures. Baseline evidence does not substitute for these fresh results.\n\nThen retain the origin-based conformance gate, reconcile accepted work on existing `plan_tracker` indices, await those updates, and only then complete phase `verify`. Stop immediately on a workflow warning.\n\n## No-style subcase\n\nExact header:\n\n```markdown\n**Verification:** none - PR subject, scoped\n```\n\nVerify runs:\n\n```text\nnode --test tests/retry.test.mjs\nnode --test tests/delay.test.mjs\n```\n\nThe sentinel means no documented header lint/format commands exist. It is **not executable** and does not mean “skip verification.”\n\n## Ordinary ticket/free-text spec\n\nWithout `## Rework record`, use the ordinary full verification entrypoint—here, `npm test` plus the documented lint and format checks. An already-open PR does not select scoped PR-subject verification. Freshness, conformance, tracker reconciliation, and phase gates remain mandatory in every case.\n",
+      "words": 694,
+      "wallMs": 26385,
+      "mechanical": {}
     }
   },
   "judge": {
@@ -33,7 +35,7 @@
       "factsSha": "f182cb9fb041242ae2964f598f0f8b812151ffde30102ab896e2daf20fa4904a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "cc71f2cea9e5d50487a24f4d950e23390e0be1fe4c7b6abe1eb7beb4543463a4",
-      "baselineOutputSha": "a98b238308e80f53e5f356e6dd4da048c368874facc6427dd4c6ff3ddd595d77",
+      "baselineOutputSha": "e46f1a8eafc81ef14683893aba867532d27a79ca785f9c316de94a929faed0a2",
       "candidateOutputSha": "e46f1a8eafc81ef14683893aba867532d27a79ca785f9c316de94a929faed0a2",
       "facts": {
         "merge-first": {
@@ -72,13 +74,56 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved between Before and After: both outputs make the merge Task 1 as an ordinary (non in-place) wave task preserving original commits, give exactly one id-titled fix task per THREAD_timeout/THREAD_delay with scoped Tests and the correct via seam, leave THREAD_metrics and THREAD_rewrite without repair tasks, keep the header to `npm run lint && npm run format:check`, run the task Tests union (merge task included) plus header lint/format at verify with no `npm test`, state the literal `none - PR subject, scoped` sentinel as a non-command while still running the Tests union, and tie PR-policy selection to the spec's Rework record rather than an open PR while keeping full verification and freshness/conformance/phase gates for ordinary specs. Two small wording risks in After worth tightening without affecting the facts: the Evidence bullet 'every command runs in this message, and its verbatim output is pasted' reads like a claim that commands actually ran, which the prompt forbids—phrase it as what the verify phase will require ('each command must be run fresh and its verbatim output pasted'); and 'for every affected service' in the ordinary-spec header is an unsupported embellishment—drop it and simply name the full entrypoint `npm test && npm run lint && npm run format:check` as Before does. Otherwise After delivers the Change (explicit merge-form placement note, record-driven header decisions, union-plus-header verify, sentinel semantics, ordinary-spec contrast) while keeping every fact Before kept.",
-      "wallMs": 16632,
+      "feedback": "The After output is textually identical to Before, so no fact moved in either direction. Both outputs satisfy every fact: Task 1 is the merge of origin/main resolving src/retry.mjs as a merge commit preserving original commits; Tasks 2 and 3 carry THREAD_timeout and THREAD_delay in their titles with the correct scoped `node --test` commands and `via: retryRequest()` / `via: retryDelay()` seams; THREAD_metrics and THREAD_rewrite get no tasks and keep their dispositions; the header is exactly `npm run lint && npm run format:check` (the `&&` join is explicitly permitted) with `npm test` and task commands excluded; the verify phase runs the deduplicated union of all task Tests commands (including the merge task's) plus the header lint/format commands with fresh verbatim evidence and no full-suite claim; the no-style subcase gives the literal `none - PR subject, scoped` sentinel, treats it as non-executable, and runs the task Tests union; and PR policy is selected solely from the approved spec's Rework record, with ordinary ticket/free-text work keeping full verification plus freshness, conformance and phase gates even with an open PR. Since the Expected-to-move list predicted fails -> holds for the pr-subject-threads facts but Before already held them, the author should note that this sample does not actually discriminate the wording change; no further wording adjustment is needed to preserve these facts.",
+      "wallMs": 13787,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "verdict": "error",
-      "error": "github-copilot API error (429): 429 quota exceeded"
+      "factsSha": "f182cb9fb041242ae2964f598f0f8b812151ffde30102ab896e2daf20fa4904a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cc71f2cea9e5d50487a24f4d950e23390e0be1fe4c7b6abe1eb7beb4543463a4",
+      "baselineOutputSha": "949fcd2022046c5546f05f333e3f59d95e070d9be3f18e0b54f52690cd5de64e",
+      "candidateOutputSha": "a474977803fb365e344e0fd891609fe2190a6b13968d3ee9ded9845ca42bdd75",
+      "facts": {
+        "merge-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "thread-tasks": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "nonfix": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "header-style-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "verify-union": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "sentinel": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ordinary-gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: the unresolved base merge is Task 1 alone in Wave 1 and explicitly not an in-place rebase, THREAD_timeout and THREAD_delay each get one id-titled task with a scoped node --test command and the matching retryRequest()/retryDelay() seam, THREAD_metrics and THREAD_rewrite keep their keep-open/decline dispositions without repair tasks, the header carries only `npm run lint` && `npm run format:check` with no task test command and no npm test, verify is stated as the deduplicated union of all task Tests commands (including the merge task) plus the header style commands with fresh executed-test evidence required, the no-style sentinel is the literal `none - PR subject, scoped` treated as non-executable while the task Tests union still runs, and ordinary specs keep full npm test verification with freshness, conformance and phase gates even with an open PR. No fact moved. Two small wording notes: After attaches `via: retryRequest()` to the merge task's Tests block, which Before omitted; since the merge task has no thread request, dropping that line avoids suggesting a thread seam for a non-thread task. After also phrases the union as 'every task's Tests commands' — Before's explicit 'including the merge task' is a safer wording to keep the verify-union fact unambiguous, so consider restoring that phrase while retaining After's clearer phase-verify sequencing (start verify, inspect output and exit codes, nonzero executed counts, conformance gate, tracker reconciliation, then complete).",
+      "wallMs": 16296,
+      "verdict": "unchanged"
     }
   },
   "refresh": {
@@ -371,5 +416,5 @@
       }
     }
   },
-  "repoSha": "bf9eb40e41fe2abc093a5a3657aa5d023253b2c0"
+  "repoSha": "72e69d890660f266044870d09929934ad2912bdb"
 }
