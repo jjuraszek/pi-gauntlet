@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.0.0 - 2026-10-31
 
 - Replace `spec-reviewer` and `code-reviewer` with `wave-reviewer`: one integrated spec/code review per wave, bounded direct report reads and repairs on the current tree. Move model/thinking pins from both removed `subagents.agentOverrides` entries to `wave-reviewer` and remove the old keys. No pi-cohort dispatch-shape change; sibling docs need no update or paired release.
 - Keep implement-phase amendments local: reopen completed tasks only for semantic work changes, retain historical command evidence, run scoped new or invalid evidence on identified trees, and preserve staged repairs. Parent stamping, integrated gates and final verification stay mandatory.
