@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "89dc5928c4555e6ebb40f700877ab7f009b2dee005245e009089f5f54ccfe69f",
+  "skillSha": "e81034651e58aab1b666b2bef4bda6352a6ee4f77eb7dd9663abba6b78fffe48",
   "inputSha": "ccd56b8be7616730d77c288827d9846b6466702da44792245c618c0588dba6a7",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on task <n> (<task title>).\n\nProblem: The implementer returned NEEDS_CONTEXT because the task needs the schema artifact. Both documented lookup locations were searched and neither has it, so the task cannot continue.\nSearched: docs/schema.json - no file\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) supply the schema artifact by committing it at docs/schema.json, and I re-dispatch the task with it\n  b) grant access to a registry entry that holds the schema, or publish the schema there, and I re-dispatch the task to fetch it\n  c) amend the spec section and plan task <n> to drop or replace the schema-artifact requirement\n\nPick one, or give another fix.\nRecommendation: a - committing the schema at its first documented location unblocks the task without changing the approved spec.\n",
-      "words": 127,
-      "wallMs": 7665,
+      "text": "gauntlet: question\nStopped on task <n> (<title>).\n\nProblem: The implementer returned NEEDS_CONTEXT because the task requires the schema artifact, and both locations documented in the spec were checked without finding it.\nSearched: docs/schema.json - no file\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) Supply the schema artifact by committing it at docs/schema.json or publishing it to the artifact registry, then the task is re-dispatched with it.\n  b) Grant access to the registry location if the 404 hides an existing artifact behind permissions, then the lookup is repeated.\n  c) Amend the spec and plan task <n> to drop or replace the schema-artifact requirement.\n\nPick one, or give another fix.\nRecommendation: a - it keeps the approved spec unchanged and gives the implementer the documented input it asked for.\n",
+      "words": 126,
+      "wallMs": 6294,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on the current task (required schema artifact).\n\nProblem: The implementer needs the required schema artifact, but both documented locations were checked without finding it, and no other locations are documented.\nSearched: docs/schema.json - no file found\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) supply the required schema artifact or restore access to it in a documented location\n  b) amend the spec and affected plan task to remove the schema-artifact requirement\n\nPick one, or give another fix.\nRecommendation: a - preserves the approved requirement and supplies the missing implementation context.\n",
-      "words": 91,
-      "wallMs": 7162,
+      "text": "gauntlet: question\nStopped on the in-progress task (required schema artifact).\n\nProblem: The required schema artifact remains unavailable after bounded lookups exhausted both documented locations.\nSearched: docs/schema.json - no file found\nSearched: artifact registry - HTTP 404\n\nFix options:\n  a) supply the required schema artifact at docs/schema.json or restore it in the artifact registry\n  b) amend the spec and affected plan task to remove the schema-artifact requirement\n\nPick one, or give another fix.\nRecommendation: a - supplies the required input without changing the approved scope.\n",
+      "words": 81,
+      "wallMs": 6344,
       "mechanical": {
         "question-first": "holds"
       }
@@ -40,7 +40,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
       "baselineOutputSha": "be3d89da948f682491ab9933800777f2df45603551df3c8bb7c45297917ec810",
-      "candidateOutputSha": "546c0d71876861ced364591ef8b26a462ca6d8f9166957af46ee5c33119c1cde",
+      "candidateOutputSha": "00708649b8f84601ff4be05a56499bc445a4b9b19e94ba16bcea98518493e84a",
       "facts": {
         "actionable": {
           "before": "holds",
@@ -58,8 +58,8 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both Before and After keep the Problem line, list both Searched results in the documented order, offer supply (a), access/registry (b) and amend (c), never ask where the artifact lives, and stop with `gauntlet: question` and no terminal done/stuck marker or dispatch. After's rewording is neutral here; the only risk worth watching is the added \"and I re-dispatch the task\" clause in options a/b, which reads as a conditional promise rather than an action now, so it does not violate the no-dispatch requirement, but phrasing it as \"then the task is re-dispatched\" (as Before did) would keep that distinction unambiguous while still delivering the Change's capture-recovery and committed-originals behavior elsewhere.",
-      "wallMs": 7991,
+      "feedback": "Nothing moved: After still offers supplying the artifact (a), granting access (b), and amending the spec/plan requirement (c), keeps the Problem line and both Searched results in the original order, never asks the human where the artifact lives, and stops with 'Stopped on task' rather than a done/stuck marker or a dispatch. Two small drifts worth watching but not breaking here: After's option (a) says 'then the task is re-dispatched with it' and (b) 'then the lookup is repeated', which read as the orchestrator committing to actions rather than describing what the human's fix enables - Before's 'then re-dispatch the task' kept that as a consequence of the chosen fix; phrasing like 'after which the task can be re-dispatched' would make the no-dispatch-now stance unambiguous. Also, After narrowed (b) to permissions only and dropped Before's 'or provide the correct registry entry' naming case; retaining that clause keeps the access option as broad as Before without asking where the artifact is.",
+      "wallMs": 10517,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -67,7 +67,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
       "baselineOutputSha": "285a2319c75af2994fda236e2ae4b25ebb0e84e098565f568b7831d59ad8d66b",
-      "candidateOutputSha": "7ff00de449f3f9a6367b2fc97446b9b3e7484e687e93c27de9557149a2a61f15",
+      "candidateOutputSha": "fd66cbf694561054c7074f9f9f400d01dfdb7ae3f03b123e47f164ddb7d29dd9",
       "facts": {
         "actionable": {
           "before": "holds",
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs keep the Problem line and the two Searched results in order (docs/schema.json then artifact registry), offer exactly the supply/restore and amend options, and never ask where the artifact is; neither dispatches, transitions state, or emits a done/stuck marker, so the task stays in_progress in implement. After's Problem wording ('both documented locations were checked... no other locations are documented') and option (a) 'restore access to it' are slightly more precise about the bounded-lookup exhaustion and the access case, which is fine and consistent with the Change. The only cosmetic difference is lowercase option text and a dropped period after each option; if you want After to read uniformly with Before, capitalize the options and end them with periods, but no wording change is needed to keep the facts.",
-      "wallMs": 6529,
+      "feedback": "Nothing moved: both outputs render a human stop note that keeps the Problem line, both Searched entries in the documented order, two fix options (supply/restore the artifact, or amend the spec and plan task), and a recommendation, without asking where the artifact lives and without any dispatch, state change, or done/stuck marker. After actually tightens 'preserved' by saying 'in-progress task' rather than 'current task', and tightens 'actionable' by naming both documented locations in option (a). The Change paragraph (capture recovery, baseline markers, committed originals, wave review) is largely out of scope for this case, so this note is a safe baseline; the only caution is to keep option (a) phrased as 'supply or restore' rather than narrowing it to a single path, so a reader with registry-only access still sees a valid route, and to keep the 'Stopped on the in-progress task' phrasing since it makes the no-state-change intent explicit.",
+      "wallMs": 11165,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "a9f0e1e4a8502c5473c1ce78ea4d1073cd640ae6"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "grant-no-budget",
   "arm": "candidate",
-  "skillSha": "89dc5928c4555e6ebb40f700877ab7f009b2dee005245e009089f5f54ccfe69f",
+  "skillSha": "e81034651e58aab1b666b2bef4bda6352a6ee4f77eb7dd9663abba6b78fffe48",
   "inputSha": "94045851e9ee8fa59dd2b9d8c7ee02a314f80c3ce710311a7e3e5cc883b55261",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: Frame validation still accepts input without checking its length, and the amend grant allows spec amends but no extra repair rounds, so no further fix can run without your approval.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) Approve one more repair round on <configured-impl-model> to add the length guard at src/frame.ts:21. It would reject a frame whose byte length is below the required header/declared length before decoding, and add one case to frame.test.mjs.\n  b) Amend the spec's frame-validation section and plan task 3 to state the required length check, so the next repair has an exact rule to meet.\n  c) Add a funded-round budget to the `**Amend-grant:**` line, so the wave loop can keep repairing on its own.\n\nPick one, or give another fix.\nRecommendation: a - the defect is one local guard, and the scoped test already passes, so one more targeted round should close it without changing the approved spec.\n",
-      "words": 168,
-      "wallMs": 18220,
+      "text": "## Next parent action\n\n**Transition-table row:** the escalated round has failed with an attributed `FIX_FIRST` re-review. The table says to run a funded round only while the task's ledger has one left; otherwise, emit a stop note.\n\n**Funding check:** the grant is exactly `**Amend-grant:** auto-apply amends`. That grants amend permission but carries no funded-round count, so the ledger is 0 of 0 and no funded round is available. Execution escalation was independent of the grant and is now spent (once per task per wave).\n\n**Takeable-decision ladder:** this does not apply.\n- There is no `BLOCKED` / `NEEDS_CONTEXT` with attempts remaining.\n- The finding is a code defect, not a spec, plan or rule edit, so the amend permission does not route it through amendments.\n- Approving another round is a decision, because no funded round is left.\n\n**What I am not doing:**\n- **Dispatch:** no funded or extra repair round, and no re-review.\n- **Report read:** none. The structured finding already gives the residual issue for the note, so a bounded report read is not needed.\n- **Shell commands:** none. No `reset --soft`, no commit, no `plan_tracker` update.\n\n**State left as is:**\n- Task 3 stays `in_progress`.\n- The phase stays `implement`.\n- No budget line appears, because there is no budget token.\n\nThe turn ends with this stop note:\n\n```\ngauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The frame validator still reads the frame without checking its length first, so a short or truncated frame is not rejected, and no execution round remains to fix it.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) add a length guard at src/frame.ts:21 that rejects frames shorter than the required header/payload length before any field read, with a case in frame.test.mjs proving a truncated frame is rejected; authorize one more implementer round on <configured-impl-model> by adding a funded round count to the Amend-grant line\n  b) give the exact minimum-length rule (which bytes/fields must be present) so the next round implements a specified guard rather than an inferred one\n  c) amend spec / plan task 3 to state that length validation is out of scope for this task, if short frames are handled elsewhere\n\nPick one, or give another fix.\nRecommendation: a - the only remaining issue is one concrete Moderate guard at a known line, and one funded round is the smallest step to land it without changing the approved spec.\n```\n",
+      "words": 394,
+      "wallMs": 19513,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "**Next parent action: stop for a human decision.** The escalated round failed, and `auto-apply amends` grants amendment permission—not funded execution rounds. Do not dispatch another repair or review, run another gate, or commit the wave. Task 3 remains `in_progress`.\n\nNo next shell command or foreground carrier is authorized at this stop boundary. The supplied residual finding is sufficient; no report read or investigation is needed. Omit a budget line because no funding token exists.\n\ngauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: Frame validation still lacks the required length guard, and no funded repair round is granted.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) authorize one additional repair round to add the length guard, then rerun the scoped test and integrated wave review\n  b) amend the approved frame-validation requirement if the length guard is not intended, then revalidate the affected task\n\nPick one, or give another fix.\nRecommendation: a - addresses the remaining defect without changing the approved validation contract.\n",
-      "words": 168,
-      "wallMs": 30487,
+      "text": "Next parent action: **stop the wave**. `auto-apply amends` permits amendments; it does not fund additional implementation rounds. The escalated round has already failed to resolve the finding, and no funded round remains available.\n\nNo further shell command, repair carrier, re-review, commit, or tracker completion is authorized. Task 3 stays `in_progress` and phase stays `implement`. The supplied residual finding is sufficient; no report read or source investigation is needed.\n\nThe turn-ending reply is:\n\n```text\ngauntlet: question\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: Frame validation still lacks the required length guard after the escalated repair, and the grant provides no additional repair rounds.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) authorize another repair round to add the approved length guard and rerun the scoped test and integrated wave review\n  b) amend the approved length-validation requirement and plan task 3 to explicitly permit the intended behavior\n\nPick one, or give another fix.\nRecommendation: a - resolves the remaining validation defect without changing the approved requirement.\n```\n",
+      "words": 170,
+      "wallMs": 18727,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
       "baselineOutputSha": "dbd2dccfc386f007959d6c9a3bb9bf4ccb6a40c1288aeca87b5d9fe5d0f863b7",
-      "candidateOutputSha": "bc672fae3c75aa0a14c25dce915541d3bfe5be961bba01cccccc7668f9a98527",
+      "candidateOutputSha": "2eb1ca85c41e6c286227d3fd4414c209f5ed85a193f5d18a846cd05b21501dfc",
       "facts": {
         "original-stop": {
           "before": "holds",
@@ -54,8 +54,8 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs stop immediately after the failed escalated re-review as a gauntlet question, dispatch no further fix or review, emit no `budget:` field (the only mentions of a budget are inside option c as a proposed grant edit, not a stop-note token), and leave task 3 stopped with no wave commit or completion claimed. The After wording is slightly leaner: it drops the Before line noting that `node --test frame.test.mjs` passes without exercising the guard and folds that observation into the recommendation, and it reframes option a as 'approve one more repair round' rather than a direct code fix; neither shift affects the facts, but if you want to keep the diagnostic value of Before, retain the explicit scoped-command observation under Problem while keeping the single-finding list and the no-funded-round explanation as written.",
-      "wallMs": 10736,
+      "feedback": "After keeps every fact Before kept: it stops after the failed escalated re-review with an explicit 'no dispatch, no re-review' statement, the stop note carries no budget: line (and After even states why), and task 3 is explicitly left in_progress with no commit or plan_tracker update. The transition-table framing, funding ledger check, and takeable-decision ladder walkthrough deliver the Change's folded escalation/funding/convergence table without changing the terminal outcome. One minor wording point for the author: option (a) in After bundles the code fix with 'authorize one more implementer round by adding a funded round count to the Amend-grant line', which conflates a code fix with a grant edit; Before kept those as separate options (a vs c). Splitting them again (code fix as one option, funded-round grant edit as another) would keep the options cleanly distinct while preserving the new transition-table reasoning.",
+      "wallMs": 10271,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -63,7 +63,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
       "baselineOutputSha": "609275e8b40fe0d82963db988df3536a928464a699f148f8e8c4f8f15cc71bf7",
-      "candidateOutputSha": "34ac785e61441b7a8add49089c291ceb13bd15dc0b5f3d822f8c6fc9b2ab3bf8",
+      "candidateOutputSha": "2b7974e0223ab8b78a15af2eaafe9ff7127f3d7b87999e3c12cff3fa1bb96b80",
       "facts": {
         "original-stop": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all three facts: it stops after the failed escalated re-review with no further fix, review, gate, or commit; the gauntlet note contains no `budget:` line; and task 3 is stated to remain `in_progress`. The only risk introduced is the meta-commentary preamble (\"Omit a budget line because no funding token exists\", \"No next shell command or foreground carrier is authorized\"), which narrates the transition-table reasoning to the user rather than acting on it — a stricter reader could see the phrase 'budget line' as the very token the fact wants absent, and the explanatory block adds noise before the actual stop note. To keep the facts robustly while delivering the Change's folded transition table, drop or shorten the preamble to the single bolded next-action sentence (stop; no dispatch, gate, or commit; task 3 in_progress) and let the gauntlet note carry the content, as Before did by folding the no-shell/no-dispatch constraint into the note's last line.",
-      "wallMs": 13886,
+      "feedback": "No fact moved. Both outputs stop immediately after the failed escalated re-review with no further fix, review, shell, or dispatch; neither emits a `budget:` token (both correctly state the grant funds no additional rounds); and both keep task 3 in_progress with no wave commit or completion. One drift worth watching: Before carried the 'Task 3 remains in_progress; do not commit the wave or run further shell commands or subagent dispatches pending this decision' line inside the turn-ending reply itself, whereas After moves that statement into the parent narration and omits it from the quoted gauntlet question. If a later eval checks only the emitted reply text, the in-progress/no-commit fact could become fragile; consider restoring a short 'Task 3 remains in_progress; wave not committed pending this decision' line inside the reply block while keeping the new preamble that names the transition-table outcome (stop without funded round, no re-review, no commit).",
+      "wallMs": 10512,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "a9f0e1e4a8502c5473c1ce78ea4d1073cd640ae6"
 }
