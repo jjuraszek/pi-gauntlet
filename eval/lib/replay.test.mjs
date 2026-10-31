@@ -208,9 +208,17 @@ test("fixture commit and capture include a new untracked file and the tree", (t)
 });
 test("fixture scratch is removed when git initialization fails", (t) => {
   const fx = mkdtempSync(join(tmpdir(), "fx-"));
-  t.after(() => rmSync(fx, { recursive: true, force: true }));
+  const privateTmpdir = mkdtempSync(join(tmpdir(), "fx-"));
+  const previousTmpdir = process.env.TMPDIR;
+  process.env.TMPDIR = privateTmpdir;
+  t.after(() => {
+    if (previousTmpdir === undefined) delete process.env.TMPDIR;
+    else process.env.TMPDIR = previousTmpdir;
+    rmSync(fx, { recursive: true, force: true });
+    rmSync(privateTmpdir, { recursive: true, force: true });
+  });
   writeFileSync(join(fx, ".git"), "invalid git metadata\n");
-  const dirs = () => readdirSync(tmpdir()).filter((name) => name.startsWith("eval-fixture-")).sort();
+  const dirs = () => readdirSync(privateTmpdir).filter((name) => name.startsWith("eval-fixture-")).sort();
   const before = dirs();
   assert.throws(() => prepareFixture(fx));
   assert.deepEqual(dirs(), before);
