@@ -1,4 +1,4 @@
-for: e8bfa44234deb58221e349fd5d3a4ba8aeca76c20ad2e956ad90e7ef6b882188
+for: ffab9ccddd18914e65540e94d4a5a1efd38c12de8fb11ce8950465cfbe22b035
 
 ## Change
 Preserve the exact home pending tuple and bumped ledger iteration in row and seed commit bodies, reusing the companion attribution prefix while clearing the ledger tuple. Validate those fields before terminal projection. Extend tracker-boundary with both home commit shapes and their consumed counts; preserve all existing facts. The paired gauntlet-resume recovery sample starts after the child commit with no captured tuple and checks admission before refresh. Parent verify owns model runs, assembly-hash updates and result records.
@@ -18,6 +18,7 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the cap snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- gate-line-first/preserved: holds -> holds - replaced wording: Boundary rejection restores only the target cells and pending tuple in the working ledger before projection; discard/reset still requires human authorization.
 - gate-line-first/question-first: fails -> holds - Dirty returns await explicit authorization under a question marker.
 - cap-and-exit-verification/contract: fails -> holds - Replace the closed-row fact with the ledger gate at verify step 1, verify active and implement complete, and amend/stop only on failure; preserve the seed-inclusive cap stop.
 - commit-boundary/seed-recovery: fails -> holds - Explicit continuing cap:97 and cap:1 alternative preserve authorized interrupted-seed recovery, target validation and consumed iterations.
