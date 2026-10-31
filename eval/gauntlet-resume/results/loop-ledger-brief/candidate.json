@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "440019add9be3ac93421893671e83c2c4748e8e372cd58a63319888a4b4d6414",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "3751917f6772936c005539223c57c7e6ec8e3384b96e370286acd4213b45ef75",
       "candidateOutputSha": "91471999574b9cfcb42082459ae2591c7fe723e5a155661ce5a8096902e61040",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moved consumer and verify-ledger from fails to holds without regressing producer, continuation or fail: the implement restore now states the full ordered chain (brainstorm start/skip, plan start/check/skip with the exact `resume: <spec> (loop engine)` reason, implement start) followed by exactly one `plan_tracker refresh` on the ledger path and an explicit no-init, and the verify/ship route now re-inits the brief's saved mixed task list when present, sends the legacy `No plan active.` brief directly to refresh, renders cap:97 at the shared boundary, and continues `After the loop` from the ledger gate once per leg through whole-diff review, happy path, fresh conformance and finishing. Before failed both facts because it declared 'no task tracker' and never refreshed. Two wording cautions for After: the restore says the refresh 'runs exactly once', but the later dispatch block adds a second refresh after writing `pending:`; phrase that as 'the restore refreshes once; each dispatch refreshes again after bumping iterations' so the single-restore-refresh fact is not read as contradicted. Also the implement route puts the cap boundary (step 11) after the refresh (step 10) while the verify route puts it after refresh too; if the intent is one shared boundary before any tracker mutation, state the cap check before step 10 in both routes to keep the 'shared restore boundary' wording unambiguous.",
-      "wallMs": 19968,
+      "feedback": "After moves consumer and verify-ledger from fails to holds by adding the explicit `plan_tracker refresh` by ledger path, exactly once and with no `init`, after `start implement` (step 10) and, on the verify/ship route, a saved-task-list `init` when rows are present with the legacy `No plan active.` brief going straight to recovery and refresh; Before had stated 'no task tracker' and never refreshed on either route, which is what failed those two facts. Producer, continuation and fail are preserved: After still appends the status outputs verbatim, the ledger path, the durable last decision and the gate-history line last in one heredoc with no second state file, renders cap 97 / iterations 5 / attempts 2 / the last decision before handing off at step 5, and stops on FAIL with findings and no Plan repair or writing-plans. Two small things to tighten so the wording stays robust: label the appended field as `Ledger: doc/plans/run-ledger.md` (After says 'the ledger path' without the contract field name, which Before had), and consider stating the shared cap boundary before the refresh rather than after it so the 'cap rendered at the shared restore boundary' reading does not depend on the refresh ordering; both verify and ship routes already correctly continue in `After the loop` from the ledger gate with whole-diff review, happy path, fresh conformance and finishing.",
+      "wallMs": 20440,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "440019add9be3ac93421893671e83c2c4748e8e372cd58a63319888a4b4d6414",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "85ada7b746c33ff2bf1e0ea32e7b1731cb0b6c1b92be6f53a71a5cbb79082c9c",
       "candidateOutputSha": "6596107104b502f5e79791b44ba7c625580f8254a47ea098078797541e5c5670",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moved consumer and verify-ledger from fails to holds by adding the explicit single `plan_tracker refresh` on the ledger path after `start implement` (with an explicit no-init note) and, on the verify/ship route, the saved-task `init` with all mixed statuses when present followed by one refresh, with legacy no-task briefs skipping init, plus the per-leg ledger gate continuation at After the loop step 1 for both verify and ship briefs. Nothing Before kept was lost: both tracker status outputs, Ledger/Last decision fields and the terminal gate-history line remain in the producer; the FAIL branch still stops with findings and bars Plan repair/writing-plans; cap:97, iterations 5, attempts 2 and the last decision are still rendered before step 5 continuation. One wording risk: verify-ledger says a legacy brief goes to 'pending recovery and refresh' while the fact says 'directly to refresh' — consider phrasing it as 'goes directly to the single ledger-path refresh (pending recovery runs first, no init)' so the direct-to-refresh wording is unmistakable, and explicitly print `cap: 97` in the verify/ship rendered block rather than only referring to 'the observed task/ledger state'.",
-      "wallMs": 25046,
+      "feedback": "After moves consumer and verify-ledger from fails to holds: the implement restore now ends with an explicit single `plan_tracker refresh` on the ledger path with an explicit prohibition on `init`, and the verify/ship route now re-inits the saved task list with its mixed statuses when present, sends legacy no-task-row briefs straight to refresh, performs one refresh, applies the cap boundary before step 1 of After the loop, and runs the ledger gate once per leg while retaining whole-diff review, happy path, fresh conformance and finishing. Before omitted the refresh entirely in both routes and never mentioned restoring a saved task list, so it could not satisfy those facts. Nothing Before held was lost: the producer still appends Ledger fields plus Last decision with both status outputs and the gate-history line last, the FAIL branch still stops with findings and forbids Plan repair/writing-plans, and continuation still renders cap: 97, iterations 5, attempts 2 and the last decision before resuming at step 5. Two small tightenings would make After more robust against a strict reader: in the verify and ship sections, render the concrete `cap: 97` / `iterations: 5` lines rather than only saying 'render the observed task/ledger state', and keep the explicit 'step 5, Before each dispatch' phrasing (already present) so the continuation fact never depends on the reader mapping section names to step numbers.",
+      "wallMs": 21814,
       "verdict": "improved"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

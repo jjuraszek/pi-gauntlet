@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "5dadfc9d224e2996d7808deb05336b5cdd94bd8fb1776ce93024faec7ad2e36c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "a780c7bcbd581dd02e5bac955be3853846ff0ac3891c540f4a54efd46c0f2c08",
       "candidateOutputSha": "c7a0996cfc3d2aeda66338a001010e4b331d50412ad589e6bc6c8060d0798cda",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the fact: each stops at entry check 3 before any tracker write, names the expected run home repo-a (\"home is repo-a; restart there\") and the observed companion primary /work/repo-b, and performs no companion-home resume. After is slightly stronger than Before in that it explicitly labels the session cwd as \"the companion primary, repo-b\" and states \"do not cd\" and \"no tracker mutation\", which maps directly onto the fact's wording. Nothing in After moved the fact; keep the explicit \"expected run home repo-a / observed companion primary repo-b\" pairing in the narrative and the printed stop message, and retain the explicit list of calls not made (phase_tracker, plan_tracker, plan_check, receipt) so the no-mutation half of the fact stays unambiguous while the Change's coordinated-flow stop coverage is delivered.",
-      "wallMs": 6541,
+      "feedback": "Both outputs satisfy the fact: each stops at entry check 3 before any tracker write, names the expected run home repo-a (including the restart-there line) and names the observed session cwd /work/repo-b as the companion primary, and neither resumes from the companion home. After actually sharpens this by stating explicitly in prose that the cwd is the companion primary and the brief's home is repo-a, by naming the stop as entry from a member's primary on a coordinated brief, and by ruling out `cd` and receipt calls alongside phase_tracker/plan_tracker/plan_check. Nothing moved; the wording change delivered the coordinated-flow framing while preserving the stop semantics, so no adjustment is needed for this case—keep the explicit 'session cwd is the companion primary ... brief's run home is repo-a' sentence, since it is the clearest evidence a reader has for the fact.",
+      "wallMs": 7386,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5dadfc9d224e2996d7808deb05336b5cdd94bd8fb1776ce93024faec7ad2e36c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "6b2dbb3dae1c2e646ac671fb624eb758dba8e9c7825011e6bda3f1096bcc22f6",
       "candidateOutputSha": "6caccccf62b87576018cbd179d0666dbb952589699761bd61b1aa164f7b3c1c7",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the fact: each stops at the entry check, names the expected home (\"home is repo-a; restart there\") and the observed companion primary via the stuck-session common directory /work/repo-b/.git resolved from cwd /work/repo-b, and performs no tracker mutation or plan_check call. After preserves everything Before did and only adds the skill announcement line and the explicit worktree path in the stop message, which doesn't move the fact. If you want the fact to read more unambiguously, consider having the stop message state the observed primary checkout path itself (e.g. \"observed primary /work/repo-b, expected run home /work/repo-a\") alongside the common-directory comparison, so a reader doesn't have to infer the companion primary from the git-common-dir line; otherwise the current After wording is a safe delivery of the Change for this case.",
-      "wallMs": 7764,
+      "feedback": "Both outputs satisfy the fact: each runs only read-only common-dir checks from the companion primary /work/repo-b and the home worktree, prints a stop naming the observed companion common directory /work/repo-b/.git against the home repository /work/repo-a/.git with the explicit line 'home is repo-a; restart there', and stops with no tracker mutation or plan_check call and no attempt to resume from repo-b as home. After adds the opening skill announcement and includes the resolved worktree path in the stop message, which does not move the fact and slightly improves clarity; the wording 'Stop before any tracker mutation or plan_check call' is an acceptable equivalent of Before's 'Stop. No tracker mutation or plan_check call.' No change is needed to keep this fact; if you want it stronger, have the stop line also name the observed companion primary checkout path (/work/repo-b) explicitly alongside its common directory so the expected-vs-observed pairing is stated in one sentence.",
+      "wallMs": 8139,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

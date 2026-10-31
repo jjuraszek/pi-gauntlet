@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "abe74b5c3e8cce54ead098f7dc59d7b703aa75880e237ab4975e81f777a9b10a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "13cc4cb8ed07f17428c56084768d6b3f3d6810fe6d886f78476edea1b129b7f8",
       "candidateOutputSha": "ef46bb01c08441805bfb87c24c767673eb1310251323a9a6ec18aec7925ba6e2",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved only the intended fact: route now holds because Entry step 5 ends with `phase_tracker start implement` followed by an explicit `plan_tracker({ action: \"refresh\", path: <ledger path> })` and the statement that every later refresh is by ledger path only, while Before stopped at implement start and never mentioned a refresh, so its route text could not satisfy the 'refresh follows Entry step 5's implement start' clause. Both arms keep inputs (absolute worktree/spec paths and plan directory prepared up front, maxIterationsPerRow 12 at step 1, PR-gate verification command at step 2, ledger write at step 4) and create (brainstorm start/skip with `resume: <spec path>` after check 6 before plan_check, plan skip at step 3, ledger at step 4, plan_check/seed commit/start implement at step 5). One minor wording risk in After worth tightening: the 'Printed lines' section describes the brief-contract closing line indirectly rather than printing the concrete `Restored to plan stage ... (loop engine)` line Before showed; keep the literal printed line as Before did so readers checking output text still see it, while retaining the added refresh step that delivers the Change.",
-      "wallMs": 14176,
+      "feedback": "After moves route from fails to holds by adding, directly after `phase_tracker({ action: \"start\", phase: \"implement\" })` in Entry step 5, the call `plan_tracker({ action: \"refresh\", path: \".../doc/plans/run-ledger.md\" })` and the line that every later refresh is by this ledger path only; Before stated no writing-plans body and no plan_tracker init but never described a ledger-path refresh following implement start, so its route clause could not be read as true. After keeps inputs intact (absolute worktree/spec paths and `doc/plans` resolved once under Prepared inputs, maxIterationsPerRow 12 at step 1 via gauntlet_setting, PR-gate verification command at step 2, ledger write at step 4) and keeps create intact (brainstorm start then skip with `resume: /work/app/.worktrees/loop/doc/specs/run.md` after check 6 and before plan_check, driver plan skip at step 3, ledger creation at step 4, plan_check/seed commit/implement start at step 5). One small wording suggestion: Before's explicit sentence 'No plan_tracker init or task-tracker call is made at any point' was tightened in After to 'There is no writing-plans body and no plan_tracker init'; retaining the stronger 'no task-tracker call' phrasing alongside the new single ledger-path refresh would make the 'refresh without init' boundary unmistakable without changing anything the facts require.",
+      "wallMs": 15776,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "abe74b5c3e8cce54ead098f7dc59d7b703aa75880e237ab4975e81f777a9b10a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "6ded7d3ccf38abb30f04c33877cc271393c8cc8ce674647e529e61e18d853504",
       "candidateOutputSha": "95ea1c220cf95af8e624abc8d4b3bf0493197e6d77c4b1a014fe8f83295a3efe",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves route from fails to holds by adding the `plan_tracker({ action: \"refresh\", path: <ledger> })` call as step 3 of the PASS branch, immediately after `phase_tracker start implement`, while Before explicitly stated \"No task-tracker calls ... occur\" and so never delivered the ledger-path refresh; After also keeps the \"no writing-plans body or task-tracker initialization\" framing, so the no-init half of route is preserved. Nothing regressed: inputs still holds (absolute worktree/spec paths and plan directory carried in, `maxIterationsPerRow = 12` at step 1, `node --test check.mjs (PR gate)` at step 2, ledger written at step 4), and create still holds (brainstorm start then skip with `resume: /work/app/.worktrees/loop/doc/specs/run.md` after check 6 and before plan_check, driver plan skip at step 3, ledger creation at step 4, plan_check/seed commit/implement start at step 5). The only soft spot in After is the hedge about not reproducing the brief-contract's gate-history closing line verbatim; Before simply printed \"Gate history not restored; the task must be re-validated.\" — keeping that literal line in After would be cleaner without touching any of the three facts.",
-      "wallMs": 11755,
+      "feedback": "After moved `route` from fails to holds by adding the explicit `plan_tracker({ action: \"refresh\", path: ...run-ledger.md })` call as item 3 under Entry step 5, immediately after `phase_tracker start implement`, while keeping the 'no writing-plans body or task-tracker initialization' framing; Before instead stated 'No task-tracker calls' and never refreshed by ledger path, which is why it failed the fact as written. `inputs` and `create` are unchanged across the arms: both carry the absolute worktree/spec paths and resolved plan directory, resolve `maxIterationsPerRow = 12` at step 1 and `node --test check.mjs (PR gate)` at step 2 before ledger creation at step 4, and both arm via brainstorm start/skip with `resume: /work/app/.worktrees/loop/doc/specs/run.md` before plan_check, retaining the step 3 plan skip and the step 5 check/seed-commit/implement-start chain. One wording regression worth tightening even though no fact here covers it: Before printed the handoff line 'Gate history not restored; the task must be re-validated.' verbatim, whereas After hedges that it cannot reproduce the brief-contract's closing line; the After wording should keep printing that line literally (as Before did) rather than deferring to an unsupplied excerpt, so the handoff announcement stays self-contained alongside the new refresh step.",
+      "wallMs": 14278,
       "verdict": "improved"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

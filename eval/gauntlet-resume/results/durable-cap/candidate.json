@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b3f556fc1bb4b56bec72049abdcfbbc2e80b7e78197ede5ca6a70e20db012588",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "7da2ad7ce10aa80da580d6b2f95e444a9538758750a3357855d4bc1d8b43a32e",
       "candidateOutputSha": "ee6b53271d9747e4481f93560ae666384e42031c2baa8f5300461a1d73ad8319",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After keeps every fact Before kept and additionally satisfies route: it lists checks 1-6, brainstorm start/skip, plan start/check/skip with the exact `resume: <spec> (loop engine)` reason, implement start, then an explicit single `plan_tracker refresh` by ledger path with no `init` and no reseed, before continuing at the shared cap boundary and `Before each dispatch`. Before failed route only because it stated 'No plan_tracker init and no task tracker' and never performed the one ledger-path refresh. Durable and history hold in both: cap:97, iterations 7, base, verification, row 1 attempts 3 and allowance 4 are rendered from the ledger without any loopEngine settings call or stop, and both decision lines are shown while the `row 1 retry` line (not `cap +50`) drives targeting and the child's previous-decision input. No wording in After moved a fact downward; the added pending-recovery step and the `pending:` tuple write at pre-dispatch are consistent with the Change and did not disturb the held facts.",
-      "wallMs": 13638,
+      "feedback": "After keeps every fact Before kept and additionally satisfies route: it inserts the single `plan_tracker({ action: \"refresh\", path: ... })` call at step 10 immediately after `implement start`, explicitly states no `init`, and still reaches the shared cap boundary before continuing into `Before each dispatch`; Before omitted the refresh entirely (step 10 only said no init/no task tracker), which is why its route fails. Both outputs render cap:97, iterations 7, row 1 failed/attempts 3, allowance 4, base and verification from the ledger, decline to call the loopEngine settings tool, and target row 1 from the latest operational retry line while rendering the `cap +50` grant line as history only. One wording caution for After: the pending-recovery step 9 and the `pending: 1 | home | <sha>` write before dispatch are new material beyond this sample's facts; they do not break durable/history/route here, but keep the refresh-after-implement-start ordering and the explicit 'no init, no reseed' sentence verbatim so the route fact remains unambiguous in future runs.",
+      "wallMs": 13176,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b3f556fc1bb4b56bec72049abdcfbbc2e80b7e78197ede5ca6a70e20db012588",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "e8900e57ee34e9e2f7ca2c68803cd57d5d64db5569bd3593323130681cf793c5",
       "candidateOutputSha": "197c44f207cd9c87d1300f30271feb82d6c0b7bc958efda43bfb47df962c5ce3",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After keeps every fact Before kept and additionally satisfies route: it adds exactly one `plan_tracker refresh` by ledger path after `phase_tracker start implement`, explicitly disclaims init/seed/settings, and hands off to Before each dispatch after the cap boundary, whereas Before stated 'No plan_tracker calls' and so never refreshed. The durable render in After is actually stronger (it prints `allowed attempts 4` on the row line beside `cap:97`/`Iterations: 7`/attempts 3, base and verification from the ledger, and proceeds without the loopEngine tool), and the history handling is unchanged (cap +50 rendered as history, row 1 retry used for targeting and previous decision). One wording risk to watch: step 7 ends with 'persist the consumed count, refresh by ledger path, and then dispatch', which a careful reader could count as a second refresh against the 'one ledger-path refresh' clause of route; if that dispatch-time refresh is intended, label it as the loop-implementation per-dispatch refresh (distinct from the single restoration refresh) or drop it from the narrated restoration route so the fact's single-refresh reading stays unambiguous.",
-      "wallMs": 13798,
+      "feedback": "After moves route from fails to holds by inserting exactly one plan_tracker refresh by ledger path after implement start (step 4) while explicitly ruling out init, ledger creation, seed commit and settings lookup; Before stated \"No plan_tracker calls\" and so never performed the required ledger-path refresh. Durable and history survive unchanged: After still renders Cap 97, Iterations 7, Row 1 attempts 3 with allowed 4, base and verification from the ledger, never calls or stops for the loopEngine settings tool, keeps the cap +50 line in decision history, and targets/sets previous decision from the latest operational row 1 retry. One wording risk to watch: step 7 also says \"refresh by ledger path\" inside the dispatch bookkeeping, which a strict reader could count as a second refresh against \"one refresh\"; phrasing the restoration refresh as the single ledger-path refresh and describing the pre-dispatch step as persisting the bumped count (without re-naming a refresh) would keep the route fact unambiguous while still delivering the Change.",
+      "wallMs": 16251,
       "verdict": "improved"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4d753c0639a2518122d28f35fa9eb35764371bbb5e53788c6ad4653ce83152c9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "a90745c593db5aa4b4b5c2f2941e2b894c809c1f4730215c2d88100f6335c428",
       "candidateOutputSha": "0b4967518bfd607f7edae7f040d14edd8b02f49764272532ff332ff2850f86d5",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved neither fact. Checkpoint 1 in both outputs renders the candidate options as 1.-3. with the prose line \"Pick one:\" separating them from the three numbered observations, so the layout contract is satisfied; After drops Before's code fence, which is acceptable but means the text now renders as Markdown, so keep the \"Pick one:\" line (or a horizontal rule) between the lists rather than relying on a blank line, and be aware that a leading \"# Handoff:\" inside a list item may render as a heading. Checkpoint 2 in both outputs opens with the single sentence \"Taking 5 as option 2 - # Handoff: export paging\" before any simulated read, so mapped-pick holds; After omits Before's explicit N/L/R-L derivation, which is not required by the fact but would help a reader confirm the legacy-run arithmetic — consider keeping one short line stating N=3, L=3, 5-3=2 ahead of the mapping sentence while retaining After's leaner next-step list.",
-      "wallMs": 15124,
+      "feedback": "No fact moved between Before and After. In Checkpoint 1, After keeps the three observations, a blank line, the prose line \"Pick one:\", and then options numbered 1.-3., so the options never run on as 4.-6.; the only difference is that After drops the code fence around the message, which still renders correctly because \"Pick one:\" breaks the ordered run, though keeping the fence (or a horizontal rule) would make the separation robust to renderers that merge adjacent lists. In Checkpoint 2, After opens with the single sentence \"Taking 5 as option 2 - # Handoff: export paging\" before any read or entry check, naming the resolved brief and not acting on raw 5 or re-asking, so mapped-pick holds exactly as in Before; After even trims the N/L derivation that Before exposed, which is fine since the fact only requires the explicit resolution sentence. The Change (shared menu-layout contract for candidates and numeric picks) is delivered without losing either fact; no wording adjustment is needed.",
+      "wallMs": 11102,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4d753c0639a2518122d28f35fa9eb35764371bbb5e53788c6ad4653ce83152c9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "bc206d70517d92028106b92a89b02892af0f798ee2fdba24be120e13504c1a26",
       "candidateOutputSha": "62ff2b6bca278fda627d868beb99e8d9bb163b87eae47e2c13d8846fa91721a1",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. In both outputs Checkpoint 1 renders the candidates as 1.-3. with the prose line \"Pick one:\" separating them from the three ordered observations, and Checkpoint 2 opens with the single sentence \"Taking 5 as option 2 - export paging\" before stating the next simulated read, so layout and mapped-pick hold in Before and After alike. The After wording tightens the next-step narration (drops the filename-not-supplied caveat and merges the read-only statement) without disturbing either fact; the only stylistic risk is that After removes the blank line between \"Pick one:\" and the numbered options, which is still fine since the prose line itself provides the separation, but keeping that blank line (or a horizontal rule) would make the separation more robust to renderers that merge adjacent list-like lines. No wording change is needed to preserve these facts while delivering the Change's menu-layout contract.",
-      "wallMs": 7090,
+      "feedback": "Nothing moved between Before and After: both render the Checkpoint 1 candidate options as 1.-3. with the prose line \"Pick one:\" separating them from the ordered observations, and both open Checkpoint 2 with the single sentence \"Taking 5 as option 2 - export paging\" before stating the simulated read of the export paging brief and the phase_tracker status check. After tightened the Checkpoint 2 narration (dropping the filename caveat) and removed the blank line between \"Pick one:\" and the list, which still renders as a fresh list starting at 1 because a prose line precedes it; if you want extra safety against renderers that merge adjacent lists, keep the blank line after \"Pick one:\" or make the observations bullets, but the current After wording keeps every fact Before kept while delivering the menu-layout contract.",
+      "wallMs": 8801,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

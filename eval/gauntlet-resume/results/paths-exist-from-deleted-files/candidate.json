@@ -42,7 +42,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a7581f6c890ba01b039a9c8ac68a50007964718952f0af4bc150d267ad7dc864",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "24eaffd248715f525d3a514a6cbb0bd9d6e3e79a0794e5b49aec3ee7fe59b721",
       "candidateOutputSha": "2d4779133da6dd422cf7e2c601b9a5fd0f7854e92475a25922439ae6415e51a6",
       "facts": {
@@ -72,14 +72,14 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs drop exactly the 400 dead `Modify:` rows under Task 2 and Task 3, justify the drop by the two complete task statuses plus a non-empty deletion-history hash per path, state that nothing else in the plan changes, and call `plan_tracker init` with the five brief tasks and statuses verbatim. After is actually slightly cleaner on f1: Before miscounts the split as 200/200 after having correctly derived 203 (200 + lines 61–63) under Task 2 and 197 under Task 3, while After avoids a per-task tally and just says every row sits in Task 2 or Task 3. The After wording that keeps both facts is the current one — \"Each edit drops the dead `Modify:` row from the Files block of Task 2 or Task 3. Nothing else changes\" plus the verbatim snapshot `init` — so no revision is needed for this case; if the author wants to tighten further, keep the per-task counts consistent with the finding breakdown (203/197) or omit them as After does.",
-      "wallMs": 13521,
+      "feedback": "Neither fact moved. Both outputs drop exactly the 400 dead Modify rows in Task 2's and Task 3's Files blocks, cite both tasks' complete status plus a non-empty git deletion check per path as the grounds, state no other plan text changes, and then call plan_tracker init with the brief's five tasks and statuses verbatim. After is actually slightly cleaner: Before internally contradicts its own tally (it first reports 200 Task 2 + 197 Task 3 + 3 shown lines, then says it dropped 200 from each block), whereas After avoids per-task counts and just says every edit removes a row from Task 2 or Task 3. The After wording keeps everything Before kept; if you want to be safer against readers who notice the split, either omit per-block counts (as After does) or give the correct 203/197 split, and keep the explicit 'nothing else changes' enumeration and the verbatim init list exactly as written.",
+      "wallMs": 15175,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a7581f6c890ba01b039a9c8ac68a50007964718952f0af4bc150d267ad7dc864",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "424122a68c7ac1c645a57e3040f5b49e30e1d0c9e63c058440a8eea51a7b4a3c",
       "candidateOutputSha": "bc92dfef450bb0065bff037b87e95d1a7c2b2074eceba345da6ed91d5c74c833",
       "facts": {
@@ -109,10 +109,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs state that the 400 Modify rows belong to Task 2 and Task 3, that both tasks are complete, that each per-path `git log --diff-filter=D` call returns a deletion hash, and that only those rows are dropped (Before: \"Change nothing else\"; After: \"drop only the 400 qualifying Modify rows\" plus an explicit preservation list), so f1 holds in both. Both outputs also call `plan_tracker init` with the same five tasks and statuses verbatim from the brief, so f3 holds in both. Note, however, that the Change paragraph says implement-phase resumption should use a single ledger-path refresh without init; After still emits a `plan_tracker init` in step 8 (and adds snapshot-validation prose around it), which keeps f3 satisfied but does not deliver that part of the Change. If you later reword to replace init with a refresh, be aware that f3 as written will fail; keep the citation-repair narration of steps 2–3 (owning tasks complete, per-path deletion hash, only the reported rows dropped, nothing else changed) intact so f1 continues to hold.",
-      "wallMs": 10217,
+      "feedback": "Nothing moved on this case: both outputs drop exactly the 400 Modify: rows from Task 2 and Task 3, justify it by both tasks being complete and every git log call returning a deletion hash, name no other plan edit (Before: \"Change nothing else\"; After: drop \"only the 400 qualifying rows\" and preserve names, count, order, wave membership, remaining text, statuses), and both call plan_tracker init with the brief's five tasks and statuses verbatim. The After wording's extra snapshot validation sentence before init and the \"Classify all 400 findings before editing\" framing are compatible with the Change's ordering/attribution goals without disturbing f1 or f3; keep the explicit \"change nothing else\"-style closure in step 3 and the literal five-row init as written so these facts stay held while the new ledger/home-return facts are added elsewhere.",
+      "wallMs": 9203,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

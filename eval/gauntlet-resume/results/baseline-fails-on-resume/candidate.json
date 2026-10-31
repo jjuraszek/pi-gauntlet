@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2c1cf3ce1466359f695a8a01fe03586a4d17738e0beebdad827f7411b214e052",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "bbb2a957c38344815571532f579de9ea99287250064c8f57baec0d5581989f71",
       "candidateOutputSha": "8d44d3ddbbe0f022bac2e974f6e48e1157756f2912d709c2ca471bf1c92f6664",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs route the baseline-form finding to a fresh foreground plan-writer with `Findings: rerun baseline` (never authoring the rerun themselves), run the parent plan_check after OPEN QUESTIONS, render Task 1's command/base/exit with the fix-first/narrow/amend options plus a Recommendation line without picking for the human, and end the turn with phase plan still in_progress, no tracker init, no implement advance, and no citation-style repair of the failure row. The After wording is slightly more explicit in the end-of-turn state block (adding the no-commit/no-receipt lines), which strengthens `paused`; keep that block and keep the dispatch parameter list verbatim, since the `rerun` fact depends on the appended `Findings: rerun baseline` line and the `acceptance: none` reason staying visible rather than being summarized.",
-      "wallMs": 8092,
+      "feedback": "No fact moved. Both outputs dispatch a fresh foreground plan-writer with `Findings: rerun baseline` after result 1, let the writer regenerate the row, and run the parent `plan_check` after the OPEN QUESTIONS return without authoring any baseline evidence themselves; both print Task 1's command, base abc1234 and exit 1 with the fix-first/narrow/amend options and a Recommendation line, then stop for the human; both keep phase plan in_progress with no tracker init, no implement start and no citation-table repair of the failure row. After's only differences are presentational (bulleted dispatch args, a 'State at end of turn' block, a title line). One small suggestion: After's closing block names 'no commit, no closing line, no Repaired-plan receipt' but drops Before's explicit 'no Open Questions rows / no citation repair' statement — keeping a line like 'the failure row was not rewritten as a citation' would make the paused fact unmistakable to a reader without changing the Change's routing behavior.",
+      "wallMs": 8959,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2c1cf3ce1466359f695a8a01fe03586a4d17738e0beebdad827f7411b214e052",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "0d920cad5480d7fe76bc5a558ec22318a850e816dee8db1793ceab379b1f5af2",
       "candidateOutputSha": "6a009571d3779c37a7a35a1612affac6805a23b8d5302ce10b8875a773a39e22",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs dispatch a fresh foreground plan-writer with `Findings: rerun baseline`, re-run plan_check in the parent after OPEN QUESTIONS, print Task 1's command/base/exit with the fix-first/narrow/amend menu and a Recommendation line, and end the turn with plan in_progress, no tracker initialization, no advance to implement and no citation repair. After is actually tighter on the paused fact by explicitly listing 'repair citations' and 'continue to implement'. Two small wording risks to keep an eye on in After: it dropped the word 'base' before abc1234 in the printed row (Before said 'fails on base abc1234'), and it summarized the plan_check result rather than quoting the finding text — neither breaks a fact here, but retaining 'base abc1234' and the verbatim FAIL line would keep the menu and rerun facts unambiguous while still delivering the Change.",
-      "wallMs": 10793,
+      "feedback": "No fact moved: After still dispatches the fresh foreground plan-writer with `Findings: rerun baseline` before any citation work, reruns the stamping plan_check in the parent after OPEN QUESTIONS, prints Task 1's command/abc1234/exit 1 followed by the three named options and a Recommendation line, and ends the turn with plan in_progress, no tracker initialization, no advance to implement and no citation repair. Two small drifts are worth tightening to keep this robust: After paraphrases the step 1 and step 3 plan_check results as prose rather than quoting the FAIL line, and the printed menu header drops the word `base` (`fails on abc1234` vs Before's `fails on base abc1234`); a stricter reader of the menu fact could want the base label explicit. Keep Before's verbatim result quoting and the `base abc1234` phrasing while retaining After's structured `subagent({...})` call and its explicit closing list of forbidden actions, which delivers the Change's rerun-before-classification and no-init requirements without loosening any held fact.",
+      "wallMs": 12189,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

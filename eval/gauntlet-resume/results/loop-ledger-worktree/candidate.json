@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "06b8c76799e2175e9b76024a3f5236741cfad7d1b4571baee19a6847d78c47a7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "4e9097770fbbb836a2d5a7666050438bf2d83c092e280e866fc5d265701641d3",
       "candidateOutputSha": "c75249063c93def16d42e931d229213f30341f997b04f12d482d78aa1e06e61d",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "After moved `restore` from fails to holds by adding the explicit `plan_tracker({ action: \"refresh\", path: <ledger> })` call after `start implement` with no init, which Before omitted entirely (Before only said \"No plan_tracker init and no task tracker\" and never refreshed). Pairing, durable state (cap:97, iterations 7, attempts 3, allowance 4, rows and decision rendered, step 5 `Before each dispatch`), and both stop variants are kept byte-for-byte in substance. One small wording inconsistency to tidy in After: step 9 of the restoration list says the dirty-tree stop would be evaluated before the refresh, while the `If the tree is dirty` section says restoration runs through the single refresh and then stops; align these (e.g., state in step 9 only that pending recovery found no tuple, and leave the dirty-tree stop wording to the variant section, consistent with the Change's \"restore ledger-derived tasks ... before unresolved dirty-tree stops\") so the ordering claim is unambiguous while still delivering the refresh-after-implement-start sequence.",
-      "wallMs": 14038,
+      "feedback": "After moved the restore fact from fails to holds: Before ran the full phase_tracker chain through `start implement` and then stated only \"No plan_tracker init and no task tracker\", never issuing the single ledger-path refresh, whereas After adds step 10 `plan_tracker({ action: \"refresh\", path: \".../different-ledger.md\" })` immediately after `start implement`, labels it the single refresh, and explicitly denies init. Pairing, durable and stops are byte-equivalent in substance between arms (Spec-header pairing over basename with ledger precedence; rendered rows/decision, cap:97, iterations 7, attempts 3, allowance 4 carried into loop step 5 `Before each dispatch`; FAIL stops on findings without Plan repair/writing-plans and dirty tree stops under `gauntlet: question` before dispatch). The After wording already keeps everything Before kept while delivering the Change; the only thing to watch is that the dirty-tree variant now says the refresh runs before the stop, which matches the Change's \"restore tasks before unresolved dirty-tree stops\" but should stay phrased as refresh-then-stop so the stops fact is not read as a stop before refresh.",
+      "wallMs": 13410,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "06b8c76799e2175e9b76024a3f5236741cfad7d1b4571baee19a6847d78c47a7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "c13be60d8ed7e77e1190eb342eef8904df904d6ea1eca939d41250501b8293a5",
       "candidateOutputSha": "1a6323dc6218f809ab35c3ac9822e4711077230707bb030eea6d3c1c3a934b82",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved only the restore fact, and in the intended direction: Before ended the chain at `phase_tracker start implement` and explicitly stated \"No task-tracker calls,\" so it never performed the single `plan_tracker refresh` on the ledger path that the replaced fact now requires; After adds step 10 with exactly one ledger-path refresh and an explicit \"No `plan_tracker init`,\" while keeping entry check 6, the brainstorm start/skip, plan start, `plan_check` on the ledger, the exact `resume: <spec> (loop engine)` skip reason, and implement start in order. Pairing, durable (rows, last decision, cap:97, iterations 7, attempts 3, allowance 4, continuation at loop step 5 \"Before each dispatch\") and stops (FAIL with findings and no plan repair/writing-plans; dirty tree stops before dispatch) all survive unchanged. Two things worth tightening in the After wording without affecting the facts: it invents a literal line (\"Gate history not restored; re-validate task 2.\") that Before correctly declined to fabricate — prefer instructing the model to emit the reference's closing line rather than paraphrasing it as if quoted — and the dirty-tree branch now performs the refresh before stopping, which is consistent with the Change's \"before unresolved dirty-tree stops\" ordering but should be stated explicitly in the skill so it isn't read as a tracker write on an unvalidated tree.",
-      "wallMs": 15218,
+      "feedback": "After moves `restore` from fails to holds: Before ended its chain at `phase_tracker start implement` and explicitly stated \"No task-tracker calls\", so it never issued the ledger-path `plan_tracker refresh`; After adds step 9 (pending-return recovery) and step 10 (exactly one `plan_tracker({ action: \"refresh\", path: <ledger> })`, no init) after implement start, which is precisely the approved replacement wording. The other three facts are unchanged: both outputs pair by the `**Spec:**` header and rank the ledger ahead of the basename task plan, both render the rows and last decision and continue at loop-implementation step 5 (`Before each dispatch`) with cap:97, iterations 7, attempts 3 and retry allowance 4 preserved, and both stop on plan_check FAIL without Plan repair or writing-plans and stop before dispatch on a dirty tree. To keep every fact stable while delivering the Change, the wording that worked here—\"after implement start, run one ledger-path refresh without init; recover any pending return before refresh and before any unresolved dirty-tree stop\"—should remain explicit, and the dirty-tree branch should continue to say \"stop before dispatch\" after that single refresh so the `stops` fact is not blurred by the new recovery step.",
+      "wallMs": 14618,
       "verdict": "improved"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

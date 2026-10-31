@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "dde3abbd10e8bb73124ccc35fd7c22987629623fa1f57aa0c1a63df7fe072f24",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "42a081153421b90304729faed288a71f6254f8582535f153fa9fad5617935535",
       "candidateOutputSha": "dc56cc1e65193095ecf6bf402c380149307f168ecb7155a6297d080e0a27f23e",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs ask the approval-or-brainstorming question and defer every action to the human's answer, so the approval fact holds in each. After trimmed two things that make the no-inference/no-mutation posture explicit in Before: the standalone sentence \"No tracker call has been made, and nothing is armed\" and, in option 1, the ordered sequence (Amend-grant check first, then Engine-line routing to loop-implementation or writing-plans). After only says \"Nothing is armed\" inside option 2 and \"I'll arm the flow\" in option 1, which a strict reader could take as weaker evidence that no tracker was touched before the question. To keep the fact as solidly as Before while retaining After's shorter form, restore the pre-menu line \"No tracker call has been made and nothing is armed\" and keep option 1's grant-check-then-Engine-routing order; the Change paragraph's restore/ledger/attribution behaviors are not exercised by this no-plan, no-ledger input, so no wording there needs to change here.",
-      "wallMs": 9182,
+      "feedback": "Both outputs ask the approval-or-brainstorming question explicitly, decline to infer approval from the spec's presence, and stop without any tracker action, so the fact holds in both. After does weaken the evidence slightly: Before states outright 'No tracker call has been made, and nothing is armed' as a standalone sentence, whereas After only says 'Nothing is armed' inside option 2 and option 1 promises 'I'll arm the flow' without naming the `**Amend-grant:**` check that must run first. To keep the fact as robustly held as Before while retaining After's tighter wording, add one sentence before the numbered options such as 'No tracker call has been made and nothing is armed until you answer,' and in option 1 say 'the `**Amend-grant:**` check runs first, then I read the `**Engine:**` line and continue' so the ordering of grant check before arming stays visible.",
+      "wallMs": 9918,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "dde3abbd10e8bb73124ccc35fd7c22987629623fa1f57aa0c1a63df7fe072f24",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "4d63bacc79f937450137955b7e072da1c2f12c9738c150a0c8fef5de0a804c9b",
       "candidateOutputSha": "c81b3fd751dc990cec4e248588967a201c945496027c6d99850d15c2b2569d45",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs ask the approval question before any tracker mutation and present the two options (approved vs. explicit brainstorming selection with the spec as an unapproved draft), so the approval fact holds in Before and After. The After wording only reorders the Spec/Bare-worktree lines and relabels the options; option 1's \"resume using the spec's engine\" adds a small forward-looking claim about engine routing that is not needed for this fact and could be read as pre-committing to a path before the answer — keeping option 1 as \"continue from the spec\" and leaving the rest of After's phrasing (including the clearer \"Unapproved draft handoff\" label naming `/skill:brainstorming`) would preserve every fact Before kept while still delivering the Change.",
-      "wallMs": 4704,
+      "feedback": "Both outputs ask the approval question directly, offer the two required choices (approved vs. explicitly selecting brainstorming with the spec as an unapproved draft), and perform no tracker mutation or inferred approval, so the approval fact holds in both. After only reorders the spec/context lines and relabels the options; option 1's \"resume using the spec's engine\" is fine but slightly presumes an engine is known before the human answers — keeping Before's neutral \"continue from the spec\" avoids implying any pre-answer inference while still delivering the Change's intent, and option 2's \"Unapproved draft handoff\" label is acceptable since it still names `/skill:brainstorming` explicitly.",
+      "wallMs": 6016,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

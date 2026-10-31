@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6037d32c20d78a1efc7bcf5b85af5002d85a2c7dfefb6f2549764d93f238c436",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "1e89be48bbeb47e99404762f216cd1899a3e593190af00a660b4ce88ecb1a1e5",
       "candidateOutputSha": "c9f3d31a4ba7bda49f9c5edd474d3e93afa03d16c2f5c456320003e8d31f9380",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs refuse to seed from the companion leg file, name repo-a as home with spec doc/specs/shared.md, make no tracker calls, and only redirect to the existing home rather than fabricating a second flow, so the refuse fact holds in both. After reaches the same result by leading with the stop verdict, citing the governing pages (seed.md, reconstruction.md, brief-contract.md), and ending with an explicit 'No tracker state was written' line; the inserted 'I'm using the gauntlet-resume skill to continue an interrupted flow' line between the stop message and the explanation is slightly misleading (nothing is continued) and could be dropped or placed before the stop, and keeping Before's full home spec path alongside the relative one would make the home attribution unambiguous while still delivering the coordinated-admission stop.",
-      "wallMs": 6630,
+      "feedback": "Both outputs satisfy the refuse fact: each stops on the `**Home:**` header, names repo-a as home with branch feature/shared-change and spec doc/specs/shared.md, lists every tracker call that does not run, and directs resume to the real home rather than manufacturing a second home flow from the repo-b leg file. After keeps everything Before kept and adds the explicit 'No tracker state was written' line and the no-worktree-creation bullet, which strengthen the fact. One wording nit in After: the skill-announcement line ('I'm using the gauntlet-resume skill...') is printed after the stuck line, which reads as out of order for a stop that happens at entry; place it first, and consider retaining Before's absolute home spec path (/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md) in the redirect so the home spec path is unambiguous alongside the relative one.",
+      "wallMs": 7139,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6037d32c20d78a1efc7bcf5b85af5002d85a2c7dfefb6f2549764d93f238c436",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "1c430f6d3c21717c187505b6d7a9c98245e35a58137b64eb397a8ca3297050e4",
       "candidateOutputSha": "bc8ec2dbf70ecc53cd06822e24bdff463d0d16c671ac302adf15d35b5bb6b03c",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs refuse the companion-leg seed, print the stuck line naming repo-a as home with branch feature/shared-change and spec doc/specs/shared.md, and stop without tracker mutation or worktree creation, so the fact holds on both sides. The one risk After introduces is in Run 1: it assumes 'task plan valid' means a supplied PASS and narrates a plan_tracker init plus implement start that the input never returned, whereas Before explicitly declined to narrate result-dependent continuation. That is the home flow rather than a manufactured second one, so it does not break this fact, but a strict reader could read 'initializes trackers' into the same output. To keep the fact safely while delivering the Change, keep Run 2 exactly as written and in Run 1 gate the init on an actually supplied plan_check result (or state, as Before did, that no result was supplied so no init is narrated), rather than inferring PASS from the brief's 'task plan valid' phrase.",
-      "wallMs": 12120,
+      "feedback": "Both outputs refuse to seed from /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md, name repo-a as home with spec doc/specs/shared.md, and stop before any tracker mutation or worktree creation, so the refuse fact holds in Before and After. After's Run 1 does narrate a plan_tracker init, but that is the independent legitimate home restore (the input says to treat observations as separate runs), not a second home flow manufactured from the companion file; Before likewise narrated phase_tracker calls for the home run. One risk in After's wording: placing the home run first with a full tracker chain and then the refusal second makes a reader work harder to see that the companion-seed run touched no trackers. To keep the fact unambiguous while still delivering the Change, state in Run 2 explicitly (as After nearly does) that the companion file is validation evidence for repo-b only and that no trackers are initialized from it, and consider leading with the refusal or labeling Run 1 as the home-side flow so the init is clearly attributable to admitted home restoration rather than to seeding.",
+      "wallMs": 13410,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

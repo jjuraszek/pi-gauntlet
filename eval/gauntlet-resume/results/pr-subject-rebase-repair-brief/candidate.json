@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6b882d0d4d67d90591d868412753a759347130682f14e14d00b1e18b386de2dd",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "5ccb80d8c48ad7856d79507d3f9074808d79ec9506564e0d5b8a5a913ddd530a",
       "candidateOutputSha": "dcc7c56d0fde5510ef5eca795a242f18d37c40baa2df4650ea3a9e0d3b5e3561",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs use the full Rework base 4444…4444 as scan base, admit doc/specs/rework.md through its Rework record's PR identity despite the empty added-file diff, pair the base-tracked doc/plans/rework.md, route to Spec with plan, treat the Rework base as the plan commit, count the single post-base src/parser.ts commit as evidence, propose complete/verify, exclude the member-carried original spec and plan, ask the human before any tracker write, and fabricate no gate history, closure review or fix rounds — so the expected fails->holds movement for candidates/evidence is not visible here because Before already holds. The one regression risk in After is the closing grant line: it prints `No standing grant.` and asserts 'no grant sentence was observed', which is an invented observation given the input only says grant validation passed and supplies no decoded content; Before explicitly refused to pick a grant line. Keep After's clearer Call/Observed structure and its explicit 'plan commit = Rework base, not the predates-base fallback' and 'pairs by basename whether or not either file was added after base' wording, but restore Before's grant handling (print exactly one of `Standing grant active: <sentence>` or `No standing grant.` from check 6's decoded outcome, and do not invent it when unsupplied) so the safeguards fact is not endangered under a stricter reading of 'fabricates no' evidence.",
-      "wallMs": 17430,
+      "feedback": "Both outputs already satisfy all three facts: each uses the full Rework base 4444…4444 as scan base despite the empty added-file diff, admits doc/specs/rework.md through its Rework record PR identity, pairs the base-tracked doc/plans/rework.md, routes to Spec with plan, treats the Rework base as the plan commit, counts the one post-base src/parser.ts commit to propose Repair parser complete at stage verify, excludes original.md and its plan, confirms with the human before any tracker call, and restores no gate history, closure review or fix rounds. After did not move any fact, so this case shows no before/after improvement on these facts. One small regression to watch: After prints `No standing grant.` and states 'no grant sentence was observed', whereas the input only says grant validation passed and supplies no decoded grant content; Before correctly refused to invent the line. Keep Before's wording there ('one grant line from check 6's decoded outcome … the decoded grant content was not supplied, so I do not invent it') while retaining After's clearer call/observed structure and its explicit 'pairs by basename … whether or not either file was added after base' sentence, which is the most direct expression of the intended Change.",
+      "wallMs": 11253,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6b882d0d4d67d90591d868412753a759347130682f14e14d00b1e18b386de2dd",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "5a22dda823622271d4302ee940d28dbf232b96b3231086526791584c4275ea8f",
       "candidateOutputSha": "e573e40a76d70bd6fa4ae8c19a7e8218d797e0ac28e4af07eda6155cacc76f72",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After, like Before, uses the full Rework base 4444… as scan base past the empty added-file diff, admits doc/specs/rework.md via its Rework record identity example/parser#42, pairs the base-tracked doc/plans/rework.md by basename, routes to Spec with plan without a filename pick, uses the Rework base as the plan commit boundary, counts the post-base src/parser.ts commit to propose Repair parser complete at stage verify, excludes original.md and its carried plan, asks for human/snapshot confirmation before any tracker call, keeps plan_check PASS and grant validation, and invents no gate history, closure review or fix rounds. One small erosion worth reverting: Before's restoration preamble said 'Entry checks and grant validation have already passed on the resolved spec', whereas After only says 'Grant validation has already passed'; restore the explicit 'Entry checks and grant validation' wording so the entry-check preservation stays visible rather than merely implied by the branch-identity bullet. Otherwise the After wording delivers the Change (Rework record recovery through PR identity despite the empty diff, Rework base as evidence boundary, exclusions and confirmation retained) cleanly, and its added 'Task-evidence boundary' line and explicit 'without restarting verify' clarification are improvements.",
-      "wallMs": 15581,
+      "feedback": "No fact moved: both outputs use the full Rework base as scan base despite the empty added-file diff, admit doc/specs/rework.md through its Rework record identity, pair the base-tracked plan by basename, route to Spec with plan, use the base as the plan commit boundary, count the post-base src/parser.ts commit as evidence for Repair parser complete at stage verify, exclude original.md with its carried plan, ask for human confirmation before any tracker call, keep plan_check PASS, and refuse to invent gate history, closure review, fix rounds, status responses or the standing-grant line. The After wording is slightly tighter (explicit Task-evidence boundary line in the prompt, numbered status calls, explicit mismatch-report-verbatim rule), which is fine. One small softening to watch: Before stated that both entry checks and grant validation had already passed on the resolved spec, whereas After only restates grant validation in the restoration section; keep a sentence like 'Entry checks and grant validation have already passed on the resolved spec; no further approval is inferred' so the preserved-entry-checks part of the safeguards fact stays explicit rather than implied.",
+      "wallMs": 11993,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

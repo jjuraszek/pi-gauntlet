@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "d813a90a2fbcab7b4ac42ed6fc1a24e1b7dedd4c56438bc6696351037f05fab0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "7f8b3d73b6c96c3bf1e7288a3dcc1a9b8d763d5e47393c92b2032a8e0a2da59f",
       "candidateOutputSha": "f4ce4d96469efee32fa7b92c76a1ef60d73b54f2eabd1b779915171f9d0949fe",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the fact: each of the three runs stops in 3b before any tracker call, the printed line names `repo-b` and gives the full expected/observed tuple (A, B) or branch (C), and each explicitly says the mismatch is a stop rather than drift (Before per-run in A and C plus a global header; After once in its opening paragraph and again by stopping each run with \"no tracker mutation\"). After did not move the fact. One small robustness note for the author: After relies on the single opening sentence (\"A live tree's branch or tuple mismatch is a stop, not drift\") to carry the not-drift claim for all three runs, whereas Before restated it inside Run A and Run C; if later edits trim that intro, the not-drift half of the fact could become implicit. Keeping a one-line \"not informational HEAD drift; no phase_tracker/plan_tracker/plan_check call\" in each run's closing (as Before did) would make every run self-contained while still delivering the shared-steps restructuring the Change introduces.",
-      "wallMs": 10769,
+      "feedback": "No fact moved here: both outputs stop all three runs at coordinated admission before any phase_tracker/plan_tracker/plan_check call, print messages that name repo-b and give the expected/observed full tuple (A, B) or branch (C), and state explicitly that a live branch/tuple mismatch is a stop rather than drift. After is actually slightly stronger on the last point by stating it once up front for all runs (Before only said it in A and C). One small wording issue in After: the section header 'Steps common to A, B and C (all pass)' includes steps 5 and 6, which are precisely the steps that fail in the runs; retitling it to something like 'Common admission steps (1-4 pass in all runs; 5-6 are per-run checks)' would avoid a careful reader momentarily reading the stop as contradicted, while keeping the per-run expected/observed lines that make the fact hold.",
+      "wallMs": 9565,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d813a90a2fbcab7b4ac42ed6fc1a24e1b7dedd4c56438bc6696351037f05fab0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "33089580a0107fdf2378c72826eba7859fe4ec0863dae5ebef00fdd9895fcb34",
       "candidateOutputSha": "dda426ada768da7fe2855b013d3a377f4db77aaaded5a6a0a0b2c8d9883da4d9",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "The stop fact holds in both outputs: each of Runs A, B and C names repo-b, prints the full expected and observed Home tuple (A, B) or branch (C), and stops before any tracker write or plan_check call, never treating the mismatch as informational HEAD drift. After does not move this fact; it adds the skill announcement line, an explicit branch check preceding the companion header read in A and B, the companion worktree path in each stuck message, and a closing statement that no run reaches plan_check or mutates a tracker, all of which strengthen rather than weaken the stop. The Expected-to-move list anticipates fails -> holds here, but Before already satisfies the fact as written, so this case should be treated as a held fact rather than a wording-driven improvement; the After wording can be kept as is, and if the author wants a demonstrable move on this sample a Before arm that actually tolerates the mismatch as drift would need to be found rather than inferred.",
-      "wallMs": 9870,
+      "feedback": "Nothing moved on this case: both Before and After stop every independent run before any tracker write or plan_check call, name repo-b explicitly, and report the full expected/observed Home tuple (A, B) or branch (C) rather than downgrading the mismatch to informational HEAD drift. The expected 'fails -> holds' move is therefore not observed here because Before already satisfied the fact. After's additions (the worktree/spec path in the stuck line, the branch check preceding the header read in A/B, and the closing sentence that no run reaches plan_check) are harmless and slightly strengthen the stop narration; keep the per-run 'Print and stop' plus the explicit 'before any tracker write or plan_check' statement in each run (as Before did) rather than only in a trailing summary, so each independent run remains self-evidently a stop even if the summary line is dropped.",
+      "wallMs": 8271,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

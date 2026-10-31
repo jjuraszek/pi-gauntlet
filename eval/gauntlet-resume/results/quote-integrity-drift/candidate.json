@@ -40,7 +40,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0b0204ed71a67cd72bcb7ae93f4cc4ba64efacff1067e5ed33d838e049d69dc9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "2adf6029a1b7a29d4740a7f7eb332776071702339cb328bc6697977ee1ce1489",
       "candidateOutputSha": "377a1fa16f3ae1ed5f1cff7a9902434afb48160eece348da44110922c84939be",
       "facts": {
@@ -75,14 +75,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After, like Before, names exactly the five literals added to Task 1/2/3 bodies with no other plan edit, re-runs plan_check after the edits and before the commit and tracker calls, then calls skip plan, start implement, and plan_tracker init with the four tasks and their brief statuses in order, and never stops or asks the human. The only wording risk in After is the hypothetical aside 'a stop would restore it with git checkout', which a careful reader still sees as conditional rather than an actual stop; if you want to remove any ambiguity, drop that clause (the tracked-and-clean / no-temp-copy statement already carries the needed information) while keeping the classification table and the verbatim snapshot list, which are clear improvements in traceability that preserve every fact.",
-      "wallMs": 8232,
+      "feedback": "No fact moved on this case. After keeps the same structure as Before: it names exactly the five literals added to Task 1, Task 2 and Task 3 bodies with no other plan edit, re-runs plan_check to PASS after the edits and before the commit, commits the tracked-and-clean plan alone, then runs skip plan, start implement and plan_tracker init with the verbatim four-task snapshot in that order, and prints no Repair stopped line. The only new wording that brushes against a fact is the hypothetical 'a stop would restore it with git checkout' in the pre-write state paragraph; it is clearly conditional and does not read as a stop, but if you want zero ambiguity for f5 across other graders, drop that clause or move it into the classification paragraph as 'no stop is needed, so no checkout restore occurs'. The added classification table and the 'Solo: lines unchanged' note are compatible with f1 since they describe the same five additive edits rather than new edits; keep them as-is.",
+      "wallMs": 10396,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0b0204ed71a67cd72bcb7ae93f4cc4ba64efacff1067e5ed33d838e049d69dc9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "780263a0512e8f6eae7e9336fb87e81f10e41e8f8a9671d31d8848fcbaeae8b9",
       "candidateOutputSha": "57c3ce4dfa66e99b71cffad275a675f13a89d7e0c91ed67a16bae1d947180474",
       "facts": {
@@ -117,10 +117,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps every fact Before kept. The literal edits are still attributed to Task 1 (`load_config`, `ConfigError`), Task 2 (`schema.json`), and Task 3 (`--config`, `CONFIG_PATH`) with only a preservation note and no other plan edit (f1); plan_check is re-run immediately after the edit and before the commit, phase_tracker skip/start, and plan_tracker init (f6); the skip plan → start implement → init-with-four-tasks chain is intact in order with the brief's exact statuses (f3); and there is no stop, question, or `Repair stopped` line (f5). The After wording is slightly terser (inline tool calls, dropped the explicit snapshot-ordering validation sentence and the 'no substep call' note), which is harmless for these facts; one caution for the author is that the Change's 'implement uses one ledger-path refresh without init' language must stay scoped to Ledger briefs so that ordinary plan-brief restores like this one keep emitting the plan_tracker init that f3 requires — After does this correctly, and keeping an explicit 'this brief has a saved task snapshot, not a ledger, so init from the snapshot' cue would make that boundary robust against future wording drift.",
-      "wallMs": 13035,
+      "feedback": "No fact moved on this case. After reproduces Before's structure faithfully: all five literals are attributed to the task bodies the findings name with no other plan edit (f1), plan_check is re-run immediately after the edits and before the commit and tracker calls (f6), the post-PASS sequence is skip plan -> start implement -> plan_tracker init with the exact four tasks and statuses from the brief (f3), and nothing stops or asks (f5). The wording differences are purely stylistic: After drops Before's explicit snapshot-validation sentence before the init call and the 'No substep call' note, and tightens the preserved-fields list to 'owner cells'. Since this is an ordinary pasted brief with no ledger, the Change's 'refresh instead of init' direction correctly does not apply here, and After keeps the init path as it should. If the author wants extra safety against the ledger/implement-order rewrite leaking into non-ledger cases, consider retaining Before's one-line snapshot-ordering check before init, which costs nothing and makes the init precondition explicit.",
+      "wallMs": 11364,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

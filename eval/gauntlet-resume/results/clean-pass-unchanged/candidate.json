@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "27dfb0f6859a2e1345443fa30c5cdb17e8d48c46f25e6759f2d6963471d8700f",
       "candidateOutputSha": "4fd774c35f82ea07cd160c9d5a89364784779360d18166baf594f7b07e629ca1",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every fact Before held: it states explicitly that `## Plan repair` is not entered so no receipt, write or commit follows (f1, f2), and it narrates `phase_tracker skip plan`, `phase_tracker start implement`, then `plan_tracker init` with the four tasks and their statuses verbatim, followed by the closing line (f3). The added parsing check in step 4 and the note that step-1 PASS makes the receipt line impossible are harmless additions. Nothing moved; keep this structure. If you want to tighten further, the one wording risk to avoid is the opening sentence asserting that `start brainstorm`, `skip brainstorm S` and `start plan` already ran — that is fine here, but in cases where f3-style facts enumerate the full chain, a reader could take those as calls made inside the narrated window, so phrase them clearly as prior context rather than as part of this restore.",
-      "wallMs": 9995,
+      "feedback": "No fact moved between Before and After for this case. Both outputs state that plan_check PASS skips `## Plan repair`, print no `Repaired plan:` receipt, make no commit and no file write, and then call `phase_tracker skip plan` with the `resume: pasted brief` reason, `phase_tracker start implement`, and `plan_tracker init` with the brief's four tasks in the same order and statuses (complete, complete, in_progress, pending) before printing the closing `Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance` line. After adds a parsing check and a note that earlier brainstorm/plan calls preceded the narration, which neither helps nor harms f1–f3; the only caution is to keep the After text from implying any extra tracker writes or a re-run of `plan_check` so that the init-then-closing-line order and the no-commit/no-edit statements remain as explicit as they are now.",
+      "wallMs": 8503,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "24245c828ce0cda3a6a745b600cacc5112e403f54b165b4bcc73b9b8920ba92b",
       "candidateOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After is byte-equivalent in behavior to Before, differing only in rendering the plan_tracker init call as a multi-line JSON block instead of inline. Both outputs call skip plan with the pasted-brief reason, start implement, init the four tasks with the brief's statuses unchanged, print no Repaired plan receipt line, make no git commit, edit no file, and end with the closing line. Note that this case is an ordinary (non-ledger) brief, so the Change's 'implement uses one ledger-path refresh without init' rule correctly does not apply here, and the After wording did not wrongly suppress the init for a plain brief — keep that distinction explicit (ledger briefs refresh without init; ordinary briefs still init from the brief's task list) so future edits to the ledger-path narration cannot bleed into this sample.",
-      "wallMs": 8205,
+      "feedback": "After is substantively identical to Before on this plain-brief (non-ledger) restore: plan_check PASS, skip plan with the pasted-brief reason, start implement, plan_tracker init with the four tasks and their statuses unchanged, then the closing line, with no receipt line, no commit and no file edits. The only difference is that the init call is rendered as a pretty-printed JSON block instead of inline, which moves no fact. The Change's no-init/refresh-only rule correctly did not leak into this ordinary brief path, so the wording already preserves f1–f3; keep the brief-vs-ledger distinction explicit so that future wording for ledger refresh does not suppress init on ordinary pasted-brief restores.",
+      "wallMs": 7603,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

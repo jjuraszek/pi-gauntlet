@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f7a4662db5c73e04d535033c22aee536e5e75f31852952c29ff8ac5affbd28ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "430885b2b89395a0a89a2afc9a4420a933b087551349176cd7458606388dcbc4",
       "candidateOutputSha": "5153183b253e72916569ed23bccb19dbe295dc0086843c77b7c91b06a62fcab2",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs stop at coordinated admission before any phase_tracker/plan_tracker write, name leg repo-b, and print the observed common dir /work/repo-c/.git against the expected /work/repo-b/.git, so the fact holds in each. Before satisfies it implicitly (it stops on the common-dir mismatch without invoking branch or header state), while After makes the 'despite matching branch and copied leg header' clause explicit by stating the branch and **Home:** tuple checks do not affect the outcome and that this is not informational drift. Nothing moved; the After wording is a strict strengthening. If you want the fact to be unmistakably exercised, keep After's explicit sentence that branch/tuple matches do not rescue the leg, and keep the printed line carrying both canonical paths plus the declared-primary derivation — that preserves everything Before held while delivering the Change.",
-      "wallMs": 8741,
+      "feedback": "Nothing moved on this fact: both outputs stop at coordinated admission before any phase_tracker/plan_tracker call, name leg repo-b, and print the observed common dir /work/repo-c/.git against the expected /work/repo-b/.git. After actually strengthens the fact by stating explicitly that the matching branch and copied **Home:** tuple do not affect the outcome and that this is not informational drift, which Before only implied by omission. Keep that explicit \"branch and Home tuple checks do not affect the outcome\" sentence and the expected/observed pair in the printed stop line; the added membership-comparison step and the recovery hint are harmless as long as they stay after the stop and before no tool mutation is narrated.",
+      "wallMs": 8619,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f7a4662db5c73e04d535033c22aee536e5e75f31852952c29ff8ac5affbd28ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "45d6ddf55b1386a5c248dd16ce6b8a397960872134e38d715990ce39de76b942",
       "candidateOutputSha": "ec3300e91c3f1bece040876f46841c1698766dc9c9a97514b15f7296f6069989",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the fact: each stops before any tracker write or plan_check call, names repo-b (via its worktree path), and reports the expected /work/repo-b/.git versus observed /work/repo-c/.git common directories. After actually improves clarity by labelling the values as expected/observed in a single `gauntlet: stuck ... common directory mismatch` line and by showing the read-only `git rev-parse --git-common-dir` check whose supplied observation triggers the stop, which matches the Change's intent of validating the full tuple before admission. Nothing moved; to keep it that way, retain the explicit expected/observed labels, keep the worktree path bound to repo-b in the stop line, and keep the stop statement that excludes both tracker writes and `plan_check` so the matching live branch and copied leg header can never be read as sufficient for admission.",
-      "wallMs": 9034,
+      "feedback": "Nothing moved: both outputs stop at coordinated admission before any tracker or plan_check write and name repo-b alongside the expected (/work/repo-b/.git) and observed (/work/repo-c/.git) common directories. After is slightly stronger than Before because it labels the directories explicitly as expected/observed and includes the worktree path, while the added read-only realpath/git-common-dir call is narrated against the supplied synthetic observation rather than executed, which is consistent with the case instructions. Keep that structure; the one thing to watch is that the skill-announcement line should stay first in output order (After prints it before the stop message, Before printed the stop first), and that the stop message continues to carry both the expected declared-primary and observed canonical paths so the fact holds regardless of further wording tweaks.",
+      "wallMs": 7929,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

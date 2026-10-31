@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "466f32778d2b2d9b4417a26f05dadcae72a56b3788a5b7692922bf8a289b742a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "32a9ee09c6470e3131c4e97296503d1c47ed4fbb0ca4644e59d970fece3c4585",
       "candidateOutputSha": "e62ba2c2a08777b437fc3c0ff5bd5a2c3f7172ca295b3c8b05710caf326223b4",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs dispatch a fresh foreground plan-writer with cwd the resolved worktree, phase plan-write, acceptance level none, all five paths and `Findings: rerun baseline`, explicitly leave baseline evidence to the writer, re-run `plan_check` on the absolute plan path in the parent after `PLAN WRITTEN` and before any tracker call, and then skip plan/implement with `resume: pasted brief`, start verify and `plan_tracker init` with the exact two-task complete snapshot in order while stating `start implement` is never called and no fresh-plan list is used. The only regression in After is outside the facts: it stops at the printed lines and drops Before's closing `Standing grant active: … / No standing grant.` line and the hand-off into verification-before-completion, so the narration no longer reaches the restore closing line the input asked for. To keep the Change intact while matching Before, retain After's numbered tool-call structure and the 'not a fresh-plan list' / 'parent synthesizes no SHAs or runs' phrasing, but append the check-6 grant line on its own line and the sentence that restore continues into the full conformance gate with nothing carried over.",
-      "wallMs": 12823,
+      "feedback": "No fact moved between Before and After: both narrate a fresh foreground plan-writer dispatch with cwd the resolved worktree, phase plan-write, acceptance level none, the five absolute paths and `Findings: rerun baseline`, both rerun `plan_check` in the parent on the absolute plan path after `PLAN WRITTEN` and before continuing, and both skip plan and implement with `resume: pasted brief`, start verify, and init the tracker from the exact two-item saved snapshot while explicitly never starting implement or using a fresh-plan list. The one regression worth noting is outside the listed facts: After stops at the printed lines and omits the restore closing narration (the `Standing grant active: …` / `No standing grant.` line and the handoff into verification-before-completion) that Before included and the input asked for ('through the restore closing line'). To keep parity, have the After wording end the Baseline-continuation return with the same closing sequence Before used: print the two repaired-plan/gate-history lines, then the standing-grant line on its own line, then state that the restore continues into the full conformance gate with nothing carried over.",
+      "wallMs": 11149,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "466f32778d2b2d9b4417a26f05dadcae72a56b3788a5b7692922bf8a289b742a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "8a18060349f32ba716b26a845a6f04fdfc79b8934b39f989d46f5c3c71920d53",
       "candidateOutputSha": "c0a9f1703d4869f78c8b159aaf5477920e1e966809fc144260a738033ae7f27d",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved nothing on this case: it still dispatches plan-writer fresh and foreground (context fresh, async false) with cwd set to the resolved worktree, phase plan-write, acceptance level none, the five worktree/spec/plan/SKILL.md/plan-contract.md paths and a trailing `Findings: rerun baseline`, explicitly declining to run the tests or edit baseline evidence in the parent; it rechecks plan_check on the absolute plan path immediately after `PLAN WRITTEN` and before any tracker writes; and after PASS it skips plan and implement with `resume: pasted brief`, starts verify without calling start implement, and inits plan_tracker with exactly the two complete W1 tasks in snapshot order while stating this is the saved brief snapshot rather than a fresh-plan list. The only wording differences are cosmetic (the `Plan repair → Baseline continuation` heading, the task-template rendered as a path list rather than name=value bindings, and dropping Before's `Resume the verify restore using the saved task snapshot` sentence from step 3 in favour of the same statement at step 7). To keep every fact robustly across the broader Change, retain an explicit sentence at the PASS step that restoration resumes from the brief's snapshot (not writing-plans step 7 fresh initialization), keep the `rather than running baseline in the parent` disclaimer attached to the dispatch block, and keep the five dispatch paths labelled by role so a reader can confirm skill and contract paths are both present even when their literal values are unavailable.",
-      "wallMs": 12062,
+      "feedback": "Nothing moved on this sample: both outputs dispatch a fresh foreground plan-writer with cwd the resolved worktree, phase plan-write, acceptance level none, the five paths and a trailing `Findings: rerun baseline`, both re-run plan_check on the absolute plan path immediately after `PLAN WRITTEN`, and both skip plan/implement with resume reasons, start verify, and init plan_tracker from the exact two-task complete snapshot without a fresh-plan init or `start implement`. After actually tightens the narration slightly in the right direction—it explicitly says not to run the tests in the parent and labels the init payload as the saved brief snapshot rather than a fresh-plan list—so the current wording preserves every fact Before kept; no change is needed here, though keeping the explicit 'cwd / phase / acceptance' lines and the trailing Findings in the dispatch block (as After does) is what keeps the rerun fact robust.",
+      "wallMs": 9548,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

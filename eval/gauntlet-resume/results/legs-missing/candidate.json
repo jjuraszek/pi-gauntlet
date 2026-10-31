@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "5e8a86ca28188ac230c45b444795bc1b81c2d6425bc586c10b641a1bb8697af2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "19148230858eb261145359994d477c455b7796a5ce0eca499fff7c22df766b50",
       "candidateOutputSha": "1986a2409f3799effc239d8e85abec520e4ac2b53e78d7ef24dbe14ed928231c",
       "facts": {
@@ -44,27 +44,43 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the fact as written, so no fact moved. Before resolves the companion path from the recorded `home: .worktrees/<name>` plus the shared NAME in step 5, stops naming repo-b with no phase_tracker/plan_tracker/plan_check calls, and invents no tree, receipt or approval; After does the same in step 4 and the Result block, and its printed stop line is slightly stronger because it cites the derivation `(from recorded home: .worktrees/<name>)` and the shared branch explicitly. The Expected-to-move entry anticipated a fails->holds move, but Before already held on this input, so this case is setup-only coverage rather than evidence of improvement. If you want the After wording to visibly deliver the Change here, keep the explicit resolution derivation in the printed message and the ordered `no phase_tracker / no plan_tracker / no plan_check` list; one small tightening would be to state the NAME as the already-transformed `feature-shared-change` (as Before does) rather than `feature/shared-change with / replaced by -`, to avoid a reader momentarily thinking the slash form is the worktree name.",
-      "wallMs": 9743,
+      "feedback": "Both outputs resolve the repo-b worktree path from the recorded `home: .worktrees/<name>` plus the shared NAME derived from `feature/shared-change`, stop before any phase_tracker/plan_tracker/plan_check call, name repo-b in the stop message, and refuse to infer a tree, receipt, or approval; the fact holds in both and nothing moved. After is slightly tighter than Before in that the printed stop line explicitly cites the derivation source (`from recorded home: .worktrees/<name>`), and it adds an explicit no `start brainstorm`/no `plan_tracker init` list, which strengthens the no-tracker-write claim. The only wording to watch: After step 4 says NAME is `feature/shared-change` with `/` replaced by `-`, which conflates the branch with the shared NAME before substitution - keep it, but phrasing it as 'shared NAME = branch with `/` → `-`' would match Before's clarity and avoid any reader doubt about which NAME feeds the path; Before's explicit note that spec approval comes from the human rather than file presence is also worth retaining in After to keep the 'does not invent approval' clause unambiguous.",
+      "wallMs": 8304,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5e8a86ca28188ac230c45b444795bc1b81c2d6425bc586c10b641a1bb8697af2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "3f13711b30b7aaa28aaa1d8cdc08162ea6593a22b351d4a6427b3e1a17f16e37",
       "candidateOutputSha": "cf59ba500d095e89e00156a6d3747a31fc337432b4b0569d1f786bb1c96a78f4",
       "facts": {
         "stop": {
           "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "after": "fails",
+          "label": "regression"
         }
       },
-      "feedback": "Both outputs satisfy the fact: each names repo-b, states the resolved companion path /work/repo-b/.worktrees/feature-shared-change (home's recorded .worktrees/<name> pattern with the shared NAME), stops before any tracker write or plan_check, and invents no tree, receipt or approval. Before is slightly stronger because it says outright that the recorded `home:` pattern resolved the location and that this neither authorizes recreating the tree nor proves delivery; After only implies the derivation by printing the path. To keep the fact unambiguously held while delivering the Change's missing-tree live-receipt stop, After should add one clause such as 'resolved from recorded home .worktrees/<name> and shared NAME feature-shared-change; a missing companion needs a live-validated delivery receipt and the pattern does not authorize recreating the tree', and keep the stuck line before the skill-announcement line so the stop is the first thing a reader sees.",
-      "wallMs": 12722,
-      "verdict": "unchanged"
+      "feedback": "Before shows every clause of the fact: it names the resolved path, attributes it to the recorded `home:` pattern (\"resolves its location but does not authorize recreating it or prove delivery\"), names repo-b, and stops before tracker writes or plan_check without inventing a tree, receipt or approval. After keeps the repo-b name, the path, the no-receipt statement and the stop boundary, but drops the sentence that ties the path to the recorded home pattern plus shared NAME and the explicit refusal to recreate the tree; a careful reader cannot tell whether After derived the path or merely echoed the brief's leg entry, so the 'resolves from recorded home and shared NAME' clause is no longer demonstrated. To deliver the Change while keeping the fact, append to After's stop line something like: 'path resolved from recorded home `.worktrees/<name>` and shared NAME feature/shared-change; the pattern locates the tree but does not authorize recreating it, synthesizing a receipt or inferring approval.'",
+      "wallMs": 13375,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "Print:\n```text\ngauntlet: stuck repo-b: missing unlanded worktree /work/repo-b/.worktrees/feature-shared-change; no delivery receipt is available for live validation.\n```\n\nStop at coordinated admission, before any tracker write. Do not call `plan_check`, create a worktree, repair the plan, or restore tracker state.\n",
+        "words": 39,
+        "wallMs": 10350,
+        "mechanical": {},
+        "judgeWallMs": 16657,
+        "facts": {
+          "stop": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          }
+        },
+        "feedback": "Before satisfies every clause: it names repo-b, prints the resolved companion path, states that the recorded `home:` pattern resolves the location (i.e. resolution from recorded home and the shared NAME), stops before tracker writes and `plan_check`, and refuses to recreate the tree or treat the pattern as delivery proof. After keeps the stop, the repo-b naming and the explicit non-invention list (no worktree, no plan repair, no tracker state), but it drops the only sentence that showed the path was *resolved from the recorded home pattern and shared NAME* — since the brief's legs list already contains that exact path, a careful reader cannot tell whether After derived it or merely echoed the brief, so the first clause of the fact is no longer demonstrated. To keep the fact while delivering the Change's tighter 'missing-tree live receipt' wording, retain one line such as 'Recorded home `.worktrees/<name>` with shared NAME `feature-shared-change` resolves to /work/repo-b/.worktrees/feature-shared-change; the tree is absent and no receipt exists for live validation' alongside the stuck line and the stop/non-invention sentence."
+      }
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

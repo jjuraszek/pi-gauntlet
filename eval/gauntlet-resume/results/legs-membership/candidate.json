@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f55be4f65014619538d49c3d16b7ee5354a9c39597f150c38f73e4fb8765235f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "3b48cc83093b4f8ca2649d7f2fb70d2868e946c1f17e60e92b281bd14b97fd8a",
       "candidateOutputSha": "ec319ba46e5575644abd2443e609ca7d81f88013cd16ba9ff14d95642de94247",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps the fact intact: each of the three runs prints a stop line naming the reordered (repo-b), missing (repo-b) or extra (repo-c) leg together with both complete ordered lists (brief vs spec), explicitly states no phase_tracker/plan_tracker/plan_check calls occurred, and nowhere rewrites the brief membership. The only regression relative to Before is cosmetic: Before's stop lines cited the spec path ('home spec doc/specs/shared.md lists ...') while After says only 'spec lists ...', and After drops the per-run tool-call listing in favor of a shared 'common read' section. Neither moves this fact, but if you want After to be strictly as informative as Before, keep the spec path in the printed stop line (e.g. 'brief lists X; home spec doc/specs/shared.md lists Y') and keep the explicit statement that the W2 snapshot was untouched, which After does preserve via 'not initialized'.",
-      "wallMs": 9039,
+      "feedback": "Both outputs already satisfy the fact: each of Runs A, B and C names the reordered, missing or extra leg (repo-b reordered, repo-b missing, repo-c extra), prints both ordered lists (brief vs. spec), stops at check 3b before any phase_tracker/plan_tracker/plan_check call, and never rewrites the brief's membership. After did not move the fact; it tightened the message prefix to `coordinated membership mismatch`, added the parenthetical reason for the reorder, and factored the common spec read into a shared preamble, which is fine as long as each run still prints its own full stop line with both lists (it does). One minor loss relative to Before: After drops the explicit spec path `doc/specs/shared.md` from the printed stop line and only says `spec lists`; if the intended wording should name the spec file in the stop output, keep `home spec doc/specs/shared.md lists repo-a, repo-b` in the message. Otherwise no wording change is needed to retain this fact while delivering the Change.",
+      "wallMs": 7447,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f55be4f65014619538d49c3d16b7ee5354a9c39597f150c38f73e4fb8765235f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "611a676234f1e2af1eb56d1272cf17105f29ff5cf9f57428163696bf83342122",
       "candidateOutputSha": "e77cbd22b9cdb0854e02db5ac3bada6508af68608b8b5be5571a398de50dfd96",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the fact: each run reports reordered/missing/extra leg, prints both ordered lists (brief and spec), stops before any tracker write, and never edits membership. After adds the skill-usage preamble and names the specific reordered leg (repo-b) in Run A, which is a harmless refinement; it also narrows the no-tool statement to the three tracker tools rather than Before's broader 'no tool calls', which still satisfies the fact as written. Nothing moved; if you want extra safety, keep Before's blanket 'No tool calls or tracker writes' phrasing alongside the explicit tracker tool list so the stop remains unambiguously before any write.",
-      "wallMs": 4043,
+      "feedback": "Both outputs satisfy the fact: each run reports the reordered/missing/extra leg, prints the brief's ordered list and the spec's ordered list, and stops before any tracker write without editing membership. After adds the skill-announcement line, names the specific reordered leg (repo-b) in Run A, and enumerates the forbidden tracker calls explicitly (plan_check, phase_tracker, plan_tracker), which is a modest clarity gain but not a fact movement — Before already held, so the expected fails -> holds move is not observed here. No wording change is required to preserve the fact; if you want After to be strictly stronger, consider keeping the explicit 'no tool calls or tracker writes' phrasing from Before alongside the enumerated tracker names so the prohibition covers any unlisted tracker tool.",
+      "wallMs": 7182,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

@@ -40,7 +40,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1b0bd9af54763b966359d0387d8eb1638ebb461ed86feb1b616c1dcd255e8df8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "479a0723f4d941e021adbc1640a3d744d34eba1b8e3141177f36b5b62acc5948",
       "candidateOutputSha": "c267ff40183fcc8ba6106b78973c56b46203c4abea1533d3dee010fa256b380d",
       "facts": {
@@ -65,14 +65,14 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs edit only the header `**Verification:**` line to append the `--check` literal and both run skip plan -> start implement -> plan_tracker init with the four snapshot tasks and statuses unchanged. After is actually slightly stronger on f1 because it states \"No other text changes\" explicitly, whereas Before only implies it via \"without replacing any existing text\"; keep that explicit sentence. For f3, After's structured call list and verbatim task table are clear and should be retained as the Change's other ledger/attribution work lands, so that the citation-repair-to-tracker-init path for an ordinary implement-with-task-plan brief stays byte-for-byte recognizable.",
-      "wallMs": 8397,
+      "feedback": "Neither fact moved. Both outputs add the `--check` literal to the header `**Verification:**` line only (After makes the no-other-edit point explicit with \"No other text changes\", which is a slight improvement over Before's \"without replacing any existing text\"), and both continue with `skip plan` (reason `resume: pasted brief`), `start implement`, and a `plan_tracker init` carrying the brief's four tasks with statuses complete/complete/in_progress/pending unchanged. The After wording keeps the citation-repair routing, tracked-and-clean pre-write check, round-1 write, re-check, lone plan commit, feasibility check and printed lines intact, so the Change's ledger-specific additions (no init on implement for ledger briefs, pending recovery, home-return attribution) did not leak into this non-ledger task-plan case; keep that separation so ordinary implement briefs continue to init from the snapshot while ledger briefs take the refresh-only path.",
+      "wallMs": 8391,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1b0bd9af54763b966359d0387d8eb1638ebb461ed86feb1b616c1dcd255e8df8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "b24dbb81f66c4f3e696f849f01b4f1894c56d3e0bb5e7c07f3c60afb953628b1",
       "candidateOutputSha": "44db9f41d4a8d96768f7d056e7cb54328792982b565c184e7c86e7eefcb9c06a",
       "facts": {
@@ -97,10 +97,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs add the `--check` literal only to the `**Verification:**` header (After makes the edit explicit via an `edit` call with oldText/newText scoped to that header, which is a mild clarity gain and still touches no task body), and both continue with phase skip plan, start implement, and plan_tracker init carrying the brief's four tasks with names, order, and statuses unchanged. Since this is a non-ledger pasted-brief sample, the Change's 'implement uses one ledger-path refresh without init' rule correctly does not apply here, and After did not over-apply it; keep that distinction explicit in the wording (init only when no admitted ledger, refresh-only when a ledger is admitted) so the ledger-tracker-recovery samples move without this sample losing f3.",
-      "wallMs": 8736,
+      "feedback": "Neither fact moved. Both outputs add the `--check` literal only to the `**Verification:**` header line (Before shows the resulting header, After additionally shows the explicit `edit` call with oldText/newText confined to that header) and neither touches a task body, so f1 holds in both. Both then continue with phase_tracker skip plan, phase_tracker start implement, and plan_tracker init carrying the brief's four tasks with identical names, order and statuses, so f3 holds in both. The After wording's only visible effect here is making the repair edit a concrete tool call rather than a markdown result, which is a clarity gain without altering behavior; note that this non-ledger brief case still correctly uses plan_tracker init (the Change's \"one refresh, no init\" rule applies to ledger-path restores), so keep that distinction explicit in the wording so the refresh-without-init rule does not bleed into ordinary brief restores and break f3.",
+      "wallMs": 8632,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }

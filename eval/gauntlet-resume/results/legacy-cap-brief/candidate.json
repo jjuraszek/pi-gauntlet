@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "847fe95c81363738b2722a5b571d393cb236d02ff37971b80b59cc7c83b1b53c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "24d64eea4a8f631f4de0eb5d4ce037ddd13b62fbdc40f5ab94b04b875046ad73",
       "candidateOutputSha": "50c2f1b2372687325cec73be8ae75a49a44fb188d804ed4c99eb1cbda5e4d694",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps the shared cap boundary, the exact stop text, the no-settings rule, the cap:12 / `cap +5 |` / single `loop: raise cap` commit with iterations 7 and attempts 2 preserved, and it renders cap, counters and decisions more explicitly than Before did; dirty-tree handling also survives (stop, no `cap +N`, authorization required), though After should say outright that uncommitted changes are preserved rather than leaving it implied by 'asks before discarding'. The continue fact does not land: Before had no refresh at all, and After replaces that with three refreshes (restore step, post-grant, and again inside rule 1 for implement), so a reader cannot say it performs 'one ledger-path refresh'; in addition the implement continuation says 'the refresh completes implement' without the rule-1 exit verification run (`node --test check.mjs`) that Before narrated before `complete implement`. To keep the fact: narrate a single `plan_tracker refresh` on the ledger path during restore (no init), make the post-grant step a plain `git commit` with no second refresh (or state explicitly that the grant commit is the only write and the earlier refresh is not repeated), and have implement continue at `Before each dispatch` → rule 1 → run the exit verification once → `complete implement` → `start verify`, while verify/ship continue at After the loop step 1 as After already does, with 'no reseed' stated for all three.",
-      "wallMs": 35498,
+      "feedback": "After keeps the shared missing-cap stop (exact `Stopped: ledger has no cap: line - seeded under the old loopEngine contract`, no gauntlet_setting, applied to A/B/C even with all rows closed), the durable grant (cap: 12, `cap +5 |`, one `loop: raise cap` commit, iterations 7 and attempts 2 untouched, with the ledger state and Decisions now rendered explicitly), and the dirty-tree stop without `cap +N`. The continue fact fails in both arms but for opposite reasons: Before performs no ledger-path refresh at all, while After performs too many — A refreshes at restore step 5, again after the cap commit, and again under rule 1 ('Refresh, then require implement complete'), and B/C refresh at step 7 and again after the commit, so a careful reader cannot say there is 'one ledger-path refresh'. To deliver the Change and satisfy the fact, keep the single post-`start implement` (or post-`start verify`, after the saved mixed list) refresh with no init and no reseed, and drop the post-commit and rule-1 refreshes: let the cap grant return straight to `Before each dispatch` (A) or `After the loop` step 1 (B/C), where A takes rule 1's exit verification and B/C run full verification, whole-diff review, happy path, fresh conformance and finishing. Also consider stating explicitly in the dirty-tree section that uncommitted changes are preserved until the human authorizes cleanup, as Before did, rather than leaving it implied by the discard/reset question.",
+      "wallMs": 37996,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "847fe95c81363738b2722a5b571d393cb236d02ff37971b80b59cc7c83b1b53c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3340905b896d2515646435708541a3473520367e4eb355c22906c5651a54c49e",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "105cc9c301d4220e56c7a18e1348dfd8534ddcc1844fc76d9ec6f139c0b50dcc",
       "candidateOutputSha": "be551491464dbcc4237fdbfb10073ad66fd69c961f9d8d2bb462ecd12fd969a1",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved `continue` to holds by adding the single `plan_tracker refresh` on the ledger path after the grant commit (step 5), which Before omitted entirely; everything else that Before kept survived. Three soft spots in After worth tightening so the remaining facts stay unambiguous: (1) the implement branch no longer names rule 1 / Exit verification or the `phase_tracker complete implement` call — say explicitly 'rule 1 selects Exit verification, run the exit verification, complete implement, then start verify' rather than relying on '7 < 12, no row open or failed'; (2) the dirty-tree section says to preserve consumed iterations and attempts but not that uncommitted working-tree changes are preserved — add 'preserve the uncommitted changes' alongside 'ask for discard/reset authorization' as Before did; (3) the stop's second line is now `Stopped: ledger has no cap: ...` whereas Before printed the bare `ledger has no cap: ...` line — if the contract fixes the literal first lines, keep Before's exact form and put any 'Stopped' framing elsewhere so the boundary fact can't be read as a wording drift.",
-      "wallMs": 22234,
+      "feedback": "After delivers the Change: it adds the single ledger-path refresh after the cap-grant commit (which Before lacked entirely, so `continue` moves fails -> holds), keeps the shared missing-cap stop before any dispatch/verification in all three branches, forbids settings derivation, and routes verify/ship to After-the-loop step 1 while ship stays on verify. Two wording points risk drift even though they still read as holding: (1) the stop line now reads `Stopped: ledger has no cap: line - ...` whereas Before printed `ledger has no cap: line - ...` as the literal second line — keep the bare phrase as its own exact line so an exact-match reader never doubts `boundary`; (2) the dirty-tree section says 'preserve consumed iterations and attempts' and asks for discard/reset authorization but drops Before's explicit 'preserving changes' — add 'preserving uncommitted changes' to the dirty-tree stop sentence. Also, 'Require the refresh to leave implement complete' is ambiguous; prefer Before's explicit `phase_tracker({ action: \"complete\", phase: \"implement\" })` after the exit-verification run, then `start verify`, so the implement branch's rule-1 exit and the restored-start-verify ordering are unambiguous while keeping the one-refresh/no-init/no-reseed wording.",
+      "wallMs": 23188,
       "verdict": "improved"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
 }
