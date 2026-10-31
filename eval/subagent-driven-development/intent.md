@@ -8,6 +8,7 @@ Localize implement amendments to affected entries and historical evidence, prese
 Replace per-task spec and per-wave code review with one post-gate integrated wave review. Read unresolved child reports directly once at limit 300 with one compact retry; retain delegated source/spec/plan reads. Repair on the current integrated tree, using committed clean snapshots and delta-only apply for isolated waves, direct edits in-place. Rebuild only after repair delta apply failure; preserve siblings and original wave base. Fold escalation, convergence, funding and transcript-only recovery into one transition table. These are behavior-changing instructions; parent verification owns model results.
 
 ## Expected to move
+- gate-repair-before-review/protocol: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - chain-stop-blocked/protocol: fails -> holds - Retain siblings and dispatch one sequential delegate diagnosis step only after bounded capture recovery finds no identity-matched success; preserve ladder routing and no recursive diagnosis, initial-chain repeat or per-task reviews.
 - amend-baseline-missing-stop/recovery: fails -> holds - Recover schema-valid JSON despite guard suppression.
 - amend-baseline-missing-stop/exact-stop: fails -> holds - Exact baseline marker skips retry; ordinary findings retain one retry.
@@ -29,7 +30,7 @@ Replace per-task spec and per-wave code review with one post-gate integrated wav
 - local-amend-revalidation/staged: fails -> holds - Preserve declared staged repair without baseline execution.
 - local-amend-revalidation/repeated: fails -> holds - Authorized intermediate evidence does not trigger refresh or new consent.
 - local-amend-revalidation/semantic: fails -> holds - Reopen only semantic work changes after parent stamp.
-- one-review-per-wave/protocol: fails -> holds - one integrated review follows the green gate, including doc-only waves.
+- one-review-per-wave/protocol: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - direct-report-read/protocol: fails -> holds - bounded direct reads replace report relay workers.
 - repair-on-top/protocol: fails -> holds - repairs use committed current-tree snapshots and delta-only integration.
 - apply-failure-rebuild/protocol: fails -> holds - only delta apply failures trigger automatic rebuild.

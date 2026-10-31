@@ -57,6 +57,7 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
 
 ## Expected to move
+- spec-pr-regate-legs/remote-only: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - worker-critique-pr-source/dispatch: fails -> holds - Dispatch the three-check worker, not council members.
 - worker-critique-pr-source/correction: fails -> holds - Re-source from human input or agreed design, otherwise ask before cutting.
 - spec-pr-unmarked/provision: fails -> holds - Provision via pr-head with no thread fetch on the unmarked route.

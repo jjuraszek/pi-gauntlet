@@ -23,6 +23,7 @@ Keep Leg before Files and leg-specific test baselines and rule routing; preserve
 Add grant variants as two new samples, baseline-menu-under-grant and baseline-menu-aftermath, while preserving the existing parent-offers-fix-first-narrow-amend sample's failure/menu/pause as the no-grant control. Decode amend permission before taking baseline recommendations in initial planning and unchanged-command amendment aftermath. No model replay runs during implementation; verification owns the generated report.
 
 ## Expected to move
+- baseline-menu-aftermath/repeated-evidence-stop: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - implement-amend-from-head/originals: fails -> holds - Read both committed originals before edits and retry.
 - implement-amend-from-head/semantic: fails -> holds - Detect an anchored spec obligation change after a partial apply.
 - implement-amend-from-head/retry: fails -> holds - Retry without report inventory or duplicate edits.

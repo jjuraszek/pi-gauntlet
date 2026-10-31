@@ -1,7 +1,7 @@
 {
   "sample": "reject-stop",
   "arm": "candidate",
-  "skillSha": "e5f1f65589f26b53fe16283b1501f88bcafda39081ef5554fc0d50066cee8240",
+  "skillSha": "2fff485270548a0f88677e525545e336a90291660e557117742e752b85340ceb",
   "inputSha": "a3e3d2f95f8a472a8695b37f0f1b9d762f91f56e810e7f20703e5964de39ba05",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Wave 1 review 1: REJECT, so the run hard-stops\n\nThe gate was green and the initial `wave-reviewer` returned `REJECT` with 1 Critical finding. The transition table says `REJECT` means a hard stop with a stop note. So this turn has:\n\n- no repair round,\n- no escalated or funded round,\n- no rebuild,\n- no wave commit.\n\n## 1. Print the observation\n\nPrint it immediately, using the review tree recorded per `## Fix delta` when this review was dispatched:\n\n```text\nwave 1 review 1 verdict REJECT report /tmp/reports/reject.md tree <review-1 tree SHA as recorded>\n```\n\nIf that tree SHA was not captured at dispatch, do not reconstruct it. Print the line without inventing a value.\n\n## 2. Read the report once, within the bound\n\nThe stop note needs the `REJECT` findings, so this is the one admitted direct read for this report path in this wave:\n\n```ts\nread({ path: \"/tmp/reports/reject.md\", limit: 300 })\n```\n\nThere is no offset, no pagination and no relay child.\n\n**Only if** that read stops before the report's `Parallel-safe:` footer, re-dispatch the same reviewer once for a compact report. This is a foreground, one-step, schema-bound, file-only carrier in the owning checkout:\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"/workspace/project\",\n  chain: [{ parallel: [\n    { agent: \"wave-reviewer\",\n      output: \"/tmp/reports/wave1-review1-compact.md\",\n      outputMode: \"file-only\", outputSchema: WAVE_VERDICT_SCHEMA,\n      task: \"planPath: /workspace/project/doc/plans/feature.md; anchors: [\\\"### Task 1:\\\", \\\"### Task 2:\\\"]; Spec: /workspace/project/doc/specs/feature.md; Leg: <owning leg>; Rules: <combined task/leg Rules resolved in /workspace/project>; BASE_SHA: 1111111111111111111111111111111111111111; HEAD_SHA: WORKTREE; SCOPED_TEST_COMMANDS: <wave 1 manifest tests union, verbatim>. Compact report: findings and footer only, at most 150 lines\" }\n  ], stopOn: { path: \"/verdict\", in: [\"FIX_FIRST\", \"REJECT\"] } }]\n})\n```\n\nThen read the compact report under the same bound:\n\n```ts\nread({ path: \"/tmp/reports/wave1-review1-compact.md\", limit: 300 })\n```\n\nIf the compact report also overflows, stop and name the oversized path instead.\n\n## 3. State that stays held\n\n- **Shell commands:** none run. There is no `reset --soft`, no `commit` and no `apply`, and the integrated tree stays as it is.\n- **Tracker:** indices for Task 1 and Task 2 stay `in_progress`. They are not marked `failed` or `complete`, because that waits on the human's decision.\n- **Phase:** stays `implement`, and no further wave starts.\n\n## 4. Stop note\n\nEmit this in the parent turn from the held observations and the bounded read only, with no further dispatch.\n\n```\ngauntlet: question\nStopped on task <n from finding attribution> (<title>).\n\nProblem: The integrated wave 1 review returned REJECT with 1 Critical finding; the change must not land as written.\n  <file:line> - <quoted Critical finding from /tmp/reports/reject.md>\n\nFix options:\n  a) <concrete change named in the finding's Fix line>\n  b) amend spec section <X> / plan task <n> so <...>\n  c) rebuild task <n> from the wave base (rebuild recipe)\n\nPick one, or give another fix.\nRecommendation: <option> - <why>\n```\n\nThe bracketed placeholders get filled only from the read report. No finding content is invented here. The turn ends after the note.\n",
-      "words": 455,
-      "wallMs": 17062,
+      "text": "# Wave review returned REJECT: hard stop\n\nThe initial `wave-reviewer` returned `REJECT` with Critical 1. Under step 5 and the transition table, `REJECT` is a **hard stop with a stop note**. That rules out several actions:\n- no repair round and no change to `failed[n]`\n- no escalation, funded round or rebuild\n- no wave commit\n- no `phase_tracker` change\n\nTasks 1 and 2 stay `in_progress`, and the phase stays `implement`.\n\n## 1. Print the review observation\n\n```text\nwave <w> review 1 verdict REJECT report /tmp/reports/reject.md tree <review-tree-sha recorded at dispatch>\n```\n\nThe tree SHA comes from the `fix-delta-tree-shell` block run at this review's dispatch. It was not supplied, so I leave it as a placeholder and do not reconstruct it.\n\n## 2. Make one bounded direct read of the report\n\nThe stop note needs the REJECT finding, so one direct read is allowed. This is the only read for this report observation in this wave.\n\n```ts\nread({ path: \"/tmp/reports/reject.md\", limit: 300 })\n```\n\nThere is no offset and no pagination. No `scout` or `delegate` relay is used.\n\n## 3. Compact re-dispatch, only if the read misses the footer\n\nRun this only if the read does not reach the report's `Parallel-safe:` footer line. It re-dispatches the same reviewer once, foreground, as a one-step carrier in the owning checkout:\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"/workspace/project\",\n  chain: [{ parallel: [\n    { agent: \"wave-reviewer\",\n      output: \"/tmp/reports/wave<w>-review1-compact.md\",\n      outputMode: \"file-only\", outputSchema: WAVE_VERDICT_SCHEMA,\n      task: \"planPath: /workspace/project/doc/plans/feature.md; anchors: [\\\"### Task 1:\\\", \\\"### Task 2:\\\"]; Spec: /workspace/project/doc/specs/feature.md; Leg: <owning leg>; Rules: <task Rules> + <leg> Rules from home ## Legs, resolved in the owning checkout; BASE_SHA: 1111111111111111111111111111111111111111; HEAD_SHA: WORKTREE; SCOPED_TEST_COMMANDS: <wave manifest tests union>. Compact report: findings and footer only, at most 150 lines\" }\n  ], stopOn: { path: \"/verdict\", in: [\"FIX_FIRST\", \"REJECT\"] } }]\n})\n```\n\nIts saved report is then read once under the same rule: `read({ path: \"/tmp/reports/wave<w>-review1-compact.md\", limit: 300 })`. If that one also overflows, stop and name the oversized path.\n\n## 4. Emit the stop note in the parent turn\n\nThe note is built only from the held observations and the bounded read. No further dispatch or shell command follows it.\n\n```text\ngauntlet: question\nStopped on task <n> (<title>).\n\nProblem: the integrated wave review returned REJECT (1 Critical): <one sentence from the read finding>.\n  <file:line> - <quoted Critical finding from /tmp/reports/reject.md>\n\nFix options:\n  a) <concrete change named in the finding's Fix line>\n  b) amend spec section <X> / plan task <n> to <change>, via the delegated amendment route\n  c) <optional third>\n\nPick one, or give another fix.\nRecommendation: <option> - <why>\n```\n\nThe finding text, file:line, options and recommendation are filled only from the actual report content. None of it has been read yet, so I invent none of it. The note omits a `budget:` line unless an `Amend-grant` token exists, and it carries no trajectory, round history or report paths.\n\nThe turn then ends and waits for the human's choice. A rebuild runs only if the human asks for one.\n",
+      "words": 469,
+      "wallMs": 18835,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "`REJECT` is a hard stop, not a repair trigger. Keep both tracker indices `in_progress`; do not commit, start another task, or dispatch a repair/re-review.\n\nThe Critical finding’s text is not supplied. The only next tool action is one bounded direct read for the stop-note evidence:\n\n```json\n{\n  \"path\": \"/tmp/reports/reject.md\",\n  \"limit\": 300\n}\n```\n\nDo not paginate or delegate a report relay. No shell command or schema-bound subagent carrier is authorized on this `REJECT` path.\n\nStop here pending that read. The final stop note must quote the actual residual finding and offer evidence-backed fix options; those cannot be invented from the verdict and count alone.\n",
-      "words": 101,
-      "wallMs": 10560,
+      "text": "`REJECT` is a hard stop, not a repair-round trigger. Keep both tracker indices `in_progress`; do not commit or start another wave.\n\nThe Critical finding is not supplied, so the next permitted operation is one bounded direct read for stop-note evidence:\n\n```ts\nread({\n  path: \"/tmp/reports/reject.md\",\n  limit: 300\n})\n```\n\nDo not paginate or delegate a report relay. If this read does not reach the report footer, follow the prescribed compact-reviewer fallback once.\n\nNo shell command or implementation carrier is authorized by the `REJECT` verdict. Stop here pending the bounded read; do not invent the finding, fix options, or a repair outcome.\n",
+      "words": 98,
+      "wallMs": 11701,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "043bb800da3e03014b501fc963605d4cc8bdffc912e3378c3ae1fa213f1d5dde",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
+      "intentSha": "b81041f7ff7eb244cf77ede17604d6607614b045d2e2b9ab11a13d3912eb164e",
       "baselineOutputSha": "2758761fd8df5c72b01332c93a738f6e3685be06ba92f5b34d1b30b705882e3a",
-      "candidateOutputSha": "af69900a5960d7c72b2304c87dd0563478cbe71ebc4a8f8d3c9eec9155a26729",
+      "candidateOutputSha": "7e1d97578c626253c9a3912d145981903011cab88c7bdeb797a69f7e8b892d67",
       "facts": {
         "protocol": {
           "before": "holds",
@@ -44,16 +44,16 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy the protocol fact: each treats REJECT as a hard stop, performs exactly one bounded direct read (limit 300, no offset, no relay child) justified by the stop note's need for the Critical finding, offers a single compact re-dispatch only on footer overflow, keeps tracker indices in_progress with no complete/failed transition, runs no repair, rebuild, reset, apply or commit, and ends with a stop note carrying a Recommendation footer. The After wording preserved every element Before had while delivering the Change (naming `Parallel-safe:` as the overflow footer, one-step schema-bound file-only carrier, held-state section). One small tightening for After: the stop-note 'Problem' line restates the verdict count rather than the F1 problem sentence, and option c says 'rebuild recipe' without stating it is human-elected only — keeping Before's phrasing ('one-sentence F1 problem from report'; 'from WAVE_BASE_SHA with a revised approach') would make the no-rebuild-without-decision boundary slightly more explicit without changing behavior.",
-      "wallMs": 11229,
+      "feedback": "Both outputs satisfy the fact: each treats the green-gate REJECT as a hard stop, makes exactly one bounded direct read of /tmp/reports/reject.md with limit 300 (no offset, no relay), reserves the compact re-dispatch for the footer-miss case only, ends with a stop note carrying a Recommendation footer, and explicitly forbids repair, rebuild, commit and tracker completion while leaving Tasks 1 and 2 in_progress. After kept everything Before kept and added nothing that moves the fact; its 'rebuild runs only if the human asks' sentence and 'no change to failed[n]' line are consistent with the hard-stop rule. To stay safe as the Change is folded in, keep the REJECT row of the transition table worded as an unconditional stop with the single bounded read justified 'only for the stop note' and the Recommendation line as the final footer, and avoid letting the new repair-on-top / delta-apply / rebuild-after-apply-failure language leak into the REJECT path (e.g. do not describe rebuild as an automatic option there); After already does this correctly by scoping rebuild to a human request and listing it only as a stop-note option.",
+      "wallMs": 11984,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "043bb800da3e03014b501fc963605d4cc8bdffc912e3378c3ae1fa213f1d5dde",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "da48507280774292a140e2c90db881b00072feaf1dbaef8fc7630c89584fc226",
+      "intentSha": "b81041f7ff7eb244cf77ede17604d6607614b045d2e2b9ab11a13d3912eb164e",
       "baselineOutputSha": "16aaec4faad4742a80dd03ab17a4146a9216d1c5ad0e38c0167706c54c5a334d",
-      "candidateOutputSha": "7fad0cca4fa935e590a1056c50f2ba25d7f2589067752002f087fa308e403364",
+      "candidateOutputSha": "9f28c71461b3771d5fd96dfb996daeb97ddb940574812fdfd2757314bb2bcb8c",
       "facts": {
         "protocol": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs treat REJECT as a hard stop, keep both tracker indices in_progress, forbid commit/repair/rebuild/new wave, and limit the next action to a single bounded direct read of /tmp/reports/reject.md at limit 300 before composing a stop note with the residual finding and fix options, so the protocol fact holds unchanged. Two regressions in After are worth fixing even though they did not flip the fact: After dropped Before's explicit fallback ('if this read does not reach the report footer, follow the compact-report recovery rule'), which is the bounded-read overflow check the Change explicitly names (Parallel-safe:/TRAJECTORY: footer), and After's carrier lost its tool name (`read(...)` became a bare JSON object), weakening the 'concrete next command' requirement. Neither output names the stop-note Recommendation footer explicitly; a wording like 'the stop note ends with a Recommendation footer listing evidence-backed fix options' plus restoring the named read call and the one compact retry on footer overflow would keep everything Before kept while delivering the direct-report-read change.",
-      "wallMs": 11283,
+      "feedback": "Both outputs satisfy the fact: hard stop, one bounded limit-300 direct read of the REJECT report for stop-note evidence, trackers left in_progress, no commit, no repair, no further wave, and no invented findings. After is slightly weaker in explicitness: the enumerated prohibition shrank from 'do not commit, dispatch a repair, or start another wave' to 'do not commit or start another wave', leaving the no-repair point to be inferred from 'not a repair-round trigger' and the carrier sentence, and neither output names the stop note's Recommendation footer. To keep the fact robustly held while delivering the Change (bounded direct reads, single compact retry), restore the explicit list — 'do not commit, dispatch a repair or rebuild, complete a tracker entry, or start another wave' — and state that the stop note closes with a Recommendation footer populated only from the read finding.",
+      "wallMs": 13484,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "e25ec0abe372cc4b66b6bc328a66f896e226cd73"
+  "repoSha": "e57328a3bd686e0a92961d8486b04c91279610fa"
 }
