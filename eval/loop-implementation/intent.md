@@ -1,4 +1,4 @@
-for: b1d18764afc0c439977759b0a2b05bc8dcff97b59c61345cd99f7e21bc68815b
+for: 626b7f9e6fd51dd4ad554f81879aea75522e1b5e6cfab25a78fea6e1e0b0fcf3
 
 ## Change
 Preserve the exact home pending tuple and bumped ledger iteration in row and seed commit bodies, reusing the companion attribution prefix while clearing the ledger tuple. Validate those fields before terminal projection. Extend tracker-boundary with both home commit shapes and their consumed counts; preserve all existing facts. The paired gauntlet-resume recovery sample starts after the child commit with no captured tuple and checks admission before refresh. Parent verify owns model runs, assembly-hash updates and result records.
