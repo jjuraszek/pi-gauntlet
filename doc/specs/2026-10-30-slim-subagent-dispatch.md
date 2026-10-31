@@ -1,5 +1,7 @@
 # Slim the subagent-driven-development dispatch protocol
 
+> **Superseded by:** [doc/specs/2026-10-31-implement-failure-path-recovery.md](./2026-10-31-implement-failure-path-recovery.md) - "Chain stopped or failed" under The wave loop, and the report-carried original inventory under Implement-local plan maintenance
+
 **Goal:** Cut implement-phase dispatch count by replacing the per-task spec-review chain plus per-wave code review with one `wave-reviewer` dispatch per wave, letting the orchestrator read child reports directly, and making repair-on-top the re-dispatch default - while keeping execution escalation to `escalationLoop.implModel` working.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves
