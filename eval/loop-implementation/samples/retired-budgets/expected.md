@@ -1,0 +1,4 @@
+- counter-only: judged: A may dispatch row 2 on the ordinary model at attempts 1 of allowance 4 despite iterations 900; neither the historic cap grant nor fund 9 adds attempts or creates a total iteration limit, and the budget-only value gives no automatic amendment permission.
+- exhaustion: judged: B stops at attempts 4 of effective allowance 4 despite fund 9, offers retry and rows +N alongside amend/stop, and does not offer a cap grant or funded rounds or a second escalation.
+- coordinated-return: judged: C records only row 2 done at attempts 3 with evidence and the decision, clears pending, and preserves row 3, mappings, allowance 6 and consumed iterations 901 rather than inventing or restoring a cap.
+- legacy-route: judged: D stops with the missing-allowance diagnostic and routes through gauntlet-resume before verification; does not offer cap +N, derive a new cap or treat the completed ledger as exempt.

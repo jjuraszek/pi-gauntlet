@@ -1,0 +1,100 @@
+{
+  "sample": "retired-budgets",
+  "arm": "candidate",
+  "skillSha": "fafa8e540e6d45e077b00fa6b4b417b1f03d1cac7372ab2eb4e6010635758dcd",
+  "inputSha": "58e20fe87c5820e26fab6c625cb8b9206c4374afe547b78093d780bfba2e8431",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Loop-driver narration for snapshots A–D\n\nNo call below has run. Each snapshot is evaluated independently.\n\n## A: Ordinary dispatch for row 2\n\n**What limits the next dispatch**\n- The ledger has `allowance:` and no `cap:` header, so it passes the pre-table check.\n- `iterations: 900` is only a dispatch counter. It limits nothing.\n- Row 2's effective allowance is 4: the `allowance: 4` header plus 0 `row 2 retry | … | allowed attempts <m>` lines.\n- Rule 2 does not fire, because 1 < 4.\n- Rule 3 (stagnation) is clear.\n- Rule 4 allows a dispatch.\n\n**Target:** row 2. It is the still-failed row named by the latest operational decision, and the first failed row.\n\n**Escalation check:** escalation applies only when attempts == effective allowance − 1, which is 3. Row 2 is at 1, so there is no escalation, no `gauntlet_setting` call and no model override.\n\n**What the old grant buys:** nothing.\n- `cap +50 | old grant` is legacy grant history.\n- It is excluded from allowance arithmetic.\n- It is skipped when choosing the target and the `previous decision:` input.\n- It stays in `## Decisions` unchanged.\n\n**Automatic amendments:** not permitted.\n- `**Amend-grant:**` decodes to `fund 9 fix rounds`, which is a waves-only budget token. The driver ignores it.\n- A budget-only value carries no amend permission.\n- It is never consulted for row escalation.\n\n**Dispatch steps**\n1. Record `HEAD_BEFORE`. Save a copy of the ledger. Set i = 900.\n2. Write `iterations: 901` and `pending: 2 | home | <HEAD_BEFORE sha>` to the working ledger. Commit nothing extra.\n3. Call `plan_tracker({ action: \"refresh\", path: <abs ledger path> })`.\n4. Create a unique output path with `mktemp` outside the repo.\n5. Call `subagent`:\n   - `agent: \"loop-implementer\"`, `context: \"fresh\"`, `async: false`\n   - `cwd: <abs worktree>`, `output: <tmp path>`, `outputMode: \"file-only\"`\n   - `acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" }`\n   - task:\n     ```\n     iteration: 900\n     spec: <abs spec>\n     ledger: <abs ledger>\n     base: <base>\n     target: 2\n     previous decision: <latest row 2 operational decision line>\n     hint: none\n     ```\n   - No `model`.\n\n**Admission rule:** the task line carries the pre-bump count (900). The commit body must carry `pending: 2 | home | <sha>` and then `iteration: 901`. These two counts are never compared to each other.\n\n## B: Budget stop on row 2\n\n**Why it stops**\n- Row 2's effective allowance is still 4: the header value of 4, no retry lines, and the old `cap +50` adds nothing.\n- Attempts are 4, which meets the effective allowance, so rule 2 applies: a human stop.\n- There is no dispatch, no iterations bump, no `pending:` write and no commit.\n- Implement stays active. Attempts are not reset or reduced.\n- The driver reads and applies `menu-layout` before rendering.\n\n**Output**\n```\ngauntlet: question\nStopped on row 2 (<row 2 text from the spec>)\nProblem: <row 2 evidence cell, verbatim> — last decision: <latest row 2 decision line, verbatim>\nPreserve every row's attempts.\nescalated round spent\n\n1. Retry with hint — appends `row 2 retry | <hint> | allowed attempts 5`, commits `loop: retry row 2`, starts new empty-child/validation-miss windows; attempts stay 4.\n2. Raise allowance (`rows +N`, N ≥ 1) — appends `rows +N | <words>`, raises the shared `allowance:` header by N for every row, commits once as `loop: raise allowance`; iterations and attempts are unchanged and no window resets.\n3. Amend — through the /skill:brainstorming amendment surface; cut only by an approved disposition.\n4. Stop — implement stays active and branch state is preserved.\n\nRecommendation: <option or none> - <why, grounded in the evidence>\n```\n\n**What each option leads to (no choice is made here)**\n- **After retry:** row 2 becomes dispatchable at effective allowance 5. Escalation is already spent, so every later attempt runs with no model override and gets no second escalation marker.\n- **After `rows +N`:** the same holds, with effective allowance 4 + N.\n- **Recommendation limits:**\n  - Retry, `rows +N` and redraw always wait for the human.\n  - The Amend-grant gives no amend permission, so nothing is taken automatically.\n\n## C: Coordinated companion return for row 2 (repo-b)\n\n**One home-ledger parent commit:** `loop: record repo-b row 2`.\n\n**What the parent records**\n- **Row 2:**\n  - status `done`\n  - attempts `3`\n  - evidence = the validated bounded passing evidence plus the companion commit SHA\n- **Decisions:** the validated companion decision line is appended.\n- **Pending:** the `pending: 2 | repo-b | <sha>` line is removed.\n\n**What the parent preserves**\n- **Counters:**\n  - `iterations: 901`, already consumed, with no second bump\n  - `allowance: 6`\n- **Headers:**\n  - `**Spec:**`, `base:`, `verification:`\n  - every `base <repo>:` / `seeded <repo>:` pair\n- **Mapping:** `## Leg mapping`.\n- **Other rows:** row 3 stays `open | 0` with empty evidence, and every other row is unchanged.\n- **History:** every prior decision is kept.\n\n**Bookkeeping**\n- This parent commit does not count toward child-only empty-commit stagnation.\n- The conforming return resets the consecutive-miss count.\n- The next `previous decision` is this new line.\n- After the commit: `plan_tracker({ action: \"refresh\", path: <abs home ledger> })`.\n\n**Next target:** row 3 in repo-a, assuming no other row is failed and no retry is unresolved.\n- Effective allowance is 6 plus row 3's retry lines. Attempts 0 is not 5, so there is no escalation.\n- Capture the home and repo-a heads, and save a pre-dispatch snapshot.\n- Write `iterations: 902` and `pending: 3 | repo-a | <repo-a HEAD>` durably, then refresh.\n- Dispatch with:\n  - `cwd`: the repo-a checkout\n  - repo-a's base\n  - `Leg:` and `Rules:` for repo-a\n  - the mapped original AC for row 3\n  - `iteration: 901`\n- The commit body must carry `iteration: 902`.\n\n## D: Completed ledger with `cap: 49` and no `allowance:`\n\n**Route**\n- The pre-table check fails: the ledger has no `allowance:` line and has a `cap:` header. This check applies even to completed ledgers.\n- The driver therefore does not evaluate rule 1, does not refresh to completion and does not start verify.\n\n**Output**\n```\nledger has no allowance: line - resume through /skill:gauntlet-resume\n```\n\n**What does not happen:** no settings call, dispatch, tracker write or commit.\n\n**Next route:** `/skill:gauntlet-resume`.\n- It handles any pending recovery and the `loop: migrate allowance` step before refresh.\n- Only after that does the driver re-enter the ordered table.\n",
+      "words": 946,
+      "wallMs": 39681,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are independent snapshots. No calls or changes below have been executed.\n\n### A — Dispatch remains within budget\n\n- **Effective allowance for row 2:** 4. Its attempts are 1, so three attempts remain.\n- `iterations: 900` is only a dispatch counter; it does not limit dispatches.\n- `cap +50 | old grant` buys **nothing**. It neither increases the allowance nor counts as a row retry.\n- `Amend-grant: fund 9 fix rounds` supplies only a waves-budget token, **not automatic amendment permission**.\n\n**Next target:** row 2. No escalation lookup is needed: attempts 1 is below the last-attempt threshold of 3.\n\n**Next durable changes and calls:**\n1. Save the pre-dispatch ledger and record the actual home HEAD.\n2. Write `iterations: 901` and `pending: 2 | home | <actual HEAD>`; preserve allowance, attempts, rows and decisions. Do not make a parent commit for this write.\n3. Call `plan_tracker({ action: \"refresh\", path: <absolute ledger path> })`.\n4. Create a unique absolute temporary output path outside the repository.\n5. Dispatch exactly one foreground `loop-implementer`, using the supplied contract, with:\n   - `iteration: 900`\n   - `target: 2`\n   - the latest operational decision, skipping the legacy grant\n   - `hint: none`\n   - no model override.\n\n**Human-facing dispatch explanation:**\n\n> Dispatching row 2: attempts 1 of effective allowance 4. The task carries pre-bump iteration 900; the commit body must carry consumed iteration 901. Those values are intentionally different.\n\nOn return, first require a clean tree and exactly one new commit. Then validate exact attribution, iteration 901, removal of pending, target-only mutable-cell changes, attempts 2, bounded evidence and exactly one new conforming decision. A boundary rejection stops; an ordinary validation miss receives the prescribed parent repair, not extra budget.\n\n### B — Human budget stop\n\nRow 2 has attempts 4 against effective allowance 4. **Rule 2 stops before dispatch**, regardless of iterations or amendment grant. Its escalation is already spent.\n\nNo dispatch, settings lookup, iteration bump or durable budget change is authorized by this snapshot.\n\n**Available budget actions, awaiting a human choice:**\n\n- **Retry with hint:** append  \n  `row 2 retry | <human hint> | allowed attempts 5`  \n  and commit `loop: retry row 2`, then refresh. Attempts stay 4; iterations stay 900. This grants this row one additional attempt and starts new stagnation/validation-miss windows.\n- **`rows +N`:** increase shared allowance from 4 to `4 + N`, append `rows +N | <optional words>`, and commit both changes once as `loop: raise allowance`, then refresh. All attempts and iterations remain unchanged; neither window resets.\n- **Amend:** use the approved amendment surface; the budget-only grant does not authorize automatic amendment.\n- **Stop:** preserve branch state and keep implement active.\n\nThe spent escalation remains spent under either budget action. A subsequently authorized dispatch has no escalation model override.\n\n**Human-facing output:** the actual row text, evidence cell and latest operational decision were not supplied, so their required verbatim contents cannot be invented. The stop would begin and end as follows, with those actual contents inserted:\n\n```text\ngauntlet: question\nStopped on row 2 (actual spec row text)\nProblem: quote the actual evidence cell and latest operational decision.\nBudget: attempts 4; effective allowance 4.\nescalated round spent\nPreserve every row's attempts.\n\nRetry with hint\nrows +N\nAmend\nStop\n\nRecommendation: none - no concrete repair is established by this snapshot.\n```\n\n### C — Admit and record the companion result\n\nAll stated boundaries and validation checks pass. The parent uses the validated **companion commit**, not its reply, to record the result.\n\n**Durable parent changes:**\n- Row 2: set status to `done`, attempts to **3**, and evidence to the validated passing evidence, recording the companion SHA in evidence.\n- Append exactly the validated bounded decision.\n- Remove the dispatched `pending:` tuple.\n- Preserve:\n  - `iterations: 901` — already consumed; **no further bump for admission**\n  - `allowance: 6`\n  - row 3 as `open`, attempts 0, with its existing evidence\n  - every other row, prior decision, mapping, base and seeded-state header.\n\nCommit the home ledger once as **`loop: record repo-b row 2`**. This is a parent recording commit, not a child row commit and not part of child-only stagnation counting. Refresh once after each admitted child or parent `loop:` commit using:\n\n`plan_tracker({ action: \"refresh\", path: <absolute ledger path> })`\n\n**Next target under the supplied unresolved-row state:** row 3 in repo-a. Row 2’s durable `done` status overrides any earlier failed-target suggestion. Row 3 has effective allowance 6 and needs no escalation.\n\nAt its subsequent dispatch—not during this admission—the task would carry iteration **901**, while the persisted header and required commit body would carry **902**, with a new tuple identifying row 3, repo-a and its actual pre-dispatch HEAD.\n\n**Human-facing admission output:**\n\n> Admitted repo-b row 2: done, attempts 3; consumed iteration 901 preserved. The dispatched task carried pre-bump iteration 900; its body carried 901. Next target: row 3 in repo-a.\n\n### D — Route through resume, not verification\n\nThe allowance-header check applies even to completed ledgers. A `cap:` header cannot substitute for `allowance:`.\n\n**Next route:** stop and resume through `/skill:gauntlet-resume`, which owns the migration procedure. Do not migrate, refresh into completion, start verify or run verification here.\n\n**Human-facing output:**\n\n```text\ngauntlet: question\nStopped: ledger has no allowance: line - resume through /skill:gauntlet-resume\nPreserve every row's attempts.\nRecommendation: none - the required resume migration must precede completion checks.\n```\n",
+      "words": 827,
+      "wallMs": 40530,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "17b3ce50ef7418cba507a76ff3b3bbec5ce661d30992884e24c02e0c177d34b3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4b5d5fc308b1295ed2974385d3823f6832bd3682e0cbb53591b660f4120e495d",
+      "baselineOutputSha": "554e196addb419fcfe9dc840ec4df57b89b517a41857a25f9ad2d7e278ddbe32",
+      "candidateOutputSha": "4bd5eebfd8231d18e636d38fba5a3a236aaa3ff6fa9c525cc562a8f41c27733d",
+      "facts": {
+        "counter-only": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "exhaustion": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "coordinated-return": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "legacy-route": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change on all four snapshots: A dispatches row 2 at 1 of 4 with iterations 900 explicitly demoted to a counter, the cap +50 grant and fund 9 excluded from arithmetic and amend permission; B stops at 4 of 4 with only Retry, rows +N, Amend and Stop and no cap/funded/second-escalation offer; D stops on the missing-allowance diagnostic and routes through gauntlet-resume before verify. Note that coordinated-return already held in Before at the recording step (row 2 done/3, pending cleared, allowance 6 and iterations 901 preserved, no cap added) — Before only drifted in its 'Next' section by offering cap +N; After keeps that fact and fixes the follow-on routing, so no fact regressed. Two minor wording risks worth tightening: in A, 'Set i = 900' alongside 'iteration: 900' in the task and 'iteration: 901' in the commit body could be read as two consumed counts — phrase it as one pre-bump task value and one persisted bumped count; and in B the line 'escalated round spent' is placed after the preserve line rather than with the problem block, which a reader could miss when checking that no second escalation is offered. Otherwise the After wording keeps every Before-held fact while removing cap checks, cap grants and loop funding.",
+      "wallMs": 22327,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "17b3ce50ef7418cba507a76ff3b3bbec5ce661d30992884e24c02e0c177d34b3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4b5d5fc308b1295ed2974385d3823f6832bd3682e0cbb53591b660f4120e495d",
+      "baselineOutputSha": "b927052f6fa5246828fdf268da36ccc97bd28cbe0ccc24cdc0e5a13aab81ca61",
+      "candidateOutputSha": "e307c7a4931d37096df56044b8524e52b0ba84ee7c773504f5b5693c62fc2017",
+      "facts": {
+        "counter-only": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "exhaustion": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "coordinated-return": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "legacy-route": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers every intended movement: A now dispatches row 2 at attempts 1 of allowance 4 with iterations 900 treated as a pure counter, the legacy cap grant buying nothing and fund 9 conferring no amendment permission; B stops at 4 of 4 and offers only retry/rows +N/amend/stop with the escalation kept spent and no cap grant, funded round or second escalation; C records only row 2 and preserves row 3, mappings, allowance 6 and iterations 901 without reaching for a cap; D stops on the missing-allowance diagnostic and routes to gauntlet-resume instead of treating the completed ledger as exempt or proceeding to verify. Before failed all four because the missing-cap stop and the 3+9 funded-allowance arithmetic dominated each section (and C's recording, though correct, was followed by a cap +N recommendation to restore a cap). Two small wording risks to watch in After: A's description of fund 9 as a 'waves-budget token' is an unexplained term that a reader might take as a new budget, and B's retry decision text 'allowed attempts 5' could be read as reintroducing a historical allowed-attempts number; phrasing these as 'a non-budget grant that adds no attempts' and 'retry adds one to the effective allowance (now 5)' would keep the facts unambiguous while delivering the same change.",
+      "wallMs": 17763,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "228abf6a6234716e528f084972bedf87166fee92"
+}

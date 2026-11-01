@@ -1,6 +1,8 @@
-for: c43167288d4a252894594ddd0582146e8fdf1c5c2ec7bbc4932c8cef15f4583b
+for: f69cb9167d4fa3bf4e17933cf997333a786edac593ca45cd2591e34c9282cd49
 
 ## Change
+
+Keep fix-round budget decoding waves-only without changing either engine's amendment consent. Extend loop-ledger-amend with allowance preservation and budget-only/mixed-grant comparisons for both engines. Run that sample and the existing engine-waves control now; leave full-target evaluation to the parent at the end of the ledger.
 
 Seed the loop ledger from a 4/5 allowance suffix, reject malformed allowance values before writes, and ignore deprecated loop funding with a waves-only note. Replace loop-funded-reply's funding facts with ignored-token/default behavior, add explicit override and waves controls, and update loop-gate's suffix affordance. Run those partial samples now; the parent owns the full-target end run. Keep waves funding and exact grant/engine persistence otherwise unchanged.
 
@@ -61,6 +63,8 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
 
 ## Expected to move
+- loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
+- loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
 - spec-pr-regate-legs/remote-only: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - worker-critique-pr-source/dispatch: fails -> holds - Dispatch the three-check worker, not council members.
 - worker-critique-pr-source/correction: fails -> holds - Re-source from human input or agreed design, otherwise ask before cutting.

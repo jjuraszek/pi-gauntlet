@@ -21,7 +21,7 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   assert.ok(driver.indexOf('action: "complete", phase: "implement"') < driver.indexOf('## After the loop'));
   assert.ok(continuation.indexOf('whole-diff `wave-reviewer`') < continuation.indexOf('separate fresh `conformance-reviewer`'));
   for (const fact of ['effective allowance', 'count of that row', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'Exactly one NEW', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
-  assert.match(driver, /Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit\. Funding alone resets neither window\. Preserve every row's attempts and the total iteration cap\./);
+  assert.match(driver, /Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit\. Raising allowance resets neither window\. Preserve every row's attempts\./);
   assert.match(driver, /Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row survives on the branch, independently of `iterations`/);
   assert.match(driver, /Validate by dispatched `target`, not iteration number/);
   assert.match(driver, /For `target: seed`, explicitly instruct the child to apply its seed contract even when iteration is greater than 0/);
@@ -73,7 +73,7 @@ test('effective allowance counts retries rather than historical ceilings or othe
     'attempts >= effective allowance', "ledger's `allowance:` plus the count of that row's",
     '`row <n> retry | ... | allowed attempts <m>` lines in `## Decisions`',
     'Count each retry once', 'historical, not an absolute override',
-    'Ignore escalated decisions, cap grants and legacy funded-round budgets',
+    'Ignore every other decision and grant',
     'every coordinated entry, regardless of leg', 'allowance 4 and two retries',
     'raising the shared header to 7 makes it 9', 'an unretried row gets 7',
     'already at or above its effective allowance is exhausted', 'Never reset or reduce attempts',
@@ -137,7 +137,7 @@ test('automatic exit verification repair is once per flow under both options', (
   for (const token of ['loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun the failing checkout\'s gate pairs once', 'gate set', 'Commit verification-produced tracked changes', 'escalated round spent']) assert.ok(gate.includes(token), token);
   for (const token of ['Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only']) assert.ok(driver.includes(token), token);
   for (const token of [
-    'approval option 4 and option 5 alike', 'never consult amend permission or an iteration cap',
+    'approval option 4 and option 5 alike', 'never consult amend permission or gate on the iteration count',
     'gauntlet_setting({ key: "escalationLoop" })', "resolver's main-loop model fallback",
     'Problem: escalationLoop.implModel unavailable', 'without a bump or spent marker',
     'bump iterations once', 'record `HEAD_BEFORE` in the failing leg',
@@ -224,7 +224,7 @@ test('coordinated reference reads use held membership before dispatch decisions'
     assert.match(line.split('. ')[0], /stop on an unreadable reference naming its path, never reconstruct it/);
   }
   assert.match(entryRead, /At seed and at an authorized restore/);
-  assert.match(entryRead, /On fresh entry apply its `## Entry` section instead of the home-only skeleton and cap calculation below/);
+  assert.match(entryRead, /On fresh entry apply its `## Entry` section instead of the home-only skeleton below/);
   assert.match(entryRead, /On a restore apply its `## Resume` section before the dirty-tree stop and before any pending recovery/);
   assert.ok(dispatch.startsWith('When the held membership'));
   assert.ok(dispatch.indexOf(path) < dispatch.indexOf('| 1 |'));
@@ -270,7 +270,7 @@ test('terminal home results refresh only after admission and retain pending on b
   assert.match(validation, /`iterations` \+1 and removal of the dispatched `pending:` line.*reject every other header change/);
   assert.match(validation, /Seed or ordinary.*committed tuple.*ordinary miss/);
   assert.match(validation, /Clear `pending:`.*commit `loop: repair row <n>`/);
-  assert.match(driver, /Retry, cut, amend, raise-cap and escalate commits never clear the tuple/);
+  assert.match(driver, /Retry, cut, amend, raise-allowance and escalate commits never clear the tuple/);
   assert.match(persona, /Remove the `pending:` line from the ledger in your commit/);
   assert.match(persona, /Preserve row identifiers, row text, ledger headers \(except removal of `pending:`\)/);
   assert.match(persona, /Stage the seeded evidence changes and ledger.*remove `pending:`/);
@@ -285,10 +285,10 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const after = driver.split('\n## After the loop\n')[1];
   const gate = after.split('\n1. ')[1].split('\n2. ')[0];
-  for (const token of ['gate set', 'Commit verification-produced tracked changes', 'approval option 4 and option 5 alike', 'escalationLoop.implModel', 'loop: repair verification', 'exactly one commit', 'all ledger rows unchanged', 'failing checkout', 'verify active and implement complete', 'amend or stop only', 'no `Retry with hint`, `rows +N` or `cap +N`']) assert.ok(gate.includes(token), token);
+  for (const token of ['gate set', 'Commit verification-produced tracked changes', 'approval option 4 and option 5 alike', 'escalationLoop.implModel', 'loop: repair verification', 'exactly one commit', 'all ledger rows unchanged', 'failing checkout', 'verify active and implement complete', 'amend or stop only', 'no `Retry with hint` or `rows +N`']) assert.ok(gate.includes(token), token);
   assert.match(driver, /Implement-phase stops only: leave implement active/);
-  assert.match(driver, /clean cap stop.*`cap \+N` alongside.*`Retry with hint`.*Amend.*Stop/);
-  assert.match(driver, /Only the verify-step-1 verification-failure stop restricts.*amend\/stop/);
+  assert.match(driver, /Offer retry and `rows \+N` only at row stops.*alongside Amend and Stop/);
+  assert.match(driver, /verification-failure stop keeps amend\/stop only/);
   const expected = readFileSync(new URL('eval/loop-implementation/samples/cap-and-exit-verification/expected.md', root), 'utf8');
   assert.match(expected, /Closed rows run the gate set at verify step 1; option 4 automatically repairs once without amend permission or a cap check/);
   const intent = readFileSync(new URL('eval/loop-implementation/intent.md', root), 'utf8');
@@ -372,7 +372,7 @@ function companionFixture(target) {
   const [home, companion] = repos;
   const base = git(companion, 'rev-parse', 'HEAD');
   const pending = `pending: ${target} | repo-b | ${base}`;
-  const saved = `# Ledger - loop engine\nbase: ${git(home, 'rev-parse', 'HEAD')}\niterations: 1\ncap: 14\nbase repo-a: ${base}\nseeded repo-a: yes\nbase repo-b: ${base}\nseeded repo-b: no\n${pending}\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | home check |\n| 2 | open | 0 | |\n| 3 | cut | 0 | deferred: later |\n\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-b |\n\n## Decisions\ncap +2 | funded\n`;
+  const saved = `# Ledger - loop engine\nbase: ${git(home, 'rev-parse', 'HEAD')}\niterations: 1\nallowance: 6\nbase repo-a: ${base}\nseeded repo-a: yes\nbase repo-b: ${base}\nseeded repo-b: no\n${pending}\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | home check |\n| 2 | open | 0 | |\n| 3 | cut | 0 | deferred: later |\n\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-b |\n\n## Decisions\nrows +2 | shared allowance\n`;
   const ledger = join(home, 'ledger.md');
   writeFileSync(ledger, saved.replace('iterations: 1', 'iterations: 0').replace(pending + '\n', ''));
   git(home, 'add', '.'); git(home, 'commit', '-qm', 'loop: seed ledger');
@@ -420,12 +420,12 @@ test('interrupted ordinary and seed returns recover once across two repositories
     next += admitted.decision + '\n';
     writeFileSync(f.ledger, next); git(f.home, 'add', '.'); git(f.home, 'commit', '-qm', 'loop: record companion');
     assert.equal(git(f.home, 'rev-list', '--count', `${homeBefore}..HEAD`), '1');
-    assert.match(next, /iterations: 1\ncap: 14/);
+    assert.match(next, /iterations: 1\nallowance: 6/);
     assert.ok(next.includes(`| 2 | done | ${target === 'seed' ? 0 : 1} |`));
     assert.ok(next.includes('| 1 | open | 0 | home check |'));
     assert.ok(next.includes('| 3 | cut | 0 | deferred: later |'));
     assert.ok(next.includes('seeded repo-a: yes'));
-    assert.ok(next.includes('cap +2 | funded'));
+    assert.ok(next.includes('rows +2 | shared allowance'));
     assert.doesNotMatch(next, /^pending:/m, 'resume has no work to recover again');
     assert.notEqual(validateCompanion(f).status, 0, 'cleared tuple cannot be credited twice');
   }
@@ -451,18 +451,35 @@ test('fresh ledger seeds one allowance without row or leg scaling', () => {
   assert.match(entry, /iterations: 0\nallowance: <n>/);
   for (const token of ['maxIterationsPerRow', 'default 4', 'approved `; allowance N`', 'only in the ledger', '24 non-cut rows at default 4 yield allowance 4', 'All-cut ledgers', 'leave allowance unchanged']) assert.ok(entry.includes(token), token);
   assert.doesNotMatch(entry, /cap:|Compute cap|\* maxIterationsPerRow|`maxIterations`/);
-  assert.match(driver, /For a ledger with `allowance:`, skip this cap boundary and cap-only stop rule 4/);
+  assert.match(driver, /require `allowance:` and no `cap:` before the ordered table, including for seed and completed ledgers/);
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8').split('## Resume')[0];
   for (const token of ['`allowance:`', 'same allowance', 'never multiply', 'allowance 4', 'All-cut ledgers exit without seed']) assert.ok(reference.includes(token), token);
   assert.doesNotMatch(reference, /cap:|initial cap|cap 14/);
 });
 
-test('ledger cap is durable across grants, child validation and legacy admission', () => {
+test('retired loop budgets yield to durable shared allowance and keep waves decoding', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  for (const fact of ['maxIterationsPerRow', '`iterations` >= `cap`', 'loop: raise cap', 'ledger has no cap: line - seeded under the old loopEngine contract', 'latest operational `row <n> ...` decision', 'including cap', 'cap +50 |', '[1-9][0-9]*', 'cap +50x', 'separate replies', 'cap grant resets neither window']) assert.ok(driver.includes(fact), fact);
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
+  const amendment = readFileSync(new URL('skills/brainstorming/reference/amendment-surface.md', root), 'utf8');
+  assert.doesNotMatch(driver, /iterations[^\n]*[<>]=?[^\n]*cap|total iteration cap|cap \+|loop: raise cap|ledger has no cap:|3 \+ funded|Recover spent funding|funded round|budget:/);
+  assert.doesNotMatch(reference, /\bcap\b|funded|budget:/);
+  const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
+  assert.match(before, /Keep `iterations:` as a dispatch counter only; it bounds nothing/);
+  assert.match(before, /require `allowance:` and no `cap:` before the ordered table/);
+  assert.match(before, /ledger has no allowance: line - resume through \/skill:gauntlet-resume/);
+  assert.match(before, /ignore its waves-only budget token, retaining no amend permission for a budget-only value/);
+  assert.match(before, /\| 3 \| .*two consecutive validation misses/);
+  assert.match(before, /\| 4 \| Dispatch allowed/);
+  assert.doesNotMatch(before, /\| 5 \|/);
+  for (const fact of ['loop: raise allowance', 'including allowance', 'including the saved allowance', 'Preserve attempts, iterations and allowance']) assert.ok(driver.includes(fact), fact);
+  for (const fact of ['saved allowance', 'without resetting attempts, iterations or allowance']) assert.ok(reference.includes(fact), fact);
   const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
-  for (const token of ['durable iterations + N', 'leaving iterations and all attempts unchanged', 'return to the ordered table', 'a second invalid reply holds the same stop with no commit', 'Only retry starts new windows']) assert.ok(stop.includes(token), token);
-  assert.match(driver, /dirty-tree and commit-boundary stops.*never offer `cap \+N`/);
-  assert.match(driver, /before.*rule 1/);
-  assert.match(driver, /every stop.*Preserve every row's attempts and the total iteration cap\./);
+  for (const fact of ['rows +50 |', '[1-9][0-9]*', 'rows +50x', 'rows +0', 'rows +x', 'rows -1', 'Raise the shared header allowance by N for every row and leg', 'leaving iterations and all attempts unchanged', 'Raising allowance resets neither window', 'Only retry starts new windows']) assert.ok(stop.includes(fact), fact);
+  assert.match(stop, /every stop print `Preserve every row's attempts\.`/);
+  assert.match(stop, /Dirty-tree and commit-boundary stops keep discard authorization only/);
+  assert.match(amendment, /Apply the budget to the waves engine only; loop ignores the budget token and keeps only the decoded amendment permission \(none for a budget-only value\)/);
+  assert.match(amendment, /stop for human authorization before redraw resets or deletions/);
+  assert.match(amendment, /Match exactly one `fund N fix rounds` or `N more fix rounds` anywhere on the line/);
+  assert.match(amendment, /Decode `auto-apply amends; fund 3 fix rounds` as both capabilities and `2 more fix rounds` as budget-only/);
+  assert.match(amendment, /Preserve every row's attempts and the ledger's iterations and allowance\./);
 });
