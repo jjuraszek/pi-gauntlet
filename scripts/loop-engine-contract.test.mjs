@@ -131,11 +131,25 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
   ]) assert.ok(stop.includes(token), token);
 });
 
-test('amend permission bounds one exit repair', () => {
+test('automatic exit verification repair is once per flow under both options', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  for (const token of ['loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun that command once', 'Rerun the failing checkout\'s gate pairs once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
+  const gate = driver.split('\n## After the loop\n')[1].split('\n1. ')[1].split('\n2. ')[0];
+  for (const token of ['loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun the failing checkout\'s gate pairs once', 'gate set', 'Commit verification-produced tracked changes', 'escalated round spent']) assert.ok(gate.includes(token), token);
+  for (const token of ['Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only']) assert.ok(driver.includes(token), token);
+  for (const token of [
+    'approval option 4 and option 5 alike', 'never consult amend permission or an iteration cap',
+    'gauntlet_setting({ key: "escalationLoop" })', "resolver's main-loop model fallback",
+    'Problem: escalationLoop.implModel unavailable', 'without a bump or spent marker',
+    'bump iterations once', 'record `HEAD_BEFORE` in the failing leg',
+    'preserving attempts, mapping, allowance and prior decisions',
+    'Dispatch error or non-DONE consumes the round', 'preserve the consumed count and stop',
+    'interrupted or unrecoverable identity is spent', 'never add a carrier or fabricate success',
+    'rejected dirty/zero/multiple-commit return also keeps the round spent',
+    'Never repair again for another leg', 'Never spend verify-phase credits',
+  ]) assert.ok(gate.includes(token), token);
+  assert.doesNotMatch(gate, /With amend permission|iterations < cap|at cap stop|With no permission/);
+  assert.match(gate, /With spent.*stop without dispatch or automatic rerun/);
   assert.match(driver, /Omit the model override except on an escalated round/);
-  assert.match(driver, /no permission or spent identity: no reopening and no automatic rerun/);
   assert.match(driver, /empty parent marker/);
   assert.match(driver, /This marker is once per flow\./);
   for (const token of ['the implementation worktree as cwd and its Rules', 'absolute spec path, failing command, its checkout, exit code and log path', 'On success record verified HEAD and clean status']) assert.ok(driver.includes(token), token);
@@ -271,12 +285,12 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const after = driver.split('\n## After the loop\n')[1];
   const gate = after.split('\n1. ')[1].split('\n2. ')[0];
-  for (const token of ['gate set', 'Commit verification-produced tracked changes', 'iterations < cap', 'escalationLoop.implModel', 'loop: repair verification', 'exactly one commit', 'all ledger rows unchanged', 'failing checkout', 'verify active and implement complete', 'amend or stop only', 'no `Retry with hint` or `cap +N`']) assert.ok(gate.includes(token), token);
+  for (const token of ['gate set', 'Commit verification-produced tracked changes', 'approval option 4 and option 5 alike', 'escalationLoop.implModel', 'loop: repair verification', 'exactly one commit', 'all ledger rows unchanged', 'failing checkout', 'verify active and implement complete', 'amend or stop only', 'no `Retry with hint`, `rows +N` or `cap +N`']) assert.ok(gate.includes(token), token);
   assert.match(driver, /Implement-phase stops only: leave implement active/);
   assert.match(driver, /clean cap stop.*`cap \+N` alongside.*`Retry with hint`.*Amend.*Stop/);
   assert.match(driver, /Only the verify-step-1 verification-failure stop restricts.*amend\/stop/);
   const expected = readFileSync(new URL('eval/loop-implementation/samples/cap-and-exit-verification/expected.md', root), 'utf8');
-  assert.match(expected, /Closed rows run the gate set at verify step 1; failure names the gate exit line and quotes at most 20 log lines, never reopens\/reruns, keeps verify active and implement complete, and offers amend or stop only/);
+  assert.match(expected, /Closed rows run the gate set at verify step 1; option 4 automatically repairs once without amend permission or a cap check/);
   const intent = readFileSync(new URL('eval/loop-implementation/intent.md', root), 'utf8');
   assert.match(intent, /cap-and-exit-verification\/contract: fails -> holds - .*verify step 1/);
   assert.match(after, /Gn tasks.*same tracker/);
