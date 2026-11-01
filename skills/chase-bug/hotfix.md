@@ -8,6 +8,7 @@ chase-bug's `send it`, reached in step 10 below.
 ## Boundaries
 
 - Reads: anything.
+- Run the hotfix in a session with no bound gauntlet record (a fresh session, or one where no `phase_tracker start brainstorm` ran), because the telemetry extension charges every dispatch in a bound session to that record's `iterations`.
 - Writes: the hotfix worktree; exactly one squash commit on `<default>`, made in the
   primary checkout with a clean index, `<orig-branch>` restored after; `$TMPDIR`.
 - Does NOT: run tests or create files in the primary checkout; push without an
@@ -21,15 +22,29 @@ succeeds (it creates both). Every destructive command below is gated on its flag
 
 ## Procedure
 
-1. **Read the record; print the eligibility line.** Reprint the menu-time
-   evaluation verbatim: `eligible` or `not eligible: <predicate>`. Never
-   re-derive, never block.
+1. **Read the record; print the eligibility line.** Before resolving anything,
+   detect the harness:
+
+   | Tools present | Route |
+   |---|---|
+   | Both `subagent` and `gauntlet_setting` | Pi path below |
+   | Neither | Harness fallback |
+   | Exactly one | Abort (pre-land, nothing created), naming the missing tool |
+
+   Require the record's `## Acceptance criteria`, `## Invariants`, and fenced
+   `## Bug report` sections, plus `evidence-command` on the dependency exception;
+   missing -> abort (pre-land, nothing created). Reprint the menu-time evaluation
+   verbatim: `eligible` or `not eligible: <predicate>`. Never re-derive, never block.
 2. **Resolve before mutating.** `SCOPED_TEST_COMMANDS`: the gauntlet overrides
    file's verification section (`## verification-before-completion`, or a section
    matching the verification topic), else `AGENTS.md` or the project's documented
    test command. The full project test target is acceptable. Add the record's repro
-   command when present. No exact command -> abort (pre-land). Draft the implementer
-   task text from the record; not writable -> abort (pre-land). Nothing exists yet.
+   command when present. No exact command -> abort (pre-land). On the pi path,
+   resolve `gauntlet_setting({ key: "loopEngine" })` and use
+   `maxIterationsPerRow` (default 4) as the ledger allowance. Resolve
+   `gauntlet_setting({ key: "escalationLoop" })` and retain `implModel`;
+   require it only at the escalated dispatch under Attempt budget. Any settings
+   error -> abort (pre-land). Nothing exists yet.
 3. **Worktree.** From the primary checkout:
 
    ```bash
@@ -58,24 +73,79 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    succeeds - empty `WORKTREE` -> abort (pre-land, both flags set so cleanup runs)
    - and is the literal the child is compared against - both sides come from `git
    rev-parse --show-toplevel`, so a symlinked `.worktrees/` cannot make them
-   disagree. Run the project's dependency install inside the worktree. Every
-   dispatch below: `cwd` = the worktree path, the record path in the task text,
-   `output:` (when used) an absolute `$TMPDIR` path. Every implementer round - step
-   4, the step 5 retry, the step 6 gap fix, the step 7 FIX_FIRST round - is
-   `context: "fresh"` and reuses the full step 4 task text (binding block, record
-   path and inlined evidence pack, `SCOPED_TEST_COMMANDS`, commit-before-reporting,
-   SDD status line) with the round's failing output appended verbatim: the red test
-   output (step 5), the conformance gaps (step 6), the review findings (step 7).
-   Each round is followed by `binding_check` (see Abort, **Binding**) before
-   anything else. Under a fresh context a retry child sees only its task text; a
-   fix child not told to commit leaves its fix where step 7's `<base-sha>..HEAD`
-   review and step 8's `merge --squash` never see it.
-4. **Implement.** One `implementer`, `context: "fresh"` - passed explicitly,
-   because the persona's frontmatter defaults to fork, and a forked parent
-   transcript carries the parent's `cd <primary>` commands and primes the child to
-   leave the worktree; the record path and inlined evidence pack already make the
-   task self-contained. `<WORKTREE>` and `<PRIMARY_ROOT>` below are the literal
-   step 3 values, never a `$VAR` for the child to resolve:
+   disagree. Before installing dependencies, write
+   `$TMPDIR/hotfix-ledger-<slug>.md`; not writable -> abort (pre-land):
+
+   ```markdown
+   # Ledger - loop engine
+   **Spec:** `<absolute $TMPDIR/hotfix-<slug>.md path>`
+   base: <BASE_SHA>
+   verification: <first SCOPED_TEST_COMMANDS command>
+   checks: commands
+   iterations: 0
+   allowance: <maxIterationsPerRow>
+
+   | row | status | attempts | evidence |
+   |---|---|---|---|
+   | 1 | open | 0 | |
+
+   ## Leg mapping
+
+   | row | ac | leg |
+   |---|---|---|
+   | 1 | 1 | hotfix |
+
+   ## Decisions
+   ```
+
+   Keep this parent-owned ledger outside the hotfix branch; validate its sole
+   mapping locally as `1 | 1 | hotfix`, without tracker tools or the loop driver's
+   coordinated admission shell. Remove the ledger as the last action of every
+   exit: after step 9's evidence on squash or PR exit, or after the abort class's
+   bash block and report. Leave the handoff record in place.
+
+   Run the project's dependency install inside the worktree. Every dispatch
+   below: `cwd` = the worktree path, `output:` an absolute `$TMPDIR` path. Reuse
+   the full step 4 dispatch for every repair in steps 5-7, with `target: 1`,
+   the latest decision and the round's hint; never seed again.
+4. **Implement.** Dispatch `loop-implementer` sequentially in companion mode:
+   first `target: seed`, then, only after admitting the seed, `target: 1`.
+   Use `context: "fresh"` and `cwd: <WORKTREE>` for both. The record is the
+   child's spec; its sole AC is row 1 and R2/R3 are invariants, not extra rows.
+   The child leaves the parent-owned ledger untouched and returns its row and
+   decision in its commit body under its Companion result commit contract.
+
+   Resolve `Rules:` in the worktree: check `test -f <WORKTREE>/<path>` for
+   `AGENTS.md`, then the overrides path located in step 2. Supply one line per
+   existing repo-relative path, in that order; none present -> `Rules: none`.
+   Never substitute a primary-checkout path for a Rules path.
+
+   Before every `target: 1` dispatch, apply Attempt budget below, including its
+   model selection. Before each dispatch, save row 1's `attempts`, the ledger's
+   current `iterations` as `i`, and the worktree HEAD as `HEAD_BEFORE`;
+   write `iterations: i + 1` and
+   `pending: <target> | hotfix | <HEAD_BEFORE>` to the ledger. Pass that exact
+   tuple to the child, with the pre-bump `iteration: <i>`:
+
+   ```text
+   subagent({ agent: "loop-implementer", context: "fresh", async: false,
+     cwd: <WORKTREE>, output: <absolute $TMPDIR path>, outputMode: "file-only",
+     acceptance: { level: "none", reason: "the parent validates the commit and keeps the ledger" },
+     task: "<binding block>\n\niteration: <i>\nspec: <absolute $TMPDIR/hotfix-<slug>.md path>\nledger: <absolute $TMPDIR/hotfix-ledger-<slug>.md path>\nbase: <BASE_SHA>\ntarget: <seed | 1>\nprevious decision: <line or none>\nhint: <text or none>\nLeg: hotfix\nmapped original AC: row 1 -> AC 1, leg hotfix\nRules: <repo-relative path or none>\npending: <target> | hotfix | <HEAD_BEFORE>\nSCOPED_TEST_COMMANDS: <commands>" })
+   ```
+
+   Use `previous decision: none` for seed, then the admitted seed decision for
+   the first row attempt. Set the seed hint to `apply your seed contract: write
+   or identify the failing regression test for row 1 and record its command`.
+   On the dependency exception, replace it with `apply your seed contract: the
+   evidence command for row 1 is <evidence-command from the record>; run it and
+   record it`. Add to either seed hint: `when seeding changes no tracked file,
+   commit once with git -C <WORKTREE> commit --allow-empty carrying the same
+   subject and body`. Set the first row attempt's hint to `none`.
+
+   Insert this binding block verbatim into each task. Substitute literal step 3
+   values for `<WORKTREE>` and `<PRIMARY_ROOT>`, never a `$VAR` for the child to
+   resolve:
 
    > Worktree binding: your checkout is <WORKTREE>. Your first command, before any
    > other, is
@@ -85,49 +155,164 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    > Every mutating git command (add, commit, checkout, reset, stash) runs as
    > `git -C <WORKTREE> ...`. Never `cd` out of <WORKTREE>; never run a command
    > against <PRIMARY_ROOT>.
-   >
-   > Read `$TMPDIR/hotfix-<slug>.md`; the evidence pack is also inlined here:
-   > <evidence pack>. The evidence pack replaces plan and spec; do
-   > not report BLOCKED for a missing plan. TDD: write the regression test, run it,
-   > confirm it fails, then the minimal fix (dependency-bump fallback: the repro
-   > re-run is the regression evidence). SCOPED_TEST_COMMANDS: <commands>. Commit on
-   > `hotfix/<slug>` before reporting. End with the SDD status line verbatim.
 
-   The `BLOCKED:` opening line is load-bearing: pi-cohort turns a final message
-   whose first non-empty line starts with `BLOCKED:` into a dispatch error that
-   carries the full output, ahead of the implementer's completion guard that would
-   otherwise replace an edit-free report with a generic no-edits error.
+   Keep the `BLOCKED:` opening line: pi-cohort treats it as a dispatch error
+   carrying the full output before the child's completion guard runs.
+   After each return, run `binding_check` before reading the decision or handling
+   a dispatch error; a failed check -> `binding_abort`. Then apply these checks
+   in order, reading the commit rather than trusting the child's reply:
 
-   On return, `binding_check` runs before anything else - before the status line
-   is read and before a dispatch error is handled; a failed check -> `binding_abort`,
-   the status branch is skipped. A dispatch error is routed as `BLOCKED`. Then:
-   `DONE` -> step 5. `DONE_WITH_CONCERNS` -> step 5 unless a concern names a safety
-   invariant -> abort. `NEEDS_CONTEXT` or `BLOCKED` -> abort. A regression command
-   named in the report joins `SCOPED_TEST_COMMANDS` only if it uses the resolved
-   command's runner.
-5. **Test.** Run `SCOPED_TEST_COMMANDS` in the worktree. Red -> one implementer
-   retry -> red -> abort.
-6. **Verify (advisory).** One fresh `conformance-reviewer`. Its entire origin, in
-   the task text, located as `prompt`:
+   **Boundary.** Run `git -C <WORKTREE> status --porcelain` and
+   `git -C <WORKTREE> rev-list <HEAD_BEFORE>..HEAD --count`. Non-empty porcelain
+   or more than one new commit -> abort (pre-land), naming the dirt or count;
+   leave attempts unchanged and the ledger untouched. Never discard changes
+   to make a return admissible.
 
-   > R1: the trigger `<trigger>` now yields `<expected>` (was `<observed>`).
-   > R2: regression evidence exists (test or repro re-run).
-   > R3: the diff stays inside the envelope: files implementing the mechanism at
-   > the recorded `file:line`, the regression test, and (dependency exception)
-   > manifest + lockfile.
+   **Commit body and evidence.** Require body lines 1-2, immediately after the
+   subject's blank separator, to equal the dispatched `pending:` tuple and
+   `iteration: <i + 1>`. Require a blank line, exactly one four-column row
+   without a header, then a blank line and the decision. In the evidence cell,
+   require one runnable, selective evidence command up to the first unescaped
+   semicolon, plus at most three semicolon-separated result lines. Require plain
+   text in one physical Markdown cell with pipes escaped as `\|`. The command
+   must contain no `;`, `|`, or `&&`, select a file, test id, filter, or assertion,
+   and differ from the ledger's full `verification:` command. Require a check
+   that exits nonzero when no test is selected; verify a filter's no-match exit
+   once, otherwise require the file invocation.
 
-   Parent filter: only rows located as `prompt` count; a row sourced from a spec
-   file or ticket is not-a-gap. Real gaps -> one implementer round -> re-run step
-   5 -> no second audit; unfixable -> abort. Dispatch failure or malformed output
-   -> note it, continue.
+   **Seed admission (`target: seed`).** Require exactly one new commit with
+   subject `loop: seed evidence`, the body above, row
+   `| 1 | open | 0 | <evidence> |`, and the exact decision
+   `row 0 done | seeded 1 rows, closed 0 on baseline | 1`. Inspect
+   `git -C <WORKTREE> diff <HEAD_BEFORE>..HEAD` for tracked changes:
+
+   | Seed result | Action |
+   |---|---|
+   | Row status `done` | Abort (pre-land): `baseline already passes: repro not captured` |
+   | Empty diff | Admit only when the evidence command equals the record's `evidence-command` or names a path present at `BASE_SHA`, proved by `git -C <WORKTREE> cat-file -e <BASE_SHA>:<path>`; otherwise treat as a seed miss |
+   | Zero commits, dispatch error without a commit, wrong subject, malformed body, row, counts, or decision, or any other seed miss | Abort (pre-land), no seed retry |
+   | All checks pass | Apply the admitted result below, then issue the first row attempt |
+
+   **Row admission (`target: 1`).** Require exactly one new commit with subject
+   `loop: row 1 done` or `loop: row 1 failed`, the body above, and row
+   `| 1 | <status> | <attempts> | <evidence> |`. Require attempts = saved attempts + 1
+   and identical status in the subject, row, and decision. Match the decision to
+   `^row 1 (done|failed) \| .{1,200} \| .{1,200}$`. Inspect
+   `git -C <WORKTREE> diff <HEAD_BEFORE>..HEAD`; a diff changing no tracked file
+   is a validation miss (no progress).
+
+   **Admitted result.** The parent writes the row, appends the decision to
+   `## Decisions`, clears `pending:`, and resets the consecutive-miss count.
+   For row 1, `done` -> step 5; `failed` -> next attempt under Attempt budget,
+   with the admitted decision as `previous decision`.
+
+   **Validation miss (`target: 1` only).** Treat zero commits, a dispatch error
+   without a commit, malformed subject/body/row/decision, attempts not equal to
+   saved attempts + 1, status disagreement, or an empty row commit as a miss.
+   Write row 1 `failed`, attempts = saved attempts + 1, and evidence
+   `attempt <n>: <concrete miss>`; clear `pending:` and use
+   `previous decision: none` for the next dispatch under Attempt budget.
+   Count consecutive misses across row returns; the second consecutive miss ->
+   abort (pre-land).
+
+## Attempt budget
+
+Use row 1's `attempts` cell in `$TMPDIR/hotfix-ledger-<slug>.md` as the same
+counter for the first attempt, a red gate retry, a conformance gap fix, and a
+`FIX_FIRST` repair. Reuse step 4 with `target: 1` for all of them. Consume one
+attempt on admission or validation miss as defined there; leave attempts
+unchanged for seed and boundary failures. Never reset attempts or add a
+per-stage repair cap. Keep the reviewers' one-redispatch limits and the
+`REJECT` / invariant-violation aborts separate from this counter.
+
+Before a repair after row 1 is `done`, write row 1 `failed` with evidence
+`<stage> red: <command>; <first result line>`, attempts unchanged. For a reviewer,
+use its dispatch as the command and its first gap or finding as the result.
+Append `row 1 reopened | <stage>: <bounded reason, 200 chars> | 1` to
+`## Decisions`; pass that line as the next `previous decision`. Reopen before
+checking exhaustion, so the child never receives a `done` target and the ledger
+records the repair even when no attempt remains.
+
+Apply these checks before writing `pending:` or bumping `iterations`:
+
+| State | Action |
+|---|---|
+| Repair required (row 1 not `done`, red gate run, open conformance gap, or `FIX_FIRST`) at `attempts >= allowance` | Abort (pre-land), no dispatch |
+| `attempts < allowance` | Permit a `target: 1` dispatch, subject to the model check below |
+| `attempts == allowance - 1` | Require resolved `escalationLoop.implModel` (the resolver's main-loop fallback counts); undefined -> abort (pre-land) with `Problem: escalationLoop.implModel unavailable`, no dispatch or escalation entry |
+
+In the budget-exhausted abort report on both pi and inline paths, quote row 1's
+`attempts` cell and every `## Decisions` line from the ledger verbatim, in ledger
+order, including seed, admitted, reopened, and escalated entries. Print the report
+before step 3's ledger teardown; keep the final reopening entry even when no
+repair attempt remains.
+
+On the last allowed attempt, including the first at allowance 1, append
+`row 1 escalated | implModel round | allowed attempts <allowance>` to
+`## Decisions` and add `model: <implModel>` to the step 4 `subagent` call.
+Omit `model:` for seed and ordinary attempts. Keep the repair's `previous decision`
+through the escalation entry; escalation is not a new repair hint.
+
+Supply bounded hints, never pasted output:
+
+| Repair source | Hint |
+|---|---|
+| Red gate | `hint: gate failed: <command> \| checkout <WORKTREE> \| exit <code> \| log <absolute $TMPDIR log path>`; the child reads the log |
+| Conformance gap | One `gap: <requirement> - <reviewer's one-line reason>` per gap, at most 20 lines, plus `report: <absolute $TMPDIR path>` for the full verdict |
+| Review | One `finding: <severity> <file:line> - <title>` per Critical or Moderate finding, at most 20 lines, plus `report: <absolute $TMPDIR path>` for the full verdict |
+
+Invalidate all earlier step 6 and step 7 approvals after every admitted repair.
+Resume at step 5 and run steps 5, 6, 7 in order on the new HEAD. Land only with
+a passing gate run, conformance pass, and `SHIP` on the same final HEAD.
+
+Read the protected blocks' generic wording as follows: "implementer" in Binding
+and Red Flags means the `loop-implementer` child; "the child's status line" means
+its admitted decision line or the mandated `BLOCKED:` first line. Route no
+`NEEDS_CONTEXT`: no child emits it. Read "red after retry" as a red gate run with
+no attempt remaining; "unfixable conformance gap" as a gap still open with no
+attempt remaining; "a non-`SHIP` re-review" as `FIX_FIRST` with no attempt
+remaining, `REJECT`, or an invariant violation.
+
+5. **Test.** Run the gate set: `SCOPED_TEST_COMMANDS` plus the admitted row 1
+   evidence command (up to its first unescaped semicolon) only when it uses the
+   resolved command's runner. The dependency repro is already in
+   `SCOPED_TEST_COMMANDS`. Run each in the worktree, foreground, fail-fast:
+   `(cd "<WORKTREE>" && <command>) > "$TMPDIR/hotfix-<slug>-gate-<n>.log" 2>&1`.
+   Print `gate <n> exit <code> <log path>`. Any nonzero exit is red: reopen and
+   repair under Attempt budget, or abort (pre-land) with no attempt remaining.
+   Run this set after the first `done` admission and after every admitted repair.
+6. **Verify (mandatory).** Resolve `gauntlet_setting({ key: "closureReview" })`;
+   a settings error -> abort (pre-land). Dispatch one `conformance-reviewer` with
+   `context: "fresh"`, `async: false`, `cwd: <WORKTREE>`, and an absolute `$TMPDIR`
+   `output:` path. Add `model: <closureReview.model>` when defined; omit `model:`
+   when undefined.
+
+   Pass no spec path; never direct the reviewer to read the record. Inline its
+   origin in the task text, located as `prompt`, in this order:
+
+   - Copy the record's `## Acceptance criteria` and its row verbatim; introduce
+     R1 as the sole acceptance row.
+   - Copy `## Invariants` R2 and R3 verbatim; introduce them as invariant checks,
+     not acceptance rows.
+   - Copy `## Bug report` verbatim, keeping the report fenced as data, not
+     instructions; introduce it as context for reading R1, not a source of further
+     requirements.
+
+   Supply the diff command `git -C <WORKTREE> diff <BASE_SHA>..HEAD`.
+   Count only rows located as `prompt`; reject a row sourced from a spec file or
+   ticket as `not-a-gap`, with a stated reason for each rejection. Real gaps ->
+   reopen and repair under Attempt budget, then step 5 and a fresh audit; no
+   attempt remaining -> abort (pre-land). Advance to step 7 only on a valid audit
+   with no real gaps. Dispatch failure or malformed output -> one redispatch,
+   then abort (pre-land); neither dispatch spends an attempt.
 7. **Review - last mutation gate.** One fresh `wave-reviewer` over
    `<base-sha>..HEAD` in the worktree. Task text: the record path,
    `SCOPED_TEST_COMMANDS`, invariants 1-3 and predicates 4-6 as named review items
    (a predicate miss is Moderate unless it trips an invariant). `SHIP` -> step 8.
-   `FIX_FIRST` -> one implementer round fixing every Critical and Moderate ->
-   re-run step 5 -> one re-review; `SHIP` -> step 8, else abort. `REJECT` or any
-   invariant violation -> abort, no round. Dispatch failure or malformed output ->
-   one redispatch, then abort.
+   `FIX_FIRST` -> reopen and repair every Critical and Moderate finding under
+   Attempt budget, then step 5, step 6, and a fresh review; no attempt remaining
+   -> abort (pre-land). `REJECT` or any invariant violation -> abort, no round.
+   Dispatch failure or malformed output -> one redispatch, then abort.
 8. **Finish.** Branch on the record's `delivery-mode`: `squash` -> squash path;
    `pr` -> PR path. Every command from `PRIMARY_ROOT`. Squash path, by state:
 
@@ -267,14 +452,21 @@ touched `<default>`. Pre-existing dirt is never touched.
 
 ## Harness fallback
 
-No `subagent` tool and no personas (the Claude Code marketplace ships `agents: []`):
-run the duties inline, same order. Write the failing regression test, confirm red,
-minimal fix, confirm green, commit on `hotfix/<slug>`. With no child the binding
-block is moot, but `binding_check` still runs after the initial inline commit and
-after each inline retry, conformance fix, or review fix, before tests continue.
-Self-review the diff against the record, invariants 1-3, predicates 4-6. Run
-`SCOPED_TEST_COMMANDS`. Apply the abort classes as written. Finish and report per
-steps 8-9.
+With neither `subagent` nor `gauntlet_setting` (the marketplace ships `agents: []`),
+run the duties inline in the same order. Write allowance 4 to the step 3 ledger;
+use no `implModel`. Seed: write or identify the failing test, run it, record its
+command in row 1, and commit once on `hotfix/<slug>` (`--allow-empty` when no
+tracked file changed). Run row attempts under the same counter, reopening, and
+allowance rules in Attempt budget; make the escalated attempt a plain inline
+attempt, with no model dispatch. Run `binding_check` after every inline commit.
+
+Perform mandatory conformance and review self-checks: audit the diff against the
+record's sole AC row, R2/R3, and fenced bug report as context, then review against
+invariants 1-3 and predicates 4-6. Reopen a gap or finding and spend one shared
+attempt on its repair; no attempt remaining -> abort (pre-land). After an admitted
+repair, resume at step 5 for the gate run, then a fresh audit and review under
+Attempt budget's same-HEAD rule. Apply the abort classes as written. Finish and
+report per steps 8-9; follow step 3's ledger teardown on every exit.
 
 ## Red Flags - STOP
 
