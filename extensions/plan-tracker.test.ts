@@ -600,6 +600,24 @@ test("coordinated labels use mapped original AC indices, including shared criter
   ]);
 });
 
+test("refresh rejects an unresolvable repository root without changing initialized tasks", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "plan-no-checkout-"));
+  try {
+    execFileSync("git", ["-C", dir, "rev-parse", "--show-toplevel"], { stdio: "ignore" });
+    t.skip("temporary directory is inside a git repository");
+    return;
+  } catch {}
+  writeFileSync(join(dir, "spec.md"), spec(["Keep prior tasks"]));
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | open | 0 |"], "", "allowance: 4"));
+  const h = harness([], dir);
+  const initial = await h.call({ action: "init", tasks: [{ name: "G1: closed", status: "complete" }, "G2: pending"] });
+  const result = await h.call({ action: "refresh", path });
+  assert.match(result.details.error!, /cannot resolve repository root for Spec reference/);
+  assert.equal(result.details.tasks, undefined);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, initial.details.tasks);
+});
+
 test("refresh rejects missing specs, missing criteria and empty descriptions atomically", async () => {
   const dir = ledgerFixture("plan-spec-errors-");
   const path = join(dir, "ledger.md");
