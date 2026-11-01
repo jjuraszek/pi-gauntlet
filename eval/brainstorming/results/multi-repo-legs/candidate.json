@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "78edf5eefcc497a23f395cd34018367bb1dc640c4a819edf92e34f03dd330353",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
-      "baselineOutputSha": "0cb117929cddecfe461eeae21b89dc87fcdaf372fd64eb23de9f4ee4155df5cb",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
+      "baselineOutputSha": "41002ca2d118744df705a77fd456e13e6c012d3f6a85e90654c1a7f9821fa550",
       "candidateOutputSha": "41002ca2d118744df705a77fd456e13e6c012d3f6a85e90654c1a7f9821fa550",
       "facts": {
         "provision": {
@@ -59,21 +59,21 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: After still invokes using-git-worktrees home → repo-b → repo-c with each primary as $ROOT and the shared feature/shared-change, applies the repo-a keyed contract, resolves repo-b's <subproject> to pkg-x, falls back to the owned built-in for repo-c, and never probes repo-unused; the home ## Legs blocks keep all six portable contract keys, the repo-relative Rules fallback, and no machine-local path; scope lines are AC 1 / AC 1 / AC 2 with original indices; and the repo-b companion carries the exact **Home:** line, verbatim ## Problem, the shared ## Decisions, and only its own full Leg block with home committed first. The only drifts are cosmetic (the verification line reworded to `none configured (default preset; ...)`, the repo-c design sentence rephrased, and the commit-order section compressed to a single line without the approval-persistence note about Amend-grant/Engine living on the home spec only). If you want the After wording to stay maximally robust, keep the explicit numbered commit-order list and the note that header fields are not carried parts, so a reader can see commit ordering and companion stability without inferring them, while retaining the Run A/B/C narration the change introduces.",
-      "wallMs": 13458,
+      "feedback": "Before and After are textually identical, so nothing moved on this sample: both invoke using-git-worktrees home-first with each primary as $ROOT and feature/shared-change as $BRANCH, use the repo-a keyed `script/tree` contract, resolve repo-b's subproject to pkg-x from the only touched top-level directory, fall back to the built-in for repo-c, and never probe repo-unused; the home Leg blocks carry only `<name>`/`.worktrees/<name>`-style portable contracts with the fallback `Rules:` line and no /work paths; scope lines are AC 1 / AC 1 / AC 2 with original indices; and the repo-b companion commits second after the home spec with the exact **Home:** line, verbatim ## Problem, a ## Decisions section holding Design/Errors/Out of scope, and only its own full Leg block. The After wording (worker-critique PR-source check, loop-ledger-amend bypass replacement, amendment-surface section 5) did not touch the coordinated-flow membership/provisioning/finalization text that governs this output, which is consistent with the four multi-repo-legs facts being preserved; no wording adjustment is needed for this sample.",
+      "wallMs": 10993,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "78edf5eefcc497a23f395cd34018367bb1dc640c4a819edf92e34f03dd330353",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
-      "baselineOutputSha": "4cc3b47f33abf7087780ce930eeb897688894286a2ef24b8a823bfba8d9eff79",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
+      "baselineOutputSha": "9b2aa55629a6f47e12912e00dfb5e940b31a67adc812dc9688ef797582abea6b",
       "candidateOutputSha": "9b2aa55629a6f47e12912e00dfb5e940b31a67adc812dc9688ef797582abea6b",
       "facts": {
         "provision": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "portable": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After gains the provision fact because it narrates the provisioning as an ordered action sequence (steps 3-5: repo-a keyed `script/tree create`, then repo-b legacy `script/worktree pkg-x ...` with the subproject resolved from the single touched directory, then repo-c built-in creator) rooted at the validated primaries, with repo-unused untouched; Before only tabulated creator outcomes and never narrated the ordered invocations or the primary roots. Portable, scope, and companion hold in both: placeholder-based contracts, `Rules: root only - paths unresolved`, no `/work/...` paths in committed blocks, AC 1/AC 1/AC 2 scopes, home-first commit, and a repo-b companion carrying the Home line, verbatim Problem, shared Decisions, and only its own full Leg block. Two drifts in After are worth fixing even though no listed fact keys on them: the input states each companion uses its basename as identifier, yet After relabels the legs `acme/repo-b` / `acme/repo-c` on an invented origin-derived rule, and the companion H1 is rendered as an illustrative placeholder marked not commit-ready. To keep everything Before kept while delivering the Change, retain After's numbered provision/commit narration but keep `### Leg: repo-b` / `### Leg: repo-c` per the supplied identifiers, and either reuse the home H1 as supplied or state the copy rule in prose outside the code block rather than embedding a placeholder in the rendered file.",
-      "wallMs": 30032,
-      "verdict": "improved"
+      "feedback": "Before and After are byte-identical for this case, so nothing moved: both narrate home → repo-b → repo-c provisioning with the keyed repo-a contract, pkg-x resolved for repo-b's legacy wrapper, the built-in fallback for repo-c, and repo-unused untouched; both home Leg blocks carry portable create/destroy/home/spec-dir/plan-dir/verification lines with repo-relative Rules and no /work path; scopes are AC 1 / AC 1 / AC 2 by original index; and the repo-b companion commits after home with the **Home:** line, verbatim Problem, shared Decisions subsections, and only its own Leg block. The amendment-surface/worker-critique wording in the Change does not touch the multi-repo provisioning or companion-materialization text this sample exercises, which is consistent with the unchanged output. Two latent risks worth pinning if a future edit touches this slice: the output overrides the input's stated basename identifiers with acme/repo-b and acme/repo-c (no fact keys on identifier, so it does not fail here), and the companion adds a non-contract `### Repo-binding clauses` subsection and an H1 placeholder; keeping the companion grammar strictly to Home/Problem/Decisions/Leg would make the companion fact more robust without affecting the Change.",
+      "wallMs": 15982,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
 }

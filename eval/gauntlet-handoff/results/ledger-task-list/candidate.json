@@ -1,0 +1,100 @@
+{
+  "sample": "ledger-task-list",
+  "arm": "candidate",
+  "skillSha": "60916f5eb418d9a7eb3034b7d55e0836c88a7b343a7f256d961d947fc7d59706",
+  "inputSha": "e02fbf0cbf63631a2a48a577fd200a6f4918a3b41018c9aa18c79dc5263f1bb7",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: done brief-written\n\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\n## Shared steps for A and B\n\n1. **Read the contract.** I read `../gauntlet-resume/reference/brief-contract.md` in full before doing anything else.\n2. **Resolve the target.** Only `--key loop` was given, so there is no `--out`/`--key` conflict. A human-given key is passed verbatim, with no `/` replacement or branch derivation. The run worktree `/work/app/.worktrees/loop` is the confirmed single-member home.\n3. **Run cohort's handoff procedure.** I located the pi-cohort root via `pi list`. I read `<root>/skills/handoff/SKILL.md` and followed it with `--key loop`. I read the home spec `doc/specs/run.md`. This is a single member, so there is no coordinated `Run worktree:` supply, and the snapshot stays bound to the home worktree. Cohort reported `Handoff written: /tmp/pi-handoff/loop.md`. That path is the brief, and its line 1 starts `# Handoff:`.\n4. **Refuse a double section.** The file has no `^## Process state\\s*$` line, so I continue.\n5. **Hotfix exclusion.** `skills/chase-bug/hotfix.md` is not in context, so I continue.\n6. **Read the trackers.** I called `phase_tracker({ action: \"status\" })` and then `plan_tracker({ action: \"status\" })`, with no refresh or mutation.\n7. **Choose the layout.** Ledger line 1 is exactly `# Ledger - loop engine`, so I use the loop alternative. `Ledger:` and `Last decision:` replace `Active task`, and the tracker rows are copied verbatim.\n8. **Omit optional fields.** There is no Rework record, so there are no PR, pre-rework head, or rework base fields. This is a single member, so there is no `legs:` block.\n9. **Append once.** I appended with a single `cat >> \"/tmp/pi-handoff/loop.md\" <<'EOF' … EOF`.\n\n---\n\n## Case A: implement in progress, mid-dispatch\n\n`→ implement` is in progress, so I append the section.\n\n- **Ledger pending entry:** The `pending: 1 | home | aaaa…` line stays on disk and is not copied. The brief is a pointer, and resume runs pending recovery from the ledger itself.\n- **Last decision:** This is the ledger's last physical decision line.\n\nAppended tail of `/tmp/pi-handoff/loop.md`:\n\n```text\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/loop/doc/specs/run.md)\n  ⊘ plan (resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine))\n  → implement\n  ○ verify\n  ○ ship\n\nPlan: 1/2 done (1 in progress)\n\n  ✓ [0] row 2\n  → [1] row 1\n\nLedger: doc/plans/run-ledger.md\nLast decision: row 2 done | check passed | row 1\nGate history not restored - re-validate before advancing.\n```\n\nI re-read the tail. It ends with the gate-history line, with nothing after it.\n\n---\n\n## Case B: verify in progress\n\n`→ verify` is in progress, so I append the section. Resume stops at verify on its own.\n\n- **Task rows:** The mixed task list is copied exactly, including the skipped ledger row and the `✗`/`→`/`○` conformance tasks. No statuses are inferred or normalized.\n\nAppended tail of `/tmp/pi-handoff/loop.md`:\n\n```text\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/loop/doc/specs/run.md)\n  ⊘ plan (resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine))\n  ✓ implement\n  → verify\n  ○ ship\n\nPlan: 2/5 done (1 in progress, 1 pending, 1 failed, 1 skipped)\n\n  ✓ [0] row 1\n  ⊘ [1] row 2\n  ✗ [2] G1\n  → [3] G2\n  ○ [4] G3\n\nLedger: doc/plans/run-ledger.md\nLast decision: row 1 done | check passed | verify\nGate history not restored - re-validate before advancing.\n```\n\nI re-read the tail. It ends with the gate-history line, with nothing after it.\n\n---\n\n## Case C: admissibility under the shared contract\n\n**Block with both `Active task: row 1` and `Ledger:` / `Last decision: none`: not admissible.**\n- The contract says to \"Reject a block mixing these fields with `Active task`\".\n- `Last decision: none` on its own is legal, but only when the ledger's Decisions section is empty.\n- The mix is still fatal regardless of that field.\n\n**Block with `Ledger:` but no `Last decision:`: not admissible.**\n- The contract also rejects a block \"missing either loop field\".\n\n**Comparison with A:**\n- Case A is valid because its task rows are the verbatim `plan_tracker status` output. The contract explicitly permits task rows beside a ledger.\n- A task row such as `→ [1] row 1` is tracker output, not an `Active task:` field.\n- A's loop fields are both present and appear without `Active task`.\n\nNeither malformed block is repaired. I invent no `Last decision` and drop no `Active task` to make either fit, and I would append neither.\n\n---\n\n## Resume commands\n\nBrief: `/tmp/pi-handoff/loop.md`\n\n```text\n/skill:gauntlet-resume /tmp/pi-handoff/loop.md\n```\n\nIf cohort's `## Repo state` recorded `worktree: no`, use the override form with the run worktree instead:\n\n```text\n/skill:gauntlet-resume /tmp/pi-handoff/loop.md /work/app/.worktrees/loop\n```\n",
+      "words": 675,
+      "wallMs": 27305,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: done brief-written\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nThe cases below are independent, using only the supplied observations; no tools were executed.\n\n## A — Mid-dispatch\n\nUse cohort’s reported path, `/tmp/pi-handoff/loop.md`. Read phase status, then plan status, without refreshing or mutating either tracker. Read the ledger from `/work/app/.worktrees/loop/doc/plans/run-ledger.md` and copy its last physical decision.\n\nAppend the following block with a single `cat >> \"/tmp/pi-handoff/loop.md\" <<'EOF' … EOF`, then re-read the tail to confirm the gate-history line is last. Keep the existing six core headings unchanged.\n\n```text\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/loop/doc/specs/run.md)\n  ⊘ plan (resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine))\n  → implement\n  ○ verify\n  ○ ship\n\nPlan: 1/2 done (1 in progress)\n\n  ✓ [0] row 2\n  → [1] row 1\n\nLedger: doc/plans/run-ledger.md\nLast decision: row 2 done | check passed | row 1\nGate history not restored - re-validate before advancing.\n```\n\nThe pending dispatch remains in the ledger; it is not copied into a second state file or used to alter the observed task statuses.\n\nBrief: `/tmp/pi-handoff/loop.md`  \nResume: `/skill:gauntlet-resume /tmp/pi-handoff/loop.md`\n\n## B — Verify active\n\nUse the same reported path in this independent case. Read both tracker statuses in order, then the ledger’s last physical decision. Append once and re-read the tail as in A, preserving every task row—including failed, skipped, in-progress, and pending conformance tasks.\n\n```text\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/loop/doc/specs/run.md)\n  ⊘ plan (resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine))\n  ✓ implement\n  → verify\n  ○ ship\n\nPlan: 2/5 done (1 in progress, 1 pending, 1 failed, 1 skipped)\n\n  ✓ [0] row 1\n  ⊘ [1] row 2\n  ✗ [2] G1\n  → [3] G2\n  ○ [4] G3\n\nLedger: doc/plans/run-ledger.md\nLast decision: row 1 done | check passed | verify\nGate history not restored - re-validate before advancing.\n```\n\nBrief: `/tmp/pi-handoff/loop.md`  \nResume: `/skill:gauntlet-resume /tmp/pi-handoff/loop.md`\n\n## C — Contract admission\n\n- **`Active task: row 1` together with `Ledger: doc/plans/run-ledger.md` and `Last decision: none`: inadmissible.** The loop fields replace `Active task`; mixing them is explicitly rejected. Append nothing.\n- **`Ledger: doc/plans/run-ledger.md` without `Last decision`: inadmissible.** Both loop fields are required. Append nothing; do not invent the missing decision.\n- **A’s task rows beside `Ledger` are admissible.** Verbatim plan-tracker rows are retained for ledger flows. The prohibited mixture is the `Active task:` field with loop fields—not task rows with a ledger pointer.\n",
+      "words": 346,
+      "wallMs": 17931,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "2c7a91dad3e5e995fcaf3d7d293f99925d0fd058fc03552b6dd3fdd3d355ce63",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e283da029d0037f24dfdc562c3bc0a00464487b45460b92ee9dc9541e08877e2",
+      "baselineOutputSha": "577adc8d783528da292e0d0d32093b3f160c7c1c7c7295369cfc6031fbd96cb9",
+      "candidateOutputSha": "55c9bcdc924fc7891cc3cda6355c80d4c2be0ee5650194abf3320b3b8bc9d6df",
+      "facts": {
+        "implement": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "verify": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "read-only": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rejection": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before treated verbatim plan_tracker rows beside a Ledger as a third rejection condition, so it appended nothing in A and B, proposed an invented `No plan active.` substitute, and in C declared A inadmissible — failing all four facts. After moves every fact to holds: it appends both tracker outputs verbatim (row 2 complete / row 1 in_progress in A; all five mixed Gn statuses in B) followed by `Ledger:`, `Last decision:` and the terminal gate-history line, reads trackers with status only and no refresh, appends once to cohort's single reported brief with no legs block for the single member, and in C rejects the mixed Active task/Ledger block and the missing-Last-decision block while explicitly admitting A's rows as tracker output rather than an `Active task:` field, without repairing either malformed block. The key wording that delivered the Change is the distinction 'task rows are verbatim plan_tracker status output, not an Active task field' plus 'the contract explicitly permits task rows beside a ledger'; keep that sentence and the 'no refresh or mutation' note in step 6, and avoid reintroducing any 'carrying task rows with a ledger' rejection language. The trailing Resume commands section is harmless surplus but could be trimmed to keep the tail focused on the appended block.",
+      "wallMs": 13546,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "2c7a91dad3e5e995fcaf3d7d293f99925d0fd058fc03552b6dd3fdd3d355ce63",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e283da029d0037f24dfdc562c3bc0a00464487b45460b92ee9dc9541e08877e2",
+      "baselineOutputSha": "3f064e7244a3c0fe9cf507b1de19d7e0d231007d7a65dd6e4132505d80cae4fb",
+      "candidateOutputSha": "60ea193aee1fd05a11798bc76d26954088162430edac776a9fa3aff76c9230a7",
+      "facts": {
+        "implement": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "verify": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "read-only": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rejection": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves all four facts to holds by actually appending the process-state tails for A and B (both tracker outputs verbatim, Ledger and Last decision in place of Active task, gate-history line last, no derivation of row1 pending from the ledger's open cell, no invented Gn completion), by keeping the producer read-only (status reads only, single cat >> to cohort's reported brief, no second file, no legs block for the single-member run), and by rewriting C so the mixed Active task/Ledger block and the Ledger-without-Last-decision block are both rejected while A's task rows beside Ledger are explicitly admitted. Before failed because it treated task rows beside a ledger pointer as a contract violation and stopped without appending anything, which also broke the append-to-reported-brief half of read-only. The After wording is sound; keep the sentence that the prohibited mixture is the Active task field with loop fields rather than task rows with a ledger pointer, and keep attributing that rule to the shared contract rather than restating grammar locally, so the rejection fact stays anchored to the centralized contract.",
+      "wallMs": 12899,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+}

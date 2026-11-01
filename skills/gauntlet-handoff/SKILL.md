@@ -80,7 +80,7 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
    append nothing; report a plain hotfix handoff and go to step 7. Checked before the
    trackers: chase-bug never touches tracker state, and a stale armed flow appended here
    would steer resume away from its hotfix route.
-6. **Append.** `phase_tracker({ action: "status" })`, then `plan_tracker({ action: "status" })`.
+6. **Append.** `phase_tracker({ action: "status" })`, then `plan_tracker({ action: "status" })`. Never refresh or mutate either tracker; copy its observed task rows, including ledger and conformance tasks, through the shared contract.
    - No phase `in_progress` -> append nothing; say the brief is a plain handoff.
    - A phase `in_progress` (verify or ship included - resume stops at verify on its own)
      -> append the process-state section exactly as `## Producers` in

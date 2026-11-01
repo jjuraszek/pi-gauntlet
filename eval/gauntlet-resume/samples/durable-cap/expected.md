@@ -1,3 +1,3 @@
 - durable: judged: Restores and renders cap:97 with iterations7, row1 attempts3 and retry allowance4, base and verification from ledger; does not call gauntlet_setting loopEngine or stop for its absence.
 - history: judged: Renders cap grant history but uses latest operational row1 retry rather than last physical cap decision for targeting and child previous decision.
-- route: judged: Checks1-6 then brainstorm start/skip, plan start/check/skip with resume: <spec> (loop engine), implement start, no task tracker, no reseed, continue Before each dispatch after shared cap boundary.
+- route: judged: Checks1-6 then brainstorm start/skip, plan start/check/skip with resume: <spec> (loop engine), implement start, then one ledger-path refresh, no init, no reseed, continue Before each dispatch after shared cap boundary.

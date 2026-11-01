@@ -1,6 +1,7 @@
+import { parse as parseYaml } from "yaml";
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
@@ -20,8 +21,9 @@ const gitRepo = (prefix = "gp-") => {
   spawnSync("git", ["init", "-q"], { cwd: root });
   return root;
 };
-const invoke = (cwd, args = [], env = {}) => {
-  const r = spawnSync(process.execPath, [CLI, ...args], {
+const SOURCE_CLI = join(dirname(CLI), "../src/bins/gauntlet-performance.mjs");
+const invoke = (cwd, args = [], env = {}, cli = CLI) => {
+  const r = spawnSync(process.execPath, [cli, ...args], {
     cwd, encoding: "utf8", env: { ...process.env, PI_CODING_AGENT_DIR: EMPTY_AGENT, ...env },
   });
   return { status: r.status, stdout: r.stdout, stderr: r.stderr.trim(), lines: r.stdout.split("\n").filter(Boolean) };
@@ -320,12 +322,12 @@ test("text output: header, shipped* marker, - cells, by version block, skipped l
   assert.equal(r.status, 0, r.stderr);
   assert.equal(r.lines[0], `corpus: ${root.split("/").pop()}=8`);
   assert.equal(r.lines[1], "runs (8)");
-  assert.match(r.lines[2], /^run_id\s+repo\s+spec\s+version\s+status\s+engine\s+iterations\s+wall\s+b\/p\/i\/v\/s min\s+tokens\s+cost\s+models\s+disp\s+grants\s+reopens\s+loops\s+findings\s+council\s+big$/);
+  assert.match(r.lines[2], /^run_id\s+repo\s+spec\s+version\s+status\s+engine\s+iterations\s+wall\s+b\/p\/i\/v\/s min\s+tokens\s+cost\s+models\s+disp\s+disp\/task\s+coord\s+grants\s+reopens\s+loops\s+findings\s+council\s+big$/);
   const bRow = r.lines.find((l) => l.startsWith("bbbbbbbb"));
   assert.match(bRow, /\s5\.9\.1\s+shipped\*\s+waves\s+-\s+10\/-\/-\/-\/-\s/);
   assert.match(bRow, /\s-\s*$/);
   const aRow = r.lines.find((l) => l.startsWith("aaaaaaaa"));
-  assert.match(aRow, /\sshipped\s+waves\s+60m\s+10\/10\/10\/10\/10\s+6\.6k\s+2\.25\s+m\/alpha,m\/beta\s+7\s+1\s+0\s+2\s+1\/2\/3\s+4\s+-$/);
+  assert.match(aRow, /\sshipped\s+waves\s+60m\s+10\/10\/10\/10\/10\s+6\.6k\s+2\.25\s+m\/alpha,m\/beta\s+7\s+n\/a\s+no\s+1\s+0\s+2\s+1\/2\/3\s+4\s+-$/);
   assert.ok(r.lines.includes("by version"));
   const v = r.lines.find((l) => l.startsWith("5.9.1"));
   assert.match(v, /^5\.9\.1\s+4\s+3\s+1\s+60m\/120m\s/);
@@ -500,6 +502,51 @@ test("council section: --since and no council data", (t) => {
   assert.equal(none.lines.length, 2);
 });
 
+test("source and shipped runs report implement dispatch ratios and sealed coordination", (t) => {
+  const root = gitRepo(); cleanup(t, root);
+  const results = [
+    { ts: "2026-09-01T00:00:00Z", session: "s", phase: "implement", kind: "dispatch", agent: "worker" },
+    { ts: "2026-09-01T00:00:01Z", session: "s", phase: "implement", kind: "dispatch", agent: "worker", exit: 1 },
+    { ts: "2026-09-01T00:00:02Z", session: "s", phase: "implement", kind: "dispatch", agent: "worker" },
+    { ts: "2026-09-01T00:00:03Z", session: "s", phase: "verify", kind: "dispatch", agent: "reviewer" },
+    { ts: "2026-09-01T00:00:04Z", session: "s", phase: "implement", kind: "phase", action: "complete", name: "implement" },
+  ];
+  const cases = [
+    { name: "waves", engine: "waves", plan: { tasks: 4, skipped: 2 }, events: results, legs: [], ratio: 1.5 },
+    { name: "loop", engine: "loop", plan: { tasks: 4, skipped: 2 }, events: results, legs: [{ repo: "example/companion", sha: "abc123" }], ratio: 1.5 },
+    { name: "no-plan", events: results, ratio: null },
+    { name: "all-skipped", plan: { tasks: 2, skipped: 2 }, events: results, ratio: null },
+    { name: "dropped", plan: { tasks: 4, skipped: 2 }, events: results, events_dropped: 1, ratio: null },
+    { name: "zero-dispatches", plan: { tasks: 4, skipped: 2 }, events: [], ratio: 0 },
+    { name: "legacy", ratio: null },
+    { name: "unrounded", plan: { tasks: 10, skipped: 1 }, events: results, ratio: 1 / 3 },
+  ];
+  for (const c of cases) write(root, `${TDIR}/${c.name}.yaml`, JSON.stringify({
+    schema: 1, spec: `doc/specs/${c.name}.md`, run_id: c.name,
+    status: "shipped", legs: c.legs,
+    derived: { engine: c.engine, plan: c.plan, events_dropped: c.events_dropped,
+      personas: { worker: { dispatches: 3 }, reviewer: { dispatches: 1 } } },
+    events: c.events,
+  }));
+  for (const cli of [SOURCE_CLI, CLI]) {
+    const output = invoke(root, ["--json"], {}, cli);
+    assert.equal(output.status, 0, output.stderr);
+    const rows = JSON.parse(output.stdout).runs;
+    const rendered = invoke(root, [], {}, cli);
+    assert.equal(rendered.status, 0, rendered.stderr);
+    assert.match(rendered.lines[2], /disp\/task\s+coord/);
+    for (const c of cases) {
+      const row = rows.find((r) => r.run_id === c.name);
+      assert.equal(row.dispatches_per_task, c.ratio, c.name);
+      assert.equal(row.coordinated, Boolean(c.legs?.length), c.name);
+      assert.equal(row.dispatches, 4, c.name);
+      const textRow = rendered.lines.find((line) => line.startsWith(c.name.slice(0, 8) + " "));
+      const ratioCell = c.ratio === null ? "n/a" : c.ratio.toFixed(2).replace(".", "\\.");
+      assert.match(textRow, new RegExp(`\\s${ratioCell}\\s+${c.legs?.length ? "yes" : "no"}\\s`), c.name);
+    }
+  }
+});
+
 test("runs expose engine and iterations for loop and legacy records in JSON and text", (t) => {
   const root = gitRepo();
   cleanup(t, root);
@@ -514,4 +561,37 @@ test("runs expose engine and iterations for loop and legacy records in JSON and 
   assert.match(text, /iterations/);
   assert.match(text, /^aaaaaaaa\s+.*\sshipped\s+waves\s+60m\s/m);
   assert.match(text, /^bbbbbbbb\s+.*\sshipped\*\s+loop\s+4\s+-\s/m);
+});
+
+
+test("shipped seal preserves verification runs and plan totals for performance", (t) => {
+  const root = gitRepo(); cleanup(t, root);
+  const git = (args) => {
+    const result = spawnSync("git", ["-c", "user.name=t", "-c", "user.email=t@t",
+      "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+    return result.stdout.trim();
+  };
+  write(root, "README.md", "# Test\n");
+  git(["add", "README.md"]); git(["commit", "-qm", "Base"]);
+  const base = git(["rev-parse", "HEAD"]);
+  write(root, "doc/specs/seal.md", "# Seal\n");
+  git(["add", "doc/specs/seal.md"]); git(["commit", "-qm", "Spec"]);
+  const path = `${TDIR}/seal.yaml`;
+  write(root, path, JSON.stringify({
+    schema: 1, spec: "doc/specs/seal.md", run_id: "seal", status: "in_progress",
+    created_at: "2026-09-01T00:00:00Z", sessions: ["s"], accumulators: {},
+    derived: { verification_runs: 2, plan: { tasks: 2, complete: 1, skipped: 1, failed: 0 } },
+    events: [{ ts: "2026-09-01T00:00:00Z", session: "s", phase: "implement", kind: "dispatch", agent: "worker" }],
+  }));
+  const result = invoke(root, ["--worktree", root, "--option", "squash", "--base", base,
+    "--spec", "doc/specs/seal.md"], {
+    GIT_AUTHOR_NAME: "t", GIT_AUTHOR_EMAIL: "t@t", GIT_COMMITTER_NAME: "t", GIT_COMMITTER_EMAIL: "t@t",
+  }, join(dirname(CLI), "gauntlet-telemetry-seal.mjs"));
+  assert.equal(result.status, 0, result.stderr);
+  const sealed = parseYaml(readFileSync(join(root, path), "utf8"));
+  assert.equal(sealed.status, "shipped");
+  assert.equal(sealed.derived.verification_runs, 2);
+  assert.deepEqual(sealed.derived.plan, { tasks: 2, complete: 1, skipped: 1, failed: 0 });
+  assert.equal(json(root).runs[0].dispatches_per_task, 1);
 });

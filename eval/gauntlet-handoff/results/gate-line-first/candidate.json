@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "53a44f74fd83648db39fad6f752fd4a672e6b32eba2f56e7e0d9a73825b7ec75",
+  "skillSha": "60916f5eb418d9a7eb3034b7d55e0836c88a7b343a7f256d961d947fc7d59706",
   "inputSha": "1480bce96a5fb3b58762a88b7b7e8cd712ccb16b04589e8b2f9bb27bb99166d3",
   "kind": "text",
   "assembly": "headed",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\n\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nI can't derive a handoff key. No run worktree was reported in this transcript, and the session checkout is on a detached HEAD: `git branch --show-current` returned empty. Nothing has been written and no tracker has been touched.\n\nPlease re-run with one of these:\n- `/skill:gauntlet-handoff --key <name>` writes the brief to `<tmpdir>/pi-handoff/<name>.md`. The name is used exactly as given.\n- `/skill:gauntlet-handoff --out <path>` writes the brief to that path, resolved to an absolute path against the session cwd.\n\nUse only one of them. `--key` and `--out` can't be combined.\n",
+      "text": "gauntlet: question\n\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nI stopped before writing anything. This transcript reports no run worktree, and the session checkout is on a **detached HEAD**: `git branch --show-current` returned empty. That leaves no branch to derive the brief key from. No brief was written and no tracker was touched.\n\nRe-invoke with one of these (not both, since they are exclusive):\n\n- `/skill:gauntlet-handoff --key <name>` writes to `<tmpdir>/pi-handoff/<name>.md`, using the name exactly as you give it.\n- `/skill:gauntlet-handoff --out <path>` writes to that path, resolved against the session cwd.\n\nWhich `--key` or `--out` should I use?\n",
       "words": 101,
-      "wallMs": 5557,
+      "wallMs": 5641,
       "mechanical": {
         "first-line": "holds"
       }
@@ -28,7 +28,7 @@
       "status": "ok",
       "text": "gauntlet: question\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nThe session checkout is on detached HEAD, so I can’t derive a safe handoff key. Which `--key <name>` or `--out <path>` should I use?\n",
       "words": 37,
-      "wallMs": 3414,
+      "wallMs": 3726,
       "mechanical": {
         "first-line": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "40c8ec62fc7fe8f9df003b2e70b42ef9ed0660833196f72e3a8023ba4d06de95",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9427352b901b64a723df8310db6d5498d7bf3634a2d609f9a398f28b376fbcae",
-      "baselineOutputSha": "8aed0771d6d12f29e124528054c16603f2c60bdbfc806a2ac5cecc6a9c2afb5f",
-      "candidateOutputSha": "40144efbb07c002d1189580e99a9ec28d60ac1ddd3105ce672d2f4057bfbcd68",
+      "intentSha": "e283da029d0037f24dfdc562c3bc0a00464487b45460b92ee9dc9541e08877e2",
+      "baselineOutputSha": "4a7c9ae76bfb8fe8ee264438ac4bdaeb4dd1de29a947c2bab1c676e1d85ba8d6",
+      "candidateOutputSha": "32395097c54c95e6d66c3c2dce9d6d176b144602b502e6f98bb3822d1253e1bb",
       "facts": {
         "target": {
           "before": "holds",
@@ -53,15 +53,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the target: each opens with the shared `gauntlet: question` marker, states that no key can be derived because no run worktree was reported and `git branch --show-current` returned empty on a detached HEAD, confirms nothing was written and no tracker was touched, and asks the human to re-run with exactly one of `--key <name>` or `--out <path>`. After is slightly tighter and correctly keeps the marker on the first line, so the step-1 key/output question is already marked before any announcement; nothing moved. The only wording I'd preserve from Before is the closing direct question (\"Which do you want to use, and with what name or path?\") so the message unambiguously ends on the ask rather than on the can't-combine rule, and the explicit \"exactly one\" phrasing, which After splits into \"one of these\" plus a trailing mutual-exclusion note - either is fine for the fact, but the Before form reads as a clearer step-1 question.",
-      "wallMs": 8017,
+      "feedback": "Both outputs satisfy the target fact: each stops on the detached-HEAD condition, states explicitly that no brief was written and no tracker was touched, and asks the human to re-invoke with --key or --out. After additionally places the `gauntlet: question` marker on its own first line and closes with a more direct `--key`/`--out` ask, which aligns with the gate-line-first intent in the Change without moving this fact. Nothing in After regressed; if you want to keep the Before detail that was dropped, consider retaining the `Worktree ready at <path>` hint so the reader knows what run-worktree evidence would have satisfied the derivation path.",
+      "wallMs": 5136,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "40c8ec62fc7fe8f9df003b2e70b42ef9ed0660833196f72e3a8023ba4d06de95",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9427352b901b64a723df8310db6d5498d7bf3634a2d609f9a398f28b376fbcae",
-      "baselineOutputSha": "eb2ec5c6d1dc17305ba96a94fd8fddcf4795c5f450de76f322b8d9c3d8a0f3ba",
+      "intentSha": "e283da029d0037f24dfdc562c3bc0a00464487b45460b92ee9dc9541e08877e2",
+      "baselineOutputSha": "298e6f45d27f6f98edd242f29c1e2d05ebbe438fed432311741f0005c8ecf82a",
       "candidateOutputSha": "4b6e0ed2b5182b8bd20b901899e7cc84917582e6bab770c3bbacafdbb5bdad3c",
       "facts": {
         "target": {
@@ -75,10 +75,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the target fact: each opens with the shared `gauntlet: question` marker, cites detached HEAD as the reason, asks for `--key <name>` or `--out <path>`, and neither writes a brief nor touches a tracker. The After wording only swaps \"brief key\" for \"handoff key\" and \"What\" for \"Which\", which moves nothing; note that Before already led with the question marker for this case, so the step-1 change is a no-op here rather than a fails→holds move. The current After wording is safe to keep; if you want the step-1 marker guarantee to be visible as a change, it would need to show up in a case where Before lacked the marker, not this one.",
-      "wallMs": 7160,
+      "feedback": "Both outputs satisfy the sole fact for this case: each leads with the `gauntlet: question` marker, states that detached HEAD prevents deriving a key, asks for `--key <name>` or `--out <path>`, and neither writes a brief nor touches a tracker. The After wording changed only 'safe brief key' to 'safe handoff key' and dropped the word 'explicit' from the ask; neither edit moved the fact. The listed Expected-to-move items (ledger-task-list/*, gate-line-first/first-line, multi-repo/*) are not facts under this case, so nothing here evidences them either way; the step-1 question-marker requirement is already met in both. If you want the After text to more visibly reflect the Change, keep the current structure and consider restoring 'explicit' (e.g., 'Which explicit `--key <name>` or `--out <path>` should I use?') so the ask unambiguously signals that derivation is off the table, but this is optional — no fact Before kept was lost in After.",
+      "wallMs": 7669,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2afe2cc4555b20fac4631cffaf52418177bb0798"
+  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
 }

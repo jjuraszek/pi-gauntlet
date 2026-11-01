@@ -1,3 +1,3 @@
-- route: judged: Routes Engine loop to ledger creation, not writing-plans or task tracker initialization.
+- route: judged: Routes Engine loop to ledger creation, not writing-plans or plan_tracker init; refresh by ledger path follows Entry step 5's implement start.
 - inputs: judged: Carries absolute spec/worktree paths and resolved plan directory into Entry; resolves maxIterationsPerRow 12 at Entry step 1 and verification command with PR gate source at step 2 before ledger creation at step 4.
 - create: judged: After entry check 6, starts brainstorm and skips brainstorm with reason resume: <spec path> before plan_check to arm the fresh idle flow; retains driver plan skip at Entry step 3, ledger creation at step 4, and check, seed commit and implement start at step 5.

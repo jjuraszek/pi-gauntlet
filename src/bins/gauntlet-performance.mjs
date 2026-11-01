@@ -134,6 +134,13 @@ function loadRecord(file, label) {
         return [severity, counters.includes(null) ? null : counters.reduce((a, b) => a + b, 0)];
       }));
   const truncated = ph("ship") === null;
+  const plan = obj(derived.plan);
+  const tasks = num(plan?.tasks);
+  const skipped = num(plan?.skipped);
+  const inScope = tasks === null || skipped === null ? null : tasks - skipped;
+  const implementDispatches = Array.isArray(d.events)
+    ? d.events.filter((e) => e?.kind === "dispatch" && e.phase === "implement").length
+    : 0;
   return {
     row: {
       run_id: d.run_id,
@@ -154,6 +161,9 @@ function loadRecord(file, label) {
       cost: sumOrNull(PHASES.map((p) => num(tok(p)?.cost))),
       models: [...new Set(PHASES.map((p) => str(ph(p)?.model)).filter((m) => m !== null))].sort(),
       dispatches: sumOrNull(Object.values(personas).map((p) => num(obj(p)?.dispatches))),
+      dispatches_per_task: inScope === null || inScope === 0 || (num(derived.events_dropped) ?? 0) > 0
+        ? null : implementDispatches / inScope,
+      coordinated: Array.isArray(d.legs) && d.legs.length > 0,
       grants: num(gates.fix_round_grants),
       reopens: num(gates.task_reopens),
       spec_rounds: num(gates.spec_rounds),

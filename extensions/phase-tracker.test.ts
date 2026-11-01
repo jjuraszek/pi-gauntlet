@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import registerPhaseTracker from "./phase-tracker.ts";
+import registerPlanTracker from "./plan-tracker.ts";
 
 const originalSubagentDepth = process.env.PI_SUBAGENT_DEPTH;
 process.env.PI_SUBAGENT_DEPTH = "0";
@@ -529,6 +530,50 @@ test("plan activity auto-completes implement with complete+skipped, not with fai
   assert.equal(await implementStatus([{ status: "skipped" }, { status: "skipped" }]), "complete");
   assert.equal(await implementStatus([{ status: "complete" }, { status: "failed" }]), "in_progress");
   assert.equal(await implementStatus([{ status: "complete" }, { status: "skipped" }], true), "in_progress");
+});
+
+test("ledger refresh completes only started implement and keeps failed, in-flight and Gn work open", async () => {
+  for (const allCut of [true, false]) {
+    const dir = tempCwd({ piGauntlet: { flowGuards: { enforce: false } } });
+    const path = join(dir, "ledger.md");
+    const save = (status: string, pending = "") => writeFileSync(path, `# Ledger - loop engine\n${pending}\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | ${status} | 0 | check |\n\n## Decisions\n`);
+    save(allCut ? "cut" : "failed");
+    const branch = implementBranch().slice(0, -1);
+    const h = harness({ cwd: dir, branch });
+    registerPlanTracker(h.pi as any);
+    await h.emit("session_start");
+    const tracker = h.tools.find(t => t.name === "plan_tracker")!;
+    const phase = h.tools.find(t => t.name === "phase_tracker")!;
+    const status = async () => (await phase.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any).details.phases.implement.status;
+    const refresh = async (target = path) => {
+      const result = await tracker.execute("refresh", { action: "refresh", path: target }, undefined, undefined, h.ctx) as any;
+      branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: result.details } } as any);
+      await h.emitEvent("tool_execution_end", { toolName: "plan_tracker", result });
+      return result;
+    };
+    assert.equal((await refresh()).details.error, undefined);
+    assert.equal(await status(), "pending", "refresh before start cannot complete implement");
+    assert.equal((await startPhase(h, "implement")).status, "in_progress");
+    await refresh();
+    if (!allCut) {
+      assert.equal(await status(), "in_progress", "failed row keeps implement active");
+      save("failed", "pending: 1 | home | abc1234");
+      const inFlight = await refresh();
+      assert.equal(inFlight.details.tasks[0].status, "in_progress");
+      assert.equal(await status(), "in_progress");
+      assert.ok((await refresh(join(dir, "missing.md"))).details.error);
+      assert.equal(await status(), "in_progress", "invalid refresh cannot complete implement");
+      await tracker.execute("add", { action: "add", tasks: ["G1: conformance"] }, undefined, undefined, h.ctx);
+      save("done");
+      const withGap = await refresh();
+      assert.equal(withGap.details.tasks[1].status, "pending");
+      assert.equal(await status(), "in_progress", "kept Gn task blocks completion");
+      await tracker.execute("update", { action: "update", index: 1, status: "complete" }, undefined, undefined, h.ctx);
+      await refresh();
+    }
+    assert.equal(await status(), "complete");
+    assert.equal((await startPhase(h, "verify")).status, "in_progress");
+  }
 });
 
 test("cold implement and verify completions ignore unfinished snapshots", async () => {

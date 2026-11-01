@@ -1,7 +1,7 @@
 {
   "sample": "amendment-menu-reply",
   "arm": "candidate",
-  "skillSha": "61c24d3978e92a149736f103b680b4e3365677e129aa28e3ef18b24cd7fa8085",
+  "skillSha": "a9afe7116aa2b82a17a9c1bba508ded2d78be343f272b2b2a8f78a0114fd2a0c",
   "inputSha": "8f4082006f803aa6f314147c6b6a600eec45f09c1691c03a1600bc1a62ef6a17",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Both picks resolve cleanly. Item 1 takes the alternative. Item 2 is custom text that keeps the spec's current classification and adds documentation for it. That is a spec edit, not a redirect.\n\n**Spec edits for `doc/specs/report-runner.md`** (this replay cannot run tools, so nothing has been written or committed):\n\n- **Design / retries:** replace \"each report adapter owns its retry policy\" with a clause saying the existing report coordinator owns one shared retry policy and the adapters keep execution. No new retry service is added.\n- **Design / run status:** keep \"exit 126 is failed\". Add a clause explaining the choice: exit 126 means a launch problem before the report runs, and it still reports as `failed`, not as a separate `blocked` status.\n\nOnce those edits land, the applied lines read:\n\namended the spec: Share retry policy - the existing report coordinator owns the shared retry policy; adapters keep execution\namended the spec: Classify blocked execution - exit 126 stays failed, and the spec documents that a launch failure before execution still reports as failed\n\n**Aftermath:** there is no plan yet, so no `plan-writer` dispatch, `plan_check`, or tracker change is needed. No tasks reopen and the phase does not change. The spec gets one batch commit:\n\n```\namend: 2 item(s) - Share retry policy, Classify blocked execution\n\n- crosscut | Share retry policy | the existing report coordinator owns the shared retry policy; adapters keep execution | alt-1 | changing retry ownership needs a human architecture choice | adapters/alpha.ts:18 uses two retries; adapters/beta.ts:22 uses four\n- exit126 | Classify blocked execution | exit 126 stays failed and the spec documents that a pre-execution launch failure reports as failed | custom(keep 126 as failed, document it) | operator-visible status changes need a human decision | synthetic launch test returns 126 before report execution\n```\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nAfter that commit, the spec review continues on the amended spec.\n",
-      "words": 301,
-      "wallMs": 14440,
+      "text": "Both picks resolve cleanly. Item 1 is `alt-1`. Item 2 is a custom instruction that edits the spec and redirects nowhere, so it applies as given: exit 126 stays `failed`, and the spec now says so explicitly.\n\nThis text-only replay cannot execute tools. Below are the spec edits and the batch commit as they would land. Nothing has been written to disk or committed yet.\n\n**Spec edits (`doc/specs/report-runner.md`)**\n\n- **Design / retries:** \"each report adapter owns its retry policy\" becomes: the existing report coordinator owns the single shared retry policy, including the retry limit, and adapters keep retry execution only.\n- **Design / run status:** \"exit 126 is failed\" stays. The section adds a documenting clause: exit 126 is classified as `failed`, not a separate `blocked` status. This includes launch failures that return 126 before report execution starts. The value is kept on purpose.\n\namended the spec: Share retry policy - move retry policy into one owner (the existing report coordinator; adapters keep execution)\namended the spec: Classify blocked execution - keep exit 126 classified as failed and document that classification in Design / run status\n\n**Aftermath:** there is no plan and no loop ledger. No `plan-writer` dispatch, no `plan_check`, and no tracker changes are needed. No tasks reopen and the phase does not change. The spec alone gets committed:\n\n```\namend: 2 item(s) - Share retry policy, Classify blocked execution\n\n- crosscut | Share retry policy | move retry policy into one owner | alt-1 | changing retry ownership needs a human architecture choice | adapters/alpha.ts:18 uses two retries; adapters/beta.ts:22 uses four\n- exit126 | Classify blocked execution | classify exit 126 as blocked rather than failed | custom(keep 126 as failed, document it) | operator-visible status changes need a human decision | synthetic launch test returns 126 before report execution\n```\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNo standing grant is in effect, so any later amendment will come back to you as a menu. Next, the spec review continues against the amended spec.\n",
+      "words": 316,
+      "wallMs": 13266,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Selected edits for `doc/specs/report-runner.md`:\n\n- **Design / retries:** the existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service.\n- **Design / run status:** exit 126 remains **failed**, with that classification explicitly documented. Your custom instruction changes the documentation, rather than redirecting work elsewhere.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNo standing grant was given. No tasks reopen and no phase changes. This text-only replay has not written files or created a commit.\n",
-      "words": 76,
-      "wallMs": 9044,
+      "text": "Selected edits for `doc/specs/report-runner.md`:\n\n- **Design / retries:** Replace adapter-owned retry policies with one shared policy owned by the existing report coordinator. Adapters retain execution responsibility; no new retry service is added.\n- **Design / run status:** Keep exit 126 classified as **failed** and explicitly document that retained classification. This is a spec edit, not a redirect.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNo tasks reopen and no phase changes. No standing grant was given. This text-only replay has not written or committed any changes.\n",
+      "words": 83,
+      "wallMs": 7232,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
-      "baselineOutputSha": "a886516c0a822eb25797564a4b23da2cfc32798217dc4b7fe3209fe25ba8701e",
-      "candidateOutputSha": "c83a409f1791e6932f60a767cd3c4f03e98d2d2b5e8198ae3fe1279fc218a5d4",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
+      "baselineOutputSha": "c83a409f1791e6932f60a767cd3c4f03e98d2d2b5e8198ae3fe1279fc218a5d4",
+      "candidateOutputSha": "23895677664395fe02bd0f61d0fae90b931d4a71ff0013b751589f56ae215f94",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. Both outputs print the exact `Recorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)` line, accept item 2's free text as a custom spec edit without re-asking, and describe alt-1 (coordinator owns shared retry policy, adapters keep execution) plus the custom exit-126 effect (retain failed, add documentation) while explicitly rejecting the new-service and blocked-status proposals and disclaiming actual writes/commits. After's only differences are cosmetic: it inlines the no-tools disclaimer into the spec-edits heading, rewrites the commit body's third column to describe the applied effect rather than the original `What`, and adds `plan_check` to the aftermath list; none of these touch f1-f3. If the author wants the commit body to stay closest to the source schema, keep the original `What` text in that column as Before did, but it is not required by any listed fact.",
-      "wallMs": 7762,
+      "feedback": "No fact moved: both outputs print the exact Recorded line, both accept the free text as custom(keep 126 as failed, document it), and both describe alt-1 for retries and the keep-failed-and-document effect for exit 126 while explicitly declining the new-service and blocked-status proposals. One drift in After worth tightening: its batch-commit audit rows now carry the proposal's original What text (\"classify exit 126 as blocked rather than failed\", \"move retry policy into one owner\") in the description column, whereas Before wrote the applied effect there (\"exit 126 stays failed and the spec documents...\"); a reader of the commit alone sees a row that reads as if the rejected blocked classification was applied, saved only by the custom(...) choice column. If the After wording's intent is to echo the item's What verbatim in the audit, say so and also require the chosen-effect text after the choice token; otherwise keep Before's rule that the audit row describes what was actually applied, which preserves f3 unambiguously while still delivering the Recorded-echo and custom-handling change.",
+      "wallMs": 13982,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
-      "baselineOutputSha": "1db216d43cb96ae078a562c862dd8aa7646c83045c2fb30c2ee530fcb1dae186",
-      "candidateOutputSha": "116d9120e8124303a6494d11cfa0647e905d2be45f12ef9ed87a0138a39aa96f",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
+      "baselineOutputSha": "116d9120e8124303a6494d11cfa0647e905d2be45f12ef9ed87a0138a39aa96f",
+      "candidateOutputSha": "9c4553830a63be1e07e58edc7770cce0b1bf03eda4ee829024dc6221e139f332",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved nothing: it prints the identical Recorded line with crosscut=alt-1 and exit126=custom(keep 126 as failed, document it), accepts the free text as a custom choice without re-asking, and describes alt-1 (coordinator owns shared retry policy, adapters keep execution) and the custom effect (exit 126 stays failed and is documented) while rejecting the new service and the blocked status, with no claimed writes or commits. The only wording drift is \"changes the documentation, rather than redirecting work elsewhere\" versus Before's \"edits the spec\"; both are read as a spec edit here, but keeping Before's explicit \"edits the spec\" phrasing would make the selected-edit location less ambiguous for f3 while still delivering the Change.",
-      "wallMs": 6172,
+      "feedback": "No fact moved: both outputs print the exact Recorded line with crosscut=alt-1 and exit126=custom(keep 126 as failed, document it), both accept the free-text reply for item 2 without re-asking, and both describe the alt-1 coordinator-owned retry edit plus the retain-failed-and-document edit rather than the rejected new-service or blocked-status proposals, while disclaiming any real writes or commits. The After wording differs only in phrasing — it frames the retries edit as an explicit old->new replacement and the exit-126 edit as 'a spec edit, not a redirect' — which keeps every fact Before kept; no wording change is needed for this case.",
+      "wallMs": 5819,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
 }

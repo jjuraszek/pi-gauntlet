@@ -1283,14 +1283,16 @@ for (const [name, change] of Object.entries({
   foreignBase: (s: string) => s + "base stranger: abc1234\n",
   missingSeed: (s: string) => s.replace("seeded repo-b: no\n", ""),
   invalidCap: (s: string) => s.replace("cap: 20", "cap: 0"),
-  homePending: (s: string) => s + "pending: 1 | repo-a | abc1234\n",
+  wrongHomeMapping: (s: string) => s + "pending: 2 | repo-a | abc1234\n",
   foreignTarget: (s: string) => s + "pending: 3 | repo-b | abc1234\n",
   duplicatePending: (s: string) => s + "pending: seed | repo-b | abc1234\npending: seed | repo-b | abc1234\n",
 })) test(`coordinated ledger rejects ${name}`, () => {
   assert.ok(checkPlan(change(coordinatedLedger()), coordinatedSpec, emptyPort).findings.length);
 });
 test("coordinated ledger admits partial seeds, recovery tuples and later cap grants", () => {
-  for (const target of ["2", "seed"]) assert.deepEqual(checkPlan(coordinatedLedger().replace("seeded repo-a: no", "seeded repo-a: yes").replace("cap: 20", "cap: 99") + `pending: ${target} | REPO-B | abc1234\n`, coordinatedSpec, emptyPort).findings, []);
+  for (const [target, repo] of [["1", "REPO-A"], ["seed", "REPO-A"], ["2", "REPO-B"], ["seed", "REPO-B"]]) {
+    assert.deepEqual(checkPlan(coordinatedLedger().replace("seeded repo-a: no", "seeded repo-a: yes").replace("cap: 20", "cap: 99") + `pending: ${target} | ${repo} | abc1234\n`, coordinatedSpec, emptyPort).findings, [], `${target} ${repo}`);
+  }
 });
 
 const legPlanSpec = SPEC_TEXT + "\n## Legs\n### Leg: repo-a\nscope: none\n### Leg: repo-b\nscope: none\n";

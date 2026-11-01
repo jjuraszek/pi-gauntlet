@@ -1,7 +1,7 @@
 {
   "sample": "pending-owner-stops",
   "arm": "candidate",
-  "skillSha": "e56341fe48626805c06784bf9eb09da5d4fb33f4a0cfe01b6823c51a6d66fb94",
+  "skillSha": "754fcceac688a7575060c17a3651fc220ad36f3e7b92bc6ff93d72351382651f",
   "inputSha": "95082ff7b9432cd7fa83973e32a68929d7dfe5fe4721fafaf1f54d5bbf536106",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Resume from plan_check FAIL: citation repair stops before any write\n\n**Tool result 3: `plan_check` returned FAIL (1 finding).**\nThis sends the restore from the call table's `implement with task plan` row into `## Plan repair`. The phase tracker already holds `start brainstorm`, `skip brainstorm resume: /work/app/.worktrees/retire-legacy/doc/specs/2026-03-09-retire-legacy-parsers.md` and `start plan`. Phase `plan` is in_progress.\n\n**Plan state recorded before any write (tool results 1–2):**\n- `ls-files --error-unmatch` exited 0.\n- `status --porcelain` printed nothing.\n- So the plan is tracked and clean, and no temp copy is needed.\n\n**Baseline routing:**\n- The finding is `paths-exist`.\n- It is neither `baseline-line` nor `open-questions`.\n- So Baseline continuation does not apply, and the finding goes to citation-table classification.\n\n**Classification of `paths-exist`, `Modify: path \"docs/parsers.md\" does not exist`:**\nThe candidate row is the dead-`Modify:` drop. It needs two pieces of evidence:\n- **Deletion evidence (tool result 4):** `git -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- docs/parsers.md` printed `9f8e7d6`. This is non-empty, so it is satisfied.\n- **Owner status:** the owning task, Task 5 `W3: Update the parser guide`, must be `complete` or `skipped` in the brief's task snapshot. It is `○` pending, so this is not satisfied.\n\nA `pending`/`in_progress` owner of a dead `Modify:` row is explicitly listed as having no row. That makes this a no-row finding, and repair stops before any write. The Modify row is not dropped, the plan is not edited, and nothing is committed.\n\n**Stop handling:**\n- No round wrote the plan, so no restore runs and no git command is issued.\n- Phase `plan` stays in_progress.\n- There is no `skip plan`, no `start implement` and no `plan_tracker init`.\n\nPrinted, in order:\n\n```\nTask 5: paths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\nRepair stopped: paths-exist - Modify: path \"docs/parsers.md\" does not exist is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\nThe restore did not succeed, so the following are not printed:\n- the `Repaired plan:` receipt\n- the `Gate history not restored; re-validating ...` closing line\n- the `Standing grant` line\n\nResume ends the turn here.\n",
-      "words": 329,
-      "wallMs": 14890,
+      "text": "# Resume: from `plan_check` onward\n\n**Step 1. `plan_check` result (tool result 3).**\n`plan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })` returns `FAIL (1 findings)`. Under the call table's \"implement with task plan\" row, a FAIL enters `## Plan repair`. The finding is neither `baseline-line` nor `open-questions`, so it skips Baseline continuation and goes to **Citation repair**.\n\n**Step 2. Pre-write plan state (tool results 1 and 2).**\n`ls-files --error-unmatch` exited 0 and `status --porcelain` printed nothing. The plan is therefore tracked and clean, so no temp copy is needed.\n\n**Step 3. Classify the finding.**\n- **Finding:** `paths-exist`, `Modify: path \"docs/parsers.md\" does not exist`.\n- **Evidence gathered first (tool result 4):** `git -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- docs/parsers.md` prints `9f8e7d6`, so a deletion commit exists.\n- **Second evidence condition fails:** the table row also requires the owning task to be `complete` or `skipped`. The owner is Task 5 (`W3: Update the parser guide`), which is `○` pending in the task list.\n- **Result:** \"a `pending`/`in_progress` owner of a dead `Modify:` row\" has no row, so the finding has no edit.\n\n**Step 4. Stop before any write.**\n- Nothing was written, so no restore and no `git checkout` runs.\n- There is no commit and no \"Repaired plan\" receipt.\n\nPrinted:\n\n```\nTask 5: paths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\nRepair stopped: paths-exist - Modify: path \"docs/parsers.md\" does not exist is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\n**Final state:**\n- Phase `plan` stays in_progress.\n- Not called: `skip plan`, `start implement`, `substep`, or `plan_tracker init`. The brief's task snapshot is kept untouched.\n- Restore did not complete, so there is no closing gate-history line, no `Standing grant` line, and no handoff to subagent-driven-development.\n",
+      "words": 275,
+      "wallMs": 15533,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Call:\n```text\nplan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n```\n\nResult:\n```text\nFAIL (1 findings)\npaths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\n```\n\nCall:\n```text\ngit -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- docs/parsers.md\n```\n\nResult:\n```text\n9f8e7d6\n```\n\nTask 5 is pending, so deletion history does not authorize dropping its `Modify:` row. No plan edit, rollback command, or tracker initialization occurs; phase `plan` remains `in_progress`.\n\nPrint:\n```text\nTask 5: paths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\nRepair stopped: paths-exist - Modify: path \"docs/parsers.md\" does not exist is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n",
-      "words": 99,
-      "wallMs": 10439,
+      "text": "Tool call:\n```text\nplan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n```\n\nTool result:\n```text\nFAIL (1 findings)\npaths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\n```\n\nTool call:\n```text\ngit -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- docs/parsers.md\n```\n\nTool result:\n```text\n9f8e7d6\n```\n\nTask 5 is `pending`, not `complete` or `skipped`, so the finding has no citation-repair row despite the deletion evidence. Stop before any write: no rollback command, commit, or tracker initialization; retain `plan` in_progress and the saved task snapshot unchanged.\n\nPrint:\n```text\nTask 5: paths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\nRepair stopped: paths-exist - Modify: path \"docs/parsers.md\" does not exist is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n",
+      "words": 115,
+      "wallMs": 13228,
       "mechanical": {
         "f1": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4c0d8871825ff866087db10914e064010a868a0b41f40e78abe3db35b6ebd677",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "5c809deed6479a048254249c8a06b5c472cdb0be39ccf61a059d2a8712f48b3f",
-      "candidateOutputSha": "5c809deed6479a048254249c8a06b5c472cdb0be39ccf61a059d2a8712f48b3f",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
+      "baselineOutputSha": "f0e9aa5b7e4693f952673e6ca6368abb1fdfa7381bf95658dae28d9dd2de8d32",
+      "candidateOutputSha": "a3359be86f525eebc6ef97250841ef1edad41a2965a36e82fca1f4b67e3475cb",
       "facts": {
         "f2": {
           "before": "holds",
@@ -63,16 +63,16 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical, so no fact moved. Both name Task 5 (W3: Update the parser guide) as the pending owner of the dead Modify row and state the plan file is unchanged (f2); both explicitly rule out plan_tracker init, skip plan, start implement, and any git command or commit (f3); and both list the Repaired plan: receipt among lines not printed (f4). The After wording preserves everything Before held; since this case is not among the Expected-to-move targets, the Change's new coordinated-flow, loop-ledger, baseline-routing and PR-pair behaviors simply do not surface in this plan_check-FAIL narrative, which is appropriate. Keep the current stop-handling block and the explicit not-printed list exactly as is when extending the skill for the new cases.",
-      "wallMs": 15267,
+      "feedback": "Nothing moved on this case. Both outputs name Task 5 (`W3: Update the parser guide`) as the pending owner of the dead `Modify:` row, state in the printed `Repair stopped:` line that the plan file is unchanged, explicitly exclude `plan_tracker init` and any git commit, and explicitly say no `Repaired plan` receipt is printed. After additionally lists `substep` among the uncalled tools and notes the task snapshot is kept untouched, which is consistent with the Change's intent to never init an implement ledger list and to preserve snapshots; keep that phrasing. If you later extend the plan-repair stop wording for the ledger/coordinated-flow cases, retain the explicit 'no commit / no plan_tracker init / no Repaired plan receipt' bullets in the stop handling section, since those are what carry f3 and f4 here.",
+      "wallMs": 7462,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4c0d8871825ff866087db10914e064010a868a0b41f40e78abe3db35b6ebd677",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
-      "baselineOutputSha": "4e068d46cb9c3b3c835d4f8ea3e30f949df1b9b21644176492d5019b7f74fefc",
-      "candidateOutputSha": "4e068d46cb9c3b3c835d4f8ea3e30f949df1b9b21644176492d5019b7f74fefc",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
+      "baselineOutputSha": "1d5c72edff7b56df482077f864c628eb9f7d01ba96ab9b70596ce06cf80f23f3",
+      "candidateOutputSha": "63ebb569f0eacff7ad4666e0610ce1dcf07a3358a5207fbdf0370d15400d856d",
       "facts": {
         "f2": {
           "before": "holds",
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical for this case: both name Task 5 as the pending owner of the dead `Modify:` row, state the plan file is unchanged, make no plan_tracker init call or git commit, and print only the two stop lines with no Repaired plan receipt. Nothing moved, so the After wording preserves every fact Before held; the Change's new coverage (coordinated legs, PR pairs, loop ledgers, cap restoration) does not touch the outside-citation-repair stop path exercised here, and no wording adjustment is needed for this case.",
-      "wallMs": 5890,
+      "feedback": "After keeps every fact Before kept: both outputs name Task 5 as the pending owner of the dead row (\"Task 5 is `pending`\" plus the \"Task 5:\" finding line), both print \"the plan file is unchanged\", neither makes a plan_tracker init call or git commit (After is even more explicit with \"no rollback command, commit, or tracker initialization\"), and neither prints a Repaired plan receipt. No fact moved for this case; the After wording's explicit enumeration of forbidden writes and the \"saved task snapshot unchanged\" clause are harmless additions that align with the Change's goal of retaining plan in_progress without tracker initialization. Keep the explicit stop-before-write sentence and the unchanged Print block as-is.",
+      "wallMs": 5048,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "0476ccc92452cee450d009dd7cbeb8086cdc6881"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

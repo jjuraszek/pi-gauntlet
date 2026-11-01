@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
       "baselineOutputSha": "31595bf46d1e8bd2bc5aeead8bd07451a9d537aa2108ba8f9b0757608bef0c3c",
       "candidateOutputSha": "31595bf46d1e8bd2bc5aeead8bd07451a9d537aa2108ba8f9b0757608bef0c3c",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical for this sample, so nothing moved: Run A names repo-b with requested feature/shared-change versus observed feature/other and lists both the home tree and the repo-b tree under `Preserved created legs:` with nothing removed; Run F treats the absent branch read-back as a failed read-back rather than equality, emits no `Worktree ready at` for repo-b, and lists both created trees; Runs B and C stop before the creator on branch/path collision without suffixing or reuse, D stops on the human's decline with no auto-stash, and E asks exactly once for `<subproject>` without guessing, each retaining the home tree. The amendment-surface section 5 change did not touch this coordinated-flow narration, so no wording adjustment is needed here; keep the shared-setup paragraph and the per-run `Preserved created legs:` blocks as they are.",
-      "wallMs": 10483,
+      "feedback": "Before and After are byte-identical for this sample, so nothing moved: both outputs stop Run A naming repo-b with expected feature/shared-change and observed feature/other, stop Run F on the absent branch read-back without treating it as equality or emitting `Worktree ready at` for repo-b, and both print a `Preserved created legs:` block listing the repo-a home tree and the created repo-b tree with 'Nothing is removed'; Runs B/C stop before the creator on branch/path collision without suffixing or reuse, D aborts on the human's decline, E asks exactly once for the subproject, and each run retains already-created legs. The expected-to-move entry listing this sample as fails -> holds is not borne out by the Before text, which already satisfies both facts; no wording change is needed to keep them, and the After wording delivers the Change without disturbing anything here.",
+      "wallMs": 8369,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3a49edccdcb4cb80d2f5f50580c5ddf702305480c02faf8dfdcf4876779cd153",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
       "baselineOutputSha": "398d299068bbb050a782acc74af3de7e64390e3bfb8c6b3dd494785222d6e0cf",
       "candidateOutputSha": "398d299068bbb050a782acc74af3de7e64390e3bfb8c6b3dd494785222d6e0cf",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical for this case, so nothing moved: both run A stops repo-b naming expected feature/shared-change vs observed feature/other and lists the preserved home leg; both run F stops on the unavailable read-back, withholds the repo-b `Worktree ready at` line, and lists `Preserved created legs:` with both the home tree and the unverified repo-b tree; B and C stop before the creator without suffixing or reusing, D stops on the decline, and E asks once for the subproject and waits. The only soft spot in both outputs is run E, which never states explicitly that the already-created home leg is retained (it is only implied by waiting without executing); if the After wording wants to make the preflight fact unambiguous, add an explicit 'Preserve any already-created home tree' line to E matching B/C/D while leaving everything else as is.",
-      "wallMs": 11434,
+      "feedback": "Before and After are byte-identical on this case, so nothing moved. Both outputs satisfy mismatch: run A stops repo-b provisioning naming the observed feature/other against the requested feature/shared-change, and run F stops on the unavailable read-back without equating it to success, withholds the repo-b `Worktree ready at` line, and lists `Preserved created legs:` with both the home tree and the unverified repo-b tree, deleting neither. Both satisfy preflight: B and C stop before the creator without suffixing or reusing and keep the home tree, D stops on the decline preserving the home tree, and E asks once for `<subproject>` and waits without guessing or falling back. The only soft spot in both is that run E never says in so many words that the already-created home tree is retained (it just does nothing destructive); if you want that fact to be unambiguous under the new wording, add a one-line 'Preserved created legs:' list to E (and to B/C/D for symmetry) mirroring A and F, which costs nothing against the Change and keeps every fact Before kept.",
+      "wallMs": 12705,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
 }

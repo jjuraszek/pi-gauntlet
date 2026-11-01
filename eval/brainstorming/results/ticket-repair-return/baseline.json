@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "baseline",
-  "skillSha": "867a7be98b5d40c8722e85f07add513969691c9e792c647432c4f78a21a40bf4",
+  "skillSha": "61c24d3978e92a149736f103b680b4e3365677e129aa28e3ef18b24cd7fa8085",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nThe repaired acme/widgets#77 now has one criterion, \"The report-view setting uses the shared settings resolver.\" I am treating that row as `in-scope`. It matches the path already traced from `settings/resolver.ts:12` into `ui/report-view.ts:30`, so it needs no further cut question. The framing stays kept.\n\nOne behavior is still undecided: what the new setting controls when the user switches workspaces. Today, filters stay active after a switch and can hide rows in the new workspace. Which outcome should ship?\nA) A setting `resetFiltersOnWorkspaceChange`, default on - switching workspaces clears all report filters unless the user turns it off.\nB) The same setting, default off - today's carry-over stays the default, and users opt in to clearing.\nC) A setting with a \"prune\" mode - on a switch, only filters that reference values missing from the new workspace are dropped, and valid filters carry over.\nD) other - name it.\nRecommendation: A - the reported harm is rows hidden by stale filters, and a default-on reset fixes that for every user while still letting anyone who wants carry-over keep it.\n",
-      "words": 174,
-      "wallMs": 10454,
+      "text": "gauntlet: question\nThe repaired acme/widgets#77 now has one criterion: \"The report-view setting uses the shared settings resolver.\" I re-extracted it, and it stays `in-scope`. It matches the traced path from `settings/resolver.ts:12`, which owns defaults, into `ui/report-view.ts:30`, which consumes the resolved settings. No disposition change is needed, and the kept framing stands.\n\nOne behavior is still undecided: what the setting does to active report filters when the user switches workspaces. Today the filters carry over and can hide rows in the new workspace. Which outcome should the setting produce by default?\nA) reset by default - switching workspaces clears report filters, and users can opt in to keep them\nB) keep by default - current behavior stays the default, and users can opt in to resetting filters on a switch\nC) per-workspace memory - each workspace restores its own last filters, so one workspace's filters never apply to another\nD) other - name it\nRecommendation: A - it fixes the reported hidden-rows problem without the user doing anything. It also needs only a resolver default plus one consumer check in the report view, with no new filter storage.\n",
+      "words": 182,
+      "wallMs": 11496,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nThe saved repair to acme/widgets#77 now requires the shared settings resolver, matching the verified resolver-to-report-view path. I’ll retain that ownership decision. What behavior should the new setting select when switching workspaces?\nA) Reset report filters so filters from the previous workspace cannot hide rows.\nB) Preserve report filters across workspace changes.\nC) Restore each workspace’s own last-used filters.\nD) other - name it.\nRecommendation: A - it directly addresses the reported hidden-row problem without introducing per-workspace filter storage.\n",
-      "words": 78,
-      "wallMs": 8283,
+      "text": "gauntlet: question\nThe saved repair to acme/widgets#77 is verified: its acceptance criterion now requires the shared settings resolver, so that requirement stays in scope. The framing remains kept. What should happen to active report filters when switching workspaces?\nA) Clear the filters on every workspace switch.\nB) Restore each workspace’s previous filters, using no filters for a workspace without saved filters.\nC) Make clearing filters on workspace switch configurable through the shared resolver.\nD) other - name it.\nRecommendation: C - it addresses hidden rows while delivering the requested report-view setting through the existing settings path.\n",
+      "words": 94,
+      "wallMs": 8499,
       "mechanical": {}
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
 }

@@ -284,6 +284,27 @@
     assert.deepEqual([resumed.gauntletEntered, resumed.lastSpecWrite], [true, "/repo/doc/specs/a.md"]);
   });
 
+  test("session resume restores the last successful plan snapshot for reopen counting", async () => {
+    const first = await boundInPlan();
+    const closed = [{ name: "a", status: "complete" }];
+    const planResult = (tasks: { name: string; status: string }[], error?: string) => ({
+      type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: { action: "update", tasks, error } },
+    });
+    const branch = [
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: join(first.root, "doc/specs/a.md") } } },
+      planResult([{ name: "a", status: "pending" }]),
+      planResult(closed),
+      planResult([{ name: "a", status: "failed" }], "failed"),
+    ];
+    const second = harness({ sessionId: "s2", branch });
+    second.ctx.cwd = first.root;
+    await second.emit("session_start", { type: "session_start", reason: "resume" });
+    await second.emit("tool_result", { toolName: "plan_tracker", toolCallId: "pt", input: { action: "update" }, content: [], isError: false, details: { action: "update", tasks: [{ name: "a", status: "in_progress" }] } });
+    assert.equal(second.readRecord().derived.gates.task_reopens, 1);
+    assert.deepEqual(replayBranch(branch, ["doc/specs"]).lastPlanTasks, closed);
+  });
+
   test("replayBranch honors a custom spec dir list", () => {
     const branch = [
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
@@ -1340,3 +1361,85 @@ test("resume skip reads engine from bound spec live and on branch replay", async
     }
   }
 });
+
+  test("any successful tracker action counts named transitions once and ignores retries and amendments", async () => {
+    const h = await boundInPlan();
+    const pt = (action: string, tasks: { name: string; status: string }[], isError = false) => h.emit("tool_result", { toolName: "plan_tracker", input: { action }, details: { action, tasks }, content: [], isError });
+    const closed = [{ name: "a", status: "complete" }, { name: "b", status: "complete" }];
+    const reopened = [{ name: "b", status: "failed" }, { name: "a", status: "in_progress" }];
+    await pt("init", closed);
+    await pt("refresh", reopened, true);
+    assert.equal(h.readRecord().derived.gates.task_reopens, 0);
+    await pt("refresh", reopened);
+    await pt("refresh", reopened);
+    await pt("status", [{ name: "a", status: "in_progress" }, { name: "b", status: "in_progress" }]);
+    assert.equal(h.readRecord().derived.gates.task_reopens, 2);
+    assert.equal(h.readRecord().events.filter((e) => e.kind === "gate" && e.gate === "task_reopen").length, 1);
+    await pt("add", closed);
+    await pt("refresh", [{ name: "a", status: "skipped" }, { name: "b", status: "pending" }]);
+    await pt("clear", []);
+    await pt("init", reopened);
+    assert.equal(h.readRecord().derived.gates.task_reopens, 2);
+  });
+
+  test("verification calls count from implement start through seal, reload and flush", async () => {
+    const h = await boundInPlan();
+    await h.bash("before", "npm test");
+    assert.equal(h.readRecord().derived.verification_runs, undefined);
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }));
+    assert.equal(h.readRecord().derived.verification_runs, 0);
+    await h.bash("implement", "npm test", true);
+    assert.equal(h.readRecord().derived.verification_runs, 1);
+    assert.equal(h.readRecord().derived.tests, undefined);
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "in_progress" }));
+    await h.bash("verify1", "npm test");
+    await h.bash("verify2", "cd x && npm test", true);
+    await h.bash("unmatched", "echo verification: custom-check");
+    assert.equal(h.readRecord().derived.verification_runs, 3);
+    assert.deepEqual(h.readRecord().derived.tests, { command: "npm test", result: "fail" });
+    const branch = [{ type: "message", message: { role: "toolResult", toolName: "phase_tracker", isError: false, details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", isError: false, details: { action: "skip", phases: { ...P({ brainstorm: "skipped", plan: "complete", implement: "complete", verify: "in_progress" }), brainstorm: { status: "skipped", reason: "resume: doc/specs/a.md" } } } } }];
+    const resumed = harness({ branch, sessionId: "s2" });
+    resumed.ctx.cwd = h.root;
+    await resumed.emit("session_start", {});
+    await resumed.bash("resumed", "npm test");
+    assert.equal(resumed.readRecord().derived.verification_runs, 4);
+    await resumed.phaseResult("start", P({ brainstorm: "skipped", plan: "complete", implement: "complete", verify: "complete", ship: "in_progress" }));
+    await resumed.bash("ship", "npm test");
+    process.env.PI_SUBAGENT_DEPTH = "1";
+    try { await resumed.bash("child", "npm test"); } finally { process.env.PI_SUBAGENT_DEPTH = "0"; }
+    await resumed.emit("session_shutdown", {});
+    assert.equal(resumed.readRecord().derived.verification_runs, 5);
+    const sealed = { ...resumed.readRecord(), status: "shipped" as const, shipped_at: "2026-09-17T18:00:00Z" };
+    writeFileSync(resumed.recordPath(), serializeRecord(sealed));
+    const before = readFileSync(resumed.recordPath(), "utf8");
+    await resumed.bash("sealed", "npm test");
+    assert.equal(readFileSync(resumed.recordPath(), "utf8"), before);
+    const unbound = harness();
+    await unbound.bash("unbound", "npm test");
+    assert.equal(existsSync(unbound.recordPath()), false);
+  });
+
+  test("sealed loop fixture keeps dispatch iterations, skipped plan rows and verification runs", async () => {
+    const h = harness({ jjWorkspace: true, gitFail: (args) => args[0] === "rev-parse" ? { code: 1, stdout: "", stderr: "not git" } : undefined });
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md", "# Spec\n\n**Engine:** loop\n\n## Scope\nSynthetic run.\n");
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "in_progress" }));
+    const pt = (tasks: { name: string; status: string }[]) => h.emit("tool_result", { toolName: "plan_tracker", input: { action: "refresh" }, details: { action: "refresh", tasks }, isError: false, content: [] });
+    await pt([{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "in_progress" }]);
+    await h.emit("tool_result", { toolName: "subagent", input: {}, details: { results: [{ agent: "loop-implementer", exitCode: 0 }] }, content: [], isError: false });
+    await pt([{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "complete" }]);
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "in_progress" }));
+    await h.bash("verify", "npm test");
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "complete", ship: "in_progress" }));
+    await h.phaseResult("complete", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "complete", ship: "complete" }));
+    const rec = h.readRecord();
+    assert.equal(rec.status, "shipped");
+    assert.equal(rec.derived.engine, "loop");
+    assert.equal(rec.derived.iterations, 1);
+    assert.equal(rec.events.filter((e) => e.kind === "dispatch" && e.agent === "loop-implementer").length, 1);
+    assert.deepEqual(rec.derived.plan, { tasks: 3, complete: 2, failed: 0, skipped: 1 });
+    assert.equal(rec.derived.verification_runs, 1);
+    assert.equal(rec.derived.events_dropped, 0);
+  });

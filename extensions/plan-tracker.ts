@@ -6,6 +6,8 @@
  * Shows a persistent TUI widget above the editor.
  */
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
@@ -15,10 +17,11 @@ const TASK_STATUSES = ["pending", "in_progress", "complete", "failed", "skipped"
 type TaskStatus = (typeof TASK_STATUSES)[number];
 
 interface Task { name: string; status: TaskStatus; }
-interface PlanTrackerDetails { action: "init" | "add" | "update" | "status" | "clear"; tasks: Task[]; error?: string; }
+interface PlanTrackerDetails { action: "init" | "add" | "update" | "status" | "clear" | "refresh"; tasks: Task[]; error?: string; }
 
 const PlanTrackerParams = Type.Object({
-  action: StringEnum(["init", "add", "update", "status", "clear"] as const, { description: "Action to perform" }),
+  action: StringEnum(["init", "add", "update", "status", "clear", "refresh"] as const, { description: "Action to perform" }),
+  path: Type.Optional(Type.String({ description: "Artifact path for refresh; relative paths resolve against the session cwd" })),
   tasks: Type.Optional(Type.Array(Type.Union([
     Type.String(),
     Type.Object({ name: Type.String(), status: StringEnum(TASK_STATUSES, { description: "Status to recreate the task with (init only)" }) }),
@@ -38,6 +41,62 @@ export function validateSnapshot(tasks: Task[]): number[] {
     else if (seenNonPending) offenders.unshift(i);
   }
   return offenders;
+}
+
+function ledgerTasks(text: string, path: string): Task[] {
+  const lines = text.split("\n");
+  if (lines[0] !== "# Ledger - loop engine") {
+    throw new Error(`refresh: ${path} line 1 is ${JSON.stringify(lines[0])}, not a loop ledger`);
+  }
+  const malformed = (index: number): never => { throw new Error(`refresh: ${path} row table malformed at line ${index + 1}`); };
+  const header = lines.findIndex(line => /^\|\s*row\s*\|\s*status\s*\|\s*attempts\s*\|\s*evidence\s*\|$/.test(line));
+  if (header < 0) malformed(0);
+  if (!/^\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|$/.test(lines[header + 1] ?? "")) malformed(header + 1);
+  const rows: { row: number; status: string }[] = [];
+  for (let i = header + 2; i < lines.length && lines[i].trim() && !/^#{1,2}\s/.test(lines[i]); i++) {
+    const cells = lines[i].split(/(?<!\\)\|/).slice(1, -1).map(cell => cell.trim());
+    if (!lines[i].startsWith("|") || !lines[i].endsWith("|") || cells.length !== 4 || !/^\d+$/.test(cells[0]) || !/^(open|done|failed|cut)$/.test(cells[1])) malformed(i);
+    rows.push({ row: Number(cells[0]), status: cells[1] });
+  }
+  if (!rows.length) malformed(header + 2);
+  const byRow = new Map(rows.map(row => [row.row, row]));
+  const pendingMatch = lines.map(line => /^pending: (seed|\d+) \| (\S+) \| ([a-f0-9]{7,40})$/.exec(line)).find(Boolean);
+  const pending = pendingMatch && pendingMatch[1] !== "seed" ? Number(pendingMatch[1]) : undefined;
+  if (pending !== undefined && !byRow.has(pending)) {
+    throw new Error(`refresh: ${path} pending: names row ${pending} which is absent`);
+  }
+  const dispatched = new Set<number>();
+  let mapping: { row: number; repo: string }[] | undefined;
+  let section = "";
+  for (const line of lines) {
+    if (/^#{1,2}\s/.test(line)) {
+      section = line;
+      if (section === "## Leg mapping") mapping = [];
+      continue;
+    }
+    if (section === "## Decisions") {
+      const decision = /^row (\d+) done \| .+ \| .+$/.exec(line);
+      if (decision) dispatched.add(Number(decision[1]));
+    } else if (section === "## Leg mapping") {
+      const entry = /^\|\s*(\d+)\s*\|\s*\d+\s*\|\s*(\S+)\s*\|$/.exec(line);
+      if (!entry) continue;
+      const row = Number(entry[1]);
+      if (!byRow.has(row)) throw new Error(`refresh: ${path} leg mapping names row ${row} which is absent`);
+      mapping!.push({ row, repo: entry[2] });
+    }
+  }
+  const status = (row: number): TaskStatus => {
+    const value = byRow.get(row)!.status;
+    if (value === "cut") return "skipped";
+    if (value === "done") return dispatched.has(row) ? "complete" : "skipped";
+    if (row === pending) return "in_progress";
+    return value === "failed" ? "failed" : "pending";
+  };
+  const entries = mapping ?? rows.map(({ row }) => ({ row, repo: undefined }));
+  return entries.sort((a, b) => a.row - b.row).map(({ row, repo }) => ({
+    name: `row ${row}${repo === undefined ? "" : ` (${repo})`}`,
+    status: status(row),
+  }));
 }
 
 const RULE_LINE = "Rule: pending tasks must trail every started or finished task.";
@@ -115,12 +174,47 @@ export default function (pi: ExtensionAPI) {
     name: "plan_tracker",
     label: "Plan Tracker",
     description:
-      "Track progress while EXECUTING an implementation plan (the implement phase), a verify-phase conformance fix wave, or another bounded gate checklist (e.g. pre-merge PR verification). Statuses: pending (not yet touched), in_progress (started; several at once is fine), complete, failed (terminal-negative: ran and did not pass; never counted done), skipped (terminal: not applicable in this run; counted done). Rule: pending tasks must trail every started or finished task - an update that would leave a pending task ahead of a non-pending one is rejected with the fix. update never sets pending; init and add do. Actions: init (set task list; elements are task-name strings or { name, status } to recreate a list with known statuses), add (append tasks as pending; existing statuses preserved), update (change task status), status (show current state), clear (remove plan). Do NOT use for brainstorming, research, or planning checklists: those phases are open-ended and a bounded task list misrepresents them as a fixed N-step process.",
+      "Track progress while EXECUTING an implementation plan (the implement phase), a verify-phase conformance fix wave, or another bounded gate checklist (e.g. pre-merge PR verification). Statuses: pending (not yet touched), in_progress (started; several at once is fine), complete, failed (terminal-negative: ran and did not pass; never counted done), skipped (terminal: not applicable in this run; counted done). Rule: pending tasks must trail every started or finished task - an update that would leave a pending task ahead of a non-pending one is rejected with the fix. update never sets pending; init and add do. Actions: init (set task list; elements are task-name strings or { name, status } to recreate a list with known statuses), add (append tasks as pending; existing statuses preserved), update (change task status), status (show current state), clear (remove plan), refresh (derive tasks from an artifact path while retaining other tasks). Do NOT use for brainstorming, research, or planning checklists: those phases are open-ended and a bounded task list misrepresents them as a fixed N-step process.",
     parameters: PlanTrackerParams,
     executionMode: "sequential",
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       switch (params.action) {
+        case "refresh": {
+          let proposed: Task[];
+          try {
+            if (!params.path) throw new Error("refresh: cannot read <missing>: path required");
+            const path = resolve(ctx.cwd, params.path);
+            let text: string;
+            try {
+              text = readFileSync(path, "utf8");
+            } catch (error) {
+              throw new Error(`refresh: cannot read ${path}: ${error instanceof Error ? error.message : String(error)}`);
+            }
+            const projected = ledgerTasks(text, path);
+            const kept = tasks.filter(task => !/^row \d+(?: \(\S+\))?$/.test(task.name));
+            proposed = [
+              ...projected.filter(task => task.status !== "pending"),
+              ...kept.filter(task => task.status !== "pending"),
+              ...projected.filter(task => task.status === "pending"),
+              ...kept.filter(task => task.status === "pending"),
+            ];
+            if (validateSnapshot(proposed).length) throw new Error(`refresh: ${path}: ${RULE_LINE}`);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            return {
+              content: [{ type: "text", text: `Error: ${message}` }],
+              details: { action: "refresh", error: message } as PlanTrackerDetails,
+            };
+          }
+          tasks = proposed;
+          updateWidget(ctx);
+          return {
+            content: [{ type: "text", text: `Plan refreshed with ${tasks.length} tasks.\n${formatStatus(tasks)}` }],
+            details: { action: "refresh", tasks: tasks.map(t => ({ ...t })) } as PlanTrackerDetails,
+          };
+        }
+
         case "init": {
           if (!params.tasks || params.tasks.length === 0) {
             return {
@@ -316,6 +410,8 @@ export default function (pi: ExtensionAPI) {
 
       const taskList = details.tasks;
       switch (details.action) {
+        case "refresh":
+          return new Text(theme.fg("success", "✓ ") + theme.fg("muted", `Plan refreshed with ${taskList.length} tasks`), 0, 0);
         case "init":
           return new Text(
             theme.fg("success", "✓ ") + theme.fg("muted", `Plan initialized with ${taskList.length} tasks`),

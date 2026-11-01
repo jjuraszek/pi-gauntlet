@@ -1,7 +1,7 @@
 {
   "sample": "legs-seed-file",
   "arm": "candidate",
-  "skillSha": "30a2ce95d08b8f48da1ee21c009adb68887a471d6b752e4c5d054d80f91c70d6",
+  "skillSha": "842870c96fff0f027bec450ecb6cca809e087f35cbcd669d8c115fbde0a73cdc",
   "inputSha": "5f25d3b5b40c145a266310f58d6be5ebc05fcaf4c0d9d62d825258d8de136867",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Narration of the coordinated-admission step**\n\n1. **Read the header of the resolved spec input.** The input is `/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md`.\n   - Its header carries `**Home:** repo-a feature/shared-change doc/specs/shared.md`.\n   - Its body holds Problem, Decisions and only the `### Leg: repo-b` block.\n   - That makes it a companion leg file, not a home spec.\n\n2. **Apply the coordinated-admission rule.** Resume must resolve the home spec and never a companion leg file. `seed.md` adds that a `**Home:**` header must stop the run. It must name the home repo, branch and spec path, and direct resume to that home. A run is never created from a leg file.\n\n3. **Make no further calls.** Nothing below runs:\n   - no `phase_tracker` call (`start brainstorm`, skips, `start plan`, `start implement`)\n   - no `plan_check({ planPath })` call\n   - no `## Plan repair`\n   - no `plan_tracker init` for W1/W2\n\n   The tracker state stays idle, exactly as it was after entry check 1.\n\n**Printed:**\n\n```\ngauntlet: stuck companion leg file, not a home spec: /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md carries **Home:** repo-a feature/shared-change doc/specs/shared.md\nHome repo: repo-a; branch: feature/shared-change; spec: doc/specs/shared.md\nResume from the home instead: /skill:gauntlet-resume against /work/repo-a/.worktrees/feature-shared-change (home spec /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md), run from the home primary /work/repo-a. Never create a run from a leg file.\n```\n\nThe restore ends here with no tracker mutation. No closing gate-history line or standing-grant line is printed, because no restore happened.\n",
-      "words": 211,
-      "wallMs": 22241,
+      "text": "# Gauntlet Resume: two independent runs\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\nThe input contains two independent observations, so I narrate them as two separate runs.\n\n---\n\n## Run A: Coordinated brief, every admission check matches\n\n**Coordinated admission** (read-only, before any tracker write):\n\n1. **Home binding.** Entry check 3 ran against the run home `/work/repo-a/.worktrees/feature-shared-change`. It is unchanged and passed.\n2. **Home spec.** Candidates resolved the home spec `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`, not a companion leg file. The spec is approved, and artifact presence was not used as approval.\n3. **Membership.** The brief `legs:` order is `repo-a, repo-b`. The home spec `### Leg:` order is `repo-a, repo-b`. They are equal.\n4. **repo-b declared primary.** The home sibling `git@github.com:acme/repo-b.git` parses to NAME `repo-b`, so the primary is `/work/repo-b`. Its canonical common dir is `/work/repo-b/.git`.\n5. **repo-b worktree.** The worktree is `/work/repo-b/.worktrees/feature-shared-change`.\n   - Common dir: `/work/repo-b/.git`, which matches the primary.\n   - Live branch: `feature/shared-change`, which matches.\n   - Leg file `**Home:**`: `repo-a feature/shared-change doc/specs/shared.md`, which matches the run home tuple.\n6. **Receipts.** Both trees are present, so no receipt admission is needed.\n7. **Drift notice.** No per-leg HEAD or dirty divergence was supplied, so I announce no drift for repo-a or repo-b.\n\n**Call table, row \"implement with task plan\":**\n\n- `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n- `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })`\n- `phase_tracker({ action: \"start\", phase: \"plan\" })`\n- `plan_check({ planPath: \"/work/repo-a/.worktrees/feature-shared-change/doc/plans/shared.md\" })` returned **PASS**, so no plan repair ran.\n- `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: <brief file>\" })`\n- `phase_tracker({ action: \"start\", phase: \"implement\" })`\n- Feasibility check before `init`:\n  - The pending-suffix rule holds.\n  - Not every task is complete, so implement does not auto-complete.\n- `plan_tracker({ action: \"init\", tasks: [{ name: \"W1\", status: \"complete\" }, { name: \"W2: reader\", status: \"in_progress\" }] })`\n\n**Printed lines:**\n\n```\nGate history not restored; re-validating `W2: reader` before any stage advance\nNo standing grant.\n```\n\nThe second line assumes the spec has no `**Amend-grant:**` line or that it is `none`. If the spec has a valid grant value, this line reads `Standing grant active: <sentence>` instead.\n\n**Next step.** Continue in `subagent-driven-development` without its reset-bearing entry:\n\n- Re-validate `W2: reader` by re-running its `Tests:`.\n- Run that work in the checkout named by its `Leg:`, not home by default.\n- Then resume the task loop from the first non-complete task.\n\n---\n\n## Run B: Input is the companion leg file\n\nThe input is `/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md`.\n\n**Read the header first** (a read-only action). It contains `**Home:** repo-a feature/shared-change doc/specs/shared.md`, which marks a companion leg file, not a home spec. Two rules apply:\n\n- On the seed route, `seed.md` requires a stop before the seed sequence.\n- On the coordinated reconstruction route, the rule is to \"resolve the home spec, never a companion leg file.\"\n\nI make no `phase_tracker` or `plan_tracker` call, no `plan_check`, and no `/skill:using-git-worktrees` invocation. No run is created from the leg file.\n\n```\ngauntlet: stuck companion leg file, not a spec: /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md - home is repo-a, branch feature/shared-change, spec doc/specs/shared.md; resume from that home (e.g. /skill:gauntlet-resume /work/repo-a/.worktrees/feature-shared-change from the repo-a primary /work/repo-a)\n```\n",
+      "words": 477,
+      "wallMs": 24355,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Seed input — companion file\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nRead(\"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\")\n```\n\nObserve:\n```text\n**Home:** repo-a feature/shared-change doc/specs/shared.md\n```\n\nPrint:\n```text\ngauntlet: stuck /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md is a companion leg file; home is repo-a, branch feature/shared-change, spec doc/specs/shared.md. Resume from the home repository, not this companion file.\n```\n\nStop. No worktree creation, tracker mutation, or `plan_check`.\n\n### Independent coordinated home restore\n\nThe supplied membership, common-directory, branch, and full `**Home:**` tuple checks match. There is no coordinated-admission mismatch to print.\n\nWith entry checks passed, the legal restore sequence leading to the requested call-table step is:\n\n```text\nphase_tracker({\n  action: \"start\",\n  phase: \"brainstorm\"\n})\n\nphase_tracker({\n  action: \"skip\",\n  phase: \"brainstorm\",\n  reason: \"resume: /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\"\n})\n\nphase_tracker({\n  action: \"start\",\n  phase: \"plan\"\n})\n\nplan_check({\n  planPath: \"/work/repo-a/.worktrees/feature-shared-change/doc/plans/shared.md\"\n})\n```\n\nNo `plan_check` result is supplied, so no result-dependent continuation, repair, task initialization, or successful-restore closing lines can be narrated.\n",
-      "words": 137,
-      "wallMs": 17620,
+      "text": "### Run 1 — Coordinated admission\n\nThe supplied observations satisfy coordinated admission: ordered membership, repository binding, shared branches, and the companion’s full `**Home:**` tuple all match. The companion header is expected here and does not stop admission.\n\nNo `plan_check` call can be narrated exactly from this input: the absolute task-plan path and the `plan_check` result were not supplied. I do not infer PASS or continue with tracker mutations.\n\n### Run 2 — Companion file supplied as seed/reconstruction input\n\nRead:\n```text\nRead({ path: \"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\" })\n```\n\nObserved header:\n```text\n**Home:** repo-a feature/shared-change doc/specs/shared.md\n```\n\nPrint:\n```text\ngauntlet: stuck companion leg file: /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md - home is repo-a feature/shared-change doc/specs/shared.md; resume from the home.\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nStop. Do not treat this file as the home spec, create a worktree, call `plan_check`, mutate either tracker, or enter plan repair.\n",
+      "words": 135,
+      "wallMs": 14894,
       "mechanical": {}
     }
   },
@@ -34,26 +34,42 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6037d32c20d78a1efc7bcf5b85af5002d85a2c7dfefb6f2549764d93f238c436",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2049792b9304d1092ff15d94213bbc3d9c337bee3db7b58c1f27858a3873df4c",
-      "baselineOutputSha": "a7114cdca4cfe6b5b8d00f8e1cb5f8aa4d94c63103ae9686b6f2260ee2057caa",
-      "candidateOutputSha": "1e89be48bbeb47e99404762f216cd1899a3e593190af00a660b4ce88ecb1a1e5",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
+      "baselineOutputSha": "21d53e00b387113bcbf5d07b7642aa09c5c2c1079ff55ca8b1a9be89c41bd654",
+      "candidateOutputSha": "7a6f04dee59cb414063329113812ab0b7c74eddec1d6fc6ac44da1d9d9991b14",
       "facts": {
         "refuse": {
           "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "after": "fails",
+          "label": "regression"
         }
       },
-      "feedback": "Both outputs satisfy the fact. Before's Run 1 reads the **Home:** header, stops before the seed sequence, lists the tracker calls that do not run, and prints a stop line naming repo-a, feature/shared-change and doc/specs/shared.md with a redirect to the home worktree; its Run 2 is the separate matching-brief admission the input asked to be treated as its own run, so its tracker init is the legitimate home flow, not a second one manufactured from the leg file. After drops the second run and narrates only the refusal, adding the explicit 'no plan_check / no plan repair / no plan_tracker init' list, the idle-tracker note, and a three-line stop message carrying the home repo, branch, relative spec path, the resolved home spec path and the home primary. Nothing moved; if you want the After wording to stay robust, keep the exact home spec path on the stop line (as it now does) and keep the explicit 'never create a run from a leg file' sentence, and if you retain the separate matching-brief run elsewhere, label it clearly as a distinct observation so a reader does not mistake its tracker init for a seed from the leg file.",
-      "wallMs": 17571,
-      "verdict": "unchanged"
+      "feedback": "Before reads the single observation (the companion leg file as the seed/reconstruction input), stops on the **Home:** header, names repo-a as home with branch feature/shared-change and spec doc/specs/shared.md, points to the home primary /work/repo-a, and makes no phase_tracker, plan_check or plan_tracker init call. After's Run B does the same refusal correctly, but After splits the input into two runs and in Run A narrates a full coordinated admission for the home - phase_tracker start/skip, plan_check, and plan_tracker init with W1/W2 - on the same input whose only observation is the companion leg file (the setup says the matching-leg assumptions hold 'unless the observation below overrides it'). That manufactured home flow with tracker initialization is exactly what the fact forbids, so a careful reader sees trackers initialized and a second home flow fabricated alongside the refusal. To keep the fact while delivering the Change, the After wording should instruct: when the resolved seed/reconstruction input is a companion leg file, treat that as the sole observation for this invocation and stop there - do not also project the hypothetical matching-admission path or any tracker chain for the home; only redirect the operator to re-run from the home primary with the brief or home worktree. Reserve the 'treat independent observations as separate runs' split for cases that present explicitly separate labeled observations (A/B/C), not for a scenario preamble followed by one overriding observation.",
+      "wallMs": 23474,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "The restore stops at coordinated admission, before `plan_check`. The supplied spec input is repo-b's companion leg file, not the home spec. No tracker write runs.\n\n**Tool calls, in order**\n\n1. `Read({ path: \"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\" })` reads the header block between the H1 and the first `##`.\n   - Observed: `**Home:** repo-a feature/shared-change doc/specs/shared.md`, followed by Problem, Decisions and only the `### Leg: repo-b` block.\n   - A `**Home:**` header marks a companion leg file. `reference/seed.md` requires a stop here: never create a run from a leg file.\n   - \"Coordinated admission\" and reconstruction \"Candidates\" also say to resolve the home spec, never a companion leg file. The leg file therefore cannot become the spec for check 6, the `S` skip reason, or `plan_check`.\n\nNo `phase_tracker` call is made: no `start brainstorm`, `skip`, `start plan` or `start implement`. No `plan_check`, no `plan_tracker init`, no Plan repair and no worktree creation happen either.\n\n**Printed, in order**\n\n```\ngauntlet: stuck companion leg file, not a home spec: /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md (**Home:** repo-a feature/shared-change doc/specs/shared.md)\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nhome is repo-a; restart there\nResume from the home: run /skill:gauntlet-resume from the home primary /work/repo-a, passing the home worktree /work/repo-a/.worktrees/feature-shared-change (or the brief), so the home spec /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md is resolved. The repo-b leg file is never a run source.\n```\n\nThe session ends with no mutation. The phase tracker stays all pending, there is no task list, and the brief's W1 complete / W2 in_progress snapshot is not applied. No closing gate-history line or standing-grant line is printed, because no restore happened.\n",
+        "words": 249,
+        "wallMs": 15385,
+        "mechanical": {},
+        "judgeWallMs": 5415,
+        "facts": {
+          "refuse": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Both outputs refuse seeding from the repo-b leg file, name repo-a as home with its spec path /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md, make no tracker writes, and redirect to the home primary rather than manufacturing a second home flow, so the refuse fact holds in both. After adds useful explicit statements (the W1/W2 snapshot is not applied, no gate-history/grant line printed, the leg file cannot feed check 6 or the S skip reason), which strengthen the no-second-flow side without moving anything; the only wording risk is the terse unpunctuated line `home is repo-a; restart there`, which is redundant with the following sentence and could be dropped or folded into the stop line to keep the printed block as clean as Before's while retaining the extra non-mutation assurances."
+      }
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6037d32c20d78a1efc7bcf5b85af5002d85a2c7dfefb6f2549764d93f238c436",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2049792b9304d1092ff15d94213bbc3d9c337bee3db7b58c1f27858a3873df4c",
-      "baselineOutputSha": "889cdf603f92d7515cba112eb1d654a99a9fb4151ef308cc1159b90712d13985",
-      "candidateOutputSha": "1c430f6d3c21717c187505b6d7a9c98245e35a58137b64eb397a8ca3297050e4",
+      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
+      "baselineOutputSha": "d6e70678e6506580ea97f2259b3c7877c81daf148cc47f9e6c650ba0f25ef23f",
+      "candidateOutputSha": "b6714d480a33ff53fcbfc1792be7c9ea8219502c8cf69ac9c2966b5df0140ea5",
       "facts": {
         "refuse": {
           "before": "holds",
@@ -61,10 +77,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs refuse to seed from the companion leg file, name repo-a as home with branch feature/shared-change and spec doc/specs/shared.md, and stop without tracker mutation on that path, so the fact holds in each. After adds an 'Independent coordinated home restore' section that narrates phase_tracker start/skip/start and a plan_check from the home worktree; because the input instructs treating independent observations as separate runs, this reads as the legitimate home flow rather than a manufactured second home flow, but it is the one place a strict reader could see 'initialize trackers' creeping in next to the refusal. To keep the fact unambiguous while delivering the Change, keep the companion-seed refusal fully self-contained and restore Before's explicit stop clause ('no ... reconstruction from the companion file'), label the home section as a separate run admitted from /work/repo-a and not derived from the companion file, and state that it stops at admission pending the unsupplied plan_check result before any task initialization.",
-      "wallMs": 15344,
+      "feedback": "Nothing moved: both outputs refuse to seed from the companion leg file, name repo-a as home with doc/specs/shared.md, stop before any worktree creation, plan_check, or tracker mutation, and never manufacture a second home flow. Two minor wording regressions in After worth tightening without affecting the fact: (1) the skill announcement line \"I'm using the gauntlet-resume skill...\" is printed inside the stop block after the stuck message, whereas Before prints it first as the opening line of each run — move it back to the top so the stop message is the final print; (2) Run 1 in After drops the explicit plan_check call that Before narrates at the call-table position (with the absolute path derived from the run home), replacing it with a claim that the path was not supplied even though the run home and spec path are given — restore the call narration and only withhold the PASS inference. Otherwise the After refusal text is equivalent and delivers the Change's companion-seed refusal before tracker mutation.",
+      "wallMs": 9170,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d2e35168c92e6dd5e2a1bac003344a377448be67"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }
