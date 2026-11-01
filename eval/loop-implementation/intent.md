@@ -1,6 +1,8 @@
-for: f1577880eb84309c0c5ea53d160e0f751ed90a22022f34842b46ecfb0e55b654
+for: 6ebb2e047fc00d074da18e326fe0f927c21fba37e7355f48e155dbc4fca1d970
 
 ## Change
+Repair an admitted-boundary seed validation miss and retry seed once with the seed-contract instruction plus the concrete miss in hint. Restore rows and decisions, retain consumed iterations, clear pending and share the existing two-miss window across home and companion paths. Add seed-retry for first/second misses, successful-window reset, repair-to-retry resume and boundary exclusions. Run only seed-retry in this iteration; these synthetic traces cover narrated repair and retry, not live dispatch or ordinary seed selection. Leave the closed partial-seed admission sample unchanged.
+
 Admit a seed return with evidence on at least one non-cut row, including a companion subset that omits earlier mapped rows. Preserve unreached cells, zero attempts and cut dispositions; count returned evidenced rows and baseline closures, rejecting zero evidence and invented counts. Add partial-seed for home and companion admission only. Run only partial-seed here; these text replays cover narrated admission, not live dispatch, retry or next-target selection. Deterministic fixtures exercise the companion recipe beside its existing siblings.
 
 Admit companion target results plus same-leg open-to-done extras from four-cell commit rows and matching target-first decisions. Write every admitted row and decision in the home recording commit, retain the target's operational decision and recover the same result once without dispatch or checks. Add companion-multi-row for successful and failed targets, rejected result sets and pending recovery. Run only companion-multi-row here; deterministic companion fixtures exercise the inline recipe, while these partial text replays exercise parent recording instructions, not live runtime dispatch. Seed admission and seed retry remain outside this change.
