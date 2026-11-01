@@ -1,5 +1,7 @@
 # Loop engine: row-scaled iteration cap, durable cap grants, tree-wide AC splitting
 
+> **Superseded by:** [doc/specs/2026-11-01-gh-108-loop-single-allowance.md](./2026-11-01-gh-108-loop-single-allowance.md) - row-scaled total cap and `cap +N` grant portions of Design, Errors and Tests only; the AC-splitting design stays live
+
 **Goal:** Size the loop engine's total iteration cap from the ledger's row count, record it and every human grant in the ledger so rule 4 and resume read one durable value, and split "zero findings anywhere" drafted acceptance rows into per-family rows at spec-writing so a single row can no longer absorb a run.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves
