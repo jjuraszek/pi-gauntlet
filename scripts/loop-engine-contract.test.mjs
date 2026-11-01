@@ -100,7 +100,37 @@ test('coordinated loop owns stable mappings, attributed returns and pending reco
   assert.ok(driver.includes('single-member/legacy paths free of a companion loop, leg file, `legs:` brief or `--leg` argument'));
 });
 
-test('coordinated reference reads gate fresh entry and every restore before dispatch decisions', () => {
+test('driver holds capture grant and leg paths outside the dispatch loop', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
+  const holds = driver.split('\n## Driver holds\n')[1]?.split('\n## Before each dispatch\n')[0];
+  assert.ok(holds, 'Driver holds section after Entry');
+  for (const token of ['ledger', 'one file reference', 'status --porcelain', 'rev-list --count', 'rev-parse', 'show -s --format=%b', 'absolute paths', 'overrides', 'source files', 'test output', 'logs', 'last 20 lines', 'Never diagnose', 'rows by status', 'iterations', 'cap', 'last decision', 'decoded amendment grant', "each leg's checkout path"]) assert.ok(holds.includes(token), token);
+  assert.match(entry, /At seed and at an authorized restore, before entering the dispatch loop, read the spec in full/);
+  assert.match(entry, /Decode `\*\*Amend-grant:\*\*`.*Value decoding/);
+  assert.match(entry, /Capture.*ordered leg membership.*checkout paths.*Rules/);
+  const before = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0];
+  assert.match(before, /Use the held decoded amendment grant/);
+  assert.doesNotMatch(before, /Decode the current|spec whose `## Legs`/);
+  const human = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
+  assert.match(human, /Outside the dispatch loop.*amendment.*re-decode.*refresh.*held.*checkout paths/);
+  assert.doesNotMatch(human, /Stopped on row <n> \(<row text>\)/);
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
+  assert.match(reference, /At seed, read `## Legs`/);
+  assert.match(reference, /Use the held membership and checkout paths/);
+  assert.match(reference, /Pass absolute home spec and ledger paths for the child to read/);
+  assert.doesNotMatch(reference, /Read spec and ledger by absolute home paths/);
+});
+
+test('ledger resume delegates gate execution to the loop skill', () => {
+  for (const file of ['skills/gauntlet-resume/SKILL.md', 'skills/gauntlet-resume/reference/brief-contract.md']) {
+    const text = readFileSync(new URL(file, root), 'utf8');
+    assert.match(text, /After the loop.*step 1.*gate set per.*`## Gate set`/);
+    assert.doesNotMatch(text, /ledger gate once per leg/);
+  }
+});
+
+test('coordinated reference reads use held membership before dispatch decisions', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const path = 'reference/coordinated-legs.md';
   assert.equal(driver.split(path).length - 1, 2);
@@ -110,13 +140,14 @@ test('coordinated reference reads gate fresh entry and every restore before disp
   const dispatchRead = dispatch.split('\n')[0];
   for (const line of [entryRead, dispatchRead]) {
     assert.ok(line.includes(path));
-    assert.match(line.split('. ')[0], /spec whose `## Legs` section has more than one `### Leg:` block/);
+    assert.match(line.split('. ')[0], /held membership has more than one leg/);
+    assert.match(line.split('. ')[0], /absolute path/);
     assert.match(line.split('. ')[0], /stop on an unreadable reference naming its path, never reconstruct it/);
   }
-  assert.match(entryRead, /On fresh entry and on every ledger restore/);
+  assert.match(entryRead, /At seed and at an authorized restore/);
   assert.match(entryRead, /On fresh entry apply its `## Entry` section instead of the home-only skeleton and cap calculation below/);
   assert.match(entryRead, /On a restore apply its `## Resume` section before the dirty-tree stop and before any pending recovery/);
-  assert.ok(dispatch.startsWith('For a spec whose'));
+  assert.ok(dispatch.startsWith('When the held membership'));
   assert.ok(dispatch.indexOf(path) < dispatch.indexOf('| 1 |'));
   assert.match(dispatchRead, /Apply its `## Resume`, `## Targeting and dispatch`, `## Companion return validation`, `### Companion commit admission` and `## Amendments` sections together with this driver; never apply `## Entry` here/);
   assert.doesNotMatch(driver, /^## Coordinated Entry and resume$|^### Companion commit admission$/m);

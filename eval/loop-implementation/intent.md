@@ -1,6 +1,8 @@
-for: f2572859f3ba3da3edd344f2181a6e7723131eb76e5255a9401166b2982f1558
+for: b752dcbfef8ddfbfe16da618ea26b4f942aa39c0e7690f71585570b6b617c976
 
 ## Change
+Capture the decoded amendment grant, leg membership, checkout paths and Rules at seed or authorized restore before entering the dispatch loop, refreshing them only through authorized amendment actions. Restrict implement-driver reads to ledger/return/boundary data and skill resources/overrides; leave source and failure diagnosis to workers. Add driver-holds for restore capture, held-grant escalation, return admission and amendment refresh. Keep the existing leg-resume read-order and recovery facts; supply checks: commands in its admitted-ledger fixture so it exercises recovery rather than the separate legacy-header stop. Focused text replays prove narrated boundaries, not runtime file access; full-target runs remain with row 8.
+
 Replace loop-local full verification with the command-first gate set: deduplicate by owning checkout and command in ledger order, reject missing checks headers, log each foreground pair and fail-fast. Route coordinated and conformance verification through this set; retain full commands as CI metadata only. Add gate-set-verify-step-1, coordinated-same-command, repairs-rerun-gate-set-only and legacy-ledger-stop samples; update the four existing verification samples to supply command-first done-row evidence and checks headers. These text replays exercise routing instructions, not live shell execution. Targeted sample runs belong to this iteration; full-target completion belongs to row 8.
 
 Preserve the exact home pending tuple and bumped ledger iteration in row and seed commit bodies, reusing the companion attribution prefix while clearing the ledger tuple. Validate those fields before terminal projection. Extend tracker-boundary with both home commit shapes and their consumed counts; preserve all existing facts. The paired gauntlet-resume recovery sample starts after the child commit with no captured tuple and checks admission before refresh. Parent verify owns model runs, assembly-hash updates and result records.
@@ -20,6 +22,10 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the cap snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- driver-holds/capture: fails -> holds - Capture grant and checkout metadata before the loop, then use held values.
+- driver-holds/escalation: fails -> holds - Route the one allowed escalation without spec or source reads in the loop.
+- driver-holds/admission: fails -> holds - Admit effects through ledger, return reference and git boundaries rather than a transcript or diagnosis.
+- driver-holds/amendment: fails -> holds - Refresh grant and leg paths only during the authorized amendment action outside the loop.
 - gate-set-verify-step-1/union: fails -> holds - Deduplicate the done-row commands in first-row order, excluding cut rows.
 - gate-set-verify-step-1/logs: fails -> holds - Mint one LOG_DIR and retain only per-pair exit lines from redirected foreground execution.
 - gate-set-verify-step-1/scoped: fails -> holds - CI metadata never becomes a local command.
