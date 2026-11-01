@@ -21,15 +21,27 @@ succeeds (it creates both). Every destructive command below is gated on its flag
 
 ## Procedure
 
-1. **Read the record; print the eligibility line.** Reprint the menu-time
-   evaluation verbatim: `eligible` or `not eligible: <predicate>`. Never
-   re-derive, never block.
+1. **Read the record; print the eligibility line.** Before resolving anything,
+   detect the harness:
+
+   | Tools present | Route |
+   |---|---|
+   | Both `subagent` and `gauntlet_setting` | Pi path below |
+   | Neither | Harness fallback |
+   | Exactly one | Abort (pre-land, nothing created), naming the missing tool |
+
+   Require the record's `## Acceptance criteria`, `## Invariants`, and fenced
+   `## Bug report` sections, plus `evidence-command` on the dependency exception;
+   missing -> abort (pre-land, nothing created). Reprint the menu-time evaluation
+   verbatim: `eligible` or `not eligible: <predicate>`. Never re-derive, never block.
 2. **Resolve before mutating.** `SCOPED_TEST_COMMANDS`: the gauntlet overrides
    file's verification section (`## verification-before-completion`, or a section
    matching the verification topic), else `AGENTS.md` or the project's documented
    test command. The full project test target is acceptable. Add the record's repro
-   command when present. No exact command -> abort (pre-land). Draft the implementer
-   task text from the record; not writable -> abort (pre-land). Nothing exists yet.
+   command when present. No exact command -> abort (pre-land). On the pi path,
+   resolve `gauntlet_setting({ key: "loopEngine" })` and use
+   `maxIterationsPerRow` (default 4) as the ledger allowance; a settings error ->
+   abort (pre-land). Nothing exists yet.
 3. **Worktree.** From the primary checkout:
 
    ```bash
@@ -58,24 +70,77 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    succeeds - empty `WORKTREE` -> abort (pre-land, both flags set so cleanup runs)
    - and is the literal the child is compared against - both sides come from `git
    rev-parse --show-toplevel`, so a symlinked `.worktrees/` cannot make them
-   disagree. Run the project's dependency install inside the worktree. Every
-   dispatch below: `cwd` = the worktree path, the record path in the task text,
-   `output:` (when used) an absolute `$TMPDIR` path. Every implementer round - step
-   4, the step 5 retry, the step 6 gap fix, the step 7 FIX_FIRST round - is
-   `context: "fresh"` and reuses the full step 4 task text (binding block, record
-   path and inlined evidence pack, `SCOPED_TEST_COMMANDS`, commit-before-reporting,
-   SDD status line) with the round's failing output appended verbatim: the red test
-   output (step 5), the conformance gaps (step 6), the review findings (step 7).
-   Each round is followed by `binding_check` (see Abort, **Binding**) before
-   anything else. Under a fresh context a retry child sees only its task text; a
-   fix child not told to commit leaves its fix where step 7's `<base-sha>..HEAD`
-   review and step 8's `merge --squash` never see it.
-4. **Implement.** One `implementer`, `context: "fresh"` - passed explicitly,
-   because the persona's frontmatter defaults to fork, and a forked parent
-   transcript carries the parent's `cd <primary>` commands and primes the child to
-   leave the worktree; the record path and inlined evidence pack already make the
-   task self-contained. `<WORKTREE>` and `<PRIMARY_ROOT>` below are the literal
-   step 3 values, never a `$VAR` for the child to resolve:
+   disagree. Before installing dependencies, write
+   `$TMPDIR/hotfix-<slug>-ledger.md`; not writable -> abort (pre-land):
+
+   ```markdown
+   # Ledger - loop engine
+   **Spec:** `<absolute $TMPDIR/hotfix-<slug>.md path>`
+   base: <BASE_SHA>
+   verification: <first SCOPED_TEST_COMMANDS command>
+   checks: commands
+   iterations: 0
+   allowance: <maxIterationsPerRow>
+
+   | row | status | attempts | evidence |
+   |---|---|---|---|
+   | 1 | open | 0 | |
+
+   ## Leg mapping
+
+   | row | ac | leg |
+   |---|---|---|
+   | 1 | 1 | hotfix |
+
+   ## Decisions
+   ```
+
+   Keep this parent-owned ledger outside the hotfix branch; validate its sole
+   mapping locally as `1 | 1 | hotfix`, without tracker tools or the loop driver's
+   coordinated admission shell. Remove the ledger as the last action of every
+   exit: after step 9's evidence on squash or PR exit, or after the abort class's
+   bash block and report. Leave the handoff record in place.
+
+   Run the project's dependency install inside the worktree. Every dispatch
+   below: `cwd` = the worktree path, `output:` an absolute `$TMPDIR` path. Reuse
+   the full step 4 dispatch for every repair in steps 5-7, with `target: 1`,
+   the latest decision and the round's hint; never seed again.
+4. **Implement.** Dispatch `loop-implementer` sequentially in companion mode:
+   first `target: seed`, then, only after admitting the seed, `target: 1`.
+   Use `context: "fresh"` and `cwd: <WORKTREE>` for both. The record is the
+   child's spec; its sole AC is row 1 and R2/R3 are invariants, not extra rows.
+   The child leaves the parent-owned ledger untouched and returns its row and
+   decision in its commit body under its Companion result commit contract.
+
+   Resolve `Rules:` in the worktree: check `test -f <WORKTREE>/<path>` for
+   `AGENTS.md`, then the overrides path located in step 2. Supply one line per
+   existing repo-relative path, in that order; none present -> `Rules: none`.
+   Never substitute a primary-checkout path for a Rules path.
+
+   Before each dispatch, save the ledger's current `iterations` as `i` and the
+   worktree HEAD as `HEAD_BEFORE`; write `iterations: i + 1` and
+   `pending: <target> | hotfix | <HEAD_BEFORE>` to the ledger. Pass that exact
+   tuple to the child, with the pre-bump `iteration: <i>`:
+
+   ```text
+   subagent({ agent: "loop-implementer", context: "fresh", async: false,
+     cwd: <WORKTREE>, output: <absolute $TMPDIR path>, outputMode: "file-only",
+     acceptance: { level: "none", reason: "the parent validates the commit and keeps the ledger" },
+     task: "<binding block>\n\niteration: <i>\nspec: <absolute $TMPDIR/hotfix-<slug>.md path>\nledger: <absolute $TMPDIR/hotfix-<slug>-ledger.md path>\nbase: <BASE_SHA>\ntarget: <seed | 1>\nprevious decision: <line or none>\nhint: <text or none>\nLeg: hotfix\nmapped original AC: row 1 -> AC 1, leg hotfix\nRules: <repo-relative path or none>\npending: <target> | hotfix | <HEAD_BEFORE>\nSCOPED_TEST_COMMANDS: <commands>" })
+   ```
+
+   Use `previous decision: none` for seed, then the admitted seed decision for
+   the first row attempt. Set the seed hint to `apply your seed contract: write
+   or identify the failing regression test for row 1 and record its command`.
+   On the dependency exception, replace it with `apply your seed contract: the
+   evidence command for row 1 is <evidence-command from the record>; run it and
+   record it`. Add to either seed hint: `when seeding changes no tracked file,
+   commit once with git -C <WORKTREE> commit --allow-empty carrying the same
+   subject and body`. Set the first row attempt's hint to `none`.
+
+   Insert this binding block verbatim into each task. Substitute literal step 3
+   values for `<WORKTREE>` and `<PRIMARY_ROOT>`, never a `$VAR` for the child to
+   resolve:
 
    > Worktree binding: your checkout is <WORKTREE>. Your first command, before any
    > other, is
@@ -85,26 +150,14 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    > Every mutating git command (add, commit, checkout, reset, stash) runs as
    > `git -C <WORKTREE> ...`. Never `cd` out of <WORKTREE>; never run a command
    > against <PRIMARY_ROOT>.
-   >
-   > Read `$TMPDIR/hotfix-<slug>.md`; the evidence pack is also inlined here:
-   > <evidence pack>. The evidence pack replaces plan and spec; do
-   > not report BLOCKED for a missing plan. TDD: write the regression test, run it,
-   > confirm it fails, then the minimal fix (dependency-bump fallback: the repro
-   > re-run is the regression evidence). SCOPED_TEST_COMMANDS: <commands>. Commit on
-   > `hotfix/<slug>` before reporting. End with the SDD status line verbatim.
 
-   The `BLOCKED:` opening line is load-bearing: pi-cohort turns a final message
-   whose first non-empty line starts with `BLOCKED:` into a dispatch error that
-   carries the full output, ahead of the implementer's completion guard that would
-   otherwise replace an edit-free report with a generic no-edits error.
-
-   On return, `binding_check` runs before anything else - before the status line
-   is read and before a dispatch error is handled; a failed check -> `binding_abort`,
-   the status branch is skipped. A dispatch error is routed as `BLOCKED`. Then:
-   `DONE` -> step 5. `DONE_WITH_CONCERNS` -> step 5 unless a concern names a safety
-   invariant -> abort. `NEEDS_CONTEXT` or `BLOCKED` -> abort. A regression command
-   named in the report joins `SCOPED_TEST_COMMANDS` only if it uses the resolved
-   command's runner.
+   Keep the `BLOCKED:` opening line: pi-cohort treats it as a dispatch error
+   carrying the full output before the child's completion guard runs.
+   After each return, run `binding_check` before reading the decision or handling
+   a dispatch error; a failed check -> `binding_abort`. Validate the companion
+   result commit before writing its row and decision to the ledger and clearing
+   `pending:`. Admit the seed before issuing the first row attempt; only an
+   admitted row 1 `done` proceeds to step 5.
 5. **Test.** Run `SCOPED_TEST_COMMANDS` in the worktree. Red -> one implementer
    retry -> red -> abort.
 6. **Verify (advisory).** One fresh `conformance-reviewer`. Its entire origin, in
