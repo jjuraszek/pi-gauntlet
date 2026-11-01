@@ -240,6 +240,12 @@ Apply these checks before writing `pending:` or bumping `iterations`:
 | `attempts < allowance` | Permit a `target: 1` dispatch, subject to the model check below |
 | `attempts == allowance - 1` | Require resolved `escalationLoop.implModel` (the resolver's main-loop fallback counts); undefined -> abort (pre-land) with `Problem: escalationLoop.implModel unavailable`, no dispatch or escalation entry |
 
+In the budget-exhausted abort report on both pi and inline paths, quote row 1's
+`attempts` cell and every `## Decisions` line from the ledger verbatim, in ledger
+order, including seed, admitted, reopened, and escalated entries. Print the report
+before step 3's ledger teardown; keep the final reopening entry even when no
+repair attempt remains.
+
 On the last allowed attempt, including the first at allowance 1, append
 `row 1 escalated | implModel round | allowed attempts <allowance>` to
 `## Decisions` and add `model: <implModel>` to the step 4 `subagent` call.

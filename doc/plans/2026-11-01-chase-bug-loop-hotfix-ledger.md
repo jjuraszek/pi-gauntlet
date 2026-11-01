@@ -3,7 +3,7 @@
 base: c0d120bfe50a26056af5cfca0e4855de9278b2f4
 verification: npm test
 checks: commands
-iterations: 7
+iterations: 8
 allowance: 4
 
 | row | status | attempts | evidence |
@@ -14,7 +14,7 @@ allowance: 4
 | 4 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 4; PASS shared budget and last-attempt escalation; PASS exhaustion guards and protected blocks |
 | 5 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 5; PASS model, origin and failure routing; PASS protected blocks byte-identical; PASS row 5 text assertions |
 | 6 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 6; PASS shared-budget re-audit on pi and inline paths; PASS protected blocks byte-identical; PASS row 6 text assertions |
-| 7 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 7; FAIL no Decisions ledger reporting contract |
+| 7 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 7; PASS exhaustive budget report before ledger teardown; PASS protected blocks byte-identical; PASS row 7 text assertions |
 | 8 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 8; PASS protected blocks byte-identical; FAIL AC8 shipped allowlist excludes current loop ledger; Recheck after parent strips ledger at finish |
 | 9 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 9; PASS scoped instruction-size and gh-36 binding assertions; AC9 requires npm test but loop workers forbid full verification; Full-suite result unproven and row remains open |
 
@@ -27,3 +27,4 @@ row 3 done | Added ordered seed and row commit admission, bounded evidence check
 row 4 done | Unified steps 4-7 under one attempt budget with reopening, last-attempt escalation, exhaustion guards, bounded hints, and fresh gates. | Keep the shared budget and protected blocks; implement mandatory conformance model and origin handling next.
 row 5 done | Made conformance mandatory with resolved model injection, inline prompt-only origin, and one redispatch before abort. | Keep model and origin handling; check the shared-budget re-audit path next.
 row 6 done | Confirmed the pi re-audit path and gave inline hotfix repairs the same budget, gate rerun, and fresh audit. | Keep both re-audit paths and protected blocks; add the budget-exhausted ledger report next.
+row 7 done | Added verbatim attempts and all ledger decisions to budget-exhausted reports before teardown on both harness paths. | Keep the report and protected blocks unchanged; address the shipped-file scope next.
