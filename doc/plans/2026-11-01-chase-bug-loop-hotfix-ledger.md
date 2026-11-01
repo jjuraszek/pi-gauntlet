@@ -3,12 +3,12 @@
 base: c0d120bfe50a26056af5cfca0e4855de9278b2f4
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 4
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 1; FAIL missing Acceptance criteria section in handoff |
+| 1 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 1; PASS row 1 text assertions; One AC row with invariants and fenced report |
 | 2 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 2; FAIL step 4 lacks loop-implementer |
 | 3 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 3; FAIL missing loop: seed evidence commit contract |
 | 4 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 4; FAIL missing maxIterationsPerRow and shared attempt budget |
@@ -21,3 +21,4 @@ allowance: 4
 ## Decisions
 
 row 0 done | seeded 9 rows, closed 0 on baseline | 1
+row 1 done | Added the single-AC handoff template, R2/R3 invariants, fenced verbatim report, and dependency evidence command. | Keep the handoff template and implement seed-then-row dispatch next.
