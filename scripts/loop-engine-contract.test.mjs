@@ -37,6 +37,35 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   assert.deepEqual(lintStageSkillDirs(root.pathname, ['skills/loop-implementation']), []);
 });
 
+test('worker records selective commands and keeps row-scoped TDD evidence valid', () => {
+  const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
+  for (const token of [
+    '## Three-scenario TDD', '## Test economy', '## Evidence command',
+    'RED', 'GREEN', 'REFACTOR', 'extend the existing test first',
+    'Keep and extend the test from earlier attempts', 'no test file',
+    'parameter row or a stronger assertion', 'table-driven cases', 'one scenario',
+    'cheapest layer', 'slow tier',
+    'No convention named or discoverable: place the test beside its siblings and say so in your report.',
+    "another closed row's recorded command", 're-record',
+    'first unescaped semicolon', 'one selective invocation', 'no `;`, `|` or `&&`',
+    "owning checkout's full verification command", 'runner with no file or filter',
+    'name that matches nothing', 'nonzero exit', 'otherwise record the file',
+    'passing check for every baseline closure',
+  ]) assert.ok(persona.includes(token), token);
+  assert.match(persona, /5\. .*command you ran.*at most three result lines/);
+  assert.match(persona, /For every `open` row,.*command.*`evidence`/);
+  assert.match(persona, /Include the evidence command.*at most three semicolon-separated result lines/);
+  assert.doesNotMatch(persona, /containing the check name|Include the check name/);
+  assert.deepEqual(lintTarget(new URL('eval/loop-implementer', root).pathname), []);
+  const fixture = mkdtempSync(join(tmpdir(), 'loop-selector-'));
+  const file = join(fixture, 'row.test.mjs');
+  writeFileSync(file, "import test from 'node:test';\ntest('row proof', () => {});\n");
+  assert.equal(spawnSync(process.execPath, ['--test', file]).status, 0);
+  assert.notEqual(spawnSync(process.execPath, ['--test', join(fixture, 'missing.test.mjs')]).status, 0);
+  const empty = spawnSync(process.execPath, ['--test', '--test-name-pattern=absent-row', file], { encoding: 'utf8' });
+  assert.equal(empty.status, 0, 'Node name filters cannot be recorded as fail-closed selectors');
+});
+
 test('amend permission bounds row escalation and one exit repair', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   for (const token of ['attempts >= allowance', 'row <n> escalated | implModel round | allowed attempts <attempts + 1>', 'loop: escalate row <n>', 'escalated round for row <n>', 'max(0, min(attempts, 3 + N) - 3)', 'model: <implModel>', 'gauntlet_setting({ key: "escalationLoop" })', 'rules 3-4', 'starts no new empty-child or validation-miss window', 'unrecoverable means spent', 'loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun that command once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
