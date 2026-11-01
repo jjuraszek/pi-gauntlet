@@ -360,7 +360,7 @@ test('gate output stays in session logs through repair, conformance and finish',
 
 const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
 
-function companionFixture(target) {
+function companionFixture(target, extraRows = false) {
   const dir = mkdtempSync(join(tmpdir(), 'loop-return-'));
   const repos = ['home', 'companion'].map(name => {
     const path = join(dir, name); mkdirSync(path);
@@ -372,7 +372,11 @@ function companionFixture(target) {
   const [home, companion] = repos;
   const base = git(companion, 'rev-parse', 'HEAD');
   const pending = `pending: ${target} | repo-b | ${base}`;
-  const saved = `# Ledger - loop engine\nbase: ${git(home, 'rev-parse', 'HEAD')}\niterations: 1\nallowance: 6\nbase repo-a: ${base}\nseeded repo-a: yes\nbase repo-b: ${base}\nseeded repo-b: no\n${pending}\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | home check |\n| 2 | open | 0 | |\n| 3 | cut | 0 | deferred: later |\n\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-b |\n\n## Decisions\nrows +2 | shared allowance\n`;
+  let saved = `# Ledger - loop engine\nbase: ${git(home, 'rev-parse', 'HEAD')}\niterations: 1\nallowance: 6\nbase repo-a: ${base}\nseeded repo-a: yes\nbase repo-b: ${base}\nseeded repo-b: no\n${pending}\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | home check |\n| 2 | open | 0 | |\n| 3 | cut | 0 | deferred: later |\n\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-b |\n\n## Decisions\nrows +2 | shared allowance\n`;
+  if (extraRows) {
+    saved = saved.replace('\n## Leg mapping', '| 4 | open | 0 | |\n| 5 | done | 0 | node --test baseline.test.mjs; passed |\n\n## Leg mapping')
+      .replace('\n## Decisions', '| 4 | 3 | repo-b |\n| 5 | 4 | repo-b |\n\n## Decisions');
+  }
   const ledger = join(home, 'ledger.md');
   writeFileSync(ledger, saved.replace('iterations: 1', 'iterations: 0').replace(pending + '\n', ''));
   git(home, 'add', '.'); git(home, 'commit', '-qm', 'loop: seed ledger');
@@ -385,13 +389,13 @@ function companionFixture(target) {
   assert.notEqual(readFileSync(preDispatch, 'utf8'), readFileSync(admissionLedger, 'utf8'));
   return { home, companion, base, pending, ledger, saved, target, admissionLedger, preDispatch };
 }
-function returnCommit(f, { tuple = f.pending, iteration = 1, row = 2, extra = false, unrelated = false } = {}) {
+function returnCommit(f, { tuple = f.pending, iteration = 1, row = 2, extra = false, unrelated = false, rows, decisions, status = 'done' } = {}) {
   writeFileSync(join(f.companion, 'code.txt'), 'implemented\n');
   git(f.companion, 'add', '.');
   const seed = f.target === 'seed';
   const decision = seed ? 'row 0 done | seeded 1 rows, closed 1 on baseline | none' : 'row 2 done | implemented | do not redo';
-  const body = `${tuple}\niteration: ${iteration}\n\n| ${row} | done | ${seed ? 0 : 1} | check; passed \\| expected |\n\n${decision}`;
-  git(f.companion, 'commit', '-qm', unrelated ? 'unrelated' : seed ? 'loop: seed evidence' : 'loop: row 2 done', '-m', body);
+  const body = `${tuple}\niteration: ${iteration}\n\n${rows?.join('\n') ?? `| ${row} | done | ${seed ? 0 : 1} | check; passed \\| expected |`}\n\n${decisions?.join('\n') ?? decision}`;
+  git(f.companion, 'commit', '-qm', unrelated ? 'unrelated' : seed ? 'loop: seed evidence' : `loop: row 2 ${status}`, '-m', body);
   if (extra) git(f.companion, 'commit', '--allow-empty', '-qm', 'extra');
 }
 function validateCompanion(f) {
@@ -442,6 +446,39 @@ test('companion recovery rejects movement and unattributed or foreign results', 
     const result = validateCompanion(f);
     assert.notEqual(result.status, 0, name);
     assert.equal(readFileSync(f.ledger, 'utf8'), f.saved, name);
+  }
+});
+
+test('companion ordinary returns admit same-leg extras with matching decisions only', async t => {
+  const row = (n, status, attempts) => `| ${n} | ${status} | ${attempts} | node --test row-${n}.test.mjs; passed |`;
+  const decision = (n, status) => `row ${n} ${status} | recorded evidence | nothing new to build on`;
+  for (const [name, status, extra, lines, accepted] of [
+    ['done target and same-leg extra', 'done', row(4, 'done', 0), [decision(2, 'done'), decision(4, 'done')], true],
+    ['failed target and evidenced extra', 'failed', row(4, 'done', 0), [decision(2, 'failed'), decision(4, 'done')], true],
+    ['extra without decision', 'done', row(4, 'done', 0), [decision(2, 'done')], false],
+    ['decision without changed row', 'done', null, [decision(2, 'done'), decision(4, 'done')], false],
+    ['extra decision before target', 'done', row(4, 'done', 0), [decision(4, 'done'), decision(2, 'done')], false],
+    ['duplicate extra decision', 'done', row(4, 'done', 0), [decision(2, 'done'), decision(4, 'done'), decision(4, 'done')], false],
+    ['foreign extra', 'done', row(1, 'done', 0), [decision(2, 'done'), decision(1, 'done')], false],
+    ['failed extra', 'done', row(4, 'failed', 0), [decision(2, 'done'), decision(4, 'failed')], false],
+    ['cut extra', 'done', row(3, 'done', 0), [decision(2, 'done'), decision(3, 'done')], false],
+    ['already done extra', 'done', row(5, 'done', 0), [decision(2, 'done'), decision(5, 'done')], false],
+    ['extra attempts incremented', 'done', row(4, 'done', 1), [decision(2, 'done'), decision(4, 'done')], false],
+    ['extra without evidence', 'done', '| 4 | done | 0 | |', [decision(2, 'done'), decision(4, 'done')], false],
+  ]) {
+    await t.test(name, () => {
+      const f = companionFixture('2', true);
+      const rows = [row(2, status, 1), ...(extra ? [extra] : [])];
+      returnCommit(f, { status, rows, decisions: lines });
+      const result = validateCompanion(f);
+      assert.equal(result.status === 0, accepted, result.stderr);
+      if (accepted) {
+        const admitted = JSON.parse(result.stdout);
+        assert.deepEqual(admitted.rows, rows);
+        assert.deepEqual(admitted.decisions, lines);
+      }
+      assert.equal(readFileSync(f.ledger, 'utf8'), f.saved, 'admission never mutates home');
+    });
   }
 });
 
