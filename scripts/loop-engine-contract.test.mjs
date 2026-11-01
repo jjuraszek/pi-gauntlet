@@ -246,11 +246,13 @@ test('gate set owns membership, fail-fast logs and every loop verification site'
   assert.match(after, /0\. .*LOG_DIR=\$\(mktemp -d\)/);
   assert.match(after, /1\. Run the gate set/);
   assert.match(after, /Rerun the failing checkout's gate pairs once/);
+  assert.ok(after.includes("After the failing checkout's rerun passes, run the original fail-fast run's still-unexecuted pairs from other checkouts in ledger order under the same redirection before recording verified HEAD."));
   assert.match(after, /2\. .*Rerun the complete gate set after every fix round/);
   assert.match(after, /3\. .*gate set replacing plan Verification/);
   assert.doesNotMatch(after, /Run the ledger's `verification:` command|rerun the full command|Rerun full verification|`contract:` `- verification:`/);
   for (const token of ['### Ledger subjects', 'never the ad-hoc no-plan path', '## Gate set', 'LOG_DIR', 'exit code and log path', 'child reads the log']) assert.ok(conformance.includes(token), token);
   assert.match(conformance, /SCOPED_TEST_COMMANDS`\s+to the gap block: for a ledger, the complete gate set/);
+  assert.ok(conformance.includes("retain leg identity, remap the child's repaired leg to its actual isolated worktree and run that leg's pairs with `LOG_DIR` from its own `mktemp -d`; preserve the parent's checkout set and session `LOG_DIR` for post-integration runs"));
   assert.match(conformance, /4\. \*\*Scoped tests\*\*.*ledger.*gate set/);
   assert.match(conformance, /a\. .*ledger.*gate set/);
   assert.match(conformance, /Run the full plan-header `Verification` set once/);
@@ -263,7 +265,7 @@ test('gate output stays in session logs through repair, conformance and finish',
   const finish = readFileSync(new URL('skills/finishing-a-development-branch/reference/verification-set.md', root), 'utf8');
   const gate = driver.split('\n## Gate set\n')[1].split('\n## After the loop\n')[0];
   const after = driver.split('\n## After the loop\n')[1];
-  assert.match(gate, /Use the session's `LOG_DIR`, minted at verify step 0, for every run and rerun/);
+  assert.match(gate, /Use the executing process's `LOG_DIR` for every run and rerun: the parent's session directory minted at verify step 0, or the child's own temporary directory per the conformance ledger-subject override/);
   assert.match(gate, /Print `gate <i> exit <code> <log path>` and keep nothing else from output/);
   assert.match(after, /Mint `LOG_DIR=\$\(mktemp -d\)` once for this verify session; a resumed session mints a new one at its first gate-set site/);
   assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting at most the last 20 lines of that log with `tail -n 20`; this human-stop excerpt is the driver's only log read/);

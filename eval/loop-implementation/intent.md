@@ -1,6 +1,7 @@
-for: b752dcbfef8ddfbfe16da618ea26b4f942aa39c0e7690f71585570b6b617c976
+for: 540f8156f7f9e53d75cccd977f5a678d0e783af772373707d56996cccc4b5c78
 
 ## Change
+Complete verify step 1 after an escalated repair by running other checkouts' pairs skipped by fail-fast before granting verification. Run each isolated conformance child's repaired-leg pairs in its own checkout and temporary log directory; retain the parent checkout set and session logs after integration. Extend exit-verification-escalates and repairs-rerun-gate-set-only with observable continuation and child-path facts.
 Update tracker-refresh's all-cut expectation from a full gate to the empty gate set, with checks: commands and selective evidence fixtures for its continuing snapshots. Preserve task projection and admission facts. Complete full-target model coverage without accepting unrelated deviations.
 
 Prove the existing gate-log boundary with gate-set-failure: one directory per verify session, fail-fast exit/path-only reporting, a concrete 25-line log whose human stop quotes only its last 20 lines, path-only repair handoff and redirected reruns in the same directory. A fresh-session resume creates new logs rather than trusting old ones. No skill behavior changes in this iteration; focused replays prove narrated operations, not live shell access. Full-target evaluation remains with row 8.
@@ -26,6 +27,8 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the cap snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- exit-verification-escalates/continuation: fails -> holds - Verify still-unexecuted companion pairs after the failing checkout's successful repair rerun.
+- repairs-rerun-gate-set-only/child-checkout: fails -> holds - Test the child's isolated repaired tree with child-local logs before parent integration gates.
 - tracker-refresh/seed: fails -> holds - All-cut completion runs no full command and emits the gate-set empty line after starting verify.
 - gate-set-failure/redirect: fails -> holds - Redirect every foreground pair and retain exit lines only, stopping at the first failure.
 - gate-set-failure/tail: fails -> holds - Bound the human-stop excerpt after Problem to the final 20 log lines.

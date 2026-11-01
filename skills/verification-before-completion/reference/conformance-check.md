@@ -156,7 +156,7 @@ Per round:
    whose `evidence` opens with the over-spec provenance (`spec "<section>" - "<clause>" (over-spec)`), the orchestrator adds the spec path to that gap's `touched-files` before dispatch,
    so the implementer deletes the surface **and** the clause/AC line in the same
    fix commit; the re-audit then has no `Rn` for it and no `MISSING` echo. The dispatch adds `SCOPED_TEST_COMMANDS`
-   to the gap block: for a ledger, the complete gate set with owning checkouts and the ledger-subject execution rule above; otherwise the gap-relevant plan-declared commands, or `none`; on an ad-hoc no-plan path, the project's canonical test command.
+   to the gap block: for a ledger, the complete gate set with owning checkouts and the ledger-subject execution rule above; retain leg identity, remap the child's repaired leg to its actual isolated worktree and run that leg's pairs with `LOG_DIR` from its own `mktemp -d`; preserve the parent's checkout set and session `LOG_DIR` for post-integration runs; otherwise the gap-relevant plan-declared commands, or `none`; on an ad-hoc no-plan path, the project's canonical test command.
 3. **Integrate** serially via `git -C "<conformance-worktree>" apply` onto the worktree HEAD, one gap's
    patch at a time. Commit each per-gap fix with the message **`conformance fix Gn`** (durable,
    `git log`-readable pre-squash) so the finish gate and any revert can identify
