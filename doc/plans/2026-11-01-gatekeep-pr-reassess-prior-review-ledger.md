@@ -2,7 +2,7 @@
 **Spec:** `doc/specs/2026-11-01-gatekeep-pr-reassess-prior-review.md`
 base: b5a2fb0fb8533150bca997f066ebeb997976bc0a
 verification: npm test
-iterations: 6
+iterations: 7
 cap: 29
 
 | row | status | attempts | evidence |
@@ -22,3 +22,4 @@ row 2 done | Mapped R-item closures to stable findings and made represented inli
 row 3 done | Made new outside-delta Moderate and Minor findings evidence-only while Critical blocks; all 30 targeted eval facts pass. | Take row 4 for nonancestor fallback; preserve closure mapping, whole-head contracts and the shared wave boundary.
 row 4 done | Added reason-bearing whole-diff fallback reports for force-push, missing-object and null baselines; all 22 targeted eval facts pass. | Take row 6 for own-comment baselines; preserve scheduled ancestry checks, closure mapping and the shared wave boundary.
 row 6 done | Verified own COMMENTED baselines and pinned assess posts with response provenance; all 58 targeted eval facts pass. | Take row 7 for same-head closure; preserve pinned posting, zero-blocker no-post behavior and the shared wave boundary.
+row 7 retry | Discarded interrupted uncommitted attempt with human approval; run only same-head eval with parallel cells, add no broad sweep. | allowed attempts 1
