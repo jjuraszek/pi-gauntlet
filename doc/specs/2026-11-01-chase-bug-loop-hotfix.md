@@ -34,7 +34,7 @@ Drafted from the design, no ticket rows:
   in-scope
 - [ ] The budget-exhausted abort report quotes row 1's `attempts` cell and every `## Decisions` line from the ledger.
   in-scope
-- [ ] `git diff --stat <base>..HEAD` of the shipped change touches only `skills/chase-bug/hotfix.md`, `skills/chase-bug/SKILL.md`, `doc/configuration.md`, `README.md`, `CHANGELOG.md`, and this spec with its banner edit to the predecessor; `skills/loop-implementation/`, `agents/`, and `extensions/` are unchanged.
+- [ ] `git diff --stat <base>..HEAD` of the shipped change touches only `skills/chase-bug/hotfix.md`, `skills/chase-bug/SKILL.md`, `doc/configuration.md`, `README.md`, `CHANGELOG.md`, this spec with its banner edit to the predecessor, and this run's standard `.pi/gauntlet/telemetry/doc/specs/2026-11-01-chase-bug-loop-hotfix.yaml` record; `skills/loop-implementation/`, `agents/`, and `extensions/` are unchanged.
   in-scope
 - [ ] `npm test` passes, including the instruction-size lint on `skills/chase-bug/hotfix.md` and `skills/chase-bug/SKILL.md` and the `#36` step 4 binding-text assertions in `scripts/ci.mjs`.
   in-scope
@@ -61,7 +61,7 @@ design: owns `skills/chase-bug/hotfix.md`, `skills/chase-bug/SKILL.md`, `doc/con
 
 ## Design
 
-The hotfix stays an isolated procedure: bug report -> `loop-implementer` fix -> code review and conformance -> land. It calls no tracker tool (`phase_tracker`, `plan_tracker`, `plan_check`) and keeps its own abort classes. The only parent-owned state is under `$TMPDIR`; nothing new is ever tracked on `hotfix/<slug>`.
+The hotfix stays an isolated procedure: bug report -> `loop-implementer` fix -> code review and conformance -> land. It calls no tracker tool (`phase_tracker`, `plan_tracker`, `plan_check`) and keeps its own abort classes. The only parent-owned state is under `$TMPDIR`; nothing new is ever tracked on `hotfix/<slug>`. Distinguish the future hotfix procedure from this implementation's gauntlet run: standard finishing strips this run's temporary plan ledger and seals and ships its telemetry record. AC 8 permits that workflow artifact without expanding the source-file scope.
 
 ### Protected blocks (byte-identical)
 
