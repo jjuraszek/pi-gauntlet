@@ -1,7 +1,7 @@
 {
   "sample": "loop-ledger-legacy",
   "arm": "candidate",
-  "skillSha": "3156042edbd0af7cd54231fdfc22c3c2e74528264c595a8843085c2e0fa73ec3",
+  "skillSha": "3f697961e219bef2e0daf2399cc22e598665db3a0551f8cd9af0b655126e90a7",
   "inputSha": "328e0c00633a1be8a3e2ba700353d969bcb9c0c602b94f594bc029400609aaad",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Immediate next action: stop at Step 1 before verification, and do not create the PR.**\n\nAfter the start announcement and `phase_tracker` start, Step 1 classifies `doc/plans/run-ledger.md` as a ledger, because line 1 is `# Ledger - loop engine`. Finish therefore takes its verification set from the loop skill's `## Gate set`.\n\nThat gate set requires a `checks:` line. This ledger has none, so the required stop applies:\n\n```\ngauntlet: question\nStopped: ledger has no checks: line - seeded under the old contract\nProblem: doc/plans/run-ledger.md lacks checks:, so no gate set can be resolved and the branch cannot be verified.\nOptions:\n1. stop\nRecommendation: stop - the only path is restarting by hand on a fresh baseline.\n```\n\n**Why the old `verification: npm test` header cannot stand in:**\n- Finish never falls back to a full command when `checks:` is missing.\n- The ledger is not migrated or reseeded automatically.\n\n**What this means for the PR request:**\n- The hard verification gate is unmet, and none ran this session.\n- No skip proof applies.\n- Step 4's menu is not shown, and the strip, seal and push do not happen.\n- Ship stays incomplete, with the worktree and branch untouched.\n",
-      "words": 186,
-      "wallMs": 8298,
+      "text": "**Immediate next action: stop at Step 1 before any PR option is offered.**\n\n1. Because line 1 is `# Ledger - loop engine`, Step 1 resolves the verification set through the loop skill's `## Gate set`. I would read that section at its absolute path.\n2. That section requires a `checks:` line. This ledger has none, so finish applies the missing-line stop. It does not fall back to `verification: npm test`. The fact that the old header is still available does not change this.\n3. I would render the stop:\n\n```\ngauntlet: question\nStopped: ledger has no checks: line - seeded under the old contract\nProblem: doc/plans/run-ledger.md has `verification: npm test` but no `checks:` line, so no gate set can be resolved.\nPreserve every row's attempts and the total iteration cap.\nOptions: stop\nRecommendation: stop - restart by hand on a fresh baseline; no migration, reseed, or verification: fallback is allowed.\n```\n\nThe following do not happen:\n- No verification runs.\n- No skip proof applies, since nothing ran this session.\n- Closure is not checked.\n- The plan is not stripped and the record is not sealed.\n- No push or PR is created.\n- Ship is not marked complete.\n",
+      "words": 188,
+      "wallMs": 7774,
       "mechanical": {
         "stop": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nledger has no checks: line - seeded under the old contract\n\nStop at Finish Step 1. The completed rows and available `verification: npm test` header do not authorize a fallback verification run or PR creation.\n\nOnly option: stop. Restart by hand on a fresh baseline; do not migrate or automatically reseed this ledger.\n",
-      "words": 54,
-      "wallMs": 9508,
+      "text": "Stop at Step 1 before verification or presenting PR options:\n\n`ledger has no checks: line - seeded under the old contract`\n\nThe only available action is **stop**. The human must restart by hand on a fresh baseline. Do not fall back to `verification: npm test`, migrate or reseed the ledger automatically, strip the plan, seal telemetry, or push/create a PR. Completed rows do not bypass this gate.\n",
+      "words": 66,
+      "wallMs": 3345,
       "mechanical": {
         "stop": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "735721882fec1aba6f952fd7273f976c39c17086db8c785a96cd9b8e465e4b87",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e52559c924a06918e1558ff09fcd506ec7c7144252f0fefba8f644299ace84cc",
+      "intentSha": "beb6b7ca6b51d0eec4fe9013894ff7254460dc8d4e5a121888b1fd9d27acc1b1",
       "baselineOutputSha": "1a4f83da6318ca6918112f0f4baec06e5bd28a4d1fb6f268156d405344f18a16",
-      "candidateOutputSha": "bd73ab8f11414236d32d06ad530bc5099e41b63461dd7053886f61eb2307f9e5",
+      "candidateOutputSha": "286e76341867b1d63a73a25d0d2ddbbc293c52518c2d02511bb14fad0a6c6492",
       "facts": {
         "boundary": {
           "before": "fails",
@@ -53,16 +53,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before runs `npm test` from the ledger's `verification:` header and promises to continue to the Step 4 menu and PR, so it fails the boundary fact. After delivers the Change cleanly: it classifies the artifact as a ledger, resolves the gate set via the loop skill's `## Gate set`, detects the missing `checks:` line, emits a single-option `stop` question recommending a human restart on a fresh baseline, and explicitly refuses to run npm test, migrate or reseed the ledger, show the menu, or strip/seal/push. No fact that Before kept was lost. One small tightening to consider: the stop block's Problem line could name the untouched worktree/branch explicitly inside the question text itself (it currently appears only in the trailing bullets) so a reader scanning just the stop message sees the no-cleanup guarantee; otherwise the wording is sound.",
-      "wallMs": 6508,
+      "feedback": "Before fails the boundary fact because it treats the ledger's `verification: npm test` as the gate set and proposes running `npm test` before proceeding to Steps 2, 3.5 and the Step 4 menu with the PR option; it never offers a stop. After holds: it resolves the gate set through the loop skill's `## Gate set`, applies the missing-`checks:` stop, explicitly refuses the `verification:` fallback despite the human's note that the old header is available, renders a stop with `Options: stop` and a recommendation to restart by hand on a fresh baseline with no migration or reseed, and lists that no verification runs, no push or PR is created, and ship is not marked complete. This is the intended movement for loop-ledger-legacy; nothing in After relaxes a fact Before kept, so the wording can stay as is. If you want to tighten it further, keep the explicit 'does not fall back to `verification: npm test`' sentence and the enumerated non-actions, since those are what make the boundary unambiguous to a reader.",
+      "wallMs": 6891,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "735721882fec1aba6f952fd7273f976c39c17086db8c785a96cd9b8e465e4b87",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e52559c924a06918e1558ff09fcd506ec7c7144252f0fefba8f644299ace84cc",
+      "intentSha": "beb6b7ca6b51d0eec4fe9013894ff7254460dc8d4e5a121888b1fd9d27acc1b1",
       "baselineOutputSha": "f0b794d87716c6aaaa5e0d2622e1f02b4b4fec508aa56b9d04edaceb63bb9f09",
-      "candidateOutputSha": "41cc31101dcd16ca7ffa386b084320be50a451e1137b0448866cda48937ec051",
+      "candidateOutputSha": "c1edc9f5f444d69624b10a1e32cbeae7f7afe4daf1ebd216f8af736befd7598c",
       "facts": {
         "boundary": {
           "before": "fails",
@@ -75,10 +75,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before fails the boundary fact because it treats the `verification: npm test` header as authoritative and directs an npm test run as the gate, deferring rather than refusing the PR; After holds because it stops at Finish Step 1, names stop as the only option, requires a human restart on a fresh baseline, and explicitly rules out a fallback verification run, migration, reseeding and PR creation. The After wording delivers the Change; one small hardening would be to also state that the PR is not created rather than only implying it via 'do not authorize ... PR creation', and to keep the explicit 'no migrate / no automatic reseed' phrasing, since that is what distinguishes the stop from the Before behavior of falling back to the old verification header.",
-      "wallMs": 7801,
+      "feedback": "Before fails the boundary fact because it directs running `npm test` as the gate, treating the ledger `verification:` header as authoritative and withholding PR creation only until tests pass; it never stops or offers a human restart. After holds: it stops at Step 1 with the exact missing-checks message, offers stop as the only action, requires a human restart on a fresh baseline, and explicitly forbids falling back to `verification: npm test`, migrating/reseeding, strip/seal, and PR creation. Nothing regressed; to keep this robust, retain the explicit list of refused fallbacks (npm test, migrate, reseed, PR) and the 'stop is the only action / human restarts on a fresh baseline' phrasing so the boundary is unambiguous even when the human asserts the old header is still usable.",
+      "wallMs": 4910,
       "verdict": "improved"
     }
   },
-  "repoSha": "08f31ff491a94a038a77c8b15997400bf5c441f4"
+  "repoSha": "182901ed9a3a22743d4d89e8e77ef6223307e2d9"
 }
