@@ -1,7 +1,7 @@
 for: cd38c96cb44fd307fdb2d05caea28ba43ce52fa065e2b343de0b19c9e326d880
 
 ## Change
-Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving cap repair, mixed task restoration and admission boundaries. Run the full resume target alongside the three AC8 targets; accept no unrelated variance.
+Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving allowance migration, mixed task restoration and admission boundaries.
 
 
 Route restored verify/ship Ledger briefs to After the loop step 1 and the loop skill's Gate set section, with no separate resume-owned gate run. Update loop-ledger-brief's closed-row verify snapshots, replace its once-per-leg gate wording with the gate set, and add gate-owner for fresh-session logs and no CI-command fallback. Preserve phase restoration, mixed tasks and fresh conformance; focused sample execution covers this continuation.
@@ -14,7 +14,7 @@ Extract canonical ledger identity from status rows with a separate description s
 
 Recover home return attribution from the child commit body when a restart finds no pending tuple on disk or in session memory. Distinguish settled home admission from interruption using an existing post-admission snapshot bound to a clean HEAD, ancestry and an unchanged ledger, or a confirmed parent disposition; ordinary admission has no parent ledger commit. Ask before phase/task restoration or ledger mutation when later commits or dirty changes leave admission ambiguous. For confirmed interrupted returns, validate the full pre-dispatch-SHA..HEAD range, including a child behind unrelated live HEAD; restore target/tuple on dirt or extra commits and stop before refresh when attribution cannot be recovered. Extend ledger-tracker-recovery with settled-home-verify and ambiguous-home-history facts: preserve an admitted child across a later code-only verification commit, or ask rather than replaying an unproven return. Keep the existing clean/dirty/multiple-commit/missing-attribution, settled parent repair/amendment and restore facts. Reuse existing snapshot fields and the companion attribution prefix without a new carrier. Parent verify owns model runs, assembly-hash updates and result records.
 
-Restore ledger-derived tasks after legal phase reconstruction and pending recovery, before unresolved dirty-tree stops. Implement uses one ledger-path refresh without init; verify/ship restores the full saved mixed list before refresh, preserving Gn states and fresh conformance. Recover clean attributed home returns without double counting; preserve rejected child changes and restore target/tuple before projection. Require explicit authorization for a verify-phase re-bound, an on-disk row close and a gate rerun. The new synthetic ledger-tracker-recovery sample checks these narrated boundaries, not live tool execution. Parent verify owns full-target model runs and records; deterministic worker tests attest only the contract assertions.
+Restore ledger-derived tasks after legal phase reconstruction and pending recovery, before unresolved dirty-tree stops. Implement uses one ledger-path refresh without init; verify/ship restores the full saved mixed list before refresh, preserving Gn states and fresh conformance. Recover clean attributed home returns without double counting; preserve rejected child changes and restore target/tuple before projection. Require explicit authorization for a verify-phase re-bound, an on-disk row close and a gate rerun. The new synthetic ledger-tracker-recovery sample checks these narrated boundaries, not live tool execution.
 
 Approved replacements (holds -> replaced), limited to these existing facts; all other expected facts stay byte-identical:
 
@@ -45,11 +45,11 @@ Carry all PR/head pairs consecutively in record order, home first, while retaini
 
 Add deferred-spec-stop with sample-local entry-check instructions and an explicit before-check-6 replay override. Cover bare tree, brief, process state, seed and incomplete brainstorm after push/create failure; grant exemptions do not bypass admission. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated behavior, not live tracker restoration or before/after improvement. Every new candidate fact must hold regardless of aggregate verdict; retain existing facts and authorized directions. Task 1 retains the original-base deterministic red/green proof.
 
-Cover home-bound coordinated admission, informational HEAD/dirt drift, membership/branch/header/repository stops, missing-tree live receipts, stripped-plan retry and companion-seed refusal before tracker mutation. These are intended fact movements, not observed model results. Parent verification runs the full target; this task runs deterministic structural and assembly checks only.
+Cover home-bound coordinated admission, informational HEAD/dirt drift, membership/branch/header/repository stops, missing-tree live receipts, stripped-plan retry and companion-seed refusal before tracker mutation. These are intended fact movements, not observed model results.
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
 
 ## Expected to move
-- legacy-cap-brief/continue: fails -> holds - Resume delegates the gate set after cap repair rather than full local verification.
+- legacy-cap-brief/continue: fails -> holds - Continue the original phase after allowance migration without reseeding, using one ledger-path refresh; verify/ship resumes at verify and delegates the gate set to the loop skill rather than full local verification.
 - ledger-tracker-verify/mixed-verify: fails -> holds - Keep mixed task statuses and fresh gates while routing commands to the loop-owned selective set.
 - loop-ledger-brief/gate-owner: fails -> holds - Delegate fresh logged gate-set execution to the loop skill without a resume-owned run or full command.
 - durable-cap/durable: fails -> holds - Recover first, then commit only the cap-to-allowance header replacement without funding restoration.
@@ -58,7 +58,6 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - durable-cap/idempotent: fails -> holds - An allowance ledger ignores settings and stale approval carriers on resume.
 - legacy-cap-brief/boundary: fails -> holds - Migrate clean completed ledgers; both or neither header requires hand repair.
 - legacy-cap-brief/grant: fails -> holds - Replace cap grants with header-only migration and the exact missing-settings stop.
-- legacy-cap-brief/continue: fails -> holds - Continue the original phase after migration, including verify/ship at verify.
 - legacy-cap-brief/dirty: fails -> holds - Retain dirty-tree authorization and defer migration until clean recovery.
 - migration-recovery/home: fails -> holds - Admit a tuple-free home return against its unmigrated one-commit range before migration.
 - migration-recovery/dirty: fails -> holds - Boundary rejection restores target/tuple and defers migration without losing child changes.
@@ -97,8 +96,8 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - baseline-fails-on-resume/menu: fails -> holds - Remaining failures use the named three-option menu.
 - menu-after-numbered-findings/layout: fails -> holds - Discovery candidate options stay separate from preceding ordered observations.
 - menu-after-numbered-findings/mapped-pick: fails -> holds - A legacy rendered pick names the resolved brief before restoration.
-- loop-ledger-worktree/durable: fails -> holds - Explicit cap:97 is restored beside iterations7, attempts3 and retry allowance4 without settings resolution.
-- loop-ledger-brief/continuation: fails -> holds - Explicit cap:97 is restored beside iterations5 and row attempts before phase continuation.
+- loop-ledger-worktree/durable: fails -> holds - Restore allowance:4 beside iterations7, attempts3 and retry audit ceiling4 without settings resolution; the retry adds one to the effective allowance.
+- loop-ledger-brief/continuation: fails -> holds - Restore allowance:4 beside iterations5 and row attempts before phase continuation.
 
 - legs-home-mismatch/stop: fails -> holds - Enforce the new coordinated-flow must-hold fact: Each stops before tracker writes, naming repo-b and expected/observed full tuple or branch; mismatch is not tolerated as informational HEAD drift.
 - legs-membership/stop: fails -> holds - Enforce the new coordinated-flow must-hold fact: Reports reordered/missing/extra leg and both ordered lists in each case before any tracker write; never silently edits membership.
