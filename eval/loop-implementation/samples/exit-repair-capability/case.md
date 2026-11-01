@@ -1,0 +1,7 @@
+bundle-: skills/loop-implementation/reference/coordinated-legs.md
+
+Replay these independent verify-step-1 snapshots using the supplied observations, not live calls. Single home ledger: all rows done, attempts preserved, allowance4, iterations900, no cap or pending, clean tree, implement complete, verify active. The ledger command `make check` fails `expected 2 got 1`. Option 4, Amend-grant none, no prior verification-repair marker and recoverable history. Describe calls, model, count, ledger invariants and exact human stop/menu where applicable.
+
+1. The settings tool returns implModel `session/main` through its main-loop fallback. The repair returns DONE with exactly one clean commit including the bumped home ledger and no row/allowance/decision changes. Rerun succeeds. Describe the parent marker when no dirt remains and the next gate. Repeat independently under option 5 with amendment permission; is the first repair different?
+2. The settings tool is unavailable. Independently the tool returns undefined implModel because neither configured nor main-loop model exists. Report count and marker changes and whether default-model dispatch is allowed. Then restore the capability before any repair was dispatched: may it now repair?
+3. A prior parent `loop: repair verification` commit is present on resume. Independently history is interrupted and its repair identity is unrecoverable. The model resolves in both variants. Does either authorize another repair, reset iterations, reopen rows or create a new state carrier? Show the stop and legal options.

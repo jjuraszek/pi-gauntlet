@@ -108,10 +108,14 @@ Resume's argument failures cover a spec seed with an extra worktree, an unrecogn
 | Layout | Reply |
 |---|---|
 | N. rows | Send the displayed row number. Apply the shared grammar's numeric remap-and-echo rule before acting, not a guessed stable row index. Gatekeep also accepts `show evidence`, `check <name> flaky`, `check <name> real`, and `check <name> ci-broken`; another string is a change request. Finishing Step 4 also accepts `fix minors` or selected IDs such as `fix minors F3, F9`. |
-| 1 - rows | Send the leading number. The spec approval gate also accepts its documented `; fund N fix rounds` suffix. The close-absorbed-members gate uses its displayed approval/revision rows. |
+| 1 - rows | Send the leading number. The spec approval gate accepts `; allowance N` (or `, allowance N`) on 4/5 for this run's per-row ledger allowance, or `; fund N fix rounds` on 1/2 for waves funding. N must be a positive safe integer. Allowance on 1/2, funding on 4/5 and malformed tokens re-present the gate quoting the token without writes; a second invalid reply leaves it waiting. The close-absorbed-members gate uses its displayed approval/revision rows. |
 | X) options | Send the letter or free text, preserving the question's recommendation format. |
 | item-letter | Send `<item>. <letter>` per the [carried-open response grammar](../skills/finishing-a-development-branch/reference/disposition-protocol.md#response-grammar); use the displayed choices for each item. |
-| free / question | Answer the words requested by the body: a number of funded rounds or stop for conformance escalation, typed `discard` for discard authorization, `cap +N` for loop funding, or `yes`/`no` for the named confirmations. |
+| free / question | Answer the words requested by the body: a number of funded rounds or stop for conformance escalation, typed `discard` for discard authorization, `retry <n> \| <hint>` or `rows +N` for loop row stops, or `yes`/`no` for the named confirmations. |
+
+Loop approval rows 4/5 display `allowance <n> per row` from `loopEngine.maxIterationsPerRow` (default 4), with settings warnings beside the menu. An explicit override emits `run allowance: <n>` immediately before loop entry; it is not an Amend-grant or spec field. A pre-seed crash loses that carrier. Existing ledgers use their durable allowance, not a later reply or settings change.
+
+Every loop stop lists each open/failed row as `row <n>: <attempts> of <effective allowance>` and prints `Preserve every row's attempts.` At a row stop, `retry <n> | <hint>` buys one attempt for that row; `rows +N` raises the shared allowance for every row and leg without resetting counters or stagnation windows. Only retry resets the row's stagnation and validation-miss windows. Dirty-tree, commit-boundary and pending recovery stops keep their own authorization gates. Verification failure uses its one automatic repair, then offers amend/stop only. These execution actions do not grant amendment permission.
 
 Ordinary answers outside skill-owned turns, invented gates, tracker/ticket/PR payloads, and private child results are not marker surfaces. Evidence comments still begin with `Delivered: <sha>`; response drafts, close comments, and handoff brief contents keep their own formats. The marker belongs to the surrounding assistant message.
 

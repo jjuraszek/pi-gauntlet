@@ -1,6 +1,12 @@
-for: d854aa8067e315af87e350d6eb6cd2a770e4af5813b6d386320396bdebe937c4
+for: 62d79f0ce46f12e958e9ae8e56a9ea3443755415346d90aa9929f339c19f0a5d
 
 ## Change
+
+Cover the resolved allowance gate, waves-only funding grammar and amendment allowance preservation with selected fixtures. Supply the newly required successful settings result in shared gate fixture state, with each case's explicit settings or unavailable-tool observation taking precedence. Keep sample IDs and all must-hold facts, including the waves controls. Preserve recovered model records without treating them as current verification; defer selected model checks to the parent. Never run full targets, including at completion.
+
+Keep fix-round budget decoding waves-only without changing either engine's amendment consent. Extend loop-ledger-amend with allowance preservation and budget-only/mixed-grant comparisons for both engines. Defer loop-ledger-amend and the existing engine-waves control to the parent's final selected verification.
+
+Resolve and display the setting allowance on both loop approval rows, before the final summary read, with a warning line or unavailable-tool stop. Reject funding on 4/5 and allowance on waves choices without writes. Carry accepted semicolon/comma allowance replies through exactly one run allowance line immediately before loop invocation. Update loop-gate and loop-funded-reply to cover these repairs, malformed/duplicate/trailing tokens and unchanged waves funding. Defer loop-gate and loop-funded-reply to the parent's final selected verification.
 
 The worker critique applies the council's PR-source predicate and re-source-or-ask correction as its third check. The tool-free worker-critique-pr-source sample adds the full spec-finalization reference locally, drops the unrelated amendment reference, and judges a rendered dispatch from a fixed checkpoint. Preserve every prior fact, accepted variance, target configuration, and frontmatter. Deterministic structural tests do not prove model behavior; the parent runs the full target replay.
 
@@ -59,6 +65,8 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
 
 ## Expected to move
+- loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
+- loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
 - spec-pr-regate-legs/remote-only: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - worker-critique-pr-source/dispatch: fails -> holds - Dispatch the three-check worker, not council members.
 - worker-critique-pr-source/correction: fails -> holds - Re-source from human input or agreed design, otherwise ask before cutting.
@@ -123,17 +131,20 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 - pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
-- loop-gate/menu: fails -> holds - Render exact options 4/5.
+- loop-gate/menu: fails -> holds - Render exact options 4/5 with resolved allowance7 and the run allowance suffix; offer funding only on 1/2.
+- loop-gate/settings: fails -> holds - Resolve once before the summary read, show warnings and stop on unavailable settings.
 - loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
 - loop-gate/no-ac: fails -> holds - Keep the 1/2/3/6 not-fetched zero-row gate without 4/5; drafted rows enable loop options.
 - engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
 - engine-waves/audit: fails -> holds - Audit re-gates without approval.
 - engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.
 - engine-waves/invalid: fails -> holds - Budget-only and malformed replies do not write.
-- loop-funded-reply/five: fails -> holds - Decode option 5's funded grant and stagnant-row budget.
-- loop-funded-reply/four: fails -> holds - Preserve budget-only option 4 and clean option 5.
+- loop-funded-reply/five: fails -> holds - Reject funded option5 without writes while bare5 retains its full amendment grant.
+- loop-funded-reply/four: fails -> holds - Reject funded option4 without writes or continuation.
+- loop-funded-reply/allowance: fails -> holds - Emit the exact carrier for semicolon/comma overrides only, independently of amend permission.
+- loop-funded-reply/waves: holds -> holds - Retain option2's funding suffix and waves route.
 - loop-funded-reply/route: fails -> holds - Check both fields before completing and dispatching loop.
-- loop-funded-reply/malformed: fails -> holds - Quote invalid input and re-gate.
+- loop-funded-reply/malformed: fails -> holds - Quote malformed allowance tokens in one clarification and wait without writes.
 - loop-ledger-amend/review: fails -> holds - Option 4 reviews while option 5 grants the same amendment scope as 2.
 - loop-ledger-amend/reconcile: fails -> holds - Reconcile cuts and re-bounds without task-plan machinery.
 - loop-ledger-amend/bypass: fails -> holds - Preserve factual evidence, attempts, iterations, and audit body.

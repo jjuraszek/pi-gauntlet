@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import registerPlanTracker, { validateSnapshot } from "./plan-tracker.ts";
 
 type ToolResult = {
   content: { type: string; text: string }[];
-  details: { action: string; tasks: { name: string; status: string }[]; error?: string };
+  details: { action: string; tasks: { name: string; status: string; label?: string }[]; error?: string };
 };
 
 function harness(branch: unknown[] = [], cwd = process.cwd()) {
@@ -384,14 +385,25 @@ test("legacy-invalid snapshot: first update is rejected listing legacy offenders
   assert.deepEqual(repaired.details.tasks.map((t) => t.status), ["complete", "skipped", "complete"]);
 });
 
+const descriptions = [
+  "Keep cut requirements visible", "Reject malformed allowance replies", "Verify loop behavior and recovery",
+  "Report failed checks", "Preserve completed work", "Start the next criterion",
+];
+const spec = (criteria = descriptions) => `# Spec\n\n## Acceptance criteria\n${criteria.map(text => `- [ ] ${text}`).join("\n")}\n`;
+function ledgerFixture(prefix: string) {
+  const dir = mkdtempSync(join(tmpdir(), prefix));
+  execFileSync("git", ["init", "-q", dir]);
+  writeFileSync(join(dir, "spec.md"), spec(descriptions.map(text => `${text}\n  in-scope`)));
+  return dir;
+}
 const ledger = (rows: string[], tail = "", pending = "") => [
-  "# Ledger - loop engine", pending,
+  "# Ledger - loop engine", "**Spec:** `spec.md`", pending,
   "| row | status | attempts | evidence |", "|---|---|---|---|",
   ...rows.map(row => `| ${row} |`), "", "## Decisions", tail,
 ].join("\n");
 
 test("refresh projects ledger states, numeric pending targets and live leg mappings", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "plan-refresh-"));
+  const dir = ledgerFixture("plan-refresh-");
   const path = join(dir, "ledger.md");
   const cases = [
     {
@@ -425,7 +437,7 @@ test("refresh projects ledger states, numeric pending targets and live leg mappi
 });
 
 test("refresh replaces only whole ledger names, preserves Gn statuses and replays its snapshot", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "plan-refresh-kept-"));
+  const dir = ledgerFixture("plan-refresh-kept-");
   const path = join(dir, "ledger.md");
   writeFileSync(path, ledger(["1 | open | 0 |", "2 | open | 0 |", "3 | done | 1 | passed"], "row 3 done | passed | row 1"));
   const h = harness();
@@ -437,9 +449,9 @@ test("refresh replaces only whole ledger names, preserves Gn statuses and replay
   const result = await h.call({ action: "refresh", path });
   assert.equal(result.details.error, undefined);
   assert.deepEqual(result.details.tasks, [
-    { name: "row 3", status: "complete" },
+    { name: "row 3", status: "complete", label: descriptions[2] },
     { name: "G1: closed", status: "complete" }, { name: "G2: working", status: "in_progress" },
-    { name: "row 1", status: "pending" }, { name: "row 2", status: "pending" },
+    { name: "row 1", status: "pending", label: descriptions[0] }, { name: "row 2", status: "pending", label: descriptions[1] },
     { name: "row 4 notes", status: "pending" }, { name: "G3: pending", status: "pending" },
   ]);
   assert.deepEqual(validateSnapshot(result.details.tasks as any), []);
@@ -449,8 +461,235 @@ test("refresh replaces only whole ledger names, preserves Gn statuses and replay
   assert.equal(replay.widget(), h.widget());
 });
 
+test("allowance labels count retry decisions, preserve identity and render on every status surface", async () => {
+  const dir = ledgerFixture("plan-allowance-");
+  const path = join(dir, "ledger.md");
+  const text = ledger([
+    "1 | cut | 3 | deferred: #1", "2 | done | 0 | baseline", "3 | open | 2 | check",
+    "4 | failed | 7 | failed", "5 | done | 1 | passed", "6 | open | 0 | check",
+  ], [
+    "row 3 retry | hint | allowed attempts 5", "row 3 retry | next | allowed attempts 99",
+    "row 3 escalated | implModel round | allowed attempts 100", "cap +20 | historical | cap 40",
+    "row 4 retry | hint | allowed attempts 8", "row 5 done | passed | row 3",
+    "## Notes", "row 3 retry | not a decision | allowed attempts 101",
+    "## Leg mapping", "| row | ac | leg |", "|---|---|---|",
+    "| 1 | 1 | repo-a |", "| 2 | 2 | repo-a |", "| 3 | 3 | repo-b |",
+    "| 4 | 4 | repo-a |", "| 5 | 5 | repo-b |", "| 6 | 6 | repo-a |",
+  ].join("\n"), "allowance: 4\npending: 3 | repo-b | abc1234");
+  writeFileSync(path, text);
+  const h = harness();
+  await h.call({ action: "init", tasks: [{ name: "G1: fixed", status: "complete" }, "2/5: G2: pending"] });
+  const result = await h.call({ action: "refresh", path });
+  assert.equal(result.details.error, undefined);
+  assert.deepEqual(result.details.tasks, [
+    { name: "row 1 (repo-a)", status: "skipped", label: `${descriptions[0]} (repo-a)` },
+    { name: "row 2 (repo-a)", status: "skipped", label: `${descriptions[1]} (repo-a)` },
+    { name: "row 3 (repo-b)", status: "in_progress", label: `2/6: ${descriptions[2]} (repo-b)` },
+    { name: "row 4 (repo-a)", status: "failed", label: `7/5: ${descriptions[3]} (repo-a)` },
+    { name: "row 5 (repo-b)", status: "complete", label: `1/4: ${descriptions[4]} (repo-b)` },
+    { name: "G1: fixed", status: "complete" },
+    { name: "row 6 (repo-a)", status: "pending", label: `0/4: ${descriptions[5]} (repo-a)` },
+    { name: "2/5: G2: pending", status: "pending" },
+  ]);
+  assert.match(h.widget()!, /2\/6: Verify loop behavior and recovery \(repo-b\)$/);
+  assert.doesNotMatch(h.widget()!, /row 3/);
+  assert.match(result.content[0].text, /\[2\] row 3 \(repo-b\) \| 2\/6: Verify loop behavior and recovery \(repo-b\)/);
+  const status = await h.call({ action: "status" });
+  assert.match(status.content[0].text, /\[4\] row 5 \(repo-b\) \| 1\/4: Preserve completed work \(repo-b\)/);
+  const rendered = h.tool().renderResult(status, {}, h.theme).text!;
+  assert.match(rendered, /row 3 \(repo-b\) \| 2\/6: Verify loop behavior and recovery \(repo-b\)/);
+  assert.match(rendered, /row 4 \(repo-a\) \| 7\/5: Report failed checks \(repo-a\)/);
+  const replay = harness([{ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: status.details } }]);
+  await replay.fire("session_start");
+  assert.equal(replay.widget(), h.widget());
+  assert.deepEqual((await replay.call({ action: "status" })).details.tasks, status.details.tasks);
+
+  writeFileSync(path, text.replace("allowance: 4", "allowance: 7"));
+  const raised = await h.call({ action: "refresh", path });
+  assert.deepEqual(raised.details.tasks.map(t => [t.name, t.status]), result.details.tasks.map(t => [t.name, t.status]));
+  assert.equal(raised.details.tasks.find(t => t.name === "row 3 (repo-b)")!.label, `2/9: ${descriptions[2]} (repo-b)`);
+  assert.equal(raised.details.tasks.find(t => t.name === "row 5 (repo-b)")!.label, `1/7: ${descriptions[4]} (repo-b)`);
+  assert.equal(raised.details.tasks.length, result.details.tasks.length);
+  writeFileSync(path, text.replace("allowance: 4", "cap: 49"));
+  const legacy = await h.call({ action: "refresh", path });
+  assert.equal(legacy.details.error, undefined);
+  assert.deepEqual(legacy.details.tasks.filter(t => t.name.startsWith("row ")).map(t => t.label),
+    descriptions.map((description, i) => `${description} (${[2, 4].includes(i) ? "repo-b" : "repo-a"})`));
+});
+
+test("allowance labels tolerate surrounding whitespace in the header value", async () => {
+  const dir = ledgerFixture("plan-allowance-whitespace-");
+  const path = join(dir, "ledger.md");
+  const h = harness();
+  const labels = [];
+  for (const header of ["allowance: 4", "allowance:  4", "allowance: 4 "]) {
+    writeFileSync(path, ledger(["1 | open | 0 |"], "", header));
+    const result = await h.call({ action: "refresh", path });
+    assert.equal(result.details.error, undefined, header);
+    labels.push(result.details.tasks[0].label);
+  }
+  assert.deepEqual(labels, Array(3).fill(`0/4: ${descriptions[0]}`));
+});
+
+test("single-repo labels are projection-only and cannot enter through init or add", async () => {
+  const dir = ledgerFixture("plan-label-input-");
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["3 | open | 2 | check"], "row 3 retry | hint | allowed attempts 99", "allowance: 4"));
+  const h = harness();
+  const projected = await h.call({ action: "refresh", path });
+  assert.deepEqual(projected.details.tasks, [{ name: "row 3", status: "pending", label: `2/5: ${descriptions[2]}` }]);
+  assert.match(h.widget()!, /2\/5: Verify loop behavior and recovery$/);
+  const init = await h.call({ action: "init", tasks: [{ name: "row 3", status: "in_progress", label: "9/9" }] });
+  assert.deepEqual(init.details.tasks, [{ name: "row 3", status: "in_progress" }]);
+  const added = await h.call({ action: "add", tasks: [{ name: "G1: check", status: "pending", label: "9/9" }] });
+  assert.ok(added.details.tasks.every(t => !Object.hasOwn(t, "label")));
+  const objectSchema = h.parameters().args[0].tasks.args[0].args[0].args[0][1];
+  assert.deepEqual(Object.keys(objectSchema.args[0]), ["name", "status"]);
+});
+
+test("refresh resolves the owning root, normalizes original AC text, and keeps labels stable across status changes", async () => {
+  const dir = ledgerFixture("plan-descriptions-");
+  const nested = join(dir, "doc", "plans");
+  mkdirSync(nested, { recursive: true });
+  const path = join(nested, "ledger.md");
+  writeFileSync(join(dir, "spec.md"), [
+    "# Spec", "```md", "## Acceptance criteria", "- [ ] Not a criterion", "```",
+    "## Acceptance Criteria", "- [x] Keep   cut requirements", "  visible",
+    "  deferred: #1", "    disposition continuation", "- [ ] Reject malformed allowance replies",
+    "  elsewhere: repo-b#2", "- [ ] Verify loop behavior", "  and recovery | row 99 is only text",
+    "  venue: staging - observe completion", "## Design", "- [ ] Not an acceptance criterion",
+  ].join("\n"));
+  const text = ledger(["1 | cut | 0 | deferred", "2 | done | 0 | baseline", "3 | open | 2 | check"], "", "allowance: 4");
+  writeFileSync(path, text);
+  const h = harness([], nested);
+  const first = await h.call({ action: "refresh", path: "ledger.md" });
+  assert.equal(first.details.error, undefined);
+  assert.deepEqual(first.details.tasks.map(t => t.label), [
+    "Keep cut requirements visible", descriptions[1], "2/4: Verify loop behavior and recovery | row 99 is only text",
+  ]);
+  assert.match(first.content[0].text, /row 3 \| 2\/4: Verify loop behavior and recovery \| row 99 is only text/);
+  for (const [status, tail, pending] of [
+    ["failed", "", ""], ["failed", "", "pending: 3 | home | abc1234"],
+    ["done", "row 3 done | passed | none", ""],
+  ]) {
+    writeFileSync(path, text.replace("| 3 | open", `| 3 | ${status}`).replace("allowance: 4", `allowance: 4\n${pending}`) + tail);
+    const next = await h.call({ action: "refresh", path });
+    assert.equal(next.details.error, undefined);
+    assert.deepEqual(next.details.tasks.map(t => [t.name, t.label]), first.details.tasks.map(t => [t.name, t.label]));
+  }
+  writeFileSync(join(dir, "spec.md"), spec([descriptions[0], descriptions[1], "Verify amended behavior"]));
+  const amended = await h.call({ action: "refresh", path });
+  assert.equal(amended.details.tasks[2].name, "row 3");
+  assert.equal(amended.details.tasks[2].label, "2/4: Verify amended behavior");
+  assert.equal(amended.details.tasks.length, 3);
+});
+
+test("coordinated labels use mapped original AC indices, including shared criteria", async () => {
+  const dir = ledgerFixture("plan-original-ac-");
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | cut | 0 | cut", "2 | open | 1 | check", "3 | open | 0 | check"], [
+    "## Leg mapping", "| row | ac | leg |", "|---|---|---|",
+    "| 1 | 2 | repo-a |", "| 2 | 3 | repo-a |", "| 3 | 3 | repo-b |",
+  ].join("\n"), "allowance: 4"));
+  const result = await harness().call({ action: "refresh", path });
+  assert.equal(result.details.error, undefined);
+  assert.deepEqual(result.details.tasks.map(t => [t.name, t.label]), [
+    ["row 1 (repo-a)", `${descriptions[1]} (repo-a)`],
+    ["row 2 (repo-a)", `1/4: ${descriptions[2]} (repo-a)`],
+    ["row 3 (repo-b)", `0/4: ${descriptions[2]} (repo-b)`],
+  ]);
+});
+
+test("refresh rejects an unresolvable repository root without changing initialized tasks", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "plan-no-checkout-"));
+  try {
+    execFileSync("git", ["-C", dir, "rev-parse", "--show-toplevel"], { stdio: "ignore" });
+    t.skip("temporary directory is inside a git repository");
+    return;
+  } catch {}
+  writeFileSync(join(dir, "spec.md"), spec(["Keep prior tasks"]));
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | open | 0 |"], "", "allowance: 4"));
+  const h = harness([], dir);
+  const initial = await h.call({ action: "init", tasks: [{ name: "G1: closed", status: "complete" }, "G2: pending"] });
+  const result = await h.call({ action: "refresh", path });
+  assert.match(result.details.error!, /cannot resolve repository root for Spec reference/);
+  assert.equal(result.details.tasks, undefined);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, initial.details.tasks);
+});
+
+test("refresh rejects missing specs, missing criteria and empty descriptions atomically", async () => {
+  const dir = ledgerFixture("plan-spec-errors-");
+  const path = join(dir, "ledger.md");
+  const valid = ledger(["1 | open | 0 | check"], "", "allowance: 4");
+  writeFileSync(path, valid);
+  const h = harness();
+  const initial = await h.call({ action: "refresh", path });
+  assert.equal(initial.details.error, undefined);
+  const widget = h.widget();
+  const cases = [
+    { text: valid.replace("**Spec:** `spec.md`", ""), spec: spec(), error: /missing Spec reference/ },
+    { text: valid.replace("`spec.md`", "`absent.md`"), spec: spec(), error: /cannot read spec .*absent\.md:/ },
+    { text: valid, spec: "# Spec\n## Design\n- [ ] Not an AC", error: /row 1: spec .*spec\.md AC 1 is missing/ },
+    { text: valid, spec: spec(["  \n  deferred: #1"]), error: /row 1: spec .*spec\.md AC 1 has an empty description/ },
+    { text: ledger(["7 | open | 0 | check"]), spec: spec(), error: /row 7: spec .*spec\.md AC 7 is missing/ },
+    { text: valid + "\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 9 | repo-a |", spec: spec(), error: /row 1: spec .*spec\.md AC 9 is missing/ },
+  ];
+  for (const row of cases) {
+    writeFileSync(path, row.text);
+    writeFileSync(join(dir, "spec.md"), row.spec);
+    const result = await h.call({ action: "refresh", path });
+    assert.match(result.details.error!, row.error);
+    assert.equal(result.details.tasks, undefined);
+    assert.equal(h.widget(), widget);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, initial.details.tasks);
+  }
+});
+
+test("status rows round-trip through the brief identity grammar without description drift or duplicate tasks", async () => {
+  const contract = readFileSync(new URL("../skills/gauntlet-resume/reference/brief-contract.md", import.meta.url), "utf8");
+  const suffix = new RegExp(contract.match(/suffix pattern `([^`]+)`/)![1]);
+  const prefix = new RegExp(contract.match(/prefix pattern `([^`]+)`/)![1]);
+  const canonical = new RegExp(contract.match(/canonical pattern `([^`]+)`/)![1]);
+  const restoreName = (name: string) => {
+    const labeled = suffix.exec(name);
+    if (labeled) return labeled[1];
+    const plain = name.replace(prefix, "");
+    return canonical.test(plain) ? plain : name;
+  };
+  for (const [input, expected] of [
+    ["row 3", "row 3"], ["2/5: row 3", "row 3"], ["2/5: row 3 (repo-b)", "row 3 (repo-b)"],
+    ["row 3 (repo-b) | 2/5: Verify | row 99", "row 3 (repo-b)"],
+    ["2/5: G3: pending", "2/5: G3: pending"], ["G1: row 3 | description", "G1: row 3 | description"],
+    ["row 3 notes | description", "row 3 notes | description"],
+  ]) assert.equal(restoreName(input), expected);
+  const dir = ledgerFixture("plan-brief-roundtrip-");
+  const path = join(dir, "ledger.md");
+  writeFileSync(join(dir, "spec.md"), spec([descriptions[0], descriptions[1], `${descriptions[2]} | row 99 is text`]));
+  const text = ledger(["2 | cut | 0 | cut", "3 | done | 2 | passed"], "row 3 done | passed | none", "allowance: 5");
+  writeFileSync(path, text);
+  const h = harness();
+  await h.call({ action: "init", tasks: [{ name: "G1: failed", status: "failed" }, { name: "G2: repair", status: "in_progress" }, "2/5: G3: pending"] });
+  await h.call({ action: "refresh", path });
+  const status = await h.call({ action: "status" });
+  const brief = status.content[0].text;
+  const statuses: Record<string, string> = { "\u2713": "complete", "\u2192": "in_progress", "\u2717": "failed", "\u2298": "skipped", "\u25cb": "pending" };
+  const restored = [...brief.matchAll(/^\s*([\u2713\u2192\u2717\u2298\u25cb]) \[\d+\] (.+)$/gm)]
+    .map(([, glyph, name]) => ({ name: restoreName(name), status: statuses[glyph] }));
+  assert.deepEqual(restored, status.details.tasks.map(({ name, status }) => ({ name, status })));
+  const resumed = harness();
+  const init = await resumed.call({ action: "init", tasks: restored });
+  assert.equal(init.details.error, undefined);
+  assert.ok(init.details.tasks.every(t => !Object.hasOwn(t, "label")));
+  writeFileSync(path, text.replace("allowance: 5", "allowance: 6"));
+  const refreshed = await resumed.call({ action: "refresh", path });
+  assert.deepEqual(refreshed.details.tasks.map(({ name, status }) => ({ name, status })), restored);
+  assert.match(refreshed.content[0].text, /row 3 \| 2\/6: Verify loop behavior and recovery \| row 99 is text/);
+  assert.equal(refreshed.details.tasks.filter(t => t.name === "row 3").length, 1);
+});
+
 test("refresh rejects unreadable or malformed ledgers atomically, including absent numeric pending rows", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "plan-refresh-error-"));
+  const dir = ledgerFixture("plan-refresh-error-");
   const path = join(dir, "ledger.md");
   const valid = ledger(["1 | open | 0 |"]);
   const h = harness();
@@ -461,8 +700,9 @@ test("refresh rejects unreadable or malformed ledgers atomically, including abse
     { name: "unreadable path", path: join(dir, "absent.md"), text: valid, error: /refresh: cannot read .*absent\.md:/ },
     { name: "wrong discriminator", path, text: "# Plan", error: /line 1 is "# Plan", not a loop ledger/ },
     { name: "missing header", path, text: valid.replace("| row | status | attempts | evidence |", "| row | state | attempts | evidence |"), error: /row table malformed at line \d+/ },
-    { name: "nonnumeric row", path, text: valid.replace("| 1 | open", "| x | open"), error: /row table malformed at line 5/ },
-    { name: "invalid status", path, text: valid.replace("| 1 | open", "| 1 | unknown"), error: /row table malformed at line 5/ },
+    { name: "nonnumeric row", path, text: valid.replace("| 1 | open", "| x | open"), error: /row table malformed at line 6/ },
+    { name: "invalid status", path, text: valid.replace("| 1 | open", "| 1 | unknown"), error: /row table malformed at line 6/ },
+    ...["x", "-1", "1.5", ""].map(attempts => ({ name: `invalid attempts ${attempts}`, path, text: valid.replace("| 0 |", `| ${attempts} |`), error: /row table malformed at line 6/ })),
     { name: "absent pending row", path, text: "pending: 2 | home | abc1234", error: /pending: names row 2 which is absent/ },
     { name: "zero pending row", path, text: "pending: 0 | home | abc1234", error: /pending: names row 0 which is absent/ },
     { name: "leading-zero absent row", path, text: "pending: 02 | home | abc1234", error: /pending: names row 2 which is absent/ },

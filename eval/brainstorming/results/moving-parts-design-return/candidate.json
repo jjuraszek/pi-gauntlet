@@ -1,8 +1,8 @@
 {
   "sample": "moving-parts-design-return",
   "arm": "candidate",
-  "skillSha": "5816342446f951cbce4fb718566ff049c6071871da46927079d604401c1c4482",
-  "inputSha": "90d91811862611f71def56a33b4cf64bf739f48f348d46e48951219e97487ece",
+  "skillSha": "98ab4c247c48e8a74cdee49e425c6bffc8ea10466077b2d758218b7e9694dafa",
+  "inputSha": "2b4d7a1bf0ce270ff51011223434a78c24485609f047ef856e967afe7288796c",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\n**Recap of the approved design commitments:**\n\n- `lib/notify.ts#post` keeps ownership of message formatting and retries. Its signature becomes `post(message, channel = \"general\")`.\n- `jobs/report.ts` stops using its inline fetch. It delegates delivery to `post` and passes its requested channel.\n- `jobs/digest.ts` keeps its existing `post(message)` call and still relies on the general default.\n- `post` rejects an empty channel before sending.\n- Remove: the inline fetch in `jobs/report.ts`.\n- Add: one optional `channel` parameter on `post`.\n- Pattern: this follows the shared notification ownership in `lib/notify.ts#post`. It adds no second formatting or retry path.\n\n**Round two: errors, edges, tests, and documentation impact**\n\n*Errors.* An empty channel fails with an explicit error inside `post` before any send. Because the check runs before sending, the retry loop never starts and no message goes out. `jobs/report.ts` receives the same rejection when it supplies an empty channel. It does not fall back to the general channel.\n\n*Edges.* If the channel argument is omitted, `post` sends to `\"general\"`. This keeps `jobs/digest.ts` working without any edit. A non-empty requested channel goes through the same formatting and retry behavior as the default channel, so report delivery keeps the behavior its inline fetch had.\n\n*Tests.* There is one line for each acceptance row and one for the design error clause:\n\n```markdown\n## Tests\n- post sends to the requested channel when an override is supplied - post_uses_requested_channel\n- post preserves the general default when the channel argument is omitted - post_keeps_default_channel\n- post rejects an empty channel before sending, with no send attempted - post_rejects_empty_channel\n```\n\nThe spec cites `reference/documentation-impact.md` for this section. I applied its materiality bar. The draft lists no touched docs, and no user guide covers this private helper. An optional parameter on an internal helper clears none of the inclusion categories. It also makes no existing router, guide, or index stale.\n\n```markdown\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n```\n\nDo you approve round two?\n",
-      "words": 316,
-      "wallMs": 16018,
+      "text": "gauntlet: question\n\n**Recap of the chosen design commitments (round one, approved)**\n\n- `lib/notify.ts#post` keeps sole ownership of message formatting and retries, and its signature becomes `post(message, channel = \"general\")`.\n- `post` rejects an empty channel before sending.\n- `jobs/report.ts` stops building its own request and delegates delivery to `post` with its requested channel.\n- `jobs/digest.ts` keeps its existing `post(message)` call and relies on the `\"general\"` default, unchanged.\n- Remove: the inline fetch in `jobs/report.ts`, including its copied formatting and retry logic.\n- Add: one optional `channel` parameter on `lib/notify.ts#post`, defaulting to `\"general\"`.\n- Pattern: this follows shared notification ownership in `lib/notify.ts#post` and adds no second delivery path.\n\n**Round two: errors, edges, tests, documentation impact**\n\n*Errors.* An empty channel passed to `post` fails before any send or retry. No request leaves the process, so the empty value never reaches the transport. All other failures behave as they do today, because `post`'s existing retry behavior is the only retry path.\n\n*Edges.*\n- An omitted channel argument resolves to `\"general\"`. This keeps `jobs/digest.ts` byte-for-byte unchanged in behavior.\n- A supplied override channel goes through the same formatting and retries as the default channel. `jobs/report.ts` therefore inherits `post`'s retries rather than keeping its own.\n- No caller other than `jobs/report.ts` and `jobs/digest.ts` calls `post` or inlines the same fetch. All caller paths were traced during gathering, so no other call site changes.\n\n*Tests.* Each line maps one acceptance row or Design error clause to its test:\n\n## Tests\n- post sends to the requested channel when an override is supplied - post_uses_requested_channel\n- post preserves the general default when the channel argument is omitted - post_keeps_default_channel\n- post rejects an empty channel before sending - post_rejects_empty_channel\n\n*Documentation impact.* This section applies the materiality bar in `reference/documentation-impact.md`. The gathered draft's `Docs touched:` list is empty, so no candidates go to the materially-amended class. `post` is a private helper with no user guide. Its new optional parameter and default are visible in the signature and pinned by the tests above, so the change clears none of the inclusion categories. No router, topic guide, or index describes report delivery, so nothing becomes stale.\n\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n\nDo you approve round two?\n",
+      "words": 360,
+      "wallMs": 13052,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\n### Chosen design commitments\n\nThe approved design reuses `lib/notify.ts#post` rather than copying notification logic. That helper continues to own formatting and retries, with its signature extended to `post(message, channel = \"general\")`.\n\n`jobs/report.ts` delegates delivery to `post`, passing its requested channel. `jobs/digest.ts` keeps calling `post(message)` unchanged, preserving its dependency on the general-channel default. No new notification helper or parallel delivery path is introduced.\n\nThe implementation surface remains:\n- **Remove:** the inline fetch and duplicated formatting/retry behavior in `jobs/report.ts`.\n- **Add:** the optional channel parameter on `post` and the report call site that delegates to it with the requested channel.\n\n### Round two: errors, edges, and verification\n\nAn empty channel is rejected before sending. This validation belongs in `post`, so report delivery and any other caller use the same rule. The rejection must prevent an outbound notification; the design does not introduce a particular error-message contract.\n\nOmitting the channel argument is different from supplying an empty channel. Omission selects `\"general\"` and preserves digest’s existing behavior. A supplied, nonempty channel is used for delivery rather than replaced by the default. Formatting and retry ownership remain with the shared helper; the report job no longer maintains its own implementation.\n\nVerification covers each acceptance outcome and the approved error clause. Tests should observe the outbound channel or absence of a send, rather than merely check the new function signature.\n\n## Tests\n- A supplied channel is used for the outbound notification - `post_uses_requested_channel`\n- Omitting the channel argument sends to `\"general\"` - `post_keeps_default_channel`\n- An empty channel is rejected before any send occurs - `post_rejects_empty_channel`\n\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n\nThis follows `reference/documentation-impact.md`. The draft records `Docs touched: none`, and no user guide covers this private helper; there is no identified product-facing documentation change.\n\nDo you approve round two?\n",
-      "words": 296,
-      "wallMs": 12131,
+      "text": "gauntlet: question\n### Chosen design commitments\n\nThe approved design reuses the existing notification owner rather than copying its behavior:\n\n- `lib/notify.ts#post` becomes `post(message, channel = \"general\")` and continues to own formatting and retries.\n- `jobs/report.ts` delegates delivery to `post`, supplying its requested channel.\n- `jobs/digest.ts` keeps calling `post(message)` and therefore retains the general-channel default.\n- An empty channel is rejected before sending.\n\n**Remove:** the inline fetch and duplicated formatting/retry behavior in `jobs/report.ts`.\n\n**Add:** the optional channel parameter on `post` and report’s delegation to that shared helper. No new notification helper, settings path, or delivery entrypoint is introduced.\n\n### Round two: errors, edges, and verification\n\nChannel selection changes; the established formatting and retry behavior does not. Report delivery uses the channel it supplies, while callers that omit the argument continue to send to `\"general\"`. This preserves digest’s existing behavior without requiring changes to its call site.\n\nThe explicit error boundary is an empty channel: `post` must reject it before any send occurs. The default applies when the argument is omitted; it must not turn an explicitly empty channel into a general-channel delivery. No additional channel-validation rules are proposed.\n\nThe tests below cover both acceptance outcomes and the approved error clause. The override test observes the channel used for delivery, the default test exercises omission of the argument, and the rejection test verifies both rejection and the absence of a send. Integration review also confirms that report delegates to `post` and digest retains its existing call.\n\n## Tests\n- Sending with an override uses the requested channel - `post_uses_requested_channel`\n- Sending without a channel argument uses the general default - `post_keeps_default_channel`\n- An empty channel is rejected before sending - `post_rejects_empty_channel`\n\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n\nApplying `reference/documentation-impact.md`, the draft’s `Docs touched: none` remains appropriate: this private-helper change has no user-guide contract to amend, and its behavior is captured by code and tests.\n\nDo you approve round two?\n",
+      "words": 314,
+      "wallMs": 13259,
       "mechanical": {}
     }
   },
@@ -34,13 +34,13 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "56540e3523a3e5977c22b9411c6855ca2623fdb51a4ff3a6c64648addd4a7ff1",
-      "candidateOutputSha": "e4305f58a554e893190039045dda94f598b8d96d481102019a0e98dcafe62665",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "69ac53bec73e653fbbd0f99bbbc8fd25a8a47c96b72619397356db3759d0bbd9",
+      "candidateOutputSha": "ed3ea8a5de3affa6d07d5dce6fe11edc2854693ddd911c741c081565b5e14118",
       "facts": {
         "carry-forward": {
-          "before": "holds",
-          "after": "holds",
+          "before": "fails",
+          "after": "fails",
           "label": "intended but unchanged"
         },
         "test-per-observable": {
@@ -49,21 +49,21 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "On this pair neither fact moved: both outputs recap the chosen inventory as bulleted design imperatives with `Remove: the inline fetch in jobs/report.ts` and `Add: one optional channel parameter on post`, and both render a fenced `## Tests` block mapping requested channel, preserved general default, and empty-channel rejection to post_uses_requested_channel, post_keeps_default_channel, and post_rejects_empty_channel (After's third observable adds 'with no send attempted', which is equivalent wording). Note that neither Before nor After uses the literal label `Design imperatives:` — Before titles the section 'Recap of the chosen design' and After 'Recap of the approved design commitments' — so if the fact is meant to key on that label, the section-6 recap rule should name it explicitly (e.g., 'open the recap with the line `Design imperatives:` followed by the Remove:/Add: bullets, then render `## Tests` as a fenced heading') rather than relying on the model to infer it from the Remove/Add inventory instruction; the amendment-surface section 5 change itself did not disturb either fact in this output.",
-      "wallMs": 21614,
+      "feedback": "Both outputs recap the inventory as bare `Remove:` / `Add:` bullets under a 'Recap of the chosen design commitments' heading, and neither carries the literal `Design imperatives` label the carry-forward fact keys on, so that fact fails on both texts rather than moving; After's Remove line ('the inline fetch in `jobs/report.ts`, including its copied formatting and retry logic') is actually closer to the required wording than Before's reordered version. The test-per-observable fact holds in both: Before puts a `## Tests` block with all three observable - test lines inside a markdown fence, After renders `## Tests` as a real heading with the same three mappings, so no movement there. To keep every fact and still deliver the Change, have the step-6 recap rule in brainstorming section 6 require the recap to open with a literal `Design imperatives:` label (e.g. 'Design imperatives: Remove: ... / Add: ...') before the Remove/Add lines, and require `## Tests` to be rendered as a heading at line start rather than a run-in or fenced snippet, so the enlarged amendment-surface section 5 assembly cannot crowd those labels out.",
+      "wallMs": 20457,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "0b8a5ea39fe8c941c2e6aa1898ea377bc87771e550c1ee3e683f61027c995099",
-      "candidateOutputSha": "431953768f629d3c5c9723eea7aece2a588d450675d9d4a8611eb986f950c3e0",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "3683cd3f50f71c39573e6c7c57dc97bd1a764df72800959dabea5e6c92365478",
+      "candidateOutputSha": "506393c3139cce8939a6784b89d5d569cfb5488aa02b275fc9734e7871aaf850",
       "facts": {
         "carry-forward": {
-          "before": "holds",
-          "after": "fails",
-          "label": "intended change"
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         },
         "test-per-observable": {
           "before": "holds",
@@ -71,8 +71,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before restates the chosen inventory essentially verbatim under its design-commitments recap (\"Remove: the inline fetch in `jobs/report.ts`. Add: one optional channel parameter on `post`\"), so a reader sees the approved Removes/Adds carried forward unchanged. After widens both items — Remove becomes \"the inline fetch and duplicated formatting/retry behavior\" and Add becomes \"the optional channel parameter on `post` and the report call site that delegates to it\" — so it no longer recaps the chosen inventory; it rewrites it, and it also drops any 'Design imperatives' framing in favor of 'implementation surface'. The test mapping was not affected: After keeps a literal `## Tests` heading with all three named tests mapped to their observables, so that fact holds in both. To keep carry-forward while delivering the Change, instruct the recap to copy the approved Removes/Adds entries verbatim from the chosen approach (no elaboration or merged items) and label them `Design imperatives:` with `Remove:`/`Add:` lines, e.g. 'Carry the chosen Removes/Adds into Design imperatives word-for-word; expand scope only in the Design body, not in the imperatives list.'",
-      "wallMs": 17290,
+      "feedback": "Before never recaps the inventory in imperative form: it only says in prose that the approach 'removes the duplicated report delivery path and adds an optional parameter', with no Remove:/Add: lines and no Design imperatives label, so carry-forward fails there. After adds explicit `**Remove:**` / `**Add:**` lines under 'Chosen design commitments' naming the inline fetch in `jobs/report.ts` and the optional parameter on `post`, which a careful reader accepts as the design-imperative inventory, though it lacks the literal `Design imperatives:` label and pads the Add line with 'report's delegation to that shared helper' beyond the chosen 'one optional parameter on post'. To make the fact unambiguous, have the recap render the label verbatim (`Design imperatives:` followed by `Remove: the inline fetch in jobs/report.ts` and `Add: one optional parameter on post`) and keep the Add line to the single chosen item. Both outputs keep the `## Tests` heading with all three observable - test mappings, so test-per-observable holds in each; preserve that standalone heading rather than folding it into prose.",
+      "wallMs": 24817,
       "verdict": "improved"
     }
   },
@@ -241,5 +241,5 @@
       }
     }
   },
-  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

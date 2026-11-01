@@ -1,7 +1,7 @@
 {
   "sample": "legs-wrong-repo",
   "arm": "baseline",
-  "skillSha": "1f442e0a139015061f6f9b2873295b53b952a31e0a35b11b26f1739e52af2b2a",
+  "skillSha": "9c0002a441aec380b13b44a56f6d7e1b4c3c162355e0916f10e200471e3ec451",
   "inputSha": "40a960450aaf7581f93522d830749ce5e79dfb41e8ee59331e447ffdbd3027c7",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Coordinated admission (entry check 3b) runs before any tracker write, so the restore never reaches the `plan_check` call-table step.\n\n**Tool calls, in order**\n\n1. Parse the home overrides' `## shape-ticket` sibling `git@github.com:acme/repo-b.git` with shape-ticket's shared parser.\n   - Result: `NAME` = `repo-b`, `IDENTITY` = `acme/repo-b`.\n   - Declared primary: `<home PRIMARY parent>/<NAME>` = `/work/repo-b`.\n2. `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-b/.git`\n3. `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-c/.git`\n\nThe two values differ. The companion worktree's canonical git common directory must equal its declared primary's, so admission stops here. It names the offending leg and the expected and observed paths.\n\nThere are no `phase_tracker` or `plan_tracker` calls, no `plan_check`, no `plan_tracker init`, and no receipt validation.\n\n**Printed**\n\n```\ngauntlet: stuck leg repo-b: worktree /work/repo-b/.worktrees/feature-shared-change has git common dir /work/repo-c/.git, expected declared primary /work/repo-b/.git (from sibling git@github.com:acme/repo-b.git)\n```\n",
-      "words": 132,
-      "wallMs": 7013,
+      "text": "Coordinated admission (entry check 3b) runs before any tracker write. The repo-b leg fails its common-directory check, so the restore stops here.\n\n**Admission steps, in order**\n\n1. **Run-home binding.** Entry check 3 against the run home `/work/repo-a/.worktrees/feature-shared-change` passed.\n2. **Home spec.** Resolved through Candidates to `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`. It is approved. Approval comes from the spec itself, not from the fact that the file exists.\n3. **Membership order.** The brief's `legs:` lists `repo-a, repo-b`. The spec's `### Leg:` blocks list `repo-a, repo-b`. They match.\n4. **Declared primary for repo-b.**\n   - The home overrides declare sibling `git@github.com:acme/repo-b.git`.\n   - The shared parser gives NAME `repo-b`, so the primary is `/work/repo-b` (`<home PRIMARY parent>/<NAME>`).\n   - Tool call: `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-b/.git`\n5. **Repo-b worktree common dir.**\n   - Tool call: `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-c/.git`\n6. **Comparison.** `/work/repo-c/.git` does not equal `/work/repo-b/.git`. This is a hard admission failure, not informational drift. The branch and `**Home:**` tuple checks are not needed: the leg already fails.\n\n**Printed:**\n\n```\ngauntlet: stuck - coordinated admission failed for leg repo-b: worktree /work/repo-b/.worktrees/feature-shared-change has canonical git common directory /work/repo-c/.git, expected the declared primary's /work/repo-b/.git (declared sibling git@github.com:acme/repo-b.git -> /work/repo-b)\n```\n\n**Not done after the stop:**\n- No `phase_tracker` calls (no `start brainstorm`, no skip or start for plan or implement).\n- No `plan_check`.\n- No `plan_tracker init`.\n- No plan repair, no receipt validation.\n- No closing gate-history line, no standing-grant line.\n- No continuation into subagent-driven-development.\n\nThe session stays idle with no flow state. To continue, repoint or recreate the repo-b worktree from the `/work/repo-b` primary, or correct the declared sibling. Then re-run `/skill:gauntlet-resume`.\n",
+      "words": 257,
+      "wallMs": 12672,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: stuck repo-b worktree /work/repo-b/.worktrees/feature-shared-change belongs to canonical git common directory /work/repo-c/.git; expected declared primary common directory /work/repo-b/.git.\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\nStop at coordinated admission before any tracker write. No `plan_check` or tracker calls.\n",
-      "words": 41,
-      "wallMs": 9719,
+      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nRead-only shell call:\n```bash\nrealpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-b/.git\n```\n\nRead-only shell call:\n```bash\nrealpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-c/.git\n```\n\nPrint:\n```text\ngauntlet: stuck repo-b worktree /work/repo-b/.worktrees/feature-shared-change has canonical git common directory /work/repo-c/.git; expected declared primary common directory /work/repo-b/.git.\n```\n\nStop before any tracker write. Do not call `plan_check`, repair the plan, or continue restoration.\n",
+      "words": 74,
+      "wallMs": 10658,
       "mechanical": {}
     }
   },
-  "repoSha": "63988593d8ef62b79a8d75098a61788ac46b499a"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

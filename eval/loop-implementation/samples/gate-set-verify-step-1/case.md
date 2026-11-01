@@ -1,7 +1,7 @@
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 baseline-skipped: new sample, no pre-edit sample evidence
 
-Use independent synthetic snapshots; narrate actions without tools. Home is /work/repo, no Leg mapping. The ledger has checks: commands, verification: make ci, iterations: 3, cap: 17. Implement is complete after the last admitted return's refresh. Every command below exits 0. No verification has run yet.
+Use independent synthetic snapshots; narrate actions without tools. Home is /work/repo, no Leg mapping. The ledger has checks: commands, verification: make ci, iterations: 3, allowance: 4. Implement is complete after the last admitted return's refresh. Every command below exits 0. No verification has run yet.
 
 | row | status | attempts | evidence |
 |---|---|---|---|

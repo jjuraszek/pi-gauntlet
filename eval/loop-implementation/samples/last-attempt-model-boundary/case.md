@@ -1,0 +1,8 @@
+bundle-: skills/loop-implementation/reference/coordinated-legs.md
+
+Replay these independent loop-driver snapshots, describing calls and durable edits without pretending tools ran. Option 4, Amend-grant none, seed validated, clean tree, no validation misses, prior child commits changed code. The only unresolved row is row 2, failed with evidence `unit; expected 2 got 1`. Ledger allowance: 4, iterations: 6, no cap, no retry or escalation decisions, attempts 3. Report whether a dispatch occurs, model override, escalation marker, attempts and iterations after the decision. For every stop show the Problem line.
+
+1. gauntlet_setting is unavailable. Independently, the tool is available but returns implModel undefined because no configured model and no main-loop model exist. Is a default-model attempt permitted? What changes on disk?
+2. Start instead with allowance: 1 and attempts 0. First the tool returns implModel `session/main` through fallback. Then independently it returns undefined with no configured or main-loop model. Does the only attempt run, and with which explicit model?
+3. Keep attempts3 allowance4 and a resolved implModel, but the last two child row commits changed only the ledger and no row status. Repeat with two consecutive validation misses instead. Does either stop spend the escalation decision?
+4. Return to the non-stagnant initial snapshot but set attempts2. Does the driver consult escalationLoop or set a call-time model override before this non-final attempt? Independently let the selected target be seed rather than a numbered row; does the last-attempt predicate apply to seed?

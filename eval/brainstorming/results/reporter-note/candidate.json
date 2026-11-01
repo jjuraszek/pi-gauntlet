@@ -1,8 +1,8 @@
 {
   "sample": "reporter-note",
   "arm": "candidate",
-  "skillSha": "a9afe7116aa2b82a17a9c1bba508ded2d78be343f272b2b2a8f78a0114fd2a0c",
-  "inputSha": "4e1d356a65a72dc8dfcf329b000725c7e2345d3ca022db8f814834668266cbc0",
+  "skillSha": "2b3a14b8fae757b047cdcfaf48bfa73130f774c6baee20372bb2f1d3511fc5dd",
+  "inputSha": "edc89207897ae43b241b8f725130e8030946705782f82c92c9cb30dbf172544e",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Export implementation split - Spec\n\n## Problem\n\nTicket acme/widgets#81: the export implementation has grown, which makes export behavior harder to maintain than necessary. The export behavior already works. This change splits the existing implementation without changing what it produces.\n\nThe reporter measured the current export source at 418 lines. That figure describes the input being split. It is not a size target or a limit for either resulting module.\n\nFraming: kept. I traced the export callers and the existing export unit tests. The split preserves output and the public entry point. No implicit dependencies were found missing or uncheckable.\n\n## Acceptance criteria\n\nTicket acme/widgets#81, Acceptance criteria, rows verbatim:\n\n- [ ] Exported reports retain the visible columns.\n  in-scope\n- [ ] Existing export tests pass.\n  in-scope\n\n## Design\n\nThe export logic moves to a new module, and the existing public entry point stays where callers import it today. Behavior and output do not change.\n\n- **Target location (reporter note):** move the export implementation to `src/export-target.ts`.\n- **Public entry point preserved (reporter note, user-approved):**\n  - The existing public export entry point keeps its name, signature, and import location.\n  - It delegates to the implementation in `src/export-target.ts`.\n  - No caller changes its import.\n- **Output unchanged:** exported reports keep the same visible columns, in the same order, with the same content as before the split.\n- **Module boundary:**\n  - `src/export-target.ts` is an internal implementation module.\n  - The public entry point is the only supported way in.\n  - No new public contract is introduced.\n- **Remove:** the export implementation body from its current source module. Only the public entry point remains there, as a delegating wrapper.\n- **Add:**\n  - `src/export-target.ts`, containing the moved export implementation.\n  - The delegation from the preserved public entry point to `src/export-target.ts`.\n\n## Errors and edge cases\n\n- Error behavior is unchanged. Any error the export path raised before the split, it raises the same way afterward, through the same public entry point.\n- Report contents are not reshaped by the split. Empty reports and reports with hidden columns produce the same output as before.\n- No caller is changed. Any caller importing the entry point keeps working without edits.\n\n## Tests\n\n- Exported reports retain the visible columns - existing export unit tests (export output assertions).\n- Existing export tests pass - existing export unit test suite, run unchanged.\n- Public entry point preserved; callers' imports unchanged - existing export unit tests, which exercise export through the public entry point.\n- Error behavior unchanged through the entry point - existing export unit tests covering export error paths; if there are none, the case is untestable here because the refactor adds no new error path.\n- Output unchanged for empty and hidden-column reports - existing export unit tests (export output assertions).\n\n## Documentation impact\n\nPer `reference/documentation-impact.md`: none. This is a private export refactor. It introduces no public contract and no user-facing behavior change. Docs touched: none.\n\n## Out of scope\n\n- Any change to export output, columns, or formatting.\n- Any change to the public entry point's name, signature, or location.\n- Refactoring export callers or test files beyond what the move strictly requires.\n\n## Open questions\n\nNone.\n",
-      "words": 484,
-      "wallMs": 15485,
+      "text": "# Split the export implementation into src/export-target.ts\n\n## Problem\n\nTicket acme/widgets#81: the export implementation has grown, which makes export behavior harder to maintain than it needs to be. The export behavior already works and existing unit tests cover export output. This change splits the existing implementation without changing any output.\n\nThe reporter note says the source currently has 418 lines. That figure describes the input to the split. It is not a target or a limit for either resulting file.\n\nPremises: I traced the export callers and tests and found no missing implicit dependencies. No predecessor spec exists.\n\nFraming: kept\n\n## Acceptance criteria\n\nTicket acme/widgets#81, checkbox list, rows verbatim:\n\n- [ ] Exported reports retain the visible columns.\n  in-scope\n- [ ] Existing export tests pass.\n  in-scope\n\n## Design\n\n- **Location (reporter note):** Move the export implementation to `src/export-target.ts`.\n- **Public entry point (reporter note, user-approved):** Keep the existing public export entry point.\n  - It keeps its current name, location, and signature.\n  - It delegates to `src/export-target.ts`.\n  - Existing callers need no change.\n- **Output preservation:** Exported reports must produce the same output as before the split. This is the chosen reading of AC row 1. Every visible column is retained, with the same set, order, and contents.\n- **Scope of change:** This is a private refactor only.\n  - It adds no new public symbols.\n  - It changes no settings.\n  - It adds no new behavior.\n- **Remove:** Remove the export implementation body from its current module, leaving only the preserved public entry point there.\n- **Add:** Add `src/export-target.ts`, which holds the moved export implementation.\n- **Add:** Add the delegation from the preserved public entry point to `src/export-target.ts`.\n\n## Errors and edge cases\n\n- Error behavior does not change. Any error the export raised before the split is raised the same way through the preserved entry point after it.\n- If an export caller turns out to bind to something other than the public entry point, the split must keep that caller compiling and producing identical output. This must happen without exposing new public surface. The trace found no such caller.\n\n## Tests\n\n- Exported reports retain the visible columns - existing export unit tests (unchanged)\n- Existing export tests pass - existing export unit tests (unchanged), run against the split implementation\n- Public entry point preserved; callers unchanged - existing export unit tests exercise the export through the preserved entry point (unchanged)\n- Error behavior unchanged through the entry point - existing export unit tests (unchanged)\n- Implementation lives in `src/export-target.ts` - none: structural file location, verified by review of the diff rather than a behavioral test\n\n## Documentation impact\n\nAssessed per `reference/documentation-impact.md`. None. This private export refactor introduces no public contract and no user documentation. The gather draft lists no `Docs touched:` candidates.\n\n## Out of scope\n\n- Any change to export output, columns, or formatting.\n- Any change to the public export entry point's name, signature, or location.\n- Any further restructuring beyond moving the implementation to `src/export-target.ts`.\n\n## Open Questions\n\nNone.\n",
+      "words": 462,
+      "wallMs": 15864,
       "mechanical": {
         "target": "holds",
         "count": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "# Export implementation split\n\n## Problem\n\nThe export behavior already works, but the implementation has grown and is harder to maintain. Split its implementation without changing exported output or the existing public entry point.\n\nTicket: acme/widgets#81.\n\nThe reporter identifies the existing source as **418 lines**. This describes the input to the refactor; it is not a size target or limit.\n\nFraming: kept. Export callers and existing export tests were traced; no missing implicit dependencies were found.\n\n## Acceptance criteria\n\nTicket acme/widgets#81, Acceptance criteria, rows verbatim:\n\n- [ ] Exported reports retain the visible columns.\n  in-scope\n- [ ] Existing export tests pass.\n  in-scope\n\n## Design\n\nMove the export implementation to `src/export-target.ts`, preserving the existing public entry point and exported output.\n\n### Moving parts\n\n- **Remove:** the implementation being relocated from its current location, while retaining the existing public entry point.\n- **Add:** `src/export-target.ts`, containing the relocated implementation.\n- **Add:** delegation from the existing public entry point to the relocated implementation.\n\n### Responsibilities and data flow\n\nThe existing public entry point remains the boundary used by callers. It delegates to the implementation in `src/export-target.ts`; callers do not need to change their imports or invocation.\n\nThe relocated implementation retains the existing export behavior. Exported reports preserve their visible columns and otherwise retain their current output.\n\nThis is a private implementation refactor. It introduces no new public API or public contract.\n\nSupersedes: none.\n\n## Errors and edge cases\n\nPreserve existing error handling and edge-case behavior during relocation. Do not introduce new validation, fallback behavior, or changes to how failures reach callers.\n\n## Tests\n\n- Exported reports retain their visible columns — existing export output unit tests.\n- Existing export tests pass after the relocation — existing export test suite.\n- Export remains accessible through the unchanged public entry point — existing export tests exercised through that entry point.\n- Export output remains unchanged — existing export output unit tests.\n- Existing error and edge-case behavior remains unchanged — none: the supplied observations do not identify dedicated coverage; review the relocation for behavioral changes.\n\n## Documentation impact\n\nNone. This private export refactor introduces no public contract or user-documentation changes.\n\nMaterially amended existing docs: none.  \nDocs touched: none.\n\nDocumentation-impact reference: `reference/documentation-impact.md`.\n\n## Out of scope\n\n- Changes to visible columns or other exported output.\n- Changes to the existing public entry point.\n- New export features or changes to error handling.\n- A source-size target based on the reporter’s 418-line measurement.\n\n## Open questions\n\nNone.\n",
-      "words": 376,
-      "wallMs": 15273,
+      "text": "# Private export implementation split\n\n## Problem\n\nThe export implementation has grown, making its behavior harder to maintain. Export behavior already works; this change splits the implementation without changing output.\n\nThe reporter identifies the existing source as having 418 lines. That is a description of the input, not a size target or limit for the refactor.\n\nFraming: kept. Export callers and existing unit tests were traced; no missing implicit dependencies were found.\n\n## Acceptance criteria\n\nTicket acme/widgets#81, Acceptance criteria, rows verbatim:\n\n- [ ] Exported reports retain the visible columns.\n  in-scope\n- [ ] Existing export tests pass.\n  in-scope\n\n## Design\n\nSplit the private export implementation by moving it to `src/export-target.ts`. Preserve the existing public entry point so callers continue using the same import path and invocation contract.\n\nThe existing entry point remains responsible for exposing export behavior and delegates to the relocated implementation. `src/export-target.ts` owns the moved implementation; it is not a new public entry point. Existing export callers continue through the preserved entry point.\n\nData flow remains: existing caller → existing public entry point → private implementation → exported report. The split changes code organization, not exported output.\n\nThe reporter note’s concrete requirements are binding: move the implementation to `src/export-target.ts` and preserve the existing public entry point. The source measurement of 418 lines imposes no resulting file-size requirement.\n\n### Moving parts\n\n- Remove: the relocated implementation from its current location, leaving the existing public entry point intact.\n- Add: `src/export-target.ts`, containing the relocated private implementation.\n- Add: the internal import and delegation needed to connect the existing public entry point to the relocated implementation.\n\nDo not create a parallel implementation or change caller import paths. No predecessor is superseded.\n\n## Errors and edge cases\n\n- Preserve existing error behavior through the public entry point; the split must not introduce new error translation or handling.\n- Preserve existing edge-case behavior exercised by the export tests.\n- Preserve exported output, including visible columns and their existing ordering.\n- Keep the internal dependency directed from the existing public entry point to `src/export-target.ts`; do not introduce a circular dependency.\n\n## Tests\n\n- Exported reports retain the visible columns and their ordering — existing export-output unit tests.\n- Existing export tests pass after the split — existing export test suite.\n- Existing callers can continue exporting through the unchanged public entry point — existing export tests exercising that entry point.\n- Exported output remains unchanged — existing export-output unit tests.\n- Existing tested error and edge-case behavior remains unchanged — existing export tests covering those cases.\n- The entry point delegates to the relocated implementation without retaining a parallel copy or introducing a circular dependency — source inspection of the entry point and `src/export-target.ts`.\n\n## Documentation impact\n\nApply `reference/documentation-impact.md`.\n\nDocs touched: none. This is a private implementation refactor with no new public contract or user-facing behavior.\n\nNo new documentation or materially amended existing documentation is required.\n\n## Out of scope\n\n- Changes to export output, visible columns, or existing export behavior.\n- Changes to the public entry point or caller import paths.\n- New export features or a new public export API.\n- File-size targets derived from the reported 418-line source measurement.\n- Unrelated cleanup.\n\n## Open questions\n\nNone.\n",
+      "words": 493,
+      "wallMs": 18376,
       "mechanical": {
         "target": "holds",
         "count": "holds"
@@ -40,14 +40,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "77b5e9ca18f245780488ac9c0dbe9f9208a2f3ddb943cd5c32db752cb0722f65",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "6ec2c31b6fded9b0e25a4b05cf4d515c5023b03bb3cf75faeceded03562ab241",
-      "candidateOutputSha": "5d417adecd65f24e8d85b9f2f5b00a570cbaa95d2cc3e5bb2ed0d9f0cafd7a55",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "4505b106c7f1ca791c90e6f7aa135dc9eea8475b88d57e3c5f72024973307b49",
+      "candidateOutputSha": "d5a4647f043db241ee17a21e02b485f2fe90dd5bdf6622e9e5a4187fec8169b0",
       "facts": {
         "requirements": {
           "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "after": "fails",
+          "label": "regression"
         },
         "body-acs": {
           "before": "holds",
@@ -65,21 +65,55 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs carry the reporter note's move target into Design (`src/export-target.ts`, delegation from the preserved entry point) and keep the 418-line count as a description of the input, and both reproduce exactly the two ticket checkbox rows verbatim with in-scope dispositions and add no AC row from the note. One fragility in After worth noting: Before quoted the reporter note verbatim inside Design, so the 418 count appeared alongside the requirement it informs, whereas After only mentions 418 in the Problem section and labels the Design bullet '(reporter note)' without the count; a stricter reader of 'anywhere a requirement lives' could argue the count has drifted out of the requirements. To keep the fact robust while still delivering the Change, keep the verbatim reporter-note quote (or at least 'source has 418 lines') next to the Target location bullet in Design, as Before did.",
-      "wallMs": 13585,
-      "verdict": "unchanged"
+      "feedback": "Both outputs keep the two verbatim body AC rows with in-scope dispositions and add no row from the Reporter note, so body-acs is unchanged. The requirements fact moved: Before carried both the move target and the line count into the Design bullets (\"Move the export implementation into `src/export-target.ts`. This is the 418-line implementation named in the reporter note.\"), whereas After names `src/export-target.ts` in its Location/Remove/Add/Out-of-scope requirements but confines the 418-line figure to the Problem paragraph, where it is explicitly framed as descriptive input rather than a requirement, so the count is no longer carried into any requirement. To keep the fact while retaining After's structured Design (labeled Location/Public entry point/Output preservation bullets and the explicit Remove/Add inventory), have the Location bullet read something like \"Move the existing 418-line export implementation (reporter note) to `src/export-target.ts`\" or attach the count to the Remove line; the Problem disclaimer that 418 is neither a target nor a limit can stay as long as the count also appears beside the move requirement.",
+      "wallMs": 15742,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "# Split the export implementation into `src/export-target.ts`\n\n## Problem\n\nTicket acme/widgets#81: the export implementation has grown, and maintaining it is harder than it needs to be. The reporter notes that the current export source is 418 lines. That figure describes today's input; it is not a target or a limit.\n\nExport behavior already works. This change is a structural split only, and export output must stay identical. Recon traced every export caller and test, and found no missing implicit dependencies. Existing unit tests already cover export output.\n\nFraming: kept\n\n## Acceptance criteria\n\nTicket acme/widgets#81, Acceptance criteria, rows verbatim:\n\n- [ ] Exported reports retain the visible columns.\n  in-scope\n- [ ] Existing export tests pass.\n  in-scope\n\n## Design\n\n- **Move:** Relocate the export implementation from its current source file (418 lines today, per the reporter note) into `src/export-target.ts`. Move the logic as it is. Change no behavior, column selection, ordering, or formatting.\n- **Public entry point:** Keep the existing export entry point at its current module path, with the same name and signature. It delegates to `src/export-target.ts`. Callers need no changes.\n- **Visibility:** Everything in `src/export-target.ts` stays private to the export feature. No new public export is added to the package surface.\n- **Output preservation:** Exported reports must contain the same visible columns, in the same order, with the same values as before the split.\n- **Moving parts:**\n  - Remove: the export implementation body from its current source file. The public entry-point declaration stays there as a thin delegating shim.\n  - Add: `src/export-target.ts`, which holds the moved implementation.\n  - Add: one internal import from the entry-point module to `src/export-target.ts`.\n  - No new types, settings, helpers, or test files.\n\n## Errors and edge cases\n\n- **Errors:** Error paths the current implementation raises must surface unchanged through the public entry point. Errors are not wrapped, renamed, or swallowed by the new delegation.\n- **Circular imports:** `src/export-target.ts` must not import from the entry-point module. The import runs in one direction only, from entry point to implementation.\n- **Ordering and columns:** Empty reports and reports with hidden columns keep their current output. Any existing filtering of hidden columns moves with the implementation, unchanged.\n\n## Tests\n\n- Exported reports retain the visible columns - existing export unit tests (unchanged, run against the public entry point)\n- Existing export tests pass - existing export unit tests (full suite, unmodified)\n- Public entry point unchanged; callers need no edits - existing export unit tests (they import through the public entry point)\n- Errors surface unchanged through the entry point - existing export unit tests covering error paths; none beyond these: the refactor adds no new error path\n- No circular import between entry point and `src/export-target.ts` - none: structural property, enforced by the typecheck/build in verification rather than a dedicated test\n\n## Documentation impact\n\nPer `reference/documentation-impact.md`: none. This is a private refactor. It introduces no public contract and no user-facing documentation change. The gather draft lists no docs touched.\n\n## Out of scope\n\n- Any behavioral or output change to export.\n- Further decomposition of export beyond the single move into `src/export-target.ts`.\n- Changes to the public entry point's name, location, or signature.\n\n## Open questions\n\nNone.\n",
+        "words": 490,
+        "wallMs": 16011,
+        "mechanical": {
+          "target": "holds",
+          "count": "holds"
+        },
+        "judgeWallMs": 11090,
+        "facts": {
+          "requirements": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "body-acs": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "target": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "count": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Nothing moved on this case: both outputs carry the Reporter note's `src/export-target.ts` target and the 418-line count into the Design section as live requirements (After's **Move:** bullet names both explicitly and ties them to the reporter note), and both render exactly the two ticket body rows verbatim with an `in-scope` disposition and add no AC row from the note. After also keeps the Problem section's framing of 418 as descriptive rather than a target, which is consistent with Before. The only drift worth watching is After's extra Tests row mapping the circular-import edge to 'none: structural property… typecheck/build', which is not touched by either fact here but could matter for test-per-observable facts elsewhere; keeping the current Design wording (note-sourced path and line count in the Move bullet, verbatim ticket rows under the body-only heading) preserves both facts while delivering the change."
+      }
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "77b5e9ca18f245780488ac9c0dbe9f9208a2f3ddb943cd5c32db752cb0722f65",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "6442c2020516890807c02c5cdc13c596d1a190c52f0a614b4a597a93ff998fa1",
-      "candidateOutputSha": "dd093d85bdd17dac55d3551191ec7659e0c8a732ff19c63f6352186e4b82efaa",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "5271cb1c27aeaf8cfd325553f4eff78164becd8ec5c6575af6fd4b57122eaf09",
+      "candidateOutputSha": "97ca15aa643d7e9e381d8d0aacd17e8220868f78b48bd8712b7b142af4469d53",
       "facts": {
         "requirements": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "body-acs": {
           "before": "holds",
@@ -97,10 +131,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs name src/export-target.ts in the Design section as the move target and carry the 418-line source measurement into the Problem section as an input description rather than a target, and both render exactly the two verbatim ticket AC rows with in-scope dispositions and derive no AC rows from the Reporter note. After keeps everything Before kept while adding the Moving parts Remove/Add inventory before the data-flow prose and a Supersedes: none line; the only drift worth watching is the final Tests bullet, which now claims no dedicated coverage for error and edge cases where Before pointed at the existing export tests, so if the wording change is retained consider keeping the existing-suite mapping for that observable so the Design edge/error observables stay mapped to a named test.",
-      "wallMs": 16962,
-      "verdict": "unchanged"
+      "feedback": "After moved `requirements` to holds by stating in Design that the Reporter note's concrete requirements are binding, naming `src/export-target.ts` as the move target and `418 lines` as the source measurement in the same requirement-bearing section, and repeating the 418 figure in Out of scope; Before named the target in Design but confined the 418-line count to the Problem narrative with an explicit 'describes the input, not a size target' disclaimer, so a reader would not find the count where any requirement lives. Both outputs keep `body-acs`: exactly the two verbatim ticket rows, each marked in-scope, and no AC row synthesized from the Reporter note. To keep delivering the Change without risking the ACs, keep the wording that carries note-only facts into Design as binding requirements (target path) or explicit non-requirements (line count) while continuing to route all AC rows strictly from the ticket body, as After does.",
+      "wallMs": 18638,
+      "verdict": "improved"
     }
   },
-  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

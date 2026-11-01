@@ -1,6 +1,8 @@
-for: 60916f5eb418d9a7eb3034b7d55e0836c88a7b343a7f256d961d947fc7d59706
+for: 4abb224d5dde3f77e1e0b90c06e35ca1e50f71f131e768d958ff674a42372827
 
 ## Change
+
+Exercise the allowance-aware brief contract with ledger-task-list. Supply canonical ledger identities with criterion-description suffixes and attempt prefixes, including a cut row without an attempt prefix. Preserve observed status rows verbatim in the producer; canonicalization and migration belong to resume, never handoff. Keep existing fact IDs. Validate fixtures deterministically during recovery; defer this selected model check to the parent and preserve recovered results without claiming current model coverage. Never run full targets, including at completion.
 
 Carry observed ledger-derived task rows beside Ledger and Last decision, including an in-flight row and mixed conformance statuses. Keep both tracker outputs verbatim and the producer read-only; never refresh during handoff. The new synthetic ledger-task-list sample covers implement and verify tails plus rejection of mixed Active task/Ledger and missing Last decision fields. Grammar stays centralized in the shared brief contract. Preserve every existing fact. These are narrated must-hold facts, not model results or live tracker proof; parent verify owns the full target run and committed records.
 

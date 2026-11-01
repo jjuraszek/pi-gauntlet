@@ -32,16 +32,17 @@ When interpreting a dispute, distinguish a wrong or ambiguous fact/judge interpr
 
 ## Iterating on a skill edit
 
-A full target run replays every stale cell on both replay models and judges each pair, four calls at a time by default. A cell is stale only when the text that sample sends changed: each `case.md` may open with `bundle-: <path>` lines that drop `target.json` `skillFiles` entries from that sample's assembly, so an edit to a dropped reference file replays nothing for that sample. A `SKILL.md` edit still replays every sample that keeps it. Keep the loop cheap:
+Run only explicitly selected behavior-relevant samples. Never run broad target-wide or cross-target model-eval sweeps, including at completion. Shared prompt files can make unrelated cells stale; staleness alone is not a reason to run them. `bundle-:` lines in `case.md` narrow each sample's assembled input, but do not replace behavioral sample selection.
 
-1. Edit, then run only the samples the edit targets plus the ones the last report flagged: `node eval/run.mjs <target> <sample>` per sample (partial report).
-2. Batch every wording fix the partial reports ask for into one edit before the next run.
-3. Run the full target once, when every targeted cell holds, to produce the committed `report.md`; the completion line's counts show how many cells the edit actually cost. A judge note on a sample the edit did not touch is a finding to record in the commit body, not a reason to edit the skill again. When a rebase onto the base branch re-stales samples the edit never touched, the committed report may instead be the per-sample partials of the samples whose assembled input the edit's own hunks change; the commit body names that scoping.
-4. Change only what the spec names. A clause added on the agent's own judgment (a reordering, an extra guard) is the usual cause of a regression on an untouched sample.
+1. Name the changed behaviors and the samples that exercise them before starting model calls. Use `node eval/run.mjs <target> <sample>`; retain the sample selector for baseline seeding too.
+2. Run independent selected checks in parallel with bounded concurrency. Keep the runner's concurrent model-cell pool enabled (`EVAL_CONCURRENCY` defaults to 4), rather than serializing replay models. Parallel invocations must not race on shared `report.md` or sample records: isolate same-target runs and preserve their partial reports before collecting evidence. Distinct targets have separate report paths. Do not widen a run merely to obtain parallelism.
+3. Batch wording fixes before rerunning only affected samples. Reuse current records; investigate a failed check before rerunning it. Record unrelated findings without expanding this change into a sweep.
+4. Commit selected sample records and partial reports. Name every tested sample, outcome and remaining coverage limit in the change's evidence; a partial report is not a target-wide pass. Never add a final full-target run.
+5. Change only what the spec names. A clause added on the agent's own judgment (a reordering, an extra guard) is the usual cause of a regression on an untouched sample.
 
 A dropped file is also removed from that sample's replay prompt, so the sample sends fewer system-prompt tokens per cell; for example, a `gatekeep-pr` sample that drops three of nine reference files sends roughly a third less skill text.
 
-After adding or changing `bundle-` lines, run `node eval/run.mjs <target> --baseline-only` once to re-seed the baseline arm for the new subsets before the candidate run, because the subset changes `skillSha` on both arms.
+After adding or changing `bundle-` lines, run `node eval/run.mjs <target> <sample> --baseline-only` for each affected sample to re-seed its baseline arm before the candidate run, because the subset changes `skillSha` on both arms. Keep independent affected checks parallel and their report writes isolated.
 
 Committed `gatekeep-pr` records average 48 s per replay cell (max 173 s); a serial full run measured 20-29 minutes in past sessions; with the default pool of four, wall time is roughly a quarter of the serial sum, and the committed `report.md`'s `wall:` line is the current measurement for each target; a per-sample partial run takes 2-5 minutes depending on the number of stale cells.
 

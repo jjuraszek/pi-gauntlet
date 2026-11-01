@@ -1,7 +1,7 @@
 {
   "sample": "legs-wrong-repo",
   "arm": "candidate",
-  "skillSha": "9c0002a441aec380b13b44a56f6d7e1b4c3c162355e0916f10e200471e3ec451",
+  "skillSha": "0c6e9f16a75b6b41568ac8bb6ad86d7b8e5b1a868217f5d638f969a3bb30dba1",
   "inputSha": "40a960450aaf7581f93522d830749ce5e79dfb41e8ee59331e447ffdbd3027c7",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Coordinated admission (entry check 3b) runs before any tracker write. The repo-b leg fails its common-directory check, so the restore stops here.\n\n**Admission steps, in order**\n\n1. **Run-home binding.** Entry check 3 against the run home `/work/repo-a/.worktrees/feature-shared-change` passed.\n2. **Home spec.** Resolved through Candidates to `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`. It is approved. Approval comes from the spec itself, not from the fact that the file exists.\n3. **Membership order.** The brief's `legs:` lists `repo-a, repo-b`. The spec's `### Leg:` blocks list `repo-a, repo-b`. They match.\n4. **Declared primary for repo-b.**\n   - The home overrides declare sibling `git@github.com:acme/repo-b.git`.\n   - The shared parser gives NAME `repo-b`, so the primary is `/work/repo-b` (`<home PRIMARY parent>/<NAME>`).\n   - Tool call: `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-b/.git`\n5. **Repo-b worktree common dir.**\n   - Tool call: `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-c/.git`\n6. **Comparison.** `/work/repo-c/.git` does not equal `/work/repo-b/.git`. This is a hard admission failure, not informational drift. The branch and `**Home:**` tuple checks are not needed: the leg already fails.\n\n**Printed:**\n\n```\ngauntlet: stuck - coordinated admission failed for leg repo-b: worktree /work/repo-b/.worktrees/feature-shared-change has canonical git common directory /work/repo-c/.git, expected the declared primary's /work/repo-b/.git (declared sibling git@github.com:acme/repo-b.git -> /work/repo-b)\n```\n\n**Not done after the stop:**\n- No `phase_tracker` calls (no `start brainstorm`, no skip or start for plan or implement).\n- No `plan_check`.\n- No `plan_tracker init`.\n- No plan repair, no receipt validation.\n- No closing gate-history line, no standing-grant line.\n- No continuation into subagent-driven-development.\n\nThe session stays idle with no flow state. To continue, repoint or recreate the repo-b worktree from the `/work/repo-b` primary, or correct the declared sibling. Then re-run `/skill:gauntlet-resume`.\n",
-      "words": 257,
-      "wallMs": 12672,
+      "text": "gauntlet: stuck coordinated admission: leg repo-b worktree /work/repo-b/.worktrees/feature-shared-change has git common dir /work/repo-c/.git, expected the declared primary's /work/repo-b/.git\n\nEntry check 3b (Coordinated admission) ran before any tracker write. These are the calls made, in order:\n\n1. **Read** `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md` to get the `## Legs` blocks.\n   - The order is `### Leg: repo-a`, then `### Leg: repo-b`.\n   - The brief's `legs:` order is repo-a, then repo-b. Membership and order match.\n2. **Parse** the sibling `git@github.com:acme/repo-b.git` from the home overrides with shape-ticket's shared parser.\n   - NAME is `repo-b`, so the declared primary is `/work/repo-b`.\n3. **Run** `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`.\n   - Result: `/work/repo-b/.git`.\n4. **Run** `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`.\n   - Result: `/work/repo-c/.git`.\n   - This does not match the declared primary, so admission stops here.\n\nPrinted stop details:\n\n```\nLeg: repo-b\nWorktree: /work/repo-b/.worktrees/feature-shared-change\nExpected git common dir (declared primary /work/repo-b): /work/repo-b/.git\nObserved git common dir: /work/repo-c/.git\n```\n\nA companion's common-dir mismatch blocks admission; it is not informational drift.\n\nWhat did not happen:\n- No branch, `**Home:**` tuple, receipt or drift checks ran for repo-b.\n- No `phase_tracker` or `plan_tracker` mutation was made.\n- `start brainstorm` and `plan_check` were not run, and `plan_tracker init` was not called.\n- The W1 complete / W2 in_progress snapshot was not restored.\n\nTo continue, point repo-b's leg at a worktree of the declared primary `/work/repo-b`, or correct the sibling declaration. Then re-run `/skill:gauntlet-resume`.\n",
+      "words": 214,
+      "wallMs": 11404,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nRead-only shell call:\n```bash\nrealpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-b/.git\n```\n\nRead-only shell call:\n```bash\nrealpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-c/.git\n```\n\nPrint:\n```text\ngauntlet: stuck repo-b worktree /work/repo-b/.worktrees/feature-shared-change has canonical git common directory /work/repo-c/.git; expected declared primary common directory /work/repo-b/.git.\n```\n\nStop before any tracker write. Do not call `plan_check`, repair the plan, or continue restoration.\n",
-      "words": 74,
-      "wallMs": 10658,
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\ngauntlet: stuck repo-b worktree /work/repo-b/.worktrees/feature-shared-change has canonical git common directory /work/repo-c/.git; expected declared primary common directory /work/repo-b/.git.\n",
+      "words": 27,
+      "wallMs": 7709,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f7a4662db5c73e04d535033c22aee536e5e75f31852952c29ff8ac5affbd28ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
-      "baselineOutputSha": "430885b2b89395a0a89a2afc9a4420a933b087551349176cd7458606388dcbc4",
-      "candidateOutputSha": "cdc350cac565f2ac361289e8168a4a24912c899f0d6cde9cf512409b886967f1",
+      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
+      "baselineOutputSha": "cdc350cac565f2ac361289e8168a4a24912c899f0d6cde9cf512409b886967f1",
+      "candidateOutputSha": "66f92f07505e9e653f34310fe77739a9cc70f16249710e8429142230135b07df",
       "facts": {
         "stop": {
           "before": "holds",
@@ -44,16 +44,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs stop at coordinated admission before any phase_tracker/plan_tracker/plan_check call, name leg repo-b, and print the observed /work/repo-c/.git against the expected /work/repo-b/.git, so the fact holds on both sides. After strengthens it slightly by stating explicitly that the matching branch and copied **Home:** tuple do not rescue the leg (step 6: 'hard admission failure, not informational drift... branch and Home tuple checks are not needed'), whereas Before leaves the 'despite matching branch and leg header' part implicit; keep that sentence in After, and keep the stop message naming both directories and the sibling derivation, since that is what carries the fact. No wording in After moved this fact.",
-      "wallMs": 7491,
+      "feedback": "Nothing moved: both outputs stop at coordinated admission before any phase_tracker/plan_tracker write, name leg repo-b, and report the expected common dir /work/repo-b/.git against the observed /work/repo-c/.git, treating it as a hard stop rather than informational drift despite the matching branch and copied leg header. After adds a structured stop block (Leg / Worktree / Expected / Observed) and lists the unrun branch and **Home:** tuple checks explicitly, which makes the fact easier to verify; Before additionally includes the sibling-declaration derivation in the printed message, which After omits but is not required by the fact. Keep After as is; if you want parity with Before, add the declared-sibling origin to the stop block.",
+      "wallMs": 6069,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f7a4662db5c73e04d535033c22aee536e5e75f31852952c29ff8ac5affbd28ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
-      "baselineOutputSha": "45d6ddf55b1386a5c248dd16ce6b8a397960872134e38d715990ce39de76b942",
-      "candidateOutputSha": "369304cc0a2ec2d17e2bcf119f6ad8333da6992c42970e5f2855e9f7a2a2880e",
+      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
+      "baselineOutputSha": "369304cc0a2ec2d17e2bcf119f6ad8333da6992c42970e5f2855e9f7a2a2880e",
+      "candidateOutputSha": "011f873191b7e1b198167b3189fd70d2e3d79e318a8a382005ff31a5d25a182f",
       "facts": {
         "stop": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs stop before tracker writes, name repo-b, and state the expected (/work/repo-b/.git) and observed (/work/repo-c/.git) common directories without being swayed by the matching branch or copied leg header, so the fact holds in both. After adds narrated read-only git calls with the synthetic results and keeps the same stop wording, which is fine and arguably clearer; no fact moved. If you want to tighten After, consider explicitly noting that the branch match and copied leg header do not excuse the common-dir mismatch, which would make the 'despite' clause of the fact visible in the text rather than implied.",
-      "wallMs": 4413,
+      "feedback": "Both outputs name repo-b and the expected (/work/repo-b/.git) versus observed (/work/repo-c/.git) common directories in a gauntlet stuck message and show no tracker writes, so the fact holds in each; the After wording trimmed the narrated read-only shell calls and the explicit closing sentence ('Stop before any tracker write. Do not call plan_check, repair the plan, or continue restoration.'), which is what makes the stop unambiguous. To keep the fact robust while delivering the terser header-migration/coordinated-flow change, retain at minimum one explicit line after the stuck message stating that the run stops before any tracker write and does not call plan_check or continue restoration; dropping the realpath observations is fine, but the explicit stop statement should stay so a reader does not have to infer the stop from the output simply ending.",
+      "wallMs": 8833,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

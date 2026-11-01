@@ -2,7 +2,7 @@
   "sample": "gate-line-first",
   "arm": "baseline",
   "skillSha": "dd3bae7baccbaace90310126a37fd1d231d00165b8efaa95ae53ce0301eb91f4",
-  "inputSha": "04e5a5a4f82d82bd5abf5b7bab800f1ab8fe005c98fd649beda6bbc35c4372b5",
+  "inputSha": "3577fb0df0b520bb61aa9b98b27e1aa168f5adac1ca18b9bb72ddef0a126f804",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nThe gathered draft claimed the existing resolver cannot accept overrides. Primary code disproves that claim: `settings/resolver.ts:11` already accepts a timeout override, and every caller I traced reads settings through that resolver. The design will treat the resolver as the single settings boundary unless you say otherwise. The missing timeout override is therefore not a capability gap. The likely root cause is that the existing caller never passes its override to the resolver. A second settings file would add a parallel read path beside the boundary that already owns this setting, so I am raising a framing concern before any other question.\n\nA) as framed - add a second settings file that supplies the timeout override.\nB) pivot: change the existing caller to pass its timeout override through `settings/resolver.ts` - this fixes the root cause on the one boundary every caller already uses (`settings/resolver.ts:11`), with no duplicate settings path.\nC) smaller or none: document how to set the timeout through the existing resolver and ship no code change. If nothing ships, the override remains silently ignored for that caller.\nRecommendation: B - the resolver already supports the override, so fixing the caller removes the bug without creating a second settings boundary.\n",
-      "words": 199,
-      "wallMs": 7391,
+      "text": "gauntlet: question\nBefore the first question, I need to correct a premise from the gathered draft. The draft says the existing settings resolver cannot accept overrides, but primary code disproves that: `settings/resolver.ts:11` already accepts a timeout override. I also traced the callers and found that every one of them reads settings through that resolver, so no consumer needs a second path. The missing timeout override appears to come from the affected caller not passing its override into the resolver, not from a gap in the resolver itself. I'll continue the design on this corrected fact unless you override it. I'll record it, and any override, in the draft for `## Problem`.\n\nThis means a second settings file would add a parallel boundary beside the resolver that already owns every setting. It would also leave the actual cause in place. No ticket decision settles this point, so I need your call on the framing:\n\nA) as framed - add a second settings file that supplies the timeout override\nB) pivot: change the existing caller to pass its timeout override through `settings/resolver.ts:11` - this fixes the root cause on the one read path every caller already uses\nC) smaller or none: document how to pass the override through the existing resolver and ship no code change; the missing override stays until a caller is updated\nRecommendation: B - the resolver already supports the override and owns every setting, so fixing the caller removes the bug without duplicating the settings boundary.\n",
+      "words": 244,
+      "wallMs": 8816,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nThe draft’s claim that the existing resolver cannot accept overrides is contradicted by `settings/resolver.ts:11`, which already accepts a timeout override. Recon also confirmed that every caller uses that resolver. A second settings file would duplicate the existing settings boundary; changing the affected caller to pass its override addresses the root cause.\n\nWhich direction should we take?\nA) as framed - add a second settings file.\nB) pivot: pass the timeout override through the existing caller to the resolver.\nC) smaller or none: leave the current behavior unchanged.\nRecommendation: B - the resolver already supports the override, so fixing the caller avoids a duplicate settings boundary.\n",
-      "words": 105,
-      "wallMs": 4804,
+      "text": "gauntlet: question\nThe draft’s claim that the existing resolver cannot accept overrides is disproved: `settings/resolver.ts:11` already accepts a timeout override, and primary-code recon confirmed every caller uses that resolver. A second settings file would duplicate the existing settings boundary; passing the override from the existing caller addresses the root cause.\n\nWhich direction should we take?\nA) as framed — add a second settings file.\nB) pivot: pass the timeout override through the existing caller — the shared resolver already supports it.\nC) smaller or none: leave the timeout behavior unchanged and add no settings file.\nRecommendation: B - fixes the missing override through the boundary every caller already uses.\n",
+      "words": 106,
+      "wallMs": 4317,
       "mechanical": {
         "first-line": "holds"
       }
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

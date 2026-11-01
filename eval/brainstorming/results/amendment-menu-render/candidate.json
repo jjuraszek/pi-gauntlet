@@ -1,8 +1,8 @@
 {
   "sample": "amendment-menu-render",
   "arm": "candidate",
-  "skillSha": "a9afe7116aa2b82a17a9c1bba508ded2d78be343f272b2b2a8f78a0114fd2a0c",
-  "inputSha": "588a479ef75d72bd9eb13ac5293660a3302f1aa559a60c4c002fb9c769da674a",
+  "skillSha": "2b3a14b8fae757b047cdcfaf48bfa73130f774c6baee20372bb2f1d3511fc5dd",
+  "inputSha": "ad7600c3e8d76758edb6520cf4559b0e76f0b0009b7eabe671594aa716c39c30",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=brainstorming/human-batch\nSpec amendments: 2 need your call - from the spec review; applying as recommended reopens no tasks; no phase change.\n\n1. Share retry policy - move retry policy into one owner. Adapters currently disagree about when to retry.\n   This is a human call because changing who owns retries is an architecture choice.\n   Example: adapter-local retry limits -> one coordinator retry limit\n   Reviewer: changing retry ownership needs a human architecture choice\n   Impact: retries: each adapter decides its own retry policy -> one shared owner decides retry policy for every adapter\n   A) accept - a new retry service owns all retry policies\n   B) alt-1 - the existing report coordinator owns the shared retry policy; adapters keep execution\n   Custom: <your own answer> - executed as given; may redirect away from the spec\n   Recommended: B - reusing the existing coordinator keeps the policy consistent without adding a new service\n\n2. Classify blocked execution - classify exit 126 as blocked rather than failed. Operators need to tell a launch problem apart from a report failure.\n   This is a human call because it changes a status that operators see.\n   Example: exit 126 = failed -> blocked\n   Reviewer: operator-visible status changes need a human decision\n   Impact: run status: exit 126 is reported as a failed run -> exit 126 is reported as a blocked run\n   A) accept - the spec reads the new text\n   Custom: <your own answer> - executed as given; may redirect away from the spec\n   Recommended: A - a separate status identifies launch failures\n\nReply with one line per item: `1. A`, `2. <your own text>`. Bare `1` takes every recommendation.\nStanding grant: reply \"auto-apply amends\" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n\nDetails\ncrosscut: Design / retries - old: each report adapter owns its retry policy -> new: a new retry service owns all retry policies\ncrosscut (alt-1): Design / retries - old: each report adapter owns its retry policy -> new: the existing report coordinator owns the shared retry policy; adapters keep execution\nexit126: Design / run status - old: exit 126 is failed -> new: exit 126 is blocked\n",
-      "words": 366,
-      "wallMs": 14066,
+      "text": "gauntlet: gate=brainstorming/human-batch\nSpec amendments: 2 need your call - from the spec review; applying as recommended reopens no tasks; no phase change.\n\n1. Share retry policy - move retry policy into one owner. Adapters currently disagree about when to retry.\n   Choosing who owns retries is an architecture decision, so it needs your call.\n   Example: adapter-local retry limits -> one coordinator retry limit\n   Reviewer: changing retry ownership needs a human architecture choice\n   Impact: Design / retries: each report adapter decides its own retry policy -> a single owner decides the retry policy for every adapter\n   A) accept - a new retry service owns all retry policies\n   B) alt-1 - the existing report coordinator owns the shared retry policy; adapters keep execution\n   Custom: <your own answer> - executed as given; may redirect away from the spec\n   Recommended: B - reusing the existing coordinator keeps retry policy consistent without adding a new service\n\n2. Classify blocked execution - classify exit 126 as blocked rather than failed. Operators need to tell a launch problem apart from a report failure.\n   This changes a status operators can see, so it needs your call.\n   Example: exit 126 = failed -> blocked\n   Reviewer: operator-visible status changes need a human decision\n   Impact: Design / run status: a run that exits 126 is reported as failed -> a run that exits 126 is reported as blocked\n   A) accept - the spec reads the new text\n   Custom: <your own answer> - executed as given; may redirect away from the spec\n   Recommended: A - a separate status lets operators identify launch failures\n\nReply with one line per item: `1. A`, `2. <your own text>`. Bare `1` takes every recommendation.\nStanding grant: reply \"auto-apply amends\" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n\nDetails\ncrosscut: Design / retries - old: each report adapter owns its retry policy -> new: a new retry service owns all retry policies\ncrosscut (alt-1): Design / retries - old: each report adapter owns its retry policy -> new: the existing report coordinator owns the shared retry policy; adapters keep execution\nexit126: Design / run status - old: exit 126 is failed -> new: exit 126 is blocked\n",
+      "words": 372,
+      "wallMs": 13328,
       "mechanical": {
         "f5": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=brainstorming/human-batch\nSpec amendments: 2 need your call - from the spec review; applying as recommended reopens no tasks; no phase change.\n\n1. Share retry policy - move retry policy into one owner. Adapters currently disagree about when to retry.\n   Changing retry ownership needs a human architecture choice.\n   Example: adapter-local retry limits -> one coordinator retry limit.\n   Reviewer: changing retry ownership needs a human architecture choice\n   Impact: Design / retries: adapter-owned retry policies -> one shared policy owner.\n   A) accept - a new retry service owns all retry policies\n   B) alt-1 - the existing report coordinator owns the shared retry policy; adapters keep execution\n   Custom: <your own answer> - executed as given; may redirect away from the spec\n   Recommended: B - reusing the coordinator avoids a new service while keeping policy consistent.\n\n2. Classify blocked execution - classify exit 126 as blocked rather than failed. Operators need to distinguish a launch problem from a report failure.\n   Operator-visible status changes need a human decision.\n   Example: exit 126 = failed -> blocked.\n   Reviewer: operator-visible status changes need a human decision\n   Impact: Design / run status: exit 126 reports failed -> exit 126 reports blocked.\n   A) accept - the spec classifies exit 126 as blocked\n   Custom: <your own answer> - executed as given; may redirect away from the spec\n   Recommended: A - a separate status identifies launch failures.\n\nReply with one line per item: `1. B`, `2. <your own text>`. Bare `1` takes every recommendation.\nStanding grant: reply \"auto-apply amends\" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n\nDetails\ncrosscut: Design / retries - old: each report adapter owns its retry policy. -> new: a new retry service owns all retry policies.\nAlternative alt-1: the existing report coordinator owns the shared retry policy; adapters keep execution.\nexit126: Design / run status - old: exit 126 is failed. -> new: exit 126 is blocked.\n",
-      "words": 326,
-      "wallMs": 10981,
+      "text": "gauntlet: gate=brainstorming/human-batch\nSpec amendments: 2 need your call - from the spec review; applying as recommended reopens no tasks; no phase change.\n\n1. Share retry policy - move retry policy into one owner. Adapters currently disagree about when to retry.\n   Choosing who owns retry policy is a human architecture decision.\n   Example: adapter-local retry limits -> one coordinator retry limit.\n   Reviewer: changing retry ownership needs a human architecture choice\n   Impact: Design / retries: adapter-owned retry policies -> one shared policy owned by the existing report coordinator; adapters keep execution.\n   A) accept - a new retry service owns all retry policies\n   B) alt-1 - the existing report coordinator owns the shared retry policy; adapters keep execution\n   Custom: <your own answer> - executed as given; may redirect away from the spec\n   Recommended: B - reusing the coordinator avoids a new service while keeping policy consistent.\n\n2. Classify blocked execution - classify exit 126 as blocked rather than failed. Operators need to distinguish a launch problem from a report failure.\n   Changing an operator-visible status needs a human decision.\n   Example: exit 126 = failed -> blocked.\n   Reviewer: operator-visible status changes need a human decision\n   Impact: Design / run status: exit 126 is failed -> exit 126 is blocked.\n   A) accept - the spec classifies exit 126 as blocked\n   Custom: <your own answer> - executed as given; may redirect away from the spec\n   Recommended: A - a separate status identifies launch failures.\n\nReply with one line per item: `1. A`, `2. <your own text>`. Bare `1` takes every recommendation.\nStanding grant: reply \"auto-apply amends\" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n\nDetails\ncrosscut: Design / retries - old: each report adapter owns its retry policy. -> new: the existing report coordinator owns the shared retry policy; adapters keep execution.\nexit126: Design / run status - old: exit 126 is failed. -> new: exit 126 is blocked.\n",
+      "words": 327,
+      "wallMs": 7442,
       "mechanical": {
         "f5": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "ffc6a388ecc7d30c5b0c23c9a4524c4174ffc2ad0fa40de9a73dfd63956eadcd",
-      "candidateOutputSha": "d992abaad5c150cd780f596699fa42fbc143657663ad6bd609a18b91891d23d4",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "de22487d3235063201b34f8796ed98840e713559fa3cf16ac2d0d03278784f24",
+      "candidateOutputSha": "cfe22651af8a8436175a44a3c8e6fbccd949c3a1f269bc9b862e576b2457d5c7",
       "facts": {
         "f1": {
           "before": "holds",
@@ -73,16 +73,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs open each item with the plain-words what/why sentence, give the crosscut item A) accept and B) alt-1 with one-line consequences, state Recommended: B and Recommended: A with reasons, use the `1. A` / `2. <your own text>` reply grammar with bare 1 taking every recommendation and no legacy 2: <handle>=<choice> form, and carry one human-call sentence per item (After's 'This is a human call because ...' phrasing is a clean, consistent way to satisfy f6). The one regression worth fixing in After is outside the listed facts: the exit126 option A consequence reads 'the spec reads the new text', which is a template placeholder rather than a real consequence, whereas Before rendered 'exit 126 is reported as blocked'; the wording should require that every lettered option's consequence restate the concrete new behavior (the Accept text or alternative text in plain words), never the placeholder phrase, so that the f2-style one-line-consequence requirement holds for single-option items too.",
-      "wallMs": 11190,
+      "feedback": "No fact moved: both outputs open each item with a plain-words what/why sentence, list A) accept and B) alt-1 with one-line consequences on the crosscut item, give Recommended: B - / Recommended: A - with reasons, use the `1. A` / bare `1` reply grammar without the legacy `2: <handle>=<choice>` form, and carry one human-call sentence per item (After's 'so it needs your call' still satisfies f6, though Before's 'so the reviewer left it to you' is slightly more explicit about the escalation source). One wording drift in After worth fixing even though no listed fact keys on it: the exit126 option A consequence became 'the spec reads the new text', a template-shaped placeholder that tells the human nothing, where Before rendered the concrete consequence 'exit 126 is reported as blocked'. Keep the After phrasing elsewhere, but have the single-option consequence line always render the actual Accept text (e.g. 'A) accept - exit 126 is reported as blocked') so a future f2-style fact on single-option items would hold.",
+      "wallMs": 12925,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "b4d8a46aaa0213ea10a52d9cbab63e1e794312f99384ce73c45229153741d5ec",
-      "candidateOutputSha": "b77f18a07beffe860db81d192399e8c353f17e7fbbdf33c24683619a06dbb60f",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "8e05a30c90228fdcbf3bf6967c9ef84f06f3e7e6fb133784e6c00332c499dbe4",
+      "candidateOutputSha": "e919c5a1281896bdd06c830d1104ed8ea3dc791567ba4fb40119e0e1fd4ffdf5",
       "facts": {
         "f1": {
           "before": "holds",
@@ -115,10 +115,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs open each item with the plain-words what/why sentence, carry the human-call sentence, list A) accept and B) alt-1 with one-line consequences on the crosscut item, give Recommended: B and Recommended: A with reasons, and close with the `<n>. <letter or free text>` reply grammar plus bare `1`, never the legacy `2: handle=choice` form. Two drifts in After are worth watching even though no listed fact keys on them: the Details line for crosscut now renders new: as the accept option (a new retry service) with alt-1 as a trailing Alternative line, which contradicts the Recommended: B that bare `1` would apply, whereas Before's Details showed the recommended alt-1 as the new text; and the crosscut Impact line dropped the 'adapters retaining execution' consequence. To keep every Before fact while delivering the Change, keep After's menu and reply grammar as-is but have Details show the recommended option's new text (or label both options explicitly) and retain the full Impact consequence so the Recorded confirmation and Details stay consistent with the recommendation.",
-      "wallMs": 14557,
+      "feedback": "No fact moved between Before and After: both outputs open each numbered item with a plain what/why sentence, list A) accept and B) alt-1 with one-line consequences on the crosscut item, carry `Recommended: B -` / `Recommended: A -` with reasons, give the `1. A` / `2. <your own text>` reply grammar with bare `1` taking every recommendation and no legacy `2: <handle>=<choice>` form, and include one human-call sentence per item. After's only differences are cosmetic: the human-call sentences are reworded (\"Choosing who owns retry policy is a human architecture decision.\" / \"Changing an operator-visible status needs a human decision.\"), the Impact lines are slightly rephrased, and the Recommended lines gain a trailing period. None of these affect any fact; the After wording delivers the menu grammar exactly as Before did, so no adjustment is needed to keep these facts.",
+      "wallMs": 10448,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

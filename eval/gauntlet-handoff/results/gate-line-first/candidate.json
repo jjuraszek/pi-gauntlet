@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "60916f5eb418d9a7eb3034b7d55e0836c88a7b343a7f256d961d947fc7d59706",
+  "skillSha": "4abb224d5dde3f77e1e0b90c06e35ca1e50f71f131e768d958ff674a42372827",
   "inputSha": "1480bce96a5fb3b58762a88b7b7e8cd712ccb16b04589e8b2f9bb27bb99166d3",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\n\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nI stopped before writing anything. This transcript reports no run worktree, and the session checkout is on a **detached HEAD**: `git branch --show-current` returned empty. That leaves no branch to derive the brief key from. No brief was written and no tracker was touched.\n\nRe-invoke with one of these (not both, since they are exclusive):\n\n- `/skill:gauntlet-handoff --key <name>` writes to `<tmpdir>/pi-handoff/<name>.md`, using the name exactly as you give it.\n- `/skill:gauntlet-handoff --out <path>` writes to that path, resolved against the session cwd.\n\nWhich `--key` or `--out` should I use?\n",
-      "words": 101,
-      "wallMs": 5641,
+      "text": "gauntlet: question\n\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nI can't derive a brief key here, so I've stopped before writing anything. No brief exists yet, and neither tracker has been touched.\n\n- No run worktree was reported in this transcript (no `Worktree ready at <path>`).\n- The session checkout is on a **detached HEAD**: `git branch --show-current` returned nothing.\n\nWithout a branch name, any key I picked could collide with another flow's brief. Please re-run with one of these:\n\nA) `/skill:gauntlet-handoff --key <name>` writes the brief to `<tmpdir>/pi-handoff/<name>.md`. The name is used exactly as given.\nB) `/skill:gauntlet-handoff --out <path>` writes the brief to that path, resolved against the session cwd.\n\nUse only one of the two flags. They can't be combined.\n\nRecommendation: A, with a short descriptive key such as the ticket or topic name. It keeps the brief in the standard handoff directory, where `/skill:gauntlet-resume` can find it.\n",
+      "words": 152,
+      "wallMs": 5529,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nThe session checkout is on detached HEAD, so I can’t derive a safe handoff key. Which `--key <name>` or `--out <path>` should I use?\n",
-      "words": 37,
-      "wallMs": 3726,
+      "text": "gauntlet: question\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nThe session checkout is on detached HEAD, so I can’t derive a safe handoff key. Which explicit target should I use?\n\nA) `--key <name>`\nB) `--out <path>`\n",
+      "words": 40,
+      "wallMs": 3453,
       "mechanical": {
         "first-line": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "40c8ec62fc7fe8f9df003b2e70b42ef9ed0660833196f72e3a8023ba4d06de95",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e283da029d0037f24dfdc562c3bc0a00464487b45460b92ee9dc9541e08877e2",
-      "baselineOutputSha": "4a7c9ae76bfb8fe8ee264438ac4bdaeb4dd1de29a947c2bab1c676e1d85ba8d6",
-      "candidateOutputSha": "32395097c54c95e6d66c3c2dce9d6d176b144602b502e6f98bb3822d1253e1bb",
+      "intentSha": "88da3ac8faf337dffe98359ea54cb1637e51e9c6b595d625f6b7484a0191c711",
+      "baselineOutputSha": "c542b9f3a014a16923afa0539fec7be6063050e4018de54f1181973bc587779d",
+      "candidateOutputSha": "4a25f03d5511e15de2605c937da1ca25d2a9608539ffc29e11d57ae8a0df2644",
       "facts": {
         "target": {
           "before": "holds",
@@ -53,16 +53,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the target fact: each stops on the detached-HEAD condition, states explicitly that no brief was written and no tracker was touched, and asks the human to re-invoke with --key or --out. After additionally places the `gauntlet: question` marker on its own first line and closes with a more direct `--key`/`--out` ask, which aligns with the gate-line-first intent in the Change without moving this fact. Nothing in After regressed; if you want to keep the Before detail that was dropped, consider retaining the `Worktree ready at <path>` hint so the reader knows what run-worktree evidence would have satisfied the derivation path.",
-      "wallMs": 5136,
+      "feedback": "Both outputs satisfy the single fact for this case: each opens with the shared question marker, cites the detached HEAD (empty `git branch --show-current`) and the absent `Worktree ready at <path>` line as the reason a key cannot be derived, states that no brief was written and neither tracker was touched, and asks the human to re-invoke with exactly one of `--key <name>` or `--out <path>`. After did not move any fact. The additions in After (the collision rationale, the A/B lettering, and the closing recommendation to prefer `--key`) are extra content beyond the fact; they are harmless here, but if the Change intends a terse step-1 ask, the recommendation paragraph and the 'could collide with another flow's brief' sentence are the parts most at risk of drifting into unasked-for guidance, so consider trimming them to keep the message to: marker line, reason (detached HEAD, no run worktree), explicit no-write/no-mutation statement, and the two mutually exclusive flag options. None of the ledger-task-list or multi-repo facts listed under Expected to move apply to this input, so this case provides no evidence for or against those movements.",
+      "wallMs": 9489,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "40c8ec62fc7fe8f9df003b2e70b42ef9ed0660833196f72e3a8023ba4d06de95",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e283da029d0037f24dfdc562c3bc0a00464487b45460b92ee9dc9541e08877e2",
-      "baselineOutputSha": "298e6f45d27f6f98edd242f29c1e2d05ebbe438fed432311741f0005c8ecf82a",
-      "candidateOutputSha": "4b6e0ed2b5182b8bd20b901899e7cc84917582e6bab770c3bbacafdbb5bdad3c",
+      "intentSha": "88da3ac8faf337dffe98359ea54cb1637e51e9c6b595d625f6b7484a0191c711",
+      "baselineOutputSha": "8c2ea8f2ca3e11626ac624e01ce33d15c25aad7c2ed8fda62501766bc60f7d5d",
+      "candidateOutputSha": "1914fe3beb9f53a1426ca1da9d146a3cdc1e14de66f6043f54c7c0fc258506e8",
       "facts": {
         "target": {
           "before": "holds",
@@ -75,10 +75,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the sole fact for this case: each leads with the `gauntlet: question` marker, states that detached HEAD prevents deriving a key, asks for `--key <name>` or `--out <path>`, and neither writes a brief nor touches a tracker. The After wording changed only 'safe brief key' to 'safe handoff key' and dropped the word 'explicit' from the ask; neither edit moved the fact. The listed Expected-to-move items (ledger-task-list/*, gate-line-first/first-line, multi-repo/*) are not facts under this case, so nothing here evidences them either way; the step-1 question-marker requirement is already met in both. If you want the After text to more visibly reflect the Change, keep the current structure and consider restoring 'explicit' (e.g., 'Which explicit `--key <name>` or `--out <path>` should I use?') so the ask unambiguously signals that derivation is off the table, but this is optional — no fact Before kept was lost in After.",
-      "wallMs": 7669,
+      "feedback": "Both outputs satisfy the target fact: each opens with the `gauntlet: question` marker, cites detached HEAD as the reason, asks the human to choose `--key <name>` or `--out <path>`, and neither writes a brief nor touches a tracker. The only difference After introduces is dropping the 'no run worktree was reported' clause from the justification; that doesn't move the fact here, but since the Change explicitly adds run-home binding and worktree-derived keys to the handoff contract, keeping that clause (e.g. 'The session checkout is on detached HEAD and no run worktree was reported, so I can't derive a safe handoff key') would make the ask more defensible and keep the wording aligned with the new coordinated-flow cases where a reported Run worktree would have supplied the key. Otherwise After is a safe tightening of Before.",
+      "wallMs": 6446,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43577694991ae2c13e696544e2c7a15967fd3500"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

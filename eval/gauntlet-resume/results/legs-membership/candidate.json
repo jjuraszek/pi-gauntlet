@@ -1,7 +1,7 @@
 {
   "sample": "legs-membership",
   "arm": "candidate",
-  "skillSha": "9c0002a441aec380b13b44a56f6d7e1b4c3c162355e0916f10e200471e3ec451",
+  "skillSha": "0c6e9f16a75b6b41568ac8bb6ad86d7b8e5b1a868217f5d638f969a3bb30dba1",
   "inputSha": "17f0a9d5af5a2513cf88c07f1cc7ba13b937906e98acea9a23c4f9f42e6dfd30",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Gauntlet resume: coordinated admission, runs A, B and C\n\nAll three runs reach entry check 3b, Coordinated admission, and stop there. Each stop comes before any `phase_tracker` or `plan_tracker` write, so the call table's `plan_check` never runs. The brief carries no PR pairs, so no `gh pr view` call is made.\n\nEach run makes the same calls in the same order:\n\n1. **Read** `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`. This is the home spec, already resolved through Candidates. I read it only for its `### Leg:` blocks, and its presence implies no approval. In order, the blocks are `repo-a` then `repo-b`.\n2. **Parse** the brief's `## Process state` `legs:` block to get the ordered `repo:` entries.\n3. **Compare** the two ordered lists exactly. The run mismatches, so it stops before the primary, common-dir, branch, `**Home:**` and receipt checks. No tracker call is made.\n\n---\n\n## Run A: brief lists repo-b, repo-a\n\n```\ngauntlet: stuck coordinated membership mismatch: legs reordered (repo-b listed before repo-a) - brief lists repo-b, repo-a; spec lists repo-a, repo-b\n```\n\nThe `legs:` entries must follow the home spec's `### Leg:` order, home first. No tracker state was changed. Regenerate the brief with `/skill:gauntlet-handoff`, then re-run `/skill:gauntlet-resume`.\n\n---\n\n## Run B: brief lists repo-a only\n\n```\ngauntlet: stuck coordinated membership mismatch: missing leg repo-b - brief lists repo-a; spec lists repo-a, repo-b\n```\n\nThe home spec records two members, so this flow is coordinated. A brief whose `legs:` block omits a member cannot be admitted. That includes treating it as a single-member brief. No tracker state was changed.\n\n---\n\n## Run C: brief lists repo-a, repo-b, repo-c\n\n```\ngauntlet: stuck coordinated membership mismatch: extra leg repo-c - brief lists repo-a, repo-b, repo-c; spec lists repo-a, repo-b\n```\n\n`repo-c` has no `### Leg:` block in the home spec. Membership is never widened from the brief, and `repo-c` was not probed. No tracker state was changed.\n\n---\n\nNone of the three runs prints the restore closing line or the `Standing grant` / `No standing grant.` line, because no restore happened. None continues to `subagent-driven-development` for `W2: reader`.\n",
-      "words": 321,
-      "wallMs": 15932,
+      "text": "Each run below is separate. In every run, coordinated admission (entry check 3b, `reference/brief-contract.md` \"Coordinated admission\") compares the brief's ordered membership with the home spec's `### Leg:` blocks before any tracker write. All three runs stop at that comparison. None of them reaches `start brainstorm`, `plan_check`, the per-leg primary, branch and `**Home:**` validation, or receipt validation.\n\n---\n\n## Run A: brief membership `repo-b, repo-a`\n\n**Tool calls**\n\n1. `Read({ path: \"/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })`\n   - Result: `## Legs` holds `### Leg: repo-a`, then `### Leg: repo-b`.\n   - Spec order is `repo-a, repo-b`.\n2. Compare the brief's `legs:` order (`repo-b, repo-a`) with the spec's order (`repo-a, repo-b`).\n   - Result: reordered. The brief puts companion `repo-b` first, before run home `repo-a`.\n\n**Printed**\n\n```\ngauntlet: stuck brief legs are reordered: repo-b is listed before home repo-a; brief lists repo-b, repo-a, spec doc/specs/shared.md lists repo-a, repo-b\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nCoordinated admission stopped before any tracker write: membership must match the home spec's ### Leg: order exactly (home first). No phase_tracker or plan_tracker call was made; plan_check was not run.\n```\n\n---\n\n## Run B: brief membership `repo-a` only\n\n**Tool calls**\n\n1. `Read({ path: \"/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })`\n   - Result: `### Leg: repo-a`, `### Leg: repo-b`.\n2. Compare the brief's `legs:` (`repo-a`) with the spec's legs (`repo-a, repo-b`).\n   - Result: missing leg `repo-b`.\n\n**Printed**\n\n```\ngauntlet: stuck brief legs are missing repo-b; brief lists repo-a, spec doc/specs/shared.md lists repo-a, repo-b\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nCoordinated admission stopped before any tracker write; a companion leg absent from the brief is never admitted or inferred. No phase_tracker or plan_tracker call was made; plan_check was not run.\n```\n\n---\n\n## Run C: brief membership `repo-a, repo-b, repo-c`\n\n**Tool calls**\n\n1. `Read({ path: \"/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })`\n   - Result: `### Leg: repo-a`, `### Leg: repo-b`.\n2. Compare the brief's `legs:` (`repo-a, repo-b, repo-c`) with the spec's legs (`repo-a, repo-b`).\n   - Result: extra leg `repo-c`.\n   - `repo-c` is not probed, because membership mismatch stops before any per-leg filesystem or git check.\n\n**Printed**\n\n```\ngauntlet: stuck brief legs include extra repo-c; brief lists repo-a, repo-b, repo-c, spec doc/specs/shared.md lists repo-a, repo-b\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nCoordinated admission stopped before any tracker write; membership comes only from the home spec's ### Leg: blocks. No phase_tracker or plan_tracker call was made; plan_check was not run.\n```\n",
+      "words": 362,
+      "wallMs": 15981,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Run A\n```text\ngauntlet: stuck reordered legs repo-b, repo-a; brief lists repo-b, repo-a, spec lists repo-a, repo-b\n```\n\n### Run B\n```text\ngauntlet: stuck missing leg repo-b; brief lists repo-a, spec lists repo-a, repo-b\n```\n\n### Run C\n```text\ngauntlet: stuck extra leg repo-c; brief lists repo-a, repo-b, repo-c, spec lists repo-a, repo-b\n```\n\nEach run stops at coordinated admission before any tracker write. No `plan_check` or other tool call is made.\n",
-      "words": 67,
-      "wallMs": 12618,
+      "text": "### Run A\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nRead({ \"path\": \"/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })\n```\n\nPrint:\n```text\ngauntlet: stuck reordered legs repo-b and repo-a; brief lists repo-b,repo-a, spec lists repo-a,repo-b\n```\n\nStop. No tracker write or `plan_check` call.\n\n### Run B\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nRead({ \"path\": \"/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })\n```\n\nPrint:\n```text\ngauntlet: stuck missing leg repo-b; brief lists repo-a, spec lists repo-a,repo-b\n```\n\nStop. No tracker write or `plan_check` call.\n\n### Run C\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nRead({ \"path\": \"/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })\n```\n\nPrint:\n```text\ngauntlet: stuck extra leg repo-c; brief lists repo-a,repo-b,repo-c, spec lists repo-a,repo-b\n```\n\nStop. No tracker write or `plan_check` call.\n",
+      "words": 119,
+      "wallMs": 15501,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f55be4f65014619538d49c3d16b7ee5354a9c39597f150c38f73e4fb8765235f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
-      "baselineOutputSha": "3b48cc83093b4f8ca2649d7f2fb70d2868e946c1f17e60e92b281bd14b97fd8a",
-      "candidateOutputSha": "7374b177b96c04434e2262ea0711ba776de7940c2f16925328bbf983627c9550",
+      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
+      "baselineOutputSha": "7374b177b96c04434e2262ea0711ba776de7940c2f16925328bbf983627c9550",
+      "candidateOutputSha": "bf2e9f36858d29c3f8bf228f480e33710dc41d37bab202ed0e4a5d4db70bf0c2",
       "facts": {
         "stop": {
           "before": "holds",
@@ -44,16 +44,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved on this case: both Before and After stop at entry check 3b before any phase_tracker/plan_tracker write, name the specific defect per run (reordered repo-b, missing repo-b, extra repo-c) and print both complete ordered lists (brief vs. spec), and neither silently edits membership. After is slightly stronger in making the no-edit rule explicit (\"Membership is never widened from the brief\", refusing to treat Run B as a single-member brief), which is good; keep the per-run messages carrying both full ordered lists and the explicit 'before tracker writes' statement as they are. If you want to tighten further, consider naming the home spec path in the stuck line as Before did (`home spec doc/specs/shared.md lists ...`) so the stop remains self-locating.",
-      "wallMs": 9359,
+      "feedback": "Nothing moved: both outputs report the reordered leg (A), missing repo-b (B) and extra repo-c (C), print both ordered lists in every stop line, place the stop at entry check 3b before any phase_tracker/plan_tracker call, and state explicitly that membership is never widened, narrowed or inferred from the brief. After keeps the fact while adding the spec path to the lists and an explicit note that repo-c is not probed, which is fine. One wording nit unrelated to the fact: After prints the skill's opening line (\"I'm using the gauntlet-resume skill...\") after the `gauntlet: stuck` line in each run; emitting it before the stop message, or omitting it in a stop-only narration as Before does, would read more naturally without changing what any fact needs.",
+      "wallMs": 7378,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f55be4f65014619538d49c3d16b7ee5354a9c39597f150c38f73e4fb8765235f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
-      "baselineOutputSha": "611a676234f1e2af1eb56d1272cf17105f29ff5cf9f57428163696bf83342122",
-      "candidateOutputSha": "fd2b6ab8e4236e188f70fc65c5bd566186d2cd6ccbba06182c17b01443ccd8fb",
+      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
+      "baselineOutputSha": "fd2b6ab8e4236e188f70fc65c5bd566186d2cd6ccbba06182c17b01443ccd8fb",
+      "candidateOutputSha": "3dc2dc5f8729c95361cc909ad57b204cd47538aca9c5d1e24db5b069ce32a18d",
       "facts": {
         "stop": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both Before and After name the reordered/missing/extra leg, print the brief's ordered list and the spec's ordered list, and stop at coordinated admission with no plan_check or other tracker write, so the membership fact holds in each run of both outputs. One wording caution for After: joining the two lists with a comma (\"brief lists repo-b, repo-a, spec lists repo-a, repo-b\") lets the list elements run together visually; Before's semicolon between the brief list and the spec list (\"brief lists repo-b, repo-a; spec lists repo-a, repo-b\") keeps the two ordered lists unambiguous. Keep that separator and the explicit per-run 'Stop' line while delivering the Change, and the fact stays safely held.",
-      "wallMs": 7428,
+      "feedback": "Both outputs satisfy the fact: each of Runs A, B and C names the specific discrepancy (reordered legs repo-b/repo-a, missing leg repo-b, extra leg repo-c), prints the brief's ordered list alongside the spec's ordered list, and stops with an explicit statement that no tracker write or plan_check occurs; neither silently edits membership. After adds the skill-announcement line and a Read of doc/specs/shared.md before the stop, which is a read-only observation rather than a tracker write and so does not move the fact, though it is worth noting that the input says to treat the supplied observations as tool results and not to execute tools, so the Read call is an unnecessary narrated action; otherwise After's wording (comma-joined lists, 'and' between the reordered legs) is a harmless formatting change and keeps everything Before kept while delivering the coordinated-flow membership stop.",
+      "wallMs": 6591,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

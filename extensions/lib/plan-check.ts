@@ -1205,9 +1205,10 @@ function coordinatedMetadata(lines: string[], legs: ReturnType<typeof parseLegs>
   const sha = /^[a-f0-9]{7,40}$/;
   const base = one("base", sha);
   const iterations = one("iterations", /^(?:0|[1-9]\d*)$/);
-  const cap = one("cap", /^[1-9]\d*$/);
+  const budgets = [...header("allowance"), ...header("cap")];
+  if (budgets.length !== 1) add(budgets[0]?.i ?? 0, "expected exactly one allowance or cap header");
+  else if (!/^[1-9]\d*$/.test(budgets[0].value) || !Number.isSafeInteger(Number(budgets[0].value))) add(budgets[0].i, "allowance or cap must be a positive safe integer");
   if (!Number.isSafeInteger(Number(iterations))) add(0, "iterations must be a safe integer");
-  if (!Number.isSafeInteger(Number(cap))) add(0, "cap must be a safe integer");
   for (const [i, l] of lines.entries()) {
     const m = /^(base|seeded) ([^:]+):/.exec(l);
     if (m && !legs.some(leg => leg.repo === m[2].toLowerCase())) add(i, "foreign member header");

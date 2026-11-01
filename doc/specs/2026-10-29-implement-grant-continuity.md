@@ -1,5 +1,7 @@
 # Implement-phase grant continuity: escalated rounds and recommended paths in both engines
 
+> **Superseded by:** [doc/specs/2026-11-01-gh-108-loop-single-allowance.md](./2026-11-01-gh-108-loop-single-allowance.md) - loop row escalation permission and funded-round accounting portions of Design, Errors and Tests only; waves recommendations stay live
+
 **Goal:** Under an active amend grant, every implement-phase execution failure that is not a hard stop first spends one escalated-model round, every stop whose `Recommendation:` names work the grant already authorizes is taken, and the human is called only when no authorized recommended way forward exists.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves

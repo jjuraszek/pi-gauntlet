@@ -1,0 +1,110 @@
+{
+  "sample": "allowance-entry-carrier",
+  "arm": "candidate",
+  "skillSha": "ea4601f6d7ccfc2585b638505de7e45a5e410243b5308622e609d983552b518b",
+  "inputSha": "c1299d9077b7a0d7b3b31eedf8124e408083bd299f05cdadeefa5c315047ec68",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Entry budget selection: four independent snapshots\n\nNone of these calls has run. Each one is a call the driver would make. Every snapshot stops before any seed-evidence dispatch.\n\n**Shared rule for fresh entry (A, B, C):**\n\n- **Settings call.** Entry step 1 calls `gauntlet_setting({ key: \"loopEngine\" })` and retains `maxIterationsPerRow` (7 here).\n- **Carrier.** Entry step 4 reads the carrier from the **invoking approval turn**. That turn holds the literal line `run allowance: <n>`, carried from the approved `; allowance N` suffix.\n  - If the carrier is present, it wins over the setting.\n  - If it is absent, the driver uses `maxIterationsPerRow`.\n- **Persistence.** The chosen value persists **only** as the ledger header line `allowance: <n>`. That line sits immediately after `iterations: 0`. Nothing is written to the spec or to settings.\n- **Ledger file.** The ledger is `<resolved plan dir>/<spec stem>-ledger.md`.\n- **Remaining fresh steps.** After the header is written, the driver runs `plan_check({ planPath: <ledger path> })` and commits `loop: seed ledger`. It then calls `phase_tracker({ action: \"start\", phase: \"implement\" })` and `plan_tracker({ action: \"refresh\", path: <absolute ledger path> })`.\n- **Next target.** In every fresh case the next target is `seed`. Its dispatch is not performed here.\n\n---\n\n## A — home ledger, carrier present\n\n- **Calls:**\n  - `gauntlet_setting({ key: \"loopEngine\" })` returns `maxIterationsPerRow` 7, which the carrier then overrides.\n  - `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`.\n  - `git -C \"<worktree>\" rev-parse HEAD` supplies `base:`.\n- **Carrier:** read from the invoking approval turn as `run allowance: 6`.\n- **Rows:** two rows, both `open`, attempts 0.\n- **Ledger header (budget lines):**\n  ```\n  iterations: 0\n  allowance: 6\n  ```\n- **Source echo, printed with the seeded header:**\n  ```\n  allowance: 6 (reply)\n  ```\n\n## B — home ledger, no carrier\n\n- **Calls:** the same as A.\n- **Carrier:** none in the invoking turn, so the driver falls back to `maxIterationsPerRow` 7.\n- **Rows:** two rows, both `open`, attempts 0.\n- **Ledger header (budget lines):**\n  ```\n  iterations: 0\n  allowance: 7\n  ```\n- **Source echo:**\n  ```\n  allowance: 7 (setting)\n  ```\n\n## C — coordinated spec, carrier present\n\n- **Reference read:** the spec's `## Legs` section has more than one `### Leg:` block. So the driver first reads `reference/coordinated-legs.md` in full. It applies that file's `## Entry` section at step 4 in place of the home-only skeleton.\n- **Calls:** the same settings call and plan skip as A. The setting value 7 is overridden by the carrier.\n- **Carrier:** read from the invoking approval turn as `run allowance: 6`.\n- **Allowance:** one shared header `allowance: 6`.\n  - It is not multiplied by the three entries.\n  - It is not multiplied by the two legs.\n  - No extra seed dispatches are added.\n- **Rows:** three entries, all `open`, attempts 0.\n- **Ledger additions:** a `## Leg mapping` section and per-member `base <repo>:` / `seeded <repo>: no` pairs. Neither carries its own budget.\n- **Seeds:** two seeds will follow, home and then the companion, in membership order.\n- **Common header (budget lines):**\n  ```\n  iterations: 0\n  allowance: 6\n  ```\n- **Source echo:**\n  ```\n  allowance: 6 (reply)\n  ```\n\n## D — resume of an admitted ledger\n\n- **Authoritative value:** `allowance: 9`, taken from the admitted ledger header. Resume uses the ledger's durable `iterations: 8` and `allowance: 9`.\n- **Seeding:** none. The ledger is not overwritten, and the `seed` target is not reselected through Entry.\n- **Settings lookup:** none. Entry step 1 is skipped for an admitted ledger, because settings apply only to fresh seeding. The current value of 7 is irrelevant.\n- **Carrier:** ignored. The old `run allowance: 6` line has no effect once a ledger exists.\n- **Source echo:** none. No `(reply)` or `(setting)` line is printed.\n- **Header rewrite:** none.\n  - The header already has `allowance:` and no `cap:`, so no `loop: migrate allowance` is needed.\n  - `iterations: 8` is unchanged.\n  - The attempt cells are unchanged: row 1 failed at 2, row 2 open at 0.\n- **What follows on resume:** pending recovery and the dirty-tree check, then a refresh and a render of rows, allowance and decisions.\n- **Next target:** row 1 is the first failed row, with an effective allowance of 9 plus any retry decisions. It is not dispatched here.\n",
+      "words": 624,
+      "wallMs": 19894,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are narrated actions only; no calls or writes have run.\n\n### A — Fresh home ledger, carrier present\n\nWould call `gauntlet_setting({ key: \"loopEngine\" })`, retaining `maxIterationsPerRow: 7`.\n\nAt Entry step 4, read the literal `run allowance: 6` line from the **invoking approval turn**, not from the spec or settings. It overrides the setting.\n\nWould persist in the new ledger:\n```text\niterations: 0\nallowance: 6\n```\n\nExact source echo:\n```text\nallowance: 6 (reply)\n```\n\nBoth non-cut rows start `open` with attempts `0` and empty evidence. The budget remains **6**, not multiplied by two. The selected value persists only in the ledger, not in the spec or settings.\n\n### B — Fresh home ledger, no carrier\n\nWould call `gauntlet_setting({ key: \"loopEngine\" })`, retaining `maxIterationsPerRow: 7`.\n\nAt Entry step 4, inspect the invoking approval turn. With no literal carrier line, use the setting.\n\nWould persist in the new ledger:\n```text\niterations: 0\nallowance: 7\n```\n\nExact source echo:\n```text\nallowance: 7 (setting)\n```\n\nBoth non-cut rows start `open` with attempts `0` and empty evidence. The budget remains **7**, not multiplied by two. The selected value persists only in the ledger.\n\n### C — Fresh coordinated ledger, carrier present\n\nWould call `gauntlet_setting({ key: \"loopEngine\" })`, retaining `maxIterationsPerRow: 7`.\n\nAt Entry step 4, read `run allowance: 6` from the invoking approval turn. It overrides the setting.\n\nWould persist this single common header in the home ledger:\n```text\niterations: 0\nallowance: 6\n```\n\nExact source echo:\n```text\nallowance: 6 (reply)\n```\n\nAll three non-cut entries start `open` with attempts `0` and empty evidence. The shared allowance is **6**—no per-leg budgets and no multiplication by entries or seed dispatches. The selected value persists only in the common ledger.\n\n### D — Admitted-ledger resume\n\nThe admitted ledger’s **`allowance: 9` is authoritative**. Preserve:\n```text\niterations: 8\nallowance: 9\n```\n\nPreserve row 1 as `failed`, attempts `2`, and row 2 as `open`, attempts `0`.\n\n- No seeding.\n- No settings lookup; fresh-seeding settings do not apply.\n- Ignore the old approval carrier `run allowance: 6`.\n- No fresh allowance-source echo.\n- No header rewrite.\n\nFor all observations, stop here: no seed evidence, dispatch, verification, or migration.\n",
+      "words": 334,
+      "wallMs": 9994,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "73546a37e8e496708f82bd3ed80feda841afd3d244ff838ed4d79efd8fb62e3b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7630aa2eb6223670e065d999caaaae35cfe5b006624bf1435bafecc61ef792e6",
+      "baselineOutputSha": "0ead573788625529001b8592fe65e95ccc91397cb5be04c41c569c7cfdd04961",
+      "candidateOutputSha": "62e39b349160c4e5ade6a55b02e97a3957b2b2a9e53e99e72c4c73c6a5221bc0",
+      "facts": {
+        "reply": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "setting": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "coordinated": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "resume": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "persistence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the shared fresh-entry rule names Entry step 4 as the place the `run allowance: <n>` carrier is read from the invoking approval turn, states it overrides the setting, and persists only as the `allowance:` ledger line after `iterations: 0`; A/B/C each print the adjacent header lines and a separate `allowance: N (reply|setting)` echo, C keeps one unscaled shared header, and D keeps allowance 9/iterations 8/attempts intact with no seeding, settings lookup, echo or rewrite. Nothing that Before held was lost. One small wording risk in C: 'It applies that file's `## Entry` section at step 4 in place of the home-only skeleton' could be read as redefining step 4 as the coordinated skeleton step rather than the carrier step; phrasing it as 'the coordinated `## Entry` replaces the home-only skeleton, while the step-4 carrier read and its source echo are unchanged' would keep the coordinated fact unambiguous.",
+      "wallMs": 21814,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "73546a37e8e496708f82bd3ed80feda841afd3d244ff838ed4d79efd8fb62e3b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7630aa2eb6223670e065d999caaaae35cfe5b006624bf1435bafecc61ef792e6",
+      "baselineOutputSha": "5873121db4fa85de369e23928935492d75a2ce77a34550c91ebb37f422fbebdc",
+      "candidateOutputSha": "57eed3c3f559680f806b255823b1c10850c5be4da638200edfebf1d9ee701d22",
+      "facts": {
+        "reply": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "setting": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "coordinated": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "resume": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "persistence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moves reply, setting and coordinated from fails to holds exactly as intended: it reads the literal `run allowance: 6` at Entry step 4 from the invoking approval turn, seeds `iterations: 0` then `allowance: 6`/`allowance: 7`, prints the separate `(reply)`/`(setting)` echoes, declines to invent a carrier in B, and keeps one unscaled shared header in C with an explicit 'no multiplication by entries' statement. The two facts Before already kept are preserved: D leaves `allowance: 9`, `iterations: 8` and both attempts untouched with no seeding, lookup, echo or rewrite, and A–C state that the value persists only in the ledger, not the spec or settings. One small tightening would make persistence more observable in B and C, which say 'persists only in the ledger' without the 'not in the spec or settings' clause used in A; repeating that clause verbatim in every fresh observation removes any ambiguity without altering the Change.",
+      "wallMs": 18160,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "a9a5d96ac8d16bf1257007ddf6924ae6cdaea985"
+}

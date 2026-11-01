@@ -1,8 +1,8 @@
 {
   "sample": "amendment-menu-reply",
   "arm": "baseline",
-  "skillSha": "61c24d3978e92a149736f103b680b4e3365677e129aa28e3ef18b24cd7fa8085",
-  "inputSha": "8f4082006f803aa6f314147c6b6a600eec45f09c1691c03a1600bc1a62ef6a17",
+  "skillSha": "a9afe7116aa2b82a17a9c1bba508ded2d78be343f272b2b2a8f78a0114fd2a0c",
+  "inputSha": "27ac6c44c549378a3f116946c0f75cdb0e001b233420977c7378e842352d695f",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Both picks resolve cleanly. Item 1 takes the alternative. Item 2 is custom text that keeps the spec's current classification and adds documentation for it. That is a spec edit, not a redirect.\n\n**Spec edits for `doc/specs/report-runner.md`** (this replay cannot run tools, so nothing has been written or committed):\n\n- **Design / retries:** replace \"each report adapter owns its retry policy\" with a clause saying the existing report coordinator owns one shared retry policy and the adapters keep execution. No new retry service is added.\n- **Design / run status:** keep \"exit 126 is failed\". Add a clause explaining the choice: exit 126 means a launch problem before the report runs, and it still reports as `failed`, not as a separate `blocked` status.\n\nOnce those edits land, the applied lines read:\n\namended the spec: Share retry policy - the existing report coordinator owns the shared retry policy; adapters keep execution\namended the spec: Classify blocked execution - exit 126 stays failed, and the spec documents that a launch failure before execution still reports as failed\n\n**Aftermath:** there is no plan yet, so no `plan-writer` dispatch, `plan_check`, or tracker change is needed. No tasks reopen and the phase does not change. The spec gets one batch commit:\n\n```\namend: 2 item(s) - Share retry policy, Classify blocked execution\n\n- crosscut | Share retry policy | the existing report coordinator owns the shared retry policy; adapters keep execution | alt-1 | changing retry ownership needs a human architecture choice | adapters/alpha.ts:18 uses two retries; adapters/beta.ts:22 uses four\n- exit126 | Classify blocked execution | exit 126 stays failed and the spec documents that a pre-execution launch failure reports as failed | custom(keep 126 as failed, document it) | operator-visible status changes need a human decision | synthetic launch test returns 126 before report execution\n```\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nAfter that commit, the spec review continues on the amended spec.\n",
-      "words": 301,
-      "wallMs": 14440,
+      "text": "Both items resolved: item 1 takes alt-1. Item 2 is a custom answer. It edits the spec, so it applies to the spec rather than redirecting.\n\nThis replay cannot run tools, so nothing below has been written or committed. These are the edits and records this step produces.\n\n**Spec edits to `doc/specs/report-runner.md`**\n\n- **Design / retries:** \"each report adapter owns its retry policy\" becomes \"the existing report coordinator owns the shared retry policy; adapters keep execution.\"\n- **Design / run status:** the classification stays \"exit 126 is failed.\" A documenting clause is added stating this is deliberate: a launch problem that returns 126 before report execution is reported as failed, not as a separate blocked status.\n\nApplied-item lines:\n\n```\namended the spec: Share retry policy - the existing report coordinator owns the shared retry policy; adapters keep execution\namended the spec: Classify blocked execution - keep exit 126 as failed and document that classification in Design / run status\n```\n\n**Aftermath:** No plan exists, so no plan-writer dispatch or `plan_check` runs and no tracker update happens. No tasks reopen and the phase does not change. The spec alone goes into the single batch commit:\n\n```\namend: 2 item(s) - Share retry policy, Classify blocked execution\n\n- crosscut | Share retry policy | move retry policy into one owner | alt-1 | changing retry ownership needs a human architecture choice | adapters/alpha.ts:18 uses two retries; adapters/beta.ts:22 uses four\n- exit126 | Classify blocked execution | keep exit 126 as failed and document it | custom(keep 126 as failed, document it) | operator-visible status changes need a human decision | synthetic launch test returns 126 before report execution\n```\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nAfter this commit, the spec review continues on the amended spec.\n",
+      "words": 272,
+      "wallMs": 13481,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Selected edits for `doc/specs/report-runner.md`:\n\n- **Design / retries:** the existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service.\n- **Design / run status:** exit 126 remains **failed**, with that classification explicitly documented. Your custom instruction changes the documentation, rather than redirecting work elsewhere.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNo standing grant was given. No tasks reopen and no phase changes. This text-only replay has not written files or created a commit.\n",
-      "words": 76,
-      "wallMs": 9044,
+      "text": "Selected changes for `doc/specs/report-runner.md`:\n\n- **Design / retries:** The existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service.\n- **Design / run status:** Keep exit 126 classified as **failed** and document that it can indicate a launch failure before report execution. This is a spec edit, not a redirect.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nMoving retry-policy ownership changes a component boundary, so I classify that change as a **redraw**, requiring the full spec approval gate rather than amendment-only application. You may override that classification.\n\nThis text-only replay has not written files, committed changes, or changed trackers.\n",
+      "words": 101,
+      "wallMs": 11022,
       "mechanical": {}
     }
   },
-  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

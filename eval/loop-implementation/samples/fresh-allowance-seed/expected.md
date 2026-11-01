@@ -1,0 +1,4 @@
+- header: judged: Every fresh skeleton writes iterations: 0 followed by allowance, without a cap header; A writes allowance: 4, B writes allowance: 6, E writes allowance: 7, with no row-count scaling or seed increment.
+- coordinated: judged: D keeps allowance: 4 despite three non-cut entries and two seeds; home then companion are seeded, never the wholly cut third member.
+- all-cut: judged: C keeps allowance: 4, commits the skeleton and refreshes after implement start, and exits without a seed dispatch.
+- durable: judged: The override lives only in the ledger, not the spec or settings; cuts, reopens and requirement-preserving amendments preserve it; redraw deletes and reseeds the ledger.

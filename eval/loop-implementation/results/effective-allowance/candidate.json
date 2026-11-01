@@ -1,0 +1,100 @@
+{
+  "sample": "effective-allowance",
+  "arm": "candidate",
+  "skillSha": "ea4601f6d7ccfc2585b638505de7e45a5e410243b5308622e609d983552b518b",
+  "inputSha": "660c52f5ea331b52ee52aee8541cd2106e5a97d20f5ebd07722d40812b8a4fbc",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Budget arithmetic at Before each dispatch\n\nNo calls are run. This is arithmetic only, evaluated at **Before each dispatch** before rule 2.\n\n**Rule applied:** a row's effective allowance is the header `allowance:` plus the number of that row's own `row <n> retry | … | allowed attempts <m>` lines in `## Decisions`. Each retry line counts once. The stored `<m>` is historical and never overrides the result.\n\n**Ignored for every snapshot:**\n- `row 1 escalated | implModel round | allowed attempts 100`: escalation is one round inside the allowance, not an extra attempt, and its stored number is ignored.\n- `cap +20 | old grant | cap 49`: legacy grant history.\n- `Amend-grant: fund 9 fix rounds`: this is a waves-only budget token. It is never consulted for row budget.\n- Prose hints are never read as extra retries.\n\n**Rule 2:** an unresolved row is exhausted when attempts ≥ effective allowance.\n\n---\n\n## A — header `allowance: 4`\n\n| row | header | own retry lines | effective allowance | attempts | rule 2 |\n|---|---|---|---|---|---|\n| 1 | 4 | 2 (\"first hint\", \"later hint\") | **6** | 6 | 6 ≥ 6 → **exhausted** |\n| 2 | 4 | 0 | **4** | 3 | 3 < 4 → **not exhausted** |\n\nThe stored values 5 and 99 on row 1's retry lines, and 100 on its escalation line, have no effect.\n\n## B — header raised to `allowance: 7` (admitted parent commit, not replayed)\n\n| row | header | own retry lines | effective allowance | attempts | rule 2 |\n|---|---|---|---|---|---|\n| 1 | 7 | 2 | **9** | 6 | 6 < 9 → **not exhausted** |\n| 2 | 7 | 0 | **7** | 3 | 3 < 7 → **not exhausted** |\n\nRaising the shared header adds 3 to every row. It resets no attempts and adds no retry count.\n\n## C — coordinated: row 1 in repo-b, row 2 in repo-a\n\nOwnership changes nothing:\n- The same rule applies to every coordinated entry regardless of leg.\n- `allowance:` is the single shared home-ledger header, never multiplied or split by leg.\n- Retry lines are counted per row number.\n\n| snapshot | row 1 (repo-b) | row 2 (repo-a) |\n|---|---|---|\n| A (allowance 4) | 6 of 6 → exhausted | 3 of 4 → not exhausted |\n| B (allowance 7) | 6 of 9 → not exhausted | 3 of 7 → not exhausted |\n\n## D — post-migration `allowance: 4`, row 2 attempts 12, no row 2 retry lines\n\n| row | header | own retry lines | effective allowance | attempts | rule 2 |\n|---|---|---|---|---|---|\n| 2 | 4 | 0 | **4** | 12 | 12 ≥ 4 → **exhausted** |\n\n- Row 2's attempts **stay at 12**. They are never reset, reduced or clamped to the allowance.\n- The old funded work does not reduce the count, and the legacy `cap +20 | … | cap 49` line grants nothing.\n- After migration, a row already at or above its effective allowance is simply exhausted.\n- Rule 2 treats it as a human stop rendered as `row 2: 12 of 4`.\n",
+      "words": 421,
+      "wallMs": 14380,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Effective allowance = header `allowance` + number of that row’s retry decisions. Stored `allowed attempts` values, escalation markers, legacy grants and `Amend-grant` do not contribute.\n\n| Snapshot | Row | Attempts | Effective allowance | Exhausted under rule 2? |\n|---|---|---:|---:|---|\n| A | 1 | 6 | 4 + 2 = **6** | **Yes** |\n| A | 2 | 3 | 4 + 0 = **4** | No |\n| B | 1 | 6 | 7 + 2 = **9** | No |\n| B | 2 | 3 | 7 + 0 = **7** | No |\n| C, using A’s header | 1, repo-b | 6 | **6** | **Yes** |\n| C, using A’s header | 2, repo-a | 3 | **4** | No |\n| C, using B’s header | 1, repo-b | 6 | **9** | No |\n| C, using B’s header | 2, repo-a | 3 | **7** | No |\n| D | 2 | 12 | 4 + 0 = **4** | **Yes** |\n\nCoordinated ownership changes neither calculation nor exhaustion.\n\nIn D, row 2’s attempts remain **12**; migration does not reset or reduce them. No calls or durable changes are performed.\n",
+      "words": 131,
+      "wallMs": 7521,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5ffb7e747e91b2efbce6505ab70f9c67e1e64a0dfa27d16da2f634ddb7b958ad",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
+      "baselineOutputSha": "6a2b6d0d162636e11ca6294ac1feb0ec74e3a4bbb72127e39c95809aaf018cbc",
+      "candidateOutputSha": "bc33adf43541262f31c95612f51c7641c2e46ea60e43f63740a5a1b47179000e",
+      "facts": {
+        "arithmetic": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "header-raise": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "coordinated": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "migration": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves all four facts from fails to holds, exactly as the Change intended: it reads the `allowance:` header as the base, adds one per row-specific retry line (two for row 1, zero for row 2), and explicitly discards the stored 5/99 ceilings, the escalation 100, the `cap +20` grant and the `Amend-grant: fund 9` token, yielding 6/4 in A, 9/7 in B, identical per-entry results across legs in C, and allowance 4 with attempts preserved at 12 in D. Before failed every fact because it treated the allowance header as a non-contract field and fell back to `max(3+N, m)`, producing 99 and 12. Two small wording points in After are worth tightening without affecting the facts: the claim that `Amend-grant` is a 'waves-only budget token' is an invented rationale and could simply say 'legacy funding, ignored for row allowance'; and the final D bullet ('human stop rendered as `row 2: 12 of 4`') strays into the stop-menu territory the prompt asked to ignore — dropping that line keeps the output strictly to arithmetic and exhaustion while preserving every fact.",
+      "wallMs": 12326,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5ffb7e747e91b2efbce6505ab70f9c67e1e64a0dfa27d16da2f634ddb7b958ad",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
+      "baselineOutputSha": "8c5d24ea0e1ecb63ae3e2a5ed6339f7e520a0a72fffbf7dc6023bc18ffa3a855",
+      "candidateOutputSha": "79a761d6985e49e93a976ea2398612b01b39efebc4b297cd7dfe430771c3d89d",
+      "facts": {
+        "arithmetic": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "header-raise": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "coordinated": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "migration": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: it states the counting rule (header allowance + one per row retry decision, with stored allowed-attempts, escalation markers, legacy grants and Amend-grant excluded), shows the arithmetic 4+2=6 / 4+0=4 for A, 7+2=9 / 7+0=7 for B, carries the same figures into both coordinated legs, and keeps D at attempts 12 against allowance 4 and exhausted without any reset. Before failed all four facts because it computed allowance from 3 + fund 9 and the latest retry ceiling (99/12), declared the allowance:7 header to have no effect, and demanded a literal cap: header. Nothing that Before held was lost. One small hardening for D: add an explicit sentence that the old funded budget is not restored (After only says migration does not reset or reduce attempts and excludes legacy grants in the preamble), so the migration fact is satisfied by a direct statement rather than inference.",
+      "wallMs": 10332,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+}

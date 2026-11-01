@@ -1,7 +1,7 @@
 {
   "sample": "clean-pass-unchanged",
   "arm": "baseline",
-  "skillSha": "5d0aa89c30994f2ae63eaf5e7a364e01359d5e09a7f7a2fc55a790de537f0051",
+  "skillSha": "754fcceac688a7575060c17a3651fc220ad36f3e7b92bc6ff93d72351382651f",
   "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Restore narration: from `plan_check` to the closing line\n\n**Tool result 1:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` returned **PASS**.\n\nBecause the first check passed, `## Plan repair` does not run. There is no repair receipt and no commit.\n\nPer the call table, the active phase is `implement` with a task plan. After PASS, the remaining calls run in this order:\n\n1. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })` succeeds.\n   - The input gives no brief file path, so R uses the `\"pasted brief\"` form.\n2. `phase_tracker({ action: \"start\", phase: \"implement\" })` succeeds.\n   - The brief shows `→ implement` with no `(substep)`, so there is no `substep` call.\n3. Before `init`, I check the snapshot is feasible:\n   - **Pending-suffix order:** the only `○` task, [4], comes after every non-pending task. OK.\n   - **Auto-complete edge:** not every task is complete or skipped, because [3] is `→` and [4] is `○`. OK.\n4. `plan_tracker({ action: \"init\", tasks: [...] })` succeeds. The snapshot is copied verbatim (names, order, statuses):\n   - `{ name: \"W1: Parse config file\", status: \"complete\" }`\n   - `{ name: \"W1: Validate schema\", status: \"complete\" }`\n   - `{ name: \"W2: Wire CLI flag\", status: \"in_progress\" }`\n   - `{ name: \"W3: Document the loader\", status: \"pending\" }`\n\n**Printed lines, in order:**\n\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\nNo standing grant.\n```\n\nThe second line reports entry check 6's grant result. The input doesn't state that result, so I assumed no grant. If check 6 decoded a grant, this line would instead be `Standing grant active: <sentence>`.\n\n**Continuation:** The restore hands off automatically to **subagent-driven-development**, without its reset-bearing entry. It first re-validates `W2: Wire CLI flag` by re-running that task's `Tests:` command. It then runs the task loop from the first non-complete task, `W2: Wire CLI flag`. No approval is inferred.\n",
-      "words": 278,
-      "wallMs": 12425,
+      "text": "1. **plan_check result: PASS.** This is a first-check PASS, so I skip `## Plan repair`, print no repair receipt, and make no commit.\n\n2. **Skip the plan phase.**\n   `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })`\n   The input gives no brief file path, so `R` uses the `\"pasted brief\"` form.\n\n3. **Start implement.**\n   `phase_tracker({ action: \"start\", phase: \"implement\" })`\n   The `plan_check` stamp is current, so the start is allowed. The brief shows `→ implement` with no `(substep)`, so I make no `substep` call.\n\n4. **Check that the task list can be restored.**\n   - Pending-suffix order holds: the only `○` task, `[4]`, comes after every non-pending task.\n   - The implement auto-complete edge does not apply: `[3]` is in progress and `[4]` is pending.\n\n5. **Restore the task list verbatim** (names, order and statuses unchanged).\n   `plan_tracker({ action: \"init\", tasks: [ { name: \"W1: Parse config file\", status: \"complete\" }, { name: \"W1: Validate schema\", status: \"complete\" }, { name: \"W2: Wire CLI flag\", status: \"in_progress\" }, { name: \"W3: Document the loader\", status: \"pending\" } ] })`\n\n6. **Print the closing line:**\n\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n",
+      "words": 177,
+      "wallMs": 10846,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`.\n2. Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })` → succeeds.\n3. Call `phase_tracker({ action: \"start\", phase: \"implement\" })` → succeeds.\n4. Call:\n   ```json\n   {\n     \"action\": \"init\",\n     \"tasks\": [\n       { \"name\": \"W1: Parse config file\", \"status\": \"complete\" },\n       { \"name\": \"W1: Validate schema\", \"status\": \"complete\" },\n       { \"name\": \"W2: Wire CLI flag\", \"status\": \"in_progress\" },\n       { \"name\": \"W3: Document the loader\", \"status\": \"pending\" }\n     ]\n   }\n   ```\n   on `plan_tracker` → succeeds.\n5. Print:\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
-      "words": 77,
-      "wallMs": 10463,
+      "text": "plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" }) → PASS\n\nphase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" }) → succeeds\n\nphase_tracker({ action: \"start\", phase: \"implement\" }) → succeeds\n\nplan_tracker({ action: \"init\", tasks: [\n  { name: \"W1: Parse config file\", status: \"complete\" },\n  { name: \"W1: Validate schema\", status: \"complete\" },\n  { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n  { name: \"W3: Document the loader\", status: \"pending\" }\n] }) → succeeds\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
+      "words": 65,
+      "wallMs": 8481,
       "mechanical": {}
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

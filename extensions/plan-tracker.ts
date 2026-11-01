@@ -12,11 +12,13 @@ import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "@sinclair/typebox";
+import { checkoutOfSync } from "./lib/checkout.ts";
+import { planSpecHeader } from "./lib/telemetry-paths.ts";
 
 const TASK_STATUSES = ["pending", "in_progress", "complete", "failed", "skipped"] as const;
 type TaskStatus = (typeof TASK_STATUSES)[number];
 
-interface Task { name: string; status: TaskStatus; }
+interface Task { name: string; status: TaskStatus; label?: string; }
 interface PlanTrackerDetails { action: "init" | "add" | "update" | "status" | "clear" | "refresh"; tasks: Task[]; error?: string; }
 
 const PlanTrackerParams = Type.Object({
@@ -43,6 +45,36 @@ export function validateSnapshot(tasks: Task[]): number[] {
   return offenders;
 }
 
+function criterionDescriptions(spec: string): string[] {
+  const descriptions: string[] = [];
+  let inAcceptance = false;
+  let disposition = false;
+  let fence: string | undefined;
+  for (const line of spec.split("\n")) {
+    const delimiter = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
+    if (delimiter && !fence) { fence = delimiter; continue; }
+    if (fence) {
+      if (delimiter?.[0] === fence[0] && delimiter.length >= fence.length) fence = undefined;
+      else if (inAcceptance && descriptions.length && !disposition) descriptions[descriptions.length - 1] += ` ${line}`;
+      continue;
+    }
+    if (/^#{1,2}\s/.test(line)) {
+      inAcceptance = /^## Acceptance criteria\s*$/i.test(line);
+      continue;
+    }
+    if (!inAcceptance) continue;
+    const criterion = /^- \[[ xX]\](?:\s+(.*))?$/.exec(line);
+    if (criterion) {
+      descriptions.push(criterion[1] ?? "");
+      disposition = false;
+    } else if (descriptions.length) {
+      if (/^\s*(?:in-scope\s*$|(?:deviates|deferred|elsewhere|venue):)/.test(line)) disposition = true;
+      if (!disposition) descriptions[descriptions.length - 1] += ` ${line}`;
+    }
+  }
+  return descriptions.map(text => text.replace(/\s+/g, " ").trim());
+}
+
 function ledgerTasks(text: string, path: string): Task[] {
   const lines = text.split("\n");
   if (lines[0] !== "# Ledger - loop engine") {
@@ -52,11 +84,13 @@ function ledgerTasks(text: string, path: string): Task[] {
   const header = lines.findIndex(line => /^\|\s*row\s*\|\s*status\s*\|\s*attempts\s*\|\s*evidence\s*\|$/.test(line));
   if (header < 0) malformed(0);
   if (!/^\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|$/.test(lines[header + 1] ?? "")) malformed(header + 1);
-  const rows: { row: number; status: string }[] = [];
+  const allowanceMatch = lines.slice(1, header).map(line => /^allowance:\s*([1-9]\d*)\s*$/.exec(line)).find(Boolean);
+  const allowance = allowanceMatch ? Number(allowanceMatch[1]) : undefined;
+  const rows: { row: number; status: string; attempts: number }[] = [];
   for (let i = header + 2; i < lines.length && lines[i].trim() && !/^#{1,2}\s/.test(lines[i]); i++) {
     const cells = lines[i].split(/(?<!\\)\|/).slice(1, -1).map(cell => cell.trim());
-    if (!lines[i].startsWith("|") || !lines[i].endsWith("|") || cells.length !== 4 || !/^\d+$/.test(cells[0]) || !/^(open|done|failed|cut)$/.test(cells[1])) malformed(i);
-    rows.push({ row: Number(cells[0]), status: cells[1] });
+    if (!lines[i].startsWith("|") || !lines[i].endsWith("|") || cells.length !== 4 || !/^\d+$/.test(cells[0]) || !/^(open|done|failed|cut)$/.test(cells[1]) || !/^\d+$/.test(cells[2])) malformed(i);
+    rows.push({ row: Number(cells[0]), status: cells[1], attempts: Number(cells[2]) });
   }
   if (!rows.length) malformed(header + 2);
   const byRow = new Map(rows.map(row => [row.row, row]));
@@ -66,7 +100,8 @@ function ledgerTasks(text: string, path: string): Task[] {
     throw new Error(`refresh: ${path} pending: names row ${pending} which is absent`);
   }
   const dispatched = new Set<number>();
-  let mapping: { row: number; repo: string }[] | undefined;
+  const retries = new Map<number, number>();
+  let mapping: { row: number; ac: number; repo: string }[] | undefined;
   let section = "";
   for (const line of lines) {
     if (/^#{1,2}\s/.test(line)) {
@@ -77,12 +112,17 @@ function ledgerTasks(text: string, path: string): Task[] {
     if (section === "## Decisions") {
       const decision = /^row (\d+) done \| .+ \| .+$/.exec(line);
       if (decision) dispatched.add(Number(decision[1]));
+      const retry = /^row (\d+) retry \| .* \| allowed attempts \d+$/.exec(line);
+      if (retry) {
+        const row = Number(retry[1]);
+        retries.set(row, (retries.get(row) ?? 0) + 1);
+      }
     } else if (section === "## Leg mapping") {
-      const entry = /^\|\s*(\d+)\s*\|\s*\d+\s*\|\s*(\S+)\s*\|$/.exec(line);
+      const entry = /^\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\S+)\s*\|$/.exec(line);
       if (!entry) continue;
       const row = Number(entry[1]);
       if (!byRow.has(row)) throw new Error(`refresh: ${path} leg mapping names row ${row} which is absent`);
-      mapping!.push({ row, repo: entry[2] });
+      mapping!.push({ row, ac: Number(entry[2]), repo: entry[3] });
     }
   }
   const status = (row: number): TaskStatus => {
@@ -92,17 +132,36 @@ function ledgerTasks(text: string, path: string): Task[] {
     if (row === pending) return "in_progress";
     return value === "failed" ? "failed" : "pending";
   };
-  const entries = mapping ?? rows.map(({ row }) => ({ row, repo: undefined }));
-  return entries.sort((a, b) => a.row - b.row).map(({ row, repo }) => ({
-    name: `row ${row}${repo === undefined ? "" : ` (${repo})`}`,
-    status: status(row),
-  }));
+  const specRef = planSpecHeader(lines.slice(0, header).join("\n"));
+  if (!specRef) throw new Error(`refresh: ${path} missing Spec reference`);
+  const checkout = checkoutOfSync(path);
+  if (!checkout) throw new Error(`refresh: ${path} cannot resolve repository root for Spec reference ${specRef}`);
+  const specPath = resolve(checkout.toplevel, specRef);
+  let spec: string;
+  try {
+    spec = readFileSync(specPath, "utf8");
+  } catch (error) {
+    throw new Error(`refresh: ${path} cannot read spec ${specPath}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  const descriptions = criterionDescriptions(spec);
+  const entries = mapping ?? rows.map(({ row }) => ({ row, ac: row, repo: undefined }));
+  return entries.sort((a, b) => a.row - b.row).map(({ row, ac, repo }) => {
+    const description = descriptions[ac - 1];
+    if (!description) throw new Error(`refresh: ${path} row ${row}: spec ${specPath} AC ${ac} ${description === undefined ? "is missing" : "has an empty description"}`);
+    const value = byRow.get(row)!;
+    const owner = repo === undefined ? "" : ` (${repo})`;
+    const budget = allowance !== undefined && value.status !== "cut" && (value.status !== "done" || value.attempts > 0)
+      ? `${value.attempts}/${allowance + (retries.get(row) ?? 0)}: ` : "";
+    return { name: `row ${row}${owner}`, status: status(row), label: `${budget}${description}${owner}` };
+  });
 }
 
 const RULE_LINE = "Rule: pending tasks must trail every started or finished task.";
 const snapshotLine = (tasks: Task[]): string => tasks.map((t, i) => `${i} ${t.name}=${t.status}`).join(", ");
 const offenderList = (tasks: Task[], indices: number[]): string => indices.map((i) => `${i} "${tasks[i].name}"`).join(", ");
 const normalizeTask = (t: string | { name: string; status: TaskStatus }): Task => typeof t === "string" ? { name: t, status: "pending" } : { name: t.name, status: t.status };
+
+const statusName = (task: Task): string => task.label ? `${task.name} | ${task.label}` : task.name;
 
 const glyph = (status: TaskStatus, theme?: Theme): string => {
   const [color, icon]: [string, string] = status === "complete" ? ["success", "✓"] : status === "in_progress" ? ["warning", "→"] : status === "failed" ? ["error", "✗"] : status === "skipped" ? ["dim", "⊘"] : ["dim", "○"];
@@ -121,7 +180,7 @@ function formatWidget(tasks: Task[], theme: Theme): string {
   const { done } = counts(tasks);
   const icons = tasks.map((t) => glyph(t.status, theme)).join("");
   const current = tasks.find((t) => t.status === "in_progress") ?? tasks.find((t) => t.status === "pending");
-  const currentName = current ? `  ${current.name}` : "";
+  const currentName = current ? `  ${current.label ?? current.name}` : "";
   return `${theme.fg("muted", "Tasks:")} ${icons} ${theme.fg("muted", `(${done}/${tasks.length})`)}${currentName}`;
 }
 
@@ -131,7 +190,7 @@ function formatStatus(tasks: Task[]): string {
   const groups = [[c.inProgress, "in progress"], [c.pending, "pending"], [c.failed, "failed"], [c.skipped, "skipped"]] as const;
   const detail = groups.filter(([n]) => n > 0).map(([n, label]) => `${n} ${label}`);
   const lines: string[] = [`Plan: ${c.done}/${tasks.length} done${detail.length > 0 ? ` (${detail.join(", ")})` : ""}`, ""];
-  for (let i = 0; i < tasks.length; i++) lines.push(`  ${glyph(tasks[i].status)} [${i}] ${tasks[i].name}`);
+  for (let i = 0; i < tasks.length; i++) lines.push(`  ${glyph(tasks[i].status)} [${i}] ${statusName(tasks[i])}`);
   return lines.join("\n");
 }
 
@@ -440,7 +499,7 @@ export default function (pi: ExtensionAPI) {
           let text = theme.fg("muted", `${c.done}/${taskList.length} done${c.suffix}`);
           for (const t of taskList) {
             const icon = glyph(t.status, theme);
-            text += `\n${icon} ${theme.fg("muted", t.name)}`;
+            text += `\n${icon} ${theme.fg("muted", statusName(t))}`;
           }
           return new Text(text, 0, 0);
         }

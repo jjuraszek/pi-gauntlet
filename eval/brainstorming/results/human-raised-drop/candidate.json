@@ -1,8 +1,8 @@
 {
   "sample": "human-raised-drop",
   "arm": "candidate",
-  "skillSha": "a9afe7116aa2b82a17a9c1bba508ded2d78be343f272b2b2a8f78a0114fd2a0c",
-  "inputSha": "ef2a533acdc8413125441da13b20c9ab316d57925678233e824f464c6fa1185b",
+  "skillSha": "2b3a14b8fae757b047cdcfaf48bfa73130f774c6baee20372bb2f1d3511fc5dd",
+  "inputSha": "c453bd556a4dc7a96aebe200245407d637a2753d7c3fbbb8788dc3beb0ff9da7",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nNoted: the export reuses the existing CSV serializer and paging, with columns taken from the table definition (`src/export/csv.ts:40`: title, status, owner). Before the design rounds, you asked to drop the 10k-row timing row. A ticket row leaves scope only through your explicit decision here. How should this row ship: \"The export of a 10k-row report completes in under 60s.\"?\nA) in-scope - the paged serializer exports a 10k-row report in under 60s, checked by a timed test against a 10k-row fixture\nB) deviates: not needed this sprint (your stated reason)\nC) deferred: <a tracker ref you name, for example a follow-up issue in acme/widgets>\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row 3 (\"10k-row export under 60s\") - requester says the target exceeds this sprint's need\nRecommendation: A - the row is part of the ticket's contract, and nothing shows it is wrong or out of reach for a paged export, so one timed test can prove it in this gauntlet.\n",
-      "words": 159,
-      "wallMs": 9671,
+      "text": "gauntlet: question\nYou chose to reuse the existing CSV serializer and paging, so the design builds on `src/export/csv.ts:40`. Before the design rounds, one ticket row needs a scope decision. The row is: \"The export of a 10k-row report completes in under 60s.\" It is part of the ticket's acceptance contract for acme/widgets#77. Dropping it changes what this work claims to deliver. How should this row be handled?\nA) in-scope - keep the row as written. A test exports a 10k-row report through the reused serializer and paging and asserts it finishes in under 60s.\nB) deviates: not needed this sprint - the spec ships without the 60s guarantee and records the cut under `## Out of scope`.\nC) deferred: <tracker ref, spec path, or URL you name> - the row moves to a tracked follow-up and is listed on the gate's `Scope cuts:` line.\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row 3 \"The export of a 10k-row report completes in under 60s.\" - reporter says the 60s bound exceeds this sprint's need.\nRecommendation: A - the chosen approach already pages the data, so a 10k-row timing test should cost little, and the ticket's full contract would ship in this gauntlet. If the 60s bound is genuinely wrong for the product, choose D so the ticket changes at its source.\n",
+      "words": 213,
+      "wallMs": 11393,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nThe ticket explicitly requires “The export of a 10k-row report completes in under 60s.” Your sprint-scope request would drop that requirement; selecting serializer reuse does not itself change the ticket contract. How should we handle this row?\nA) in-scope - retain the 10k-row, under-60s requirement and verify it.\nB) deviates: omit the performance requirement because it exceeds this sprint’s needs.\nC) deferred: acme/widgets#77 - leave the performance requirement for follow-up work tracked on this ticket.\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 to revise this row based on your stated sprint scope, then re-fetch its acceptance criteria.\nRecommendation: D - align the ticket contract with your intended sprint scope before approving the design.\n",
-      "words": 111,
-      "wallMs": 9665,
+      "text": "gauntlet: question\nThe button will appear beside the report title, using the existing CSV serializer and paging. Dropping the performance requirement changes a ticket acceptance criterion, so that row stays unchanged until you choose its disposition.\n\nFor “The export of a 10k-row report completes in under 60s,” which scope should we record?\nA) in-scope - deliver and verify the 10k-row export under 60s this sprint.\nB) deviates: this sprint does not require the 10k-row export to complete in under 60s.\nC) deferred: acme/widgets#77 - retain the performance requirement on the ticket for a later sprint.\nD) repair the ticket - /skill:shape-ticket acme/widgets#77; revise this row to reflect your stated sprint scope, then re-fetch it.\nRecommendation: D - align the ticket contract with your intended sprint scope before approving the design.\n",
+      "words": 126,
+      "wallMs": 7508,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "5460eefd7b5d2a9c566303efecef42cb72b74f131d63d3974146eb6d73bb47fe",
-      "candidateOutputSha": "e16202a6b003fe179c7bf306eba8b50308890a7042d71f6dba812e09e984381e",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "22fa78e68392735b25e19bda0d6175a6c12065582d159b6af3be425e947ef14f",
+      "candidateOutputSha": "2ca1d5e9b49d3013e273a3430d3032aa35f399e4c8d9b3f8bbdfa9a3efa08ebd",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs pose the cut question for the 60s row with A/B/C/D in order, recommend A, and leave the row's disposition unmarked pending the human's answer. Two wording drifts in After are worth tightening even though they do not touch these facts: option D quotes a paraphrase (\"10k-row export under 60s\") where Before quoted the row verbatim, and options B/C drop Before's explicit \"listed under Scope cuts and Out of scope\" consequence. Keeping the verbatim row text in the repair option and the one-line consequence on each lettered option would preserve the ticket cut-question contract more robustly under the enlarged assembly while still delivering the change.",
-      "wallMs": 8162,
+      "feedback": "Nothing moved on this continuation case: both Before and After ask the cut question for the 60s row with A, B, C, D in that exact order, both recommend A (with D as the alternative, never B or C), and neither marks the row deferred or deviates before the user answers. After's wording keeps the questionary layout rules (lead-in first, each labeled option on its own physical line, Recommendation on its own final line) while adding the `## Out of scope` and `Scope cuts:` disclosures to B and C; those are described as consequences of choosing the option, not as applied state, so f3 still holds. One small risk to watch: After's lead-in paragraph now runs the explanatory prose and the question sentence together with no blank line before option A, and C's placeholder `<tracker ref, spec path, or URL you name>` is less concrete than Before's `acme/widgets#NN` example. Keeping a blank line between the lead-in and A) and retaining a concrete ref example in C would preserve readability without touching any fact.",
+      "wallMs": 10654,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "94546b5288c022c3171f2dd514ff7229b7fda95362000004bc9ea1a09ab71b93",
-      "candidateOutputSha": "def68168fb0db4fb1395d20c4e109acce7797e2c48983627742b688c5358979f",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "ff3fd2363c229c579ff2c8e7ccd19a1abc95d46ace29c7a0475b293907fcc363",
+      "candidateOutputSha": "3104d1d1c722e7624b030c087473d7e5549e3e6454690213537e450bd6fdccd1",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs open with `gauntlet: question`, quote the 60s row, present the cut options as A (in-scope), B (deviates), C (deferred), D (repair the ticket) in that order, close with `Recommendation: D` on its own line, and neither marks the row deferred or deviates before the user replies. After's lead-in is slightly different in emphasis (it notes that selecting serializer reuse does not change the ticket contract, and D adds \"then re-fetch its acceptance criteria\"), but that is consistent with the cut-question contract and the drafted-row/ticket-repair rules; keep the lead-in-first, one-option-per-line, recommendation-last layout exactly as After has it, and the ticket cut question remains unaffected by the amendment-surface section 5 and worker-critique changes.",
-      "wallMs": 7340,
+      "feedback": "No fact moved: both outputs pose the cut question for the 60s row with A, B, C, D in order, recommend D, and leave the row unmarked until the user answers; After even states this explicitly (\"that row stays unchanged until you choose its disposition\"), which strengthens f3. One wording wobble in After worth tightening: option C reads \"deferred: acme/widgets#77 - retain the performance requirement on the ticket for a later sprint\", which points the deferral target at the same ticket being cut rather than a follow-up ticket or spec path the user supplies (Before's \"a follow-up ticket or spec path you provide\"); keep Before's phrasing for C so the deferred destination stays distinct from the source ticket while retaining After's explicit row-unchanged sentence and the re-fetch note on D.",
+      "wallMs": 8284,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

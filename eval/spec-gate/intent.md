@@ -1,6 +1,8 @@
-for: eb8c513a9a664c1d6755c113ecc122ea02e9b38c3e6d2fe6d76148fca26db792
+for: 7bc1fb009a2943f8d94e71f12dc0000dcf8a89df0c067e31675422a95580e7ed
 
 ## Change
+
+Render resolved per-row allowances on both loop options and limit funding to waves approvals. Retain all gate rendering, audit, persistence and handoff facts. Preserve recovered model records without treating them as current verification. Defer selected spec-gate model checks to the parent; never run full targets, including at completion.
 
 Keep option-6-handoff an explicit one-recorded-Leg regression control while coordinated publication instructions expand: exactly one home push/PR/cleanup and no companion pushed: lines. Preserve all prior menu, persistence, retry and cleanup facts, including the published-home create-only retry with no amend or push. Structural lint proves fixture shape, not behavior; parent verification owns model evidence for this target and brainstorming. No target configuration or accepted-failure change.
 Render every drafted acceptance row and disposition verbatim under Drafted acceptance criteria (approval ratifies): after Scope cuts: and before Council:, with five options. Ticket-row gates omit this block. The paired sample preserves verbatim briefing and audit counts and narrates reply-1 continuation; text replay proves supplied-observation rendering, not live gate execution.

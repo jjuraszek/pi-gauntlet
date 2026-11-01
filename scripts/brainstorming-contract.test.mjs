@@ -132,7 +132,7 @@ test('evidenced drafted corrections are amend items while redraws retain the gat
     for (const marker of ['approved drafted acceptance-criteria row', 'quoted test, assertion, or code line', '`BLOCKED`/`NEEDS_CONTEXT`', 'reviewer-only or taste', 'ticket rows', 'row add/remove', 'problem statement', 'component boundary', 'full gate', 'disposition-only change', 'keeps the cut question']) assert.ok(text.includes(marker), `${path}: ${marker}`);
   }
   const aftermath = read('skills/brainstorming/reference/amendment-surface.md');
-  for (const marker of ['row identity', 'iterations and cap', 'including each `granted` record', 'reopened by amendment', 'at most two aftermath items', 'evidence repeating an already-applied', 'without restoration']) assert.ok(aftermath.includes(marker), marker);
+  for (const marker of ['row identity', 'iterations and allowance', 'including each `granted` record', 'reopened by amendment', 'at most two aftermath items', 'evidence repeating an already-applied', 'without restoration']) assert.ok(aftermath.includes(marker), marker);
   assert.ok(!aftermath.includes('Never auto-edit ticket or approved drafted AC row texts'));
 });
 
@@ -237,7 +237,7 @@ const walk = (dir) => readdirSync(new URL(`../${dir}/`, import.meta.url), { with
 test('standing grants own boundaries while amendment aftermath and finish recipe survive', () => {
   const text = read('skills/brainstorming/reference/amendment-surface.md');
   for (const marker of ['continued onto the next physical line', 'nor a `> **Superseded by:**` banner line', 'redraws always stop', 'grant never satisfies the spec gate', 'a resume honors the line as written', '**Amend-grant:**', 'skip steps 2-4', 'scope changes included', 'plan_check', 'recommended: accept', 'rescope-into-spec', "printf 'grant: %s\\n'", 'commit -q -F - --', 'Never take a grant from commit history, a handoff brief, or the transcript']) assert.ok(text.includes(marker), marker);
-  for (const marker of ['**Value decoding**', 'fund N fix rounds', 'N more fix rounds', '[1-9][0-9]*', 'budget-only', 'The budget is non-retroactive: rounds spent before the line was written do not count against or toward it.', 'never `accept` by default']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['**Value decoding**', 'fund N fix rounds', 'N more fix rounds', '[1-9][0-9]*', 'budget-only', 'The waves budget is non-retroactive: rounds spent before the line was written do not count against or toward it.', 'never `accept` by default']) assert.ok(text.includes(marker), marker);
   assert.ok(!text.includes('fresh-session resume with no grant'), 'old boundary sentence removed');
   const legacyRow = text.split('\n').find((l) => l.startsWith('| Line absent (legacy spec)'));
   assert.ok(legacyRow && legacyRow.includes('plan_check'), 'legacy insertion row names plan_check');
@@ -253,12 +253,20 @@ test('spec-finalization writes the grant line and persists approval-time grants 
   for (const marker of ['**Amend-grant:** none', 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.', 'commit --amend --no-edit -q', 'git -C <abs worktree path> add -- <spec path>', 'show HEAD:<spec path>']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('On approval') < text.indexOf('commit --amend --no-edit -q'), 'amend after On approval');
   for (const marker of ['2; fund 3 fix rounds', '2, fund 3 fix rounds', 'Decode before', 'token alone', 'malformed N']) assert.ok(text.includes(marker), marker);
-  const hint = 'Add "; fund N fix rounds" (or "N more fix rounds") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.';
+  const hint = 'Add "; fund N fix rounds" (or "N more fix rounds") to 1 or 2 to fund N implement fix rounds past the escalated waves round.';
   assert.match(text, /Decode before `edit` or `--amend`/);
   assert.ok(text.indexOf('run Value decoding') < text.indexOf('On every implementation approval'), 'decode before approval persistence');
   assert.ok(text.indexOf(hint) > text.indexOf('3 - show council dispositions:'));
   assert.ok(text.indexOf(hint) < text.indexOf('Or tell me what to change'));
   assert.ok(!text.includes('--trailer'), 'trailer step removed');
+});
+
+test('loop approval allowance suffix seeds only this run ledger', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = text.slice(text.indexOf('## User Review Gate'));
+  for (const token of ['4; allowance 6', '5; allowance 6', '[1-9][0-9]*', 'positive safe integer', 'allowance: 6', 'only in the ledger', 'not in the spec or settings', 'exactly one clarifying question', 'wait without writing', 'waves-only', 're-present the gate quoting the token', 'bare option', '4, allowance 6', '5, allowance 6', 'run allowance: <n>']) assert.ok(gate.includes(token), token);
+  assert.doesNotMatch(gate, /persist the option-2 description plus `; fund 3 fix rounds`; engine loop|budget-only\); engine loop/);
+  assert.match(read('doc/gate-contract.md'), /`; allowance N`.*4\/5.*`; fund N fix rounds`.*1\/2/);
 });
 
 test('roasting-the-spec members, chair and applier preserve the grant line', () => {
@@ -524,10 +532,10 @@ test('PR spec replacement and lint preserve the record and raw council input', (
 test('engine gate persists both fields before completing and dispatching the selected engine', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   for (const line of [
-    '4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.',
-    "5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.",
+    '4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1; allowance <n> per row.',
+    "5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant, allowance <n> per row.",
   ]) assert.ok(text.includes(line), line);
-  for (const marker of ['asking for `1`, `2`, `4`, or `5`', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render only options 1, 2, 3, 6 (PR subject: 1, 2, 3)', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `5`', '`5; fund 3 fix rounds`', '`4` with a budget token', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['asking for an approval option', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render only options 1, 2, 3, 6 (PR subject: 1, 2, 3)', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `4` or `5`', '`4` or `5` with a funding token', 'write nothing and wait for a valid approval', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
   const persistence = text.indexOf('On every implementation approval');
   const amend = text.indexOf('commit --amend --no-edit -q', persistence);
   const check = text.indexOf('both fields', amend);

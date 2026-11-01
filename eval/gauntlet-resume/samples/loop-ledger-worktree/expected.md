@@ -1,4 +1,4 @@
 - pairing: judged: Pairs ledger by Spec header despite differing basename and ranks Spec with ledger ahead of task plan.
 - restore: judged: Runs entry check 6, start brainstorm, skip brainstorm resume spec, start plan, plan_check ledger, skip plan with exact reason resume: <spec> (loop engine) using the resolved spec path, start implement, then one plan_tracker refresh on the ledger path, no init.
-- durable: judged: Renders rows and last decision and continues loop step 5 with cap:97, iterations 7, attempts 3 and retry allowance 4 preserved.
+- durable: judged: Renders rows and last decision and continues loop step 5 with allowance:4, iterations 7, attempts 3 and retry audit ceiling 4 preserved; effective row2 allowance is 5 from header4 plus one retry, not the audit ceiling.
 - stops: judged: FAIL stops with findings without Plan repair or writing-plans; dirty tree stops before dispatch.

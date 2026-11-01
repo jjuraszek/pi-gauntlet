@@ -46,6 +46,18 @@ test("reopens match distinct string names, not position", () => {
   assert.equal(countReopens([{ status: "complete" }], [{ status: "in_progress" }]), 0);
 });
 
+test("allowance label changes between ledger refreshes never change reopen identity", () => {
+  const before = [
+    { name: "row 3", status: "complete", label: "2/5" },
+    { name: "row 4 (repo-b)", status: "complete", label: "1/4" },
+    { name: "G1: check", status: "complete" },
+  ];
+  const relabeled = before.map(task => task.label ? { ...task, label: "2/6" } : task);
+  assert.equal(countReopens(before, relabeled), 0);
+  assert.equal(countReopens(before, relabeled.map(task => ({ ...task, status: "in_progress" }))), 3);
+  assert.equal(countReopens(before, relabeled.map(task => ({ ...task, status: "pending" }))), 0);
+});
+
 test("insertedText joins edit newText values or returns write content", () => {
   assert.equal(insertedText({ path: "x", edits: [{ oldText: "a", newText: "b" }, { oldText: "c", newText: "d" }] }), "b\nd");
   assert.equal(insertedText({ path: "x", content: "body" }), "body");

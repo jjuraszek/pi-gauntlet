@@ -16,7 +16,7 @@ const ledger = (rows = ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | do
   "# Ledger - loop engine\n**Spec:** `doc/specs/test.md`\nbase: abc\nverification: check\niterations: 0\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n" + rows.map(r => `| ${r} |`).join("\n") + "\n\n## Decisions\n";
 
 test("ledger admission bypasses task checks and permits empty open evidence", () => {
-  for (const input of [ledger(), ledger().replace("iterations: 0\n", "iterations: 0\ncap: 97\n")]) {
+  for (const input of [ledger(), ...["cap: 97", "allowance: 4"].map(header => ledger().replace("iterations: 0\n", `iterations: 0\n${header}\n`))]) {
     assert.deepEqual(checkPlan(input, ledgerSpec, { exists: () => false, glob: () => [] }).findings, []);
   }
 });
@@ -1270,6 +1270,22 @@ const coordinatedLedger = () => ledger(["1 | open | 0 |", "2 | open | 0 |", "3 |
 const emptyPort: FsPort = { exists: () => false, glob: () => [] };
 test("coordinated ledger expands shared ownership and defaults unlisted ACs home", () => {
   assert.deepEqual(checkPlan(coordinatedLedger(), coordinatedSpec, emptyPort).findings, []);
+});
+test("coordinated ledger budget header admits allowance or legacy cap, never both", () => {
+  for (const key of ["allowance", "cap"]) {
+    for (const value of ["1", "4", "9007199254740991"]) {
+      const input = coordinatedLedger().replace("cap: 20", `${key}: ${value}`);
+      assert.deepEqual(checkPlan(input, coordinatedSpec, emptyPort).findings, [], `${key}: ${value}`);
+    }
+    for (const value of ["", "0", "-1", "1.5", "04", "four", "9007199254740992"]) {
+      const input = coordinatedLedger().replace("cap: 20", `${key}: ${value}`);
+      assert.ok(checkPlan(input, coordinatedSpec, emptyPort).findings.some(f => f.check === "ledger"), `${key}: ${value}`);
+    }
+  }
+  for (const header of ["", "allowance: 4\nallowance: 4", "cap: 20\ncap: 20", "allowance: 4\ncap: 20"]) {
+    const input = coordinatedLedger().replace("cap: 20", header);
+    assert.ok(checkPlan(input, coordinatedSpec, emptyPort).findings.some(f => f.check === "ledger"), header);
+  }
 });
 for (const scope of ["", "scope: AC 1\nscope: AC 2", "scope: AC 1, AC 1", "scope: AC 0", "scope: AC -1", "scope: AC 1.5", "scope: AC 4", "scope: 1", "scope: AC 1-2", "scope: AC 1,", "scope: none, AC 1"]) {
   test(`coordinated scope rejects ${JSON.stringify(scope)}`, () => {
