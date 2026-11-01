@@ -1,4 +1,4 @@
-for: fafa8e540e6d45e077b00fa6b4b417b1f03d1cac7372ab2eb4e6010635758dcd
+for: e0f704aa44b21b1775b976e76dbeb3a5e2f7f733fd0c09c05adda753a62eaab1
 
 ## Change
 Complete verify step 1 after an escalated repair by running other checkouts' pairs skipped by fail-fast before granting verification. Run each isolated conformance child's repaired-leg pairs in its own checkout and temporary log directory; retain the parent checkout set and session logs after integration. Extend exit-verification-escalates and repairs-rerun-gate-set-only with observable continuation and child-path facts.
@@ -9,6 +9,7 @@ Prove the existing gate-log boundary with gate-set-failure: one directory per ve
 Capture the decoded amendment grant, leg membership, checkout paths and Rules at seed or authorized restore before entering the dispatch loop, refreshing them only through authorized amendment actions. Restrict implement-driver reads to ledger/return/boundary data and skill resources/overrides; leave source and failure diagnosis to workers. Add driver-holds for restore capture, held-grant escalation, return admission and amendment refresh. Keep the existing leg-resume read-order and recovery facts; supply checks: commands in its admitted-ledger fixture so it exercises recovery rather than the separate legacy-header stop. Focused text replays prove narrated boundaries, not runtime file access; full-target runs remain with row 8.
 
 Replace loop-local full verification with the command-first gate set: deduplicate by owning checkout and command in ledger order, reject missing checks headers, log each foreground pair and fail-fast. Route coordinated and conformance verification through this set; retain full commands as CI metadata only. Add gate-set-verify-step-1, coordinated-same-command, repairs-rerun-gate-set-only and legacy-ledger-stop samples; update the four existing verification samples to supply command-first done-row evidence and checks headers. These text replays exercise routing instructions, not live shell execution. Targeted sample runs belong to this iteration; full-target completion belongs to row 8.
+Make the row-stop retry reply explicit as retry <n> | <hint>, preserve the shared header and all counters while granting that row one additional attempt, and reject malformed rows grants without any write on the first or later invalid reply. Add row-budget-actions for retry audit arithmetic, anchored grants with optional words/pipe, coordinated shared raises, invalid no-write behavior and restricted boundary menus. Only retry resets stagnation windows; both budget actions retain the spent-escalation rules. Run this sample now and leave full-target evaluation to the final iteration.
 
 Remove total-cap checks, cap grants and loop funding from the home and coordinated drivers. Retain the dispatch counter, allowance-preserving repair/amendments and unchanged stagnation windows; replace the removed cap action with a shared rows +N allowance grant. Add retired-budgets for high dispatch counts, ignored legacy grants, budget-only amendment consent, coordinated return and legacy routing. Keep the companion observation on valid admission and explicit consumed-count preservation; malformed-result repair has conflicting pre-existing rules and is outside this budget change. Run this sample now; the parent owns remaining fixture migration and full-target evaluation at the end.
 
@@ -68,6 +69,12 @@ Supply row 1's attempts value in the cap snapshot so its existing fact is observ
 - tracker-verify/repair: holds -> holds - replaced wording: Pass command, checkout, exit code and log path instead of failing output.
 - tracker-verify/failure: holds -> holds - replaced wording: Quote at most 20 log lines at the stop; never run full verification.
 - verify-lifecycle/contract: fails -> holds - replaced wording: Implement completes through the refresh; verify step 1 runs the deduplicated gate set with log redirection and no full verification; Gn tasks ride the same tracker.
+- row-budget-actions/retry: fails -> holds - The exact reply grants one attempt above the effective allowance without resetting counters or escalation.
+- row-budget-actions/raise: fails -> holds - Anchored rows grants serialize optional words and raise the shared header across legs in one commit.
+- row-budget-actions/invalid: fails -> holds - Both the first and later malformed replies leave ledger bytes and the stop unchanged.
+- row-budget-actions/windows: fails -> holds - Only retry restarts stagnation windows; raising the header cannot bypass stagnation.
+- row-budget-actions/boundaries: fails -> holds - Budget actions are limited to row stops, never dirty/commit or verify stops.
+- row-budget-actions/missing: fails -> holds - A shared raise may authorize an ordinary attempt without resolving or spending the unavailable escalation.
 - retired-budgets/counter-only: fails -> holds - Dispatch count and legacy funding no longer gate or buy loop attempts.
 - retired-budgets/exhaustion: fails -> holds - Exhaustion offers only retry and a shared allowance raise as budget actions.
 - retired-budgets/coordinated-return: fails -> holds - Companion admission preserves the shared allowance and foreign entries.

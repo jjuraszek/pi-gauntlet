@@ -457,6 +457,41 @@ test('fresh ledger seeds one allowance without row or leg scaling', () => {
   assert.doesNotMatch(reference, /cap:|initial cap|cap 14/);
 });
 
+test('row budget replies preserve counters and reject malformed grants without writes', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
+  const retry = stop.split('\n').find(line => line.startsWith('| Retry ('));
+  for (const token of [
+    'retry <n> \\| <hint>', 'Parse the row number and hint',
+    'row <n> retry \\| <hint> \\| allowed attempts <effective allowance + 1>',
+    'loop: retry row <n>', 'resume checks with that target/hint',
+    'Preserve the header allowance, every attempts cell and iterations',
+    "increment only that row's effective allowance by one",
+  ]) assert.ok(retry.includes(token), token);
+  const raise = stop.split('\n').find(line => line.startsWith('| Raise allowance'));
+  for (const token of [
+    'Parse anchored `rows +<n>`', '[1-9][0-9]*', 'token boundary (end, whitespace or `\\|`)',
+    'Trim the optional remainder and optional leading pipe into the words cell',
+    'rows +<n> \\| <words>', 'bare `rows +50` writes `rows +50 \\|`',
+    'Raise the shared header allowance by N for every row and leg',
+    'Commit both changes exactly once as parent `loop: raise allowance`',
+    'leaving iterations and all attempts unchanged', 'return to the ordered table',
+    'rows +0', 'rows +x', 'rows -1', 'rows +50x',
+    'print the accepted forms `retry <n> \\| <hint>` and `rows +N` once',
+    'On the first and every later invalid reply, keep the same stop open with no writes, commit or dispatch',
+    'preserve allowance, decisions, iterations and all attempts',
+  ]) assert.ok(raise.includes(token), token);
+  assert.match(stop, /Offer retry and `rows \+N` only at row stops \(allowance, stagnation or missing-model\), alongside Amend and Stop/);
+  assert.match(stop, /Dirty-tree and commit-boundary stops keep discard authorization only/);
+  assert.match(stop, /verification-failure stop keeps amend\/stop only/);
+  assert.match(stop, /Raising allowance resets neither window/);
+  assert.match(stop, /Only retry starts new windows/);
+  assert.match(stop, /Retry, `rows \+N` and redraw wait for the human/);
+  const replies = readFileSync(new URL('doc/gate-contract.md', root), 'utf8').split('\n').find(line => line.startsWith('| free / question'));
+  assert.ok(replies.includes('`retry <n> \\| <hint>` or `rows +N` for loop row stops'));
+  assert.doesNotMatch(replies, /cap \+N|loop funding/);
+});
+
 test('retired loop budgets yield to durable shared allowance and keep waves decoding', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');

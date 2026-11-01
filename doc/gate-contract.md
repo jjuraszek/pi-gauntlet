@@ -111,7 +111,7 @@ Resume's argument failures cover a spec seed with an extra worktree, an unrecogn
 | 1 - rows | Send the leading number. The spec approval gate accepts `; allowance N` on 4/5 for a positive per-row ledger allowance for this run, or `; fund N fix rounds` on 1/2 for waves funding. On 4/5 the funding token is ignored with a waves-only note. The close-absorbed-members gate uses its displayed approval/revision rows. |
 | X) options | Send the letter or free text, preserving the question's recommendation format. |
 | item-letter | Send `<item>. <letter>` per the [carried-open response grammar](../skills/finishing-a-development-branch/reference/disposition-protocol.md#response-grammar); use the displayed choices for each item. |
-| free / question | Answer the words requested by the body: a number of funded rounds or stop for conformance escalation, typed `discard` for discard authorization, `cap +N` for loop funding, or `yes`/`no` for the named confirmations. |
+| free / question | Answer the words requested by the body: a number of funded rounds or stop for conformance escalation, typed `discard` for discard authorization, `retry <n> \| <hint>` or `rows +N` for loop row stops, or `yes`/`no` for the named confirmations. |
 
 Ordinary answers outside skill-owned turns, invented gates, tracker/ticket/PR payloads, and private child results are not marker surfaces. Evidence comments still begin with `Delivered: <sha>`; response drafts, close comments, and handoff brief contents keep their own formats. The marker belongs to the surrounding assistant message.
 

@@ -2,7 +2,7 @@
 **Spec:** `doc/specs/2026-11-01-gh-108-loop-single-allowance.md`
 base: 4cb3a8891e40a8c0749de9905ca62571bd42c3da
 verification: npm test
-iterations: 7
+iterations: 8
 cap: 49
 
 | row | status | attempts | evidence |
@@ -13,7 +13,7 @@ cap: 49
 | 4 | done | 1 | spent row escalation contract / spent-row-escalation eval; targeted contract test passes; both replay models improve with all 10 fact checks holding; retry, rows +N, resume and rejected-return recovery preserve spent identity |
 | 5 | done | 1 | automatic exit verification repair / per-leg gate contract and four targeted eval samples; 2 contract tests pass; both models improve with all 22 fact checks holding; option parity, fallback, missing model, count, commit boundaries and spent recovery pass |
 | 6 | done | 1 | retired loop budgets contract / retired-budgets and loop-ledger-amend evals; 10 targeted contract tests pass; both models hold all 18 fact checks across the two samples; shared allowance replaces cap funding while waves decoding and amendment permission remain |
-| 7 | open | 0 | row-budget-actions file assertion - skills/loop-implementation/SKILL.md Human stop; FAIL: menu offers cap +N and retry based on attempts + 1, not rows +N |
+| 7 | done | 1 | row-budget-actions contract/eval; 3 targeted contract tests and gate-contract lint pass; both replay models hold all 12 fact checks; grants preserve counters and invalid replies write nothing |
 | 8 | open | 0 | human-stop-counts file assertion - skills/loop-implementation/SKILL.md Human stop; FAIL: stops omit the attempts of effective allowance row list |
 | 9 | open | 0 | resume-migration file assertion - skills/gauntlet-resume/reference/reconstruction.md Spec with ledger; FAIL: restores cap and funding with no allowance migration commit |
 | 10 | done | 0 | stagnation-boundaries file assertion - skills/loop-implementation/SKILL.md and reference/coordinated-legs.md; PASS: two ledger-only child commits without status change stop independently of funding; PASS: two consecutive validation misses stop and conforming returns reset misses; PASS: child-only counting and retry windows retained |
@@ -28,3 +28,4 @@ row 3 done | Last allowed attempts escalate under both options with resolved fal
 row 4 done | Spent escalation survives grants, resume and rejected returns; default-model continuation and admitted-miss exhaustion pass the targeted contract test and both eval models. | Take row 5's automatic exit-verification repair next; preserve the active ledger cap and do not redo spent-row identity.
 row 5 done | Exit verification repairs once under both options without amend or cap gating; two contract tests and four eval samples pass on both models. | Take row 6's retired budget removal next; preserve active cap 49 and repair invariants, and leave full-target evals to final verification.
 row 6 done | Removed total-cap and loop-funding rules while preserving waves decoding; ten contract tests and two eval samples pass on both models. | Take row 7's remaining reply grammar and boundary cases; reuse rows +N, preserve active cap 49 and leave full-target evals for the end.
+row 7 done | Explicit retry replies and no-write invalid grants pass three contract tests, gate lint and all twelve model fact checks. | Take row 8's stop counts next; preserve active cap 49, reuse the tested reply grammar and leave full-target evals for the end.
