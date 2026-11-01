@@ -1,9 +1,8 @@
-for: f281b72beb87fe9d38095d432088975c844a707f284e8cbf9014d3cf3492805a
+for: 12f1102141382cc5a0a1b28b674d2988348ea450c306e8f161aa51be3815289f
 
 ## Change
-Pin assess review posts to the assessed commit through REST, preserving the explicit pick, compare-and-swap, composed blocker body, and zero-blocker no-post behavior. Confirm the baseline only from an equal response commit_id; surface a mismatch without reposting. Exercise the own-PR COMMENTED baseline through the same bounded delta and closure mapping as a requested-changes review, retaining open prior items as blockers regardless of today's Minor severity. Preserve no-prior-review assessment and scoped delivery behavior.
+Append the no-commits-since suffix to nonempty same-head prior-review addressed counts, including items resolved by green CI or corrected descriptions without a commit. Exercise the existing empty-delta reviewer dispatch and explicit item closure on both harnesses. Keep the zero-item report form unchanged.
 
 ## Expected to move
-- course-assess-terminal/f1: fails -> holds - Use REST events rather than unpinned gh pr review for assess.
-- course-assess-terminal/f5: fails -> holds - Pin the POST and confirm its returned commit against the assessed head.
-- course-assess-terminal/f6: fails -> holds - Report mismatched response provenance without claiming a baseline or reposting.
+- prior-review-same-head/s5: fails -> holds - Report the resolved count and same-head suffix above the remaining blocker.
+- prior-review-same-head/s6: fails -> holds - Keep the same-head suffix even when all prior items resolve without commits.

@@ -2,7 +2,7 @@
 **Spec:** `doc/specs/2026-11-01-gatekeep-pr-reassess-prior-review.md`
 base: b5a2fb0fb8533150bca997f066ebeb997976bc0a
 verification: npm test
-iterations: 7
+iterations: 8
 cap: 29
 
 | row | status | attempts | evidence |
@@ -13,7 +13,7 @@ cap: 29
 | 4 | done | 1 | node eval/run.mjs gatekeep-pr prior-review-force-push --refresh-judgments --base b5a2fb0fb8533150bca997f066ebeb997976bc0a; PASS: all 22 candidate facts hold across both replay models; force-push, missing-object and null-commit fallback reports preserve whole-diff review; report.md 112 lines and 9003 bytes |
 | 5 | done | 0 | no-prior-review baseline file assertion; PASS: verification-brief.md retains full gh pr diff and unreadable viewer handling; assessment.md retains ordinary step-4 reviewer and report.md has no Prior review line; git diff against base confirms skills/gatekeep-pr unchanged |
 | 6 | done | 1 | node eval/run.mjs gatekeep-pr SAMPLE --base b5a2fb0fb8533150bca997f066ebeb997976bc0a (prior-review-delta, course-assess-terminal, blockers-bare-fix); PASS: all 58 candidate facts hold across both replay models; own COMMENTED baseline preserves bounded closure and open blockers; pinned assess POST, response mismatch and no-prior scoped-delivery regressions pass |
-| 7 | open | 0 | same-head-empty-delta file assertion; FAIL: assessment.md has no no-code-diff dispatch; report.md has no no-commits-since addressed-count suffix |
+| 7 | done | 1 | EVAL_CONCURRENCY=4 node eval/run.mjs gatekeep-pr prior-review-same-head --base b5a2fb0fb8533150bca997f066ebeb997976bc0a; PASS: all 12 candidate facts hold across both replay models; empty-delta dispatch and explicit closure preserve 1-of-2 and 2-of-2 same-head suffixes; report.md 112 lines and 9129 bytes, diff whitespace and skill hygiene pass |
 
 ## Decisions
 row 0 done | seeded 7 rows, closed 1 on baseline | take row 1: select the viewer's prior review and dispatch the ancestor delta
@@ -23,3 +23,4 @@ row 3 done | Made new outside-delta Moderate and Minor findings evidence-only wh
 row 4 done | Added reason-bearing whole-diff fallback reports for force-push, missing-object and null baselines; all 22 targeted eval facts pass. | Take row 6 for own-comment baselines; preserve scheduled ancestry checks, closure mapping and the shared wave boundary.
 row 6 done | Verified own COMMENTED baselines and pinned assess posts with response provenance; all 58 targeted eval facts pass. | Take row 7 for same-head closure; preserve pinned posting, zero-blocker no-post behavior and the shared wave boundary.
 row 7 retry | Discarded interrupted uncommitted attempt with human approval; run only same-head eval with parallel cells, add no broad sweep. | allowed attempts 1
+row 7 done | Added same-head addressed-count suffixes and verified empty-delta closure; all 12 targeted eval facts pass. | Preserve explicit closure and zero-item wording; do not rerun other model samples or add a broad sweep.

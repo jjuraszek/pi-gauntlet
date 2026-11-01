@@ -52,7 +52,7 @@ above `Blockers` when it renders, otherwise directly above `Verdict`:
 
 | Ancestry result | Line |
 |---|---|
-| `delta: ancestor` | `Prior review: <k> of <n> items addressed`; count `k` from distinct `R#` items with an explicit `resolved` closure line, never inferred closure, and `n` from the supplied item count. For zero items use `Prior review: no items posted at <sha7>; the delta since it was reviewed`. |
+| `delta: ancestor` | `Prior review: <k> of <n> items addressed`; count `k` from distinct `R#` items with an explicit `resolved` closure line, never inferred closure, and `n` from the supplied item count. For nonzero items, append ` - no commits since <sha7>` whenever `prior_review.commit` equals `headRefOid`, regardless of `k`. For zero items use `Prior review: no items posted at <sha7>; the delta since it was reviewed`. |
 | `delta: not ancestor (<reason>)` | `Prior review: baseline <sha7> is not an ancestor of the head (<reason>), so the whole diff was reviewed`; carry the reason from `assessment.md` `## Prior-review ancestry` verbatim. Use `unknown` for a null review commit. |
 
 With `prior_review: null`, print no `Prior review:` line.
