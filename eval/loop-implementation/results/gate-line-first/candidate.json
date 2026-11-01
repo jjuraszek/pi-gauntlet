@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7e1df2cb9eeaf5ad5317db98a32549ac5e2c84f5825059e09c60b7394285d849",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "b7924f773aa6265a45280a9f6fde125705a3993fe168235543acf6891344423d",
       "candidateOutputSha": "a2283c6c4f946059df74e6fbcbf1c10f1c569b0426e724abc59a16e29561efde",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps authorization intact: option 1 is still framed as \"Authorize discard and retry\", the discard and reset to the last valid commit are gated on the human's reply, and no cap grant is offered. After also satisfies the replaced preserved fact: it states nothing was discarded or reset, names the restored row 1 cells and `pending:` tuple as the only working-ledger write, keeps attempts 1 / iterations 2 / cap 9 in the rendered snapshot, keeps implement active via option 3, and renders no done/stuck marker. Before fails the fact as now written only because it never mentions the boundary-rejection restore of target cells and the pending tuple (it explicitly says it did not read the ledger from HEAD and wrote nothing), so the replacement wording is what moves it. One caution for After: \"Recommendation: 1\" sits uneasily next to \"nobody has inspected the uncommitted changes\" in Before; it does not break the authorization fact since discard still requires the reply, but if you want the stop to read as purely awaiting authorization, keep \"Recommendation: none\" or phrase it as \"if you authorize option 1, a hint about the colon/comma delimiter would steer the retry\" so the recommendation never reads as pre-deciding the discard.",
-      "wallMs": 17237,
+      "feedback": "After keeps the authorization boundary: option 1 is explicitly labelled as an authorization request, 'Reply with an option' defers the decision to the human, nothing has been discarded or reset, and no cap grant is offered. It also now makes the preservation fact observable where Before could not: Before stated it had written nothing and had not read the ledger, so the restored target cells and `pending:` tuple required by the fact were absent, whereas After names that single working-ledger write, keeps iterations 2/cap 9 and attempts 1 in a supplied snapshot, leaves implement active under option 3 and sets no done/stuck marker. The one drift worth watching is the shift from 'Recommendation: none' to 'Recommendation: 1' - it does not break the fact because the discard is still gated on the user's reply, but a reader could take a positive recommendation plus 'I discard the uncommitted changes' as the agent leaning toward action before authorization; safer wording is 'Recommendation: 1 if you authorize the discard - I will not discard or reset until you reply', or keep 'none' as Before did while still noting the hint-steerable evidence. Everything else (restored cells/tuple sentence, 'consumed iteration count stays consumed', snapshot table) should be kept as is.",
+      "wallMs": 18413,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7e1df2cb9eeaf5ad5317db98a32549ac5e2c84f5825059e09c60b7394285d849",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "eca699b39b192cf65a4038839dc1d4a2bbd4dc9fea2718596f35e0908ae2760b",
       "candidateOutputSha": "ad0674042e1b648d88753a88f0100577b6866ee507b2a072c5498ddf4b6eecab",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps both facts: option 1 still asks explicitly for authorization to discard/reset, no cap grant is offered, and the new lines 'No cleanup has been authorized or executed. Implement remains active.' plus the unchanged ledger snapshot (iterations: 2; cap: 9; row 1: open; attempts: 1) make preservation more observable than Before. Two drifts are worth tightening though. First, After switches 'Recommendation: none' to 'Recommendation: 1', which nudges toward the discard/reset action; the authorization boundary survives only because the trailing clause re-asserts it, so keep 'Recommendation: none - discard/reset requires your explicit authorization' to avoid any reading that the driver is pre-selecting the destructive path. Second, neither output states what the boundary rejection actually wrote (the restored target cells and the `pending:` tuple in the working ledger); add one sentence such as 'Boundary rejection restored row 1's target cells and the pending: tuple in the working ledger; nothing else was written, discarded, or reset' so the 'only tree write' clause of the preserved fact is shown rather than inferred. Also consider restoring Before's 'You may supply a hint' and 're-evaluate targeting before dispatch' phrasing, since After's 'then retry with a hint' makes the hint read as mandatory.",
-      "wallMs": 16613,
+      "feedback": "After keeps both facts: it still leads with the gauntlet: question marker, renders the supplied numeric snapshot (iterations 2, cap 9, row 1 open, attempts 1), asks the human to authorize discard/reset in option 1 with no cap grant anywhere, and adds the explicit 'No cleanup has been authorized or executed. Implement remains active.' line, which makes the preservation and active-implement conjuncts observable rather than merely uncontradicted as in Before. Two wording choices weaken the stop without flipping a fact: changing 'Recommendation: none' to 'Recommendation: 1' reads as the driver pre-selecting the destructive branch, which sits awkwardly against the authorization boundary and the question-first intent, and option 2 dropped the explicit 'and uncommitted changes' so the preserve-everything alternative is less concrete. Suggested wording: keep After's structure but restore 'Recommendation: none - discard/reset requires your explicit authorization', restore option 2 as 'Stop and preserve the current branch, commit, and uncommitted changes', and optionally add one sentence stating that the only ledger write on rejection is the restored row 1 cells and cleared pending: tuple so the 'only tree write' conjunct of preserved is stated rather than inferred.",
+      "wallMs": 17684,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
 }

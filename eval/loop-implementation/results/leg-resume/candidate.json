@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4f21120049c955065cded72264645224631ded7f86d27e34e7afea44c21ee828",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "3d2a5cdace33d2031ef034c126dce11f70486f007e2bec95d0bec1414ed66d36",
       "candidateOutputSha": "f021e3f72e6662842d7f7f6928915ac33b7e758c81f7f09bc4083d0e70fc561d",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: it reads the loop driver first, then coordinated-legs.md in full on restore with Resume applied before the dirty-tree stop and pending recovery and no Entry; admits only the iterations 2→3 bump plus the exact pending tuple without any discard/reset request; validates the single clean companion commit ddddddd with iteration 3, row 2 done attempts 1 and one bounded decision; records it in exactly one `loop: record repo-b row 2` commit that clears pending while preserving iterations 3, cap 14, seeds, mapping and prior decisions; and resumes at Before each dispatch without reseeding, rerunning row 2 or describing a child dispatch. Three wording choices in After are worth tightening so they do not read as drift: the validation table labels the tuple and iteration checks as body lines 2 and 3 although the supplied body has them on lines 1 and 2 (say 'body line 1/2' or state that line 1 is the subject); the resulting ledger renders the mapping `ac` cells as `AC 1`/`AC 2` while claiming the mapping is unchanged (keep the cells verbatim as the input gave them, e.g. `1`, `2`); and the next-target block's 'iteration: task line 3; consumed and body count 4' edges toward describing the next dispatch's bump — move that to a sentence like 'the next dispatch would bump to 4; not narrated here'. The added single plan_tracker refresh/status after the recording commit and the 'dispatched iteration 2; consumed iteration 3' restore report deliver the Change without moving any fact.",
-      "wallMs": 28640,
+      "feedback": "After keeps all four facts: it narrates the SKILL.md driver read first, then coordinated-legs.md in full on restore with Resume applied before the dirty-tree stop and pending recovery and Entry withheld; it admits exactly the iterations 2→3 bump plus the pending tuple against HEAD aaaaaaa without requesting discard/reset; it validates the single attributed companion commit ddddddd and records it in one `loop: record repo-b row 2` commit that clears pending while preserving iterations 3, cap 14, the other rows, mapping, seed flags and prior decisions; and it continues at Before each dispatch without reseeding, resetting or rerunning row 2 and without dispatching. Three wording details are worth tightening so the facts stay robust rather than merely surviving: (1) the admission table labels the body lines as 'line 2'/'line 3' while the supplied body has pending on line 1 and iteration on line 2 — index them as the recipe does or say 'first body line after the subject' so a reader does not suspect a misparse; (2) the resulting ledger renders the Leg mapping ac column as 'AC 1'/'AC 2' where the durable ledger presumably holds '1'/'2' — the fact requires the mapping to be preserved, so render it verbatim from the durable file; (3) the final target block pre-states 'iteration: task line 3; consumed and body count 4', which edges toward describing the next dispatch's bump — drop those numbers or phrase them as 'would be computed at dispatch' so the no-subsequent-dispatch conjunct is unambiguous. Also say 'SKILL.md, read in full' explicitly, since the read-order fact gives no credit for inferred full reads.",
+      "wallMs": 25448,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4f21120049c955065cded72264645224631ded7f86d27e34e7afea44c21ee828",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "92818a356ee787b5eca1e5159e92a1f68c262e84530354558f6b2d3645d2d129",
       "candidateOutputSha": "6d8d9da344ad2a478232019b392400c53b2bb3a7baf7ec42a5a2ab00b3b4ef65",
       "facts": {
@@ -91,8 +91,8 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps all four facts: it narrates the full driver read, then the full coordinated-legs.md read with Resume applied before the dirty-tree stop, admits exactly the iterations 2→3 bump plus the pending tuple without requesting discard/reset, validates the clean single attributed companion commit ddddddd, makes exactly one `loop: record repo-b row 2` commit that touches only row 2, its decision and the pending line, and resumes at Before each dispatch targeting row 3 with no reseed, counter reset or new child. Two things in After are weaker than Before and risk the read-order fact under a stricter reader: step 3 drops the explicit membership gate (\"because the spec has two leg blocks\") and names only Resume, not Companion commit admission, as loaded before pending recovery; and the overrides-ladder read was removed. The new sentence \"The interrupted dispatch used task iteration: 2 by design... Those two counts are not compared\" is confusing and slightly contradicts the supplied tuple/iteration validation—drop it or restate it as \"the commit body's iteration: 3 must equal the ledger's consumed iterations: 3\". To deliver the Change while keeping Before's explicitness, phrase step 3 as \"Because the spec has two ### Leg: blocks, read reference/coordinated-legs.md in full and load its Resume and Companion commit admission sections before pending recovery and before any dirty-tree stop; do not apply Entry or reseed,\" and keep the plan_tracker refresh-per-admitted-commit and tracker-status additions as they are.",
-      "wallMs": 22936,
+      "feedback": "After keeps all four facts: it narrates the full driver read, then the spec, then coordinated-legs.md in full with Resume applied before the dirty-tree stop and admission before pending recovery (no Entry, no reseed); admits only the iterations 2→3 bump plus the pending tuple without asking for discard/reset; makes exactly one `loop: record repo-b row 2` commit touching only row 2, its decision and the pending line; and resumes at Before each dispatch targeting row 3 with iterations 3, cap 14 and both seeds intact, stopping before any child execution. Two additions risk moving facts in future samples: the unprompted claim that the dispatched task 'used iteration: 2 by design' while the commit body says 3, and that 'those two counts are not compared for equality' — this contradicts the input (the bumped ledger and tuple were written pre-dispatch) and could be read as weakening the attribution equality check; drop that paragraph and simply state the commit-body `iteration: 3` matches the durable ledger. The rendered ledger also shows the Spec header as a relative `doc/specs/shared.md` while the input says it points at the absolute home spec; copy the header as supplied rather than reformatting. The two post-commit `plan_tracker refresh` calls and tracker status reads are harmless here since they are not commits or dispatches, but keep them clearly after the single recording commit and before the Before-each-dispatch reference re-read, as After does, so exactly-once recording and read order remain unambiguous.",
+      "wallMs": 20340,
       "verdict": "unchanged"
     }
   },
@@ -280,5 +280,5 @@
       }
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
 }

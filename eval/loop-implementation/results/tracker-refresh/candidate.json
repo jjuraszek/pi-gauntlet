@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "28970463e3b8feffe7977c411e7ae18f567f1bbb95086423321551eb79250673",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "86521d816357e0ba29f8a852af6d9f3dddeeda337935c86c12256dfa951820b6",
       "candidateOutputSha": "20c929b666372af2f315300e11b3b395423fe54e39cc897d4e46c86da943f496",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After delivers every fact that Before missed: Before never issued a path-only plan_tracker refresh, wrote no pending tuples, let the driver own task ordering, and ran exit verification plus an explicit phase_tracker complete-implement inside the implement phase, so all four facts failed there. After replaces those with the exact refresh call (path only), durable `pending: <target> | home | <HEAD_BEFORE>` tuples written with the iteration bump before the pre-dispatch refresh, commit-body tuple/iteration validation before admission, extension-owned projection and ordering (explicitly quoting 1, 3, 2 as extension output), refresh-driven implement completion at rule 1, and full verification moved to verify step 1 with a restricted amend/stop menu. One thing to watch: After's Snapshot 1 says the refresh happens as part of entry step 8 while the fact text names step 5; the numbering in After's entry list diverges from the skill's step numbers (step 5 in After is the worktree check), so if the skill's canonical step numbering matters to other facts, keep the entry list numbered to match the skill (plan_check/commit/start/refresh as step 5) rather than renumbering overrides/settings/verification as separate steps. Also After describes the cut commit as having 'no tuple' and never clearing tuples, which is correct for a parent commit, but Snapshot 3's Return 2 omits restating the clean/single-commit boundary line that Return 1 has; adding that one line keeps the admit-before-refresh fact uniformly observable across both returns.",
-      "wallMs": 19814,
+      "feedback": "Before failed every fact for the same structural reasons: it never issued a path-only `plan_tracker refresh`, it treated the single-member ledger as having no `pending:` tuple (so no `pending: seed | home | aaaaaaa` or `pending: 3 | home | bbbbbbb` was persisted and the retry could not be projected in_progress), it claimed task ordering as the driver's own, and it ran the full gate as exit verification inside implement followed by an explicit `phase_tracker complete implement`. After fixes all of these: the shared header pins the refresh to the absolute ledger path only, each dispatch persists the home tuple and bumped iterations before the pre-dispatch refresh with no extra commit, returns are admitted (clean/single-commit, body tuple and iteration validated, pending removed, only the target row's attempts incremented) before the terminal refresh, the extension is named as owner of order/projection/implement completion, the cut commits once and refreshes once with counts and history preserved, and the gate runs only at verify step 1 after `start verify` with amend/stop on failure. No fact that Before kept was lost, so the After wording delivers the Change cleanly; the only polish worth considering is stating the step number of plan_check consistently with the skill's Entry numbering (the fact says step 5, After shows it under step 8) so a strict reader does not have to infer the mapping.",
+      "wallMs": 22418,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "28970463e3b8feffe7977c411e7ae18f567f1bbb95086423321551eb79250673",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "4e13ebe6775142dbd605b2ae4bfaca8b9ec2d560cb1eb435587210c842309d75",
       "candidateOutputSha": "88abe5897be90965187954c604bee14967e2db7a7147b0cc8cc57e5291d54d33",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "Before never calls plan_tracker refresh, never persists a `pending: <target> | home | <sha>` tuple, treats \"pending removed\" as extension-only state, runs the full verification command inside implement, and issues an explicit `phase_tracker complete implement` — so every fact that depends on path-only refreshes, home tuples persisted before dispatch, admission-before-refresh, and tracker-driven implement completion fails in Before. After fixes all of these: it refreshes with only the absolute ledger path after implement start, before each dispatch and after each admitted commit; it writes the bumped iteration plus `pending: seed | home | aaaaaaa` / `pending: 3 | home | bbbbbbb` / `pending: 2 | home | H2` without an extra parent commit and validates those two lines in the child commit body; it admits the clean single-commit return before refreshing and only then observes the extension's projected order; the `loop: cut row 3` parent commit is followed by exactly one refresh that preserves attempts/iterations/cap/history; and rule 1 requires the tracker's implement-complete before `start verify`, with `node --test check.mjs` run only at verify step 1. No fact moved from holds to fails. One minor hazard to watch in future edits: After's dispatch hint for the seed (\"even when iteration is greater than 0\") and the \"These counts are not compared to each other\" boilerplate are harmless here, but keep the commit-body validation lines (`pending:` then `iteration:`) explicitly stated per child, as that is what makes the retry-order and baseline facts observable.",
-      "wallMs": 19077,
+      "feedback": "Before never calls plan_tracker refresh, writes no pending tuple, treats \"pending removed\" as extension-only state (even calling durable header deletion a validation miss), runs the full verification command inside implement, and issues an explicit phase_tracker complete implement call, so all four facts fail there. After fixes every one: entry step 5 runs plan_check, commits loop: seed ledger, starts implement and refreshes by absolute path only; the seed and row 3/row 2 traces save the ledger, bump iterations and persist pending: <target> | home | <SHA> before the pre-dispatch refresh without an extra commit; clean single-commit admission precedes the post-return refresh, with only the target row's attempts and the tuple changed; the cut is one parent loop: cut row 3 commit followed by exactly one refresh preserving attempts/iterations/cap/history; row 2's closure refresh projects implement complete and rule 1 requires that before phase_tracker start verify and the single foreground verification run, with no explicit complete call, no init/add/update, and no gate inside implement. No fact regressed. Two small tightenings would make the holds more robust: state explicitly under the ownership section that the extension owns the pending-suffix ordering (not just \"task ordering and projection\"), and in run 1 say in one sentence that the tracker auto-completes implement from the all-cut projection rather than leaving it implied by \"the driver requires implement complete.\"",
+      "wallMs": 18347,
       "verdict": "improved"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
 }

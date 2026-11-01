@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a377b81b57ecf6c0d31cc591a8e1a7fdeaa1e3557151d4649812f495005768d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "5ac88b9d4c9d1c3064d06a755ff7612b346dd4efc2c279b79a9818e40a9d64b3",
       "candidateOutputSha": "86b55784893edb9b1740723b3554ab20c6bc7cb2f04971f7903747f363917880",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps the contract fact intact: snapshots 1–4 restore row 2 and prior decisions, set row 1 to failed/attempts 1 with a concrete `iteration N: <miss>` string, commit `loop: repair row 1` and reset previous decision to none; snapshot 5 admits the valid new `row 1 failed | … | …` line; Miss B stops under `gauntlet: question`; the `loop: retry row 1` commit opens a fresh validation-miss window so post-retry miss 1 only repairs (attempts 3) and post-retry miss 2 stops (attempts 4), with iterations and `cap: 9` preserved throughout and the pending tuple written/cleared alongside each dispatch and repair. Two small drifts worth tightening without affecting the fact: the first two-miss stop omits the `budget:` snapshot line that the Change asks every rendered stop to carry (the second stop has it), and the post-retry dispatch passes `previous decision: none` where Before passed the retry line itself — if the intended contract is that the unresolved retry decision is the previous decision for the first post-retry dispatch, say so explicitly (e.g. 'previous decision: the retry line until a child return is validated') so the hint and decision stay coupled; otherwise the After wording already delivers the Change while keeping everything Before kept.",
-      "wallMs": 15617,
+      "feedback": "Nothing moved: After still shows every foreign/wrong/missing/malformed snapshot restoring non-target row 2 and the prior decisions, marking row 1 `failed | 1 | iteration N: <concrete miss>`, committing `loop: repair row 1` with previous decision `none`; the valid new `row 1 failed | …` line is admitted; miss B triggers the stop; the `loop: retry row 1` commit opens a new validation-miss window so post-retry miss 1 repairs without stopping and post-retry miss 2 stops; attempts, iterations and `cap: 9` are preserved. Two small risks to tighten so the fact stays observable rather than inferred: After's final stop only says \"Cap stays 9 and iterations 5\" without restating row 2 `open | 0` and row 1 attempts 4 (Before restated the full row state), so add one line like \"Ledger: iterations 5, cap 9, row 1 failed attempts 4, row 2 open attempts 0\"; and the first stop output dropped the `budget: 0 of 2 spent` line that the second stop carries, so keep both stops symmetric. Otherwise the tuple/refresh additions sit cleanly alongside the preserved contract.",
+      "wallMs": 13908,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a377b81b57ecf6c0d31cc591a8e1a7fdeaa1e3557151d4649812f495005768d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "ca6136f2dbbd43e40fa403ff5fa43f450189102b78f40643dc75012288f848e3",
       "candidateOutputSha": "0f539b87d3a934b1209d7753c5e7ab7b014f46506e53915291b2b5f16f7637ce",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps the full contract: each of the four miss shapes restores non-target cells and prior decisions, marks row 1 failed attempts 1 with a concrete miss, commits `loop: repair row 1`, and routes the next dispatch with `previous decision: none` (stated once in the common repair block and repeated in cases 2–4; consider restating it in case 1 so each case stands alone); the valid new failed line is admitted without repair; the second consecutive miss stops with a `gauntlet: question` stop; the explicit `loop: retry row 1` commit starts a fresh validation-miss window so the first post-retry miss repairs without stopping and the second stops; attempts, consumed iterations and cap are preserved throughout. The additions (pending tuple/commit-body attribution checks, `plan_tracker refresh` after each commit, question-prefixed stops) deliver the Change without moving the fact. One caution: case 8's Recommendation changed from Before's `none` to `Retry with hint`; this does not affect the contract fact, but if any other fact pins the post-retry recommendation, keep Before's wording there.",
-      "wallMs": 11253,
+      "feedback": "Nothing in the contract fact moved. After still restores row 2 and prior decisions on each foreign/wrong/missing/malformed return, sets row 1 to failed attempts 1 with a concrete miss, commits `loop: repair row 1`, dispatches with `previous decision: none`, admits the valid new failed line without repair (resetting the miss count), stops after the second consecutive miss, starts a fresh window at the `loop: retry row 1` commit so the first post-retry miss repairs with count 1 and dispatches again, stops on the second post-retry miss, and explicitly preserves attempts, consumed iterations and cap throughout. The added pending-tuple/commit-body validation and `plan_tracker` refresh calls are layered on without altering those outcomes. If you want to make the new-window behaviour even more legible, keep the explicit sentence 'the retry commit starts fresh validation-miss and child-only empty-commit windows' adjacent to the first post-retry miss's 'count: 1, not 3' line, and keep the snapshot 8 stop text naming the retry decision as last decision as it does now; otherwise no wording change is needed to retain this fact.",
+      "wallMs": 11379,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
 }

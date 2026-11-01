@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b9b652b88eff3ac0ca153dc7b94fd5db95ca8ce4b2ac4f0a2b0079018c43bfff",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "6e1c493b03ddaaee19574f75ee71fe11c844d43170171e638f60fe1ae8f87fa6",
       "candidateOutputSha": "1d4b6e632cb4aa5adc2767d31f30107242b901519f30956888fa7d67934cbdd9",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs carry every conjunct of both facts: single bump to 9, failing-leg HEAD_BEFORE, one fresh synchronous implementer with implModel in the failing cwd carrying failing output/absolute spec/Rules/exact command, clean exactly-one commit admission with unchanged rows/mapping/cap, companion leg-only commit, parent `loop: repair verification` marker (empty when the home child already carried the bumped ledger), single rerun of only the failing command, and the closed-rows stop with escalated-round-spent, Recommendation none and `gauntlet: question` first. The After wording changed two things worth watching: it splits `Stopped: verification failed with every row closed` and `escalated round spent` onto separate lines, which still satisfies 'plus' but drifts from the one-line header a reader might expect, so consider keeping the ` - escalated round spent` suffix on the header line; and its at-cap case drops `cap +N` and the `escalated round spent` suffix, which is defensible (round never ran) but reads differently from Before's clean cap stop, so state explicitly that a later `cap +N` would return to the table with the repair still unspent. Neither output actually addresses the 'missing permission retains original human stop' conjunct; adding one sentence (no Amend-grant → the plain verification-failed stop with no repair attempted, identity untouched) would make that part of boundaries observable rather than inferred.",
-      "wallMs": 21603,
+      "feedback": "After keeps every fact Before kept: both outputs bump iterations once, capture failing-leg HEAD_BEFORE, dispatch one fresh synchronous implementer with implModel in the companion cwd with failing output, absolute spec, local Rules and `make check`, admit only a clean single child commit with unchanged rows/mapping/cap, write the `loop: repair verification` marker (empty when the home child already carried the bump), rerun only the failing command once, and stop with `gauntlet: question` first, `Stopped: verification failed with every row closed`, `escalated round spent` and `Recommendation: none`. The boundary table in After matches Before on cap, dirty/zero/two commits, dispatch error, non-DONE, resume-found marker, unrecoverable identity and second failing leg, and it explicitly denies verify credits and reopening. Two things to watch: After splits the stop header across two lines (`...every row closed` then `escalated round spent`) where Before kept them on one line joined by ` - `; a stricter reader could treat that as changing the header, so prefer the single-line form. Also neither output addresses the 'missing permission' conjunct of the boundaries fact; adding one line (no Amend-grant means no bump, no dispatch, and the ordinary verification-failed human stop with Recommendation: none) would make that part of the fact observable in After without disturbing anything else.",
+      "wallMs": 22839,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b9b652b88eff3ac0ca153dc7b94fd5db95ca8ce4b2ac4f0a2b0079018c43bfff",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "108654f21909b3d7c51b010a07eddf9e31d1e9c7e5efc7378e8e4d94785a32e3",
       "candidateOutputSha": "825e0924f807b0ebd7cac44b335022b5f946adff4e9d7c378dd1e6edcff7989c",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both facts hold in both outputs, so the Change did not move anything here. After keeps the full repair contract (single bump to 9, HEAD_BEFORE capture, one fresh synchronous implementer with implModel in the companion cwd carrying Rules/spec/make check/failing output, clean exactly-one-commit admission, explicit ledger stage plus `loop: repair verification`, empty marker when the home child already committed the bump, single rerun, and the `gauntlet: question` / `Stopped: verification failed with every row closed` / `escalated round spent` / `Recommendation: none` stop) and the boundary behavior (cap stop without dispatch, dirty/zero/two-commit rejection preserving count 9, error/non-DONE consuming the round, marker recovery on resume, interrupted identity treated as spent with no carrier, no second-leg repair, no verify credits). Two places weakened observability without breaking a fact: After sections 4–6 say \"use a concrete dirty-boundary header\" instead of printing the literal `Stopped: iteration 9 left the tree dirty` / `added 0 commits` / `added 2 commits` lines Before showed, and section 3 folded the cap stop into the verification-failure header rather than a distinct `Stopped: iteration cap 20 reached`. If a future fact names those headers, keep Before's literal boundary headers while retaining After's added verify-step-1 framing, `plan_tracker refresh` after admitted `loop:` commits, and Amend/Stop-only menu; also consider one explicit sentence that a missing amend permission yields the original verification-failure stop, since both outputs only imply it.",
-      "wallMs": 20583,
+      "feedback": "After keeps both facts intact: it still bumps iterations once, captures HEAD_BEFORE, dispatches a single fresh synchronous implementer with implModel in the companion cwd carrying Rules/spec/make check/failing output, enforces clean exactly-one-commit admission with unchanged rows/mapping/cap, commits the parent marker (empty when the home child already committed the bumped ledger), reruns only the failing command once, and stops with gauntlet: question / Stopped: verification failed with every row closed / escalated round spent / Recommendation: none; the cap, dirty/zero/two-commit, dispatch-error, non-DONE, resume-marker, unrecoverable-identity and second-leg cases all preserve consumed count and deny further dispatch or verify credit. Two things to watch so nothing drifts in later edits: neither output explicitly states the missing-permission branch (both only imply it via the permission precondition), so adding one sentence such as 'Without amend permission the original verification-failure stop is reused unchanged' would make that conjunct observable; and After's cap snapshot replaced Before's concrete 'Stopped: iteration cap 20 reached' header with a generic verification-failure header plus a cap line — acceptable for the fact as written, but keeping the concrete cap header (or stating both) avoids a reader concluding the cap boundary was folded into the repair path. The new refresh/plan_tracker and verify-active wording delivers the Change without moving either fact.",
+      "wallMs": 23832,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
 }

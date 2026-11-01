@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "817b81f816003854119fbd737174679a6242700e08e9dd5b92d073144b4a5abc",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "483ea25b599c3b1f73792ecadcb8de9aaa25afce8da4a94642ffe82b9197daec",
       "candidateOutputSha": "4d1c7ec8b7c917ba33d75280da9996e79aebbf6b0955e32e6dd130971a448a46",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves the contract fact to holds through Snapshot B: it starts verify via phase_tracker, runs `make check` once at step 1, quotes the assertion, declines any bump/rerun/reopen, leaves implement complete and verify active, and restricts the menu to Amend/Stop with Recommendation none; Snapshot A still stops at rule 4 before dispatch with row 1 (attempts 1) and offers `cap +N`, so both halves of the fact are satisfied. Before failed only on the closed-row half - it kept phase implement, never started verify, offered cap/retry/amend/stop and suggested reopening a done row by amendment. To keep every Before-held element while delivering the change, retain the explicit 'verify not started yet' language only for Snapshot A and keep After's B wording; one small tightening: After's 'escalated repair is blocked' section could say outright 'the gate runs exactly once; a passing or failing rerun is never attempted' so a reader does not infer a rerun might occur if the cap were raised.",
-      "wallMs": 12144,
+      "feedback": "After satisfies the fact end to end: Snapshot A still stops at rule 4 before any dispatch with row 1 and attempts 1 visible and `cap +N` offered, and Snapshot B now refreshes to complete implement, starts verify, runs `make check` exactly once at step 1, quotes the assertion, blocks repair/rerun/reopen on the cap boundary, keeps verify active and implement complete, and restricts the menu to Amend/Stop. Before failed only on the closed-row half: it ran `make check` while phase stayed implement with no `phase_tracker` start, offered `cap +N` and retry on the verification-failure menu, and described a repair path that reruns the command and dispatches an implementer. One small thing worth keeping in After: Before's Snapshot A explicitly noted the seed row is excluded from child-commit counting while the seed still counts in `iterations`; After implies seed-inclusive counting via `iterations 2 >= cap 2` but never states it, so a short clause like `(iterations counts the seed)` in the stop line would make the seed-inclusive conjunct observable rather than inferred without altering any other fact.",
+      "wallMs": 12694,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "817b81f816003854119fbd737174679a6242700e08e9dd5b92d073144b4a5abc",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "15797cc08ff8af81e74a12094f1180859702537a1f980fafe7c6c97debf878a3",
       "candidateOutputSha": "9d3a24e43a2650c0ad0ccd594c004f0ff7a182c75cc2af1e140093456edd5b3c",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before failed the contract only on its closed-row half: case B ran `make check` once and quoted `expected2 got1` without reopening or rerunning, but it kept implement active, explicitly refused to start verify, and offered `cap +N` alongside amend/stop. After fixes exactly those points — the refresh is required to show implement complete, `phase_tracker start verify` precedes the single gate run, the failure state is 'Implement is complete; verify remains active', and the menu is restricted to Amend/Stop with an explicit note that neither Retry nor `cap +N` is offered — while case A still stops at the cap before dispatch/verification, names row 1 with attempts 1, offers `cap +N`, and mentions seed selection. To keep this holding, retain the explicit 'implement complete / verify active' line and the 'neither Retry with hint nor cap +N' sentence in B; if you later tighten the step numbering, keep the gate command as the single run at the first verify step and keep the seed-inclusive note ('the driver must still select `seed`') in A so the seed-inclusive clause stays observable.",
-      "wallMs": 12767,
+      "feedback": "After satisfies the contract fact end-to-end: snapshot A stops at the rule-4 cap boundary before any dispatch or verification, names row 1 with attempts 1, keeps the seed path selectable, and offers cap +N; snapshot B enters verification via phase_tracker start verify at step 1, runs make check exactly once, quotes \"assertion expected2 got1\", forbids reopening/rerun/repair, states implement complete and verify active, and restricts the menu to amend or stop with an explicit note that neither Retry with hint nor cap +N is offered. Before failed the second half because its B snapshot kept implement active, never started verify, and still offered cap +N alongside amend/stop. The After wording that moved the fact — the explicit refresh-completes-implement step, the phase_tracker verify start, the 'Implement is complete; verify remains active' line, and the two-item Choose menu — is exactly what should be kept; no fact that Before held was lost, so retain that wording as is.",
+      "wallMs": 11082,
       "verdict": "improved"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
 }

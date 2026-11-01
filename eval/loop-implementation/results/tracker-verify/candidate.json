@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "87c2191205ea6c3684b77947afe1bd1ddc5b3f23f39179deb35b84fe51a08094",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "6ea2315062b11344947790de240d7729bf80623c5e60c8b9cfd3474a54438210",
       "candidateOutputSha": "835d3c940253335a4e7c365af545e677b77b39778ea96174b2efc999a54a6156",
       "facts": {
@@ -64,21 +64,21 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After delivers the Change cleanly: it lets the refresh complete implement and starts verify before any gate, runs both contract commands once in their owning checkouts at step 1 with no `complete implement` call, bumps iterations once, commits the once-per-flow `loop: repair verification` marker followed by a ledger refresh, reruns only the companion command, keeps verify active/implement complete with an amend-or-stop-only menu on second failure (and on the no-permission branch), treats G1 as a normal Gn task on the same tracker with skipped/pending projections for cut/re-bound, and emits the exact `Stopped: row 2 reopened by amendment during verify` header with authorize/stop options before writing `iterations: 5` + `pending: 2 | repo-b | bbbbbbb`, refreshing, validating the attributed single commit, recording and clearing pending in one parent commit, refreshing again and rerunning step 1. Before failed each fact on a specific conjunct: it ran an implement exit gate plus an explicit `complete implement`, omitted the refresh after the marker, stopped with implement still active, denied any plan_tracker lifecycle for G1, and used a `Stopped on row 2` header with a `Retry with hint` option. Keep After's wording; the one tightening worth making is to state the dispatch task's `iteration:` line and the commit-body `iteration:` relationship explicitly as the consumed count (5) wherever the fact about persisting the bumped iteration is read, so a reader never sees the pre-bump 4 as a possible contradiction of the durable ledger value.",
-      "wallMs": 29105,
+      "feedback": "After moves every fact to holds. Before failed per-leg because it ran the gates as an implement exit gate and then called `phase_tracker complete implement`; After lets the refresh close implement, starts verify, and runs each contract command once in its owning checkout with per-leg verified HEAD/clean evidence recorded only after success. Before failed repair because it never refreshed after the marker commit and then re-ran `home.mjs` purely because the marker moved repo-a HEAD; After commits the bumped ledger as `loop: repair verification`, refreshes, and reruns only `companion.mjs` once. Before failed failure because its second-failure stop left implement active and verify never started; After keeps verify active and implement complete with the `escalated round spent` line, quoted output, and amend/stop only (and the no-amend branch drops only the spent line). Before failed conformance by denying any tracker lifecycle for G1; After adds G1 as a normal Gn task on the same tracker, keeps it pending across refresh, and maps cut→skipped and open→pending without reopen. Before failed rebound with a `Stopped on row 2` header and a Retry/Amend/Stop menu; After emits the exact `Stopped: row 2 reopened by amendment during verify` header, waits for the authorize-the-return option, writes the consumed count and `pending: 2 | repo-b | bbbbbbb`, refreshes, validates the attributed single commit, records and clears pending, refreshes again, and reruns step 1. One wording to tighten in After: the step-4 clause 'or a valid carried-open deferred inventory' could be read as permitting verify completion with unfinished Gn items; stating that completion requires every ledger row and Gn task closed (deferred inventory only for items explicitly carried by the human) would keep rebound unambiguous.",
+      "wallMs": 28288,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "87c2191205ea6c3684b77947afe1bd1ddc5b3f23f39179deb35b84fe51a08094",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "4308eb14dd7d2eeeef1dfb8e217473e515a4b9eca7d6f1112701daadec06e9eb",
       "candidateOutputSha": "b9fbc536c25ce3ee9c5b2c12ea2905d0634307a9557511016fa081a591d0b022",
       "facts": {
         "per-leg": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "repair": {
           "before": "fails",
@@ -86,9 +86,9 @@
           "label": "unplanned improvement"
         },
         "failure": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "conformance": {
           "before": "fails",
@@ -101,10 +101,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After improves on Before in three places: it adds the explicit refreshes around the child admission and the `loop: repair verification` marker and drops Before's hedge that the home gate may be rerun because the marker moved home HEAD (which undercut the never-rerun-home-for-this-repair rule); it removes Before's claim that the loop driver introduces no tracker lifecycle update, instead keeping G1 as a durable Gn item on the normal conformance lifecycle with cut→skipped and open→pending projections and no reopen; and it renders the exact `Stopped: row 2 reopened by amendment during verify` header with only authorize-return/stop options, then traces bump+tuple, refresh, admission with ITERATION=5, parent record clearing pending, second refresh, and a step-1 rerun before continuation. To keep every fact tight, After could also state in snapshot 2 that the spent identity and consumed count survive error/interruption, and name the Gn lifecycle as append/update on the same tracker rather than only implying it; otherwise the After wording preserves per-leg verification, the restricted failure menu, and the once-per-flow repair while delivering the Change.",
-      "wallMs": 28955,
+      "feedback": "After delivers the Change on every fact: it establishes implement complete through a refresh before `phase_tracker start verify`, runs each contract once in its owning checkout, bumps iterations to 5 and dispatches one `implementer` in repo-b, commits the bumped ledger as `loop: repair verification` with a follow-up refresh, reruns only the companion gate and explicitly refuses to rerun home for the repair, renders the restricted `gauntlet: question` stop with `escalated round spent` and amend/stop only, keeps G1 on the normal Gn lifecycle, and emits the exact `Stopped: row 2 reopened by amendment during verify` stop with authorize-return/stop options, then writes the consumed count and `pending: 2 | repo-b | bbbbbbb`, refreshes, admits, records, refreshes and reruns step 1 with verify still active. Before failed these mainly because it accepted the supplied phase state without a refresh, lacked the post-marker refresh, hedged with 'run the home command again if required' after the repair, offered a conditional fix-first/shape-ticket option on the failure stop, stated that no tracker lifecycle update is introduced, and used a 'Stopped on row 2' header with Retry-with-hint options for the re-bound. Two small tightenings for After: state explicitly that the spent marker and bumped count persist across error or interruption in snapshot 2, and in snapshot 3 fix the consumed count to the supplied baseline (4 -> 5) rather than inviting the reader to pick 5 -> 6, so the tuple/count wording is unambiguous.",
+      "wallMs": 29552,
       "verdict": "improved"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
 }

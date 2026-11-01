@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "612151d6f3168db4e989e6906aa14fe09e47a241608aaafcb6d856fe09e49bfb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "c294da93e7552fc1e453c10ba2d9cb8b66bdf41ed50e5336a3a225836e204c9b",
       "candidateOutputSha": "46ae834a468bcdf31d0480bf0fcedeafd728ea302a9f50689c907587f09bc6d7",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps all three facts: the missing-cap check still runs before rule 1 (including in the all-done branch) with no settings call and no verification; cap +5 still produces cap: 12 directly under iterations: 7, the appended cap +5 | line, one loop: raise cap commit, unchanged iterations/attempts and a return to the ordered table; dirty-tree and commit-boundary stops still withhold cap +N and gate discard/reset on explicit human authorization. The one place that could be misread is the commit-boundary section, where After now says it 'restores the target cells' and 'restores the pending: tuple' before stopping — a reader could take that as cleanup performed without authorization. To keep the dirty fact robust while still delivering the Change's boundary-rejection restore, phrase it as a working-ledger projection only (e.g. 'I rewrite only row 1's cells and the pending: tuple in the working ledger to their dispatch before-image; no commit, reset or discard happens until the human authorizes it') and, as in Before, name HEAD_BEFORE / the loop: raise cap commit as the reset target and state that the rejected child's ledger is not read.",
-      "wallMs": 15645,
+      "feedback": "After keeps every fact Before kept: the cap: header check is still placed ahead of rule 1 (and Snapshot 2 reiterates it fires on an all-done ledger), settings are explicitly skipped with the multiplier unused and no verification runs before the stop; the cap +5 path writes cap: 12 directly under iterations: 7, appends 'cap +5 |', commits exactly once as 'loop: raise cap', leaves iterations 7 and attempts 1 intact, and re-enters the ordered table; both dirty-tree and commit-boundary stops withhold cap +N, preserve changes/commits/consumed counts, and wait for explicit discard/reset authorization under a 'gauntlet: question' marker. Two things worth tightening so the dirty fact stays unambiguous as the boundary wording evolves: in the commit-boundary block, state plainly that the restore of target cells and the pending tuple touches only the working ledger before-image and is not a reset or discard of the child's commits (one sentence like 'this restore is not cleanup; the child's commits and tree stay untouched until the human authorizes discard/reset'), and keep the dirty-return form ('left the tree dirty') explicitly listed alongside the k-commits form with the same no-cap/no-auto-clean statement, since that line currently carries the dirty variant only by a parenthetical. Also consider quoting the numeric snapshot (iterations 7, attempts 1, no cap) in the boundary stop text as the Change requests, which would make preservation observable without reading the rejected child's ledger.",
+      "wallMs": 16045,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "612151d6f3168db4e989e6906aa14fe09e47a241608aaafcb6d856fe09e49bfb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "8698c8f849e8bf2881cbeb87a47828283b3a9f47af314919f8245b155f420414",
       "candidateOutputSha": "74c539546c39d535e74e76113cc7a51ffc145c64dded79cf1bbb6395ccc9a97f",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still checks `cap:` before any ordered-table rule in both the row-1-failed and all-closed branches, prints the exact legacy diagnostic under the `gauntlet: question` marker, never consults loopEngine, writes `cap: 12` directly after `iterations: 7`, appends `cap +5 |`, makes exactly one `loop: raise cap` commit with iterations 7 / attempts 1 preserved, and returns to the ordered table; dirty-tree and commit-boundary stops in After keep state, withhold `cap +N`, and gate discard/reset on explicit authorization. Two wording choices are worth tightening so the Change lands without weakening the boundary posture: (1) in the commit-boundary stop After switched the closing line from Before's `Recommendation: none - resetting the branch requires explicit authorization` to `Recommendation: authorize discard/reset ...` — it still requires the human's reply, but `none` more plainly signals that destructive recovery is never the driver's default; keep `none` there. (2) In the all-closed branch After offers `Retry with hint` while admitting there is no retry target, whereas Before explicitly dropped that choice; omit the retry line in the all-closed menu so the choices reflect the actual ledger. Otherwise the added refresh calls, pending tuple write, and tracker-boundary restore wording coexist cleanly with the legacy, grant, and dirty facts.",
-      "wallMs": 17625,
+      "feedback": "Nothing moved: After still prints the exact legacy diagnostic before rule 1 in both the row-1-failed and all-closed branches, refuses the gauntlet_setting lookup and verification until the header exists, writes cap: 12 directly under iterations: 7 with a single `cap +5 |` decision and one `loop: raise cap` commit while keeping iterations 7 and attempts 1, and withholds cap +N from both the dirty-tree and commit-boundary stops pending explicit discard/reset authorization. Two wording choices are worth tightening without affecting the facts: in the all-closed branch After offers 'Retry with hint' alongside the note that no retry target exists (Before simply omitted the retry choice, which is cleaner), and in the commit-boundary stop After's 'Recommendation: authorize discard/reset' could be read as nudging toward destruction—Before's 'Recommendation: none - destructive recovery requires explicit authorization' states the authorization boundary more plainly. Keeping the gauntlet: question prefix and the inserted plan_tracker refresh calls while reverting those two lines would deliver the Change with no risk to the dirty fact's reading.",
+      "wallMs": 13077,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
 }

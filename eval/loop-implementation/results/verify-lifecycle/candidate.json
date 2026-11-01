@@ -34,37 +34,37 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3458f9bfeadea4472ce5303bdb9fa882af8eb29904267578307cc98bff240c03",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "c28a7ea464a4386fc25ae853da8ba88923d6ae53e08df9c0412d171acd35ee78",
       "candidateOutputSha": "07d3aed9a8f59e0d83d40028221351442b49cfb33e38a80b08a1cb93e72a2f96",
       "facts": {
         "contract": {
           "before": "fails",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "intended change"
         }
       },
-      "feedback": "Before fails the contract on its own text: it inserts an 'Exit verification' step and an explicit `phase_tracker({ action: \"complete\", phase: \"implement\" })` call, then at verify step 1 reuses that run instead of running the full gate there, and it says 'No plan_tracker lifecycle runs' while claiming Gn identities follow the reference. After fixes the core of this: implement completes via `plan_tracker refresh` with no complete-implement call, verify step 1 runs the full command once, the repair forces a full rerun before re-review, wave-reviewer → happy path (CLI row) → separate conformance-reviewer with spec/prompt/full diff/ledger checklist, full references are read, the sentinel keeps the reference's exact field names with audited-base/happy-path/minors, and finishing is invoked immediately. Two soft spots remain in After that a stricter reader could hold against the Gn conjunct and the step-4 call: it never states that any Gn fix tasks would ride the same tracker (it only says 'no Gn fix round starts'), and the line 'the exact call shape for completing a phase is not given in this skill' undercuts the `phase_tracker complete verify` call that Before wrote out explicitly. Keep After's structure but add one sentence under conformance ('any Gn fix tasks would be created on the same tracker and closed before re-verification') and restore the literal `phase_tracker({ action: \"complete\", phase: \"verify\" })` call at step 4.",
-      "wallMs": 17803,
+      "feedback": "Before fails the contract on several conjuncts: it runs an \"exit verification\" before verify, issues an explicit `phase_tracker complete implement` call gated on that run, then at verify step 1 \"reuses\" the earlier run instead of running the gate, and it states \"No plan_tracker lifecycle runs\" for the conformance stage. After fixes these: the `plan_tracker refresh` reports implement complete with no explicit completion call, verify step 1 runs the full command once and the repair variant reruns it in full before re-review, the wave-reviewer -> happy path -> separate conformance-reviewer order with spec/prompt/full diff/ledger checklist is intact, references are read in full, the closure block names audited-base/happy-path/minors exactly, and finishing is invoked immediately. Two soft spots to tighten in After: it never states that any Gn fix tasks would ride the same `plan_tracker` (it only says none start), so add one sentence like \"any Gn tasks from a non-CONFORMS verdict are projected on the same tracker via refresh\"; and the aside \"the exact call shape for completing a phase is not given in this skill, so I am not inventing one\" is confusing since Before showed `phase_tracker({ action: \"complete\", phase: \"verify\" })` - either keep the concrete call or drop the disclaimer. Also list `/skill:requesting-code-review` among the full reads to make the \"full references read\" conjunct explicit.",
+      "wallMs": 18887,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3458f9bfeadea4472ce5303bdb9fa882af8eb29904267578307cc98bff240c03",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
+      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
       "baselineOutputSha": "a083552d566222bb42d1377366bdb2dcfe2eff73b5e5d859f477f9ad6953783b",
       "candidateOutputSha": "7df74d02f746a69512750e2e586478b29f479e7621f37a75ff6fc5a8d72b4a53",
       "facts": {
         "contract": {
           "before": "fails",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "intended change"
         }
       },
-      "feedback": "Before fails the contract on two counts: it runs the full ledger command as an exit gate inside the refresh step (before verify starts) and then issues an explicit `phase_tracker({ action: \"complete\", phase: \"implement\" })`, contradicting 'implement completes through the ledger refresh … without an explicit complete implement call' and 'verify step 1 runs the full gate'. After fixes both: the path-only `plan_tracker` refresh reports implement complete with no completion call, the first full run happens in verify step 3 (your verify step 1) and a review repair triggers a full rerun, the ordering is wave-reviewer → CLI happy path → separate fresh conformance-reviewer with spec/prompt/full diff/AC rows against the ledger, references are read in full (conditionally stopped if unreadable), and closure carries the exact sentinel, post-repair audited-base, happy-path fields, minors, and the immediate finishing invocation. The one clause neither output states is that normal Gn tasks ride the same tracker; After's 'Do not reopen closed ledger rows merely to record a review repair' is close but not explicit. To keep the fact unambiguous while delivering the Change, add one sentence in the repair step such as 'Any normal Gn follow-up task stays on the same ledger tracker; no separate task tracker is initialized', and keep the refresh-completes-implement wording and the verify-step-1 full gate exactly as After has them.",
-      "wallMs": 15900,
+      "feedback": "Before fails the contract because it explicitly calls phase_tracker({ action: \"complete\", phase: \"implement\" }) and runs the full ledger command during the refresh (before start verify), then merely reuses that run once verify begins, so implement does not complete through the refresh and the gate is not run at verify step 1. After fixes both: the path-only plan_tracker refresh reports implement complete with no explicit completion call, the full VERIFY run happens once in section 3 after phase_tracker start verify, the review repair forces a full rerun, the order is whole-diff wave-reviewer → CLI happy path → separate fresh conformance-reviewer fed with spec path, verbatim prompt, full diff and ledger-checked AC rows, the three references plus the review and finishing skills are read in full, and closure gives the exact sentinel, post-repair audited-base, happy-path fields, whole-diff minors and the immediate finishing invocation. Two clauses of the fact are satisfied only by absence of contradiction rather than by text: After never states that the gate is run once per leg (acceptable here since the case has a single leg) and never mentions that normal Gn tasks ride the same tracker. To make the contract hold on its own text rather than by non-applicability, add one line at verify step 1 such as \"run the full ledger command once per leg; any Gn tasks raised during verify are tracked on the same phase/ledger tracker, not a new one\" while keeping the rest of the After wording unchanged.",
+      "wallMs": 20849,
       "verdict": "improved"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
 }
