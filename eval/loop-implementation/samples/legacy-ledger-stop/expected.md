@@ -1,0 +1,2 @@
+- legacy: judged: Both before dispatch and at the gate-set site stop with ledger has no checks: line - seeded under the old contract, offer stop only, and require a human restart on a fresh baseline rather than migrating or automatically reseeding.
+- boundary: judged: Dispatches no child and runs no verification or gate command; cap funding and amend permission do not bypass the missing checks line or permit a legacy full run.

@@ -124,6 +124,12 @@ carried gap's `recommended`. Re-run steps 1-2 above over the **full current
 open-gap set** each time the reviewer returns a report — never reuse a stale
 partition from an earlier round.
 
+### Ledger subjects
+
+Treat a `# Ledger - loop engine` subject as the loop path, never the ad-hoc no-plan path. Read `/skill:loop-implementation`'s `## Gate set` at its absolute skill path and apply it at every test site below, including its missing-`checks:` stop, checkout ownership, fail-fast execution and `LOG_DIR` redirection. Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site. Keep the plan and ad-hoc rules below unchanged for non-ledger subjects.
+
+For a ledger repair or Convergence task, pass the failing command, its checkout, exit code and log path, never pasted output. The child reads the log to derive the files to touch, including Convergence (c)'s files named by failing output; the driver does not read it. Feed that single gate failure into the existing fix-round machinery.
+
 ### Fix loop - SDD wave-loop mirror, per round
 
 Mirrors `subagent-driven-development`'s wave loop and reuses its
@@ -150,7 +156,7 @@ Per round:
    whose `evidence` opens with the over-spec provenance (`spec "<section>" - "<clause>" (over-spec)`), the orchestrator adds the spec path to that gap's `touched-files` before dispatch,
    so the implementer deletes the surface **and** the clause/AC line in the same
    fix commit; the re-audit then has no `Rn` for it and no `MISSING` echo. The dispatch adds `SCOPED_TEST_COMMANDS`
-   to the gap block: the gap-relevant plan-declared commands, or `none`; on an ad-hoc no-plan path, the project's canonical test command.
+   to the gap block: for a ledger, the complete gate set with owning checkouts and the ledger-subject execution rule above; otherwise the gap-relevant plan-declared commands, or `none`; on an ad-hoc no-plan path, the project's canonical test command.
 3. **Integrate** serially via `git -C "<conformance-worktree>" apply` onto the worktree HEAD, one gap's
    patch at a time. Commit each per-gap fix with the message **`conformance fix Gn`** (durable,
    `git log`-readable pre-squash) so the finish gate and any revert can identify
@@ -164,7 +170,7 @@ Per round:
    integrated changes. Every re-run or retry inside this loop is itself a
    one-task `tasks` wave (never a lone `agent: "implementer"`) and counts as a
    wave against `maxFixRounds`. A `BLOCKED`/`NEEDS_CONTEXT` return surfaces to the user.
-4. **Scoped tests** on the integrated tree: run the round's `SCOPED_TEST_COMMANDS` union as `(cd "<conformance-worktree>" && <command>)`. A failure re-enters the failure-handling rules above.
+4. **Scoped tests** on the integrated tree: for a ledger, run the complete gate set per Ledger subjects above. Otherwise run the round's `SCOPED_TEST_COMMANDS` union as `(cd "<conformance-worktree>" && <command>)`. A failure re-enters the failure-handling rules above.
 5. **Re-audit**: Happy-path re-run first, when the prior audit received a happy-path input: if `$HP_DIR` no longer exists (finish-time `fix-now` in a resumed session), re-derive the row per step 3.1 from the overrides table, then re-run the step-3 procedure when `git -C "<worktree>" diff --name-only <audited-base>..HEAD` contains a path inside that row's `Paths` or an open gap's `evidence:` cites the summary path, else pass `not run - no prior transcript`. Otherwise re-run the step-3 procedure into a fresh `$HP_DIR` when either (a) `git -C "<worktree>" diff --name-only <head from current summary.txt>..HEAD` contains a path inside the current row's `Paths` (the summary's `head:` line is the diff base, so changes from skipped rounds accumulate into the next comparison); (b) an open gap's `evidence:` cites the summary path. Otherwise pass the previous summary unchanged. When the re-run's outcome differs from the previous one, extend this re-audit's scope to every row whose `evidence:` cites the summary. Rounds touching only paths outside every row never re-run. Then foreground re-dispatch `conformance-reviewer` with `async: false`, `cwd` = the conformance worktree, over the fixes **plus** the
    regression guard (any prior-`DELIVERED` requirement whose `evidence` file
    the fix diff touched). Pass the full prior conformance report (every row,
@@ -192,7 +198,7 @@ Per round:
 
 **Convergence** — runs after R0 `CONFORMS` and after every `CONFORMS` re-audit. `r0-head` is HEAD when the loop was entered (the R0 dispatch, or the finish-time `fix-now` entry) - the parent of the oldest `conformance fix` commit; `audited-base` stays the last audit's HEAD SHA.
 
-a. Run the full plan-header `Verification` set once as `(cd "<conformance-worktree>" && <command>)` (ad-hoc: the project's canonical test command). After R0 `CONFORMS` with no round run, the pre-R0 full run counts.
+a. For a ledger, run the complete gate set per Ledger subjects above. Otherwise: Run the full plan-header `Verification` set once as `(cd "<conformance-worktree>" && <command>)` (ad-hoc: the project's canonical test command). After R0 `CONFORMS` with no round run, the pre-R0 run of the applicable set counts.
 b. Dispatch `wave-reviewer` directly (foreground, `async: false`, `cwd` = the conformance worktree, `SCOPED_TEST_COMMANDS: none`) over `git diff <r0-head>..HEAD`; never via `/skill:requesting-code-review`. An empty diff is nothing to review - no dispatch.
 c. Repair items = every failing command from a + every Critical/Moderate finding from b (the re-audit is their origin check). None → write the closure block; done. Any at the cap → escalate per step 6 with the test/CR trail (an explicit human approval re-enters via `grant_fix_rounds`, as step 6 describes). Any under the cap → re-enter step 2 as a one-task `tasks` wave: one `implementer` whose task is every repair item verbatim (ownership boundary = the files in `git diff <r0-head>..HEAD`, the CR findings' `touched-files`, and the files each failing command's output names, `SCOPED_TEST_COMMANDS: none`, no `Gn` tracker task, no gap selection), integrate as one `conformance fix CR`, re-audit, then Convergence again. That wave counts against `maxFixRounds`. Later Convergence CRs keep the same `<r0-head>..HEAD` range.
 

@@ -1,2 +1,2 @@
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
-A ledger with iterations:2 and cap:2 includes seed and one row dispatch, row1 still open with attempts:1. B all rows closed at iterations2 and cap:2; make check fails assertion expected2 got1.
+Both ledgers carry checks: commands and verification: make check. A ledger with iterations:2 and cap:2 includes seed and one row dispatch, row1 still open with attempts:1. B all rows closed at iterations2 and cap:2, row1 evidence `node --test parser.test.mjs; passed`, no other non-cut rows; the recorded check exits 1 with assertion expected2 got1 in its gate log. Show the cap stop for A and the verify-step-1 gate and stop for B.
