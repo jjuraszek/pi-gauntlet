@@ -75,6 +75,12 @@ function criterionDescriptions(spec: string): string[] {
   return descriptions.map(text => text.replace(/\s+/g, " ").trim());
 }
 
+function compactDescription(description: string): string {
+  if (description.length <= 80) return description;
+  const boundary = description.lastIndexOf(" ", 77);
+  return `${description.slice(0, Math.max(0, boundary))}...`;
+}
+
 function ledgerTasks(text: string, path: string): Task[] {
   const lines = text.split("\n");
   if (lines[0] !== "# Ledger - loop engine") {
@@ -152,7 +158,7 @@ function ledgerTasks(text: string, path: string): Task[] {
     const owner = repo === undefined ? "" : ` (${repo})`;
     const budget = allowance !== undefined && value.status !== "cut" && (value.status !== "done" || value.attempts > 0)
       ? `${value.attempts}/${allowance + (retries.get(row) ?? 0)}: ` : "";
-    return { name: `row ${row}${owner}`, status: status(row), label: `${budget}${description}${owner}` };
+    return { name: `row ${row}${owner}`, status: status(row), label: `${budget}${compactDescription(description)}${owner}` };
   });
 }
 

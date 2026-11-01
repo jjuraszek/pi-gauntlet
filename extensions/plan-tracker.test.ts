@@ -517,6 +517,29 @@ test("allowance labels count retry decisions, preserve identity and render on ev
     descriptions.map((description, i) => `${description} (${[2, 4].includes(i) ? "repo-b" : "repo-a"})`));
 });
 
+test("refresh compacts long criteria while preserving budgets, owners and short criteria", async () => {
+  const dir = ledgerFixture("plan-compact-labels-");
+  const path = join(dir, "ledger.md");
+  const compact = "Verify that refreshed ledger labels keep complete words within the";
+  const long = `${compact} description budget while retaining attempts and repository ownership`;
+  writeFileSync(join(dir, "spec.md"), spec([long, descriptions[1]]));
+  for (const mapped of [false, true]) {
+    const owner = mapped ? " (repo-a)" : "";
+    writeFileSync(path, ledger(["1 | open | 2 | check", "2 | open | 0 |"], mapped
+      ? "## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 2 | repo-a |" : "", "allowance: 4"));
+    const h = harness([], dir);
+    const result = await h.call({ action: "refresh", path });
+    assert.equal(result.details.error, undefined);
+    assert.deepEqual(result.details.tasks, [
+      { name: `row 1${owner}`, status: "pending", label: `2/4: ${compact}...${owner}` },
+      { name: `row 2${owner}`, status: "pending", label: `0/4: ${descriptions[1]}${owner}` },
+    ]);
+    assert.ok(`${compact}...`.length <= 80);
+    assert.ok(h.widget()!.endsWith(`2/4: ${compact}...${owner}`));
+    assert.ok(result.content[0].text.includes(`row 1${owner} | 2/4: ${compact}...${owner}`));
+  }
+});
+
 test("allowance labels tolerate surrounding whitespace in the header value", async () => {
   const dir = ledgerFixture("plan-allowance-whitespace-");
   const path = join(dir, "ledger.md");
