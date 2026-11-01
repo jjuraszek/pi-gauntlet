@@ -73,7 +73,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    - and is the literal the child is compared against - both sides come from `git
    rev-parse --show-toplevel`, so a symlinked `.worktrees/` cannot make them
    disagree. Before installing dependencies, write
-   `$TMPDIR/hotfix-<slug>-ledger.md`; not writable -> abort (pre-land):
+   `$TMPDIR/hotfix-ledger-<slug>.md`; not writable -> abort (pre-land):
 
    ```markdown
    # Ledger - loop engine
@@ -130,7 +130,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    subagent({ agent: "loop-implementer", context: "fresh", async: false,
      cwd: <WORKTREE>, output: <absolute $TMPDIR path>, outputMode: "file-only",
      acceptance: { level: "none", reason: "the parent validates the commit and keeps the ledger" },
-     task: "<binding block>\n\niteration: <i>\nspec: <absolute $TMPDIR/hotfix-<slug>.md path>\nledger: <absolute $TMPDIR/hotfix-<slug>-ledger.md path>\nbase: <BASE_SHA>\ntarget: <seed | 1>\nprevious decision: <line or none>\nhint: <text or none>\nLeg: hotfix\nmapped original AC: row 1 -> AC 1, leg hotfix\nRules: <repo-relative path or none>\npending: <target> | hotfix | <HEAD_BEFORE>\nSCOPED_TEST_COMMANDS: <commands>" })
+     task: "<binding block>\n\niteration: <i>\nspec: <absolute $TMPDIR/hotfix-<slug>.md path>\nledger: <absolute $TMPDIR/hotfix-ledger-<slug>.md path>\nbase: <BASE_SHA>\ntarget: <seed | 1>\nprevious decision: <line or none>\nhint: <text or none>\nLeg: hotfix\nmapped original AC: row 1 -> AC 1, leg hotfix\nRules: <repo-relative path or none>\npending: <target> | hotfix | <HEAD_BEFORE>\nSCOPED_TEST_COMMANDS: <commands>" })
    ```
 
    Use `previous decision: none` for seed, then the admitted seed decision for
@@ -216,7 +216,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
 
 ## Attempt budget
 
-Use row 1's `attempts` cell in `$TMPDIR/hotfix-<slug>-ledger.md` as the same
+Use row 1's `attempts` cell in `$TMPDIR/hotfix-ledger-<slug>.md` as the same
 counter for the first attempt, a red gate retry, a conformance gap fix, and a
 `FIX_FIRST` repair. Reuse step 4 with `target: 1` for all of them. Consume one
 attempt on admission or validation miss as defined there; leave attempts

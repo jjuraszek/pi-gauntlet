@@ -3,7 +3,7 @@
 base: c0d120bfe50a26056af5cfca0e4855de9278b2f4
 verification: npm test
 checks: commands
-iterations: 10
+iterations: 11
 allowance: 4
 
 | row | status | attempts | evidence |
@@ -16,7 +16,7 @@ allowance: 4
 | 6 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 6; PASS shared-budget re-audit on pi and inline paths; PASS protected blocks byte-identical; PASS row 6 text assertions |
 | 7 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 7; PASS exhaustive budget report before ledger teardown; PASS protected blocks byte-identical; PASS row 7 text assertions |
 | 8 | done | 2 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 8; PASS protected blocks and README/configuration/CHANGELOG commitments; PASS amended source and telemetry allowlist with transient ledger excluded at finish; PASS active ledger retained and shared machinery unchanged |
-| 9 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 9; PASS scoped instruction-size and gh-36 binding assertions; AC9 requires npm test but loop workers forbid full verification; Full-suite result unproven and row remains open |
+| 9 | failed | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 9; PASS scoped instruction-size, binding and hotfix bundle references after RED ledger.md failure; AC9 requires npm test but loop worker instructions forbid full verification; Parent must rerun npm test on the fixed skill |
 
 ## Decisions
 
@@ -30,3 +30,4 @@ row 6 done | Confirmed the pi re-audit path and gave inline hotfix repairs the s
 row 7 done | Added verbatim attempts and all ledger decisions to budget-exhausted reports before teardown on both harness paths. | Keep the report and protected blocks unchanged; address the shipped-file scope next.
 row 8 failed | Updated README, configuration and changelog; AC8 excludes the telemetry record that standard finish must ship. | Resolve the telemetry allowlist contradiction before retrying; the active ledger is transient and must not be stripped now.
 row 8 done | Updated the scratch scope assertion for amended AC8 and confirmed docs, protected blocks, and the telemetry allowlist pass. | Keep the active ledger until standard finish strips it; preserve the telemetry allowance and shared machinery.
+row 9 failed | Fixed all three ledger filename references and passed scoped checks; worker instructions prohibit npm test. | Parent must rerun npm test on the fixed skill; keep the filename fix and protected blocks unchanged.
