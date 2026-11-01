@@ -1,8 +1,9 @@
-for: 35570db5305c9507e803ef048de5114af60b408a3f87375ee259b6eae36930ec
+for: ea4601f6d7ccfc2585b638505de7e45a5e410243b5308622e609d983552b518b
 
 ## Change
 Complete verify step 1 after an escalated repair by running other checkouts' pairs skipped by fail-fast before granting verification. Run each isolated conformance child's repaired-leg pairs in its own checkout and temporary log directory; retain the parent checkout set and session logs after integration. Extend exit-verification-escalates and repairs-rerun-gate-set-only with observable continuation and child-path facts.
 Update tracker-refresh's all-cut expectation from a full gate to the empty gate set, with checks: commands and selective evidence fixtures for its continuing snapshots. Preserve task projection and admission facts. Complete full-target model coverage without accepting unrelated deviations.
+Read the approving turn's literal run allowance carrier at fresh Entry step 4, let it override the setting and print the reply/setting source echo. Use that resolved value for coordinated entry too; admitted ledgers ignore the carrier and settings. Add allowance-entry-carrier for reply, setting, coordinated and resume precedence. Run this sample now; full-target evaluation stays with row 12.
 
 Prove the existing gate-log boundary with gate-set-failure: one directory per verify session, fail-fast exit/path-only reporting, a concrete 25-line log whose human stop quotes only its last 20 lines, path-only repair handoff and redirected reruns in the same directory. A fresh-session resume creates new logs rather than trusting old ones. No skill behavior changes in this iteration; focused replays prove narrated operations, not live shell access. Full-target evaluation remains with row 8.
 Capture the decoded amendment grant, leg membership, checkout paths and Rules at seed or authorized restore before entering the dispatch loop, refreshing them only through authorized amendment actions. Restrict implement-driver reads to ledger/return/boundary data and skill resources/overrides; leave source and failure diagnosis to workers. Add driver-holds for restore capture, held-grant escalation, return admission and amendment refresh. Keep the existing leg-resume read-order and recovery facts; supply checks: commands in its admitted-ledger fixture so it exercises recovery rather than the separate legacy-header stop. Focused text replays prove narrated boundaries, not runtime file access; full-target runs remain with row 8.
@@ -68,6 +69,11 @@ Supply row 1's attempts value in the cap snapshot so its existing fact is observ
 - tracker-verify/repair: holds -> holds - replaced wording: Pass command, checkout, exit code and log path instead of failing output.
 - tracker-verify/failure: holds -> holds - replaced wording: Quote at most 20 log lines at the stop; never run full verification.
 - verify-lifecycle/contract: fails -> holds - replaced wording: Implement completes through the refresh; verify step 1 runs the deduplicated gate set with log redirection and no full verification; Gn tasks ride the same tracker.
+- allowance-entry-carrier/reply: fails -> holds - Consume the exact approving-turn carrier and print the reply echo at seeding.
+- allowance-entry-carrier/setting: fails -> holds - Fall back to the setting and print its source when the carrier is absent.
+- allowance-entry-carrier/coordinated: fails -> holds - Share the same resolved value and echo across coordinated entry.
+- allowance-entry-carrier/resume: holds -> holds - Existing ledger headers remain authoritative without reseeding or settings lookup.
+- allowance-entry-carrier/persistence: holds -> holds - Persist only the seeded ledger value, not a spec/settings transport.
 - human-stop-counts/row-stops: fails -> holds - Every row stop prints all unresolved counts using current effective allowances.
 - human-stop-counts/boundary-stops: fails -> holds - Dirty, rejected and interrupted stops show preserved counts without widening recovery authorization.
 - human-stop-counts/exit-stop: fails -> holds - A closed-row verification stop retains the preservation sentence and restricted menu without invented counts.

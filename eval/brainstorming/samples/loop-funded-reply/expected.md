@@ -1,6 +1,6 @@
-- five: judged: A and C persist the full option-2 granting sentence without any funding suffix. A says once that funding is waves-only and ignores the token. Both give amend permission, never redraw approval, and use default allowance4.
-- four: judged: B says funding is waves-only, ignores the token, persists Amend-grant none rather than a budget-only grant, and uses default allowance4.
-- route: judged: A/B/C/D/E write Engine loop directly below Amend-grant, amend preserving audit, check both fields in HEAD before completing brainstorm and invoking loop-implementation.
-- allowance: judged: D and E carry allowance6 to ledger seeding only, not the spec or settings; D persists Amend-grant none, E the full option-2 sentence without funding.
-- malformed: judged: Each malformed allowance reply triggers one clarifying question quoting its token and no writes or continuation; a second invalid reply leaves the gate waiting without a write.
+- five: judged: A re-presents the gate quoting fund 2 fix rounds and neither writes nor continues; C persists the full option-2 granting sentence without funding, gives amend permission but never redraw approval, and uses default allowance4.
+- four: judged: B re-presents the gate quoting fund 2 fix rounds, writes no grant or engine, and neither commits nor invokes an engine; funding is waves-only.
+- route: judged: C/D/E write Engine loop directly below Amend-grant, amend preserving audit, check both fields in HEAD before completing brainstorm and invoking loop-implementation; A/B stay waiting.
+- allowance: judged: D and E and their comma variants carry allowance6 to ledger seeding only, not the spec or settings; D persists Amend-grant none, E the full option-2 sentence without funding. Each prints exactly one run allowance: 6 line immediately before invoking loop-implementation; C emits no carrier.
+- malformed: judged: Each malformed or misplaced allowance reply triggers one clarifying question quoting its token and re-presents the gate without writes or continuation; a second invalid reply leaves the gate waiting without a write.
 - waves: judged: The option2 control retains the full granting sentence plus ; fund 2 fix rounds and Engine waves, routed to writing-plans with its funding intact.

@@ -1,10 +1,10 @@
-for: f69cb9167d4fa3bf4e17933cf997333a786edac593ca45cd2591e34c9282cd49
+for: 62d79f0ce46f12e958e9ae8e56a9ea3443755415346d90aa9929f339c19f0a5d
 
 ## Change
 
 Keep fix-round budget decoding waves-only without changing either engine's amendment consent. Extend loop-ledger-amend with allowance preservation and budget-only/mixed-grant comparisons for both engines. Run that sample and the existing engine-waves control now; leave full-target evaluation to the parent at the end of the ledger.
 
-Seed the loop ledger from a 4/5 allowance suffix, reject malformed allowance values before writes, and ignore deprecated loop funding with a waves-only note. Replace loop-funded-reply's funding facts with ignored-token/default behavior, add explicit override and waves controls, and update loop-gate's suffix affordance. Run those partial samples now; the parent owns the full-target end run. Keep waves funding and exact grant/engine persistence otherwise unchanged.
+Resolve and display the setting allowance on both loop approval rows, before the final summary read, with a warning line or unavailable-tool stop. Reject funding on 4/5 and allowance on waves choices without writes. Carry accepted semicolon/comma allowance replies through exactly one run allowance line immediately before loop invocation. Update loop-gate and loop-funded-reply to cover these repairs, malformed/duplicate/trailing tokens and unchanged waves funding. Run these samples now; full-target evaluation stays with row 12.
 
 The worker critique applies the council's PR-source predicate and re-source-or-ask correction as its third check. The tool-free worker-critique-pr-source sample adds the full spec-finalization reference locally, drops the unrelated amendment reference, and judges a rendered dispatch from a fixed checkpoint. Preserve every prior fact, accepted variance, target configuration, and frontmatter. Deterministic structural tests do not prove model behavior; the parent runs the full target replay.
 
@@ -129,16 +129,17 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 - pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
-- loop-gate/menu: fails -> holds - Render exact options 4/5 with the run allowance suffix; offer funding only on 1/2.
+- loop-gate/menu: fails -> holds - Render exact options 4/5 with resolved allowance7 and the run allowance suffix; offer funding only on 1/2.
+- loop-gate/settings: fails -> holds - Resolve once before the summary read, show warnings and stop on unavailable settings.
 - loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
 - loop-gate/no-ac: fails -> holds - Keep the 1/2/3/6 not-fetched zero-row gate without 4/5; drafted rows enable loop options.
 - engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
 - engine-waves/audit: fails -> holds - Audit re-gates without approval.
 - engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.
 - engine-waves/invalid: fails -> holds - Budget-only and malformed replies do not write.
-- loop-funded-reply/five: fails -> holds - Ignore loop funding, emit the waves-only note and retain option5's grant without a budget.
-- loop-funded-reply/four: fails -> holds - Ignore loop funding and persist option4's none grant with the default allowance.
-- loop-funded-reply/allowance: fails -> holds - Carry the override only to ledger seeding, independently of amend permission.
+- loop-funded-reply/five: fails -> holds - Reject funded option5 without writes while bare5 retains its full amendment grant.
+- loop-funded-reply/four: fails -> holds - Reject funded option4 without writes or continuation.
+- loop-funded-reply/allowance: fails -> holds - Emit the exact carrier for semicolon/comma overrides only, independently of amend permission.
 - loop-funded-reply/waves: holds -> holds - Retain option2's funding suffix and waves route.
 - loop-funded-reply/route: fails -> holds - Check both fields before completing and dispatching loop.
 - loop-funded-reply/malformed: fails -> holds - Quote malformed allowance tokens in one clarification and wait without writes.

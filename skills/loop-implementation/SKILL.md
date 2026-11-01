@@ -9,7 +9,7 @@ Run this driver in the main session. Carry the absolute implementation worktree 
 
 ## Entry
 
-1. Read project overrides below. Resolve `gauntlet_setting({ key: "loopEngine" })` and retain `maxIterationsPerRow` (default 4). Stop on an unavailable settings tool. Use the approved `; allowance N` gate suffix as this run's seed value when supplied; otherwise use `maxIterationsPerRow`. Persist the value only in the ledger, not in the spec or settings.
+1. Read project overrides below. Resolve `gauntlet_setting({ key: "loopEngine" })` and retain `maxIterationsPerRow` (default 4). Stop on an unavailable settings tool. Select this run's seed value in step 4 and persist it only in the ledger, not in the spec or settings.
 2. Resolve verification once using this ordered table. Print `verification command: <command> (<source>)`.
 
 | Observed configuration | Action |
@@ -20,10 +20,10 @@ Run this driver in the main session. Carry the absolute implementation worktree 
 
 At seed and at an authorized restore, before entering the dispatch loop, read the spec in full. Decode `**Amend-grant:**` through [amendment-surface Value decoding](../brainstorming/reference/amendment-surface.md). Capture the decoded grant, ordered leg membership, each leg's absolute checkout paths and combined spec/task Rules for dispatch and handoff; use home for zero or one leg.
 
-At seed and at an authorized restore, when the held membership has more than one leg, read `reference/coordinated-legs.md` IN FULL now with read at its absolute path; stop on an unreadable reference naming its path, never reconstruct it. On fresh entry apply its `## Entry` section instead of the home-only skeleton below; keep step 1's allowance seed value. On a restore apply its `## Resume` section before the dirty-tree stop and before any pending recovery. Keep legacy and single-member ledger bytes unchanged, with no coordinated metadata.
+At seed and at an authorized restore, when the held membership has more than one leg, read `reference/coordinated-legs.md` IN FULL now with read at its absolute path; stop on an unreadable reference naming its path, never reconstruct it. On fresh entry apply its `## Entry` section at step 4 instead of the home-only skeleton below, using step 4's resolved allowance seed value. On a restore apply its `## Resume` section before the dirty-tree stop and before any pending recovery. Keep legacy and single-member ledger bytes unchanged, with no coordinated metadata.
 
 3. Call `phase_tracker({ action: "skip", phase: "plan", reason: "loop engine" })`.
-4. Require a clean named-branch implementation worktree. Write `<resolved plan dir>/<spec stem>-ledger.md`. Use this grammar with literal values, not placeholders:
+4. Require a clean named-branch implementation worktree. Read the literal `run allowance: <n>` line from the invoking approval turn: it carries the approved `; allowance N` (or comma) suffix. Use that value over step 1's setting; with no carrier use `maxIterationsPerRow`. Print `allowance: <n> (reply)` or `allowance: <n> (setting)` with the seeded header. Ignore the carrier once a ledger exists; resume uses its header only. Write `<resolved plan dir>/<spec stem>-ledger.md`. Use this grammar with literal values, not placeholders:
 
 ```markdown
 # Ledger - loop engine
@@ -41,7 +41,7 @@ allowance: <n>
 ## Decisions
 ```
 
-Use the actual repo-relative spec path alone in the Spec header. Read base with `git -C "<worktree>" rev-parse HEAD`. Index every spec AC in order, including nested disposition lines without treating them as extra ACs; keep row text only in the spec. Initialize explicit/absent `in-scope` and `venue:` rows `open`, attempts 0, evidence empty. Initialize only `deviates:`, `deferred:`, `elsewhere:` rows `cut`, attempts 0, disposition text as evidence. Write `allowance:` immediately after `iterations: 0` using step 1's seed value; never scale it by row count or seed dispatches: 24 non-cut rows at default 4 yield allowance 4. All-cut ledgers keep the same allowance and exit through rule 1 without a seed dispatch. Later cuts, reopens and requirement-preserving amendments leave allowance unchanged; redraw deletes the ledger and reseeds it. Serialize evidence in one physical table cell, result lines separated by semicolons, pipes escaped, plain text without angle markup.
+Use the actual repo-relative spec path alone in the Spec header. Read base with `git -C "<worktree>" rev-parse HEAD`. Index every spec AC in order, including nested disposition lines without treating them as extra ACs; keep row text only in the spec. Initialize explicit/absent `in-scope` and `venue:` rows `open`, attempts 0, evidence empty. Initialize only `deviates:`, `deferred:`, `elsewhere:` rows `cut`, attempts 0, disposition text as evidence. Write `allowance:` immediately after `iterations: 0` using step 4's seed value; never scale it by row count or seed dispatches: 24 non-cut rows at default 4 yield allowance 4. All-cut ledgers keep the same allowance and exit through rule 1 without a seed dispatch. Later cuts, reopens and requirement-preserving amendments leave allowance unchanged; redraw deletes the ledger and reseeds it. Serialize evidence in one physical table cell, result lines separated by semicolons, pipes escaped, plain text without angle markup.
 5. Call `plan_check({ planPath: <ledger path> })`. Stop with findings as a configuration error. Commit the stamped skeleton as `loop: seed ledger`; call `phase_tracker({ action: "start", phase: "implement" })`, then `plan_tracker({ action: "refresh", path: <absolute ledger path> })`, including all-cut ledgers with no seed dispatch.
 
 For resume, use the admitted ledger, its base and verification command, and durable iterations and allowance instead of overwriting it. Skip Entry step 1 for an admitted ledger; settings apply only to fresh seeding. Apply `/skill:gauntlet-resume` pending recovery and its `loop: migrate allowance` step before refresh and any unresolved dirty-tree stop. Render rows, allowance and decision history; stop on a dirty tree before dispatch.

@@ -10,7 +10,7 @@ For coordinated exit, apply the driver's `## Gate set` and `## After the loop` s
 
 Assign numeric entries in original AC order, then membership order for shared ACs, independent of scope-list order. Leave spec rows untouched and copy each cut disposition to every expanded entry. Keep the four-column table and add `## Leg mapping` with `row | ac | leg`, one mapping per entry exactly once. Reject duplicate/missing mappings. Keep `base:` as home base; record one actual `base repo-a: <sha>` / `seeded repo-a: no` pair per member, including home. Resolve bases with each member's `git -C`, not home HEAD.
 
-Use the same allowance seed value as the home driver's Entry step 1; never multiply by entry or leg count or add seed dispatches. One shared home/companion AC and one home-only AC produce three entries, two seeds and allowance 4 at default 4; a wholly cut third leg adds no seed. All-cut ledgers exit without seed and retain that allowance. Preserve allowance after cuts, reopens, requirement-preserving amendments and recovery.
+Use the same allowance seed value and source echo as the home driver's Entry step 4; never multiply by entry or leg count or add seed dispatches. One shared home/companion AC and one home-only AC produce three entries, two seeds and allowance 4 at default 4; a wholly cut third leg adds no seed. All-cut ledgers exit without seed and retain that allowance. Preserve allowance after cuts, reopens, requirement-preserving amendments and recovery.
 
 ## Resume
 

@@ -588,4 +588,16 @@ test('configuration-allowance: documented gate and entry behavior matches instru
     if (!driver.includes(`allowance: <n> (${source})`)) missing.push(`loop entry omits the ${source} source echo`);
   }
   assert.deepEqual(missing, [], missing.join('; '));
+  const gateOnly = gate.slice(gate.indexOf('## User Review Gate'));
+  assert.match(gateOnly, /Before the summary `Read` below, resolve `gauntlet_setting\(\{ key: "loopEngine" \}\)` once/);
+  assert.match(gateOnly, /Render any settings warning as one adjacent line\. Stop on an unavailable settings tool/);
+  assert.match(gateOnly, /print exactly one line `run allowance: <n>` immediately before invoking/);
+  assert.match(gateOnly, /omit that line on a bare approval/);
+  const funding = gateOnly.split('\n').find(line => line.startsWith('| `4` or `5` with a funding token'));
+  assert.match(funding, /re-present the gate quoting the token; write nothing and wait/);
+  const entry = driver.slice(driver.indexOf('\n4.'), driver.indexOf('## Before each dispatch'));
+  assert.match(entry, /Read the literal `run allowance: <n>` line from the invoking approval turn/);
+  assert.match(entry, /Use that value over step 1's setting; with no carrier use `maxIterationsPerRow`/);
+  assert.match(entry, /Ignore the carrier once a ledger exists; resume uses its header only/);
+  assert.match(readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8'), /same allowance seed value and source echo as the home driver's Entry step 4/);
 });

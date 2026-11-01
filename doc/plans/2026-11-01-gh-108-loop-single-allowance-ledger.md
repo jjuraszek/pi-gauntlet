@@ -2,7 +2,7 @@
 **Spec:** `doc/specs/2026-11-01-gh-108-loop-single-allowance.md`
 base: 4cb3a8891e40a8c0749de9905ca62571bd42c3da
 verification: npm test
-iterations: 11
+iterations: 12
 cap: 49
 
 | row | status | attempts | evidence |
@@ -17,7 +17,7 @@ cap: 49
 | 8 | done | 1 | human stop counts contract / human-stop-counts and tracker-boundary evals; 5 targeted contract tests pass; both models hold all 18 fact checks; every stop preserves counts and recovery or verify menu boundaries |
 | 9 | done | 1 | node scripts/brief-contract-lint.test.mjs PASS; node eval/run.mjs gauntlet-resume durable-cap, legacy-cap-brief, migration-recovery (separate runs) PASS; 28 candidate fact checks hold across both models; active ledger cap:49 preserved |
 | 10 | done | 0 | stagnation-boundaries file assertion - skills/loop-implementation/SKILL.md and reference/coordinated-legs.md; PASS: two ledger-only child commits without status change stop independently of funding; PASS: two consecutive validation misses stop and conforming returns reset misses; PASS: child-only counting and retry windows retained |
-| 11 | failed | 1 | node --test --test-name-pattern=configuration-allowance scripts/loop-engine-contract.test.mjs; PASS: five binding docs updated; FAIL: gate omits resolved menu allowance and accepts funding on 4/5; FAIL: gate and driver omit run allowance carrier and driver omits source echoes |
+| 11 | done | 2 | configuration-allowance and targeted approval/seed checks; PASS: 5 source tests; PASS: loop-gate and loop-funded-reply evals, 22 fact checks across both models; PASS: allowance-entry-carrier eval, 10 fact checks across both models |
 | 12 | open | 0 | eval-allowance-contract file assertion - eval/loop-implementation/samples/scaled-cap-grant/expected.md; FAIL: expected facts require a total-cap stop and cap +N; model eval not run |
 
 ## Decisions
@@ -32,3 +32,4 @@ row 7 done | Explicit retry replies and no-write invalid grants pass three contr
 row 8 done | Every human stop displays unresolved row counts without widening recovery or verify menus; five contract tests and all eighteen model fact checks pass. | Take row 9's resume migration next; preserve active cap 49 and the stop menus, and leave full-target evals for the end.
 row 9 done | Resume recovers before header-only allowance migration; contract fixtures and 28 model fact checks pass. | Take row 11's docs next; preserve active cap 49 and leave remaining cap-based eval fixtures and full-target runs to row 12.
 row 11 failed | Updated five binding docs; source checks expose missing gate allowance display, carrier and echoes, plus incorrect funding acceptance. | Align approval and entry instructions with the documented contract; preserve cap 49 and leave full-target evals to row 12.
+row 11 done | Gate displays resolved allowances, rejects misplaced funding and carries overrides into entry source echoes; five source tests and 32 model fact checks pass. | Take row 12's remaining fixture migration and full-target evals; preserve active cap 49 and do not redo gate or carrier repairs.

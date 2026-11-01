@@ -264,7 +264,7 @@ test('spec-finalization writes the grant line and persists approval-time grants 
 test('loop approval allowance suffix seeds only this run ledger', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   const gate = text.slice(text.indexOf('## User Review Gate'));
-  for (const token of ['4; allowance 6', '5; allowance 6', '[1-9][0-9]*', 'positive safe integer', 'allowance: 6', 'only in the ledger', 'not in the spec or settings', 'exactly one clarifying question', 'wait without writing', 'waves-only', 'ignore the funding token', 'bare option']) assert.ok(gate.includes(token), token);
+  for (const token of ['4; allowance 6', '5; allowance 6', '[1-9][0-9]*', 'positive safe integer', 'allowance: 6', 'only in the ledger', 'not in the spec or settings', 'exactly one clarifying question', 'wait without writing', 'waves-only', 're-present the gate quoting the token', 'bare option', '4, allowance 6', '5, allowance 6', 'run allowance: <n>']) assert.ok(gate.includes(token), token);
   assert.doesNotMatch(gate, /persist the option-2 description plus `; fund 3 fix rounds`; engine loop|budget-only\); engine loop/);
   assert.match(read('doc/gate-contract.md'), /`; allowance N`.*4\/5.*`; fund N fix rounds`.*1\/2/);
 });
@@ -532,10 +532,10 @@ test('PR spec replacement and lint preserve the record and raw council input', (
 test('engine gate persists both fields before completing and dispatching the selected engine', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   for (const line of [
-    '4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.',
-    "5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.",
+    '4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1; allowance <n> per row.',
+    "5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant, allowance <n> per row.",
   ]) assert.ok(text.includes(line), line);
-  for (const marker of ['asking for `1`, `2`, `4`, or `5`', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render only options 1, 2, 3, 6 (PR subject: 1, 2, 3)', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `5`', '`5; fund 3 fix rounds`', '`4` with a budget token', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['asking for an approval option', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render only options 1, 2, 3, 6 (PR subject: 1, 2, 3)', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `4` or `5`', '`4` or `5` with a funding token', 'write nothing and wait for a valid approval', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
   const persistence = text.indexOf('On every implementation approval');
   const amend = text.indexOf('commit --amend --no-edit -q', persistence);
   const check = text.indexOf('both fields', amend);

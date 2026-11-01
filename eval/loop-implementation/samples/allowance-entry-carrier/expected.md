@@ -1,0 +1,5 @@
+- reply: judged: A reads run allowance: 6 from the invoking approval turn at Entry step 4, seeds iterations: 0 followed by allowance: 6 and prints allowance: 6 (reply); setting7 does not win.
+- setting: judged: B seeds iterations: 0 followed by allowance: 7 and prints allowance: 7 (setting), without inventing a reply carrier.
+- coordinated: judged: C uses the same step-4 carrier selection and allowance: 6 (reply) echo, with one shared allowance: 6 header after iterations: 0; entry count never scales it.
+- resume: judged: D keeps allowance9, iterations8 and both attempts unchanged; ignores the old carrier and settings, skips fresh seeding and its source echo, performs no settings lookup or header rewrite.
+- persistence: judged: The carrier belongs only to the invoking approval turn and the seeded value persists only in the ledger, never in the spec or settings.
