@@ -117,8 +117,9 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    existing repo-relative path, in that order; none present -> `Rules: none`.
    Never substitute a primary-checkout path for a Rules path.
 
-   Before each dispatch, save the ledger's current `iterations` as `i` and the
-   worktree HEAD as `HEAD_BEFORE`; write `iterations: i + 1` and
+   Before each dispatch, save row 1's `attempts`, the ledger's current
+   `iterations` as `i`, and the worktree HEAD as `HEAD_BEFORE`;
+   write `iterations: i + 1` and
    `pending: <target> | hotfix | <HEAD_BEFORE>` to the ledger. Pass that exact
    tuple to the child, with the pre-bump `iteration: <i>`:
 
@@ -154,10 +155,61 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    Keep the `BLOCKED:` opening line: pi-cohort treats it as a dispatch error
    carrying the full output before the child's completion guard runs.
    After each return, run `binding_check` before reading the decision or handling
-   a dispatch error; a failed check -> `binding_abort`. Validate the companion
-   result commit before writing its row and decision to the ledger and clearing
-   `pending:`. Admit the seed before issuing the first row attempt; only an
-   admitted row 1 `done` proceeds to step 5.
+   a dispatch error; a failed check -> `binding_abort`. Then apply these checks
+   in order, reading the commit rather than trusting the child's reply:
+
+   **Boundary.** Run `git -C <WORKTREE> status --porcelain` and
+   `git -C <WORKTREE> rev-list <HEAD_BEFORE>..HEAD --count`. Non-empty porcelain
+   or more than one new commit -> abort (pre-land), naming the dirt or count;
+   leave attempts unchanged and the ledger untouched. Never discard changes
+   to make a return admissible.
+
+   **Commit body and evidence.** Require body lines 1-2, immediately after the
+   subject's blank separator, to equal the dispatched `pending:` tuple and
+   `iteration: <i + 1>`. Require a blank line, exactly one four-column row
+   without a header, then a blank line and the decision. In the evidence cell,
+   require one runnable, selective evidence command up to the first unescaped
+   semicolon, plus at most three semicolon-separated result lines. Require plain
+   text in one physical Markdown cell with pipes escaped as `\|`. The command
+   must contain no `;`, `|`, or `&&`, select a file, test id, filter, or assertion,
+   and differ from the ledger's full `verification:` command. Require a check
+   that exits nonzero when no test is selected; verify a filter's no-match exit
+   once, otherwise require the file invocation.
+
+   **Seed admission (`target: seed`).** Require exactly one new commit with
+   subject `loop: seed evidence`, the body above, row
+   `| 1 | open | 0 | <evidence> |`, and the exact decision
+   `row 0 done | seeded 1 rows, closed 0 on baseline | 1`. Inspect
+   `git -C <WORKTREE> diff <HEAD_BEFORE>..HEAD` for tracked changes:
+
+   | Seed result | Action |
+   |---|---|
+   | Row status `done` | Abort (pre-land): `baseline already passes: repro not captured` |
+   | Empty diff | Admit only when the evidence command equals the record's `evidence-command` or names a path present at `BASE_SHA`, proved by `git -C <WORKTREE> cat-file -e <BASE_SHA>:<path>`; otherwise treat as a seed miss |
+   | Zero commits, dispatch error without a commit, wrong subject, malformed body, row, counts, or decision, or any other seed miss | Abort (pre-land), no seed retry |
+   | All checks pass | Apply the admitted result below, then issue the first row attempt |
+
+   **Row admission (`target: 1`).** Require exactly one new commit with subject
+   `loop: row 1 done` or `loop: row 1 failed`, the body above, and row
+   `| 1 | <status> | <attempts> | <evidence> |`. Require attempts = saved attempts + 1
+   and identical status in the subject, row, and decision. Match the decision to
+   `^row 1 (done|failed) \| .{1,200} \| .{1,200}$`. Inspect
+   `git -C <WORKTREE> diff <HEAD_BEFORE>..HEAD`; a diff changing no tracked file
+   is a validation miss (no progress).
+
+   **Admitted result.** The parent writes the row, appends the decision to
+   `## Decisions`, clears `pending:`, and resets the consecutive-miss count.
+   For row 1, `done` -> step 5; `failed` -> next attempt under Attempt budget,
+   with the admitted decision as `previous decision`.
+
+   **Validation miss (`target: 1` only).** Treat zero commits, a dispatch error
+   without a commit, malformed subject/body/row/decision, attempts not equal to
+   saved attempts + 1, status disagreement, or an empty row commit as a miss.
+   Write row 1 `failed`, attempts = saved attempts + 1, and evidence
+   `attempt <n>: <concrete miss>`; clear `pending:` and use
+   `previous decision: none` for the next dispatch under Attempt budget.
+   Count consecutive misses across row returns; the second consecutive miss ->
+   abort (pre-land).
 5. **Test.** Run `SCOPED_TEST_COMMANDS` in the worktree. Red -> one implementer
    retry -> red -> abort.
 6. **Verify (advisory).** One fresh `conformance-reviewer`. Its entire origin, in

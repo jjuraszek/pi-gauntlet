@@ -3,14 +3,14 @@
 base: c0d120bfe50a26056af5cfca0e4855de9278b2f4
 verification: npm test
 checks: commands
-iterations: 3
+iterations: 4
 allowance: 4
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 1; PASS row 1 text assertions; One AC row with invariants and fenced report |
 | 2 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 2; PASS row 2 text assertions; PASS companion fields and binding/protected blocks |
-| 3 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 3; FAIL missing loop: seed evidence commit contract |
+| 3 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 3; PASS row 3 text assertions; PASS admission contracts and protected blocks |
 | 4 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 4; FAIL missing maxIterationsPerRow and shared attempt budget |
 | 5 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 5; FAIL step 6 lacks closureReview resolution |
 | 6 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 6; FAIL step 6 explicitly says no second audit |
@@ -23,3 +23,4 @@ allowance: 4
 row 0 done | seeded 9 rows, closed 0 on baseline | 1
 row 1 done | Added the single-AC handoff template, R2/R3 invariants, fenced verbatim report, and dependency evidence command. | Keep the handoff template and implement seed-then-row dispatch next.
 row 2 done | Replaced step 4 with fresh companion seed-then-row dispatches and added the parent-owned ledger, mapping, Rules, and seed hints. | Keep dispatch and binding text; add exact commit admission checks next.
+row 3 done | Added ordered seed and row commit admission, bounded evidence checks, empty-diff rules, and validation-miss accounting. | Keep admission and protected blocks unchanged; implement the shared attempt budget next.
