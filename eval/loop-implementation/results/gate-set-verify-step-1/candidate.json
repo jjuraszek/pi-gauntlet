@@ -1,0 +1,100 @@
+{
+  "sample": "gate-set-verify-step-1",
+  "arm": "candidate",
+  "skillSha": "571630d81ca065d51e72f0c3840a96c31ee6d01b3cbcc913c953a61c594619db",
+  "inputSha": "404c7784660f536ed5ff420b61ab6f31e2868070a559829ef62642aae4b3fe67",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "These snapshots are independent. No tool call below has run. `<LOG_DIR>` stands for whatever path `mktemp -d` would return.\n\n---\n\n## Snapshot 1: verify steps 0–1 on the four-row ledger\n\n### Pre-step reads (After the loop)\n\nBefore step 0, read these references in full at their absolute paths:\n\n1. `read` SDD's `After All Tasks Complete`\n2. `read` `../subagent-driven-development/reference/happy-path-run.md`\n3. `read` `../verification-before-completion/reference/conformance-check.md`\n\nIf any of them is unreadable, stop and name its path. Never reconstruct a reference.\n\n### Step 0\n\n- **Tool call:** `phase_tracker({ action: \"start\", phase: \"verify\" })`\n  - Implement is already complete from the last admitted refresh.\n- **Shell call 1:** `LOG_DIR=$(mktemp -d)`\n  - This runs once for this verify session.\n  - It is the parent's session directory and goes outside the repository.\n\n### Step 1: resolve the gate set\n\n- **Ledger checks (no command runs):**\n  - The `checks: commands` line is present, so there is no missing-checks stop.\n  - There is no `## Leg mapping`, so every row runs in home `/work/repo`.\n- **Each row's command** is its first evidence segment, up to the first unescaped semicolon:\n\n| row | status | contributes? | pair |\n|---|---|---|---|\n| 1 | done | yes | (`/work/repo`, `node --test parser.test.mjs`) |\n| 2 | done | duplicate of row 1, dropped | n/a |\n| 3 | cut | no, cut rows are excluded | n/a |\n| 4 | done | yes | (`/work/repo`, `test -f doc/guide.md`) |\n\n- **Ordering after deduplication:** the first row that contributes a pair fixes its position.\n  - **Gate 1** is from row 1.\n  - **Gate 2** is from row 4.\n\n### Step 1: run the gate set (foreground, one at a time, fail-fast)\n\n- **Shell call 2:** `(cd \"/work/repo\" && node --test parser.test.mjs) > \"$LOG_DIR/gate-1.log\" 2>&1`\n  - Exit 0. Print `gate 1 exit 0 <LOG_DIR>/gate-1.log`.\n- **Shell call 3:** `(cd \"/work/repo\" && test -f doc/guide.md) > \"$LOG_DIR/gate-2.log\" 2>&1`\n  - Exit 0. Print `gate 2 exit 0 <LOG_DIR>/gate-2.log`.\n\n### Log handling and retained evidence\n\n- Only the exit line and the log path are kept. No log is read.\n  - The `tail -n 20` excerpt exists only at a verification-failure human stop, and none occurs here.\n- Every pair ran and exited 0, so the gate passes.\n- No repair happens, so there is no rerun, no escalation and no `loop: repair verification`.\n\n### Step 1: closing actions\n\n- **Shell call 4:** `git -C \"/work/repo\" status --porcelain`\n  - If it shows tracked changes produced by verification or the gates, stage them explicitly and commit them.\n  - The ledger, rows and iterations stay unchanged. No refresh is needed, because there is no admitted `loop:` commit.\n- **Shell call 5:** `git -C \"/work/repo\" rev-parse HEAD`\n  - Record the result as the verified HEAD, together with clean status.\n  - There is one leg: home.\n\n### Human-facing output\n\n```\ngate 1 exit 0 <LOG_DIR>/gate-1.log\ngate 2 exit 0 <LOG_DIR>/gate-2.log\n```\n\nThere is no `gauntlet: question` and no menu, because this is not a stop.\n\n**Next:** step 2, the whole-diff `wave-reviewer` from base through HEAD. Halted here as instructed; it is not dispatched.\n\n### Where `verification: make ci` is used\n\n- **Where it came from:** it was resolved at Entry step 2 and written into the seeded ledger header. It is kept as the command CI runs.\n- **Where it is never run:**\n  - verify step 1\n  - after whole-diff fix rounds\n  - conformance test sites\n  - finish Step 1\n  - an escalated repair's rerun\n- **Where it is forbidden:** the persona may not record it as a row's evidence command.\n- **Result in this trace:** zero `make ci` invocations.\n\n---\n\n## Snapshot 2: membership-only query, row 4 = `failed`, evidence `node --test broken.test.mjs; failed`\n\n- Failed rows contribute nothing. Row 3 is cut, and row 2 deduplicates into row 1.\n- **Gate members:** exactly one pair, gate 1 = (`/work/repo`, `node --test parser.test.mjs`), from row 1.\n- `node --test broken.test.mjs` is **not** a member.\n\nThis answers membership only:\n- A `failed` row means ordered rule 1 would not let implement exit.\n- The real driver would stay in implement and dispatch or stop on row 4.\n- No phase change and no verification run happen here.\n\n---\n\n## Snapshot 3: fresh all-cut ledger with `checks: commands`\n\n- **How it got here:**\n  - Its cap was 1.\n  - Rule 1 exited it with no seed dispatch.\n  - Implement completed after the seed refresh.\n- **Step 0:** the same `phase_tracker` start call and `LOG_DIR=$(mktemp -d)`.\n- **Step 1:** the `checks:` line is present, and there are no non-cut `done` rows.\n  - Print `gate set empty - every row cut` and continue. This counts as a pass with zero gate invocations, and `make ci` is never run.\n  - Then do the same status check, commit if needed, and record the verified HEAD.\n- **Next:** step 2 (not dispatched here).\n",
+      "words": 707,
+      "wallMs": 29264,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are three independent hypothetical traces. **No calls have run.**\n\n## 1. Closed-row ledger: verify steps 0–1\n\n### Prerequisite calls\n\nBefore entering verify, the driver would read these resources **in full**, using their resolved absolute skill-resource paths:\n\n- SDD’s `After All Tasks Complete`\n- `subagent-driven-development/reference/happy-path-run.md`\n- `verification-before-completion/reference/conformance-check.md`\n\nAn unreadable required resource would stop the continuation.\n\nImplement is already complete after the admitted return’s refresh. No implementer dispatch, pending tuple, or iteration bump is needed.\n\n### Step 0: start verify and establish logs\n\nCall:\n\n```text\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n\nThen mint one directory in the executing parent process:\n\n```sh\nLOG_DIR=$(mktemp -d)\n```\n\nRetain that directory for every gate run and rerun in this verify session.\n\n### Step 1: resolve and run the gate set\n\nRead the ledger and require `checks: commands`.\n\nSelect commands from the first evidence segment of non-cut `done` rows, deduplicating **(checkout, command)** pairs in row order:\n\n| Gate | Checkout | Command | First contributing row |\n|---|---|---|---|\n| 1 | `/work/repo` | `node --test parser.test.mjs` | 1 |\n| 2 | `/work/repo` | `test -f doc/guide.md` | 4 |\n\nRow 2 contributes the same pair as row 1, so it adds no invocation. Row 3 is cut.\n\nThe exact ordered shell sequence is:\n\n```sh\n(cd \"/work/repo\" && node --test parser.test.mjs) > \"$LOG_DIR/gate-1.log\" 2>&1\ngate_exit=$?\nprintf 'gate 1 exit %s %s\\n' \"$gate_exit\" \"$LOG_DIR/gate-1.log\"\n```\n\nProceed only because gate 1 exits zero:\n\n```sh\n(cd \"/work/repo\" && test -f doc/guide.md) > \"$LOG_DIR/gate-2.log\" 2>&1\ngate_exit=$?\nprintf 'gate 2 exit %s %s\\n' \"$gate_exit\" \"$LOG_DIR/gate-2.log\"\n```\n\nBoth commands run foreground, one at a time. The gate runner is fail-fast, although neither gate fails in this snapshot.\n\nHuman-facing exit lines, with the actual minted directory substituted, would be:\n\n```text\ngate 1 exit 0 <LOG_DIR>/gate-1.log\ngate 2 exit 0 <LOG_DIR>/gate-2.log\n```\n\nDo **not** read either log on this successful path. Retain the ordered gate identities, exit codes, and log paths—not pasted output or inferred test counts.\n\n### Durable state and handoff boundary\n\n- Preserve every evidence cell, row status, attempt count, and decision.\n- Preserve `iterations: 3` and `cap: 17`.\n- Leave `verification: make ci` unchanged.\n- Check for verification-produced tracked changes. If present, commit them before recording the verified HEAD.\n- Record the resulting full HEAD and clean status using:\n  ```sh\n  git -C \"/work/repo\" status --porcelain\n  git -C \"/work/repo\" rev-parse HEAD\n  ```\n  Clean status is required; do not fabricate it.\n- If a repair occurs, this gate run is invalidated and the required rerun must pass before proceeding.\n\nThe **verification header is retained as the command CI runs**. It is not the gate source or a fallback: there are **zero invocations of `make ci`** at this site.\n\n**Next target:** whole-diff `wave-reviewer`, using the ledger base through committed HEAD and `SCOPED_TEST_COMMANDS: none`. Stop here, **before dispatching that reviewer**. Verify remains active; these passing gates alone do not complete verify.\n\n## 2. Membership-only query: row 4 is failed\n\nWith row 4 changed synthetically to:\n\n```text\nfailed | node --test broken.test.mjs; failed\n```\n\nthe resulting gate set is only:\n\n```text\n(/work/repo, node --test parser.test.mjs)\n```\n\nRows 1 and 2 deduplicate into that one member. Row 3 is cut, and failed row 4 contributes **nothing**—neither its former command nor `broken.test.mjs`.\n\nThis query authorizes **no verification, phase transition, durable edit, or dispatch**. Row 4 remains unresolved. If implementation were separately authorized to continue, the normal ordered boundaries would apply first; its next ordinary target would be row 4, assuming no outstanding seed requirement or higher-priority retry target.\n\n## 3. Fresh all-cut ledger reaching verify\n\nRequire `checks: commands`. Since every row is cut, the gate set is empty.\n\nStep 0 would still call:\n\n```text\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n\nand mint the session directory:\n\n```sh\nLOG_DIR=$(mktemp -d)\n```\n\nStep 1’s human-facing output is exactly:\n\n```text\ngate set empty - every row cut\n```\n\n**Outcome:** the gate set passes with zero gate invocations and no gate logs. Do not run the verification header command. Preserve the ledger, then require and record clean status and verified HEAD before continuing.\n\n**Next target:** the prescribed whole-diff review continuation—not another implementation row. An empty gate set does not itself complete verify.\n",
+      "words": 640,
+      "wallMs": 28316,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ae0152555f4ec5f074367d4aa8da56a34ab42347056d19acd4d709c8a605566d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f01c9281ed5ee90edc6ace0e07289329ced4dc31474bbd50da5c56c7a1893c3a",
+      "baselineOutputSha": "74a3b4cf077bc94e17d5a3c405672f1279a35cfd73739fab39ec68aa5e1c4945",
+      "candidateOutputSha": "28a665159fc957310834b5cc6b2b2331d36ab4fbdcf2fcbe4dffec54e2ef3eb4",
+      "facts": {
+        "union": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "logs": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scoped": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "membership": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers every fact the Change targets: it refuses to treat `checks: commands` as unknown, derives the gate set from first evidence segments (row 1's parser test, row 2 dropped as a duplicate, row 3 excluded as cut, row 4's `test -f`), runs each pair foreground in /work/repo with `> \"$LOG_DIR/gate-N.log\" 2>&1`, prints only `gate N exit 0 <path>`, never invokes `make ci` while still committing gate-produced tracked changes and listing `make ci` as CI-only metadata, and handles both variants correctly (failed row contributes nothing and no verification runs; all-cut prints the literal `gate set empty - every row cut` line and continues with zero commands). Before failed all four because it declared `checks:` unrecognized and ran `make ci` as the sole gate. Two small wording points to keep tight: After places `LOG_DIR=$(mktemp -d)` under Step 0 rather than at the start of step 1 — the fact tolerates this since it is minted once per session, but stating it as the first step-1 action would match the narrative order of 'start verify, mint LOG_DIR, run pairs' more exactly; and the all-cut snapshot says 'there are no non-cut done rows' before printing the empty line, which is correct but would read more precisely as 'no row contributes a pair' to cover failed/open-free ledgers generally. No fact regressed; nothing in Before needs restoring.",
+      "wallMs": 16097,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ae0152555f4ec5f074367d4aa8da56a34ab42347056d19acd4d709c8a605566d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f01c9281ed5ee90edc6ace0e07289329ced4dc31474bbd50da5c56c7a1893c3a",
+      "baselineOutputSha": "29ef69e3d31557358bc0c544b6b8d9d0a3483aca27c31c16719ed9e9adba037e",
+      "candidateOutputSha": "e9ea5fffa84638310d623ae970c48e01f496bc800f10ca2ed2b49b0e80fbcb5a",
+      "facts": {
+        "union": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "logs": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scoped": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "membership": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change on every fact: Before routed step 1 through `make ci`, treated `checks: commands` as semantically inert, refused to use evidence-cell commands, never minted a log directory, and had the all-cut ledger still run the verification header, so all four facts failed in Before. After selects the first evidence segment of non-cut done rows, deduplicates (checkout, command) pairs in row order (parser once from row 1, `test -f doc/guide.md` from row 4, row 3 excluded), mints one `LOG_DIR=$(mktemp -d)` after `phase_tracker start verify`, runs each pair foreground with `> \"$LOG_DIR/gate-N.log\" 2>&1`, prints only gate index/exit/path and explicitly does not read logs on success, states zero `make ci` invocations while retaining the header as CI metadata and committing gate-produced tracked changes, and in the membership variant yields only the parser pair with no verification run, while the all-cut ledger prints exactly `gate set empty - every row cut` and continues to the review target without running a command. Nothing that Before held was lost, since Before held none of these facts; the current After wording can be kept as is. If anything, consider keeping Before's explicit note that the verify transition carries no ledger mutation or commit, which After drops but which no fact here requires.",
+      "wallMs": 14643,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "182901ed9a3a22743d4d89e8e77ef6223307e2d9"
+}

@@ -1,0 +1,38 @@
+{
+  "sample": "loop-ledger-legacy",
+  "arm": "baseline",
+  "skillSha": "c2733760cb2818276e5fdf521c29951ff2952bd7da36511634a6d20d4f22b111",
+  "inputSha": "328e0c00633a1be8a3e2ba700353d969bcb9c0c602b94f594bc029400609aaad",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Next action: run the hard verification gate (Step 1) before any menu, including the PR you asked for.**\n\n1. Derive the paths from `/work/app/.worktrees/legacy`: `WORKTREE`, then `PRIMARY` from `--git-common-dir`, then `FEATURE` from the current branch.\n2. Read the header of `doc/specs/run.md`. It has no `**Engine:** deferred` and no `**PR:**`, so the ordinary route applies.\n3. Announce: \"I'm using the finishing-a-development-branch skill to complete this work.\"\n4. Call `phase_tracker({ action: \"start\", phase: \"ship\" })`.\n5. Line 1 of `doc/plans/run-ledger.md` is `# Ledger - loop engine`, so the ledger's own `verification:` command is the verification set. A missing `checks:` line doesn't matter, because finishing never reads it. Run:\n\n```bash\n(cd /work/app/.worktrees/legacy && npm test)\n```\n\nThe skip rule does not apply. No verification passed in this session, and an available header line is not a passing run.\n\nAll rows being done does not replace this gate. If `npm test` passes, I go on to Step 2, then the Step 3.5 closure check, and then the Step 4 menu, where you can pick \"Push and create a Pull Request.\" If it fails on code in this diff, I stop and show the failures.\n",
+      "words": 185,
+      "wallMs": 7832,
+      "mechanical": {
+        "stop": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Run `(cd \"/work/app/.worktrees/legacy\" && npm test)` as the hard verification gate. The ledger’s `verification: npm test` is authoritative; a `checks:` line is not required.\n\nNo verification ran in this session, so the skip rule does not apply. All rows being done and the request to create a PR do not bypass verification. Do not present shipping options or create the PR until the test command passes.\n",
+      "words": 65,
+      "wallMs": 5675,
+      "mechanical": {
+        "stop": "fails"
+      }
+    }
+  },
+  "repoSha": "452bf4e3e85612667476f3744cbfb9ed6120667a"
+}

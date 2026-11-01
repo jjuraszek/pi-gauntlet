@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Loop verification and finish run the deduplicated gate set of recorded row checks in their owning checkouts; CI on push owns the full suite. Gate output stays in session logs, repair children receive log paths, and the driver reads only a 20-line tail at the verify-step-1 human stop. Workers record selective commands with TDD and test-economy rules; ledgers without `checks:` stop instead of falling back to a full run. Loop PR summaries identify scoped verification; unmatched gate commands can leave `verification_runs` at zero and trigger the expected ship advisory without authorizing a full local run. (#109)
+
 ## v8.1.0 - 2026-11-01
 
 - Both implement engines use the task tracker. Loop derives its view from the ledger with `plan_tracker refresh`, including in-flight rows, baseline skips and preserved conformance tasks; handoff and resume restore that view. Implement completes when every ledger row is closed, and verify step 1 runs the ledger's gate once per leg. Re-bounded rows during verify require an authorized ledger return, not a tracker-only close. (#106)

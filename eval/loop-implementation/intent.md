@@ -1,9 +1,18 @@
-for: ffab9ccddd18914e65540e94d4a5a1efd38c12de8fb11ce8950465cfbe22b035
+for: 540f8156f7f9e53d75cccd977f5a678d0e783af772373707d56996cccc4b5c78
 
 ## Change
+Complete verify step 1 after an escalated repair by running other checkouts' pairs skipped by fail-fast before granting verification. Run each isolated conformance child's repaired-leg pairs in its own checkout and temporary log directory; retain the parent checkout set and session logs after integration. Extend exit-verification-escalates and repairs-rerun-gate-set-only with observable continuation and child-path facts.
+Update tracker-refresh's all-cut expectation from a full gate to the empty gate set, with checks: commands and selective evidence fixtures for its continuing snapshots. Preserve task projection and admission facts. Complete full-target model coverage without accepting unrelated deviations.
+
+Prove the existing gate-log boundary with gate-set-failure: one directory per verify session, fail-fast exit/path-only reporting, a concrete 25-line log whose human stop quotes only its last 20 lines, path-only repair handoff and redirected reruns in the same directory. A fresh-session resume creates new logs rather than trusting old ones. No skill behavior changes in this iteration; focused replays prove narrated operations, not live shell access. Full-target evaluation remains with row 8.
+
+Capture the decoded amendment grant, leg membership, checkout paths and Rules at seed or authorized restore before entering the dispatch loop, refreshing them only through authorized amendment actions. Restrict implement-driver reads to ledger/return/boundary data and skill resources/overrides; leave source and failure diagnosis to workers. Add driver-holds for restore capture, held-grant escalation, return admission and amendment refresh. Keep the existing leg-resume read-order and recovery facts; supply checks: commands in its admitted-ledger fixture so it exercises recovery rather than the separate legacy-header stop. Focused text replays prove narrated boundaries, not runtime file access; full-target runs remain with row 8.
+
+Replace loop-local full verification with the command-first gate set: deduplicate by owning checkout and command in ledger order, reject missing checks headers, log each foreground pair and fail-fast. Route coordinated and conformance verification through this set; retain full commands as CI metadata only. Add gate-set-verify-step-1, coordinated-same-command, repairs-rerun-gate-set-only and legacy-ledger-stop samples; update the four existing verification samples to supply command-first done-row evidence and checks headers. These text replays exercise routing instructions, not live shell execution. Targeted sample runs belong to this iteration; full-target completion belongs to row 8.
+
 Preserve the exact home pending tuple and bumped ledger iteration in row and seed commit bodies, reusing the companion attribution prefix while clearing the ledger tuple. Validate those fields before terminal projection. Extend tracker-boundary with both home commit shapes and their consumed counts; preserve all existing facts. The paired gauntlet-resume recovery sample starts after the child commit with no captured tuple and checks admission before refresh. Parent verify owns model runs, assembly-hash updates and result records.
 
-Derive the loop task view through path-only ledger refreshes after implement start, before dispatch and after admitted loop commits. Persist home and companion pending tuples, admit clean single-commit returns before projecting terminal results, and restore the target before-image/tuple on boundary rejection. Let refresh complete implement; run full per-leg verification and its once-per-flow escalated repair at verify step 1. Keep verify failure menus restricted, normal Gn tasks on the same tracker, and an explicitly authorized re-bound row return on the ledger path with verify still active.
+Derive the loop task view through path-only ledger refreshes after implement start, before dispatch and after admitted loop commits. Persist home and companion pending tuples, admit clean single-commit returns before projecting terminal results, and restore the target before-image/tuple on boundary rejection. Let refresh complete implement; run the gate set and its once-per-flow escalated repair at verify step 1. Keep verify failure menus restricted, normal Gn tasks on the same tracker, and an explicitly authorized re-bound row return on the ledger path with verify still active.
 
 Route ledger-engine amend preparation through the ordinary path without plan-writer, an Amend-prepare: block or plan_check; the driver's next refresh projects amended statuses. Preserve section 5 apply and every existing fact except the two replacements named below. Add tracker-refresh, tracker-boundary and tracker-verify synthetic samples for seed/baseline projection, out-of-order closure, retry/cut, immediate and resumed rejected returns, per-leg verification, Gn retention and re-bound authorization. Raw status mappings belong in expected facts and supplied tool observations, not in the driver. Workers run only the scoped deterministic contract tests; parent verify step 1 owns full-target model execution, assembly-hash update, reports and required records. No model result is attested here.
 Prefix every human stop, including discard/reset authorization, with gauntlet: question while preserving ledger state and the authorization boundary. Request the supplied numeric ledger snapshot in the rendered stop to make preservation observable without reading a rejected child's ledger.
@@ -18,11 +27,39 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the cap snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
-- verify-lifecycle/contract: fails -> holds - replaced wording: Implement completes through the refresh; verify step 1 runs the gate once per leg; Gn tasks ride the same tracker.
+- exit-verification-escalates/continuation: fails -> holds - Verify still-unexecuted companion pairs after the failing checkout's successful repair rerun.
+- repairs-rerun-gate-set-only/child-checkout: fails -> holds - Test the child's isolated repaired tree with child-local logs before parent integration gates.
+- tracker-refresh/seed: fails -> holds - All-cut completion runs no full command and emits the gate-set empty line after starting verify.
+- gate-set-failure/redirect: fails -> holds - Redirect every foreground pair and retain exit lines only, stopping at the first failure.
+- gate-set-failure/tail: fails -> holds - Bound the human-stop excerpt after Problem to the final 20 log lines.
+- gate-set-failure/handoff: fails -> holds - Give the child diagnostic paths, never pasted output or parent source diagnosis.
+- gate-set-failure/rerun: fails -> holds - Reuse the verify-session log directory for the escalated repair rerun.
+- gate-set-failure/resume: fails -> holds - Mint a fresh session directory on resume and require current gate exits.
+- driver-holds/capture: fails -> holds - Capture grant and checkout metadata before the loop, then use held values.
+- driver-holds/escalation: fails -> holds - Route the one allowed escalation without spec or source reads in the loop.
+- driver-holds/admission: fails -> holds - Admit effects through ledger, return reference and git boundaries rather than a transcript or diagnosis.
+- driver-holds/amendment: fails -> holds - Refresh grant and leg paths only during the authorized amendment action outside the loop.
+- gate-set-verify-step-1/union: fails -> holds - Deduplicate the done-row commands in first-row order, excluding cut rows.
+- gate-set-verify-step-1/logs: fails -> holds - Mint one LOG_DIR and retain only per-pair exit lines from redirected foreground execution.
+- gate-set-verify-step-1/scoped: fails -> holds - CI metadata never becomes a local command.
+- gate-set-verify-step-1/membership: fails -> holds - Failed rows contribute nothing; all-cut ledgers produce the literal empty-set line.
+- coordinated-same-command/ownership: fails -> holds - Map shared commands to both checkouts through ledger Leg mapping.
+- coordinated-same-command/order: fails -> holds - Deduplicate within each checkout and retain global row order.
+- coordinated-same-command/execution: fails -> holds - Run redirected pairs in their checkouts without contract verification.
+- repairs-rerun-gate-set-only/sites: fails -> holds - Use the set after whole-diff fixes and at every conformance test site.
+- repairs-rerun-gate-set-only/conformance: fails -> holds - Pass the complete set as SCOPED_TEST_COMMANDS and override plan commands during Convergence.
+- repairs-rerun-gate-set-only/repair: fails -> holds - Keep the existing Gn lifecycle while changing only test command routing.
+- repairs-rerun-gate-set-only/logs: fails -> holds - Reuse the session log directory and retain exit lines only.
+- legacy-ledger-stop/legacy: fails -> holds - Stop before dispatch or gate execution on a missing checks header without migration.
+- legacy-ledger-stop/boundary: fails -> holds - Do not dispatch or execute CI metadata after the legacy stop.
+- tracker-verify/per-leg: holds -> holds - replaced wording: Run mapped evidence commands with logs instead of contract commands.
+- tracker-verify/repair: holds -> holds - replaced wording: Pass command, checkout, exit code and log path instead of failing output.
+- tracker-verify/failure: holds -> holds - replaced wording: Quote at most 20 log lines at the stop; never run full verification.
+- verify-lifecycle/contract: fails -> holds - replaced wording: Implement completes through the refresh; verify step 1 runs the deduplicated gate set with log redirection and no full verification; Gn tasks ride the same tracker.
 - escalated-row-attempt/ledger-prepare-local: fails -> holds - replaced wording: Never invokes plan_check; the next refresh projects the amended statuses.
 - gate-line-first/preserved: holds -> holds - replaced wording: Boundary rejection restores only the target cells and pending tuple in the working ledger before projection; discard/reset still requires human authorization.
 - gate-line-first/question-first: fails -> holds - Dirty returns await explicit authorization under a question marker.
-- cap-and-exit-verification/contract: fails -> holds - Replace the closed-row fact with the ledger gate at verify step 1, verify active and implement complete, and amend/stop only on failure; preserve the seed-inclusive cap stop.
+- cap-and-exit-verification/contract: fails -> holds - Replace the closed-row fact with the gate set at verify step 1 and at most 20 failure log lines, verify active and implement complete, and amend/stop only on failure; preserve the seed-inclusive cap stop.
 - commit-boundary/seed-recovery: fails -> holds - Explicit continuing cap:97 and cap:1 alternative preserve authorized interrupted-seed recovery, target validation and consumed iterations.
 
 - leg-iteration/seed: fails -> holds - Enforce the new coordinated-flow must-hold fact: Expands shared ACs into original-AC/membership ordered rows, preserves cut disposition, records one base/seed flag per leg and Leg mapping; cap 14, seeds repo-a then repo-b only, never seeds wholly cut repo-c.
@@ -32,5 +69,5 @@ Supply row 1's attempts value in the cap snapshot so its existing fact is observ
 
 - escalated-row-attempt/round: fails -> holds - Amend permission spends one durable model round beyond allowance, with capped funding accounting, hard-stop precedence and no retry rearm.
 - escalated-row-attempt/amend: fails -> holds - Named amendments use section 5 and return to ordered checks; repeated row evidence waits with Recommendation none.
-- exit-verification-escalates/repair: fails -> holds - One clean single-commit repair in the failing leg persists a once-per-flow parent marker and reruns only that command once; rows remain closed.
+- exit-verification-escalates/repair: fails -> holds - One clean single-commit repair in the failing leg persists a once-per-flow parent marker and passes command/checkout/exit/log instead of output and reruns the failing checkout's gate pairs once; rows remain closed.
 - exit-verification-escalates/boundaries: fails -> holds - Cap, dirty/extra commits and unrecoverable identity prevent redispatch; failed rerun names spent escalation and recommendation.

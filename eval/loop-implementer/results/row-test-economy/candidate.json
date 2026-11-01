@@ -1,0 +1,100 @@
+{
+  "sample": "row-test-economy",
+  "arm": "candidate",
+  "skillSha": "a44a11b40240dde6ca18b903b9c7be0f6e7bd2e213dd6f91e32ec1eb2a39a2d4",
+  "inputSha": "9921ec8f6cbb52a14a9495ef458c5824fb04bbb8160ab111c38a6241de4dfcdf",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Snapshot A: target row 1, retry\n\n## Trace\n\n1. **Read** `/repo/doc/specs/trim.md` in full.\n   - AC 1: reject whitespace-only names.\n   - AC 2: preserve the cache format.\n2. **Read** `/repo/doc/plans/trim-ledger.md`.\n   - Header: `iterations: 3`, cap 9, `verification: npm test`.\n   - Saved pending tuple: `pending: 1 | home | abc1234`.\n   - Saved consumed iteration: `3`, taken from the bumped header, not the task's pre-bump `iteration 2`.\n   - Row 1: `failed | 1 | node --test test/name.test.mjs; whitespace accepted`.\n   - Row 2: `done | 1 | node --test test/cache.test.mjs; passed`.\n3. **Inputs.**\n   - Previous decision: `row 1 failed | Whitespace accepted. | Extend the existing name test.`\n   - Hint: trim before validation.\n   - The target stays row 1.\n4. **Shell:** `cd /repo && git diff --stat abc1234`\n   - Result: `src/name.mjs`, `test/name.test.mjs`.\n5. **Shell:** `git diff abc1234 -- src/name.mjs test/name.test.mjs`\n   - Read the hunks for row 1's files only.\n6. **Read** `src/name.mjs`: `validName` returns `s.length > 0`.\n7. **Read** `test/name.test.mjs`: a table-driven test with cases `''` → false and `'Ada'` → true.\n8. **TDD scenario: modifying tested behavior.**\n   - I extend the existing test rather than starting a new one, as the retry rule requires.\n   - **Edit** `test/name.test.mjs`: add two parameter rows to the existing table, `' '` → false and `'\\t\\n'` → false. No new test functions.\n9. **Shell (RED):** `node --test test/name.test.mjs`\n   - Result: fails, `expected false got true` on the whitespace cases.\n   - This is the row's stated reason (whitespace accepted).\n10. **Edit (GREEN)** `src/name.mjs`: change `s.length > 0` to `s.trim().length > 0`.\n    - This is the smallest change and trims before validation.\n    - The cache code is untouched, so AC 2 is not affected.\n11. **Shell:** `node --test test/name.test.mjs`\n    - Result: passes, 4 table cases, 0 failed.\n    - REFACTOR: none needed. The file still selects row 1.\n12. **Evidence command choice.**\n    - I record the test file, not a `--test-name-pattern` filter.\n    - Node's name filter exits 0 when it matches nothing.\n    - A missing file makes `node --test` exit nonzero.\n    - `npm test` is the full verification command and is not recorded.\n\n### Teammate proposals\n\n- **New retry test: rejected.** On a retry the earlier test must be kept and extended. I extended the existing table.\n- **One function per whitespace input: rejected.** Near-identical inputs should be table-driven parameter rows.\n- **Moving cache tests into the name file: rejected.** `test/cache.test.mjs` is selected by row 2's recorded command, and row 2 is closed.\n  - Moving those tests would leave row 2's evidence command pointing at moved tests.\n  - I cannot update a foreign row's command, so tests selected by another closed row's command stay unchanged.\n- **Costly end-to-end harness: rejected.** The unit layer is the cheapest layer that proves row 1.\n  - No slow or integration tier is named or discoverable here.\n  - So the test stays beside its siblings in `test/`.\n\n### Merge boundary note\n\nA merge is only allowed among tests that row 1's own command selects. If such a target-only merge ever moved row 1's test to a different filename, row 1's evidence command would have to be re-recorded with the new file path, so it still selects the test. In this snapshot I renamed no files, so the command stays `node --test test/name.test.mjs`.\n\n13. **Ledger edit: row 1 cells only.**\n    - status: `done`\n    - attempts: `2`\n    - evidence: `node --test test/name.test.mjs; 4 passed; 0 failed`\n    - Row 2 and the headers are unchanged.\n14. **Ledger edit:** append the decision line under `## Decisions`. Earlier decisions are preserved.\n15. **Ledger edit:** remove the line `pending: 1 | home | abc1234`.\n16. **Shell:** `git add src/name.mjs test/name.test.mjs doc/plans/trim-ledger.md`\n17. **Shell:** `git commit -m \"loop: row 1 done\" -m \"pending: 1 | home | abc1234\niteration: 3\"`\n    - This makes exactly one commit.\n    - The body lines come right after the blank separator.\n18. **Shell:** `git status --porcelain`\n    - Result: empty. The tree is clean.\n\n## Final reply:\nrow 1 done | Extended the existing validName table in test/name.test.mjs with whitespace-only cases and trimmed input before the length check in src/name.mjs. | Do not re-add whitespace cases or touch test/cache.test.mjs; row 1 passes with node --test test/name.test.mjs.\n\n---\n\n# Snapshot B: target seed\n\n## Trace\n\n1. **Read** `/repo/doc/specs/trim.md` in full.\n   - AC 1: `docs/contract.md` must contain the literal word `ready`.\n   - AC 2: add non-empty-name validation to `src/name.mjs`.\n2. **Read** `/repo/doc/plans/trim-ledger.md`.\n   - Header: `iterations: 1`, cap 9, `verification: npm test`.\n   - Saved pending tuple: `pending: seed | home | abc1234`.\n   - Saved consumed iteration: `1`.\n   - Rows 1 and 2 are both `open | 0 |` with empty evidence.\n   - Decisions section is empty.\n3. **Shell:** `cd /repo && git diff --stat abc1234`\n   - Result: only `doc/plans/trim-ledger.md`.\n4. **Row 1 is assertion-only.**\n   - I use an asserting command and create no wrapper test file.\n   - **Shell:** `rg -n -F ready docs/contract.md`\n   - Result: exit 0, literal `ready` matched.\n   - The baseline already satisfies row 1, so it closes as `done` with this passing evidence.\n5. **Row 2 is new behavior.**\n   - **Read** `src/name.mjs`: validation accepts empty names.\n   - No slow-tier convention is named or discoverable.\n   - **Create** `test/name.test.mjs` beside the existing `test/*.test.mjs` siblings. It asserts `validName('')` is false.\n6. **Shell:** `node --test test/name.test.mjs`\n   - Result: 1 failed, `expected false got true`.\n   - The RED state is confirmed for the row's reason.\n   - No code change is authorized at seed, so `src/name.mjs` is untouched.\n   - Recording the file follows the Node rule: a missing file exits nonzero, while a name filter does not.\n7. **Ledger edits: row cells.**\n   - Row 1: status `done`, attempts `0`, evidence `rg -n -F ready docs/contract.md; exit 0; literal ready found`.\n   - Row 2: status `open` (not `failed`), attempts `0`, evidence `node --test test/name.test.mjs; 1 failed; expected false got true`.\n8. **Ledger edit:** append the seed decision under `## Decisions`.\n9. **Ledger edit:** remove `pending: seed | home | abc1234`.\n   - The `iterations: 1` header stays unchanged.\n10. **Shell:** `git add test/name.test.mjs doc/plans/trim-ledger.md`\n11. **Shell:** `git commit -m \"loop: seed evidence\" -m \"pending: seed | home | abc1234\niteration: 1\"`\n    - This makes exactly one commit.\n12. **Shell:** `git status --porcelain`\n    - Result: empty. The tree is clean.\n\n## Final reply:\nrow 0 done | seeded 2 rows, closed 1 on baseline | row 2\n",
+      "words": 929,
+      "wallMs": 34739,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Snapshot A — simulated tool trace\n\n1. Read the full spec first:\n   ```sh\n   cd /repo\n   cat /repo/doc/specs/trim.md\n   ```\n   Observed authoritative requirements:\n   - AC 1: Reject whitespace-only names.\n   - AC 2: Preserve cache format.\n\n2. Read the ledger next:\n   ```sh\n   cat /repo/doc/plans/trim-ledger.md\n   ```\n   Observed and saved before editing:\n   ```text\n   iterations: 3\n   pending: 1 | home | abc1234\n   ```\n   Target: row 1, currently `failed`, attempts `1`. Row 2 is closed and must remain unchanged. The previous decision requests extending the existing name test; the hint requests trimming before validation. No Rules files were supplied.\n\n3. Inspect the base-relative change scope:\n   ```sh\n   git diff --stat abc1234\n   ```\n   Observed changed files: `src/name.mjs` and `test/name.test.mjs`.\n\n   Read only the target files’ full diff hunks:\n   ```sh\n   git diff abc1234 -- src/name.mjs test/name.test.mjs\n   ```\n\n4. Read the relevant implementation and existing test:\n   ```sh\n   cat src/name.mjs test/name.test.mjs\n   ```\n   Observed: `validName` uses `s.length > 0`; the existing table covers `''` and `'Ada'`.\n\n   Check for test-placement guidance:\n   ```sh\n   find . -name AGENTS.md -print\n   ```\n   No applicable guidance or slow/integration tier is discoverable. Keep the inexpensive unit check beside its existing siblings.\n\n5. Extend the existing test table, retaining its runner and earlier cases:\n   ```js\n   [' ', false],\n   ['\\t', false],\n   ['\\n', false],\n   ```\n   These are parameter cases for the same operation, not separate near-identical test functions.\n\n   Run RED:\n   ```sh\n   node --test test/name.test.mjs\n   ```\n   Observed: nonzero exit; whitespace rejection fails with `expected false got true`.\n\n6. Make the smallest implementation change:\n   ```diff\n   - return s.length > 0;\n   + return s.trim().length > 0;\n   ```\n\n   Run GREEN:\n   ```sh\n   node --test test/name.test.mjs\n   ```\n   Observed: exit 0; the file passes.\n\n   Refactor review: the existing table already provides economical coverage; retain it without further restructuring.\n\n   Teammate response: Do not start a replacement retry test, duplicate functions per whitespace input, or add an end-to-end harness. Keep the existing parameterized unit test. Do not move cache tests: row 2’s recorded command selects `test/cache.test.mjs`, and this iteration cannot change that closed row or its command. A permitted target-only merge that changed the name test’s filename would require running and recording the new selective file command in row 1. No files are renamed here.\n\n7. Update only row 1’s mutable ledger cells:\n   ```text\n   status: done\n   attempts: 2\n   evidence: node --test test/name.test.mjs; passed; 0 failed\n   ```\n   Row 2, all row text, existing decisions, and other headers remain unchanged.\n\n   Remove:\n   ```text\n   pending: 1 | home | abc1234\n   ```\n\n   Append exactly one line under `## Decisions`:\n   ```text\n   row 1 done | Extended the existing name table and trimmed names before validation. | Keep cache tests unchanged and reuse the targeted name test on retries.\n   ```\n\n8. Stage explicitly and commit once:\n   ```sh\n   git add src/name.mjs test/name.test.mjs doc/plans/trim-ledger.md\n   git commit -m \"loop: row 1 done\" -m \"pending: 1 | home | abc1234\n   iteration: 3\"\n   git status --porcelain\n   ```\n   Observed: commit succeeds; status output is empty. No full-suite or cache check was run.\n\nFinal reply:\nrow 1 done | Extended the existing name table and trimmed names before validation. | Keep cache tests unchanged and reuse the targeted name test on retries.\n\n## Snapshot B — simulated tool trace\n\n1. Reset to the independent B snapshot. Read the full spec first:\n   ```sh\n   cd /repo\n   cat /repo/doc/specs/trim.md\n   ```\n   Observed authoritative requirements:\n   - AC 1: `docs/contract.md` must contain the literal word `ready`.\n   - AC 2: Add non-empty-name validation to `src/name.mjs`.\n\n2. Read the ledger next:\n   ```sh\n   cat /repo/doc/plans/trim-ledger.md\n   ```\n   Observed and saved before editing:\n   ```text\n   iterations: 1\n   pending: seed | home | abc1234\n   ```\n   Both rows are `open`, attempts `0`, with empty evidence; `## Decisions` is empty. No Rules files were supplied.\n\n3. Inspect the base-relative change scope:\n   ```sh\n   git diff --stat abc1234\n   ```\n   Observed: only the ledger is changed.\n\n   Inspect full hunks only for the seeded rows’ files:\n   ```sh\n   git diff abc1234 -- docs/contract.md src/name.mjs test/name.test.mjs\n   ```\n   Observed: no hunks.\n\n4. Read the relevant files and discover test-placement guidance:\n   ```sh\n   cat docs/contract.md src/name.mjs\n   find . -name AGENTS.md -print\n   ls test\n   ```\n   Observed: the document contains `ready`; name validation accepts an empty string. Existing tests use `test/*.test.mjs`; no applicable slow-tier convention is discoverable.\n\n5. Seed row 1 with the direct asserting command, without creating a wrapper test:\n   ```sh\n   rg -n -F ready docs/contract.md\n   ```\n   Observed: exit 0; a matching line contains `ready`. A missing match makes this command exit nonzero.\n\n   Resulting row 1 mutable cells:\n   ```text\n   status: done\n   attempts: 0\n   evidence: rg -n -F ready docs/contract.md; exit 0; ready found\n   ```\n\n6. Create `test/name.test.mjs` beside its unit-test siblings:\n   ```js\n   import test from 'node:test';\n   import assert from 'node:assert/strict';\n   import { validName } from '../src/name.mjs';\n\n   test('rejects an empty name', () => {\n     assert.equal(validName(''), false);\n   });\n   ```\n\n   Run the seed’s failing check:\n   ```sh\n   node --test test/name.test.mjs\n   ```\n   Observed: nonzero exit; assertion fails with `expected false got true`.\n\n   Resulting row 2 mutable cells:\n   ```text\n   status: open\n   attempts: 0\n   evidence: node --test test/name.test.mjs; expected false got true; empty names accepted\n   ```\n   Keep the failing test. Do not implement validation during seed, and do not mark this row `failed`.\n\n7. Write those evidence/status cells into the ledger, preserving row identifiers, row text, other headers, and both attempts counts.\n\n   Remove:\n   ```text\n   pending: seed | home | abc1234\n   ```\n\n   Append exactly one line under `## Decisions`:\n   ```text\n   row 0 done | seeded 2 rows, closed 1 on baseline | take row 2\n   ```\n\n8. Stage explicitly and commit once:\n   ```sh\n   git add test/name.test.mjs doc/plans/trim-ledger.md\n   git commit -m \"loop: seed evidence\" -m \"pending: seed | home | abc1234\n   iteration: 1\"\n   git status --porcelain\n   ```\n   Observed: commit succeeds; status output is empty. Neither production code nor the document was edited, and no full-suite check was run.\n\nFinal reply:\nrow 0 done | seeded 2 rows, closed 1 on baseline | take row 2\n",
+      "words": 867,
+      "wallMs": 38695,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9a41d22870c22de9257630428bc0cd119117c5f50d42a5c791f1515b66027fa8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "900c89fa8fb868e0a811e84145087fe0448731b344a205330c2d971012cf163b",
+      "baselineOutputSha": "0ef1e2bb9be6ca34eaa74751b89bbff95964f76ee632cd04babcf82e7e8b83e9",
+      "candidateOutputSha": "eecfce247633dd94e604d7356699687b7fd5be177971a47264a6180f3f7af102",
+      "facts": {
+        "extend-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "economy": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "assertion-seed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "bounded-selective": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps everything Before kept and adds the piece Before was missing for economy: Before rejected the end-to-end harness and explained the closed-row-2 boundary, but never stated the no-convention fallback of placing the test beside its test/ siblings, whereas After's 'No slow or integration tier is named or discoverable here. So the test stays beside its siblings in test/' plus the explicit 'tests selected by another closed row's command stay unchanged' and the re-record-on-rename note cover the whole fact. extend-first, assertion-seed and bounded-selective hold in both: both versions extend the table, see RED, apply trim(), rerun the same file; B uses rg directly, seeds a failing sibling test, leaves row 2 open at attempts 0; evidence cells stay command-first with at most two trailing results and npm test is never run. Nothing regressed; if anything, keep After's evidence phrasing ('4 passed; 0 failed', '1 failed; expected false got true') since it is terser than Before's prose results while still fitting the three-result bound, and keep the explicit Node name-filter rationale, which Before lacked but which does not affect any listed fact.",
+      "wallMs": 20744,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9a41d22870c22de9257630428bc0cd119117c5f50d42a5c791f1515b66027fa8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "900c89fa8fb868e0a811e84145087fe0448731b344a205330c2d971012cf163b",
+      "baselineOutputSha": "dadcdc0adee94d0e2c216a69cc2aea82e13996649c62a42df3edf958087398c2",
+      "candidateOutputSha": "77bb41b3738d38276c879a5ff19f629453d624d4d10ba671915b3879fafccbde",
+      "facts": {
+        "extend-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "economy": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "assertion-seed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "bounded-selective": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves economy to holds by adding what Before lacked in Snapshot A: an explicit placement probe (find AGENTS.md) with the stated no-convention fallback of keeping the unit check beside its existing test siblings, an explicit note that the added whitespace rows are parameter cases for one operation rather than near-identical test functions, and a direct statement that row 2's recorded command selects test/cache.test.mjs so the closed row and its command cannot change, while a permitted target-only rename would require running and recording the new selective file command in row 1. Nothing regressed: extend-first still shows table extension, RED, trim(), GREEN on the same file; assertion-seed in B still uses rg directly, closes row 1 command-first, seeds the failing sibling test for row 2 with attempts 0 and no production edit; bounded-selective evidence stays command-first with three or fewer results, no npm test, foreign cells and iteration counts preserved, and the seed decision line matches exactly. Keep the After wording; if anything, make A's refactor-review sentence state the recorded command still selects the parameterized file so the REFACTOR/selector preservation is explicit rather than implied.",
+      "wallMs": 19586,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "08f31ff491a94a038a77c8b15997400bf5c441f4"
+}

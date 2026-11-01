@@ -1,0 +1,80 @@
+{
+  "sample": "legacy-ledger-stop",
+  "arm": "candidate",
+  "skillSha": "571630d81ca065d51e72f0c3840a96c31ee6d01b3cbcc913c953a61c594619db",
+  "inputSha": "3ae4a2307dfa7bc794f94bafda02376e6de2ae289a05bf2851197ecc10c21694",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Loop driver narration: two independent admitted ledgers without `checks:`\n\nNothing below has run. Paths in angle brackets stand for the actual absolute values. Both ledgers are home-only and have one leg, so the coordinated-legs reference is not read.\n\n## Snapshot A: resume in implement (row 1 open, attempts 1)\n\n**Calls, in order**\n1. Read the overrides file, if present, once for the session.\n2. Read the spec in full for the restore. Decode `**Amend-grant:**` through the amendment-surface value decoding, then hold the grant, membership (home) and Rules.\n3. Skip Entry step 1 because the ledger is already admitted. Do not call `gauntlet_setting`, and do not recompute cap.\n4. Pending recovery is a no-op because there is no `pending:` line.\n5. Call `plan_tracker({ action: \"refresh\", path: \"<abs A ledger>\" })`.\n6. Render the rows, `iterations: 3`, `cap: 17` and the decision history. `git -C \"<worktree>\" status --porcelain` is empty, so no dirty-tree stop applies.\n7. **Before each dispatch:** read the ledger and look for the `checks:` line. It is missing, so the driver stops here, before checking `cap:`, before rule 1 and before any dispatch.\n8. Read `menu-layout` to render the stop.\n\n**Durable changes:** none.\n- `iterations` stays 3.\n- No `pending:` tuple is written.\n- There is no commit, no `mktemp` and no `subagent`.\n\n**Next target:** none. Row 1 is not dispatched and phase stays `implement`.\n\n**Human-facing output**\n```\ngauntlet: question\nStopped: ledger has no checks: line - seeded under the old contract\nProblem: row 1 evidence \"<row 1 evidence cell, verbatim>\"; last decision \"<last decision line, verbatim>\". The ledger was seeded before the checks: contract, so no gate set can be resolved from it.\nPreserve every row's attempts and the total iteration cap.\n1. Stop - keep phase implement and preserve branch state; restart by hand on a fresh baseline.\nRecommendation: 1 (Stop) - it is the only action this configuration stop allows.\n```\n\n## Snapshot B: resume at verify step 1 (all rows done)\n\n**Calls, in order**\n1. Run the same restore reads as A: overrides, the spec in full, grant decoding and the held membership.\n2. Pending recovery is a no-op.\n3. Call `plan_tracker({ action: \"refresh\", path: \"<abs B ledger>\" })`. The tree is clean.\n4. To continue the After-the-loop flow, read SDD `After All Tasks Complete`, `happy-path-run.md` and `conformance-check.md` in full.\n5. Phase is already `verify`, and implement is complete.\n6. **Step 1, gate-set site:** require the `checks:` line. It is missing, so the driver stops here, before resolving any (checkout, command) pair.\n7. No gate runs, so no `LOG_DIR` log is written. No `gate <i> exit` line is printed and no `tail` excerpt is shown.\n8. Read `menu-layout` to render the stop.\n\n**Durable changes:** none.\n- There is no commit and no repair dispatch.\n- The marker `loop: repair verification` is not created.\n\n**Next target:** none. Phase stays `verify`, and whole-diff review, conformance and finish are not reached.\n\n**Human-facing output**\n```\ngauntlet: question\nStopped: ledger has no checks: line - seeded under the old contract\nProblem: every row is done, but the ledger predates the checks: contract, so the gate set at verify step 1 cannot be resolved.\n1. Stop - keep phase verify and preserve branch state; restart by hand on a fresh baseline.\nRecommendation: 1 (Stop) - it is the only action this configuration stop allows.\n```\n\n## What the active budget and amend grant cannot do (both ledgers)\n\n- **Cap funding or `cap +N`:** not offered. `cap +N` belongs only to a clean cap stop or a legacy missing-`cap:` stop, and both ledgers have `cap: 17`. Row funding also does not apply, because A's row 1 is at attempts 1, below the allowance of 3.\n- **Automatic reseeding:** forbidden. The driver does not delete the ledger and does not dispatch `target: seed`.\n- **Migration:** forbidden. The driver does not write a `checks:` line and does not derive one from the prose evidence cells.\n- **Running verification:** forbidden. The driver does not fall back to `verification: make ci`, and does not run the gate set or any `contract:` command.\n- **Amend permission:** it does not unlock escalation or auto-take.\n  - A has no dispatch at all.\n  - B's `implModel` repair needs an actual gate failure, and none ran.\n  - The stop offers only Stop, and this hard configuration boundary is never auto-taken.\n\nThe only allowed human action at either site is **Stop**, followed by a manual restart on a fresh baseline outside this flow.\n",
+      "words": 713,
+      "wallMs": 28535,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A — missing `checks:` before dispatch\n\nBefore selecting or dispatching a target, the driver must stop with:\n\ngauntlet: question\nledger has no checks: line - seeded under the old contract\nProblem: the admitted ledger is missing the required `checks:` header.\nPreserve every row's attempts and the total iteration cap.\nOnly action: Stop.\nRecommendation: Stop - restart by hand on a fresh baseline.\n\n- **Calls:** No `subagent` call and no gate or verification command. The missing-header check is made from the admitted ledger. Any resume refresh uses `plan_tracker({ action: \"refresh\", path: <absolute A ledger path> })`; it does not repair the missing header.\n- **Durable changes:** None. Keep `iterations: 3`, `cap: 17`, row 1 `open` with attempts `1`, its evidence, and all decisions unchanged. Implement remains active.\n- **Next target:** None dispatched. The missing-header stop precedes target selection; valid seed evidence does not bypass it.\n\n### B — missing `checks:` at verify step 1\n\nThe gate-set requirement applies again at verify step 1, even though every row is done. Stop with:\n\ngauntlet: question\nledger has no checks: line - seeded under the old contract\nProblem: the admitted ledger is missing the required `checks:` header.\nPreserve every row's attempts and the total iteration cap.\nOnly action: Stop.\nRecommendation: Stop - restart by hand on a fresh baseline.\n\n- **Calls:** No gate invocation, `make ci`, repair dispatch, or reviewer dispatch. If entering the continuation rather than already in verify, its preceding step would call `phase_tracker({ action: \"start\", phase: \"verify\" })` and mint the session `LOG_DIR` with `mktemp -d`. Neither makes the ledger eligible to run gates.\n- **Durable changes:** None. Keep `iterations: 3`, `cap: 17`, every row done, all evidence, and all decisions unchanged. Verify remains active; implement remains complete.\n- **Next target:** None. Do not reopen a row or dispatch verification repair.\n\n### Applies to both\n\nThe active budget and amend grant do **not** override this gate. Neither ledger may continue through funding, `cap +N`, automatic reseeding, migration, or fallback to `verification: make ci`. Do not derive commands from the old prose evidence. The **only offered action is Stop**; restarting by hand on a fresh baseline is outside this continuation.\n\nThese are narrated actions only; no calls have run.\n",
+      "words": 351,
+      "wallMs": 15691,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "63c954388a21e3c192efd482006f8e7a9ac0a67c056e8e0e0649fa70836de379",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f01c9281ed5ee90edc6ace0e07289329ced4dc31474bbd50da5c56c7a1893c3a",
+      "baselineOutputSha": "eae37f84d1fb4169ed7b286da361458205f4d0c640f75829712e45544821f044",
+      "candidateOutputSha": "e7dc3a39fb71c0c2142f8d73dd583a69de0a9bce2d70b0f098f4a110b96c55a6",
+      "facts": {
+        "legacy": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "boundary": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before explicitly rejects the premise (\"This contract defines no checks: header\"), lets A dispatch row 1 and lets B run make ci plus the implModel repair, so both facts fail there. After adds the pre-dispatch `checks:` read in A (step 7, before cap:/rule 1/any dispatch) and the gate-set requirement in B (step 6, before any pair resolution), renders the exact `gauntlet: question` / `Stopped: ledger has no checks: line - seeded under the old contract` stop at both sites with a single Stop option and a fresh-baseline restart, and then states in a closing section that cap funding, `cap +N`, automatic reseeding, migration, verification fallback and amend/escalation are all unavailable with no subagent, mktemp, commit, LOG_DIR or make ci — this is what moved both facts to holds. Keep that structure; the only wording to preserve carefully is the literal stop line and the explicit 'no dispatch / no verification / no migration or reseeding' enumeration per site, since those are what make the legacy and boundary facts observable rather than inferred.",
+      "wallMs": 11337,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "63c954388a21e3c192efd482006f8e7a9ac0a67c056e8e0e0649fa70836de379",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f01c9281ed5ee90edc6ace0e07289329ced4dc31474bbd50da5c56c7a1893c3a",
+      "baselineOutputSha": "bc8b0443e679a2cb9fafa35f50ca85dce61a76847765f6acef19813e922baada",
+      "candidateOutputSha": "17331da9841c1c518b4ac0cc011cdcfc7691275c05f2b4f08b41511fb816287e",
+      "facts": {
+        "legacy": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "boundary": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before explicitly denies that a missing `checks:` header establishes any stop, prescribes a row-1 dispatch for A and a `make ci` run for B, and states the absent header does not prohibit verification, so both facts fail there. After moves both to holds: each site renders the `gauntlet: question` stop with the exact 'ledger has no checks: line - seeded under the old contract' text, offers Stop as the only action, points to a human restart on a fresh baseline, rejects migration and automatic reseeding, and the shared section states that budget, `cap +N`, amend permission and fallback to `verification: make ci` cannot continue either ledger with no child or gate command run. One wording to tighten: in B the aside that a preceding step 'would call `phase_tracker` start and mint LOG_DIR with mktemp' could be misread as session setup occurring before the stop; saying the header check happens before any session directory is minted (so no LOG_DIR exists) would keep the boundary unambiguous while still delivering the Change.",
+      "wallMs": 11382,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "182901ed9a3a22743d4d89e8e77ef6223307e2d9"
+}

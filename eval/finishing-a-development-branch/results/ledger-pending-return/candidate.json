@@ -1,0 +1,110 @@
+{
+  "sample": "ledger-pending-return",
+  "arm": "candidate",
+  "skillSha": "dad9e2270756cb6bc345e481838c903f9cb9fc2e07613e18f3974647bcf22b84",
+  "inputSha": "bd524b12a77e747d069ca9bcbe5a8512b4d97f98679931a37e6d93456496c6e0",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finish Step 1: authorized ledger restore\n\nPending recovery runs first, before any pre-strip-source recovery, gate-set resolution or verification. `doc/plans/shared-ledger.md` is present and has not been stripped. A missing parent record means pending work exists; it does not mean the pre-strip source is absent.\n\n## A: interrupted companion return\n\n**Admission boundary**\n- Home HEAD `aaaa…` is unchanged.\n- I rebuild the pre-dispatch ledger from home `HEAD:doc/plans/shared-ledger.md` (iterations 2, no pending).\n- The only working-tree difference is the expected dispatch dirt: `iterations: 3` and `pending: 2 | repo-b | bbbb…`. That dirt is admitted and nothing else would be.\n\n**Companion admission inputs**\n- `CHECKOUT=/work/repo-b/.worktrees/shared`\n- `PENDING` is the exact tuple.\n- `ITERATION=3`, the consumed count.\n- `SAVED_LEDGER` is the durable home ledger after the bump and tuple write (iterations 3, pending present). The pre-dispatch snapshot is used only for the dirt comparison.\n\n**Iteration values**\n- The dispatch task carried `iteration: 2` by design.\n- The commit body and `ITERATION` carry the consumed count 3.\n- These two values are never compared.\n\n**Companion checks**\n- Repo-b is clean.\n- `bbbb…` is an ancestor of HEAD.\n- Exactly one new commit `cccc…` exists.\n- The subject is `loop: row 2 done`.\n- The body begins with the exact tuple, then `iteration: 3`.\n- There is one row-2 result: status done, attempts 0 → 1, bounded evidence.\n- There is one bounded decision.\n- Every check passes, so recovery may proceed.\n\n**Once-only parent update**\n- Row 2 becomes `done | 1 | node --test test/shared.mjs; passed; companion cccc…`.\n- Append `row 2 done | shared test passed | next row none`.\n- Remove `pending:`.\n- Keep `iterations: 3` with no second bump.\n- Leave unchanged:\n  - row 1 and its prior decision\n  - `## Leg mapping`\n  - both bases and seeded values\n  - `cap: 14`\n  - the verification and checks headers\n\n**Commit and refresh**\n- Commit once as parent `loop: record repo-b row 2`. This parent commit does not count toward child stagnation.\n- Row 2 is not re-run.\n- Then call `plan_tracker({ action: \"refresh\", path: \"/work/repo-a/.worktrees/shared/doc/plans/shared-ledger.md\" })` once.\n\n**Before the first gate-set execution**\n1. Confirm the `checks:` line is present.\n2. Resolve the ordered (leg, command) pairs from done rows through the mapping:\n   - gate 1: repo-a worktree, `node --test test/home.mjs`\n   - gate 2: repo-b worktree, `node --test test/shared.mjs`\n3. Run zero invocations of `npm test`; CI still runs it.\n4. Apply the skip proof per checkout. Nothing passed in this session's verify phase, so both pairs must run.\n5. Mint `LOG_DIR=$(mktemp -d)` once for this finish session.\n6. Then run the gates foreground and fail-fast, one log per gate.\n\n## B: repeat restore after A\n\n- `loop: record repo-b row 2` is already on home.\n- The ledger is clean, has no `pending:`, shows `iterations: 3`, and row 2 is done with attempts 1, evidence and companion SHA.\n- There is no new companion commit and no unsettled home child return. Nothing needs recovering.\n\nNothing repeats:\n- no second parent update or record commit\n- no dispatch\n- no iterations bump\n- no attempts change\n\nNormal restore continues with a single refresh by ledger path. The two gate pairs are resolved again from the ledger. Earlier gate passes give no credit: this session has no verify-phase pass on a known clean commit. So a fresh `LOG_DIR` is minted and both pairs run fresh in their owning worktrees before anything is delivered.\n\n## C: rejected companion return\n\nThe home side matches A: HEAD is unchanged and only the expected dispatch dirt is present. Repo-b, however, has two commits after `bbbb…`. Admission fails at the boundary (\"expected one companion commit\"), so attribution is never trusted for either commit.\n\nEverything is preserved:\n- `pending: 2 | repo-b | bbbb…`\n- consumed `iterations: 3`\n- row 2 `open | 0 |` with empty evidence\n- row 1 and its prior decision\n- mapping, bases, seeded values and `cap: 14`\n- both companion commits, left in place\n\nNo parent `loop: record` admission happens and row 2 is not projected done. The recovery stop is retained. After the single refresh projects the tuple-retained ledger, it is reported as a human stop that starts with `gauntlet: question` on its own line. The stop asks for authorization to discard the extra companion commits or reset repo-b to `bbbb…`.\n\nUntil the human answers:\n- no redispatch\n- no verification\n- no gate-set run\n- no squash\n- no counter or cap change\n- no `cap +N` offer\n",
+      "words": 677,
+      "wallMs": 29711,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## A — Interrupted companion return\n\nPending recovery precedes verification, new work, and any pre-strip-source recovery. The home ledger is present and unstripped; the missing parent record does **not** establish an absent pre-strip source.\n\nThe companion admission boundary passes: repo-b is clean and has exactly one new commit, `cccccccccccccccccccccccccccccccccccccccc`, after the tuple’s pre-dispatch SHA. Home HEAD remains `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, and home dirt consists only of the expected iterations bump and exact pending tuple.\n\nTwo ledger versions serve different purposes:\n\n- The **pre-dispatch snapshot** proves that home dirt is only the expected bump/tuple.\n- Admission’s **SAVED_LEDGER** is the durable home ledger **after** that write: `iterations: 3` and `pending: 2 | repo-b | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`.\n\nThe child’s subject, attribution, sole result row, evidence, and bounded decision all validate. The task carried the pre-bump `iteration: 2` by design; the body carries consumed `iteration: 3`. These are not compared to each other.\n\nThe prescribed once-only parent action is to update row 2 to `done`, attempts `1`, retain its admitted evidence and record the companion SHA, append the validated decision, and remove `pending:` in one home commit:\n\n`loop: record repo-b row 2`\n\nIterations remain **3**, cap remains **14**, and row 1, prior decisions, mapping, bases, and seeded states remain unchanged. No new dispatch or additional attempt/iteration bump occurs. With phase restoration already admitted, recovery precedes the single ledger-path refresh; the exact observed tracker state must then be reported, not inferred.\n\nBefore the first finish gate execution, retain the resolved ordered gate pairs from the ledger’s `checks:` admission and mapping:\n\n1. repo-a: `node --test test/home.mjs`, in `/work/repo-a/.worktrees/shared`\n2. repo-b: `node --test test/shared.mjs`, in `/work/repo-b/.worktrees/shared`\n\nRead the required Gate set reference at its absolute path when tools are available. Mint finish’s own `LOG_DIR` once at its first execution site. No eligible session skip proof is supplied here, so verification is required, foreground and fail-fast, with one exit line per gate. Do not run `npm test` as a fallback. Commit verification-produced tracked changes or stop; record verified HEADs and clean status only afterward.\n\n## B — Repeat restore after A\n\nThe clean ledger and existing parent record establish the completed companion update. Pending is absent, iterations remain **3**, and row 2 retains attempts **1**, admitted evidence, and companion SHA. There is no new companion return or unsettled home child return to recover.\n\n**Nothing repeats:** no parent record/update, redispatch, attempt increment, or iteration increment. Continue normal restore with the prescribed ledger refresh and exact observed tracker-state report.\n\nResolve the same ordered gate pairs and require **fresh verification**. Prior admission is not historical gate credit, and no qualifying verification-session skip proof is supplied.\n\n## C — Rejected companion return\n\nTwo companion commits violate the exactly-one-commit admission boundary. Stop immediately, before accepting terminal results or projecting row 2 as complete.\n\nPreserve unchanged home HEAD, the expected home dispatch dirt, `iterations: 3`, the exact pending tuple, cap **14**, row 1’s admitted state and prior decision, and row 2’s pre-dispatch `open` / attempts `0` / empty evidence. Keep both companion commits and all other changes.\n\nNo successful parent admission commit, verification, redispatch, reset, or additional counter increment is authorized. Continuation requires the human boundary-resolution/discard-reset authorization gate; uncertainty is not permission to discard.\n\nPreserve every row’s attempts and the total iteration cap.\n\nRecommendation: none — the commit boundary failed; human authorization is required.\n",
+      "words": 534,
+      "wallMs": 24867,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ac871a36017bec6aea8046bccefa00db29a51da683fc8d643a4bbf51b52c8af9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "beb6b7ca6b51d0eec4fe9013894ff7254460dc8d4e5a121888b1fd9d27acc1b1",
+      "baselineOutputSha": "80bf1f46c1bb2ce9e74a0ebd7581d8a819f146a70c52000b9e6d873f32507b21",
+      "candidateOutputSha": "a305df940944cf24190c9ff30afe187beb0189f624bf3bfb67b01040563141ea",
+      "facts": {
+        "admission": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "once": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "source": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "repeat": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "rejection": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and additionally moves `source` to holds: Before's step 1 read each leg's `- verification:` from the home spec's `## Legs` contract rather than resolving selective (leg, command) gate pairs from the done ledger rows, and it never said that the missing parent record is not an absent-pre-strip-source signal; After states both explicitly (preamble on pending-recovery-first and 'missing parent record means pending work exists', then 'resolve the ordered (leg, command) pairs from done rows through the mapping', 'zero invocations of npm test', skip proof, LOG_DIR, fail-fast). Admission, once-only parent commit with single absolute-path refresh, B's non-repetition with fresh verification, and C's preserved pending/attempts 0/iterations 3/cap 14/both commits with human-gated discard all survive verbatim in substance. One minor wording risk: After's C drops the explicit 'Stopped: iteration 2 added 2 commits' stop block that Before printed; no fact depends on it, but if a future fact checks the exact stop text, keep Before's fenced `gauntlet: question` block alongside the new 'until the human answers' list so the Change's ledger-pending-return narration and the retained stop format coexist.",
+      "wallMs": 22496,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ac871a36017bec6aea8046bccefa00db29a51da683fc8d643a4bbf51b52c8af9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "beb6b7ca6b51d0eec4fe9013894ff7254460dc8d4e5a121888b1fd9d27acc1b1",
+      "baselineOutputSha": "8cb62d7d6b9444304154fd58311323b39934bbdc447544f70bff5d8efb46ddbe",
+      "candidateOutputSha": "d23156070413195d40e3ab067dca4c9a9c173a3eacbf05bfc5d037372831d597",
+      "facts": {
+        "admission": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "once": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "source": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "repeat": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "rejection": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After keeps every fact Before kept while adding the Change's content (explicit pending-recovery-before-pre-strip-source ordering, the resolved selective gate pairs with LOG_DIR minting, the explicit 'do not run npm test' fallback ban, and the fresh-verification/no-skip-proof language in B). One soft spot in After: the once-only refresh is described as 'the single ledger-path refresh' without naming the absolute path, whereas Before spelled out /work/repo-a/.worktrees/shared/doc/plans/shared-ledger.md; the once fact asks for refresh 'by absolute ledger path', so to keep this fact robust across samples, have the After wording state the refresh as 'exactly once by the absolute ledger path <path>, after the loop: record commit and before any gate execution'. Also consider stating explicitly in A that the child is not rerun (After only implies it via 'no new dispatch'), and in C naming 'before verification or redispatch' in the stop sentence, as the fact phrases it, rather than only in the authorization list.",
+      "wallMs": 23024,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "182901ed9a3a22743d4d89e8e77ef6223307e2d9"
+}

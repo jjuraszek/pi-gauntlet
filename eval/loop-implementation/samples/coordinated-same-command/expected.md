@@ -1,0 +1,3 @@
+- ownership: judged: Resolves ownership from ledger Leg mapping, not spec prose or command identity: shared.test.mjs runs in both /work/home and /work/companion even though the recorded command and original AC are identical.
+- order: judged: Runs exactly three pairs in order: home shared.test.mjs, companion shared.test.mjs, home test -f doc/guide.md; row 4 is deduplicated against row 1 and cut row 5 contributes nothing.
+- execution: judged: Mints one LOG_DIR and runs each pair as its own foreground checkout subshell with stdout/stderr redirected to a gate log, reporting gate index, exit code and path; never invokes make ci or make check.

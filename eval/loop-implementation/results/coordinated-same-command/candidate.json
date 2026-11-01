@@ -1,0 +1,90 @@
+{
+  "sample": "coordinated-same-command",
+  "arm": "candidate",
+  "skillSha": "540f8156f7f9e53d75cccd977f5a678d0e783af772373707d56996cccc4b5c78",
+  "inputSha": "d83341e74652417b190f63ead5ce1c41f279bd37a1fb2c81e346928aa8af05ec",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Verify step 0–1 for the coordinated ledger (planned, not executed)\n\nTools are unavailable, so nothing below has run. Each call is shown as the exact invocation the driver would issue. Exit codes are written as `<code>` until a real run produces them.\n\n## Preconditions at loop exit\n\n- **Rule 1 holds.** No row is `open` or `failed`. Rows 1–4 are `done` and row 5 is `cut`.\n- **Implement is already complete.** Implement was marked complete through refresh, so there is no dispatch, no human stop and no iteration bump. `iterations: 4` and `cap: 17` stay unchanged.\n- **Membership has more than one leg** (repo-a home at `/work/home`, repo-b companion at `/work/companion`). The driver therefore reads `reference/coordinated-legs.md` in full at its absolute path. It applies only the coordinated-exit routing: each gate pair runs in its mapped checkout, and success requires every leg to pass. It does not apply `## Entry`.\n- **Required reads before step 0.** With `read`, at their absolute paths, the driver reads in full:\n  - SDD `After All Tasks Complete`\n  - `../subagent-driven-development/reference/happy-path-run.md`\n  - `../verification-before-completion/reference/conformance-check.md`\n  \n  An unreadable file stops the run with its path named. The driver never reconstructs a missing reference.\n\n## Step 0\n\n```text\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n```bash\nLOG_DIR=$(mktemp -d)   # minted once for this verify session, outside both repos\n```\n\n## Step 1: resolve the gate set\n\n1. **Check the `checks:` line.** The ledger has `checks: commands`, so the run proceeds without a missing-line stop.\n2. **Take the source rows.** Only non-cut `done` rows count: rows 1, 2, 3 and 4. Row 5 is `cut` and contributes nothing.\n3. **Extract each command.** The command is the first evidence segment, up to the first unescaped `;`:\n   - rows 1, 2 and 4 give `node --test shared.test.mjs`\n   - row 3 gives `test -f doc/guide.md`\n4. **Resolve ownership from the ledger.** The driver uses the ledger's `## Leg mapping` (`row | ac | leg`), never the spec prose or the spec's `scope:` lists:\n   - row 1 belongs to repo-a, giving `/work/home`\n   - row 2 belongs to repo-b, giving `/work/companion`\n   - rows 3 and 4 belong to repo-a, giving `/work/home`\n\n**How shared AC 1 affects membership:** rows 1 and 2 are the two expanded entries of original AC 1, owned by both legs. The same command in two checkouts makes two distinct pairs, so the AC 1 command runs once in each checkout.\n\n**How duplicate row 4 affects membership:** row 4 (AC 3, repo-a) produces the pair `(/work/home, node --test shared.test.mjs)`. Row 1 already produced that exact pair, so row 4 is removed during deduplication. Row 1, the first row contributing the pair, fixes its position. Row 4 still counts as closed in the ledger; it just adds no extra invocation.\n\n**Ordered gate pairs (by ledger row number after deduplication):**\n\n| gate | first contributing row | checkout | command |\n|---|---|---|---|\n| 1 | 1 | /work/home | `node --test shared.test.mjs` |\n| 2 | 2 | /work/companion | `node --test shared.test.mjs` |\n| 3 | 3 | /work/home | `test -f doc/guide.md` |\n\nThe driver makes **zero** invocations of `make ci` (the ledger `verification:` header) or `make check` (repo-b's contract verification). `verification: make ci` is kept only as the command CI runs.\n\n## Step 1: shell calls\n\nThe pairs run in the foreground, one at a time, with fail-fast.\n\n```bash\n(cd \"/work/home\" && node --test shared.test.mjs) > \"$LOG_DIR/gate-1.log\" 2>&1\n```\nPrint `gate 1 exit <code> $LOG_DIR/gate-1.log`. If the code is nonzero, stop here.\n\n```bash\n(cd \"/work/companion\" && node --test shared.test.mjs) > \"$LOG_DIR/gate-2.log\" 2>&1\n```\nPrint `gate 2 exit <code> $LOG_DIR/gate-2.log`. If the code is nonzero, stop here.\n\n```bash\n(cd \"/work/home\" && test -f doc/guide.md) > \"$LOG_DIR/gate-3.log\" 2>&1\n```\nPrint `gate 3 exit <code> $LOG_DIR/gate-3.log`.\n\nThe driver keeps only the exit line from each run. It does not read the logs on a pass.\n\n### If every pair exits 0\n\nThe snapshot says all recorded checks pass, so this is the expected outcome, though it is not yet observed. The driver then:\n\n1. Checks each leg for verification-produced tracked changes:\n   ```bash\n   git -C \"/work/home\" status --porcelain\n   git -C \"/work/companion\" status --porcelain\n   ```\n2. Commits any tracked changes the gates produced. Both trees are expected clean, so no commit should be needed.\n3. Records the verified HEAD and clean status for every leg:\n   ```bash\n   git -C \"/work/home\" rev-parse HEAD\n   git -C \"/work/companion\" rev-parse HEAD\n   ```\n\n**Durable changes:** only the phase moving to verify, plus temporary logs outside the repositories. The ledger is unchanged and there are no `loop:` commits.\n\n### If any gate exits nonzero\n\nLater gates do not run. The human-facing output would be:\n\n```text\ngauntlet: question\nStopped: verification failed with every row closed\nProblem: gate <i> exit <code> <log path>\n<tail -n 20 of that log, the only log read>\nPreserve every row's attempts and the total iteration cap.\n```\n\nThe menu offers only amend or stop, with a `Recommendation:` line.\n\nIf amend permission exists, an automatic repair is possible because `iterations 4 < cap 17`, provided `escalationLoop.implModel` is resolved and no `loop: repair verification` marker exists yet. The repair would:\n\n1. Bump iterations to 5.\n2. Dispatch one `implementer` child in the failing leg's checkout. It receives the leg's Rules, the failing command, checkout, exit code and log path.\n3. Admit the result only if the tree is clean, there is exactly one commit, and all ledger rows are unchanged.\n4. Record the parent commit `loop: repair verification`.\n5. Rerun only that checkout's pairs, then any pairs from other checkouts that the fail-fast run never executed.\n\n## Next target\n\nThere is no implement target. The next step is verify step 2: a whole-diff `wave-reviewer` per leg, each from its own base. The narration stops here, before any review.\n",
+      "words": 893,
+      "wallMs": 32062,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Snapshot 1 — proposed continuation only\n\nNo calls have run. Both seeds are validated, every row is `done` or `cut`, and refresh has already marked implement complete. **The next target is verify, not another child iteration.**\n\n### Required reads and phase transition\n\nBefore proceeding, the driver would read the coordinated-legs reference and the required After-the-loop references **in full**, using their resolved absolute skill-resource paths:\n\n- SDD’s `After All Tasks Complete`\n- `subagent-driven-development/reference/happy-path-run.md`\n- `verification-before-completion/reference/conformance-check.md`\n\nAn unreadable required reference stops the continuation; its contents must not be reconstructed.\n\nThen verify step 0 calls:\n\n```text\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n\nMint one log directory for this verify session:\n\n```bash\nLOG_DIR=$(mktemp -d)\n```\n\nRetain that actual absolute directory for every gate run and rerun. At step 1, read:\n\n```text\nread({ path: \"/work/home/doc/plans/change-ledger.md\" })\n```\n\nRequire its `checks: commands` line and derive the gate set from the ledger.\n\n### Ordered gate pairs\n\nOwnership comes from **`## Leg mapping`**, resolved through the held checkout paths—not from spec prose or spec verification contracts.\n\n| Gate | Checkout | Command | Contributing rows |\n|---|---|---|---|\n| 1 | `/work/home` | `node --test shared.test.mjs` | 1, 4 |\n| 2 | `/work/companion` | `node --test shared.test.mjs` | 2 |\n| 3 | `/work/home` | `test -f doc/guide.md` | 3 |\n\n- Shared AC 1 has two expanded entries, owned by different legs. Its identical command therefore produces **two distinct checkout/command pairs**.\n- Row 4 duplicates row 1’s checkout **and** command, so it adds no invocation. Row 1 fixes that pair’s position.\n- Row 3 contributes its asserting command despite being closed on baseline with attempts 0.\n- Cut row 5 contributes nothing.\n- Neither `make ci` nor `make check` runs here. The ledger’s `verification: make ci` remains the CI command; neither that header nor either spec contract supplies this gate set.\n\n### Verify step 1 shell calls and output\n\nThe proposed foreground, sequential, fail-fast run is:\n\n```bash\n(cd \"/work/home\" && node --test shared.test.mjs) > \"$LOG_DIR/gate-1.log\" 2>&1\ncode=$?\nprintf 'gate 1 exit %s %s\\n' \"$code\" \"$LOG_DIR/gate-1.log\"\nif [ \"$code\" -ne 0 ]; then exit \"$code\"; fi\n\n(cd \"/work/companion\" && node --test shared.test.mjs) > \"$LOG_DIR/gate-2.log\" 2>&1\ncode=$?\nprintf 'gate 2 exit %s %s\\n' \"$code\" \"$LOG_DIR/gate-2.log\"\nif [ \"$code\" -ne 0 ]; then exit \"$code\"; fi\n\n(cd \"/work/home\" && test -f doc/guide.md) > \"$LOG_DIR/gate-3.log\" 2>&1\ncode=$?\nprintf 'gate 3 exit %s %s\\n' \"$code\" \"$LOG_DIR/gate-3.log\"\nif [ \"$code\" -ne 0 ]; then exit \"$code\"; fi\n```\n\nGiven the snapshot’s stipulated passing checks, the **expected, not observed**, human-facing output is:\n\n```text\ngate 1 exit 0 <minted LOG_DIR>/gate-1.log\ngate 2 exit 0 <minted LOG_DIR>/gate-2.log\ngate 3 exit 0 <minted LOG_DIR>/gate-3.log\n```\n\nThe driver does not read successful test output or logs.\n\nAfter all three pass, check both checkouts:\n\n```bash\ngit -C \"/work/home\" status --porcelain\ngit -C \"/work/companion\" status --porcelain\n```\n\nIf gates produced tracked changes, commit those changes in their owning checkouts before recording verified HEADs. The snapshot does not establish such changes, so no commit or commit SHA can be asserted. Any repair would invalidate the run and require the prescribed rerun scope.\n\nOnce both trees are clean, record their actual verified HEADs:\n\n```bash\ngit -C \"/work/home\" rev-parse HEAD\ngit -C \"/work/companion\" rev-parse HEAD\n```\n\n### Durable state and stopping point\n\n- Ledger rows, attempts, evidence, mapping, decisions, `iterations: 4`, and `cap: 17` remain unchanged.\n- No `pending:` tuple or iteration bump is introduced.\n- Verify becomes active; implement remains complete.\n- The three logs are created in the newly minted session directory if the commands run.\n- Each leg’s verified HEAD and clean status are retained after successful checks.\n\n**Stop this narration before reviews.** The next workflow action would be whole-diff review routed to both legs, but no reviewer is dispatched here. This is the requested reporting boundary, not a workflow human-stop menu.\n",
+      "words": 572,
+      "wallMs": 25599,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5b62f0e9bf1022923ff5e600b324bb00ae1ba211e0f4a1145c5bb4577188fc3a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f01c9281ed5ee90edc6ace0e07289329ced4dc31474bbd50da5c56c7a1893c3a",
+      "baselineOutputSha": "b20ad27de4b39ce2165af383bb1034afd1375ac21c901d2f172556d5325ee166",
+      "candidateOutputSha": "9c724109b2fca8a9477dc53424c4423ecbb55ef1af6df3d3fc6ba5c54710bfd4",
+      "facts": {
+        "ownership": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "execution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All three facts moved fails -> holds exactly as intended. Before derived ownership from the spec's `scope:` lines (treating the ledger Leg mapping as a mere expansion), built only two contract pairs (`make ci` in /work/home, `make check` in /work/companion), and minted a separate `mktemp` log per pair, so none of the command-first facts could hold. After explicitly names `## Leg mapping` as the sole ownership source, produces the three-pair set (home shared.test.mjs, companion shared.test.mjs, home `test -f doc/guide.md`) with row 4 deduplicated against row 1 and row 5 contributing nothing, mints one `LOG_DIR`, runs each pair as a foreground `(cd ... && ...) > \"$LOG_DIR/gate-N.log\" 2>&1` subshell with a `gate N exit <code> <path>` line, and states zero invocations of `make ci`/`make check`. Nothing Before held was lost. Two small wording notes for robustness: the `LOG_DIR=$(mktemp -d)` line currently sits under the Step 0 heading rather than Step 1 — moving it to the top of the step 1 shell-calls section would match the 'mint one LOG_DIR for the gate set' phrasing more literally; and the repair paragraph's 'rerun only that checkout's pairs, then any pairs from other checkouts that the fail-fast run never executed' is good, but adding that those reruns redirect into the same `$LOG_DIR` would also cover the companion gate-set-failure/rerun expectation without changing anything here.",
+      "wallMs": 15476,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5b62f0e9bf1022923ff5e600b324bb00ae1ba211e0f4a1145c5bb4577188fc3a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f01c9281ed5ee90edc6ace0e07289329ced4dc31474bbd50da5c56c7a1893c3a",
+      "baselineOutputSha": "5d15daa5d16e251d9e54847fb69a412e9f368cf87b6fd315a91180dae714d1a3",
+      "candidateOutputSha": "6943f40984e1c756c8293000de03b31e69fcadcb2ad039a253bfac1cd4c1f762",
+      "facts": {
+        "ownership": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "execution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before failed every fact because it treated verify step 1 as the spec's per-leg contracts (make ci in /work/home, make check in /work/companion), ran only two pairs with tee-based per-leg mktemp logs, and located ownership in the spec's scope: lists with the ledger mapping merely 'carrying' it. After delivers the Change cleanly: it mints a single LOG_DIR, derives exactly three deduplicated checkout/command pairs from the ledger's Leg mapping in first-row order (home shared.test.mjs from rows 1+4, companion shared.test.mjs from row 2, home test -f doc/guide.md from row 3, cut row 5 excluded), runs each as a foreground subshell redirected to gate-N.log with fail-fast and a 'gate N exit CODE PATH' line, and explicitly states that neither make ci nor make check runs while the verification: header remains CI metadata. Nothing in After regressed a fact Before held (Before held none of the three). One optional tightening: keep the explicit statement that ownership comes from Leg mapping 'not spec prose or command identity' as the lead sentence of the gate-pairs section, since that single line is what satisfies the ownership fact's negative clause, and consider noting that the ledger's checks: commands header is the switch that selects command-first evidence over contract commands so the scoped/legacy facts in sibling samples stay observable from the same wording.",
+      "wallMs": 12697,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "182901ed9a3a22743d4d89e8e77ef6223307e2d9"
+}

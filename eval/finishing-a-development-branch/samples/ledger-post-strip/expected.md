@@ -1,0 +1,5 @@
+- source: judged: Reads git show of dddddddddddddddddddddddddddddddddddddddd^:doc/plans/shared-ledger.md in home to recover rows and Leg mapping; never reconstructs commands from spec npm test contracts or fabricates a replacement ledger.
+- ownership: judged: Deduplicates home shared.mjs rows, retains repo-b's separate pair but exempts the validated removed companion; runs node --test test/shared.mjs then node --test test/home.mjs in /work/repo-a/.worktrees/shared, with fresh home conformance and no repo-b checkout access or npm test.
+- logs: judged: Mints a new session LOG_DIR via mktemp -d and redirects each gate command to its own gate log, reporting gate index, exit code and log path.
+- squash: judged: Post-squash home executes its two ordered gate pairs separately in /work/repo-a using the same LOG_DIR, never a worktree subshell or a full suite.
+- failed-receipt: judged: For the independent failed repo-b squash receipt, proves delivered squash reachability and runs its shared.mjs pair in /work/repo-b even with a surviving feature tree; updates receipt on success and never repeats the squash.

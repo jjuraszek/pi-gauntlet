@@ -1,0 +1,4 @@
+- union: judged: At verify step 1 runs node --test parser.test.mjs once then test -f doc/guide.md, each in /work/repo, deduplicating the baseline and ordinary done rows and excluding the cut row; selects the first evidence segment, not the result text.
+- logs: judged: Starts verify, mints one LOG_DIR with mktemp -d, runs pairs foreground one at a time with stdout and stderr redirected to gate logs, and reports only gate index, exit code and log path rather than reading or pasting success output.
+- scoped: judged: Runs no make ci, full suite or contract verification command; leaves verification as the CI command and commits gate-produced tracked changes before continuing.
+- membership: judged: The membership-only failed-row variant contributes only the parser command, does not run verification while that row is unresolved; all-cut prints gate set empty - every row cut and continues without running a command.

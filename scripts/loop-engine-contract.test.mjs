@@ -37,14 +37,43 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   assert.deepEqual(lintStageSkillDirs(root.pathname, ['skills/loop-implementation']), []);
 });
 
+test('worker records selective commands and keeps row-scoped TDD evidence valid', () => {
+  const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
+  for (const token of [
+    '## Three-scenario TDD', '## Test economy', '## Evidence command',
+    'RED', 'GREEN', 'REFACTOR', 'extend the existing test first',
+    'Keep and extend the test from earlier attempts', 'no test file',
+    'parameter row or a stronger assertion', 'table-driven cases', 'one scenario',
+    'cheapest layer', 'slow tier',
+    'No convention named or discoverable: place the test beside its siblings and say so in your report.',
+    "another closed row's recorded command", 're-record',
+    'first unescaped semicolon', 'one selective invocation', 'no `;`, `|` or `&&`',
+    "owning checkout's full verification command", 'runner with no file or filter',
+    'name that matches nothing', 'nonzero exit', 'otherwise record the file',
+    'passing check for every baseline closure',
+  ]) assert.ok(persona.includes(token), token);
+  assert.match(persona, /5\. .*command you ran.*at most three result lines/);
+  assert.match(persona, /For every `open` row,.*command.*`evidence`/);
+  assert.match(persona, /Include the evidence command.*at most three semicolon-separated result lines/);
+  assert.doesNotMatch(persona, /containing the check name|Include the check name/);
+  assert.deepEqual(lintTarget(new URL('eval/loop-implementer', root).pathname), []);
+  const fixture = mkdtempSync(join(tmpdir(), 'loop-selector-'));
+  const file = join(fixture, 'row.test.mjs');
+  writeFileSync(file, "import test from 'node:test';\ntest('row proof', () => {});\n");
+  assert.equal(spawnSync(process.execPath, ['--test', file]).status, 0);
+  assert.notEqual(spawnSync(process.execPath, ['--test', join(fixture, 'missing.test.mjs')]).status, 0);
+  const empty = spawnSync(process.execPath, ['--test', '--test-name-pattern=absent-row', file], { encoding: 'utf8' });
+  assert.equal(empty.status, 0, 'Node name filters cannot be recorded as fail-closed selectors');
+});
+
 test('amend permission bounds row escalation and one exit repair', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  for (const token of ['attempts >= allowance', 'row <n> escalated | implModel round | allowed attempts <attempts + 1>', 'loop: escalate row <n>', 'escalated round for row <n>', 'max(0, min(attempts, 3 + N) - 3)', 'model: <implModel>', 'gauntlet_setting({ key: "escalationLoop" })', 'rules 3-4', 'starts no new empty-child or validation-miss window', 'unrecoverable means spent', 'loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun that command once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
+  for (const token of ['attempts >= allowance', 'row <n> escalated | implModel round | allowed attempts <attempts + 1>', 'loop: escalate row <n>', 'escalated round for row <n>', 'max(0, min(attempts, 3 + N) - 3)', 'model: <implModel>', 'gauntlet_setting({ key: "escalationLoop" })', 'rules 3-4', 'starts no new empty-child or validation-miss window', 'unrecoverable means spent', 'loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun the failing checkout\'s gate pairs once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
   assert.match(driver, /Omit the model override except on an escalated round/);
   assert.match(driver, /no permission or spent identity: no reopening and no automatic rerun/);
   assert.match(driver, /empty parent marker/);
   assert.match(driver, /This marker is once per flow\./);
-  for (const token of ['the implementation worktree as cwd and its Rules', 'absolute spec path and the exact verification command', 'On success record verified HEAD and clean status']) assert.ok(driver.includes(token), token);
+  for (const token of ['the implementation worktree as cwd and its Rules', 'absolute spec path, failing command, its checkout, exit code and log path', 'On success record verified HEAD and clean status']) assert.ok(driver.includes(token), token);
   assert.ok(Buffer.byteLength(driver) < 50000);
   assert.deepEqual(lintTarget(new URL('eval/loop-implementation', root).pathname), []);
 });
@@ -55,8 +84,9 @@ test('coordinated loop owns stable mappings, attributed returns and pending reco
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   for (const token of ['missing/duplicate scope lines', 'duplicate indices within a list', 'malformed tokens', 'out-of-range original indices', 'cut original AC indices', 'absent from every valid list to home', 'repeat shared indices', 'independent of scope-list order', 'duplicate/missing mappings', 'All-cut cap stays 1', 'unseeded leg with non-cut entries in membership order', 'wholly cut legs', 'scope: AC 1, AC 3', 'scope: none', 'original AC order', 'membership order', '## Leg mapping', 'row | ac | leg', 'base repo-a:', 'seeded repo-a:', 'cap 14', 'pending: 2 | repo-b | abc1234', 'without another attempt or iteration bump', 'zero commits', 'foreign entry', 'disposition-only cut', 'design:']) assert.ok(reference.includes(token), token);
   for (const token of ['pending:', 'iteration:', 'four-column', 'home ledger untouched', 'loop: seed evidence', 'loop: row', 'mapped original AC', 'Rules:']) assert.ok(persona.includes(token), token);
-  assert.match(reference, /Read each member's verification from the home spec's `## Legs` `contract:` `- verification:` line before dispatch/);
-  assert.match(reference, /For coordinated exit, read each leg's verification from the home spec's `## Legs` `contract:` `- verification:` line/);
+  assert.match(reference, /`checks: commands`/);
+  assert.match(reference, /gate set grouped by `## Leg mapping`/);
+  assert.doesNotMatch(reference, /`contract:` `- verification:`/);
   assert.doesNotMatch(reference, /record each member's verification contract|each leg's recorded verification/);
   const headings = ['## Entry', '## Resume', '## Targeting and dispatch', '## Companion return validation', '### Companion commit admission', '## Amendments'];
   for (let i = 1; i < headings.length; i++) assert.ok(reference.indexOf('\n' + headings[i] + '\n') > reference.indexOf('\n' + headings[i - 1] + '\n'), headings[i]);
@@ -70,7 +100,37 @@ test('coordinated loop owns stable mappings, attributed returns and pending reco
   assert.ok(driver.includes('single-member/legacy paths free of a companion loop, leg file, `legs:` brief or `--leg` argument'));
 });
 
-test('coordinated reference reads gate fresh entry and every restore before dispatch decisions', () => {
+test('driver holds capture grant and leg paths outside the dispatch loop', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
+  const holds = driver.split('\n## Driver holds\n')[1]?.split('\n## Before each dispatch\n')[0];
+  assert.ok(holds, 'Driver holds section after Entry');
+  for (const token of ['ledger', 'one file reference', 'status --porcelain', 'rev-list --count', 'rev-parse', 'show -s --format=%b', 'absolute paths', 'overrides', 'source files', 'test output', 'logs', 'last 20 lines', 'Never diagnose', 'rows by status', 'iterations', 'cap', 'last decision', 'decoded amendment grant', "each leg's checkout path"]) assert.ok(holds.includes(token), token);
+  assert.match(entry, /At seed and at an authorized restore, before entering the dispatch loop, read the spec in full/);
+  assert.match(entry, /Decode `\*\*Amend-grant:\*\*`.*Value decoding/);
+  assert.match(entry, /Capture.*ordered leg membership.*checkout paths.*Rules/);
+  const before = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0];
+  assert.match(before, /Use the held decoded amendment grant/);
+  assert.doesNotMatch(before, /Decode the current|spec whose `## Legs`/);
+  const human = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
+  assert.match(human, /Outside the dispatch loop.*amendment.*re-decode.*refresh.*held.*checkout paths/);
+  assert.doesNotMatch(human, /Stopped on row <n> \(<row text>\)/);
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
+  assert.match(reference, /At seed, read `## Legs`/);
+  assert.match(reference, /Use the held membership and checkout paths/);
+  assert.match(reference, /Pass absolute home spec and ledger paths for the child to read/);
+  assert.doesNotMatch(reference, /Read spec and ledger by absolute home paths/);
+});
+
+test('ledger resume delegates gate execution to the loop skill', () => {
+  for (const file of ['skills/gauntlet-resume/SKILL.md', 'skills/gauntlet-resume/reference/brief-contract.md']) {
+    const text = readFileSync(new URL(file, root), 'utf8');
+    assert.match(text, /After the loop.*step 1.*gate set per.*`## Gate set`/);
+    assert.doesNotMatch(text, /ledger gate once per leg/);
+  }
+});
+
+test('coordinated reference reads use held membership before dispatch decisions', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const path = 'reference/coordinated-legs.md';
   assert.equal(driver.split(path).length - 1, 2);
@@ -80,19 +140,20 @@ test('coordinated reference reads gate fresh entry and every restore before disp
   const dispatchRead = dispatch.split('\n')[0];
   for (const line of [entryRead, dispatchRead]) {
     assert.ok(line.includes(path));
-    assert.match(line.split('. ')[0], /spec whose `## Legs` section has more than one `### Leg:` block/);
+    assert.match(line.split('. ')[0], /held membership has more than one leg/);
+    assert.match(line.split('. ')[0], /absolute path/);
     assert.match(line.split('. ')[0], /stop on an unreadable reference naming its path, never reconstruct it/);
   }
-  assert.match(entryRead, /On fresh entry and on every ledger restore/);
+  assert.match(entryRead, /At seed and at an authorized restore/);
   assert.match(entryRead, /On fresh entry apply its `## Entry` section instead of the home-only skeleton and cap calculation below/);
   assert.match(entryRead, /On a restore apply its `## Resume` section before the dirty-tree stop and before any pending recovery/);
-  assert.ok(dispatch.startsWith('For a spec whose'));
+  assert.ok(dispatch.startsWith('When the held membership'));
   assert.ok(dispatch.indexOf(path) < dispatch.indexOf('| 1 |'));
   assert.match(dispatchRead, /Apply its `## Resume`, `## Targeting and dispatch`, `## Companion return validation`, `### Companion commit admission` and `## Amendments` sections together with this driver; never apply `## Entry` here/);
   assert.doesNotMatch(driver, /^## Coordinated Entry and resume$|^### Companion commit admission$/m);
   const dispatchBody = driver.split('\n## Dispatch\n')[1].split('\n## Validate the return\n')[0];
   assert.match(dispatchBody, /pending: <row or seed> \| <repo> \| <HEAD sha>/);
-  assert.doesNotMatch(driver, /companion-return-shell|## Leg mapping/);
+  assert.doesNotMatch(driver, /companion-return-shell/);
 });
 
 test('ledger refresh owns entry, dispatch and implement completion', () => {
@@ -116,7 +177,7 @@ test('ledger refresh owns entry, dispatch and implement completion', () => {
   for (const text of [driver, reference]) assert.ok(text.includes('State that difference when rendering a dispatch or admission: the task line carries the pre-bump count by design, the body line and `ITERATION` carry the consumed count `i + 1`, and the two never compare to each other.'));
   assert.match(reference, /That home-ledger commit.*`loop: record <repo> row <n>`.*parent commit, not a child `loop: row .*` commit: it never counts toward child-only empty-commit stagnation; only the companion.*own commits are counted at the boundary/);
   assert.doesNotMatch(driver, /plan_tracker\(.*(?:init|add|update)|phase_tracker\(\{ action: "complete", phase: "implement"/);
-  assert.ok(driver.trimEnd().split('\n').length < 150);
+  assert.ok(driver.trimEnd().split('\n').length < 500);
 });
 
 test('terminal home results refresh only after admission and retain pending on boundary stops', () => {
@@ -140,17 +201,17 @@ test('terminal home results refresh only after admission and retain pending on b
   assert.match(validation, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1/);
 });
 
-test('verify owns the per-leg gate, bounded repair and authorized ledger re-bound', () => {
+test('verify owns the gate set, bounded repair and authorized ledger re-bound', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const after = driver.split('\n## After the loop\n')[1];
   const gate = after.split('\n1. ')[1].split('\n2. ')[0];
-  for (const token of ['ledger', 'verification:', 'contract:', '- verification:', 'once foreground', 'owning checkout', 'iterations < cap', 'escalationLoop.implModel', 'loop: repair verification', 'exactly one commit', 'all ledger rows unchanged', 'failing leg only', 'verify active and implement complete', 'amend or stop only', 'no `Retry with hint` or `cap +N`']) assert.ok(gate.includes(token), token);
+  for (const token of ['gate set', 'Commit verification-produced tracked changes', 'iterations < cap', 'escalationLoop.implModel', 'loop: repair verification', 'exactly one commit', 'all ledger rows unchanged', 'failing checkout', 'verify active and implement complete', 'amend or stop only', 'no `Retry with hint` or `cap +N`']) assert.ok(gate.includes(token), token);
   assert.match(driver, /Implement-phase stops only: leave implement active/);
   assert.match(driver, /clean cap stop.*`cap \+N` alongside.*`Retry with hint`.*Amend.*Stop/);
   assert.match(driver, /Only the verify-step-1 verification-failure stop restricts.*amend\/stop/);
   const expected = readFileSync(new URL('eval/loop-implementation/samples/cap-and-exit-verification/expected.md', root), 'utf8');
-  assert.match(expected, /Closed rows run the ledger gate once at verify step 1; failure quotes output, never reopens\/reruns, keeps verify active and implement complete, and offers amend or stop only/);
+  assert.match(expected, /Closed rows run the gate set at verify step 1; failure names the gate exit line and quotes at most 20 log lines, never reopens\/reruns, keeps verify active and implement complete, and offers amend or stop only/);
   const intent = readFileSync(new URL('eval/loop-implementation/intent.md', root), 'utf8');
   assert.match(intent, /cap-and-exit-verification\/contract: fails -> holds - .*verify step 1/);
   assert.match(after, /Gn tasks.*same tracker/);
@@ -159,6 +220,63 @@ test('verify owns the per-leg gate, bounded repair and authorized ledger re-boun
   assert.match(after, /Dispatch.*Validate the return.*refresh.*verify still active.*no phase reset/);
   assert.match(after, /close on disk.*rerun step 1/);
   assert.doesNotMatch(driver + reference, /## Exit verification|Reuse the passing exit run|without plan_tracker initialization or lifecycle updates/);
+});
+
+test('gate set owns membership, fail-fast logs and every loop verification site', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const conformance = readFileSync(new URL('skills/verification-before-completion/reference/conformance-check.md', root), 'utf8');
+  assert.match(driver, /verification: <resolved command>\nchecks: commands\niterations: 0/);
+  const before = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0];
+  assert.ok(before.indexOf('checks:') < before.indexOf('| 1 |'));
+  const gate = driver.split('\n## Gate set\n')[1]?.split('\n## After the loop\n')[0];
+  assert.ok(gate, 'Gate set section before After the loop');
+  for (const token of [
+    'ledger has no checks: line - seeded under the old contract', '`stop` only',
+    'deduplicated union', '(owning checkout, command)', 'non-cut `done` row',
+    'first unescaped semicolon', '`failed` rows contribute nothing',
+    'ledger row number', 'first row', '## Leg mapping', 'row | ac | leg',
+    'never the spec', 'no mapping', 'two checkouts',
+    'gate set empty - every row cut', 'foreground', 'one at a time',
+    '(cd "<checkout>" && <command>) > "$LOG_DIR/gate-<i>.log" 2>&1',
+    'gate <i> exit <code> <log path>', 'Fail-fast', 'later pairs do not run',
+    'exit 127', 'no format rule', 'finish Step 1',
+    'zero invocations', 'CI runs',
+  ]) assert.ok(gate.includes(token), token);
+  const after = driver.split('\n## After the loop\n')[1];
+  assert.match(after, /0\. .*LOG_DIR=\$\(mktemp -d\)/);
+  assert.match(after, /1\. Run the gate set/);
+  assert.match(after, /Rerun the failing checkout's gate pairs once/);
+  assert.ok(after.includes("After the failing checkout's rerun passes, run the original fail-fast run's still-unexecuted pairs from other checkouts in ledger order under the same redirection before recording verified HEAD."));
+  assert.match(after, /2\. .*Rerun the complete gate set after every fix round/);
+  assert.match(after, /3\. .*gate set replacing plan Verification/);
+  assert.doesNotMatch(after, /Run the ledger's `verification:` command|rerun the full command|Rerun full verification|`contract:` `- verification:`/);
+  for (const token of ['### Ledger subjects', 'never the ad-hoc no-plan path', '## Gate set', 'LOG_DIR', 'exit code and log path', 'child reads the log']) assert.ok(conformance.includes(token), token);
+  assert.match(conformance, /SCOPED_TEST_COMMANDS`\s+to the gap block: for a ledger, the complete gate set/);
+  assert.ok(conformance.includes("retain leg identity, remap the child's repaired leg to its actual isolated worktree and run that leg's pairs with `LOG_DIR` from its own `mktemp -d`; preserve the parent's checkout set and session `LOG_DIR` for post-integration runs"));
+  assert.match(conformance, /4\. \*\*Scoped tests\*\*.*ledger.*gate set/);
+  assert.match(conformance, /a\. .*ledger.*gate set/);
+  assert.match(conformance, /Run the full plan-header `Verification` set once/);
+  assert.match(conformance, /round's `SCOPED_TEST_COMMANDS` union/);
+});
+
+test('gate output stays in session logs through repair, conformance and finish', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const conformance = readFileSync(new URL('skills/verification-before-completion/reference/conformance-check.md', root), 'utf8');
+  const finish = readFileSync(new URL('skills/finishing-a-development-branch/reference/verification-set.md', root), 'utf8');
+  const gate = driver.split('\n## Gate set\n')[1].split('\n## After the loop\n')[0];
+  const after = driver.split('\n## After the loop\n')[1];
+  assert.match(gate, /Use the executing process's `LOG_DIR` for every run and rerun: the parent's session directory minted at verify step 0, or the child's own temporary directory per the conformance ledger-subject override/);
+  assert.match(gate, /Print `gate <i> exit <code> <log path>` and keep nothing else from output/);
+  assert.match(after, /Mint `LOG_DIR=\$\(mktemp -d\)` once for this verify session; a resumed session mints a new one at its first gate-set site/);
+  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting at most the last 20 lines of that log with `tail -n 20`; this human-stop excerpt is the driver's only log read/);
+  assert.match(after, /Rerun the failing checkout's gate pairs once using ## Gate set's log redirection and fail-fast rule/);
+  assert.match(after, /absolute spec path, failing command, its checkout, exit code and log path, never pasted output/);
+  assert.match(conformance, /Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site/);
+  assert.match(conformance, /The child reads the log.*the driver does not read it/);
+  assert.match(finish, /mint `LOG_DIR=\$\(mktemp -d\)` once for this session; reuse it for every finish rerun/);
+  assert.match(finish, /Do not rely on a verify-session shell variable/);
+  assert.match(finish, /For a human stop, quote at most `tail -n 20` from the failing log, alongside its exit line/);
+  assert.ok(finish.includes('(cd "<leg primary>" && <command>) > "$LOG_DIR/gate-<i>.log" 2>&1'));
 });
 
 const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();

@@ -1,0 +1,100 @@
+{
+  "sample": "tdd-row",
+  "arm": "candidate",
+  "skillSha": "a44a11b40240dde6ca18b903b9c7be0f6e7bd2e213dd6f91e32ec1eb2a39a2d4",
+  "inputSha": "b9c0fd77ea8cb39e2e344f15d4dacbe97b94c88bec0053423202a4b015f42590",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Trace: iteration 1, target row 1 (home checkout `/repo`)\n\n**1. Read the spec first**\n`read /repo/doc/specs/name.md`\n- AC 1 requires rejecting empty and whitespace-only names while accepting `Ada`.\n- AC 2 requires preserving cache serialization.\n\n**2. Read the ledger**\n`read /repo/doc/plans/name-ledger.md`\n- Headers: `verification: npm test`, `checks: commands`, `iterations: 2`, `cap: 9`, `pending: 1 | home | abc1234`.\n- Row 1 is `open`, attempts `0`, evidence `node --test test/name.test.mjs; empty and whitespace accepted`.\n- Row 2 is `done`, attempts `0`, evidence `node --test test/cache.test.mjs; passed`.\n- Saved pending tuple: `1 | home | abc1234`.\n- Saved bumped iteration count: `2`, read from the `iterations:` header rather than the task's pre-bump `1`.\n- Rules are `none`, so no extra rules files apply.\n\n**3. Scope the diff**\n`cd /repo && git diff --stat abc1234`\n- The stat names `test/name.test.mjs` and `doc/plans/name-ledger.md`.\n\n`git diff abc1234 -- test/name.test.mjs src/name.mjs`\n- This opens hunks only for row 1's files.\n- `test/name.test.mjs` holds three near-identical seeded tests for `''`, `'   '` and `'Ada'`.\n- `src/name.mjs` currently exports `validName = s => true`.\n- `test/cache.test.mjs` is not opened because it belongs to row 2.\n\n**4. RED** (new behavior; run the test seed already wrote)\n`node --test test/name.test.mjs`\n- The empty-string case fails: expected false, got true.\n- The whitespace case fails: expected false, got true.\n- The `Ada` case passes.\n- This is the failure the row describes.\n\n**5. GREEN** (smallest change)\nEdit `src/name.mjs`:\n```js\nexport const validName = s => s.trim().length > 0;\n```\n`node --test test/name.test.mjs` now shows 3 passed and 0 failed.\n\n**6. REFACTOR** (merge the near-identical tests into one parameter table)\nEdit `test/name.test.mjs`:\n```js\nimport { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { validName } from '../src/name.mjs';\n\nconst cases = [\n  { input: '',    expected: false },\n  { input: '   ', expected: false },\n  { input: 'Ada', expected: true  },\n];\n\nfor (const { input, expected } of cases) {\n  test(`validName(${JSON.stringify(input)}) is ${expected}`, () => {\n    assert.equal(validName(input), expected);\n  });\n}\n```\n`node --test test/name.test.mjs` still shows 3 passed and 0 failed, with all three assertions kept.\n\n**Merge scope**\n- The merge touches only `test/name.test.mjs`, the test that row 1's recorded command selects.\n- The only production edit is `src/name.mjs`.\n- The recorded command still selects this row because it is a file selector, and the file and path are unchanged.\n- I did not use a name filter. Node's `--test-name-pattern` exits 0 when no name matches, while a missing file makes `node --test` exit nonzero. So no re-record is needed.\n\n**Placement**\n- No slow-test tier is named or discoverable.\n- The test stays beside its siblings in `test/`.\n\n**Teammate suggestion (declined)**\n- Merging the cache tests is out of scope. `test/cache.test.mjs` is selected by closed row 2's command, which I cannot update, so it stays unchanged.\n- Recording `npm test` is not allowed. It is the ledger's `verification:` command, and whole-project verification belongs to the parent.\n- Row 2's row and its evidence `node --test test/cache.test.mjs; passed` are preserved exactly.\n\n**7. Ledger edits** (`/repo/doc/plans/name-ledger.md`)\n- Row 1's mutable cells become:\n  - status: `done`\n  - attempts: `1`\n  - evidence: `node --test test/name.test.mjs; 3 passed; 0 failed`\n- Row 1's identifier and text are unchanged.\n- Row 2 is untouched.\n- The line `pending: 1 | home | abc1234` is removed. All other headers are unchanged.\n- One line is appended under `## Decisions`, after the existing seed decision:\n  `row 1 done | validName now rejects empty and whitespace-only names via trim, and the three seeded cases became one parameter table in test/name.test.mjs. | Do not redo row 1 or merge cache tests into it; row 2 keeps node --test test/cache.test.mjs and npm test stays parent-only verification.`\n\n**8. Commit with attribution**\n```\ngit add src/name.mjs test/name.test.mjs doc/plans/name-ledger.md\ngit commit -m \"loop: row 1 done\" -m \"pending: 1 | home | abc1234\niteration: 2\"\n```\nThe resulting message is:\n```\nloop: row 1 done\n\npending: 1 | home | abc1234\niteration: 2\n```\n`git status --porcelain` produces no output, so the tree is clean and this is the only commit.\n\nFinal reply:\nrow 1 done | validName now rejects empty and whitespace-only names via trim, and the three seeded cases became one parameter table in test/name.test.mjs. | Do not redo row 1 or merge cache tests into it; row 2 keeps node --test test/cache.test.mjs and npm test stays parent-only verification.\n",
+      "words": 638,
+      "wallMs": 23756,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Simulated tool trace\n\nAll commands below run in the supplied checkout, `/repo`.\n\n1. **Read the full spec first.**\n\n   ```sh\n   cat /repo/doc/specs/name.md\n   ```\n\n   Observed requirements:\n   - AC 1: Reject empty and whitespace-only names; accept `Ada`.\n   - AC 2: Preserve cache serialization.\n\n   Rules: none.\n\n2. **Read the ledger next.**\n\n   ```sh\n   cat /repo/doc/plans/name-ledger.md\n   ```\n\n   Observed state:\n   - `verification: npm test`\n   - `checks: commands`\n   - `iterations: 2`\n   - `cap: 9`\n   - `pending: 1 | home | abc1234`\n   - Row 1: open, attempts 0, evidence `node --test test/name.test.mjs; empty and whitespace accepted`\n   - Row 2: done, attempts 0, evidence `node --test test/cache.test.mjs; passed`\n   - Existing decision: `row 0 done | seeded 2 rows, closed 0 on baseline | row 1`\n\n   Save the exact attribution lines for the commit:\n   ```text\n   pending: 1 | home | abc1234\n   iteration: 2\n   ```\n\n3. **Inspect the base diff and relevant files.**\n\n   ```sh\n   git -C /repo diff --stat abc1234\n   ```\n\n   Observed changed files: `test/name.test.mjs` and `doc/plans/name-ledger.md`.\n\n   ```sh\n   git -C /repo diff abc1234 -- src/name.mjs test/name.test.mjs doc/plans/name-ledger.md\n   cat /repo/src/name.mjs\n   cat /repo/test/name.test.mjs\n   ```\n\n   Observed production implementation:\n   ```js\n   export const validName = s => true;\n   ```\n\n   The seeded test file contains three near-identical tests asserting false for `''`, false for `'   '`, and true for `'Ada'`. Keep and extend this seeded file rather than replacing its coverage.\n\n4. **RED — run the seeded row-specific check before editing production code.**\n\n   ```sh\n   node --test test/name.test.mjs\n   ```\n\n   Observed: nonzero exit; empty and whitespace-only cases fail with expected false, actual true. `Ada` passes.\n\n5. **GREEN — make the smallest production correction.**\n\n   Edit `/repo/src/name.mjs`:\n   ```diff\n   -export const validName = s => true;\n   +export const validName = s => s.trim().length > 0;\n   ```\n\n   ```sh\n   node --test test/name.test.mjs\n   ```\n\n   Observed: exit 0; all three cases pass.\n\n6. **REFACTOR — consolidate only row 1’s near-identical tests.**\n\n   Edit `/repo/test/name.test.mjs`, retaining its imports and replacing the three repeated test bodies with this parameter table and loop:\n   ```js\n   import test from 'node:test';\n   import assert from 'node:assert/strict';\n   import { validName } from '../src/name.mjs';\n\n   const cases = [\n     { label: 'rejects an empty name', input: '', expected: false },\n     { label: 'rejects a whitespace-only name', input: '   ', expected: false },\n     { label: 'accepts Ada', input: 'Ada', expected: true },\n   ];\n\n   for (const { label, input, expected } of cases) {\n     test(label, () => {\n       assert.equal(validName(input), expected);\n     });\n   }\n   ```\n\n   Merge scope: only `test/name.test.mjs`. The production correction touches `src/name.mjs`; bookkeeping touches the supplied ledger. Do not merge or edit `test/cache.test.mjs`, because row 2 is closed and its recorded selector must remain unchanged.\n\n   Decline the teammate’s suggestion to merge cache tests or record `npm test`: that would cross row ownership and run the ledger’s forbidden whole-project verification command. No slow-test tier is named or discoverable; retain the test beside its existing siblings in `test/`.\n\n   ```sh\n   node --test test/name.test.mjs\n   ```\n\n   Observed: exit 0; 3 passed, 0 failed. The unchanged file command continues selecting all three row 1 cases after refactoring. No name filter is used.\n\n7. **Update only row 1’s mutable ledger cells.**\n\n   In `/repo/doc/plans/name-ledger.md`, preserve the existing row text and set:\n\n   | Row | status | attempts | evidence |\n   |---|---|---|---|\n   | 1 | done | 1 | node --test test/name.test.mjs; 3 passed; 0 failed |\n\n   Preserve row 2 without modification:\n\n   | Row | status | attempts | evidence |\n   |---|---|---|---|\n   | 2 | done | 0 | node --test test/cache.test.mjs; passed |\n\n   Keep `iterations: 2` and all other headers unchanged. Remove the exact `pending: 1 | home | abc1234` line.\n\n   Append exactly one line to `## Decisions`:\n   ```text\n   row 1 done | Rejected empty and whitespace-only names, accepted Ada, and consolidated the three cases into a parameter table. | Keep row 2 and its cache selector unchanged; rerun only node --test test/name.test.mjs for row 1.\n   ```\n\n8. **Stage explicitly and commit exactly once with saved attribution.**\n\n   ```sh\n   git -C /repo add src/name.mjs test/name.test.mjs doc/plans/name-ledger.md\n   git -C /repo commit -m \"loop: row 1 done\" -m \"pending: 1 | home | abc1234\n   iteration: 2\"\n   ```\n\n   Resulting commit message:\n   ```text\n   loop: row 1 done\n\n   pending: 1 | home | abc1234\n   iteration: 2\n   ```\n\n   ```sh\n   git -C /repo status --porcelain\n   ```\n\n   Observed: empty output; working tree clean.\n\nFinal reply:\nrow 1 done | Rejected empty and whitespace-only names, accepted Ada, and consolidated the three cases into a parameter table. | Keep row 2 and its cache selector unchanged; rerun only node --test test/name.test.mjs for row 1.\n",
+      "words": 625,
+      "wallMs": 29348,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "67529ab6c360cb2a6ab93ac59059ec021c6e0bf96cc6a81edf24f026a345142e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "900c89fa8fb868e0a811e84145087fe0448731b344a205330c2d971012cf163b",
+      "baselineOutputSha": "f4415b852a733701ca2eb92fed518dc814542bdc4be152a4918a46dcb6e25095",
+      "candidateOutputSha": "7cf4e363ecba02b4ccc012f6aef3d20fcf6b62c53e3619b5617923d2a8f0bde9",
+      "facts": {
+        "red-green": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "refactor": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ownership": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved. Both outputs run the seeded file before touching src/name.mjs, observe the two expected-false-got-true failures, apply s.trim().length > 0, rerun the same file command, then refactor to a three-case parameter table and rerun node --test test/name.test.mjs green; both decline the cache merge and npm test, leave row 2 and its selector verbatim, report the missing slow tier, close only row 1 as done/1 with command-first evidence under three result segments, drop pending while keeping iterations: 2, commit once with the pending/iteration body, check porcelain, and reply with the bounded decision. After adds the useful explanation that the file selector fails closed while --test-name-pattern exits 0 on empty selection, which directly supports the new command-first selection rule; keep that paragraph. One small thing: After's RED step drops the `cd /repo &&` prefix that Before showed on every command — harmless here since the home checkout is stated in the heading, but restating the checkout on the recorded command (or keeping the prefix in the trace) would make the 'actual selective invocation' unambiguous for a reader checking where it ran. Otherwise the After wording delivers the Change without loosening any existing fact.",
+      "wallMs": 15469,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "67529ab6c360cb2a6ab93ac59059ec021c6e0bf96cc6a81edf24f026a345142e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "900c89fa8fb868e0a811e84145087fe0448731b344a205330c2d971012cf163b",
+      "baselineOutputSha": "f7b53ce736272fc11a80070f6667795a506e71610594c18c6e4cb66d3cd8583d",
+      "candidateOutputSha": "4be485521dff517335309a47f53d725512cb6fcd43d0f46a09f5d317be6c1aca",
+      "facts": {
+        "red-green": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "refactor": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ownership": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: both outputs run the seeded file command first, observe the empty/whitespace failures, apply only the trim-and-length change, rerun the same file, then refactor into a three-case parameter table and reconfirm with the unchanged file command; both decline the cache-test merge and npm test, note the absent slow-test tier, keep test/cache.test.mjs and row 2's selector intact, close only row 1 as done/attempts 1 with command-first evidence under the three-segment bound, remove pending while retaining iterations: 2, commit once with the saved attribution and iteration: 2 in the body, verify a clean tree, and reply solely with the decision line. After is slightly stronger on command-first wording ('No name filter is used', explicit nonzero/zero exit observations) and on explaining why npm test is rejected; its only trade-off is dropping the RED/GREEN/REFACTOR phase labels from the evidence cell in favour of a terser '3 passed; 0 failed', which stays within the bound but loses phase traceability — if you want that retained, keep the RED/GREEN/REFACTOR segments as Before did while still leading with the actual selective invocation. Neither output explicitly names a 'bare runner' as rejected; adding one clause ('do not record a bare node --test or npm test') would make the ownership fact unambiguous.",
+      "wallMs": 15079,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "08f31ff491a94a038a77c8b15997400bf5c441f4"
+}

@@ -1,0 +1,100 @@
+{
+  "sample": "command-first-evidence",
+  "arm": "candidate",
+  "skillSha": "a44a11b40240dde6ca18b903b9c7be0f6e7bd2e213dd6f91e32ec1eb2a39a2d4",
+  "inputSha": "d2346456331d06d9c3ff2ff7629c3c4f4c33af4578b036a618af02eb620f8392",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Snapshot A: home iteration (target row 1, checkout /repo)\n\n**Trace**\n\n1. `cat /repo/doc/specs/label.md`\n   - The spec is read in full first.\n   - AC 1: Export 'ready' from src/label.mjs.\n   - AC 2: Preserve cache format.\n   - Constraint: change only the label constant.\n2. `cat /repo/doc/plans/label-ledger.md`\n   - Headers: `verification: npm test`, `iterations: 2`, `cap: 9`, `pending: 1 | home | abc1234`.\n   - Row 1 is open, attempts 0, evidence `label check; expected ready, got waiting`.\n   - Row 2 is done, attempts 0, evidence `node --test test/cache.test.mjs; passed`.\n   - The only decision is the seed line.\n   - Saved for the commit body: pending tuple `1 | home | abc1234` and bumped count `iteration: 2`, taken from the ledger header rather than the task's pre-bump 1.\n3. `git -C /repo diff --stat abc1234`\n   - Lists src/label.mjs and doc/plans/label-ledger.md.\n4. `git -C /repo diff abc1234 -- src/label.mjs`\n   - Only this file's hunks are opened, because it is the target file.\n5. `cat /repo/src/label.mjs`\n   - It exports `'waiting'`.\n6. `cat /repo/test/label.test.mjs`\n   - Test `'ready label'` already asserts `'ready'`.\n   - The seed named a check, and this existing test covers it. I reuse it rather than writing a new test, which follows Test economy.\n7. RED: `node --test test/label.test.mjs`\n   - Fails with expected ready, got waiting. This is the row's stated reason.\n8. Edit `/repo/src/label.mjs`:\n   - The exported label constant changes from `'waiting'` to `'ready'`.\n   - Nothing else changes, which preserves AC 2 and the cache format.\n9. GREEN: `node --test test/label.test.mjs`\n   - tests 1, pass 1, fail 0.\n10. Empty-selection probe, run before choosing the evidence command:\n    - `node --test --test-name-pattern 'no-such-label' test/label.test.mjs` exits 0 with tests 0. A name filter that matches nothing still passes, so the filter cannot be the evidence command.\n    - `node --test test/missing.test.mjs` exits 1. A file-path selection fails when it selects nothing, so I record the file.\n11. Response to the teammate's suggestions:\n    - Name filter: rejected. The probe at step 10 shows it exits 0 when it selects no test.\n    - Bare `node --test`: rejected. It is a runner with no file or filter.\n    - `npm test`: rejected. It is the ledger's project `verification:` command, and whole-project verification belongs to the parent.\n    - Recorded command: `node --test test/label.test.mjs`.\n12. Edit the ledger. Only row 1's mutable cells change; the row id and text are preserved.\n    - status: `done`\n    - attempts: `1`\n    - evidence: `node --test test/label.test.mjs; tests 1; pass 1; fail 0`\n    - Row 2, the headers, and the seed decision are unchanged.\n    - The `pending: 1 | home | abc1234` line is removed.\n13. Append the decision line under `## Decisions`. It appears verbatim in the final reply.\n14. `git -C /repo add src/label.mjs doc/plans/label-ledger.md`\n15. `git -C /repo commit -m \"loop: row 1 done\" -m \"pending: 1 | home | abc1234\niteration: 2\"`\n    - Commit body lines, placed right after the blank separator:\n      ```\n      pending: 1 | home | abc1234\n      iteration: 2\n      ```\n16. `git -C /repo status --porcelain`\n    - Empty output, so the tree is clean.\n\n**Final reply:**\nrow 1 done | Changed the exported label constant in src/label.mjs from 'waiting' to 'ready'; node --test test/label.test.mjs passes. | Do not redo row 1 or swap evidence to the name filter (exits 0 on no match), bare node --test, or npm test; row 2 is already done.\n\n---\n\n## Snapshot B: companion iteration (Leg repo-b, checkout /work/repo-b, base bbbbbbb)\n\nState is reset from Snapshot A.\n\n**Trace**\n\n1. `cat /repo/doc/specs/label.md`\n   - Same AC 1 and AC 2 as Snapshot A, with the same \"change only the label constant\" constraint.\n2. `cat /repo/doc/plans/label-ledger.md`\n   - Read for context only.\n   - AC 1 maps to leg repo-b, whose recorded verification is `npm test`.\n   - Saved: pending tuple `1 | repo-b | bbbbbbb` and consumed `iteration: 2`.\n3. `git -C /work/repo-b diff --stat bbbbbbb`\n   - Lists src/label.mjs. Only target-file hunks are opened.\n4. `git -C /work/repo-b diff bbbbbbb -- src/label.mjs`\n5. Read `/work/repo-b/src/label.mjs` (exports `'waiting'`) and `/work/repo-b/test/label.test.mjs` (`'ready label'` asserts `'ready'`).\n6. RED: `node --test test/label.test.mjs` in /work/repo-b\n   - Fails with expected ready, got waiting.\n7. Edit `/work/repo-b/src/label.mjs`: the constant changes from `'waiting'` to `'ready'`.\n8. GREEN: `node --test test/label.test.mjs`\n   - tests 1, pass 1, fail 0.\n9. Probe:\n   - The name filter `'no-such-label'` exits 0 with tests 0, so it is rejected.\n   - The missing-file run exits 1, so the file path is recorded.\n   - Bare `node --test` is rejected.\n   - `npm test` is rejected because it is the leg's recorded verification command.\n10. Home ledger: unchanged. No row edit, no decision append, and the pending line is not removed. The parent validates this commit and writes the home ledger.\n11. `git -C /work/repo-b add src/label.mjs`\n12. `git -C /work/repo-b commit -F -` with this body:\n    ```\n    loop: row 1 done\n\n    pending: 1 | repo-b | bbbbbbb\n    iteration: 2\n\n    1 | done | 1 | node --test test/label.test.mjs; tests 1; pass 1; fail 0\n\n    row 1 done | Changed the exported label constant in src/label.mjs from 'waiting' to 'ready' in repo-b; node --test test/label.test.mjs passes. | Do not redo row 1 or record the name filter (exits 0 on no match), bare node --test, or npm test; the parent writes the home ledger.\n    ```\n13. `git -C /work/repo-b status --porcelain`\n    - Empty output, so the tree is clean.\n\n**Final reply:**\nrow 1 done | Changed the exported label constant in src/label.mjs from 'waiting' to 'ready' in repo-b; node --test test/label.test.mjs passes. | Do not redo row 1 or record the name filter (exits 0 on no match), bare node --test, or npm test; the parent writes the home ledger.\n",
+      "words": 852,
+      "wallMs": 28397,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Home iteration — simulated trace\n\n1. Read the full spec first:\n   ```sh\n   cat /repo/doc/specs/label.md\n   ```\n   Observed: AC 1 requires exporting `'ready'` from `src/label.mjs`; AC 2 preserves cache format. Change only the label constant.\n\n2. Read the ledger:\n   ```sh\n   cat /repo/doc/plans/label-ledger.md\n   ```\n   Saved attribution:\n   ```text\n   pending: 1 | home | abc1234\n   iteration: 2\n   ```\n   Observed: row 1 is open with attempts 0; row 2 is done. Verification is `npm test`. Preserve the existing seed decision, cap, iterations, and row 2. Rules: none.\n\n3. Inspect the supplied checkout and scoped changes:\n   ```sh\n   cd /repo\n   git diff --stat abc1234\n   git diff abc1234 -- src/label.mjs doc/plans/label-ledger.md\n   cat src/label.mjs\n   cat test/label.test.mjs\n   ```\n   Observed: the diff stat lists only the label source and ledger. The source exports `'waiting'`; the seeded test already asserts `'ready'` in `ready label`.\n\n4. Run the seeded test before editing:\n   ```sh\n   node --test test/label.test.mjs\n   ```\n   Observed: failure, expected ready, got waiting.\n\n5. Probe the proposed name filter:\n   ```sh\n   node --test --test-name-pattern 'no-such-label' test/label.test.mjs\n   ```\n   Observed: exit 0, tests 0. The filter cannot provide evidence that fails on empty selection.\n\n   Check missing-file behavior:\n   ```sh\n   node --test test/missing.test.mjs\n   ```\n   Observed: exit 1.\n\n   Teammate response: record the specific test file, not the name filter. Bare `node --test` is unscoped, and `npm test` is the prohibited project verification command.\n\n6. Edit `src/label.mjs`: replace only the exported label constant’s literal `'waiting'` with `'ready'`. Keep the seeded test unchanged.\n\n7. Run the targeted check:\n   ```sh\n   node --test test/label.test.mjs\n   ```\n   Observed: tests 1, pass 1, fail 0.\n\n8. Edit only row 1’s mutable ledger cells:\n   ```text\n   row: 1\n   status: done\n   attempts: 1\n   evidence: node --test test/label.test.mjs; tests 1; pass 1; fail 0\n   ```\n   Preserve row 1’s original text and every other row. Remove `pending: 1 | home | abc1234`; keep `iterations: 2`.\n\n   Append exactly this line to `## Decisions`:\n   ```text\n   row 1 done | Changed the exported label constant to ready; the targeted test passed. | Do not redo row 1 or use the name filter, which passes with zero tests.\n   ```\n\n9. Stage explicitly and commit once:\n   ```sh\n   git add src/label.mjs doc/plans/label-ledger.md\n   git commit -m \"loop: row 1 done\" -m \"pending: 1 | home | abc1234\n   iteration: 2\"\n   git status --porcelain\n   ```\n   Observed: commit succeeds; status output is empty. The attribution uses the saved pending tuple and ledger’s consumed iteration, not task iteration 1.\n\nFinal reply:\nrow 1 done | Changed the exported label constant to ready; the targeted test passed. | Do not redo row 1 or use the name filter, which passes with zero tests.\n\n## Independent companion iteration — simulated trace\n\n1. Reset to the independent snapshot. Read the full spec first:\n   ```sh\n   cat /repo/doc/specs/label.md\n   ```\n   Observed: the same two ACs and label-only change restriction.\n\n2. Read the home ledger next:\n   ```sh\n   cat /repo/doc/plans/label-ledger.md\n   ```\n   Consume the supplied mapping: AC 1 belongs to `repo-b`. Save the exact dispatched attribution:\n   ```text\n   pending: 1 | repo-b | bbbbbbb\n   iteration: 2\n   ```\n   Row 1 starts open with attempts 0. Rules: none. The leg verification command is `npm test`.\n\n3. Inspect only the companion checkout:\n   ```sh\n   cd /work/repo-b\n   git diff --stat bbbbbbb\n   git diff bbbbbbb -- src/label.mjs\n   cat src/label.mjs\n   cat test/label.test.mjs\n   ```\n   Observed: the exported label is `'waiting'`; the existing seeded test asserts `'ready'`. No home-ledger diff hunks are opened in this checkout.\n\n4. Run RED:\n   ```sh\n   node --test test/label.test.mjs\n   ```\n   Observed: failure, expected ready, got waiting.\n\n5. Probe empty selection before choosing evidence:\n   ```sh\n   node --test --test-name-pattern 'no-such-label' test/label.test.mjs\n   ```\n   Observed: exit 0, tests 0.\n\n   ```sh\n   node --test test/missing.test.mjs\n   ```\n   Observed: exit 1.\n\n   Teammate response: use the file command. Reject the empty-selection-success filter, bare runner, and leg-wide `npm test`.\n\n6. Edit `/work/repo-b/src/label.mjs`: change only the exported label literal from `'waiting'` to `'ready'`. Preserve the existing seeded test.\n\n7. Run GREEN:\n   ```sh\n   node --test test/label.test.mjs\n   ```\n   Observed: tests 1, pass 1, fail 0.\n\n8. Prepare the four-column result in memory:\n   ```text\n   1 | done | 1 | node --test test/label.test.mjs; tests 1; pass 1; fail 0\n   ```\n   The home ledger does **not** change. No sidecar is written. The companion commit carries attribution, the serialized result row, and the required decision.\n\n9. Stage only the changed companion source and commit once:\n   ```sh\n   git add src/label.mjs\n   git commit -m \"loop: row 1 done\" -m \"pending: 1 | repo-b | bbbbbbb\n   iteration: 2\n\n   1 | done | 1 | node --test test/label.test.mjs; tests 1; pass 1; fail 0\n\n   row 1 done | Changed the exported label constant to ready; the targeted test passed. | Do not redo row 1 or use the name filter, which passes with zero tests.\"\n   git status --porcelain\n   ```\n   Observed: commit succeeds; status output is empty. No home-ledger file is staged or edited.\n\nFinal reply:\nrow 1 done | Changed the exported label constant to ready; the targeted test passed. | Do not redo row 1 or use the name filter, which passes with zero tests.\n",
+      "words": 757,
+      "wallMs": 32565,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6dddd00207636f6a7a1d7749596a799b6e886b3cf2c84c95e2f0ab95e3545f4a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "900c89fa8fb868e0a811e84145087fe0448731b344a205330c2d971012cf163b",
+      "baselineOutputSha": "e0a78693662e70bd3878299e56ba50e61b5de766a64c7fa0fa4973f792cd32ac",
+      "candidateOutputSha": "5b2606d4d2173f4575a85b8045e614cf522a3aacc086a3f0f8791205434d635d",
+      "facts": {
+        "command-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "selection": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "red-green": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ownership": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: both home evidence and the companion row begin with `node --test test/label.test.mjs` followed by three result segments, the empty-name-filter probe is run before the selector is chosen and the file command is recorded, RED is observed before the constant edit and GREEN after it without touching the test or cache code, and home closes only row 1 (attempts 1, pending removed, iterations 2 and row 2 preserved) while the companion leaves the home ledger alone and serializes only row 1 after the pending/iteration lines with a single bounded decision line as the reply. Nothing moved. Two minor robustness notes for the After wording rather than fact regressions: the companion row in After drops the leading and trailing `|` delimiters that Before used, so a reader could argue it is a pipe-separated line rather than a four-column table row — stating 'serialize the row with its leading and trailing pipe characters' would remove that ambiguity; and the After final replies drop the explicit `tests 1; pass 1; fail 0` counts from the decision line, which is fine for the ownership bound but slightly weakens the evidence trail compared with Before, so wording like 'the decision line may repeat the evidence cell verbatim' would preserve that without lengthening the reply.",
+      "wallMs": 17060,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6dddd00207636f6a7a1d7749596a799b6e886b3cf2c84c95e2f0ab95e3545f4a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "900c89fa8fb868e0a811e84145087fe0448731b344a205330c2d971012cf163b",
+      "baselineOutputSha": "4b3592851ef6e64218e600a18508e1cc04831cc3599a275fae5b104667a4c652",
+      "candidateOutputSha": "5c0cfcbe4fffcb245a5824b881ae1a87014773697886725240e6ad2212d5a0ea",
+      "facts": {
+        "command-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "selection": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "red-green": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ownership": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved nothing: both traces still record `node --test test/label.test.mjs; tests 1; pass 1; fail 0` as the evidence cell, probe the unmatched name filter (exit 0, tests 0) plus the missing-file probe before choosing the file command, reject bare `node --test` and `npm test`, run the seeded RED before the single-literal edit and GREEN after it, close only row 1 at attempts 1 while removing pending and keeping `iterations: 2` and row 2, and leave the home ledger untouched in the companion whose commit body serializes the row after the attribution tuple and `iteration: 2`. Two small presentation risks worth tightening in After: the home ledger edit in step 8 is rendered as `row:/status:/attempts:/evidence:` lines rather than the pipe-delimited row Before showed, which a strict reader could take as not demonstrating one physical cell — keep the literal `| 1 | done | 1 | node --test ...; tests 1; pass 1; fail 0 |` row as Before did; and the companion's serialized row drops the leading/trailing pipes, so prefer the same `| ... |` form in the commit body to make the four-column serialization unambiguous. The added RED/GREEN labels and the explicit empty-selection rationale in the decision line deliver the Change well and should be kept.",
+      "wallMs": 18351,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "08f31ff491a94a038a77c8b15997400bf5c441f4"
+}

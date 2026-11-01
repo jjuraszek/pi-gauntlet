@@ -1,0 +1,5 @@
+- sites: judged: Verify step 1 and the whole-diff fix round run the deduplicated pair of parser.test.mjs then output.test.mjs in /work/repo, not make ci; whole-diff re-review follows the rerun.
+- conformance: judged: The gap dispatch receives the complete gate set with owning checkout as SCOPED_TEST_COMMANDS, integrated scoped tests run that set, and both Convergence (a) runs use that set; the ledger never takes the ad-hoc no-plan canonical-command fallback.
+- repair: judged: Preserves normal Gn task lifecycle and the one-task conformance fix CR wave with SCOPED_TEST_COMMANDS none; after repair the gate set, not full verification, gates convergence.
+- logs: judged: Every parent gate run uses the same session LOG_DIR, one foreground command per pair with stdout/stderr redirected to gate logs and only exit lines retained; no local invocation of make ci or a full unfiltered runner.
+- child-checkout: judged: The G1 child runs the home leg's parser and output gate pairs in /tmp/g1-isolated with LOG_DIR from its own mktemp -d, retaining home leg identity; parent post-integration gates run in /work/repo using /tmp/parent-gates.
