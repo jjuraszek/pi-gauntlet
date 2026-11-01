@@ -257,6 +257,26 @@ test('gate set owns membership, fail-fast logs and every loop verification site'
   assert.match(conformance, /round's `SCOPED_TEST_COMMANDS` union/);
 });
 
+test('gate output stays in session logs through repair, conformance and finish', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const conformance = readFileSync(new URL('skills/verification-before-completion/reference/conformance-check.md', root), 'utf8');
+  const finish = readFileSync(new URL('skills/finishing-a-development-branch/reference/verification-set.md', root), 'utf8');
+  const gate = driver.split('\n## Gate set\n')[1].split('\n## After the loop\n')[0];
+  const after = driver.split('\n## After the loop\n')[1];
+  assert.match(gate, /Use the session's `LOG_DIR`, minted at verify step 0, for every run and rerun/);
+  assert.match(gate, /Print `gate <i> exit <code> <log path>` and keep nothing else from output/);
+  assert.match(after, /Mint `LOG_DIR=\$\(mktemp -d\)` once for this verify session; a resumed session mints a new one at its first gate-set site/);
+  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting at most the last 20 lines of that log with `tail -n 20`; this human-stop excerpt is the driver's only log read/);
+  assert.match(after, /Rerun the failing checkout's gate pairs once using ## Gate set's log redirection and fail-fast rule/);
+  assert.match(after, /absolute spec path, failing command, its checkout, exit code and log path, never pasted output/);
+  assert.match(conformance, /Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site/);
+  assert.match(conformance, /The child reads the log.*the driver does not read it/);
+  assert.match(finish, /mint `LOG_DIR=\$\(mktemp -d\)` once for this session; reuse it for every finish rerun/);
+  assert.match(finish, /Do not rely on a verify-session shell variable/);
+  assert.match(finish, /For a human stop, quote at most `tail -n 20` from the failing log, alongside its exit line/);
+  assert.ok(finish.includes('(cd "<leg primary>" && <command>) > "$LOG_DIR/gate-<i>.log" 2>&1'));
+});
+
 const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
 
 function companionFixture(target) {

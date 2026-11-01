@@ -1,6 +1,8 @@
 for: b752dcbfef8ddfbfe16da618ea26b4f942aa39c0e7690f71585570b6b617c976
 
 ## Change
+Prove the existing gate-log boundary with gate-set-failure: one directory per verify session, fail-fast exit/path-only reporting, a concrete 25-line log whose human stop quotes only its last 20 lines, path-only repair handoff and redirected reruns in the same directory. A fresh-session resume creates new logs rather than trusting old ones. No skill behavior changes in this iteration; focused replays prove narrated operations, not live shell access. Full-target evaluation remains with row 8.
+
 Capture the decoded amendment grant, leg membership, checkout paths and Rules at seed or authorized restore before entering the dispatch loop, refreshing them only through authorized amendment actions. Restrict implement-driver reads to ledger/return/boundary data and skill resources/overrides; leave source and failure diagnosis to workers. Add driver-holds for restore capture, held-grant escalation, return admission and amendment refresh. Keep the existing leg-resume read-order and recovery facts; supply checks: commands in its admitted-ledger fixture so it exercises recovery rather than the separate legacy-header stop. Focused text replays prove narrated boundaries, not runtime file access; full-target runs remain with row 8.
 
 Replace loop-local full verification with the command-first gate set: deduplicate by owning checkout and command in ledger order, reject missing checks headers, log each foreground pair and fail-fast. Route coordinated and conformance verification through this set; retain full commands as CI metadata only. Add gate-set-verify-step-1, coordinated-same-command, repairs-rerun-gate-set-only and legacy-ledger-stop samples; update the four existing verification samples to supply command-first done-row evidence and checks headers. These text replays exercise routing instructions, not live shell execution. Targeted sample runs belong to this iteration; full-target completion belongs to row 8.
@@ -22,6 +24,11 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the cap snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- gate-set-failure/redirect: fails -> holds - Redirect every foreground pair and retain exit lines only, stopping at the first failure.
+- gate-set-failure/tail: fails -> holds - Bound the human-stop excerpt after Problem to the final 20 log lines.
+- gate-set-failure/handoff: fails -> holds - Give the child diagnostic paths, never pasted output or parent source diagnosis.
+- gate-set-failure/rerun: fails -> holds - Reuse the verify-session log directory for the escalated repair rerun.
+- gate-set-failure/resume: fails -> holds - Mint a fresh session directory on resume and require current gate exits.
 - driver-holds/capture: fails -> holds - Capture grant and checkout metadata before the loop, then use held values.
 - driver-holds/escalation: fails -> holds - Route the one allowed escalation without spec or source reads in the loop.
 - driver-holds/admission: fails -> holds - Admit effects through ledger, return reference and git boundaries rather than a transcript or diagnosis.
