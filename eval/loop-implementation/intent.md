@@ -1,4 +1,4 @@
-for: a29843f4d77b4e36d5b272e7c400fb7e94453ee0d62e3009b9a949449827c866
+for: 86ced932fc750eaf628b49d03b7c0a18c2321ddddd689b6f2b86fbdf62fb05cc
 
 ## Change
 Complete verify step 1 after an escalated repair by running other checkouts' pairs skipped by fail-fast before granting verification. Run each isolated conformance child's repaired-leg pairs in its own checkout and temporary log directory; retain the parent checkout set and session logs after integration. Extend exit-verification-escalates and repairs-rerun-gate-set-only with observable continuation and child-path facts.
@@ -9,6 +9,7 @@ Prove the existing gate-log boundary with gate-set-failure: one directory per ve
 Capture the decoded amendment grant, leg membership, checkout paths and Rules at seed or authorized restore before entering the dispatch loop, refreshing them only through authorized amendment actions. Restrict implement-driver reads to ledger/return/boundary data and skill resources/overrides; leave source and failure diagnosis to workers. Add driver-holds for restore capture, held-grant escalation, return admission and amendment refresh. Keep the existing leg-resume read-order and recovery facts; supply checks: commands in its admitted-ledger fixture so it exercises recovery rather than the separate legacy-header stop. Focused text replays prove narrated boundaries, not runtime file access; full-target runs remain with row 8.
 
 Replace loop-local full verification with the command-first gate set: deduplicate by owning checkout and command in ledger order, reject missing checks headers, log each foreground pair and fail-fast. Route coordinated and conformance verification through this set; retain full commands as CI metadata only. Add gate-set-verify-step-1, coordinated-same-command, repairs-rerun-gate-set-only and legacy-ledger-stop samples; update the four existing verification samples to supply command-first done-row evidence and checks headers. These text replays exercise routing instructions, not live shell execution. Targeted sample runs belong to this iteration; full-target completion belongs to row 8.
+Count effective allowance from the shared header plus one per row retry decision, ignoring the historical allowed-attempts number, escalation markers, cap grants and legacy funding. Add effective-allowance for ordinary/coordinated arithmetic, header increases and post-migration exhaustion without resetting attempts. This iteration changes counting only; last-attempt escalation and stop/menu migration remain separate ledger rows. Run the affected sample during iteration; the parent runs full targets at the end of the ledger.
 
 Seed fresh home and coordinated ledgers with one unscaled allowance from settings or the approved per-run suffix, never a cap. Add fresh-allowance-seed for default, override, configured, all-cut and shared-leg entry; replace only the seeding facts in scaled-cap-grant and leg-iteration. Their ongoing legacy-cap branches remain separate; fresh allowance ledgers bypass the cap-only header check and stop rule so seeding proceeds without a cap grant. This iteration runs those partial samples; the parent owns the full-target end run after the remaining budget clauses land.
 
@@ -58,6 +59,10 @@ Supply row 1's attempts value in the cap snapshot so its existing fact is observ
 - tracker-verify/repair: holds -> holds - replaced wording: Pass command, checkout, exit code and log path instead of failing output.
 - tracker-verify/failure: holds -> holds - replaced wording: Quote at most 20 log lines at the stop; never run full verification.
 - verify-lifecycle/contract: fails -> holds - replaced wording: Implement completes through the refresh; verify step 1 runs the deduplicated gate set with log redirection and no full verification; Gn tasks ride the same tracker.
+- effective-allowance/arithmetic: fails -> holds - Count retries rather than historical ceilings or other budgets.
+- effective-allowance/header-raise: fails -> holds - The shared header increase raises every row, including retried rows.
+- effective-allowance/coordinated: fails -> holds - Leg ownership never changes row arithmetic.
+- effective-allowance/migration: fails -> holds - Exhaust migrated rows against their effective allowance without resetting attempts.
 - fresh-allowance-seed/header: fails -> holds - Seed one allowance from settings or the run suffix, without a cap or scaling.
 - fresh-allowance-seed/coordinated: fails -> holds - Keep allowance4 for shared entries and seed only non-cut legs.
 - fresh-allowance-seed/all-cut: fails -> holds - Keep allowance4 and exit without dispatch after skeleton/refresh.

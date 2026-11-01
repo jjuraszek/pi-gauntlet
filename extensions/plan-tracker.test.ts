@@ -7,7 +7,7 @@ import registerPlanTracker, { validateSnapshot } from "./plan-tracker.ts";
 
 type ToolResult = {
   content: { type: string; text: string }[];
-  details: { action: string; tasks: { name: string; status: string }[]; error?: string };
+  details: { action: string; tasks: { name: string; status: string; label?: string }[]; error?: string };
 };
 
 function harness(branch: unknown[] = [], cwd = process.cwd()) {
@@ -449,6 +449,74 @@ test("refresh replaces only whole ledger names, preserves Gn statuses and replay
   assert.equal(replay.widget(), h.widget());
 });
 
+test("allowance labels count retry decisions, preserve identity and render on every status surface", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "plan-allowance-"));
+  const path = join(dir, "ledger.md");
+  const text = ledger([
+    "1 | cut | 3 | deferred: #1", "2 | done | 0 | baseline", "3 | open | 2 | check",
+    "4 | failed | 7 | failed", "5 | done | 1 | passed", "6 | open | 0 | check",
+  ], [
+    "row 3 retry | hint | allowed attempts 5", "row 3 retry | next | allowed attempts 99",
+    "row 3 escalated | implModel round | allowed attempts 100", "cap +20 | historical | cap 40",
+    "row 4 retry | hint | allowed attempts 8", "row 5 done | passed | row 3",
+    "## Notes", "row 3 retry | not a decision | allowed attempts 101",
+    "## Leg mapping", "| row | ac | leg |", "|---|---|---|",
+    "| 1 | 1 | repo-a |", "| 2 | 2 | repo-a |", "| 3 | 3 | repo-b |",
+    "| 4 | 4 | repo-a |", "| 5 | 5 | repo-b |", "| 6 | 6 | repo-a |",
+  ].join("\n"), "allowance: 4\npending: 3 | repo-b | abc1234");
+  writeFileSync(path, text);
+  const h = harness();
+  await h.call({ action: "init", tasks: [{ name: "G1: fixed", status: "complete" }, "2/5: G2: pending"] });
+  const result = await h.call({ action: "refresh", path });
+  assert.equal(result.details.error, undefined);
+  assert.deepEqual(result.details.tasks, [
+    { name: "row 1 (repo-a)", status: "skipped" }, { name: "row 2 (repo-a)", status: "skipped" },
+    { name: "row 3 (repo-b)", status: "in_progress", label: "2/6" },
+    { name: "row 4 (repo-a)", status: "failed", label: "7/5" },
+    { name: "row 5 (repo-b)", status: "complete", label: "1/4" },
+    { name: "G1: fixed", status: "complete" },
+    { name: "row 6 (repo-a)", status: "pending", label: "0/4" },
+    { name: "2/5: G2: pending", status: "pending" },
+  ]);
+  assert.match(h.widget()!, /2\/6: row 3 \(repo-b\)/);
+  assert.match(result.content[0].text, /\[2\] 2\/6: row 3 \(repo-b\)/);
+  const status = await h.call({ action: "status" });
+  assert.match(status.content[0].text, /\[4\] 1\/4: row 5 \(repo-b\)/);
+  const rendered = h.tool().renderResult(status, {}, h.theme).text!;
+  assert.match(rendered, /2\/6: row 3 \(repo-b\)/);
+  assert.match(rendered, /7\/5: row 4 \(repo-a\)/);
+  const replay = harness([{ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: status.details } }]);
+  await replay.fire("session_start");
+  assert.equal(replay.widget(), h.widget());
+  assert.deepEqual((await replay.call({ action: "status" })).details.tasks, status.details.tasks);
+
+  writeFileSync(path, text.replace("allowance: 4", "allowance: 7"));
+  const raised = await h.call({ action: "refresh", path });
+  assert.deepEqual(raised.details.tasks.map(t => [t.name, t.status]), result.details.tasks.map(t => [t.name, t.status]));
+  assert.equal(raised.details.tasks.find(t => t.name === "row 3 (repo-b)")!.label, "2/9");
+  assert.equal(raised.details.tasks.find(t => t.name === "row 5 (repo-b)")!.label, "1/7");
+  assert.equal(raised.details.tasks.length, result.details.tasks.length);
+  writeFileSync(path, text.replace("allowance: 4", "cap: 49"));
+  const legacy = await h.call({ action: "refresh", path });
+  assert.ok(legacy.details.tasks.every(t => !Object.hasOwn(t, "label")));
+});
+
+test("single-repo labels are projection-only and cannot enter through init or add", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "plan-label-input-"));
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["3 | open | 2 | check"], "row 3 retry | hint | allowed attempts 99", "allowance: 4"));
+  const h = harness();
+  const projected = await h.call({ action: "refresh", path });
+  assert.deepEqual(projected.details.tasks, [{ name: "row 3", status: "pending", label: "2/5" }]);
+  assert.match(h.widget()!, /2\/5: row 3/);
+  const init = await h.call({ action: "init", tasks: [{ name: "row 3", status: "in_progress", label: "9/9" }] });
+  assert.deepEqual(init.details.tasks, [{ name: "row 3", status: "in_progress" }]);
+  const added = await h.call({ action: "add", tasks: [{ name: "G1: check", status: "pending", label: "9/9" }] });
+  assert.ok(added.details.tasks.every(t => !Object.hasOwn(t, "label")));
+  const objectSchema = h.parameters().args[0].tasks.args[0].args[0].args[0][1];
+  assert.deepEqual(Object.keys(objectSchema.args[0]), ["name", "status"]);
+});
+
 test("refresh rejects unreadable or malformed ledgers atomically, including absent numeric pending rows", async () => {
   const dir = mkdtempSync(join(tmpdir(), "plan-refresh-error-"));
   const path = join(dir, "ledger.md");
@@ -463,6 +531,7 @@ test("refresh rejects unreadable or malformed ledgers atomically, including abse
     { name: "missing header", path, text: valid.replace("| row | status | attempts | evidence |", "| row | state | attempts | evidence |"), error: /row table malformed at line \d+/ },
     { name: "nonnumeric row", path, text: valid.replace("| 1 | open", "| x | open"), error: /row table malformed at line 5/ },
     { name: "invalid status", path, text: valid.replace("| 1 | open", "| 1 | unknown"), error: /row table malformed at line 5/ },
+    ...["x", "-1", "1.5", ""].map(attempts => ({ name: `invalid attempts ${attempts}`, path, text: valid.replace("| 0 |", `| ${attempts} |`), error: /row table malformed at line 5/ })),
     { name: "absent pending row", path, text: "pending: 2 | home | abc1234", error: /pending: names row 2 which is absent/ },
     { name: "zero pending row", path, text: "pending: 0 | home | abc1234", error: /pending: names row 0 which is absent/ },
     { name: "leading-zero absent row", path, text: "pending: 02 | home | abc1234", error: /pending: names row 2 which is absent/ },

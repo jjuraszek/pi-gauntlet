@@ -1,0 +1,4 @@
+- arithmetic: judged: A computes row1 effective allowance6 and exhausted at attempts6, row2 allowance4 and not exhausted at attempts3; counts two retry lines, not historical ceiling99, escalation100, cap grants or fund9.
+- header-raise: judged: B computes row1 allowance9 and row2 allowance7, both below exhaustion, preserving attempts6 and3; a header raise benefits both retried and unretried rows.
+- coordinated: judged: C uses the same per-entry arithmetic regardless of leg: A gives6 and4, B gives9 and7.
+- migration: judged: D keeps attempts12, computes allowance4 and marks row2 exhausted; no old funded budget is restored and no attempts are reset or reduced.

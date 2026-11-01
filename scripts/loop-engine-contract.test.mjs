@@ -20,7 +20,7 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   const continuation = driver.slice(driver.indexOf('## After the loop'));
   assert.ok(driver.indexOf('action: "complete", phase: "implement"') < driver.indexOf('## After the loop'));
   assert.ok(continuation.indexOf('whole-diff `wave-reviewer`') < continuation.indexOf('separate fresh `conformance-reviewer`'));
-  for (const fact of ['3 + funded N', 'latest `row <n> retry`', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'Exactly one NEW', 'spent < N', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
+  for (const fact of ['effective allowance', 'count of that row', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'Exactly one NEW', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
   assert.match(driver, /Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit\. Funding alone resets neither window\. Preserve every row's attempts and the total iteration cap\./);
   assert.match(driver, /Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row survives on the branch, independently of `iterations`/);
   assert.match(driver, /Validate by dispatched `target`, not iteration number/);
@@ -66,9 +66,24 @@ test('worker records selective commands and keeps row-scoped TDD evidence valid'
   assert.equal(empty.status, 0, 'Node name filters cannot be recorded as fail-closed selectors');
 });
 
+test('effective allowance counts retries rather than historical ceilings or other budgets', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
+  for (const token of [
+    'attempts >= effective allowance', "ledger's `allowance:` plus the count of that row's",
+    '`row <n> retry | ... | allowed attempts <m>` lines in `## Decisions`',
+    'Count each retry once', 'historical, not an absolute override',
+    'Ignore escalated decisions, cap grants and legacy funded-round budgets',
+    'every coordinated entry, regardless of leg', 'allowance 4 and two retries',
+    'raising the shared header to 7 makes it 9', 'an unretried row gets 7',
+    'already at or above its effective allowance is exhausted', 'Never reset or reduce attempts',
+  ]) assert.ok(before.includes(token), token);
+  assert.doesNotMatch(before, /Set row allowance to 3 \+ funded|Recover spent funding|latest .*retry.*when larger/);
+});
+
 test('amend permission bounds row escalation and one exit repair', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  for (const token of ['attempts >= allowance', 'row <n> escalated | implModel round | allowed attempts <attempts + 1>', 'loop: escalate row <n>', 'escalated round for row <n>', 'max(0, min(attempts, 3 + N) - 3)', 'model: <implModel>', 'gauntlet_setting({ key: "escalationLoop" })', 'rules 3-4', 'starts no new empty-child or validation-miss window', 'unrecoverable means spent', 'loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun the failing checkout\'s gate pairs once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
+  for (const token of ['attempts >= effective allowance', 'row <n> escalated | implModel round | allowed attempts <attempts + 1>', 'loop: escalate row <n>', 'escalated round for row <n>', 'model: <implModel>', 'gauntlet_setting({ key: "escalationLoop" })', 'rules 3-4', 'starts no new empty-child or validation-miss window', 'unrecoverable means spent', 'loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun the failing checkout\'s gate pairs once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
   assert.match(driver, /Omit the model override except on an escalated round/);
   assert.match(driver, /no permission or spent identity: no reopening and no automatic rerun/);
   assert.match(driver, /empty parent marker/);

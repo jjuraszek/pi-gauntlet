@@ -1,0 +1,34 @@
+{
+  "sample": "effective-allowance",
+  "arm": "baseline",
+  "skillSha": "ffab9ccddd18914e65540e94d4a5a1efd38c12de8fb11ce8950465cfbe22b035",
+  "inputSha": "660c52f5ea331b52ee52aee8541cd2106e5a97d20f5ebd07722d40812b8a4fbc",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Loop driver: allowance arithmetic at Before each dispatch\n\nNo tools ran, and no calls are described as executed. Each snapshot is computed only from the ledger state you supplied. **No durable changes, commits, refreshes or dispatches occur in any snapshot.**\n\n## Contract points that override parts of the prompt\n\n1. **There is no `allowance:` header in the contract.** The driver computes row allowance as:\n\n   `allowance = max(3 + N, m)`\n\n   - N is the funded rounds from `**Amend-grant:**`. Here N = 9.\n   - m is the `allowed attempts <m>` value from that row's latest `row <n> retry` decision.\n\n   The driver never reads an `allowance: 4` or `allowance: 7` header. The ledger grammar does not define one.\n\n2. **The prompt says not to use a stored allowed-attempts number. The skill requires using it.** The skill says to raise the allowance to \"the latest `row <n> retry` decision's `allowed attempts <m>` when larger.\" I follow the skill.\n\n   Two kinds of line still never raise the standing allowance:\n   - The `row 1 escalated` line. It counts as \"exactly one round without raising the standing allowance,\" so its value of 100 is ignored.\n   - The `cap +20 | old grant | cap 49` line. This is cap-grant history, which targeting skips.\n\n3. **A ledger without a `cap:` header stops before rule 1.** The stop message is `ledger has no cap: line - seeded under the old loopEngine contract`. If these snapshots have no `cap:` line, rule 2 is never reached. The figures below show what rule 2 would compute once a valid `cap:` exists.\n\nSpent funding is calculated as `max(0, min(attempts, 3 + N) - 3)`.\n\n## A\n\n**Row 1:**\n- Base: 3 + 9 = 12.\n- Latest row 1 retry: `allowed attempts 99`, so allowance = max(12, 99) = **99**.\n- The earlier retry value of 5 is superseded, and the escalated value of 100 is ignored.\n- Attempts 6 < 99, so rule 2 sees it as **not exhausted**.\n- Spent = min(6, 12) − 3 = 3, giving `budget: 3 of 9 spent`.\n\n**Row 2:**\n- No row 2 retry exists. Row 1's retries are row-specific and do not apply.\n- Allowance = 3 + 9 = **12**.\n- Attempts 3 < 12, so it is **not exhausted**.\n- Spent = min(3, 12) − 3 = 0, giving `budget: 0 of 9 spent`.\n\n## B\n\n- The `allowance: 7` header is not a contract field.\n- Raising allowance is not a human action in the human-choice table, which offers only `cap +N`, Retry, Amend and Stop. The admitted parent commit is therefore not replayed and has no effect on allowance. It also does not count as a child row commit.\n\nResults are identical to A:\n- **Row 1:** allowance 99, attempts 6, not exhausted, 3 of 9 spent.\n- **Row 2:** allowance 12, attempts 3, not exhausted, 0 of 9 spent.\n\n## C\n\nOwnership changes nothing:\n- Allowance is computed per numeric ledger entry.\n- `row <n> retry` decisions are keyed by that entry number, whatever leg owns it.\n- The leg (row 1 in repo-b, row 2 in repo-a) only selects the checkout and base used at dispatch.\n\nA and B therefore stand unchanged:\n- **Row 1 (repo-b):** 99, not exhausted.\n- **Row 2 (repo-a):** 12, not exhausted.\n\n## D\n\n**Row 2:**\n- No retry decisions exist, so allowance = 3 + 9 = **12**.\n- Attempts 12 ≥ 12, so rule 2 sees it as **exhausted**.\n- Spent = min(12, 12) − 3 = 9, giving `budget: 9 of 9 spent`.\n- **Attempts stay 12.** The contract says to \"Preserve every row's attempts.\" Neither the migration nor funding resets or reduces them.\n\nThe `allowance: 4` header is ignored. The contract defines no cap-to-allowance migration. If the ledger now lacks `cap:`, the driver takes the missing-cap stop before rule 2.\n\n**Interpretation sensitivity:** If `allowance: 4` were treated as a replacement for the base of 3, the allowance would be 13. Row 2 would then be not exhausted. D is the only snapshot whose result depends on that reading, and the contract does not support it.\n",
+      "words": 625,
+      "wallMs": 32265,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Under the supplied driver, the standing row allowance is **3 + funded N**, raised when the **latest `row <n> retry` decision** records a larger allowed-attempts value. With fund 9, the base allowance is **12**. An escalation marker does not raise that standing allowance.\n\nNo calls or durable changes are performed.\n\n| Snapshot | Row | Attempts | Effective allowance | Rule 2 exhausted? | Funded budget spent |\n|---|---:|---:|---:|---|---:|\n| A | 1 | 6 | **99**—latest retry decision | No | 3 of 9 |\n| A | 2 | 3 | **12** | No | 0 of 9 |\n| B | 1 | 6 | **99** | No | 3 of 9 |\n| B | 2 | 3 | **12** | No | 0 of 9 |\n| C, using A or B | 1, repo-b | 6 | **99** | No | 3 of 9 |\n| C, using A or B | 2, repo-a | 3 | **12** | No | 0 of 9 |\n| D | 2 | 12 | **12** | **Yes** | 9 of 9 |\n\n- **B:** Changing an `allowance:` header to 7 has no defined effect under this driver. No human action is replayed.\n- **C:** Ownership does not change the arithmetic.\n- **D:** Row 2’s attempts remain **12**; migration and funding do not reset them.\n- Reading the durable retry allowance of 99 does **not** create or execute another retry. The escalation decision’s 100 is not a standing allowance increase.\n\n**Header caveat:** The supplied contract requires a literal `cap:` header; `allowance:` is not a substitute, and decision history cannot supply it. If these snapshots literally lack `cap:`, the driver stops before applying rule 2 with:\n\n`ledger has no cap: line - seeded under the old loopEngine contract`\n\nThe table reports the requested budget arithmetic, not authorization to proceed past that boundary.\n",
+      "words": 251,
+      "wallMs": 15224,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "17bcc4a249bd95f013d8c768c760b6218dbd56dc"
+}

@@ -2,13 +2,13 @@
 **Spec:** `doc/specs/2026-11-01-gh-108-loop-single-allowance.md`
 base: 4cb3a8891e40a8c0749de9905ca62571bd42c3da
 verification: npm test
-iterations: 2
+iterations: 3
 cap: 49
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | fresh ledger seeds / coordinated ledger budget header / loop approval allowance suffix; 20 targeted tests pass; five affected eval samples improved; both eval structures pass and build:bins leaves bundles unchanged |
-| 2 | open | 0 | effective-allowance file assertion - skills/loop-implementation/SKILL.md Before each dispatch; FAIL: allowance uses 3 + funded N and a maximum retry tail, not header plus retry count |
+| 2 | done | 1 | effective-allowance / ledger-label checks; tracker and telemetry 6 pass, contract 2 pass, brief lint pass; effective-allowance eval improved and ledger-tracker-verify eval unchanged, both models pass; build:bins pass with unchanged bundles |
 | 3 | open | 0 | last-attempt-escalation file assertion - skills/loop-implementation/SKILL.md Before each dispatch; FAIL: escalation requires amend permission and starts after allowance exhaustion |
 | 4 | open | 0 | spent-escalation file assertion - skills/loop-implementation/SKILL.md; PASS: retry and resume retain spent identity and ordinary model rule; FAIL: rows +N handling is absent |
 | 5 | open | 0 | option4-verification-repair file assertion - skills/loop-implementation/SKILL.md After the loop; FAIL: exit repair requires amend permission and iterations below cap |
@@ -23,3 +23,4 @@ cap: 49
 ## Decisions
 row 0 done | seeded 12 rows, closed 1 on baseline | row 1: replace fresh cap headers with allowance without migrating this active ledger
 row 1 done | Fresh ledgers seed unscaled allowance and accept run-only gate overrides; coordinated validation and all five affected eval samples pass. | Keep this active ledger's cap; take row 2's effective allowance counting next without redoing seeding.
+row 2 done | Effective allowances count retries; ledger labels preserve task names, and scoped tracker, contract and eval checks pass. | Take row 3's last-attempt escalation next; keep the active ledger cap and do not redo allowance counting or label projection.

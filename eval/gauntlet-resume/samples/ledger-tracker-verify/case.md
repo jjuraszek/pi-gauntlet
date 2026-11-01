@@ -1,5 +1,6 @@
 bundle+: skills/loop-implementation/SKILL.md
 bundle+: skills/brainstorming/reference/amendment-surface.md
+bundle+: skills/gauntlet-resume/reference/brief-contract.md
 
 # Input
 
@@ -22,4 +23,6 @@ I: An admitted home return with the attribution above is commit bbbbbbbbbbbbbbbb
 
 J: A bare-worktree restore has only I's Git observations: the same attributed child bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb followed by code-only cccccccccccccccccccccccccccccccccccccccc, clean tree, unchanged terminal ledger. No saved brief, parent admission/refresh output or human confirmation distinguishes admission before the second commit from interruption before admission. Narrate the read-only admission-evidence check and the question, stopping before any phase/task restoration, ledger write or refresh. Then describe each independent human answer: the return was admitted before the code-only commit; the session stopped before admission; admission remains unknown. Preserve bytes/counters while waiting, rather than treating the two-commit range alone as a rejected return.
 
-Keep the whole reply under 1500 words.
+K: Independent verify and ship briefs save the following literal tracker rows: `✓ [0] 2/5: row 3`, `⊘ [1] row 2`, `✗ [2] G1: check`, `→ [3] G2: repair`, `○ [4] 2/5: G3: pending`. A producer copies those status rows verbatim. All child returns are confirmed admitted; a later approved parent header-only commit raises allowance from5 to6, with its diff available. The clean current ledger has allowance:6, row3 done attempts2 with its done decision, row2 cut, no pending, no retry decisions. Show canonical init names and mixed statuses, then the observed refresh status `2/6: row 3`, without treating the old label as drift or creating a second row3. A snapshot comparison sees the same canonical row names/statuses even when labels differ. Show that the numeric prefix on the non-ledger G3 name is preserved, not stripped. Do not migrate this allowance ledger or restore labels via init.
+
+Keep the whole reply under 1800 words.
