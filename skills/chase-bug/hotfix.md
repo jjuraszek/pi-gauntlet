@@ -40,8 +40,10 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    test command. The full project test target is acceptable. Add the record's repro
    command when present. No exact command -> abort (pre-land). On the pi path,
    resolve `gauntlet_setting({ key: "loopEngine" })` and use
-   `maxIterationsPerRow` (default 4) as the ledger allowance; a settings error ->
-   abort (pre-land). Nothing exists yet.
+   `maxIterationsPerRow` (default 4) as the ledger allowance. Resolve
+   `gauntlet_setting({ key: "escalationLoop" })` and retain `implModel`;
+   require it only at the escalated dispatch under Attempt budget. Any settings
+   error -> abort (pre-land). Nothing exists yet.
 3. **Worktree.** From the primary checkout:
 
    ```bash
@@ -117,8 +119,9 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    existing repo-relative path, in that order; none present -> `Rules: none`.
    Never substitute a primary-checkout path for a Rules path.
 
-   Before each dispatch, save row 1's `attempts`, the ledger's current
-   `iterations` as `i`, and the worktree HEAD as `HEAD_BEFORE`;
+   Before every `target: 1` dispatch, apply Attempt budget below, including its
+   model selection. Before each dispatch, save row 1's `attempts`, the ledger's
+   current `iterations` as `i`, and the worktree HEAD as `HEAD_BEFORE`;
    write `iterations: i + 1` and
    `pending: <target> | hotfix | <HEAD_BEFORE>` to the ledger. Pass that exact
    tuple to the child, with the pre-bump `iteration: <i>`:
@@ -210,8 +213,67 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    `previous decision: none` for the next dispatch under Attempt budget.
    Count consecutive misses across row returns; the second consecutive miss ->
    abort (pre-land).
-5. **Test.** Run `SCOPED_TEST_COMMANDS` in the worktree. Red -> one implementer
-   retry -> red -> abort.
+
+## Attempt budget
+
+Use row 1's `attempts` cell in `$TMPDIR/hotfix-<slug>-ledger.md` as the same
+counter for the first attempt, a red gate retry, a conformance gap fix, and a
+`FIX_FIRST` repair. Reuse step 4 with `target: 1` for all of them. Consume one
+attempt on admission or validation miss as defined there; leave attempts
+unchanged for seed and boundary failures. Never reset attempts or add a
+per-stage repair cap. Keep the reviewers' one-redispatch limits and the
+`REJECT` / invariant-violation aborts separate from this counter.
+
+Before a repair after row 1 is `done`, write row 1 `failed` with evidence
+`<stage> red: <command>; <first result line>`, attempts unchanged. For a reviewer,
+use its dispatch as the command and its first gap or finding as the result.
+Append `row 1 reopened | <stage>: <bounded reason, 200 chars> | 1` to
+`## Decisions`; pass that line as the next `previous decision`. Reopen before
+checking exhaustion, so the child never receives a `done` target and the ledger
+records the repair even when no attempt remains.
+
+Apply these checks before writing `pending:` or bumping `iterations`:
+
+| State | Action |
+|---|---|
+| Repair required (row 1 not `done`, red gate run, open conformance gap, or `FIX_FIRST`) at `attempts >= allowance` | Abort (pre-land), no dispatch |
+| `attempts < allowance` | Permit a `target: 1` dispatch, subject to the model check below |
+| `attempts == allowance - 1` | Require resolved `escalationLoop.implModel` (the resolver's main-loop fallback counts); undefined -> abort (pre-land) with `Problem: escalationLoop.implModel unavailable`, no dispatch or escalation entry |
+
+On the last allowed attempt, including the first at allowance 1, append
+`row 1 escalated | implModel round | allowed attempts <allowance>` to
+`## Decisions` and add `model: <implModel>` to the step 4 `subagent` call.
+Omit `model:` for seed and ordinary attempts. Keep the repair's `previous decision`
+through the escalation entry; escalation is not a new repair hint.
+
+Supply bounded hints, never pasted output:
+
+| Repair source | Hint |
+|---|---|
+| Red gate | `hint: gate failed: <command> \| checkout <WORKTREE> \| exit <code> \| log <absolute $TMPDIR log path>`; the child reads the log |
+| Conformance gap | One `gap: <requirement> - <reviewer's one-line reason>` per gap, at most 20 lines, plus `report: <absolute $TMPDIR path>` for the full verdict |
+| Review | One `finding: <severity> <file:line> - <title>` per Critical or Moderate finding, at most 20 lines, plus `report: <absolute $TMPDIR path>` for the full verdict |
+
+Invalidate all earlier step 6 and step 7 approvals after every admitted repair.
+Resume at step 5 and run steps 5, 6, 7 in order on the new HEAD. Land only with
+a passing gate run, conformance pass, and `SHIP` on the same final HEAD.
+
+Read the protected blocks' generic wording as follows: "implementer" in Binding
+and Red Flags means the `loop-implementer` child; "the child's status line" means
+its admitted decision line or the mandated `BLOCKED:` first line. Route no
+`NEEDS_CONTEXT`: no child emits it. Read "red after retry" as a red gate run with
+no attempt remaining; "unfixable conformance gap" as a gap still open with no
+attempt remaining; "a non-`SHIP` re-review" as `FIX_FIRST` with no attempt
+remaining, `REJECT`, or an invariant violation.
+
+5. **Test.** Run the gate set: `SCOPED_TEST_COMMANDS` plus the admitted row 1
+   evidence command (up to its first unescaped semicolon) only when it uses the
+   resolved command's runner. The dependency repro is already in
+   `SCOPED_TEST_COMMANDS`. Run each in the worktree, foreground, fail-fast:
+   `(cd "<WORKTREE>" && <command>) > "$TMPDIR/hotfix-<slug>-gate-<n>.log" 2>&1`.
+   Print `gate <n> exit <code> <log path>`. Any nonzero exit is red: reopen and
+   repair under Attempt budget, or abort (pre-land) with no attempt remaining.
+   Run this set after the first `done` admission and after every admitted repair.
 6. **Verify (advisory).** One fresh `conformance-reviewer`. Its entire origin, in
    the task text, located as `prompt`:
 
@@ -222,17 +284,17 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    > manifest + lockfile.
 
    Parent filter: only rows located as `prompt` count; a row sourced from a spec
-   file or ticket is not-a-gap. Real gaps -> one implementer round -> re-run step
-   5 -> no second audit; unfixable -> abort. Dispatch failure or malformed output
-   -> note it, continue.
+   file or ticket is not-a-gap. Real gaps -> reopen and repair under Attempt
+   budget, then step 5 and a fresh audit; no attempt remaining -> abort (pre-land).
+   Dispatch failure or malformed output -> note it, continue.
 7. **Review - last mutation gate.** One fresh `wave-reviewer` over
    `<base-sha>..HEAD` in the worktree. Task text: the record path,
    `SCOPED_TEST_COMMANDS`, invariants 1-3 and predicates 4-6 as named review items
    (a predicate miss is Moderate unless it trips an invariant). `SHIP` -> step 8.
-   `FIX_FIRST` -> one implementer round fixing every Critical and Moderate ->
-   re-run step 5 -> one re-review; `SHIP` -> step 8, else abort. `REJECT` or any
-   invariant violation -> abort, no round. Dispatch failure or malformed output ->
-   one redispatch, then abort.
+   `FIX_FIRST` -> reopen and repair every Critical and Moderate finding under
+   Attempt budget, then step 5, step 6, and a fresh review; no attempt remaining
+   -> abort (pre-land). `REJECT` or any invariant violation -> abort, no round.
+   Dispatch failure or malformed output -> one redispatch, then abort.
 8. **Finish.** Branch on the record's `delivery-mode`: `squash` -> squash path;
    `pr` -> PR path. Every command from `PRIMARY_ROOT`. Squash path, by state:
 
