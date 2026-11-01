@@ -29,7 +29,7 @@ PR comments:             (replyable review comments, a pending reviewer run, a b
 Nits:                   (after the list, one line `<N> nits open - fix nits to take them` (`1 nit open` for one); rendered only while the `fix nits` row renders.)
 - <1-2 sentences>. (<file:line>)
 
-Prior review: <k> of <n> items addressed   (ancestor baseline only; placement and empty-item form below)
+Prior review: <baseline outcome>   (non-null prior_review only; forms and placement below)
 
 Blockers:                (numbered; menu picks reference these numbers)
 1. <1-2 sentences: what is wrong, why it matters>. (<file:line and exact supplied test name for a failing test; file only when no test name was supplied> | <check name> | <doc path>)
@@ -47,12 +47,14 @@ Print exactly one `Role:` directly under `Delivers` on every report from the ref
 
 Render `Sync:` only when `--rebase` was passed. Open the `Sync:` line with the digest's `sync` field value verbatim (for example `Sync: declined - other author's branch`). Put any explanation after that value as a second clause or sentence. Never paraphrase the status value into prose. Exempt `Sync:`, `Role:`, and `Prior review:` from SKILL.md wording rule 5 (passing facts only under `show evidence`): name the resolved files even when the sync succeeded.
 
-For `prior_review.delta: ancestor`, print exactly one
-`Prior review: <k> of <n> items addressed` directly above `Blockers` when it
-renders, otherwise directly above `Verdict`. Count `k` from the distinct
-`R#` items with an explicit `resolved` closure line, never from inferred
-closure; `n` is the supplied item count. For zero items print
-`Prior review: no items posted at <sha7>; the delta since it was reviewed`.
+For a non-null `prior_review`, print exactly one `Prior review:` line directly
+above `Blockers` when it renders, otherwise directly above `Verdict`:
+
+| Ancestry result | Line |
+|---|---|
+| `delta: ancestor` | `Prior review: <k> of <n> items addressed`; count `k` from distinct `R#` items with an explicit `resolved` closure line, never inferred closure, and `n` from the supplied item count. For zero items use `Prior review: no items posted at <sha7>; the delta since it was reviewed`. |
+| `delta: not ancestor (<reason>)` | `Prior review: baseline <sha7> is not an ancestor of the head (<reason>), so the whole diff was reviewed`; carry the reason from `assessment.md` `## Prior-review ancestry` verbatim. Use `unknown` for a null review commit. |
+
 With `prior_review: null`, print no `Prior review:` line.
 
 For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head, immediately before the verdict (for example `Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)`). Use the resolved local verification summary instead when local evidence owns the assessment; do not invent a passing result when evidence is unavailable. Carry the same source summary into the obstacle menu's evidence hint. Exempt this compact source summary and the final template's `Evidence:` line from the evidence-only rules below and SKILL.md wording rule 5; keep the full record under `show evidence`.

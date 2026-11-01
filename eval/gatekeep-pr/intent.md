@@ -1,14 +1,13 @@
-for: 07f87cc8c9d486acc435d9906ba421f2fdaf53af2955a0f3b685e838cc5eaa00
+for: 618d95f63eedc6e6a38b3d7c92e1da31eab7cd104fa52135672b0ef7793ed824
 
 ## Change
-Apply the ancestor step-4 delta boundary to new reviewer findings before severity translation: outside-delta Critical blocks, while outside-delta Moderate and Minor appear only under show evidence, not in Blockers or Nits. Classify by delta hunks rather than path membership. Keep in-delta severity translation, prior-item closure and whole-head contract findings unchanged. Extend prior-review-delta with all three outside-delta severities, in-delta Moderate and Minor, and whole-head doc drift.
+Render one reason-bearing prior-review fallback line above Blockers or Verdict when the selected review commit is not an ancestor or ancestry cannot be checked. Preserve whole-diff review on both harnesses, the first stderr line for check failures, and no baseline fetch or retry. Add prior-review-force-push with exit 1, missing-object exit 128, and null-commit checkpoints; preserve baseline selection and ordinary blocker integration.
 
 ## Expected to move
-- prior-review-delta/d12: fails -> holds - Keep new outside-delta Moderate and Minor findings evidence-only even in a file included in the union path set.
-- prior-review-delta/d13: fails -> holds - Retain the outside-delta Critical blocker after the open prior items.
-- prior-review-delta/d5: fails -> holds - Preserve the shared bounded review task on both harnesses from the preceding iterations.
-- prior-review-delta/d6: fails -> holds - Preserve the explicit-closure addressed count from the preceding iterations.
-- prior-review-delta/d8: fails -> holds - Preserve stable R-to-P identities without duplicate native findings.
-- prior-review-delta/d9: fails -> holds - Preserve posted blockers and locators despite a fresh Minor rating.
-- prior-review-delta/d10: fails -> holds - Preserve the exact missing-closure show-evidence diagnostic.
-- prior-review-delta/d11: fails -> holds - Preserve represented inline reply suppression through re-triage.
+- prior-review-force-push/p1: fails -> holds - Preserve the selected submitted REST review despite a missing commit.
+- prior-review-force-push/p2: fails -> holds - Record force-push ancestry failure from exit 1.
+- prior-review-force-push/p3: fails -> holds - Carry the first stderr line from exit 128.
+- prior-review-force-push/p4: fails -> holds - Keep a null-commit review and its missing-commit reason without inventing a SHA.
+- prior-review-force-push/p8: fails -> holds - Render the force-push whole-diff fallback above Blockers.
+- prior-review-force-push/p9: fails -> holds - Render the unreadable-baseline whole-diff fallback above Blockers.
+- prior-review-force-push/p10: fails -> holds - Render the null-commit whole-diff fallback above Verdict.
