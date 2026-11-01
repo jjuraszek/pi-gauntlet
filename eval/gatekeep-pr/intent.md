@@ -1,4 +1,4 @@
-for: bb9b5d47075fdc32f6cc52fac7d237edad2fb19e20a3f9fc80d797f68d170c9b
+for: 20f721b857bea924f420118b27472467ba71afb7ca76568c4f19876aaa5d0a75
 
 ## Change
 Count exact-head pre-push reviewer closures of minted prior-item ids in the addressed count through the findings ledger. Extend the delivery checkpoint to show R2 closing through P1 while R3 stays open after push. Add an independent merge checkpoint exercising the chronological three-command delta, remerge-only merge work and review of a base-matching author hunk.
