@@ -543,7 +543,7 @@ test("refresh resolves the owning root, normalizes original AC text, and keeps l
     "## Acceptance Criteria", "- [x] Keep   cut requirements", "  visible",
     "  deferred: #1", "    disposition continuation", "- [ ] Reject malformed allowance replies",
     "  elsewhere: repo-b#2", "- [ ] Verify loop behavior", "  and recovery | row 99 is only text",
-    "  deviates: approved exception", "## Design", "- [ ] Not an acceptance criterion",
+    "  venue: staging - observe completion", "## Design", "- [ ] Not an acceptance criterion",
   ].join("\n"));
   const text = ledger(["1 | cut | 0 | deferred", "2 | done | 0 | baseline", "3 | open | 2 | check"], "", "allowance: 4");
   writeFileSync(path, text);

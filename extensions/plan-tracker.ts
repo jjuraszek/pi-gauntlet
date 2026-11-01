@@ -68,7 +68,7 @@ function criterionDescriptions(spec: string): string[] {
       descriptions.push(criterion[1] ?? "");
       disposition = false;
     } else if (descriptions.length) {
-      if (/^\s*(?:in-scope\s*$|(?:deviates|deferred|elsewhere):)/.test(line)) disposition = true;
+      if (/^\s*(?:in-scope\s*$|(?:deviates|deferred|elsewhere|venue):)/.test(line)) disposition = true;
       if (!disposition) descriptions[descriptions.length - 1] += ` ${line}`;
     }
   }
