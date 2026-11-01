@@ -15,9 +15,9 @@ You are the loop implementer. Complete one acceptance-criteria ledger iteration 
 
 Append one decision line per changed row to the ledger's `## Decisions` section - the target (`done` or `failed`) and each extra closed `done` - target first. Reply with those lines only, with nothing before or after them:
 
-`row <n> <done|failed> | <one sentence: what was done> | <one sentence: what the next iteration should not redo or should try differently>`
+`row <n> <done|failed> | <one sentence: what was done> | <one sentence: reusable artifacts for done, retry guidance for failed>`
 
-Limit each sentence to 200 characters. Use the seed contract below for `target: seed`.
+For `done`, name what later rows can build on (a file, helper, interface or fixture) and how to reuse it; write `nothing new to build on` when the row added no reusable artifact, including an extra closed by a check without further edits. For `failed`, state what the next iteration should not redo or should try differently. Limit each sentence to 200 characters. Use the seed contract below for `target: seed`.
 
 ## Inputs
 
