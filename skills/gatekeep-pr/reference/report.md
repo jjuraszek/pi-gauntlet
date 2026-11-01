@@ -48,7 +48,7 @@ Print exactly one `Role:` directly under `Delivers` on every report from the ref
 Render `Sync:` only when `--rebase` was passed. Open the `Sync:` line with the digest's `sync` field value verbatim (for example `Sync: declined - other author's branch`). Put any explanation after that value as a second clause or sentence. Never paraphrase the status value into prose. Exempt `Sync:`, `Role:`, and `Prior review:` from SKILL.md wording rule 5 (passing facts only under `show evidence`): name the resolved files even when the sync succeeded.
 
 For a non-null `prior_review`, print exactly one `Prior review:` line directly
-above `Blockers` when it renders, otherwise directly above `Verdict`:
+above `Blockers` when it renders; otherwise directly above the obstacle `Evidence:` line when that line renders; otherwise directly above `Verdict`:
 
 | Ancestry result | Line |
 |---|---|
