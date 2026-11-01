@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.1.4 - 2026-11-01
 
 - Ledger task labels compact criterion descriptions to at most 80 characters at a word boundary with `...` when shortened, preserving attempts prefixes, repository owners and short criteria.
 
