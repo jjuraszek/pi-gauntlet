@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8ac84fe0d16cddb8ad7ed7cbf046a15cf95b28e9a8b718cdc0e98a0354e1ec4d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1bf10acb0b0a2d6319f8d5449f852b9128f35b8cdfcd5b406b7d4be3788bcd15",
+      "intentSha": "0018655b2f44b9e8ae2063c7886e66103434a5ab4d07e7778e780b887e0c7b71",
       "baselineOutputSha": "0d5e9a320f46ce12ce26fb01078cbdebfb6103aabea1cd3135d84f905bb6ceac",
       "candidateOutputSha": "811cc813d4b6d324f5911e7e346504763e73969cebd6cfbb65926a57b4dea03a",
       "facts": {
@@ -69,14 +69,14 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: it admits the two-row and failed-target returns (keeping extra attempts 0, selecting row 5 / row 1, carrying the target's line as previous decision), rejects 3a-3f with the same restore/failed-1/iterations-7/pending-cleared/`loop: repair row 1`/previous-decision-none repair that Before already had, and now rejects 3g-3i on the explicit set-equality rule (missing extra line, line for unchanged row 6, duplicate row 2 line) rather than Before's blanket 'any foreign change is a miss', which is what moved `decisions`. Snapshot 4 now restores rows 1 and 2 plus the pending tuple in the working ledger before refresh while leaving the code edit and commits untouched and offering only discard/reset, which moved `boundary`. Nothing Before kept was lost: `invalid-cells` and `read-only` still hold, since After runs no row check, gate pair, `npm test` or verification command and places the first regression surface at verify step 1's gate set. One small hardening suggestion for `read-only`: After drops Before's explicit sentence 'I report no command-format admission check'; the decision-line regex and 'evidence is nonempty and bounded' are not command-format checks, but restating that the evidence selector is a worker obligation and no command-format admission rule is applied would make that fact unambiguous for a reader who sees the regex.",
-      "wallMs": 22117,
+      "feedback": "After delivers the Change cleanly: snapshot 1 and 2 are now admitted with target attempts 1 / extra attempts 0, the target's line is retained as previous decision, row 5 is selected after snapshot 1 and row 1 after snapshot 2, 3a–3f and 3g–3i are rejected on the stated grounds (set equality, one matching decision per changed row, target first) with the same target-only parent repair, and the boundary rejection in snapshot 4 now restores row 2 alongside row 1 and the pending tuple before refresh. Before had rejected everything as a 'foreign row' miss, so admission, failed-target, decisions and boundary all failed there; invalid-cells and read-only held in both and After kept them (no command runs, no command-format rule on evidence, regression surfaces at verify step 1 gate set). One cautionary note: After introduces a decision-line regex (`^row <n> <status> \\| .{1,200} \\| .{1,200}$`) under 'Set equality'; this is a decision-format check rather than an evidence command-format check so it does not break read-only, but if that rule is not in the skill text it risks being read as an invented admission rule—consider phrasing it as 'one new line matching that row and status' without a regex to stay strictly within the stated contract.",
+      "wallMs": 20624,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8ac84fe0d16cddb8ad7ed7cbf046a15cf95b28e9a8b718cdc0e98a0354e1ec4d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1bf10acb0b0a2d6319f8d5449f852b9128f35b8cdfcd5b406b7d4be3788bcd15",
+      "intentSha": "0018655b2f44b9e8ae2063c7886e66103434a5ab4d07e7778e780b887e0c7b71",
       "baselineOutputSha": "f8e45032b9439cbe6804cef762b7b878bbbb9d3790858cabbe5710cc60f0bfa7",
       "candidateOutputSha": "554ce34db979ef5d9bac7387fb436684c61aa80e4b869cd62b96aa7afcd7cc63",
       "facts": {
@@ -111,10 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: snapshot 1 and the target-only variant are admitted with attempts 1/0, refresh-only, next target row 5; snapshot 2's failed target plus evidenced extra is admitted with row 1's failed line as the operational previous decision; 3g-3i are now rejected on the explicit one-matching-decision-per-changed-row, target-first rule (Before rejected them only under the old target-only contract, so the stated reason was absent); and the boundary rejection restores row 2's cells alongside row 1 and the pending tuple before refresh while preserving iterations 7, the code edit/commits and the discard/reset authorization wait. Nothing Before kept was lost: invalid-cells still gets the full common parent repair (restored rows and prior decisions, row 1 failed/1 with concrete miss, iterations 7, allowance 4, pending cleared, loop: repair row 1, previous decision none) and read-only admission with regression surfacing at verify step 1 is intact. One small tightening: the admission summary line 'Admitted loop: row 1 done, including row 2 done' reads like a new declaration; state explicitly that the child subject stays loop: row 1 done and that the extra appears only in the row-2 cells and its decision, so the no-new-channel conjunct is unambiguous rather than inferred from silence.",
-      "wallMs": 24505,
+      "feedback": "After moves every intended fact without regressing the two Before kept. Before treated any non-target change as a miss under an exactly-one-target-decision contract, so it rejected snapshots 1 and 2, rejected 3g–3i for the wrong reason (foreign row changed, not decision-set mismatch), and on boundary rejection restored only row 1, leaving row 2's unadmitted done cell on disk. After admits same-leg open→done extras with unchanged attempts and bounded evidence, requires exactly one target-first decision per changed row, repairs 3a–3i through the same loop: repair row 1 parent commit with previous decision none, restores both changed rows plus the pending tuple before the rejected-boundary refresh, and still runs no selector, gate or npm test command while pointing regressions at verify step 1's gate set. Two small things to keep tight in the wording: the consecutive-miss window remark in section 3 is harmless but unsupplied by the snapshot, and in section 4 be explicit that the appended child decisions remain only as unadmitted working-ledger text pending authorization (After says this, but the restored-row table alone could read as a partial repair)—otherwise the After wording delivers the Change cleanly.",
+      "wallMs": 26124,
       "verdict": "improved"
     }
   },
-  "repoSha": "fd33d7cdd605bd111f045ebc7e092bcf01908e5a"
+  "repoSha": "924938d4e12422cc055dfe7114c38b1eab748bf2"
 }

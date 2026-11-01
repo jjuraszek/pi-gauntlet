@@ -1,4 +1,4 @@
-for: 6ebd3ec6c50d66b81e550839d5cf690473d7dd7e24b30e24aff8d1797ae6f7ea
+for: 1051df5e801074f612a6f4ac8ba9b9507e79fb96da7ead8a2bd010404dc2f355
 
 ## Change
 Complete multi-row conformance with the existing row-and-evidence sample: A closes the target and a shared-label extra, B preserves seed baseline behavior, and C keeps a failed target single-row. Retain the partial-seed and empty-evidence samples and their stored results. This iteration reruns only row-and-evidence against the current persona; coverage is synthetic and sample-scoped, not a live implementation run.
