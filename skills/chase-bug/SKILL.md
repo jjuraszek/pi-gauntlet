@@ -213,7 +213,12 @@ the rendered summary instead of gate 2.
 (read-only judgment). A failed safety invariant (1-3) renders the row as
 `Implement hotfix now - unavailable: <invariant>`: never pickable, never
 `[recommended]`; a pick of it is a change request. Judgment predicates (4-6)
-only steer `[recommended]` and the eligibility line.
+only steer `[recommended]` and the eligibility line. Treat a fix whose outcome
+cannot be stated as one `<trigger> yields <expected> (was <observed>)` row as
+not hotfix-shaped: render
+`Implement hotfix now - unavailable: more than one acceptance row`
+with the same unpickable, never-`[recommended]` behavior as a
+failed safety invariant, and assign `[recommended]` to `Brainstorm now`.
 
 Heuristic for the `[recommended]` tag - rows top-down, first match wins:
 
