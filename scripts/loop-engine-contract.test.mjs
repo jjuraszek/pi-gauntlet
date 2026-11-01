@@ -20,7 +20,7 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   const continuation = driver.slice(driver.indexOf('## After the loop'));
   assert.ok(driver.indexOf('action: "complete", phase: "implement"') < driver.indexOf('## After the loop'));
   assert.ok(continuation.indexOf('whole-diff `wave-reviewer`') < continuation.indexOf('separate fresh `conformance-reviewer`'));
-  for (const fact of ['effective allowance', 'count of that row', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'Exactly one NEW', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
+  for (const fact of ['effective allowance', 'count of that row', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'zero or more other', 'attempts unchanged', 'exactly one new decision line, target first', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
   assert.match(driver, /Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit\. Raising allowance resets neither window\. Preserve every row's attempts\./);
   assert.match(driver, /Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row survives on the branch, independently of `iterations`/);
   assert.match(driver, /Validate by dispatched `target`, not iteration number/);

@@ -1,6 +1,8 @@
-for: ea4601f6d7ccfc2585b638505de7e45a5e410243b5308622e609d983552b518b
+for: 215f73d561f7a382fb611eae92f05ac056217624c1beb7e2f7081855b2f668cf
 
 ## Change
+Admit a home target result plus same-leg open-to-done extras with unchanged extra attempts and bounded evidence, including extras beside a failed target. Require one matching decision per changed row, target first; retain the target decision for retry guidance. Restore all changed rows before rejected-boundary refresh and keep ordinary-miss repair. Add multi-row-return for valid and invalid cells, decision-set equality, rejected boundaries and read-only admission. Run only this selected sample in this iteration; these synthetic traces do not prove live runtime execution or companion admission, and other samples remain partial coverage for later rows.
+
 Complete verify step 1 after an escalated repair by running other checkouts' pairs skipped by fail-fast before granting verification. Run each isolated conformance child's repaired-leg pairs in its own checkout and temporary log directory; retain the parent checkout set and session logs after integration. Extend exit-verification-escalates and repairs-rerun-gate-set-only with observable continuation and child-path facts.
 Update tracker-refresh's all-cut expectation from a full gate to the empty gate set, with checks: commands and selective evidence fixtures for its continuing snapshots. Preserve task projection and admission facts.
 
@@ -40,6 +42,9 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- multi-row-return/admission: fails -> holds - Admit optional same-leg extras without attempts increments or a second declaration channel.
+- multi-row-return/failed-target: fails -> holds - Admit failed-target extras and retain target retry guidance without policing worker order.
+- multi-row-return/boundary: fails -> holds - Restore unadmitted extras along with the target before refresh.
 - exit-verification-escalates/continuation: fails -> holds - Verify still-unexecuted companion pairs after the failing checkout's successful repair rerun.
 - repairs-rerun-gate-set-only/child-checkout: fails -> holds - Test the child's isolated repaired tree with child-local logs before parent integration gates.
 - tracker-refresh/seed: fails -> holds - All-cut completion runs no full command and emits the gate-set empty line after starting verify.
