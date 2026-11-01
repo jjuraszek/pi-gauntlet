@@ -81,9 +81,38 @@ test('effective allowance counts retries rather than historical ceilings or othe
   assert.doesNotMatch(before, /Set row allowance to 3 \+ funded|Recover spent funding|latest .*retry.*when larger/);
 });
 
-test('amend permission bounds row escalation and one exit repair', () => {
+test('last-attempt escalation uses the resolved model under both approval options', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  for (const token of ['attempts >= effective allowance', 'row <n> escalated | implModel round | allowed attempts <attempts + 1>', 'loop: escalate row <n>', 'escalated round for row <n>', 'model: <implModel>', 'gauntlet_setting({ key: "escalationLoop" })', 'rules 3-4', 'starts no new empty-child or validation-miss window', 'unrecoverable means spent', 'loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun the failing checkout\'s gate pairs once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
+  const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
+  assert.match(before, /attempts >= effective allowance \| Human stop under approval option 4 and option 5 alike/);
+  assert.match(before, /Select target by the priority below, then apply the last-attempt escalation check/);
+  for (const token of [
+    'For a numbered target at attempts == effective allowance - 1',
+    'no existing durable `row <n> escalated` decision',
+    'gauntlet_setting({ key: "escalationLoop" })',
+    'Never consult this value for row escalation',
+    'returned non-empty `implModel` string', 'main-loop model fallback',
+    'setting is unset or malformed', 'settings tool unavailable or `implModel` undefined',
+    'neither a configured model nor a main-loop model',
+    'Problem: escalationLoop.implModel unavailable',
+    'write no escalation decision and leave attempts at effective allowance - 1',
+    'Never substitute a default-model last attempt',
+    'row <n> escalated | implModel round | allowed attempts <effective allowance>',
+    'loop: escalate row <n>', 'escalated round for row <n>', 'model: <implModel>',
+    'normal loop-implementer target, bump and validation path',
+    'At allowance 1, escalate the first and only allowed attempt',
+    'within the effective allowance, never an extra attempt',
+    'starts no new empty-child or validation-miss window',
+  ]) assert.ok(before.includes(token), token);
+  assert.ok(before.indexOf('Select `seed` until') < before.indexOf('For a numbered target at'));
+  assert.ok(before.indexOf('Apply hard boundaries') < before.indexOf('For a numbered target at'));
+  assert.doesNotMatch(before, /With amend permission|no amend permission or escalation|allowed attempts <attempts \+ 1>/);
+  assert.match(driver, /Omit the model override except on an escalated round/);
+});
+
+test('amend permission bounds one exit repair', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  for (const token of ['loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun that command once', 'Rerun the failing checkout\'s gate pairs once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);
   assert.match(driver, /Omit the model override except on an escalated round/);
   assert.match(driver, /no permission or spent identity: no reopening and no automatic rerun/);
   assert.match(driver, /empty parent marker/);
