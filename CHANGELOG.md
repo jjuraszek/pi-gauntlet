@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.1.3 - 2026-11-01
 
 - The loop engine runs on one per-row budget: a fresh ledger carries `allowance: <maxIterationsPerRow>` (default 4) in place of `cap:`, a `4; allowance N` or `5; allowance N` approval reply overrides the setting, and each `retry <n> | <hint>` decision adds one attempt to that row. The driver drops funded rounds, `cap +N`, the total-iteration cap and amend-gated escalation; a row's last allowed attempt runs once on `escalationLoop.implModel` under option 4 and option 5 alike, and exit-verification failure gets one escalated repair per flow. Human stops offer only `retry <n> | <hint>` and `rows +N` and print each open row as `<attempts> of <allowance>`; the task tracker labels rows `<attempts>/<allowance>: <criterion text>` while task names stay `row N`. A legacy `cap:` ledger migrates on resume through a parent `loop: migrate allowance` commit. (#108)
 
