@@ -492,6 +492,27 @@ test('row budget replies preserve counters and reject malformed grants without w
   assert.doesNotMatch(replies, /cap \+N|loop funding/);
 });
 
+test('human stop counts cover every boundary without widening its menu', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
+  for (const token of [
+    'At every human stop, including allowance, stagnation, missing-model, dirty-tree, commit-boundary, interrupted-dispatch and exit-verification stops',
+    'list every `open` or `failed` row after the header as `row <n>: <attempts> of <effective allowance>`',
+    "then print `Preserve every row's attempts.`",
+    'Compute each denominator from the ledger using Before each dispatch',
+    'keep retry increments in `## Decisions`, never a new table column',
+    'Use restored pre-dispatch target cells at rejected-return stops, not unadmitted child results',
+    'With no open or failed rows, omit row lines but retain the preservation sentence',
+    'Offer retry and `rows +N` only at row stops (allowance, stagnation or missing-model)',
+    'Dirty-tree and commit-boundary stops keep discard authorization only',
+    'interrupted-dispatch stops keep their recovery authorization, never budget offers',
+    'verification-failure stop keeps amend/stop only',
+  ]) assert.ok(stop.includes(token), token);
+  assert.match(stop, /Start the message with `gauntlet: question` at every human stop/);
+  assert.match(stop, /For verify stops use the menus in After the loop, retaining verify active/);
+  assert.match(driver, /\| row \| status \| attempts \| evidence \|/);
+});
+
 test('retired loop budgets yield to durable shared allowance and keep waves decoding', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
@@ -510,7 +531,7 @@ test('retired loop budgets yield to durable shared allowance and keep waves deco
   for (const fact of ['saved allowance', 'without resetting attempts, iterations or allowance']) assert.ok(reference.includes(fact), fact);
   const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
   for (const fact of ['rows +50 |', '[1-9][0-9]*', 'rows +50x', 'rows +0', 'rows +x', 'rows -1', 'Raise the shared header allowance by N for every row and leg', 'leaving iterations and all attempts unchanged', 'Raising allowance resets neither window', 'Only retry starts new windows']) assert.ok(stop.includes(fact), fact);
-  assert.match(stop, /every stop print `Preserve every row's attempts\.`/);
+  assert.match(stop, /every human stop.*then print `Preserve every row's attempts\.`/);
   assert.match(stop, /Dirty-tree and commit-boundary stops keep discard authorization only/);
   assert.match(amendment, /Apply the budget to the waves engine only; loop ignores the budget token and keeps only the decoded amendment permission \(none for a budget-only value\)/);
   assert.match(amendment, /stop for human authorization before redraw resets or deletions/);
