@@ -1,0 +1,84 @@
+{
+  "sample": "loop-ledger-legacy",
+  "arm": "candidate",
+  "skillSha": "3aee8e7eeb1a6c7337734cb61d5ce1c44ea1b6f4ec7972aaeaaafd9bd85b0986",
+  "inputSha": "328e0c00633a1be8a3e2ba700353d969bcb9c0c602b94f594bc029400609aaad",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Immediate next action: stop at Step 1 before verification, any menu, or PR creation.**\n\n1. Announce: \"I'm using the finishing-a-development-branch skill to complete this work.\" Then call `phase_tracker({ action: \"start\", phase: \"ship\" })`.\n2. The artifact's line 1 is `# Ledger - loop engine`, so the verification set comes from the loop skill's `## Gate set`. That section requires a `checks:` line. This ledger has none, so I stop with:\n\n```\ngauntlet: question\nStopped: ledger has no checks: line - seeded under the old contract\nProblem: doc/plans/run-ledger.md carries `verification: npm test` but no `checks:` line, so no gate set can be resolved.\nOptions: stop\nRecommendation: stop - restart by hand on a fresh baseline.\n```\n\nI won't fall back to `verification: npm test`. The ledger's verification header is never a substitute for the gate set, even though it is still available. I also won't migrate or reseed the ledger.\n\nAs a result, there is no Step 4 menu, no strip-and-seal, no push and no PR. The ship phase stays incomplete.\n",
+      "words": 162,
+      "wallMs": 7389,
+      "mechanical": {
+        "stop": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\nledger has no checks: line - seeded under the old contract\n\nCannot proceed to PR creation. The `verification: npm test` header is not a fallback, even though every row is done.\n\nOnly option: stop. Restart by hand on a fresh baseline; do not migrate or automatically reseed this ledger.\n\nPreserve every row's attempts and the total iteration cap.\n\nRecommendation: stop - the ledger cannot supply the required gate set.\n",
+      "words": 69,
+      "wallMs": 5802,
+      "mechanical": {
+        "stop": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "735721882fec1aba6f952fd7273f976c39c17086db8c785a96cd9b8e465e4b87",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f3974092756baa4b6bbf92e653ef2d1cbe3a8a3b7dfa9f4a1eca50ba4469c5c2",
+      "baselineOutputSha": "1a4f83da6318ca6918112f0f4baec06e5bd28a4d1fb6f268156d405344f18a16",
+      "candidateOutputSha": "476d2b22aaf34e477dff7b3dd759eb696b7e1197070013faa116c96d80dda473",
+      "facts": {
+        "boundary": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved boundary from fails to holds: Before treated the ledger's `verification: npm test` line as the gate and ran it (then promised the Step 2/3.5/4 path and the PR option), whereas After names the loop skill's `## Gate set` as the sole source, stops on the missing `checks:` line with a `gauntlet: question` block whose only option is `stop` and whose recommendation is a by-hand restart on a fresh baseline, and explicitly refuses to run `npm test`, migrate, reseed, strip-and-seal, push or create the PR. This is exactly the Change's 'missing checks stops without migration' behavior; nothing Before kept was lost since Before held no fact. One small wording point: After says 'stop at Step 1 before verification' and then lists announce/phase_tracker before the stop - keep that ordering explicit (announce, start ship phase, resolve gate set, stop) so a reader doesn't take the stop as preceding the announcement; otherwise the wording is sound and should be retained.",
+      "wallMs": 6940,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "735721882fec1aba6f952fd7273f976c39c17086db8c785a96cd9b8e465e4b87",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f3974092756baa4b6bbf92e653ef2d1cbe3a8a3b7dfa9f4a1eca50ba4469c5c2",
+      "baselineOutputSha": "f0b794d87716c6aaaa5e0d2622e1f02b4b4fec508aa56b9d04edaceb63bb9f09",
+      "candidateOutputSha": "2bd0a4dd5904acb7b9147de112fa71d4efa20cf28edd0088f26b20ef12efbf10",
+      "facts": {
+        "boundary": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before fails the boundary fact because it treats the ledger's `verification: npm test` header as authoritative and directs running `npm test` as the gate, i.e. it proceeds into verification rather than stopping on the missing `checks:` line. After satisfies the fact: it stops before any verification or menu, states the old header is not a fallback, offers stop as the only option, directs a human restart on a fresh baseline, and explicitly rules out migrating, reseeding, or creating the PR. The After wording delivers the Change cleanly; to keep it robust, consider dropping the stray `gauntlet: question` scaffold line and making the first sentence the stop itself (e.g. 'Stop: the ledger has no `checks:` line, so no gate set can be recovered'), so the stop-only boundary is unambiguous before any discussion of the header.",
+      "wallMs": 5879,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "452bf4e3e85612667476f3744cbfb9ed6120667a"
+}

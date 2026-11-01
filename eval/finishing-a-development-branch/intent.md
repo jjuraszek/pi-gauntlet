@@ -1,4 +1,4 @@
-for: abba3103fa48c7fc97e8643ca7bfb5575f5492cc1a1a289cf45c70e02be23ba2
+for: 91b005eca89fb5008c980a7a1efdb6d390228d19bef4d5256307096ec2a47ef2
 
 ## Change
 
@@ -10,7 +10,7 @@ Cover per-leg verification and audit, contract-driven teardown, discard/keep/dra
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
 
 
-Finish loop ledgers using their verification command and Spec header; strip both plan candidates while preserving spec/telemetry, and include loop cut/amend grants in the amendment digest. The loop-ledger sample expands the default Step 6 cleanup slice to cover the hard gate and strip.
+Finish loop ledgers using the loop skill's checkout-owned gate set, with a finish-session log directory, unchanged clean-commit skip proof and mandatory per-pair post-squash runs in the owning primaries. Recover stripped ledger subjects from their committed pre-strip rows and Leg mapping rather than spec full-command contracts; preserve receipt validation, fresh conformance and task-plan/ad-hoc behavior. Supply the set to minors, add the scoped CI summary bullet only to PR bodies and treat unmatched-command ship warnings as advisory. Missing checks stops without migration. Keep Spec-header strip/seal and amendment digest behavior. The loop-ledger, ledger-post-strip and loop-ledger-legacy samples cover these changes; pr-subject-merge-fix-minors is the non-ledger control. Full-target evaluation belongs to the final validation iteration.
 Step 6 reads the overrides file's `## using-git-worktrees` section at finish time. With a keyed contract it matches `$WORKTREE` against `home:` with `<name>` matched inside one path segment, runs `destroy:` with the recovered name or the built-in `git worktree remove` + `prune`, and keeps the branch when `destroy:` fails; a non-matching path is host-owned. Without a section the legacy three homes decide, unchanged. Successful keyed cleanup explicitly continues to `git -C "$PRIMARY" branch -D "$FEATURE"`, with no built-in remove or prune after a successful `destroy:`.
 
 Step 4 applies the shared menu-layout contract to both finishing menus, separating generated options from preceding ordered observations and echoing a mapped legacy numeric pick before acting.
@@ -24,6 +24,17 @@ Add spec-pr-menu and deferred-spec-stop using sample-local full finishing and he
 Compose the header-linked N>1 finish with checkout-local coordinated verification and companion-first delivery. Reconcile live receipt draft status with ready/draft selection, seal home once with every companion URL, push/readify the existing home handle last and keep its body byte-for-byte. Extend spec-pr-menu with one-member and legacy controls and pr-subject-push with header/rework precedence. Keep target-wide assembly, word cap and historical accepted variance unchanged. New spec-pr-menu-legs facts must all hold; narrated fixtures and deterministic lint are not behavioral model evidence. Full-target verification belongs to the parent.
 
 ## Expected to move
+- loop-ledger/verification: fails -> holds - Finish runs selective gate pairs with fresh-session logs rather than the ledger full command.
+- loop-ledger/post-squash: fails -> holds - Squash reruns each owning primary's gate pairs with logged output.
+- loop-ledger/minors-pr: fails -> holds - Minors receive gate commands and PR Summary carries the scoped CI line.
+- loop-ledger/advisory: fails -> holds - Unmatched command warnings do not trigger the full suite.
+- ledger-post-strip/source: fails -> holds - Recover commands from committed pre-strip ledger rows and ownership.
+- ledger-post-strip/ownership: fails -> holds - Deduplicate by checkout and command while retaining validated receipt exemptions.
+- ledger-post-strip/logs: fails -> holds - Finish mints and reuses its own session log directory.
+- ledger-post-strip/squash: fails -> holds - Post-squash uses separate gate pairs in the delivered primary.
+- ledger-post-strip/failed-receipt: fails -> holds - A failed squash receipt retries that leg's gate pairs in its primary.
+- loop-ledger-legacy/stop: fails -> holds - Missing checks uses the loop skill's exact stop.
+- loop-ledger-legacy/boundary: fails -> holds - Legacy ledger finish cannot fall back to a full run or create a PR.
 - pr-subject-lease-refused/lease: fails -> holds - Rebase landing proves the recorded Rework base and uses an explicit original-head lease only when fetched origin equals that original head; preserve provenance on refusal.
 - pr-list-rebase-close-outcomes/rebase-members: fails -> holds - Rebase closure uses live-head equality and recorded range ancestry or empty-result cherry equivalence, rather than merge-mode original ancestry alone.
 - pr-subject-rebase-preflight-stops/incomplete: fails -> holds - Incomplete rebased records stop before menu rather than falling back to merge; migrated from legacy incomplete-sync and lease-refused incomplete.

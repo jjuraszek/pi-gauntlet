@@ -1,4 +1,7 @@
-- verification: judged: Uses ledger verification command before presenting options, preserving conformance gates.
+- verification: judged: Runs the deduplicated node --test check.mjs gate pair in the home worktree before options, not npm test, preserving conformance gates; creates its own LOG_DIR with mktemp -d and redirects output to its gate log with one-line exit reporting.
+- post-squash: judged: Runs the same node --test check.mjs pair in /work/app after squash, with output redirected to LOG_DIR, never npm test or the entire pair list in one worktree subshell.
+- minors-pr: judged: Supplies node --test check.mjs with owning checkout as the minors SCOPED_TEST_COMMANDS; the alternative PR body keeps Test Plan and puts Verification: scoped - node --test check.mjs; CI on this push holds the full run as the last Summary bullet without rework-only Telemetry suffix, while squash prints no PR verification line.
+- advisory: judged: Treats the verify-before-ship warning as advisory and does not run npm test to clear it.
 - digest: judged: Includes ordinary amendment and loop cut/amend granted body records in the digest, excluding ordinary row commits.
 - strip: judged: Reads Spec header before removal, removes and commits each tracked basename plan and ledger candidate before landing.
 - seal: judged: Passes doc/specs/run.md as --spec to telemetry seal before squash; preserves spec and telemetry, strips artifacts, and stops on seal failure.

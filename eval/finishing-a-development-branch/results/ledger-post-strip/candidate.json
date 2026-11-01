@@ -1,0 +1,110 @@
+{
+  "sample": "ledger-post-strip",
+  "arm": "candidate",
+  "skillSha": "6a32ad4a0a85f1c9e8f573ed151554d6a9618a5204f49f9bec106620490c8ae4",
+  "inputSha": "aca283e7ac504b375223e644e99bab439f0c01493cd5104b75228eec8e80b7c7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finish, Step 1 (fresh-session ship retry): recovering the coordinated ledger gate set\n\n## Durable source read\n\nThe ledger `doc/plans/shared-ledger.md` is absent on disk because it was stripped. Per *Post-strip recovery*, I read the committed pre-strip ledger from the strip commit's parent. The home worktree is present, so `<home>` is the worktree:\n\n```bash\ngit -C /work/repo-a/.worktrees/shared show dddddddddddddddddddddddddddddddddddddddd^:doc/plans/shared-ledger.md\n```\n\nThe recovered artifact is read-only. Admission checks on it:\n\n- **Line 1** must be exactly `# Ledger - loop engine`. That selects the ledger row of the set table and routes membership, ordering, deduplication and `## Leg mapping` ownership to the loop skill's `## Gate set`.\n- **`checks: commands`** is present, so it is admitted. Without it I would stop with `ledger has no checks: line - seeded under the old contract`. There is no `verification:` fallback.\n- **`**Spec:**`** names `doc/specs/shared.md`. That value is retained for `--spec` at seal time.\n\nThe spec's recorded `npm test` per leg (`contract:` `- verification:`) is **not** the gate set. Its invocation count across every gate site is zero; CI holds that run.\n\n## Admitted recovery: the gate set\n\nThe set is the deduplicated union of (owning checkout, command) pairs over non-cut `done` rows. It is ordered by the first contributing row, and ownership comes from `## Leg mapping`.\n\n| gate | row | checkout (leg) | command |\n|---|---|---|---|\n| 1 | 1 | repo-a | `node --test test/shared.mjs` |\n| 2 | 2 | repo-b | `node --test test/shared.mjs` |\n| — | 3 | repo-a | duplicate of gate 1, deduplicated |\n| 3 | 4 | repo-a | `node --test test/home.mjs` |\n\nThe same command appears in two checkouts (rows 1 and 2), so it forms two pairs.\n\n## Receipt validation\n\nRepo-b's squash receipt passes the live checks:\n\n- `verification: passed`.\n- The squash SHA is reachable via `git -C <repo-b primary> merge-base --is-ancestor <squash SHA> <resolved default branch>`, which exits 0.\n- Its worktree is missing, which is admissible only because the receipt validated.\n\nRepo-b is therefore exempt from checkout-based verification and conformance. Gate 2 does not run, and repo-b is skipped at delivery as a validated skip.\n\n## Verification for unlanded home\n\nThere is no verified commit this session, so the skip proof does not apply and the gates run. This is finish's first gate-set site, so I mint the log directory once and reuse it for every rerun:\n\n```bash\nLOG_DIR=$(mktemp -d)\n(cd \"/work/repo-a/.worktrees/shared\" && node --test test/shared.mjs) > \"$LOG_DIR/gate-1.log\" 2>&1\n(cd \"/work/repo-a/.worktrees/shared\" && node --test test/home.mjs)   > \"$LOG_DIR/gate-3.log\" 2>&1\n```\n\n- **Run mode:** foreground, one at a time, fail-fast. A nonzero exit on gate 1 means gate 3 never runs.\n- **Reporting:** one line per gate, `gate <i> exit <code> <log path>`. On failure the human stop quotes at most `tail -n 20` of the failing log. The \"Tests failing\" stop applies, subject to the pre-existing-finding scoping caveat.\n- **Tracked changes:** any tracked changes produced by verification are committed, or I stop. The verified HEAD and clean status are recorded only after that.\n- **Matcher warning:** a verify-before-ship warning for these non-matcher commands is advisory only. No full suite runs to clear it.\n\n## Fresh conformance and the menu\n\nFresh home conformance follows. I dispatch `conformance-reviewer` with `cwd: /work/repo-a/.worktrees/shared` and home's Rules. Its checklist is home's owned original ACs: 1 (shared with repo-b), 2 and 3.\n\nBefore Step 4, I take the freshness comparison against the audited head and tree. Step 3.5 dispositions then gate the single Step 4 menu.\n\n## Option 3 (squash) if selected\n\n1. **Repo-b.** Its validated receipt makes it skipped; there is no re-squash.\n2. **Strip and seal on home.** The ledger and plan candidates are already untracked. I do not repair or replace them.\n\n   ```bash\n   node <bin>/gauntlet-telemetry-seal.mjs --worktree /work/repo-a/.worktrees/shared --option squash --base <base-branch> --spec doc/specs/shared.md --leg repo-b=<repo-b squash SHA>\n   ```\n\n   Its output is printed verbatim. A nonzero exit stops the flow and retains every receipt.\n3. **Home squash.** Run Option 3's checkout, pull, `merge --squash` and commit in `/work/repo-a`. The commit message lists repo-b's squash SHA.\n4. **Mandatory post-squash home verification.** The same retained home pairs run in order, against the primary rather than the worktree:\n\n   ```bash\n   (cd \"/work/repo-a\" && node --test test/shared.mjs) > \"$LOG_DIR/gate-1.log\" 2>&1\n   (cd \"/work/repo-a\" && node --test test/home.mjs)   > \"$LOG_DIR/gate-3.log\" 2>&1\n   ```\n\n   Home's receipt is written whether these pass or fail. A failure lists home under `Not shipped` with its squash SHA and error, with no rollback.\n5. **Cleanup.** Only after passing, I clean repo-b first and then home, each through its recorded `contract:` from its own primary. Repo-b's tree is already gone, so it is reported as its actual state. Receipts are removed only after home delivery and all required cleanup succeed.\n\n## If repo-b's squash receipt had independently failed\n\nSuppose it read `verification: <actual failure>`. Repo-b would stay unlanded and would not be exempt.\n\nThe retry would rerun gate 2, `node --test test/shared.mjs`, against repo-b's **delivered primary**, `(cd \"<repo-b primary>\" && …)`. It would not target the feature worktree, even if that tree still existed. The squash itself would not be repeated.\n\nThis requires the recorded squash SHA to stay reachable on repo-b's default branch. Unrelated primary movement stops for review. A pass rewrites the receipt to `verification: passed`. Only then does home's seal (`--leg repo-b=…`) and home delivery proceed.\n",
+      "words": 816,
+      "wallMs": 32409,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Durable source and admitted recovery\n\nRecover the committed, pre-strip ledger read-only from the strip commit’s parent:\n\n```bash\ngit -C \"/work/repo-a/.worktrees/shared\" show \\\n  dddddddddddddddddddddddddddddddddddddddd^:doc/plans/shared-ledger.md\n```\n\nIf the home worktree were absent, use `/work/repo-a` for this read. Do not recreate the ledger on disk or treat it as a task plan.\n\nAt Step 1, read the finish verification-set reference and the loop skill’s `## Gate set` at their resolved absolute paths. The recovered ledger has `checks: commands`, so its gate set is admitted. Resolve commands from its row evidence and ownership from its `## Leg mapping`—**not** from the spec’s recorded `npm test` contracts.\n\nDeduplicate by **(owning checkout, command)** in ledger-row order. Retain these indexed pairs through stripping and delivery:\n\n| Gate | Leg | Command |\n|---|---|---|\n| 1 | repo-a | `node --test test/shared.mjs` |\n| 2 | repo-b | `node --test test/shared.mjs` |\n| 3 | repo-a | `node --test test/home.mjs` |\n\nRow 3 duplicates row 1’s pair and adds no invocation. Row 2 remains distinct because repo-b owns it.\n\n### Unlanded home verification\n\nRepo-b’s live-validated, passed squash receipt and removed worktree exempt it from checkout-based verification and conformance. Preserve that receipt and its validated delivery identity; do not recreate its worktree or repeat its squash.\n\nHome has no verified commit in this session, so it cannot use the skip proof. At finish’s first gate-set execution site, mint:\n\n```bash\nLOG_DIR=$(mktemp -d)\n```\n\nReuse this directory for every finish rerun. Run home’s retained pairs in order, foreground and fail-fast:\n\n```bash\n(cd \"/work/repo-a/.worktrees/shared\" && node --test test/shared.mjs) \\\n  > \"$LOG_DIR/gate-1.log\" 2>&1\n\n(cd \"/work/repo-a/.worktrees/shared\" && node --test test/home.mjs) \\\n  > \"$LOG_DIR/gate-3.log\" 2>&1\n```\n\nAfter each invocation, report:\n\n```text\ngate <index> exit <code> <log path>\n```\n\nRun gate 3 only if gate 1 exits 0. A failure stops advancement; show its exit line and at most `tail -n 20` from its log. Do not run `npm test` or a full suite as a fallback.\n\nCommit verification-produced tracked changes, or stop. Record verified HEAD and clean status only afterward. Home also needs **fresh conformance review** against the selected spec, original prompt, full diff, Rules, and owned original AC rows. Prior-session closure evidence is not restored. Explicitly dispose of any carried-open concerns before the single finish menu, and re-verify/re-review home if it changes before delivery.\n\n### If home squash is selected\n\nValidate repo-b’s receipt again before delivery and skip its already-proven squash. Retain the recovered gate pairs and accepted task evidence. Seal home’s record with repo-b’s complete delivered result before landing home; stop on seal failure.\n\nAfter home’s squash commit is created on `/work/repo-a`’s confirmed base branch, post-squash verification is mandatory:\n\n```bash\n(cd \"/work/repo-a\" && node --test test/shared.mjs) \\\n  > \"$LOG_DIR/gate-1.log\" 2>&1\n\n(cd \"/work/repo-a\" && node --test test/home.mjs) \\\n  > \"$LOG_DIR/gate-3.log\" 2>&1\n```\n\nUse the same indices, foreground execution, exit reporting, and fail-fast rule. The feature-worktree run does not authorize skipping this changed-primary run.\n\nWrite home’s squash receipt even if post-squash verification fails, recording the created SHA and actual failure. Preserve delivered work and receipts without rollback. Cleanup follows only successful post-squash verification and the recorded cleanup contracts.\n\n### Independent failed repo-b squash receipt\n\nA repo-b receipt recording failed post-squash verification changes that leg’s retry target to its **delivered primary**, `/work/repo-b`, even if its feature worktree still exists:\n\n```bash\n(cd \"/work/repo-b\" && node --test test/shared.mjs) \\\n  > \"$LOG_DIR/gate-2.log\" 2>&1\n```\n\nValidate the receipt’s identity, reconcile its delivery choice, prove the recorded squash remains reachable from repo-b’s `trunk`, and stop on unrelated primary movement requiring review. Rerun verification—not squash—and do not substitute a feature-checkout pass. Rewrite the receipt as passed only after successful primary verification; retain receipts on failure. Any repairs or checkout changes still require fresh applicable verification and conformance before further delivery.\n",
+      "words": 573,
+      "wallMs": 22314,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "62ab3774359f06f7e97202948eea586f54623085125dd3c811501549f0b51266",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f3974092756baa4b6bbf92e653ef2d1cbe3a8a3b7dfa9f4a1eca50ba4469c5c2",
+      "baselineOutputSha": "113e8a3b25b02f49f281910609093f370f926a60a9f9c31a24b2718f47a4d5a3",
+      "candidateOutputSha": "1085a9afaa98d494508d5f8701844c3b94abe61765dca7f02b36468c24caba43",
+      "facts": {
+        "source": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ownership": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "logs": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "squash": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "failed-receipt": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the intended change cleanly: it reads `git -C /work/repo-a/.worktrees/shared show dddd…^:doc/plans/shared-ledger.md`, builds the deduplicated (checkout, command) set from the pre-strip rows and Leg mapping, explicitly zeroes out the spec's `npm test`, mints `LOG_DIR=$(mktemp -d)` with per-gate logs and `gate <i> exit <code> <log path>` reporting, reruns the two home pairs separately in `/work/repo-a` post-squash with the same LOG_DIR, and retargets the hypothetical failed repo-b receipt retry to gate 2 in the delivered primary without re-squashing. Before failed every fact because it treated the spec `npm test` contract as the command source and had no session log directory. One wording nit in After: the failed-receipt section uses the placeholder `<repo-b primary>` instead of the concrete `/work/repo-b`; spelling the path out (`(cd /work/repo-b && node --test test/shared.mjs) > \"$LOG_DIR/gate-2.log\" 2>&1`) would make the target unambiguous and also show the retry writing its own gate log, which keeps the logs fact visibly consistent across all gate sites. Also note that reusing `gate-1.log`/`gate-3.log` names in the post-squash rerun overwrites the earlier logs; distinct names (e.g. `post-squash-gate-1.log`) would preserve both runs without changing the same-LOG_DIR behavior.",
+      "wallMs": 20101,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "62ab3774359f06f7e97202948eea586f54623085125dd3c811501549f0b51266",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f3974092756baa4b6bbf92e653ef2d1cbe3a8a3b7dfa9f4a1eca50ba4469c5c2",
+      "baselineOutputSha": "d458c8d4f88899f2a5c123282798ba2c498c60c139341be3d8f54a5fc41cceb0",
+      "candidateOutputSha": "61e1c4e21327c045121ebac6e328ee9747c7a86927e38e0274a0c1795f72a607",
+      "facts": {
+        "source": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ownership": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "logs": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "squash": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "failed-receipt": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves every fact in the intended direction and nothing regresses. Before read the correct `git show ddd^:doc/plans/shared-ledger.md` source but then explicitly substituted the spec's `npm test` contract for the ledger's row commands, declared no LOG_DIR needed, and used `npm test` full-suite runs for feature verification, post-squash home verification and the failed repo-b retry, so source, ownership, logs, squash and failed-receipt all fail there. After resolves commands from row evidence and `## Leg mapping` (explicitly not the spec), deduplicates to the (repo-a, shared.mjs), (repo-b, shared.mjs), (repo-a, home.mjs) pairs, exempts the validated removed repo-b from checkout verification, mints `LOG_DIR=$(mktemp -d)`, redirects each gate to `gate-<n>.log` with `gate <index> exit <code> <log path>` reporting, reruns gates 1 and 3 separately in `/work/repo-a` with the same LOG_DIR after squash, and targets `/work/repo-b` with gate 2 for a failed receipt while proving trunk reachability and never re-squashing. One minor wording risk worth keeping an eye on: the post-squash section says 'confirmed base branch' while the retry section says 'trunk'; stating the actual default branch name consistently would keep the reachability proof unambiguous, and the hypothetical 'If the home worktree were absent, use /work/repo-a for this read' sentence is harmless but slightly dilutes the 'read in home' narration — keep the primary read in the home worktree as the stated path.",
+      "wallMs": 15853,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "452bf4e3e85612667476f3744cbfb9ed6120667a"
+}

@@ -6,13 +6,21 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 const skill = readFileSync(new URL("../skills/finishing-a-development-branch/SKILL.md", import.meta.url), "utf8");
-const rule = skill.match(/\*\*Skip rule\.\*\*[^\n]+/)[0];
+const verificationPath = new URL("../skills/finishing-a-development-branch/reference/verification-set.md", import.meta.url);
+const verification = readFileSync(verificationPath, "utf8");
+const rule = verification.match(/\*\*Skip rule\.\*\*[^\n]+/)[0];
 const commands = [...rule.matchAll(/`(git -C "\$WORKTREE"[^`]+)`/g)].map((m) => m[1]);
 assert.ok(commands.length, "skip rule must contain executable Git checks");
 
-test("ledger finish preserves verification, strip and amendment contracts", () => {
-  assert.ok(skill.includes("# Ledger - loop engine"));
-  assert.ok(skill.includes("verification:"));
+test("ledger finish preserves gate set, strip and amendment contracts", () => {
+  assert.ok(verification.includes("# Ledger - loop engine"));
+  assert.match(skill, /read.*absolute path.*reference\/verification-set\.md/);
+  assert.doesNotMatch(skill, /For a ledger, (?:use|supply) its `verification:` command/);
+  for (const token of ['## Gate set', '## Leg mapping', 'checks:', 'ordered list of (leg, command) pairs', 'LOG_DIR=$(mktemp -d)', 'SCOPED_TEST_COMMANDS', 'verify-before-ship may warn', 'do not run the full suite to clear the warning', 'Commit verification-produced tracked changes, or stop']) assert.ok(verification.includes(token), token);
+  assert.match(skill, /For a ledger, supply the gate set as `SCOPED_TEST_COMMANDS`/);
+  assert.match(skill, /Verification: scoped - <commands>; CI on this push holds the full run.*last `## Summary` bullet/);
+  assert.match(skill, /ledger.*post-squash.*verification-set\.md/);
+  assert.match(verification, /\(cd "<leg primary>" && <command>\) > "\$LOG_DIR\/gate-<i>\.log" 2>&1/);
   assert.ok(skill.includes("<spec stem>-ledger.md"));
   assert.match(skill, /--grep[^\n]*loop: cut row[^\n]*loop: amend/);
   assert.match(skill, /take the `auto-apply` and `granted` records from those commit bodies/);
@@ -63,6 +71,29 @@ for (const telemetry of [".pi/gauntlet/telemetry", "records/custom telemetry"]) 
     });
   }
 }
+
+test("stripped ledger recovery keeps checkout ownership instead of spec full commands", () => {
+  assert.match(verification, /git -C <home> show <strip commit>\^:<ledger path>/);
+  assert.match(verification, /never from the spec's `contract:` `- verification:` lines/);
+  assert.match(verification, /missing.*stop/i);
+  for (const path of ['skills/finishing-a-development-branch/reference/legs.md', 'skills/gauntlet-resume/reference/brief-contract.md']) {
+    const text = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+    assert.match(text, /pre-strip ledger/);
+    assert.match(text, /gate pairs/);
+    assert.match(text, /verification-set\.md/);
+    assert.ok(Buffer.byteLength(text) < 50000);
+    assert.ok(text.split('\n').length < 2000);
+  }
+});
+
+test("non-ledger set resolution retains task and ad-hoc behavior", () => {
+  for (const token of ["union of every plan task's `Tests:` commands", 'none - PR subject, scoped', "plan header's `**Verification:**` set", 'With no plan in this session', 'accepted-complete task evidence']) assert.ok(verification.includes(token), token);
+  assert.match(skill, /\(cd "\$PRIMARY" && <the Step 1 set>\)/);
+  for (const text of [skill, verification]) {
+    assert.ok(Buffer.byteLength(text) < 50000);
+    assert.ok(text.split('\n').length < 2000);
+  }
+});
 
 // Wording checks pin the finish-owned contract, not a live GitHub boundary.
 const legsPath = new URL("../skills/finishing-a-development-branch/reference/legs.md", import.meta.url);
