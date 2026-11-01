@@ -8,6 +8,7 @@ chase-bug's `send it`, reached in step 10 below.
 ## Boundaries
 
 - Reads: anything.
+- Run the hotfix in a session with no bound gauntlet record (a fresh session, or one where no `phase_tracker start brainstorm` ran), because the telemetry extension charges every dispatch in a bound session to that record's `iterations`.
 - Writes: the hotfix worktree; exactly one squash commit on `<default>`, made in the
   primary checkout with a clean index, `<orig-branch>` restored after; `$TMPDIR`.
 - Does NOT: run tests or create files in the primary checkout; push without an
