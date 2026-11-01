@@ -1,8 +1,8 @@
 {
   "sample": "questionary-option-lines",
   "arm": "candidate",
-  "skillSha": "a9afe7116aa2b82a17a9c1bba508ded2d78be343f272b2b2a8f78a0114fd2a0c",
-  "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
+  "skillSha": "2b3a14b8fae757b047cdcfaf48bfa73130f774c6baee20372bb2f1d3511fc5dd",
+  "inputSha": "99f02e141a892141a9ae7709d3fdcb80d0edaf354ac1e9f42686d9526b2de978",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nWhich behavior should the workspace-switch filter policy select when the user changes workspaces in the report view?\nA) clear all filters - every switch resets the view to unfiltered\nB) preserve all active filters - the current filters carry over to the new workspace\nC) restore each workspace's last filters - each workspace remembers and reapplies its own filters\nRecommendation: B - the workspace-change handler in ui/report-view.ts already retains active filters, so B keeps current behavior and needs no new per-workspace filter storage behind settings/resolver.ts:12.\n",
-      "words": 83,
-      "wallMs": 7355,
+      "text": "gauntlet: question\nWhich filter policy should the report view apply when the user switches workspaces? The policy will be a key under the existing resolver (settings/resolver.ts:12) and read by ui/report-view.ts:30.\nA) clear - every workspace switch clears all active filters\nB) preserve - all active filters carry across every switch\nC) restore per workspace - each workspace reopens with its own last-used filters\nRecommendation: B - the workspace-change handler already keeps active filters, so making that the default changes nothing for current users and adds no per-workspace filter state.\n",
+      "words": 85,
+      "wallMs": 6009,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nWhich filter policy should the report view use when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves the view’s current behavior and avoids silently changing active filters.\n",
-      "words": 48,
-      "wallMs": 6053,
+      "text": "gauntlet: question\nThe framing holds: checked the caller in app/start.ts:18, defaults in settings/resolver.ts:12, the resolver-to-view data path into ui/report-view.ts:30, and the workspace-change handler, which currently retains active filters without a selectable policy.\n\nWhat should happen to filters when the workspace changes?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - preserves current behavior through the existing settings resolver without adding per-workspace filter storage.\n",
+      "words": 77,
+      "wallMs": 3777,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "5cf95cc15073f50f824f9f101c95e4a86428bed900fb3a976967ff35c132fd65",
-      "candidateOutputSha": "980785f4382d3d1cde2009c66cbab4749c6a858712d718771d7bb189c830cec3",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "2794aae66d7c3cad6b0df114783aa20f544d9f3d0e89917ea5a5d500563c85fb",
+      "candidateOutputSha": "2fbbe6b3659345a6379ef4418f75d4d09dc037147a9569aa97b0a32372f61077",
       "facts": {
         "layout": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs put the lead-in first, render A/B/C each on its own physical line, and end with Recommendation: on its own final line, and both preserve the three supplied choices (clear/preserve/restore) and recommend B with a concrete reason tied to the workspace-change handler rather than deciding or jumping to approaches. After's option wording paraphrases the choices slightly more (\"clear all filters - every switch resets the view\") but a careful reader still recognizes all three supplied options verbatim in substance; if you want zero risk on the content fact under future tightening, keep the supplied choice phrases exactly (e.g. \"clear all filters on every workspace switch\") before the dash and put the gloss after it, as Before did.",
-      "wallMs": 7003,
+      "feedback": "Both outputs keep the lead-in before A), one labeled option per physical line, and Recommendation: as the final own-line, and both ask a single question offering the user's three choices with a reasoned B recommendation, so nothing moved. The one risk in After is that it paraphrases the user's supplied choices ('clear - every workspace switch clears all active filters', 'restore per workspace - each workspace reopens with its own last-used filters') rather than echoing them; a judge reading 'preserving all three supplied choices' strictly could count that as a drift. If the Change is meant to add short labels, keep the user's exact phrases as the option text after the label (e.g. 'A) clear - clear all filters on every workspace switch') so verbatim preservation is unambiguous while the layout and recommendation stay as they are; the longer two-sentence lead-in is fine and does not affect either fact.",
+      "wallMs": 12226,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "09705eb892d9c9fa09d83f428ef14999dc46279b6a65cbd4e1685f4d1d58116f",
-      "candidateOutputSha": "096dca9232e5d9c61b818edc2d1951a41617e539d1a1877d1edfc95314811387",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "1e3c7eb16b531a721aabc36380b8fc70f94ca31f006ba38257642192d2fb4445",
+      "candidateOutputSha": "ed5c7d9e095dc8b79fd0131765f4863e678e5144028547f80bbfca4a8d3b9f17",
       "facts": {
         "layout": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy both facts: each puts the lead-in question before the first labeled option, places A/B/C on separate physical lines with their option text, ends with a Recommendation: line, preserves all three supplied choices verbatim, and recommends B with a reason without deciding for the user or moving to approaches. After only rewords the lead-in (naming the report view and the filter policy) and the recommendation's reason clause; neither change moved a fact. Nothing in the After wording needs adjusting for this case - keep the one-option-per-line structure and the own-line Recommendation as rendered.",
-      "wallMs": 4813,
+      "feedback": "After keeps both facts: the lead-in (framing recap plus the question) precedes A), each of the three labels sits with its text on its own physical line, and Recommendation: B closes the response on its own final line; the three supplied choices are preserved verbatim in meaning and the recommendation gives a reason rather than deciding or jumping to approaches. The only drift is that After restates the already-recorded framing confirmation (start.ts:18 → resolver.ts:12 → report-view.ts:30) ahead of the question, which the user did not request at this step; it does not break the layout fact but is surplus relative to Before's single-sentence lead-in. To deliver the Change without widening the questionary response, keep the lead-in to the one question sentence (optionally a short 'Framing holds, as traced' clause) and leave the recon citation to the prior turn, keeping the labeled options and final Recommendation line exactly as both outputs render them.",
+      "wallMs": 7726,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4c0dd45fc9f224f8973396aa6bacc650764157e2631f632e8d2a1090c19c4161",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "5c5b679faecea900551f17c36cb59c6bf878fdf061a53d6da1a8806910d0c538",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "4005e45fed9965e148da9fa65d7aa447102223d73de78b1f18a56326e8e5529f",
       "candidateOutputSha": "4005e45fed9965e148da9fa65d7aa447102223d73de78b1f18a56326e8e5529f",
       "facts": {
         "singleton-template": {
@@ -54,15 +54,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs treat the three singleton waves as ordinary groups with no Solo or Parallel-safe line and no execution mode in the grouping, both dispatch one fresh async:false plan-writer with acceptance level none and all paths then run the parent plan_check after PLAN WRITTEN and before a single read, and both initialize plan_tracker with W1/W2/W3 in order and then invoke /skill:subagent-driven-development with no mode selection. The After wording adds the plan-only commit (status, add, commit scoped to doc/plans/numbers.md) after the parent PASS and before tracker initialization, which delivers the Change without disturbing the dispatch, check-then-read ordering, or the init-then-handoff sequence. Note that the 'Expected to move' list predicts singleton-template and ordered-handoff flipping from fails to holds, but Before already satisfied both on this sample, so this fixture does not discriminate the change; if you want it to, the Before baseline would need a sample where the old wording actually emitted a Solo line or a mode prompt.",
-      "wallMs": 12718,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both dispatch a fresh, async:false plan-writer with acceptance level none and all five paths, run the parent plan_check after PLAN WRITTEN and before the single finished-plan read, describe the three singleton waves as ordinary groups with no Solo line or plan-time Parallel-safe requirement and no execution mode in the grouping/template, initialize plan_tracker with W1: Parse integers, W2: Format integers, W3: Label integers in wave order, and then directly invoke /skill:subagent-driven-development without selecting or asking about a mode. The Expected-to-move list anticipated singleton-template and ordered-handoff flipping from fails to holds, but Before already satisfied them; the After wording should be kept as is, since it preserves every fact and the new plan-commit ordering (after parent PASS, before tracker init, plan-only staging) is already present in the handoff section.",
+      "wallMs": 8911,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4c0dd45fc9f224f8973396aa6bacc650764157e2631f632e8d2a1090c19c4161",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "3d62c79b879d37273ed285fbf86ac5a9b11d831e1dacf02216276a050dcc2e8b",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "536ac8bc05865eaf80dfd44c22115790978b72d141c5813215862b9a770515fd",
       "candidateOutputSha": "536ac8bc05865eaf80dfd44c22115790978b72d141c5813215862b9a770515fd",
       "facts": {
         "singleton-template": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. After preserves the fresh async:false plan-writer dispatch with acceptance none and all three paths, runs the parent plan_check after PLAN WRITTEN and before the single read, treats the three singleton waves as ordinary groups with no Solo or Parallel-safe lines and no execution mode in the template, initializes the tracker in wave order, and hands off directly to /skill:subagent-driven-development without mode selection. The new step 6 (commit only the plan after parent PASS and before tracker initialization) is inserted exactly where the Change asks and does not disturb the ordered handoff. One small robustness note: because the case supplies no git status observation, After branches conditionally and uses a `<spec title>` placeholder; wording that tells the writer to read the spec title during the earlier scope-check read would let the commit command be concrete, but this does not affect any listed fact.",
-      "wallMs": 10036,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both treat the three singleton waves as ordinary groups 'without Solo lines' with no Parallel-safe line or execution mode in the grouping/template (step 1, step 3, step 5); both dispatch one fresh async:false plan-writer with acceptance level none carrying the worktree, spec and plan paths, then run the parent plan_check after PLAN WRITTEN and before the single read (steps 3–5); and both initialize plan_tracker with W1/W2/W3 in wave order and immediately invoke /skill:subagent-driven-development with no mode selection (steps 7–8). The Expected-to-move list predicted singleton-template and ordered-handoff flipping fails→holds, but the Before text already satisfied them, so the After wording neither gained nor lost anything here. The one feature worth noting for the author is the conditional git persistence step (step 6) inserted between PASS and tracker initialization, which matches the Change's 'commit only the plan at handoff after parent PASS and before tracker initialization' and does not disturb the direct handoff; keep that ordering and the explicit 'without Solo lines' / 'no approval prompt' phrasing in any further rewording.",
+      "wallMs": 11974,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

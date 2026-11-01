@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "db94f621cbf42ba382a4df19da52b71bf1bb5847305ca040ee9164f2575de187",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "70a1db6d39f440aa95d7ddb59da7ed48836f61cf3a6268c468ba7db5a5a8c295",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "269424bf87a8451fb9d5a0f8cfcae9f5421c2f5bf8c075b72e1d0bd572fb8f5a",
       "candidateOutputSha": "269424bf87a8451fb9d5a0f8cfcae9f5421c2f5bf8c075b72e1d0bd572fb8f5a",
       "facts": {
         "local": {
@@ -54,9 +54,9 @@
           "label": "intended but unchanged"
         },
         "semantic": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "gates": {
           "before": "holds",
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "The only fact that moved is `semantic`, and it moved in the intended direction. Before read the committed originals once, then stored that inventory in the saved apply report and leaned on it (\"stays valid only because … the original inventory in the saved report\"), never mentioning the retry case; that treats the report as an inventory source rather than a findings-only record and omits the on-retry re-read. After fixes both: it states explicitly that both `git show HEAD:` reads happen before any edit and again on any retry, compares obligations/bodies/Tests against the committed originals in the delta section, and ties Task 2's retained provenance note to the committed plan original's evidence. All other facts (`local`, `historical`, `no-refresh`, `gates`) are preserved: the patch is still local with ids/titles/wave/completed state untouched, the implement-local header plus `Baseline home: abc1234` and both exact bullets with their suffixes are kept, the staged `src/config.mjs` is left alone with no equivalence check or sweep, and checker/stamp/reconciliation ordering and the contrast with initial planning and `Findings: rerun baseline` remain. One small tightening for After: the line \"The full provenance is in the saved report\" could read \"prior findings and failure history are in the saved report\" to make the findings-only role of previousApplyReport unambiguous, since `semantic` depends on that distinction.",
-      "wallMs": 20955,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical, so no fact moved in either direction. Both outputs read the committed plan and spec originals via home-relative `git show HEAD:` before edits and on retry, patch only the two anchors plus the matching coverage rows while listing ids, titles, Wave 1 order, bodies, Tests and completed state as unchanged, add the `implement-local` header, keep the `Create:` declaration and both exact historical bullets with their `pass via … - artifacts:` and `skipped - …` suffixes, derive the retained-home provenance note from the original evidence, perform no equivalence check or rerun and leave the staged `src/config.mjs` untouched, return `tasksAnchorChanged: []` for the offset-only shift, keep checker/coverage/parent stamp ahead of reconciliation, and contrast the ordinary and `Findings: rerun baseline` modes. The one soft spot shared by both is that the semantic fact's 'reports for prior findings only' clause is satisfied only implicitly (the inventory comes from the originals, not the report); a single sentence such as 'previousApplyReport is consulted only for prior findings, never as the comparison inventory' would make that explicit without disturbing any other fact.",
+      "wallMs": 14304,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "db94f621cbf42ba382a4df19da52b71bf1bb5847305ca040ee9164f2575de187",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "44189ecb635b9b2da8f8f5c0b200f4401fb01c1c508fe1a31268f981552bd0ee",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "6ddf7e937f9bccbfd5f7b851506c8b201be556fb0c4bc540190ee614cda75d30",
       "candidateOutputSha": "6ddf7e937f9bccbfd5f7b851506c8b201be556fb0c4bc540190ee614cda75d30",
       "facts": {
         "local": {
@@ -92,8 +92,8 @@
         },
         "semantic": {
           "before": "fails",
-          "after": "holds",
-          "label": "intended change"
+          "after": "fails",
+          "label": "intended but unchanged"
         },
         "gates": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After fixes the one fact Before failed: Before said to \"capture the supplied committed originals in the existing saved apply report\" and compare against that stored inventory, which treats the report as the source of truth rather than findings-only, and it never mentioned retry; After instead names both `git -C /workspace/app show HEAD:doc/plans/config.md` / `HEAD:doc/specs/config.md` reads as the comparison inventory and explicitly rejects comparing against an already-amended working copy. Everything else (byte-identical bullets with pass/skipped/artifact suffixes, retained skip provenance tied to committed-original evidence rather than restamping, no execution or endpoint-tree equivalence, staged repair untouched, parent stamp before tracker reconciliation, contrast with initial planning and `Findings: rerun baseline`) is preserved. Two wording risks to tighten: (1) After's semantic branch still does not state that the committed originals are re-read on retry or that `previousApplyReport` is consulted only for prior findings—add one sentence like \"On a retry, re-read both committed originals; use previousApplyReport only for its prior findings, never as the inventory\" so the fact is explicit rather than merely uncontradicted; (2) \"Use full-file writes with unaffected text preserved\" could be read as regeneration—phrase it as \"write the patched file back with all unaffected text byte-identical\" to keep the local fact unambiguous.",
-      "wallMs": 25022,
-      "verdict": "improved"
+      "feedback": "Before and After are byte-identical, so the wording change moved nothing on this case. Both outputs patch only the two anchors and their coverage lines, keep the implement-local header plus the `Baseline home: abc1234` declaration, retain both bullets with the derived-pass, skipped and artifact suffixes, add the matching retained-skip provenance entry, refuse endpoint-tree equivalence and execution, preserve the staged repair, keep the self-check/coverage/parent `plan_check` stamp ahead of tracker reconciliation, and contrast initial planning and `Findings: rerun baseline`. The one gap shared by both is `semantic`: the text reads the committed originals before edits and returns an empty `tasksAnchorChanged`, but never states that the originals are re-read on a retry or that `previousApplyReport` is consulted only for prior findings rather than as an edit inventory. To make that fact hold in After, add a sentence under the committed-original reads such as: 'On any Findings retry, re-read both `git show HEAD:` originals as the sole comparison inventory and treat `previousApplyReport` only as a record of prior findings, never as the list of edits to apply or re-apply.' That addition keeps every other fact intact while delivering the retry/report clause of the Change.",
+      "wallMs": 16772,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

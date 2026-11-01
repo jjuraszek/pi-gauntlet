@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2cfb0c98f592ef269ecdbb4d6580f4c59dd104e855a32b1cda52e7c23ada8de9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "d6a912560c99c03e44953c38bce7c56328b6d4f7e82917c5661757df9e596e94",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "68a5f3eb43a304d1847618ebc97de78018da1de37bbea34231078dbe4c052c21",
       "candidateOutputSha": "68a5f3eb43a304d1847618ebc97de78018da1de37bbea34231078dbe4c052c21",
       "facts": {
         "failure": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved. Both outputs name Task 1, `node --test tests/hook.test.ts`, abc1234 and exit 1 as the base failure; both print fix-first, narrow <filter>, and amend each on its own line followed by a Recommendation line; both end the turn with phase plan in_progress, substep plan-write retained, no stamp, no phase_tracker complete and no plan_tracker init. After is slightly stronger on the pause fact because it also states no commit and no handoff to subagent-driven-development, which matches the new handoff-commit ordering in the Change. One caution for the After wording: the trailing 'Stopped' table describing what each choice would trigger is fine as long as it stays conditional (it does here, using 'Your choice' / 'What happens next'); avoid phrasing that could read as the parent having already re-dispatched or run amendment-surface section 5, since that would risk the pause fact. Otherwise the After wording delivers the grant-decoding and no-grant control behavior while keeping every fact Before kept.",
-      "wallMs": 10179,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both name Task 1, `node --test tests/hook.test.ts`, abc1234 and exit 1 as the base failure; both present fix-first, narrow <filter>, and amend as one option per line followed by a single Recommendation line; and both explicitly keep phase `plan` in_progress with substep `plan-write`, write no execution stamp, perform no `plan_tracker` init, and do not mark the phase complete while waiting for the human. The After wording preserves the no-grant control path exactly, which is what the Change intends for the parent-offers-fix-first-narrow-amend sample; no further adjustment is needed here.",
+      "wallMs": 6572,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2cfb0c98f592ef269ecdbb4d6580f4c59dd104e855a32b1cda52e7c23ada8de9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "151d3cde20fd1e9ff388a50f7e4e028e78a6c589b47a4a61188ff3566640f1a3",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "44e52fbc9ca2ec72d4c849da22fa75f5829e84d0860e90c955d7e8802968e615",
       "candidateOutputSha": "44e52fbc9ca2ec72d4c849da22fa75f5829e84d0860e90c955d7e8802968e615",
       "facts": {
         "failure": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this no-grant control sample: both outputs name Task 1, `node --test tests/hook.test.ts` and exit 1 on abc1234 as the base failure, present fix-first, narrow and amend one per line followed by a Recommendation line, and pause for the human with phase plan retained as in_progress and substep plan-write, without plan_tracker init, stamping, or phase completion. After additionally states \"Do not manufacture baseline evidence, commit the plan\", which aligns with the Change's handoff-commit ordering and no-evidence-fiction requirements without weakening the pause fact. The only small regression in explicitness is that After drops Before's opening line that the child already returned OPEN QUESTIONS so no re-dispatch or phase restart occurs; After's step 2 covers \"do not re-dispatch merely to fill the missing baseline bullet\", which is sufficient, but keeping a sentence like \"The child already returned OPEN QUESTIONS; do not dispatch again or restart the phase\" would make the single-dispatch posture unambiguous alongside the new commit/evidence prohibitions.",
-      "wallMs": 11674,
+      "feedback": "Before and After are textually identical for this sample, so nothing moved: both name Task 1, `node --test tests/hook.test.ts`, `abc1234` and exit 1 as the base failure; both list fix-first, narrow <filter>, and amend one per line and then a Recommendation line; and both stop for the human while retaining phase `plan` in_progress with substep `plan-write` and explicitly refusing to commit the plan, initialize `plan_tracker`, or invoke execution. Note that the Expected-to-move entry parent-offers-fix-first-narrow-amend/menu (fails -> holds) is not reflected here—the Before output already satisfies the menu fact—so the After wording is correct for this no-grant control but should not be credited with a menu improvement on this sample; if the author wants this sample to demonstrate the amend-permission decoding introduced by the Change, the output could additionally cite the decoded spec-header Value that yields 'no grant' so the control case visibly exercises the new step 3 rather than merely asserting it.",
+      "wallMs": 10007,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

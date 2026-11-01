@@ -2,7 +2,7 @@
   "sample": "gate-line-first",
   "arm": "candidate",
   "skillSha": "dd3bae7baccbaace90310126a37fd1d231d00165b8efaa95ae53ce0301eb91f4",
-  "inputSha": "04e5a5a4f82d82bd5abf5b7bab800f1ab8fe005c98fd649beda6bbc35c4372b5",
+  "inputSha": "3577fb0df0b520bb61aa9b98b27e1aa168f5adac1ca18b9bb72ddef0a126f804",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nThe gathered draft claimed the existing resolver cannot accept overrides. Primary code disproves that claim: `settings/resolver.ts:11` already accepts a timeout override, and every caller I traced reads settings through that resolver. The design will treat the resolver as the single settings boundary unless you say otherwise. The missing timeout override is therefore not a capability gap. The likely root cause is that the existing caller never passes its override to the resolver. A second settings file would add a parallel read path beside the boundary that already owns this setting, so I am raising a framing concern before any other question.\n\nA) as framed - add a second settings file that supplies the timeout override.\nB) pivot: change the existing caller to pass its timeout override through `settings/resolver.ts` - this fixes the root cause on the one boundary every caller already uses (`settings/resolver.ts:11`), with no duplicate settings path.\nC) smaller or none: document how to set the timeout through the existing resolver and ship no code change. If nothing ships, the override remains silently ignored for that caller.\nRecommendation: B - the resolver already supports the override, so fixing the caller removes the bug without creating a second settings boundary.\n",
-      "words": 199,
-      "wallMs": 7391,
+      "text": "gauntlet: question\nI need to correct a premise from the gathered draft before we go further. The draft says the existing settings resolver cannot accept overrides. Primary code shows otherwise: `settings/resolver.ts:11` already accepts a timeout override. I also traced every caller, and each one reads settings through that same resolver. So the missing timeout override is not a resolver limitation. The caller that needs the timeout is simply not passing its override to the resolver. The design will go forward on this corrected fact unless you override it in your reply. I'm recording it in the draft for `## Problem`.\n\nThis changes how the ask should be framed. A second settings file would add a parallel settings boundary beside the resolver that already owns all settings and is already used by every caller. It would also only paper over the real gap. No ticket decision settles this point. Which direction should the design take?\n\nA) as framed: add a second settings file that carries the timeout override.\nB) pivot: change the existing caller to pass its timeout override through `settings/resolver.ts:11`. This fixes the root cause on the resolver that already supports the override, with one settings path and no new boundary.\nC) smaller or none: ship no settings change and document how to pass the timeout override through the existing resolver. If nothing ships, the timeout override stays missing for that caller.\n\nRecommendation: B - the resolver already accepts the override and every caller uses it, so fixing the caller removes the gap without duplicating the settings boundary.\n",
+      "words": 256,
+      "wallMs": 7756,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nThe draft’s claim that the existing resolver cannot accept overrides is contradicted by `settings/resolver.ts:11`, which already accepts a timeout override. Recon also confirmed that every caller uses that resolver. A second settings file would duplicate the existing settings boundary; changing the affected caller to pass its override addresses the root cause.\n\nWhich direction should we take?\nA) as framed - add a second settings file.\nB) pivot: pass the timeout override through the existing caller to the resolver.\nC) smaller or none: leave the current behavior unchanged.\nRecommendation: B - the resolver already supports the override, so fixing the caller avoids a duplicate settings boundary.\n",
-      "words": 105,
-      "wallMs": 4804,
+      "text": "gauntlet: question\nThe draft’s claim that the existing resolver cannot accept overrides is contradicted by `settings/resolver.ts:11`: it already accepts a timeout override, and primary-code recon verified that every caller uses that resolver. A second settings file would duplicate the existing settings boundary; passing the override through the existing caller addresses the root cause.\n\nWhich framing should guide the design?\nA) as framed - add a second settings file for the timeout override.\nB) pivot: pass the timeout override through the existing caller to the resolver - reuse the boundary that already supports it.\nC) smaller or none: leave behavior unchanged and document the missing override.\nRecommendation: B - the resolver already supports the required override, so the fix belongs in the caller rather than a parallel settings path.\n",
+      "words": 125,
+      "wallMs": 4549,
       "mechanical": {
         "first-line": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3964f84215fb650a3cadb08fbc0d1a2d61603f1da16a5e5a988f7bdd02a50e99",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "4d11b97a517a300f0d1d54b3b0316a34159fc4fa85cc2d53d4d3d8fadce59a99",
-      "candidateOutputSha": "4d11b97a517a300f0d1d54b3b0316a34159fc4fa85cc2d53d4d3d8fadce59a99",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "321c0ce7d9979ecf84bf0ddfa02eec1dad6b87c6616e109639bf1c93c9a19c1c",
+      "candidateOutputSha": "12e2f5e3fe54d5be86dabc3742c4711b8858081cd12ccd8a8482dc07d5b22586",
       "facts": {
         "correction": {
           "before": "holds",
@@ -58,16 +58,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are byte-identical for this continuation sample, so nothing moved. Both outputs open with the `gauntlet: question` marker, then correct the gathered draft's claim by citing `settings/resolver.ts:11` and its existing timeout-override support (and the caller trace) before any question is asked, satisfying correction. Both then render A) as framed, B) pivot through the existing resolver, and C) smaller or none on separate lines, close with a single `Recommendation: B - ...` line, and stop without producing approaches, satisfying framing. The After wording preserved every fact this case keeps; no adjustment to the Change is needed for this sample.",
-      "wallMs": 5753,
+      "feedback": "Both outputs keep both facts. Before and After each open with the `gauntlet: question` marker, then correct the draft's claim by citing `settings/resolver.ts:11` and its existing timeout override support (plus the every-caller trace) before asking the framing question; each then lists A) as framed, B) pivot to passing the override through the existing resolver, and C) smaller or none on separate lines, closes with a Recommendation line, and stops without producing approaches. After's wording changes are stylistic only: a more direct lead-in sentence, an explicit framing question (\"Which direction should the design take?\"), period-terminated option lines, and a blank line before Recommendation. None of these moved either fact, so no wording adjustment is needed for this case; if you want to be conservative, keep the colon-separated option lines and the own-line Recommendation exactly as they are, since those are what the framing fact keys on.",
+      "wallMs": 5325,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3964f84215fb650a3cadb08fbc0d1a2d61603f1da16a5e5a988f7bdd02a50e99",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "bec122d4b9675a9b1cf47b70c7d5bea8849058de9a1e15b75b431bda017a307b",
-      "candidateOutputSha": "bec122d4b9675a9b1cf47b70c7d5bea8849058de9a1e15b75b431bda017a307b",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "0f1bb92f133d95b5beb68feb269c880ba9f78526e75d8157f055d91052b6f8c0",
+      "candidateOutputSha": "ec19903eeb953f5e0665113dba312a9d37d847ff46253c0de81fb4402a46e853",
       "facts": {
         "correction": {
           "before": "holds",
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are byte-identical for this continuation case: both open with the `gauntlet: question` marker, correct the draft's premise by citing `settings/resolver.ts:11` and its existing timeout override support (plus the every-caller recon finding) before posing the framing question, then lay out A) as framed, B) pivot to passing the override through the existing resolver, and C) smaller or none on separate lines, closing with a single `Recommendation: B - ...` line and stopping to await the reply without producing approaches. Nothing in After moved either fact, so the enlarged amendment-surface assembly and wordCap change did not disturb the questionary premise/framing contract here; no wording adjustment is needed for this sample.",
-      "wallMs": 4469,
+      "feedback": "Both outputs keep both facts: each opens with the `gauntlet: question` marker, corrects the draft's claim by citing `settings/resolver.ts:11` and its existing timeout override support before asking the framing question, then lists A) as framed, B) pivot through the existing resolver/caller, and C) smaller or none on separate lines, closing with a Recommendation line and no approaches. After moved nothing; its only differences are wording (\"contradicted by\" vs \"disproved\", \"Which framing should guide the design?\" vs \"Which direction should we take?\", a hyphen instead of an em dash, and a C option that documents the missing override rather than leaving it fully untouched). If you want to tighten After, keep C strictly 'smaller or none' (leave behavior unchanged, add nothing) so it does not read as a fourth action, but as written both facts hold in both arms.",
+      "wallMs": 5624,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

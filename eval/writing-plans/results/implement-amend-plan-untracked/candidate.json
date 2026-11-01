@@ -34,47 +34,47 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "5a8d604b76eb3f92959655ba9a1adea10a28b61c587385885565f14e87039c69",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "d99b75b6d5992f4022b371b04b0edacc0e65b0dca4d03715bc9f72edc6b803c7",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "5577093f8a2396436ad15e3c40d34a079a5db6d2498c89cb628d5b1939c2b1ee",
       "candidateOutputSha": "5577093f8a2396436ad15e3c40d34a079a5db6d2498c89cb628d5b1939c2b1ee",
       "facts": {
         "write-free": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "marker": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves both facts to holds: it treats the failed `git -C /workspace/app show HEAD:doc/plans/new.md` read as terminal, writes neither spec nor plan, explicitly refuses the on-disk plan and `previousApplyReport` as inventory substitutes, fails closed in the jj-only comparison, and emits `passed: false` with `failLines[0]` starting `baseline read failed: git -C /workspace/app show HEAD:doc/plans/new.md` followed by the verbatim stderr line. Before failed both because it declared the HEAD miss a non-failure, rebuilt the inventory from the saved report, performed full-file writes to both files, and only produced a failure object in a conditional branch with a different, prose-style message. Nothing in After regressed; one minor sharpening would be to state in the jj-only section that the stderr fragment is not illustrative but the literal first line the failed command emits, so a reader does not mistake the parenthetical example for an approved ellipsis.",
-      "wallMs": 10875,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical, so no fact moved. Both outputs state \"Writes: None\", explicitly refuse the on-disk plan, previousApplyReport inventory, sidecars, and jj substitutes (jj file show), and describe the jj-only case as failing closed with no writes, so write-free holds in both. Both emit passed: false with failLines[0] = \"baseline read failed: git -C /workspace/app show HEAD:doc/plans/new.md - fatal: path 'doc/plans/new.md' exists on disk, but not in 'HEAD'\", which carries the exact command and the actual stderr line containing doc/plans/new.md with no ellipsis, so marker holds in both. The expected fails -> holds transition for this sample is not visible here because Before already satisfied both facts; the After wording preserves everything and delivers the Change's missing-originals/write-free/marker behavior. No wording adjustment is needed for this case.",
+      "wallMs": 8097,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5a8d604b76eb3f92959655ba9a1adea10a28b61c587385885565f14e87039c69",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "8b71108a005464a083ce3a0c29b2846aaaba2e0079b3ff96c832c86d65a5f922",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "c6210394a7960e8fd646df0ad54aad9b703004a9184560f5aa2391a2fc17b1a7",
       "candidateOutputSha": "c6210394a7960e8fd646df0ad54aad9b703004a9184560f5aa2391a2fc17b1a7",
       "facts": {
         "write-free": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "marker": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "Before failed both facts because it explicitly declined to require the committed original, substituted the saved previousApplyReport inventory for the failed HEAD read, and in the inventory-present branch went on to full-file-write both the spec and the plan; its failure line was also the generic 'Missing original inventory...' rather than the command/stderr marker. After moved both facts to holds: it attempts the committed-plan read, stops with no spec/plan writes, refuses both disk content and the saved report as substitutes, states that jj-only without git HEAD fails closed, and returns passed false with failLines[0] beginning 'baseline read failed: git -C ' followed by the real stderr line naming doc/plans/new.md with no ellipsis. One risk to tighten: the case and fact spell the command as `git -C /workspace/app show HEAD:doc/plans/new.md` without quotes, while After renders `git -C \"/workspace/app\"`; a stricter reader could call that not literally exact, so emit the command unquoted (verbatim as supplied) in both the bash block and failLines[0] to keep the marker fact robust while preserving everything else in the current wording.",
-      "wallMs": 15565,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical for this sample, so no fact moved here: both stop without writing, refuse to substitute disk content or previousApplyReport, state that a jj-only checkout without git HEAD also fails closed with no writes, and return passed false with failLines[0] starting 'baseline read failed: git -C ' followed by the real command and the actual stderr line rather than an ellipsis. The only point a strict reader might quibble over is that the command is rendered with the home path quoted (git -C \"/workspace/app\" ...) rather than the bare git -C /workspace/app form named in the fact; if the author wants the marker to be unambiguously 'exact', have the After wording instruct the model to reproduce the command string verbatim as issued (no added shell quoting) while keeping the existing stop/no-write/jj-only language unchanged.",
+      "wallMs": 11898,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f2bb79333df2efe53ad1115460a9ddc5c3220347f39f2ad480fb4c0fa99b28c1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "22198e0a575bbc94042f3eb6c193d0239b9c681a7879bc1852e6837c2d28be5b",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "3e1b6b3a22c7b7252df8fc10866f9d3d6317319211cdeb59b596dc49c7c38c5a",
       "candidateOutputSha": "3e1b6b3a22c7b7252df8fc10866f9d3d6317319211cdeb59b596dc49c7c38c5a",
       "facts": {
         "original-command": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps the Tests command `node --test tests/hook.test.ts` unchanged, records the Task 1 / abc1234 / exit 1 / existing-config-resolution-failed row under Open Questions, records no passing baseline evidence and attempts no repair of the existing failure, and ends with the OPEN QUESTIONS line. Two incidental drifts are worth tightening in the After wording so they do not regress other samples: the Files block lost the `Modify: tests/hook.test.ts` line even though the task edits that existing test file (keep both Modify lines plus the Test line), and the provenance now says 'admitted in-flight paths: none' whereas Before explicitly listed the plan/spec workflow paths as admitted — wording like 'admitted workflow paths: doc/specs/hook.md, doc/plans/hook.md (none dirty)' preserves the exact-path admission inventory the baseline-untracked-paths change asks for. Placing the provenance paragraph after the Open Questions section is fine, but keeping it adjacent to the header (as Before did) makes the 'top' row and provenance easier to locate together.",
-      "wallMs": 12424,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both keep the Tests command `node --test tests/hook.test.ts` unnarrowed, both open with an Open Questions row naming Task 1, the original command, base abc1234, exit 1 and the `existing config resolution failed` summary, both record provenance without a passing baseline bullet and without any repair rounds or fix for the existing failure (Step 4 only notes the dependency on resolving the open row), and both end on `OPEN QUESTIONS /work/app/doc/plans/hook.md`. The After wording delivered the Change here without disturbing anything; keep the current structure where the failing-command provenance lives in a prose paragraph that explicitly states no passing baseline evidence is recorded, rather than a baseline bullet, and keep the terminal OPEN QUESTIONS line unchanged.",
+      "wallMs": 8243,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f2bb79333df2efe53ad1115460a9ddc5c3220347f39f2ad480fb4c0fa99b28c1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "2da5e5c3267e1429aee3351e063327f024fa15f43439c1877bf7bc09a0d634cc",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "ccb33682f339a410499c118ab182df8f4cdfad0c484ba9e2045ececc35d0acc4",
       "candidateOutputSha": "ccb33682f339a410499c118ab182df8f4cdfad0c484ba9e2045ececc35d0acc4",
       "facts": {
         "original-command": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs keep the unchanged Tests command, carry the Task 1 / command / abc1234 / exit 1 / existing-config-resolution row in Open Questions, attach no baseline bullet to the failing command, author no repair or fix for the existing failure, and end with the OPEN QUESTIONS line. After actually tightens the no-evidence-fiction reading by routing resolution explicitly through the parent workflow in Step 1 rather than Before's 'resolve the baseline blocker' phrasing, which a strict reader could mistake for an instruction to the implementer to fix the existing test. Two small risks worth guarding in After's wording: the Spec/Verification metadata now sits above Open Questions, so keep the Open Questions heading as the first section (or move the metadata into Overview as Before did) to protect a literal 'top' reading of failure-row, and keep the baseline provenance paragraph's 'no passing baseline evidence' sentence so a reader never infers a baseline bullet was omitted rather than withheld.",
-      "wallMs": 13665,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both keep the Tests command `node --test tests/hook.test.ts` unnarrowed, both open with an Open Questions row naming Task 1, the command, base abc1234, exit 1 and the existing config resolution failure summary, neither attaches a baseline bullet to the failing command or narrates repair rounds or a fix for the pre-existing failure (Step 1 explicitly defers to the parent workflow), and both end with `OPEN QUESTIONS /work/app/doc/plans/hook.md`. The Expected-to-move list anticipated failure-row and no-evidence-fiction going from fails to holds, but Before already satisfied them, so the After wording delivers no observable delta here; if the author wants this sample to demonstrate the Change, the Before output is not a discriminating control and a different base case (e.g., one where the prior wording actually produced a fabricated baseline bullet or a narrowed command) would be needed to show the improvement.",
+      "wallMs": 9955,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

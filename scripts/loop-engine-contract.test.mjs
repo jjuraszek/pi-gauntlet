@@ -569,6 +569,63 @@ test('configuration-allowance: binding documentation describes the single allowa
   }
 });
 
+test('eval-allowance-contract: approved fixtures retain IDs and exercise the allowance protocol', () => {
+  const inventory = {
+    'loop-implementation/scaled-cap-grant': ['rows +50', 'allowance:4', 'retry 24'],
+    'loop-implementation/cap-and-exit-verification': ['iterations:200', 'allowance:2'],
+    'loop-implementation/funding': ['rows +2', 'fund 2 fix rounds'],
+    'loop-implementation/legacy-cap': ['cap97', 'maxIterationsPerRow4', 'unavailable loopEngine settings tool'],
+    'loop-implementation/row-progress': ['allowance:4'],
+    'loop-implementation/stagnation-and-retry': ['allowance:3', 'allowance:8', 'failed attempts3, below its allowance'],
+    'loop-implementation/leg-iteration': ['allowance 4'],
+    'loop-implementation/leg-resume': ['allowance: 4'],
+    'loop-implementation/commit-boundary': ['allowance:1'],
+    'loop-implementation/decision-repair': ['sufficient row allowance'],
+    'loop-implementation/tracker-refresh': ['allowance 4'],
+    'brainstorming/loop-gate': ['maxIterationsPerRow'],
+    'brainstorming/loop-funded-reply': ['allowance'],
+    'brainstorming/loop-ledger-amend': ['allowance'],
+    'brainstorming/engine-waves': ['fund 2 fix rounds'],
+    'gauntlet-resume/loop-ledger-brief': ['allowance:4'],
+    'gauntlet-resume/loop-ledger-worktree': ['allowance:4'],
+    'gauntlet-resume/ledger-tracker-recovery': ['allowance:4'],
+    'gauntlet-resume/ledger-tracker-verify': ['allowance:4', 'row 3 | 2/5: Verify loop behavior and recovery', 'row 3 | 2/6: Verify loop behavior and recovery', '2/5: row 3'],
+    'gauntlet-handoff/ledger-task-list': ['allowance4', 'row 1 | 0/4: Verify loop behavior and recovery', 'row 2 | Reject malformed allowance replies'],
+    'gauntlet-resume/legacy-cap-brief': ['cap:'],
+  };
+  for (const target of ['spec-gate', 'brainstorming']) {
+    const gateReplay = readFileSync(new URL(`eval/${target}/replay.md`, root), 'utf8');
+    assert.match(gateReplay, /gauntlet_setting\(\{ key: "loopEngine" \}\) (?:already )?returned maxIterationsPerRow: 4/);
+  }
+  for (const [id, tokens] of Object.entries(inventory)) {
+    const [target, sample] = id.split('/');
+    const dir = new URL(`eval/${target}/samples/${sample}/`, root);
+    const input = readFileSync(new URL('case.md', dir), 'utf8');
+    const expected = readFileSync(new URL('expected.md', dir), 'utf8');
+    for (const token of tokens) assert.ok(input.includes(token), `${id}: ${token}`);
+    assert.match(expected, /^- [\w-]+: judged:/m, `${id}: judged facts`);
+    if (!sample.startsWith('legacy-')) assert.doesNotMatch(input, /\bcap:\s*\d|iterations \d+, cap \d/);
+  }
+  const scaled = readFileSync(new URL('eval/loop-implementation/samples/scaled-cap-grant/expected.md', root), 'utf8');
+  for (const id of ['stop', 'grant', 'parse', 'independent', 'windows', 'entry', 'validation']) {
+    assert.match(scaled, new RegExp(`^- ${id}: judged:`, 'm'), `preserve scaled-cap-grant/${id}`);
+  }
+  assert.match(scaled, /allowance:54/);
+  assert.match(scaled, /allowed attempts 5/);
+  assert.doesNotMatch(scaled, /total-cap stop|loop: raise cap/);
+  const funding = readFileSync(new URL('eval/loop-implementation/samples/funding/expected.md', root), 'utf8');
+  assert.ok(funding.includes('row 1 retry | inspect delimiter | allowed attempts 5'));
+  const stagnation = readFileSync(new URL('eval/loop-implementation/samples/stagnation-and-retry/expected.md', root), 'utf8');
+  assert.match(stagnation, /allowed attempts9, keeps attempts3 and header8/);
+  const labels = readFileSync(new URL('eval/gauntlet-resume/samples/ledger-tracker-verify/expected.md', root), 'utf8');
+  assert.match(labels, /canonical ledger identity separately from the description suffix before init and snapshot comparison/);
+  assert.ok(labels.includes('row 3 | 2/6: Verify loop behavior and recovery'));
+  assert.match(labels, /cut row2 retains its criterion description without an attempt prefix/);
+  for (const target of ['loop-implementation', 'gauntlet-resume', 'gauntlet-handoff', 'brainstorming', 'spec-gate', 'writing-plans']) {
+    assert.deepEqual(lintTarget(new URL(`eval/${target}`, root).pathname), [], target);
+  }
+});
+
 test('configuration-allowance: documented gate and entry behavior matches instruction sources', () => {
   const gate = readFileSync(new URL('skills/brainstorming/reference/spec-finalization.md', root), 'utf8');
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');

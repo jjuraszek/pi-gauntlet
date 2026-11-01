@@ -40,8 +40,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "399c6bdbef70f126e6c3e53c7e7890838841bc6915d1d561b8d78ed322780451",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "757c8a4f7f1e3b0c9e14cf3d4c67967100dc4f5b219b1610a9b36f3011ddd5b6",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "2e9fc673b439e439ace5f9c4f28f7997920d9f3b55500564d1508fa615b011cf",
       "candidateOutputSha": "2e9fc673b439e439ace5f9c4f28f7997920d9f3b55500564d1508fa615b011cf",
       "facts": {
         "f3": {
@@ -75,15 +75,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After keeps the single fresh, async-false plan-writer dispatch with acceptance none, no output field, and all three paths in the task text; plan_check still runs on the plan path after the child reply and before the read; no scout, no plan body text; one read, then plan_tracker init with the three W1/W1/W2 titles in order, then a direct /skill:subagent-driven-development invocation with no mode selection. The only new material is the git status/add/commit block placed between the plan read and tracker init, which is exactly what the Change asks for (after parent PASS, before initialization, plan path only). Two cautions: f5's 'writes or edits no file' is held here on the reading that a commit is not a file write/edit, but a stricter judge could balk — adding a sentence like 'the commit touches no working-tree content; I write or edit no file' would close that gap; and f6's 'reads once, then init' tolerates the intervening commit, but keeping the commit block clearly labeled as the handoff step (as After does) avoids any impression of a second read or an out-of-order init. Note Before already satisfied f6 as written, so the 'fails -> holds' expectation for fresh-child-authors-plan/f6 is not visible in this pair.",
-      "wallMs": 18603,
+      "feedback": "Before and After are textually identical, so no fact moved. Both narrations dispatch one fresh, sync plan-writer with acceptance level none, no output field, and spec/plan/worktree paths in the task (f3); call plan_check on the plan path after the PLAN WRITTEN reply and before the single plan read and tracker init (f4); dispatch no scout, perform no file writes or edits (the plan-only git add/commit is not a file edit, and it sits after PASS and before tracker init as the Change requires), and quote only wave/task titles rather than plan body (f5); and read the plan once, init exactly the three W1/W1/W2 tasks in wave order, then directly invoke /skill:subagent-driven-development without any mode selection (f6). The expected f6 fails->holds move is not visible here because Before already satisfied it; if the author intended to demonstrate the new wording's effect on this sample, the After output needs to differ from Before — as written, the After wording preserves every fact and delivers the plan-commit and direct-handoff behavior, so no wording adjustment is needed for this case.",
+      "wallMs": 12516,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "399c6bdbef70f126e6c3e53c7e7890838841bc6915d1d561b8d78ed322780451",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "c27a4e1493c5aa89833f9f06bbe9862bf85c7a610e0471e13c1a5294ebc0ece1",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "c035da5568a9dd45c6ee746bc13432906cbbe7992b331cc29b24163e0b43fc43",
       "candidateOutputSha": "c035da5568a9dd45c6ee746bc13432906cbbe7992b331cc29b24163e0b43fc43",
       "facts": {
         "f3": {
@@ -117,10 +117,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing regressed between Before and After for this case: both narrate one fresh, synchronous plan-writer dispatch with acceptance level none and no output field, run plan_check on the plan path right after the child reply and before the read, read the plan once, init plan_tracker with the three W1/W1/W2 tasks in order, and invoke /skill:subagent-driven-development without picking an execution mode. The only substantive addition in After is step 7's conditional git status/add/commit of the plan file, placed after the single plan read and before plan_tracker init, which matches the Change's 'commit only the plan after parent PASS and before tracker initialization' without constituting a file write or edit by the parent, and it correctly stops without initializing or invoking on any git failure. Neither output ever selected a mode, so f6 already held in Before; the wording that keeps all four facts is exactly what After does: keep the commit block self-contained between the plan read and `phase_tracker complete`/`plan_tracker init`, keep it scoped to the plan path only, and keep the handoff sentence as a direct invocation with no mode or confirmation language.",
-      "wallMs": 16571,
+      "feedback": "Before and After are textually identical, so no fact moved. Both outputs make a single synchronous fresh-context plan-writer dispatch with the acceptance level none line, no output field, and a task naming the spec, plan, and worktree paths (f3); run plan_check on the plan path right after the child reply and before the single plan read and tracker init (f4); dispatch no scout, author no file content, and list only wave-prefixed task titles rather than steps, code, or Files blocks (f5); and read the plan once, init plan_tracker with the three W1/W1/W2 titles in order, and immediately invoke /skill:subagent-driven-development with no mode selection (f6). The only element worth watching is step 7's conditional plan-only git add/commit sitting between the read and the init; it is scoped to the plan path and stops on failure, so it does not break f5 or f6, but if a future wording lets the commit stage anything beyond the plan file or inserts an approval or mode prompt before the executor invocation, f5 and f6 would regress. The expected fails->holds movement for f6 is not visible here because Before already delivers the direct handoff.",
+      "wallMs": 15398,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

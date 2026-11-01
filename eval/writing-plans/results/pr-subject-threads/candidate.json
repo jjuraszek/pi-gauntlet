@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f182cb9fb041242ae2964f598f0f8b812151ffde30102ab896e2daf20fa4904a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "e46f1a8eafc81ef14683893aba867532d27a79ca785f9c316de94a929faed0a2",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "20ee6c2ff172e6f9b802d04541476ab5536ea59d6b6be2cc473bd9b0fd309d12",
       "candidateOutputSha": "20ee6c2ff172e6f9b802d04541476ab5536ea59d6b6be2cc473bd9b0fd309d12",
       "facts": {
         "merge-first": {
@@ -74,15 +74,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved between Before and After; both outputs already satisfy every pr-subject-threads fact, so the 'fails -> holds' expectation for this sample is not borne out by the Before text (it already had merge-form Task 1 first, one id-titled task per fix thread with the correct via seam, no tasks for keep-open/declined threads, a header of only `npm run lint && npm run format:check`, a verify union of task Tests plus header commands with fresh-evidence policy, the literal `none - PR subject, scoped` sentinel treated as non-executable, and PR-policy selection from the Rework record only with full verification for ordinary specs). After keeps all of that and adds useful explicit statements (merge-form vs rebase/in-place distinction, anchored Design lines, 'header alone is not the verification set', zero-test failure under the sentinel). Two small things to watch so later edits don't regress: After drops `Modify: tests/retry.test.mjs` / `tests/delay.test.mjs` from Tasks 2 and 3 even though their steps write new failing tests, and it adds `via: retryRequest()` to the merge task, which could be misread as the merge task owning the THREAD_timeout seam; restoring the Modify lines and dropping the via line on Task 1 would keep thread-tasks and merge-first unambiguous while still delivering the Change's merge-form/in-place and union-plus-header wording.",
-      "wallMs": 16953,
+      "feedback": "Before and After are textually identical, so nothing moved: both already place the merge/resolve of src/retry.mjs as Task 1 keeping original commits, create exactly one id-titled fix task each for THREAD_timeout (via retryRequest(), node --test tests/retry.test.mjs) and THREAD_delay (via retryDelay(), node --test tests/delay.test.mjs), record THREAD_metrics as keep-open and THREAD_rewrite as declined with no repair tasks, keep the header to `npm run lint && npm run format:check` with neither npm test nor either task command, state verify as the union of all task Tests commands (including the merge task's) plus the header lint/format commands with no full-suite claim, give the literal `none - PR subject, scoped` sentinel as non-executable while still running the task Tests union, and select PR policy only from the Rework record while retaining freshness, conformance and phase gates for ordinary specs. The Expected-to-move list anticipated the pr-subject-threads facts flipping fails -> holds, but Before already satisfied all seven, so the After wording is confirmed as non-regressing here; no wording adjustment is needed for this case, and the author should verify the fails baseline against a different Before sample if a fails -> holds transition was expected.",
+      "wallMs": 12312,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f182cb9fb041242ae2964f598f0f8b812151ffde30102ab896e2daf20fa4904a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "949fcd2022046c5546f05f333e3f59d95e070d9be3f18e0b54f52690cd5de64e",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "87c46d3f8de75e1c71c1f767c9a4ad8a10aae32403c8e9ea9fc826919ac7ea29",
       "candidateOutputSha": "87c46d3f8de75e1c71c1f767c9a4ad8a10aae32403c8e9ea9fc826919ac7ea29",
       "facts": {
         "merge-first": {
@@ -121,8 +121,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved no fact; every pr-subject-threads fact that Before kept is also kept in After. Both outputs put the origin/main merge and src/retry.mjs resolution as a lone Wave 1 task that preserves original commits, produce exactly one id-titled fix task per THREAD_timeout and THREAD_delay with scoped `node --test` commands and the retryRequest()/retryDelay() via seams, leave THREAD_metrics open and THREAD_rewrite declined without repair tasks, place only `npm run lint` && `npm run format:check` in the Verification header (no task test command, no npm test), run the deduplicated union of all task Tests commands plus header lint/format at verify while labeling the 702a851 passes as baseline rather than fresh evidence, give the literal `none - PR subject, scoped` sentinel as a non-executable value that still runs the task Tests union, and select PR policy only from the approved spec's Rework record while keeping ordinary full verification and freshness/conformance/phase gates for ticket/free-text specs even with an open PR. After's additions — the full header block with Goal/Architecture/Tech Stack, the explicit 'not because the branch has an open PR' selection rationale, and the explicit note that the sentinel cannot skip freshness, conformance, or phase gates — strengthen ordinary-gates and sentinel without disturbing anything; the only thing to watch is that the expanded header block stays free of any test command, which it does. No wording change is needed to retain these facts.",
-      "wallMs": 15653,
+      "feedback": "The Before and After outputs are textually identical, so no fact moved: both place the origin/main merge with src/retry.mjs resolution as Task 1 in Wave 1 preserving original commits; both create exactly Task 2 (THREAD_timeout, via retryRequest(), node --test tests/retry.test.mjs) and Task 3 (THREAD_delay, via retryDelay(), node --test tests/delay.test.mjs) with no tasks for THREAD_metrics (keep open) or THREAD_rewrite (declined); both keep the header as `npm run lint` && `npm run format:check` with npm test and task commands excluded; both state the verify set as the deduplicated union of all task Tests commands including Task 1's plus the header commands, framed as scoped baseline-plus-fresh evidence rather than full-suite; both give the literal `none - PR subject, scoped` sentinel meaning no executable header command while still running the two task tests; and both select PR policy from the Rework record only, keep full verification (npm test, lint, format:check) for ordinary specs even with an open PR, and retain freshness, conformance and phase gates. The expected fails->holds transitions for pr-subject-threads are not visible as a change here because Before already satisfied every fact; the After wording introduces no regressions, and nothing needs rewording to deliver the Change for this sample.",
+      "wallMs": 11650,
       "verdict": "unchanged"
     }
   },
@@ -416,5 +416,5 @@
       }
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

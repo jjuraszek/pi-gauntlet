@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "73546a37e8e496708f82bd3ed80feda841afd3d244ff838ed4d79efd8fb62e3b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bf950bd163469c709452c46b35e5fca88b449770df1020f1fe1d132f03c9b87a",
+      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
       "baselineOutputSha": "0ead573788625529001b8592fe65e95ccc91397cb5be04c41c569c7cfdd04961",
       "candidateOutputSha": "62e39b349160c4e5ade6a55b02e97a3957b2b2a9e53e99e72c4c73c6a5221bc0",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After delivers the Change cleanly: the shared fresh-entry rule places the carrier read at Entry step 4 in the invoking approval turn, A and C both seed `iterations: 0` then `allowance: 6` and print `allowance: 6 (reply)` with the setting explicitly overridden, B falls back to `allowance: 7 (setting)` without inventing a carrier, C states one unscaled shared header for three entries/two legs, and D keeps `allowance: 9`/`iterations: 8`/both attempt cells, ignores the old carrier and settings, and performs no seeding, echo, lookup or rewrite. Before failed reply/setting/coordinated only because it had no carrier or `allowance:` header at all (it computed `cap: 15`/`cap: 23` and echoed the verification command), while its D narration still left the admitted ledger untouched and stated persistence in the ledger only, so resume and persistence hold on both sides. Nothing regressed; if you want the step-4 attribution even more robust, repeat 'Entry step 4' inside the A and C snapshots rather than only in the shared rule, and in D drop the 'plus any retry decisions' aside, since none exist in the supplied ledger and it slightly blurs the 'authoritative value' answer.",
-      "wallMs": 24295,
+      "feedback": "After delivers the Change cleanly: the shared fresh-entry rule names Entry step 4 as the carrier read point in the invoking approval turn, says the carrier overrides the setting, seeds `iterations: 0` then `allowance: <n>`, and prints a separate `allowance: <n> (reply|setting)` echo, so reply, setting and coordinated all move from fails to holds; C explicitly refuses to scale the one shared header by entries, legs or seeds. D keeps `allowance: 9`, `iterations: 8` and both attempt cells unchanged, skips seeding, settings lookup, echo and header rewrite, and ignores the old carrier, so resume stays holds; persistence stays holds because the value is written only to the ledger header and the text says nothing goes to spec or settings. No fact regressed. Two small hardening suggestions: repeat 'at Entry step 4' inside each of A/B/C's `Carrier:` bullets rather than only in the shared rule, so a per-case reader cannot miss it, and in D avoid the phrase 'effective allowance of 9 plus any retry decisions' unless the snapshot supplies Decisions, since it edges toward inventing counts; 'effective allowance 9 (no retry decisions supplied)' keeps the fact observable without extrapolation.",
+      "wallMs": 24435,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "73546a37e8e496708f82bd3ed80feda841afd3d244ff838ed4d79efd8fb62e3b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bf950bd163469c709452c46b35e5fca88b449770df1020f1fe1d132f03c9b87a",
+      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
       "baselineOutputSha": "5873121db4fa85de369e23928935492d75a2ce77a34550c91ebb37f422fbebdc",
       "candidateOutputSha": "57eed3c3f559680f806b255823b1c10850c5be4da638200edfebf1d9ee701d22",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After delivers the Change cleanly: A and C read the literal `run allowance: 6` carrier at Entry step 4 from the invoking approval turn, seed `iterations: 0` followed by `allowance: 6`, print the separate `allowance: 6 (reply)` echo, and explicitly state the setting (7) does not win and the value is not scaled by rows or entries; B falls back to `allowance: 7 (setting)` without inventing a carrier. D keeps `allowance: 9` / `iterations: 8` and both attempts, ignores the old carrier, and lists no seeding, no settings lookup, no echo and no header rewrite — the same preservation Before gave under the cap contract, now expressed against the allowance header. Persistence is stated more strongly than Before (ledger only, never spec or settings). Nothing regressed; one small tightening for D would be to say explicitly that current settings (7) are ignored alongside the carrier, so the 'ignores settings' half of the resume fact is literally visible rather than inferred from 'no settings lookup'.",
-      "wallMs": 15727,
+      "feedback": "After delivers the Change cleanly: A and C now read the literal `run allowance: 6` carrier at Entry step 4 from the invoking approval turn, seed `iterations: 0` directly followed by `allowance: 6`, and print the separate `allowance: 6 (reply)` echo while explicitly stating the setting's 7 is overridden; B falls back to `allowance: 7 (setting)` without inventing a carrier; C keeps one shared header and says the value is not multiplied by entries or seed dispatches. Before failed these three because its driver only knew `cap:` (seeding 15/23 and declaring no echo prescribed). D regressed nothing: After keeps allowance 9, iterations 8 and both attempts, ignores the old carrier and settings, and performs no seeding, echo, lookup or rewrite—an improvement over Before, which preserved state but misreported the ledger as missing a `cap:` line. Persistence is now stated explicitly (ledger only, not spec or settings). To keep all facts in future revisions, retain the exact adjacent-line header blocks, the separate `(reply)`/`(setting)` echo lines, the 'not multiplied' sentence for A/B/C, and D's explicit five-item negative list; optionally add one sentence in D noting the carrier would only ever be read from an invoking approval turn at fresh entry, to make the persistence fact fully explicit across all four observations.",
+      "wallMs": 18196,
       "verdict": "improved"
     }
   },
-  "repoSha": "77e700b797b595fa33a141a61ac13c74129eb677"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

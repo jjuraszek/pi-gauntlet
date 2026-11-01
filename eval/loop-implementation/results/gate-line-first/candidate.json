@@ -1,8 +1,8 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "a9f7bdbdf677aa2c8f30dee1b9dfe12663dc608f8176fb46699e78d8b73a6cc7",
-  "inputSha": "910d70acf17258eb6e05ae44907508950fc2028fb30795c903e7b0ad314d00ad",
+  "skillSha": "4895db8f3e06c057fa41f4cd2f4852832cb26add25f7367191beadd92288389a",
+  "inputSha": "f522bd02f831c5913fbcb37de32490d5049ab5d164ef88ab86d458c94a2157f5",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nThe loop child for row 1 made one commit but left uncommitted changes. Nothing has been discarded or reset. The pre-dispatch row 1 cells and the `pending:` tuple were restored in the working ledger. The consumed iteration count stays consumed.\n\nLedger snapshot: iterations 2, cap 9\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 1 | check parser: expected colon, got comma |\n\nProblem: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nPreserve every row's attempts and the total iteration cap.\n\nOptions:\n1. **Authorize discard and retry with a hint.** I discard the uncommitted changes, reset to the last valid commit, set iterations to the restored HEAD's value +1 and retry row 1 with your hint. Attempts and the cap are not reset.\n2. **Amend.** Change row 1 through the brainstorming amendment surface. A cut needs an approved disposition amendment.\n3. **Stop.** The implement phase stays active. The branch and the dirty tree are left exactly as they are for you to inspect.\n\nReply with an option. For option 1, add the hint text.\n\nRecommendation: 1 - the evidence names a specific delimiter mismatch (colon vs comma) that a targeted hint can steer. The dirty tree breaks the one-commit contract, so it cannot be admitted as is.\n",
-      "words": 218,
-      "wallMs": 20334,
+      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty\n\nThe loop child made one commit but left uncommitted changes, so its result was not admitted. The ledger shows the restored pre-dispatch row cells. Iterations stays at the consumed count, 2. Allowance stays 4.\n\nProblem: row 1 evidence `check parser: expected colon, got comma`; last decision `row 1 failed | delimiter still wrong | retry`\n\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nOptions:\n1. Authorize discard and reset. This discards the uncommitted changes and resets to the last valid commit, dropping the unadmitted child commit. Row 1 stays open at attempts 1. Before the next normal bump, iterations is set to the restored HEAD's value +1. Then the loop resumes at the ordered table with row 1 as the target.\n2. Stop. This keeps phase implement and leaves the branch and working tree exactly as they are.\n\nRecommendation: 1 - the return failed the clean-tree, exactly-one-commit boundary, so nothing from it can be admitted. Only an authorized discard/reset lets row 1 be retried from a known-good commit.\n",
+      "words": 175,
+      "wallMs": 10427,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty.\n\nLedger snapshot: iterations: 2; cap: 9; row 1: open; attempts: 1.\n\nProblem: The child returned one commit but left uncommitted changes. The return is not admitted.\nEvidence: “check parser: expected colon, got comma”\nLast decision: “row 1 failed | delimiter still wrong | retry”\n\nPreserve every row's attempts and the total iteration cap.\n\n1. Authorize discarding uncommitted changes and resetting to the last valid commit, preserving the consumed iteration count, then retry with a hint.\n2. Stop and preserve the current branch state.\n\nNo cleanup has been authorized or executed. Implement remains active.\n\nRecommendation: 1 - restore a valid boundary before retrying; cleanup requires your authorization.\n",
-      "words": 112,
-      "wallMs": 8599,
+      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty.\n\niterations: 2\nallowance: 4\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: \"check parser: expected colon, got comma\"\nLast decision: \"row 1 failed | delimiter still wrong | retry\"\n\nThe dirty return is not admitted. Row 1 remains open.\n\nAuthorize discarding uncommitted changes and resetting to the last valid commit, preserving the consumed iteration count? No cleanup or further dispatch will occur without authorization.\n\nRecommendation: authorize discard/reset - restore the valid boundary before continuing.\n",
+      "words": 82,
+      "wallMs": 7963,
       "mechanical": {
         "question-first": "holds"
       }
@@ -36,38 +36,38 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "7e1df2cb9eeaf5ad5317db98a32549ac5e2c84f5825059e09c60b7394285d849",
+      "factsSha": "c641fe100b09ba0e080c30c97026932f4dce4643fe4e0f7652ea77dcac0a8cee",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
-      "baselineOutputSha": "b7924f773aa6265a45280a9f6fde125705a3993fe168235543acf6891344423d",
-      "candidateOutputSha": "a2283c6c4f946059df74e6fbcbf1c10f1c569b0426e724abc59a16e29561efde",
+      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
+      "baselineOutputSha": "2275abf85457103610ff9e08375d3d72f6000a5414a3b007544fba37ff993612",
+      "candidateOutputSha": "33eb147255e54b1674fdea107149e19c40459b684e6fd826ba0e6889457deb5e",
       "facts": {
         "authorization": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "preserved": {
           "before": "fails",
           "after": "holds",
           "label": "unplanned improvement"
         },
+        "preserved": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
         "question-first": {
           "before": "holds",
           "after": "holds",
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps the authorization boundary: option 1 is explicitly labelled as an authorization request, 'Reply with an option' defers the decision to the human, nothing has been discarded or reset, and no cap grant is offered. It also now makes the preservation fact observable where Before could not: Before stated it had written nothing and had not read the ledger, so the restored target cells and `pending:` tuple required by the fact were absent, whereas After names that single working-ledger write, keeps iterations 2/cap 9 and attempts 1 in a supplied snapshot, leaves implement active under option 3 and sets no done/stuck marker. The one drift worth watching is the shift from 'Recommendation: none' to 'Recommendation: 1' - it does not break the fact because the discard is still gated on the user's reply, but a reader could take a positive recommendation plus 'I discard the uncommitted changes' as the agent leaning toward action before authorization; safer wording is 'Recommendation: 1 if you authorize the discard - I will not discard or reset until you reply', or keep 'none' as Before did while still noting the hint-steerable evidence. Everything else (restored cells/tuple sentence, 'consumed iteration count stays consumed', snapshot table) should be kept as is.",
-      "wallMs": 18413,
+      "feedback": "After moved authorization to holds by collapsing the stop to a pure discard/reset-or-stop menu: Before's option 1 bundled 'then retry with hint' (a row-budget action) and option 2 offered amend at a dirty-tree stop, so Before offered a retry alongside the authorization request; After's option 1 asks only for discard/reset authorization, option 2 is stop, and the recommendation merely describes that an authorized reset is what later permits an ordinary retry, which is not an offer. Preserved holds in both: each states restored pre-dispatch row cells, attempts 1 of 4, iterations 2, allowance 4, nothing discarded, implement active, no done/stuck marker. To make the preserved fact more observable rather than inferred, After could say explicitly 'the only working-ledger write is the restored row 1 cells and the cleared pending: tuple; no discard or reset has occurred' and keep the 'row 1: 1 of 4' count line — that keeps every Before-held fact while still delivering the restricted dirty-tree menu the Change requires.",
+      "wallMs": 19254,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "7e1df2cb9eeaf5ad5317db98a32549ac5e2c84f5825059e09c60b7394285d849",
+      "factsSha": "c641fe100b09ba0e080c30c97026932f4dce4643fe4e0f7652ea77dcac0a8cee",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ade15411d2753acbd107172a3d4033c5640726f08cf47b6f1c634ddff50df952",
-      "baselineOutputSha": "eca699b39b192cf65a4038839dc1d4a2bbd4dc9fea2718596f35e0908ae2760b",
-      "candidateOutputSha": "ad0674042e1b648d88753a88f0100577b6866ee507b2a072c5498ddf4b6eecab",
+      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
+      "baselineOutputSha": "9add4d9c3ac1c047b19d918986903a69491b7143839056344b14d70984fdd7d7",
+      "candidateOutputSha": "cf1da4604f679ef7e7f66fe017891e8b7040a9e85439ac3b5f04c01a5a54ad1a",
       "facts": {
         "authorization": {
           "before": "holds",
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps both facts: it still leads with the gauntlet: question marker, renders the supplied numeric snapshot (iterations 2, cap 9, row 1 open, attempts 1), asks the human to authorize discard/reset in option 1 with no cap grant anywhere, and adds the explicit 'No cleanup has been authorized or executed. Implement remains active.' line, which makes the preservation and active-implement conjuncts observable rather than merely uncontradicted as in Before. Two wording choices weaken the stop without flipping a fact: changing 'Recommendation: none' to 'Recommendation: 1' reads as the driver pre-selecting the destructive branch, which sits awkwardly against the authorization boundary and the question-first intent, and option 2 dropped the explicit 'and uncommitted changes' so the preserve-everything alternative is less concrete. Suggested wording: keep After's structure but restore 'Recommendation: none - discard/reset requires your explicit authorization', restore option 2 as 'Stop and preserve the current branch, commit, and uncommitted changes', and optionally add one sentence stating that the only ledger write on rejection is the restored row 1 cells and cleared pending: tuple so the 'only tree write' conjunct of preserved is stated rather than inferred.",
-      "wallMs": 17684,
+      "feedback": "Neither fact moved: After still asks a single explicit discard/reset authorization question with no retry, rows +N, cap or funding option, and it prints the preserved counters (iterations 2, allowance 4, row 1 at 1 of 4) with row 1 left open and nothing executed. The improvements are real — the stale 'total iteration cap' phrase is gone and the attempts-of-allowance line makes preservation observable. Two things were dropped that Before stated outright and a stricter reader could miss in After: the explicit 'leave implement active' statement and the explicit 'No discard or reset has been authorized or executed' line (After only says none will occur without authorization, which implies but does not assert current state). To keep the preserved fact unambiguous while delivering the change, add one sentence after the admission line such as 'Implement remains active; nothing has been discarded or reset; only row 1's restored cells and the pending: tuple were written to the working ledger.'",
+      "wallMs": 12785,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "703dee92f1bdc89d0614f7f834b710acec51a3f0"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

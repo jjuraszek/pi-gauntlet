@@ -2,7 +2,7 @@
   "sample": "multi-repo-bad-sibling",
   "arm": "candidate",
   "skillSha": "ec95ad6b360b0ada43ea1b7faebb8a36e60aa6aebc5f3f758ae52904fa52c0b3",
-  "inputSha": "a2cb3664406df686adc6e4fe0010bd2fd4ef449264140f8fb5e8ab4425fe7d6a",
+  "inputSha": "298887c2c269241dcacbc49e1051cca5cb61a5443c7edb451bcf541babe7ae50",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Runs A, B, and C: all stop before worktree setup\n\nNone of these runs reaches checklist step 4, so none has a first questionary message or an approaches message. The ask explicitly selects repo-b, which makes the `## shape-ticket` declaration `- sibling: git@github.com:acme/repo-b.git` a selected companion. Its PATH is `/work/repo-b`, which is `<home PRIMARY parent>/<NAME>`. Every selected declaration must pass validation before any tree is created. Each run fails that check, so each one ends with a blocking error and creates nothing.\n\nIn all three runs, the unselected sibling `git@github.com:acme/repo-c.git` is never probed, because a selected identifier matched. Its missing checkout therefore causes no error.\n\n---\n\n## Run A: PATH does not exist\n\n> **Blocked: cannot set up the coordinated worktrees.**\n>\n> The selected sibling declaration `- sibling: git@github.com:acme/repo-b.git` (home overrides, `## shape-ticket`) resolves to PATH `/work/repo-b`, which does not exist.\n>\n> No worktree was created for repo-a or repo-b, and there are no preserved legs.\n>\n> To continue, clone `git@github.com:acme/repo-b.git` to `/work/repo-b` or fix the declaration, then restart the brainstorm.\n\n---\n\n## Run B: PATH resolves to the home checkout\n\n> **Blocked: cannot set up the coordinated worktrees.**\n>\n> The selected sibling declaration `- sibling: git@github.com:acme/repo-b.git` (home overrides, `## shape-ticket`) resolves to PATH `/work/repo-b`. After canonicalization, that path is `/work/repo-a`, which is the home checkout. A companion cannot be the home repo.\n>\n> No worktree was created for repo-a or repo-b, and there are no preserved legs.\n>\n> To continue, replace the `/work/repo-b` symlink with a real clone of `git@github.com:acme/repo-b.git`, then restart the brainstorm.\n\n---\n\n## Run C: PATH is not a git checkout\n\n> **Blocked: cannot set up the coordinated worktrees.**\n>\n> The selected sibling declaration `- sibling: git@github.com:acme/repo-b.git` (home overrides, `## shape-ticket`) resolves to PATH `/work/repo-b`. That directory exists but is not a git checkout, so its origin could not be read or compared.\n>\n> No worktree was created for repo-a or repo-b, and there are no preserved legs.\n>\n> To continue, make `/work/repo-b` a clone of `git@github.com:acme/repo-b.git` or fix the declaration, then restart the brainstorm.\n",
-      "words": 313,
-      "wallMs": 14712,
+      "text": "# Runs A, B and C: repo-b membership validation stops each run before step 4\n\n**Format note:** This case has no `## Narrated read actions` heading and no `replay: continuation` marker, so the default step-4 request applies. Each run stops during membership validation at checklist step 2, before any worktree exists. So in every run:\n\n- Message (1) is the blocking stop.\n- Message (2), the approaches message, is never produced.\n\n## Shared prefix (same in all three runs)\n\n1. **Step 1, fresh brainstorm tracking:**\n   - `phase_tracker({ action: \"reset\" })`\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. **Step 2, settle membership before Worktree First:**\n   - Read the home primary's first-found overrides file at `/work/repo-a`.\n   - `## shape-ticket` declares `- sibling: git@github.com:acme/repo-b.git` and `- sibling: git@github.com:acme/repo-c.git`. These make the repos eligible; they do not make them members.\n3. **Match identifiers before any filesystem or git probe:**\n   - The ask explicitly selects `repo-b`, which matches the trailing `owner/name` of `acme/repo-b`.\n   - `repo-c` is not selected, so it is never probed. Its missing checkout is irrelevant and is not reported.\n4. **Derive the companion primary** for repo-b: `PATH` = `<home PRIMARY parent>/<NAME>` = `/work/repo-b`.\n5. **Validate every selected declaration before creating any tree.** Because repo-b was explicitly selected, a failure stops the run. It never falls back to the single-member flow.\n\n## Run A: `/work/repo-b` does not exist\n\n- **Probe:** the path check finds that `PATH` is missing.\n- **Result:** blocking stop. No `using-git-worktrees` invocation for any member, home included.\n\n**Message (1):**\n\n> Stopped before creating any worktree. Selected sibling declaration `- sibling: git@github.com:acme/repo-b.git` (home `## shape-ticket`) resolves to `/work/repo-b`, which does not exist. Clone repo-b to `/work/repo-b`, or drop repo-b from the ask, then restart. Preserved created legs: none.\n\n## Run B: `/work/repo-b` is a symlink to `/work/repo-a`\n\n- **Probe:** canonicalize the path before the home comparison. `realpath(/work/repo-b)` gives `/work/repo-a`, which equals the canonical home primary.\n- **Result:** blocking stop. Nothing is created.\n\n**Message (1):**\n\n> Stopped before creating any worktree. Selected sibling declaration `- sibling: git@github.com:acme/repo-b.git` resolves to `/work/repo-b`, which canonicalizes to `/work/repo-a`, the home checkout itself. A companion cannot be the home. Replace the symlink with a real repo-b clone at `/work/repo-b`, then restart. Preserved created legs: none.\n\n## Run C: `/work/repo-b` exists but is not a git repo\n\n- **Probe:** `git -C /work/repo-b config --get remote.origin.url` fails because the directory is not a checkout.\n- **Result:** blocking stop. No origin or identity comparison is attempted, and nothing is created.\n\n**Message (1):**\n\n> Stopped before creating any worktree. Selected sibling declaration `- sibling: git@github.com:acme/repo-b.git` resolves to `/work/repo-b`, which exists but is not a git checkout. Clone `git@github.com:acme/repo-b.git` there (moving the current directory aside), then restart. Preserved created legs: none.\n\n## In all three runs\n\n- Steps 3–13 are not reached, so there is no premise note, framing question, or approaches message.\n- No trees exist, so nothing is preserved or removed.\n- The machine paths appear only in these stop reports, never in a committed artifact.\n",
+      "words": 462,
+      "wallMs": 21219,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Run A — PATH does not exist\n\n**First message:** Worktree setup is blocked for selected companion `acme/repo-b`: the declaration `git@github.com:acme/repo-b.git` resolves to `/work/repo-b`, which does not exist. No trees have been created. The unselected `acme/repo-c` checkout is not probed.\n\n**Approaches message:** Deferred. The selected companion must pass membership validation before any worktree creation or design exploration.\n\n### Run B — PATH resolves to home\n\n**First message:** Worktree setup is blocked for selected companion `acme/repo-b`: canonicalizing `/work/repo-b` resolves it to the home primary, `/work/repo-a`. A companion primary cannot equal home. No trees have been created. The unselected `acme/repo-c` checkout is not probed.\n\n**Approaches message:** Deferred. Correct the selected companion’s path before provisioning or design exploration.\n\n### Run C — PATH is not a checkout\n\n**First message:** Worktree setup is blocked for selected companion `acme/repo-b`: `/work/repo-b` exists but is not a Git checkout. No trees have been created. The unselected `acme/repo-c` checkout is not probed.\n\n**Approaches message:** Deferred. The selected companion must resolve to a valid checkout before its stored origin can be validated and provisioning can proceed.\n",
-      "words": 171,
-      "wallMs": 12146,
+      "text": "These are independent synthetic traces, not live tool calls.\n\n### Shared prescribed setup — repeated for each run\n\n1. Reset the phase tracker, clear the plan tracker, and start the `brainstorm` phase.\n2. Read the required PR-subject reference, then the legs reference, before provisioning. No observed read outcomes are supplied; their contents are not reconstructed here.\n3. Read the home checkout’s first-found overrides file and the shared sibling parser reference. The supplied configuration observation declares `git@github.com:acme/repo-b.git`, with primary path `/work/repo-b`.\n4. Match the explicit selection of `repo-b` before filesystem or Git probes. Select only that companion. Do **not** probe `/work/repo-c`: its missing checkout is irrelevant because it is unselected.\n5. Validate every selected companion before creating **any** worktree, including the home worktree.\n\n### A — selected companion path missing\n\n1. Check the selected primary `/work/repo-b`.\n2. Observed outcome: the path does not exist.\n3. **Blocking stop:** the declaration `git@github.com:acme/repo-b.git` resolves to missing primary `/work/repo-b`.\n4. Do not create or automatically clone anything; do not advance to gathering, questions, or approaches.\n\nPreserved created legs: none.\n\n### B — selected companion resolves to home\n\n1. Canonicalize the selected primary `/work/repo-b` and home primary `/work/repo-a` for the required identity comparison.\n2. Observed outcome: `/work/repo-b` is a symlink resolving to `/work/repo-a`.\n3. **Blocking stop:** the declaration `git@github.com:acme/repo-b.git` resolves to the home primary, so it cannot serve as a separate companion.\n4. Do not provision either leg or advance to gathering, questions, or approaches.\n\nPreserved created legs: none.\n\n### C — selected companion is not a checkout\n\n1. Check the selected primary `/work/repo-b`.\n2. Observed outcome: the path exists but is not a Git repository.\n3. **Blocking stop:** the declaration `git@github.com:acme/repo-b.git` resolves to a path that is not a checkout. Origin validation cannot proceed.\n4. Do not initialize, replace, or clone into that directory; do not provision either leg or advance to gathering, questions, or approaches.\n\nPreserved created legs: none.\n",
+      "words": 307,
+      "wallMs": 19875,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "613ff3840a138612092c7a6ed3db6b35c885c934ce7db66ce74b6ecb8ca3e8ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "a0e011151d9735bca6064c469bd7fa0a60883b79b0d1283fd8982e38057e9878",
-      "candidateOutputSha": "a0e011151d9735bca6064c469bd7fa0a60883b79b0d1283fd8982e38057e9878",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "cacf15970ce81a2456b1ce7b0567a78bc4ec255c41b5b1b8b36578f8095af7a3",
+      "candidateOutputSha": "e8121a463f0093cc03439406ce8fc3c048383be4306a53288d024b451765fa91",
       "facts": {
         "reject": {
           "before": "holds",
@@ -44,16 +44,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are byte-identical, so no fact moved. Both outputs stop all three runs before any creation, cite the selected `- sibling: git@github.com:acme/repo-b.git` declaration from `## shape-ticket`, give the correct cause per run (A: PATH does not exist; B: canonicalized to `/work/repo-a`, equal to home; C: exists but not a git checkout), canonicalize B before the home comparison, and explicitly state that unselected repo-c is never probed. The expected fails -> holds movement is not visible here because the Before text already satisfies the fact; nothing in the After wording needs adjustment for this sample, and any claimed movement for multi-repo-bad-sibling/reject must come from other runs or models, not this pair.",
-      "wallMs": 7563,
+      "feedback": "Both outputs satisfy the reject fact: each run (A/B/C) stops before any worktree creation, names the selected `- sibling: git@github.com:acme/repo-b.git` declaration, states the missing / not-a-git-checkout / canonicalizes-to-home cause, canonicalizes B via realpath before the home comparison, and explicitly never probes or reports on unselected repo-c. After additionally narrates the tracker calls and derives PATH before validation, which does not disturb the fact; the only wording risk is After asserting the overrides file also declares repo-c as a sibling (the input only says the checkout for unselected repo-c is missing), so to stay safe keep repo-c mentioned only as 'unselected, never resolved or validated' rather than inventing its declaration line, while preserving the 'Preserved created legs: none' and 'stopped before creating any worktree' phrasing that carries the fact.",
+      "wallMs": 8878,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "613ff3840a138612092c7a6ed3db6b35c885c934ce7db66ce74b6ecb8ca3e8ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
-      "baselineOutputSha": "e4ee0d5b91d4886bd823624dc65c2db44ff6c67274f1feaf28e89aeafc8f347a",
-      "candidateOutputSha": "e4ee0d5b91d4886bd823624dc65c2db44ff6c67274f1feaf28e89aeafc8f347a",
+      "intentSha": "43f544026e934c597cdd068c60e34dfe2bc8e2b1d21c51839e2dee16f3241bd1",
+      "baselineOutputSha": "50640f8a9f252227f47934ff1a54ad70ea4e62a7966fd96dd4838c2e375ca3a0",
+      "candidateOutputSha": "6cc31651a5354490f258130387262043069c54411af10f8b9015666c93f8f243",
       "facts": {
         "reject": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are byte-identical here, so nothing moved: all three runs stop before any creation (\"No trees have been created\"), name the selected companion/declaration (`acme/repo-b`, with the full `git@github.com:acme/repo-b.git` remote spelled out in Run A), give the correct cause per run (missing path, equal-home after canonicalizing `/work/repo-b` to `/work/repo-a`, exists-but-not-a-Git-checkout), and explicitly leave the unselected `acme/repo-c` checkout unprobed. The After wording keeps every fact Before kept while the Change (worker-critique PR-source check, loop-ledger-amend bypass replacement, etc.) does not touch this sibling-rejection path; if you want to harden it further, have Runs B and C also echo the full declaration URL the way Run A does, so \"naming the selected declaration\" is unambiguous rather than relying on the `acme/repo-b` shorthand.",
-      "wallMs": 9609,
+      "feedback": "Nothing moved on this fact: both outputs stop A/B/C before any worktree creation, name the selected declaration git@github.com:acme/repo-b.git, give the missing / equal-home / non-repository cause, canonicalize B's path before the identity comparison, and explicitly leave unselected repo-c unprobed. After actually tightens the evidence by repeating the declaration string inside each Blocking stop line and stating the no-create/no-clone/no-initialize rule per run, which is the wording to keep. One caution for the shared-setup block After introduced: it narrates tracker resets and reference/overrides reads before companion validation; these are not creation so the fact still holds, but if a future fact keys on 'no state changes before the stop' the phase/plan tracker reset at step 1 would be the first place to move or qualify (e.g., 'tracker reset is prescribed but no worktree, clone, or file is created').",
+      "wallMs": 12450,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

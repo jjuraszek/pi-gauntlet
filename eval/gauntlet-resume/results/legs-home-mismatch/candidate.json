@@ -1,7 +1,7 @@
 {
   "sample": "legs-home-mismatch",
   "arm": "candidate",
-  "skillSha": "9c0002a441aec380b13b44a56f6d7e1b4c3c162355e0916f10e200471e3ec451",
+  "skillSha": "0c6e9f16a75b6b41568ac8bb6ad86d7b8e5b1a868217f5d638f969a3bb30dba1",
   "inputSha": "200dc22aef16a08cf528cdeec2e7bfce114427de84c8fa56ba3a26db21ce0cc5",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Coordinated admission (entry check 3b): three independent runs\n\nAll three runs share these steps before reaching the varying observation. No tracker call has happened yet.\n\n**Shared steps**\n\n1. **Read the home spec's `## Legs`.**\n   - Read `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`.\n   - Ordered `### Leg:` blocks are `repo-a`, `repo-b`.\n   - The brief's `legs:` order is `repo-a`, `repo-b`. Membership matches.\n2. **Resolve repo-b's declared primary.**\n   - Parse the home overrides' sibling `git@github.com:acme/repo-b.git` with shape-ticket's shared parser.\n   - `NAME` = `repo-b`, so `PATH` = `/work/repo-b`.\n3. **Canonicalize the primary's common directory.**\n   - Run `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`. Result: `/work/repo-b/.git`.\n4. **Check the companion worktree's common directory.**\n   - Run `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`. Result: `/work/repo-b/.git`. Matches.\n5. **Check the companion's live branch.**\n   - Run `git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current`.\n6. **Read the companion leg file's `**Home:**` line.**\n   - Read `/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md`.\n   - Expected full tuple: `repo-a feature/shared-change doc/specs/shared.md`.\n\n---\n\n## Run A: companion `**Home:**` names a different branch\n\n- Step 5 returns `feature/shared-change`, which matches.\n- Step 6 returns `**Home:** repo-a feature/other doc/specs/shared.md`.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated admission: leg repo-b (/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md) **Home:** tuple mismatch - expected `repo-a feature/shared-change doc/specs/shared.md`, observed `repo-a feature/other doc/specs/shared.md`\n```\n\nThis mismatch is a stop, not drift. No `phase_tracker` or `plan_tracker` call is made, and `plan_check` does not run. Correct the companion leg file or the run home, then re-run `/skill:gauntlet-resume`.\n\n---\n\n## Run B: companion `**Home:**` names a different spec path\n\n- Step 5 returns `feature/shared-change`, which matches.\n- Step 6 returns `**Home:** repo-a feature/shared-change doc/specs/other.md`.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated admission: leg repo-b (/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md) **Home:** tuple mismatch - expected `repo-a feature/shared-change doc/specs/shared.md`, observed `repo-a feature/shared-change doc/specs/other.md`\n```\n\nThis mismatch is also a stop, not drift. No tracker call is made and `plan_check` does not run.\n\n---\n\n## Run C: companion's live branch differs\n\n- Step 5 returns `feature/other`.\n\nPrinted:\n\n```\ngauntlet: stuck coordinated admission: leg repo-b (/work/repo-b/.worktrees/feature-shared-change) live branch mismatch - expected shared branch `feature/shared-change`, observed `feature/other`\n```\n\nA live tree on the wrong branch is a stop, not drift. No tracker call is made and `plan_check` does not run.\n\n---\n\nIn all three runs, the restore ends at entry check 3b.\n- Check 4 (drift notice) and the call table never run.\n- `start brainstorm` and `plan_check` are never called.\n- `plan_tracker init` is never called.\n- The `W1 ✓ / W2 →` snapshot is not restored, and no closing line or grant line is printed.\n",
-      "words": 360,
-      "wallMs": 19379,
+      "text": "Each run below stops at **entry check 3b (Coordinated admission)**. That happens before any tracker write, so none of the runs makes a `phase_tracker` / `plan_tracker` call, runs `plan_check`, or prints the restore closing line or grant line.\n\n## Shared steps for all three runs (read-only)\n\n1. `Read /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`: the home spec is resolved through Candidates and approval is not inferred. Its `## Legs` order is `repo-a`, `repo-b`. The brief's `legs:` order is `repo-a`, `repo-b`. These match.\n2. Read the home overrides' `## shape-ticket` `- sibling: git@github.com:acme/repo-b.git`. Parsed with the shared parser: NAME `repo-b`, declared primary `/work/repo-b`.\n3. `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"` returns `/work/repo-b/.git`.\n4. `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"` returns `/work/repo-b/.git`. This matches the declared primary.\n5. `git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current` (result given per run).\n6. `Read` the repo-b leg file `/work/repo-b/.worktrees/feature-shared-change/<repo-b recorded spec-dir>/shared.md`, specifically its `**Home:**` line (result given per run).\n\n## Run A: companion `**Home:**` names a different branch\n\n- Step 5 returns `feature/shared-change`, which matches.\n- Step 6 returns `**Home:** repo-a feature/other doc/specs/shared.md`.\n\nPrinted:\n```\ngauntlet: stuck leg repo-b: companion **Home:** tuple mismatch - expected repo-a feature/shared-change doc/specs/shared.md, observed repo-a feature/other doc/specs/shared.md (/work/repo-b/.worktrees/feature-shared-change)\n```\nThis is a live-tree tuple mismatch, which is a stop rather than drift. There are no tracker mutations.\n\n## Run B: companion `**Home:**` names a different spec path\n\n- Step 5 returns `feature/shared-change`, which matches.\n- Step 6 returns `**Home:** repo-a feature/shared-change doc/specs/other.md`.\n\nPrinted:\n```\ngauntlet: stuck leg repo-b: companion **Home:** tuple mismatch - expected repo-a feature/shared-change doc/specs/shared.md, observed repo-a feature/shared-change doc/specs/other.md (/work/repo-b/.worktrees/feature-shared-change)\n```\nThere are no tracker mutations.\n\n## Run C: live repo-b branch differs\n\n- Step 5 returns `feature/other`.\n\nPrinted:\n```\ngauntlet: stuck leg repo-b: live branch mismatch at /work/repo-b/.worktrees/feature-shared-change - expected feature/shared-change, observed feature/other\n```\nA live tree's branch mismatch is a stop, not informational drift. There are no tracker mutations.\n",
+      "words": 286,
+      "wallMs": 14869,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Run A\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nRead({ path: \"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\" })\n```\n\nObserve companion header:\n```text\n**Home:** repo-a feature/other doc/specs/shared.md\n```\n\nPrint and stop:\n```text\ngauntlet: stuck repo-b: /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md has a mismatched **Home:** tuple; expected repo-a feature/shared-change doc/specs/shared.md, observed repo-a feature/other doc/specs/shared.md\n```\n\nNo tracker mutation or `plan_check` call.\n\n### Run B\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nRead({ path: \"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\" })\n```\n\nObserve companion header:\n```text\n**Home:** repo-a feature/shared-change doc/specs/other.md\n```\n\nPrint and stop:\n```text\ngauntlet: stuck repo-b: /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md has a mismatched **Home:** tuple; expected repo-a feature/shared-change doc/specs/shared.md, observed repo-a feature/shared-change doc/specs/other.md\n```\n\nNo tracker mutation or `plan_check` call.\n\n### Run C\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nBash({ command: \"git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current\" })\n```\n\nObserve:\n```text\nfeature/other\n```\n\nPrint and stop:\n```text\ngauntlet: stuck repo-b: /work/repo-b/.worktrees/feature-shared-change has a mismatched live branch; expected feature/shared-change, observed feature/other\n```\n\nNo tracker mutation or `plan_check` call.\n",
-      "words": 157,
-      "wallMs": 18030,
+      "text": "### Run A\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall: `Read(\"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\")`\n\nObserved header: `**Home:** repo-a feature/other doc/specs/shared.md`\n\nPrint:\n```text\ngauntlet: stuck repo-b: companion /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md has a mismatched **Home:** tuple; expected repo-a feature/shared-change doc/specs/shared.md, observed repo-a feature/other doc/specs/shared.md\n```\n\nStop before any tracker write or `plan_check` call.\n\n### Run B\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall: `Read(\"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\")`\n\nObserved header: `**Home:** repo-a feature/shared-change doc/specs/other.md`\n\nPrint:\n```text\ngauntlet: stuck repo-b: companion /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md has a mismatched **Home:** tuple; expected repo-a feature/shared-change doc/specs/shared.md, observed repo-a feature/shared-change doc/specs/other.md\n```\n\nStop before any tracker write or `plan_check` call.\n\n### Run C\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall: `git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current`\n\nObserved output: `feature/other`\n\nPrint:\n```text\ngauntlet: stuck repo-b: worktree /work/repo-b/.worktrees/feature-shared-change branch mismatch; expected feature/shared-change, observed feature/other\n```\n\nStop before any tracker write or `plan_check` call.\n",
+      "words": 144,
+      "wallMs": 14946,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "d813a90a2fbcab7b4ac42ed6fc1a24e1b7dedd4c56438bc6696351037f05fab0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
-      "baselineOutputSha": "7f8b3d73b6c96c3bf1e7288a3dcc1a9b8d763d5e47393c92b2032a8e0a2da59f",
-      "candidateOutputSha": "3f3d3f9ad0d86ac64d0502decd005181f2654ffd16a59b4d22540d3a25ea5af1",
+      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
+      "baselineOutputSha": "3f3d3f9ad0d86ac64d0502decd005181f2654ffd16a59b4d22540d3a25ea5af1",
+      "candidateOutputSha": "b965ac822894e8899c264a4accfac61b98e63744c800cc30775ec69d4d2eed16",
       "facts": {
         "stop": {
           "before": "holds",
@@ -44,16 +44,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs already satisfy the stop fact: each of Runs A, B and C halts at entry check 3b before any phase_tracker/plan_tracker call, names leg repo-b, prints the expected and observed full tuple (A, B) or branch (C), and states the mismatch is a stop rather than drift (Before leaves Run B's 'not drift' implicit but still stops with no tracker call; After states it explicitly for all three). The After wording improved consistency (every run says 'stop, not drift', the shared-step layout makes the expected tuple explicit before the varying observation, and the closing summary confirms check 4's drift notice never runs), but it did not move the fact because Before already held it; the expected fails->holds movement is not observed in this pair. To keep every fact intact while delivering the Change, retain the per-run explicit 'stop, not drift' statement, the repo-b leg name in each printed line, and the expected/observed pair in every message, as After does; no wording change is needed to preserve this fact.",
-      "wallMs": 8963,
+      "feedback": "After keeps the fact: every run stops at entry check 3b before any phase_tracker/plan_tracker call, each stuck line names leg repo-b with the expected/observed full tuple (A, B) or branch (C), and the opening paragraph plus Runs A and C explicitly frame the mismatch as a stop rather than informational drift. Two small things worth tightening so a careful reader never has to infer: Run B drops the explicit 'stop, not drift' sentence that Before had (it is covered by the intro, but restating it per run as Before did is cheaper than relying on the reader to carry the intro forward), and step 6 uses a placeholder path `<repo-b recorded spec-dir>/shared.md` where the input fixes it as `doc/specs/shared.md`; resolving that to the concrete path keeps the narration as grounded as Before's. Otherwise the restructured stuck message format (`stuck leg repo-b: ... expected ..., observed ...`) delivers the change without moving the fact.",
+      "wallMs": 9000,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d813a90a2fbcab7b4ac42ed6fc1a24e1b7dedd4c56438bc6696351037f05fab0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
-      "baselineOutputSha": "33089580a0107fdf2378c72826eba7859fe4ec0863dae5ebef00fdd9895fcb34",
-      "candidateOutputSha": "a815ed1fe476e9fd036b6b8312e82cff4e2a7e0b4aee93454c9c9c4e0dd7f0c6",
+      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
+      "baselineOutputSha": "a815ed1fe476e9fd036b6b8312e82cff4e2a7e0b4aee93454c9c9c4e0dd7f0c6",
+      "candidateOutputSha": "4016d32569553ed090ab36ba695d12ae38c1b6666253e7300332115141bf6f13",
       "facts": {
         "stop": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both Before and After satisfy the stop fact: every run (A, B, C) stops before any tracker write or plan_check call, names repo-b, and states the expected versus observed full Home tuple (A, B) or live branch (C), and none reframes the mismatch as informational HEAD drift. After additionally adds the skill announcement line and the full companion path in the stuck message, which neither weakens nor strengthens the fact. No fact moved; the After wording is equivalent on this case, so no adjustment is needed to preserve the Before behavior while delivering the Change.",
-      "wallMs": 3801,
+      "feedback": "Both Before and After satisfy the stop fact in all three independent runs: each stops before any tracker write or plan_check call, names repo-b, and prints the expected/observed full **Home:** tuple (A, B) or branch (C); neither treats the mismatch as informational HEAD drift. After's only changes are cosmetic — inline Call/Observed lines, the added \"companion\"/\"worktree\" qualifiers in the stuck message, and the explicit \"Stop before any tracker write\" sentence — none of which move the fact. Keep the explicit 'stop before any tracker write or plan_check call' phrasing and the full expected/observed tuple in the stuck line; if you want to further harden the fact, consider stating that the mismatch is a hard stop rather than drift, but the current After wording already preserves everything Before did.",
+      "wallMs": 6094,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "11ae8682181946f92d73d60301684a2587730dd68cc4f482c2d9ab18b58632f0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "1e3ad22065fc5083ad673f88f53e997ec923315b0fddf7156a11968b40662fcd",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "1213842e25ec66c76c57aa69cfa7cc1d93763dc2106d4fcf32ef32a8fd14f229",
       "candidateOutputSha": "1213842e25ec66c76c57aa69cfa7cc1d93763dc2106d4fcf32ef32a8fd14f229",
       "facts": {
         "f2": {
@@ -63,15 +63,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs dispatch a fresh, synchronous plan-writer after result 2 with the two FAIL lines copied verbatim under a Findings: block, neither parent touches or reads the plan body, neither calls resume/status, and after the second byte-identical FAIL both halt without a further dispatch or plan_tracker init and hand the FAIL lines to the human as a `gauntlet: question`. After additionally enumerates the skipped step-7 actions (including the new 'do not commit the plan' line) and names the direct subagent-driven-development handoff as not taken, which reflects the Change's handoff/commit ordering without altering the retry-once/halt behavior. Keep the explicit 'first time I have seen this exact FAIL output' and 'budget is once per verbatim FAIL output' phrasing, since those are what anchor the single verbatim retry and the identical-second-FAIL halt the fixture checks.",
-      "wallMs": 9563,
+      "feedback": "Before and After are textually identical for this fixture, so no fact moved. Both narrations re-dispatch a fresh, async:false plan-writer after result 2 with the two FAIL lines copied verbatim under a Findings: block and never touch the plan file themselves (f2); after the byte-identical second FAIL both stop, explicitly decline plan_tracker init and the other step-7 actions, and surface the FAIL lines to the human as a gauntlet question (f3); and neither calls resume/status nor reads the plan body (f4). The reworded skill text preserved the fresh-child, verbatim-Findings single retry and identical-second-FAIL halt exactly as intended; no wording adjustment is needed for this case.",
+      "wallMs": 6334,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "11ae8682181946f92d73d60301684a2587730dd68cc4f482c2d9ab18b58632f0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "554a249125bd78520b0af9db3fd424e0880368b31abd75fcd1dfe9cc8a2455a5",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "071299689c94dcf843d92035154d4870ac7e577b5cbac0668c6b122e626528b7",
       "candidateOutputSha": "071299689c94dcf843d92035154d4870ac7e577b5cbac0668c6b122e626528b7",
       "facts": {
         "f2": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs dispatch a fresh, async-false plan-writer after result 2 whose task carries the FAIL lines verbatim under a Findings: block, neither edits the plan in the parent, and both halt after the identical second FAIL without a further dispatch or plan_tracker init, never calling resume/status or reading the plan body. After is actually slightly stronger on f3: it reproduces the FAIL lines inside the open question to the human, whereas Before only quotes them as the result in the prior step and then paraphrases the question ('shared ownership of src/shared.ts'). After also adds a phase_tracker substep call up front; that is not resume/status so f4 still holds, but if the wording ever makes the parent re-start or re-query the phase it would break f4 — keep the substep call limited to 'substep' and keep the verbatim FAIL quote in the halt message as After does.",
-      "wallMs": 15617,
+      "feedback": "The Before and After outputs for this case are textually identical, so no fact moved. Both re-dispatch a fresh plan-writer (context \"fresh\", async false) after result 2 with the two FAIL lines copied verbatim under a Findings: block and explicitly decline to repair the plan in the parent (f2); both stop after the byte-identical second FAIL without any further dispatch or plan_tracker init and surface the FAIL lines to the human as an open question (f3); and neither calls resume/status nor reads the plan body (f4). The wave-file-disjointness fixture swap described in the Change is reflected cleanly in both narratives, so the After wording can be kept as-is for this sample; the only caution is to ensure that any future wording about singleton-wave grouping or direct handoff to subagent-driven-development is gated on a parent PASS so it never leaks into the identical-second-FAIL halt path.",
+      "wallMs": 7867,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

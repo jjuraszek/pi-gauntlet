@@ -1,7 +1,7 @@
 {
   "sample": "menu-after-numbered-findings",
   "arm": "baseline",
-  "skillSha": "3f1c90e98875c615afdf8a3920f2acaeba65257c679d2c5f2e52514c6a856786",
+  "skillSha": "80206a5097510704b854583e18528df2e1d7b70dbba601ee9585168f4cd9be65",
   "inputSha": "4a8fdb8af69a76daae4c15d9d5a2a72318597352d34a872bd1704931a9fa715f",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Checkpoint 1\n\n```\ngauntlet: gate=gauntlet-resume/discovery\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\nDiscovery results:\n- The handoff directory exists.\n- Three regular Markdown files have valid handoff title lines.\n- Candidates are sorted newest first.\n\nPick one:\n1. `# Handoff: parser retry` - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. `# Handoff: export paging` - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. `# Handoff: cache expiry` - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n```\n\n*(Waiting for the human's pick. No restore has run and no tracker calls have been made.)*\n\n---\n\n## Checkpoint 2\n\n**Why `5` maps to option 2:** The legacy message put an ordered list of three observations directly before the three options, with only a blank line between them. Under CommonMark the two lists merge, so the options displayed as `4.`–`6.`.\n\nApplying the reply-mapping rule:\n- N = 3 options.\n- L = 3 preceding items in the same contiguous run, with no separator.\n- The reply R = 5 is greater than N, and R − L = 2 falls within 1–3, so it maps to option 2.\n\nThe skill requires echoing the resolution before acting. This is an intermediate report that continues automatically, so it carries no marker:\n\n```\nTaking 5 as option 2 - export paging\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\n**Next simulated step:**\n\n1. **Read the brief.** Read the selected brief at `<tmpdir>/pi-handoff/<export-paging brief>.md`. Confirm that line 1 is still `# Handoff: export paging`. Take its `worktree:` field (`/work/app/.worktrees/export-paging`) as the target.\n\n2. **Entry check 1 (idle session, read-only).** Call `phase_tracker({ action: \"status\" })`.\n   - If any phase is not pending, stop with \"session already carries flow state - reset is your call\".\n   - Otherwise continue to entry check 2 (target worktree) on `/work/app/.worktrees/export-paging`. Checks 3–6 follow in order.\n\nNo tracker mutation happens until every check passes.\n",
-      "words": 272,
-      "wallMs": 15168,
+      "text": "## Checkpoint 1\n\ngauntlet: gate=gauntlet-resume/discovery\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\nReply with the number of the brief to resume. Nothing is restored until you pick.\n\n---\n\n## Checkpoint 2\n\nTaking 5 as option 2 - export paging\n\nIn the legacy message, the three observations and the three candidates form one contiguous ordered list, so `L = 3` and `N = 3`. Your reply `5` is greater than `N`, and `5 - 3 = 2` falls within `1`-`3`. It therefore maps to option 2: `# Handoff: export paging` (worktree `/work/app/.worktrees/export-paging`, mtime `2026-10-21T11:00:00Z`).\n\nNext simulated step, before any tracker mutation:\n\n1. Read the selected brief file under `<tmpdir>/pi-handoff/`. Confirm that line 1 starts with `# Handoff:` and route it as a brief.\n2. Entry check 1 (Idle session): `phase_tracker({ action: \"status\" })`. If any phase is not pending, stop.\n3. Entry check 2 (Target worktree): resolve `/work/app/.worktrees/export-paging` from the brief's `worktree:` field. Run `git -C /work/app/.worktrees/export-paging rev-parse --is-inside-work-tree` and confirm the `## Repo state` heading is present.\n4. Continue with entry checks 3-6 in order.\n",
+      "words": 207,
+      "wallMs": 16324,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gauntlet-resume/discovery\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\n---\n\n**Checkpoint 2 — independent simulated response**\n\nTaking 5 as option 2 - export paging\n\nNext simulated step: read the selected export paging handoff file in full. Then run entry check 1, **Idle session**, with `phase_tracker({ action: \"status\" })`. Any phase not pending stops restoration with `gauntlet: stuck session already carries flow state - reset is your call`.\n\nNo tools are called and no restoration occurs in this simulation.\n",
-      "words": 117,
-      "wallMs": 16322,
+      "text": "## Checkpoint 1 — simulated selection message\n\n```markdown\ngauntlet: gate=gauntlet-resume/discovery\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n```\n\n## Checkpoint 2 — independent simulated next response\n\n```text\nTaking 5 as option 2 - export paging\n\nNext simulated step: Read the discovered handoff brief titled \"# Handoff: export paging\". Its filename was not supplied, so no read-path argument can be stated yet. Then run entry check 1, Idle session: phase_tracker({ action: \"status\" }). No restoration or tracker mutation occurs here.\n```\n",
+      "words": 115,
+      "wallMs": 16584,
       "mechanical": {}
     }
   },
-  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }

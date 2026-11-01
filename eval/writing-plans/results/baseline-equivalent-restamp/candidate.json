@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "be7eed055f621ad84b47ab8f084389637ea487b77a5e332d3e38fe751b2a392d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "eb1a99975d6ea05bee8d7ef4c83175f3814734e7124828fdcc7bcf20b38586ea",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "8a74ec86908ea65e280d7d41e318479f08c03aa683cc9ded1962c858fd168c0c",
       "candidateOutputSha": "8a74ec86908ea65e280d7d41e318479f08c03aa683cc9ded1962c858fd168c0c",
       "facts": {
         "restamp": {
@@ -69,15 +69,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both Before and After satisfy all six facts. In scenario 1 both outputs explicitly retain Task 1's unchanged command without rerunning it, re-stamp its bullet from abc1234 to def5678 despite the step change, append the exact `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` text to the Baseline provenance note (not a task or audit field), run Task 2 from the supplied observation with a fresh `baseline: def5678 pass`, use def5678 on every bullet, and end with `PLAN WRITTEN /work/app/doc/plans/hook.md`. In scenario 2 both rerun both commands at def5678, omit any retained line, and raise no Open Questions row for the failed proof. The After wording is sound for this sample; the only differences are cosmetic (dropping the eslint step, tighter prose, `admitted:` label), none of which touch a fact. Since the Expected-to-move list predicted restamp and provenance would fail in Before but they already hold here, this sample does not discriminate the Change—if you want it to, consider a Before that lacks the provenance phrase or reruns the unchanged command, but no wording change to After is needed to preserve these facts.",
-      "wallMs": 14152,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both outputs retain Task 1's unchanged command in scenario 1 without rerunning it, re-stamp its bullet to def5678 despite the changed steps, append the exact `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` sentence to the existing Baseline provenance note (not a task or new field), give the added Task 2 fresh def5678 pass evidence from the supplied observation, use def5678 on every baseline bullet, and end with PLAN WRITTEN /work/app/doc/plans/hook.md. In scenario 2 both outputs rerun both commands with def5678 pass evidence, write no retained-provenance line, and add no Open Questions row for the failed equivalence proof. The After wording delivers the equivalence-retention Change here without regressing anything; keep the current phrasing that pairs the all-or-nothing proof with the fixed provenance sentence and the rerun-all fallback.",
+      "wallMs": 9108,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "be7eed055f621ad84b47ab8f084389637ea487b77a5e332d3e38fe751b2a392d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "58d651b7beb5d8958b910c8aa3a72e27485394224776df3bd5374e86f407df3b",
+      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
+      "baselineOutputSha": "8f730ba301c664a3f313eb30f8bf2ba97e0801e9f865afe001345946574a5fec",
       "candidateOutputSha": "8f730ba301c664a3f313eb30f8bf2ba97e0801e9f865afe001345946574a5fec",
       "facts": {
         "restamp": {
@@ -111,10 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved no fact: in scenario 1 both outputs keep Task 1's evidence un-rerun and restamped to def5678 despite the step change, place the exact `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` line inside the baseline provenance note rather than in a task or audit field, give Task 2 fresh def5678 evidence from the supplied observation, use def5678 on every baseline bullet and end with PLAN WRITTEN; in scenario 2 both rerun both commands at def5678, write no retained-provenance line (After's 'No evidence retained.' and Before's 'Retained no evidence' are plain statements, not the retention line) and raise no Open Questions finding. After's tightening (dropping the 'Original BASE abc1234' preface, shortening steps, removing the format/lint step) stays within the 350-word budget without losing any required content; if anything, keeping an explicit 'Current BASE def5678' phrase as Before did makes the one-sha intent slightly more legible, but it is not required for the facts to hold.",
-      "wallMs": 13604,
+      "feedback": "Before and After are byte-identical for both scenarios, so nothing moved. In both, scenario 1 keeps Task 1's `baseline: def5678 pass` bullet without a rerun while the provenance note carries the exact `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` line, Task 2 gets fresh def5678 evidence from the supplied observation, every bullet uses def5678, and the plan ends with PLAN WRITTEN /work/app/doc/plans/hook.md; scenario 2 reruns both commands at def5678, writes only `No evidence retained.` (not a retained-provenance line), and has no Open Questions finding on the failed equivalence. The Expected-to-move list anticipated restamp and provenance failing in Before, but Before already satisfies them, so the After wording should be read as confirming rather than introducing this behavior; no wording adjustment is needed to preserve these facts, though if the author wants scenario 2 to be unambiguous they could keep the phrasing `No evidence retained.` exactly as-is rather than any variant containing `retained N bullets`.",
+      "wallMs": 11503,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
 }
