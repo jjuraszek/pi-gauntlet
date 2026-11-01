@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.1.5 - 2026-11-01
 
 - `chase-bug` hotfix uses `loop-implementer` with a one-row ledger and a shared repair budget, escalating the last allowed attempt. Mandatory conformance and code review must pass on the final tested commit before landing; failed audits no longer continue to ship.
 
