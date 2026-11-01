@@ -137,7 +137,7 @@ Run by a human against pi-cohort >= 7.1.0, before a pi-gauntlet release claims t
 
 **Use it** for any change with more than one moving part: a feature, a refactor across files, anything where "what did we actually agree to build" matters by the time it's done. Start with `/skill:brainstorming`; a request to implement the change alone does not opt you in.
 
-**Don't use it** for a one-line fix, a typo, or a throwaway spike you're going to discard. The gates have real overhead - a spec, a plan, a conformance check - and that overhead isn't worth paying for a change trivial enough to just make. Between that carve-out and the full pipeline sits one middle tier: `chase-bug`'s hotfix row - a small, evidenced, urgent fix landed as an unpushed squash, entered only through the triage verdict menu.
+**Don't use it** for a one-line fix, a typo, or a throwaway spike you're going to discard. The gates have real overhead - a spec, a plan, a conformance check - and that overhead isn't worth paying for a change trivial enough to just make. Between that carve-out and the full pipeline sits one middle tier: `chase-bug`'s hotfix row - a small, evidenced, urgent fix implemented by `loop-implementer` with mandatory conformance and code review, landed as an unpushed squash, entered only through the triage verdict menu.
 
 ## Requirements
 
