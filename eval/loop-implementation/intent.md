@@ -18,6 +18,8 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the cap snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- verify-lifecycle/contract: fails -> holds - replaced wording: Implement completes through the refresh; verify step 1 runs the gate once per leg; Gn tasks ride the same tracker.
+- escalated-row-attempt/ledger-prepare-local: fails -> holds - replaced wording: Never invokes plan_check; the next refresh projects the amended statuses.
 - gate-line-first/preserved: holds -> holds - replaced wording: Boundary rejection restores only the target cells and pending tuple in the working ledger before projection; discard/reset still requires human authorization.
 - gate-line-first/question-first: fails -> holds - Dirty returns await explicit authorization under a question marker.
 - cap-and-exit-verification/contract: fails -> holds - Replace the closed-row fact with the ledger gate at verify step 1, verify active and implement complete, and amend/stop only on failure; preserve the seed-inclusive cap stop.
