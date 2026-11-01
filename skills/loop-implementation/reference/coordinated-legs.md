@@ -24,7 +24,7 @@ For coordinated dispatch, capture home and selected leg heads and save a pre-dis
 
 ## Companion return validation
 
-For a companion, validate from its commit, not the reply. Require a clean companion and exactly one commit after pending HEAD; require unchanged home HEAD and no home edits except the expected persisted bump/tuple. Match subject `loop: row <n> <status>` or `loop: seed evidence`, exact pending tuple and consumed `iteration:` in the body. Parse four-column row lines followed by decision lines. For ordinary returns require the target (`done` or `failed`, attempts +1) plus zero or more same-leg `open` -> `done` extras with attempts unchanged. Require nonempty bounded evidence and exactly one matching bounded decision for each changed row, target decision first, under the driver's `## Validate the return` table; admit extras beside a failed target without policing worker order or adding a command-format check. For seed require all and only that leg's non-cut rows and one bounded decision. Reject a wrong target, foreign entry, changed cut/done extra, header changes, fabricated counts, malformed evidence or unmatched/duplicate rows or decisions. Validate seed counts against actual rows and baseline closures; preserve attempts and set only this leg's seeded value to `yes` after every non-cut entry validates. Keep seed misses a human stop. Apply ordinary repair only to the target, retaining consumed iterations and saved allowance.
+For a companion, validate from its commit, not the reply. Require a clean companion and exactly one commit after pending HEAD; require unchanged home HEAD and no home edits except the expected persisted bump/tuple. Match subject `loop: row <n> <status>` or `loop: seed evidence`, exact pending tuple and consumed `iteration:` in the body. Parse four-column row lines followed by decision lines. For ordinary returns require the target (`done` or `failed`, attempts +1) plus zero or more same-leg `open` -> `done` extras with attempts unchanged. Require nonempty bounded evidence and exactly one matching bounded decision for each changed row, target decision first, under the driver's `## Validate the return` table; admit extras beside a failed target without policing worker order or adding a command-format check. For seed require at least one evidenced non-cut row of that leg and one bounded seed decision; admit a subset or all non-cut rows, keeping omitted rows unchanged. Reject a wrong target, foreign entry, changed cut/done extra, header changes, fabricated counts, malformed evidence or unmatched/duplicate rows or decisions. Validate seed counts against the returned evidenced rows and their baseline closures; require zero attempts and set only this leg's seeded value to `yes` after the returned subset validates. Keep seed misses a human stop. Apply ordinary repair only to the target, retaining consumed iterations and saved allowance.
 
 After validation write every admitted row and append every validated decision to the home ledger, record companion SHA in evidence, and remove `pending:` in one home-ledger commit. Use the target's decision as the next dispatch's `previous decision:`, never an extra's. Preserve every other row, header and prior decision. That home-ledger commit (`loop: record <repo> row <n>`) is a parent commit, not a child `loop: row ...` commit: it never counts toward child-only empty-commit stagnation; only the companion's own commits are counted at the boundary. Record a rejected companion return in the same parent commit while preserving the pending tuple and every row. Recover interrupted returns by this same validation, never trusted reply text.
 
@@ -74,21 +74,21 @@ const decision = decisions[0];
 const rows = rowLines.map(cells);
 requireThat(rowLines.every(l => l.startsWith('|') && l.endsWith('|')) && rows.every(r => r.length === 4), 'malformed row');
 requireThat(new Set(rows.map(r => r[0])).size === rows.length, 'duplicate row');
-requireThat(target === 'seed' ? rows.length === expected.length : rows.some(r => r[0] === target), 'missing target or seed row');
-for (const [i, row] of rows.entries()) {
-  const old = target === 'seed' ? expected[i] : oldRows.find(r => r[0] === row[0]);
+requireThat(target === 'seed' ? rows.length > 0 : rows.some(r => r[0] === target), 'missing target or seed row');
+for (const row of rows) {
+  const old = (target === 'seed' ? expected : oldRows).find(r => r[0] === row[0]);
   requireThat(old && row[0] === old[0] && map.some(m => m[0] === row[0] && m[2] === leg), 'foreign row');
   const isTarget = row[0] === target;
   requireThat((target === 'seed' ? /^(open|done)$/ : isTarget ? /^(done|failed)$/ : /^done$/).test(row[1]), 'invalid status');
-  requireThat(target === 'seed' || (isTarget ? /^(open|failed)$/.test(old[1]) : old[1] === 'open'), 'changed cut or closed row');
-  requireThat(/^\d+$/.test(row[2]) && Number(row[2]) === Number(old[2]) + (isTarget ? 1 : 0), 'attempt mismatch');
+  requireThat(target === 'seed' ? /^(open|done)$/.test(old[1]) : (isTarget ? /^(open|failed)$/.test(old[1]) : old[1] === 'open'), 'changed cut or closed row');
+  requireThat(/^\d+$/.test(row[2]) && Number(row[2]) === Number(old[2]) + (isTarget ? 1 : 0) && (target !== 'seed' || Number(row[2]) === 0), 'attempt mismatch');
   requireThat(row[3].length > 0 && row[3].split(';').length <= 4 && !/[<>]/.test(row[3]), 'unbounded evidence');
   requireThat(target !== 'seed' || old[1] !== 'done' || row[1] === 'done', 'lost baseline closure');
 }
 if (target === 'seed') {
   requireThat(subject === 'loop: seed evidence' && decisions.length === 1, 'seed subject or decision mismatch');
   const d = /^row 0 done \| seeded (\d+) rows, closed (\d+) on baseline \| .{1,200}$/.exec(decision);
-  requireThat(d && Number(d[1]) === expected.length && Number(d[2]) === rows.filter(r => r[1] === 'done').length, 'seed counts mismatch');
+  requireThat(d && Number(d[1]) === rows.length && Number(d[2]) === rows.filter(r => r[1] === 'done').length, 'seed counts mismatch');
 } else {
   const targetRow = rows.find(r => r[0] === target);
   requireThat(subject === `loop: row ${target} ${targetRow[1]}`, 'row subject mismatch');

@@ -53,7 +53,9 @@ test('worker records selective commands and keeps row-scoped TDD evidence valid'
     'passing check for every baseline closure',
   ]) assert.ok(persona.includes(token), token);
   assert.match(persona, /5\. .*command you ran.*at most three result lines/);
-  assert.match(persona, /For every `open` row,.*command.*`evidence`/);
+  assert.match(persona, /For each selected `open` row,.*command.*`evidence`/);
+  assert.match(persona, /evidence seeding for at least one non-cut row/);
+  assert.match(persona, /Count only rows given evidence in this return/);
   assert.match(persona, /Include the evidence command.*at most three semicolon-separated result lines/);
   assert.doesNotMatch(persona, /containing the check name|Include the check name/);
   assert.deepEqual(lintTarget(new URL('eval/loop-implementer', root).pathname), []);
@@ -405,6 +407,36 @@ function validateCompanion(f) {
   const script = block[1];
   return spawnSync('bash', ['-c', script], { encoding: 'utf8', env: { ...process.env, CHECKOUT: f.companion, PENDING: f.pending, ITERATION: '1', SAVED_LEDGER: f.admissionLedger } });
 }
+
+test('partial companion seed admits evidenced subsets and rejects invalid seed rows', () => {
+  const valid = [
+    ['later row only', ['| 4 | open | 0 | node --test later.test.mjs; assertion mismatch |'], 1, 0],
+    ['baseline subset', ['| 2 | done | 0 | node --test first.test.mjs; passed |'], 1, 1],
+    ['complete seed', ['| 2 | done | 0 | check-first; passed |', '| 4 | open | 0 | check-later; failed |', '| 5 | done | 0 | check-baseline; passed |'], 3, 2],
+  ];
+  const invalid = [
+    ['no rows', [], 0, 0],
+    ['empty evidence', ['| 2 | open | 0 | |'], 1, 0],
+    ['foreign row', ['| 1 | open | 0 | check; failed |'], 1, 0],
+    ['cut row', ['| 3 | done | 0 | check; passed |'], 1, 1],
+    ['attempt changed', ['| 2 | open | 1 | check; failed |'], 1, 0],
+    ['failed status', ['| 2 | failed | 0 | check; failed |'], 1, 0],
+    ['lost baseline', ['| 5 | open | 0 | check; failed |'], 1, 0],
+    ['invented seeded count', ['| 2 | open | 0 | check; failed |'], 3, 0],
+    ['invented closure count', ['| 2 | open | 0 | check; failed |'], 1, 1],
+    ['duplicate row', ['| 2 | open | 0 | check; failed |', '| 2 | open | 0 | check; failed |'], 2, 0],
+  ];
+  for (const [cases, passes] of [[valid, true], [invalid, false]]) {
+    for (const [name, rows, seeded, closed] of cases) {
+      const f = companionFixture('seed', true);
+      returnCommit(f, { rows, decisions: [`row 0 done | seeded ${seeded} rows, closed ${closed} on baseline | row 2`] });
+      const result = validateCompanion(f);
+      assert.equal(result.status === 0, passes, `${name}: ${result.stderr}`);
+      if (passes) assert.deepEqual(JSON.parse(result.stdout).rows, rows);
+      assert.equal(readFileSync(f.ledger, 'utf8'), f.saved, 'admission is read-only');
+    }
+  }
+});
 
 test('interrupted ordinary and seed returns recover once across two repositories', () => {
   for (const target of ['2', 'seed']) {

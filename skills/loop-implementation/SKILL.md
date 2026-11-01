@@ -101,7 +101,7 @@ For home returns, apply the following boundary and table. Never project terminal
 
 | Target | Required changes | Miss |
 |---|---|---|
-| Seed | All attempts stay 0; only `open` -> `done` status transitions; every non-cut row gets evidence; cut rows unchanged; exactly one new `row 0 done | seeded <k> rows, closed <m> on baseline | <first row to take>` decision. Partial and complete baseline closure both pass. Never `failed`. | Human stop; never automatic seed retry. |
+| Seed | Require bounded nonempty evidence on at least one non-cut row; admit a subset or all rows. All attempts stay 0; only `open` -> `done` status transitions; keep unreached rows unchanged, including open rows with empty evidence, and preserve cut rows. Require exactly one new `row 0 done | seeded <k> rows, closed <m> on baseline | <first row to take>` decision, counting only rows given evidence in this return and their proven baseline closures. Partial and complete baseline closure both pass. Never `failed`. | Human stop; never automatic seed retry. |
 | Ordinary | Require the target row's mutable cells to change: status `done` or `failed`, attempts +1, nonempty bounded evidence. Admit zero or more other rows in the same leg changing `open` -> `done`, each with nonempty bounded evidence and attempts unchanged. Require set equality between changed rows and rows with exactly one new decision line, target first, each matching its row and status. Keep every other row, header and prior decision unchanged apart from the dispatch header changes in step 2. | Parent repair below. |
 | Seed or ordinary | No committed tuple remains. | A retained committed tuple is an ordinary miss after boundary admission, not a boundary rejection. |
 
