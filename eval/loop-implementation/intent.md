@@ -1,6 +1,8 @@
-for: 215f73d561f7a382fb611eae92f05ac056217624c1beb7e2f7081855b2f668cf
+for: ea359b4705befb19ac8016b7e730587388ccc6e81e3c8b62b57dd95cdea1edf7
 
 ## Change
+Admit companion target results plus same-leg open-to-done extras from four-cell commit rows and matching target-first decisions. Write every admitted row and decision in the home recording commit, retain the target's operational decision and recover the same result once without dispatch or checks. Add companion-multi-row for successful and failed targets, rejected result sets and pending recovery. Run only companion-multi-row here; deterministic companion fixtures exercise the inline recipe, while these partial text replays exercise parent recording instructions, not live runtime dispatch. Seed admission and seed retry remain outside this change.
+
 Admit a home target result plus same-leg open-to-done extras with unchanged extra attempts and bounded evidence, including extras beside a failed target. Require one matching decision per changed row, target first; retain the target decision for retry guidance. Restore all changed rows before rejected-boundary refresh and keep ordinary-miss repair. Add multi-row-return for valid and invalid cells, decision-set equality, rejected boundaries and read-only admission. Run only this selected sample in this iteration; these synthetic traces do not prove live runtime execution or companion admission, and other samples remain partial coverage for later rows.
 
 Complete verify step 1 after an escalated repair by running other checkouts' pairs skipped by fail-fast before granting verification. Run each isolated conformance child's repaired-leg pairs in its own checkout and temporary log directory; retain the parent checkout set and session logs after integration. Extend exit-verification-escalates and repairs-rerun-gate-set-only with observable continuation and child-path facts.
@@ -42,6 +44,10 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- companion-multi-row/admission: fails -> holds - Accept same-leg extra rows and matching decisions in the companion body.
+- companion-multi-row/home-write: fails -> holds - Write all admitted rows and decisions in one home recording commit.
+- companion-multi-row/failed-target: fails -> holds - Admit evidenced extras beside a failed target and retain its retry guidance.
+- companion-multi-row/recovery: fails -> holds - Recover the multi-row result once using the same read-only admission recipe.
 - multi-row-return/admission: fails -> holds - Admit optional same-leg extras without attempts increments or a second declaration channel.
 - multi-row-return/failed-target: fails -> holds - Admit failed-target extras and retain target retry guidance without policing worker order.
 - multi-row-return/boundary: fails -> holds - Restore unadmitted extras along with the target before refresh.

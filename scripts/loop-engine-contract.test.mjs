@@ -453,7 +453,12 @@ test('companion ordinary returns admit same-leg extras with matching decisions o
   const row = (n, status, attempts) => `| ${n} | ${status} | ${attempts} | node --test row-${n}.test.mjs; passed |`;
   const decision = (n, status) => `row ${n} ${status} | recorded evidence | nothing new to build on`;
   for (const [name, status, extra, lines, accepted] of [
+    ['target only', 'done', null, [decision(2, 'done')], true],
     ['done target and same-leg extra', 'done', row(4, 'done', 0), [decision(2, 'done'), decision(4, 'done')], true],
+    ['duplicate target row', 'done', row(2, 'done', 1), [decision(2, 'done'), decision(2, 'done')], false],
+    ['extra decision status mismatch', 'done', row(4, 'done', 0), [decision(2, 'done'), decision(4, 'failed')], false],
+    ['unbounded extra decision', 'done', row(4, 'done', 0), [decision(2, 'done'), `row 4 done | ${'x'.repeat(201)} | reusable fixture`], false],
+    ['unbounded extra evidence', 'done', '| 4 | done | 0 | check; a; b; c; d |', [decision(2, 'done'), decision(4, 'done')], false],
     ['failed target and evidenced extra', 'failed', row(4, 'done', 0), [decision(2, 'failed'), decision(4, 'done')], true],
     ['extra without decision', 'done', row(4, 'done', 0), [decision(2, 'done')], false],
     ['decision without changed row', 'done', null, [decision(2, 'done'), decision(4, 'done')], false],
@@ -476,6 +481,8 @@ test('companion ordinary returns admit same-leg extras with matching decisions o
         const admitted = JSON.parse(result.stdout);
         assert.deepEqual(admitted.rows, rows);
         assert.deepEqual(admitted.decisions, lines);
+        assert.equal(admitted.decision, lines[0], 'operational decision belongs to target');
+        assert.deepEqual(JSON.parse(validateCompanion(f).stdout), admitted, 'pending recovery returns the same rows and decisions');
       }
       assert.equal(readFileSync(f.ledger, 'utf8'), f.saved, 'admission never mutates home');
     });
