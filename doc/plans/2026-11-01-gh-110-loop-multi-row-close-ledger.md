@@ -3,7 +3,7 @@
 base: 407680b9c98894fdcc16aedd0feb6ac2c28b2215
 verification: npm test
 checks: commands
-iterations: 7
+iterations: 8
 allowance: 4
 
 | row | status | attempts | evidence |
@@ -15,7 +15,7 @@ allowance: 4
 | 5 | done | 1 | node eval/run.mjs loop-implementer row-and-evidence; exit 0 improved; all 10 candidate facts hold on both replay models; partial synthetic coverage of artifact handoffs and preserved retry guidance |
 | 6 | done | 1 | node eval/run.mjs loop-implementation companion-multi-row; exit 0 improved; all 6 candidate facts hold on both replay models; partial companion admission and pending recovery coverage |
 | 7 | done | 1 | node eval/run.mjs loop-implementation partial-seed; exit 0 improved; all 6 candidate facts hold on both replay models; partial home and companion seed admission coverage |
-| 8 | open | 0 | node -e 'require("node:assert/strict").ok(require("node:fs").readFileSync("agents/loop-implementer.md","utf8").includes("normal state"),"persona does not describe empty evidence as normal for unreached rows")'; exit 1; persona does not describe empty evidence as normal for unreached rows |
+| 8 | done | 1 | node eval/run.mjs loop-implementer empty-evidence-row; exit 0 improved; all 4 candidate facts hold on both replay models; partial synthetic coverage of ordinary home success after partial seeding |
 | 9 | open | 0 | node -e 'require("node:assert/strict").ok(require("node:fs").readFileSync("skills/loop-implementation/SKILL.md","utf8").includes("loop: repair seed"),"seed validation misses still stop without automatic repair and retry")'; exit 1; seed validation misses still stop without automatic repair and retry |
 | 10 | open | 0 | node -e 'require("node:assert/strict").ok(!require("node:fs").readFileSync("skills/loop-implementation/SKILL.md","utf8").includes("decision and evidence on every non-cut row survives"),"seed selection still requires evidence on every non-cut row")'; exit 1; seed selection still requires evidence on every non-cut row |
 | 11 | open | 0 | node -e 'require("node:assert/strict").ok(require("node:fs").readFileSync("doc/specs/2026-10-23-gh-68-loop-implement-engine.md","utf8").includes("#110"),"predecessor lacks the multi-row and partial-seed supersession note")'; exit 1; predecessor lacks the multi-row and partial-seed supersession note |
@@ -29,3 +29,4 @@ row 4 done | Enabled target-first same-leg extras with unchanged attempts and pe
 row 5 done | Done decisions now name reusable artifacts or explicitly report none, while failed decisions retain retry guidance. | Reuse the two handoff facts in row-and-evidence; do not redo decision wording when changing seed behavior.
 row 6 done | Companion admission now accepts same-leg extras with matching decisions and records every admitted row during recovery. | Reuse companion-multi-row; leave partial seed to row 7 and repair the two stale home-boundary test assertions during conformance work.
 row 7 done | Seed admission now accepts evidenced subsets at home and in companions while preserving zero attempts and unreached rows. | Reuse partial-seed and seed-recovery; leave empty-evidence guidance, seed retry and selection changes to rows 8-10.
+row 8 done | Empty evidence is now normal after partial seeding, and workers create a first check before closing or failing the row. | Reuse empty-evidence-row for ordinary follow-up coverage; leave automatic seed retry and selection to rows 9-10.
