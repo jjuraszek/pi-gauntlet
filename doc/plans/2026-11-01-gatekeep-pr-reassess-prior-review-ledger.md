@@ -2,12 +2,12 @@
 **Spec:** `doc/specs/2026-11-01-gatekeep-pr-reassess-prior-review.md`
 base: b5a2fb0fb8533150bca997f066ebeb997976bc0a
 verification: npm test
-iterations: 1
+iterations: 2
 cap: 29
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | ancestor-dispatch file assertion; FAIL: verification-brief.md has no prior_review selection; assessment.md has no ancestor dispatch; report.md has no Prior review line |
+| 1 | done | 1 | node eval/run.mjs gatekeep-pr prior-review-delta --base b5a2fb0fb8533150bca997f066ebeb997976bc0a; PASS: both replay models improved and all 14 candidate facts hold; ancestor-dispatch contract PASS: wave boundary and merge commands preserved; 7 touched skill files below 500 lines and 50000 bytes |
 | 2 | open | 0 | prior-item-closure file assertion; FAIL: findings.md has no R-item closure mapping or missing-closure rule; represented by R inline-comment state absent |
 | 3 | open | 0 | step4-outside-delta file assertion; FAIL: findings.md maps every Moderate to blocker without outside-delta exception; fix-wave.md already limits its own carried set but step 4 does not |
 | 4 | open | 0 | nonancestor-fallback file assertion; FAIL: assessment.md has no --is-ancestor check; report.md has no reason-bearing nonancestor fallback line |
@@ -17,3 +17,4 @@ cap: 29
 
 ## Decisions
 row 0 done | seeded 7 rows, closed 1 on baseline | take row 1: select the viewer's prior review and dispatch the ancestor delta
+row 1 done | Added viewer-review selection, ancestor delta tasks on both harnesses, and addressed counts; all 14 targeted eval facts pass. | Take row 2 to map R-item closure and suppress duplicate replies; do not redo selection or delta wiring.

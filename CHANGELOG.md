@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `gatekeep-pr` selects the viewer's newest submitted, non-dismissed review and, when its commit is an ancestor of the assessed head, sends the reviewer its posted items and only the intervening code delta. The report counts addressed items; contract checks still judge the whole head.
+
 ## v8.1.1 - 2026-11-01
 
 - Loop verification and finish run the deduplicated gate set of recorded row checks in their owning checkouts; CI on push owns the full suite. Gate output stays in session logs, repair children receive log paths, and the driver reads only a 20-line tail at the verify-step-1 human stop. Workers record selective commands with TDD and test-economy rules; ledgers without `checks:` stop instead of falling back to a full run. Loop PR summaries identify scoped verification; unmatched gate commands can leave `verification_runs` at zero and trigger the expected ship advisory without authorizing a full local run. (#109)

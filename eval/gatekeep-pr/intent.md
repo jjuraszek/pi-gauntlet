@@ -1,25 +1,12 @@
-for: ea72013de071d2ee7cfc2cce1463804926990671530edf1d80cffc7f7ed1e78e
+for: 3836dbd811661045c1688a70ed767a54d27c75f41a216efa08008faddc66b30f
 
 ## Change
-
-Render one PR's report and menu per turn in the batch summary round: include the first PR with the summary, then collect each pick before presenting the next PR's report and menu instead of asking for all picks at once.
-
-Exercise no-arg-discovery-over-cap, no-arg-discovery-single, no-arg-discovery-zero, no-arg-discovery-cc-multi, no-arg-discovery-failed and no-arg-discovery-under-cap for argument-resolution outcomes; exercise role-line-requested for refreshed pending relationships and report shape.
-
-## Comparison scope
-
-The full-target comparison includes the no-arg-discovery-* samples and role-line-requested targeted by this change, compared against the base commit's skill text. Judgments were refreshed for every sample because the intent text changed. The rebase did not re-stale any replay cell; the skill assembly's for: SHA is unchanged.
+Select the viewer's newest submitted, non-dismissed REST review as the baseline for an ancestor step-4 re-review. Supply its numbered body items and joined inline comments to the shared re-review task on both harnesses, with only the review-commit-to-head delta over the union of prior and current PR paths. Count explicit resolved closure lines in one Prior review report line. Preserve whole-head verification and contract judgments and the fix wave's existing pushed-head boundary. This iteration covers baseline selection, task construction and the addressed count; closure integration and nonancestor/same-head report variants have separate ledger rows.
 
 ## Expected to move
-
-- batch-summary-queue/s8: fails -> holds - Explicitly sequence each PR's report and menu after the previous pick instead of rendering multiple menus or requesting a combined reply.
-- no-arg-discovery-over-cap/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-single/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-zero/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-cc-multi/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-failed/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-under-cap/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- role-line-requested/r1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- role-line-requested/r2: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- role-line-requested/r3: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- role-line-requested/r4: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- prior-review-delta/d1: fails -> holds - Select the newest eligible viewer REST review with a numeric-id timestamp tie break.
+- prior-review-delta/d2: fails -> holds - Check ancestry and bound step-4 review to the selected review commit.
+- prior-review-delta/d3: fails -> holds - Keep removed or restored paths through the prior-and-current path union.
+- prior-review-delta/d4: fails -> holds - Build stable R items from the body followed by joined inline comments.
+- prior-review-delta/d5: fails -> holds - Supply the shared re-review task on both harnesses.
+- prior-review-delta/d6: fails -> holds - Render the addressed-items count from closure lines.
