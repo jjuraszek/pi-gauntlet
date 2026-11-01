@@ -224,7 +224,7 @@ test('coordinated reference reads use held membership before dispatch decisions'
     assert.match(line.split('. ')[0], /stop on an unreadable reference naming its path, never reconstruct it/);
   }
   assert.match(entryRead, /At seed and at an authorized restore/);
-  assert.match(entryRead, /On fresh entry apply its `## Entry` section instead of the home-only skeleton below/);
+  assert.match(entryRead, /On fresh entry apply its `## Entry` section at step 4 instead of the home-only skeleton below, using step 4's resolved allowance seed value\./);
   assert.match(entryRead, /On a restore apply its `## Resume` section before the dirty-tree stop and before any pending recovery/);
   assert.ok(dispatch.startsWith('When the held membership'));
   assert.ok(dispatch.indexOf(path) < dispatch.indexOf('| 1 |'));

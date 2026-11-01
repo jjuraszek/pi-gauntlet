@@ -536,7 +536,9 @@ test("ledger refresh completes only started implement and keeps failed, in-fligh
   for (const allCut of [true, false]) {
     const dir = tempCwd({ piGauntlet: { flowGuards: { enforce: false } } });
     const path = join(dir, "ledger.md");
-    const save = (status: string, pending = "") => writeFileSync(path, `# Ledger - loop engine\n${pending}\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | ${status} | 0 | check |\n\n## Decisions\n`);
+    execFileSync("git", ["init", "-q", dir]);
+    writeFileSync(join(dir, "spec.md"), "# Spec\n\n## Acceptance criteria\n- [ ] The tracker shows a readable step\n  in-scope\n");
+    const save = (status: string, pending = "") => writeFileSync(path, `# Ledger - loop engine\n**Spec:** \`spec.md\`\n${pending}\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | ${status} | 0 | check |\n\n## Decisions\n`);
     save(allCut ? "cut" : "failed");
     const branch = implementBranch().slice(0, -1);
     const h = harness({ cwd: dir, branch });

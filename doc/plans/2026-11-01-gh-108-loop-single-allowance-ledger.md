@@ -2,7 +2,7 @@
 **Spec:** `doc/specs/2026-11-01-gh-108-loop-single-allowance.md`
 base: 4cb3a8891e40a8c0749de9905ca62571bd42c3da
 verification: npm test
-iterations: 14
+iterations: 15
 cap: 49
 
 | row | status | attempts | evidence |

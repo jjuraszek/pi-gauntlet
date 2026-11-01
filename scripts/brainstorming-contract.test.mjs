@@ -132,7 +132,7 @@ test('evidenced drafted corrections are amend items while redraws retain the gat
     for (const marker of ['approved drafted acceptance-criteria row', 'quoted test, assertion, or code line', '`BLOCKED`/`NEEDS_CONTEXT`', 'reviewer-only or taste', 'ticket rows', 'row add/remove', 'problem statement', 'component boundary', 'full gate', 'disposition-only change', 'keeps the cut question']) assert.ok(text.includes(marker), `${path}: ${marker}`);
   }
   const aftermath = read('skills/brainstorming/reference/amendment-surface.md');
-  for (const marker of ['row identity', 'iterations and cap', 'including each `granted` record', 'reopened by amendment', 'at most two aftermath items', 'evidence repeating an already-applied', 'without restoration']) assert.ok(aftermath.includes(marker), marker);
+  for (const marker of ['row identity', 'iterations and allowance', 'including each `granted` record', 'reopened by amendment', 'at most two aftermath items', 'evidence repeating an already-applied', 'without restoration']) assert.ok(aftermath.includes(marker), marker);
   assert.ok(!aftermath.includes('Never auto-edit ticket or approved drafted AC row texts'));
 });
 
@@ -237,7 +237,7 @@ const walk = (dir) => readdirSync(new URL(`../${dir}/`, import.meta.url), { with
 test('standing grants own boundaries while amendment aftermath and finish recipe survive', () => {
   const text = read('skills/brainstorming/reference/amendment-surface.md');
   for (const marker of ['continued onto the next physical line', 'nor a `> **Superseded by:**` banner line', 'redraws always stop', 'grant never satisfies the spec gate', 'a resume honors the line as written', '**Amend-grant:**', 'skip steps 2-4', 'scope changes included', 'plan_check', 'recommended: accept', 'rescope-into-spec', "printf 'grant: %s\\n'", 'commit -q -F - --', 'Never take a grant from commit history, a handoff brief, or the transcript']) assert.ok(text.includes(marker), marker);
-  for (const marker of ['**Value decoding**', 'fund N fix rounds', 'N more fix rounds', '[1-9][0-9]*', 'budget-only', 'The budget is non-retroactive: rounds spent before the line was written do not count against or toward it.', 'never `accept` by default']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['**Value decoding**', 'fund N fix rounds', 'N more fix rounds', '[1-9][0-9]*', 'budget-only', 'The waves budget is non-retroactive: rounds spent before the line was written do not count against or toward it.', 'never `accept` by default']) assert.ok(text.includes(marker), marker);
   assert.ok(!text.includes('fresh-session resume with no grant'), 'old boundary sentence removed');
   const legacyRow = text.split('\n').find((l) => l.startsWith('| Line absent (legacy spec)'));
   assert.ok(legacyRow && legacyRow.includes('plan_check'), 'legacy insertion row names plan_check');
