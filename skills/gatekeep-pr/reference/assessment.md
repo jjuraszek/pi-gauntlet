@@ -103,7 +103,7 @@ Before step 3, mint the two output paths outside the worktree - `mktemp "${TMPDI
 | Step | Helper | Detail |
 |---|---|---|
 | 3 Verify | the `worker` persona, or `../verification-brief.md` Section B as the prompt (`../SKILL.md` `## Harness notes`) | task prefixed "report only - do not edit, fix, or commit anything"; writes the Verifier output schema to its output path; the orchestrator reads `source`, `head_sha`, `worktree_root`, each `run_cwd`, each check's `name`, `url`, `status`, and `conclusion`, each run's `command`, `result`, `exit_code`, and `log_path`, and the claim dispositions - never a log's contents |
-| 4 Review | the `wave-reviewer` persona, or Section C plus `../review-baseline.md` as the prompt | Check `## Prior-review ancestry`, then build the task through `## Step-4 review task` below; emit the native report plus the supplied closure lines to the output path. |
+| 4 Review | the `wave-reviewer` persona, or Section C plus `../review-baseline.md` as the prompt | Check `## Prior-review ancestry`, then build the task through `## Step-4 review task` below; emit the native report plus the closure lines under the closure-line contract of `fix-wave.md` `## Re-review task` to the output path. |
 
 ## Step-4 review task
 

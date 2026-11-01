@@ -219,7 +219,7 @@ test('gatekeeper leaves model knobs unset and has no skill discovery machinery',
 });
 
 test('assessment.md dispatches Verify and Review as fresh helpers with no inline path', () => {
-  assert.ok(!/\binline\b/i.test(assessment), 'no inline path remains');
+  assert.ok(!/\binline\b(?!\s+comments?\b)/i.test(assessment), 'no inline path remains');
   assert.ok(assessment.includes('## Helpers'));
   assert.ok(assessment.includes('gatekeep-verify.XXXXXX'));
   assert.ok(assessment.includes('gatekeep-review.XXXXXX'));
@@ -615,8 +615,9 @@ test('assess and terminal nit paths retain bounded write authority', () => {
   assert.match(decisionMenu, /^\| `approve` \| viewer\.is_author false, zero blockers, non-draft \|$/m);
   assert.match(loop, /^\| action_required \| `viewer\.is_author` true and `viewer_permission` at least `WRITE`: approve workflow run then watch under the course;/m);
   assert.match(decisionMenu, /zero blockers post nothing/);
-  assert.match(decisionMenu, /gh pr review --request-changes/);
-  assert.match(decisionMenu, /--comment/);
+  assert.match(decisionMenu, /one head-pinned review through `post-selection-loop.md` `### Fix wave`/);
+  assert.match(loop, /pulls\/<N>\/reviews -f commit_id=<assessed headRefOid> -f event=<event>/);
+  assert.match(loop, /`COMMENT` for `viewer\.is_author` true, `REQUEST_CHANGES` otherwise/);
   assert.match(decisionMenu, /Perform no repair or sync/);
   assert.match(decisionMenu, /C# thread replies behind reply/);
   assert.match(menus, /someone else's non-draft PR with zero blockers/);

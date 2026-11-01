@@ -1,4 +1,4 @@
-for: 12f1102141382cc5a0a1b28b674d2988348ea450c306e8f161aa51be3815289f
+for: 9994f4049838aed2603888f372bc60a9b235d4e5463fb133a0828575b92de920
 
 ## Change
 Append the no-commits-since suffix to nonempty same-head prior-review addressed counts, including items resolved by green CI or corrected descriptions without a commit. Exercise the existing empty-delta reviewer dispatch and explicit item closure on both harnesses. Keep the zero-item report form unchanged.
