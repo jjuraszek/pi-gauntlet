@@ -1,0 +1,560 @@
+{
+  "sample": "prior-review-force-push",
+  "arm": "candidate",
+  "skillSha": "4e3b66f05ce53aade7abe23dbd9f262a44946b82d19425c880700f9bda49dd86",
+  "inputSha": "e58687f8ad79cff400c7af6fa252a78a959fa44ef5387c1fca7ad2009cd785d5",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr 42: three prior-review checkpoints\n\nAll three checkpoints share the same state before the checkpoint-specific work begins:\n\n- **Run record.** The run record was minted before tracker initialization with `mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"`. It stores the target `{acme/widgets, 42, main}`, `course: null`, usage counters at 0, and `approved_head: null`. Its `state:` path is in the first tracker task name.\n- **Tracker.** `plan_tracker init` ran with `gather, provision, verify`. There is no `sync` stage because `--rebase` was not passed. `gather` and `provision` are complete.\n- **Assessed SHA.** Verification and the report both assess `2222222222222222222222222222222222222222`.\n\n---\n\n## Checkpoint A: review commit removed by a force push\n\n**1. Prior-review selection.**\n- I filter the REST reviews to `user.login == delta-example`, a state in {APPROVED, CHANGES_REQUESTED, COMMENTED}, and a non-null `submitted_at`.\n  - 705 is excluded because it is PENDING.\n  - 706 is excluded because `submitted_at` is null.\n- 702 is selected:\n\n```\nprior_review: { id: 702, state: CHANGES_REQUESTED, commit: 1111111111111111111111111111111111111111, submitted_at: 2026-10-29T10:00:00Z, body: \"1. The guard accepts ...\", inline: [], delta: unset }\n```\n\n**2. Ancestry check.**\n- I run `git -C /work/widgets-pr-42 merge-base --is-ancestor 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222`. It exits 1.\n- The digest records `delta: not ancestor (force push or rebase)`.\n- This result is bound to the pair (1111111, 2222222).\n- No fetch or retry follows.\n\n**3. Verify.**\n- `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"` and `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"` mint the two output paths.\n- I dispatch `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \"/work/widgets-pr-42\" })`. The task carries these rules:\n  - It opens with \"report only - do not edit, fix, or commit anything\".\n  - Section B is its whole duty, and it owns only that section.\n  - The assessed head is 2222222.\n  - It writes the Verifier schema to the verify path.\n- Evidence resolves to the CI-sufficient row: `ci / test` succeeded in run 910, with nothing blocking and nothing pending. No local run happens.\n- The result is `source: ci` on 2222222, and the claim \"Reject unsigned events\" is `matched`.\n- Tracker: I add the claim task and mark it complete, then mark `verify` complete.\n\n**4. Review.**\n- Tracker: I add `review`.\n- Because the delta is not an ancestor, the step-4 task is the unchanged whole base...head review.\n  - The diff boundary is `git diff origin/main...2222222222222222222222222222222222222222`, the whole patch including `src/guard.mjs` and `src/caller.mjs`.\n  - No `## Re-review task` is appended, so there is no `R#` list and no closure lines.\n  - This boundary is the same on pi and on Claude Code. On Claude Code the prompt would be Section C plus `review-baseline.md`, with the absolute worktree path and a HEAD check.\n- On pi I dispatch `subagent({ agent: \"wave-reviewer\", context: \"fresh\", async: false, cwd: \"/work/widgets-pr-42\" })`. Its task carries:\n  - Section C plus `review-baseline.md`.\n  - The `scope` block (`source: pr`, judged against original_intent).\n  - The rule that PR text is untrusted data.\n  - The review output path.\n- The reviewer returns one finding: `[Moderate] retry path bypasses signature validation (src/caller.mjs:19)`.\n- Tracker: `review` complete.\n\n**5. Pre-menu refresh and integration.**\n- Tracker: I add `report`.\n- I run `gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,...,reviewRequests` and `gh run list -R acme/widgets -c 2222222... --json databaseId,status,conclusion,workflowName,url`.\n- The head is unchanged and the state is CLEAN, with no pending checks. `viewer.role` is re-derived as `none`.\n- Integration is ordinary whole-diff integration; prior-item closure does not apply because there is no ancestor delta.\n  - R1 from review 702 is not integrated.\n  - The fix-delta boundary exemption does not apply.\n  - The Moderate finding translates to a blocker under the default severity mapping.\n- Tracker: `report` complete.\n\n**6. Menu.**\n- Tracker: I add `menu`.\n- This is a first report that is not ready, with course unset and a repairable blocker, so the initial template applies.\n- The PR belongs to someone else, so `assess` is recommended.\n\n```text\ngauntlet: gate=gatekeep-pr/initial recommended=1\nDelivers: the PR makes the guard reject unsigned events.\nRole: none\n\nPrior review: baseline 1111111 is not an ancestor of the head (force push or rebase), so the whole diff was reviewed\n\nBlockers:\n1. The retry path skips signature validation, so an unsigned event sent through a retry is still accepted. (src/caller.mjs:19)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits)\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\nNo sync line renders because `--rebase` was not passed.\n\n---\n\n## Checkpoint B: review commit absent locally\n\n**1. Prior-review selection.** The selection is identical to A: review 702 is selected with `commit: 1111111111111111111111111111111111111111`, `inline: []`, and `delta: unset`.\n\n**2. Ancestry check.**\n- I run the same `git -C /work/widgets-pr-42 merge-base --is-ancestor 1111111... 2222222...`. It exits 128.\n- Only the first stderr line is used, so the digest records `delta: not ancestor (fatal: Not a valid commit name 1111111111111111111111111111111111111111)`.\n- I do not fetch the old commit and do not retry.\n\n**3. Verify.**\n- I mint the same two `mktemp` output paths.\n- The same fresh `worker` helper runs with `cwd /work/widgets-pr-42`, report-only, with Section B as its whole duty and the assessed head 2222222.\n- The result is `source: ci` from run 910 (`ci / test` success) on 2222222, and the claim is `matched`.\n- Tracker: the claim task is added and completed, and `verify` is closed.\n\n**4. Review.**\n- Tracker: I add `review`.\n- The task is the whole base...head review, on both pi and Claude Code: `git diff origin/main...2222222222222222222222222222222222222222`.\n  - No Re-review task, `R#` list, or closure lines are added.\n- On pi I dispatch `subagent({ agent: \"wave-reviewer\", context: \"fresh\", async: false, cwd: \"/work/widgets-pr-42\" })` with Section C plus the baseline, the scope block, and the untrusted-text rule.\n- The reviewer returns `[Moderate]` for `src/caller.mjs:19`.\n\n**5. Pre-menu refresh and integration.**\n- Tracker: I add `report`.\n- The pre-menu refresh runs `gh pr view` and `gh run list`. The head is unchanged, the state is CLEAN, and the role is `none`.\n- Integration is ordinary whole-diff, with no prior-item closure. The Moderate finding becomes a blocker.\n\n**6. Menu.**\n- Tracker: I add `menu`.\n- The initial template applies, with `assess` recommended.\n\n```text\ngauntlet: gate=gatekeep-pr/initial recommended=1\nDelivers: the PR makes the guard reject unsigned events.\nRole: none\n\nPrior review: baseline 1111111 is not an ancestor of the head (fatal: Not a valid commit name 1111111111111111111111111111111111111111), so the whole diff was reviewed\n\nBlockers:\n1. The retry path skips signature validation, so an unsigned event sent through a retry is still accepted. (src/caller.mjs:19)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits)\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\nNo sync line renders.\n\n---\n\n## Checkpoint C: review commit is null\n\n**1. Prior-review selection.** Review 702 is still selected, since 705 and 706 are excluded as before. Its record is `commit: null`, `inline: []`, `delta: unset`.\n\n**2. Ancestry check.**\n- No git command runs because there is no commit to check.\n- The digest records `delta: not ancestor (review commit is missing)`.\n\n**3. Verify.**\n- I mint the two `mktemp` output paths.\n- The fresh `worker` helper runs with `cwd /work/widgets-pr-42`, report-only, with Section B and the assessed head 2222222.\n- The result is `source: ci` from run 910 on 2222222, and the claim is `matched`.\n- Tracker: the claim task is completed and `verify` is closed.\n\n**4. Review.**\n- Tracker: I add `review`.\n- The task is the whole base...head review on both harnesses: `git diff origin/main...2222222222222222222222222222222222222222`, with no Re-review task.\n- On pi I dispatch `subagent({ agent: \"wave-reviewer\", context: \"fresh\", async: false, cwd: \"/work/widgets-pr-42\" })`.\n- The reviewer returns no findings.\n\n**5. Pre-menu refresh and integration.**\n- Tracker: I add `report`.\n- The pre-menu refresh runs `gh pr view` and `gh run list`. The head is unchanged, the state is CLEAN, nothing is pending, and the role is `none`.\n- Integration is ordinary whole-diff, with no prior-item closure. There are zero blockers.\n- Every merge precondition holds, so this first report is ready and goes to the final template with course unset.\n  - `merge` is available: the PR is not a draft, the viewer has WRITE, the state is MERGEABLE and CLEAN, and squash is the merge policy.\n  - `approve` is available: the PR is someone else's, it is not a draft, and there are zero blockers.\n  - `approve` is recommended.\n\n**6. Menu.**\n- Tracker: I add `menu`.\n\n```text\ngauntlet: gate=gatekeep-pr/final recommended=2\nEvidence: CI (source: ci), head 2222222, run 910: ci / test success; 0 binding pending; merge_state_status CLEAN\nDelivers: the PR makes the guard reject unsigned events.\nRole: none\n\nPrior review: baseline unknown is not an ancestor of the head (review commit is missing), so the whole diff was reviewed\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash-merge the PR at 2222222.\n2. approve - approve the PR at the assessed head. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nType a number; show evidence prints the full record (CI run 910, ci / test success on 2222222, merge_state_status CLEAN).\n```\n\nNo sync line renders.\n",
+      "words": 1472,
+      "wallMs": 56130,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are three independent simulated runs. I use pi for every helper dispatch. Verification and review both assess `2222222222222222222222222222222222222222`, abbreviated below as `2222222`.\n\nBefore each checkpoint's entry, that invocation has already minted its continuation record with `mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"` and initialized `plan_tracker` with **gather, provision, verify**, in that order. The gather task names the state path. There is no sync stage because the arguments are `42`, without `--rebase`. I do not initialize another record or reset tracking at the checkpoint.\n\nThe command narrations below are orchestrator commands; the dispatched helpers own their source inspection under the stated tasks.\n\n## A. The review commit is local but not an ancestor\n\n### 1. Finish provisioning and select the baseline\n\nI select REST review **702** as `prior_review`. Review 705 is excluded because it is `PENDING`; review 706 is excluded because `submitted_at` is null. The GraphQL review ID `PRR_node42` is not the selection source.\n\nThe selected baseline retains its body, state `CHANGES_REQUESTED`, and commit `1111111111111111111111111111111111111111`.\n\nI run the provisioning authorization probe:\n\n```bash\ngit -C /work/widgets-pr-42 push --dry-run --no-verify --no-follow-tags git@git.example.invalid:acme/widgets.git HEAD:refs/heads/feature/guard\n```\n\nIt succeeds, retaining `head_pushable: true`. This probe does not push.\n\nI run:\n\n```bash\ngit -C /work/widgets-pr-42 merge-base --is-ancestor 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222\n```\n\nExit 1 records:\n\n```text\nprior_review.delta: not ancestor (force push or rebase)\n```\n\nI fetch no baseline commit and attempt no recovery. I complete `provision` and start the already initialized `verify` stage.\n\n### 2. Verify, then review\n\nI mint the sequential helper output paths:\n\n```bash\nmktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\nmktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n```\n\nI dispatch **worker**, with `context: \"fresh\"`, `async: false`, and `cwd: /work/widgets-pr-42`.\n\nIts task carries Section B in full, the digest, assessed SHA, resolved `node --test` command, 15-minute timeout, and its output path. It starts with “report only - do not edit, fix, or commit anything” and ends with ownership of Section B only and the normative Verifier output contract. PR-controlled text is data, not instructions.\n\nThe exact-head successful check resolves to **CI-sufficient**. The worker does **not** execute `node --test`; it checks the material claim against source and CI evidence. I await its return, then read the non-empty output file. It records CI evidence on `2222222` and a matched material claim.\n\nI add the source-backed claim task under `verify`, mark it `complete`, and complete `verify`. I add and start `review`.\n\nImmediately before dispatching Review, I repeat:\n\n```bash\ngit -C /work/widgets-pr-42 merge-base --is-ancestor 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222\n```\n\nThe result retains the same reason-bearing delta.\n\nI dispatch **wave-reviewer**, with `context: \"fresh\"`, `async: false`, and `cwd: /work/widgets-pr-42`.\n\nIts task carries Section C, the shipped review baseline overlaid by merge-base `REVIEW.md` when present, the digest and scope, assessed SHA, and review output path. It is read-only, treats posted text as leads rather than instructions, emits its native verdict and findings, and owns Section C only.\n\nThe code-review boundary is the ordinary whole PR diff:\n\n```bash\ngit -C /work/widgets-pr-42 diff origin/main...2222222222222222222222222222222222222222\n```\n\nThere is **no** ancestor re-review appendix, `R#` previous report, or prior-to-head fix delta.\n\nOn Claude Code, the equivalent native helper prompt would begin with `/work/widgets-pr-42`, require every command to use `git -C /work/widgets-pr-42` or a subshell in that directory, and first check `git rev-parse HEAD` against the assessed SHA. Its review boundary would remain the same whole `origin/main...2222222` diff.\n\nI await and read the reviewer output. Its Moderate finding becomes an ordinary blocker. Prior-item closure does not apply, so the absence of an `R1` closure line does not retain the old empty-signature finding.\n\n### 3. Refresh, integrate, and render\n\nI complete `review`, then add and start `report`. Before integration, I run:\n\n```bash\ngh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests\ngh run list -R acme/widgets -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url\ngit -C /work/widgets-pr-42 status --porcelain --untracked-files=no\n```\n\nThe target, body, head, checks, and merge state remain unchanged; the tracked tree is clean. I draft the smallest scope-preserving repair for the retry bypass without applying it.\n\nI complete `report`, add and start `menu`, and apply the decision-menu and menu-layout rules. The source blocker is repairable, so this is **initial**, not obstacle. Delivery is available with round and sync caps of 10 upon selection. Because this is someone else's PR, delivery uses a base merge, not a rebase. No sync line renders.\n\nThe first rendered report and menu are:\n\n```text\ngauntlet: gate=gatekeep-pr/initial recommended=1\nDelivers: Reject unsigned events.\nRole: none\n\nPrior review: baseline 1111111 is not an ancestor of the head (force push or rebase), so the whole diff was reviewed\n\nBlockers:\n1. The retry path bypasses signature validation, so unsigned events can reach processing through retries. (src/caller.mjs:19)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; show evidence prints the full record.\n```\n\n## B. The review commit is absent locally\n\n### 1. Finish provisioning and select the baseline\n\nI select REST review **702**, excluding 705 and 706 for the same eligibility reasons. Its commit remains `1111111111111111111111111111111111111111`.\n\nI run:\n\n```bash\ngit -C /work/widgets-pr-42 push --dry-run --no-verify --no-follow-tags git@git.example.invalid:acme/widgets.git HEAD:refs/heads/feature/guard\ngit -C /work/widgets-pr-42 merge-base --is-ancestor 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222\n```\n\nThe probe succeeds. The ancestry command exits 128, recording only the first stderr line as its reason:\n\n```text\nprior_review.delta: not ancestor (fatal: Not a valid commit name 1111111111111111111111111111111111111111)\n```\n\nI do not fetch the absent commit, retry its retrieval, or discard the selected review. I complete `provision` and start `verify`.\n\n### 2. Verify, then review\n\nI run:\n\n```bash\nmktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\nmktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n```\n\nI dispatch **worker**, fresh and synchronous, with `cwd: /work/widgets-pr-42`, carrying the same Section B-only, read-only, exact-head, timeout, untrusted-text, and output-contract rules as A.\n\nIt assesses `2222222222222222222222222222222222222222`. CI-sufficient evidence means `node --test` does not run. I await its return and read its non-empty output: CI evidence and the matched material claim.\n\nI add and complete the source-backed claim task, complete `verify`, and add and start `review`.\n\nImmediately before Review, I run:\n\n```bash\ngit -C /work/widgets-pr-42 merge-base --is-ancestor 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222\n```\n\nIt again exits 128. The same first-line reason remains authoritative; `additional diagnostic details` does not enter the delta.\n\nI dispatch **wave-reviewer**, fresh and synchronous, with `cwd: /work/widgets-pr-42`, carrying Section C, the merged baseline rubric, scope, assessed SHA, read-only rules, untrusted-text rule, and native output contract.\n\nOn **both pi and Claude Code**, the boundary is:\n\n```bash\ngit -C /work/widgets-pr-42 diff origin/main...2222222222222222222222222222222222222222\n```\n\nThe Claude Code prompt additionally enforces the absolute directory and initial exact-HEAD check described in A. Neither harness gets an ancestor re-review appendix or a diff against the absent commit.\n\nI await and read the reviewer output. Ordinary whole-diff integration translates the Moderate retry-bypass finding into a blocker. Prior-item closure does not apply; missing `R#` lines do not retain the baseline's old finding.\n\n### 3. Refresh, integrate, and render\n\nI complete `review`, then add and start `report`. I run:\n\n```bash\ngh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests\ngh run list -R acme/widgets -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url\ngit -C /work/widgets-pr-42 status --porcelain --untracked-files=no\n```\n\nEverything remains unchanged and tracked-clean. I draft, but do not apply, the retry-path repair. I complete `report`, add and start `menu`, and select **initial**. No sync line renders.\n\n```text\ngauntlet: gate=gatekeep-pr/initial recommended=1\nDelivers: Reject unsigned events.\nRole: none\n\nPrior review: baseline 1111111 is not an ancestor of the head (fatal: Not a valid commit name 1111111111111111111111111111111111111111), so the whole diff was reviewed\n\nBlockers:\n1. The retry path bypasses signature validation, so unsigned events can reach processing through retries. (src/caller.mjs:19)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; show evidence prints the full record.\n```\n\n## C. The selected review has no commit\n\n### 1. Finish provisioning and select the baseline\n\nI again select REST review **702**. Its null `commit_id` does not make it ineligible. Rows 705 and 706 remain excluded.\n\nI run:\n\n```bash\ngit -C /work/widgets-pr-42 push --dry-run --no-verify --no-follow-tags git@git.example.invalid:acme/widgets.git HEAD:refs/heads/feature/guard\n```\n\nThe probe succeeds. I run **no ancestry command**, because the selected review commit is null. I record:\n\n```text\nprior_review.delta: not ancestor (review commit is missing)\n```\n\nI complete `provision` and start `verify`.\n\n### 2. Verify, then review\n\nI run:\n\n```bash\nmktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\nmktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n```\n\nI dispatch **worker**, fresh and synchronous, with `cwd: /work/widgets-pr-42`, carrying Section B only and the same exact-head, read-only, untrusted-text, timeout, and output-contract rules.\n\nIt assesses `2222222222222222222222222222222222222222`. The CI-sufficient row skips `node --test`. I await and read its non-empty output, add and complete the source-backed material-claim task, and complete `verify`.\n\nI add and start `review`. Immediately before dispatch, I retain `not ancestor (review commit is missing)` without running Git.\n\nI dispatch **wave-reviewer**, fresh and synchronous, with `cwd: /work/widgets-pr-42`, carrying Section C, the merged rubric, scope, assessed SHA, read-only and untrusted-text rules, and native output contract.\n\nOn **both pi and Claude Code**, its review boundary is the ordinary whole PR diff:\n\n```bash\ngit -C /work/widgets-pr-42 diff origin/main...2222222222222222222222222222222222222222\n```\n\nClaude Code also receives the absolute-directory command rule and initial exact-HEAD check. Neither harness receives an ancestor re-review task.\n\nI await and read the clean reviewer output. Ordinary whole-diff integration applies. The prior review is not discarded, but its old item is not carried through prior-item closure.\n\n### 3. Refresh, establish readiness, and render\n\nI complete `review`, then add and start `report`. I run:\n\n```bash\ngh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests\ngh run list -R acme/widgets -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url\ngit -C /work/widgets-pr-42 status --porcelain --untracked-files=no\ngit -C /work/widgets-pr-42 rev-parse HEAD\ngh api repos/acme/widgets --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'\n```\n\nThe refreshed state remains exact-head and clean, the worktree remains synced with no unpushed commits, and the repository allows squash merging. There are no blockers, pending checks, comments, or drafted replies. `CHANGES_REQUESTED` alone does not create a blocker or override this actor's refreshed `CLEAN` state.\n\nI complete `report`, add and start `menu`, and select **final** with course unset. Merge is available; approval is available because this is someone else's non-draft PR with zero blockers. I recommend approval. No sync line renders.\n\n```text\ngauntlet: gate=gatekeep-pr/final recommended=2\nEvidence: CI (source: ci); head 2222222222222222222222222222222222222222; run 910: ci / test success; binding-pending count 0; merge_state_status CLEAN.\nDelivers: Reject unsigned events.\nRole: none\n\nPrior review: baseline unknown is not an ancestor of the head (review commit is missing), so the whole diff was reviewed\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash-merge the assessed head into main.\n2. approve - approve the assessed head without merging. [recommended]\n3. stop - leave the checkout and local branch as found.\n\nType a number; show evidence prints the full record (CI, source: ci; head 2222222222222222222222222222222222222222; run 910: ci / test success; binding-pending count 0; merge_state_status CLEAN).\n```\n\nEach checkpoint stops at its first menu. No review, approval, repair, sync, real push, or merge is performed.\n",
+      "words": 1791,
+      "wallMs": 64746,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "94b08618f39d14cfa6245bbe5aac73220cd92cb5c437f630036e566c16fae397",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4acccdc05371dcb51f058184fe2ca3f4957fb3aa64a9381b286bef38c21b8cf7",
+      "baselineOutputSha": "f6cf7f3e44cb42a70e3a1090c42f1ee039ceff48e6d8d35ad298c42a592368f6",
+      "candidateOutputSha": "f85490758d520905d950a6136ac02ee71924a9cba3542ff93b011e56113afb8e",
+      "facts": {
+        "p1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p7": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p8": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p9": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p10": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p11": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing regressed; After moved p2, p3, p4, p8, p9 and p10 from fails to holds. Before recorded the digest delta as `not-ancestor (exit 1)`, `unreadable (exit 128: ...)` and `not run (no commit recorded)`, and rendered the prior-review explanation as a `PR comments:` bullet instead of the single `Prior review: baseline ... is not an ancestor of the head (<reason>), so the whole diff was reviewed` line directly above Blockers/Verdict. After uses the exact delta values `not ancestor (force push or rebase)`, `not ancestor (fatal: Not a valid commit name 1111...)` (first stderr line only) and `not ancestor (review commit is missing)`, prints exactly one reason-bearing prior-review line in each report with no addressed-items count or fabricated SHA, keeps the whole base...head boundary on both harnesses, runs verify before review on head 2222..., adds no fetch or retry, and keeps the Moderate retry-bypass finding as the sole ordinary blocker in A and B while C stays mergeable. The After wording for this case is safe to keep; the only cosmetic variance is that A's step-2 note 'bound to the pair (1111111, 2222222)' is extra prose, not a change in reported state.",
+      "wallMs": 22503,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "94b08618f39d14cfa6245bbe5aac73220cd92cb5c437f630036e566c16fae397",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4acccdc05371dcb51f058184fe2ca3f4957fb3aa64a9381b286bef38c21b8cf7",
+      "baselineOutputSha": "0fc0346f6313a221a4eb47b3d06548f36ac8fe10d5ae006999c346b1a1f72883",
+      "candidateOutputSha": "190d0a395e5485969d8a98cf6dbd065f0ff9f829db24e54b1a59ebd9480b6945",
+      "facts": {
+        "p1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p7": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p8": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p9": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p10": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "p11": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and additionally lands p2, p3, p4, p8, p9 and p10, which Before missed: Before recorded the ancestry outcome as a bare `not ancestor` with no reason in A, as `check failed` (explicitly 'not a negative ancestry result', with both stderr lines retained) in B, and as `not checked` in C, and rendered a `PR comments:` bullet instead of the single reason-bearing `Prior review: baseline ... is not an ancestor of the head (...), so the whole diff was reviewed` line above Blockers/Verdict. After now writes `prior_review.delta: not ancestor (<reason>)` uniformly, uses only the first stderr line in B, invents no SHA in C (`baseline unknown`), and places the report line correctly. The second scheduled ancestry check immediately before Review dispatch is consistent with p6 (not a recovery retry), and C correctly retains the delta without running Git. Nothing in this case exercises the Change's new behaviors (exact-head R-closure counting, R2/R3 delivery, or the merge checkpoint), so no regression risk from those additions is visible here; keep the delta line and single `Prior review:` rendering exactly as they are, and make sure the new addressed-count logic stays gated on a usable ancestor delta so these `not ancestor` reports continue to omit any addressed-items count.",
+      "wallMs": 22419,
+      "verdict": "improved"
+    }
+  },
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "prior-review-force-push",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "7cf61aecbda31bbd16caadf13f89d2a634907c488a748dd8938f08a01a70454b",
+      "candidateSkillSha": "b8c6e37aa3d20707515361aba3fe6446a03347879601076eb9b077731bb26eb4",
+      "inputSha": "e58687f8ad79cff400c7af6fa252a78a959fa44ef5387c1fca7ad2009cd785d5",
+      "factsSha": "94b08618f39d14cfa6245bbe5aac73220cd92cb5c437f630036e566c16fae397",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cbadfab2cecfab58ff97acc7af0a3803315a7fc2a1584a7a7debcc21613f7092",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "f6cf7f3e44cb42a70e3a1090c42f1ee039ceff48e6d8d35ad298c42a592368f6",
+            "payloadSha": "452c288e13440564282aced96c991d482e2860a8f0da476968b03fffab59d52a"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "0fc0346f6313a221a4eb47b3d06548f36ac8fe10d5ae006999c346b1a1f72883",
+            "payloadSha": "68bacd7f25e4f9db522a3450c4d9663c2c765fc4eb9851f3f8b7b5896f6cbb6a"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "48257b9d705b8ca93f3300be9617ae3fc9abcd656236a52f17adf94a481075e5",
+            "payloadSha": "d064cbd3bd0cbe8294c46f123a7ed297974029fbd8624943bb695b68d0246e31"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "0cb706c597aa276a9323813fa50612278f40851549616ef1f69691f6059d3f39",
+            "payloadSha": "a3391ec50dea9a167f1f3f8e92e656125740684f9c953c5702a357f84f88131c"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "9c1362426637be32c4139fd3ab610f77c34cbd056bf18eeef00ccc402a96fd7c",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "cbadfab2cecfab58ff97acc7af0a3803315a7fc2a1584a7a7debcc21613f7092",
+        "baselineOutputSha": "f6cf7f3e44cb42a70e3a1090c42f1ee039ceff48e6d8d35ad298c42a592368f6",
+        "candidateOutputSha": "48257b9d705b8ca93f3300be9617ae3fc9abcd656236a52f17adf94a481075e5",
+        "facts": {
+          "p1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "p2": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p3": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p4": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p7": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p8": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p9": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p10": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p11": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After moved every expected fact and regressed none. Before selected 702 correctly and reviewed the whole diff on both harnesses, but its digest delta values were ad hoc (`not-ancestor (exit 1)`, `unreadable (exit 128: …)`, `not run (no commit recorded)`) and its reports rendered the fallback as a `PR comments:` bullet rather than a `Prior review:` line, so p2–p4 and p8–p10 failed. After uses the canonical `delta: not ancestor (<reason>)` values with the exact reasons (force push or rebase; first stderr line only; review commit is missing), renders exactly one `Prior review: baseline <sha|unknown> is not an ancestor of the head (<reason>), so the whole diff was reviewed` line directly above Blockers in A/B and above Verdict in C, states explicitly that nothing is fetched or retried, keeps verification before review on the current head, and translates the Moderate finding to an ordinary blocker without manufacturing an R-closure blocker. The wording that achieved this—one named delta value with a parenthesized reason, one fixed report line placed by whether Blockers exist, and an explicit 'first stderr line only' rule for exit 128—is what kept everything Before kept while delivering the Change; one small tightening would be to show the `Prior review:` line only in the report block and keep the `gauntlet:` header with the menu block, so the report/menu boundary stays as clear as in Before.",
+        "wallMs": 21461,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "9c1362426637be32c4139fd3ab610f77c34cbd056bf18eeef00ccc402a96fd7c",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "cbadfab2cecfab58ff97acc7af0a3803315a7fc2a1584a7a7debcc21613f7092",
+        "baselineOutputSha": "0fc0346f6313a221a4eb47b3d06548f36ac8fe10d5ae006999c346b1a1f72883",
+        "candidateOutputSha": "0cb706c597aa276a9323813fa50612278f40851549616ef1f69691f6059d3f39",
+        "facts": {
+          "p1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "p2": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p3": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p4": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p6": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "p7": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p8": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p9": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p10": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p11": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After delivers the Change well: all three checkpoints now record a reason-bearing `prior_review.delta` (`not ancestor (force push or rebase)`, the first stderr line only for exit 128, and `review commit is missing` with `baseline unknown` for the null commit), and each report renders exactly one `Prior review: ...` line above Blockers or Verdict with no addressed-items count, while selection of 702, whole base...head review on both harnesses, verify-before-review binding to the current head, and ordinary blocker integration are all preserved. The regression is p6: After introduces a second ancestry run 'immediately before dispatch' in A (step 8) and B (step 7), re-executing the exact `merge-base --is-ancestor` command that already failed in B and labelling it 'the required second boundary check, not a retry'; a careful reader still sees the failed ancestry check being retried, which contradicts the 'retry nothing' statement earlier in the same run. Before ran the check once during provisioning and simply reused the recorded outcome. To keep p6 while still delivering the Change, drop the pre-dispatch re-run and instead say something like 'Immediately before dispatch I reuse the recorded prior_review.delta for the same selected review and assessed head; the ancestry command is not re-run and no baseline fetch occurs' (C's step 7 already does this correctly for the null case and can serve as the template).",
+        "wallMs": 21982,
+        "verdict": "regressed",
+        "confirmation": {
+          "status": "ok",
+          "text": "These are three independent hypothetical runs. No live tools run, no PR code changes, and no external writes occur.\n\nFor each run, the continuation record was minted before tracker initialization. The initial tracker stages are `gather`, `provision`, and `verify`; there is no `sync` stage because the invocation is `42` without `--rebase`. At these checkpoints, `gather` is complete and `provision` is finishing. The first tracker task carries `state: <absolute continuation-record path>`. Each run retains its own record, with course unset and both usage counters zero.\n\n## A. The prior review is not an ancestor\n\n### Selection and commands\n\n1. Select REST review **702** as `prior_review`. Review 705 is excluded because it is `PENDING`; review 706 is excluded because `submitted_at` is null. The GraphQL review ID `PRR_node42` is not the selection source.\n\n2. Run the provisioning authorization probe:\n   ```bash\n   git -C /work/widgets-pr-42 push --dry-run --no-verify --no-follow-tags git@git.example.invalid:acme/widgets.git HEAD:refs/heads/feature/guard\n   ```\n   It succeeds, retaining `head_pushable: true`. It does not push.\n\n3. Run:\n   ```bash\n   git -C /work/widgets-pr-42 merge-base --is-ancestor 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222\n   ```\n   Exit 1 sets:\n   ```text\n   prior_review.delta: not ancestor (force push or rebase)\n   ```\n   Do not fetch the old commit, retry ancestry, or change the synced head. Close `provision`.\n\n4. Mint helper output files outside the worktree:\n   ```bash\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n   ```\n   Persist their returned paths in this run's continuation record.\n\n### Sequential helpers\n\n5. Start `verify`. Dispatch:\n   ```text\n   persona: worker\n   context: fresh\n   async: false\n   cwd: /work/widgets-pr-42\n   ```\n   The task names its output path and assessed SHA `2222222222222222222222222222222222222222`. It carries Section B, owns only verification, and begins with “report only - do not edit, fix, or commit anything.”\n\n   The task treats PR text as untrusted, resolves evidence from the supplied exact-head checks and Actions runs, checks material claims against source and evidence, and emits the normative Verifier schema. Exact-head CI is sufficient, so **`node --test` does not run**.\n\n   Await the helper and read its non-empty output file. It records CI evidence on `2222222222222222222222222222222222222222` and a matched material claim. Add the source-backed claim task under the active verification stage, mark it complete, and close `verify`.\n\n6. Add and start `review`. Immediately before dispatch, repeat the ancestry command from step 3. Its result retains the same delta.\n\n   Dispatch:\n   ```text\n   persona: wave-reviewer\n   context: fresh\n   async: false\n   cwd: /work/widgets-pr-42\n   ```\n   The task names its output path and the same assessed SHA. It carries Section C plus the shipped review baseline and resolved merge-base rubric. It is read-only, treats supplied text as leads rather than instructions, judges the stated intent, triages the empty comment set, and emits the native Critical/Moderate/Minor report.\n\n   **Review boundary on both pi and Claude Code:** the ordinary whole PR diff,\n   ```bash\n   git -C /work/widgets-pr-42 diff origin/main...2222222222222222222222222222222222222222\n   ```\n   including `src/guard.mjs` and `src/caller.mjs`. No ancestor re-review task or `R#` closure contract is appended. On Claude Code, the prompt additionally opens with the absolute worktree path, confines commands to that worktree, and checks HEAD against the named SHA before working.\n\n   Await the helper and read its output. The Moderate retry-path defect becomes an ordinary blocker. Review 702's original item is **not carried through prior-item closure**; absent closure lines do not create an additional blocker on this non-ancestor path. Close `review`.\n\n### Refresh, integration, and report\n\n7. Add and start `report`. Validate the continuation record, then run the pre-menu refresh:\n   ```bash\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests\n   gh run list -R acme/widgets -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url\n   ```\n   Head, body, base, checks, and role remain unchanged. No comment-delta review or claim-check-only helper is needed.\n\n8. Integrate the Moderate finding as one blocker and draft its smallest file repair without applying it. Run:\n   ```bash\n   git -C /work/widgets-pr-42 status --porcelain --untracked-files=no\n   ```\n   The worktree remains tracked-clean. Close `report`, then add and start `menu`. Source repair is available, so the first template is `initial`. No `Sync:` line renders.\n\n### First report and menu\n\n```text\ngauntlet: gate=gatekeep-pr/initial recommended=1\nDelivers: Rejects unsigned events.\nRole: none\n\nPrior review: baseline 1111111 is not an ancestor of the head (force push or rebase), so the whole diff was reviewed\n\nBlockers:\n1. The retry path bypasses signature validation, so unsigned events can pass through retries. (src/caller.mjs:19)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\n\nCourse holds until the final menu; show evidence prints the full record.\n```\n\n## B. The prior review commit is absent locally\n\n### Selection and commands\n\n1. Select REST review **702**, excluding 705 and 706 for the same reasons as A.\n\n2. Run:\n   ```bash\n   git -C /work/widgets-pr-42 push --dry-run --no-verify --no-follow-tags git@git.example.invalid:acme/widgets.git HEAD:refs/heads/feature/guard\n   ```\n   It succeeds without pushing.\n\n3. Run:\n   ```bash\n   git -C /work/widgets-pr-42 merge-base --is-ancestor 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222\n   ```\n   Exit 128 sets:\n   ```text\n   prior_review.delta: not ancestor (fatal: Not a valid commit name 1111111111111111111111111111111111111111)\n   ```\n   Only the first stderr line supplies the reason. Do not fetch the missing commit or retry ancestry. Its absence does not prevent reviewing the independently available whole PR patch. Close `provision`.\n\n4. Run:\n   ```bash\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n   ```\n   Persist the returned paths.\n\n### Sequential helpers\n\n5. Start `verify` and dispatch a fresh, synchronous `worker` in `/work/widgets-pr-42`, with Section B's report-only task, the exact assessed SHA, untrusted-input rules, CI-first evidence resolution, material-claim checking, and normative output contract.\n\n   Verification assesses **`2222222222222222222222222222222222222222`**. CI is sufficient; **`node --test` does not run**. Await and read the output, add and complete the matched source-backed claim task, then close `verify`.\n\n6. Add and start `review`. Repeat the ancestry command immediately before dispatch; retain its exit-128 delta without fetching or retrying.\n\n   Dispatch a fresh, synchronous `wave-reviewer` in `/work/widgets-pr-42`. Its task carries Section C, the baseline plus resolved merge-base rubric, the exact SHA, read-only and untrusted-input rules, stated-intent context, empty comment triage, and native findings output.\n\n   **On both pi and Claude Code, the boundary is:**\n   ```bash\n   git -C /work/widgets-pr-42 diff origin/main...2222222222222222222222222222222222222222\n   ```\n   Claude Code also receives the absolute-cwd command confinement and exact-HEAD check. Neither harness receives the ancestor re-review appendage or a prior-item closure obligation.\n\n   Await and read the output. Ordinary whole-diff integration preserves the Moderate retry-path finding as one blocker. Missing `R#` closure lines do not carry review 702's original item into this assessment. Close `review`.\n\n### Refresh, integration, and report\n\n7. Add and start `report`. Validate the record and run:\n   ```bash\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests\n   gh run list -R acme/widgets -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url\n   ```\n   Retain the unchanged exact-head CI evidence. No additional helper is dispatched.\n\n8. Draft the blocker repair without applying it and run:\n   ```bash\n   git -C /work/widgets-pr-42 status --porcelain --untracked-files=no\n   ```\n   Close `report`; add and start `menu`. Select `initial`. No `Sync:` line renders.\n\n### First report and menu\n\n```text\ngauntlet: gate=gatekeep-pr/initial recommended=1\nDelivers: Rejects unsigned events.\nRole: none\n\nPrior review: baseline 1111111 is not an ancestor of the head (fatal: Not a valid commit name 1111111111111111111111111111111111111111), so the whole diff was reviewed\n\nBlockers:\n1. The retry path bypasses signature validation, so unsigned events can pass through retries. (src/caller.mjs:19)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\n\nCourse holds until the final menu; show evidence prints the full record.\n```\n\n## C. The prior review has no commit\n\n### Selection and commands\n\n1. Select REST review **702**, retaining its null commit. Reviews 705 and 706 remain excluded.\n\n2. Run:\n   ```bash\n   git -C /work/widgets-pr-42 push --dry-run --no-verify --no-follow-tags git@git.example.invalid:acme/widgets.git HEAD:refs/heads/feature/guard\n   ```\n   It succeeds without pushing.\n\n3. Set, without running an ancestry command:\n   ```text\n   prior_review.delta: not ancestor (review commit is missing)\n   ```\n   Do not substitute the current head or fetch a baseline. Close `provision`.\n\n4. Run:\n   ```bash\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n   ```\n   Persist the returned paths.\n\n### Sequential helpers\n\n5. Start `verify`. Dispatch a fresh, synchronous `worker` in `/work/widgets-pr-42`, carrying Section B's report-only, exact-head, CI-first, untrusted-input, claim-checking, and normative-output rules.\n\n   Verification assesses **`2222222222222222222222222222222222222222`**. CI is sufficient; **`node --test` does not run**. Await and read its output, add and complete the matched source-backed claim task, then close `verify`.\n\n6. Add and start `review`. Immediately before dispatch, reaffirm the missing-commit delta without a git ancestry command.\n\n   Dispatch a fresh, synchronous `wave-reviewer` in `/work/widgets-pr-42`, carrying Section C plus the baseline and resolved merge-base rubric, the exact assessed SHA, read-only and untrusted-input rules, stated-intent context, empty comment triage, and native output contract.\n\n   **On both pi and Claude Code, the boundary is:**\n   ```bash\n   git -C /work/widgets-pr-42 diff origin/main...2222222222222222222222222222222222222222\n   ```\n   Claude Code additionally receives absolute-cwd command confinement and an exact-HEAD check. No ancestor re-review or `R#` closure contract applies.\n\n   Await and read the clean result. Ordinary whole-diff integration applies; review 702's original item is not retained merely because no closure line was supplied. Close `review`.\n\n### Refresh, integration, and report\n\n7. Add and start `report`. Validate the record and run:\n   ```bash\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests\n   gh run list -R acme/widgets -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url\n   ```\n   The refresh retains exact-head green CI, `MERGEABLE`, and `CLEAN`. `CHANGES_REQUESTED` does not independently become a blocker or establish a named GitHub restriction.\n\n8. Check tracked cleanliness:\n   ```bash\n   git -C /work/widgets-pr-42 status --porcelain --untracked-files=no\n   ```\n   It is empty. Read the repository's merge-policy flags:\n   ```bash\n   gh api repos/acme/widgets --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'\n   ```\n   The omitted result is clean, so squash is enabled. All readiness prerequisites hold. No extra verification, comment-delta review, CI watch, approval, or merge runs.\n\n9. Close `report`; add and start `menu`. Select `final` with course unset. No `Sync:` line renders.\n\n### First report and menu\n\n```text\ngauntlet: gate=gatekeep-pr/final recommended=2\nEvidence: CI (source: ci); head 2222222222222222222222222222222222222222; run 910, ci / test success; binding pending 0; merge_state_status CLEAN.\nDelivers: Rejects unsigned events.\nRole: none\n\nPrior review: baseline unknown is not an ancestor of the head (review commit is missing), so the whole diff was reviewed\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash the assessed head into main.\n2. approve - approve the assessed head without merging. [recommended]\n3. stop - leave the checkout and local branch as found.\n\nNot offered: fix nits (no nits); reply (no drafted replies).\n\nType a number; show evidence prints the full record (CI, source: ci; head 2222222222222222222222222222222222222222; run 910, ci / test success; binding pending 0; merge_state_status CLEAN).\n```\n",
+          "words": 1697,
+          "wallMs": 55685,
+          "mechanical": {},
+          "judgeWallMs": 23410,
+          "facts": {
+            "p1": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "p2": {
+              "before": "fails",
+              "after": "holds",
+              "label": "intended change"
+            },
+            "p3": {
+              "before": "fails",
+              "after": "holds",
+              "label": "intended change"
+            },
+            "p4": {
+              "before": "fails",
+              "after": "holds",
+              "label": "intended change"
+            },
+            "p5": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "p6": {
+              "before": "holds",
+              "after": "fails",
+              "label": "regression"
+            },
+            "p7": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "p8": {
+              "before": "fails",
+              "after": "holds",
+              "label": "intended change"
+            },
+            "p9": {
+              "before": "fails",
+              "after": "holds",
+              "label": "intended change"
+            },
+            "p10": {
+              "before": "fails",
+              "after": "holds",
+              "label": "intended change"
+            },
+            "p11": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            }
+          },
+          "feedback": "After delivers the Change cleanly: all three checkpoints now record `prior_review.delta: not ancestor (...)` with the right reason (exit-1 force-push wording, first stderr line only for exit 128, 'review commit is missing' with 'baseline unknown' for the null commit), and each report renders exactly one reason-bearing `Prior review:` line directly above Blockers or Verdict with no addressed-items count. The one regression is p6: in A step 6 and B step 6 After says to 'repeat the ancestry command immediately before dispatch', which in B means re-running the exit-128 check — a careful reader sees that as retrying a failed ancestry check, contradicting the same sentence's 'without fetching or retrying' and the fact's requirement to use the supplied outcome once. Before never re-ran the command. To keep p6 while preserving the new delta semantics, replace those pre-dispatch repeats with wording like 'reuse the recorded prior_review.delta from provisioning; do not re-run the ancestry check' (and for C, 'reaffirm from the record, no git command'), so the single supplied ancestry outcome for the 702/head pair is carried into review rather than recomputed."
+        },
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "94b08618f39d14cfa6245bbe5aac73220cd92cb5c437f630036e566c16fae397",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "cbadfab2cecfab58ff97acc7af0a3803315a7fc2a1584a7a7debcc21613f7092",
+        "baselineOutputSha": "f6cf7f3e44cb42a70e3a1090c42f1ee039ceff48e6d8d35ad298c42a592368f6",
+        "candidateOutputSha": "48257b9d705b8ca93f3300be9617ae3fc9abcd656236a52f17adf94a481075e5",
+        "facts": {
+          "p1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "p2": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p3": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p4": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p7": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p8": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p9": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p10": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p11": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After delivers the Change cleanly: each checkpoint now records the digest delta as `not ancestor (<reason>)` with the intended reason (force push or rebase from exit 1; the first stderr line only from exit 128; review commit is missing for the null commit), and each report renders exactly one `Prior review: baseline … is not an ancestor of the head (…), so the whole diff was reviewed` line directly above Blockers in A and B and above Verdict in C, with no addressed-items count and no manufactured SHA. Before failed p2/p3/p4/p8/p9/p10 because it wrote ad-hoc digest values (`not-ancestor (exit 1)`, `unreadable (exit 128: …)`, `not run (no commit recorded)`) and put the fallback in a free-form `PR comments:` bullet instead of the fixed line. Nothing that Before kept regressed: selection of 702 (excluding 705 and 706), whole-diff `origin/main...2222…` on both pi and Claude Code with no Re-review task, no baseline fetch or retry, verify-before-review on the current head, and Moderate as an ordinary blocker all survive. One small wording note: A step 7's 'The ancestry result for this same pair is still valid' is fine as the scheduled pre-dispatch check, but phrasing it as 'the step-4 pre-dispatch check reuses the same exit-1 outcome for 1111111/2222222' would make it unmistakably not a recovery retry.",
+        "wallMs": 21209,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "94b08618f39d14cfa6245bbe5aac73220cd92cb5c437f630036e566c16fae397",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "cbadfab2cecfab58ff97acc7af0a3803315a7fc2a1584a7a7debcc21613f7092",
+        "baselineOutputSha": "0fc0346f6313a221a4eb47b3d06548f36ac8fe10d5ae006999c346b1a1f72883",
+        "candidateOutputSha": "0cb706c597aa276a9323813fa50612278f40851549616ef1f69691f6059d3f39",
+        "facts": {
+          "p1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "p2": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p3": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p4": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p7": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "p8": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p9": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p10": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "p11": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After delivers the Change cleanly: each checkpoint now records a `prior_review.delta: not ancestor (...)` value with the intended reason (force push or rebase from exit 1; only the first stderr line from exit 128, explicitly dropping `additional diagnostic details`; `review commit is missing` for the null commit with no git command run), and each report renders exactly one `Prior review: baseline ... so the whole diff was reviewed` line directly above Blockers (A, B) or Verdict (C) with the 7-char or `unknown` baseline and no addressed-items count. Before failed p2–p4 and p8–p10 because it stored `check failed`/`not checked` instead of `not ancestor`, kept both stderr lines in the diagnostic record, and surfaced the fallback as a `PR comments:` bullet rather than the reason-bearing prior-review line. Note p1 already held in Before (702 was selected in all three runs), so it did not actually move. Nothing After does regresses the retained facts: whole-diff boundary on both harnesses, verify-before-review on the current head, no baseline fetch, and the two ancestry checks in A/B are the scheduled provisioning and pre-dispatch boundary checks consuming the supplied outcome, not recovery retries; the Moderate retry-bypass finding stays the single ordinary blocker and C remains mergeable. If anything, keep the C pre-dispatch step phrased as it is (\"reconsider ... no git command runs\") so readers cannot mistake it for a fabricated-SHA check.",
+        "wallMs": 19940,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "b61e8202d0a61871df820fd24150035fd339d0f0"
+}

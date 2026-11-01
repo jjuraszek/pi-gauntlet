@@ -69,6 +69,10 @@ Re-run every step-1 forge read for the PR (`../verification-brief.md` Section A 
 
 On a `rebased locally` head the forge re-read returns `<pre_head>` as `headRefOid`; keep it in the record and leave the digest's `headRefOid` at the local HEAD, which the scope-contract read and step 3 use, and take the digest's changed files and diff from `git diff origin/<base>...HEAD`. Mint one blocker `P#` per `scoped tests red in` clause before step 3 - evidence the helper's scoped-test output, the blocker contract of `findings.md` (IDs append-only, surviving re-renders); skip the local verification run - step 3 records `source: pending` for the local head (no claims) - the carried blockers are the verification evidence and the verdict is `fixable`; `plan_tracker` closes the `sync` stage `complete`.
 
+Before step 4, apply `assessment.md` `## Prior-review ancestry` to the
+refreshed REST reviews and the assessed head above; reset `delta` on a changed
+selection and check the new pair, never the pre-sync pair.
+
 ## Failure path
 
 Start the message with `gauntlet: stuck` followed on that line by the actual error on a restore/assert mismatch, and end the run. Keep ordinary recovered failures on their existing continuation path.

@@ -44,13 +44,35 @@ Behavior the spec keeps in scope is a blocker until its mechanism ships; a row t
 
 **One defect, one blocker.** A missing mechanism surfaces through several rules at once (reviewer finding, AC `gap`, doc drift, `contradicted` claim); render it as one blocker that names the defect and lists every locator, and keep each contributing rule's ID in the ledger.
 
-**Severity translation.** Reviewer Critical and Moderate -> blocker; Minor -> nit. A repo `REVIEW.md` mapping overrides this; a severity it names but does not map is fail-safe blocker, noted in `show evidence`.
+**Severity translation.** Translate reviewer Critical and Moderate to blocker, Minor to nit. Apply a repo `REVIEW.md` mapping instead when present; treat a severity it names but does not map as fail-safe blocker, noted in `show evidence`.
+
+For an ancestor step-4 re-review, integrate prior items through **Prior-item closure** below, then classify new reviewer findings by the supplied `## Fix delta` hunks, not merely by file membership. Apply this boundary before the default or repo severity mapping:
+
+| New finding | Integration |
+|---|---|
+| Inside the delta | Use the severity translation above. |
+| Outside the delta, Critical | Keep as a blocker. |
+| Outside the delta, Moderate or Minor | Print only under `show evidence` as `[Moderate] (outside fix delta)` or `[Minor] (outside fix delta)`, retaining text and locator; exclude from both `Blockers` and `Nits`. |
+
+Judge contract findings (AC outcomes, Design clauses, claim dispositions, check dispositions, doc drift) on the whole assessed head; apply no delta exemption to them.
 
 **Triage bar** for findings the orchestrator originates itself: blocker only when it must be fixed before merge (correctness, security, a material performance trap, a convention the repo enforces); everything else is a nit, whatever its category. The bar never re-triages a classification the severity translation already made.
 
 **Internal IDs.** `P#` (blocker or nit on code, a claim, a check), `L#` (AC `gap`, doc drift, scope creep), and the comment ledger's `C#` survive as keys for the post-push re-render diff and the fix wave; the human never sees them. IDs are append-only for the run: minted once, never renumbered, never reused. A fixed blocker leaves the rendered list on the next render; its ID stays in the ledger.
 
-**`C#` ledger.** Each ledger row carries its comment `id` and the `updated_at` it was minted against; the post-push diff (`post-selection-loop.md` `### Re-render`) runs against this ledger, never against the report text. Row states: a triage label (`already-addressed` / `reasonable` / `judgment-call`) with a drafted reply; `superseded by C<new>`; `withdrawn`; `pending`; `reviewer failed (<conclusion>)`. The last four carry no reply and are not replyable; `reply` skips them.
+**Prior-item closure.** For an ancestor step-4 review, integrate each supplied `R#` before new findings:
+
+| Closure line | Integration |
+|---|---|
+| `R<n>: resolved` | Drop the prior item from the rendered findings; retain its ledger identity. |
+| `R<n>: open - <why>` | Keep it open with its posted text and locator. |
+| No line for `R<n>` | Keep it open with its posted text and locator; add one `show evidence` line `R<n>: no closure line - kept open`. |
+
+Mint each open item's `P#` once, keyed to the selected review id and `R#`; reuse it on re-integration. Record `R<n>` as resolved for the report count when an exact-head pre-push reviewer returns a `P#`/`L#` `resolved` closure line for an id minted from that `R<n>`; never infer closure from a push alone. Deduplicate a native finding for the same defect into that `P#` under the one-defect rule; retain independent contributors. Classify the prior item from `prior_review.state` and `viewer.is_author`, never today's reviewer severity: blocker for `CHANGES_REQUESTED` or an own PR, nit otherwise. List open prior items first under `Blockers` or `Nits`. Keep `R#` keys and missing-line diagnostics under `show evidence`, not in the rendered lists.
+
+**`C#` ledger.** Each ledger row carries its comment `id` and the `updated_at` it was minted against; the post-push diff (`post-selection-loop.md` `### Re-render`) runs against this ledger, never against the report text. Row states: a triage label (`already-addressed` / `reasonable` / `judgment-call`) with a drafted reply; `superseded by C<new>`; `withdrawn`; `pending`; `reviewer failed (<conclusion>)`; `represented by R<n>`. Only triage-labeled rows carry replies; `reply` skips every other state.
+
+For an ancestor step-4 review, match each live inline `C#` comment id to `prior_review.inline[]` and its supplied `R#`. Set that row to `represented by R<n>` instead of a triage label and discard any drafted reply; keep closure on `R#`, whether resolved or open. Apply this mapping at initial triage and re-triage; preserve comment identity and the body-delta source-review rules.
 
 ## Dispositions
 

@@ -18,6 +18,24 @@ Then set the digest's `permissions.head_pushable` (`../verification-brief.md` Se
 
 When the digest reported `mergeable: UNKNOWN` or `mergeStateStatus: UNKNOWN`, re-poll once (`gh pr view --json mergeable,mergeStateStatus`) and write both values back to the digest (`mergeStateStatus` also to `permissions.merge_state_status`). Still `UNKNOWN` is not merge-ready: the loop's merge preconditions treat `mergeable: UNKNOWN` like `CONFLICTING`, and `merge_state_status: UNKNOWN` makes every pending check binding (`../verification-brief.md` Section B, binding classification) and withholds `merge` as `merge state unknown`.
 
+## Prior-review ancestry
+
+After provisioning and its HEAD check, and immediately before every step-4
+dispatch outside the own-push wave, check a non-null `prior_review` with
+`git -C <worktree> merge-base --is-ancestor <prior_review.commit> <headRefOid>`.
+Exit 0 sets `delta: ancestor` (including equal commits); exit 1 sets
+`delta: not ancestor (force push or rebase)`; any other exit sets
+`delta: not ancestor (<first stderr line>)`. For a null commit record
+`delta: not ancestor (review commit is missing)` without running git.
+Fetch no baseline commit and retry nothing. Bind the result to the checked
+review commit and assessed head; never reuse it on a different pair.
+
+On every re-entry to step 3, refresh the REST reviews and inline comments
+through Section A's fixed reads and re-run its selection; reset `delta` to
+`unset` when the selected review changes. Check ancestry on the new assessed
+head before step 4, including `sync.md`'s local-HEAD exception. Keep the
+own-push wave on its `pushed_head` boundary; it never reads `delta`.
+
 ## Configuration
 
 Resolve per concern, first match wins, evaluated unconditionally - never delegated to a wrapper skill:
@@ -85,6 +103,40 @@ Before step 3, mint the two output paths outside the worktree - `mktemp "${TMPDI
 | Step | Helper | Detail |
 |---|---|---|
 | 3 Verify | the `worker` persona, or `../verification-brief.md` Section B as the prompt (`../SKILL.md` `## Harness notes`) | task prefixed "report only - do not edit, fix, or commit anything"; writes the Verifier output schema to its output path; the orchestrator reads `source`, `head_sha`, `worktree_root`, each `run_cwd`, each check's `name`, `url`, `status`, and `conclusion`, each run's `command`, `result`, `exit_code`, and `log_path`, and the claim dispositions - never a log's contents |
-| 4 Review | the `wave-reviewer` persona, or Section C plus `../review-baseline.md` as the prompt | emits its native report to its output path; the one call-time addition is the closure-line contract of `fix-wave.md` `## Review before push`, used only in the wave |
+| 4 Review | the `wave-reviewer` persona, or Section C plus `../review-baseline.md` as the prompt | Check `## Prior-review ancestry`, then build the task through `## Step-4 review task` below; emit the native report plus the closure lines under the closure-line contract of `fix-wave.md` `## Re-review task` to the output path. |
+
+## Step-4 review task
+
+With `prior_review: null` or `delta: not ancestor`, keep the whole
+base...head review task unchanged. With `delta: ancestor`, append
+`fix-wave.md` `## Re-review task` on both harnesses with these caller values:
+
+- Previous report: retain the selected review body and number its numbered
+  list items `R1..Rn` in order. With no numbered list, use a non-empty body
+  as `R1`; an empty body contributes zero items. Append each selected inline
+  comment as the next `R#`, with `path:original_line` as its locator, or `path`
+  alone when `original_line` is null. Keep posted text and locators verbatim.
+  Record `n` as the total; zero items still dispatches with an empty list.
+- Fix delta: compute `<paths>` as the union of
+  `git -C <worktree> diff --name-only --no-renames origin/<baseRefName>...<prior_review.commit>`
+  and `git -C <worktree> diff --name-only --no-renames origin/<baseRefName>...<headRefOid>`.
+  Preserve paths restored to base, deleted, or renamed away through the
+  prior-commit set. An empty union yields no path diff, never an unbounded
+  command with the path filter omitted.
+
+Build the delta in chronological order, labeling each block with its command.
+Run every command with `git -C <worktree>`; quote each path as a shell word.
+
+| Observed history | `## Fix delta` content |
+|---|---|
+| Review commit equals head | The literal line `no commits since <sha7> - no code diff`; no diff command. |
+| `git rev-list --first-parent --reverse --merges <prior_review.commit>..<headRefOid>` is empty | `git diff <prior_review.commit> <headRefOid> -- <paths>` |
+| The first-parent range contains merge commits | Start `<from>` at `prior_review.commit`; for each merge, supply `git diff <from> <merge>^1 -- <paths>`, then `git show --remerge-diff <merge>`, then advance `<from>` to `<merge>`. Finish with `git diff <from> <headRefOid> -- <paths>`. |
+
+Inside a merge, include only conflict resolutions shown by remerge-diff as
+author work; keep ordinary author segments even when a hunk matches base.
+Supply only this delta as code-review scope, never the gathered base...head
+patch. Keep the whole-head digest for verification, AC/Design, claim, check,
+and doc-drift judgments; bounding reviewer taste never bounds those contracts.
 
 Verify and Review share the provisioned worktree via `cwd`, dispatched sequentially - never `worktree: true`, which provisions a separate tree and breaks the shared-tree contract. A helper that leaves its output file empty or not in its section's output contract (the Verifier output schema for Verify, the reviewer's native report for Review), returns a non-zero result, or returns an async handle stops the step: quote the failure and offer `stop`.

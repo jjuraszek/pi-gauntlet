@@ -1,25 +1,13 @@
-for: ea72013de071d2ee7cfc2cce1463804926990671530edf1d80cffc7f7ed1e78e
+for: 20f721b857bea924f420118b27472467ba71afb7ca76568c4f19876aaa5d0a75
 
 ## Change
-
-Render one PR's report and menu per turn in the batch summary round: include the first PR with the summary, then collect each pick before presenting the next PR's report and menu instead of asking for all picks at once.
-
-Exercise no-arg-discovery-over-cap, no-arg-discovery-single, no-arg-discovery-zero, no-arg-discovery-cc-multi, no-arg-discovery-failed and no-arg-discovery-under-cap for argument-resolution outcomes; exercise role-line-requested for refreshed pending relationships and report shape.
-
-## Comparison scope
-
-The full-target comparison includes the no-arg-discovery-* samples and role-line-requested targeted by this change, compared against the base commit's skill text. Judgments were refreshed for every sample because the intent text changed. The rebase did not re-stale any replay cell; the skill assembly's for: SHA is unchanged.
+Count exact-head pre-push reviewer closures of minted prior-item ids in the addressed count through the findings ledger. Extend the delivery checkpoint to show R2 closing through P1 while R3 stays open after push. Add an independent merge checkpoint exercising the chronological three-command delta, remerge-only merge work and review of a base-matching author hunk.
 
 ## Expected to move
-
-- batch-summary-queue/s8: fails -> holds - Explicitly sequence each PR's report and menu after the previous pick instead of rendering multiple menus or requesting a combined reply.
-- no-arg-discovery-over-cap/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-single/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-zero/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-cc-multi/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-failed/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- no-arg-discovery-under-cap/f1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- role-line-requested/r1: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- role-line-requested/r2: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- role-line-requested/r3: fails -> holds - Exercise the approved discovery and refreshed-role contract.
-- role-line-requested/r4: fails -> holds - Exercise the approved discovery and refreshed-role contract.
+- prior-review-delta/d19: fails -> holds - Record the reverse prior-item closure from the exact-head wave reviewer.
+- prior-review-delta/d20: fails -> holds - Count the repaired item after delivery while retaining the open fallback.
+- prior-review-delta/d21: fails -> holds - Preserve the wave boundary and consume its closures on own-push re-render.
+- prior-review-same-head/s7: fails -> holds - Supply the three chronological command blocks.
+- prior-review-same-head/s8: fails -> holds - Limit merge author work to remerge conflict resolutions.
+- prior-review-same-head/s9: fails -> holds - Review the base-matching author hunk.
+- prior-review-same-head/s10: fails -> holds - Render the merge checkpoint count without the same-head suffix.

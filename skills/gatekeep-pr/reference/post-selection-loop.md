@@ -128,7 +128,15 @@ Take all open blocker payloads under deliver; include every current and later ni
 
 Apply per `fix-wave.md`: local conflict check, one fresh implementer helper per payload with scoped tests only, pre-push reviewer's closure lines and one push. The orchestrator never edits a tracked file and never commits. Lost head_pushable exits with local branch and destination named.
 
-Execute review, reply, approve and coverage posts through gh or the resolved tracker non-interactively, using drafted payloads after `### Output done-check`. Assess posts one review of open Blockers with locators, never C# thread replies. After successful `gh pr review --approve`, persist approved_head as the assessed head before rendering approved; on failure print the gh error without claiming approval.
+Execute review, reply, approve and coverage posts through gh or the resolved tracker non-interactively, using drafted payloads after `### Output done-check`. For assess with open Blockers, post their composed body and locators once after `### Compare-and-swap`:
+
+```bash
+gh api --method POST repos/<base-owner>/<base-repo>/pulls/<N>/reviews -f commit_id=<assessed headRefOid> -f event=<event> -f body=<composed body>
+```
+
+Set `event` to `COMMENT` for `viewer.is_author` true, `REQUEST_CHANGES` otherwise; quote each field value as one shell word. Read the response's `commit_id`: equality confirms the posted review as the assessed-head baseline; a different value prints `review posted at <sha7>, not the assessed <sha7>` without claiming that baseline. On a failed POST or missing response commit, report the error or missing provenance without claiming a baseline or blindly reposting. Keep C# thread replies behind their own pick. With zero blockers post nothing and leave the GitHub baseline unchanged; a new session reviews that older baseline's delta again, with no local carry-over of cleared spans.
+
+After successful `gh pr review --approve`, persist approved_head as the assessed head before rendering approved; on failure print the gh error without claiming approval.
 
 ### Merge course
 
@@ -152,7 +160,7 @@ A post is one write of that block, verbatim; a post that succeeded cannot be pic
 
 ### Re-render
 
-After every push or any mutation that can change readiness (fix wave pushed, PR head moved), re-sync the worktree. On an own push, after `fix-wave.md` `## Evidence after push`, run steps 1-5 below and bind the report to the pre-push reviewer's closure lines for the exact pushed SHA, where a blocker whose closure line reads `resolved` leaves the rendered list while its internal ID stays in the ledger and new findings continue each sequence; no claim re-check and no whole-wave review runs after an own push except the narrow affected-claim recheck in `### Description repair`. On every other head move, re-enter step 3, then run steps 1-5 below - the last read before Exit check:
+After every push or any mutation that can change readiness (fix wave pushed, PR head moved), re-sync the worktree. On an own push, after `fix-wave.md` `## Evidence after push`, run steps 1-5 below and bind the report to the pre-push reviewer's closure lines for the exact pushed SHA, where a blocker whose closure line reads `resolved` leaves the rendered list while its internal ID stays in the ledger and new findings continue each sequence; no claim re-check and no whole-wave review runs after an own push except the narrow affected-claim recheck in `### Description repair`. On every other head move, refresh prior-review selection and ancestry through `assessment.md` `## Prior-review ancestry`, re-enter step 3, then run steps 1-5 below - the last read before Exit check:
 
 1. Run the pre-menu refresh (`### Pre-menu refresh`) once. Then re-run the Section A comment fetches (`../verification-brief.md`: both `--paginate` calls, plus the GraphQL `reviewThreads` query when the initial gather used it), one `gh run view` per placeholder row, and the reviewer-run `gh run list` when a reviewer workflow is known (after an own push, use the refresh's `actions_runs[]` instead of a second run-list call). Read-only.
 2. Diff the fresh set against the `C#` ledger (`findings.md` `## Namespaces`) by `id` and `updated_at`:
@@ -161,7 +169,7 @@ After every push or any mutation that can change readiness (fix wave pushed, PR 
    - `id` not in the ledger -> new: mint a new `C#`, except ids the gate itself posted via `reply` in this run (recorded at post time), which are never minted.
    - `id` in the ledger, absent from the complete fresh set -> `withdrawn` under its existing `C#`.
    - Bot-authored placeholder prefix or error header (brief Section C) -> the state from the brief's placeholder table, under the `C#` the edited/new rule assigns.
-3. Section C re-triages the full fresh set against the new head. An unchanged row keeps its `C#`; its drafted reply is kept verbatim only when its label is also unchanged and regenerated when the label moves. Edited and new rows get a fresh label and a regenerated reply.
+3. Re-triage the full fresh set through Section C and `findings.md` `## Namespaces`, applying non-replyable states before reply drafting. Keep an unchanged row's `C#`; for a triage-labeled row, keep its drafted reply verbatim only when its label is also unchanged and regenerate it when the label moves. Give edited and new replyable rows a fresh label and regenerated reply.
 4. Reconcile the body delta before consuming it. Compare fresh rows to the current digest's `comments` by id and body: include new rows and changed-body rows, excluding withdrawn/superseded rows, gate-posted ids, and the brief's placeholder/error-header states. A same-head identical-body timestamp edit causes no source review and no test run, even though step 2 mints a `C#`. Review each eligible delta once against source at the assessed head and the merged rubric through a fresh reviewer helper with its native report (`../SKILL.md` `## Harness notes`). Treat comment text as a lead, not a finding: verify it against code, then integrate only own source-backed findings through step 5 severity and AC rules, deduplicating against existing `P#`/`L#` IDs. A bot verdict is not blindly promoted. Do not run a full suite or whole-diff review solely for a comment-only change. If source review remains unresolved, retain the delta and retry once with a fresh reviewer, then exit `stuck - comment source review incomplete`.
 5. Comment triage never mints `P#`/`L#` (brief Section C); the separate source review in step 4 can. Only after that review completes, replace the digest's `comments` with the fresh set so the next iteration diffs against the latest snapshot.
 
