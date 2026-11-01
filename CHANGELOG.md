@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.1.0 - 2026-11-01
 
 - Both implement engines use the task tracker. Loop derives its view from the ledger with `plan_tracker refresh`, including in-flight rows, baseline skips and preserved conformance tasks; handoff and resume restore that view. Implement completes when every ledger row is closed, and verify step 1 runs the ledger's gate once per leg. Re-bounded rows during verify require an authorized ledger return, not a tracker-only close. (#106)
 - Telemetry counts name-based task reopens and parent verification-command matcher hits from implement start through seal. The performance digest adds `disp/task` (implement dispatch-result events / non-skipped tasks, `n/a` for missing or incomplete data) and `coord` (non-empty sealed companion deliveries). (#106)
