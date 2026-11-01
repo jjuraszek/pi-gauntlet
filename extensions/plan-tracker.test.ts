@@ -517,6 +517,20 @@ test("allowance labels count retry decisions, preserve identity and render on ev
     descriptions.map((description, i) => `${description} (${[2, 4].includes(i) ? "repo-b" : "repo-a"})`));
 });
 
+test("allowance labels tolerate surrounding whitespace in the header value", async () => {
+  const dir = ledgerFixture("plan-allowance-whitespace-");
+  const path = join(dir, "ledger.md");
+  const h = harness();
+  const labels = [];
+  for (const header of ["allowance: 4", "allowance:  4", "allowance: 4 "]) {
+    writeFileSync(path, ledger(["1 | open | 0 |"], "", header));
+    const result = await h.call({ action: "refresh", path });
+    assert.equal(result.details.error, undefined, header);
+    labels.push(result.details.tasks[0].label);
+  }
+  assert.deepEqual(labels, Array(3).fill(`0/4: ${descriptions[0]}`));
+});
+
 test("single-repo labels are projection-only and cannot enter through init or add", async () => {
   const dir = ledgerFixture("plan-label-input-");
   const path = join(dir, "ledger.md");

@@ -84,7 +84,7 @@ function ledgerTasks(text: string, path: string): Task[] {
   const header = lines.findIndex(line => /^\|\s*row\s*\|\s*status\s*\|\s*attempts\s*\|\s*evidence\s*\|$/.test(line));
   if (header < 0) malformed(0);
   if (!/^\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|$/.test(lines[header + 1] ?? "")) malformed(header + 1);
-  const allowanceMatch = lines.slice(1, header).map(line => /^allowance: ([1-9]\d*)$/.exec(line)).find(Boolean);
+  const allowanceMatch = lines.slice(1, header).map(line => /^allowance:\s*([1-9]\d*)\s*$/.exec(line)).find(Boolean);
   const allowance = allowanceMatch ? Number(allowanceMatch[1]) : undefined;
   const rows: { row: number; status: string; attempts: number }[] = [];
   for (let i = header + 2; i < lines.length && lines[i].trim() && !/^#{1,2}\s/.test(lines[i]); i++) {
