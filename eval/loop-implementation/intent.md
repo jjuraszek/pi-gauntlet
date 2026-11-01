@@ -1,13 +1,15 @@
-for: a86767fcccca2b1e031fb5374a045821274b92388104ab214d88b2dab3965758
+for: f06a092f0b675f055727e1be8d58e1e13f02d40e78e59a33a2cb7f089cc8a240
 
 ## Change
+
+Repair review findings on companion admission and rejected-return recovery. Run only companion-multi-row and partial-seed in this round. Require complete non-cut companion seed serialization with empty unevidenced open cells and evidenced-only counts; route post-boundary ordinary misses through target-only repair. These synthetic replays attest narrated admission and recovery, not live dispatch.
 Complete seed-retry conformance using the existing seed-retry sample's first miss, second consecutive miss, successful-window reset and companion cases. Rerun only seed-retry for this iteration; keep all other sample results, including partial-seed and seed-selection, unchanged. These replays prove narrated repair and stop behavior, not live dispatch. Refresh the deterministic home-boundary assertions to require restoring every changed row, not only the target.
 
 Select ordinary work after a surviving validated seed and its decision, including partial seeds with empty evidence cells. Use the ledger at HEAD and committed seed identity, preserving legacy full-coverage seeds and selecting seed after an authorized reset regardless of the consumed dispatch count. Add seed-selection for home partial/legacy/reset and coordinated seeded-flag continuations. Run only seed-selection in this iteration; these synthetic traces cover narrated selection, not live dispatch or admission. Keep closed admission and retry samples unchanged.
 
 Repair an admitted-boundary seed validation miss and retry seed once with the seed-contract instruction plus the concrete miss in hint. Restore rows and decisions, retain consumed iterations, clear pending and share the existing two-miss window across home and companion paths. Add seed-retry for first/second misses, successful-window reset, repair-to-retry resume and boundary exclusions. Run only seed-retry in this iteration; these synthetic traces cover narrated repair and retry, not live dispatch or ordinary seed selection. Leave the closed partial-seed admission sample unchanged.
 
-Admit a seed return with evidence on at least one non-cut row, including a companion subset that omits earlier mapped rows. Preserve unreached cells, zero attempts and cut dispositions; count returned evidenced rows and baseline closures, rejecting zero evidence and invented counts. Add partial-seed for home and companion admission only. Run only partial-seed here; these text replays cover narrated admission, not live dispatch, retry or next-target selection. Deterministic fixtures exercise the companion recipe beside its existing siblings.
+Admit a seed return with evidence on at least one non-cut row, including a complete companion row set with empty evidence on unreached open rows. Preserve unreached cells, zero attempts and cut dispositions; count returned evidenced rows and baseline closures, rejecting zero evidence and invented counts. Add partial-seed for home and companion admission only. Run only partial-seed here; these text replays cover narrated admission, not live dispatch, retry or next-target selection. Deterministic fixtures exercise the companion recipe beside its existing siblings.
 
 Admit companion target results plus same-leg open-to-done extras from four-cell commit rows and matching target-first decisions. Write every admitted row and decision in the home recording commit, retain the target's operational decision and recover the same result once without dispatch or checks. Add companion-multi-row for successful and failed targets, rejected result sets and pending recovery. Run only companion-multi-row here; deterministic companion fixtures exercise the inline recipe, while these partial text replays exercise parent recording instructions, not live runtime dispatch. Seed admission and seed retry remain outside this change.
 
@@ -55,7 +57,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - seed-selection/partial: fails -> holds - Continue ordinary work after a validated partial seed without filling unreached evidence cells first.
 - partial-seed/partial: fails -> holds - Admit a single evidenced home row while leaving unreached rows empty.
 - partial-seed/closures: fails -> holds - Admit baseline closures on a subset without demanding full coverage.
-- partial-seed/companion: fails -> holds - Record only the evidenced companion subset and mark that leg seeded.
+- partial-seed/companion: fails -> holds - Admit all three non-cut companion rows with evidence on only one, count only that evidence, reject omitted rows and incorrect counts, and mark that leg seeded.
 - companion-multi-row/admission: fails -> holds - Accept same-leg extra rows and matching decisions in the companion body.
 - companion-multi-row/home-write: fails -> holds - Write all admitted rows and decisions in one home recording commit.
 - companion-multi-row/failed-target: fails -> holds - Admit evidenced extras beside a failed target and retain its retry guidance.

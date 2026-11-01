@@ -1,6 +1,6 @@
 ---
 name: loop-implementer
-description: 'One loop-engine iteration: closes one acceptance-criteria ledger row with evidence, commits once, appends one decision line.'
+description: 'Dispatch for a loop-engine iteration on the target acceptance-criteria row plus proved same-leg extras, with evidence and one decision line each.'
 tools: read, write, edit, bash
 defaultContext: fresh
 inheritProjectContext: true
@@ -74,7 +74,7 @@ Stage the seeded evidence changes and ledger, remove `pending:` in that same com
 
 ## Companion result commit
 
-For a companion `pending:` input, replace ledger mutation/staging and decision appending in the procedure and output contract with the commit-body path below; leave the home ledger untouched. Limit work and seed checks to mapped entries for this leg. Apply the same one-commit and bounded evidence contracts. Prepare the resulting four-column `row | status | attempts | evidence` rows in memory, not a sidecar. Serialize them in the companion commit body instead of editing the home ledger; for seed serialize only this leg's evidenced non-cut subset (at least one row), preserving zero attempts and proven baseline closures; omit unreached rows. For ordinary work serialize the target, attempts +1 and status done/failed, plus each same-leg `open` -> `done` extra with attempts unchanged under step 6.
+For a companion `pending:` input, replace ledger mutation/staging and decision appending in the procedure and output contract with the commit-body path below; leave the home ledger untouched. Limit work and seed checks to mapped entries for this leg. Apply the same one-commit and bounded evidence contracts. Prepare the resulting four-column `row | status | attempts | evidence` rows in memory, not a sidecar. Serialize them in the companion commit body instead of editing the home ledger; for seed serialize all and only this leg's non-cut rows, including unreached open rows with empty evidence, preserving zero attempts and proven baseline closures. For ordinary work serialize the target, attempts +1 and status done/failed, plus each same-leg `open` -> `done` extra with attempts unchanged under step 6.
 
 Use the existing subject `loop: row <n> <status>` or `loop: seed evidence`. Put the exact dispatched `pending:` tuple and consumed `iteration:` on separate body lines, then a blank line, then the resulting pipe-delimited table rows without a header, then a blank line and one bounded decision line per changed row, target first (one seed decision for seed). Include the evidence command from Evidence command plus at most three semicolon-separated result lines and escaped pipes in each evidence cell. Compute seed decision counts from this leg only. Stage code/tests explicitly and commit exactly once in the companion; check clean status. Reply with those decision lines only. Let the parent validate the commit and write the home ledger.
 

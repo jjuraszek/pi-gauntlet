@@ -288,6 +288,17 @@ test('terminal home results refresh only after admission and retain pending on b
   assert.match(validation, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1/);
 });
 
+test('reconstruction restores rejected target and extras before task projection', () => {
+  const recovery = readFileSync(new URL('skills/gauntlet-resume/reference/reconstruction.md', root), 'utf8');
+  const interrupted = recovery.split('| Confirmed interrupted |')[1].split('\n')[0];
+  const home = recovery.split('| Home leg or single-member `home` |')[1].split('\n')[0];
+  for (const instruction of [interrupted, home]) {
+    assert.match(instruction, /restore every row the child changed \(target and extras\).*pre-dispatch copy.*tuple.*before refresh/);
+    assert.match(instruction, /decisions/);
+  }
+  assert.doesNotMatch(recovery, /restore the target row and the tuple|restore row <n> to its pre-dispatch/);
+});
+
 test('verify owns the gate set, bounded repair and authorized ledger re-bound', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
@@ -414,13 +425,15 @@ function validateCompanion(f) {
   return spawnSync('bash', ['-c', script], { encoding: 'utf8', env: { ...process.env, CHECKOUT: f.companion, PENDING: f.pending, ITERATION: '1', SAVED_LEDGER: f.admissionLedger } });
 }
 
-test('partial companion seed admits evidenced subsets and rejects invalid seed rows', () => {
+test('partial companion seed requires all leg rows and counts only evidence', () => {
+  const partial = ['| 2 | open | 0 | |', '| 4 | open | 0 | node --test later.test.mjs; assertion mismatch |', '| 5 | open | 0 | |'];
   const valid = [
-    ['later row only', ['| 4 | open | 0 | node --test later.test.mjs; assertion mismatch |'], 1, 0],
-    ['baseline subset', ['| 2 | done | 0 | node --test first.test.mjs; passed |'], 1, 1],
+    ['one of three evidenced', partial, 1, 0],
     ['complete seed', ['| 2 | done | 0 | check-first; passed |', '| 4 | open | 0 | check-later; failed |', '| 5 | done | 0 | check-baseline; passed |'], 3, 2],
   ];
   const invalid = [
+    ['counts empty cells', partial, 3, 0],
+    ['omitted rows', [partial[1]], 1, 0],
     ['no rows', [], 0, 0],
     ['empty evidence', ['| 2 | open | 0 | |'], 1, 0],
     ['foreign row', ['| 1 | open | 0 | check; failed |'], 1, 0],
@@ -435,11 +448,12 @@ test('partial companion seed admits evidenced subsets and rejects invalid seed r
   for (const [cases, passes] of [[valid, true], [invalid, false]]) {
     for (const [name, rows, seeded, closed] of cases) {
       const f = companionFixture('seed', true);
+      writeFileSync(f.admissionLedger, f.saved.replace('| 5 | done | 0 | node --test baseline.test.mjs; passed |', '| 5 | open | 0 | |'));
       returnCommit(f, { rows, decisions: [`row 0 done | seeded ${seeded} rows, closed ${closed} on baseline | row 2`] });
       const result = validateCompanion(f);
       assert.equal(result.status === 0, passes, `${name}: ${result.stderr}`);
       if (passes) assert.deepEqual(JSON.parse(result.stdout).rows, rows);
-      assert.equal(readFileSync(f.ledger, 'utf8'), f.saved, 'admission is read-only');
+      assert.equal(readFileSync(f.ledger, 'utf8'), f.saved.replace('| 5 | done | 0 | node --test baseline.test.mjs; passed |', '| 5 | open | 0 | |'), 'admission is read-only');
     }
   }
 });
