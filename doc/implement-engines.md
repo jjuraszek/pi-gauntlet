@@ -15,11 +15,17 @@ The implement-start guard in [phase-tracker.ts](../extensions/phase-tracker.ts) 
 
 A non-file engine artifact is outside this contract. Supporting an engine whose plan cannot be a hashed file requires a phase-state engine field and corresponding admission changes; that field does not exist.
 
+## Ledger returns
+
+An ordinary return may close the target plus extra `open` rows of its leg, each with its own command-first evidence and decision line. Only the target increments attempts; extras retain their counters. The worker completes the target before taking extras and reverts unfinished extras before its single commit. The parent admits the changed-row and new-decision sets without policing closure order or running checks after the return; an evidenced `done` extra beside a `failed` target is valid. The target's decision, not the last extra's, becomes the next dispatch's `previous decision:`.
+
+Seed records evidence for at least one non-cut row and may leave other rows `open` with empty evidence. Baseline-passing rows close with attempts 0. A validated partial seed prevents re-seeding; the next ordinary worker writes or names an empty-evidence row's check before implementation. One seed validation miss gets a repair-and-retry with the miss as hint; a second consecutive miss stops for a human. See [Ledger and recovery](configuration.md#ledger-and-recovery) for admission, counters and recovery.
+
 ## Ledger task projection
 
 `plan_tracker refresh` resolves the ledger's Spec reference against its repository root and reads the original indexed acceptance criteria. Single-repo rows use their row number; coordinated rows use the original AC index in `## Leg mapping`. Each row's display label contains the full criterion text, flattened to one line without checkbox markup or disposition metadata. Missing or unreadable specs, missing criteria and empty descriptions reject refresh atomically; row numbers alone never substitute for descriptions.
 
-For allowance ledgers, unresolved rows and done rows with attempts above zero display `<attempts>/<effective allowance>: <description>`. Cut rows, baseline-done rows and legacy cap-only ledgers display only the description. Coordinated labels append the owning repo. Task names stay `row N` or `row N (repo)` for matching and telemetry; `label` is projection-only, absent from the `init`/`add` input schema. The widget shows the label, while status separates identity from display text: `row 3 | 2/5: Verify loop behavior and recovery`.
+For allowance ledgers, unresolved rows and done rows with attempts above zero display `<attempts>/<effective allowance>: <description>`. Cut rows, zero-attempt done rows (baseline closures and child-closed extras alike) and legacy cap-only ledgers display only the description. Coordinated labels append the owning repo. Task names stay `row N` or `row N (repo)` for matching and telemetry; `label` is projection-only, absent from the `init`/`add` input schema. The widget shows the label, while status separates identity from display text: `row 3 | 2/5: Verify loop behavior and recovery`.
 
 Handoff copies status verbatim. Resume strips the recognized description suffix before restoring or comparing canonical ledger names, retains legacy plain and numeric-prefix names, and leaves Gn and other names unchanged. Refresh recomputes labels from current spec and ledger bytes; changed descriptions or allowances never create another task. The [brief contract](../skills/gauntlet-resume/reference/brief-contract.md#tracker-output-grammar) owns the parsing grammar.
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Loop returns close related rows and seed incrementally** (#110) - an ordinary worker can close same-leg open rows alongside its target, with evidence and a decision line for each; extras consume no attempts. Seed can leave unreached rows without evidence, and one seed validation miss gets a repair-and-retry before the human stop. A validated partial seed continues without re-seeding.
+
 ## v8.1.5 - 2026-11-01
 
 - `chase-bug` hotfix uses `loop-implementer` with a one-row ledger and a shared repair budget, escalating the last allowed attempt. Mandatory conformance and code review must pass on the final tested commit before landing; failed audits no longer continue to ship.
