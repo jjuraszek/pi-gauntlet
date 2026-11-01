@@ -36,9 +36,9 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "05bacdfb77f11ea0d0e5b421bfbea86b817c7280c6f1528790e7f2103f71aa5a",
+      "factsSha": "7e1df2cb9eeaf5ad5317db98a32549ac5e2c84f5825059e09c60b7394285d849",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "b7924f773aa6265a45280a9f6fde125705a3993fe168235543acf6891344423d",
       "candidateOutputSha": "a2283c6c4f946059df74e6fbcbf1c10f1c569b0426e724abc59a16e29561efde",
       "facts": {
@@ -48,9 +48,9 @@
           "label": "held"
         },
         "preserved": {
-          "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         },
         "question-first": {
           "before": "holds",
@@ -58,42 +58,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps the gauntlet: question prefix, the explicit discard/reset authorization in option 1, no cap-grant option, and the numeric snapshot (iterations 2, cap 9, row 1 attempts 1) with implement active and no terminal marker. What moved the preserved fact is the sentence \"The pre-dispatch row 1 cells and the `pending:` tuple were restored in the working ledger\" — this reports a write to the tree (and introduces a pending tuple the case never supplied) in a stop that the case says must execute nothing and leave the tree untouched, contradicting the adjacent \"Nothing has been discarded or reset.\" Before kept the fact by stating it had not cleaned, reset or committed anything and that the ledger shown was the last validated copy. Keep the Change's restore-on-rejection intent without touching the tree by phrasing it as in-memory/view state or as part of the authorized path: e.g. \"I have not written to the worktree; the snapshot below is the last validated ledger, and the row 1 cells/pending tuple will be restored from it only once you authorize the reset.\" Also consider keeping Recommendation at none, since nobody has inspected the uncommitted changes and recommending discard pre-empts the authorization boundary the stop exists to protect, even though the fact as written still holds.",
-      "wallMs": 17981,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty\n\nThe child returned one commit but left uncommitted changes in the worktree. The tree is not clean, so the commit was not admitted and no result from that return was read or projected. The task line carried the pre-bump count (`iteration: 1`). The ledger header carries the consumed count (`iterations: 2`). These two numbers are not compared with each other.\n\nLedger snapshot (row 1 target cells and `pending:` restored from the pre-dispatch copy; consumed count kept):\n- iterations: 2\n- cap: 9\n- row 1: open, attempts 1, evidence `check parser: expected colon, got comma`\n\nProblem: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nPreserve every row's attempts and the total iteration cap.\n\nOptions:\n1. **Authorize discard and reset.** This discards the uncommitted changes and resets to the last valid commit, then retries row 1. You can add a hint if you want. Before the next normal bump, iterations is set to the restored HEAD's value +1, so the consumed dispatch is not repeated.\n2. **Amend.** This goes through the brainstorming amendment surface for row 1.\n3. **Stop.** Implement stays active and the branch state and dirty changes are kept as they are.\n\nRecommendation: none - the uncommitted changes have not been examined, and discarding or resetting them needs your explicit authorization.\n",
-        "words": 224,
-        "wallMs": 13107,
-        "mechanical": {
-          "question-first": "holds"
-        },
-        "judgeWallMs": 16484,
-        "facts": {
-          "authorization": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "preserved": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "question-first": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Both facts survive the Change: After keeps the gauntlet: question prefix, the explicit 'needs your explicit authorization' line for discard/reset, no cap grant, the supplied snapshot (iterations 2, cap 9, row 1 open attempts 1), implement active and no done/stuck marker. Two wordings in After are risky, though. The snapshot caption 'row 1 target cells and `pending:` restored from the pre-dispatch copy' reads as if a restore write already happened on the rejected return, which a careful reader could take as touching the tree/ledger before authorization; Before's 'last validated copy' plus the up-front 'I have not cleaned, reset or committed anything' makes untouched-ness unambiguous, and After dropped that sentence. Also the headline 'iteration 1 left the tree dirty' versus the ledger's 'iterations: 2' invites doubt about whether the consumed count is preserved, even though the body explains the task-line vs header distinction. To keep every fact robustly while delivering the Change, caption the snapshot as the last validated/pre-dispatch view (not 'restored'), restore the explicit 'nothing cleaned, reset or committed' sentence near the top, and either headline the consumed count (iteration 2) or phrase it as 'the dispatch for task-line iteration 1 (ledger iterations: 2)'."
-      }
+      "feedback": "After keeps authorization intact: option 1 is still framed as \"Authorize discard and retry\", the discard and reset to the last valid commit are gated on the human's reply, and no cap grant is offered. After also satisfies the replaced preserved fact: it states nothing was discarded or reset, names the restored row 1 cells and `pending:` tuple as the only working-ledger write, keeps attempts 1 / iterations 2 / cap 9 in the rendered snapshot, keeps implement active via option 3, and renders no done/stuck marker. Before fails the fact as now written only because it never mentions the boundary-rejection restore of target cells and the pending tuple (it explicitly says it did not read the ledger from HEAD and wrote nothing), so the replacement wording is what moves it. One caution for After: \"Recommendation: 1\" sits uneasily next to \"nobody has inspected the uncommitted changes\" in Before; it does not break the authorization fact since discard still requires the reply, but if you want the stop to read as purely awaiting authorization, keep \"Recommendation: none\" or phrase it as \"if you authorize option 1, a hint about the colon/comma delimiter would steer the retry\" so the recommendation never reads as pre-deciding the discard.",
+      "wallMs": 17237,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "05bacdfb77f11ea0d0e5b421bfbea86b817c7280c6f1528790e7f2103f71aa5a",
+      "factsSha": "7e1df2cb9eeaf5ad5317db98a32549ac5e2c84f5825059e09c60b7394285d849",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "eca699b39b192cf65a4038839dc1d4a2bbd4dc9fea2718596f35e0908ae2760b",
       "candidateOutputSha": "ad0674042e1b648d88753a88f0100577b6866ee507b2a072c5498ddf4b6eecab",
       "facts": {
@@ -105,7 +77,7 @@
         "preserved": {
           "before": "holds",
           "after": "holds",
-          "label": "held"
+          "label": "intended but unchanged"
         },
         "question-first": {
           "before": "holds",
@@ -113,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps both facts: option 1 still requests explicit authorization to discard uncommitted changes and reset to the last valid commit, no cap grant is offered, the numeric ledger snapshot (iterations 2, cap 9, row 1 open, attempts 1) is rendered verbatim, and After additionally states 'Implement remains active' and 'No cleanup has been authorized or executed', which makes the preservation fact more directly observable than Before. Two drifts worth tightening so the authorization boundary stays unambiguous: After changes 'Recommendation: none - discard/reset requires your explicit authorization' to 'Recommendation: 1', which reads as the driver pre-selecting the destructive option before the human has spoken; keeping 'Recommendation: none' (or phrasing it as 'none until you authorize; option 1 is the usual recovery') would preserve Before's stance while still delivering the gauntlet: question prefix and snapshot. Also, option 2 shrank from 'preserve the current branch, commit, and uncommitted changes' to 'preserve the current branch state' - restoring the explicit mention of uncommitted changes keeps the tree-untouched guarantee legible in the menu itself rather than only in the trailing note.",
-      "wallMs": 14591,
+      "feedback": "After keeps both facts: option 1 still asks explicitly for authorization to discard/reset, no cap grant is offered, and the new lines 'No cleanup has been authorized or executed. Implement remains active.' plus the unchanged ledger snapshot (iterations: 2; cap: 9; row 1: open; attempts: 1) make preservation more observable than Before. Two drifts are worth tightening though. First, After switches 'Recommendation: none' to 'Recommendation: 1', which nudges toward the discard/reset action; the authorization boundary survives only because the trailing clause re-asserts it, so keep 'Recommendation: none - discard/reset requires your explicit authorization' to avoid any reading that the driver is pre-selecting the destructive path. Second, neither output states what the boundary rejection actually wrote (the restored target cells and the `pending:` tuple in the working ledger); add one sentence such as 'Boundary rejection restored row 1's target cells and the pending: tuple in the working ledger; nothing else was written, discarded, or reset' so the 'only tree write' clause of the preserved fact is shown rather than inferred. Also consider restoring Before's 'You may supply a hint' and 're-evaluate targeting before dispatch' phrasing, since After's 'then retry with a hint' makes the hint read as mandatory.",
+      "wallMs": 16613,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "69e1566d5198a2b05c4d4c57a35bd2b5a14312cf"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

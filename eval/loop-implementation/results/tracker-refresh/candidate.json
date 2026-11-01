@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "28970463e3b8feffe7977c411e7ae18f567f1bbb95086423321551eb79250673",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "86521d816357e0ba29f8a852af6d9f3dddeeda337935c86c12256dfa951820b6",
       "candidateOutputSha": "20c929b666372af2f315300e11b3b395423fe54e39cc897d4e46c86da943f496",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After moves all four facts to holds by replacing Before's driver-owned model with the tracker-owned one: Before never issued a path-only `plan_tracker` refresh, ran the full verification command as an in-implement exit gate, called `phase_tracker complete implement` explicitly, wrote no `pending:` tuple, and stated that ordering 'is the driver's', which contradicted seed, baseline, retry-order and cut-completion simultaneously. After fixes each: it quotes the single refresh call shape with only the absolute ledger path, places refreshes after implement start, after each pending write and after each admitted commit, writes `pending: seed | home | aaaaaaa` and `pending: 3 | home | bbbbbbb` uncommitted alongside the iteration bump, validates clean/single-commit returns (with the tuple and bumped iteration in the commit body) before the terminal refresh, lets the extension's refresh report implement complete at rule 1 before `start verify`, and runs `node --test check.mjs` only at verify step 1 with the amend/stop menu on failure. The cut commits `loop: cut row 3` with one refresh, preserving attempts 2, iterations 3, cap 13 and the Decisions history. Nothing regressed; if anything is tightened further, keep the explicit 'Who owns what' block in Snapshot 3 and the literal refresh call shape, since those are what carry retry-order and seed, and continue to state that the parent cut commit carries no tuple and is excluded from stagnation counting.",
-      "wallMs": 22204,
+      "feedback": "After delivers every fact that Before missed: Before never issued a path-only plan_tracker refresh, wrote no pending tuples, let the driver own task ordering, and ran exit verification plus an explicit phase_tracker complete-implement inside the implement phase, so all four facts failed there. After replaces those with the exact refresh call (path only), durable `pending: <target> | home | <HEAD_BEFORE>` tuples written with the iteration bump before the pre-dispatch refresh, commit-body tuple/iteration validation before admission, extension-owned projection and ordering (explicitly quoting 1, 3, 2 as extension output), refresh-driven implement completion at rule 1, and full verification moved to verify step 1 with a restricted amend/stop menu. One thing to watch: After's Snapshot 1 says the refresh happens as part of entry step 8 while the fact text names step 5; the numbering in After's entry list diverges from the skill's step numbers (step 5 in After is the worktree check), so if the skill's canonical step numbering matters to other facts, keep the entry list numbered to match the skill (plan_check/commit/start/refresh as step 5) rather than renumbering overrides/settings/verification as separate steps. Also After describes the cut commit as having 'no tuple' and never clearing tuples, which is correct for a parent commit, but Snapshot 3's Return 2 omits restating the clean/single-commit boundary line that Return 1 has; adding that one line keeps the admit-before-refresh fact uniformly observable across both returns.",
+      "wallMs": 19814,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "28970463e3b8feffe7977c411e7ae18f567f1bbb95086423321551eb79250673",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "4e13ebe6775142dbd605b2ae4bfaca8b9ec2d560cb1eb435587210c842309d75",
       "candidateOutputSha": "88abe5897be90965187954c604bee14967e2db7a7147b0cc8cc57e5291d54d33",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "Before fails every fact for the same structural reasons: it explicitly forbids `pending:` tuples, never calls `plan_tracker refresh` (treating the supplied statuses only as inert observations), runs the full `node --test check.mjs` gate inside implement, and issues an explicit `phase_tracker complete implement` call. After delivers the Change and moves all four facts to holds: it writes `pending: seed | home | aaaaaaa` / `pending: 3 | home | bbbbbbb` / `pending: 2 | home | H2` with the bumped iteration before the pre-dispatch path-only refresh and without an extra commit, validates the commit body tuple/iteration after the clean single-commit boundary and only then refreshes, lets the tracker auto-complete implement at rule 1, reads the completion references, starts verify, and moves the verification command to verify step 1 with no explicit implement-complete call. The one soft spot is that After says rule 1 'calls another refresh' after the post-admission refresh in cases 1–3; if the author wants exactly one refresh per boundary (the cut-completion fact says 'refreshes once' for the cut commit, which After does satisfy), consider wording rule 1 as 'require the implement-complete result of the most recent refresh' rather than always issuing a second refresh, and state explicitly in case 3 that only row 3's attempts cell changes (1→2) rather than relying on the 'all foreign cells unchanged' phrasing.",
-      "wallMs": 18480,
+      "feedback": "Before never calls plan_tracker refresh, never persists a `pending: <target> | home | <sha>` tuple, treats \"pending removed\" as extension-only state, runs the full verification command inside implement, and issues an explicit `phase_tracker complete implement` — so every fact that depends on path-only refreshes, home tuples persisted before dispatch, admission-before-refresh, and tracker-driven implement completion fails in Before. After fixes all of these: it refreshes with only the absolute ledger path after implement start, before each dispatch and after each admitted commit; it writes the bumped iteration plus `pending: seed | home | aaaaaaa` / `pending: 3 | home | bbbbbbb` / `pending: 2 | home | H2` without an extra parent commit and validates those two lines in the child commit body; it admits the clean single-commit return before refreshing and only then observes the extension's projected order; the `loop: cut row 3` parent commit is followed by exactly one refresh that preserves attempts/iterations/cap/history; and rule 1 requires the tracker's implement-complete before `start verify`, with `node --test check.mjs` run only at verify step 1. No fact moved from holds to fails. One minor hazard to watch in future edits: After's dispatch hint for the seed (\"even when iteration is greater than 0\") and the \"These counts are not compared to each other\" boilerplate are harmless here, but keep the commit-body validation lines (`pending:` then `iteration:`) explicitly stated per child, as that is what makes the retry-order and baseline facts observable.",
+      "wallMs": 19077,
       "verdict": "improved"
     }
   },
-  "repoSha": "69e1566d5198a2b05c4d4c57a35bd2b5a14312cf"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

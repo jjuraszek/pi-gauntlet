@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4ed888a1c5924cb6aaaa945ee42368e9f3d99603f2a122b8380e3fed56491b02",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "482b4d3a2334b868e1e3a1a70b16e645848bbc21b75dbc0a26adbf0342f77424",
       "candidateOutputSha": "66b0a2d6d5fd4e5441b59d1f9ae8957a1586f20815eefdb9e794bde723a9a056",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After still shows allowance 5, prints `funded round 1 of 2` then `2 of 2`, spent = min(attempts,5) − 3 with `budget: 2 of 2 spent` at the rule-2 stop, states the grant is prospective (three base attempts not charged), that funding gives no escalation/model override and does not bypass rule 3 or rule 4, that the second validation miss after a funding-only grant still stops, and that only `loop: retry row 1` restarts both windows while leaving attempts, iterations, cap (and pending) untouched; the contrast table makes this explicit. The pending-tuple/iteration admission in 1a.7 and the plan_tracker refreshes deliver the Change without touching any fact. Two small risks to watch: After merges the independent 'cap 4 already reached' snapshot into the stagnation stop (the clean cap stop is only described as the pass after a retry), so a reader looking for cap-first-with-funding gets it only via the table's 'Bypasses cap: no' row — keep a standalone 'cap reached, no stagnation' block as Before had; and the `Recommendation: <option> - <why>` placeholder drops Before's concrete 'none' / 'Retry with hint' lines, which a stricter reading of stop-text facts could count against.",
-      "wallMs": 16824,
+      "feedback": "Nothing moved: After still derives allowance 5 from fund 2, prints `funded round 1 of 2` at attempts 3 and `funded round 2 of 2` at attempts 4, computes spent as `max(0, min(attempts,5) - 3)` and shows `budget: 2 of 2 spent` at the rule-2 stop; it states the grant is prospective (base attempts not charged), that funding bypasses neither the rule-3 stagnation stop nor the rule-4 cap stop, passes no `model` override, resets neither the empty-child nor validation-miss window (snapshot 4 stops on the second miss after a funding-only grant; snapshot 2/3 say prior empties still stop), and reserves window resets for the `loop: retry row 1` commit while leaving attempts, iterations and cap untouched. The new pending-tuple/refresh material is layered on top without altering these counts, and the closing contrast table makes the funding/cap/retry distinction more legible than Before's single sentence. Two small things to watch so the fact stays observable rather than inferred: snapshot 5 generalizes to attempts *a* and `allowed attempts <a+1>` instead of the case's concrete attempts 4 / allowed 5 / `funded round 2 of 2` print — keep the concrete numbers so the second funded print after retry is explicit — and the `Recommendation: <option> - <why>` placeholder loses Before's concrete 'only a retry starts a new validation-miss window' rationale at the miss stop; restoring that line reinforces the window rule directly in the stop text.",
+      "wallMs": 14559,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4ed888a1c5924cb6aaaa945ee42368e9f3d99603f2a122b8380e3fed56491b02",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "05d5ac7fc2c9be8bdfd395ab2f0032342f5243eba5d617dda25a22f3f90c9abf",
       "candidateOutputSha": "84b297130ee73da325a6e4066f0c2477971406a2e4d614a2183916dc07bd4f41",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this fact: After still prints `funded round 1 of 2` then `2 of 2`, derives spent as `max(0, min(attempts, 5) - 3)`, reports `budget: 2 of 2 spent` at the allowance stop, states the grant is prospective (section 6), refuses model escalation and cap/stagnation bypass (sections 3-5), keeps both the child-only-empty and validation-miss windows intact under funding-only (sections 5 and 7), and reserves fresh windows for the explicit `loop: retry row 1` commit while leaving attempts, iterations and cap unchanged (section 8). The new material the Change asked for—`iterations: N` plus `pending: 1 | home | <HEAD>` written before dispatch, `plan_tracker refresh` after implement start/before dispatch/after admitted commits, boundary-first admission before reading the committed ledger, and the `gauntlet: question` prefix with the numeric budget line on every stop—is layered on without disturbing the funding/retry semantics. To stay safe in future edits, keep the explicit sentences 'Funding creates no retry decision and resets neither window' and 'Count only the window after the latest `loop: retry row 1` commit', and keep section 8's bullet list naming attempts, iterations, cap and funding-spent as unchanged, since those are the lines a reader uses to confirm this fact.",
-      "wallMs": 15179,
+      "feedback": "Nothing in the contract fact moved. After keeps allowance 5, prints 'funded round 1 of 2' then '2 of 2', derives budget with max(0, min(attempts, 5) - 3), reports '2 of 2 spent' at the row-allowance stop, treats the grant prospectively (0 of 2 recovered at attempts 3, no count resets), refuses escalation on funding alone, stops at cap 4 and on two child-only empty commits regardless of funding, stops on the second consecutive validation miss after a funding-only grant, and reserves fresh windows for the explicit `loop: retry row 1` commit while leaving attempts, iterations and cap untouched. The added pending-tuple/iteration-bump commit-body requirements, refresh calls and 'gauntlet: question' stop headers deliver the Change without disturbing any clause of the fact; if you revise further, keep section 8's explicit 'Attempts, iterations and cap stay unchanged' and section 7's 'Funding does not reset consecutive validation misses' lines verbatim, since those are the clauses most at risk when the tuple/refresh protocol is expanded.",
+      "wallMs": 11728,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "69e1566d5198a2b05c4d4c57a35bd2b5a14312cf"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

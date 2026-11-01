@@ -1,7 +1,7 @@
 {
   "sample": "legs-wrong-primary",
   "arm": "candidate",
-  "skillSha": "d3b09ce397a6ab1599eab737718e4bb9fa298f72a7a90f5cb9a989d7a78fe9b7",
+  "skillSha": "9c0002a441aec380b13b44a56f6d7e1b4c3c162355e0916f10e200471e3ec451",
   "inputSha": "f56532907cf09df5470bb831c07009ff21e43e73b24c53257f1540247036a5a9",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Resume stopped: the session runs in repo-b, but the brief's home is repo-a\n\nThe restore stops before any tracker write. Entry check 3 (same-repository binding) fails, so I make no `phase_tracker`, `plan_tracker`, `plan_check`, or receipt calls.\n\n**Tool calls, in order (read-only):**\n\n1. In the session cwd `/work/repo-b`:\n   `realpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"`\n   → `/work/repo-b/.git`\n2. For the brief's run-home worktree:\n   `realpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`\n   → `/work/repo-a/.git`\n\nThe two common directories differ. The session cwd is the companion primary, repo-b. The brief's run home is repo-a. This is entry from a member's primary on a coordinated brief. That means check 3b (Coordinated admission) and the call-table `plan_check` never run. I make no tracker mutation and do not `cd`.\n\n**Printed:**\n\n```\ngauntlet: stuck session common dir /work/repo-b/.git differs from worktree common dir /work/repo-a/.git\nThe resolved worktree /work/repo-a/.worktrees/feature-shared-change belongs to a different repository (/work/repo-a/.git) than the session cwd (/work/repo-b/.git); restart pi in that repository's primary checkout (/work/repo-a) and re-run /skill:gauntlet-resume.\nhome is repo-a; restart there\n```\n",
-      "words": 162,
-      "wallMs": 10302,
+      "text": "Resume stops at entry check 3 because the session is running from the companion primary `/work/repo-b`, not the home repository. It makes no tracker write and does not reach `plan_check`.\n\n**Tool call 1** (entry check 3, in the session cwd `/work/repo-b`):\n```bash\nrealpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult: `/work/repo-b/.git`\n\n**Tool call 2** (entry check 3, against the run home worktree from the brief):\n```bash\nrealpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult: `/work/repo-a/.git`\n\nThe two common directories differ. Settings and flow guards come from the repository in the session cwd. This is a coordinated brief and the session started on a member primary (repo-b), so the stop also names the run home. Check 3b (\"Coordinated admission\") keeps check 3's home binding, so the matching companion branch, common directory and `**Home:**` tuple do not admit this session.\n\n**Printed:**\n```\ngauntlet: stuck same-repository binding: session cwd common dir /work/repo-b/.git differs from worktree common dir /work/repo-a/.git — the resolved worktree /work/repo-a/.worktrees/feature-shared-change belongs to a different repository; restart pi in that repository's primary checkout (/work/repo-a) and re-run /skill:gauntlet-resume.\nhome is repo-a; restart there\n```\n\nThe following did not run, because the route stops with nothing mutated:\n- No `phase_tracker` call (no `start brainstorm` or `skip`).\n- No `plan_check` call.\n- No `plan_tracker init`.\n- No coordinated-admission fan-out.\n- No closing line and no standing-grant line.\n",
+      "words": 213,
+      "wallMs": 9781,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nRead-only call in session cwd `/work/repo-b`:\n```bash\nrealpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult: `/work/repo-b/.git`\n\nRead-only call:\n```bash\nrealpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult: `/work/repo-a/.git`\n\nPrint:\n```text\ngauntlet: stuck session git common directory /work/repo-b/.git differs from worktree git common directory /work/repo-a/.git; the resolved worktree /work/repo-a/.worktrees/feature-shared-change belongs to a different repository. Restart pi in that repository's primary checkout and re-run.\nhome is repo-a; restart there\n```\n\nStop before any tracker mutation or `plan_check` call.\n",
-      "words": 85,
-      "wallMs": 11367,
+      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nRead-only shell call in the session cwd, `/work/repo-b`:\n```bash\nrealpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-b/.git\n```\n\nRead-only shell call:\n```bash\nrealpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-a/.git\n```\n\nPrint:\n```text\ngauntlet: stuck resolved worktree /work/repo-a/.worktrees/feature-shared-change belongs to a different repository: session common directory /work/repo-b/.git differs from target common directory /work/repo-a/.git; restart pi in that repository's primary checkout and re-run.\nhome is repo-a; restart there\n```\n\nStop before any tracker write or `plan_check` call.\n",
+      "words": 87,
+      "wallMs": 12988,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "a780c7bcbd581dd02e5bac955be3853846ff0ac3891c540f4a54efd46c0f2c08",
-      "candidateOutputSha": "c7a0996cfc3d2aeda66338a001010e4b331d50412ad589e6bc6c8060d0798cda",
+      "candidateOutputSha": "2b5e6e9194f378b16d8af5fd42a4cdcc2d770f67f7913182acef1aae122ec2a2",
       "facts": {
         "stop": {
           "before": "holds",
@@ -44,8 +44,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the fact: each stops at entry check 3 before any tracker write, names the expected run home repo-a (including the restart-there line) and names the observed session cwd /work/repo-b as the companion primary, and neither resumes from the companion home. After actually sharpens this by stating explicitly in prose that the cwd is the companion primary and the brief's home is repo-a, by naming the stop as entry from a member's primary on a coordinated brief, and by ruling out `cd` and receipt calls alongside phase_tracker/plan_tracker/plan_check. Nothing moved; the wording change delivered the coordinated-flow framing while preserving the stop semantics, so no adjustment is needed for this case—keep the explicit 'session cwd is the companion primary ... brief's run home is repo-a' sentence, since it is the clearest evidence a reader has for the fact.",
-      "wallMs": 7386,
+      "feedback": "Both outputs satisfy the fact: each stops at entry check 3 before any phase_tracker, plan_tracker or plan_check call, names the expected run home repo-a (via the worktree common dir /work/repo-a/.git, the restart target /work/repo-a and the trailing 'home is repo-a; restart there' line) and names the observed companion primary (/work/repo-b and its common dir /work/repo-b/.git), and neither resumes as a companion-home run. After adds the explicit statements that the session 'started on a member primary (repo-b)', that check 3b keeps check 3's home binding so the matching companion branch/common dir/Home tuple do not admit the session, and that no coordinated-admission fan-out ran — all of which strengthen the attribution without moving the fact. No wording in After regressed anything Before kept; keeping the explicit 'home is repo-a' restart line, the pairing of both common directories in the stuck message, and the enumerated non-calls is what preserves the fact while delivering the coordinated-admission Change.",
+      "wallMs": 8985,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -53,7 +53,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
       "baselineOutputSha": "6b2dbb3dae1c2e646ac671fb624eb758dba8e9c7825011e6bda3f1096bcc22f6",
-      "candidateOutputSha": "6caccccf62b87576018cbd179d0666dbb952589699761bd61b1aa164f7b3c1c7",
+      "candidateOutputSha": "1dbec9ea222526de90099364a14d48244918402150117842a9bb983a25988b23",
       "facts": {
         "stop": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy the fact: each runs only read-only common-dir checks from the companion primary /work/repo-b and the home worktree, prints a stop naming the observed companion common directory /work/repo-b/.git against the home repository /work/repo-a/.git with the explicit line 'home is repo-a; restart there', and stops with no tracker mutation or plan_check call and no attempt to resume from repo-b as home. After adds the opening skill announcement and includes the resolved worktree path in the stop message, which does not move the fact and slightly improves clarity; the wording 'Stop before any tracker mutation or plan_check call' is an acceptable equivalent of Before's 'Stop. No tracker mutation or plan_check call.' No change is needed to keep this fact; if you want it stronger, have the stop line also name the observed companion primary checkout path (/work/repo-b) explicitly alongside its common directory so the expected-vs-observed pairing is stated in one sentence.",
-      "wallMs": 8139,
+      "feedback": "Both outputs satisfy the fact: each runs only read-only common-dir checks, prints a stop that names the expected home repo-a (\"home is repo-a; restart there\") alongside the observed companion session cwd /work/repo-b and its common directory /work/repo-b/.git, and explicitly stops before any tracker write or plan_check call with no attempt to resume from the companion as home. After's rewording (\"resolved worktree ... belongs to a different repository: session common directory ... differs from target common directory\") preserves everything Before carried and is slightly clearer about which directory is the session versus the target; the added skill-announcement line is harmless. No fact moved, so no wording adjustment is needed for this case — if you want the stop to be even more explicit against the fact, consider saying \"expected run home repo-a; observed session primary /work/repo-b (companion)\" verbatim so the expected/observed pair is named in one line rather than split between the shell call and the final line.",
+      "wallMs": 7880,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

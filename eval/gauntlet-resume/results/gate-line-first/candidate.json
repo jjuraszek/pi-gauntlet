@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "1665aa5f6d5514b313448989021a1043bdb716554f232ca1e9950403791a998b",
+  "skillSha": "06f6475c40acedb32ad1041163b4120d16d5ff253df087015bade904a5259041",
   "inputSha": "ce1d8ab809d2bd911a60b029791e86eda1286129912e9082b5c3fa3fae699947",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\n\nSpec: `/work/app/.worktrees/run/doc/specs/run.md`\nNo plan or ledger found in this worktree. No brief context is available. The spec's presence does not mean it is approved.\n\nIs this spec approved, or should I hand it to `/skill:brainstorming` as an unapproved draft?\n\n1. **Approved.** I'll arm the flow and continue based on the spec's `**Engine:**` line.\n2. **Hand off to `/skill:brainstorming`** with this spec as the draft. Nothing is armed, and no new worktree is created.\n\nReply with `1` or `2`. A reply of just \"not approved\" isn't enough for me to start the brainstorming handoff. Please pick option 2 if that's what you want.\n",
-      "words": 104,
-      "wallMs": 5352,
+      "text": "gauntlet: question\n\nNo `## Process state` to restore, so I reconstructed from the worktree. No brief context is available.\n\n- **Worktree:** `/work/app/.worktrees/run`\n- **Spec:** `/work/app/.worktrees/run/doc/specs/run.md`\n- **Plan / ledger:** none\n- **Brief context:** none (Intent and Decisions not available)\n- **Approval:** none on record, and the spec file being present does not count as approval.\n\nIs this spec approved, or should `/skill:brainstorming` pick it up as an unapproved draft?\n\n1. **Approved.** I run entry check 6 on the spec and read its `**Engine:**` line. Then I arm the flow with `start brainstorm` and `skip brainstorm` (reason `resume: /work/app/.worktrees/run/doc/specs/run.md`). After that I continue in the engine's route:\n   - for `loop`: loop-implementation Entry steps 1-5\n   - for `waves` or no engine line: `start plan`, then writing-plans\n2. **Hand off to `/skill:brainstorming` with this spec as the draft.** Nothing is armed. using-git-worktrees reuses the existing worktree and creates none.\n\nSaying only \"not approved\" doesn't choose option 2. I'll wait until you pick the handoff explicitly.\n",
+      "words": 153,
+      "wallMs": 7488,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\n\nSpec: `/work/app/.worktrees/run/doc/specs/run.md`\n\nBare worktree; no brief context available.\n\nIs this spec approved, or do you select `/skill:brainstorming` with this unapproved spec as the draft?\n\n1. **Approved** — resume using the spec’s engine.\n2. **Unapproved draft handoff** — select `/skill:brainstorming` with this spec as the draft.\n",
-      "words": 45,
-      "wallMs": 5286,
+      "text": "gauntlet: question\n\nSpec: `/work/app/.worktrees/run/doc/specs/run.md`\nContext: no brief context available.\n\nIs this spec approved, or do you select `/skill:brainstorming` with this unapproved spec as the draft?\n\n1. The spec is approved.\n2. Select `/skill:brainstorming` with this spec as the unapproved draft.\n",
+      "words": 40,
+      "wallMs": 4829,
       "mechanical": {
         "first-line": "holds"
       }
@@ -39,8 +39,8 @@
       "factsSha": "dde3abbd10e8bb73124ccc35fd7c22987629623fa1f57aa0c1a63df7fe072f24",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
-      "baselineOutputSha": "42a081153421b90304729faed288a71f6254f8582535f153fa9fad5617935535",
-      "candidateOutputSha": "dc56cc1e65193095ecf6bf402c380149307f168ecb7155a6297d080e0a27f23e",
+      "baselineOutputSha": "b2d7dc6a858c9578fb3100e269f27117183f7176fc6a084f5f377bd99ec2d448",
+      "candidateOutputSha": "6f9aed17290b133d0e91baab2773af6c248f6c44b1ef2c26f2a9047efad099aa",
       "facts": {
         "approval": {
           "before": "holds",
@@ -53,16 +53,16 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs ask the approval-or-brainstorming question explicitly, decline to infer approval from the spec's presence, and stop without any tracker action, so the fact holds in both. After does weaken the evidence slightly: Before states outright 'No tracker call has been made, and nothing is armed' as a standalone sentence, whereas After only says 'Nothing is armed' inside option 2 and option 1 promises 'I'll arm the flow' without naming the `**Amend-grant:**` check that must run first. To keep the fact as robustly held as Before while retaining After's tighter wording, add one sentence before the numbered options such as 'No tracker call has been made and nothing is armed until you answer,' and in option 1 say 'the `**Amend-grant:**` check runs first, then I read the `**Engine:**` line and continue' so the ordering of grant check before arming stays visible.",
-      "wallMs": 9918,
+      "feedback": "Both outputs ask the approval-or-brainstorming question explicitly, state that the spec's presence on disk is not approval, and defer every tracker action (arming, start plan, Entry steps) until option 1 is chosen, so the approval fact holds in both. After additionally delivers the Change by spelling out the post-approval arming sequence (entry check 6, start/skip brainstorm with the exact `resume: <spec>` reason, then loop Entry steps 1-5 or start plan) and the explicit refusal that 'not approved' alone selects the handoff. One small risk in After: Before's explicit line 'No phase has started and no tracker has been updated' was replaced by 'Nothing is armed' inside option 2 only; keeping a top-level statement such as 'No tracker has been touched; nothing happens until you answer' outside the options would make the no-mutation-before-answer guarantee unambiguous for every reader while preserving the new arming detail in option 1.",
+      "wallMs": 8327,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "dde3abbd10e8bb73124ccc35fd7c22987629623fa1f57aa0c1a63df7fe072f24",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "77a4632156a2b8c4e78c37734b0921801e057cbd4e1132f16ade8336247ff339",
-      "baselineOutputSha": "4d63bacc79f937450137955b7e072da1c2f12c9738c150a0c8fef5de0a804c9b",
-      "candidateOutputSha": "c81b3fd751dc990cec4e248588967a201c945496027c6d99850d15c2b2569d45",
+      "baselineOutputSha": "78b13bba57073ade6e11637030be63f3d8ab661c63bf940ee3a67eb794e5bd68",
+      "candidateOutputSha": "1d15e51c75b3c1d5c84550486fc639cef05446db156c0fc65fccd31b721ef92e",
       "facts": {
         "approval": {
           "before": "holds",
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs ask the approval question directly, offer the two required choices (approved vs. explicitly selecting brainstorming with the spec as an unapproved draft), and perform no tracker mutation or inferred approval, so the approval fact holds in both. After only reorders the spec/context lines and relabels the options; option 1's \"resume using the spec's engine\" is fine but slightly presumes an engine is known before the human answers — keeping Before's neutral \"continue from the spec\" avoids implying any pre-answer inference while still delivering the Change's intent, and option 2's \"Unapproved draft handoff\" label is acceptable since it still names `/skill:brainstorming` explicitly.",
-      "wallMs": 6016,
+      "feedback": "Both outputs ask the approval question before any tracker mutation, offer the two choices (approved vs. brainstorming with the unapproved draft), and neither infers approval or touches plan/ledger trackers, so the approval fact holds in Before and After. After's rewording (\"Context: no brief context available.\", restated option labels) is cosmetic and did not move the fact; the Change's ledger/PR/coordinated-flow behaviors do not apply to this input (no ledger, no brief, no plan), so no expected-to-move fact is observable here. Keep the explicit question and the two options as-is; if you want the After wording to visibly deliver the Change on this input, you could add a short line noting that no ledger or plan exists and nothing will be initialized until the answer, which preserves the approval fact while making the no-mutation boundary explicit.",
+      "wallMs": 6147,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "21914cd7131b7577067656d618889fed6956cd03"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

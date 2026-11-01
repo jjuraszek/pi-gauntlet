@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "93c687fc19ed2a20c4d7470583162c3d711c67636c97dbf0815a67a16f92c316",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "2718db56eb0dc2318deb86ffcc075c68468549f8789dd12bdfa73efb1dac94c4",
       "candidateOutputSha": "90b95f2d5f7e448f6e52e466fc77b0e98edbb7d9563589e52ed79320b6465b9b",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every conjunct of the contract fact: rows 1–3 (no disposition, in-scope, venue) start open while only the deviates/deferred/elsewhere rows start cut with disposition text as evidence; the skeleton is written, plan_check-admitted and committed as `loop: seed ledger` before `phase_tracker start implement`; A passes as partial closure and B as complete closure; C/D/E each stop for a human with an explicit 'no automatic seed retry' statement and the recommendation never auto-taken; and the subagent call still uses `context: fresh`, `async: false`, `outputMode: file-only`, `agent: loop-implementer`, the same worktree cwd, no model override and `acceptance: { level: none }`. The added pending-tuple persistence, commit-body validation and `plan_tracker refresh` calls deliver the Change without disturbing any of that. Two drifts worth watching, though they do not move this fact: the C stop now recommends `1 Retry with hint` instead of Before's `Recommendation: none`, which a reader could mistake for a softening of the 'no automatic retry' rule even though you state it is never auto-taken — consider keeping `Recommendation: none` for seed-contract violations, or at minimum restating in the menu that the reset requires explicit authorization; and the stop header now says `iteration 1` where Before said `iteration 0`, so pick one convention (task iteration vs consumed count) and name it in the message to avoid confusing the dispatched iteration with the bumped ledger count.",
-      "wallMs": 14382,
+      "feedback": "Both outputs satisfy the contract fact: rows 1-3 (no disposition, in-scope, venue) start open and only the deviates/deferred/elsewhere rows start cut; the skeleton is stamped with base/verification/cap, admitted by plan_check and committed as `loop: seed ledger` before `phase_tracker start implement`; A and B are admitted as partial versus complete baseline closure; C/D/E are human stops with an explicit statement that there is no automatic seed retry; and the dispatch is `context: fresh`, `async: false`, `outputMode: file-only`, to `loop-implementer` in the same worktree with no model override and `acceptance: { level: \"none\" }`. After adds the pending tuple, commit-body validation and plan_tracker refreshes without disturbing any of those conjuncts. One thing to watch: After's seed-miss stop now carries `Recommendation: 1 Retry with hint` where Before said `Recommendation: none`; since the change says the recommendation is never auto-taken on a hard boundary, that is not a fact movement here, but if a stricter seed-recovery fact asks that no retry be recommended for a seed-contract violation, keep Before's `Recommendation: none` wording while retaining the new `gauntlet: question` prefix and the explicit reset-authorization menu item.",
+      "wallMs": 11485,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "93c687fc19ed2a20c4d7470583162c3d711c67636c97dbf0815a67a16f92c316",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "21cad4c6e453eed7a617c8ffa3b2439c8897cba746097326e468455e45549a35",
       "candidateOutputSha": "1ec1081f1307705f69f8d0784937e7c1a6666a12eaa4bd4fb8146dc77746f301",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing in the contract fact moved: After still starts AC1 (no disposition), AC2 (in-scope) and AC3 (venue) open and cuts only AC4–AC6; it stamps the skeleton with plan_check and commits `loop: seed ledger` before `phase_tracker start implement`; it admits A as valid partial closure (row 2 next) and B as valid complete closure (no target, verification at verify step 1); it rejects C/D/E with explicit no-automatic-seed-retry stops under a `gauntlet: question` marker; and the dispatch keeps `context: \"fresh\"`, `async: false`, `outputMode: \"file-only\"`, `agent: \"loop-implementer\"`, `cwd: W`, `acceptance: { level: \"none\" }` with no model override. The added pending tuple, commit-body iteration lines, `plan_tracker refresh` calls and the verify-phase relocation of `make check` are layered on top without disturbing any conjunct. One minor polish: `(cd \"W\" && mktemp)` reads as if the temp file is created inside the worktree—Before's phrasing \"mktemp outside the repository\" is clearer; keeping that wording would avoid any reader doubt about the output path while still delivering the Change.",
-      "wallMs": 12015,
+      "feedback": "After preserves every conjunct of the contract fact: AC1 (no disposition), AC2 (in-scope) and AC3 (venue) all initialize open with only AC4–6 cut; the skeleton is written, plan_check-admitted and committed as `loop: seed ledger` before `phase_tracker start implement`; A and B are admitted as valid partial versus complete baseline closures; C/D/E are rejected with explicit no-automatic-seed-retry language and `gauntlet: question` stops; and the seed dispatch is a single `subagent` call with `agent: loop-implementer`, `context: fresh`, `async: false`, `cwd: W`, `outputMode: file-only`, `acceptance: { level: none, ... }` and an explicit 'no model override' statement. The added pending-tuple/iteration commit-body lines, `plan_tracker refresh` calls, boundary before-image restore and the verify-phase move of `make check` in B are all additive and do not disturb the fact, so no wording change is needed to retain it; if anything, keep the explicit 'No model override is supplied' sentence and the `level: \"none\"` block adjacent to the call, as After does, since those are the conjuncts a terser rewrite would most easily drop.",
+      "wallMs": 10343,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "69e1566d5198a2b05c4d4c57a35bd2b5a14312cf"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

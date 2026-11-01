@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e9c75d176eda514403b6f4b8fc3c9c1623d7d01140a12f16e158317a410bfde0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "e668a2c2c0891f101b2c1cd0c3eed50aff2f3b95722103e1a2a97d640682d11e",
       "candidateOutputSha": "50f546dd33f2bf0914cae32e1623c563168662a06fb9a26935c8b80000b607c6",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every element of the contract fact: the Snapshot 1 stop quotes the concrete assertion and the last decision verbatim with no round history or model escalation; Choice A appends `row 1 retry | map delimiter | allowed attempts 4` with attempts staying 3 and iterations I; Choice B routes through the brainstorming amendment surface; Choice C leaves implement active; Snapshot 2 stops on two child-only empty commits while explicitly excluding interleaved parent repair commits; the post-retry window starts at the retry commit with 0 child commits, passes after one empty child commit (window has one), and stops after the second, with attempts a+2 and every consumed iteration preserved. Nothing moved. Two incidental drifts the author may want to watch, though neither touches this fact: After's dispatch task passes `previous decision: row 1 retry | ...` where Before passed the last `row 1 failed` decision line (a future fact about the hint/decision payload could catch this), and both stops now read `Recommendation: none` where Before recommended retry; if the Change intends restricted menus, keep it, otherwise restore the concrete recommendation so the stop still steers the human.",
-      "wallMs": 14592,
+      "feedback": "After keeps the contract fact intact: both stops quote the concrete assertion and the last decision verbatim with no round history or model escalation, the retry appends `row 1 retry | map delimiter | allowed attempts 4` with attempts staying 3 and iterations at I, the cut goes through the brainstorming amendment surface, the stop leaves implement active with no commit, the stagnation stop counts only child `loop: row …` commits and ignores interleaved parent repairs, and the post-retry sequence explicitly shows a fresh window at the retry commit (0 commits → pass, one empty → pass, second empty → stop) with attempts a+2 and consumed iterations preserved. The added `pending:` tuple write, `plan_tracker` refresh, admission step and the Recommendation-none wording all layer on without disturbing the fact. Two small things worth tightening so the new wording stays clearly aligned with Before: the Snapshot 1A dispatch now passes `previous decision: row 1 retry | map delimiter | allowed attempts 4` whereas Before passed the last conforming row-1 failed line (`row 1 failed | parser still emits comma | try delimiter mapping`) — consider keeping the failed line as the previous decision and the retry line only as the allowance source; and the Snapshot 2 setup says each empty child commit 'incremented attempts', which is fine but could state explicitly that no row status changed and no files outside the ledger were touched, matching Before's phrasing, so the rule-3 criterion is unambiguous.",
+      "wallMs": 13092,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e9c75d176eda514403b6f4b8fc3c9c1623d7d01140a12f16e158317a410bfde0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "345458b69c085e9beaa0f2a236960734cd11cfe30d9c8e410bbe7c38913b79c9",
       "candidateOutputSha": "2e2be10f5ae78ead3277dc86d8ae6972a35884822c8c106e13bc722a788f7b56",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every element of the contract fact that Before kept: the rule-2 stop quotes the concrete assertion and the last decision verbatim with no round history or model escalation; the retry appends `row 1 retry | map delimiter | allowed attempts 4`, preserves attempts 3, iterations, cap and pending tuple; the cut is gated on an approved disposition amendment with attempts preserved; the stop choice leaves implement active with no commit; section 2 stops on two child-only empty commits while ignoring interleaved `loop: repair` parent commits; and section 3 restarts the window at the `loop: retry row 1` commit (count 0, then 1 with no stop, then 2 with a stop) without resetting any counts. The added `plan_tracker refresh` lines, pending-tuple write and the admission-before-projection sequence are consistent with the Change and do not disturb the fact. Two small drifts worth tightening so the After wording stays as unambiguous as Before: the stop menus dropped the numbered `1./2./3.` layout and section 3's retry line uses `<human hint, if supplied>` where Before carried the concrete `map delimiter` hint from the case; restoring the numbered options and the concrete hint (e.g. `row 1 retry | map delimiter | allowed attempts <A+1 as integer>`) would keep the rendered stop and retry lines literally reproducible while still delivering the refresh/admission/tuple additions.",
-      "wallMs": 16279,
+      "feedback": "Both outputs satisfy the contract fact: each stop quotes the concrete assertion and last decision with no round history or model escalation, the retry appends `row 1 retry | map delimiter | allowed attempts 4` while preserving attempts 3, iterations and cap, the cut is routed through an approved disposition amendment, stop keeps implement active, two child-only empty commits stop despite interleaved parent repairs, and the explicit retry opens a fresh window (0 → 1 → stop at 2 post-retry empties). After kept all of this while adding the plan_tracker refresh, pending tuple write and admission-before-projection ordering the Change asked for. Two things to watch so the fact stays stable: After's section 2 stop uses placeholder `<current evidence cell verbatim>` rather than quoting the supplied assertion and decision as Before did — since the case supplies that evidence, quote it literally there too; and section 3's retry line uses `<human hint, if supplied>` whereas the case states the hint is `map delimiter` — write it concretely so the 'durable allowed attempts 4' appendix is unambiguous. Otherwise the After wording delivers the Change without moving this fact.",
+      "wallMs": 14390,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "69e1566d5198a2b05c4d4c57a35bd2b5a14312cf"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

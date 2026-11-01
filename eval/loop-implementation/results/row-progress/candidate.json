@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4882a8ae5eba718a595d3d3209774ac0f694c10a374a366dbb083fded5513be2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "e38ffbf411f696f543d7d543277645cd5bd616a91e3f54068afbda41a5dcf36e",
       "candidateOutputSha": "be3b1ceef652f553f91fe3dc0bdba14c07ab68bdf8013877da29ece0ea1ca4c7",
       "facts": {
@@ -44,14 +44,14 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves the contract fact: A still exempts the third-attempt done row under rule 1 with no dispatch or stagnation count, B still exits with every row cut and no seed dispatch, C still ranks the unresolved human retry target (row 1) above the previous failed decision (row 2) and keeps the hint scoped to its own target, D still lets the previous failed decision name row 2 over the first open row, and E still lets durable done status override the decision's suggestion. The new refresh/pending-tuple steps and the verify-step-1 reframing did not disturb any of these orderings. One minor wording risk: After drops Before's explicit 'hint applies only to row 1' line in D/E and the explicit note that a done row's suggestion is carried only as context; keeping a short sentence in E that the hint and suggestion never override ledger status would make the 'durable status beats hint' clause more directly observable without changing the Change's intent.",
-      "wallMs": 10862,
+      "feedback": "After keeps the contract fact intact: A and B both reach rule 1 with no dispatch and no stagnation window, C ranks the unresolved human retry target (row 1) above the previous failed decision, D falls to the previous-decision failed row 2 ahead of open row 1, and E lets row 1's durable `done` status override the decision's suggestion. The Change is delivered through the added `plan_tracker refresh` calls, the `pending: <row> | home | <HEAD sha>` tuple, the pre-bump/post-bump iteration note, and the hand-off to verify step 1 instead of an inline exit-verification pass. What After drops relative to Before is not part of this fact but is worth watching for the other facts: the explicit failure branch at verify (once-per-flow `loop: repair verification` repair under amend permission, the `gauntlet: question` stop with its ledger-preservation line, and the escalated-round steps for row 2 in D). If you want After to carry those as well, keep Before's 'If it fails' and 'escalate' sub-sections but relocate them under 'verify step 1' and 'rule 2' respectively, so the new refresh/pending wording and the preserved menus coexist.",
+      "wallMs": 12474,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4882a8ae5eba718a595d3d3209774ac0f694c10a374a366dbb083fded5513be2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "875d03cc9fe439d2890ff529b900f7e8640bdf2b03bd7adfeab4689cc52ba415",
       "candidateOutputSha": "88881244f0f45efa4135f725d15ae2e2e07d0edaafe17c59d24d5d59fbaed93e",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "The contract fact survives the rewording: After's A still exits via rule 1 on the successful third attempt with no escalation or stagnation stop, B still seeds only the skeleton and proceeds straight to verification without a seed-evidence child, C still ranks the unresolved human retry on row 1 above the previous row-2 failed decision, D falls to the first failed row, and E states explicitly that a decision's suggestion cannot override durable status and selects row 2. The additions (plan_tracker refresh calls, pending tuple, boundary application to all unresolved rows, the gauntlet: question prefix, the dispatch rendering with task vs consumed iteration) layer onto the selection logic without displacing it. One point to watch: After's C says the retry line is also `previous decision:` 'with a newly appended retry decision' but then hedges with 'more generally, use the latest operational ledger decision'—keep the unconditional 'the durable row 1 retry line' phrasing from Before so the retry-beats-previous-decision ordering stays unambiguous, and keep E's 'select the first failed row' wording explicit as it is now.",
-      "wallMs": 10499,
+      "feedback": "The contract fact holds in both outputs: After still exits A via rule 1 with no escalation or stagnation handling on the successful third attempt, seeds only the skeleton in B and routes straight to verification, selects row 1 in C on the unresolved retry over the row-2 failed decision, falls through to the first failed row 2 in D, and lets durable done status override the stale suggestion in E. The Change additions (plan_tracker refreshes, pending tuple write, consumed-vs-task iteration rendering, gauntlet: question stop prefixes, all-row boundary checks) are layered on without altering any target selection or exit path. One wording risk to watch: C's sentence 'With a newly appended retry decision, that retry line is also previous decision:' followed by 'More generally, use the latest operational ledger decision' could be read as two competing rules; stating explicitly that the durable retry line is always the previous-decision input for C (as Before did) would keep the retry-beats-failed-decision reading unambiguous while still delivering the refresh/tuple changes.",
+      "wallMs": 10314,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "69e1566d5198a2b05c4d4c57a35bd2b5a14312cf"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

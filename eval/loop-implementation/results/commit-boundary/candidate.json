@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4e5360817536e5225bf561ed31035e6954e2936187bc8abe9d902e8a4d9f77fe",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "ac346e6da9967be5017fd536f5fbcb22a4d8b621a95cb28838f09b05b4b890f4",
       "candidateOutputSha": "b33d2692681778659da0817351a435bb85d933613ad75cc3cb3f4603c403eac4",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs preserve state at every bad boundary, refuse relaunch/poll on error and async, restore iterations to 5 then bump to 6, recover the interrupted seed as consumed iterations 1, dispatch iteration 1 target seed with the seed-contract hint and bump to 2, validate it as a seed (both open rows evidenced, attempts 0, row 3 untouched, one row-0 decision, one clean seed commit) before selecting row 1, and at cap:1 stop before any recovery dispatch without touching counters, cap or the tree. Two After choices come close to the line and are worth tightening: A1–A3 rewrite the working ledger on rejection (restoring row 2's cells and the pending tuple, re-dirtying a clean tree) — say explicitly that this is the pre-dispatch before-image restored in the working copy only, that no child output is discarded, and keep the restore separate from the human stop so a reader doesn't take it as automatic cleanup; and the stops now carry 'Recommendation: 1' (reset) at A1–A3/B1 and offer 'Retry with hint' at the B3 cap stop, which a strict reader could read as steering toward discard or toward dispatch under cap — keep 'Recommendation: none' at boundary stops as Before did, and restrict the cap:1 menu to cap +N / Amend / Stop. Those edits keep every fact Before kept while still delivering the tuple persistence, refresh points and gauntlet: question prefixing the Change asks for.",
-      "wallMs": 25718,
+      "feedback": "Both facts hold in both outputs; the After wording delivered the Change (question-marker frame, pending tuple persisted and restored on rejection, commit-body iteration check, refresh calls) without moving either fact. A6 keeps the interrupted dispatch counted (restored 4+1=5, task iteration 5, header bumped to 6), A1–A5 each stop with child commits/dirt preserved and no poll/relaunch, and B2 dispatches iteration 1 as target seed with the seed-contract hint, bumps to 2, validates both open rows' evidence/attempts 0/row 3 unchanged/one row-0 decision/single clean seed commit, then selects row 1; B3 stops at rule 4 before any dispatch. Two small wording risks worth tightening: the B3 cap stop lists 'Retry with hint' among options, which could read as offering a dispatch path at a cap stop—drop it or qualify it as 'after cap +N'; and A1's note that the bump 'has to be rewritten on disk' after a clean return could be misread as counter mutation—phrase it as 'the uncommitted iterations: 5 is restored from the saved dispatch identity' so the consumed count is visibly preserved rather than recomputed.",
+      "wallMs": 17446,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4e5360817536e5225bf561ed31035e6954e2936187bc8abe9d902e8a4d9f77fe",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "fcfcbff302bb2ffe292d2e252935786db3afa195f17765c797b347656a0818f3",
       "candidateOutputSha": "dc1c1c46c10203c34e1476eda369e1a1f5109696dcecb7560746734f9e182da3",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep both facts. Before already preserves the interrupted seed as consumed iterations:1, redispatches target seed at iteration:1 with a seed-contract hint and a bump to 2, validates it as seed (both open rows evidenced, attempts 0, row 3 unchanged, one row 0 done decision, one clean seed evidence commit), only then selects row 1, and at cap:1 stops before any recovery dispatch with no automatic reset or cleanup; it also stops on every bad boundary preserving state, forbids relaunch/poll, and restores 4 → 5 → 6. After delivers the Change (pending tuples, refreshes, body-line validation, snapshot in the stop) without moving either fact. The only soft spots in After are: (1) the pre-authorization 'Restore rows 1 and 2 … Restore pending …' step at the dirty seed return edits the ledger working copy before the human authorizes anything — it is scoped and preserves other uncommitted changes, so a careful reader still sees no automatic cleanup, but it would be safer to state explicitly that this restores only the saved before-image of the target cells and tuple and discards nothing; (2) the cap:1 stop lists 'Retry with hint' and recommends 'cap +N', whereas Before recommended none — keep 'Retry alone does not bypass the cap' adjacent to that menu (as After does) so the stop-before-dispatch guarantee stays unambiguous. Otherwise the wording is sound.",
-      "wallMs": 20774,
+      "feedback": "Both facts survive the rewording. After still preserves the interrupted seed as consumed iterations:1, redispatches target seed at iteration:1 with an explicit seed-contract hint and a normal bump to iterations:2, validates it as seed (both open rows gain named failing-check evidence, attempts 0, row 3 untouched, exactly one row 0 done decision, one clean loop: seed evidence commit) and only then selects row 1; the cap:1 branch stops at rule 4 before any recovery dispatch without touching counters or auto-cleaning. The general snapshots all stop, keep commits/dirt/consumed counts, forbid relaunch/poll, and the table makes 4→5→6 explicit. One risk area to watch: After's boundary-rejection step now rewrites the working ledger's target cells and pending tuple before authorization ('Restore the dispatched target's mutable cells…'). A careful reader could read that as the driver altering state at a stop; it stays on the right side only because After simultaneously says commits, uncommitted changes, consumed count and cap are preserved and nothing is committed or reset. To keep that unambiguous, phrase it as 'overwrite only the uncommitted target cells/tuple in the working ledger copy; leave every commit, all other working-tree changes, iterations: i + 1 and cap untouched' so the restoration cannot be mistaken for cleanup. Also note the cap:1 stop in After recommends cap +N and offers 'Retry with hint', whereas Before gave Recommendation: none; that didn't move either fact here but the extra Retry option sits oddly beside the statement that retry cannot bypass the cap, so consider dropping it or qualifying it as blocked until the cap is raised.",
+      "wallMs": 21634,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "69e1566d5198a2b05c4d4c57a35bd2b5a14312cf"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }

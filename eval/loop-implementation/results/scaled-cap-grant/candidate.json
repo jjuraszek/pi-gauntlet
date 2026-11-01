@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "fd3a65371fb39e89283495cc9dea91b61770af79b3dc8b08d6b47d9e7df33f14",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "d9a6575fc316d2fc973f193f21ce42dc18b531bbd3bbae959a84572fd5863fd1",
       "candidateOutputSha": "30039e3d922486fed98be0a69bf6100f193741ad26d9528a6f43a1994859d123",
       "facts": {
@@ -74,14 +74,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the cap stop still fires at rule 4 before dispatch or verification with row 24/attempts 1/cap 97 and the four offers; the bare grant still yields exactly `cap +50 |`, `cap: 147`, one `loop: raise cap` commit, iterations 97 and attempts untouched, and row 24 selected with the operational decision unchanged; both reason forms produce byte-identical `cap +50 | because more rounds`; the four malformed tokens ask once and a second invalid holds the stop with no commit; funding and cap are listed independently with separate replies and distinct effects; the grant resets neither window and rule 3 still stops after it; the entry/all-cut/cut/reopen/amend/redraw arithmetic is intact; and the cap-999 child is a changed-header miss repaired by restoring the saved cap, keeping the consumed iteration, marking row 24 failed at attempts 2 with a `loop: repair row 24` commit and no seed retry. The Change's additions (path-only `plan_tracker` refreshes after grant/repair/entry, the `pending: 24 | home | <HEAD sha>` tuple written before dispatch, admission requiring `iteration: 98` in the commit body, and the question-prefixed stops with numeric snapshots) land cleanly without disturbing the counters. One wording issue to fix: the final bullet of §6 contains a visible self-correction (\"Wait, correction: ...\") about whether the redispatch task line carries 97 or 98 and bumps to 98 or 99; state it once as \"task line carries the pre-bump count 98; the working ledger is bumped to `iterations: 99` before dispatch\" so the consumed-iteration claim in the validation fact is not read as uncertain. Otherwise no fact moved and no further rewording is needed.",
-      "wallMs": 20921,
+      "feedback": "No fact moved: After keeps every cap fact Before kept while adding the refresh calls, the pending tuple write before dispatch, the admitted-header list (iterations +1 and pending removal only) and the explicit numeric cap/iterations snapshot in each rendered stop, which is what the Change asked for. Two wording issues in After are worth tightening even though they do not flip a fact: §6 ends with an in-text 'Wait, correction' about the task-line count, which a driver walkthrough should never emit - state once that the task line carries the pre-bump count (98) and the ledger is bumped to 99 before dispatch; and §4 says 'rule 4 (the cap) wins before escalation' immediately after saying rule 2 fires first, which reads as contradictory ordering - phrase it as 'escalation would need amend permission, and even a funded escalation still hits the rule 4 cap stop before dispatch'. Keeping the explicit 'with funding alone rule 4 still stops / with cap alone rule 2 still stops' pair from Before in the §4 table would make the independence fact slightly more direct than the current 'does not bypass the cap' phrasing.",
+      "wallMs": 19038,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "fd3a65371fb39e89283495cc9dea91b61770af79b3dc8b08d6b47d9e7df33f14",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "490876164d00fe626b50f9423526104d56a3c776e3d45608e099b8551224ca38",
+      "intentSha": "79154d911d1172fb9677c225f9cbab63e4098bb8ee4d20c10ee2c888ef062db5",
       "baselineOutputSha": "9d64c4593a770f430bda0725110c8a505b85bbcafdbe19e926eae6f92a31a1b5",
       "candidateOutputSha": "9eb9cfd4d268b8d8d76d57bacc541baac6418290f69f3e067fab068183077e53",
       "facts": {
@@ -121,10 +121,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After preserves the cap stop (row 24, attempts 1, cap 97, cap +N beside retry/amend/stop), the exact `cap +50 |` line with one `loop: raise cap` commit and iterations 97, both reason-form parses, the four malformed tokens with a held second-invalid stop, the independent funding/cap offers via Amend-grant, the unchanged empty-child and validation-miss windows after a grant, the row-scaled entry cap (97 / 1, no seed dispatch on all-cut, cap kept on cut/reopen/amend, redraw reseeds), and the changed-cap validation miss with restored cap, consumed iteration, attempts+1 and a repair commit. The Change's additions (pending tuple, path-only refresh after admitted commits, consumed count 98 in the child body) are woven in without displacing anything. Two small wording risks worth tightening: case 7 switched from the concrete 147/98/2 values to symbolic `C`/`i`/`a` even though it reuses case 1's concrete snapshot — stating the concrete restored cap 147, iterations 98 and attempts 2 (as Before did) makes the validation fact directly observable rather than inferred; and case 1/3 changed the recommendation from `none` to `cap +N`, which is tolerable here but could be read as the parent pre-authorizing the grant — keeping `Recommendation: none` with a note that only a human cap +N unblocks dispatch would be safer for the authorization boundary.",
-      "wallMs": 24203,
+      "feedback": "After keeps every fact: the cap stop still halts before dispatch/verification naming row 24 attempts 1 and cap 97 with cap +N beside retry/amend/stop; the bare grant appends `cap +50 |`, writes cap:147 in one `loop: raise cap` commit with iterations 97 preserved and row 24's failed decision still operational; both reason forms collapse to the same trimmed line and the four malformed tokens ask once then hold; funding and cap stay separate with Amend-grant governing allowance only; the grant resets neither window and rule 3 still stops; entry arithmetic, all-cut cap 1, cut/reopen/amend cap retention and redraw reseeding are intact; and the 999 header change is a repaired miss with attempts+1 and the consumed iteration kept. The new refresh/pending-tuple wording is delivered without displacing any of these. Two spots are thinner than Before and worth tightening so they do not slip in a future edit: the windows section no longer states explicitly that funding (as well as the cap grant and parent repair) resets neither window and that only a human retry starts fresh ones — Before's sentence \"funding or a cap grant resets neither window; only retry starts new stagnation and validation-miss windows\" should be restored verbatim in case 5 or 4; and the validation case now uses symbolic i/C/a instead of the concrete 147/98/2 and omits an explicit \"next target is row 24, no automatic seed retry\" line — keep the symbolic form if you like, but add one line with the concrete values for the snapshot-2 branch and an explicit no-seed-retry statement. Changing the recommendation from none to cap +N at the clean cap stop does not break a fact but is a stylistic divergence from Before you may not have intended.",
+      "wallMs": 37488,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "69e1566d5198a2b05c4d4c57a35bd2b5a14312cf"
+  "repoSha": "dd34371fe91497521f073524828c16f45d9ce2e8"
 }
