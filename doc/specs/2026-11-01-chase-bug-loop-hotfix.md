@@ -26,7 +26,7 @@ Drafted from the design, no ticket rows:
   in-scope
 - [ ] After a seed return, `hotfix/<slug>` carries exactly one new commit with subject `loop: seed evidence` whose body names a runnable evidence command for row 1; after an admitted row return, exactly one new commit with subject `loop: row 1 done` or `loop: row 1 failed`.
   in-scope
-- [ ] Every `target: 1` dispatch in steps 4-7 (first attempt, red retry, conformance gap fix, review fix) increments the same `attempts` counter in `$TMPDIR/hotfix-<slug>-ledger.md`; the dispatch at `attempts == maxIterationsPerRow - 1` carries `model: <escalationLoop.implModel>`; a `target: 1` dispatch is only issued at `attempts < maxIterationsPerRow`, and a repair required (row 1 not `done`, red gate run, open conformance gap, or `FIX_FIRST`) at `attempts >= maxIterationsPerRow` aborts (pre-land) without a dispatch.
+- [ ] Every `target: 1` dispatch in steps 4-7 (first attempt, red retry, conformance gap fix, review fix) increments the same `attempts` counter in `$TMPDIR/hotfix-ledger-<slug>.md`; the dispatch at `attempts == maxIterationsPerRow - 1` carries `model: <escalationLoop.implModel>`; a `target: 1` dispatch is only issued at `attempts < maxIterationsPerRow`, and a repair required (row 1 not `done`, red gate run, open conformance gap, or `FIX_FIRST`) at `attempts >= maxIterationsPerRow` aborts (pre-land) without a dispatch.
   in-scope
 - [ ] hotfix step 6 dispatches `conformance-reviewer` with `model` resolved from `closureReview.model` (omitted when undefined), an origin inlined in the task text - the record's AC row as the sole acceptance row, R2/R3 as invariants, the fenced bug report as context for the AC row - and no spec path; dispatch failure or malformed output after one redispatch is a pre-land abort, never "continue".
   in-scope
@@ -107,7 +107,7 @@ On the dependency exception (predicate 5) the record also carries `evidence-comm
 
 Step 2 resolves, before anything is created: `SCOPED_TEST_COMMANDS` (unchanged rule), `gauntlet_setting({ key: "loopEngine" })` for `maxIterationsPerRow` (default 4), and `gauntlet_setting({ key: "escalationLoop" })` for `implModel` (undefined is not an abort here, only at the escalated dispatch). The old "draft the implementer task text; not writable -> abort" sentence is replaced by "ledger not writable -> abort (pre-land)", checked at the step 3 write.
 
-Step 3 writes `$TMPDIR/hotfix-<slug>-ledger.md` immediately after `WORKTREE` is set (so `BASE_SHA`, resolved earlier in step 3, exists) and before the dependency install:
+Step 3 writes `$TMPDIR/hotfix-ledger-<slug>.md` (the `ledger-` segment leads so the marketplace bundle-reference lint does not read the literal as a bundled `.md` file) immediately after `WORKTREE` is set (so `BASE_SHA`, resolved earlier in step 3, exists) and before the dependency install:
 
 ```markdown
 # Ledger - loop engine
@@ -133,7 +133,7 @@ allowance: <maxIterationsPerRow>
 
 `**Spec:**` is the record's absolute path - no tracker reads this ledger, so the repo-relative rule of the loop driver does not apply. `verification:` is informational; the hotfix keeps running `SCOPED_TEST_COMMANDS` in step 5. `## Leg mapping` exists because the unchanged persona's companion contract works only on mapped entries supplied by the caller; the parent validates the mapping locally (one row, `1 | 1 | hotfix`) and never calls the loop driver's coordinated admission shell.
 
-Ledger lifetime is this run. The parent removes `$TMPDIR/hotfix-<slug>-ledger.md` as the last action of every exit path: after step 9's evidence lines on a squash or PR exit, and after the abort class's bash block and report on every abort. This sentence, placed in the editable step 3 text, is the only place that names the removal; steps 8-10 and `## Abort` are untouched. The handoff record `$TMPDIR/hotfix-<slug>.md` is left in place, as today (no existing cleanup removes it).
+Ledger lifetime is this run. The parent removes `$TMPDIR/hotfix-ledger-<slug>.md` as the last action of every exit path: after step 9's evidence lines on a squash or PR exit, and after the abort class's bash block and report on every abort. This sentence, placed in the editable step 3 text, is the only place that names the removal; steps 8-10 and `## Abort` are untouched. The handoff record `$TMPDIR/hotfix-<slug>.md` is left in place, as today (no existing cleanup removes it).
 
 ### Dispatch (`hotfix.md` step 4)
 
@@ -143,7 +143,7 @@ Two companion-mode dispatches, seed then row 1. Before each: write `iterations: 
 subagent({ agent: "loop-implementer", context: "fresh", async: false,
   cwd: <WORKTREE>, output: <absolute $TMPDIR path>, outputMode: "file-only",
   acceptance: { level: "none", reason: "the parent validates the commit and keeps the ledger" },
-  task: "<binding block>\n\niteration: <i>\nspec: $TMPDIR/hotfix-<slug>.md\nledger: $TMPDIR/hotfix-<slug>-ledger.md\nbase: <BASE_SHA>\ntarget: <seed | 1>\nprevious decision: <line or none>\nhint: <text or none>\nLeg: hotfix\nmapped original AC: row 1 -> AC 1, leg hotfix\nRules: <repo-relative path>\npending: <target> | hotfix | <HEAD>\nSCOPED_TEST_COMMANDS: <commands>" })
+  task: "<binding block>\n\niteration: <i>\nspec: $TMPDIR/hotfix-<slug>.md\nledger: $TMPDIR/hotfix-ledger-<slug>.md\nbase: <BASE_SHA>\ntarget: <seed | 1>\nprevious decision: <line or none>\nhint: <text or none>\nLeg: hotfix\nmapped original AC: row 1 -> AC 1, leg hotfix\nRules: <repo-relative path>\npending: <target> | hotfix | <HEAD>\nSCOPED_TEST_COMMANDS: <commands>" })
 ```
 
 The binding block is gh-36's text verbatim, unchanged, including `Your first command, before any` and `git rev-parse --show-toplevel` (asserted by `scripts/ci.mjs`) and the `BLOCKED:` first-line contract. `context: "fresh"` stays explicit (the `ci.mjs` assertion requires the literal); the old rationale about the `implementer` persona's fork default is dropped because `loop-implementer`'s frontmatter is `defaultContext: fresh`.
