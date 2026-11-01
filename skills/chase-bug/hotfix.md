@@ -445,14 +445,21 @@ touched `<default>`. Pre-existing dirt is never touched.
 
 ## Harness fallback
 
-No `subagent` tool and no personas (the Claude Code marketplace ships `agents: []`):
-run the duties inline, same order. Write the failing regression test, confirm red,
-minimal fix, confirm green, commit on `hotfix/<slug>`. With no child the binding
-block is moot, but `binding_check` still runs after the initial inline commit and
-after each inline retry, conformance fix, or review fix, before tests continue.
-Self-review the diff against the record, invariants 1-3, predicates 4-6. Run
-`SCOPED_TEST_COMMANDS`. Apply the abort classes as written. Finish and report per
-steps 8-9.
+With neither `subagent` nor `gauntlet_setting` (the marketplace ships `agents: []`),
+run the duties inline in the same order. Write allowance 4 to the step 3 ledger;
+use no `implModel`. Seed: write or identify the failing test, run it, record its
+command in row 1, and commit once on `hotfix/<slug>` (`--allow-empty` when no
+tracked file changed). Run row attempts under the same counter, reopening, and
+allowance rules in Attempt budget; make the escalated attempt a plain inline
+attempt, with no model dispatch. Run `binding_check` after every inline commit.
+
+Perform mandatory conformance and review self-checks: audit the diff against the
+record's sole AC row, R2/R3, and fenced bug report as context, then review against
+invariants 1-3 and predicates 4-6. Reopen a gap or finding and spend one shared
+attempt on its repair; no attempt remaining -> abort (pre-land). After an admitted
+repair, resume at step 5 for the gate run, then a fresh audit and review under
+Attempt budget's same-HEAD rule. Apply the abort classes as written. Finish and
+report per steps 8-9; follow step 3's ledger teardown on every exit.
 
 ## Red Flags - STOP
 
