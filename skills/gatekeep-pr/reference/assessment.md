@@ -130,8 +130,8 @@ Run every command with `git -C <worktree>`; quote each path as a shell word.
 | Observed history | `## Fix delta` content |
 |---|---|
 | Review commit equals head | The literal line `no commits since <sha7> - no code diff`; no diff command. |
-| `git rev-list --reverse --merges <prior_review.commit>..<headRefOid>` is empty | `git diff <prior_review.commit> <headRefOid> -- <paths>` |
-| The range contains merge commits | Start `<from>` at `prior_review.commit`; for each merge, supply `git diff <from> <merge>^1 -- <paths>`, then `git show --remerge-diff <merge>`, then advance `<from>` to `<merge>`. Finish with `git diff <from> <headRefOid> -- <paths>`. |
+| `git rev-list --first-parent --reverse --merges <prior_review.commit>..<headRefOid>` is empty | `git diff <prior_review.commit> <headRefOid> -- <paths>` |
+| The first-parent range contains merge commits | Start `<from>` at `prior_review.commit`; for each merge, supply `git diff <from> <merge>^1 -- <paths>`, then `git show --remerge-diff <merge>`, then advance `<from>` to `<merge>`. Finish with `git diff <from> <headRefOid> -- <paths>`. |
 
 Inside a merge, include only conflict resolutions shown by remerge-diff as
 author work; keep ordinary author segments even when a hunk matches base.

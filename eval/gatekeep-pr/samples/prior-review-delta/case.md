@@ -21,7 +21,7 @@ bundle-: skills/gatekeep-pr/reference/cleanup.md
 - git merge-base --is-ancestor 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222 exits 0; no stderr; all commits are local
 - git diff --name-only --no-renames origin/main...1111111111111111111111111111111111111111 returns src/guard.mjs, src/caller.mjs, src/legacy-helper.mjs
 - git diff --name-only --no-renames origin/main...2222222222222222222222222222222222222222 returns src/guard.mjs, src/caller.mjs
-- git rev-list --reverse --merges 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222 returns no commits
+- git rev-list --first-parent --reverse --merges 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222 returns no commits
 - git diff 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222 -- src/guard.mjs src/caller.mjs src/legacy-helper.mjs shows the empty-signature rejection in src/guard.mjs and removal of the earlier PR's src/legacy-helper.mjs addition (restored to base); caller code is unchanged
 - Verifier result: source ci on 2222222222222222222222222222222222222222; the material claim is matched. Whole-head doc drift: docs/validation.md:12 still promises that empty signatures are accepted, contradicting the new rejection; the doc line is outside the fix delta.
 - Reviewer result: R1: resolved; R2: open - retries still bypass the guard; no R3 closure line. Native findings list the retry bypass as Minor and the fallback bypass as Moderate. Any returned R ids are the call-time ids, not generic new findings. Additional independent findings, none matching prior items:
