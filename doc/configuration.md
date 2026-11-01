@@ -88,7 +88,7 @@ Before seeding, the driver resolves verification once and prints `verification c
 2. Otherwise, a `## verification-before-completion` section must contain exactly one backticked command; zero or several stops as a configuration error.
 3. Otherwise discover the test entrypoint from actual project manifests/build instructions. Missing or ambiguous discovery stops, rather than guessing.
 
-After all rows close, the tracker completes implement and verify step 1 runs the ledger's gate once per leg in its owning checkout. Workers run only row evidence checks, never the full verification command or suite. A failed gate keeps verify active and implement complete; the bounded verification-repair route and stop menu are in [loop-implementation](../skills/loop-implementation/SKILL.md#after-the-loop).
+After all rows close, the tracker completes implement and verify step 1 runs the [gate set](../skills/loop-implementation/SKILL.md#gate-set): deduplicated (owning checkout, command) pairs from non-cut done rows' first evidence segments, ordered by the first contributing row. Coordinated ownership comes from the ledger's `## Leg mapping`; unmapped single-checkout ledgers run at home. Workers run only row evidence checks, never the full verification command or suite; `verification:` records CI's full command. Every loop verification site, including finish and conformance repairs, uses the gate set instead of a local full run. Each skill session mints its own log directory and redirects gate output there; the driver retains exit codes and log paths. A failed gate stops the set at its first nonzero exit, keeps verify active and implement complete, and hands the log path to the repair child. The verify-step-1 human stop alone quotes the last 20 log lines. The bounded verification-repair route and stop menu are in [loop-implementation](../skills/loop-implementation/SKILL.md#after-the-loop).
 
 ### Ledger and recovery
 
@@ -99,6 +99,7 @@ The artifact is `<resolved plan dir>/<spec stem>-ledger.md` (default `doc/plans/
 **Spec:** `doc/specs/example.md`
 base: <base SHA>
 verification: <resolved command>
+checks: commands
 iterations: 0
 cap: 97
 
@@ -113,7 +114,7 @@ Compute `cap:` once at entry as the number of rows not initialized `cut` times `
 
 Line 1 is exact. Spec is a path alone. Rows index every spec AC in order, without copying row text. Explicit/absent `in-scope` and `venue:` start `open`; only `deviates:`, `deferred:`, and `elsewhere:` start `cut`, with disposition evidence. Status vocabulary is `open`, `done`, `failed`, `cut`. Only the parent cuts through approved dispositions. A child marks passing checks `done` and failed checks `failed`.
 
-Seed fills every open row's evidence and closes already-satisfied rows on passing baseline checks, leaving attempts 0. Ordinary attempts increment only the target row's counter; counters never reset. Evidence names the check plus at most three result lines in one cell, separated by semicolons with pipes escaped. No reasoning transcripts, angle markup or placeholders (`TODO`, `TBD`, `probably`, `etc.`) belong there. Empty evidence is valid only on an open row before seed.
+Seed fills every open row's evidence and closes already-satisfied rows on passing baseline checks, leaving attempts 0. Ordinary attempts increment only the target row's counter; counters never reset. Evidence opens with the selective command actually run, followed by at most three result lines in one cell, separated by semicolons with pipes escaped. The command contains no semicolon, pipe or `&&`, never names the full verification command, and exits nonzero when its selector finds no test. A name filter that passes on zero tests must be replaced with a file selector. No reasoning transcripts, angle markup or placeholders (`TODO`, `TBD`, `probably`, `etc.`) belong there. Empty evidence is valid only on an open row before seed.
 
 Each child appends `row <n> <done|failed> | <what was done> | <what not to redo or try differently>` under Decisions, each sentence at most 200 characters. Seed uses `row 0 done | seeded <k> rows, closed <m> on baseline | <first row to take>`. The parent increments iterations before dispatch; the child's single commit persists it. The parent validates the clean tree, exactly one commit, target-only changes and new bounded decision. Ordinary validation misses get a repair commit; two consecutive misses stop. Seed validation misses stop immediately.
 
@@ -122,6 +123,8 @@ An unresolved row reaches its allowance at 3 attempts, or 3 + funded N (or a lar
 Stop notes quote concrete evidence and the last decision, offer retry with a hint, approved spec amendment, or stop, and keep implement active. Retry appends `row <n> retry | <hint> | allowed attempts <attempts + 1>` and commits `loop: retry row <n>`. It starts a new consecutive-stagnation window but resets neither attempts nor iterations. Dirty-tree or commit-boundary recovery requires human-authorized discard/reset and retains the interrupted dispatch in the count. Funding alone does not reset stagnation.
 
 At a clean cap stop, offer `cap +N` beside retry, amend and stop. Accept only an anchored `cap +<n>` token with a positive integer matching `[1-9][0-9]*` and an end, whitespace or pipe boundary. Append `cap +<n> | <decision>` under `## Decisions`, trimming the optional remainder and optional leading pipe into the decision cell; bare `cap +50` writes `cap +50 |`. Add N to the header cap and commit both changes once as parent `loop: raise cap`, preserving all attempts and iterations, then return to the ordered checks. Invalid tokens such as `cap +0`, `cap +x`, `cap -5` or `cap +50x` ask once; a second invalid reply leaves the same stop with no commit. Grants reset neither stagnation nor validation-miss windows and do not count as child commits. Funding and cap grants are independent; when both allowances are exhausted, offer both but take separate replies. Dirty-tree and commit-boundary stops never offer cap grants; discard authorization comes first.
+
+A ledger missing `checks:` stops before dispatch or any gate-set site, including finish, with `ledger has no checks: line - seeded under the old contract`. Offer stop only: restart by hand on a fresh baseline, never migrate, automatically reseed or fall back to `verification:`.
 
 A legacy ledger missing `cap:` stops with `ledger has no cap: line - seeded under the old loopEngine contract`, even if every row is closed. On a clean tree, `cap +N` writes `cap: <iterations + N>` immediately after `iterations:` with the same decision and commit contract. Never derive a legacy cap from settings.
 
@@ -223,6 +226,8 @@ A hook on statement-start anchored `git merge --squash`, `git push`, and `gh pr 
 
 Default test-command regex matches: `make ci`, `make test`, `npm test`, `pnpm test`, `yarn test`, `pytest`, `rspec`, `cargo test`, `go test`.
 
+A loop finish whose gate set does not match these patterns can receive the expected `Ship command ran without verification` advisory on `git push`, `gh pr create` or `git merge --squash`. It does not authorize a full local run; the PR's `Verification: scoped - <commands>; CI on this push holds the full run` line answers it. The hook and matcher are unchanged.
+
 Override in `.pi/settings.json`:
 
 ```json
@@ -246,7 +251,7 @@ The record is `schema: 1`: header (`spec`, `run_id`, `branch`, `status: in_progr
 
 `derived.gates.task_reopens` matches task names between successive successful tracker snapshots, regardless of action or ordering. Only `complete -> failed` and `complete -> in_progress` count; `complete -> skipped`, `complete -> pending`, new names and nameless tasks do not.
 
-`derived.verification_runs` counts parent-session bash calls matched by `matchTestStatement` using the resolved `verifyBeforeShip.testCommands` (or defaults), from `start implement` through seal, in any phase. It counts matcher hits, not proof of a passing gate: unmatched ledger commands and child checks contribute zero. The counter survives flush, reload and seal; legacy records omit it. The existing latest `tests` result still uses its verify/ship window.
+`derived.verification_runs` counts parent-session bash calls matched by `matchTestStatement` using the resolved `verifyBeforeShip.testCommands` (or defaults), from `start implement` through seal, in any phase. It counts matcher hits, not proof of a passing gate: unmatched ledger commands and child checks contribute zero. Gate-set pairs are parent bash statements, so zero is conditional, not a loop-engine invariant: a loop run reports zero when none of its parent statements match, as with this repo's `node --test <file>` gate commands under the defaults. Recorded `pytest tests/x.py` or `npm test -- <file>` commands count like any other matcher hit. The matcher is unchanged. The counter survives flush, reload and seal; legacy records omit it. The existing latest `tests` result still uses its verify/ship window.
 
 The performance digest's `disp/task` is the count of recorded dispatch-result events with `phase: implement` divided by `plan.tasks - plan.skipped`. It prints `n/a` when `plan` is absent, the denominator is zero, or `events_dropped > 0`; it is not an ever-dispatched-row ratio. `coord` is `yes` only when the sealed `legs:` list is non-empty, otherwise `no`, with no engine or pre-seal inference.
 
