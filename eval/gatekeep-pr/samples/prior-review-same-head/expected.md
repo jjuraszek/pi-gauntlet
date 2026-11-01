@@ -1,4 +1,8 @@
 anonymized: true
+- s7: judged: The third independent merge checkpoint supplies all three labeled Fix delta blocks in order: git diff from review commit 1111111111111111111111111111111111111111 to merge 3333333333333333333333333333333333333333^1 with paths, git show --remerge-diff on that merge, then git diff from that merge to head 4444444444444444444444444444444444444444 with paths.
+- s8: judged: In the merge checkpoint only conflict resolutions shown by remerge-diff are supplied as author work inside the merge, not ordinary imported upstream changes.
+- s9: judged: The merge checkpoint reviewer still reviews the post-merge author hunk in src/caller.mjs even though its content matches base, and closes R1 resolved while keeping R2 open.
+- s10: judged: The merge checkpoint report reads Prior review: 1 of 2 items addressed without a no-commits-since suffix and retains the R2 retry complaint as a blocker.
 - s1: judged: Both checkpoints select REST review 702 and treat its commit equal to assessed head 2222222222222222222222222222222222222222 as delta ancestor, not a missing baseline or whole-diff fallback.
 - s2: judged: The first checkpoint dispatches verification before the reviewer in /work/widgets-pr-42 on assessed head 2222222222222222222222222222222222222222; it never skips review because there are no new commits.
 - s3: judged: The reviewer task on both pi and Claude Code contains Previous review report items R1 and R2 and Fix delta consisting only of no commits since 2222222 - no code diff; it directs current-head item verification with one resolved or open closure line per R item and no diff review or base...head substitution. Path-list commands used to calculate the union are allowed, but the whole PR patch is not supplied as review scope.

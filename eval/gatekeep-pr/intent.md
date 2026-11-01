@@ -1,8 +1,13 @@
-for: 9994f4049838aed2603888f372bc60a9b235d4e5463fb133a0828575b92de920
+for: e4a7b8813a2ff58d3a525a016703d0e026653baf8e30fcb6510fee04e56e09d9
 
 ## Change
-Append the no-commits-since suffix to nonempty same-head prior-review addressed counts, including items resolved by green CI or corrected descriptions without a commit. Exercise the existing empty-delta reviewer dispatch and explicit item closure on both harnesses. Keep the zero-item report form unchanged.
+Count exact-head pre-push reviewer closures of minted prior-item ids in the addressed count through the findings ledger. Extend the delivery checkpoint to show R2 closing through P1 while R3 stays open after push. Add an independent merge checkpoint exercising the chronological three-command delta, remerge-only merge work and review of a base-matching author hunk.
 
 ## Expected to move
-- prior-review-same-head/s5: fails -> holds - Report the resolved count and same-head suffix above the remaining blocker.
-- prior-review-same-head/s6: fails -> holds - Keep the same-head suffix even when all prior items resolve without commits.
+- prior-review-delta/d19: fails -> holds - Record the reverse prior-item closure from the exact-head wave reviewer.
+- prior-review-delta/d20: fails -> holds - Count the repaired item after delivery while retaining the open fallback.
+- prior-review-delta/d21: fails -> holds - Preserve the wave boundary and consume its closures on own-push re-render.
+- prior-review-same-head/s7: fails -> holds - Supply the three chronological command blocks.
+- prior-review-same-head/s8: fails -> holds - Limit merge author work to remerge conflict resolutions.
+- prior-review-same-head/s9: fails -> holds - Review the base-matching author hunk.
+- prior-review-same-head/s10: fails -> holds - Render the merge checkpoint count without the same-head suffix.
