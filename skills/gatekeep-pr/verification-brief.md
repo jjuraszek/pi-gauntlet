@@ -294,7 +294,8 @@ map are fail-safe **blocking**, noted in output.
 
 **Comment triage:** existing PR review comments and top-level comments,
 each labeled one of: already-addressed, reasonable, judgment-call - except
-placeholder rows, which carry a state instead of a label. Comment triage never
+placeholder rows and prior inline items mapped by `reference/findings.md`
+`## Namespaces`, which carry a state instead of a label. Comment triage never
 mints `P#`/`L#`: a landed reviewer verdict is a labelled `C#`; a concern it
 raises becomes a `P#` only through source-backed review on the code (`reference/post-selection-loop.md` `### Re-render` step 4).
 

@@ -1,12 +1,12 @@
-for: 3836dbd811661045c1688a70ed767a54d27c75f41a216efa08008faddc66b30f
+for: 3dc041183b2feb9a615dfbb4e4ed6ccaa879d50a88bb238297fb777fe939398c
 
 ## Change
-Select the viewer's newest submitted, non-dismissed REST review as the baseline for an ancestor step-4 re-review. Supply its numbered body items and joined inline comments to the shared re-review task on both harnesses, with only the review-commit-to-head delta over the union of prior and current PR paths. Count explicit resolved closure lines in one Prior review report line. Preserve whole-head verification and contract judgments and the fix wave's existing pushed-head boundary. This iteration covers baseline selection, task construction and the addressed count; closure integration and nonancestor/same-head report variants have separate ledger rows.
+Integrate ancestor step-4 R-item closure into stable P findings. Drop explicitly resolved prior items; keep open and missing-closure items with their posted text and locators, using the posted review's severity rather than today's reviewer rating. Deduplicate native findings against those identities. Mark the selected review's inline C rows represented by their R items, discard their replies, and preserve that non-replyable state through re-triage. Keep prior-review selection, delta construction and whole-head verification unchanged.
 
 ## Expected to move
-- prior-review-delta/d1: fails -> holds - Select the newest eligible viewer REST review with a numeric-id timestamp tie break.
-- prior-review-delta/d2: fails -> holds - Check ancestry and bound step-4 review to the selected review commit.
-- prior-review-delta/d3: fails -> holds - Keep removed or restored paths through the prior-and-current path union.
-- prior-review-delta/d4: fails -> holds - Build stable R items from the body followed by joined inline comments.
-- prior-review-delta/d5: fails -> holds - Supply the shared re-review task on both harnesses.
-- prior-review-delta/d6: fails -> holds - Render the addressed-items count from closure lines.
+- prior-review-delta/d8: fails -> holds - Keep stable R-to-P identities without duplicate native findings.
+- prior-review-delta/d9: fails -> holds - Preserve posted blockers and locators despite a fresh Minor rating.
+- prior-review-delta/d10: fails -> holds - Keep missing-closure items open with the exact show-evidence diagnostic.
+- prior-review-delta/d11: fails -> holds - Suppress represented inline replies at initial integration and re-triage without suppressing unrelated comments.
+- prior-review-delta/d5: fails -> holds - Preserve the shared bounded review task on both harnesses from the preceding iteration.
+- prior-review-delta/d6: fails -> holds - Preserve the explicit-closure addressed count from the preceding iteration.

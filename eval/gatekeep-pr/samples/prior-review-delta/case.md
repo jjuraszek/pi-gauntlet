@@ -24,12 +24,13 @@ bundle-: skills/gatekeep-pr/reference/cleanup.md
 - git rev-list --reverse --merges 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222 returns no commits
 - git diff 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222 -- src/guard.mjs src/caller.mjs src/legacy-helper.mjs shows the empty-signature rejection in src/guard.mjs and removal of the earlier PR's src/legacy-helper.mjs addition (restored to base); caller code is unchanged
 - Verifier result: source ci on 2222222222222222222222222222222222222222; the material claim is matched
-- Reviewer result: R1: resolved; R2: open - retries still bypass the guard; R3: open - fallback still skips validation. Native findings list these two remaining code gaps as Moderate; no other findings. Any returned R ids are the call-time ids, not generic new findings.
+- Reviewer result: R1: resolved; R2: open - retries still bypass the guard; no R3 closure line. Native findings list the retry bypass as Minor and the fallback bypass as Moderate; no other findings. Any returned R ids are the call-time ids, not generic new findings.
+- Integration checkpoint: no P or L ids exist before step 5. Comment 801 is C1, initially triaged reasonable with a drafted reply; comment 802 is C2, initially already-addressed with its own reply. Re-integrate the same reviewer output once and re-triage the unchanged comments once before the report; no source delta or additional helper run occurs.
 - simulations: snapshots and helpers are hypothetical, not live operations. All omitted reads retain this exact head/body/check state. No writes or menu pick occur.
 
 ## Entry
 
-Start just after provisioning's HEAD check with the complete gathered REST rows above. Narrate selection and the ancestry check, then verification and review through the first report/menu. Show the previous-report item ids, the delta commands and task instructions, and the addressed-items report line. State how the same task contract is supplied on pi and Claude Code; use pi for this narration's actual helper calls.
+Start just after provisioning's HEAD check with the complete gathered REST rows above. Narrate selection and the ancestry check, then verification and review through the first report/menu. Show the previous-report item ids, the delta commands and task instructions, the internal R-to-P and C ledger states after integration and re-triage, the retained show-evidence diagnostics, and the addressed-items report line. State how the same task contract is supplied on pi and Claude Code; use pi for this narration's actual helper calls.
 
 ## Arguments
 
