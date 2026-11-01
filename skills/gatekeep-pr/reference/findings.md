@@ -44,7 +44,17 @@ Behavior the spec keeps in scope is a blocker until its mechanism ships; a row t
 
 **One defect, one blocker.** A missing mechanism surfaces through several rules at once (reviewer finding, AC `gap`, doc drift, `contradicted` claim); render it as one blocker that names the defect and lists every locator, and keep each contributing rule's ID in the ledger.
 
-**Severity translation.** Reviewer Critical and Moderate -> blocker; Minor -> nit. A repo `REVIEW.md` mapping overrides this; a severity it names but does not map is fail-safe blocker, noted in `show evidence`.
+**Severity translation.** Translate reviewer Critical and Moderate to blocker, Minor to nit. Apply a repo `REVIEW.md` mapping instead when present; treat a severity it names but does not map as fail-safe blocker, noted in `show evidence`.
+
+For an ancestor step-4 re-review, integrate prior items through **Prior-item closure** below, then classify new reviewer findings by the supplied `## Fix delta` hunks, not merely by file membership. Apply this boundary before the default or repo severity mapping:
+
+| New finding | Integration |
+|---|---|
+| Inside the delta | Use the severity translation above. |
+| Outside the delta, Critical | Keep as a blocker. |
+| Outside the delta, Moderate or Minor | Print only under `show evidence` as `[Moderate] (outside fix delta)` or `[Minor] (outside fix delta)`, retaining text and locator; exclude from both `Blockers` and `Nits`. |
+
+Judge contract findings (AC outcomes, Design clauses, claim dispositions, check dispositions, doc drift) on the whole assessed head; apply no delta exemption to them.
 
 **Triage bar** for findings the orchestrator originates itself: blocker only when it must be fixed before merge (correctness, security, a material performance trap, a convention the repo enforces); everything else is a nit, whatever its category. The bar never re-triages a classification the severity translation already made.
 

@@ -23,14 +23,20 @@ bundle-: skills/gatekeep-pr/reference/cleanup.md
 - git diff --name-only --no-renames origin/main...2222222222222222222222222222222222222222 returns src/guard.mjs, src/caller.mjs
 - git rev-list --reverse --merges 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222 returns no commits
 - git diff 1111111111111111111111111111111111111111 2222222222222222222222222222222222222222 -- src/guard.mjs src/caller.mjs src/legacy-helper.mjs shows the empty-signature rejection in src/guard.mjs and removal of the earlier PR's src/legacy-helper.mjs addition (restored to base); caller code is unchanged
-- Verifier result: source ci on 2222222222222222222222222222222222222222; the material claim is matched
-- Reviewer result: R1: resolved; R2: open - retries still bypass the guard; no R3 closure line. Native findings list the retry bypass as Minor and the fallback bypass as Moderate; no other findings. Any returned R ids are the call-time ids, not generic new findings.
+- Verifier result: source ci on 2222222222222222222222222222222222222222; the material claim is matched. Whole-head doc drift: docs/validation.md:12 still promises that empty signatures are accepted, contradicting the new rejection; the doc line is outside the fix delta.
+- Reviewer result: R1: resolved; R2: open - retries still bypass the guard; no R3 closure line. Native findings list the retry bypass as Minor and the fallback bypass as Moderate. Any returned R ids are the call-time ids, not generic new findings. Additional independent findings, none matching prior items:
+  - [Moderate] (outside fix delta): the unchanged retry counter can overflow at src/caller.mjs:32.
+  - [Minor] (outside fix delta): the unchanged retry label is misspelled at src/caller.mjs:35.
+  - [Critical] (outside fix delta): the unchanged debug branch exposes the signing key at src/caller.mjs:40.
+  - [Moderate] (inside fix delta): the new rejection path leaks its buffer at src/guard.mjs:12.
+  - [Minor] (inside fix delta): the new rejection message says signatuer at src/guard.mjs:13.
+- The caller findings are in the union path set but outside all supplied delta hunks. No REVIEW.md severity override is present.
 - Integration checkpoint: no P or L ids exist before step 5. Comment 801 is C1, initially triaged reasonable with a drafted reply; comment 802 is C2, initially already-addressed with its own reply. Re-integrate the same reviewer output once and re-triage the unchanged comments once before the report; no source delta or additional helper run occurs.
 - simulations: snapshots and helpers are hypothetical, not live operations. All omitted reads retain this exact head/body/check state. No writes or menu pick occur.
 
 ## Entry
 
-Start just after provisioning's HEAD check with the complete gathered REST rows above. Narrate selection and the ancestry check, then verification and review through the first report/menu. Show the previous-report item ids, the delta commands and task instructions, the internal R-to-P and C ledger states after integration and re-triage, the retained show-evidence diagnostics, and the addressed-items report line. State how the same task contract is supplied on pi and Claude Code; use pi for this narration's actual helper calls.
+Start just after provisioning's HEAD check with the complete gathered REST rows above. Narrate selection and the ancestry check, then verification and review through the first report/menu. Show the previous-report item ids, the delta commands and task instructions, the internal R-to-P and C ledger states after integration and re-triage, the retained show-evidence diagnostics (including each evidence-only finding), and the addressed-items report line. Integrate every supplied new finding and the whole-head doc drift before rendering. State how the same task contract is supplied on pi and Claude Code; use pi for this narration's actual helper calls.
 
 ## Arguments
 
