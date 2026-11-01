@@ -54,6 +54,9 @@ test('worker records selective commands and keeps row-scoped TDD evidence valid'
     "owning checkout's full verification command", 'runner with no file or filter',
     'name that matches nothing', 'nonzero exit', 'otherwise record the file',
     'passing check for every baseline closure',
+    'Close the `target` row first', 'Only after the target is `done`',
+    'Take extras one at a time',
+    'Revert all code, test, cell and decision changes for an unfinished extra before committing',
   ]) assert.ok(persona.includes(token), token);
   assert.match(persona, /5\. .*command you ran.*at most three result lines/);
   assert.match(persona, /For each selected `open` row,.*command.*`evidence`/);
