@@ -110,6 +110,27 @@ test('last-attempt escalation uses the resolved model under both approval option
   assert.match(driver, /Omit the model override except on an escalated round/);
 });
 
+test('spent row escalation survives grants, resume and rejected returns', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
+  for (const token of [
+    'escalation identity from `## Decisions` on every dispatch and resume',
+    'unrecoverable means spent', 'whole flow across retry, `rows +N`, amendments and resume',
+    'omit the model override on every later authorized attempt',
+    'including a new last allowed attempt', 'never resolve another row escalation or append a second marker',
+    'With no marker and recoverable history, apply the normal last-attempt predicate',
+    'a previously missing model or migrated row has not spent escalation',
+  ]) assert.ok(before.includes(token), token);
+  const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
+  for (const token of [
+    'Preserve the pre-dispatch escalation decision through authorized discard/reset',
+    'Boundary rejection never increments attempts', 'attempts at effective allowance - 1',
+    'after authorized recovery dispatch on the default model without requiring retry or `rows +N`',
+    'An admitted validation miss instead increments attempts through `loop: repair row <n>`',
+    'stops under rule 2, retaining the spent decision',
+  ]) assert.ok(stop.includes(token), token);
+});
+
 test('amend permission bounds one exit repair', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   for (const token of ['loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun that command once', 'Rerun the failing checkout\'s gate pairs once', 'escalated round spent', 'Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only', 'iterations < cap']) assert.ok(driver.includes(token), token);

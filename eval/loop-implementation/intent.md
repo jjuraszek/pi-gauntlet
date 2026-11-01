@@ -1,4 +1,4 @@
-for: 799f18db4bc2aa97c6b47c21a3d56a7cb1bc90f21fd1f34e2ff47e33a2c09484
+for: eb35ea5741c472f2ed71f0e7d53fa8d4b17b4e229f94ad76fa52a880bdf54de6
 
 ## Change
 Complete verify step 1 after an escalated repair by running other checkouts' pairs skipped by fail-fast before granting verification. Run each isolated conformance child's repaired-leg pairs in its own checkout and temporary log directory; retain the parent checkout set and session logs after integration. Extend exit-verification-escalates and repairs-rerun-gate-set-only with observable continuation and child-path facts.
@@ -9,6 +9,8 @@ Prove the existing gate-log boundary with gate-set-failure: one directory per ve
 Capture the decoded amendment grant, leg membership, checkout paths and Rules at seed or authorized restore before entering the dispatch loop, refreshing them only through authorized amendment actions. Restrict implement-driver reads to ledger/return/boundary data and skill resources/overrides; leave source and failure diagnosis to workers. Add driver-holds for restore capture, held-grant escalation, return admission and amendment refresh. Keep the existing leg-resume read-order and recovery facts; supply checks: commands in its admitted-ledger fixture so it exercises recovery rather than the separate legacy-header stop. Focused text replays prove narrated boundaries, not runtime file access; full-target runs remain with row 8.
 
 Replace loop-local full verification with the command-first gate set: deduplicate by owning checkout and command in ledger order, reject missing checks headers, log each foreground pair and fail-fast. Route coordinated and conformance verification through this set; retain full commands as CI metadata only. Add gate-set-verify-step-1, coordinated-same-command, repairs-rerun-gate-set-only and legacy-ledger-stop samples; update the four existing verification samples to supply command-first done-row evidence and checks headers. These text replays exercise routing instructions, not live shell execution. Targeted sample runs belong to this iteration; full-target completion belongs to row 8.
+
+Keep row escalation spent across retry, rows +N and resume, omitting the model override on all later authorized attempts. Distinguish rejected commit boundaries (restore attempts and redispatch on the default model after authorized recovery) from admitted validation misses (consume the last attempt and stop). Add spent-row-escalation for both paths, unrecoverable identity, new final attempts after grants and unspent missing-model/migrated rows. Run this sample for row 4; the parent owns the final full-target run.
 
 Escalate the last allowed numbered-row attempt automatically under approval options 4 and 5, within the allowance rather than after exhaustion. Use the settings tool's resolved model including its main-loop fallback; stop without a decision, counter bump or dispatch when the tool/model is unavailable. Rewrite escalated-row-attempt for option-4/5 parity, fallback and exhaustion, retaining its amendment checks. Add last-attempt-model-boundary for missing capabilities, allowance1, stagnation precedence and ordinary/seed dispatch. Run these samples now; the parent owns full-target runs after the remaining ledger rows.
 
@@ -62,6 +64,11 @@ Supply row 1's attempts value in the cap snapshot so its existing fact is observ
 - tracker-verify/repair: holds -> holds - replaced wording: Pass command, checkout, exit code and log path instead of failing output.
 - tracker-verify/failure: holds -> holds - replaced wording: Quote at most 20 log lines at the stop; never run full verification.
 - verify-lifecycle/contract: fails -> holds - replaced wording: Implement completes through the refresh; verify step 1 runs the deduplicated gate set with log redirection and no full verification; Gn tasks ride the same tracker.
+- spent-row-escalation/grants: fails -> holds - Retry and shared raises never rearm spent escalation, including at the new last attempt.
+- spent-row-escalation/resume: fails -> holds - Recover durable spent identity on resume and treat unrecoverable identity as spent.
+- spent-row-escalation/rejection: fails -> holds - Boundary rejection preserves attempts and escalation; authorized recovery permits default-model redispatch without new budget.
+- spent-row-escalation/admitted-miss: fails -> holds - An admitted miss consumes the last attempt and stops rather than receiving a free redispatch.
+- spent-row-escalation/unspent: fails -> holds - A missing-model stop or migrated row with no marker retains its ordinary last-attempt predicate after a grant.
 - effective-allowance/arithmetic: fails -> holds - Count retries rather than historical ceilings or other budgets.
 - effective-allowance/header-raise: fails -> holds - The shared header increase raises every row, including retried rows.
 - effective-allowance/coordinated: fails -> holds - Leg ownership never changes row arithmetic.
