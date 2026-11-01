@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6dddd00207636f6a7a1d7749596a799b6e886b3cf2c84c95e2f0ab95e3545f4a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7e309a61e1568e65c9f7f67c283e52a5e0e9b7da3d5381b04509b85d5a8877",
+      "intentSha": "900c89fa8fb868e0a811e84145087fe0448731b344a205330c2d971012cf163b",
       "baselineOutputSha": "e0a78693662e70bd3878299e56ba50e61b5de766a64c7fa0fa4973f792cd32ac",
       "candidateOutputSha": "5b2606d4d2173f4575a85b8045e614cf522a3aacc086a3f0f8791205434d635d",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs already record `node --test test/label.test.mjs; tests 1; pass 1; fail 0` as home evidence and as the companion four-column row, both run the unmatched `--test-name-pattern 'no-such-label'` probe (exit 0, tests 0) and the missing-file probe before choosing the file command, both show RED on the existing 'ready label' test before the one-constant edit and GREEN after, and both close only row 1 (attempts 1, pending line removed, iterations 2 and row 2 kept) while the companion leaves the home ledger untouched and puts the row after `pending: 1 | repo-b | bbbbbbb` / `iteration: 2` in a single commit body with a bounded decision-line reply. The After wording does deliver the Change more explicitly (RED/GREEN labels, 'Test economy' reuse note, probe framed as fail-closed file vs. empty-success filter). Two small things to tighten so the delivered Change stays unambiguous: After drops the outer `|` delimiters on the companion serialized row (`1 | done | 1 | ...` vs Before's `| 1 | done | 1 | ... |`), so if the parser expects a table row, keep Before's pipe-wrapped form; and After's reply says only 'passes' where Before carried 'tests 1, pass 1, fail 0', which is fine for a bounded line but loses the nonzero-count signal that justified rejecting the filter—consider keeping the counts in the reply since they are the whole argument.",
-      "wallMs": 20890,
+      "feedback": "After keeps every fact Before kept: both home evidence and the companion row begin with `node --test test/label.test.mjs` followed by three result segments, the empty-name-filter probe is run before the selector is chosen and the file command is recorded, RED is observed before the constant edit and GREEN after it without touching the test or cache code, and home closes only row 1 (attempts 1, pending removed, iterations 2 and row 2 preserved) while the companion leaves the home ledger alone and serializes only row 1 after the pending/iteration lines with a single bounded decision line as the reply. Nothing moved. Two minor robustness notes for the After wording rather than fact regressions: the companion row in After drops the leading and trailing `|` delimiters that Before used, so a reader could argue it is a pipe-separated line rather than a four-column table row — stating 'serialize the row with its leading and trailing pipe characters' would remove that ambiguity; and the After final replies drop the explicit `tests 1; pass 1; fail 0` counts from the decision line, which is fine for the ownership bound but slightly weakens the evidence trail compared with Before, so wording like 'the decision line may repeat the evidence cell verbatim' would preserve that without lengthening the reply.",
+      "wallMs": 17060,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6dddd00207636f6a7a1d7749596a799b6e886b3cf2c84c95e2f0ab95e3545f4a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7e309a61e1568e65c9f7f67c283e52a5e0e9b7da3d5381b04509b85d5a8877",
+      "intentSha": "900c89fa8fb868e0a811e84145087fe0448731b344a205330c2d971012cf163b",
       "baselineOutputSha": "4b3592851ef6e64218e600a18508e1cc04831cc3599a275fae5b104667a4c652",
       "candidateOutputSha": "5c0cfcbe4fffcb245a5824b881ae1a87014773697886725240e6ad2212d5a0ea",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs record `node --test test/label.test.mjs; tests 1; pass 1; fail 0` as the single-cell evidence in the home ledger and the companion commit body, both probe the unmatched name filter (exit 0, tests 0) and the missing-file case before choosing the file command, both run the seeded test to the expected-ready failure before the one-literal edit and rerun it to a pass without touching tests or cache code, and both close only row 1 (attempts 1), drop the home pending tuple while keeping iterations 2 and row 2, keep the home ledger untouched in the companion, and end with bounded decision lines. Two presentational choices in After are slightly weaker than Before and worth tightening so the facts stay unambiguous: the home ledger edit is shown as a `row:/status:/attempts:/evidence:` key-value list rather than the literal `| 1 | done | 1 | ... |` row, and the companion serialized row omits the leading/trailing pipes; render both as the literal pipe-delimited four-column row as Before did, so a reader can see the single physical cell and column count directly. Otherwise After delivers the Change (RED/GREEN labels, explicit empty-selection and missing-file probes, name-filter rejection recorded in the decision) while preserving every fact.",
-      "wallMs": 18068,
+      "feedback": "After moved nothing: both traces still record `node --test test/label.test.mjs; tests 1; pass 1; fail 0` as the evidence cell, probe the unmatched name filter (exit 0, tests 0) plus the missing-file probe before choosing the file command, reject bare `node --test` and `npm test`, run the seeded RED before the single-literal edit and GREEN after it, close only row 1 at attempts 1 while removing pending and keeping `iterations: 2` and row 2, and leave the home ledger untouched in the companion whose commit body serializes the row after the attribution tuple and `iteration: 2`. Two small presentation risks worth tightening in After: the home ledger edit in step 8 is rendered as `row:/status:/attempts:/evidence:` lines rather than the pipe-delimited row Before showed, which a strict reader could take as not demonstrating one physical cell — keep the literal `| 1 | done | 1 | node --test ...; tests 1; pass 1; fail 0 |` row as Before did; and the companion's serialized row drops the leading/trailing pipes, so prefer the same `| ... |` form in the commit body to make the four-column serialization unambiguous. The added RED/GREEN labels and the explicit empty-selection rationale in the decision line deliver the Change well and should be kept.",
+      "wallMs": 18351,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "7a2c80fda4a54b81183dda0379946ad19bb716a1"
+  "repoSha": "08f31ff491a94a038a77c8b15997400bf5c441f4"
 }

@@ -1,6 +1,8 @@
 for: 02017cc40b42185e0cf9717c81a1b79c6c8c5be3cf7912bb36b5eb093e4bdc93
 
 ## Change
+Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving cap repair, mixed task restoration and admission boundaries. Run the full resume target alongside the three AC8 targets; accept no unrelated variance.
+
 
 Route restored verify/ship Ledger briefs to After the loop step 1 and the loop skill's Gate set section, with no separate resume-owned gate run. Update loop-ledger-brief's closed-row verify snapshots, replace its once-per-leg gate wording with the gate set, and add gate-owner for fresh-session logs and no CI-command fallback. Preserve phase restoration, mixed tasks and fresh conformance; focused sample execution covers this continuation.
 
@@ -41,6 +43,8 @@ Cover home-bound coordinated admission, informational HEAD/dirt drift, membershi
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
 
 ## Expected to move
+- legacy-cap-brief/continue: fails -> holds - Resume delegates the gate set after cap repair rather than full local verification.
+- ledger-tracker-verify/mixed-verify: fails -> holds - Keep mixed task statuses and fresh gates while routing commands to the loop-owned selective set.
 - loop-ledger-brief/gate-owner: fails -> holds - Delegate fresh logged gate-set execution to the loop skill without a resume-owned run or full command.
 - ledger-tracker-recovery/implement-order: fails -> holds - Restore phases, recover pending, then refresh before unresolved dirt; never init an implement ledger list.
 - ledger-tracker-recovery/home-return: fails -> holds - Recover attribution from the commit body after a tuple-free restart and admit a clean bounded home return through the driver without consuming the iteration twice.

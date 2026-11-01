@@ -25,6 +25,8 @@ Apply the proof independently in each owning checkout. Post-squash verification 
 
 ## Post-strip recovery
 
+For an authorized ledger restore, read [pending recovery](../../gauntlet-resume/reference/reconstruction.md#pending-recovery) at its absolute path with `read` and apply it before pre-strip-source recovery or verification; a missing parent record alone is not an absent pre-strip source.
+
 For a fresh-session retry after a ledger was stripped, recover the committed pre-strip ledger that supplied Step 1's rows and `## Leg mapping`: `git -C <home> show <strip commit>^:<ledger path>`. Locate the removal in that ledger path's history; use the home primary when the home worktree is absent. Reconstruct the gate pairs from that ledger, never from the spec's `contract:` `- verification:` lines. Keep the recovered artifact read-only and apply the same `checks:` admission. On a missing or ambiguous source, stop naming the ledger path; do not take the no-plan fallback. Preserve coordinated receipt validation and delivery exemptions from [coordinated finish](legs.md).
 
 ## Post-squash execution

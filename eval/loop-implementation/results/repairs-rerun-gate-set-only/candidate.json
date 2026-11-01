@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e2fe143584f421e3470b1ec4be066d6b569ef2c113ed26c95f205c17dca91819",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f80d268ba86d25eee243ff0c2c8a871fff90b49cbf2d6319a013f431e6f9c2db",
+      "intentSha": "0a8ef446bec4fcea6f62f80b652ad15511422f4add54afa995feff69d65c8768",
       "baselineOutputSha": "80ddea571cee7f06e93fa775482ebe67dafad477c82162e14b02f941836bdd9a",
       "candidateOutputSha": "46c872bda97fa7c71ef4a86969409e2b31e174f91ff52718e5e5e5f409e3d189",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "After delivers the Change cleanly: it replaces every `make ci` site (step 1, post-whole-diff-fix rerun, both Convergence (a) runs) with the deduplicated parser-then-output gate pairs in /work/repo, passes the complete two-line checkout-qualified gate set as the G1 implementer's SCOPED_TEST_COMMANDS, keeps the CR wave at `SCOPED_TEST_COMMANDS: none` with no Gn task, states that `make ci` is CI metadata only and the no-plan fallback never applies, mints one `LOG_DIR` at step 0 and reuses it for all six redirected runs retaining only `gate <i> exit <code> <path>` lines. Nothing that Before held is lost. One wording wrinkle worth tightening: in Convergence pass 1 After runs 'Integrated scoped tests: the complete gate set, run #5' immediately after assigning the CR task `SCOPED_TEST_COMMANDS: none`, which blurs whether that run is the task's scoped tests (which should be none) or the Convergence (a) gate; Before explicitly said 'the round's union is none, so no scoped command runs'. Keep the CR round's scoped-test line as 'none' and attribute the next gate-set run only to the following Convergence (a) so the run count and the 'none' rule stay consistent without changing routing.",
-      "wallMs": 14396,
+      "feedback": "After delivers the Change on all four facts: step 1 and the post-whole-diff rerun are the deduplicated parser/output pairs in /work/repo with re-review following run #2; the G1 dispatch carries both pairs with owning checkout as SCOPED_TEST_COMMANDS, integrated scoped tests and both Convergence (a) runs reuse that set, the no-plan canonical fallback is explicitly ruled out, the Gn append/in_progress/complete lifecycle and one-task CR wave with SCOPED_TEST_COMMANDS none are retained, and every run shares one mktemp'd LOG_DIR with redirected foreground pairs, exit-line-only retention and no local make ci. Before failed all four because it ran make ci at step 1, after the fix round and in Convergence (a), passed only the parser command to the G1 task, and had no log directory. Two small tightening points for After: Stage 5 says the CR task gets SCOPED_TEST_COMMANDS none yet lists an 'integrated scoped tests' run #5 of the complete gate set — phrase that as the parent's post-integration gate run rather than the round's scoped union to avoid reading as a contradiction with the 'none' rule; and the Stage 2 wave-reviewer call omits cwd: \"/work/repo\", which Before stated, so restore it to keep the dispatch narration complete.",
+      "wallMs": 17261,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e2fe143584f421e3470b1ec4be066d6b569ef2c113ed26c95f205c17dca91819",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f80d268ba86d25eee243ff0c2c8a871fff90b49cbf2d6319a013f431e6f9c2db",
+      "intentSha": "0a8ef446bec4fcea6f62f80b652ad15511422f4add54afa995feff69d65c8768",
       "baselineOutputSha": "765ae96525acb7e96d7cd388abafb2d67380ab244541f509e1dc36b7e950ab45",
       "candidateOutputSha": "e50a59c7d547c80ab4f12c4eec6df1e7718a254bff7e94b06f9eb2f2cc420754",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves every fact in the intended direction: Before ran `make ci` at verify step 1, after the whole-diff fix, after the G1 and CR integrations and at both Convergence (a) sites, passed `SCOPED_TEST_COMMANDS: none` to the gap implementer, and ran no integrated scoped tests, so sites, conformance, repair and logs all failed even though it correctly rejected the no-plan canonical fallback and kept the Gn/CR lifecycle. After replaces each of those with the deduplicated `(checkout, command)` pair in first-row order, mints one `LOG_DIR` via `mktemp -d`, redirects each foreground pair to `gate-<i>.log` with only `gate N exit E <path>` lines retained, passes the complete two-entry gate set with owning checkout as the gap task's SCOPED_TEST_COMMANDS, runs that set as integrated scoped tests and at both Convergence (a) sites, keeps the CR wave at `none` with no Gn task, and explicitly states `make ci` and any unfiltered runner never run locally. Two small wording risks to watch: the `Ledger subject:` sentence appended under the gap task's SCOPED_TEST_COMMANDS block could be read as part of the command list, so put it on a separate labeled line; and the claim that finishing Step 1 reuses the same LOG_DIR extends beyond this verify session—phrase it as the finishing skill's own gate-set run so the fact about the verify-session directory stays unambiguous.",
-      "wallMs": 16083,
+      "feedback": "After moves all four facts from fails to holds without regressing anything Before kept: it derives the deduplicated (checkout, command) gate set in first-row order, runs it with per-pair `> $LOG_DIR/gate-<i>.log 2>&1` redirection and exit-line-only reporting at verify step 1, after the whole-diff fix round (before re-review), as the G1 task's SCOPED_TEST_COMMANDS with owning checkout, at both integrated scoped-test sites, and in both Convergence (a) runs, while keeping the Gn tracker lifecycle, the one-task CR wave with `SCOPED_TEST_COMMANDS: none`, a single minted LOG_DIR reused across reruns (fresh directory on resume), and an explicit refusal of `make ci`, the no-plan canonical fallback, and any unfiltered suite. Before, by contrast, routed every site through `make ci` and passed `none` to the gap wave. Two small wording risks to tighten: After cites a `# Ledger - loop engine` header that the case never supplies — ground the override selection in the supplied `checks: commands` header instead so the no-fallback claim rests only on given data; and the sentence 'Create or reuse the normal tracker task identified by G1' could be read as permitting reuse of a stale task — keep Before's 'append the genuinely new G1 task, then mark its existing index in_progress' phrasing to make the Gn lifecycle unambiguous.",
+      "wallMs": 15516,
       "verdict": "improved"
     }
   },
-  "repoSha": "9140d55e36505f07cfbb41886d7f733a6cc29fd4"
+  "repoSha": "08f31ff491a94a038a77c8b15997400bf5c441f4"
 }

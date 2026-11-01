@@ -73,7 +73,7 @@ for (const telemetry of [".pi/gauntlet/telemetry", "records/custom telemetry"]) 
 }
 
 test("stripped ledger recovery keeps checkout ownership instead of spec full commands", () => {
-  assert.match(verification, /git -C <home> show <strip commit>\^:<ledger path>/);
+  assert.match(verification, /authorized ledger restore[\s\S]*\[pending recovery\]\(\.\.\/\.\.\/gauntlet-resume\/reference\/reconstruction\.md#pending-recovery\)[\s\S]*missing parent record alone is not an absent pre-strip source[\s\S]*git -C <home> show <strip commit>\^:<ledger path>/);
   assert.match(verification, /never from the spec's `contract:` `- verification:` lines/);
   assert.match(verification, /missing.*stop/i);
   for (const path of ['skills/finishing-a-development-branch/reference/legs.md', 'skills/gauntlet-resume/reference/brief-contract.md']) {

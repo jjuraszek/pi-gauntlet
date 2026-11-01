@@ -2,7 +2,7 @@
 **Spec:** `doc/specs/2026-11-01-gh-109-loop-gate-set-driver-holds.md`
 base: 2a946c1c088c59bbc990c2dacb1bef2cb89a3b14
 verification: npm test
-iterations: 9
+iterations: 11
 cap: 33
 
 | row | status | attempts | evidence |
@@ -14,7 +14,7 @@ cap: 33
 | 5 | done | 1 | node --test scripts/loop-engine-contract.test.mjs; 14 tests pass after three RED failures; driver-holds, leg-resume and loop-ledger-brief focused evals pass on both models with 28 candidate facts holding; full-target evals remain for row 8 |
 | 6 | done | 1 | node --test scripts/loop-engine-contract.test.mjs; 15 tests pass with existing skill implementation unchanged; gate-set-failure, repairs-rerun-gate-set-only and loop-ledger focused evals pass with 34 candidate facts holding; session log reuse, redirected repair rerun and 20-line stop excerpt verified |
 | 7 | done | 1 | python3 -c 'assert all("gate set" in __import__("pathlib").Path(p).read_text() for p in ("doc/implement-engines.md", "doc/configuration.md", "README.md"))'; doc assertions pass including conditional telemetry and ship advisory; README overrides table byte-identical and SDD diff empty against ledger base; Unreleased entry present and stale keep-106-open sentence removed |
-| 8 | open | 0 | test -f eval/loop-implementation/samples/gate-set-verify-step-1/case.md; exit 1; required gate-set verify sample absent, model evals not run |
+| 8 | done | 1 | node --test scripts/loop-engine-contract.test.mjs scripts/finish-verification.test.mjs scripts/brief-contract-lint.test.mjs; exit 0; 27 relevant eval samples pass on both models, cached cells retained; unrelated nonledger finish failures retained separately |
 
 ## Decisions
 row 0 done | seeded 8 rows, closed 0 on baseline | row 1
@@ -26,3 +26,4 @@ row 4 done | Existing repair preserves rows and once-per-flow escalation with co
 row 5 done | Driver holds capture grants and leg paths outside the loop, and resume delegates gate execution; 14 tests and three focused evals pass. | Take row 6 for log limits and leave full-target evals to row 8.
 row 6 done | Verified session-scoped gate logs and 20-line human-stop excerpts without changing skills; 15 contract tests and three focused evals pass. | Take row 7 for docs; preserve the log implementation and leave full-target eval runs to row 8.
 row 7 done | Updated gate-set docs, conditional telemetry, ship advisory and changelog; selective assertions pass and overrides table and SDD remain unchanged. | Take row 8 for full-target evals; do not redo docs or add a permanent baseline-diff test.
+row 8 done | Recovered interrupted work under the user's targeted parallel-eval instruction; 27 relevant samples and scoped contracts pass. | Continue to whole-diff review and conformance; retain unrelated finish replay failures as observations.

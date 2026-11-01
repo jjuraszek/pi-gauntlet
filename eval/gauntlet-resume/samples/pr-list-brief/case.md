@@ -5,7 +5,7 @@ bundle+: skills/gauntlet-resume/reference/reconstruction.md
 
 Describe each independent operation using supplied observations instead of tool calls.
 
-Producer: cohort wrote a valid six-heading brief for /work/demo on branch repair-parser. Phase status is implement(W1); plan status is `Plan: 0/1 done (1 in progress, 0 pending)` with `  → [0] W1: Repair parser`. The run-worktree spec has these top-level Rework record groups in order:
+Producer: cohort wrote a valid six-heading brief for /work/demo on branch repair-parser. The supplied phase status output is exactly `  → implement(W1)`; no other phase statuses were observed. Plan status is `Plan: 0/1 done (1 in progress, 0 pending)` with `  → [0] W1: Repair parser`. The run-worktree spec has these top-level Rework record groups in order:
 PR: example/parser#42 - Repair parsing
 Pre-rework head: 1111111111111111111111111111111111111111
 Threads: home-thread

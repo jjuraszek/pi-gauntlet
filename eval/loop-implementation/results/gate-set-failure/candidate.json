@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "639ba79fcab5ee584f4cb92853c51f74ded65328ad9d512bc72862b099374f34",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f80d268ba86d25eee243ff0c2c8a871fff90b49cbf2d6319a013f431e6f9c2db",
+      "intentSha": "0a8ef446bec4fcea6f62f80b652ad15511422f4add54afa995feff69d65c8768",
       "baselineOutputSha": "85ae2d1a835f392fb67ad8ffeceee53ddf6c44a0fb12f80e3b6c11c2620a741d",
       "candidateOutputSha": "c119a2f6807a3ae4b81ad4b29a73b7ed6a382ba041043d7c87104897edb75f9c",
       "facts": {
@@ -49,9 +49,9 @@
           "label": "intended change"
         },
         "handoff": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "rerun": {
           "before": "fails",
@@ -64,14 +64,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After delivers the Change cleanly: the snapshot-1 run retains only the two `gate i exit N <path>` lines and stops before pair 3 (Before additionally kept three tail lines, so its retained set was not exit/path-only); the human stop now uses `tail -n 20` as the single driver read and quotes exactly log-06..log-25 after the `Problem:` path line (Before used `tail -n 3`); the repair task passes command/checkout/exit/log path plus captured spec and Rules with an explicit 'restore the test or its name, never edit ledger evidence' instruction and names the child as the sole log reader (Before lacked the selector-restore instruction and also passed `verification command: make ci`); the rerun reuses the same `LOG_DIR` for the three pairs and never invokes `make ci` (Before re-minted a directory and ran `make ci`); and the resume mints a new directory at the first gate-set site and rejects the old-session log, which Before already did. Nothing regressed. One small tightening worth keeping in future wording: in snapshot 1 After says `LOG_DIR=$(mktemp -d)` at entry step 3 after `phase_tracker start` — keep that explicit 'step 0' label so the once-per-session mint site stays unambiguous across snapshots 2 and 3.",
-      "wallMs": 26033,
+      "feedback": "After delivers the change cleanly: it mints LOG_DIR once at step 0, redirects each pair's stdout/stderr to its own gate log, prints only `gate i exit N <path>` lines, stops before last.test.mjs, uses `tail -n 20` as the sole log read with log-06–log-25 after `Problem:`, hands the child command/checkout/exit/log-path only, reruns all three pairs into the same LOG_DIR without `make ci`, and mints a fresh directory on resume while explicitly disqualifying the old-session log. Before failed redirect (retained tail lines beyond exit/path and treated `make ci` as a gate step), tail (`tail -n 3`, three-line excerpt), and rerun (new `mktemp -d` and `make ci` on the repair rerun); handoff and resume already held in Before and still hold. Nothing regressed. Two small tightening suggestions for After: in the snapshot-1 stop, the extra `Last 20 lines of that log:` label and the trailing `Per that log, row 2's recorded command ... Gate 3 did not run.` sentence sit between/after the excerpt — keep them, but consider moving the row-2/gate-3 summary into the `Problem:` line so the block after `Problem:` is strictly the exit/path line followed by the 20 log lines; and in the repair task, the sentence `Read the log yourself to derive the files to touch` is good, but drop the hypothetical `If this is a stale selector:` framing so the parent is not seen to pre-diagnose the cause.",
+      "wallMs": 31954,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "639ba79fcab5ee584f4cb92853c51f74ded65328ad9d512bc72862b099374f34",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f80d268ba86d25eee243ff0c2c8a871fff90b49cbf2d6319a013f431e6f9c2db",
+      "intentSha": "0a8ef446bec4fcea6f62f80b652ad15511422f4add54afa995feff69d65c8768",
       "baselineOutputSha": "379c99e580d58f1539f7a4b1efe960d4ccd6c3a7e4043c56fd41c343b964ade2",
       "candidateOutputSha": "54cfeda5a95dd9f9b56470f27c26fe4f83143ed5c519954db105cd98329e92e8",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before never reached any of the facts: it refused the command-pair gate as undefined, ran `make ci` as the only verification, passed actual failing output to the repair child, and ended in an unavailable-references stop, so every fact failed. After delivers the Change cleanly: one `mktemp -d` at verify start, `(cd /work/repo && node --test X) > \"$LOG_DIR/gate-N.log\" 2>&1` pairs with only `gate N exit C path` retained, fail-fast before gate 3, a `gauntlet: question` stop with the verification-failed-with-every-row-closed header and `Problem: gate 2 exit 1 …` followed by exactly log-06..log-25 via a single `tail -n 20`, amend/stop only, a path-only repair task where the child reads the log and restores the selector, a same-`$LOG_DIR` ordered rerun of all three pairs with no `make ci`, and a fresh directory on resume that discards `/tmp/old-session/gate-2.log` as evidence. The only wording worth tightening is the stop body: the inserted label line `Last 20 lines of the failing log:` and the trailing state/preservation lines sit between `Problem:` and the menu; a strict reader of 'only log-06 through log-25 after Problem:' could object, so consider placing the label inside the Problem line (e.g. `Problem: gate 2 exit 1 $LOG_DIR/gate-2.log; last 20 lines:`) or moving the non-log status lines above `Problem:` to keep the excerpt region unambiguous while retaining everything else After already holds.",
-      "wallMs": 18147,
+      "feedback": "Before never engages the command-first gate: it refuses to recognise `checks: commands`, runs `make ci` as the sole verification, mints no LOG_DIR, pastes failing output into the repair task, reruns `make ci`, and ends in a stop about unreadable references rather than the verification-failed stop, so every fact fails. After delivers the Change cleanly: one `mktemp -d` per verify session after `phase_tracker start`, each pair run foreground in /work/repo with `> gate-N.log 2>&1`, only `gate N exit C path` lines retained, fail-fast before `last.test.mjs`, the stop opening with `gauntlet: question` and the verification-failed-with-every-row-closed header, `tail -n 20` as the only driver read with exactly log-06..log-25 quoted, path-only repair handoff (command, checkout, exit 1, log path, spec, Rules) with the child reading the log and restoring the selector, the three-pair rerun in the same `$LOG_DIR` with no `make ci`, and a fresh directory on resume that explicitly disowns `/tmp/old-session/gate-2.log`. The only fragile spot is the extra label line `Last 20 lines of the failing log:` inserted between the `Problem:` log-path line and the excerpt; a stricter reader of 'only log-06 through log-25 after Problem:' could object, so consider placing the gate-2 exit line and the 20 log lines directly under `Problem:` with any label folded into the Problem sentence itself, and keep the rest of the wording as is.",
+      "wallMs": 17878,
       "verdict": "improved"
     }
   },
-  "repoSha": "9140d55e36505f07cfbb41886d7f733a6cc29fd4"
+  "repoSha": "08f31ff491a94a038a77c8b15997400bf5c441f4"
 }
