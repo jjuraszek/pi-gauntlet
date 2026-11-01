@@ -15,6 +15,14 @@ The implement-start guard in [phase-tracker.ts](../extensions/phase-tracker.ts) 
 
 A non-file engine artifact is outside this contract. Supporting an engine whose plan cannot be a hashed file requires a phase-state engine field and corresponding admission changes; that field does not exist.
 
+## Ledger task projection
+
+`plan_tracker refresh` resolves the ledger's Spec reference against its repository root and reads the original indexed acceptance criteria. Single-repo rows use their row number; coordinated rows use the original AC index in `## Leg mapping`. Each row's display label contains the full criterion text, flattened to one line without checkbox markup or disposition metadata. Missing or unreadable specs, missing criteria and empty descriptions reject refresh atomically; row numbers alone never substitute for descriptions.
+
+For allowance ledgers, unresolved rows and done rows with attempts above zero display `<attempts>/<effective allowance>: <description>`. Cut rows, baseline-done rows and legacy cap-only ledgers display only the description. Coordinated labels append the owning repo. Task names stay `row N` or `row N (repo)` for matching and telemetry; `label` is projection-only, absent from the `init`/`add` input schema. The widget shows the label, while status separates identity from display text: `row 3 | 2/5: Verify loop behavior and recovery`.
+
+Handoff copies status verbatim. Resume strips the recognized description suffix before restoring or comparing canonical ledger names, retains legacy plain and numeric-prefix names, and leaves Gn and other names unchanged. Refresh recomputes labels from current spec and ledger bytes; changed descriptions or allowances never create another task. The [brief contract](../skills/gauntlet-resume/reference/brief-contract.md#tracker-output-grammar) owns the parsing grammar.
+
 ## Task-plan orchestration
 
 A passing task-plan `plan_check` also returns a compact manifest: an absolute plan/spec header and one JSON line per task with its wave, heading, owned files, scoped test commands, and optional mode, leg, and orchestrator instruction. The [configuration reference](configuration.md#phase-tracker) defines its fields and inclusive 32,768-character rejection boundary. Loop ledgers return no manifest.

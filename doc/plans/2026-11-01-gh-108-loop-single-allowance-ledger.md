@@ -2,13 +2,13 @@
 **Spec:** `doc/specs/2026-11-01-gh-108-loop-single-allowance.md`
 base: 4cb3a8891e40a8c0749de9905ca62571bd42c3da
 verification: npm test
-iterations: 13
+iterations: 14
 cap: 49
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | fresh ledger seeds / coordinated ledger budget header / loop approval allowance suffix; 20 targeted tests pass; five affected eval samples improved; both eval structures pass and build:bins leaves bundles unchanged |
-| 2 | open | 1 | reopened by amendment: every ledger step requires a human-readable criterion description; preserve canonical row identity and verify brief round trips |
+| 2 | done | 2 | plan-tracker.test.ts + brief-contract-lint.test.mjs; 32 tracker tests pass for descriptions, stable identity, atomic errors and brief round trips; brief-contract fixtures pass; model checks deferred to parent per user |
 | 3 | done | 1 | last-attempt escalation contract and model evals; 2 targeted contract tests pass; escalated-row-attempt and last-attempt-model-boundary improve on both models with all 18 fact checks holding; fallback, missing-model, allowance1 and exhaustion checks pass |
 | 4 | done | 1 | spent row escalation contract / spent-row-escalation eval; targeted contract test passes; both replay models improve with all 10 fact checks holding; retry, rows +N, resume and rejected-return recovery preserve spent identity |
 | 5 | done | 1 | automatic exit verification repair / per-leg gate contract and four targeted eval samples; 2 contract tests pass; both models improve with all 22 fact checks holding; option parity, fallback, missing model, count, commit boundaries and spent recovery pass |
@@ -34,3 +34,4 @@ row 9 done | Resume recovers before header-only allowance migration; contract fi
 row 11 failed | Updated five binding docs; source checks expose missing gate allowance display, carrier and echoes, plus incorrect funding acceptance. | Align approval and entry instructions with the documented contract; preserve cap 49 and leave full-target evals to row 12.
 row 11 done | Gate displays resolved allowances, rejects misplaced funding and carries overrides into entry source echoes; five source tests and 32 model fact checks pass. | Take row 12's remaining fixture migration and full-target evals; preserve active cap 49 and do not redo gate or carrier repairs.
 row 12 done | Recovered eval artifacts and migrated allowance fixtures, including descriptive brief labels; deterministic checks pass. | Preserve recovered results and finish row 2 before selected parallel model checks.
+row 2 done | Ledger labels now show normalized AC descriptions with stable identities; 32 tracker tests and brief fixtures pass. | Preserve cap 49 and recovered results; parent should run only gauntlet-resume/ledger-tracker-verify for this change.

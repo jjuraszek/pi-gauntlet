@@ -136,7 +136,7 @@ Plan: 2/5 done (1 in progress, 2 pending)
 or `No plan active.`. Task glyphs `✓` complete, `→` in_progress, `✗` failed, `⊘` skipped,
 `○` pending, mapping 1:1 onto `plan_tracker init` `{name, status}` statuses.
 
-For ledger task rows only, strip an optional `^\d+/\d+: ` prefix after `[i] ` when the remaining name matches `^row \d+(?: \(\S+\))?$`. For example, `2/5: row 3 (repo-b)` restores the name `row 3 (repo-b)`. Strip it before verify/ship `plan_tracker init` and snapshot name comparisons. Keep Gn and every other task name byte-identical, including numeric prefixes on non-ledger names. Never restore labels from a brief: the post-restore refresh recomputes them from the ledger, so a changed denominator is not drift or a second task.
+For ledger task rows, match the suffix pattern `^(row \d+(?: \(\S+\))?) \| .+$` against the text after `[i] ` and restore only capture 1. Treat everything after the first canonical name's ` | ` as display text, including pipes and row-like text; never derive identity from the description. For example, `row 3 | 2/5: Verify loop behavior and recovery` restores `row 3`. Retain legacy plain names and the numeric prefix form: remove the prefix pattern `^\d+/\d+: ` only when the remainder matches the canonical pattern `^row \d+(?: \(\S+\))?$`. Strip recognized labels before verify/ship `plan_tracker init` and snapshot name comparisons. Keep Gn and every other task name byte-identical, including numeric prefixes on non-ledger names. Never restore labels from a brief: the post-restore refresh recomputes descriptions and allowance from the current spec and ledger, so a changed description or denominator is not drift or a second task.
 
 Parse stops (print the offending line, make no tracker call):
 
