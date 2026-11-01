@@ -1,6 +1,7 @@
 # chase-bug hotfix flow
 
 > **Superseded by:** [doc/specs/2026-09-17-gh-36-hotfix-worktree-binding.md](./2026-09-17-gh-36-hotfix-worktree-binding.md) - decision 5 "Self-containment" only (the `ci.mjs` exclusion)
+> **Superseded by:** [doc/specs/2026-11-01-chase-bug-loop-hotfix.md](./2026-11-01-chase-bug-loop-hotfix.md) - decision 6 "No conformance ceremony" and the single-`implementer` half of decision 8
 
 ## Context
 
