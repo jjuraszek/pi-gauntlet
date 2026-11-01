@@ -2,7 +2,7 @@
 **Spec:** `doc/specs/2026-11-01-gatekeep-pr-reassess-prior-review.md`
 base: b5a2fb0fb8533150bca997f066ebeb997976bc0a
 verification: npm test
-iterations: 8
+iterations: 9
 cap: 29
 
 | row | status | attempts | evidence |
