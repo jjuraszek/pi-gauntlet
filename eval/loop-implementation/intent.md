@@ -1,6 +1,8 @@
 for: a86767fcccca2b1e031fb5374a045821274b92388104ab214d88b2dab3965758
 
 ## Change
+Complete seed-retry conformance using the existing seed-retry sample's first miss, second consecutive miss, successful-window reset and companion cases. Rerun only seed-retry for this iteration; keep all other sample results, including partial-seed and seed-selection, unchanged. These replays prove narrated repair and stop behavior, not live dispatch. Refresh the deterministic home-boundary assertions to require restoring every changed row, not only the target.
+
 Select ordinary work after a surviving validated seed and its decision, including partial seeds with empty evidence cells. Use the ledger at HEAD and committed seed identity, preserving legacy full-coverage seeds and selecting seed after an authorized reset regardless of the consumed dispatch count. Add seed-selection for home partial/legacy/reset and coordinated seeded-flag continuations. Run only seed-selection in this iteration; these synthetic traces cover narrated selection, not live dispatch or admission. Keep closed admission and retry samples unchanged.
 
 Repair an admitted-boundary seed validation miss and retry seed once with the seed-contract instruction plus the concrete miss in hint. Restore rows and decisions, retain consumed iterations, clear pending and share the existing two-miss window across home and companion paths. Add seed-retry for first/second misses, successful-window reset, repair-to-retry resume and boundary exclusions. Run only seed-retry in this iteration; these synthetic traces cover narrated repair and retry, not live dispatch or ordinary seed selection. Leave the closed partial-seed admission sample unchanged.

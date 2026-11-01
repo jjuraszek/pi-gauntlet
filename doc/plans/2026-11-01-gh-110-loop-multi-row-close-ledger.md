@@ -3,7 +3,7 @@
 base: 407680b9c98894fdcc16aedd0feb6ac2c28b2215
 verification: npm test
 checks: commands
-iterations: 11
+iterations: 12
 allowance: 4
 
 | row | status | attempts | evidence |
@@ -19,7 +19,7 @@ allowance: 4
 | 9 | done | 1 | node eval/run.mjs loop-implementation seed-retry; exit 0 improved; all 6 candidate facts hold on both replay models; partial synthetic coverage of home and companion seed repair and one retry |
 | 10 | done | 1 | node eval/run.mjs loop-implementation seed-selection; exit 0 improved; all 5 candidate facts hold on both replay models; partial synthetic coverage of partial and legacy seeds, reset and coordinated continuation |
 | 11 | done | 1 | node -e '[["doc/specs/2026-10-23-gh-68-loop-implement-engine.md",["#110","every row names its evidence","at most one ledger row changed status","successor wins"]],["doc/implement-engines.md",["extra `open` rows of its leg","each with its own command-first evidence and decision line","may leave other rows `open` with empty evidence","baseline closures and child-closed extras alike"]],["doc/configuration.md",["at least one non-cut row","one line per row, target first","what later rows can build on","second consecutive seed miss stops","not until every row has evidence"]],["CHANGELOG.md",["## Unreleased","(#110)"]]].forEach(([file,tokens])=>tokens.forEach(token=>require("node:assert/strict").ok(require("node:fs").readFileSync(file,"utf8").includes(token),file+": "+token))),require("node:child_process").execFileSync("git",["diff","--exit-code","407680b9c98894fdcc16aedd0feb6ac2c28b2215","--","skills/subagent-driven-development/"]),console.log("4 documentation checks passed, waves skills unchanged")'; 4 documentation checks passed; waves skills unchanged |
-| 12 | open | 0 | node -e 'require("node:assert/strict").ok(!require("node:fs").readFileSync("eval/loop-implementer/samples/row-and-evidence/expected.md","utf8").includes("row 2 stays open"),"snapshot A still forbids closing row 2")'; exit 1; snapshot A still forbids closing row 2 |
+| 12 | done | 1 | node --test scripts/loop-engine-contract.test.mjs; 43 passed, 0 failed; row-and-evidence and seed-retry selected replays improved on both models; all 10 worker and 6 retry candidate facts hold, partial synthetic coverage |
 
 ## Decisions
 row 0 done | seeded 12 rows, closed 1 on baseline | row 1
@@ -33,3 +33,4 @@ row 8 done | Empty evidence is now normal after partial seeding, and workers cre
 row 9 done | Seed validation misses now repair and retry once at home and in companions, with the second miss stopping and valid seeds resetting the window. | Reuse seed-retry for repair coverage; leave validated partial-seed selection to row 10.
 row 10 done | Validated partial seeds now select ordinary rows from committed seed state instead of demanding evidence on every non-cut row. | Reuse seed-selection for partial, legacy, reset and coordinated continuation coverage; leave supersession docs and conformance to rows 11-12.
 row 11 done | Documented multi-row returns, partial seeding and seed retry in the engine guide, configuration, changelog and predecessor note. | Do not redo the documentation; row 12 retains eval conformance work and waves skills remain unchanged.
+row 12 done | Updated boundary assertions and verified multi-row and seed-retry replays; 43 contract tests pass and both selected samples improve. | Reuse the sample-scoped reports; leave full verification and live-run coverage to the parent.

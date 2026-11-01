@@ -268,12 +268,15 @@ test('terminal home results refresh only after admission and retain pending on b
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   const validation = driver.split('\n## Validate the return\n')[1].split('\n## Human stop\n')[0];
-  assert.match(validation, /restore the pre-dispatch target cells.*saved copy.*separately recorded dispatch identity.*`pending:` tuple/);
+  assert.match(validation, /restore every row the child changed \(target and extras\).*saved copy.*separately recorded dispatch identity.*`pending:` tuple/);
   assert.match(validation, /seed.*all dispatched non-cut rows/);
   assert.match(validation, /Preserve consumed iterations.*other child changes and commits.*Refresh before the discard\/reset stop/);
   assert.match(validation, /Never project terminal child results before clean\/exactly-one-commit admission/);
   assert.match(validation, /`iterations` \+1 and removal of the dispatched `pending:` line.*reject every other header change/);
-  assert.match(validation, /Seed or ordinary.*committed tuple.*ordinary miss/);
+  assert.match(validation, /Seed or ordinary.*committed tuple.*validation miss for the dispatched target after boundary admission, not a boundary rejection/);
+  assert.match(validation, /after the first miss re-dispatch `seed` once.*seed miss: <concrete miss>/);
+  assert.match(validation, /After the second consecutive miss, repair and take the existing human stop without another dispatch/);
+  assert.match(validation, /A validated seed resets the window, so ordinary dispatch starts clean/);
   assert.match(validation, /Clear `pending:`.*commit `loop: repair row <n>`/);
   assert.match(driver, /Retry, cut, amend, raise-allowance and escalate commits never clear the tuple/);
   assert.match(persona, /Remove the `pending:` line from the ledger in your commit/);
@@ -580,7 +583,7 @@ test('human stop counts cover every boundary without widening its menu', () => {
     "then print `Preserve every row's attempts.`",
     'Compute each denominator from the ledger using Before each dispatch',
     'keep retry increments in `## Decisions`, never a new table column',
-    'Use restored pre-dispatch target cells at rejected-return stops, not unadmitted child results',
+    'Use restored pre-dispatch row cells at rejected-return stops, not unadmitted child results',
     'With no open or failed rows, omit row lines but retain the preservation sentence',
     'Offer retry and `rows +N` only at row stops (allowance, stagnation or missing-model)',
     'Dirty-tree and commit-boundary stops keep discard authorization only',
