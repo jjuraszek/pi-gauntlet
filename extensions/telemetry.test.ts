@@ -284,6 +284,27 @@
     assert.deepEqual([resumed.gauntletEntered, resumed.lastSpecWrite], [true, "/repo/doc/specs/a.md"]);
   });
 
+  test("session resume restores the last successful plan snapshot for reopen counting", async () => {
+    const first = await boundInPlan();
+    const closed = [{ name: "a", status: "complete" }];
+    const planResult = (tasks: { name: string; status: string }[], error?: string) => ({
+      type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: { action: "update", tasks, error } },
+    });
+    const branch = [
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: join(first.root, "doc/specs/a.md") } } },
+      planResult([{ name: "a", status: "pending" }]),
+      planResult(closed),
+      planResult([{ name: "a", status: "failed" }], "failed"),
+    ];
+    const second = harness({ sessionId: "s2", branch });
+    second.ctx.cwd = first.root;
+    await second.emit("session_start", { type: "session_start", reason: "resume" });
+    await second.emit("tool_result", { toolName: "plan_tracker", toolCallId: "pt", input: { action: "update" }, content: [], isError: false, details: { action: "update", tasks: [{ name: "a", status: "in_progress" }] } });
+    assert.equal(second.readRecord().derived.gates.task_reopens, 1);
+    assert.deepEqual(replayBranch(branch, ["doc/specs"]).lastPlanTasks, closed);
+  });
+
   test("replayBranch honors a custom spec dir list", () => {
     const branch = [
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },

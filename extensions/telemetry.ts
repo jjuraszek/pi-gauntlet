@@ -141,6 +141,7 @@
     gauntletEntered: boolean;
     planCheckSpec?: string;
     lastSpecWrite?: string;
+    lastPlanTasks?: { name?: string; status: string }[];
   }
 
   // gauntlet-resume's reconstruction skips brainstorm with `resume: <spec path>`; the path
@@ -179,6 +180,9 @@
         }
         const resumed = d.action === "skip" ? resumeSpecOf(d.phases, specDirs) : undefined;
         if (out.gauntletEntered && resumed) out.lastSpecWrite = resumed;
+      } else if (msg.toolName === "plan_tracker") {
+        const d = msg.details as { tasks?: { name?: string; status: string }[]; error?: string } | undefined;
+        if (d && !d.error && Array.isArray(d.tasks)) out.lastPlanTasks = d.tasks;
       } else if (msg.toolName === "plan_check") {
         const d = msg.details as { status?: string; specPath?: string } | undefined;
         if (out.gauntletEntered && d?.status === "pass" && typeof d.specPath === "string") out.planCheckSpec = d.specPath;
@@ -492,6 +496,7 @@
       sessionId = ctx.sessionManager.getSessionId();
       currentDir = snap.telemetry.dir;
       const replay = replayBranch(ctx.sessionManager.getBranch(), snap.specDirs);
+      lastPlanTasks = replay.lastPlanTasks;
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
       if (!canBind()) return;
