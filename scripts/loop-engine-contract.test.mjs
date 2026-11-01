@@ -20,9 +20,12 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   const continuation = driver.slice(driver.indexOf('## After the loop'));
   assert.ok(driver.indexOf('action: "complete", phase: "implement"') < driver.indexOf('## After the loop'));
   assert.ok(continuation.indexOf('whole-diff `wave-reviewer`') < continuation.indexOf('separate fresh `conformance-reviewer`'));
-  for (const fact of ['effective allowance', 'count of that row', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'Exactly one NEW', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
+  for (const fact of ['effective allowance', 'count of that row', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'zero or more other', 'attempts unchanged', 'exactly one new decision line, target first', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
   assert.match(driver, /Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit\. Raising allowance resets neither window\. Preserve every row's attempts\./);
-  assert.match(driver, /Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row survives on the branch, independently of `iterations`/);
+  assert.match(driver, /Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision survives on the branch, independently of `iterations`/);
+  assert.match(driver, /Read seed survival from the ledger at HEAD/);
+  assert.match(driver, /Never re-seed a validated partial seed to fill empty evidence cells/);
+  assert.doesNotMatch(driver, /decision and evidence on every non-cut row survives/);
   assert.match(driver, /Validate by dispatched `target`, not iteration number/);
   assert.match(driver, /For `target: seed`, explicitly instruct the child to apply its seed contract even when iteration is greater than 0/);
   assert.doesNotMatch(driver, /Select `seed` at iteration 0; otherwise/);
@@ -51,9 +54,14 @@ test('worker records selective commands and keeps row-scoped TDD evidence valid'
     "owning checkout's full verification command", 'runner with no file or filter',
     'name that matches nothing', 'nonzero exit', 'otherwise record the file',
     'passing check for every baseline closure',
+    'Close the `target` row first', 'Only after the target is `done`',
+    'Take extras one at a time',
+    'Revert all code, test, cell and decision changes for an unfinished extra before committing',
   ]) assert.ok(persona.includes(token), token);
   assert.match(persona, /5\. .*command you ran.*at most three result lines/);
-  assert.match(persona, /For every `open` row,.*command.*`evidence`/);
+  assert.match(persona, /For each selected `open` row,.*command.*`evidence`/);
+  assert.match(persona, /evidence seeding for at least one non-cut row/);
+  assert.match(persona, /Count only rows given evidence in this return/);
   assert.match(persona, /Include the evidence command.*at most three semicolon-separated result lines/);
   assert.doesNotMatch(persona, /containing the check name|Include the check name/);
   assert.deepEqual(lintTarget(new URL('eval/loop-implementer', root).pathname), []);
@@ -263,12 +271,15 @@ test('terminal home results refresh only after admission and retain pending on b
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   const validation = driver.split('\n## Validate the return\n')[1].split('\n## Human stop\n')[0];
-  assert.match(validation, /restore the pre-dispatch target cells.*saved copy.*separately recorded dispatch identity.*`pending:` tuple/);
+  assert.match(validation, /restore every row the child changed \(target and extras\).*saved copy.*separately recorded dispatch identity.*`pending:` tuple/);
   assert.match(validation, /seed.*all dispatched non-cut rows/);
   assert.match(validation, /Preserve consumed iterations.*other child changes and commits.*Refresh before the discard\/reset stop/);
   assert.match(validation, /Never project terminal child results before clean\/exactly-one-commit admission/);
   assert.match(validation, /`iterations` \+1 and removal of the dispatched `pending:` line.*reject every other header change/);
-  assert.match(validation, /Seed or ordinary.*committed tuple.*ordinary miss/);
+  assert.match(validation, /Seed or ordinary.*committed tuple.*validation miss for the dispatched target after boundary admission, not a boundary rejection/);
+  assert.match(validation, /after the first miss re-dispatch `seed` once.*seed miss: <concrete miss>/);
+  assert.match(validation, /After the second consecutive miss, repair and take the existing human stop without another dispatch/);
+  assert.match(validation, /A validated seed resets the window, so ordinary dispatch starts clean/);
   assert.match(validation, /Clear `pending:`.*commit `loop: repair row <n>`/);
   assert.match(driver, /Retry, cut, amend, raise-allowance and escalate commits never clear the tuple/);
   assert.match(persona, /Remove the `pending:` line from the ledger in your commit/);
@@ -278,6 +289,25 @@ test('terminal home results refresh only after admission and retain pending on b
   assert.match(persona, /For every home row or seed commit.*`pending:` tuple and consumed `iteration:`.*separate body lines/);
   assert.match(persona, /ledger's bumped `iterations:` header, not the task's pre-bump `iteration`/);
   assert.match(validation, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1/);
+});
+
+test('reconstruction restores rejected target and extras before task projection', () => {
+  const recovery = readFileSync(new URL('skills/gauntlet-resume/reference/reconstruction.md', root), 'utf8');
+  const interrupted = recovery.split('| Confirmed interrupted |')[1].split('\n')[0];
+  const home = recovery.split('| Home leg or single-member `home` |')[1].split('\n')[0];
+  for (const instruction of [interrupted, home]) {
+    assert.match(instruction, /restore every row the child changed \(target and extras\).*pre-dispatch copy.*tuple.*before refresh/);
+    assert.match(instruction, /decisions/);
+  }
+  assert.doesNotMatch(recovery, /restore the target row and the tuple|restore row <n> to its pre-dispatch/);
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
+  const resume = reference.split('\n## Resume\n')[1].split('\n## Targeting and dispatch\n')[0];
+  const companion = recovery.split('| Actual multi-member companion |')[1].split('\n')[0];
+  for (const instruction of [resume, companion]) {
+    assert.match(instruction, /boundary\/attribution failures/);
+    assert.match(instruction, /post-boundary result-validation misses.*`loop: repair row <n>`.*`loop: repair seed`.*clear `pending:`.*preserve the consumed iteration/);
+    assert.doesNotMatch(instruction, /attribution\/result mismatch|missing evidence take/);
+  }
 });
 
 test('verify owns the gate set, bounded repair and authorized ledger re-bound', () => {
@@ -360,7 +390,7 @@ test('gate output stays in session logs through repair, conformance and finish',
 
 const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
 
-function companionFixture(target) {
+function companionFixture(target, extraRows = false) {
   const dir = mkdtempSync(join(tmpdir(), 'loop-return-'));
   const repos = ['home', 'companion'].map(name => {
     const path = join(dir, name); mkdirSync(path);
@@ -372,7 +402,11 @@ function companionFixture(target) {
   const [home, companion] = repos;
   const base = git(companion, 'rev-parse', 'HEAD');
   const pending = `pending: ${target} | repo-b | ${base}`;
-  const saved = `# Ledger - loop engine\nbase: ${git(home, 'rev-parse', 'HEAD')}\niterations: 1\nallowance: 6\nbase repo-a: ${base}\nseeded repo-a: yes\nbase repo-b: ${base}\nseeded repo-b: no\n${pending}\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | home check |\n| 2 | open | 0 | |\n| 3 | cut | 0 | deferred: later |\n\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-b |\n\n## Decisions\nrows +2 | shared allowance\n`;
+  let saved = `# Ledger - loop engine\nbase: ${git(home, 'rev-parse', 'HEAD')}\niterations: 1\nallowance: 6\nbase repo-a: ${base}\nseeded repo-a: yes\nbase repo-b: ${base}\nseeded repo-b: no\n${pending}\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | home check |\n| 2 | open | 0 | |\n| 3 | cut | 0 | deferred: later |\n\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-b |\n\n## Decisions\nrows +2 | shared allowance\n`;
+  if (extraRows) {
+    saved = saved.replace('\n## Leg mapping', '| 4 | open | 0 | |\n| 5 | done | 0 | node --test baseline.test.mjs; passed |\n\n## Leg mapping')
+      .replace('\n## Decisions', '| 4 | 3 | repo-b |\n| 5 | 4 | repo-b |\n\n## Decisions');
+  }
   const ledger = join(home, 'ledger.md');
   writeFileSync(ledger, saved.replace('iterations: 1', 'iterations: 0').replace(pending + '\n', ''));
   git(home, 'add', '.'); git(home, 'commit', '-qm', 'loop: seed ledger');
@@ -385,13 +419,13 @@ function companionFixture(target) {
   assert.notEqual(readFileSync(preDispatch, 'utf8'), readFileSync(admissionLedger, 'utf8'));
   return { home, companion, base, pending, ledger, saved, target, admissionLedger, preDispatch };
 }
-function returnCommit(f, { tuple = f.pending, iteration = 1, row = 2, extra = false, unrelated = false } = {}) {
+function returnCommit(f, { tuple = f.pending, iteration = 1, row = 2, extra = false, unrelated = false, rows, decisions, status = 'done' } = {}) {
   writeFileSync(join(f.companion, 'code.txt'), 'implemented\n');
   git(f.companion, 'add', '.');
   const seed = f.target === 'seed';
   const decision = seed ? 'row 0 done | seeded 1 rows, closed 1 on baseline | none' : 'row 2 done | implemented | do not redo';
-  const body = `${tuple}\niteration: ${iteration}\n\n| ${row} | done | ${seed ? 0 : 1} | check; passed \\| expected |\n\n${decision}`;
-  git(f.companion, 'commit', '-qm', unrelated ? 'unrelated' : seed ? 'loop: seed evidence' : 'loop: row 2 done', '-m', body);
+  const body = `${tuple}\niteration: ${iteration}\n\n${rows?.join('\n') ?? `| ${row} | done | ${seed ? 0 : 1} | check; passed \\| expected |`}\n\n${decisions?.join('\n') ?? decision}`;
+  git(f.companion, 'commit', '-qm', unrelated ? 'unrelated' : seed ? 'loop: seed evidence' : `loop: row 2 ${status}`, '-m', body);
   if (extra) git(f.companion, 'commit', '--allow-empty', '-qm', 'extra');
 }
 function validateCompanion(f) {
@@ -401,6 +435,41 @@ function validateCompanion(f) {
   const script = block[1];
   return spawnSync('bash', ['-c', script], { encoding: 'utf8', env: { ...process.env, CHECKOUT: f.companion, PENDING: f.pending, ITERATION: '1', SAVED_LEDGER: f.admissionLedger } });
 }
+
+test('partial companion seed requires all leg rows and counts only evidence', () => {
+  const partial = ['| 2 | open | 0 | |', '| 4 | open | 0 | node --test later.test.mjs; assertion mismatch |', '| 5 | open | 0 | |'];
+  const valid = [
+    ['one of three evidenced', partial, 1, 0],
+    ['complete seed', ['| 2 | done | 0 | check-first; passed |', '| 4 | open | 0 | check-later; failed |', '| 5 | done | 0 | check-baseline; passed |'], 3, 2],
+  ];
+  const invalid = [
+    ['counts empty cells', partial, 3, 0, 'seed counts mismatch'],
+    ['omitted rows', [partial[1]], 1, 0, 'missing target or seed row'],
+    ['no rows', [], 0, 0, 'missing rows or decisions'],
+    ['empty evidence', [partial[0], '| 4 | open | 0 | |', partial[2]], 1, 0, 'seed counts mismatch'],
+    ['foreign row', ['| 1 | open | 0 | |', partial[1], partial[2]], 1, 0, 'foreign row'],
+    ['cut row', ['| 3 | done | 0 | check; passed |', partial[1], partial[2]], 2, 1, 'foreign row'],
+    ['attempt changed', [partial[0], partial[1].replace('| 0 |', '| 1 |'), partial[2]], 1, 0, 'attempt mismatch'],
+    ['failed status', [partial[0], partial[1].replace('| open |', '| failed |'), partial[2]], 1, 0, 'invalid status'],
+    ['lost baseline', [partial[0], partial[1], '| 5 | open | 0 | node --test baseline.test.mjs; passed |'], 2, 0, 'lost baseline closure', true],
+    ['invented seeded count', partial, 2, 0, 'seed counts mismatch'],
+    ['invented closure count', partial, 1, 1, 'seed counts mismatch'],
+    ['duplicate row', [partial[0], partial[1], partial[0]], 1, 0, 'duplicate row'],
+  ];
+  for (const [cases, passes] of [[valid, true], [invalid, false]]) {
+    for (const [name, rows, seeded, closed, reason, preserveBaseline] of cases) {
+      const f = companionFixture('seed', true);
+      const saved = preserveBaseline ? f.saved : f.saved.replace('| 5 | done | 0 | node --test baseline.test.mjs; passed |', '| 5 | open | 0 | |');
+      writeFileSync(f.admissionLedger, saved);
+      returnCommit(f, { rows, decisions: [`row 0 done | seeded ${seeded} rows, closed ${closed} on baseline | row 2`] });
+      const result = validateCompanion(f);
+      assert.equal(result.status === 0, passes, `${name}: ${result.stderr}`);
+      if (passes) assert.deepEqual(JSON.parse(result.stdout).rows, rows);
+      if (reason) assert.ok(result.stderr.includes(reason), `${name}: ${result.stderr}`);
+      assert.equal(readFileSync(f.ledger, 'utf8'), saved, 'admission is read-only');
+    }
+  }
+});
 
 test('interrupted ordinary and seed returns recover once across two repositories', () => {
   for (const target of ['2', 'seed']) {
@@ -442,6 +511,46 @@ test('companion recovery rejects movement and unattributed or foreign results', 
     const result = validateCompanion(f);
     assert.notEqual(result.status, 0, name);
     assert.equal(readFileSync(f.ledger, 'utf8'), f.saved, name);
+  }
+});
+
+test('companion ordinary returns admit same-leg extras with matching decisions only', async t => {
+  const row = (n, status, attempts) => `| ${n} | ${status} | ${attempts} | node --test row-${n}.test.mjs; passed |`;
+  const decision = (n, status) => `row ${n} ${status} | recorded evidence | nothing new to build on`;
+  for (const [name, status, extra, lines, accepted] of [
+    ['target only', 'done', null, [decision(2, 'done')], true],
+    ['done target and same-leg extra', 'done', row(4, 'done', 0), [decision(2, 'done'), decision(4, 'done')], true],
+    ['duplicate target row', 'done', row(2, 'done', 1), [decision(2, 'done'), decision(2, 'done')], false],
+    ['extra decision status mismatch', 'done', row(4, 'done', 0), [decision(2, 'done'), decision(4, 'failed')], false],
+    ['unbounded extra decision', 'done', row(4, 'done', 0), [decision(2, 'done'), `row 4 done | ${'x'.repeat(201)} | reusable fixture`], false],
+    ['unbounded extra evidence', 'done', '| 4 | done | 0 | check; a; b; c; d |', [decision(2, 'done'), decision(4, 'done')], false],
+    ['failed target and evidenced extra', 'failed', row(4, 'done', 0), [decision(2, 'failed'), decision(4, 'done')], true],
+    ['extra without decision', 'done', row(4, 'done', 0), [decision(2, 'done')], false],
+    ['decision without changed row', 'done', null, [decision(2, 'done'), decision(4, 'done')], false],
+    ['extra decision before target', 'done', row(4, 'done', 0), [decision(4, 'done'), decision(2, 'done')], false],
+    ['duplicate extra decision', 'done', row(4, 'done', 0), [decision(2, 'done'), decision(4, 'done'), decision(4, 'done')], false],
+    ['foreign extra', 'done', row(1, 'done', 0), [decision(2, 'done'), decision(1, 'done')], false],
+    ['failed extra', 'done', row(4, 'failed', 0), [decision(2, 'done'), decision(4, 'failed')], false],
+    ['cut extra', 'done', row(3, 'done', 0), [decision(2, 'done'), decision(3, 'done')], false],
+    ['already done extra', 'done', row(5, 'done', 0), [decision(2, 'done'), decision(5, 'done')], false],
+    ['extra attempts incremented', 'done', row(4, 'done', 1), [decision(2, 'done'), decision(4, 'done')], false],
+    ['extra without evidence', 'done', '| 4 | done | 0 | |', [decision(2, 'done'), decision(4, 'done')], false],
+  ]) {
+    await t.test(name, () => {
+      const f = companionFixture('2', true);
+      const rows = [row(2, status, 1), ...(extra ? [extra] : [])];
+      returnCommit(f, { status, rows, decisions: lines });
+      const result = validateCompanion(f);
+      assert.equal(result.status === 0, accepted, result.stderr);
+      if (accepted) {
+        const admitted = JSON.parse(result.stdout);
+        assert.deepEqual(admitted.rows, rows);
+        assert.deepEqual(admitted.decisions, lines);
+        assert.equal(admitted.decision, lines[0], 'operational decision belongs to target');
+        assert.deepEqual(JSON.parse(validateCompanion(f).stdout), admitted, 'pending recovery returns the same rows and decisions');
+      }
+      assert.equal(readFileSync(f.ledger, 'utf8'), f.saved, 'admission never mutates home');
+    });
   }
 });
 
@@ -501,7 +610,7 @@ test('human stop counts cover every boundary without widening its menu', () => {
     "then print `Preserve every row's attempts.`",
     'Compute each denominator from the ledger using Before each dispatch',
     'keep retry increments in `## Decisions`, never a new table column',
-    'Use restored pre-dispatch target cells at rejected-return stops, not unadmitted child results',
+    'Use restored pre-dispatch row cells at rejected-return stops, not unadmitted child results',
     'With no open or failed rows, omit row lines but retain the preservation sentence',
     'Offer retry and `rows +N` only at row stops (allowance, stagnation or missing-model)',
     'Dirty-tree and commit-boundary stops keep discard authorization only',

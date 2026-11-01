@@ -138,10 +138,10 @@ for (const [name, text, pattern] of [
 ]) assert.match(text, pattern, `${name}: phase and ledger task restoration order`);
 assert.match(ledgerRestore, /pending recovery.*before.*refresh/i);
 assert.match(ledgerRestore, /refresh[^\n]*before[^\n]*dirty-tree stop/);
-for (const token of ["exactly one new home commit", "zero new commits", "multiple commits", "pre-dispatch", "## Validate the return", "restore the target row and the tuple", "preserve other child changes"]) assert.ok(ledgerRestore.includes(token), token);
+for (const token of ["exactly one new home commit", "zero new commits", "multiple commits", "pre-dispatch", "## Validate the return", "restore every row the child changed (target and extras)", "preserve other child changes"]) assert.ok(ledgerRestore.includes(token), token);
 const recovery = ledgerRestore.split("### Pending recovery")[1];
 assert.match(ledgerRestore, /row <n> in_progress \(pending tuple restored\)/);
-assert.match(recovery, /Confirmed interrupted[^\n]*full `<HEAD_BEFORE>\.\.HEAD` range[^\n]*row <n>[^\n]*open\/attempts 0[^\n]*tuple before refresh[^\n]*iterations stay at the recovered count[^\n]*child commits\/changes are kept/);
+assert.match(recovery, /Confirmed interrupted[^\n]*full `<HEAD_BEFORE>\.\.HEAD` range[^\n]*restore every row the child changed \(target and extras\)[^\n]*tuple before refresh[^\n]*iterations stay at the recovered count[^\n]*child commits\/changes are kept/);
 assert.match(routes, /verify with `Ledger:`[^\n]*fresh home conformance review/);
 assert.match(recovery, /no `pending:`.*home commit history.*before.*refresh/i);
 assert.match(recovery, /latest home child row\/seed commit.*unrelated commits follow it/);

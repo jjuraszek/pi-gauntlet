@@ -1,0 +1,100 @@
+{
+  "sample": "empty-evidence-row",
+  "arm": "candidate",
+  "skillSha": "1051df5e801074f612a6f4ac8ba9b9507e79fb96da7ead8a2bd010404dc2f355",
+  "inputSha": "e60299e3382d385a0e8e101b2c9c4fbd075dffd88a5cb8302691af4e0f552b30",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Simulated trace: iteration 1, target row 2 (home leg)**\n\n1. **Read the spec first.** `read /repo/doc/specs/labels.md`\n   - There are three acceptance criteria. Row 2 is \"Export 'active' from src/state.mjs.\"\n   - The design says to put Node unit tests beside the existing tests. The parent runs `npm test` later.\n\n2. **Read the ledger.** `read /repo/doc/plans/labels-ledger.md`\n   - Saved pending tuple: `2 | home | def5678`.\n   - Saved bumped `iterations:` count: `2`.\n   - Row 2 is `open | 0 |` with empty evidence.\n\n3. **Responded to the teammate's suggestion.** Empty evidence on row 2 is not a seed failure.\n   - The partial seed reached only row 1, committed, and recorded `seeded 1 rows, closed 1 on baseline`.\n   - The contract treats empty evidence on an unreached row as normal after partial seeding.\n   - The correct path is to create row 2's first check now and then close or fail it.\n   - Repairing or redoing the seed would be outside this iteration and would repeat work.\n\n4. **Checked the base diff.** `cd /repo && git diff --stat abc1234`\n   - Only the ledger and `test/label.test.mjs` changed since base.\n\n5. **Checked hunks for row 2's files.** `git diff abc1234 -- src/state.mjs test/state.test.mjs`\n   - The output is empty.\n\n6. **Read the code and the sibling test.**\n   - `read src/state.mjs` shows `export const state = 'idle';`.\n   - `read test/label.test.mjs` shows it uses `node:test` and `node:assert/strict` to assert that label equals `'ready'`.\n   - This is new behavior and no state test exists yet.\n\n7. **RED: wrote the first check.** Created `test/state.test.mjs` beside its sibling:\n   ```js\n   import test from 'node:test';\n   import assert from 'node:assert/strict';\n   import { state } from '../src/state.mjs';\n   test('state exports active', () => { assert.equal(state, 'active'); });\n   ```\n   - Ran `node --test test/state.test.mjs`.\n   - Result: fail 1. Actual `'idle'`, expected `'active'`. It fails for the row's stated reason.\n\n8. **GREEN: made the smallest change.** Edited `src/state.mjs` to `export const state = 'active';`.\n   - Ran `node --test test/state.test.mjs`.\n   - Result: tests 1, pass 1, fail 0.\n   - The evidence command records the test file, not a name filter. A missing file makes `node --test` exit nonzero, so the command cannot pass while selecting nothing.\n\n9. **Updated the ledger row.**\n   - Row 2 becomes: `| 2 | done | 1 | node --test test/state.test.mjs; tests 1; pass 1; fail 0 |`\n   - Row 1 is unchanged.\n   - Row 3 stays `| 3 | open | 0 | |`.\n\n10. **Considered extras.** Row 3 is about `src/queue.mjs`, which is unrelated to the state code just changed. I took no extra.\n\n11. **Appended the decision and removed the pending line.**\n    - Appended the row 2 decision line under `## Decisions`.\n    - Removed the line `pending: 2 | home | def5678`.\n    - All other headers are preserved, including `iterations: 2`.\n\n12. **Staged and committed once.**\n    - `git add src/state.mjs test/state.test.mjs doc/plans/labels-ledger.md`\n    - `git commit -m \"loop: row 2 done\" -m $'pending: 2 | home | def5678\\niteration: 2'`\n    - The commit succeeds.\n\n13. **Checked the tree.** `git status --porcelain` returns empty, so the tree is clean.\n\nFinal reply:\nrow 2 done | Added test/state.test.mjs asserting state equals 'active' and changed src/state.mjs to export 'active' instead of 'idle'. | test/state.test.mjs is a node:test plus assert/strict sibling test; copy its shape for test/queue.test.mjs and record the test file as evidence.\n",
+      "words": 484,
+      "wallMs": 17864,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Simulated tool trace\n\nAll checkout-relative commands run in the supplied working directory.\n\n1. Read the full spec before the ledger.\n\n   ```sh\n   cat /repo/doc/specs/labels.md\n   ```\n\n   Observed:\n   ```markdown\n   # Labels\n   ## Acceptance criteria\n   - [ ] Export 'ready' from src/label.mjs.\n   - [ ] Export 'active' from src/state.mjs.\n   - [ ] Export 'queued' from src/queue.mjs.\n   ## Design\n   Use Node unit tests beside the existing tests. The parent runs npm test later.\n   ```\n\n2. Read the ledger.\n\n   ```sh\n   cat /repo/doc/plans/labels-ledger.md\n   ```\n\n   Observed:\n   ```markdown\n   # Ledger - loop engine\n   **Spec:** `doc/specs/labels.md`\n   base: abc1234\n   verification: npm test\n   checks: commands\n   iterations: 2\n   allowance: 4\n   pending: 2 | home | def5678\n\n   | row | status | attempts | evidence |\n   |---|---|---|---|\n   | 1 | done | 0 | node --test test/label.test.mjs; 1 passed; 0 failed |\n   | 2 | open | 0 | |\n   | 3 | open | 0 | |\n\n   ## Decisions\n   row 0 done | seeded 1 rows, closed 1 on baseline | row 2 next\n   ```\n\n   Saved exact attribution: `pending: 2 | home | def5678`.\n   Saved consumed count: `iteration: 2`.\n\n   Teammate suggestion response: Empty evidence on unreached rows is valid after partial seeding. Do not repair or repeat seed; create row 2’s first check and continue the ordinary iteration. No additive Rules files were supplied.\n\n3. Inspect the base diff stat and only row 2’s full diff hunks.\n\n   ```sh\n   git diff --stat abc1234\n   ```\n\n   Observed: only the ledger and `test/label.test.mjs` appear; no state file changed.\n\n   ```sh\n   git diff abc1234 -- src/state.mjs test/state.test.mjs\n   ```\n\n   Observed: empty diff.\n\n4. Read the target source and the existing sibling test for its testing convention.\n\n   ```sh\n   cat src/state.mjs\n   ```\n\n   Observed:\n   ```js\n   export const state = 'idle';\n   ```\n\n   ```sh\n   cat test/label.test.mjs\n   ```\n\n   Observed: uses `node:test` and `node:assert/strict` to assert that `label` equals `'ready'`. Leave this closed row’s test unchanged.\n\n5. Create row 2’s first selective check beside the existing test.\n\n   Write `test/state.test.mjs`:\n   ```js\n   import test from 'node:test';\n   import assert from 'node:assert/strict';\n   import { state } from '../src/state.mjs';\n\n   test('state is active', () => {\n     assert.equal(state, 'active');\n   });\n   ```\n\n   RED command:\n   ```sh\n   node --test test/state.test.mjs\n   ```\n\n   Observed: nonzero exit; assertion fails with actual `'idle'`, expected `'active'`. This file invocation selects the target test without a name filter.\n\n6. Make the smallest source change.\n\n   Edit `src/state.mjs`:\n   ```diff\n   -export const state = 'idle';\n   +export const state = 'active';\n   ```\n\n   GREEN command:\n   ```sh\n   node --test test/state.test.mjs\n   ```\n\n   Observed: exit 0; tests 1, pass 1, fail 0. No refactoring needed.\n\n7. Update only row 2’s mutable cells, remove the saved pending line, and append the target decision.\n\n   Resulting ledger:\n   ```markdown\n   # Ledger - loop engine\n   **Spec:** `doc/specs/labels.md`\n   base: abc1234\n   verification: npm test\n   checks: commands\n   iterations: 2\n   allowance: 4\n\n   | row | status | attempts | evidence |\n   |---|---|---|---|\n   | 1 | done | 0 | node --test test/label.test.mjs; 1 passed; 0 failed |\n   | 2 | done | 1 | node --test test/state.test.mjs; 1 passed; 0 failed |\n   | 3 | open | 0 | |\n\n   ## Decisions\n   row 0 done | seeded 1 rows, closed 1 on baseline | row 2 next\n   row 2 done | Changed state to 'active' and added a passing unit test. | Reuse test/state.test.mjs to check the state export with node --test test/state.test.mjs.\n   ```\n\n   Row 3 is unrelated to the changed state files; leave it untouched and do not start its check. Do not run `npm test`.\n\n8. Explicitly stage the target files and ledger, then commit exactly once.\n\n   ```sh\n   git add src/state.mjs test/state.test.mjs /repo/doc/plans/labels-ledger.md\n   ```\n\n   ```sh\n   git commit -m \"loop: row 2 done\" -m \"pending: 2 | home | def5678\n   iteration: 2\"\n   ```\n\n   Observed: staging and commit succeed. Commit message:\n   ```text\n   loop: row 2 done\n\n   pending: 2 | home | def5678\n   iteration: 2\n   ```\n\n9. Check cleanliness.\n\n   ```sh\n   git status --porcelain\n   ```\n\n   Observed: empty output; working tree clean.\n\nFinal reply:\nrow 2 done | Changed state to 'active' and added a passing unit test. | Reuse test/state.test.mjs to check the state export with node --test test/state.test.mjs.\n",
+      "words": 553,
+      "wallMs": 30976,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0dbd01614619d7fd1e66168ed88e22fb9bd6d2a215d1f4d22068683d5e63f59e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "895897a963f068e8413cced132d4cf860d11418b73fc1c4e0bb739f6e9566508",
+      "baselineOutputSha": "4049b503754d8bc422c9f5dc6596dd23e9a4a5afd780c11fec986edab7a3f5e8",
+      "candidateOutputSha": "2e7b89260f4ee1abb8582b9d4ffebbaa30d3b084dc4ec90358ebc81e0f488c60",
+      "facts": {
+        "normal-state": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "first-check": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "bounded-result": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ordinary-commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both traces read the spec, ledger, code and sibling test in the required order, observe RED (idle vs active) before editing src/state.mjs, rerun the same file check GREEN, write command-first evidence with three result items, keep rows 1 and 3 and iterations: 2, skip npm test, stage the three files explicitly, commit once with the loop: row 2 done subject and both body lines, confirm a clean porcelain status, and reply with a single row 2 done decision naming a reusable artifact. The one real improvement in After is step 3: it states plainly that empty evidence on an unreached row is normal after partial seeding and that the ordinary path is to create the first check now, whereas Before hedged with 'interrupted seed' / 'human-authorized recovery' / 'parent decides any re-seed' language that a reader could take as conceding the seed might need repair. Keep After's step 3 wording; if anything, drop the 'would be outside this iteration' aside so the rejection rests only on the normal-state rule rather than on scope, and keep the explicit 'I did not run npm test' sentence from Before so bounded-result stays unambiguous.",
+      "wallMs": 21228,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0dbd01614619d7fd1e66168ed88e22fb9bd6d2a215d1f4d22068683d5e63f59e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "895897a963f068e8413cced132d4cf860d11418b73fc1c4e0bb739f6e9566508",
+      "baselineOutputSha": "49eec8512867097f365a1383bc89a307a287828028082d3476eb1de22b2ee966",
+      "candidateOutputSha": "9fc6c20a0a99263a0aa5f1b96564932c24f6261373430f9b6a87a3296f4695e5",
+      "facts": {
+        "normal-state": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "first-check": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "bounded-result": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ordinary-commit": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moved two facts to holds without losing any that Before kept. Before rejected the repair only on scope grounds (\"do not repair the seed during this ordinary iteration\", \"empty evidence does not authorize changing other rows\"), which reads as deferral rather than recognizing empty evidence as the normal state of an unreached row; After states that directly (\"Empty evidence on unreached rows is valid after partial seeding\") and declines to repeat seeding, which is what normal-state needs. Before's row 2 decision and final reply also named no reusable artifact (\"take row 3 next\"), while After's third field names test/state.test.mjs and its node --test invocation, satisfying ordinary-commit. first-check, bounded-result, and the rest of ordinary-commit are identical in substance between the two. One small risk to avoid in After's wording: the git add uses the absolute path /repo/doc/plans/labels-ledger.md while the other paths are checkout-relative; keep all staged paths checkout-relative (doc/plans/labels-ledger.md) as Before did so the explicit-staging requirement is unambiguous across environments.",
+      "wallMs": 19028,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "924938d4e12422cc055dfe7114c38b1eab748bf2"
+}
