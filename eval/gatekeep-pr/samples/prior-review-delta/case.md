@@ -38,6 +38,10 @@ bundle-: skills/gatekeep-pr/reference/cleanup.md
 
 Start just after provisioning's HEAD check with the complete gathered REST rows above. Narrate selection and the ancestry check, then verification and review through the first report/menu. Show the previous-report item ids, the delta commands and task instructions, the internal R-to-P and C ledger states after integration and re-triage, the retained show-evidence diagnostics (including each evidence-only finding), and the addressed-items report line. Integrate every supplied new finding and the whole-head doc drift before rendering. State how the same task contract is supplied on pi and Claude Code; use pi for this narration's actual helper calls.
 
+## Own-PR checkpoint
+
+After the first scenario, narrate this independent run with fresh ledgers and no writes. Keep the same head, configuration and CI evidence, but set viewer to river-example, is_author true, role author. Replace the REST reviews with [{ id: 710, user: { login: river-example }, state: COMMENTED, submitted_at: "2026-10-30T10:00:00Z", commit_id: "1111111111111111111111111111111111111111", body: "1. The caller bypasses the guard for retries. Validate retries too. (src/caller.mjs:19)" }]. Replace inline comments with [{ id: 810, pull_request_review_id: 710, path: "src/guard.mjs", original_line: 8, body: "Reject an empty signature before parsing.", user_type: User, updated_at: "2026-10-30T10:00:00Z" }]. The ancestor check, path union and delta commands have the same results as above. The whole-head contract and claim checks are clean. Reviewer returns only R1: open - retries still bypass the guard; R2: resolved; the native retry finding is Minor. Show the selected baseline, bounded task, closure mapping, C ledger and report/menu for this run; do not carry the first scenario's unrelated findings or counters into it.
+
 ## Arguments
 
 `42`

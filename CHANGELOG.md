@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `gatekeep-pr` selects the viewer's newest submitted, non-dismissed review and, when its commit is an ancestor of the assessed head, sends the reviewer its posted items and only the intervening code delta. The report counts addressed items; contract checks still judge the whole head.
+- `gatekeep-pr` selects the viewer's newest submitted, non-dismissed review and, when its commit is an ancestor of the assessed head, sends the reviewer its posted items and only the intervening code delta. The report counts addressed items; contract checks still judge the whole head. Assess pins its review to the assessed commit and checks the response; own-PR comment reviews supply the same bounded baseline.
 
 ## v8.1.1 - 2026-11-01
 

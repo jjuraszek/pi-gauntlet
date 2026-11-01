@@ -1,13 +1,9 @@
-for: 618d95f63eedc6e6a38b3d7c92e1da31eab7cd104fa52135672b0ef7793ed824
+for: f281b72beb87fe9d38095d432088975c844a707f284e8cbf9014d3cf3492805a
 
 ## Change
-Render one reason-bearing prior-review fallback line above Blockers or Verdict when the selected review commit is not an ancestor or ancestry cannot be checked. Preserve whole-diff review on both harnesses, the first stderr line for check failures, and no baseline fetch or retry. Add prior-review-force-push with exit 1, missing-object exit 128, and null-commit checkpoints; preserve baseline selection and ordinary blocker integration.
+Pin assess review posts to the assessed commit through REST, preserving the explicit pick, compare-and-swap, composed blocker body, and zero-blocker no-post behavior. Confirm the baseline only from an equal response commit_id; surface a mismatch without reposting. Exercise the own-PR COMMENTED baseline through the same bounded delta and closure mapping as a requested-changes review, retaining open prior items as blockers regardless of today's Minor severity. Preserve no-prior-review assessment and scoped delivery behavior.
 
 ## Expected to move
-- prior-review-force-push/p1: fails -> holds - Preserve the selected submitted REST review despite a missing commit.
-- prior-review-force-push/p2: fails -> holds - Record force-push ancestry failure from exit 1.
-- prior-review-force-push/p3: fails -> holds - Carry the first stderr line from exit 128.
-- prior-review-force-push/p4: fails -> holds - Keep a null-commit review and its missing-commit reason without inventing a SHA.
-- prior-review-force-push/p8: fails -> holds - Render the force-push whole-diff fallback above Blockers.
-- prior-review-force-push/p9: fails -> holds - Render the unreadable-baseline whole-diff fallback above Blockers.
-- prior-review-force-push/p10: fails -> holds - Render the null-commit whole-diff fallback above Verdict.
+- course-assess-terminal/f1: fails -> holds - Use REST events rather than unpinned gh pr review for assess.
+- course-assess-terminal/f5: fails -> holds - Pin the POST and confirm its returned commit against the assessed head.
+- course-assess-terminal/f6: fails -> holds - Report mismatched response provenance without claiming a baseline or reposting.

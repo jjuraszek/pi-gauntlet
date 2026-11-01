@@ -6,7 +6,7 @@ Read from SKILL.md step 6 with `menus.md`. Execute through `post-selection-loop.
 
 Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting rows and before numeric lookup. Render `<n>. <verb> - <consequence>` using the selected `menus.md` template. Keep `show evidence` hint-only and queued wait solely in the merge queued template.
 
-- `assess` - post the current open Blockers with locators as one review through `review`; use `gh pr review --request-changes` for someone else's/bot PR and `--comment` on the human's own PR; with zero blockers post nothing, then render assess terminal. Perform no repair or sync. Keep C# thread replies behind reply.
+- `assess` - post the current open Blockers with locators as one head-pinned review through `post-selection-loop.md` `### Fix wave`; with zero blockers post nothing, then render assess terminal. Perform no repair or sync. Keep C# thread replies behind reply.
 - `deliver` - run the persistent delivery course through readiness, obstacle, or cap; at an obstacle continue under the cumulative accounting rules in `fix-wave.md` `## Wave`.
 - `deliver with nits` - store deliver-nits and include every current and subsequently minted nit in delivery.
 - `fix nits` - authorize exactly one delivery iteration without changing course; initialize missing accounting from `fix-wave.md` `## Wave` before work.

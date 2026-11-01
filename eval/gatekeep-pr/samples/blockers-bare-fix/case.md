@@ -7,6 +7,7 @@ bundle-: skills/gatekeep-pr/reference/sync.md
 - status_checks: [ { name: "ci / test", status: COMPLETED, conclusion: SUCCESS, required: true } ]
 - actions_runs: [ { databaseId: 9210, status: completed, conclusion: success, workflowName: "ci" } ]
 - comments: { inline: [], top_level: [] }
+- gh api repos/orchard/sync/pulls/523/reviews --paginate: []; prior_review null
 - issue_ref: null
 - scope: source pr; the PR body states the intent "cap sync retries at a configurable budget"
 - worktree: .worktrees/pr-523 provisioned, HEAD == headRefOid, clean

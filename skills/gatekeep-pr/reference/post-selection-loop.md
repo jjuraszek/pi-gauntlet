@@ -128,7 +128,15 @@ Take all open blocker payloads under deliver; include every current and later ni
 
 Apply per `fix-wave.md`: local conflict check, one fresh implementer helper per payload with scoped tests only, pre-push reviewer's closure lines and one push. The orchestrator never edits a tracked file and never commits. Lost head_pushable exits with local branch and destination named.
 
-Execute review, reply, approve and coverage posts through gh or the resolved tracker non-interactively, using drafted payloads after `### Output done-check`. Assess posts one review of open Blockers with locators, never C# thread replies. After successful `gh pr review --approve`, persist approved_head as the assessed head before rendering approved; on failure print the gh error without claiming approval.
+Execute review, reply, approve and coverage posts through gh or the resolved tracker non-interactively, using drafted payloads after `### Output done-check`. For assess with open Blockers, post their composed body and locators once after `### Compare-and-swap`:
+
+```bash
+gh api --method POST repos/<base-owner>/<base-repo>/pulls/<N>/reviews -f commit_id=<assessed headRefOid> -f event=<event> -f body=<composed body>
+```
+
+Set `event` to `COMMENT` for `viewer.is_author` true, `REQUEST_CHANGES` otherwise; quote each field value as one shell word. Read the response's `commit_id`: equality confirms the posted review as the assessed-head baseline; a different value prints `review posted at <sha7>, not the assessed <sha7>` without claiming that baseline. On a failed POST or missing response commit, report the error or missing provenance without claiming a baseline or blindly reposting. Keep C# thread replies behind their own pick. With zero blockers post nothing and leave the GitHub baseline unchanged; a new session reviews that older baseline's delta again, with no local carry-over of cleared spans.
+
+After successful `gh pr review --approve`, persist approved_head as the assessed head before rendering approved; on failure print the gh error without claiming approval.
 
 ### Merge course
 
