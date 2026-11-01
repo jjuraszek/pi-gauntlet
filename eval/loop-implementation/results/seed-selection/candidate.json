@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3132b372ffd178a1c898b5d961e0d3b9e49010d9d65bd5d541b5181f4b795174",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0ca507cea8d06c2d6e41c72af8712ab10efc59089dff4dd9e41aeae192f7ecdd",
+      "intentSha": "1bf10acb0b0a2d6319f8d5449f852b9128f35b8cdfcd5b406b7d4be3788bcd15",
       "baselineOutputSha": "5f35b8473afff9c7920190a0791c22459ee105bc8fbd5d5b077b994c3d9fd8a6",
       "candidateOutputSha": "818d51ce53bf7dee6ee85a9828a339b9d23b3008e6a5bebb47890229d9db1bad",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: snapshot A now treats the surviving validated partial seed plus its `row 0 done` decision as sufficient and selects row 1 with `pending: 1 | home | <HEAD_BEFORE>`, and snapshot D trusts the admitted `seeded repo-a: yes` / `seeded repo-b: yes` flags and dispatches row 1 to repo-a without re-seeding either leg or filling row 3 first, which moved `partial` and `coordinated` from fails to holds. Nothing that Before kept was lost: B still picks row 3 on the legacy full-coverage seed without conversion, C still selects seed regardless of `iterations: 7` with the seed-contract instruction in `hint` and zero attempts charged, and every snapshot still shows task iteration 7, consumed 8, a symbolic pre-dispatch HEAD in the tuple, untouched attempts/allowance/evidence/decisions/mappings, and an explicit list of prohibited checks/gate/verification/source reads. One minor robustness note: B's dispatch is described as \"same call as A, with target: 3\" rather than a full block; it still enumerates the task fields and tuple so the facts hold, but spelling out the full `pending`/task block per snapshot (as A, C and D do) would make the persistence fact observable without cross-referencing A.",
-      "wallMs": 14781,
+      "feedback": "After delivers the intended Change cleanly: snapshot A now treats the surviving validated partial seed plus its `row 0 done` decision as sufficient seed survival and dispatches ordinary row 1 with `pending: 1 | home | <HEAD_BEFORE>`, and snapshot D honours the admitted `seeded repo-a: yes` / `seeded repo-b: yes` flags, explicitly refusing to re-seed either leg and selecting row 1 on the home leg; both facts moved from fails to holds because Before's wording made the seed-exit rule demand \"evidence on every non-cut row\", which After replaces with a surviving-commit-plus-decision test. The legacy (B) and reset (C) snapshots are unchanged in substance, so those facts still hold, and the persistence fact holds in every snapshot since each dispatch sends `iteration: 7`, bumps to `iterations: 8`, writes a target/leg/HEAD tuple, and the shared section explicitly preserves attempts, allowance, evidence, decisions, mappings and forbids checks, gate, verification and source reads. One minor caution for future wording: D's \"Extra pre-dispatch read\" of `reference/coordinated-legs.md` is a skill resource read, which the persistence fact permits, but keep labelling it as such so a reader does not confuse it with a prohibited source read; otherwise no fact was lost and nothing needs rewording.",
+      "wallMs": 14579,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3132b372ffd178a1c898b5d961e0d3b9e49010d9d65bd5d541b5181f4b795174",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0ca507cea8d06c2d6e41c72af8712ab10efc59089dff4dd9e41aeae192f7ecdd",
+      "intentSha": "1bf10acb0b0a2d6319f8d5449f852b9128f35b8cdfcd5b406b7d4be3788bcd15",
       "baselineOutputSha": "9609aef1856d2dd77e4faca0816b4c528bc29d8797087c1ce9921ba0ed5ae6c0",
       "candidateOutputSha": "0613a0249cd3fd542fb0e1f001575af8b428fd2855d100f03c5fd75e8351b1fe",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the intended movement cleanly: snapshot A now selects ordinary row 1, explicitly states that empty evidence on unreached rows does not authorize another seed, and keeps the surviving partial seed and its decision as the seeded state, whereas Before applied a full-coverage predicate and dispatched seed. Nothing regressed—B still takes row 3 on the legacy full-coverage seed, C still targets seed with the seed-contract hint and zero attempts while stating that the iteration counter is independent of seed survival, D still uses both seeded flags to pick row 1 in repo-a without re-seeding, and every dispatch carries task iteration 7, consumed iteration 8 and a symbolic pending tuple with attempts/allowance/evidence/decisions/mappings preserved and no checks run. One small tightening worth keeping in future revisions: After's common step 2 records only the home HEAD via `git -C <W>`, which is fine here because repo-a is home, but a sentence noting that the selected leg's checkout HEAD is recorded (as Before did) would keep the persistence fact robust if a companion leg were selected; otherwise the After wording is a strict improvement over Before.",
-      "wallMs": 15234,
+      "feedback": "After moved only the intended fact: in snapshot A it drops Before's full-coverage seed predicate (\"evidence on every non-cut row\") and instead treats the surviving validated partial seed plus its row 0 decision as seeded, selecting ordinary row 1 with hint: none and explicitly refusing an evidence-gathering or re-seed dispatch. Every other fact that Before kept is preserved: B still selects row 3 on the legacy full-coverage seed with no conversion, C still selects seed with the seed-contract instruction in hint, zero attempts untouched and an explicit statement that the nonzero iteration counter does not prove seed survival, D still reads the seeded yes flags and selects row 1 in repo-a without reseeding either leg or filling row 3, and the common sequence still carries task iteration 7, bumps consumed iterations to 8, persists pending: <target> | <member> | <HEAD> for each snapshot, preserves attempts/allowance/evidence/decisions/mappings, and runs no checks, gate, full verification or source reads. The wording that delivers the change while keeping the rest is exactly what After already does: state the selection rule as \"a surviving validated seed commit with its matching row 0 decision, whether partial or full-coverage, is seeded; empty evidence on unreached rows does not authorize another seed,\" and keep the C/D paragraphs and the shared dispatch sequence unchanged. One small clarity nit: in D the common sequence says \"record home HEAD\" while the tuple uses \"repo-a's observed pre-dispatch HEAD\"; since repo-a is the home checkout these agree, but saying \"record the selected leg's HEAD (here home/repo-a)\" would remove the apparent mismatch without affecting any fact.",
+      "wallMs": 15791,
       "verdict": "improved"
     }
   },
-  "repoSha": "ea6d7344b456b9342a3bcf5cc4d09d84459b7843"
+  "repoSha": "fd33d7cdd605bd111f045ebc7e092bcf01908e5a"
 }

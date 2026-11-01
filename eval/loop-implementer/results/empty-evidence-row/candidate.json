@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0dbd01614619d7fd1e66168ed88e22fb9bd6d2a215d1f4d22068683d5e63f59e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "188a0b932bbe323bff126bd72be9ecff4066bb579325d2ac90c439440f25b0a8",
+      "intentSha": "895897a963f068e8413cced132d4cf860d11418b73fc1c4e0bb739f6e9566508",
       "baselineOutputSha": "4049b503754d8bc422c9f5dc6596dd23e9a4a5afd780c11fec986edab7a3f5e8",
       "candidateOutputSha": "b27faa0d62e1106808348a27f5fd61ba45f7d4fa2744cf89ee69d71a3a5aa502",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "After moved normal-state to holds without losing anything: step 3 explicitly states that the seed contract permits seeding a subset of rows, that the row 0 decision records a valid partial seed, and that empty evidence on an unreached row is a normal state whose fix is creating the first check, then keeps row 2 as the target. Before rejected the suggestion only on authorization grounds (a re-seed needs human-authorized recovery of an 'interrupted' seed) and deferred 'any re-seed' to the parent, which still frames the partial seed as something possibly broken rather than normal. All other facts stayed intact in After: spec read first, sibling test read before writing test/state.test.mjs, RED observed before the source edit, same file check rerun, row 2 evidence is command-first with three result lines, rows 1 and 3 and iterations 2 untouched, npm test neither run nor recorded, pending removed, explicit git add of the two files plus ledger, single commit with the exact subject and body lines, porcelain status checked, and a single row 2 decision naming test/state.test.mjs as the reusable artifact. Keep the After wording; if anything, the 'per step 4' reference could cite the rule text directly so the trace does not depend on step numbering.",
-      "wallMs": 19764,
+      "feedback": "After moved normal-state from fails to holds by rejecting the teammate on the right grounds: step 3 states that the seed contract allows seeding a subset of rows, that the recorded `row 0 done | seeded 1 rows ...` decision is a valid partial seed, and that empty evidence on an unreached row is a normal state whose fix is creating the first check now. Before declined the repair only on procedural grounds (no human authorization for a re-seed, 'interrupted seed', 'the parent decides any re-seed'), which leaves a careful reader thinking the seed might genuinely need repair later rather than being normal. Everything else was preserved: spec read first, sibling test read before writing test/state.test.mjs, RED observed on idle before the source edit, GREEN rerun on the same file, row 2 `done | 1 |` with command-first three-line evidence, rows 1/3 and `iterations: 2` untouched, npm test never run, pending removed, explicit three-path staging, a single `loop: row 2 done` commit with the pending and `iteration: 2` body lines, clean porcelain status, and a sole row 2 decision that explicitly names test/state.test.mjs as the reusable artifact. Keep the 'partial seed is valid; empty evidence on an unreached row is normal; create the first check rather than re-seed' phrasing as the canonical response to the suggestion, and keep the explicit 'Reuse <test file>' handoff in the third decision column, which is a clearer artifact handoff than Before's row-3 guidance.",
+      "wallMs": 24225,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0dbd01614619d7fd1e66168ed88e22fb9bd6d2a215d1f4d22068683d5e63f59e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "188a0b932bbe323bff126bd72be9ecff4066bb579325d2ac90c439440f25b0a8",
+      "intentSha": "895897a963f068e8413cced132d4cf860d11418b73fc1c4e0bb739f6e9566508",
       "baselineOutputSha": "49eec8512867097f365a1383bc89a307a287828028082d3476eb1de22b2ee966",
       "candidateOutputSha": "c26eca6de8d4ed7eb64c3fab57247b3334688c6778950f265aaa866b296108e4",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After moved normal-state to holds by stating outright that \"Empty evidence on unreached rows is valid after partial seeding\" and that the successful seed and row 1 are preserved, then proceeding to row 2's first check; Before only deferred the repair (\"Do not repair the seed during this ordinary iteration\") and framed the issue as scope (\"does not authorize changing other rows\") without ever characterizing the empty cell as normal, so it did not satisfy the fact as written. After also incidentally fixed ordinary-commit: its decision names concrete reusable artifacts (src/state.mjs's state export and test/state.test.mjs), whereas Before's decision only mentioned \"a focused state test\" without naming a file. first-check and bounded-result were unchanged and hold in both: spec read first, sibling test read before writing test/state.test.mjs, RED observed with actual idle versus expected active before the source edit, same-file rerun passes, row 2 done/attempts 1 with command-first two-line evidence, rows 1 and 3 and iterations 2 preserved, npm test never run. Keep After's wording; the one cosmetic nit is that git add uses the absolute /repo/doc/plans/labels-ledger.md path while the source paths are repo-relative — using doc/plans/labels-ledger.md as Before did would be more consistent without affecting any fact.",
-      "wallMs": 24418,
+      "feedback": "After improved on two facts without regressing the others. The explicit sentence 'Empty evidence on unreached rows is valid after partial seeding. Preserve the successful seed and row 1' is what moved normal-state to holds; Before only deferred repair ('Do not repair the seed during this ordinary iteration') without ever affirming that empty evidence is the expected state of an unreached row, so a reader could not say it treated it as normal. ordinary-commit moved because After's decision third column names concrete reusable artifacts ('Reuse src/state.mjs's state export and test/state.test.mjs'), whereas Before's third column only gave process advice ('Do not redo row 2 or repair the seed; take row 3 next') and named no artifact. First-check and bounded-result were already satisfied in both: spec read first, sibling test read before authoring, RED observed before GREEN, evidence command-first with one result line, rows 1 and 3 and iterations 2 preserved, npm test never run. One minor consistency nit in After: the git add uses the absolute path /repo/doc/plans/labels-ledger.md while the other two paths are repo-relative; keeping all three repo-relative (doc/plans/labels-ledger.md) as Before did would be cleaner, though it does not affect any fact here.",
+      "wallMs": 18411,
       "verdict": "improved"
     }
   },
-  "repoSha": "0dfaa4ce97913b5a1e08e6a00b861f3d043c2af4"
+  "repoSha": "fd33d7cdd605bd111f045ebc7e092bcf01908e5a"
 }
