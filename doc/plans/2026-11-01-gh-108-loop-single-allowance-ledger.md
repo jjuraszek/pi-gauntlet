@@ -2,7 +2,7 @@
 **Spec:** `doc/specs/2026-11-01-gh-108-loop-single-allowance.md`
 base: 4cb3a8891e40a8c0749de9905ca62571bd42c3da
 verification: npm test
-iterations: 9
+iterations: 10
 cap: 49
 
 | row | status | attempts | evidence |
@@ -15,7 +15,7 @@ cap: 49
 | 6 | done | 1 | retired loop budgets contract / retired-budgets and loop-ledger-amend evals; 10 targeted contract tests pass; both models hold all 18 fact checks across the two samples; shared allowance replaces cap funding while waves decoding and amendment permission remain |
 | 7 | done | 1 | row-budget-actions contract/eval; 3 targeted contract tests and gate-contract lint pass; both replay models hold all 12 fact checks; grants preserve counters and invalid replies write nothing |
 | 8 | done | 1 | human stop counts contract / human-stop-counts and tracker-boundary evals; 5 targeted contract tests pass; both models hold all 18 fact checks; every stop preserves counts and recovery or verify menu boundaries |
-| 9 | open | 0 | resume-migration file assertion - skills/gauntlet-resume/reference/reconstruction.md Spec with ledger; FAIL: restores cap and funding with no allowance migration commit |
+| 9 | done | 1 | node scripts/brief-contract-lint.test.mjs PASS; node eval/run.mjs gauntlet-resume durable-cap, legacy-cap-brief, migration-recovery (separate runs) PASS; 28 candidate fact checks hold across both models; active ledger cap:49 preserved |
 | 10 | done | 0 | stagnation-boundaries file assertion - skills/loop-implementation/SKILL.md and reference/coordinated-legs.md; PASS: two ledger-only child commits without status change stop independently of funding; PASS: two consecutive validation misses stop and conforming returns reset misses; PASS: child-only counting and retry windows retained |
 | 11 | open | 0 | configuration-allowance file assertion - doc/configuration.md Escalation loop; FAIL: loop escalation is documented as amend-gated within a durable cap |
 | 12 | open | 0 | eval-allowance-contract file assertion - eval/loop-implementation/samples/scaled-cap-grant/expected.md; FAIL: expected facts require a total-cap stop and cap +N; model eval not run |
@@ -30,3 +30,4 @@ row 5 done | Exit verification repairs once under both options without amend or 
 row 6 done | Removed total-cap and loop-funding rules while preserving waves decoding; ten contract tests and two eval samples pass on both models. | Take row 7's remaining reply grammar and boundary cases; reuse rows +N, preserve active cap 49 and leave full-target evals for the end.
 row 7 done | Explicit retry replies and no-write invalid grants pass three contract tests, gate lint and all twelve model fact checks. | Take row 8's stop counts next; preserve active cap 49, reuse the tested reply grammar and leave full-target evals for the end.
 row 8 done | Every human stop displays unresolved row counts without widening recovery or verify menus; five contract tests and all eighteen model fact checks pass. | Take row 9's resume migration next; preserve active cap 49 and the stop menus, and leave full-target evals for the end.
+row 9 done | Resume recovers before header-only allowance migration; contract fixtures and 28 model fact checks pass. | Take row 11's docs next; preserve active cap 49 and leave remaining cap-based eval fixtures and full-target runs to row 12.

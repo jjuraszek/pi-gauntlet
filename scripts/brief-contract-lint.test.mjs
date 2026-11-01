@@ -84,17 +84,36 @@ assert.deepEqual(rules(mutated), ["grammar-outside-contract:skills/gauntlet-hand
 
 const reconstruction = realFiles.find(f => f.rel === "skills/gauntlet-resume/reference/reconstruction.md").text;
 const ledgerRestore = reconstruction.split("## Spec with ledger")[1].split("## Spec with plan")[0];
-for (const token of ["Shared cap boundary", "cap:", "Skip Entry step 1 entirely", "ledger has no cap: line - seeded under the old loopEngine contract", "After the loop", "latest operational"]) assert.ok(ledgerRestore.includes(token), token);
-assert.doesNotMatch(ledgerRestore, /resolve its Entry settings|maxIterations|gauntlet_setting/);
+for (const token of ["Shared allowance boundary", "Skip Entry step 1 entirely", "ledger has no allowance: line - resume through /skill:gauntlet-resume", "After the loop", "latest operational"]) assert.ok(ledgerRestore.includes(token), token);
+const boundary = ledgerRestore.split('4. **Shared allowance boundary')[1].split('5. Continue')[0];
+const ordered = ['Apply pending recovery below against the unmigrated ledger', 'Migrate only an admitted, clean, tuple-free ledger', 'Require `allowance:` and no `cap:`', 'Call `plan_tracker({ action: "refresh"'];
+for (let i = 1; i < ordered.length; i++) assert.ok(boundary.indexOf(ordered[i - 1]) >= 0 && boundary.indexOf(ordered[i - 1]) < boundary.indexOf(ordered[i]), ordered[i]);
+for (const token of [
+  'both or neither is `ledger header malformed: <observed header lines>`',
+  'legacy-compatible admission', 'original one-commit `<pre-dispatch HEAD>..HEAD`',
+  'unchanged home HEAD', 'iterations-bump-plus-tuple dirt',
+  'resolve `gauntlet_setting({ key: "loopEngine" })` for this migration only',
+  'Commit only that header replacement as parent `loop: migrate allowance`',
+  'preserve iterations, every attempts cell and all decisions',
+  'cannot migrate allowance: settings tool unavailable (loopEngine.maxIterationsPerRow)',
+  'With an existing allowance, use it without settings resolution or a migration commit',
+  'Defer migration through any retained recovery stop or dirty tree',
+  'project the unmigrated ledger solely to report the stop',
+  'header plus one per matching retry decision', "ignore the retry's audit ceiling",
+  'Keep `cap +N` history as inert text and restore no funded rounds',
+  'at or above its effective allowance stops under rule 2 without an attempt',
+]) assert.ok(ledgerRestore.includes(token), token);
+assert.doesNotMatch(ledgerRestore, /ledger has no cap:|loop: raise cap|legacy `cap \+N` grant|funding and retry allowances/);
 for (const rel of ["skills/gauntlet-resume/SKILL.md", CONTRACT_FILE]) {
   const text = realFiles.find(f => f.rel === rel).text;
-  assert.ok(text.includes("shared cap boundary"), rel);
+  assert.ok(text.includes("shared allowance boundary"), rel);
 }
 
 const routes = realFiles.find(f => f.rel === "skills/gauntlet-resume/SKILL.md").text;
 for (const route of ["implement with line-1 ledger", "verify with `Ledger:`"]) {
   const row = routes.split("\n").find(line => line.startsWith("| " + route));
-  assert.ok(row.includes("shared cap boundary"), route);
+  assert.ok(row.includes("shared allowance boundary"), route);
+  assert.match(row, /pending recovery.*unmigrated ledger.*clean-tree migration.*final allowance validation.*refresh/);
 }
 const noLedgerRow = routes.split("\n").find(line => line.startsWith('| approved spec with `**Engine:** loop`, no ledger'));
 assert.match(noLedgerRow, /label Entry steps 1-5 explicitly in the response/);
@@ -105,7 +124,8 @@ for (const token of ['^\\d+/\\d+: ', '^row \\d+(?: \\(\\S+\\))?$', 'Strip it bef
 assert.match(ledgerRestore, /Match the snapshot's ledger task names\/statuses.*stripping only the recognized ledger-label prefix.*keep Gn and other names byte-identical/);
 assert.match(ledgerRestore, /Ignore label differences.*post-restore refresh recomputes labels/);
 const implementRow = actualContract.split("\n").find(line => line.startsWith("| implement with ledger"));
-assert.ok(implementRow.includes("shared cap boundary"));
+assert.ok(implementRow.includes("shared allowance boundary"));
+assert.match(implementRow, /pending recovery.*unmigrated ledger.*clean-tree migration.*final allowance validation.*refresh/);
 const ledgerGrammar = actualContract.split("## Brief grammar")[1].split("## Producers")[0];
 assert.match(ledgerGrammar, /Permit task rows beside a ledger/);
 assert.match(ledgerGrammar, /Reject a block mixing these fields with `Active task` or missing either loop field/);
@@ -140,9 +160,9 @@ for (const [name, pattern] of [
 ]) assert.match(recovery, pattern, name);
 assert.match(recovery, /read-only admission-evidence check.*before phase\/task restoration/);
 assert.match(ledgerRestore, /unrecoverable attribution or before-image.*stop before refresh/i);
-assert.match(actualContract, /legacy ledger brief without task rows[^\n]*directly to refresh/i);
+assert.match(actualContract, /legacy ledger brief without task rows[^\n]*omits init[^\n]*ordered recovery\/migration boundary/i);
 assert.match(actualContract, /Never send a ledger task list through task-plan repair/);
-assert.match(actualContract, /For every ledger brief apply the shared cap boundary[^\n]+before dispatch or verification/);
+assert.match(actualContract, /For every ledger brief apply the shared allowance boundary[^\n]+before dispatch or verification/);
 
 const producer = actualContract.split("## Producers")[1].split("## Tracker output grammar")[0];
 const processRow = actualContract.split("\n").find(line => line.startsWith("| `## Process state`"));

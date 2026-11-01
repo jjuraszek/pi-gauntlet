@@ -1,10 +1,12 @@
-for: b1fc788464d68dc4f3edf8ad36811b445c8e541fd6b57fd8b55319bd7e38477c
+for: 786bc974df804864ff82aea2e27c049a3572a130bd0066e342a7dea28ccb9d66
 
 ## Change
 Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving cap repair, mixed task restoration and admission boundaries. Run the full resume target alongside the three AC8 targets; accept no unrelated variance.
 
 
 Route restored verify/ship Ledger briefs to After the loop step 1 and the loop skill's Gate set section, with no separate resume-owned gate run. Update loop-ledger-brief's closed-row verify snapshots, replace its once-per-leg gate wording with the gate set, and add gate-owner for fresh-session logs and no CI-command fallback. Preserve phase restoration, mixed tasks and fresh conformance; focused sample execution covers this continuation.
+
+Migrate cap-only ledgers at the shared allowance boundary after unmigrated pending recovery and before final validation/refresh. Preserve counters, decisions, original-phase continuation and every recovery gate. Resolve loopEngine only for clean legacy migration; already-migrated ledgers need no settings. Rewrite durable-cap and legacy-cap-brief facts for the approved replacement of cap restoration/grants by header-only migration; add migration-recovery for clean/dirty home returns, companion admission, interruption, ambiguity and exhausted rows. These replace the old cap/funding expectations, not recovery safety. Targeted samples run here; full-target evaluation stays with final verification.
 
 Strip only the recognized numeric ledger-label prefix before restoring canonical names or comparing a ledger snapshot. Keep the producer's verbatim status copy and every Gn/non-ledger name intact; refresh recomputes labels from current allowance without duplicate tasks or false drift. Extend ledger-tracker-verify with a labeled verify/ship snapshot and changed denominator. Preserve existing facts. Run that affected sample during this iteration; the parent runs full targets at the end of the ledger.
 
@@ -27,7 +29,7 @@ Recover the active base-tracked spec/plan pair through the brief's PR identities
 
 Carry an optional full Rework base after all consecutive ordered PR/head pairs and use it as reconstruction scan base when present. Keep the first-home-head fallback and ordinary no-pair behavior, home-only branch validation, ordered identity/member-spec exclusion and task/gate restoration. Extend the single/list brief samples without weakening their stable facts; synthetic narration is not live restoration evidence and no failed candidate must-hold is accepted.
 
-Restore cap from every admitted ledger at one shared boundary before implement or verify/ship continuation, without re-resolving loopEngine settings. Stop even completed legacy ledgers there; a durable grant resumes the original phase. Render cap, iterations, attempts, funding/retry allowances and decision history, distinguishing operational row decisions. New durable-cap and legacy-cap-brief samples are baseline-skipped: new sample, no pre-edit sample evidence; the runner still generates genuine baseline and candidate evidence.
+Restore allowance from migrated ledgers; migrate legacy cap headers only after clean recovery, preserving counters and history. Keep completed-ledger migration and original-phase continuation. Treat old cap decisions as inert and retries as one each, not stored ceilings. durable-cap and legacy-cap-brief now exercise this replacement rather than cap restoration or cap grants.
 
 Restore loop runs from the existing ledger: pair by its Spec header, prefer it to a task plan, validate before implement, preserve counters/retry data, and stop on invalid or dirty state. Produce and consume the contract-owned loop brief fields. With Engine loop and no ledger, arm through brainstorm start/skip after check 6 before driver Entry steps 1-5. Keep the unchanged Entry mapping explicit: settings and maxIterationsPerRow at step 1, verification at step 2, driver plan skip at step 3, ledger creation at step 4, then ledger check, seed commit and implement start at step 5. Use the resolved spec path in the exact plan-skip reason `resume: <spec> (loop engine)`. Give valid ledger brief fields precedence over retained `No plan active.` and admit the ledger instead of phase-only restoration.
 
@@ -48,6 +50,20 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - legacy-cap-brief/continue: fails -> holds - Resume delegates the gate set after cap repair rather than full local verification.
 - ledger-tracker-verify/mixed-verify: fails -> holds - Keep mixed task statuses and fresh gates while routing commands to the loop-owned selective set.
 - loop-ledger-brief/gate-owner: fails -> holds - Delegate fresh logged gate-set execution to the loop skill without a resume-owned run or full command.
+- durable-cap/durable: fails -> holds - Recover first, then commit only the cap-to-allowance header replacement without funding restoration.
+- durable-cap/history: fails -> holds - Count retry lines, ignore audit ceilings and cap history, and retain operational targeting.
+- durable-cap/route: fails -> holds - Recover, migrate, validate and refresh in that order on both resume routes.
+- durable-cap/idempotent: fails -> holds - An allowance ledger ignores settings and stale approval carriers on resume.
+- legacy-cap-brief/boundary: fails -> holds - Migrate clean completed ledgers; both or neither header requires hand repair.
+- legacy-cap-brief/grant: fails -> holds - Replace cap grants with header-only migration and the exact missing-settings stop.
+- legacy-cap-brief/continue: fails -> holds - Continue the original phase after migration, including verify/ship at verify.
+- legacy-cap-brief/dirty: fails -> holds - Retain dirty-tree authorization and defer migration until clean recovery.
+- migration-recovery/home: fails -> holds - Admit a tuple-free home return against its unmigrated one-commit range before migration.
+- migration-recovery/dirty: fails -> holds - Boundary rejection restores target/tuple and defers migration without losing child changes.
+- migration-recovery/companion: fails -> holds - Validate unchanged home HEAD and expected dirt, record companion result, then migrate.
+- migration-recovery/interrupted: fails -> holds - Keep the consumed iteration and tuple on interruption without migration or redispatch.
+- migration-recovery/ambiguity: fails -> holds - Ask before mutation when home admission remains unknown.
+- migration-recovery/exhausted: fails -> holds - A migrated row already at effective allowance stops without another attempt.
 - ledger-tracker-verify/labels: fails -> holds - Restore canonical ledger names only, retain Gn identities and recompute labels after refresh.
 - ledger-tracker-recovery/implement-order: fails -> holds - Restore phases, recover pending, then refresh before unresolved dirt; never init an implement ledger list.
 - ledger-tracker-recovery/home-return: fails -> holds - Recover attribution from the commit body after a tuple-free restart and admit a clean bounded home return through the driver without consuming the iteration twice.
