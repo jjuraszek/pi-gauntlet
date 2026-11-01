@@ -4,13 +4,13 @@ Read this reference with the loop driver when its held membership has more than 
 
 At seed, read `## Legs` with [the scope grammar](../../brainstorming/reference/legs.md#scope-grammar-and-validation) before skeleton commit. Require exactly one `scope:` per block: `scope: AC 1, AC 3` or `scope: none`. Reject missing/duplicate scope lines, duplicate indices within a list, malformed tokens and out-of-range original indices through the amendment stop. Include cut original AC indices; never infer ownership from a `design:` mention or path. Default only indices absent from every valid list to home; repeat shared indices in every owner's list.
 
-Retain the home skeleton's `**Spec:**`, `verification:`, `checks: commands`, `iterations:`, `cap:` and `## Decisions` fields and its `plan_check`/commit admission. Use the driver's gate set grouped by `## Leg mapping` for verification; keep the home verification header as the CI command.
+Retain the home skeleton's `**Spec:**`, `verification:`, `checks: commands`, `iterations:`, `allowance:` and `## Decisions` fields and its `plan_check`/commit admission. Use the driver's gate set grouped by `## Leg mapping` for verification; keep the home verification header as the CI command.
 
 For coordinated exit, apply the driver's `## Gate set` and `## After the loop` step 1 in verify, routing each pair through its mapped checkout. Keep `loop: repair verification` once per flow, not per failing leg. Success only after every leg passes; retain each verified HEAD and clean status.
 
 Assign numeric entries in original AC order, then membership order for shared ACs, independent of scope-list order. Leave spec rows untouched and copy each cut disposition to every expanded entry. Keep the four-column table and add `## Leg mapping` with `row | ac | leg`, one mapping per entry exactly once. Reject duplicate/missing mappings. Keep `base:` as home base; record one actual `base repo-a: <sha>` / `seeded repo-a: no` pair per member, including home. Resolve bases with each member's `git -C`, not home HEAD.
 
-Compute initial cap as non-cut entry count times `maxIterationsPerRow` plus one seed dispatch per leg with non-cut entries. One shared home/companion AC and one home-only AC produce three entries, two seeds and cap 14 at default 4; a wholly cut third leg adds no seed. All-cut cap stays 1 and exits without seed. Preserve cap after cuts, reopens, amendments, funding and recovery; only an explicit cap grant raises it.
+Use the same allowance seed value as the home driver's Entry step 1; never multiply by entry or leg count or add seed dispatches. One shared home/companion AC and one home-only AC produce three entries, two seeds and allowance 4 at default 4; a wholly cut third leg adds no seed. All-cut ledgers exit without seed and retain that allowance. Preserve allowance after cuts, reopens, requirement-preserving amendments and recovery.
 
 ## Resume
 

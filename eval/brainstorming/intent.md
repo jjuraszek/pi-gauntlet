@@ -1,6 +1,8 @@
-for: d854aa8067e315af87e350d6eb6cd2a770e4af5813b6d386320396bdebe937c4
+for: c43167288d4a252894594ddd0582146e8fdf1c5c2ec7bbc4932c8cef15f4583b
 
 ## Change
+
+Seed the loop ledger from a 4/5 allowance suffix, reject malformed allowance values before writes, and ignore deprecated loop funding with a waves-only note. Replace loop-funded-reply's funding facts with ignored-token/default behavior, add explicit override and waves controls, and update loop-gate's suffix affordance. Run those partial samples now; the parent owns the full-target end run. Keep waves funding and exact grant/engine persistence otherwise unchanged.
 
 The worker critique applies the council's PR-source predicate and re-source-or-ask correction as its third check. The tool-free worker-critique-pr-source sample adds the full spec-finalization reference locally, drops the unrelated amendment reference, and judges a rendered dispatch from a fixed checkpoint. Preserve every prior fact, accepted variance, target configuration, and frontmatter. Deterministic structural tests do not prove model behavior; the parent runs the full target replay.
 
@@ -123,17 +125,19 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 - pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
-- loop-gate/menu: fails -> holds - Render exact options 4/5.
+- loop-gate/menu: fails -> holds - Render exact options 4/5 with the run allowance suffix; offer funding only on 1/2.
 - loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
 - loop-gate/no-ac: fails -> holds - Keep the 1/2/3/6 not-fetched zero-row gate without 4/5; drafted rows enable loop options.
 - engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
 - engine-waves/audit: fails -> holds - Audit re-gates without approval.
 - engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.
 - engine-waves/invalid: fails -> holds - Budget-only and malformed replies do not write.
-- loop-funded-reply/five: fails -> holds - Decode option 5's funded grant and stagnant-row budget.
-- loop-funded-reply/four: fails -> holds - Preserve budget-only option 4 and clean option 5.
+- loop-funded-reply/five: fails -> holds - Ignore loop funding, emit the waves-only note and retain option5's grant without a budget.
+- loop-funded-reply/four: fails -> holds - Ignore loop funding and persist option4's none grant with the default allowance.
+- loop-funded-reply/allowance: fails -> holds - Carry the override only to ledger seeding, independently of amend permission.
+- loop-funded-reply/waves: holds -> holds - Retain option2's funding suffix and waves route.
 - loop-funded-reply/route: fails -> holds - Check both fields before completing and dispatching loop.
-- loop-funded-reply/malformed: fails -> holds - Quote invalid input and re-gate.
+- loop-funded-reply/malformed: fails -> holds - Quote malformed allowance tokens in one clarification and wait without writes.
 - loop-ledger-amend/review: fails -> holds - Option 4 reviews while option 5 grants the same amendment scope as 2.
 - loop-ledger-amend/reconcile: fails -> holds - Reconcile cuts and re-bounds without task-plan machinery.
 - loop-ledger-amend/bypass: fails -> holds - Preserve factual evidence, attempts, iterations, and audit body.

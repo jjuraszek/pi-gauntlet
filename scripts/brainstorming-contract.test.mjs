@@ -253,12 +253,20 @@ test('spec-finalization writes the grant line and persists approval-time grants 
   for (const marker of ['**Amend-grant:** none', 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.', 'commit --amend --no-edit -q', 'git -C <abs worktree path> add -- <spec path>', 'show HEAD:<spec path>']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('On approval') < text.indexOf('commit --amend --no-edit -q'), 'amend after On approval');
   for (const marker of ['2; fund 3 fix rounds', '2, fund 3 fix rounds', 'Decode before', 'token alone', 'malformed N']) assert.ok(text.includes(marker), marker);
-  const hint = 'Add "; fund N fix rounds" (or "N more fix rounds") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.';
+  const hint = 'Add "; fund N fix rounds" (or "N more fix rounds") to 1 or 2 to fund N implement fix rounds past the escalated waves round.';
   assert.match(text, /Decode before `edit` or `--amend`/);
   assert.ok(text.indexOf('run Value decoding') < text.indexOf('On every implementation approval'), 'decode before approval persistence');
   assert.ok(text.indexOf(hint) > text.indexOf('3 - show council dispositions:'));
   assert.ok(text.indexOf(hint) < text.indexOf('Or tell me what to change'));
   assert.ok(!text.includes('--trailer'), 'trailer step removed');
+});
+
+test('loop approval allowance suffix seeds only this run ledger', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = text.slice(text.indexOf('## User Review Gate'));
+  for (const token of ['4; allowance 6', '5; allowance 6', '[1-9][0-9]*', 'positive safe integer', 'allowance: 6', 'only in the ledger', 'not in the spec or settings', 'exactly one clarifying question', 'wait without writing', 'waves-only', 'ignore the funding token', 'bare option']) assert.ok(gate.includes(token), token);
+  assert.doesNotMatch(gate, /persist the option-2 description plus `; fund 3 fix rounds`; engine loop|budget-only\); engine loop/);
+  assert.match(read('doc/gate-contract.md'), /`; allowance N`.*4\/5.*`; fund N fix rounds`.*1\/2/);
 });
 
 test('roasting-the-spec members, chair and applier preserve the grant line', () => {

@@ -82,7 +82,7 @@ test('coordinated loop owns stable mappings, attributed returns and pending reco
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
-  for (const token of ['missing/duplicate scope lines', 'duplicate indices within a list', 'malformed tokens', 'out-of-range original indices', 'cut original AC indices', 'absent from every valid list to home', 'repeat shared indices', 'independent of scope-list order', 'duplicate/missing mappings', 'All-cut cap stays 1', 'unseeded leg with non-cut entries in membership order', 'wholly cut legs', 'scope: AC 1, AC 3', 'scope: none', 'original AC order', 'membership order', '## Leg mapping', 'row | ac | leg', 'base repo-a:', 'seeded repo-a:', 'cap 14', 'pending: 2 | repo-b | abc1234', 'without another attempt or iteration bump', 'zero commits', 'foreign entry', 'disposition-only cut', 'design:']) assert.ok(reference.includes(token), token);
+  for (const token of ['missing/duplicate scope lines', 'duplicate indices within a list', 'malformed tokens', 'out-of-range original indices', 'cut original AC indices', 'absent from every valid list to home', 'repeat shared indices', 'independent of scope-list order', 'duplicate/missing mappings', 'All-cut ledgers exit without seed', 'unseeded leg with non-cut entries in membership order', 'wholly cut legs', 'scope: AC 1, AC 3', 'scope: none', 'original AC order', 'membership order', '## Leg mapping', 'row | ac | leg', 'base repo-a:', 'seeded repo-a:', 'allowance 4', 'pending: 2 | repo-b | abc1234', 'without another attempt or iteration bump', 'zero commits', 'foreign entry', 'disposition-only cut', 'design:']) assert.ok(reference.includes(token), token);
   for (const token of ['pending:', 'iteration:', 'four-column', 'home ledger untouched', 'loop: seed evidence', 'loop: row', 'mapped original AC', 'Rules:']) assert.ok(persona.includes(token), token);
   assert.match(reference, /`checks: commands`/);
   assert.match(reference, /gate set grouped by `## Leg mapping`/);
@@ -366,14 +366,21 @@ test('companion recovery rejects movement and unattributed or foreign results', 
   }
 });
 
+test('fresh ledger seeds one allowance without row or leg scaling', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const entry = driver.split('\n## Entry\n')[1].split('For resume,')[0];
+  assert.match(entry, /iterations: 0\nallowance: <n>/);
+  for (const token of ['maxIterationsPerRow', 'default 4', 'approved `; allowance N`', 'only in the ledger', '24 non-cut rows at default 4 yield allowance 4', 'All-cut ledgers', 'leave allowance unchanged']) assert.ok(entry.includes(token), token);
+  assert.doesNotMatch(entry, /cap:|Compute cap|\* maxIterationsPerRow|`maxIterations`/);
+  assert.match(driver, /For a ledger with `allowance:`, skip this cap boundary and cap-only stop rule 4/);
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8').split('## Resume')[0];
+  for (const token of ['`allowance:`', 'same allowance', 'never multiply', 'allowance 4', 'All-cut ledgers exit without seed']) assert.ok(reference.includes(token), token);
+  assert.doesNotMatch(reference, /cap:|initial cap|cap 14/);
+});
+
 test('ledger cap is durable across grants, child validation and legacy admission', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  assert.match(driver, /iterations: 0\ncap: <n>/);
   for (const fact of ['maxIterationsPerRow', '`iterations` >= `cap`', 'loop: raise cap', 'ledger has no cap: line - seeded under the old loopEngine contract', 'latest operational `row <n> ...` decision', 'including cap', 'cap +50 |', '[1-9][0-9]*', 'cap +50x', 'separate replies', 'cap grant resets neither window']) assert.ok(driver.includes(fact), fact);
-  const entry = driver.split('\n## Entry\n')[1].split('\n## Before each dispatch\n')[0];
-  assert.match(entry, /\(rows not initialized cut\) \* maxIterationsPerRow \+ 1/);
-  assert.match(entry, /Later cuts, reopens and requirement-preserving amendments leave cap unchanged/);
-  assert.doesNotMatch(entry, /`maxIterations`/);
   const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
   for (const token of ['durable iterations + N', 'leaving iterations and all attempts unchanged', 'return to the ordered table', 'a second invalid reply holds the same stop with no commit', 'Only retry starts new windows']) assert.ok(stop.includes(token), token);
   assert.match(driver, /dirty-tree and commit-boundary stops.*never offer `cap \+N`/);

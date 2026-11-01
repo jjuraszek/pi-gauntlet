@@ -1,4 +1,4 @@
-for: 540f8156f7f9e53d75cccd977f5a678d0e783af772373707d56996cccc4b5c78
+for: a29843f4d77b4e36d5b272e7c400fb7e94453ee0d62e3009b9a949449827c866
 
 ## Change
 Complete verify step 1 after an escalated repair by running other checkouts' pairs skipped by fail-fast before granting verification. Run each isolated conformance child's repaired-leg pairs in its own checkout and temporary log directory; retain the parent checkout set and session logs after integration. Extend exit-verification-escalates and repairs-rerun-gate-set-only with observable continuation and child-path facts.
@@ -9,6 +9,8 @@ Prove the existing gate-log boundary with gate-set-failure: one directory per ve
 Capture the decoded amendment grant, leg membership, checkout paths and Rules at seed or authorized restore before entering the dispatch loop, refreshing them only through authorized amendment actions. Restrict implement-driver reads to ledger/return/boundary data and skill resources/overrides; leave source and failure diagnosis to workers. Add driver-holds for restore capture, held-grant escalation, return admission and amendment refresh. Keep the existing leg-resume read-order and recovery facts; supply checks: commands in its admitted-ledger fixture so it exercises recovery rather than the separate legacy-header stop. Focused text replays prove narrated boundaries, not runtime file access; full-target runs remain with row 8.
 
 Replace loop-local full verification with the command-first gate set: deduplicate by owning checkout and command in ledger order, reject missing checks headers, log each foreground pair and fail-fast. Route coordinated and conformance verification through this set; retain full commands as CI metadata only. Add gate-set-verify-step-1, coordinated-same-command, repairs-rerun-gate-set-only and legacy-ledger-stop samples; update the four existing verification samples to supply command-first done-row evidence and checks headers. These text replays exercise routing instructions, not live shell execution. Targeted sample runs belong to this iteration; full-target completion belongs to row 8.
+
+Seed fresh home and coordinated ledgers with one unscaled allowance from settings or the approved per-run suffix, never a cap. Add fresh-allowance-seed for default, override, configured, all-cut and shared-leg entry; replace only the seeding facts in scaled-cap-grant and leg-iteration. Their ongoing legacy-cap branches remain separate; fresh allowance ledgers bypass the cap-only header check and stop rule so seeding proceeds without a cap grant. This iteration runs those partial samples; the parent owns the full-target end run after the remaining budget clauses land.
 
 Preserve the exact home pending tuple and bumped ledger iteration in row and seed commit bodies, reusing the companion attribution prefix while clearing the ledger tuple. Validate those fields before terminal projection. Extend tracker-boundary with both home commit shapes and their consumed counts; preserve all existing facts. The paired gauntlet-resume recovery sample starts after the child commit with no captured tuple and checks admission before refresh. Parent verify owns model runs, assembly-hash updates and result records.
 
@@ -56,13 +58,18 @@ Supply row 1's attempts value in the cap snapshot so its existing fact is observ
 - tracker-verify/repair: holds -> holds - replaced wording: Pass command, checkout, exit code and log path instead of failing output.
 - tracker-verify/failure: holds -> holds - replaced wording: Quote at most 20 log lines at the stop; never run full verification.
 - verify-lifecycle/contract: fails -> holds - replaced wording: Implement completes through the refresh; verify step 1 runs the deduplicated gate set with log redirection and no full verification; Gn tasks ride the same tracker.
+- fresh-allowance-seed/header: fails -> holds - Seed one allowance from settings or the run suffix, without a cap or scaling.
+- fresh-allowance-seed/coordinated: fails -> holds - Keep allowance4 for shared entries and seed only non-cut legs.
+- fresh-allowance-seed/all-cut: fails -> holds - Keep allowance4 and exit without dispatch after skeleton/refresh.
+- fresh-allowance-seed/durable: fails -> holds - Store the override in the ledger only and preserve it except on redraw.
+- scaled-cap-grant/entry: fails -> holds - Replace fresh scaled-cap seeding with unscaled allowance4; ongoing legacy-cap checks are unchanged.
 - escalated-row-attempt/ledger-prepare-local: fails -> holds - replaced wording: Never invokes plan_check; the next refresh projects the amended statuses.
 - gate-line-first/preserved: holds -> holds - replaced wording: Boundary rejection restores only the target cells and pending tuple in the working ledger before projection; discard/reset still requires human authorization.
 - gate-line-first/question-first: fails -> holds - Dirty returns await explicit authorization under a question marker.
 - cap-and-exit-verification/contract: fails -> holds - Replace the closed-row fact with the gate set at verify step 1 and at most 20 failure log lines, verify active and implement complete, and amend/stop only on failure; preserve the seed-inclusive cap stop.
 - commit-boundary/seed-recovery: fails -> holds - Explicit continuing cap:97 and cap:1 alternative preserve authorized interrupted-seed recovery, target validation and consumed iterations.
 
-- leg-iteration/seed: fails -> holds - Enforce the new coordinated-flow must-hold fact: Expands shared ACs into original-AC/membership ordered rows, preserves cut disposition, records one base/seed flag per leg and Leg mapping; cap 14, seeds repo-a then repo-b only, never seeds wholly cut repo-c.
+- leg-iteration/seed: fails -> holds - Enforce the new coordinated-flow must-hold fact: Expands shared ACs into original-AC/membership ordered rows, preserves cut disposition, records one base/seed flag per leg and Leg mapping; allowance4 without cap, seeds repo-a then repo-b only, never seeds wholly cut repo-c.
 - leg-iteration/dispatch: fails -> holds - Enforce the new coordinated-flow must-hold fact: Bumps iterations once to 3 and durably writes pending: 2 | repo-b | bbbbbbb before dispatch; passes repo-b cwd, own base, mapped AC, Leg/Rules, iteration/pending and absolute home spec/ledger.
 - leg-iteration/return: fails -> holds - Enforce the new coordinated-flow must-hold fact: Validates clean exactly-one attributed companion commit and unchanged home/expected dirt, updates only row 2 and its decision, records companion SHA, clears pending in one home-ledger commit; no duplicate child dispatch or bump on interrupted recovery.
 - leg-iteration/reject: fails -> holds - Enforce the new coordinated-flow must-hold fact: Two new companion commits stop preserving pending/state; home parent ledger commits do not count as child empty-commit stagnation.
