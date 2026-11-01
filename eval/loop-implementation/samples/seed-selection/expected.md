@@ -1,0 +1,5 @@
+- partial: judged: A selects ordinary row 1 despite empty evidence on rows 1 and 3; treats the surviving validated partial seed and its decision as seeded and does not dispatch seed or demand full coverage.
+- legacy: judged: B accepts the surviving legacy full-coverage seed and selects ordinary row 3 without reseeding or requiring conversion to a partial seed.
+- reset: judged: C selects seed despite iterations 7, passes the seed-contract instruction in hint, and leaves row attempts unchanged; a dispatch count alone never proves seed survival.
+- coordinated: judged: D uses the admitted seeded yes flags and selects row 1 in home repo-a, without reseeding either leg or filling row 3 evidence first.
+- persistence: judged: Every dispatch passes task iteration 7, bumps consumed iterations to 8 and persists a pending tuple for the selected target, leg and pre-dispatch HEAD. Before child execution it preserves all attempts, allowance, evidence, decisions and mappings and runs no checks, gate, full verification or source reads.

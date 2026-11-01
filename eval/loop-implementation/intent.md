@@ -1,6 +1,8 @@
-for: 6ebb2e047fc00d074da18e326fe0f927c21fba37e7355f48e155dbc4fca1d970
+for: a86767fcccca2b1e031fb5374a045821274b92388104ab214d88b2dab3965758
 
 ## Change
+Select ordinary work after a surviving validated seed and its decision, including partial seeds with empty evidence cells. Use the ledger at HEAD and committed seed identity, preserving legacy full-coverage seeds and selecting seed after an authorized reset regardless of the consumed dispatch count. Add seed-selection for home partial/legacy/reset and coordinated seeded-flag continuations. Run only seed-selection in this iteration; these synthetic traces cover narrated selection, not live dispatch or admission. Keep closed admission and retry samples unchanged.
+
 Repair an admitted-boundary seed validation miss and retry seed once with the seed-contract instruction plus the concrete miss in hint. Restore rows and decisions, retain consumed iterations, clear pending and share the existing two-miss window across home and companion paths. Add seed-retry for first/second misses, successful-window reset, repair-to-retry resume and boundary exclusions. Run only seed-retry in this iteration; these synthetic traces cover narrated repair and retry, not live dispatch or ordinary seed selection. Leave the closed partial-seed admission sample unchanged.
 
 Admit a seed return with evidence on at least one non-cut row, including a companion subset that omits earlier mapped rows. Preserve unreached cells, zero attempts and cut dispositions; count returned evidenced rows and baseline closures, rejecting zero evidence and invented counts. Add partial-seed for home and companion admission only. Run only partial-seed here; these text replays cover narrated admission, not live dispatch, retry or next-target selection. Deterministic fixtures exercise the companion recipe beside its existing siblings.
@@ -48,6 +50,7 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- seed-selection/partial: fails -> holds - Continue ordinary work after a validated partial seed without filling unreached evidence cells first.
 - partial-seed/partial: fails -> holds - Admit a single evidenced home row while leaving unreached rows empty.
 - partial-seed/closures: fails -> holds - Admit baseline closures on a subset without demanding full coverage.
 - partial-seed/companion: fails -> holds - Record only the evidenced companion subset and mark that leg seeded.

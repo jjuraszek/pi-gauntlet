@@ -3,7 +3,7 @@
 base: 407680b9c98894fdcc16aedd0feb6ac2c28b2215
 verification: npm test
 checks: commands
-iterations: 9
+iterations: 10
 allowance: 4
 
 | row | status | attempts | evidence |
@@ -17,7 +17,7 @@ allowance: 4
 | 7 | done | 1 | node eval/run.mjs loop-implementation partial-seed; exit 0 improved; all 6 candidate facts hold on both replay models; partial home and companion seed admission coverage |
 | 8 | done | 1 | node eval/run.mjs loop-implementer empty-evidence-row; exit 0 improved; all 4 candidate facts hold on both replay models; partial synthetic coverage of ordinary home success after partial seeding |
 | 9 | done | 1 | node eval/run.mjs loop-implementation seed-retry; exit 0 improved; all 6 candidate facts hold on both replay models; partial synthetic coverage of home and companion seed repair and one retry |
-| 10 | open | 0 | node -e 'require("node:assert/strict").ok(!require("node:fs").readFileSync("skills/loop-implementation/SKILL.md","utf8").includes("decision and evidence on every non-cut row survives"),"seed selection still requires evidence on every non-cut row")'; exit 1; seed selection still requires evidence on every non-cut row |
+| 10 | done | 1 | node eval/run.mjs loop-implementation seed-selection; exit 0 improved; all 5 candidate facts hold on both replay models; partial synthetic coverage of partial and legacy seeds, reset and coordinated continuation |
 | 11 | open | 0 | node -e 'require("node:assert/strict").ok(require("node:fs").readFileSync("doc/specs/2026-10-23-gh-68-loop-implement-engine.md","utf8").includes("#110"),"predecessor lacks the multi-row and partial-seed supersession note")'; exit 1; predecessor lacks the multi-row and partial-seed supersession note |
 | 12 | open | 0 | node -e 'require("node:assert/strict").ok(!require("node:fs").readFileSync("eval/loop-implementer/samples/row-and-evidence/expected.md","utf8").includes("row 2 stays open"),"snapshot A still forbids closing row 2")'; exit 1; snapshot A still forbids closing row 2 |
 
@@ -31,3 +31,4 @@ row 6 done | Companion admission now accepts same-leg extras with matching decis
 row 7 done | Seed admission now accepts evidenced subsets at home and in companions while preserving zero attempts and unreached rows. | Reuse partial-seed and seed-recovery; leave empty-evidence guidance, seed retry and selection changes to rows 8-10.
 row 8 done | Empty evidence is now normal after partial seeding, and workers create a first check before closing or failing the row. | Reuse empty-evidence-row for ordinary follow-up coverage; leave automatic seed retry and selection to rows 9-10.
 row 9 done | Seed validation misses now repair and retry once at home and in companions, with the second miss stopping and valid seeds resetting the window. | Reuse seed-retry for repair coverage; leave validated partial-seed selection to row 10.
+row 10 done | Validated partial seeds now select ordinary rows from committed seed state instead of demanding evidence on every non-cut row. | Reuse seed-selection for partial, legacy, reset and coordinated continuation coverage; leave supersession docs and conformance to rows 11-12.

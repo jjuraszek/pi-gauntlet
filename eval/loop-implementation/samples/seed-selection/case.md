@@ -1,0 +1,13 @@
+bundle-: agents/loop-implementer.md
+
+Act as the loop driver at Before each dispatch after an authorized restore. Tools are unavailable; describe calls without claiming execution. Treat each snapshot independently. Admission and recovery are complete, the clean named branch and ledger at HEAD are authoritative, and no pending tuple exists. checks: commands, iterations: 7 and allowance: 4 are present. All row attempts are 0, no retry/escalation decisions exist and no boundary or stagnation stop applies. Do not validate returns or run checks; select the next dispatch and state its target, task iteration versus consumed iteration, durable changes and hint.
+
+A. A validated loop: seed evidence commit survives on this branch with matching attribution and one seed decision: row 0 done | seeded 1 rows, closed 0 on baseline | row 1. Its ledger at HEAD has row 1 open with empty evidence, row 2 open with evidence check-state; assertion mismatch, row 3 open with empty evidence, and row 4 cut with evidence deferred: later. No later decisions exist. Select the next target without gathering evidence for unreached rows first.
+
+B. Replace A with a legacy full-coverage seed: a validated loop: seed evidence commit and its row 0 done decision survive at HEAD; rows 1 and 2 are done with passing baseline evidence, row 3 open with failing evidence, row 4 cut unchanged. The decision says seeded 3 rows, closed 2 on baseline, row 3. Select the next target.
+
+C. Replace A with an authorized interrupted-seed reset that left no validated seed commit or row 0 done decision surviving. Rows 1, 2 and 3 are open with empty evidence, row 4 remains cut and Decisions is empty. The reset preserved iterations 7. Select the next target and describe the special seed hint and whether attempts are charged.
+
+D. Coordinated restore: home repo-a owns rows 1 and 4; repo-b owns rows 2 and 3. A validated partial home seed and a validated partial companion seed were recorded, with seeded repo-a: yes and seeded repo-b: yes at HEAD. Row 1 remains open with empty evidence, row 2 is done with passing baseline evidence, row 3 remains open with empty evidence and row 4 is cut. Bases, mappings and the shared allowance are admitted. Select target and leg; state whether either leg must be re-seeded to fill empty evidence cells.
+
+Across all snapshots, keep attempts, allowance, evidence, decisions and mappings unchanged before the child executes. Show the consumed iteration bump and pending tuple with the observed pre-dispatch HEAD represented symbolically. Run no evidence checks, gate, full verification or source reads.

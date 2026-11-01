@@ -1,0 +1,110 @@
+{
+  "sample": "seed-selection",
+  "arm": "candidate",
+  "skillSha": "cb7f36d2015250d5eee02eb9554ebe644f24d7390127f228f6aac7d54b142578",
+  "inputSha": "97d104559f3214661bcf9184b6279417d65b3f5f4a91785e62639236d31b89e1",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Loop driver: Before each dispatch, four independent restores\n\nNone of the calls below has run. Each snapshot is a planned sequence only.\n\n## Checks shared by every snapshot\n\nThese run in order before any dispatch:\n\n1. **Read the ledger.**\n   - Require `checks: commands`.\n   - Require `allowance: 4` and no `cap:` line.\n   - All of these are present.\n2. **Walk the ordered table.**\n   - Rule 1 does not fire: open rows exist.\n   - Rule 2 does not fire: every row has attempts 0 against an effective allowance of 4, since there are no retry lines.\n   - Rule 3 does not fire: there is no stagnation.\n   - Rule 4 applies: dispatch is allowed.\n3. **Last-attempt escalation check.**\n   - It applies only when attempts equal effective allowance minus 1, which is 3.\n   - All attempts are 0, so there is no `escalationLoop` resolution, no `row <n> escalated` decision and no model override.\n4. **Planned dispatch-prep calls:**\n   - `git -C \"<worktree>\" rev-parse HEAD` → `HEAD_BEFORE`\n   - Save a ledger copy before the bump (in memory or a temp file, never committed).\n   - Hold i = 7. Edit the ledger to `iterations: 8` and add one `pending:` line.\n   - `plan_tracker({ action: \"refresh\", path: \"<absolute ledger path>\" })`\n   - `mktemp` for an absolute output path outside the repo.\n   - Commit nothing extra.\n5. **Iteration counts.**\n   - The task line sends `iteration: 7`, the pre-bump count, by design.\n   - Admission will require the child commit body to carry `iteration: 8`, the consumed count read from the bumped header.\n   - These two numbers are never compared to each other.\n6. **Fields that stay unchanged before the child runs:**\n   - Attempts, allowance, evidence, decisions, row statuses and (in D) mappings and bases.\n   - The only durable pre-dispatch changes are `iterations: 8` and the `pending:` line. They stay on disk and are uncommitted.\n7. **Prohibited actions:**\n   - No spec or source reads.\n   - No evidence checks, gate set or verification run.\n   - No reading of child transcripts.\n\n---\n\n## A. Validated partial seed, rows 1 and 3 unreached\n\n**Seed survival:**\n- The `loop: seed evidence` commit and its decision `row 0 done | seeded 1 rows, closed 0 on baseline | row 1` survive at HEAD.\n- Seed is therefore never reselected.\n- The empty evidence cells on rows 1 and 3 do not justify re-seeding.\n\n**Target priority:**\n1. Human retry target: none.\n2. Still-failed row named by the previous decision: none. Row 1 is `open`, not `failed`.\n3. First failed row: none. Row 2 is `open` despite its failing evidence.\n4. First open row: **row 1**.\n\nRow 4 (`cut`) is skipped.\n\n**Durable changes:**\n- `iterations: 7` → `iterations: 8`\n- Add `pending: 1 | home | <HEAD_BEFORE>`\n\n**Dispatch:**\n```text\nsubagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n  cwd: \"<abs worktree>\", output: \"<mktemp path>\", outputMode: \"file-only\",\n  acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n  task: \"iteration: 7\\nspec: <abs spec>\\nledger: <abs ledger>\\nbase: <base SHA>\\ntarget: 1\\nprevious decision: row 0 done | seeded 1 rows, closed 0 on baseline | row 1\\nhint: none\" })\n```\n\n**Printed:**\n`dispatch row 1 (home) - task iteration 7 (pre-bump); admission expects body iteration: 8 (consumed)`\n\n---\n\n## B. Legacy full-coverage seed\n\n**Seed survival:**\n- The validated seed commit and `row 0 done | seeded 3 rows, closed 2 on baseline | row 3` survive.\n- Seed is not reselected.\n\n**Target priority:**\n- Rows 1 and 2 are `done`, row 4 is `cut`, and there are no failed rows.\n- The first open row is **row 3**, which also agrees with the decision's suggestion.\n\n**Durable changes:**\n- `iterations: 8`\n- Add `pending: 3 | home | <HEAD_BEFORE>`\n\n**Dispatch:** same call as A, with `target: 3` and these task fields:\n- `previous decision: row 0 done | seeded 3 rows, closed 2 on baseline | row 3`\n- `hint: none`\n- `iteration: 7`\n\nAdmission expects `iteration: 8` in the commit body.\n\n**Printed:**\n`dispatch row 3 (home) - task iteration 7; admission expects iteration: 8`\n\n---\n\n## C. Interrupted seed reset, no surviving seed\n\n**Seed survival:**\n- No validated `loop: seed evidence` commit or `row 0 done` decision survives.\n- The target is therefore **seed**, regardless of `iterations: 7`.\n\n**Iteration count:**\n- The authorized reset already preserved the consumed count as 7.\n- That count is the current pre-bump value, so no extra recovery bump is applied.\n\n**Durable changes:**\n- `iterations: 8`\n- Add `pending: seed | home | <HEAD_BEFORE>`\n\n**Hint:**\n- The hint explicitly tells the child to apply its seed contract even though iteration is 7, which is greater than 0.\n- There is no `loop: repair seed` commit, so no `seed miss:` text is added and the validation-miss window is empty.\n\n**Dispatch task:**\n```text\niteration: 7\nspec: <abs spec>\nledger: <abs ledger>\nbase: <base SHA>\ntarget: seed\nprevious decision: none\nhint: apply the seed contract (target is seed although iteration > 0)\n```\n\n**Attempts:**\n- Seed charges no attempts. Rows 1–3 stay at attempts 0, both now and at admission, where the seed must leave all attempts at 0.\n- The seed only consumes the iteration count (7 → 8).\n- Row 4 stays `cut`.\n\n**Printed:**\n`dispatch seed (home) - task iteration 7; admission expects iteration: 8; no row attempts charged`\n\n---\n\n## D. Coordinated restore, repo-a home and repo-b companion\n\n**Extra pre-dispatch read:**\n- Because membership has more than one leg, first read `reference/coordinated-legs.md` in full at its absolute path. Stop if it is unreadable.\n- Apply its Resume, Targeting and dispatch, Companion return validation and admission, and Amendments sections. Do not apply Entry.\n- No pending tuple exists, so pending recovery does not apply.\n\n**Coordinated targeting:**\n- `seeded repo-a: yes` and `seeded repo-b: yes`, so there is no unseeded leg to seed first.\n- **Neither leg is re-seeded** to fill the empty evidence cells on rows 1 and 3. Both partial seeds were validated.\n- Ordinary priority: no retry target, no failed rows, so the first open row is **row 1**.\n- `## Leg mapping` maps row 1 to **repo-a (home)**.\n- Row 2 is `done`, row 3 is open but later in order, and row 4 is `cut`.\n\n**Prep:**\n- Capture the home and selected-leg heads. Both are repo-a here, so `HEAD_BEFORE` is the repo-a HEAD.\n- Save a pre-dispatch snapshot for the expected-dirt comparison.\n- Write the bump and tuple to the home ledger.\n- Refresh `plan_tracker`.\n\n**Durable changes:**\n- `iterations: 8`\n- Add `pending: 1 | repo-a | <repo-a HEAD_BEFORE>`\n- Mappings, bases, seeded flags and the shared allowance are unchanged.\n\n**Dispatch:**\n- `cwd` is the repo-a checkout.\n- Task fields:\n  - `iteration: 7`\n  - `target: 1`\n  - `base:` the repo-a base\n  - `Leg: repo-a`, the mapped original AC and the combined spec/task Rules\n  - absolute home spec and ledger paths\n  - `previous decision:` the latest admitted return's `row 0 done | …` seed line, taken verbatim from `## Decisions`\n  - `hint: none`\n- There is no model override.\n\n**Admission path:**\n- This uses the home single-child-commit path.\n- It validates only home entries, and the commit body must carry the exact tuple and `iteration: 8`.\n\n**Printed:**\n`dispatch row 1 (leg repo-a, home) - task iteration 7; admission expects iteration: 8; no re-seed of repo-a or repo-b`\n\n---\n\nNo snapshot reaches a human stop, so none of them prints a `gauntlet: question` message.\n",
+      "words": 1096,
+      "wallMs": 39964,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "No calls have run. Each snapshot below is independent. Let:\n\n- `W` = absolute home implementation worktree.\n- `S` = absolute approved spec path.\n- `L` = absolute ledger path.\n- `H_A`, `H_B`, `H_C`, `H_D` = the respective observed home pre-dispatch HEADs.\n- `O` = a unique absolute temporary output path created outside the repository for that dispatch.\n\nAll snapshots permit dispatch: unresolved attempts are `0 of 4`, so no escalation setting lookup or escalation commit is needed.\n\n## Common call sequence\n\nFor each snapshot, I would:\n\n1. Read `L`, retaining its rows, headers and Decisions. Use the already-admitted seed-survival state; do not inspect source, spec, logs or evidence checks.\n2. Record home HEAD with:\n   ```text\n   git -C \"<W>\" rev-parse HEAD\n   ```\n3. Save the complete pre-dispatch ledger separately, and record the dispatch identity.\n4. Write only these dispatch-header changes to `L`:\n   ```text\n   iterations: 8\n   pending: <target> | <member> | <observed pre-dispatch HEAD>\n   ```\n5. Call:\n   ```text\n   plan_tracker({ action: \"refresh\", path: \"<L>\" })\n   ```\n6. Create `O` using `mktemp` outside the repository.\n7. Dispatch exactly one foreground child:\n   ```text\n   subagent({\n     agent: \"loop-implementer\",\n     context: \"fresh\",\n     async: false,\n     cwd: \"<W>\",\n     output: \"<O>\",\n     outputMode: \"file-only\",\n     acceptance: {\n       level: \"none\",\n       reason: \"the parent validates the ledger and the commit\"\n     },\n     task: \"<snapshot-specific task below>\"\n   })\n   ```\n\nThere is **no parent commit before dispatch** and no model override. Every row’s attempts, status and evidence remain unchanged; allowance remains `4`; Decisions and mappings remain unchanged.\n\nFor every dispatch, **the task carries `iteration: 7` by design; the consumed iteration is `8`, which the child’s attribution body must carry. Those two numbers are not compared to each other.**\n\n## A — Validated partial seed survives\n\n**Next target: row 1, home.**\n\nThe validated partial seed is sufficient. Empty evidence on unreached rows does not authorize another seed or an evidence-gathering dispatch. Row 2 is `open`, not `failed`; first-open priority selects row 1.\n\nDurable header changes:\n```text\niterations: 8\npending: 1 | home | <H_A>\n```\n\nTask:\n```text\niteration: 7\nspec: <S>\nledger: <L>\nbase: <ledger base SHA>\ntarget: 1\nprevious decision: row 0 done | seeded 1 rows, closed 0 on baseline | row 1\nhint: none\n```\n\nHuman-facing output:\n```text\nDispatch selected: row 1 (home).\nTask iteration: 7; consumed iteration and commit-body iteration: 8.\nThe validated partial seed survives; unreached rows are not re-seeded.\nhint: none\n```\n\n## B — Validated full-coverage seed survives\n\n**Next target: row 3, home.**\n\nRows 1 and 2 are already done. Row 3 is the first unresolved open row. Its failing evidence does not itself change its durable status to `failed`.\n\nDurable header changes:\n```text\niterations: 8\npending: 3 | home | <H_B>\n```\n\nTask:\n```text\niteration: 7\nspec: <S>\nledger: <L>\nbase: <ledger base SHA>\ntarget: 3\nprevious decision: row 0 done | seeded 3 rows, closed 2 on baseline | row 3\nhint: none\n```\n\nHuman-facing output:\n```text\nDispatch selected: row 3 (home).\nTask iteration: 7; consumed iteration and commit-body iteration: 8.\nThe validated seed survives; rows 1 and 2 remain done.\nhint: none\n```\n\n## C — Authorized reset removed seed survival\n\n**Next target: seed, home.**\n\nNeither a validated seed commit nor its matching decision survives. Seed targeting is independent of the nonzero iteration counter.\n\nDurable header changes:\n```text\niterations: 8\npending: seed | home | <H_C>\n```\n\nTask:\n```text\niteration: 7\nspec: <S>\nledger: <L>\nbase: <ledger base SHA>\ntarget: seed\nprevious decision: none\nhint: Apply your seed contract for target: seed even though iteration is greater than 0.\n```\n\nThe dispatch consumes iteration 8, but **seed does not charge row attempts**. All attempts remain zero before execution, and a conforming seed return must also preserve zero attempts. There is no seed-miss hint: this snapshot supplies an authorized reset, not a validation miss.\n\nHuman-facing output:\n```text\nDispatch selected: seed (home).\nTask iteration: 7; consumed iteration and commit-body iteration: 8.\nApply the seed contract despite the nonzero iteration.\nSeed does not charge row attempts.\n```\n\n## D — Coordinated restore with both legs seeded\n\n**Next target: row 1, leg repo-a, dispatched from home.**\n\nBoth admitted seeded flags are `yes`. Neither leg is re-seeded to fill empty evidence cells. Ordinary first-open targeting selects row 1; its mapping assigns it to repo-a.\n\nBefore the common sequence, I would read the coordinated-legs reference **in full at its resolved absolute skill-resource path**, applying Resume, Targeting and dispatch, Companion return validation, Companion commit admission and Amendments—not Entry. Recovery is already complete, so this introduces no recovery writes.\n\nDurable header changes:\n```text\niterations: 8\npending: 1 | repo-a | <H_D>\n```\n\nHere `<H_D>` is repo-a’s observed pre-dispatch HEAD. Both seeded flags, all bases and every mapping remain unchanged.\n\nTask:\n```text\niteration: 7\nspec: <S>\nledger: <L>\nbase: <admitted repo-a base SHA>\ntarget: 1\nprevious decision: <verbatim target decision from the latest admitted return>\nhint: none\nLeg: repo-a\noriginal AC: <original AC mapped to row 1>\nRules: <held combined spec/task Rules for repo-a>\npending: 1 | repo-a | <H_D>\n```\n\nThe snapshot does not provide the latest admitted seed decision’s literal text, mapped original AC or Rules. Those inputs must be carried verbatim from the admitted ledger and held restore state—not fabricated. A decision’s suggested next row cannot override the current durable targeting result.\n\nHuman-facing output:\n```text\nDispatch selected: row 1 (repo-a, home checkout).\nTask iteration: 7; consumed iteration and commit-body iteration: 8.\nBoth legs remain seeded; neither is re-seeded for empty evidence cells.\nhint: none\n```\n\nNo return validation, evidence check, gate, full verification or source read is performed in any snapshot.\n",
+      "words": 861,
+      "wallMs": 38510,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3132b372ffd178a1c898b5d961e0d3b9e49010d9d65bd5d541b5181f4b795174",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0ca507cea8d06c2d6e41c72af8712ab10efc59089dff4dd9e41aeae192f7ecdd",
+      "baselineOutputSha": "5f35b8473afff9c7920190a0791c22459ee105bc8fbd5d5b077b994c3d9fd8a6",
+      "candidateOutputSha": "818d51ce53bf7dee6ee85a9828a339b9d23b3008e6a5bebb47890229d9db1bad",
+      "facts": {
+        "partial": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "legacy": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reset": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "coordinated": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "persistence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: snapshot A now treats the surviving validated partial seed plus its `row 0 done` decision as sufficient and selects row 1 with `pending: 1 | home | <HEAD_BEFORE>`, and snapshot D trusts the admitted `seeded repo-a: yes` / `seeded repo-b: yes` flags and dispatches row 1 to repo-a without re-seeding either leg or filling row 3 first, which moved `partial` and `coordinated` from fails to holds. Nothing that Before kept was lost: B still picks row 3 on the legacy full-coverage seed without conversion, C still selects seed regardless of `iterations: 7` with the seed-contract instruction in `hint` and zero attempts charged, and every snapshot still shows task iteration 7, consumed 8, a symbolic pre-dispatch HEAD in the tuple, untouched attempts/allowance/evidence/decisions/mappings, and an explicit list of prohibited checks/gate/verification/source reads. One minor robustness note: B's dispatch is described as \"same call as A, with target: 3\" rather than a full block; it still enumerates the task fields and tuple so the facts hold, but spelling out the full `pending`/task block per snapshot (as A, C and D do) would make the persistence fact observable without cross-referencing A.",
+      "wallMs": 14781,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3132b372ffd178a1c898b5d961e0d3b9e49010d9d65bd5d541b5181f4b795174",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0ca507cea8d06c2d6e41c72af8712ab10efc59089dff4dd9e41aeae192f7ecdd",
+      "baselineOutputSha": "9609aef1856d2dd77e4faca0816b4c528bc29d8797087c1ce9921ba0ed5ae6c0",
+      "candidateOutputSha": "0613a0249cd3fd542fb0e1f001575af8b428fd2855d100f03c5fd75e8351b1fe",
+      "facts": {
+        "partial": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "legacy": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reset": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "coordinated": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "persistence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the intended movement cleanly: snapshot A now selects ordinary row 1, explicitly states that empty evidence on unreached rows does not authorize another seed, and keeps the surviving partial seed and its decision as the seeded state, whereas Before applied a full-coverage predicate and dispatched seed. Nothing regressed—B still takes row 3 on the legacy full-coverage seed, C still targets seed with the seed-contract hint and zero attempts while stating that the iteration counter is independent of seed survival, D still uses both seeded flags to pick row 1 in repo-a without re-seeding, and every dispatch carries task iteration 7, consumed iteration 8 and a symbolic pending tuple with attempts/allowance/evidence/decisions/mappings preserved and no checks run. One small tightening worth keeping in future revisions: After's common step 2 records only the home HEAD via `git -C <W>`, which is fine here because repo-a is home, but a sentence noting that the selected leg's checkout HEAD is recorded (as Before did) would keep the persistence fact robust if a companion leg were selected; otherwise the After wording is a strict improvement over Before.",
+      "wallMs": 15234,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "ea6d7344b456b9342a3bcf5cc4d09d84459b7843"
+}
