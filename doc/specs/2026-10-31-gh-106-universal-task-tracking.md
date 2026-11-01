@@ -1,5 +1,7 @@
 # Universal task tracking: derive the loop engine's task view from the ledger
 
+> **Superseded by:** [doc/specs/2026-11-01-gh-109-loop-gate-set-driver-holds.md](./2026-11-01-gh-109-loop-gate-set-driver-holds.md) - the verify-step-1 full-run clause and the `verification_runs` expectation for loop runs only
+
 **Goal:** Make `plan_tracker` the one task-tracking tool for every implement engine by teaching the extension to derive a task view from the loop ledger, so the widget, implement auto-completion, unfinished-task guards, verify-phase Gn tasks, handoff/resume task lists, plan totals and reopen counting apply to loop runs unchanged; delete the loop skill's hand-rolled lifecycle; and add `verification_runs` plus a dispatches-per-task ratio to telemetry so the two engines can be compared.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.; fund 4 fix rounds
 **Engine:** waves
