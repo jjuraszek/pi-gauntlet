@@ -42,7 +42,7 @@ contract:
 - home: .worktrees/<name>
 - spec-dir: doc/specs
 - plan-dir: doc/plans
-- verification: npm test; node eval/run.mjs gatekeep-pr (run from the worktree)
+- verification: npm test; EVAL_CONCURRENCY=4 node eval/run.mjs gatekeep-pr <sample> --base <spec commit> for each of prior-review-delta, prior-review-same-head, prior-review-force-push, course-assess-terminal, blockers-bare-fix - sample-scoped runs only, no full-target sweep (run from the worktree)
 Rules: AGENTS.md
 Rules: AGENTS.core.md
 Rules: README.md
