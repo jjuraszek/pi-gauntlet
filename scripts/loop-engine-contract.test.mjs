@@ -539,3 +539,53 @@ test('retired loop budgets yield to durable shared allowance and keep waves deco
   assert.match(amendment, /Decode `auto-apply amends; fund 3 fix rounds` as both capabilities and `2 more fix rounds` as budget-only/);
   assert.match(amendment, /Preserve every row's attempts and the ledger's iterations and allowance\./);
 });
+
+test('configuration-allowance: binding documentation describes the single allowance', () => {
+  const required = {
+    'doc/configuration.md': [
+      'iterations: 0\nallowance: 4', 'allowance <n> per row', 'run allowance: <n>',
+      'allowance: <n> (reply)', 'allowance: <n> (setting)', 'positive safe integer',
+      'last allowed attempt', 'at most once per row', 'one exit-verification repair per flow',
+      'retry <n> | <hint>', 'rows +N', 'loop: raise allowance', 'loop: migrate allowance',
+      'effective allowance is the header allowance plus one per',
+      'Preserve every row\'s attempts.', 'both or neither requires human repair',
+      'Old funding supplies no attempts', 'only discard/reset authorization',
+    ],
+    'doc/implement-engines.md': [
+      'no total iteration cap', 'no amend permission required', 'rows +N',
+      'loop: migrate allowance', 'Only retry starts new stagnation',
+    ],
+    'doc/gate-contract.md': [
+      'positive safe integer', 'funding on 4/5 and malformed tokens re-present',
+      'allowance <n> per row', 'run allowance: <n>', 'rows +N',
+    ],
+    'README.md': ['loopEngine.maxIterationsPerRow', '4; allowance 6', 'no total iteration cap'],
+    'doc/personas.md': ['ordinary attempts', 'last allowed attempt', 'at most once per row'],
+  };
+  for (const [path, tokens] of Object.entries(required)) {
+    const text = readFileSync(new URL(path, root), 'utf8');
+    for (const token of tokens) assert.ok(text.includes(token), `${path}: ${token}`);
+    assert.doesNotMatch(text, /cap \+N|row-scaled cap|amend-gated within the durable cap|3 \+ funded/);
+  }
+});
+
+test('configuration-allowance: documented gate and entry behavior matches instruction sources', () => {
+  const gate = readFileSync(new URL('skills/brainstorming/reference/spec-finalization.md', root), 'utf8');
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const missing = [];
+  for (const option of [4, 5]) {
+    if (!new RegExp(`^${option} - .*allowance <n> per row`, 'm').test(gate)) {
+      missing.push(`approval option ${option} does not render its resolved allowance`);
+    }
+  }
+  if (gate.includes('ignore the funding token and treat the reply as the corresponding bare option')) {
+    missing.push('approval gate accepts waves funding on 4/5 instead of re-presenting without writes');
+  }
+  for (const [name, text] of [['approval gate', gate], ['loop entry', driver]]) {
+    if (!text.includes('run allowance: <n>')) missing.push(`${name} omits the literal run allowance carrier`);
+  }
+  for (const source of ['reply', 'setting']) {
+    if (!driver.includes(`allowance: <n> (${source})`)) missing.push(`loop entry omits the ${source} source echo`);
+  }
+  assert.deepEqual(missing, [], missing.join('; '));
+});
