@@ -297,6 +297,14 @@ test('reconstruction restores rejected target and extras before task projection'
     assert.match(instruction, /decisions/);
   }
   assert.doesNotMatch(recovery, /restore the target row and the tuple|restore row <n> to its pre-dispatch/);
+  const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
+  const resume = reference.split('\n## Resume\n')[1].split('\n## Targeting and dispatch\n')[0];
+  const companion = recovery.split('| Actual multi-member companion |')[1].split('\n')[0];
+  for (const instruction of [resume, companion]) {
+    assert.match(instruction, /boundary\/attribution failures/);
+    assert.match(instruction, /post-boundary result-validation misses.*`loop: repair row <n>`.*`loop: repair seed`.*clear `pending:`.*preserve the consumed iteration/);
+    assert.doesNotMatch(instruction, /attribution\/result mismatch|missing evidence take/);
+  }
 });
 
 test('verify owns the gate set, bounded repair and authorized ledger re-bound', () => {
@@ -432,28 +440,30 @@ test('partial companion seed requires all leg rows and counts only evidence', ()
     ['complete seed', ['| 2 | done | 0 | check-first; passed |', '| 4 | open | 0 | check-later; failed |', '| 5 | done | 0 | check-baseline; passed |'], 3, 2],
   ];
   const invalid = [
-    ['counts empty cells', partial, 3, 0],
-    ['omitted rows', [partial[1]], 1, 0],
-    ['no rows', [], 0, 0],
-    ['empty evidence', ['| 2 | open | 0 | |'], 1, 0],
-    ['foreign row', ['| 1 | open | 0 | check; failed |'], 1, 0],
-    ['cut row', ['| 3 | done | 0 | check; passed |'], 1, 1],
-    ['attempt changed', ['| 2 | open | 1 | check; failed |'], 1, 0],
-    ['failed status', ['| 2 | failed | 0 | check; failed |'], 1, 0],
-    ['lost baseline', ['| 5 | open | 0 | check; failed |'], 1, 0],
-    ['invented seeded count', ['| 2 | open | 0 | check; failed |'], 3, 0],
-    ['invented closure count', ['| 2 | open | 0 | check; failed |'], 1, 1],
-    ['duplicate row', ['| 2 | open | 0 | check; failed |', '| 2 | open | 0 | check; failed |'], 2, 0],
+    ['counts empty cells', partial, 3, 0, 'seed counts mismatch'],
+    ['omitted rows', [partial[1]], 1, 0, 'missing target or seed row'],
+    ['no rows', [], 0, 0, 'missing rows or decisions'],
+    ['empty evidence', [partial[0], '| 4 | open | 0 | |', partial[2]], 1, 0, 'seed counts mismatch'],
+    ['foreign row', ['| 1 | open | 0 | |', partial[1], partial[2]], 1, 0, 'foreign row'],
+    ['cut row', ['| 3 | done | 0 | check; passed |', partial[1], partial[2]], 2, 1, 'foreign row'],
+    ['attempt changed', [partial[0], partial[1].replace('| 0 |', '| 1 |'), partial[2]], 1, 0, 'attempt mismatch'],
+    ['failed status', [partial[0], partial[1].replace('| open |', '| failed |'), partial[2]], 1, 0, 'invalid status'],
+    ['lost baseline', [partial[0], partial[1], '| 5 | open | 0 | node --test baseline.test.mjs; passed |'], 2, 0, 'lost baseline closure', true],
+    ['invented seeded count', partial, 2, 0, 'seed counts mismatch'],
+    ['invented closure count', partial, 1, 1, 'seed counts mismatch'],
+    ['duplicate row', [partial[0], partial[1], partial[0]], 1, 0, 'duplicate row'],
   ];
   for (const [cases, passes] of [[valid, true], [invalid, false]]) {
-    for (const [name, rows, seeded, closed] of cases) {
+    for (const [name, rows, seeded, closed, reason, preserveBaseline] of cases) {
       const f = companionFixture('seed', true);
-      writeFileSync(f.admissionLedger, f.saved.replace('| 5 | done | 0 | node --test baseline.test.mjs; passed |', '| 5 | open | 0 | |'));
+      const saved = preserveBaseline ? f.saved : f.saved.replace('| 5 | done | 0 | node --test baseline.test.mjs; passed |', '| 5 | open | 0 | |');
+      writeFileSync(f.admissionLedger, saved);
       returnCommit(f, { rows, decisions: [`row 0 done | seeded ${seeded} rows, closed ${closed} on baseline | row 2`] });
       const result = validateCompanion(f);
       assert.equal(result.status === 0, passes, `${name}: ${result.stderr}`);
       if (passes) assert.deepEqual(JSON.parse(result.stdout).rows, rows);
-      assert.equal(readFileSync(f.ledger, 'utf8'), f.saved.replace('| 5 | done | 0 | node --test baseline.test.mjs; passed |', '| 5 | open | 0 | |'), 'admission is read-only');
+      if (reason) assert.ok(result.stderr.includes(reason), `${name}: ${result.stderr}`);
+      assert.equal(readFileSync(f.ledger, 'utf8'), saved, 'admission is read-only');
     }
   }
 });
