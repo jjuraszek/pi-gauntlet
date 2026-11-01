@@ -34,14 +34,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8531bcc234cd59f5ecafceaa507a485da2e442eaafa14ecafd2cd09f4fc6dbb7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "7f549da2d8e8738ff4985ca902cb3f29f00ea5fd31804be9a6a8a49ef3ae6051",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "0028278d0a2969f660b9d39174f68e24d97bd7538dcdbfd84f0aefa0bff6af1d",
       "candidateOutputSha": "7f549da2d8e8738ff4985ca902cb3f29f00ea5fd31804be9a6a8a49ef3ae6051",
       "facts": {
         "persistence": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "order": {
           "before": "holds",
@@ -54,26 +54,26 @@
           "label": "held"
         }
       },
-      "feedback": "The Before and After outputs for this case are textually identical, so no fact moved: both already describe the path-scoped `git -C /workspace/app status --porcelain -- doc/plans/config.md` check, the `add --` and `commit -m \"plan: config validation\" -- doc/plans/config.md` sequence that leaves the staged `src/config.mjs` in the index, the ordering of `phase_tracker complete` and `plan_tracker init` strictly after a successful commit or an empty clean status with failure halting before either, the direct `/skill:subagent-driven-development` invocation without a further approval stop, and the restored path that skips staging/commit on empty status and creates no empty commit. The Expected-to-move list anticipated persistence and order going fails -> holds, but the Before text already satisfied them, so the After wording neither gained nor regressed anything here; the current wording is sufficient for all three facts and needs no adjustment for this sample.",
-      "wallMs": 9250,
-      "verdict": "unchanged"
+      "feedback": "The only fact that moved is persistence, and it moved because After uses the exact commit subject `plan: config validation` while Before used `Add implementation plan for config validation`; both outputs already run the path-scoped status/add/commit on the worktree branch and keep `src/config.mjs` staged, so the subject wording was the sole blocker. The order and restored facts already held in Before and still hold in After: both sequence `phase_tracker complete` → wave-ordered `plan_tracker init` → unprompted `/skill:subagent-driven-development` strictly after a successful commit or an empty plan-scoped status, both stop before completion/init/dispatch on any status/add/commit failure, and both skip add/commit on empty status with no empty commit and the unrelated staged file untouched. To keep everything Before kept, retain the explicit 'failure stops before phase complete, tracker init, or execution' clause, the 'status empty is success, skip staging and commit' clause, and the init-once-on-restore note, while fixing the commit subject to the literal `plan: config validation` form — After does all of this, so no further wording change is needed; optionally keep Before's post-check (`diff --cached --name-only` still lists `src/config.mjs`) as extra reassurance for the unrelated-staged-source requirement.",
+      "wallMs": 16591,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8531bcc234cd59f5ecafceaa507a485da2e442eaafa14ecafd2cd09f4fc6dbb7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "eb26f7d8cd50a6aec3ef845a79317bfe14bcb28b3adba2a1c64fcd2bd08be8d3",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "cf6e7a6359ebeef01fe7c3c9a36b283fbbd9bc9ea50a4e5e3f594fba30f71623",
       "candidateOutputSha": "eb26f7d8cd50a6aec3ef845a79317bfe14bcb28b3adba2a1c64fcd2bd08be8d3",
       "facts": {
         "persistence": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "order": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "restored": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical for this case, so no fact moved: both outputs run the path-scoped `git -C /workspace/app status --porcelain -- doc/plans/config.md`, stage only the plan with a path-scoped `add --`, commit only the plan with subject `plan: config validation` while explicitly leaving staged `src/config.mjs` untouched, complete planning and initialize the wave-ordered tracker only after the commit succeeds (or after the empty-output status in the restored continuation), auto-invoke subagent-driven-development without confirmation, and stop on any status/staging/commit failure before completion, initialization, or dispatch. The Expected-to-move list anticipated persistence and order going fails -> holds, but Before already satisfied them, so the After wording neither gained nor lost anything here; keep the current ordering (PASS -> plan-scoped status -> add/commit -> phase complete -> init -> handoff) and the explicit empty-output skip branch, as they already deliver the Change without regression.",
-      "wallMs": 9165,
-      "verdict": "unchanged"
+      "feedback": "After moved persistence and order from fails to holds while keeping restored intact. Before failed persistence because its commit subject was \"docs: add config validation implementation plan\" rather than \"plan: config validation\" and it framed the whole status/add/commit sequence as conditional (\"if describing the requested plan-commit operation\"), which also broke order: phase completion and tracker init were gated on \"any plan-commit operation being performed\" rather than on a successful commit or a clean plan-scoped status. After states the exact path-scoped status, add, and `commit -m \"plan: config validation\" -- doc/plans/config.md`, explicitly keeps src/config.mjs staged, gates `phase_tracker complete` and `plan_tracker init` on commit success, auto-invokes subagent-driven-development without confirmation, and stops before completion/init/dispatch on any status/staging/commit failure. The restored section preserves Before's skip-on-empty-status behavior, no empty commit, src/config.mjs untouched, and idempotent tracker init. Minor polish: add `--only` to the commit for explicit clarity (pathspec already implies it), and drop the stray \"Step 7\" reference since the case gives no step numbering; neither affects the facts.",
+      "wallMs": 14553,
+      "verdict": "improved"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

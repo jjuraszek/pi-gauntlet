@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b4dff91e8d311b687093fa41d06630b42d0c5ed9d61032d8af9d80dca727a4eb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "e4801e298efbc94d9b153774b5e8aed728fbee27374a24905dd36fd93a3995eb",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "e0bbd35dc58ec1d42b904da56861d32607c26b5a0f9c6af17d9285e24226e01b",
       "candidateOutputSha": "e4801e298efbc94d9b153774b5e8aed728fbee27374a24905dd36fd93a3995eb",
       "facts": {
         "decision": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical for this case, so no fact moved: both state a Task 1 Decision that the host forwards callerDirectory unchanged with docs/harness.md:18 quoted as source, neither contains an Open Questions section (let alone a forwarding-question row), and both end with the exact line PLAN WRITTEN /work/app/doc/plans/hook.md. The After wording's boundary-decision-from-source guidance is already being honored here as it was before, and nothing in the amend/handoff/grant changes touched this plan's text; no wording adjustment is needed for this case, though if the Change intended an explicit baseline-provenance or commit-at-handoff note to appear in the plan body, that intent did not surface in After and would need a direct instruction in the plan template rather than the skill prose.",
-      "wallMs": 7786,
+      "feedback": "Nothing moved on this case: both outputs put a Task 1 Decision that explicitly says the host forwards callerDirectory unchanged, cite docs/harness.md:18 with the quoted contract sentence, carry no Open Questions table, and end on the exact PLAN WRITTEN line. After actually states the boundary more directly ('because the host forwards that value unchanged') and places the Decision before Files/Tests, which keeps the derive-from-source behavior visible; the only drift versus Before is cosmetic (the After commit message drops the spec ref suffix and the baseline provenance paragraph no longer names the command it ran). If you want to tighten the wording further, keep the Decision as a dedicated 'Decision: … Source: docs/harness.md:18' line inside the task body and keep the provenance note naming the executed command, so the host-boundary-decision and baseline-provenance facts stay satisfied while the Change's other sample behaviors are delivered.",
+      "wallMs": 9848,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b4dff91e8d311b687093fa41d06630b42d0c5ed9d61032d8af9d80dca727a4eb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "ad1e0ed0e8370cceb270069c26ec0e5b12f754b3a81b3056ec33ea993a854375",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "0ea856ccb43a73d9d03258b29a9060fd68efd8fc2ba4377cbec8a6506a9a942a",
       "candidateOutputSha": "ad1e0ed0e8370cceb270069c26ec0e5b12f754b3a81b3056ec33ea993a854375",
       "facts": {
         "decision": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical, so no fact moved. Both outputs include a Task 1 Decision that quotes docs/harness.md:18 (\"The host passes callerDirectory unchanged to the hook\") and settles the boundary on that contract rather than asking the human; neither has an Open Questions section, and both end with the exact PLAN WRITTEN line. The change list expected host-boundary-decision/decision to go fails -> holds, but Before already held it, so the wording change neither helped nor hurt here. One minor refinement the author could consider for clarity: the phrase \"do not add host forwarding\" is slightly ambiguous next to the quoted contract that the host does forward; rephrasing to \"the host already forwards callerDirectory unchanged (docs/harness.md:18), so no host-side change is needed\" would state the decision more directly without affecting any other fact.",
-      "wallMs": 9902,
+      "feedback": "No fact moved: both outputs give Task 1 a Decision grounded in the docs/harness.md:18 quotation, neither has an Open Questions row about forwarding, and both end with the PLAN WRITTEN line. Two cautions on After's wording, though. First, After's Decision leads with what not to do (\"do not add host forwarding or substitute the host's working directory\") and only establishes that the host forwards callerDirectory unchanged through the appended quotation; Before's \"no host-forwarding change is needed\" plus the quote reads more directly as a settled boundary decision. Phrasing like \"Decision: the host forwards `callerDirectory` unchanged (docs/harness.md:18: '...'), so resolution uses that parameter as its base and no host-side change is in scope\" would keep the fact robust against stricter readers. Second, After's Step 6 instructs applying \"the repository's documented formatting and lint tooling\" when the case supplies none; Before correctly stated no formatter or lint command is supplied and fell back to `git diff --check`. Keep Before's non-command sentinel behavior for the style step so the plan does not reference tooling that does not exist in the dispatched case.",
+      "wallMs": 12812,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

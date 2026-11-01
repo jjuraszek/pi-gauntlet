@@ -34,57 +34,57 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4820aecb0979c579d4e39775d91144998adafa8f356803db656bcc8f838db14b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "a502a451f06162c57d6ac2d0efdda8fe9160934c30a4cea501d90808a99cb9b7",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "2b83901d31e6d3f81872e90c929f5b225a383e982e246d63f640e1d8b2d2a1ab",
       "candidateOutputSha": "a502a451f06162c57d6ac2d0efdda8fe9160934c30a4cea501d90808a99cb9b7",
       "facts": {
         "originals": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "semantic": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "retry": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         }
       },
-      "feedback": "The Before and After outputs are textually identical, so no fact moved. Both read the committed originals with `git -C \"/workspace/app\" show HEAD:doc/plans/config.md` and `HEAD:doc/specs/config.md` before any write, with the report consulted only for its 'Task anchor mismatch' findings and explicitly not used as a source of anchors or baselines; both return `amendedSections: [\"Config\"], tasksAnchorChanged: [4], passed: true` for the initial apply and the retry while the offset-only clarification yields `tasksAnchorChanged: []`; both write the already-mutated spec idempotently without duplicating the bullet, preserve the Tests command, baseline stamp `9f3c2e1` and retained evidence, and keep the `plan_check` PASS. Since the After wording produced no observable difference on this sample, there is nothing to repair here; if the author expected these facts to flip from fails to holds, the Before already satisfied them, so the Change's effect must be verified on the other samples (plan-untracked, handoff) rather than this one. One minor caution for any future tightening: the written plan excerpt shows only Task 4 and leaves its checkboxes unchecked although the case says Task 4 is completed—explicitly stating that other tasks and Task 4's completed markers are carried through verbatim from HEAD would make the 'preserves unaffected tasks and historical evidence' reading unambiguous.",
-      "wallMs": 17476,
-      "verdict": "unchanged"
+      "feedback": "After moved all three facts in the intended direction: it reads both committed originals via home-relative `git -C \"/workspace/app\" show HEAD:...` before any write with no report-copy prerequisite, uses `/tmp/reports/apply.md` for prior findings only, computes deltas against HEAD rather than the already-mutated files (so initial apply and retry both return passed true with amendedSections [\"Config\"] and tasksAnchorChanged [4], while the offset-only clarification leaves tasksAnchorChanged empty), writes the spec idempotently without duplicating the bullet, retains the baseline evidence byte for byte, and runs plan_check. Before failed all three because it treated the report as the sole inventory source and refused to consult HEAD, returning passed false and an empty delta. One wording risk in After worth tightening: the illustrative plan rewrites completed Task 4 with unchecked `[ ]` step boxes and freshly invented step bodies, which reads like a refresh of a completed task rather than a local obligation patch; keep the `[x]` completed marks and say explicitly that only the anchor, obligation wording and coverage row are patched, so the 'preserves historical evidence' part of the retry fact is unambiguous. Also state in one line that the parent stamp line is carried over unchanged from the committed plan rather than only implied by the illustrative SHA.",
+      "wallMs": 18698,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4820aecb0979c579d4e39775d91144998adafa8f356803db656bcc8f838db14b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "f5b6edcd40d3a00c417fa3e3acb4034af29ca35f3618568ce2554946a2c96d46",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "651d237593f82a01c17a4e4fab892527d6f3891a628bac28c7d6e973cd6f90a7",
       "candidateOutputSha": "f5b6edcd40d3a00c417fa3e3acb4034af29ca35f3618568ce2554946a2c96d46",
       "facts": {
         "originals": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "semantic": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "retry": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         }
       },
-      "feedback": "Before and After are byte-identical here, so nothing moved: both read the two committed originals via git -C \"/workspace/app\" show HEAD:... before any edit and again on retry with no absolute HEAD path or report-copy prerequisite; both report passed true, amendedSections [\"Config\"], tasksAnchorChanged [4] for the initial apply and the retry and an empty changed list for the offset-only clarification; both consume /tmp/reports/apply.md for findings only, refuse to duplicate the already-present bullet, preserve unaffected task text and evidence byte-for-byte, and run plan_check plus the judgment checks. The only soft spot shared by both outputs is that the retry's parent stamp is never named explicitly—it is covered only implicitly by 'preserving ... unaffected text'; if you want that fact to be unambiguous, add one clause such as 'leave the existing parent stamp and self-check lines in place' to the retry bullet, which costs nothing against the Change.",
-      "wallMs": 11630,
-      "verdict": "unchanged"
+      "feedback": "After moves all three facts in the intended direction: it reads both committed originals with `git -C \"/workspace/app\" show HEAD:doc/plans/config.md` and `HEAD:doc/specs/config.md` before any edit for both the initial apply and the retry, treats `/tmp/reports/apply.md` as findings-only rather than a required inventory copy, returns `passed: true` with `amendedSections: [\"Config\"]` and `tasksAnchorChanged: [4]` for both the initial apply and the retry, returns an empty anchor-changed list for the offset-only clarification, avoids duplicating the already-applied bullet, and preserves unaffected text and byte-for-byte evidence while still running plan_check and the judgment checks. Before failed all three because it demanded a saved report inventory, declared the `git show` reads outside permitted Bash, and halted the retry with `passed: false`. One soft spot in After: the retry fact mentions keeping the parent stamp, and After never names it—add a short clause such as 'keep the self-check and the parent stamp/handoff unchanged on retry' alongside the plan_check line so a reader does not have to infer it. Otherwise the wording is sound and delivers the Change without regressing anything Before held.",
+      "wallMs": 17154,
+      "verdict": "improved"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

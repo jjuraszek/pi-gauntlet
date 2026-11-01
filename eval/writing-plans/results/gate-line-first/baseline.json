@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "baseline",
-  "skillSha": "9d7ec666a302e834399d8f716c3c8ed28c727715be9cb42ddde09d456e563f19",
+  "skillSha": "8e8b37d7923f9e51ac6becd9c56f2729bc71a394f89223986f60fce543ee2118",
   "inputSha": "dad4216a7c8c200b506422e517993fe001294bc0afdd56f8666b26563b237c55",
   "kind": "text",
   "assembly": "concat",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nTask 1's baseline fails on def5678: the existing test fails before any plan change.\n\n- Command: `node --test tests/timeout.test.ts`\n- Exit: 1\n- Summary: `tests 1, pass 0, fail 1: existing timeout lookup failed`\n\nThe plan is paused (phase `plan` in progress, substep `plan-write`). How should I proceed?\n\nfix-first - run `/skill:shape-ticket` to fix the existing timeout lookup failure on the base, then come back to this plan\nnarrow <filter> - limit Task 1's Tests to a filter or path that excludes the failing case. Nothing supports a specific filter yet, so please name one.\namend - change the approved spec's Task 1 test obligation through the amendment path\n\nRecommendation: fix-first - the only test in the anchored file fails on the untouched base, so narrowing would leave Task 1 with nothing to test, and nothing suggests the spec is wrong.\n",
-      "words": 136,
-      "wallMs": 6741,
+      "text": "gauntlet: question\nPlan paused: Task 1's baseline fails on the base revision, before any change from this plan.\n\n- Task: Task 1\n- Command: `node --test tests/timeout.test.ts`\n- SHA: `def5678`\n- Exit: 1\n- Summary: tests 1, pass 0, fail 1: existing timeout lookup failed\n\n```text\ntests 1, pass 0, fail 1: existing timeout lookup failed\n```\n\nHow should I proceed?\n\n`fix-first` - run `/skill:shape-ticket` for the base failure (its own gate applies), and keep this plan paused until that fix lands.\n`narrow <filter>` - narrow Task 1's Tests to a passing subset. The evidence does not point to a filter, so please name the test filter or path.\n`amend` - amend the approved spec to account for the existing failing timeout lookup.\n\nRecommendation: fix-first - the only test in the anchored file fails on the base, so no narrower filter is available and the plan has no passing baseline to build on.\n\nThe plan phase stays `in_progress` (substep `plan-write`). Nothing has been stamped and `plan_tracker` is not initialized.\n",
+      "words": 159,
+      "wallMs": 6670,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nTask 1’s baseline command `node --test tests/timeout.test.ts` failed on `def5678` (exit 1): existing timeout lookup failed. Runner summary: 1 test, 0 passed, 1 failed.\n\nfix-first - Run `/skill:shape-ticket` for the existing baseline failure; this plan stays paused.\nnarrow <filter> - Provide a concrete test filter or path; the supplied evidence does not establish a safe narrower scope.\namend - Amend the approved spec through brainstorming’s amendment procedure.\n\nRecommendation: fix-first - The existing timeout lookup fails before implementation, so repair the baseline first.\n\nPlanning remains `in_progress` at `plan-write`, awaiting your choice.\n",
-      "words": 88,
-      "wallMs": 7682,
+      "text": "gauntlet: question\nTask 1 baseline failed on `def5678`:\n- Command: `node --test tests/timeout.test.ts`\n- Exit: 1\n- Result: tests 1, pass 0, fail 1 — existing timeout lookup failed.\n\nfix-first - Run `/skill:shape-ticket` for the existing baseline failure; this plan stays paused until the fix lands.\nnarrow <filter> - Provide a concrete test filter or path; the supplied evidence does not support one.\namend - Amend the approved spec through brainstorming’s amendment process.\n\nRecommendation: fix-first - The existing timeout test is already failing, so repair the baseline before proceeding.\n\nPlanning remains `in_progress` at `plan-write`, awaiting your choice.\n",
+      "words": 89,
+      "wallMs": 7002,
       "mechanical": {
         "first-line": "holds"
       }
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "72e69d890660f266044870d09929934ad2912bdb"
 }

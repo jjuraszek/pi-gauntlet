@@ -40,8 +40,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "aa2c1803b435cce73f0e85fb47fc4f99ba5770b5ed3f9659823e0a0a5b637a24",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "4f5d05184522f65c625f36e9366705fdf27d1ec78722cd3ae473e5108cb91bee",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "dbd5cf8ec39319e483a437b1ed89ba9b4cb168d7366521383095cbd70a8592d7",
       "candidateOutputSha": "4f5d05184522f65c625f36e9366705fdf27d1ec78722cd3ae473e5108cb91bee",
       "facts": {
         "proceed": {
@@ -65,15 +65,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical on this case, so nothing moved. Both re-entry 1 outputs retain the unchanged command's same-base evidence (`baseline: abc1234 pass - artifacts: coverage/hook.json`), admit `?? coverage/hook.json` as a recorded artifact in the provenance note rather than a dirty-tree row, and end with PLAN WRITTEN /work/app/doc/plans/hook.md. Both re-entry 2 outputs honor the forced rerun, replace the bullet with fresh passing evidence, and merge the still-untracked recorded path with the newly generated one (`artifacts: coverage/hook.json, coverage/summary.json`) without a Baseline: worktree dirty row or a block. The After wording delivers the Change for this sample while preserving every fact Before kept; no adjustment is needed here.",
-      "wallMs": 6441,
+      "feedback": "Neither fact moved. In After, re-entry 1 still ends in PLAN WRITTEN with the `retained 1 bullets: abc1234 -> abc1234` note and the unchanged `baseline: abc1234 pass - artifacts: coverage/hook.json` bullet, admitting coverage/hook.json rather than raising a dirty row; re-entry 2 states the forced rerun re-executed all commands with nothing retained, replaces the bullet with `baseline: abc1234 pass - artifacts: coverage/hook.json, coverage/summary.json`, and emits no Baseline: worktree dirty row or block. The only softening is that After's rerun provenance no longer quotes the observed exit code and `tests 1, pass 1, fail 0` or states explicitly that coverage/hook.json was still untracked (hence carried onto the replacement suffix); Before did both. To keep the evidence self-justifying while delivering the Change, have the rerun provenance note say something like: 'Rerun `node --test tests/hook.test.ts` exited 0 (`tests 1, pass 1, fail 0`); post-run status: `?? coverage/hook.json` (still untracked, carried forward) and new `?? coverage/summary.json` (disposable artifact, merged); neither is a Create:/Test: path; nothing deleted.'",
+      "wallMs": 13478,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "aa2c1803b435cce73f0e85fb47fc4f99ba5770b5ed3f9659823e0a0a5b637a24",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "56dd57755b513fc768366558308468c217e3aaa63accb2da818f6e0f3c56f38c",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "e18fb3ad0126e97df9899b068b8857340db05caade75c45a68cb0879e3a0b759",
       "candidateOutputSha": "56dd57755b513fc768366558308468c217e3aaa63accb2da818f6e0f3c56f38c",
       "facts": {
         "proceed": {
@@ -97,10 +97,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical for this case, so nothing moved. Both outputs proceed on the ordinary Findings re-entry to PLAN WRITTEN /work/app/doc/plans/hook.md, keep the unchanged command's `baseline: abc1234 pass - artifacts: coverage/hook.json` bullet via the tree-equivalence retention note, and admit coverage/hook.json rather than blocking or emitting a dirty-tree row. On the `Findings: rerun baseline` re-entry both outputs rerun the unchanged command, report the observed exit 0 / `tests 1, pass 1, fail 0`, and replace the bullet with `baseline: abc1234 pass - artifacts: coverage/hook.json, coverage/summary.json`, merging the still-untracked recorded artifact with the newly generated one and never raising a `Baseline: worktree dirty` row. The After wording preserves everything Before delivered here; no adjustment is needed for this sample.",
-      "wallMs": 6737,
+      "feedback": "Neither fact moved. In After, the first re-entry still admits `coverage/hook.json` as a recorded disposable artifact (not Create:/Test:), retains the unchanged command's `baseline: abc1234 pass - artifacts: coverage/hook.json` bullet without rerunning, and ends with `PLAN WRITTEN /work/app/doc/plans/hook.md`; the second re-entry honors the explicit `Findings: rerun baseline` override, reruns `node --test tests/hook.test.ts` with the observed exit 0 / `tests 1, pass 1, fail 0`, and replaces the bullet with `artifacts: coverage/hook.json, coverage/summary.json`, emitting no `Baseline: worktree dirty` row. The After wording's added endpoint-tree-equivalence sentence and the Decision line are consistent with the Change and do not disturb the artifact or retention behavior. Incidental differences (dropping the format/lint step, terser `Expected: PASS`) are outside these facts; if other samples require a lint/format step or exact expected-output phrasing, keep Before's Step 6 wording while retaining After's tree-equivalence provenance sentence.",
+      "wallMs": 12140,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

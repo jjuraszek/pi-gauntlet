@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "65563d099b4917e117c645473601d2fb141f7512e5144ffbaac204cd15fbe151",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "c4dade8a3f8f707e18459d5b8b037d34032261a166d1213c1581ba7787592239",
       "candidateOutputSha": "65563d099b4917e117c645473601d2fb141f7512e5144ffbaac204cd15fbe151",
       "facts": {
         "failure": {
@@ -63,15 +63,15 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical, so nothing moved: both name Task 1, `node --test tests/timeout.test.ts` and exit 1 as the base failure, both list fix-first, narrow <filter>, and amend one per line followed by a Recommendation line, and both state the plan is paused with phase `plan` in progress and substep `plan-write` retained with no tracker init, stamping or completion marking. The Expected-to-move list anticipated parent-offers-fix-first-narrow-amend/menu going fails -> holds, but the Before text already satisfies the menu fact as written, so the After wording delivers the Change without regressing any fact; no rewording is needed for this sample.",
-      "wallMs": 5921,
+      "feedback": "No fact moved: After still names Task 1, the `node --test tests/timeout.test.ts` command and exit 1 as the base failure, lists fix-first, narrow and amend one per line followed by a Recommendation line, and states the plan is paused in phase `plan` in progress with substep `plan-write`. The only weakening is on pause: Before explicitly said \"Nothing has been stamped and `plan_tracker` is not initialized\", while After leaves a careful reader to infer that from \"paused\"; a judge reading strictly for the absence of stamping/initialization could see that as under-evidenced. To keep the tightened wording while locking the pause fact, restore a one-line closing such as \"Plan stays `in_progress` (substep `plan-write`); nothing stamped, `plan_tracker` not initialized, waiting for your choice.\" Also consider keeping the `Task: Task 1` bullet alongside Command/Exit so the failure triple is visible in the evidence block itself rather than only in the opening sentence.",
+      "wallMs": 12724,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "88f1ff78a4939f134ddd6354edc77b436010c69bfa42f6289a4469caec7a1184",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "ba3c29aa2384a62cefe9f960db20af48357b8f90ac26df11a4fca763cf35231c",
       "candidateOutputSha": "88f1ff78a4939f134ddd6354edc77b436010c69bfa42f6289a4469caec7a1184",
       "facts": {
         "failure": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical, so no fact moved. Both outputs name Task 1, `node --test tests/timeout.test.ts`, and exit 1 as the base failure; both list fix-first, narrow <filter>, and amend on separate lines followed by a single Recommendation line; and both close by stating planning remains `in_progress` at `plan-write` awaiting the human, with no tracker initialization, stamping, or completion marking. Note that the Expected to move list anticipated menu going fails -> holds, but the Before text already satisfies the menu fact as written, so the After wording delivers the control-sample behavior without changing this output; no wording adjustment is needed for this case.",
-      "wallMs": 6715,
+      "feedback": "After preserves every fact Before held: it names Task 1, the exact command `node --test tests/timeout.test.ts`, and exit 1 as the base failure on def5678; it lists fix-first, narrow, and amend each on its own line followed by a Recommendation line; and it closes with planning remaining `in_progress` at `plan-write` awaiting the human's choice, with no tracker init, stamping, or completion marking. The only differences are cosmetic rewordings (collapsing the failure bullets into a sentence, 'amendment procedure' vs 'process', 'does not establish a safe narrower scope'), none of which moves a fact. No wording change is needed for this control sample; if anything, keeping the Before bullet layout (Command/Exit/Result) makes the failure provenance slightly easier to scan, but the After sentence form remains fully conformant.",
+      "wallMs": 4975,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }

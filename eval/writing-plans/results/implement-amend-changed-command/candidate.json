@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "51ba342d98d01bbad034d78c654d7feeaf7c69a10f50804a61400ae23dd3014b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "9b716d1e26918a572cb4946bc2c91e3ed420abbbd410fd8e34b7442e5c24decd",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "049af614455c0cac06f4e5bf110e7f0c2163cccca3335ff2cdbb6154b7e30e12",
       "candidateOutputSha": "9b716d1e26918a572cb4946bc2c91e3ed420abbbd410fd8e34b7442e5c24decd",
       "facts": {
         "changed": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "The Before and After outputs are textually identical, so nothing moved: both read the committed plan and spec originals via home-relative `git show HEAD:` before edits and on retry, keep previousApplyReport to findings only, retain Task 1's abc1234 evidence byte-identical without rerun or restamp, run the exact new command on the identified def5678 snapshot for A with leg/checkout/revision/admitted/command/exit/tests-2 provenance, stop on B's unknown dirty path without borrowing old-command evidence or cleaning the file, classify C's exit-0/zero-tests as a failure with retained output, skip only the truly-absent Task 3 anchors in D while forcing execution for an already-existing Create path, and keep the parent plan_check stamp and final verification mandatory. Since the Expected-to-move list anticipated these facts turning from fails to holds under the After wording, the After wording is already satisfying them here; no wording change is needed for this case, and any further edits should avoid touching the explicit read-before-edit/retry step list, the per-state provenance columns, and the \"Must not be reported as pass\" column, which are what carry every fact.",
-      "wallMs": 12284,
+      "feedback": "No fact moved: After keeps everything Before kept and adds the explicit retry re-read, the write-free failure marker with exact command/stderr, and the findings-only role of previousApplyReport, which is the intended Change. Two points in After weaken the evidence slightly even though they do not flip a fact: the State A plan excerpt omits Task 1 entirely (Before's excerpt showed Task 1 with its retained `- baseline: abc1234 pass` bullet), so a reader has to rely on the prose claim that Task 1 is byte-identical rather than seeing it; and the structured result reports `amendedSections: [\"Design\"]` while the narrative says only Task 2's section was patched, which muddies the local-patch story. Keep the After wording but restore the Task 1 section in the excerpt (unchanged bullet and suffix), label the provenance line with the task it belongs to (`Baseline provenance: Task 2 home | …`), and make amendedSections name the Task 2 section so the written result matches the per-state table.",
+      "wallMs": 20848,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "51ba342d98d01bbad034d78c654d7feeaf7c69a10f50804a61400ae23dd3014b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ec7c7e4745a7d630289258d3dfd57a0a5c19a9a003167777af029fec52108dde",
-      "baselineOutputSha": "b071c3eaf342e588be6daaae771a16fdd7a900a7bb9c081e30e7845fd6052057",
+      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
+      "baselineOutputSha": "e5041b6b8f3ae7da1247f5fd0994d096dfb00aafa582b97c0edf7297665b43ea",
       "candidateOutputSha": "b071c3eaf342e588be6daaae771a16fdd7a900a7bb9c081e30e7845fd6052057",
       "facts": {
         "changed": {
@@ -96,15 +96,15 @@
           "label": "intended but unchanged"
         },
         "safety": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "The Before and After outputs are textually identical, so no fact moved between them. Both already satisfy every fact: A runs the exact changed command in /workspace/snapshot and records leg, checkout, revision def5678, empty admitted changes, command, exit 0 and two executed tests while retaining Task 1's abc1234 evidence without rerun or restamp; B stops on the unknown dirty path and missing execution tree, refuses to borrow old-command evidence or label the checkout clean HEAD, and preserves src/unrelated.mjs without creating a snapshot; C records exit 0 with zero executed tests as a substantive failure, retaining output; D skips only for truly absent all-created anchors and treats an existing Create: path as requiring execution; and the preamble reads both committed originals through home-relative git show HEAD paths before edits and on retry, treats the prior apply report as findings-only, uses the existing provenance and saved report surfaces, and keeps parent stamping and final verification mandatory. The expected 'fails -> holds' moves for this sample are not visible because the Before text already holds them; the After wording is consistent with the Change and needs no revision for this case.",
-      "wallMs": 12547,
-      "verdict": "unchanged"
+      "feedback": "After keeps every state-level fact Before kept and repairs the safety fact: Before read the originals only before the first apply and then required an \"original inventory\" to live in the saved apply report (\"missing original inventory fails the retry\", and the D existing-anchor row leaning on \"matching original inventory\"), which contradicts the contract that retry reports hold prior findings only and that originals are reread through home-relative HEAD on retry. After fixes this with the two explicit `git -C \"/workspace/app\" show HEAD:doc/...` reads before any edit, the write-free `passed: false` on a failed read, the \"reread both originals on retries; the previous apply report supplies findings only\" sentence, and B's explicit \"do not ... create a snapshot\". Nothing regressed; A still names leg, checkout, def5678, admitted changes, command, exit and two executed tests while leaving Task 1's abc1234 evidence untouched, B still blocks and refuses the old-command pass, C still records the zero-test failure with retained output, and D still distinguishes truly-absent created anchors from an existing Create path. To make the delivered Change even more legible, After could add one short line stating that amendment deltas and retained evidence are derived by comparing those two HEAD originals against the proposed edits (so a reader sees the originals drive the decision, not the report), but no wording change is needed to keep the facts.",
+      "wallMs": 21472,
+      "verdict": "improved"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
 }
