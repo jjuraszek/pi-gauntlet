@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "31cc76bb1ade2bd154c292e2c14b6157c49d6a30fa265fae6f4a842ec559a19b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
+      "intentSha": "7630aa2eb6223670e065d999caaaae35cfe5b006624bf1435bafecc61ef792e6",
       "baselineOutputSha": "f82da115aa3714a8e6821723f4d04995c260cb63a812df044b49e3c43e08772f",
       "candidateOutputSha": "31dcce34beeb49e64c6fb7cfc651b050f513b13c857f5baddbe6a3a08344c52d",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "Before collapsed every snapshot into a missing-`cap:` stop (Problem naming the absent cap line, no gauntlet_setting call, allowance 1 declared inconsistent, no dispatch anywhere), so none of the four facts held there. After delivers the Change cleanly: snapshot 1 stops before the last attempt with the Problem line naming escalationLoop.implModel, no decision/commit/bump/dispatch and attempts 3 of 4; snapshot 2 records `allowed attempts 1`, commits the escalation and dispatches with explicit `model: \"session/main\"`, while the undefined variant stops naming the capability with attempts 0; snapshot 3 lets rule 3 win before escalation is resolved or spent for both ledger-only commits and two validation misses; snapshot 4 dispatches row 2 at attempts 2 with no model field and no escalationLoop lookup, and seed is explicitly outside the numbered-row predicate with no marker or override. Nothing regressed. One minor tightening worth keeping as-is: the shared preamble's explicit 'attempts == effective allowance − 1' predicate and the per-case 'Attempts stay N, iterations stay 6' lines are what make the counter facts observable—retain those in any further rewording.",
-      "wallMs": 17837,
+      "feedback": "Before collapses every snapshot into a missing-cap stop at the cap-header check, so none of the four facts is observable: the Problem line names the absent cap rather than escalationLoop.implModel, the allowance-1 attempt never dispatches with an explicit session/main model, the stagnation and validation-miss stops are never reached (and escalation is framed as amend-gated rather than automatic within the allowance), and the attempts-2 and seed variants produce no dispatch to show the omitted override. After moves all four to holds: it drops the cap gate, evaluates the ordered table on allowance 4 / attempts 3, stops before the last attempt with 'Problem: escalationLoop.implModel unavailable' and 'row 2: 3 of 4' with no decision, commit, bump or default-model substitution; at allowance 1 it writes 'row 2 escalated | implModel round | allowed attempts 1' and passes model: \"session/main\" explicitly while the undefined variant stops at 0 of 1; rule 3 fires ahead of escalation resolution in both stagnation variants without spending the marker; and attempts 2 dispatches with no model field and no escalationLoop call, with seed excluded from the numbered-row predicate. No fact that Before kept was lost. One robustness note: keep the explicit 'Options: retry 2 | <hint> · rows +N' and the per-row 'attempts of allowance' line on every stop (as After already does), and keep stating that the seed path neither consults escalationLoop nor sets a marker, since those are the phrases the ordinary and stagnation facts hinge on.",
+      "wallMs": 21901,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "31cc76bb1ade2bd154c292e2c14b6157c49d6a30fa265fae6f4a842ec559a19b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
+      "intentSha": "7630aa2eb6223670e065d999caaaae35cfe5b006624bf1435bafecc61ef792e6",
       "baselineOutputSha": "d8ee897df062a501f3547f5525fc269dff712f83161d30c91daa089521ab6a41",
       "candidateOutputSha": "9807389ee52d3a13cd6dec13663f3010effeca5855a852fa2196753fded7feda",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After keeps every fact Before kept and gains the three it lacked: the legacy missing-`cap:` gate that pre-empted every snapshot in Before is gone, so 1a/1b now stop with a Problem line that names escalationLoop.implModel while leaving attempts 3/allowance 4 untouched, 2a records `allowed attempts 1`, commits the escalation marker and dispatches once with explicit `model: \"session/main\"` while 2b stops with no write, and 4a/4b dispatch without consulting escalationLoop, without a marker and without a model override (seed explicitly excluded from the numbered-row predicate). The stagnation fact already held in Before only by outcome (no dispatch, no escalation spent) because the cap stop fired first; After makes it hold on the intended ground by placing ordered rule 3 ahead of model resolution and stating that `rows +N` does not clear the window. Nothing in After regressed; the only wording to watch is the 4b targeting qualification about a surviving validated seed—keep it as a side note so it does not read as the driver refusing the seed snapshot, since the fact requires the seed dispatch to be described.",
-      "wallMs": 27649,
+      "feedback": "After delivers the Change cleanly: every snapshot is evaluated against the row allowance rather than a missing cap header, 1a/1b stop with a Problem line naming escalationLoop.implModel and no decision/commit/bump, 2a appends the allowed-attempts-1 escalation decision and dispatches with model \"session/main\" while 2b stops with attempts 0, 3a/3b stop on stagnation before any model resolution, and 4a/4b dispatch with no model override and no escalationLoop lookup, with seed explicitly outside the numbered-row predicate. No fact that Before kept was lost; 'stagnation' holds in both because Before also stopped without dispatch or spent escalation, though for the wrong reason (missing cap). The only wording risk in After is the 4b targeting qualification, which correctly notes that a surviving validated seed would select row 2 — keep that, since it preserves the seed's own selection path without extending the row predicate. One minor tightening: the 2a human-facing line could restate 'allowed attempts 1' alongside the explicit model so the recorded allowance and the override appear together in the rendered output, not only in the appended decision.",
+      "wallMs": 20642,
       "verdict": "improved"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "a9a5d96ac8d16bf1257007ddf6924ae6cdaea985"
 }
