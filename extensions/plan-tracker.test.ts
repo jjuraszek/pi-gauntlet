@@ -411,6 +411,15 @@ test("refresh projects ledger states, numeric pending targets and live leg mappi
       text: ledger(["1 | cut | 0 | deferred: #1", "2 | done | 0 | baseline", "3 | done | 1 | check \\| passed", "4 | failed | 1 | check failed", "5 | open | 0 |", "6 | open | 0 |"], "row 3 done | passed | row 4\n## Notes\nrow 2 done | not a decision | none", "pending: 5 | home | abc1234"),
       expected: [["row 1", "skipped"], ["row 2", "skipped"], ["row 3", "complete"], ["row 4", "failed"], ["row 5", "in_progress"], ["row 6", "pending"]],
     },
+    {
+      name: "child-closed extra is complete without a budget prefix while baseline stays skipped",
+      text: ledger([
+        "1 | done | 1 | node --test primary.test.mjs; 1 passed", "2 | open | 0 |",
+        "3 | done | 0 | node --test extra.test.mjs; 1 passed", "4 | done | 0 | baseline",
+      ], "row 1 done | Added parser | lib/parser.mjs supplies the parser\nrow 3 done | Reused parser | extra.test.mjs covers the shared path", "allowance: 4"),
+      expected: [["row 1", "complete"], ["row 3", "complete"], ["row 4", "skipped"], ["row 2", "pending"]],
+      labels: [`1/4: ${descriptions[0]}`, descriptions[2], descriptions[3], `0/4: ${descriptions[1]}`],
+    },
     { name: "retry overrides failed", text: ledger(["1 | failed | 1 | failed"], "", "pending: 1 | home | abc1234"), expected: [["row 1", "in_progress"]] },
     { name: "leading-zero target names its numeric row", text: ledger(["1 | open | 0 |"], "", "pending: 01 | home | abc1234"), expected: [["row 1", "in_progress"]] },
     { name: "done beats stale pending", text: ledger(["1 | done | 1 | passed"], "row 1 done | passed | none", "pending: 1 | home | abc1234"), expected: [["row 1", "complete"]] },
@@ -429,6 +438,7 @@ test("refresh projects ledger states, numeric pending targets and live leg mappi
     assert.equal(result.details.error, undefined, row.name);
     assert.equal(result.details.action, "refresh", row.name);
     assert.deepEqual(result.details.tasks.map(t => [t.name, t.status]), row.expected, row.name);
+    if (row.labels) assert.deepEqual(result.details.tasks.map(t => t.label), row.labels, row.name);
     assert.deepEqual(validateSnapshot(result.details.tasks as any), [], row.name);
     assert.deepEqual((await h.call({ action: "status" })).details.tasks, result.details.tasks, row.name);
     const done = result.details.tasks.filter(t => ["complete", "skipped"].includes(t.status)).length;

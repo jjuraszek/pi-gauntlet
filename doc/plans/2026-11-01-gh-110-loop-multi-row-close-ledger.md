@@ -3,13 +3,13 @@
 base: 407680b9c98894fdcc16aedd0feb6ac2c28b2215
 verification: npm test
 checks: commands
-iterations: 2
+iterations: 3
 allowance: 4
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | node eval/run.mjs loop-implementation multi-row-return; exit 0 improved; all 6 candidate facts hold on both replay models; partial coverage of home return admission |
-| 2 | open | 0 | node -e 'require("node:assert/strict").ok(require("node:fs").readFileSync("skills/loop-implementation/SKILL.md","utf8").includes("set of changed rows equals"),"ordinary admission lacks changed-row and decision set equality")'; exit 1; ordinary admission lacks changed-row and decision set equality |
+| 2 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/plan-tracker.test.ts; 35 passed; 0 failed; zero-attempt child extra is complete without a budget prefix and baseline remains skipped |
 | 3 | done | 0 | node -e '((a,f)=>(a.ok(f.readFileSync("skills/loop-implementation/SKILL.md","utf8").includes("Run the complete set at verify step 1")),a.doesNotMatch(f.readFileSync("skills/loop-implementation/SKILL.md","utf8"),/loop: regress/),a.doesNotMatch(f.readFileSync("skills/loop-implementation/SKILL.md","utf8").split("## Validate the return\n")[1].split("## Human stop\n")[0],/\b[Rr]un\b/),a.ok(f.readFileSync("skills/gauntlet-resume/reference/reconstruction.md","utf8").includes("never rerun the recovered row"))))(require("node:assert/strict"),require("node:fs"))'; exit 0; gate-set timing and read-only return admission hold on baseline |
 | 4 | open | 0 | node -e 'require("node:assert/strict").ok(require("node:fs").readFileSync("agents/loop-implementer.md","utf8").includes("further open rows"),"persona still limits ordinary work to the target")'; exit 1; persona still limits ordinary work to the target |
 | 5 | open | 0 | node -e 'require("node:assert/strict").ok(require("node:fs").readFileSync("agents/loop-implementer.md","utf8").includes("what later rows can build on"),"done decisions still carry retry guidance rather than reusable artifacts")'; exit 1; done decisions still carry retry guidance rather than reusable artifacts |
@@ -24,3 +24,4 @@ allowance: 4
 ## Decisions
 row 0 done | seeded 12 rows, closed 1 on baseline | row 1
 row 1 done | Home admission accepts evidenced same-leg extras and restores rejected changes before refresh. | Do not redo home admission; extend multi-row-return for later validation work.
+row 2 done | Added tracker coverage proving child-closed extras complete without a budget prefix while baseline rows stay skipped. | Do not redo admission; reuse the zero-attempt extra refresh case and leave worker emission to row 4.
