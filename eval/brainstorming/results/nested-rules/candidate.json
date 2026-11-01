@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a3ccb87ff55c91db8e48722f6d0577efc4b433cea6b1acc49b4a638647720295",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
       "baselineOutputSha": "7c84d1fa0b2b10670bccc9493b85b23c9829f4c36d36763c58517b88f8d87951",
       "candidateOutputSha": "7c84d1fa0b2b10670bccc9493b85b23c9829f4c36d36763c58517b88f8d87951",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical here, so nothing moved: both render the scout dispatch table with per-leg worktree cwds, the exact repo-a Rules listing (AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md, pkg-x/doc/parser.md, plus pkg-x/CLAUDE.md and `Rules: missing: outside.md`), the realpath dedupe of the symlinked root CLAUDE.md, the exclusion of untouched pkg-y/AGENTS.md and the unfollowed second-hop.md, and the independent Run 2 emitting `Rules: root only - paths unresolved` with the plan-writer deferral. The accepted-variance note anticipating a prose-only rendering of the walk did not materialize in this pair; if that drift appears on other model cells, pinning it would mean adding wording to the nested-rules slice that requires the per-leg `### Leg:` block with one `Rules:` line per file as a fenced listing, not as prose — that is untouched by the amendment-surface section 5 edit and can be done without disturbing the three facts kept here.",
-      "wallMs": 11231,
+      "feedback": "The Before and After outputs are byte-identical, so nothing moved on this sample: both run scouts in their `Worktree ready at` worktrees with absolute `GATHER_DIR` outputs, both render the exact repo-a listing (root AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md, pkg-x/doc/parser.md) with repo-b kept to its own `### Leg: repo-b` block, both dedupe the symlinked CLAUDE.md by realpath, exclude pkg-y/AGENTS.md and second-hop.md, record `Rules: missing: outside.md` without inventing contents, and both emit `Rules: root only - paths unresolved` in the independent run while deferring the task path walk to the plan-writer. The accepted-variance note for nested-rules/walk (prose instead of the exact listing) does not appear in this After text; if that regression shows up on another replay, the wording to pin would be an explicit instruction that the scout's Rules lines are rendered as a fenced code block with one `Rules:` line per file, never summarized in prose, placed in the nested-rules/gather slice rather than in amendment-surface section 5 which this change actually edited.",
+      "wallMs": 10874,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a3ccb87ff55c91db8e48722f6d0577efc4b433cea6b1acc49b4a638647720295",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
       "baselineOutputSha": "ca08e5147b1739768982d0c4b4100c67183686b7ee00b54d4a8c0e667bf1ae1a",
       "candidateOutputSha": "ca08e5147b1739768982d0c4b4100c67183686b7ee00b54d4a8c0e667bf1ae1a",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "The Before and After outputs for this case are textually identical, so nothing moved: both show each scout under its own worktree cwd (/work/repo-a, /work/repo-b) with explicit `Rules:` listing lines covering root AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md and pkg-x/doc/parser.md, keep repo-b's rules separate, state that root CLAUDE.md resolves to AGENTS.md and is counted once, exclude pkg-y/AGENTS.md and second-hop.md, record outside.md as missing without reconstructing it, and emit `Rules: root only - paths unresolved` on the independent run while deferring directory-specific walks to the plan-writer. The accepted variance noted for nested-rules/walk (prose instead of exact listing) does not appear in this After text; if the author wants to guard against it in other runs, a sentence in the nested-rules slice requiring the scout to render the cwd and every `Rules:` entry as literal listing lines in a code block would pin the format without touching the amendment-surface section 5 change.",
-      "wallMs": 10701,
+      "feedback": "The Before and After outputs are byte-identical, so no fact moved: both show per-repo scout cwds with the exact repo-a Rules listing (root AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md, pkg-x/doc/parser.md) and a separate repo-b listing, both state that root CLAUDE.md resolves to AGENTS.md and is counted once while excluding pkg-y/AGENTS.md and second-hop.md and recording outside.md as missing without reconstruction, and both independent runs emit `Rules: root only - paths unresolved` with root rules retained and the directory walk deferred to the plan-writer. The accepted-variance note for nested-rules/walk (prose instead of exact listing) is not exhibited in this After text; if that regression appears in other runs, pinning a sentence such as 'render each scout's Rules lines verbatim in a code block, one path per line, after its cwd line' in the nested-rules slice would guard the listing shape without affecting the amendment-surface section 5 change.",
+      "wallMs": 11129,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
 }

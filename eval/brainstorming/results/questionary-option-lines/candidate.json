@@ -1,7 +1,7 @@
 {
   "sample": "questionary-option-lines",
   "arm": "candidate",
-  "skillSha": "61c24d3978e92a149736f103b680b4e3365677e129aa28e3ef18b24cd7fa8085",
+  "skillSha": "a9afe7116aa2b82a17a9c1bba508ded2d78be343f272b2b2a8f78a0114fd2a0c",
   "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nWhen the user switches workspace in the report view, which behavior should the new policy apply? The resolver at settings/resolver.ts:12 would own it, and ui/report-view.ts:30 would consume it.\nA) clear all filters on every switch, so each workspace opens unfiltered\nB) preserve all active filters across switches, so the current filters carry into the next workspace\nC) restore each workspace's last filters, so every workspace reopens as the user left it\nRecommendation: B - the workspace-change handler already keeps active filters, so B needs no new per-workspace filter storage and existing users see no change; C would add that storage.\n",
-      "words": 101,
-      "wallMs": 8498,
+      "text": "gauntlet: question\nWhich behavior should the workspace-switch filter policy select when the user changes workspaces in the report view?\nA) clear all filters - every switch resets the view to unfiltered\nB) preserve all active filters - the current filters carry over to the new workspace\nC) restore each workspace's last filters - each workspace remembers and reapplies its own filters\nRecommendation: B - the workspace-change handler in ui/report-view.ts already retains active filters, so B keeps current behavior and needs no new per-workspace filter storage behind settings/resolver.ts:12.\n",
+      "words": 83,
+      "wallMs": 7355,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nHow should active filters behave when you switch workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves the view’s current behavior and avoids unexpected filter resets.\n",
-      "words": 45,
-      "wallMs": 6343,
+      "text": "gauntlet: question\nWhich filter policy should the report view use when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves the view’s current behavior and avoids silently changing active filters.\n",
+      "words": 48,
+      "wallMs": 6053,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
-      "baselineOutputSha": "f999fdda2761b0d5fd1700c5b57cf87651756e7bfb854c5a4dd997c1fdfaffa9",
-      "candidateOutputSha": "5cf95cc15073f50f824f9f101c95e4a86428bed900fb3a976967ff35c132fd65",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
+      "baselineOutputSha": "5cf95cc15073f50f824f9f101c95e4a86428bed900fb3a976967ff35c132fd65",
+      "candidateOutputSha": "980785f4382d3d1cde2009c66cbab4749c6a858712d718771d7bb189c830cec3",
       "facts": {
         "layout": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep the layout: lead-in first, each labeled option on its own physical line, Recommendation: alone on the final line, and both ask one question with the three supplied choices and a reasoned B recommendation without moving to approaches. After adds a second lead-in sentence citing resolver.ts:12 and report-view.ts:30 and appends a one-clause gloss to each option; these are harmless for the facts but note that option A has drifted from the user's wording ('clear all filters on every workspace switch' became 'clear all filters on every switch, so...'). To stay safely within the content fact under a stricter reader, keep each supplied choice verbatim as the option text and put any gloss after a dash or in the lead-in rather than rewording the choice itself.",
-      "wallMs": 11101,
+      "feedback": "Nothing moved on this case: both outputs put the lead-in first, render A/B/C each on its own physical line, and end with Recommendation: on its own final line, and both preserve the three supplied choices (clear/preserve/restore) and recommend B with a concrete reason tied to the workspace-change handler rather than deciding or jumping to approaches. After's option wording paraphrases the choices slightly more (\"clear all filters - every switch resets the view\") but a careful reader still recognizes all three supplied options verbatim in substance; if you want zero risk on the content fact under future tightening, keep the supplied choice phrases exactly (e.g. \"clear all filters on every workspace switch\") before the dash and put the gloss after it, as Before did.",
+      "wallMs": 7003,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
-      "baselineOutputSha": "058df42a7cbdada33a993ffd20e029e1731e315997e4affa381c6ba9faf4054e",
-      "candidateOutputSha": "09705eb892d9c9fa09d83f428ef14999dc46279b6a65cbd4e1685f4d1d58116f",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
+      "baselineOutputSha": "09705eb892d9c9fa09d83f428ef14999dc46279b6a65cbd4e1685f4d1d58116f",
+      "candidateOutputSha": "096dca9232e5d9c61b818edc2d1951a41617e539d1a1877d1edfc95314811387",
       "facts": {
         "layout": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy both facts: each opens with a lead-in question before the first labeled option, places A/B/C each on its own physical line, and ends with Recommendation: on its own final line; each preserves all three supplied choices and recommends B with a reason without deciding for the user or drifting into approaches. After's only movements are cosmetic - a slightly reworded lead-in, dropping 'workspace' from B's text (still clearly the supplied choice), and a different second reason clause - none of which move a fact. No wording change is needed to keep these facts; if anything, keeping option B's text verbatim ('across workspace switches') is the safer habit for the content fact.",
-      "wallMs": 6742,
+      "feedback": "Both outputs satisfy both facts: each puts the lead-in question before the first labeled option, places A/B/C on separate physical lines with their option text, ends with a Recommendation: line, preserves all three supplied choices verbatim, and recommends B with a reason without deciding for the user or moving to approaches. After only rewords the lead-in (naming the report view and the filter policy) and the recommendation's reason clause; neither change moved a fact. Nothing in the After wording needs adjusting for this case - keep the one-option-per-line structure and the own-line Recommendation as rendered.",
+      "wallMs": 4813,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
 }

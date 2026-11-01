@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "candidate",
-  "skillSha": "61c24d3978e92a149736f103b680b4e3365677e129aa28e3ef18b24cd7fa8085",
+  "skillSha": "a9afe7116aa2b82a17a9c1bba508ded2d78be343f272b2b2a8f78a0114fd2a0c",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nThe repaired acme/widgets#77 now has one criterion: \"The report-view setting uses the shared settings resolver.\" I re-extracted it, and it stays `in-scope`. It matches the traced path from `settings/resolver.ts:12`, which owns defaults, into `ui/report-view.ts:30`, which consumes the resolved settings. No disposition change is needed, and the kept framing stands.\n\nOne behavior is still undecided: what the setting does to active report filters when the user switches workspaces. Today the filters carry over and can hide rows in the new workspace. Which outcome should the setting produce by default?\nA) reset by default - switching workspaces clears report filters, and users can opt in to keep them\nB) keep by default - current behavior stays the default, and users can opt in to resetting filters on a switch\nC) per-workspace memory - each workspace restores its own last filters, so one workspace's filters never apply to another\nD) other - name it\nRecommendation: A - it fixes the reported hidden-rows problem without the user doing anything. It also needs only a resolver default plus one consumer check in the report view, with no new filter storage.\n",
-      "words": 182,
-      "wallMs": 11496,
+      "text": "gauntlet: question\nThe repaired acme/widgets#77 criterion now requires the shared settings resolver. I'm treating that row as `in-scope`, with ownership through `settings/resolver.ts:12` and consumption in `ui/report-view.ts:30`, and I've recorded this in the draft.\n\nOne behavior is still undecided: what should happen to active report filters when the user switches workspaces?\n\nA) Always clear filters on a workspace change. The new setting only controls something else, and stale filters can never hide rows.\nB) Add a resolver-backed setting that clears filters on a workspace change by default. Users can turn it off to carry filters across workspaces.\nC) Remember filters per workspace. Switching restores that workspace's last filters, or none for a workspace not seen before, so filters never carry across.\nD) other - name it\n\nRecommendation: B - the resolver already owns defaults, so a default-on reset fixes the hidden-rows bug through the existing settings path and keeps carry-over available to users who rely on it.\n",
+      "words": 154,
+      "wallMs": 10186,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nThe saved repair to acme/widgets#77 is verified: its acceptance criterion now requires the shared settings resolver, so that requirement stays in scope. The framing remains kept. What should happen to active report filters when switching workspaces?\nA) Clear the filters on every workspace switch.\nB) Restore each workspace’s previous filters, using no filters for a workspace without saved filters.\nC) Make clearing filters on workspace switch configurable through the shared resolver.\nD) other - name it.\nRecommendation: C - it addresses hidden rows while delivering the requested report-view setting through the existing settings path.\n",
-      "words": 94,
-      "wallMs": 8499,
+      "text": "gauntlet: question\nThe saved repair to acme/widgets#77 now requires the shared settings resolver. I’ll keep defaults in `settings/resolver.ts:12` and consumption through `ui/report-view.ts:30`, consistent with the verified data path and your decision to keep the framing.\n\nWhat should the new setting’s default behavior be when switching workspaces?\nA) Reset report filters by default, with an option to preserve them.\nB) Preserve report filters by default, with an option to reset them.\nC) Other - name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while allowing users to retain the current behavior.\n",
+      "words": 97,
+      "wallMs": 15815,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
-      "baselineOutputSha": "4d03c41c7389f07a405a1ba61333c0fefff7a1b5c215ad9f692f4a6bde013de5",
-      "candidateOutputSha": "ab2a8ee88d5bb7beabbef9b6623073b5541f27034d777531e49dbd289df262cc",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
+      "baselineOutputSha": "ab2a8ee88d5bb7beabbef9b6623073b5541f27034d777531e49dbd289df262cc",
+      "candidateOutputSha": "de0ef0b8e3edb140d46e799b891c230ba586838cc64f8dcb23a0a41f05a37334",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs take the repaired shared-resolver criterion as the live acceptance row, treat it as in-scope against the already-traced resolver-to-view path, do not re-ask for repair approval, and then resume the undecided workspace-change reset question with lettered options and an own-line Recommendation instead of stopping at a ticket-update report or jumping to design approaches. After's only new claim, \"I re-extracted it,\" is backed by the completed observation that the ticket was re-fetched and the AC block re-extracted, so it is not an unfetched result; to keep f1 robust under future wording changes, prefer phrasing that attributes the re-extraction to the recorded observation (e.g. \"the re-fetched ticket now carries one criterion\") rather than a first-person action verb, so a reader never has to check whether the step actually ran. After's option set (reset/keep/per-workspace memory) and the costed recommendation deliver the Change without losing anything Before kept.",
-      "wallMs": 11215,
+      "feedback": "Both outputs keep f1 and f2: each uses the repaired shared-resolver criterion without asking for repair approval again, neither invents a fetch, and each resumes the undecided workspace-switch filter question with lettered options and a Recommendation line instead of stopping at a ticket-update report. Two drifts in After are worth tightening even though they did not move a fact. First, After says \"I've recorded this in the draft\" - no observation shows a draft write, so this is an unevidenced action claim; Before's wording (\"I re-extracted it, and it stays in-scope\") stays on the completed re-fetch/re-extract observation and is safer - keep that phrasing or say \"the re-extracted row is in-scope\". Second, After's options blur the reset decision with implementation choices (A makes the new setting \"control something else\", B restates adding a resolver-backed setting), edging toward presenting approaches before the reset decision is made; Before frames every option purely as the behavior outcome (reset by default / keep by default / per-workspace memory) and leaves the resolver path to the recommendation rationale, which is the shape to keep while delivering the Change.",
+      "wallMs": 19319,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "03cabecacd34fe8275404e17d7d8a95d3240310783e395ce7006766ba3b7d2af",
-      "baselineOutputSha": "7e4e13fa4b3a97603c784f9c303df9513198ccad83b787e0d687d74d33731895",
-      "candidateOutputSha": "63c581bf071eb63c90ef5fd7a60fbdfa3774e0f859e0ff1422cc500c1b5cfe36",
+      "intentSha": "8918cde230a0fb4b5356b31e85f64c6fa481fac7a1fc80feddd1d1d151475dd4",
+      "baselineOutputSha": "63c581bf071eb63c90ef5fd7a60fbdfa3774e0f859e0ff1422cc500c1b5cfe36",
+      "candidateOutputSha": "73dec7e1c13513ceedccc43349ecad92cefc6744bae63b8b050df3226bb6673e",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs keep every fact: each uses the verified shared-resolver criterion without re-asking for repair approval or inventing a fetch, and each resumes the open reset-behavior question as a labeled A-D questionary with an own-line recommendation instead of stopping at a ticket-update report. After's wording is tighter on f1 (\"is verified\" names the saved-body check explicitly) and adds \"The framing remains kept,\" which matches the recorded state. The one place After drifts toward risk is option C and its recommendation: \"Make clearing filters configurable through the shared resolver\" is an implementation shape rather than a reset-behavior choice, so a stricter reader could see it as sliding an approach into the behavior question before the reset decision is made. To keep f2 unambiguous while still delivering the Change, keep options A-C as pure behaviors (clear / preserve / restore per-workspace) and move the \"delivered as a setting through the shared resolver\" note into the lead-in or the recommendation rationale, as Before did.",
-      "wallMs": 16631,
+      "feedback": "Neither fact moved on this case. Both outputs treat the saved repair as verified and in force (no re-approval request, no invented fetch result), and both resume the open reset-behavior question with labeled options and a Recommendation line rather than stopping at a ticket-update report, without slipping into design approaches. The one difference worth noting: After narrows the question to the default of an assumed configurable setting (A/B are both toggle variants), whereas Before let the human pick between clear/restore/configurable as distinct behaviors; this presupposes the 'configurable' choice that Before offered as an option. If the Change wants the carried data path restated (resolver.ts:12 → report-view.ts:30), keep that sentence but phrase the question as Before did — 'What should happen to active report filters when switching workspaces?' — with the configurable route as one option, so the reset decision is genuinely still open rather than pre-decided by the question stem.",
+      "wallMs": 13155,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "d7c0e86c9d7f23e6b41f032576ba7acd9ebdf1e8"
 }
