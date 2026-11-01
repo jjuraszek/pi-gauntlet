@@ -3,7 +3,7 @@
 base: c0d120bfe50a26056af5cfca0e4855de9278b2f4
 verification: npm test
 checks: commands
-iterations: 9
+iterations: 10
 allowance: 4
 
 | row | status | attempts | evidence |
@@ -15,7 +15,7 @@ allowance: 4
 | 5 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 5; PASS model, origin and failure routing; PASS protected blocks byte-identical; PASS row 5 text assertions |
 | 6 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 6; PASS shared-budget re-audit on pi and inline paths; PASS protected blocks byte-identical; PASS row 6 text assertions |
 | 7 | done | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 7; PASS exhaustive budget report before ledger teardown; PASS protected blocks byte-identical; PASS row 7 text assertions |
-| 8 | failed | 1 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 8; PASS protected blocks and README/configuration/CHANGELOG commitments; PASS source allowlist after standard finish strips transient ledger; FAIL AC8 excludes .pi/gauntlet/telemetry/doc/specs/2026-11-01-chase-bug-loop-hotfix.yaml but standard finish must seal and ship this existing record |
+| 8 | done | 2 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 8; PASS protected blocks and README/configuration/CHANGELOG commitments; PASS amended source and telemetry allowlist with transient ledger excluded at finish; PASS active ledger retained and shared machinery unchanged |
 | 9 | open | 0 | python3 /tmp/chase-bug-seed.yi7eP9/assert-row.py 9; PASS scoped instruction-size and gh-36 binding assertions; AC9 requires npm test but loop workers forbid full verification; Full-suite result unproven and row remains open |
 
 ## Decisions
@@ -29,3 +29,4 @@ row 5 done | Made conformance mandatory with resolved model injection, inline pr
 row 6 done | Confirmed the pi re-audit path and gave inline hotfix repairs the same budget, gate rerun, and fresh audit. | Keep both re-audit paths and protected blocks; add the budget-exhausted ledger report next.
 row 7 done | Added verbatim attempts and all ledger decisions to budget-exhausted reports before teardown on both harness paths. | Keep the report and protected blocks unchanged; address the shipped-file scope next.
 row 8 failed | Updated README, configuration and changelog; AC8 excludes the telemetry record that standard finish must ship. | Resolve the telemetry allowlist contradiction before retrying; the active ledger is transient and must not be stripped now.
+row 8 done | Updated the scratch scope assertion for amended AC8 and confirmed docs, protected blocks, and the telemetry allowlist pass. | Keep the active ledger until standard finish strips it; preserve the telemetry allowance and shared machinery.
