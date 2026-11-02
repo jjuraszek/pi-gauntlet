@@ -1,6 +1,8 @@
-for: 972e44c5cdc459d2e08a17125728a8481e47a358bf9f7935c934f597c973df7b
+for: 8deeb5a436bd67469478373f0ca84b792b52aa181d418488fe486eb24e714fab
 
 ## Change
+
+Keep early escalated recovery within the remaining allowance: boundary rejection restores the pre-dispatch attempts, while an admitted miss consumes exactly one attempt and returns to ordered checks. Add allowance-10-escalate-after for attempts 1-10, held settings, both recovery paths and spent identity after grants/resume; update spent-row-escalation's unspent expectation to immediate threshold escalation. Run only these two samples here. These partial text replays cover narrated routing and recovery, not live model dispatch.
 
 Capture escalateAfter once at Entry or fresh-session restore and escalate the first unspent dispatch at or above min(escalateAfter, effective allowance - 1). Keep the allowance authoritative on restore and share the threshold read with legacy migration. Extend last-attempt-model-boundary for clamping and past-threshold catch-up; run only it, escalated-row-attempt and legacy-cap here. These partial text replays cover narrated threshold dispatch and restore, not live model routing or the remaining history and post-escalation samples.
 
@@ -56,6 +58,10 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- allowance-10-escalate-after/sequence: fails -> holds - Escalate attempt4 once and run attempts5-10 on the worker before exhaustion.
+- allowance-10-escalate-after/held: fails -> holds - Retain the captured threshold through an in-session settings edit.
+- allowance-10-escalate-after/rejection: fails -> holds - Recover a rejected early escalation without consuming attempts or new budget.
+- allowance-10-escalate-after/admitted-miss: fails -> holds - Consume one attempt and continue on the worker below allowance, stopping only at the boundary.
 - last-attempt-model-boundary/threshold: fails -> holds - Clamp the held setting and escalate past-threshold unspent rows without a settings refresh.
 - seed-selection/partial: fails -> holds - Continue ordinary work after a validated partial seed without filling unreached evidence cells first.
 - partial-seed/partial: fails -> holds - Admit a single evidenced home row while leaving unreached rows empty.
@@ -133,7 +139,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - spent-row-escalation/resume: fails -> holds - Recover durable spent identity on resume and treat unrecoverable identity as spent.
 - spent-row-escalation/rejection: fails -> holds - Boundary rejection preserves attempts and escalation; authorized recovery permits default-model redispatch without new budget.
 - spent-row-escalation/admitted-miss: fails -> holds - An admitted miss consumes the last attempt and stops rather than receiving a free redispatch.
-- spent-row-escalation/unspent: fails -> holds - A missing-model stop or migrated row with no marker retains its ordinary last-attempt predicate after a grant.
+- spent-row-escalation/unspent: fails -> holds - A raised allowance does not postpone an unspent threshold dispatch; its following attempt uses the worker.
 - effective-allowance/arithmetic: fails -> holds - Count retries rather than historical ceilings or other budgets.
 - effective-allowance/header-raise: fails -> holds - The shared header increase raises every row, including retried rows.
 - effective-allowance/coordinated: fails -> holds - Leg ownership never changes row arithmetic.

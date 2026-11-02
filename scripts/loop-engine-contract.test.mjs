@@ -139,11 +139,14 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
   const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
   for (const token of [
     'Preserve the pre-dispatch escalation decision through authorized discard/reset',
-    'Boundary rejection never increments attempts', 'attempts at effective allowance - 1',
-    'after authorized recovery dispatch on the default model without requiring retry or `rows +N`',
-    'An admitted validation miss instead increments attempts through `loop: repair row <n>`',
-    'stops under rule 2, retaining the spent decision',
+    'Boundary rejection never increments attempts', 'leaves attempts at the pre-dispatch count',
+    'after authorized recovery dispatch on the worker model without requiring retry or `rows +N`',
+    'An admitted validation miss instead increments attempts by exactly one through `loop: repair row <n>`',
+    'retains the spent decision and returns to the ordered table',
+    'at its effective allowance stops under rule 2',
+    'below it gets its next attempt on the worker model',
   ]) assert.ok(stop.includes(token), token);
+  assert.doesNotMatch(stop, /attempts at effective allowance - 1|to the effective allowance and stops under rule 2/);
 });
 
 test('automatic exit verification repair is once per flow under both options', () => {
