@@ -1,5 +1,7 @@
 # Loop engine: one per-row allowance, hands-free escalation, visible budget
 
+> **Superseded by:** [doc/specs/2026-11-02-gh-119-escalate-after-row-history.md](./2026-11-02-gh-119-escalate-after-row-history.md) - Design "Escalation, hands free" first bullet (the `attempts == effective allowance - 1` predicate), the "apply the normal last-attempt predicate after retry or `rows +N`" clause, and the two Errors rows tying escalated-attempt recovery to the last attempt; everything else stays live
+
 **Goal:** Replace the loop engine's four interacting budgets (total `cap:`, hardcoded `3 + funded N` row allowance, retry-raised allowance, grant-gated escalated round) with one number - `allowance:` in the ledger header, seeded from `loopEngine.maxIterationsPerRow` or a per-run `; allowance N` reply suffix - so that a row's budget is header allowance plus one per retry, the last allowed attempt escalates automatically under option 4 and 5 alike, the approval menu shows the value, and the task tracker renders a mandatory human-readable ledger-step description with its attempts, for example `2/5: Verify loop behavior and recovery`, never a bare row number as the description.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop

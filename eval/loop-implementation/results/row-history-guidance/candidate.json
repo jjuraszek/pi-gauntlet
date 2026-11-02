@@ -1,0 +1,130 @@
+{
+  "sample": "row-history-guidance",
+  "arm": "candidate",
+  "skillSha": "803f3a989fff0244bcb04dfd6634aa13f3a7cf633524a8e9406886592498fe84",
+  "inputSha": "c0ecebc65b0bcb143ba76e4f5c0c01bf6198913f56baf17ea0cc4f357c02f4ba",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Snapshot 1: Driver trace (main session, home-only)\n\nNone of the calls below have run. They are the operations the skill prescribes at this point.\n\n## Before each dispatch\n\n**Membership.** `Amend-grant: none` with a single home leg is not more than one leg. So I skip `reference/coordinated-legs.md` and use the home path.\n\n**Ledger read.** I read `/repo/doc/plans/records-ledger.md` and check its headers:\n- `checks: commands` is present.\n- `allowance: 4` is present.\n- There is no `cap:` line.\n\nNo configuration stop applies.\n\n**Effective allowance.** This is the header allowance plus the number of that row's `retry` lines:\n- **Row 2:** 4 + 1 retry = **5**. Attempts are 2, so it is not exhausted. The stored `allowed attempts 5` text is historical and not used in the arithmetic.\n- **Row 3:** 4 + 0 = **4**. Attempts are 1, so it is not exhausted.\n\n**Ordered table.**\n\n| Rule | Check | Result |\n|---|---|---|\n| 1 | Any open or failed row? | Yes: rows 2 and 3, so the loop does not exit. |\n| 2 | Any unresolved row at its effective allowance? | No (2 of 5, 1 of 4). |\n| 3 | Stagnation? | No. The failed commits changed parser or audit code, and there are not two consecutive validation misses. |\n| 4 | Dispatch allowed? | Yes. |\n\n**Target selection.**\n1. A validated `loop: seed evidence` commit with `row 0 done` survives, so seed is not the target.\n2. No human retry target is held. The `row 2 retry` line was spent by the attempt that followed it.\n3. The previous admitted decision names row 2, and row 2 is still `failed`. **The target is row 2.**\n\n**Escalation.** A durable `row 2 escalated | implModel round | allowed attempts 5` decision exists, so row 2's escalation is spent:\n- I compute no threshold for it. The earlier session's captured threshold of 1 and the held `escalateAfter` of 3 are both irrelevant.\n- I do not call `gauntlet_setting({ key: \"escalationLoop\" })`.\n- I write no second marker and no `loop: escalate` commit.\n- The dispatch omits the `model` override, so the persona override or parent inheritance resolves the model.\n\n## Dispatch: durable writes (no commit)\n\n1. Record `HEAD_BEFORE = def5678`.\n2. Save a copy of the current ledger, taken before the bump, for later validation.\n3. Hold `i = 5`.\n4. Edit the ledger header:\n   - `iterations: 5` becomes `iterations: 6`.\n   - Add `pending: 2 | home | def5678`.\n5. Separately record the dispatch identity `(2, home, def5678)`.\n6. Refresh the tracker:\n   ```\n   plan_tracker({ action: \"refresh\", path: \"/repo/doc/plans/records-ledger.md\" })\n   ```\n7. Create the output path outside the repo:\n   ```\n   mktemp\n   ```\n   This gives an absolute path such as `/tmp/tmp.XXXX`.\n\n## Dispatch: the call\n\n```text\nsubagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n  cwd: \"/repo\", output: \"<mktemp absolute path>\",\n  outputMode: \"file-only\",\n  acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n  task: \"iteration: 5\\nspec: /repo/doc/specs/records.md\\nledger: /repo/doc/plans/records-ledger.md\\nbase: abc1234\\ntarget: 2\\nprevious decision: row 2 failed | Raw-token mapping left escape sequences in names. | Try decoding complete JSON records before selecting the name field.\\nhint: none\\nRules: AGENTS.md\" })\n```\n\n- The call is foreground, has no `model:` key and runs in `/repo` itself, not a nested worktree.\n- There are no `Leg:` or companion `pending:` input lines, because this is home-only.\n\n## Human-facing output at dispatch\n\n```\ndispatching row 2 (iteration 5; escalated round spent - worker model)\n```\n\nThe task's `iteration: 5` is the count before the bump, by design. At admission the commit body must carry the consumed count, `iteration: 6`, read from the bumped header. The two values are never compared to each other.\n\nThe driver trace stops here. It covers no admission and no diagnosis of the parser failure.\n\n---\n\n# Snapshot 2: Child trace (fresh loop-implementer, separate role)\n\nThis trace is evaluation output only. The driver never receives it; it will see only the return file, the ledger and the commit.\n\n## Reads\n\n1. Read the task fields: iteration 5, the spec path, the ledger path, base `abc1234`, target 2, the previous decision, `hint: none` and `Rules: AGENTS.md`.\n2. Read `/repo/AGENTS.md` (the Rules file).\n3. Read `/repo/doc/specs/records.md` in full before the ledger or any code.\n   - The spec requires JSON arrays of record objects mapped to decoded `name` fields.\n   - Decoding must handle commas, escaped quotes and escaped backslashes.\n4. Read the ledger, then save the exact tuple `pending: 2 | home | def5678` and the bumped count `iterations: 6`. The future commit body uses `iteration: 6`, not the task's 5.\n\n## Approach selection from row 2's history (oldest first)\n\n| Line | What I take from it |\n|---|---|\n| `row 2 failed`: approach X | Approach X, regex comma splitting, broke quoted names. The third slot says do not retry it, so it is ruled out. |\n| `row 2 retry` | The hint says to preserve the escaped-quote case while replacing the parsing. |\n| `row 2 escalated` | Historical only. It shows escalation is spent; it says nothing about which model runs now. |\n| `row 2 failed`: raw-token mapping | Raw-token mapping left escape sequences in names. Next, try decoding complete JSON records before selecting `name`. This line is also the `previous decision`. |\n\nThe `row 3` lines (the UTF-8 to UTF-16 audit advice) are excluded from this target's guidance, and I will not touch the audit code.\n\n**Teammate's suggestions.**\n- **Retry approach X:** rejected. The persona says never to repeat an approach that a prior line of this row rules out. The latest line not mentioning X does not lift that ban, and splitting on commas would also break names that contain commas.\n- **The escalation marker shows the current model:** rejected. The persona says to treat the marker as historical evidence that escalation is spent and never to infer the current attempt's model from it.\n\n**Chosen approach.** Replace the raw-token extraction:\n1. Parse the complete input with a real JSON decode (`JSON.parse`) into the array of record objects.\n2. Map each record to its decoded `name` field.\n3. Leave string escapes to the JSON decoder, so commas, `\\\"` and `\\\\` come out decoded.\n\nThis follows the latest guidance and the retry hint, and it repeats neither ruled-out approach.\n\n## Code reads before editing\n\n1. `git diff --stat abc1234`\n2. `git diff abc1234 -- <parser source> test/records.test.mjs`, limited to the files row 2 touches.\n3. Read the current parser code and the existing node:test parameter table.\n\n## First selective check (Three-scenario TDD: modifying tested behavior)\n\n1. **Extend the existing test.** Add an escaped-backslash parameter row to the existing table in `test/records.test.mjs`, for example a record whose JSON name contains `\\\\` and whose expected decoded name contains a single backslash. Keep the comma row and the failing escaped-quote row. Do not write a new test file.\n2. **Run it red** before changing the parser:\n   ```\n   node --test test/records.test.mjs\n   ```\n   - I record the file rather than using `--test-name-pattern`, because a Node name filter that matches nothing exits 0.\n   - I do not run `npm test` or the full suite.\n   - No result is claimed here.\n\nThe trace ends at the chosen approach and this first selective check.\n",
+      "words": 1099,
+      "wallMs": 44986,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## 1. Main-session driver — next dispatch only\n\nThese are prescribed operations, not executed calls.\n\n### Target and model\n\n- **Target: row 2.** The latest admitted return targeted this still-failed row; no human retry target overrides it.\n- Row 2’s effective allowance is **5**: header allowance 4 plus one durable retry decision. Its attempts remain **2**.\n- Row 3’s effective allowance is 4; its attempts remain 1.\n- Neither exhaustion nor either stagnation boundary stops dispatch.\n- Row 2’s durable `escalated` marker means its one escalated round is **already spent**, irrespective of the threshold used in the earlier session.\n- **Do not resolve `escalationLoop`, append another escalation marker, or supply a model override.** Persona override or parent inheritance determines this attempt’s model.\n\nThe driver does not read the spec, source, tests, or logs, and does not diagnose the parser failure.\n\n### Prescribed calls and durable writes\n\n1. Read `/repo/doc/plans/records-ledger.md`, requiring `checks: commands`, `allowance: 4`, and no `cap:` header.\n2. Confirm the git boundary with:\n   ```sh\n   git -C \"/repo\" status --porcelain\n   git -C \"/repo\" rev-parse HEAD\n   ```\n   The supplied snapshot says these would establish a clean tree and `def5678`; this response does not claim to execute them.\n3. Save the pre-dispatch ledger for validation/recovery and record separately:\n   ```text\n   HEAD_BEFORE: def5678\n   dispatch target: 2\n   dispatch repo: home\n   dispatch HEAD: def5678\n   pre-bump iteration: 5\n   consumed iteration: 6\n   ```\n4. Change only the dispatch headers in the working ledger:\n   ```text\n   iterations: 6\n   allowance: 4\n   pending: 2 | home | def5678\n   ```\n   Preserve every row, evidence cell, and existing decision. **Do not commit this preparation.**\n5. Call:\n   ```text\n   plan_tracker({\n     action: \"refresh\",\n     path: \"/repo/doc/plans/records-ledger.md\"\n   })\n   ```\n6. Obtain a unique absolute return-file path outside the repository:\n   ```sh\n   (cd \"/repo\" && mktemp)\n   ```\n   Use the returned path as `RETURN_PATH` below; it is not a literal filename.\n\n### Human-facing dispatch output\n\n> Dispatching row 2: 2 of 5 attempts used; escalated round spent. Task iteration: 5 by design; consumed ledger iteration: 6. The child commit body must carry iteration: 6, not the task’s pre-bump count. No model override.\n\nThis is a dispatch notice, not a human stop.\n\n### Exact dispatch shape\n\n```text\nsubagent({\n  agent: \"loop-implementer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/repo\",\n  output: RETURN_PATH,\n  outputMode: \"file-only\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent validates the ledger and the commit\"\n  },\n  task: \"iteration: 5\\nspec: /repo/doc/specs/records.md\\nledger: /repo/doc/plans/records-ledger.md\\nbase: abc1234\\ntarget: 2\\nprevious decision: row 2 failed | Raw-token mapping left escape sequences in names. | Try decoding complete JSON records before selecting the name field.\\nhint: none\\nRules: AGENTS.md\"\n})\n```\n\nThere is **no `model` field** and no appended decision history in the task. The driver trace ends at this prescribed foreground dispatch—no return reading or admission occurs here.\n\n## 2. Fresh child — reads and approach selection only\n\nThis is separate child-side evaluation output, **not** a transcript or payload the driver receives. No operations or test results are claimed.\n\n### Prescribed reads\n\n1. Read `/repo/doc/specs/records.md` **in full before the ledger or code**.\n2. Read `/repo/doc/plans/records-ledger.md`. Save the exact:\n   ```text\n   pending: 2 | home | def5678\n   iterations: 6\n   ```\n   The task’s `iteration: 5` is not the eventual commit-body count.\n3. Read the supplied Rules file, `/repo/AGENTS.md`, before acting.\n4. Read every row-2 decision, oldest first, including its retry and escalation entries:\n   - Approach X—regex comma splitting—is explicitly ruled out.\n   - The retry requires preserving escaped-quote coverage while replacing parsing.\n   - The escalation marker records a spent round.\n   - The latest failed decision directs decoding complete JSON records before selecting `name`.\n\n   Row 3’s UTF-16 guidance concerns another target and does **not** guide row 2.\n5. Inspect the base-relative scope:\n   ```sh\n   git -C \"/repo\" diff --stat abc1234\n   ```\n   Read the relevant parser and `test/records.test.mjs`; inspect full diff hunks only for those row-related files:\n   ```sh\n   git -C \"/repo\" diff abc1234 -- <actual-row-2-parser-path> test/records.test.mjs\n   ```\n   Discover the actual parser path rather than inventing one.\n\n### Response to the teammate’s suggestions\n\n- **Do not retry approach X.** The persona requires reading the target’s entire ordered decision history, not merely its latest line. The later failure does not erase the earlier prohibition.\n- **Do not infer the current model from the escalation marker.** The persona explicitly treats that marker as historical evidence that escalation is spent, not evidence of this attempt’s model.\n\nThese conclusions follow from the bundled persona; they require no extra driver instruction.\n\n### Chosen approach and first selective check\n\nChoose complete JSON decoding of the input array, followed by selecting each decoded record’s `name` field, rather than regex splitting or raw-token extraction.\n\nBefore changing production code:\n\n- Extend the existing `node:test` parameter table with an escaped-backslash case and its expected decoded name.\n- Preserve the existing comma and escaped-quote cases and strengthen assertions if needed.\n- Reuse the existing test rather than starting it over.\n\nThe first selective RED check would be:\n\n```sh\n(cd \"/repo\" && node --test test/records.test.mjs)\n```\n\nUse the test file, not a Node name filter that can succeed with zero selected tests. No result, ledger update, commit, or child return is asserted here.\n",
+      "words": 778,
+      "wallMs": 35438,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d7b152113b4b09de62c826191cb39cb9e34332effa1b17812b1a12473147647b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0e3b6ea04ab7026d80dfd1c61e8f1e861ac717bfeb7c90b6a1faf9c54a1a64e6",
+      "baselineOutputSha": "9dbdd032edcd716ebd55c222fc979f707ed2f1411633639c9e96a2fe22c2f9b5",
+      "candidateOutputSha": "7ad2271f5c8f9b9796c45a6d127b43b12e46dcc283d87b3f557a7ef1825cda16",
+      "facts": {
+        "ruled-out": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ordered-history": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "polarity": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "row-isolation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "spent-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "payload": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "role-boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the intended movement: the child now lists all four row 2 Decisions lines oldest first in a table (regex-splitting failure, retry hint, escalation marker, raw-token failure), keeps the raw-token line as previous decision, and only then selects an approach, which Before never did (it cited the Do-not-retry line but never ordered the history). Every other fact Before kept survives: approach X is rejected on the older line, the marker is explicitly spent history rather than model identity, row 3 is excluded by name only, the driver omits the model override and writes no marker, and the child reads the spec before the ledger, extends the existing table with the concrete escaped-backslash row and names node --test test/records.test.mjs as the red check. One caution: After appends a `Rules: AGENTS.md` line to the task string, which no fact forbids but which contradicts the Change's statement that the driver payload stays unchanged; to be safe, keep the task fields identical to Before (iteration, spec, ledger, base, target, previous decision, hint only) and let the child pick up Rules from the captured AGENTS.md read, as Before's child did.",
+      "wallMs": 23168,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d7b152113b4b09de62c826191cb39cb9e34332effa1b17812b1a12473147647b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0e3b6ea04ab7026d80dfd1c61e8f1e861ac717bfeb7c90b6a1faf9c54a1a64e6",
+      "baselineOutputSha": "c2293900e577d3a5542002a06cd698d3e525cf49d6fdf125306fdcaf40d37ea1",
+      "candidateOutputSha": "020d088d21692ee9fce9a269f69727386240a0ad6cc78b9c2834ebe4c8c765f9",
+      "facts": {
+        "ruled-out": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ordered-history": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "polarity": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "row-isolation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "spent-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "payload": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "role-boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The only fact that moved is ordered-history, and After moved it the right way: the new child read step 4 lists all four row-2 Decisions entries oldest first (regex-splitting failure, retry hint, escalation marker, raw-token failure) and keeps the raw-token line as the latest guidance, whereas Before only gestured at an 'earlier' and 'latest' decision without ordering the full history. Note that ruled-out already held in Before (it explicitly named regex comma splitting as not to retry and chose JSON decoding), so its declared fails->holds movement is not observed; the After wording merely makes the basis more explicit via the persona's ordered-history requirement. Every other fact (polarity, row-isolation, spent-marker, payload, role-boundary) held identically in both outputs: the driver payload is unchanged with no model field or history, the driver never diagnoses or reads a transcript, and the child reads spec-first, extends the existing test with the escaped-backslash case and names node --test test/records.test.mjs as the first selective check. Keep the explicit four-entry ordered listing in the child's read sequence and the explicit row-3 exclusion sentence; nothing in After regressed, so no wording needs to be restored.",
+      "wallMs": 21645,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "53f573b8c8decbad7a4ab9871edaf962a24742cc"
+}

@@ -1,0 +1,6 @@
+- ruled-out: judged: Before choosing an approach, explicitly name approach X (regex comma splitting) as not to retry based on the older row 2 failed line, despite its absence from previous decision; do not implement it.
+- ordered-history: judged: Read row 2's complete history from Decisions and explicitly order its four entries oldest first: regex-splitting failure, retry hint, escalation marker, raw-token failure; use previous decision as the latest admitted target line.
+- polarity: judged: Follow the positive guidance to decode complete JSON records and preserve the retry hint's escaped-quote case rather than treating those suggestions as forbidden approaches.
+- row-isolation: judged: Do not use row 3's UTF-16 guidance to choose or alter row 2's implementation; identifying it only to exclude it is allowed.
+- spent-marker: judged: Treat the escalated marker as spent historical evidence and reject the inference that it identifies this attempt's model; keep the child from asserting it is the escalated round.
+- bounded-result: judged: Retain the existing parser test and extend it before production edits, run its selective command RED then GREEN, mark only row 2 done at attempts 3, remove pending, commit once as loop: row 2 done with pending attribution and iteration: 6, and reply with only its bounded decision naming the reusable parser or test.

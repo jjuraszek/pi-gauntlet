@@ -1,4 +1,4 @@
-for: cd38c96cb44fd307fdb2d05caea28ba43ce52fa065e2b343de0b19c9e326d880
+for: 66451dc5ab3ff7a2f9bf4a5123216c4d52fbd43bd31966c4c18c235dd91a6855
 
 ## Change
 Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving allowance migration, mixed task restoration and admission boundaries.
@@ -8,7 +8,7 @@ Route restored verify/ship Ledger briefs to After the loop step 1 and the loop s
 
 Migrate the non-legacy loop-ledger-brief, loop-ledger-worktree, ledger-tracker-recovery and ledger-tracker-verify snapshots to allowance headers while preserving all recovery, attribution and phase facts. Legacy cap fixtures remain migration tests. Validate fixtures deterministically during recovery and defer behavior-selected model checks to the parent; retain recovered records without claiming coverage of the amended fixtures. Never run full targets, including at completion.
 
-Migrate cap-only ledgers at the shared allowance boundary after unmigrated pending recovery and before final validation/refresh. Preserve counters, decisions, original-phase continuation and every recovery gate. Resolve loopEngine only for clean legacy migration; already-migrated ledgers need no settings. Rewrite durable-cap and legacy-cap-brief facts for the approved replacement of cap restoration/grants by header-only migration; add migration-recovery for clean/dirty home returns, companion admission, interruption, ambiguity and exhausted rows. These replace the old cap/funding expectations, not recovery safety. Targeted samples run here; full-target evaluation stays with final verification.
+Migrate cap-only ledgers at the shared allowance boundary after unmigrated pending recovery and before final validation/refresh. Preserve counters, decisions, original-phase continuation and every recovery gate. Resolve loopEngine exactly once at every authorized restore boundary to capture escalateAfter in driver memory; clean legacy migration reuses that read for maxIterationsPerRow. With an existing allowance, the read supplies escalateAfter only: never re-resolve the allowance, reseed or make a second migration commit, and ignore stale run allowance carriers. Rewrite durable-cap and legacy-cap-brief facts for the approved replacement of cap restoration/grants by header-only migration; add migration-recovery for clean/dirty home returns, companion admission, interruption, ambiguity and exhausted rows. These replace the old cap/funding expectations, not recovery safety. Targeted samples run here; full-target evaluation stays with final verification.
 
 Extract canonical ledger identity from status rows with a separate description suffix, retaining legacy numeric-prefix forms before restoring names or comparing a ledger snapshot. Keep the producer's verbatim status copy and every Gn/non-ledger name intact; refresh recomputes criterion descriptions and current allowance without duplicate tasks or false drift. Extend ledger-tracker-verify with verify/ship snapshots in both forms, a changed denominator, a cut row description and a coordinated description containing pipes and row-like text. Preserve fact IDs and unrelated task names. Deterministic tracker and brief-grammar checks cover the implementation; select only this sample for the parent's later model check and retain existing model records unchanged.
 
@@ -55,7 +55,7 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - durable-cap/durable: fails -> holds - Recover first, then commit only the cap-to-allowance header replacement without funding restoration.
 - durable-cap/history: fails -> holds - Count retry lines, ignore audit ceilings and cap history, and retain operational targeting.
 - durable-cap/route: fails -> holds - Recover, migrate, validate and refresh in that order on both resume routes.
-- durable-cap/idempotent: fails -> holds - An allowance ledger ignores settings and stale approval carriers on resume.
+- durable-cap/idempotent: fails -> holds - An allowance ledger keeps allowance4, effective6, iterations700 and attempts5; exactly one loopEngine read supplies escalateAfter only, without allowance re-resolution, reseeding or a second migration commit, ignoring stale run allowance20.
 - legacy-cap-brief/boundary: fails -> holds - Migrate clean completed ledgers; both or neither header requires hand repair.
 - legacy-cap-brief/grant: fails -> holds - Replace cap grants with header-only migration and the exact missing-settings stop.
 - legacy-cap-brief/dirty: fails -> holds - Retain dirty-tree authorization and defer migration until clean recovery.

@@ -84,7 +84,7 @@ assert.deepEqual(rules(mutated), ["grammar-outside-contract:skills/gauntlet-hand
 
 const reconstruction = realFiles.find(f => f.rel === "skills/gauntlet-resume/reference/reconstruction.md").text;
 const ledgerRestore = reconstruction.split("## Spec with ledger")[1].split("## Spec with plan")[0];
-for (const token of ["Shared allowance boundary", "Skip Entry step 1 entirely", "ledger has no allowance: line - resume through /skill:gauntlet-resume", "After the loop", "latest operational"]) assert.ok(ledgerRestore.includes(token), token);
+for (const token of ["Shared allowance boundary", "Skip Entry step 1's allowance seeding", "ledger has no allowance: line - resume through /skill:gauntlet-resume", "After the loop", "latest operational"]) assert.ok(ledgerRestore.includes(token), token);
 const boundary = ledgerRestore.split('4. **Shared allowance boundary')[1].split('5. Continue')[0];
 const ordered = ['Apply pending recovery below against the unmigrated ledger', 'Migrate only an admitted, clean, tuple-free ledger', 'Require `allowance:` and no `cap:`', 'Call `plan_tracker({ action: "refresh"'];
 for (let i = 1; i < ordered.length; i++) assert.ok(boundary.indexOf(ordered[i - 1]) >= 0 && boundary.indexOf(ordered[i - 1]) < boundary.indexOf(ordered[i]), ordered[i]);
@@ -92,11 +92,13 @@ for (const token of [
   'both or neither is `ledger header malformed: <observed header lines>`',
   'legacy-compatible admission', 'original one-commit `<pre-dispatch HEAD>..HEAD`',
   'unchanged home HEAD', 'iterations-bump-plus-tuple dirt',
-  'resolve `gauntlet_setting({ key: "loopEngine" })` for this migration only',
+  'reuse the single restore-boundary settings read',
+  'Resolve `gauntlet_setting({ key: "loopEngine" })` exactly once',
+  'retain `escalateAfter` in driver memory',
   'Commit only that header replacement as parent `loop: migrate allowance`',
   'preserve iterations, every attempts cell and all decisions',
-  'cannot migrate allowance: settings tool unavailable (loopEngine.maxIterationsPerRow)',
-  'With an existing allowance, use it without settings resolution or a migration commit',
+  'cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)',
+  'With an existing allowance, use it without allowance resolution or a migration commit',
   'Defer migration through any retained recovery stop or dirty tree',
   'project the unmigrated ledger solely to report the stop',
   'header plus one per matching retry decision', "ignore the retry's audit ceiling",

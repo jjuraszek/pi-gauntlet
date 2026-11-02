@@ -74,6 +74,27 @@ test('worker records selective commands and keeps row-scoped TDD evidence valid'
   assert.equal(empty.status, 0, 'Node name filters cannot be recorded as fail-closed selectors');
 });
 
+test('worker reads ordered target history without enlarging the dispatch payload', () => {
+  const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
+  const step = persona.split('\n2. Close the `target` row first.')[1].split('\n3. ')[0];
+  for (const token of [
+    'Read every `row <n> ...` line for the target row from `## Decisions`, oldest first, before choosing an approach',
+    "avoid what a `failed` line's third slot says not to redo",
+    'follow what it says to try differently',
+    'never repeat an approach a prior line of this row rules out',
+    "Exclude other rows' lines from guidance for this target",
+    'Read `retry` and `escalated` lines in the same pass',
+    'retry hint as guidance', 'historical evidence that escalation is spent',
+    "never infer the current attempt's model from it",
+    'Keep `previous decision` as the latest admitted target line and the tie-break for most recent',
+  ]) assert.ok(step.includes(token), token);
+  assert.doesNotMatch(persona, /strong-model round/);
+  assert.ok(persona.includes('For `failed`, state what the next iteration should not redo or should try differently.'));
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const payload = driver.match(/task: "(iteration: .*?)" \}\)/)[1];
+  assert.equal(payload, 'iteration: <i>\\nspec: <absolute spec path>\\nledger: <absolute ledger path>\\nbase: <base SHA>\\ntarget: <row number or seed>\\nprevious decision: <new conforming line or none>\\nhint: <human hint or none>');
+});
+
 test('effective allowance counts retries rather than historical ceilings or other budgets', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
@@ -89,22 +110,26 @@ test('effective allowance counts retries rather than historical ceilings or othe
   assert.doesNotMatch(before, /Set row allowance to 3 \+ funded|Recover spent funding|latest .*retry.*when larger/);
 });
 
-test('last-attempt escalation uses the resolved model under both approval options', () => {
+test('threshold escalation uses the held setting and resolved model under both approval options', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
   assert.match(before, /attempts >= effective allowance \| Human stop under approval option 4 and option 5 alike/);
-  assert.match(before, /Select target by the priority below, then apply the last-attempt escalation check/);
+  assert.match(before, /Select target by the priority below, then apply the escalation threshold check/);
   for (const token of [
-    'For a numbered target at attempts == effective allowance - 1',
-    'no existing durable `row <n> escalated` decision',
+    'For a numbered target with no durable `row <n> escalated` decision',
+    'threshold = min(escalateAfter, effective allowance - 1)',
+    'pre-dispatch attempts >= threshold',
+    'held `escalateAfter`',
+    'With defaults (allowance 4, `escalateAfter` 3), escalate attempt 4',
+    'A row found past the threshold unspent escalates on its next dispatch',
     'gauntlet_setting({ key: "escalationLoop" })',
     'Never consult this value for row escalation',
     'returned non-empty `implModel` string', 'main-loop model fallback',
     'setting is unset or malformed', 'settings tool unavailable or `implModel` undefined',
     'neither a configured model nor a main-loop model',
     'Problem: escalationLoop.implModel unavailable',
-    'write no escalation decision and leave attempts at effective allowance - 1',
-    'Never substitute a default-model last attempt',
+    'write no escalation decision and leave attempts unchanged',
+    'Never substitute a default-model attempt',
     'row <n> escalated | implModel round | allowed attempts <effective allowance>',
     'loop: escalate row <n>', 'escalated round for row <n>', 'model: <implModel>',
     'normal loop-implementer target, bump and validation path',
@@ -112,8 +137,11 @@ test('last-attempt escalation uses the resolved model under both approval option
     'within the effective allowance, never an extra attempt',
     'starts no new empty-child or validation-miss window',
   ]) assert.ok(before.includes(token), token);
-  assert.ok(before.indexOf('Select `seed` until') < before.indexOf('For a numbered target at'));
-  assert.ok(before.indexOf('Apply hard boundaries') < before.indexOf('For a numbered target at'));
+  assert.ok(before.indexOf('Select `seed` until') < before.indexOf('For a numbered target with'));
+  assert.ok(before.indexOf('Apply hard boundaries') < before.indexOf('For a numbered target with'));
+  assert.doesNotMatch(before, /attempts == effective allowance - 1|last-attempt escalation check|dispatch that last allowed attempt/);
+  const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
+  for (const token of ['`escalateAfter` (default 3)', 'Hold `escalateAfter` in driver memory', 'never print it or write it to the ledger', 'never re-resolve it inside the loop', 'including after amendment grant re-decodes', 'At an authorized fresh-session restore', 'exactly once', 'cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)', "Skip Entry step 1's allowance seeding"]) assert.ok(entry.includes(token), token);
   assert.doesNotMatch(before, /With amend permission|no amend permission or escalation|allowed attempts <attempts \+ 1>/);
   assert.match(driver, /Omit the model override except on an escalated round/);
 });
@@ -125,18 +153,21 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
     'escalation identity from `## Decisions` on every dispatch and resume',
     'unrecoverable means spent', 'whole flow across retry, `rows +N`, amendments and resume',
     'omit the model override on every later authorized attempt',
-    'including a new last allowed attempt', 'never resolve another row escalation or append a second marker',
-    'With no marker and recoverable history, apply the normal last-attempt predicate',
+    'including every attempt up to a raised effective allowance', 'never resolve another row escalation or append a second marker',
+    'With no marker and recoverable history, apply the threshold predicate',
     'a previously missing model or migrated row has not spent escalation',
   ]) assert.ok(before.includes(token), token);
   const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
   for (const token of [
     'Preserve the pre-dispatch escalation decision through authorized discard/reset',
-    'Boundary rejection never increments attempts', 'attempts at effective allowance - 1',
-    'after authorized recovery dispatch on the default model without requiring retry or `rows +N`',
-    'An admitted validation miss instead increments attempts through `loop: repair row <n>`',
-    'stops under rule 2, retaining the spent decision',
+    'Boundary rejection never increments attempts', 'leaves attempts at the pre-dispatch count',
+    'after authorized recovery dispatch on the worker model without requiring retry or `rows +N`',
+    'An admitted validation miss instead increments attempts by exactly one through `loop: repair row <n>`',
+    'retains the spent decision and returns to the ordered table',
+    'at its effective allowance stops under rule 2',
+    'below it gets its next attempt on the worker model',
   ]) assert.ok(stop.includes(token), token);
+  assert.doesNotMatch(stop, /attempts at effective allowance - 1|to the effective allowance and stops under rule 2/);
 });
 
 test('automatic exit verification repair is once per flow under both options', () => {
@@ -654,7 +685,12 @@ test('configuration-allowance: binding documentation describes the single allowa
     'doc/configuration.md': [
       'iterations: 0\nallowance: 4', 'allowance <n> per row', 'run allowance: <n>',
       'allowance: <n> (reply)', 'allowance: <n> (setting)', 'positive safe integer',
-      'last allowed attempt', 'at most once per row', 'one exit-verification repair per flow',
+      'clamped to the last allowed attempt', 'at most once per row', 'one exit-verification repair per flow',
+      'loopEngine.escalateAfter', 'default 3', 'floor 1',
+      'loopEngine.escalateAfter must be an integer; using default 3',
+      'min(escalateAfter, effective allowance - 1)', 'attempts >= threshold',
+      'never re-resolved inside the loop', 'fresh-session restore',
+      'before its escalated attempt',
       'retry <n> | <hint>', 'rows +N', 'loop: raise allowance', 'loop: migrate allowance',
       'effective allowance is the header allowance plus one per',
       'Preserve every row\'s attempts.', 'both or neither requires human repair',
@@ -663,18 +699,19 @@ test('configuration-allowance: binding documentation describes the single allowa
     'doc/implement-engines.md': [
       'no total iteration cap', 'no amend permission required', 'rows +N',
       'loop: migrate allowance', 'Only retry starts new stagnation',
+      'escalateAfter', 'threshold attempt', 'without re-resolving the allowance',
     ],
     'doc/gate-contract.md': [
       'positive safe integer', 'funding on 4/5 and malformed tokens re-present',
       'allowance <n> per row', 'run allowance: <n>', 'rows +N',
     ],
-    'README.md': ['loopEngine.maxIterationsPerRow', '4; allowance 6', 'no total iteration cap'],
-    'doc/personas.md': ['ordinary attempts', 'last allowed attempt', 'at most once per row'],
+    'README.md': ['loopEngine.maxIterationsPerRow', '4; allowance 6', 'no total iteration cap', 'loopEngine.escalateAfter', 'escalateAfter + 1', 'clamped to the last allowed attempt'],
+    'doc/personas.md': ['ordinary attempts', 'clamped to the last allowed attempt', 'at most once per row', 'escalateAfter'],
   };
   for (const [path, tokens] of Object.entries(required)) {
     const text = readFileSync(new URL(path, root), 'utf8');
     for (const token of tokens) assert.ok(text.includes(token), `${path}: ${token}`);
-    assert.doesNotMatch(text, /cap \+N|row-scaled cap|amend-gated within the durable cap|3 \+ funded/);
+    assert.doesNotMatch(text, /cap \+N|row-scaled cap|amend-gated within the durable cap|3 \+ funded|only active `piGauntlet\.loopEngine\.\*` setting|row's last allowed attempt|its last allowed attempt escalates|before its last attempt|both the loop driver and .* use this rule/);
   }
 });
 

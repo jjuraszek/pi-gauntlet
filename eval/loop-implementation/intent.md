@@ -1,6 +1,14 @@
-for: 29183015ad5931a51c1c9c1582956981925b1a733888493fb90bb5526bd9dc53
+for: 326c3a70aff0c87587705be9fd0f35d8e2b9d3cb65c46f319421e64f8bce6f06
 
 ## Change
+
+Add row-history-guidance for the driver dispatch and separate child continuation over two target failures and an interleaved foreign-row failure. Require the child to reject the older prohibited approach, order its own history, preserve guidance polarity and treat the marker as spent history. Keep history out of the driver payload and child diagnostics out of the driver. Run only this sample here; preserve earlier sample evidence. Supply an explicit missing escaped-backslash test case so the child continuation's test extension is observable rather than an unspecified addition. These partial text replays cover narrated choices, not live dispatch or parser execution.
+
+The bundled child persona reads its target row's complete ordered history, preserves failed-guidance polarity, excludes other rows and treats escalation as spent history rather than current model identity. The driver payload stays unchanged. This iteration selects only loop-implementer/row-history-guidance for child behavior; preserve this target's existing results without claiming a fresh driver replay.
+
+Keep early escalated recovery within the remaining allowance: boundary rejection restores the pre-dispatch attempts, while an admitted miss consumes exactly one attempt and returns to ordered checks. Add allowance-10-escalate-after for attempts 1-10, held settings, both recovery paths and spent identity after grants/resume; update spent-row-escalation's unspent expectation to immediate threshold escalation. Run only these two samples here. These partial text replays cover narrated routing and recovery, not live model dispatch.
+
+Capture escalateAfter once at Entry or fresh-session restore and escalate the first unspent dispatch at or above min(escalateAfter, effective allowance - 1). Keep the allowance authoritative on restore and share the threshold read with legacy migration. Extend last-attempt-model-boundary for clamping and past-threshold catch-up; run only it, escalated-row-attempt and legacy-cap here. These partial text replays cover narrated threshold dispatch and restore, not live model routing or the remaining history and post-escalation samples.
 
 Repair review findings on companion admission and rejected-return recovery. Run only companion-multi-row and partial-seed in this round. Require complete non-cut companion seed serialization with empty unevidenced open cells and evidenced-only counts; route post-boundary ordinary misses through target-only repair. These synthetic replays attest narrated admission and recovery, not live dispatch.
 Complete seed-retry conformance using the existing seed-retry sample's first miss, second consecutive miss, successful-window reset and companion cases. Rerun only seed-retry for this iteration; keep all other sample results, including partial-seed and seed-selection, unchanged. These replays prove narrated repair and stop behavior, not live dispatch. Refresh the deterministic home-boundary assertions to require restoring every changed row, not only the target.
@@ -54,6 +62,13 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- row-history-guidance/ruled-out: fails -> holds - Reject approach X using the older failed line even when latest guidance omits it.
+- row-history-guidance/ordered-history: fails -> holds - Read all target history oldest first before choosing an approach.
+- allowance-10-escalate-after/sequence: fails -> holds - Escalate attempt4 once and run attempts5-10 on the worker before exhaustion.
+- allowance-10-escalate-after/held: fails -> holds - Retain the captured threshold through an in-session settings edit.
+- allowance-10-escalate-after/rejection: fails -> holds - Recover a rejected early escalation without consuming attempts or new budget.
+- allowance-10-escalate-after/admitted-miss: fails -> holds - Consume one attempt and continue on the worker below allowance, stopping only at the boundary.
+- last-attempt-model-boundary/threshold: fails -> holds - Clamp the held setting and escalate past-threshold unspent rows without a settings refresh.
 - seed-selection/partial: fails -> holds - Continue ordinary work after a validated partial seed without filling unreached evidence cells first.
 - partial-seed/partial: fails -> holds - Admit a single evidenced home row while leaving unreached rows empty.
 - partial-seed/closures: fails -> holds - Admit baseline closures on a subset without demanding full coverage.
@@ -101,9 +116,9 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - scaled-cap-grant/windows: fails -> holds - Raises preserve the stagnation windows.
 - scaled-cap-grant/validation: fails -> holds - Children cannot change the allowance header.
 - funding/contract: fails -> holds - Ignore legacy funding, add retry/shared raises and never rearm escalation or reset windows through a shared raise.
-- legacy-cap/legacy: fails -> holds - The driver refuses missing allowance; resume owns migration and present allowance stays authoritative.
+- legacy-cap/legacy: fails -> holds - The driver refuses missing allowance; resume captures the threshold once without re-resolving an existing allowance.
 - legacy-cap/grant: fails -> holds - Resume replaces cap with settings-derived allowance in one commit without resetting attempts.
-- legacy-cap/dirty: fails -> holds - Missing settings and dirty trees block migration without writes.
+- legacy-cap/dirty: fails -> holds - Missing restore settings stops with the escalation-threshold diagnostic; dirty trees still block migration without writes.
 - allowance-entry-carrier/reply: fails -> holds - Consume the exact approving-turn carrier and print the reply echo at seeding.
 - allowance-entry-carrier/setting: fails -> holds - Fall back to the setting and print its source when the carrier is absent.
 - allowance-entry-carrier/coordinated: fails -> holds - Share the same resolved value and echo across coordinated entry.
@@ -121,7 +136,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - row-budget-actions/invalid: fails -> holds - Both the first and later malformed replies leave ledger bytes and the stop unchanged.
 - row-budget-actions/windows: fails -> holds - Only retry restarts stagnation windows; raising the header cannot bypass stagnation.
 - row-budget-actions/boundaries: fails -> holds - Budget actions are limited to row stops, never dirty/commit or verify stops.
-- row-budget-actions/missing: fails -> holds - A shared raise may authorize an ordinary attempt without resolving or spending the unavailable escalation.
+- row-budget-actions/missing: fails -> holds - A shared raise preserves attempts and unspent escalation; the next threshold dispatch stops again until a model resolves.
 - retired-budgets/counter-only: fails -> holds - Dispatch count and legacy funding no longer gate or buy loop attempts.
 - retired-budgets/exhaustion: fails -> holds - Exhaustion offers only retry and a shared allowance raise as budget actions.
 - retired-budgets/coordinated-return: fails -> holds - Companion admission preserves the shared allowance and foreign entries.
@@ -130,7 +145,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - spent-row-escalation/resume: fails -> holds - Recover durable spent identity on resume and treat unrecoverable identity as spent.
 - spent-row-escalation/rejection: fails -> holds - Boundary rejection preserves attempts and escalation; authorized recovery permits default-model redispatch without new budget.
 - spent-row-escalation/admitted-miss: fails -> holds - An admitted miss consumes the last attempt and stops rather than receiving a free redispatch.
-- spent-row-escalation/unspent: fails -> holds - A missing-model stop or migrated row with no marker retains its ordinary last-attempt predicate after a grant.
+- spent-row-escalation/unspent: fails -> holds - A raised allowance does not postpone an unspent threshold dispatch; its following attempt uses the worker.
 - effective-allowance/arithmetic: fails -> holds - Count retries rather than historical ceilings or other budgets.
 - effective-allowance/header-raise: fails -> holds - The shared header increase raises every row, including retried rows.
 - effective-allowance/coordinated: fails -> holds - Leg ownership never changes row arithmetic.

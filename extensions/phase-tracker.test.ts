@@ -1468,16 +1468,17 @@ test("gauntlet_setting escalationLoop: setting absent -> ctx-derived main-loop m
 });
 
 test("gauntlet_setting loopEngine resolves the key", async () => {
-  for (const [loopEngine, expected, warning] of [
-    [undefined, 4, undefined],
-    [{ maxIterationsPerRow: 8 }, 8, undefined],
-    [{ maxIterations: 99, maxIterationsPerRow: "4" }, 4,
-      "loopEngine.maxIterations is removed; set loopEngine.maxIterationsPerRow; loopEngine.maxIterationsPerRow must be an integer; using default 4"],
+  for (const [loopEngine, expected, escalateAfter, warning] of [
+    [undefined, 4, 3, undefined],
+    [{ maxIterationsPerRow: 8, escalateAfter: 2 }, 8, 2, undefined],
+    [{ escalateAfter: 0 }, 4, 1, undefined],
+    [{ maxIterations: 99, maxIterationsPerRow: "4", escalateAfter: "3" }, 4, 3,
+      "loopEngine.maxIterations is removed; set loopEngine.maxIterationsPerRow; loopEngine.maxIterationsPerRow must be an integer; using default 4; loopEngine.escalateAfter must be an integer; using default 3"],
   ] as const) {
     const h = harness({ cwd: tempCwd({ piGauntlet: { loopEngine } }) });
     const tool = h.tools.find(t => t.name === "gauntlet_setting")!;
     const result = await tool.execute("loop", { key: "loopEngine" }, undefined, undefined, h.ctx) as any;
-    assert.deepEqual(result.details, { key: "loopEngine", maxIterationsPerRow: expected, warning, errors: [] });
+    assert.deepEqual(result.details, { key: "loopEngine", maxIterationsPerRow: expected, escalateAfter, warning, errors: [] });
     assert.equal(Object.hasOwn(result.details, "maxIterations"), false);
   }
 });
@@ -1489,6 +1490,7 @@ test("gauntlet_setting loopEngine composes settings load warnings", async () => 
   const result = await h.tools.find(t => t.name === "gauntlet_setting")!.execute("loop", { key: "loopEngine" }, undefined, undefined, h.ctx) as any;
   assert.equal(result.details.key, "loopEngine");
   assert.equal(result.details.maxIterationsPerRow, 4);
+  assert.equal(result.details.escalateAfter, 3);
   assert.equal(Object.hasOwn(result.details, "maxIterations"), false);
   assert.ok(result.details.errors.length);
   assert.equal(result.details.warning, `⚠️ gauntlet settings load error (using defaults): ${result.details.errors.join("; ")}`);

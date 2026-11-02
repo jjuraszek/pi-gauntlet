@@ -21,35 +21,44 @@ import {
 } from "./gauntlet-settings.ts";
 
 test("loopEngine resolves defaults, integers, clamps, and malformed values", () => {
-  const warning = "loopEngine.maxIterationsPerRow must be an integer; using default 4";
-  for (const [raw, expected, expectedWarning] of [
-    [undefined, 4, undefined], [7, 7, undefined], [0, 1, undefined], [-3, 1, undefined],
-    ["4", 4, warning], [4.5, 4, warning], [true, 4, warning], [null, 4, warning],
-  ] as const) {
-    assert.deepEqual(resolveLoopEngine({ loopEngine: { maxIterationsPerRow: raw } }), {
-      maxIterationsPerRow: expected, warning: expectedWarning,
-    });
+  for (const [key, fallback] of [["maxIterationsPerRow", 4], ["escalateAfter", 3]] as const) {
+    const warning = `loopEngine.${key} must be an integer; using default ${fallback}`;
+    for (const [raw, expected, expectedWarning] of [
+      [undefined, fallback, undefined], [7, 7, undefined], [0, 1, undefined], [-3, 1, undefined],
+      [String(fallback), fallback, warning], [2.5, fallback, warning], [true, fallback, warning], [null, fallback, warning],
+    ] as const) {
+      assert.deepEqual(resolveLoopEngine({ loopEngine: { [key]: raw } }), {
+        maxIterationsPerRow: 4, escalateAfter: 3, [key]: expected, warning: expectedWarning,
+      }, `${key}: ${String(raw)}`);
+    }
   }
-  assert.deepEqual(resolveLoopEngine({}), { maxIterationsPerRow: 4, warning: undefined });
+  assert.deepEqual(resolveLoopEngine({}), { maxIterationsPerRow: 4, escalateAfter: 3, warning: undefined });
 });
 
 test("loopEngine ignores the removed key by own-property presence and orders warnings", () => {
   const removed = "loopEngine.maxIterations is removed; set loopEngine.maxIterationsPerRow";
   for (const raw of [30, undefined, null, false]) {
     assert.deepEqual(resolveLoopEngine({ loopEngine: { maxIterations: raw } }), {
-      maxIterationsPerRow: 4, warning: removed,
+      maxIterationsPerRow: 4, escalateAfter: 3, warning: removed,
     });
   }
-  for (const [raw, expected, warning] of [
-    [7, 7, removed],
-    ["4", 4, removed + "; loopEngine.maxIterationsPerRow must be an integer; using default 4"],
+  for (const [raw, expected, allowanceWarning] of [
+    [7, 7, undefined],
+    ["4", 4, "loopEngine.maxIterationsPerRow must be an integer; using default 4"],
   ] as const) {
-    assert.deepEqual(resolveLoopEngine({ loopEngine: { maxIterations: 99, maxIterationsPerRow: raw } }), {
-      maxIterationsPerRow: expected, warning,
-    });
+    for (const [escalateAfter, threshold, thresholdWarning] of [
+      [7, 7, undefined],
+      ["3", 3, "loopEngine.escalateAfter must be an integer; using default 3"],
+    ] as const) {
+      const loopEngine = { maxIterations: 99, maxIterationsPerRow: raw, escalateAfter };
+      assert.deepEqual(resolveLoopEngine({ loopEngine }), {
+        maxIterationsPerRow: expected, escalateAfter: threshold,
+        warning: [removed, allowanceWarning, thresholdWarning].filter(Boolean).join("; "),
+      });
+    }
   }
   assert.deepEqual(resolveLoopEngine({ loopEngine: Object.create({ maxIterations: 99 }) }), {
-    maxIterationsPerRow: 4, warning: undefined,
+    maxIterationsPerRow: 4, escalateAfter: 3, warning: undefined,
   });
 });
 
@@ -61,6 +70,17 @@ test("mergeGauntlet: repo key replaces preset key whole-object", () => {
   const merged = mergeGauntlet(preset, repo);
   assert.deepEqual(merged.specCouncil, { members: ["b"] });
   assert.deepEqual(merged.closureReview, { model: "m" });
+  for (const [repoLoop, expected] of [
+    [undefined, { maxIterationsPerRow: 8, escalateAfter: 6 }],
+    [{ maxIterationsPerRow: 10 }, { maxIterationsPerRow: 10, escalateAfter: 3 }],
+    [{ escalateAfter: 2 }, { maxIterationsPerRow: 4, escalateAfter: 2 }],
+  ] as const) {
+    const loop = mergeGauntlet(
+      { loopEngine: { maxIterationsPerRow: 8, escalateAfter: 6 } },
+      repoLoop === undefined ? {} : { loopEngine: repoLoop },
+    );
+    assert.deepEqual(resolveLoopEngine(loop), { ...expected, warning: undefined });
+  }
 });
 
 test("mergeGauntlet: undefined layers -> {}", () => {
