@@ -1,0 +1,82 @@
+{
+  "sample": "row-history-guidance",
+  "arm": "candidate",
+  "skillSha": "3f17782f089e5250092bc0558568a0958f796687e12fe56647754ddd00738c98",
+  "inputSha": "721f08f1aa4d226b26f072315affc6d548d0a027313859963feef922cd5aacf1",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Simulated trace: iteration for target row 2\n\n**1. Read the spec.**\n- `read /repo/doc/specs/records.md`\n- AC 2: parse JSON arrays of record objects and return decoded `name` fields, including commas and escaped quotes.\n- Design: use the existing Node test beside the parser. The parent owns `npm test`.\n- No `Leg:` or `Rules:` inputs were supplied. This is home-leg work in the `/repo` checkout, per the pending tuple.\n\n**2. Read the ledger and save the state.**\n- `read /repo/doc/plans/records-ledger.md`\n- Saved pending tuple: `pending: 2 | home | def5678`\n- Bumped header: `iterations: 6`\n- Current row 2: `| 2 | failed | 2 | node --test test/records.test.mjs; escaped quote assertion fails |`\n\n**3. Collect row 2 guidance from `## Decisions`, oldest first.**\n1. `row 2 failed | Approach X, regex comma splitting, broke quoted names. | Do not retry approach X, regex comma splitting.` This rules out approach X permanently.\n2. `row 2 retry | Preserve the escaped-quote case while replacing parsing. | allowed attempts 5` This is guidance: keep the escaped-quote test case and replace the parser.\n3. `row 2 escalated | implModel round | allowed attempts 5` This is historical evidence only. Escalation is spent. That round failed, and this is a later ordinary attempt.\n4. `row 2 failed | Raw-token mapping left escape sequences in names. | Try decoding complete JSON records before selecting the name field.` This matches `previous decision` and is the latest tie-break: decode full JSON, then select `name`.\n\nThe row 3 lines (UTF-8/UTF-16) are excluded as guidance for this target. The `hint` is `none`.\n\n**4. Response to the teammate.**\n- **Approach X:** Rejected. The latest failed line not mentioning X does not lift the earlier ruling. The procedure says to never repeat an approach that a prior line of this row rules out.\n- **\"Escalated model's turn\":** Rejected. The escalation marker must never be used to infer the current attempt's model. That escalated round already failed, and this dispatch carries no model field. It is an ordinary worker attempt.\n\n**5. Inspect the diff and the code.**\n- `git -C /repo diff --stat abc1234`\n  - Observed: the ledger, `src/records.mjs`, `test/records.test.mjs`.\n- `git -C /repo diff abc1234 -- src/records.mjs test/records.test.mjs`\n- `read /repo/src/records.mjs`: hand-written raw-token extraction.\n- `read /repo/test/records.test.mjs`: an existing `node:test` file covering commas and a failing escaped-quote case. These are preserved per the retry hint.\n\n**6. TDD, modifying tested behavior.**\n- Edit `test/records.test.mjs`: add an escaped-backslash case to the existing test cases. The test is extended, not restarted.\n- RED: `node --test test/records.test.mjs` fails on undecoded escapes, which is the row's stated reason.\n- GREEN: edit `src/records.mjs` to replace raw-token extraction with `JSON.parse(input)` followed by `.map(r => r.name)`. This decodes complete JSON records before selecting the name field.\n- `node --test test/records.test.mjs` now passes: 3 passed, 0 failed.\n- The evidence command is a Node test file path, not a name-pattern filter. A missing file exits nonzero, so it is a valid selector. The full `npm test` suite was not run.\n\n**7. Update the ledger.**\n- Row 2 now reads: `| 2 | done | 3 | node --test test/records.test.mjs; 3 passed; 0 failed |`\n- Appended to `## Decisions`: the row 2 done line shown in the final reply.\n- Removed the line `pending: 2 | home | def5678`. All other headers, rows and decisions are unchanged.\n\n**8. Extras: none taken.**\n- Row 3 (audit log encoding) does not sit in `src/records.mjs` or the test just changed.\n- No row 3 check result is available, so it is not started.\n\n**9. Commit.**\n- `git -C /repo add src/records.mjs test/records.test.mjs doc/plans/records-ledger.md`\n- `git -C /repo commit -m \"loop: row 2 done\" -m \"pending: 2 | home | def5678\niteration: 6\"`\n  - Observed: success.\n- `git -C /repo status --porcelain`\n  - Observed: empty, so the tree is clean.\n\nFinal reply:\nrow 2 done | Replaced raw-token extraction in src/records.mjs with JSON.parse plus name-field mapping and added an escaped-backslash case to the existing test. | Reuse the JSON.parse-based parser in src/records.mjs and extend the case table in test/records.test.mjs for further record parsing checks.\n",
+      "words": 619,
+      "wallMs": 21469,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Simulated tool trace\n\n1. Read the full spec:\n   ```sh\n   cat /repo/doc/specs/records.md\n   ```\n   Observation: row 2 requires decoded name fields from JSON arrays, including commas and escaped quotes. Extend the existing parser test; leave `npm test` to the parent. No additional `Rules:` files or leg mappings were supplied.\n\n2. Read the ledger:\n   ```sh\n   cat /repo/doc/plans/records-ledger.md\n   ```\n   Save these exact attribution lines:\n   ```text\n   pending: 2 | home | def5678\n   iteration: 6\n   ```\n   Row 2 currently has status `failed` and attempts `2`.\n\n3. Review all row 2 guidance in ledger order before choosing an implementation:\n   - First failure: do not retry approach X, regex comma splitting.\n   - Retry: preserve the escaped-quote case while replacing parsing.\n   - Escalation: historical evidence that escalation was spent, not evidence of this attempt’s model.\n   - Latest failure, matching `previous decision`: decode complete JSON records before selecting names.\n\n   Teammate response: approach X remains excluded by the earlier failure; the latest line does not supersede that prohibition. The escalation marker does not designate this dispatch as the escalated model’s turn. Row 3’s audit guidance is not guidance for row 2.\n\n4. Inspect the base diff, then only row 2’s code and test hunks:\n   ```sh\n   git diff --stat abc1234\n   git diff abc1234 -- src/records.mjs test/records.test.mjs\n   cat src/records.mjs\n   cat test/records.test.mjs\n   ```\n   Observations: the diff stat names the ledger, parser and parser test. The parser uses hand-written raw-token extraction. Its existing test covers commas and a failing escaped quote.\n\n5. Extend the existing parser test, preserving both existing cases. Add an escaped-backslash case with:\n   ```js\n   // JSON input\n   String.raw`[{\"name\":\"path\\\\leaf\"}]`\n\n   // Expected decoded names\n   [String.raw`path\\leaf`]\n   ```\n   Use the existing test’s invocation and assertion structure; do not create a separate test file.\n\n6. Run the selective RED check:\n   ```sh\n   node --test test/records.test.mjs\n   ```\n   Observation: the check fails on undecoded escapes, confirming the parser defect.\n\n7. Edit `src/records.mjs`: replace raw-token extraction with `JSON.parse` of the complete input followed by mapping each record’s `name` field. Preserve the existing exported interface.\n\n8. Run the selective GREEN check:\n   ```sh\n   node --test test/records.test.mjs\n   ```\n   Result: all three cases pass; zero failures. Record the file invocation, not a name filter.\n\n9. Update only row 2’s mutable ledger cells:\n   ```markdown\n   | 2 | done | 3 | node --test test/records.test.mjs; 3 passed; 0 failed |\n   ```\n   Remove the saved `pending:` line, retain `iterations: 6`, and append to `## Decisions`:\n   ```text\n   row 2 done | Replaced raw-token extraction with JSON parsing; commas, escaped quotes and escaped backslashes pass. | Reuse src/records.mjs for decoded names and test/records.test.mjs for three-case parser regression coverage.\n   ```\n   Preserve rows 1 and 3 and every existing decision. No eligible open extra lies in the changed parser files; do not edit or test the unrelated audit behavior.\n\n10. Stage explicitly and commit once:\n    ```sh\n    git add src/records.mjs test/records.test.mjs /repo/doc/plans/records-ledger.md\n    git commit -m \"loop: row 2 done\" -m \"pending: 2 | home | def5678\n    iteration: 6\"\n    git status --porcelain\n    ```\n    Observations: staging and commit succeed. The commit body begins with the exact saved pending tuple and consumed iteration on separate lines. Final status output is empty.\n\nFinal reply:\nrow 2 done | Replaced raw-token extraction with JSON parsing; commas, escaped quotes and escaped backslashes pass. | Reuse src/records.mjs for decoded names and test/records.test.mjs for three-case parser regression coverage.\n",
+      "words": 506,
+      "wallMs": 30988,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "verdict": "error",
+      "error": "baseline: This request was blocked as it seems to violate Anthropic's Terms of Service restrictions on reverse engineering or duplicating model outputs. To learn more, visit https://www.anthropic.com/legal/commercial-terms. API integrators: you can reduce refusals for your users by configuring a fallback model — see https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8905c5b9e1a987300209a8faaa28d3f9d2cbbb9a735b3d9d0890ea18c62e4f80",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "762e55999e57820d09486980d952f5fb0d0f7b8f101121fac11a0fe8dc9848f4",
+      "baselineOutputSha": "d130760ff06fe1485e669efd8fa133a563ecb2e7ee2e16d0327436d85293265f",
+      "candidateOutputSha": "5a845b94cfe405da704067059aea81d11fda509cb1c2fbca969fe94eef6486ea",
+      "facts": {
+        "ruled-out": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ordered-history": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "polarity": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "row-isolation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "spent-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "bounded-result": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After kept every fact Before kept and gained ordered-history: step 3 now lists row 2's four Decisions entries oldest first (regex-splitting failure, retry hint, escalation marker, raw-token failure) and explicitly ties the last to `previous decision`, whereas Before's step 3 only cited the prohibition, the latest hint and the marker out of chronological order without framing them as the row's complete history. Approach X is still named and rejected, the escalation marker is still treated as spent history rather than this attempt's model, row 3's UTF-16 guidance is now explicitly named only to exclude it, and the test-extension → RED → GREEN → single `loop: row 2 done` commit with pending tuple and iteration 6 remains intact. No regression to fix; one minor polish is that After's `git add` mixes a relative path with the absolute `/repo/doc/plans/records-ledger.md`, so a consistent `git -C /repo add ...` form as in Before would avoid any ambiguity about the working directory without affecting any fact.",
+      "wallMs": 14467,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "7c414cbd23aa7a34d272f382061ab95b51dd5b22"
+}

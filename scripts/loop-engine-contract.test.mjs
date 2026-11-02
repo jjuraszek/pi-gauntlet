@@ -74,6 +74,27 @@ test('worker records selective commands and keeps row-scoped TDD evidence valid'
   assert.equal(empty.status, 0, 'Node name filters cannot be recorded as fail-closed selectors');
 });
 
+test('worker reads ordered target history without enlarging the dispatch payload', () => {
+  const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
+  const step = persona.split('\n2. Close the `target` row first.')[1].split('\n3. ')[0];
+  for (const token of [
+    'Read every `row <n> ...` line for the target row from `## Decisions`, oldest first, before choosing an approach',
+    "avoid what a `failed` line's third slot says not to redo",
+    'follow what it says to try differently',
+    'never repeat an approach a prior line of this row rules out',
+    "Exclude other rows' lines from guidance for this target",
+    'Read `retry` and `escalated` lines in the same pass',
+    'retry hint as guidance', 'historical evidence that escalation is spent',
+    "never infer the current attempt's model from it",
+    'Keep `previous decision` as the latest admitted target line and the tie-break for most recent',
+  ]) assert.ok(step.includes(token), token);
+  assert.doesNotMatch(persona, /strong-model round/);
+  assert.ok(persona.includes('For `failed`, state what the next iteration should not redo or should try differently.'));
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const payload = driver.match(/task: "(iteration: .*?)" \}\)/)[1];
+  assert.equal(payload, 'iteration: <i>\\nspec: <absolute spec path>\\nledger: <absolute ledger path>\\nbase: <base SHA>\\ntarget: <row number or seed>\\nprevious decision: <new conforming line or none>\\nhint: <human hint or none>');
+});
+
 test('effective allowance counts retries rather than historical ceilings or other budgets', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];

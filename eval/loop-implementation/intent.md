@@ -1,6 +1,8 @@
-for: 8deeb5a436bd67469478373f0ca84b792b52aa181d418488fe486eb24e714fab
+for: 326c3a70aff0c87587705be9fd0f35d8e2b9d3cb65c46f319421e64f8bce6f06
 
 ## Change
+
+The bundled child persona reads its target row's complete ordered history, preserves failed-guidance polarity, excludes other rows and treats escalation as spent history rather than current model identity. The driver payload stays unchanged. This iteration selects only loop-implementer/row-history-guidance for child behavior; preserve this target's existing results without claiming a fresh driver replay.
 
 Keep early escalated recovery within the remaining allowance: boundary rejection restores the pre-dispatch attempts, while an admitted miss consumes exactly one attempt and returns to ordered checks. Add allowance-10-escalate-after for attempts 1-10, held settings, both recovery paths and spent identity after grants/resume; update spent-row-escalation's unspent expectation to immediate threshold escalation. Run only these two samples here. These partial text replays cover narrated routing and recovery, not live model dispatch.
 

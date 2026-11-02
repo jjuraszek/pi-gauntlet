@@ -1,0 +1,32 @@
+{
+  "sample": "row-history-guidance",
+  "arm": "baseline",
+  "skillSha": "1051df5e801074f612a6f4ac8ba9b9507e79fb96da7ead8a2bd010404dc2f355",
+  "inputSha": "721f08f1aa4d226b26f072315affc6d548d0a027313859963feef922cd5aacf1",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "error",
+      "error": "This request was blocked as it seems to violate Anthropic's Terms of Service restrictions on reverse engineering or duplicating model outputs. To learn more, visit https://www.anthropic.com/legal/commercial-terms. API integrators: you can reduce refusals for your users by configuring a fallback model — see https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback",
+      "wallMs": 1547
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Simulated tool trace\n\n1. Read the spec first:\n   ```sh\n   cat /repo/doc/specs/records.md\n   ```\n   Observed the complete supplied spec, including the requirement to decode record names and use the existing Node test beside the parser. The parent owns `npm test`. No additional `Rules:` files were specified.\n\n2. Read the ledger next:\n   ```sh\n   cat /repo/doc/plans/records-ledger.md\n   ```\n   Saved these exact attribution lines:\n   ```text\n   pending: 2 | home | def5678\n   iteration: 6\n   ```\n   Target row 2 is `failed`, with attempts `2`. Its mapped acceptance criterion is parsing JSON arrays and returning decoded names.\n\n3. Apply guidance in order before choosing the implementation:\n   - Follow the spec and ledger boundaries: work on row 2, preserve other rows, and run only its selective check.\n   - Preserve the earlier prohibition on approach X. The teammate’s suggestion to retry regex comma splitting is rejected: the older decision remains applicable even though the latest decision does not repeat it.\n   - Use the latest failure and retry guidance: decode complete JSON records before selecting names, retaining the escaped-quote regression case.\n   - Treat this as an ordinary worker attempt. The escalation marker records an earlier round; that round failed, and this dispatch has no model field. It does not designate this iteration as the escalated model’s turn.\n   - Consume ledger iteration `6`, not task iteration `5`.\n\n4. Inspect the base-relative scope:\n   ```sh\n   git -C /repo diff --stat abc1234\n   ```\n   Observed changes in the ledger, `src/records.mjs`, and `test/records.test.mjs`.\n\n   Read only relevant parser/test diff hunks and files:\n   ```sh\n   git -C /repo diff abc1234 -- src/records.mjs test/records.test.mjs\n   cat /repo/src/records.mjs\n   cat /repo/test/records.test.mjs\n   ```\n   Observed hand-written raw-token extraction and existing comma and escaped-quote cases. Retain the existing parser interface and test.\n\n5. RED — extend the existing test’s cases with an escaped-backslash input and decoded expected name:\n   ```js\n   {\n     input: '[{\"name\":\"C:\\\\\\\\Users\\\\\\\\Ada\"}]',\n     expected: ['C:\\\\Users\\\\Ada']\n   }\n   ```\n   Keep both existing cases unchanged.\n\n   Run:\n   ```sh\n   cd /repo\n   node --test test/records.test.mjs\n   ```\n   Observed a nonzero exit: escaped names retain undecoded escapes. The extended test fails for the target behavior.\n\n6. GREEN — replace raw-token extraction in the existing parser with complete JSON decoding followed by name-field mapping. Preserve its exported name and signature; its implementation now returns:\n   ```js\n   return JSON.parse(input).map(record => record.name);\n   ```\n\n   Run:\n   ```sh\n   cd /repo\n   node --test test/records.test.mjs\n   ```\n   Observed exit `0`: all three cases pass.\n\n   The recorded invocation selects a file, not a name filter, so no filter no-match probe is needed. No separate refactor is necessary.\n\n7. Update only target row 2’s mutable cells:\n   ```markdown\n   | 2 | done | 3 | node --test test/records.test.mjs; 3 passed; 0 failed |\n   ```\n   Remove:\n   ```text\n   pending: 2 | home | def5678\n   ```\n   Preserve `iterations: 6`, every other header, rows 1 and 3, and all existing decisions.\n\n   Append to `## Decisions`:\n   ```text\n   row 2 done | Replaced raw-token extraction with JSON decoding and verified commas, escaped quotes, and backslashes. | Reuse src/records.mjs for decoded names and test/records.test.mjs for parser regression coverage.\n   ```\n\n   Do not attempt row 3: it is unrelated, already failed rather than open, and has no supplied code or passing check.\n\n8. Review the completed changes:\n   ```sh\n   git -C /repo diff -- src/records.mjs test/records.test.mjs doc/plans/records-ledger.md\n   ```\n   Confirm only the parser, its extended test, target ledger cells, pending removal, and appended decision changed.\n\n9. Stage explicitly and commit exactly once:\n   ```sh\n   git -C /repo add src/records.mjs test/records.test.mjs doc/plans/records-ledger.md\n   git -C /repo commit -m \"loop: row 2 done\" -m \"pending: 2 | home | def5678\n   iteration: 6\"\n   git -C /repo status --porcelain\n   ```\n   Observed successful staging and commit; final status output is empty.\n\nFinal reply:\nrow 2 done | Replaced raw-token extraction with JSON decoding and verified commas, escaped quotes, and backslashes. | Reuse src/records.mjs for decoded names and test/records.test.mjs for parser regression coverage.\n",
+      "words": 572,
+      "wallMs": 28073,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "7c414cbd23aa7a34d272f382061ab95b51dd5b22"
+}
