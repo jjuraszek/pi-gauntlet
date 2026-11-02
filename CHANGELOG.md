@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The loop engine escalates a row to `escalationLoop.implModel` once its attempts reach `min(loopEngine.escalateAfter, effective allowance - 1)` instead of only on the last allowed attempt; `piGauntlet.loopEngine.escalateAfter` defaults to 3 (floor 1, non-integer values warn and fall back), so the default configuration still escalates attempt 4 while an allowance of 10 runs attempt 4 on `implModel` and attempts 5-10 on the worker. The threshold is held in driver memory from Entry or restore and never written to the ledger. `loop-implementer` reads its target row's `## Decisions` lines oldest first and honors failed-line guidance, with the dispatch payload unchanged. (#119)
+
 ## v8.1.6 - 2026-11-01
 
 ### Changed
