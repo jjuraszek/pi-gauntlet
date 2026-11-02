@@ -685,7 +685,12 @@ test('configuration-allowance: binding documentation describes the single allowa
     'doc/configuration.md': [
       'iterations: 0\nallowance: 4', 'allowance <n> per row', 'run allowance: <n>',
       'allowance: <n> (reply)', 'allowance: <n> (setting)', 'positive safe integer',
-      'last allowed attempt', 'at most once per row', 'one exit-verification repair per flow',
+      'clamped to the last allowed attempt', 'at most once per row', 'one exit-verification repair per flow',
+      'loopEngine.escalateAfter', 'default 3', 'floor 1',
+      'loopEngine.escalateAfter must be an integer; using default 3',
+      'min(escalateAfter, effective allowance - 1)', 'attempts >= threshold',
+      'never re-resolved inside the loop', 'fresh-session restore',
+      'before its escalated attempt',
       'retry <n> | <hint>', 'rows +N', 'loop: raise allowance', 'loop: migrate allowance',
       'effective allowance is the header allowance plus one per',
       'Preserve every row\'s attempts.', 'both or neither requires human repair',
@@ -694,18 +699,19 @@ test('configuration-allowance: binding documentation describes the single allowa
     'doc/implement-engines.md': [
       'no total iteration cap', 'no amend permission required', 'rows +N',
       'loop: migrate allowance', 'Only retry starts new stagnation',
+      'escalateAfter', 'threshold attempt', 'without re-resolving the allowance',
     ],
     'doc/gate-contract.md': [
       'positive safe integer', 'funding on 4/5 and malformed tokens re-present',
       'allowance <n> per row', 'run allowance: <n>', 'rows +N',
     ],
-    'README.md': ['loopEngine.maxIterationsPerRow', '4; allowance 6', 'no total iteration cap'],
-    'doc/personas.md': ['ordinary attempts', 'last allowed attempt', 'at most once per row'],
+    'README.md': ['loopEngine.maxIterationsPerRow', '4; allowance 6', 'no total iteration cap', 'loopEngine.escalateAfter', 'escalateAfter + 1', 'clamped to the last allowed attempt'],
+    'doc/personas.md': ['ordinary attempts', 'clamped to the last allowed attempt', 'at most once per row', 'escalateAfter'],
   };
   for (const [path, tokens] of Object.entries(required)) {
     const text = readFileSync(new URL(path, root), 'utf8');
     for (const token of tokens) assert.ok(text.includes(token), `${path}: ${token}`);
-    assert.doesNotMatch(text, /cap \+N|row-scaled cap|amend-gated within the durable cap|3 \+ funded/);
+    assert.doesNotMatch(text, /cap \+N|row-scaled cap|amend-gated within the durable cap|3 \+ funded|only active `piGauntlet\.loopEngine\.\*` setting|row's last allowed attempt|its last allowed attempt escalates|before its last attempt|both the loop driver and .* use this rule/);
   }
 });
 
