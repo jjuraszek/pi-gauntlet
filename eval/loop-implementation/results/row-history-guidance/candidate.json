@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "d7b152113b4b09de62c826191cb39cb9e34332effa1b17812b1a12473147647b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "64de7a585e48cc0da46148fd123b98df7f3fcfa0e7c9d045e7a536009a7a44d4",
+      "intentSha": "0e3b6ea04ab7026d80dfd1c61e8f1e861ac717bfeb7c90b6a1faf9c54a1a64e6",
       "baselineOutputSha": "9dbdd032edcd716ebd55c222fc979f707ed2f1411633639c9e96a2fe22c2f9b5",
       "candidateOutputSha": "7ad2271f5c8f9b9796c45a6d127b43b12e46dcc283d87b3f557a7ef1825cda16",
       "facts": {
@@ -74,14 +74,14 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: the child's oldest-first table of all four row 2 lines (regex failure, retry hint, escalation marker, raw-token failure), with the last line identified as the previous decision, is what moves ordered-history from fails to holds, while Before only cited the Decisions section without ordering it. Every fact Before kept is kept: X is still rejected on the older line, the decode-complete-JSON guidance and escaped-quote hint are followed as positive guidance, row 3 is named only to exclude it, the marker is spent history with no model identity and the driver omits the override and writes no second marker, and the child reads the spec before the ledger, extends the existing table with the escaped-backslash row and names node --test test/records.test.mjs as the red check without results. One wording point to watch: After appends a `Rules: AGENTS.md` line to the task payload that Before did not carry; it is not a history field, decision list or approach instruction so payload still holds, but if the Change intends the payload unchanged, drop that line (the child already reads AGENTS.md as the captured Rules) to keep the dispatch byte-identical to Before while retaining the ordered-history table in the child trace.",
-      "wallMs": 23382,
+      "feedback": "After delivers the intended movement: the child now lists all four row 2 Decisions lines oldest first in a table (regex-splitting failure, retry hint, escalation marker, raw-token failure), keeps the raw-token line as previous decision, and only then selects an approach, which Before never did (it cited the Do-not-retry line but never ordered the history). Every other fact Before kept survives: approach X is rejected on the older line, the marker is explicitly spent history rather than model identity, row 3 is excluded by name only, the driver omits the model override and writes no marker, and the child reads the spec before the ledger, extends the existing table with the concrete escaped-backslash row and names node --test test/records.test.mjs as the red check. One caution: After appends a `Rules: AGENTS.md` line to the task string, which no fact forbids but which contradicts the Change's statement that the driver payload stays unchanged; to be safe, keep the task fields identical to Before (iteration, spec, ledger, base, target, previous decision, hint only) and let the child pick up Rules from the captured AGENTS.md read, as Before's child did.",
+      "wallMs": 23168,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d7b152113b4b09de62c826191cb39cb9e34332effa1b17812b1a12473147647b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "64de7a585e48cc0da46148fd123b98df7f3fcfa0e7c9d045e7a536009a7a44d4",
+      "intentSha": "0e3b6ea04ab7026d80dfd1c61e8f1e861ac717bfeb7c90b6a1faf9c54a1a64e6",
       "baselineOutputSha": "c2293900e577d3a5542002a06cd698d3e525cf49d6fdf125306fdcaf40d37ea1",
       "candidateOutputSha": "020d088d21692ee9fce9a269f69727386240a0ad6cc78b9c2834ebe4c8c765f9",
       "facts": {
@@ -121,10 +121,10 @@
           "label": "held"
         }
       },
-      "feedback": "The only fact that moved is ordered-history, and it moved because After's child read step 4 explicitly enumerates all four row-2 Decisions entries oldest first (regex-splitting prohibition, retry hint, spent escalation marker, raw-token failure) before the approach is chosen, while Before only cited 'its earlier durable row-2 decision' and 'the latest decision' without reading or ordering the full history. Note that ruled-out already held in Before: Before's child did name regex comma splitting and the older failed line as the basis for refusing approach X, so the Change's expected fails->holds for ruled-out is not observed; if you want that fact to be a genuine mover you need a Before that omits the older line, not a wording tweak in After. After preserved every other fact: the driver payload is byte-identical (no model field, no history, iteration 5, hint none, iterations 6 and pending written and refreshed before dispatch without a commit), the driver explicitly disclaims spec/source reads and parser diagnosis, the child reads spec before ledger, extends the existing node:test table with the escaped-backslash case, and names node --test test/records.test.mjs as the first selective RED check with no results claimed. Keep the step-4 ordered list as the delivery mechanism for ordered-history; it is the minimal addition that moves the fact without touching the driver section or the payload.",
-      "wallMs": 21814,
+      "feedback": "The only fact that moved is ordered-history, and After moved it the right way: the new child read step 4 lists all four row-2 Decisions entries oldest first (regex-splitting failure, retry hint, escalation marker, raw-token failure) and keeps the raw-token line as the latest guidance, whereas Before only gestured at an 'earlier' and 'latest' decision without ordering the full history. Note that ruled-out already held in Before (it explicitly named regex comma splitting as not to retry and chose JSON decoding), so its declared fails->holds movement is not observed; the After wording merely makes the basis more explicit via the persona's ordered-history requirement. Every other fact (polarity, row-isolation, spent-marker, payload, role-boundary) held identically in both outputs: the driver payload is unchanged with no model field or history, the driver never diagnoses or reads a transcript, and the child reads spec-first, extends the existing test with the escaped-backslash case and names node --test test/records.test.mjs as the first selective check. Keep the explicit four-entry ordered listing in the child's read sequence and the explicit row-3 exclusion sentence; nothing in After regressed, so no wording needs to be restored.",
+      "wallMs": 21645,
       "verdict": "improved"
     }
   },
-  "repoSha": "65ec5fb02cace70458f340bb85b208910089c4f1"
+  "repoSha": "53f573b8c8decbad7a4ab9871edaf962a24742cc"
 }
