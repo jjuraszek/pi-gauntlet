@@ -136,7 +136,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - row-budget-actions/invalid: fails -> holds - Both the first and later malformed replies leave ledger bytes and the stop unchanged.
 - row-budget-actions/windows: fails -> holds - Only retry restarts stagnation windows; raising the header cannot bypass stagnation.
 - row-budget-actions/boundaries: fails -> holds - Budget actions are limited to row stops, never dirty/commit or verify stops.
-- row-budget-actions/missing: fails -> holds - A shared raise may authorize an ordinary attempt without resolving or spending the unavailable escalation.
+- row-budget-actions/missing: fails -> holds - A shared raise preserves attempts and unspent escalation; the next threshold dispatch stops again until a model resolves.
 - retired-budgets/counter-only: fails -> holds - Dispatch count and legacy funding no longer gate or buy loop attempts.
 - retired-budgets/exhaustion: fails -> holds - Exhaustion offers only retry and a shared allowance raise as budget actions.
 - retired-budgets/coordinated-return: fails -> holds - Companion admission preserves the shared allowance and foreign entries.
