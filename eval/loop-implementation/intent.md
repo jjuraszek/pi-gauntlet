@@ -2,6 +2,8 @@ for: 326c3a70aff0c87587705be9fd0f35d8e2b9d3cb65c46f319421e64f8bce6f06
 
 ## Change
 
+Add row-history-guidance for the driver dispatch and separate child continuation over two target failures and an interleaved foreign-row failure. Require the child to reject the older prohibited approach, order its own history, preserve guidance polarity and treat the marker as spent history. Keep history out of the driver payload and child diagnostics out of the driver. Run only this sample here; preserve earlier sample evidence. Supply an explicit missing escaped-backslash test case so the child continuation's test extension is observable rather than an unspecified addition. These partial text replays cover narrated choices, not live dispatch or parser execution.
+
 The bundled child persona reads its target row's complete ordered history, preserves failed-guidance polarity, excludes other rows and treats escalation as spent history rather than current model identity. The driver payload stays unchanged. This iteration selects only loop-implementer/row-history-guidance for child behavior; preserve this target's existing results without claiming a fresh driver replay.
 
 Keep early escalated recovery within the remaining allowance: boundary rejection restores the pre-dispatch attempts, while an admitted miss consumes exactly one attempt and returns to ordered checks. Add allowance-10-escalate-after for attempts 1-10, held settings, both recovery paths and spent identity after grants/resume; update spent-row-escalation's unspent expectation to immediate threshold escalation. Run only these two samples here. These partial text replays cover narrated routing and recovery, not live model dispatch.
@@ -60,6 +62,8 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- row-history-guidance/ruled-out: fails -> holds - Reject approach X using the older failed line even when latest guidance omits it.
+- row-history-guidance/ordered-history: fails -> holds - Read all target history oldest first before choosing an approach.
 - allowance-10-escalate-after/sequence: fails -> holds - Escalate attempt4 once and run attempts5-10 on the worker before exhaustion.
 - allowance-10-escalate-after/held: fails -> holds - Retain the captured threshold through an in-session settings edit.
 - allowance-10-escalate-after/rejection: fails -> holds - Recover a rejected early escalation without consuming attempts or new budget.
