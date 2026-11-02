@@ -89,22 +89,26 @@ test('effective allowance counts retries rather than historical ceilings or othe
   assert.doesNotMatch(before, /Set row allowance to 3 \+ funded|Recover spent funding|latest .*retry.*when larger/);
 });
 
-test('last-attempt escalation uses the resolved model under both approval options', () => {
+test('threshold escalation uses the held setting and resolved model under both approval options', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
   assert.match(before, /attempts >= effective allowance \| Human stop under approval option 4 and option 5 alike/);
-  assert.match(before, /Select target by the priority below, then apply the last-attempt escalation check/);
+  assert.match(before, /Select target by the priority below, then apply the escalation threshold check/);
   for (const token of [
-    'For a numbered target at attempts == effective allowance - 1',
-    'no existing durable `row <n> escalated` decision',
+    'For a numbered target with no durable `row <n> escalated` decision',
+    'threshold = min(escalateAfter, effective allowance - 1)',
+    'pre-dispatch attempts >= threshold',
+    'held `escalateAfter`',
+    'With defaults (allowance 4, `escalateAfter` 3), escalate attempt 4',
+    'A row found past the threshold unspent escalates on its next dispatch',
     'gauntlet_setting({ key: "escalationLoop" })',
     'Never consult this value for row escalation',
     'returned non-empty `implModel` string', 'main-loop model fallback',
     'setting is unset or malformed', 'settings tool unavailable or `implModel` undefined',
     'neither a configured model nor a main-loop model',
     'Problem: escalationLoop.implModel unavailable',
-    'write no escalation decision and leave attempts at effective allowance - 1',
-    'Never substitute a default-model last attempt',
+    'write no escalation decision and leave attempts unchanged',
+    'Never substitute a default-model attempt',
     'row <n> escalated | implModel round | allowed attempts <effective allowance>',
     'loop: escalate row <n>', 'escalated round for row <n>', 'model: <implModel>',
     'normal loop-implementer target, bump and validation path',
@@ -112,8 +116,11 @@ test('last-attempt escalation uses the resolved model under both approval option
     'within the effective allowance, never an extra attempt',
     'starts no new empty-child or validation-miss window',
   ]) assert.ok(before.includes(token), token);
-  assert.ok(before.indexOf('Select `seed` until') < before.indexOf('For a numbered target at'));
-  assert.ok(before.indexOf('Apply hard boundaries') < before.indexOf('For a numbered target at'));
+  assert.ok(before.indexOf('Select `seed` until') < before.indexOf('For a numbered target with'));
+  assert.ok(before.indexOf('Apply hard boundaries') < before.indexOf('For a numbered target with'));
+  assert.doesNotMatch(before, /attempts == effective allowance - 1|last-attempt escalation check|dispatch that last allowed attempt/);
+  const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
+  for (const token of ['`escalateAfter` (default 3)', 'Hold `escalateAfter` in driver memory', 'never print it or write it to the ledger', 'never re-resolve it inside the loop', 'including after amendment grant re-decodes', 'At an authorized fresh-session restore', 'exactly once', 'cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)', "Skip Entry step 1's allowance seeding"]) assert.ok(entry.includes(token), token);
   assert.doesNotMatch(before, /With amend permission|no amend permission or escalation|allowed attempts <attempts \+ 1>/);
   assert.match(driver, /Omit the model override except on an escalated round/);
 });
@@ -125,8 +132,8 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
     'escalation identity from `## Decisions` on every dispatch and resume',
     'unrecoverable means spent', 'whole flow across retry, `rows +N`, amendments and resume',
     'omit the model override on every later authorized attempt',
-    'including a new last allowed attempt', 'never resolve another row escalation or append a second marker',
-    'With no marker and recoverable history, apply the normal last-attempt predicate',
+    'including every attempt up to a raised effective allowance', 'never resolve another row escalation or append a second marker',
+    'With no marker and recoverable history, apply the threshold predicate',
     'a previously missing model or migrated row has not spent escalation',
   ]) assert.ok(before.includes(token), token);
   const stop = driver.split('## Human stop')[1].split('## After the loop')[0];

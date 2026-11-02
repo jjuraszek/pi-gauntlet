@@ -1,6 +1,8 @@
-for: 29183015ad5931a51c1c9c1582956981925b1a733888493fb90bb5526bd9dc53
+for: 972e44c5cdc459d2e08a17125728a8481e47a358bf9f7935c934f597c973df7b
 
 ## Change
+
+Capture escalateAfter once at Entry or fresh-session restore and escalate the first unspent dispatch at or above min(escalateAfter, effective allowance - 1). Keep the allowance authoritative on restore and share the threshold read with legacy migration. Extend last-attempt-model-boundary for clamping and past-threshold catch-up; run only it, escalated-row-attempt and legacy-cap here. These partial text replays cover narrated threshold dispatch and restore, not live model routing or the remaining history and post-escalation samples.
 
 Repair review findings on companion admission and rejected-return recovery. Run only companion-multi-row and partial-seed in this round. Require complete non-cut companion seed serialization with empty unevidenced open cells and evidenced-only counts; route post-boundary ordinary misses through target-only repair. These synthetic replays attest narrated admission and recovery, not live dispatch.
 Complete seed-retry conformance using the existing seed-retry sample's first miss, second consecutive miss, successful-window reset and companion cases. Rerun only seed-retry for this iteration; keep all other sample results, including partial-seed and seed-selection, unchanged. These replays prove narrated repair and stop behavior, not live dispatch. Refresh the deterministic home-boundary assertions to require restoring every changed row, not only the target.
@@ -54,6 +56,7 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- last-attempt-model-boundary/threshold: fails -> holds - Clamp the held setting and escalate past-threshold unspent rows without a settings refresh.
 - seed-selection/partial: fails -> holds - Continue ordinary work after a validated partial seed without filling unreached evidence cells first.
 - partial-seed/partial: fails -> holds - Admit a single evidenced home row while leaving unreached rows empty.
 - partial-seed/closures: fails -> holds - Admit baseline closures on a subset without demanding full coverage.
@@ -101,9 +104,9 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - scaled-cap-grant/windows: fails -> holds - Raises preserve the stagnation windows.
 - scaled-cap-grant/validation: fails -> holds - Children cannot change the allowance header.
 - funding/contract: fails -> holds - Ignore legacy funding, add retry/shared raises and never rearm escalation or reset windows through a shared raise.
-- legacy-cap/legacy: fails -> holds - The driver refuses missing allowance; resume owns migration and present allowance stays authoritative.
+- legacy-cap/legacy: fails -> holds - The driver refuses missing allowance; resume captures the threshold once without re-resolving an existing allowance.
 - legacy-cap/grant: fails -> holds - Resume replaces cap with settings-derived allowance in one commit without resetting attempts.
-- legacy-cap/dirty: fails -> holds - Missing settings and dirty trees block migration without writes.
+- legacy-cap/dirty: fails -> holds - Missing restore settings stops with the escalation-threshold diagnostic; dirty trees still block migration without writes.
 - allowance-entry-carrier/reply: fails -> holds - Consume the exact approving-turn carrier and print the reply echo at seeding.
 - allowance-entry-carrier/setting: fails -> holds - Fall back to the setting and print its source when the carrier is absent.
 - allowance-entry-carrier/coordinated: fails -> holds - Share the same resolved value and echo across coordinated entry.
