@@ -70,6 +70,17 @@ test("mergeGauntlet: repo key replaces preset key whole-object", () => {
   const merged = mergeGauntlet(preset, repo);
   assert.deepEqual(merged.specCouncil, { members: ["b"] });
   assert.deepEqual(merged.closureReview, { model: "m" });
+  for (const [repoLoop, expected] of [
+    [undefined, { maxIterationsPerRow: 8, escalateAfter: 6 }],
+    [{ maxIterationsPerRow: 10 }, { maxIterationsPerRow: 10, escalateAfter: 3 }],
+    [{ escalateAfter: 2 }, { maxIterationsPerRow: 4, escalateAfter: 2 }],
+  ] as const) {
+    const loop = mergeGauntlet(
+      { loopEngine: { maxIterationsPerRow: 8, escalateAfter: 6 } },
+      repoLoop === undefined ? {} : { loopEngine: repoLoop },
+    );
+    assert.deepEqual(resolveLoopEngine(loop), { ...expected, warning: undefined });
+  }
 });
 
 test("mergeGauntlet: undefined layers -> {}", () => {

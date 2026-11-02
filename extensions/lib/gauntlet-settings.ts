@@ -11,7 +11,7 @@ export interface PiGauntlet {
   flowGuards?: { enforce?: unknown; specDirs?: unknown };
   verifyBeforeShip?: { testCommands?: unknown; warningReference?: unknown };
   escalationLoop?: { implModel?: unknown };
-  loopEngine?: { maxIterationsPerRow?: unknown; maxIterations?: unknown };
+  loopEngine?: { maxIterationsPerRow?: unknown; escalateAfter?: unknown; maxIterations?: unknown };
   phaseModels?: { plan?: unknown; implement?: unknown; verify?: unknown; ship?: unknown };
   telemetry?: { enabled?: unknown; dir?: unknown; buckets?: unknown };
 }
@@ -93,11 +93,14 @@ export function resolveClosureReview(g: PiGauntlet): ClosureReviewResolved {
   return { model, enforce, maxFixRounds };
 }
 
-export function resolveLoopEngine(g: PiGauntlet): { maxIterationsPerRow: number; warning: string | undefined } {
+export function resolveLoopEngine(g: PiGauntlet): { maxIterationsPerRow: number; escalateAfter: number; warning: string | undefined } {
   const loop = g.loopEngine;
   const raw = loop?.maxIterationsPerRow;
   const valid = typeof raw === "number" && Number.isInteger(raw);
   const maxIterationsPerRow = valid ? Math.max(1, raw) : 4;
+  const rawEscalateAfter = loop?.escalateAfter;
+  const validEscalateAfter = typeof rawEscalateAfter === "number" && Number.isInteger(rawEscalateAfter);
+  const escalateAfter = validEscalateAfter ? Math.max(1, rawEscalateAfter) : 3;
   const warnings: string[] = [];
   if (loop && Object.hasOwn(loop, "maxIterations")) {
     warnings.push("loopEngine.maxIterations is removed; set loopEngine.maxIterationsPerRow");
@@ -105,7 +108,10 @@ export function resolveLoopEngine(g: PiGauntlet): { maxIterationsPerRow: number;
   if (raw !== undefined && !valid) {
     warnings.push("loopEngine.maxIterationsPerRow must be an integer; using default 4");
   }
-  return { maxIterationsPerRow, warning: joinWarn(warnings) };
+  if (rawEscalateAfter !== undefined && !validEscalateAfter) {
+    warnings.push("loopEngine.escalateAfter must be an integer; using default 3");
+  }
+  return { maxIterationsPerRow, escalateAfter, warning: joinWarn(warnings) };
 }
 
 export interface EscalationLoopResolved {
