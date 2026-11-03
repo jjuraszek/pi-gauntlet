@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, statSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, statSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
@@ -35,7 +35,7 @@ const isJudge = (args) => args.includes("anthropic-fable/claude-fable-5-1");
 const hiFor = (args) => `hi ${modelOf(args)}`;
 const modelIn = (input) => /hi (\S+)/.exec(input)[1];
 const record = (root, arm) => JSON.parse(readFileSync(join(root, `eval/t/results/s1/${arm}.json`), "utf8"));
-const run = (root, spawn, extra = {}) => runTarget({ root, target: "t", base: "HEAD", spawn, ...extra });
+const run = (root, spawn, extra = {}) => runTarget({ root, target: "t", base: "HEAD", judgePath: join(root, "eval", "judge.md"), spawn, ...extra });
 
 test("baseline-only seeds records without an intent and refuses the candidate arm on a stub", async () => {
   const { root } = repo(); const calls = [];
@@ -72,6 +72,13 @@ for (const words of [50, 51]) test(`text replay enforces wordCap at ${words} wor
     }
   }
   assert.equal(judges, words === 50 ? 2 : 0);
+});
+
+test("judge prompt comes from the runner's own eval/judge.md, not <root>/eval/judge.md", async () => {
+  const { root } = candidate(); rmSync(join(root, "eval/judge.md"));
+  const spawn = () => ({ status: "ok", stdout: "hi there", wallMs: 1 });
+  const result = await runTarget({ root, target: "t", base: "HEAD", spawn, baselineOnly: true });
+  assert.match(result.message, /baseline seeded/);
 });
 
 test("replay scrubs its scratch cwd before storing output", async () => {

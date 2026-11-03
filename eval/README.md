@@ -5,10 +5,10 @@ An eval checks change safety on fixed inputs and must-hold facts, not a quality 
 ## Run
 
 ```bash
-node eval/run.mjs <target> [<sample>] [--baseline-only] [--refresh-judgments] [--base <ref>]
+node eval/run.mjs <target> [<sample>] [--baseline-only] [--refresh-judgments] [--base <ref>] [--root <path>]
 ```
 
-The default run compares baseline skill text from `git merge-base HEAD origin/main` with the working tree, reuses fresh cells, and judges each pair against `intent.md`. `--base <ref>` selects another baseline commit. `<sample>` selects one sample and writes a report labeled partial, not a target-wide pass. `--baseline-only` seeds or refreshes baseline records without checking intent or judging; fresh baselines require no model call. Commit the records and intent with the change. Models are constants, not CLI options.
+The default run compares baseline skill text from `git merge-base HEAD origin/main` with the working tree, reuses fresh cells, and judges each pair against `intent.md`. `--base <ref>` selects another baseline commit. `--root <path>` runs a target that lives in another checkout (`<path>/eval/<target>/`, skill files and merge-base resolved there); the judge prompt is always this checkout's `eval/judge.md`. `<sample>` selects one sample and writes a report labeled partial, not a target-wide pass. `--baseline-only` seeds or refreshes baseline records without checking intent or judging; fresh baselines require no model call. Commit the records and intent with the change. Models are constants, not CLI options.
 
 `EVAL_CONCURRENCY=<n>` (default `4`) bounds how many `pi` children run at once; any value other than a positive integer refuses with `EVAL_CONCURRENCY must be a positive integer, got <v>`. Lower it when the provider rate-limits (a limited cell lands as `status: error`; rerun and reuse picks up the finished cells). The completion line reports what the invocation actually called: `<target>: <worst> (report.md written; replay <n>, judge <n>, confirm <n>, wall <s>s)`; `--baseline-only` prints `baseline seeded (replay <n>, wall <s>s)` or `baseline fresh`. An invocation that calls nothing and changes no labels or verdicts leaves `report.md` untouched and prints `<target>: <worst> (report.md unchanged; replay <n>, judge <n>, confirm <n>, wall <s>s)`. For ordinary runs, Ctrl-C keeps the records of samples that finished, writes nothing for samples in flight, and writes no report. Judgment is noninteractive: the runner uses an LLM judge, not a human runtime approval gate.
 

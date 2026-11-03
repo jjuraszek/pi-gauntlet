@@ -285,7 +285,7 @@ test("runner validates new files before calls and binds intent to candidate text
     prompts.push(readFileSync(args[args.indexOf("--system-prompt") + 1], "utf8"));
     return { status: "error", stderr: "stub stopped", wallMs: 0 };
   };
-  const run = () => runTarget({ root, target: "t", base: "HEAD", spawn, recordWriter: (...args) => records.push(args) });
+  const run = () => runTarget({ root, target: "t", base: "HEAD", judgePath: join(root, "eval", "judge.md"), spawn, recordWriter: (...args) => records.push(args) });
   target.skillFiles[0].new = true; save();
   assert.match((await run()).message, /old.md.*baseline/);
   assert.equal(prompts.length, 0); assert.equal(records.length, 0);

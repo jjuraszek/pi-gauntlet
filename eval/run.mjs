@@ -156,7 +156,9 @@ function labeled(sample, judged, facts, before, after, moves) {
   return deriveLabels(sample, outcomes, moves);
 }
 
-export async function runTarget({ root, target: name, sample: only, baselineOnly = false, refreshJudgments = false, base, spawn = defaultSpawn, concurrency = process.env.EVAL_CONCURRENCY ?? 4, signal, refreshWriter = writeRecordAtomic, recordWriter = writeRecord }) {
+const RUNNER_DIR = dirname(fileURLToPath(import.meta.url));
+
+export async function runTarget({ root, target: name, sample: only, baselineOnly = false, refreshJudgments = false, base, judgePath = join(RUNNER_DIR, "judge.md"), spawn = defaultSpawn, concurrency = process.env.EVAL_CONCURRENCY ?? 4, signal, refreshWriter = writeRecordAtomic, recordWriter = writeRecord }) {
   const started = Date.now();
   if (refreshJudgments && (!only || baselineOnly)) return { exit: 2, message: "refresh judgments requires one sample and cannot use --baseline-only" };
   const dir = join(root, "eval", name);
@@ -182,7 +184,7 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   const newPaths = target.skillFiles.filter((file) => file.new === true).map((file) => file.path);
   const repoSha = git(root, "rev-parse", "HEAD");
   const replayText = read(join(dir, "replay.md"));
-  const judgeText = read(join(root, "eval", "judge.md"));
+  const judgeText = read(judgePath);
   const intentText = read(join(dir, "intent.md"));
   const judgeHygiene = scanText(judgeText, target.denylist);
   if (judgeHygiene.length) return refuse(`hygiene: judge.md: ${judgeHygiene.map((h) => h.rule).join(",")}`);
@@ -386,17 +388,17 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   let parsed;
   try {
-    parsed = parseArgs({ strict: true, allowPositionals: true, options: { "baseline-only": { type: "boolean" }, "refresh-judgments": { type: "boolean" }, base: { type: "string" } } });
+    parsed = parseArgs({ strict: true, allowPositionals: true, options: { "baseline-only": { type: "boolean" }, "refresh-judgments": { type: "boolean" }, base: { type: "string" }, root: { type: "string" } } });
     if (parsed.positionals.length < 1 || parsed.positionals.length > 2) throw new Error("invalid positionals");
   } catch {
-    console.error("usage: node eval/run.mjs <target> [<sample>] [--baseline-only] [--refresh-judgments] [--base <ref>]");
+    console.error("usage: node eval/run.mjs <target> [<sample>] [--baseline-only] [--refresh-judgments] [--base <ref>] [--root <path>]");
     process.exit(2);
   }
   const [target, sample] = parsed.positionals;
-  const { base, "baseline-only": baselineOnly, "refresh-judgments": refreshJudgments } = parsed.values;
+  const { base, root, "baseline-only": baselineOnly, "refresh-judgments": refreshJudgments } = parsed.values;
   const controller = new AbortController();
   process.once("SIGINT", () => controller.abort());
-  const result = await runTarget({ root: resolve(dirname(fileURLToPath(import.meta.url)), ".."), target, sample, baselineOnly, refreshJudgments, base, signal: controller.signal });
+  const result = await runTarget({ root: root ? resolve(root) : resolve(RUNNER_DIR, ".."), target, sample, baselineOnly, refreshJudgments, base, signal: controller.signal });
   console[result.exit ? "error" : "log"](result.message);
   process.exit(result.exit);
 }

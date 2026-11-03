@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `eval/run.mjs --root <path>` runs a target that lives in another checkout (`<path>/eval/<target>/`, skill files and merge-base resolved there), and `runTarget` reads the judge prompt from the runner's own `eval/judge.md` (`judgePath` parameter) instead of `<root>/eval/judge.md`. Lets a sibling repo such as pi-quiver keep its eval targets in its own tree while reusing this harness.
+
 ## v8.1.7 - 2026-11-02
 
 - The loop engine escalates a row to `escalationLoop.implModel` once its attempts reach `min(loopEngine.escalateAfter, effective allowance - 1)` instead of only on the last allowed attempt; `piGauntlet.loopEngine.escalateAfter` defaults to 3 (floor 1, non-integer values warn and fall back), so the default configuration still escalates attempt 4 while an allowance of 10 runs attempt 4 on `implModel` and attempts 5-10 on the worker. The threshold is held in driver memory from Entry or restore and never written to the ledger. `loop-implementer` reads its target row's `## Decisions` lines oldest first and honors failed-line guidance, with the dispatch payload unchanged. (#119)
