@@ -1,0 +1,156 @@
+{
+  "sample": "server-cache-owner",
+  "arm": "candidate",
+  "skillSha": "85c50600f358ccf4bd0f2f0270f3b44b8bc613cca08dd34aeecf1bd3c5524906",
+  "inputSha": "650f3b21999d01eb8e5c870cceb362b79d492f1ba986468b36e29db3b9976384",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nThe price list keeps returning yesterday's prices on a new day. A plain command-line request shows the same old prices, so the browser is not the cause.\n\n### Why it is broken\n\nThe part that supplies the current price list, the price-list service, saves a copy of each answer so it does not have to rebuild the list every time. The label it uses to find a saved copy does not include the date. Because of that, yesterday's saved copy still matches the first request of the new day, and the list is never rebuilt. A local request reproduced yesterday's prices. Adding today's date to that label returned today's prices, which confirmed this cause.\n\n### How to fix it\n\nAdd the date to the label used to find the saved copy. This is a one-line change, and the first request each day will then build a fresh price list. Choose hotfix because the change is one line and a test confirmed the cause.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n",
+      "words": 213,
+      "wallMs": 9780,
+      "mechanical": {
+        "section-order": "holds",
+        "no-labels": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nThe service that supplies the current price list, the price-list API, keeps serving yesterday\u2019s prices. A local command-line request reproduced the stale prices without a browser.\n\n### Why it is broken\n\nThe service\u2019s stored response, kept to avoid recomputing the list, is selected using an identifier called a cache key. That key omits the date, so the first request of a new day reuses yesterday\u2019s response instead of refreshing it. A trial adding today\u2019s date to the key returned today\u2019s prices, confirming this cause.\n\n### How to fix it\n\nAdd the date to the cache key in a one-line change so a new day\u2019s request retrieves today\u2019s prices instead of reusing yesterday\u2019s response. Choose hotfix because the change is one line and the trial returned today\u2019s prices.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n",
+      "words": 168,
+      "wallMs": 9983,
+      "mechanical": {
+        "section-order": "holds",
+        "no-labels": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5c526008cc928ebe940f2107eccab775ad4b2eb3e2285cf1ba0f24980c1d278a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d69b3c780d5520d4e5f0c414317d4020bccab89dc3a90d43a1f353cca36e37aa",
+      "baselineOutputSha": "ed6ff3c0bc0753e60e223a7bae7e3db682ec86142dcfbcb2734319a6e3ac9445",
+      "candidateOutputSha": "68f7f0ef99bbebd5eecc9d5e5f3257a9947ec790b9075f1217d6b9959c8a46d7",
+      "facts": {
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "under-cap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "lists-earn-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ends-at-envelope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "context-earns-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "cache-owner-named": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps everything Before kept and fixes the two Before failures: Before led with unexplained shorthand (\"cache-key builder\", \"failed to falsify\", \"baseline and pre-menu checks are clean\") and a mid-sentence parenthetical citation, and its first use of \"cache\" was unexplained; After names the service by role before its name, explains the saved copy and its owner in everyday words, keeps one paragraph per section, lands at roughly 165 words, omits Context cleanly, and ends at the eligibility line. Two small refinements would make the shape more robust without moving any fact: the How-to-fix section is the one place the reader's next action requires opening code, so append the trailing citation after the complete claim (\"Add the date to the label used to find the saved copy, in services/price-list.mjs line 52.\"), and consider using the word \"cache\" once alongside its everyday gloss (\"its own cache, a saved copy of each answer...\") so a reader who meets the term elsewhere in the ticket can connect it to the owner named here.",
+      "wallMs": 29636,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5c526008cc928ebe940f2107eccab775ad4b2eb3e2285cf1ba0f24980c1d278a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d69b3c780d5520d4e5f0c414317d4020bccab89dc3a90d43a1f353cca36e37aa",
+      "baselineOutputSha": "82b2fe7babd8e832335e7ff020b64f2d7e24073c2728f25cdaf0cb64cb5f6854",
+      "candidateOutputSha": "19f0bb7ace15878ac6d60bc5130f1356116c7e69b6bccdfa25dd1f5cfba35fa8",
+      "facts": {
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "under-cap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "lists-earn-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu-intact": {
+          "before": "fails",
+          "after": "fails",
+          "label": "pre-existing"
+        },
+        "ends-at-envelope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "context-earns-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "cache-owner-named": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the three fixed headings appear in order, the price-list API is introduced by role before its name, 'stored response' and 'cache key' are explained in everyday words with the service named as owner, the mid-sentence code citation is dropped, the fix is stated literally, and the third section ends with the pick plus a because-clause; nothing Before held was lost. The one fact that fails in both outputs is menu-intact: the case explicitly asks for four numbered rows with hotfix alone recommended and Respond to reporter only last, yet both renderings emit the same three-row menu. The After wording should state that the menu row count comes from the checkpoint instruction (render exactly the rows the case specifies, preserving numbering and recommendation) rather than reusing a fixed three-row template; otherwise the sectioned-report contract is working as intended.",
+      "wallMs": 15101,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e0c998e6bbfcf529df19f6b245fc1781e6f32cce"
+}

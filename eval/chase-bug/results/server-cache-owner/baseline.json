@@ -1,0 +1,40 @@
+{
+  "sample": "server-cache-owner",
+  "arm": "baseline",
+  "skillSha": "557c04177791247a7fe77e46f4c9b70c499a6cf58b334aba0347df9cc867613c",
+  "inputSha": "650f3b21999d01eb8e5c870cceb362b79d492f1ba986468b36e29db3b9976384",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nThe price-list API keeps serving yesterday's prices, even to a plain command-line request. This is a real bug: the part that picks which stored response to reuse leaves the date out of its lookup key, so a new day's first request gets yesterday's copy (the cache-key builder, `services/price-list.mjs:52`; adding the date returned today's prices). Adding the date there is a one-line safe fix, so hotfix is recommended below.\n\nThe service keeps its own server-side response cache, a stored copy kept so it does not have to recompute the list. A local command-line request reproduced yesterday's prices, so a browser cache is ruled out. The only hypothesis tested was the missing date in the cache key. Adding today's date to the key in a trial returned today's prices, so the test failed to falsify that cause. The prior-report search finished and found no matching report. The baseline and pre-menu checks are clean.\n\nPick one:\n\n```\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n",
+      "words": 199,
+      "wallMs": 25144,
+      "mechanical": {
+        "section-order": "fails",
+        "no-labels": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\nThe price-list API keeps serving yesterday\u2019s prices, even in a command-line request without a browser. Its stored-response cache key omits the date, confirming a real bug: adding today\u2019s date returned today\u2019s prices (the response-cache selector, `services/price-list.mjs:52`). The one-line fix passes all six hotfix checks, so implementing the hotfix is recommended.\n\nPick one:\n\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all predicates pass\n",
+      "words": 89,
+      "wallMs": 7718,
+      "mechanical": {
+        "section-order": "fails",
+        "no-labels": "holds"
+      }
+    }
+  },
+  "repoSha": "e0c998e6bbfcf529df19f6b245fc1781e6f32cce"
+}

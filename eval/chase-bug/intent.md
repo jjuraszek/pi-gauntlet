@@ -1,4 +1,4 @@
-for: b5c099e66297f6de46572923ba21740e8542548602e14d04e05cf82950cb618d
+for: b184ef96f57c9121aa8c91ffa6438ed652ee4afac8f52c8302cf13263d5c55f2
 
 ## Change
 Replace the three-sentence, under-80-word verdict budget with one shared sectioned report contract. Use optional Context, What is broken, Why it is broken, and How to fix it for real bugs or What happens next for negative verdicts. Keep reports standalone and concise, with literal fixes, role-named mechanisms, visible proof, and trailing citations. Apply the shape to verdicts, reporter drafts, terminal summaries, and post-hotfix responses. End the gate's third section with the recommended pick and one because-clause; omit picks from drafts, summaries, and the hotfix seed. Preserve gate markers, menu numbering and recommendation, returned-ticket truth, citation sources, response confirmation, and hotfix seed evidence without menu recommendations.
@@ -8,6 +8,7 @@ Translate investigation shorthand before first use in every report, including Co
 The selected samples exercise report comprehension rather than sentence counting. The removed exact-three-sentence and under-80-word facts are superseded by section, standalone, under-180-word, and concision checks; menu echoes and delivery wrappers remain outside the report. Evidence is partial and does not prove live triage, tracker writes, or hotfix execution.
 
 ## Expected to move
+- server-cache-owner/cache-owner-named: fails -> holds - The translation table now asks whose stored copy the cache is instead of calling every cache the browser's.
 - plain-reader-first-use/first-use: fails -> holds - Replace unexplained investigation terms with everyday descriptions in every report body.
 - plain-reader-first-use/citations: fails -> holds - Keep only citations the reader needs for the next action, after their claims.
 - standalone-report/sections: fails -> holds - Both baseline replies lack the sectioned report.

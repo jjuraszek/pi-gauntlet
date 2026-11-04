@@ -19,6 +19,7 @@ under-180-word fact and five-source-line Context cap.
 | `sectioned-report-order` | Real-bug and cannot-replicate gates, heading choice, caps, list discipline, menu endings |
 | `returned-ticket-link` | Terminal summary preserves the returned existing ticket and claims no creation |
 | `nov3-replay` | Anonymized duplicate CI scan and missing-font-character cases, actual baseline/candidate comparison |
+| `server-cache-owner` | Yesterday's prices from the service's own stored response; first-use cache explanation names its server-side owner |
 | `standalone-report` | Saved theme overwritten on refresh; standalone symptom, mechanism, and literal fix |
 | `plain-reader-first-use` | Real-bug gate, cannot-replicate reporter draft, and not-a-bug summary; first-use explanations, citations, and standalone readability |
 | `gate-line-first` | Gate marker before report text |
