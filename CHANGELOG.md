@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Gatekeep-pr's pi fix wave dispatches file findings through `loop-implementer` companion rows and admits their result commits with selective evidence. Both harnesses share worktree and scope context; Claude Code keeps drafted-payload helpers, and sync helpers remain on `implementer`.
+- Gatekeep-pr's pi fix wave dispatches file findings through `loop-implementer` companion rows and admits their result commits with selective evidence. Row allowances, consecutive validation misses, and one-shot model escalation bound retries within the wave cap; the verify-session dispatch and fix-round guards also cover `loop-implementer`. Both harnesses share worktree and scope context; Claude Code keeps drafted-payload helpers, and sync helpers remain on `implementer`.
 
 - `eval/run.mjs --root <path>` runs a target that lives in another checkout (`<path>/eval/<target>/`, skill files and merge-base resolved there), and `runTarget` reads the judge prompt from the runner's own `eval/judge.md` (`judgePath` parameter) instead of `<root>/eval/judge.md`. Lets a sibling repo such as pi-quiver keep its eval targets in its own tree while reusing this harness.
 

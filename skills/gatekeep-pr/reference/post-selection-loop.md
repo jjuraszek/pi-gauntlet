@@ -85,6 +85,8 @@ Delegate to `fix-wave.md` `## Sync`. Trigger only on `mergeable` CONFLICTING, `m
 
 ### No-progress obstacle
 
+For pi row exhaustion, persist the exhausted-row reason and last decision line from `fix-wave.md` `### Budgets` in this checkpoint; use that section's row eligibility rules on continuation.
+
 Persist a completed unsuccessful attempt in the existing `repair.wave.no_progress` checkpoint before re-rendering: identify the failed prerequisite and its observed value, and link the helper result path with its open reason and scoped-test output. Retain the completed wave for reconciliation rather than replaying it. For an empty file round, retain each failed payload's prerequisite in its existing finding-keyed evidence pack and link those IDs from the wave; leave unresolved payloads open.
 
 Check this checkpoint before course work. Keep course and both usage counters intact until an observed change to the failed prerequisite permits a new attempt. Render `stuck - no progress: <failed prerequisite>` with the concrete missing decision or unchanged failure; a higher round cap is not permission to repeat it. Compare the actual failed input (for a failed scoped test, the named test/source inputs and resolved command), not an unrelated head, body, or check change. Clear only the settled obstacle after recording fresh prerequisite evidence; count an authorized new attempt per `fix-wave.md`.

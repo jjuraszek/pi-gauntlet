@@ -99,14 +99,26 @@ Append only the matching harness tail:
 | pi | Close the derived-spec AC mapped in the task; choose the fix. Run a selective check and commit and reply under the persona's Companion result commit contract. For a `cd <dir> &&` scoped runner, run from that directory and record only the runner and its relative test path. For `none`, use a runnable assertion that exits nonzero when the finding's claim fails; without a valid assertion return `failed` naming that cause. Never record the resolved verification command. Open a failed decision's second slot with `needs <what>` for a credential, another repo or infrastructure, or `contract exception: <why>` for a fix that changes the stored scope contract. |
 | Claude Code | Apply the course-authorized drafted payload, or the reviewer's finding text when no payload exists. Commit once on the PR branch with a subject naming the fix only when the scoped test passes or `SCOPED_TEST_COMMANDS` is `none`. Otherwise discard only your edits (`git checkout -- <your files>`, remove files you created) and return `open - <why>`. Return `open - contract exception: <why>` without a contract-changing commit. Report the failing run before the edit and passing run after it; for a doc-only payload with no test, report `no scoped test` and the diff, with the pre-push reviewer as its only gate. |
 
+### Budgets
+
+On pi, apply the row's `allowance` and the wave's `repair.rounds_cap`, whichever binds first. Preserve attempts, consecutive validation misses and escalation history across continuation. Apply the loop's ordered Exit check before dispatch; a raised wave cap never resets a row's budget.
+
+| Observed row state | Action |
+|---|---|
+| `attempts >= allowance` or two consecutive validation misses | Exhaust the row: never dispatch it again, preserve its history and report `open - <last decision line>` under its ids. Continue other eligible rows within the wave budget. |
+| No eligible row remains and the carried set holds a Critical or Moderate | Persist `stuck - no progress: row <n> exhausted (<ids>)` through `post-selection-loop.md` `### No-progress obstacle`; quote the last decision line when no reviewer ran this round. Exit through the ordered Exit check with commits retained. |
+
+For an eligible row with no `row <n> escalated` line, compute `threshold = min(escalateAfter, allowance - 1)`. At pre-dispatch `attempts >= threshold`, require the retained `implModel` (the resolver's main-loop fallback counts). With it undefined, dispatch nothing, leave attempts and the ledger unchanged, and exit `stuck - escalationLoop.implModel unavailable` through Exit check; never fabricate a failed attempt. Otherwise append `row <n> escalated | implModel round | allowed attempts <allowance>` once and pass `model: <implModel>` on that attempt only. Leave model unset on every other attempt; treat the marker as spent escalation, not the current model. Keep model selection parent-owned.
+
 ### Row dispatch
 
-On pi, use the wave's derived spec and companion ledger. Never seed-dispatch: start at `target: <row>`. For each eligible row in review order, save its attempts, the ledger's iterations as `i`, and `git -C <worktree> rev-parse HEAD` as `HEAD_BEFORE`. Write `iterations: i + 1` and `pending: <row> | gatekeep | <HEAD_BEFORE>` before dispatch. Resolve `MB` as `git -C <worktree> merge-base origin/<baseRefName> <headRefOid>`; use it as the worker's diff base, not the per-attempt commit boundary. Supply one `Rules:` line per existing worktree `AGENTS.md` and overrides file, using repo-relative paths; with neither file use `Rules: none`.
+On pi, use the wave's derived spec and companion ledger. Never seed-dispatch: start at `target: <row>`. Apply Budgets before changing the ledger. For each eligible row in review order, save its attempts, the ledger's iterations as `i`, and `git -C <worktree> rev-parse HEAD` as `HEAD_BEFORE`. Write `iterations: i + 1` and `pending: <row> | gatekeep | <HEAD_BEFORE>` before dispatch. Resolve `MB` as `git -C <worktree> merge-base origin/<baseRefName> <headRefOid>`; use it as the worker's diff base, not the per-attempt commit boundary. Supply one `Rules:` line per existing worktree `AGENTS.md` and overrides file, using repo-relative paths; with neither file use `Rules: none`.
 
 ```text
 subagent({ agent: "loop-implementer", context: "fresh", async: false,
   cwd: <worktree>, output: <per-dispatch output path>, outputMode: "file-only",
   acceptance: { level: "none", reason: "the parent validates the commit and keeps the ledger" },
+  [model: <implModel> on the escalated attempt only,]
   task: "<shared worker context>\n\n<pi tail>\n\niteration: <i>\nspec: <absolute derived spec>\nledger: <absolute ledger>\nbase: <MB>\ntarget: <row>\nprevious decision: <row's latest admitted or reopened line, or none>\nhint: none\nLeg: gatekeep\nmapped original AC: row <n> -> AC <n> (<P#/L# ids>), leg gatekeep\nRules: <repo-relative path or none>\npending: <row> | gatekeep | <HEAD_BEFORE>\nSCOPED_TEST_COMMANDS: <commands>" })
 ```
 

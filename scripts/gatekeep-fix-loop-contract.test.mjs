@@ -4,6 +4,24 @@ import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
 
+test('row budgets stop exhausted retries and escalate once before dispatch', () => {
+  const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
+  const budgets = fixWave.split('\n### Budgets\n')[1]?.split('\n### Row dispatch\n')[0];
+  assert.ok(budgets, 'apply row budgets before dispatch');
+  for (const token of [
+    'attempts >= allowance', 'two consecutive validation misses', 'repair.rounds_cap',
+    'whichever binds first', 'open - <last decision line>', 'Continue other eligible rows',
+    'stuck - no progress: row <n> exhausted (<ids>)', 'Preserve attempts',
+    'threshold = min(escalateAfter, allowance - 1)', 'attempts >= threshold',
+    'row <n> escalated', 'model: <implModel>', 'that attempt only',
+    'stuck - escalationLoop.implModel unavailable', 'leave attempts and the ledger unchanged',
+  ]) assert.ok(budgets.includes(token), `row budgets require ${token}`);
+  const dispatch = fixWave.split('\n### Row dispatch\n')[1].split('\n### Admission\n')[0];
+  assert.match(dispatch, /Apply Budgets before changing the ledger/);
+  const findings = readFileSync(new URL('skills/gatekeep-pr/reference/findings.md', root), 'utf8');
+  assert.match(findings, /open - <last decision line>/);
+});
+
 test('review closure aggregates required ids once per row before carried retries', () => {
   const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
   const review = fixWave.split('\n## Review before push\n')[1].split('\n## Re-review task\n')[0].replaceAll('\\|', '|');
