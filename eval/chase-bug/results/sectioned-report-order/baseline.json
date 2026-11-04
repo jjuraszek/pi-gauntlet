@@ -1,0 +1,40 @@
+{
+  "sample": "sectioned-report-order",
+  "arm": "baseline",
+  "skillSha": "557c04177791247a7fe77e46f4c9b70c499a6cf58b334aba0347df9cc867613c",
+  "inputSha": "bf194532307a772b90d2687dd2a5bff7ea4eb5a382f97db003e1bcc92e8cb077",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nOpening `/widgets/` with a trailing slash shows the page-not-found screen, while `/widgets` loads normally. The part that matches URLs to pages compares the text exactly instead of ignoring the trailing slash, so it never finds the page (the matcher in the router, `src/router.ts:88`; a local request to `/widgets/` returns 404 where 200 is expected). Ignoring the slash in that one comparison is a small, safe fix, so the hotfix is the recommended pick below.\n\n- A local request test reproduced the failure: `/widgets/` returned 404 where 200 was expected, and `/widgets` returned 200.\n- The exact-match hypothesis was tested by temporarily ignoring the trailing slash. The request then passed, so the test failed to falsify it. No test was blocked.\n- The prior-report search completed and found no matching report.\n- The baseline and the pre-menu tracked-file checks are both clean.\n\nPick one:\n\n```\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\nThe reporter says their chart disappears after a page refresh. We could not make it happen: following the documented steps with the supplied small fixture, the chart stayed visible in clean Chrome and Firefox profiles, and clearing the cache changed nothing (Phase 1 repro attempts). Continuing needs the dataset size from the failing run, so choose whether to ask the reporter for it or file a discovery ticket.\n\n- We followed the documented reproduction steps with the supplied small fixture in clean Chrome and Firefox profiles. The chart rendered after refresh in both.\n- We tested a cache hypothesis by clearing the cache. That ruled it out, and no other hypothesis survives. The cause is unknown.\n- The report does not give the dataset size from the failing run. That is the missing input.\n- The prior-report search completed and found no matching report.\n- All tracked-file checks are clean.\n\nPick one:\n\n```\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n```\n",
+      "words": 358,
+      "wallMs": 17512,
+      "mechanical": {
+        "section-order": "fails",
+        "no-labels": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nOpening `/widgets/` returns 404 instead of the expected widgets page (200), while `/widgets` works. This is a real bug: the part matching URLs to pages compares paths exactly, and the local request test passed when the trailing slash was ignored (`src/router.ts:88`). Stripping the slash in that comparison is a small, safe fix, so implementing the hotfix is recommended below.\n\nPrior-report search completed without a match. All six hotfix predicates pass, and tracked-file checks are clean.\n\nPick one:\n\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\nThe report says the chart disappears after refresh. The failure could not be replicated and its cause remains unknown: the documented steps with the supplied small fixture rendered the chart in clean Chrome and Firefox profiles, including after clearing the cache. Choose a response requesting the failing run’s dataset size, which is missing and needed to continue, or file a discovery ticket.\n\nPrior-report search completed without a match. The cache hypothesis was ruled out, no other hypothesis survives, and tracked-file checks are clean.\n\nPick one:\n\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n",
+      "words": 234,
+      "wallMs": 13797,
+      "mechanical": {
+        "section-order": "fails",
+        "no-labels": "holds"
+      }
+    }
+  },
+  "repoSha": "1bf58911f60f0ae28d56f4adebf20c80e9477487"
+}

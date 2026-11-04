@@ -2,6 +2,7 @@
 - no-new-creation: judged: The output does not claim that a new ticket was created or filed; any description of ticket status is consistent with the supplied existing-ticket result.
 - no-labels: mechanical: matches /^(?:(?!(?:Fault story|Proof|Symptom|Verdict|Evidence|Next step):)[\s\S])*$/
 - no-fence: mechanical: lacks "```"
-- three-sentences: judged: The terminal summary contains exactly three whole sentences.
-- under-80-words: judged: The terminal summary is under 80 words.
-- plain-reader: judged: The summary names the component by its role and includes visible proof; any claim-supporting file, line, SHA, or link trails the claim in the same sentence rather than opening it. The reported symptom /widgets/ may open sentence one.
+- section-order: mechanical: matches /^gauntlet: done summary[^\n]*\n[\s\S]*?^### What is broken\s*$[\s\S]*?^### Why it is broken\s*$[\s\S]*?^### How to fix it\s*$/m
+- under-cap: judged: The report is under 180 words including headings and Context has at most five source lines. Exclude the marker.
+- plain-reader: judged: Sections use everyday words, explain code terms on first use, name the component by its role and include visible proof. A claim-supporting file, line, SHA or link trails its claim and appears only when useful to open; no arrow chains.
+- summary-not-draft: judged: The summary has no menu, send it confirmation or reporter-facing request. Its third section states the existing ticket as the next step and the message ends with that section, without status or deeper evidence after it.

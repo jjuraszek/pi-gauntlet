@@ -1,7 +1,7 @@
 {
   "sample": "prose-verdict-above-menu",
   "arm": "candidate",
-  "skillSha": "30de15f2fa9b5ab79c0e78db2843525d164a1d7ca2a19d0f0a1737ed96861254",
+  "skillSha": "6a5074fd6ba7f81da1b840853bcb4b7f328db356b4275736b23ea835c246bb07",
   "inputSha": "3e652b4cced93b9b887b849ec646ee4555a8c974765811fa342e3b20bccc04bf",
   "kind": "text",
   "assembly": "concat",
@@ -17,97 +17,99 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nOpening `/widgets/` with a trailing slash shows the 404 page instead of the widgets page. The part that matches URLs to pages compares the path text without normalizing it, so this is a real bug (the matcher in the router, `src/router.ts:88`; the local repro returns 404 where 200 is expected). The fix is small and safe, and all hotfix checks pass, so the hotfix is the recommended pick below.\n\nPick one:\n\n```\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\nDeeper detail:\n\n- The prior-report search completed and found no matching open or closed issue.\n- A local request for `/widgets/` returned 404, while the expected response is 200.\n- The leading hypothesis was that path comparison skips normalization at `src/router.ts:88`. Its falsification test ran and failed to falsify it.\n- The tracked baseline was clean at invocation and still matched before this menu.\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nResolved channel: `gh issue comment` on the originating GitHub issue.\n\nDraft:\n\n> Loading the page as described renders it successfully for us. We followed the documented steps in Chrome and Firefox with clean profiles, and both showed the page, so we cannot replicate the problem yet. Please reply with your browser and its version so we can retry with your setup.\n\nReply with the exact text `send it` to post this comment. Any other reply counts as a change request to the draft. Nothing has been pushed.\n",
-      "words": 265,
-      "wallMs": 14890,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### Context\n\nRequesting `/widgets/` locally returns page not found (404), and a falsification test confirmed exact path matching as the cause. A search found no earlier report of this problem.\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page, while `/widgets` loads normally (status 200).\n\n### Why it is broken\n\nThe part that matches URLs to pages compares paths character for character without cleaning them up first. The extra trailing slash in `/widgets/` therefore matches no page (`src/router.ts:88`).\n\n### How to fix it\n\nStrip the trailing slash before comparing paths so both URLs reach the widgets page. This is a small change to one comparison, plus a regression test. Choose hotfix because the change is that small and every safety check passes.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nThis draft will post as a comment on the issue with `gh issue comment`:\n\n### What is broken\n\nThe report says the page fails to render. We could not reproduce this. The page rendered successfully in both Chrome and Firefox using clean browser profiles.\n\n### Why it is broken\n\nThe documented reproduction steps did not trigger the failure in either browser. The cause is unknown until we can match the setup where the failure happens.\n\n### What happens next\n\nPlease reply with the browser and exact version where you see the failure. That will let us retry under the same conditions.\n\nReply `send it` to post this comment, or describe any changes you want.\n",
+      "words": 287,
+      "wallMs": 13735,
       "mechanical": {
-        "no-labels": "holds"
+        "no-labels": "holds",
+        "section-order": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages compares paths without normalization, and the local reproduction and falsification test confirmed the mismatch (`src/router.ts:88`). A small, safe hotfix is recommended because all six eligibility predicates pass.\n\nPrior-report search completed without a match.\n\nPick one:\n\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment via `gh issue comment`\n\nThe reported page failure did not occur in our reproduction attempts. We cannot replicate it: following the documented steps in Chrome and Firefox with clean profiles rendered the page successfully in both browsers. Please provide your browser name and version so we can investigate the difference.\n\nReply with the exact text `send it` to post this draft.\n",
-      "words": 166,
-      "wallMs": 10435,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page.\n\n### Why it is broken\n\nThe part that matches URLs to pages compares paths exactly, so the trailing slash prevents a match at `src/router.ts:88`. The local reproduction and falsification test confirmed this cause.\n\n### How to fix it\n\nStrip the trailing slash before comparing paths so `/widgets/` opens the page successfully. This is a small, safe change to the path comparison. Choose hotfix because the fix is bounded and all six eligibility checks pass.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment (`gh issue comment`)\n\n### What is broken\n\nThe reported page failure did not reproduce: the documented steps opened the page successfully in both Chrome and Firefox with clean profiles.\n\n### Why it is broken\n\nThe cause remains unknown. Neither browser reproduced the failure, and the report does not include the browser and version used when it occurred.\n\n### What happens next\n\nPlease share the browser name and exact version where the failure occurs so we can test that setup.\n\nsend it\n",
+      "words": 220,
+      "wallMs": 13201,
       "mechanical": {
-        "no-labels": "holds"
+        "no-labels": "holds",
+        "section-order": "holds"
       }
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "2cb7e6e1e3651036bca29957532cbf1b1d8a25e76fdeacdaa17bf988cd0719df",
+      "factsSha": "b742fd4d9cf0cad16dc3f88422c2e88fde99442c863d4b6654f666ad4786a2d8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "55ef41bc30f87d86700f61cd3c0e897ce2602ed8cee004b73cb62ac2f502b288",
-      "baselineOutputSha": "e701fb91529dae1ab44676d45c4aff092f6d614ebae776ebd3155b3f344b2fff",
-      "candidateOutputSha": "1e3988a6fb760e0b2df09cfa7c1a25ea745af94e33f76206318f1e335bce3cb1",
+      "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+      "baselineOutputSha": "822b20761b9a17ab637d4ad801e4ef378016801e90593079efa068ba0bb134a7",
+      "candidateOutputSha": "87c1c2907be93b7eebb06aac6e8b6edbc4d30607ce11c61b4c5f1c5f5395c6d4",
       "facts": {
         "no-fence": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
-        "three-sentences": {
+        "under-cap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "plain-reader": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "draft-asks-reporter": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ends-at-envelope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "section-order": {
           "before": "fails",
           "after": "holds",
           "label": "intended change"
-        },
-        "under-80-words": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "plain-reader": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "menu-intact": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "draft-asks-reporter": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "no-labels": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves three-sentences from fails to holds: Before placed the three evidence bullets between the story and Pick one:, so the span above the menu contained six sentences, while After keeps exactly three prose sentences above Pick one: and relocates the bullets to a 'Deeper detail' section after the menu. Everything Before held survives: the story stays unfenced, under 80 words, role-named ('the part that matches URLs to pages') with trailing citation and visible repro proof; the four-row menu with one [recommended] and the eligibility line is unchanged behind Pick one:; the draft still asks for browser and version in sentence three with the 'send it' confirmation outside it and an explicit no-push statement. The added 'gauntlet: gate=...' marker lines sit outside the story and draft and do not disturb any span. The only residual risk is the draft still being rendered as a blockquote in both versions; if a stricter reader treats '>' as a fence, render the draft as bare paragraphs introduced by 'Draft:' to keep no-fence unambiguous.",
-      "wallMs": 22635,
+      "feedback": "After moved draft-asks-reporter from fails to holds purely by adding the sectioned shape: Before asked for browser and version in a single blockquote paragraph with no What happens next heading, so the fact as written could not hold, while After places the ask under that heading, keeps the `send it` confirmation outside the draft, and phrases delivery as a future action rather than a push claim. Nothing Before kept was lost: both reports stay unfenced, well under 180 words (Context is two lines), the menu keeps rows 1.-4. with one [recommended] on hotfix and the eligibility line after Pick one:, and both checkpoints end at the envelope. The only soft spot is plain-reader: After explains 404 and 200 on first use (an improvement over Before), but 'falsification test' in Context is still a bare term; a phrase like 'a test designed to disprove the cause' on first use, and keeping 'because' as the single closing clause in How to fix it (which After already does), would lock the contract in without risking that fact.",
+      "wallMs": 30228,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "2cb7e6e1e3651036bca29957532cbf1b1d8a25e76fdeacdaa17bf988cd0719df",
+      "factsSha": "b742fd4d9cf0cad16dc3f88422c2e88fde99442c863d4b6654f666ad4786a2d8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "55ef41bc30f87d86700f61cd3c0e897ce2602ed8cee004b73cb62ac2f502b288",
-      "baselineOutputSha": "e7c4d3a2eb4ba4bddc171489ddc3a07b6282a38cbeee096532fff50680076e20",
-      "candidateOutputSha": "c25e2a696ab7375ec572ec2ca86f80bbb87b3100478db7624bbe686bc0605fdf",
+      "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+      "baselineOutputSha": "d0b01320fdb79d943fdf92aae3160049411c99db9350739ebbb15f11cb12e409",
+      "candidateOutputSha": "fa12214c5a6e2207dfb5379b10542ba86865bfa0b7e6050b1c68bce02c459f07",
       "facts": {
         "no-fence": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
-        "three-sentences": {
-          "before": "holds",
-          "after": "fails",
-          "label": "regression"
-        },
-        "under-80-words": {
+        "under-cap": {
           "before": "holds",
           "after": "holds",
           "label": "held"
         },
         "plain-reader": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "unplanned improvement"
         },
         "menu-intact": {
           "before": "holds",
@@ -115,68 +117,30 @@
           "label": "held"
         },
         "draft-asks-reporter": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ends-at-envelope": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "no-labels": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "After kept the unfenced, role-named, trailing-citation shape and the draft's sentence-three browser/version request, but it broke three-sentences in checkpoint 1 by adding a fourth standalone sentence above Pick one: (\"Prior-report search completed without a match.\") after the three-sentence story; the gauntlet marker line is fine as a non-sentence gate id, but any extra prose above the menu counts. Either drop that line or fold the prior-report fact into the existing sentences (e.g. make sentence three \"With no prior report on file and all six eligibility predicates passing, a small, safe hotfix is recommended.\") so the span stays at exactly three sentences. Separately, After pre-checks row 3 with [x] while the task says stop for a pick; keep rows as [ ] and let [recommended] plus the marker's recommended=3 carry the recommendation so the menu reads as an unpicked gate.",
-      "wallMs": 22880,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages compares paths without normalization, and the local reproduction and falsification test confirmed the cause (`src/router.ts:88`). Choose the small, safe hotfix below to correct the path matching.\n\nPick one:\n\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all six predicates pass\n\nPrior-report search completed without a match.\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment via `gh issue comment`\n\nThe reported page failure did not occur during our checks. We could not reproduce it: the documented reproduction steps rendered the page successfully in both Chrome and Firefox using clean profiles. Please share your browser name and version so we can investigate the remaining environment difference.\n\nReply with the exact text `send it` to post this draft; any other reply requests a change.\n",
-        "words": 174,
-        "wallMs": 10253,
-        "mechanical": {
-          "no-labels": "holds"
-        },
-        "judgeWallMs": 22129,
-        "facts": {
-          "no-fence": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "three-sentences": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "under-80-words": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "plain-reader": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "menu-intact": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "draft-asks-reporter": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "no-labels": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Nothing moved: both outputs keep the story and draft unfenced, at exactly three sentences and well under 80 words, name the router by role (\"the part that matches URLs to pages\") with the `src/router.ts:88` citation trailing the claim, keep the four-row menu with one [recommended] and an eligibility line after Pick one:, and put the browser/version request in the draft's third sentence with a `send it` confirmation outside the draft and no push claim. After additionally delivers the Change's gate markers (`gauntlet: gate=chase-bug/verdict-menu recommended=3` and `gauntlet: gate=chase-bug/response-to-origin`) ahead of the evidence and swaps the story's closing recommendation into a next-step sentence, which is in the intended shape. Two small things to tighten so they never erode these facts in a stricter read: the stray trailing line \"Prior-report search completed without a match.\" after the eligibility line sits between the gate and the next checkpoint rather than inside the story, so either fold it into the story (it would push it to four sentences, so better to drop it or move it before the gauntlet marker as context) or omit it; and keep the gauntlet marker line formatted as a bare key=value line without a terminal period so no reader counts it as a fourth sentence of the story."
-      }
+      "feedback": "After keeps every fact Before kept and picks up two: the sectioned shape gives the reporter draft an explicit What happens next section with the browser/version ask, and the What is broken / Why it is broken prose explains 404 as 'page not found' and the comparison bug as a trailing-slash mismatch, where Before used bare '404', '200' and 'normalization'. Three things in After are weaker than Before without any fact flipping yet: the confirmation is a bare 'send it' line rather than an instruction ('Reply with the exact text `send it` to post this comment'), which a reader could mistake for the model issuing the send; the menu is wrapped in a ```text fence and row 3 is pre-ticked [x] as if already chosen, which the contract says to preserve as [ ] with [recommended]; and the eligibility line dropped 'six' from 'all six predicates pass'. Suggested wording for the shared contract: 'Below the report, echo the menu verbatim and unfenced, rows unticked, followed by the eligibility line; for drafts, end with the literal prompt line asking the human to reply `send it` to post.'",
+      "wallMs": 27516,
+      "verdict": "improved"
     }
   },
-  "repoSha": "bbb7a05516ce051520bf5e19f1051db934839955"
+  "repoSha": "1bf58911f60f0ae28d56f4adebf20c80e9477487"
 }

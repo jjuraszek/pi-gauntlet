@@ -1,39 +1,74 @@
-# eval report: chase-bug
+# eval report: chase-bug (partial run: nov3-replay)
 
-for: f1d22ade4b832768db0a0113525d2709d28e93f2face752a98ac66a5f5ad7b84
+for: 3b04fcd54a21bc338552b5c5c7b3ca279db77b2dd210c99f1d8318ae88d768f4
 
-wall: 95s
+wall: 21s
+
+refresh: complete; sample: nov3-replay; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
+audit: [candidate.json](results/nov3-replay/candidate.json)
 
 ## Change
 
-Render the step-4 story, reporter draft, and terminal summary in one skill-local Verdict shape: three unfenced plain sentences under 80 words, with role-named components, visible proof, trailing citations, and a next step. Preserve menu separation, numeric mapping, eligibility, and reporter confirmation.
+Replace the three-sentence, under-80-word verdict budget with one shared sectioned report contract. Use optional Context, What is broken, Why it is broken, and How to fix it for real bugs or What happens next for negative verdicts. Keep reports standalone and concise, with literal fixes, role-named mechanisms, visible proof, and trailing citations. Apply the shape to verdicts, reporter drafts, terminal summaries, and post-hotfix responses. End the gate's third section with the recommended pick and one because-clause; omit picks from drafts, summaries, and the hotfix seed. Preserve gate markers, menu numbering and recommendation, returned-ticket truth, citation sources, response confirmation, and hotfix seed evidence without menu recommendations.
 
-The returned-ticket-link/returned-reference and returned-ticket-link/no-new-creation facts remain held. The menu-after-numbered-findings/layout and menu-after-numbered-findings/mapped-pick facts remain held. Both baselines hold prose-verdict-above-menu/under-80-words and prose-verdict-above-menu/menu-intact. The returned-ticket-link/under-80-words baseline outcomes are mixed: the first replay model exceeds the limit, while the second already holds. The returned-ticket-link/no-fence fact stays held for the second replay model; the first baseline unexpectedly fences the summary, so that model needs an improvement rather than a held outcome. Neither baseline satisfies the new three-sentence or plain-reader requirements. Both checkpoint drafts request browser and version, but neither does so in sentence three.
-
-Mark verdict and response gates with exact ids before evidence; mark only actual endings, never intermediate handoffs. Preserve eligibility and recommendation rules and keep markers outside origin payloads.
+The selected samples exercise report comprehension rather than sentence counting. The removed exact-three-sentence and under-80-word facts are superseded by section, standalone, under-180-word, and concision checks; menu echoes and delivery wrappers remain outside the report. Evidence is partial and does not prove live triage, tracker writes, or hotfix execution.
 
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| gate-line-first | anthropic/claude-opus-5-5 | improved | 7240 | gate-first: fails -> holds (intended change); first-line: fails -> holds (intended change) |
-| gate-line-first | github-copilot/gpt-6.1-sol | improved | 6666 | gate-first: fails -> holds (intended change); first-line: fails -> holds (intended change) |
-| menu-after-numbered-findings | anthropic/claude-opus-5-5 | unchanged | 11200 | layout: holds -> holds (intended but unchanged); mapped-pick: holds -> holds (intended but unchanged) |
-| menu-after-numbered-findings | github-copilot/gpt-6.1-sol | unchanged | 12469 | layout: holds -> holds (intended but unchanged); mapped-pick: holds -> holds (intended but unchanged) |
-| prose-verdict-above-menu | anthropic/claude-opus-5-5 | improved | 22635 | no-fence: holds -> holds (intended but unchanged); three-sentences: fails -> holds (intended change); under-80-words: holds -> holds (held); plain-reader: holds -> holds (intended but unchanged); menu-intact: holds -> holds (held); draft-asks-reporter: holds -> holds (intended but unchanged); no-labels: holds -> holds (intended but unchanged) |
-| prose-verdict-above-menu | github-copilot/gpt-6.1-sol | inconclusive | 22880 | no-fence: holds -> holds (intended but unchanged); three-sentences: holds -> fails (regression); under-80-words: holds -> holds (held); plain-reader: holds -> holds (intended but unchanged); menu-intact: holds -> holds (held); draft-asks-reporter: holds -> holds (intended but unchanged); no-labels: holds -> holds (intended but unchanged) |
-| returned-ticket-link | anthropic/claude-opus-5-5 | unchanged | 23656 | returned-reference: holds -> holds (held); no-new-creation: holds -> holds (held); three-sentences: holds -> holds (intended but unchanged); under-80-words: holds -> holds (intended but unchanged); plain-reader: holds -> holds (intended but unchanged); no-labels: holds -> holds (intended but unchanged); no-fence: holds -> holds (intended but unchanged) |
-| returned-ticket-link | github-copilot/gpt-6.1-sol | unchanged | 19686 | returned-reference: holds -> holds (held); no-new-creation: holds -> holds (held); three-sentences: holds -> holds (intended but unchanged); under-80-words: holds -> holds (intended but unchanged); plain-reader: holds -> holds (intended but unchanged); no-labels: holds -> holds (intended but unchanged); no-fence: holds -> holds (intended but unchanged) |
+| nov3-replay | anthropic/claude-opus-5-5 | improved | 20273 | plain-reader: holds -> holds (held); under-cap: holds -> holds (held); lists-earn-place: holds -> holds (held); menu-intact: holds -> holds (held); ends-at-envelope: holds -> holds (held); section-order: fails -> holds (unplanned improvement); no-labels: holds -> holds (held) |
+| nov3-replay | github-copilot/gpt-6.1-sol | improved | 17169 | plain-reader: holds -> holds (held); under-cap: holds -> holds (held); lists-earn-place: holds -> holds (held); menu-intact: holds -> holds (held); ends-at-envelope: fails -> holds (unplanned improvement); section-order: fails -> holds (unplanned improvement); no-labels: holds -> holds (held) |
 
 ## Feedback
 
-- gate-line-first / anthropic/claude-opus-5-5: After moved gate-first from fails to holds by opening with the exact line `gauntlet: gate=chase-bug/verdict-menu recommended=3`, whose suffix matches the rendered `[x]` row 3, while keeping the tracker-origin menu shape intact: no file-ticket row, the hotfix row retained and marked eligible, respond-only recommended, and no handoff or terminal marker after the menu. Before failed only because it had no gate line at all, not because of any menu defect, so the change is purely additive. To keep this held in future edits, keep the gate line as the literal first line (no leading story sentence, blank line, or label before it), keep `recommended=N` derived from the row carrying `[x]`/`[recommended]` rather than hardcoded, and keep the eligibility footer and three rows unchanged; the move of the evidence bullets below the menu under a plain 'Supporting detail:' heading does not affect this fact and is fine, though you may want the three-sentence verdict paragraph to carry the proof inline so the bullets remain optional.
-- gate-line-first / github-copilot/gpt-6.1-sol: Before has no gate line at all—its first line is the prose verdict—so gate-first fails there; After opens with the exact `gauntlet: gate=chase-bug/verdict-menu recommended=3`, whose suffix matches the `[x] Respond to reporter only. [recommended]` row, omits a filing row for the tracker-origin case, keeps the eligible hotfix row, and ends on the menu with no handoff or terminal marker, so the fact now holds. Nothing in After moved a fact the wrong way; the only wording to watch is the trailing sentence after the eligibility line (search/baseline note)—keep it as plain prose rather than ever letting it become a marker, and keep the gate line strictly first with no preceding blank or story text so the fact stays held.
-- menu-after-numbered-findings / anthropic/claude-opus-5-5: Both facts survive the wording change. In After, checkpoint 1 still places the three numbered findings, then a prose line ("Prior-report search completed with no matching report. The tracked baseline is clean at checkpoint 2."), then "Pick one:" and the four-option gate, so the ordered findings never adjoin the options through blank lines alone; checkpoint 2 still opens with the single echo sentence "Taking 5 as option 2 - brainstorm now" before the summary and brainstorming handoff, without acting on raw 5 or asking for a retry. The After wording also added a gauntlet header line and a horizontal rule between checkpoints without disturbing the gate. One thing to watch as you push further on the Change: the verdict story is now unfenced and in plain sentences, but the menu block itself is still inside a code fence in both outputs - if a later revision unfences the menu to satisfy no-fence facts elsewhere, keep the prose separator (or the rule) between findings and options so layout continues to hold, and keep the one-line mapped-pick echo verbatim ahead of the summary.
-- menu-after-numbered-findings / github-copilot/gpt-6.1-sol: Neither fact moved: both Before and After separate the three numbered findings from the generated 1.-4. gate with the prose line "Pick one:" (so the ordered lists never adjoin through blank lines alone), and both open checkpoint 2 with the single echo sentence "Taking 5 as option 2 - brainstorm now." before the summary and brainstorming handoff, without acting on raw 5 or asking for a retry. The After wording also adds the exact gate id line (gauntlet: gate=chase-bug/verdict-menu recommended=2) first and tightens the story toward three unfenced sentences without disturbing menu separation or numeric mapping. If you want the layout separation to be more robust against lenient readers who treat "Pick one:" as a bare menu heading rather than prose, have the skill emit a horizontal rule or a full sentence (e.g., "Choose how to proceed:") before the options, and keep the eligibility note ("not eligible: bounded-fix judgment fails") attached to option 3's row or immediately after the menu as it is now.
-- prose-verdict-above-menu / anthropic/claude-opus-5-5: After moves three-sentences from fails to holds: Before placed the three evidence bullets between the story and Pick one:, so the span above the menu contained six sentences, while After keeps exactly three prose sentences above Pick one: and relocates the bullets to a 'Deeper detail' section after the menu. Everything Before held survives: the story stays unfenced, under 80 words, role-named ('the part that matches URLs to pages') with trailing citation and visible repro proof; the four-row menu with one [recommended] and the eligibility line is unchanged behind Pick one:; the draft still asks for browser and version in sentence three with the 'send it' confirmation outside it and an explicit no-push statement. The added 'gauntlet: gate=...' marker lines sit outside the story and draft and do not disturb any span. The only residual risk is the draft still being rendered as a blockquote in both versions; if a stricter reader treats '>' as a fence, render the draft as bare paragraphs introduced by 'Draft:' to keep no-fence unambiguous.
-- prose-verdict-above-menu / github-copilot/gpt-6.1-sol: After kept the unfenced, role-named, trailing-citation shape and the draft's sentence-three browser/version request, but it broke three-sentences in checkpoint 1 by adding a fourth standalone sentence above Pick one: ("Prior-report search completed without a match.") after the three-sentence story; the gauntlet marker line is fine as a non-sentence gate id, but any extra prose above the menu counts. Either drop that line or fold the prior-report fact into the existing sentences (e.g. make sentence three "With no prior report on file and all six eligibility predicates passing, a small, safe hotfix is recommended.") so the span stays at exactly three sentences. Separately, After pre-checks row 3 with [x] while the task says stop for a pick; keep rows as [ ] and let [recommended] plus the marker's recommended=3 carry the recommendation so the menu reads as an unpicked gate.
-- returned-ticket-link / anthropic/claude-opus-5-5: After keeps every fact Before kept: three whole sentences, role-named component ("the part that matches URLs to pages") with visible proof and trailing citations, the existing-ticket link cited as where the fix is tracked, and no claim of a new ticket. The only risk is length: the After prose is 79 words, one under the limit, and the prepended `gauntlet: done summary` marker line adds three more tokens that a stricter counter might include, pushing it to 82. The growth came from the longer verdict clause ("and does not ignore the trailing slash, so the page is never found") and the extra article "the" before "local repro". To keep headroom while still delivering the gate marker and the three-sentence Verdict shape, trim sentence two back toward Before's wording (e.g. "compares the text exactly instead of ignoring the trailing slash" and drop "so the page is never found") and consider wording the skill so the gate id line is explicitly excluded from the summary word count.
-- returned-ticket-link / github-copilot/gpt-6.1-sol: After keeps every fact Before held: the summary is three unfenced sentences (~55 words), names the component by role ("the URL matcher") with the file:line trailing the claim, cites https://github.com/example/widgets/issues/42 as the follow-up target, and explicitly states no new ticket was created and no tracker state changed, matching the handoff result. The only risk introduced is the leading "gauntlet: done summary" line: a reader could treat it as a labeled field or a fourth fragment of the summary, which would threaten three-sentences and no-labels. Keep the gate marker on its own line, visibly separated from the prose and using the exact gate id required by the skill, and make the wording state that the marker sits outside the summary paragraph so the three-sentence count is unambiguous; otherwise the After wording delivers the Change without moving any fact here.
+- nov3-replay / anthropic/claude-opus-5-5: Nothing moved: After keeps every fact Before kept while delivering the sectioned contract. Both After gates use the fixed headings, each section is a single paragraph, Context stays at two evidence lines, word counts land well under 180, the citation trails the claim, and the menus and eligibility lines are unchanged and terminal. Two small points to watch as you tighten the wording: the first After report's because-clause says 'every predicate passes' and the second leans on 'needs that coordination' without naming predicate 6 in the body, so if the contract wants the gate's third section to be readable without the eligibility line, prefer a because-clause like 'because it touches one call site and all six hotfix checks pass' / 'because the font lives outside this repo and its tests cannot verify it (predicate 6)'. Also note After's menu seeds say 'with this evidence' rather than 'with the above'; harmless here, but keep the menu text fixed if any downstream check compares it literally.
+- nov3-replay / github-copilot/gpt-6.1-sol: After keeps every fact Before kept and additionally fixes ends-at-envelope: Before appended a 'Prior-report search completed... baseline checks were clean' housekeeping line after the eligibility line in both gates, while After stops at the eligibility line as required. The sectioned What is broken / Why it is broken / How to fix it shape reads plainly, each section is a single paragraph, citations trail the claims they support, both reports stay well under 180 words, and the menus match the expected row counts, recommendations, and eligibility statements (Checkpoint 2 names predicate 6 and the unverifiable external font). Two small wording nits worth tightening so the shape stays stable: keep the eligibility line explicit ('all six predicates pass' rather than 'all predicates pass') so the eligible line mirrors the not-eligible line's predicate specificity, and keep punctuation on the last menu row ('Finish with rendered summary.') consistent with the other rows so the row text is byte-identical to the menu contract. Otherwise the After wording delivers the Change without moving any fact in the wrong direction.
 
-exit: 1
+exit: 0
+
+## Partial coverage and inspection
+
+Selected model comparisons in this iteration (two baseline/candidate model pairs
+per sample):
+
+| Sample | Committed records | Candidate facts |
+|---|---|---|
+| `prose-verdict-above-menu` | [records](results/prose-verdict-above-menu/) | 8/8 hold on both models |
+| `sectioned-report-order` | [records](results/sectioned-report-order/) | 8/8 hold on both models |
+| `returned-ticket-link` | [records](results/returned-ticket-link/) | 8/8 hold on both models |
+| `standalone-report` | [records](results/standalone-report/) | 8/8 hold on both models |
+| `nov3-replay` | [records](results/nov3-replay/) | 7/7 hold on both models |
+
+`gate-line-first` and `menu-after-numbered-findings` were not rerun. Their saved
+records are not evidence for this change. No target-wide or cross-target sweep
+ran. The final comparison above is sample-scoped; use
+`node eval/chase-bug/check-report.mjs nov3-replay` to check its committed replies,
+judgments and mechanical facts without model calls, substituting another selected
+sample name to check that sample.
+
+The implementer read both models' outputs for all five selected samples. The
+saved-theme report explains the late default overwriting dark with light; the CI
+report separates the repeated scan from the one-call-site fix; the font report
+shows 312 pixels overflowing a 300-pixel card and changes the font, not the card.
+The negative gate names missing dataset size without inventing a cause; the draft
+asks for browser/version; the summary preserves the existing ticket. These are
+readable causal stories without opening the cited files.
+
+Row 4 remains open despite passing judged plain-reader facts: some outputs still
+use unexplained terms such as "falsification test", "small fixture", "lint", or
+"predicate". Tighten first-use explanations and recheck the affected samples in
+a later iteration; the checker verifies saved judgments, not independent human
+comprehension. The prose draft's confirmation can also include words after the
+`send it` token rather than making that token the literal last line.
+
+The Nov 3 baseline actually lacked section headings in both models, while the
+current plain-reader judgments hold on both. An earlier judgment called one
+baseline's plain-reader a failure for not saying the card width stays unchanged;
+the refresh audit in candidate.json retains that disagreement. This is observed
+judge variability, not evidence that the baseline was uniformly unreadable.
+
+The hotfix path was checked by reading its handoff and presentation instructions,
+not by executing mutations. Ungated drafts and push-failure fallback routing are
+covered by the shared read instruction, not separate model checkpoints. The
+predecessor spec banner remains for the parent: this worker cannot edit specs.

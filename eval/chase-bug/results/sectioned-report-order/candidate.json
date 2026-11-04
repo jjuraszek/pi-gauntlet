@@ -1,0 +1,146 @@
+{
+  "sample": "sectioned-report-order",
+  "arm": "candidate",
+  "skillSha": "db9f5c1d9e19e4d1e888876829ae0fa305d7271870e94c0b05165271a880f47d",
+  "inputSha": "bf194532307a772b90d2687dd2a5bff7ea4eb5a382f97db003e1bcc92e8cb077",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### Context\n\nA local request test reproduced the 404, and ignoring the trailing slash made it pass. Nothing was blocked, and the search found no earlier report.\n\n### What is broken\n\nOpening `/widgets/` shows \"page not found\" (404) instead of the widgets page; `/widgets` works.\n\n### Why it is broken\n\nThe part that matches URLs to pages compares paths exactly, so `/widgets/` does not match `/widgets` (src/router.ts:88).\n\n### How to fix it\n\nStrip the trailing slash before that one comparison so both addresses open the widgets page. Choose hotfix because this changes a single comparison and every hotfix check passes.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\n### What is broken\n\nThe report says the chart disappears after a refresh. Following the documented steps with the supplied small sample data, the chart still showed in Chrome and Firefox.\n\n### Why it is broken\n\nThe documented reproduction did not show the failure. Clearing the browser's saved copy of the page also ruled out stale cached data. The cause is unknown, and the search found no earlier report.\n\n### What happens next\n\nThe size of the data in the failing run is missing, and the investigation needs it to continue. Respond with that request because data size is the remaining difference between the failing run and the test.\n\nPick one:\n\n```text\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n```\n",
+      "words": 280,
+      "wallMs": 9474,
+      "mechanical": {
+        "section-order": "holds",
+        "no-labels": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page (200); `/widgets` works.\n\n### Why it is broken\n\nThe part that matches URLs to pages compares paths exactly at `src/router.ts:88`. A local request test reproduced the failure; ignoring the trailing slash made it pass.\n\n### How to fix it\n\nStrip the trailing slash before comparing paths so both URLs open the widgets page. This changes one comparison. Choose hotfix because the fix is small and all six hotfix predicates pass.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\n### What is broken\n\nThe report says the chart disappears after refresh, but following the documented steps with the supplied small fixture kept the chart visible in Chrome and Firefox, both with clean profiles.\n\n### Why it is broken\n\nThe documented refresh attempts did not reproduce the disappearance. Clearing the cache ruled out the cache hypothesis; no other hypothesis survives. The cause remains unknown.\n\n### What happens next\n\nThe dataset size from the failing run is missing and is needed to continue. Respond with that request because the supplied small fixture does not reproduce the failure.\n\nPick one:\n\n```text\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n```\n",
+      "words": 254,
+      "wallMs": 5229,
+      "mechanical": {
+        "section-order": "holds",
+        "no-labels": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "cb590d78de6378291198e61bf076d36dc9cef71d59de1938737d63385855a406",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+      "baselineOutputSha": "06933750b6d10824defecdf726793238b25f4e1a36cc827f2b3d22538ae9ffb1",
+      "candidateOutputSha": "337e375d8dc3a43b2f5ae378014d814adfac0fa442b3081aa264834176dc571f",
+      "facts": {
+        "third-heading-by-verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plain-reader": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "under-cap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "lists-earn-place": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ends-at-envelope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After introduces the fixed headings (Context / What is broken / Why it is broken / How to fix it or What happens next), which is what moves third-heading-by-verdict and lists-earn-place from fails to holds: Before had no sections and mixed a paragraph with a four-to-five-item bullet list in one undivided body, whereas After gives each section a single short paragraph, ends Checkpoint 1 on How to fix it with the hotfix pick plus one because-clause, and ends Checkpoint 2 on What happens next naming the missing dataset size with a Why that cites the failed Chrome/Firefox repro and cleared cache without inventing a cause. Nothing regressed: both menus, the eligibility line, the fenced ending, plain wording (404 glossed as \"page not found\", cache glossed as the browser's saved copy, the router named by role with src/router.ts:88 trailing), and the sub-180-word count all survive. One thing to watch in future wording: the Context section in After is two prose sentences rather than the \"source lines\" the contract describes; the fact tolerates it here, but if you want Context to be reliably optional-and-short, phrase it as \"Context: only when a line of repro output or the surviving check is worth quoting, up to five lines; otherwise omit\" so writers don't pad it with a prose preamble that duplicates What is broken.",
+      "wallMs": 23178,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "cb590d78de6378291198e61bf076d36dc9cef71d59de1938737d63385855a406",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+      "baselineOutputSha": "599c62a08f86fecf8cd617b95185098858d939ca9b88248f95b7f069f45ec672",
+      "candidateOutputSha": "ded8813e7d30fd5e62bb6f3b9771786fe11d4d5125334a92f11eb075e4bf2d35",
+      "facts": {
+        "third-heading-by-verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plain-reader": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "under-cap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "lists-earn-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ends-at-envelope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: both gates now carry the fixed headings, Checkpoint 1 closes on How to fix it with a literal one-comparison fix plus a because-clause, and Checkpoint 2 closes on What happens next naming the missing dataset size while its Why reports only the failed repro attempts and the unknown cause. Nothing that Before kept was lost - the menus, recommendation, eligibility line and ending position are all intact, bodies stay under cap, each section is a single short paragraph, and citations trail their claims. The one wording risk to watch is the new ```text fence wrapping the menus: it is allowed by the envelope fact as written, but it makes the eligibility line sit after a closing fence in Checkpoint 1, and a stricter reading of 'no code fences' could trip; consider telling the skill to print the numbered menu as plain lines rather than inside a fence so the gate ends on the bare eligibility line or bare menu rows without any ambiguity.",
+      "wallMs": 18672,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "1bf58911f60f0ae28d56f4adebf20c80e9477487"
+}

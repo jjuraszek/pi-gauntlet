@@ -353,6 +353,10 @@ remaining, `REJECT`, or an invariant violation.
 10. **Response.** chase-bug step 5 rules apply unchanged: addressable -> draft
     citing `fixed in <SHA>` or the PR link -> `send it`; unaddressable -> summary.
     Abort never reaches this step - it returns to the menu.
+    The draft or summary is rendered per `reference/verdict-report.md`, which
+    carries step 8's SHA, revert line, and push nudge in its third section and any
+    step 9 residual as one Context line; nothing from steps 8-9 renders before
+    the marker line or after the report.
 
 ## Eligibility predicates
 
