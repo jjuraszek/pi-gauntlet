@@ -1,7 +1,7 @@
 {
   "sample": "prose-verdict-above-menu",
   "arm": "candidate",
-  "skillSha": "47c3725702f0648884cd297d21be08c93ae1d35077f79fb42f6e85a6f65adb36",
+  "skillSha": "014c2eb770d63b1a5dc3d33ed5e4bf9f6fef3b336656c24a5233a2dfc66e1de9",
   "inputSha": "3e652b4cced93b9b887b849ec646ee4555a8c974765811fa342e3b20bccc04bf",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### Context\n\nOpening `/widgets/` locally showed page not found (404). In a local test, ignoring the final slash made the page load. Nothing was blocked.\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page. `/widgets` loads normally.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares them character for character. The extra final slash means no page matches. Ignoring the slash in a local test turned the 404 into a successful load.\n\n### How to fix it\n\nRemove a final slash from the address before comparing it, so `/widgets/` and `/widgets` reach the same page. Add a test that repeats the failing request to check it stays fixed. The change touches one comparison. Choose hotfix because the fix is one small, contained change.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment via `gh issue comment`. Draft:\n\n### What is broken\n\nThe report says the page fails to display. We followed the documented steps, and the page displayed normally.\n\n### Why it is broken\n\nWe could not reproduce the failure. We tested Chrome and Firefox, each with browser settings that had no saved preferences, and both displayed the page successfully. We don't know the cause yet because we don't know which browser showed the failure.\n\n### What happens next\n\nPlease reply with the browser and version where the page failed. We will then repeat the steps in that exact setup.\n\nReply `send it` to post this comment. Any other reply is treated as a change to the draft.\n",
-      "words": 299,
-      "wallMs": 16889,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page. `/widgets` without the final slash loads correctly.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares the requested address to its known pages character for character. `/widgets/` has one extra final slash, so it matches nothing and falls through to page not found. A local test confirmed this: when the comparison ignored the final slash, `/widgets/` loaded the page (200).\n\n### How to fix it\n\nRemove a final slash from the address before the comparison, so `/widgets/` and `/widgets` both reach the widgets page. The change touches one comparison, plus a test that repeats the failing request to check it stays fixed. Choose hotfix because the change is small and contained.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nThe draft below will post as a comment on this GitHub issue with `gh issue comment`:\n\n### What is broken\n\nThe issue reports that the page fails to display. We followed the documented steps, and the page displayed correctly.\n\n### Why it is broken\n\nWe could not reproduce the failure. We followed the documented steps in Chrome and in Firefox. Both browsers used settings with no saved preferences, and both showed the page correctly. The cause is still unknown, because we do not know which browser setup you used.\n\n### What happens next\n\nPlease reply with the browser you used and its exact version number. With that information, we can repeat the test in your setup.\n\nReply `send it` to post this comment exactly as written. Any other reply counts as a change request to the draft.\n",
+      "words": 314,
+      "wallMs": 14260,
       "mechanical": {
         "no-labels": "holds",
         "section-order": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of loading the page successfully (200).\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths exactly, so the final slash prevents a match. Removing that slash in the local test made the page load.\n\n### How to fix it\n\nRemove the final slash before comparing addresses so `/widgets/` reaches the same page as `/widgets`. This is a small change to one comparison. Choose hotfix because the local test confirmed the change and all safety checks pass.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: `gh issue comment`\n\n### What is broken\n\nWe could not reproduce the reported page failure: the page loaded successfully in both Chrome and Firefox.\n\n### Why it is broken\n\nFollowing the documented reproduction steps with browser settings containing no saved preferences did not trigger the failure in either browser. The cause remains unknown; the report does not include your browser and version.\n\n### What happens next\n\nPlease share the browser name and exact version you used when the page failed so we can test that setup.\n\nReply `send it` to post this draft.\n",
-      "words": 230,
-      "wallMs": 13413,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of loading the page successfully (200).\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths exactly without removing the final slash. Local reproduction and a test of this explanation confirmed that the extra slash prevents a match.\n\n### How to fix it\n\nRemove the final slash before comparing page addresses so `/widgets/` loads successfully. This is a small, safe change to the address comparison. Choose hotfix because the fix is bounded and all six eligibility checks pass.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: `gh issue comment`\n\n### What is broken\n\nThe reported page failure could not be reproduced: the page loaded successfully in both Chrome and Firefox.\n\n### Why it is broken\n\nFollowing the documented reproduction steps in both browsers, using browser settings with no saved preferences, did not trigger the failure. The cause remains unknown; the report does not include your browser and version.\n\n### What happens next\n\nPlease share the browser name and exact version you used when the page failed so we can repeat the attempt under the same conditions.\n\nReply `send it` to post this draft.\n",
+      "words": 238,
+      "wallMs": 18901,
       "mechanical": {
         "no-labels": "holds",
         "section-order": "holds"
@@ -40,9 +40,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b742fd4d9cf0cad16dc3f88422c2e88fde99442c863d4b6654f666ad4786a2d8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8562d7453f1ca2fed0f57982fc4b26b160cc8f81ca4da9d511fa9b4722d646cc",
+      "intentSha": "843ad4cf624259361a2ac7594ee23d4ec6a49c8249f654bb6c1390f759d8bf8b",
       "baselineOutputSha": "822b20761b9a17ab637d4ad801e4ef378016801e90593079efa068ba0bb134a7",
-      "candidateOutputSha": "a805b187a2af9f6bc37e393054cc4f5d462d6298f2c2ea48459c8e8529ef93c2",
+      "candidateOutputSha": "d1a6033cb17d0e018c80160cc52989f22aeeaa45908909f036efc77e2a7a9905",
       "facts": {
         "no-fence": {
           "before": "holds",
@@ -85,16 +85,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "After keeps every fact Before kept and moves plain-reader and draft-asks-reporter to holds: the gate replaces 'falsification test', 'tracked baseline' and 'no delta at checkpoint 2' with everyday descriptions of what was changed and what was observed, names the matcher by its role, shows the slash-removal result as visible proof, and the reporter draft gains a What happens next section that asks for browser and version with the send it line outside it and no push claim. One thing to watch: How to fix it now carries no location at all, yet the next action (implementing the hotfix) does require opening the comparison; a trailing citation such as '...before comparing it (the comparison in `src/router.ts:88`).' would satisfy 'appears only when useful to open' without reintroducing arrow chains or mid-claim parentheticals. Also keep the Context section at or under five lines as it is here, and keep the because-clause as the final sentence of the third section so the gate still ends at the eligibility line.",
-      "wallMs": 20238,
+      "feedback": "After moved plain-reader and draft-asks-reporter from fails to holds without regressing anything: the headed sections replace Before's unexplained shorthand (\"falsification test failed to falsify the missing-normalization hypothesis\", \"tracked baseline is clean, with no delta\", \"clean profiles\", a redundant parenthetical echo in the draft) with everyday descriptions, a role-named matcher, a visible test result, and a What happens next section that asks for browser and version while the `send it` line stays outside the draft; both reports stay well under 180 words and the menu, eligibility line, and confirmation endings are untouched. Two small refinements would make the register even safer: the How to fix it section drops `src/router.ts:88` entirely, yet a reader choosing hotfix will need to open that comparison, so a trailing citation like \"...before the comparison (the matcher in the router, `src/router.ts:88`)\" would satisfy the only-when-useful rule rather than omitting it; and \"loaded the page (200)\" leans on a bare status code, so \"loaded the page (a 200 success response)\" would gloss it on first use the way 404 is glossed in What is broken.",
+      "wallMs": 33660,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b742fd4d9cf0cad16dc3f88422c2e88fde99442c863d4b6654f666ad4786a2d8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8562d7453f1ca2fed0f57982fc4b26b160cc8f81ca4da9d511fa9b4722d646cc",
+      "intentSha": "843ad4cf624259361a2ac7594ee23d4ec6a49c8249f654bb6c1390f759d8bf8b",
       "baselineOutputSha": "d0b01320fdb79d943fdf92aae3160049411c99db9350739ebbb15f11cb12e409",
-      "candidateOutputSha": "46c4a00a55dca93f6ee4049d73c50cca734dbaaa48b3f3f2456a47f651599005",
+      "candidateOutputSha": "cbad0258f1401fde9bce38f9ba9d6fb0879dc74ee5ff7fbe12fd19fee0e21881",
       "facts": {
         "no-fence": {
           "before": "holds",
@@ -137,10 +137,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves plain-reader and draft-asks-reporter from fails to holds and keeps every fact Before kept. Before left 'falsification test', 'normalization', bare '404/200' and 'clean profiles' unexplained and leaned on a `src/router.ts:88` citation the picker does not need; After translates each (page not found, loading successfully, browser settings with no saved preferences), names the router by its action, shows proof (removing the slash made the page load; Chrome and Firefox both loaded), and drops the citation, which satisfies the only-when-useful rule. Before's draft asked for browser and version but had no What happens next section, so the fact as written could not hold; After supplies it with the confirmation outside the draft and no push claim. Two drifts are worth tightening even though no fact moved: the After menu pre-ticks row 3 as `[x]` and drops the trailing period on row 4, and the eligibility line shrank from 'eligible - all six predicates pass' to bare 'eligible'. Keep the rows unticked with [recommended] as the only marker and retain the predicate count in the eligibility line, since the Change asks to preserve menu numbering, recommendation, and eligibility untouched while only reshaping the report above Pick one:.",
-      "wallMs": 24471,
+      "feedback": "After keeps everything Before kept and gains the two it lacked: the sectioned shape gives the reporter draft a real What happens next section with the browser/version ask, and the register translates 404/200, normalization, falsification test and clean profiles into everyday descriptions, which is what moved plain-reader from fails to holds (Before left `normalization`, `falsification test`, `clean profiles` and the bare status codes unexplained). Two small drifts worth guarding in the wording: the eligibility line lost the count (`all predicates pass` vs Before's `all six predicates pass`) and row 4 dropped its trailing period, so state that menu rows and the eligibility line are echoed verbatim; and since the hotfix picker's next action is to open the comparison code, the contract's 'omit citations unless the reader's next action requires opening them' arguably argues for keeping `src/router.ts:88` trailing the How to fix it claim rather than dropping it - phrase the rule as 'keep the one citation the recommended pick will open, after its claim' so authors do not over-prune.",
+      "wallMs": 22678,
       "verdict": "improved"
     }
   },
-  "repoSha": "3559de0cc8197ad844bd68fb8377df17b60d1388"
+  "repoSha": "3979a4cb725481b73a45a305e1b3b209617f6bb3"
 }

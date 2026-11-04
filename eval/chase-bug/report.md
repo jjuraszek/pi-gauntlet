@@ -1,14 +1,14 @@
 # eval report: chase-bug (partial run: nov3-replay)
 
-for: 23bfd4dd025229c0e6b7d0c32d21d607bad09bf75139a5dbb0a442b554bc2f29
+for: cfab7d5a9bcf791fb5fc7b3952260bd311e3353488f4e7a726c7a7de000076fa
 
-wall: 35s
+wall: 41s
 
 ## Change
 
 Replace the three-sentence, under-80-word verdict budget with one shared sectioned report contract. Use optional Context, What is broken, Why it is broken, and How to fix it for real bugs or What happens next for negative verdicts. Keep reports standalone and concise, with literal fixes, role-named mechanisms, visible proof, and trailing citations. Apply the shape to verdicts, reporter drafts, terminal summaries, and post-hotfix responses. End the gate's third section with the recommended pick and one because-clause; omit picks from drafts, summaries, and the hotfix seed. Preserve gate markers, menu numbering and recommendation, returned-ticket truth, citation sources, response confirmation, and hotfix seed evidence without menu recommendations.
 
-Translate investigation shorthand before first use in every report, including Context and recommendation reasons. Explain tests by their changed input and observed result, name components by their actions, and omit implementation citations unless the reader's next action requires opening them. The plain-reader-first-use sample exercises this register in a real-bug gate, cannot-replicate draft and documented-rule not-a-bug summary.
+Translate investigation shorthand before first use in every report, including Context and recommendation reasons. Explain tests by their changed input and observed result, name components by their actions, and omit implementation citations unless the reader's next action requires opening them. Keep Context limited to the one-line repro, the explanation that survived testing, and what could not be checked; omit it when none exists rather than filling it with tracker-search results, status, or housekeeping. The plain-reader-first-use sample exercises this register and Context content in a real-bug gate, cannot-replicate draft and documented-rule not-a-bug summary.
 
 The selected samples exercise report comprehension rather than sentence counting. The removed exact-three-sentence and under-80-word facts are superseded by section, standalone, under-180-word, and concision checks; menu echoes and delivery wrappers remain outside the report. Evidence is partial and does not prove live triage, tracker writes, or hotfix execution.
 
@@ -16,95 +16,49 @@ The selected samples exercise report comprehension rather than sentence counting
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| nov3-replay | anthropic/claude-opus-5-5 | improved | 18579 | plain-reader: fails -> holds (unplanned improvement); under-cap: holds -> holds (held); lists-earn-place: holds -> holds (held); menu-intact: holds -> holds (held); ends-at-envelope: holds -> holds (held); section-order: fails -> holds (unplanned improvement); no-labels: holds -> holds (held) |
-| nov3-replay | github-copilot/gpt-6.1-sol | improved | 21780 | plain-reader: holds -> holds (held); under-cap: holds -> holds (held); lists-earn-place: holds -> holds (held); menu-intact: holds -> holds (held); ends-at-envelope: fails -> holds (unplanned improvement); section-order: fails -> holds (unplanned improvement); no-labels: holds -> holds (held) |
+| nov3-replay | anthropic/claude-opus-5-5 | improved | 20460 | plain-reader: fails -> holds (unplanned improvement); under-cap: holds -> holds (held); lists-earn-place: holds -> holds (held); menu-intact: holds -> holds (held); ends-at-envelope: holds -> holds (held); section-order: fails -> holds (unplanned improvement); no-labels: holds -> holds (held) |
+| nov3-replay | github-copilot/gpt-6.1-sol | improved | 25400 | plain-reader: fails -> holds (unplanned improvement); under-cap: holds -> holds (held); lists-earn-place: holds -> holds (held); menu-intact: holds -> holds (held); ends-at-envelope: fails -> holds (unplanned improvement); section-order: fails -> holds (unplanned improvement); no-labels: holds -> holds (held) |
 
 ## Feedback
 
-- nov3-replay / anthropic/claude-opus-5-5: After keeps every fact Before kept and additionally satisfies plain-reader: Before leaned on unexplained shorthand ("CI job", "the lint step's results") and parenthetical citations, whereas After names the pieces by what they do ("the automatic build check", "the step that builds the final summary", "the heading's font file"), describes the trial by its changed input and observed result, and drops the `tools/check-job.mjs:73` / `slides/title.css:41` identifiers that no reader needs to act on the gate. Word counts stay well under 180 (roughly 125 and 150), each section is a single paragraph, menus and eligibility lines are byte-for-byte compatible with the required shapes, and nothing trails the eligibility line. The only thing to watch is that the 'How to fix it' because-clause stays one sentence and that any future citation you re-add trails its claim rather than sitting mid-sentence; otherwise the After wording is doing exactly what the Change asks.
-- nov3-replay / github-copilot/gpt-6.1-sol: After keeps every fact Before kept and additionally fixes ends-at-envelope: Before appended a 'Prior-report search completed... baseline checks were clean' housekeeping line after the eligibility line in both gates, while After stops at the eligibility line. The sectioned shape (What is broken / Why it is broken / How to fix it) stays under the 180-word cap, each section is a single paragraph, menus are unchanged in rows, numbering and recommendation, and the plain-reader explanations are actually stronger in After (glyph as 'the drawing for z', 'do not widen the card', build check named by role, citations dropped since the reader's next action does not require opening them). Two small drifts worth tightening in the wording: the eligibility line should keep the predicate count ('all six predicates pass') so the eligible line stays parallel with the not-eligible line's 'the other five pass', and the Finish row lost its trailing period, so the contract should state that menu rows are echoed verbatim; otherwise the After wording delivers the Change without regressing any fact.
+- nov3-replay / anthropic/claude-opus-5-5: After delivers the Change cleanly: both gates use the Context / What is broken / Why it is broken / How to fix it headings, every section is a single paragraph, word counts sit well under 180, menus and eligibility lines are untouched, and nothing trails the envelope. The move on plain-reader comes from After translating the shorthand Before left bare ('CI job' becomes 'the automatic build check', 'lint step' becomes 'scans the code for rule violations') and from the second gate stating 'leave the card width unchanged', which Before never said. One thing to tighten: the first gate's Context ends with 'Nothing was blocked', which is status-shaped filler rather than a repro, surviving explanation, or blocked check; the wording should say to drop the sentence when there is no blocked check (keep only 'A timing trace showed two four-minute passes over the code with identical file lists.'). The citations Before carried (`tools/check-job.mjs:73`, `slides/title.css:41`) were dropped entirely in After; that is acceptable under the 'only when the reader's next action requires opening them' rule, but the wording could state explicitly that a hotfix recommendation makes the call site worth citing after the fix sentence, so the hotfix seed keeps its evidence without re-adding citations elsewhere.
+- nov3-replay / github-copilot/gpt-6.1-sol: After keeps every fact Before kept and repairs the two Before failed: the sectioned report explains the duplicate scan, the four wasted minutes and the reuse of existing results in checkpoint 1, and in checkpoint 2 it defines glyph on first use, names the wider substitute font, gives 312 versus 300 pixels and says to replace the font rather than widen the card, whereas Before's compressed paragraph omitted the card alternative and leaned on 'browser substitution' with a trailing CSS citation to carry the explanation; After also stops at the eligibility line instead of appending the prior-report-search and baseline-check housekeeping that Before tacked on. Nothing moved from holds to fails: both reports are well under 180 words, each section is a single paragraph, the menus keep their row counts, recommendations and eligibility lines. One thing to watch in the wording rather than this output: After dropped both citations entirely (tools/check-job.mjs:73 and slides/title.css:41), which the plain-reader fact tolerates, but the hotfix recommendation in checkpoint 1 is exactly the case where the reader's next action is to open the call site, so the contract should say 'keep the citation trailing the claim when the recommended pick is to edit that location' to avoid over-pruning; it should also pin the eligible line to 'all six predicates pass' and keep 'the other five pass' on the not-eligible line so the predicate count stays explicit.
 
 exit: 0
 
-## Selected-sample verification repair
+## Selected coverage
 
-The generated section above is the last single-sample run, `nov3-replay`, not a
-target-wide result. This repair refreshed only `standalone-report`,
-`sectioned-report-order`, `prose-verdict-above-menu`, `returned-ticket-link`,
-`plain-reader-first-use`, and `nov3-replay`. Both replay models were regenerated
-and judged once per sample; all baseline records were reused unchanged.
+Partial coverage: the six explicitly selected samples below were replayed with
+`EVAL_CONCURRENCY=4 node eval/run.mjs chase-bug <sample>`. Each run produced two
+current candidate replies and two judgments, reused the baseline replies, and
+exited 0 with `improved`. The Cells and Feedback sections above describe only
+`nov3-replay`, the final invocation; the linked records retain every selected
+sample's current evidence.
 
-The initial `node eval/chase-bug/check-report.mjs standalone-report` exited 1
-with `candidate/anthropic/claude-opus-5-5: current successful reply`. All six
-selected candidate records still identified the skill bundle from before the
-step-4 ending-sentence correction. Refreshing those bundles repaired evidence
-freshness; no candidate fact changed from holds to fails. All twelve current
-model comparisons are improved against the pinned baseline, and all candidate
-facts hold. No skill, fact, judge instruction, or intent change was needed.
+| Sample | Current candidate record | Facts holding in both model pairs | Scoped check exit |
+|---|---|---|---|
+| standalone-report | [candidate](results/standalone-report/candidate.json) | 8 | 0 |
+| sectioned-report-order | [candidate](results/sectioned-report-order/candidate.json) | 8 | 0 |
+| prose-verdict-above-menu | [candidate](results/prose-verdict-above-menu/candidate.json) | 8 | 0 |
+| returned-ticket-link | [candidate](results/returned-ticket-link/candidate.json) | 8 | 0 |
+| plain-reader-first-use | [candidate](results/plain-reader-first-use/candidate.json) | 7 | 0 |
+| nov3-replay | [candidate](results/nov3-replay/candidate.json) | 7 | 0 |
 
-Each command below ran separately with `EVAL_CONCURRENCY=4`; sample runs were
-serial so they could not overwrite one another's shared report concurrently.
-
-| Command | Exit | Observed runner result |
-|---|---|---|
-| `node eval/run.mjs chase-bug standalone-report` | 0 | improved; replay 2, judge 2, confirm 0, wall 37s |
-| `node eval/run.mjs chase-bug sectioned-report-order` | 0 | improved; replay 2, judge 2, confirm 0, wall 36s |
-| `node eval/run.mjs chase-bug prose-verdict-above-menu` | 0 | improved; replay 2, judge 2, confirm 0, wall 38s |
-| `node eval/run.mjs chase-bug returned-ticket-link` | 0 | improved; replay 2, judge 2, confirm 0, wall 23s |
-| `node eval/run.mjs chase-bug plain-reader-first-use` | 0 | improved; replay 2, judge 2, confirm 0, wall 50s |
-| `node eval/run.mjs chase-bug nov3-replay` | 0 | improved; replay 2, judge 2, confirm 0, wall 35s |
-
-## Reader assessment of selected records
-
-Read the baseline and candidate replies and current judgments for both models
-in each row. No behavior regression or new accepted behavior change was found;
-intent remains unchanged rather than being widened to pass a check.
-
-| Sample and current candidate evidence | Facts per model | Concrete result |
-|---|---|---|
-| [standalone-report](results/standalone-report/candidate.json) | 8 | Explains dark becoming light, the later default-theme step, and skipping that step after the saved choice loads; hotfix remains row 3. |
-| [sectioned-report-order](results/sectioned-report-order/candidate.json) | 8 | Real-bug report ends in How to fix it; cannot-replicate ends in What happens next, naming the missing dataset size and preserving the discovery-ticket menu. |
-| [prose-verdict-above-menu](results/prose-verdict-above-menu/candidate.json) | 8 | Gate report precedes its four-row menu; the independent reporter draft asks for browser and version and ends with confirmation outside the draft. |
-| [returned-ticket-link](results/returned-ticket-link/candidate.json) | 8 | Terminal summary cites the returned existing issue 42, claims no new ticket, and contains no response gate or menu. |
-| [plain-reader-first-use](results/plain-reader-first-use/candidate.json) | 6 | Explains the repeated four-minute check, asks for the failing data's row count, and gives the documented slash-free address without unexplained first-use shorthand. |
-| [nov3-replay](results/nov3-replay/candidate.json) | 7 | Retains four-minute savings and the 312-versus-300-pixel overflow; the external-font check keeps hotfix pickable but recommends brainstorming at row 2. |
-
-The judge's optional suggestions were checked against the actual contract, not
-adopted as new requirements. A gate pick does not require opening an implementation
-path; the existing test supports the proposed refresh check in standalone-report.
-The golden menus use `[x]` for the recommendation, and a bare `eligible` is allowed.
-The plain-reader because-clause's "one call" follows its explanation as the single
-place that starts the summary step. These are not holds-to-fails regressions.
-
-### Human-readable before and after
-
-These excerpts are from the first replay model's committed
-[plain-reader baseline](results/plain-reader-first-use/baseline.json) and
-[current candidate](results/plain-reader-first-use/candidate.json), not idealized output.
-
-| Surface | Before | After |
-|---|---|---|
-| Real-bug gate | "The CI job spends an extra four minutes running the same lint scan of the source tree twice." | "The automatic check that scans the code for rule violations runs that scan twice, adding four unneeded minutes to every run." |
-| Cannot-replicate draft | "Your ten-row sample fixture rendered the chart in both Chrome and Firefox with clean profiles, and clearing the cache changed nothing" | "We loaded your ten-row sample data in Chrome and Firefox, using browser settings with no saved preferences, and the chart stayed after each refresh. Clearing the browser's stored copy of the data did not change that." |
-| Not-a-bug summary | "The router matches addresses exactly" | "The documented rules for page addresses accept `/widgets` and reject addresses that end with a slash." |
-
-## Final cached-evidence checks
-
-Run in this order after the refreshes; each command exited 0 with the output shown.
-
-| Command | Observed output |
-|---|---|
-| `node eval/chase-bug/check-report.mjs standalone-report` | `standalone-report: 2 current model pairs, all 8 candidate facts hold; no model calls` |
-| `node eval/chase-bug/check-report.mjs sectioned-report-order` | `sectioned-report-order: 2 current model pairs, all 8 candidate facts hold; no model calls` |
-| `node eval/chase-bug/check-report.mjs prose-verdict-above-menu` | `prose-verdict-above-menu: 2 current model pairs, all 8 candidate facts hold; no model calls` |
-| `node eval/chase-bug/check-report.mjs returned-ticket-link` | `returned-ticket-link: 2 current model pairs, all 8 candidate facts hold; no model calls` |
-| `node eval/chase-bug/check-report.mjs plain-reader-first-use` | `plain-reader-first-use: 2 current model pairs, all 6 candidate facts hold; no model calls` |
-| `node eval/chase-bug/check-report.mjs nov3-replay` | `nov3-replay: 2 current model pairs, all 7 candidate facts hold; no model calls` |
+Each scoped check used `node eval/chase-bug/check-report.mjs <sample>` and
+reported `2 current model pairs, all <count> candidate facts hold; no model calls`.
+The `context-earns-place` fact holds for both plain-reader-first-use candidates;
+both omit Context at all three checkpoints. Adding that fact before the skill
+edit rejected the saved search-status-only Context, with runner exit 1 and
+scoped check exit 1. `wc -l skills/chase-bug/reference/verdict-report.md` reports
+185 lines (exit 0); only the Context rule row changed in that reference.
 
 ## Coverage limits
 
 `gate-line-first` and `menu-after-numbered-findings` were not rerun. Their existing
 records are not current evidence for this repair. These selected no-tool text
 replays do not prove live triage, tracker retrieval or writes, numeric-reply
-execution, or hotfix execution. The comparisons attest only the selected facts;
-judge feedback is not a separate acceptance contract.
+execution, or hotfix execution. The comparisons attest only the selected facts,
+not a target-wide pass. Only plain-reader-first-use explicitly judges Context
+content: nov3-replay's Opus candidate still adds "Nothing was blocked" to its
+first Context, which its judge flags as status-shaped filler despite all selected
+facts holding. That residual needs follow-up rather than a broader pass claim.

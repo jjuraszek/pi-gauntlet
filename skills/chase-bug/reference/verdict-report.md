@@ -18,7 +18,7 @@ that do not fit; never append them after that ending.
 
 | Section | Content |
 |---|---|
-| Context | Give the repro in one line, the explanation that survived testing, and what could not be checked. Omit an empty Context. |
+| Context | Include only the one-line repro, the explanation that survived testing, and what could not be checked; omit the heading when none exists, and keep tracker-search results, status, and housekeeping out of Context. |
 | What is broken | State the failure in the reporter's terms; for a negative verdict, contrast the report with what the chase observed. |
 | Why it is broken | Explain the mechanism with one concrete before/after value or repro result. For a negative verdict, name the kind of source that settles it; state an unknown cause as unknown. |
 | Third section at the gate | Give the literal change, its intended result, and its size for a real bug, including unknown cost; for a negative verdict give the cited fact or missing input. End with the recommended pick and one because-clause, without replacing the fix explanation with a menu action. |
