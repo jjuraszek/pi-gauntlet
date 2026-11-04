@@ -10,8 +10,8 @@ Use one short paragraph or one list per section, never both.
 Keep markers, channel text, selection echoes, menus, and confirmation outside
 the report. At the gate, put `Pick one:` and the unchanged numbered menu after
 the last section; the eligibility line ends the real-bug message. End a negative
-gate with its menu, a gated draft with `send it`, and a summary or ungated draft
-with its last section. Drop evidence, transcripts, status, and housekeeping
+gate with its menu, a gated draft with an explicit request to reply `send it`
+outside the draft, and a summary or ungated draft with its last section. Drop evidence, transcripts, status, and housekeeping
 that do not fit; never append them after that ending.
 
 ## Section content
@@ -38,14 +38,38 @@ but explicitly say when nothing is broken. Use these sources and next steps:
 
 ## Register
 
-Write everyday words a PM understands without the code open, including Context.
-Translate before shortening: "the part that matches URLs to pages", not an
-unexplained "router"; "strip the trailing slash", not "normalize"; "page not
-found (404)", not a bare status code. Explain other code terms on first use.
-Put a component's location or citation trailing its role-named claim only when
-the reader needs to open it. Back claims, including
-cost and risk judgments, with concrete facts gathered during the chase. Leave
-the routine baseline (tests pass, lint clean) unsaid. Cut repetition and process
+Write each report for a reader who has neither the code nor the investigation
+notes open. Translate technical nouns and acronyms into the action or thing they
+mean before shortening, including in Context and the recommendation's because-clause.
+Name components by what they do and describe tests by what changed and what
+happened. Use these translations for investigation shorthand in report bodies,
+including citation labels; retain the menu and eligibility vocabulary outside them:
+
+| Investigation shorthand | Report wording |
+|---|---|
+| CI runs lint | The automatic check scans the code for rule violations |
+| call site | The place in the code that starts this step |
+| normalize a path | The exact address change, such as removing a final slash |
+| regression test | A test that repeats the failing action to check it stays fixed |
+| falsification test | The change tried and the result observed |
+| predicate | The safety or scope check it names |
+| router | The part that matches web addresses to pages |
+| fixture | Sample data |
+| clean browser profile | Browser settings with no saved preferences |
+| cache | The browser's stored copy of the data |
+| API routing documentation | The documented rules for page addresses |
+
+Explain a necessary code term in everyday words before its first use in each
+report; explanations in the input or another checkpoint do not reach this reader.
+Read every section back for unexpanded shorthand before sending it. Replace any
+remaining left-column shorthand with its right-column meaning. Keep numbered
+hotfix predicates in the menu's eligibility line only; in the report explain the
+actual constraint, such as tests that cannot check a changed file.
+Put a source location or citation after its role-named claim only when the
+reader's next action requires opening that source; otherwise omit it. Keep
+literal failing inputs as the visible example, not as source citations.
+Back claims, including cost and risk judgments, with concrete facts gathered
+during the chase. Leave the routine baseline (tests pass, lint clean) unsaid. Cut repetition and process
 narration. Let channel tone change wording, never headings or confirmation placement.
 
 Keep report bodies unfenced, without `->` chains or colon-prefixed evidence
@@ -88,19 +112,19 @@ gauntlet: gate=chase-bug/verdict-menu recommended=3
 
 ### Context
 
-`curl /widgets/` returns 404; exact path matching survived testing. Nothing was blocked.
+Opening `/widgets/` shows page not found (404); ignoring the final slash made the page load. Nothing was blocked.
 
 ### What is broken
 
-Opening `/widgets/` shows a 404 instead of the widgets page; `/widgets` works.
+Opening `/widgets/` shows page not found (404) instead of the widgets page; `/widgets` works.
 
 ### Why it is broken
 
-The part that matches URLs to pages compares paths exactly, so the extra slash prevents a match.
+The part that matches web addresses to pages compares them exactly, so the extra slash prevents a match.
 
 ### How to fix it
 
-Strip the trailing slash before comparing paths so both URLs reach the page. Choose hotfix because this changes one comparison.
+Remove the final slash before comparing addresses so both reach the page. Choose hotfix because this changes one comparison.
 
 Pick one:
 
@@ -143,15 +167,15 @@ gauntlet: gate=chase-bug/verdict-menu
 
 ### What is broken
 
-Opening `/widgets/` shows a 404 rather than the requested page.
+Opening `/widgets/` shows page not found (404) rather than the requested page.
 
 ### Why it is broken
 
-Nothing is broken: the part that matches URLs to pages accepts `/widgets` but not `/widgets/`, as the documented API rule requires (the API doc's routing section).
+Nothing is broken: the part that matches web addresses to pages accepts `/widgets` but not `/widgets/`, as the documented rule for page addresses requires.
 
 ### What happens next
 
-Use `/widgets` without the trailing slash. Respond with that usage because it opens the page under the routing contract.
+Use `/widgets` without the final slash. Respond with that usage because it opens the page under the documented address rule.
 
 Pick one:
 

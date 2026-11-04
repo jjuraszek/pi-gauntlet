@@ -3,7 +3,7 @@
 base: 78e63174692a261a5864a27b17f8ba3727a388aa
 verification: npm test
 checks: commands
-iterations: 2
+iterations: 3
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -11,7 +11,7 @@ allowance: 10
 | 1 | done | 1 | node eval/chase-bug/check-report.mjs standalone-report; 2 current baseline/candidate model pairs; all 8 candidate facts hold |
 | 2 | done | 0 | node eval/chase-bug/check-report.mjs sectioned-report-order; 2 current model pairs; all 8 candidate facts hold; negative gate cites failed repro and missing dataset size |
 | 3 | done | 0 | node -e 'process.exit(["prose-verdict-above-menu","returned-ticket-link"].every(s=>require("node:child_process").spawnSync(process.execPath,["eval/chase-bug/check-report.mjs",s],{stdio:"inherit"}).status===0)?0:1)'; 4 current model pairs; all 16 candidate facts hold; draft and terminal-summary readability inspected |
-| 4 | open | 0 | |
+| 4 | done | 1 | node eval/chase-bug/check-report.mjs plain-reader-first-use; 2 current model pairs; all 6 candidate facts hold; gate, draft and not-a-bug summary explain first-use terms |
 | 5 | done | 0 | node eval/chase-bug/check-report.mjs sectioned-report-order; both models pass under-cap; Context stays within five source lines and reports below 180 words |
 | 6 | done | 0 | node eval/chase-bug/check-report.mjs sectioned-report-order; both models pass lists-earn-place; each section uses one short paragraph |
 | 7 | done | 0 | node -e 'a=require("node:assert/strict"),f=require("node:fs"),a.ok(f.readFileSync("skills/chase-bug/SKILL.md","utf8").includes("fault story (a two-sentence prose rendering of What is broken and Why")),a.ok(f.readFileSync("skills/chase-bug/reference/verdict-report.md","utf8").includes("one paragraph without headings or list")),a.ok(f.readFileSync("skills/chase-bug/hotfix.md","utf8").includes("\x3cfault story\x3e"))'; passed handoff and commit-placeholder assertions; no hotfix execution |
@@ -28,3 +28,4 @@ row 5 done | Checked Context's five-line cap and the report's under-180-word cap
 row 6 done | Checked that sections use one paragraph or a justified list rather than mixing forms. | nothing new to build on
 row 8 done | Replayed the duplicate CI scan and missing-font-character cases, recording actual baseline and passing candidate outcomes. | Reuse nov3-replay's anonymized cases and committed baseline/candidate records for before-and-after checks.
 row 9 done | Checked the skill's extraction threshold and both instruction files' byte and line limits. | nothing new to build on
+row 4 done | Translated first-use jargon in reports and verified gate, draft and not-a-bug summary readability on both replay models. | Reuse plain-reader-first-use with check-report.mjs and verdict-report.md's translation table; report.md records six-sample partial coverage.

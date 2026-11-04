@@ -1,7 +1,7 @@
 {
   "sample": "returned-ticket-link",
   "arm": "candidate",
-  "skillSha": "99bc31010b3829c23631c677c2671c2596858c6054e596d19680b89b215807ba",
+  "skillSha": "6bf3f63d01f355c7c1bdf8d8f71ddded914a5e4f7c8f4cfc4a6f72e134d420e6",
   "inputSha": "5084fec3faf934e0ad8402a53da684a3ae421dfd6ee55cf9a328968704976b9c",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` shows a page not found (404) error instead of the widgets page. The local reproduction confirmed this.\n\n### Why it is broken\n\nThe part that matches URLs to pages compares the address exactly as typed, so the extra slash at the end prevents a match (`src/router.ts:88`). Testing ruled out other explanations.\n\n### How to fix it\n\nStrip the trailing slash before comparing paths, so `/widgets` and `/widgets/` both open the page. This is already tracked in an existing ticket, and follow-up belongs there (https://github.com/example/widgets/issues/42). No new ticket was created, and the tracker was not changed.\n",
-      "words": 101,
-      "wallMs": 6760,
+      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page; `/widgets` opens it.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares them exactly, so the final slash in `/widgets/` prevents a match. A local test reproduced the failure, and testing the explanation did not disprove it.\n\n### How to fix it\n\nRemove the final slash before comparing addresses so `/widgets/` and `/widgets` both open the page. The existing ticket https://github.com/example/widgets/issues/42 already covers this problem. No new ticket was created, and follow-up continues on that ticket.\n",
+      "words": 97,
+      "wallMs": 6436,
       "mechanical": {
         "no-labels": "holds",
         "no-fence": "holds",
@@ -28,9 +28,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of the widgets page (200).\n\n### Why it is broken\n\nThe part that matches URLs to pages compares paths without stripping the trailing slash (`src/router.ts:88`). Local reproduction confirmed the failure, and the falsification test supported this cause.\n\n### How to fix it\n\nStrip the trailing slash before comparing paths so `/widgets/` reaches the widgets page. The existing ticket already covers this concern, so follow-up belongs there: https://github.com/example/widgets/issues/42. No new ticket was created and no tracker state was changed.\n",
-      "words": 90,
-      "wallMs": 5161,
+      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of a successful response (200).\n\n### Why it is broken\n\nThe code that matches web addresses to pages compares paths without removing the trailing slash. Local reproduction confirmed the failure, and the test of this explanation supported it.\n\n### How to fix it\n\nRemove the trailing slash before matching paths so `/widgets/` reaches the page. Follow-up is covered by existing ticket [#42](https://github.com/example/widgets/issues/42). No new ticket was created and no tracker state was changed.\n",
+      "words": 85,
+      "wallMs": 10119,
       "mechanical": {
         "no-labels": "holds",
         "no-fence": "holds",
@@ -42,9 +42,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "47977eb505406573a2ad93a64750a5091a87867f6781574ebd8961f1a0c1a2a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+      "intentSha": "8562d7453f1ca2fed0f57982fc4b26b160cc8f81ca4da9d511fa9b4722d646cc",
       "baselineOutputSha": "d949eac86bbfb8a74bb84bb579a9da81a7c9ceb8cd384e70ac7ecacce0acb9c1",
-      "candidateOutputSha": "30b1fc35e8e38b2d5cc5adb8a612858f783a2c29754f484d78590c63efd010d7",
+      "candidateOutputSha": "794ea84df65005f038692260903370a89eba5ef04820de4f905163602b62f9fb",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -62,9 +62,9 @@
           "label": "held"
         },
         "plain-reader": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "summary-not-draft": {
           "before": "fails",
@@ -87,16 +87,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moved summary-not-draft from fails to holds purely by adopting the fixed headings: Before was a single prose paragraph with no third section, so the 'third section states the existing ticket and the message ends there' clause could not be satisfied, while After puts the literal fix and the returned issue link in 'How to fix it' and stops. Nothing regressed: the returned ticket URL is still cited as the next step, no new-ticket claim appears, the report is roughly 110 words with no Context block, and the router is named by role with the 404 term explained on first use and citations trailing in parentheses. One caution for the wording: After's proof sentences ('The local reproduction confirmed this', 'Testing ruled out other explanations') are assertions about process rather than the observed value Before showed ('/widgets/ returns 404 where 200 is expected'); if you want visible proof to stay robust under plain-reader, instruct the summary to quote the observed-versus-expected result inline in What is broken rather than merely referencing that a reproduction ran.",
-      "wallMs": 20884,
+      "feedback": "After keeps everything Before kept and gains two facts: it explains 404 as page not found on first use, drops the `src/router.ts:88` citation that a reader of a terminal summary never needs to open, and delivers the fixed three-section shape ending on the existing ticket with no status or evidence after it. Two small risks to tighten in the wording: the ticket link sits in the middle of its sentence rather than trailing the claim (prefer 'The existing ticket already covers this problem: https://github.com/example/widgets/issues/42'), and 'testing the explanation did not disprove it' is still a half-translated falsification test; stating it by changed input and observed result (e.g. 'opening `/widgets` without the slash returned the page, so the slash is the cause') would satisfy the first-use rule more robustly without adding words or exceeding the 180-word cap.",
+      "wallMs": 18676,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "47977eb505406573a2ad93a64750a5091a87867f6781574ebd8961f1a0c1a2a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+      "intentSha": "8562d7453f1ca2fed0f57982fc4b26b160cc8f81ca4da9d511fa9b4722d646cc",
       "baselineOutputSha": "4daad13ed0ba62da34110cfb7093a5d7f812ae8b28cc24a2a3033f787136e102",
-      "candidateOutputSha": "5d152da942056f5e7578f33215d1c8469e790e0ced72b6bb289ea12841a61e15",
+      "candidateOutputSha": "fb51515b5f5692697f0f3e67be94d71866a178be5dcb6400b6204c9db3ebeed0",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -139,10 +139,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After delivers the Change cleanly: the three fixed headings appear, the URL matcher is named by role (\"the part that matches URLs to pages\"), 404/200 are explained on first use, the file:line citation trails its claim, reproduction and falsification evidence are visible, and the whole report stays around 90 words with no Context lines. Before failed plain-reader (404/200 unexplained) and summary-not-draft (no sections at all), so both move to holds; returned-reference, no-new-creation, and under-cap are preserved. One wording risk to tighten in the contract: the third section currently places the status sentence (\"No new ticket was created and no tracker state was changed\") after the ticket link, which a strict reader could treat as status trailing the next step. Say explicitly that the third section should end on the returned ticket reference, placing any no-mutation note before the link (e.g. \"No new ticket was created; follow-up belongs in the existing ticket: <link>\"), so the message literally closes on the next step.",
-      "wallMs": 17959,
+      "feedback": "After moved plain-reader and summary-not-draft from fails to holds without losing anything Before kept: it drops the unexplained 'falsification test' and the unneeded `src/router.ts:88` citation, names the component by its action ('the code that matches web addresses to pages'), explains 404/200 on first use, keeps the only useful citation (the ticket link) trailing its claim, and closes on a third section that states the existing ticket with nothing after it. Two small refinements would make the contract more robust: the phrase 'the test of this explanation supported it' still gestures at investigation shorthand rather than stating the changed input and observed result (e.g. 'requesting `/widgets` without the slash returned 200, confirming the slash is the cause'); and because this summary carries a returned existing ticket, the wording could direct the third heading to be 'What happens next' (or let 'How to fix it' explicitly lead with the ticket) so the next-step reading of the returned reference is unambiguous rather than appended after a literal fix instruction.",
+      "wallMs": 17735,
       "verdict": "improved"
     }
   },
-  "repoSha": "1bf58911f60f0ae28d56f4adebf20c80e9477487"
+  "repoSha": "8fe266135c064c02990def4338909132a15608b3"
 }
