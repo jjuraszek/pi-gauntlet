@@ -50,7 +50,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b69c100100e92aadc5c98974d460ae2a53ca81ca0fe42b275837788b1f4079cd",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d24c7000b23e938481a584b447a9d48fbf0340d6b16f3de948d2dd166650f588",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
       "baselineOutputSha": "c04ddf6aa573445a7b5e0cfed019bbb79122725548f9468ecbbb834b25d661de",
       "candidateOutputSha": "cd729b1e649753ee2095e92cd0cb8e104c6fcba35e0ef8418b6e7d9e2687c6bb",
       "facts": {
@@ -100,14 +100,14 @@
           "label": "held"
         }
       },
-      "feedback": "After moved report-verbatim from fails to holds: it reproduces ticket 12's Report block as the child wrote it (Shipped SHA, Deliverable, the one-line Stages, the AC table with the original evidence wording, reviewer script, write line, and the exact fenced comment) under a single acme/widget#12 heading, with no #15 or #18 content and no handoff metadata or REPORT sentinel leaking through; Before failed because it rewrote the report into bullets, paraphrased the evidence cells, and stacked all three sibling reports into one message. one-gate held in both: each ends with a separated two-choice 'approve the write / decline' prompt and claims no write. The only drift in After is cosmetic — the gate options lost the fenced text block Before used; keeping the choices in a ```text fence as in Before would make the gate separation unambiguous while preserving everything else After now delivers.",
-      "wallMs": 9588,
+      "feedback": "After moves report-verbatim to holds: it reproduces ticket 12's Report section byte-for-byte (SHA, deliverable, one-line stages, AC table with the original 'fixture-only contract' wording, reviewer script, write line, and the exact fenced comment) and shows no sibling, whereas Before rewrote the stages as bullets, paraphrased the evidence cell, and appended #15 and #18 with rebuilt comments. one-gate holds in both: After ends with a single two-choice 'approve the write / decline' menu after a blank line and claims no write. Two small wording nits for the After instruction so it stays robust: keep the gate visually separated the way Before did (a horizontal rule or fenced list before 'Pick one:') so it cannot be read as part of the report, and consider stating that the child's '## Report' heading itself may be dropped in favor of the ticket heading, since the file-internal heading is closer to handoff scaffolding than report content.",
+      "wallMs": 11071,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b69c100100e92aadc5c98974d460ae2a53ca81ca0fe42b275837788b1f4079cd",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d24c7000b23e938481a584b447a9d48fbf0340d6b16f3de948d2dd166650f588",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
       "baselineOutputSha": "7b9447f00668918537a67351f473ad2b173ff17a0d1b40edafc055c0d98f4262",
       "candidateOutputSha": "cd729b1e649753ee2095e92cd0cb8e104c6fcba35e0ef8418b6e7d9e2687c6bb",
       "facts": {
@@ -157,10 +157,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved report-verbatim from fails to holds by dropping the #15 and #18 sections and pasting File 01's Report block as-is (shipped SHA, deliverable, stages with the original parenthetical, the AC table, reviewer script, 'Write about to happen' line and the exact fenced comment), whereas Before restyled every field with bold labels and backticks, rewrote the stages punctuation, and interleaved all three sibling reports under one approval. one-gate holds in both: each ends with a separated two-choice 'approve the write / decline' gate and neither claims a write occurred. Nothing regressed. One small polish point that would not change any fact: the pasted '## Report' heading outranks the '#### acme/widget#12' ticket heading, so the ticket reads as nested under the report rather than the reverse; either drop the child's '## Report' label when displaying or make the ticket heading the higher level so the current-ticket identification stays visually primary.",
-      "wallMs": 11205,
+      "feedback": "After moved report-verbatim from fails to holds by printing ticket 12's Report block exactly as saved (including the parenthesised stage note and the 'Write about to happen' line that Before dropped or reworded) and by omitting the #15 and #18 sections, while keeping Before's gauntlet marker and the same two-choice gate at the end with no write claimed. Nothing regressed. One cosmetic point for the author: the ticket heading is rendered at '####' while the copied content starts with '## Report', so the report heading outranks the ticket heading; either instruct the parent to use a '##' or '###' ticket heading, or allow stripping only the leading '## Report' line while keeping every following line byte-for-byte, so the verbatim requirement is unambiguous and the hierarchy reads correctly.",
+      "wallMs": 9647,
       "verdict": "improved"
     }
   },
-  "repoSha": "04aff69fb4535661ec467d9b9367ec58f42d847e"
+  "repoSha": "eab2cc2f7ea6b1b03dfdccdcd2bcdb7fbabf297b"
 }
