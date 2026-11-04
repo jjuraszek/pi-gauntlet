@@ -41,8 +41,8 @@ but explicitly say when nothing is broken. Use these sources and next steps:
 Write each report for a reader who has neither the code nor the investigation
 notes open. Translate technical nouns and acronyms into the action or thing they
 mean before shortening, including in Context and the recommendation's because-clause.
-Name components by what they do and describe tests using their recorded
-input and result, keeping omitted details unspecified. Use these translations for investigation shorthand in report bodies,
+State each component's everyday role before its first name in each report, as in "the part that supplies saved account preferences, the profile service".
+Describe tests using their recorded input and result, keeping omitted details unspecified. Use these translations for investigation shorthand in report bodies,
 including citation labels; retain the menu and eligibility vocabulary outside them:
 
 | Investigation shorthand | Report wording |
