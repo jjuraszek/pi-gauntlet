@@ -23,9 +23,9 @@ On every rewritten-head push use the complete form `git push --no-follow-tags --
 
 At course pick resolve `gauntlet_setting({ key: "closureReview" })`. Initialize repair.rounds_cap and repair.syncs_cap to `2 x closureReview.maxFixRounds`; use no-tool fallback `2 x 5`. Initialize usage to zero once per run. Cap 0 or missing helpers omits delivery rows. On obstacle deliver add exactly `2 x maxFixRounds` to each cap, persist before work and never reset usage; timeout continuation instead opens one window without extending either cap. Keep closureReview.enforce and the verify-phase phase-tracker's `1 x maxFixRounds` accounting unchanged; refused dispatch exits `stuck - phase-tracker fix-round guard: <its reason>`.
 
-Record pre_wave_head before work. Initialize one per-pass checkpoint with round_start_head and counted false before payload dispatch, including each carried-set retry; preserve it on interrupted reconciliation, never recreate it for the same attempt. Count a round once only after at least one repair payload dispatch leaves a new source-changing commit eligible under Admission's round-charge exceptions, including a source-changing carried-set retry. Persist counted true and counted_head in repair.wave with stage apply/review/push before reconciliation can repeat it; a fresh carried pass keeps prior checkpoint history. Base-only conflict commits, description-only writes, watches, re-reviews, empty waves and restored failures cost no round. Keep usage cumulative across re-entry. At round cap reached or sync cap reached exit through the loop's ordered Exit check; retain commits and name any reviewer's top finding. Update stage and counted checkpoints without replay; settle only per-pass wave fields; retain `repair.wave.spec` and `repair.wave.ledger` and all row history until terminal teardown. Settle the per-pass fields only after reconciliation and settlement of No-progress obstacle. For `action: fix-nits`, retain its action and selected payloads through watch and own-push re-review; release them only through `post-selection-loop.md` `### Next action`'s one-shot completion rule.
+Record pre_wave_head before work. Initialize one per-pass checkpoint with round_start_head and counted false before payload dispatch, including each carried-set retry; preserve it on interrupted reconciliation, never recreate it for the same attempt. Count a round once only after at least one repair payload dispatch leaves a new source-changing commit eligible under Admission's round-charge exceptions, including a source-changing carried-set retry. Persist counted true and counted_head in repair.wave with stage apply/review/push before reconciliation can repeat it; a fresh carried pass keeps prior checkpoint history. Base-only conflict commits, description-only writes, watches, re-reviews, empty waves and restored failures cost no round. Keep usage cumulative across re-entry. At round cap reached or sync cap reached exit through the loop's ordered Exit check; retain commits and name any reviewer's top finding. Update stage and counted checkpoints without replay; settle only per-pass wave fields; retain `repair.wave.spec` and `repair.wave.ledger` and all row history until terminal teardown. Settle the per-pass fields only after reconciliation and settlement of No-progress obstacle. For `action: fix-nits`, retain repair.wave including its action and selected payloads through watch and own-push re-review; clear it only through `post-selection-loop.md` `### Next action`'s one-shot completion rule.
 
-On pi, dispatch selected file findings as companion `loop-implementer` rows in review order, including terminal `fix nits` work and carried-set retries; use the derived spec's mapped AC as the finding to close, not the drafted edit as a fixed solution. On Claude Code, dispatch the native helper once per drafted file payload in review order. Keep sync helpers on `implementer` under Sync.
+On pi, dispatch selected file findings as companion `loop-implementer` rows in review order, including terminal `fix nits` work and carried-set retries; use the derived spec's mapped AC as the finding to close, not the drafted edit as a fixed solution. On Claude Code, dispatch one fresh implementer helper once per drafted file payload in review order. Keep sync helpers on `implementer` under Sync.
 
 Resolve `SCOPED_TEST_COMMANDS` once per wave from the merge-base copies of the overrides file, then `AGENTS.md` (`git show "$MB:<path>"`, the trust rule of `assessment.md` `## Configuration`): a scoped runner is a documented test command carrying a `<paths>` or `<files>` placeholder, or a command the doc labels scoped, in any section of either file (`## PR gate`, `## Project`, `## routing`, `## test-driven-development`, `## verification-before-completion` alike); keep its cwd and flags verbatim; with several runners take the one whose directory prefix matches the payload's test file; substitute the test files the payload touches or writes; insert each path made only of `[A-Za-z0-9/._-]` bare; insert any other path single-quoted with embedded `'` escaped as `'\''`; keep each path relative to the runner's working directory (strip the `cd <dir> &&` prefix's directory from the path), and for a `P#` carried by a `rebased locally` sync record the failing test file named in that record; no runner or no test file -> `none`. Never the resolved `verification command`, whatever a consumer sentence says about fix waves - that command runs only where `../verification-brief.md` Section B selects a local-run row.
 
@@ -88,7 +88,7 @@ Before work, check git -C <worktree> rev-parse HEAD equals <HEAD_BEFORE>.
 Finding evidence: <symptom, location, failing test or no scoped test, P#/L# ids>.
 Scope baseline: <stored scope.original_intent and authoritative spec path when present>.
 SCOPED_TEST_COMMANDS: <resolved commands or none>
-Make the smallest in-repo fix that turns the finding green and keeps the behavior the PR promises. Add no infrastructure, dependency or new module. For an outside-repo failure, use the smallest in-repo workaround and state its reason in one sentence. Never remove a test an AC row relies on through a skip.
+A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module. For an outside-repo failure, use the smallest in-repo workaround and state its reason in one sentence. Never remove a test an AC row relies on through a skip.
 Output path: <per-dispatch output path>.
 ```
 
@@ -114,12 +114,25 @@ For an eligible row with no `row <n> escalated` line, compute `threshold = min(e
 
 On pi, use the wave's derived spec and companion ledger. Never seed-dispatch: start at `target: <row>`. Apply Budgets before changing the ledger. For each eligible row in review order, save its attempts, the ledger's iterations as `i`, and `git -C <worktree> rev-parse HEAD` as `HEAD_BEFORE`. Write `iterations: i + 1` and `pending: <row> | gatekeep | <HEAD_BEFORE>` before dispatch. Resolve `MB` as `git -C <worktree> merge-base origin/<baseRefName> <headRefOid>`; use it as the worker's diff base, not the per-attempt commit boundary. Supply one `Rules:` line per existing worktree `AGENTS.md` and overrides file, using repo-relative paths; with neither file use `Rules: none`.
 
+Dispatch through `../SKILL.md` `## Harness notes` with this row task:
+
 ```text
-subagent({ agent: "loop-implementer", context: "fresh", async: false,
-  cwd: <worktree>, output: <per-dispatch output path>, outputMode: "file-only",
-  acceptance: { level: "none", reason: "the parent validates the commit and keeps the ledger" },
-  [model: <implModel> on the escalated attempt only,]
-  task: "<shared worker context>\n\n<pi tail>\n\niteration: <i>\nspec: <absolute derived spec>\nledger: <absolute ledger>\nbase: <MB>\ntarget: <row>\nprevious decision: <row's latest admitted or reopened line, or none>\nhint: none\nLeg: gatekeep\nmapped original AC: row <n> -> AC <n> (<P#/L# ids>), leg gatekeep\nRules: <repo-relative path or none>\npending: <row> | gatekeep | <HEAD_BEFORE>\nSCOPED_TEST_COMMANDS: <commands>" })
+<shared worker context>
+
+<pi tail>
+
+iteration: <i>
+spec: <absolute derived spec>
+ledger: <absolute ledger>
+base: <MB>
+target: <row>
+previous decision: <row's latest admitted or reopened line, or none>
+hint: none
+Leg: gatekeep
+mapped original AC: row <n> -> AC <n> (<P#/L# ids>), leg gatekeep
+Rules: <repo-relative path or none>
+pending: <row> | gatekeep | <HEAD_BEFORE>
+SCOPED_TEST_COMMANDS: <commands>
 ```
 
 ### Admission
@@ -137,13 +150,13 @@ For a dispatch error without a commit or any malformed subject, body, row, decis
 
 Route a failed decision whose second slot starts `needs <what>` through Exit check's `Helper open - needs <what>` obstacle (`stuck - needs <what>`); route `contract exception: <why>` through Contract decision. Keep independent blockers and the existing escalation paths.
 
-On Claude Code, after each native helper read `git -C <worktree> status --porcelain` and `git -C <worktree> rev-parse HEAD`. Require exactly one new commit and a clean tree for `done`, no new commit and a clean tree for `open`. Any residue or moved HEAD on `open` stops the round, dispatches no further helper, and re-renders naming the files and payload. Never report an open payload as fixed. Persist restored scoped-test failures and their failed prerequisites through `post-selection-loop.md` `### No-progress obstacle` before any retry.
+On Claude Code, after each native helper read `git -C <worktree> status --porcelain` and `git -C <worktree> rev-parse HEAD`. Require exactly one new commit and a clean tree for `done`, no new commit and a clean tree for `open`. Any residue or moved HEAD on `open` stops the round: dispatch no further implementer, and re-render naming the files and payload. Never report an open payload as fixed. When its scoped test fails and the helper restores its edits, persist the result and failed prerequisite through `post-selection-loop.md` `### No-progress obstacle` before any retry, including carried-set retries.
 
 On both harnesses, the orchestrator never commits or checks out files; restrict resets to Sync's recorded pre_head recovery and assert its exact-head/clean postconditions.
 
 ## Review before push
 
-With no dispatched file payload and no new local commits, skip file review/push and continue to sync/watch; description-only success is not no progress. For a round with dispatched file work whose checkpoint ends with `counted` false, skip the review and push even when a failed attempt moved HEAD without changing tracked source. Persist the completed empty-round result through `post-selection-loop.md` `### No-progress obstacle`, using each failed row's last decision line as its failed prerequisite on pi and the restored scoped-test failure on Claude Code. Re-render with those open reasons; do not automatically dispatch unchanged work again.
+With no dispatched file payload and no new local commits, skip file review/push and continue to sync/watch; description-only success is not no progress. For a round with dispatched file work whose checkpoint ends with `counted` false, skip the review and push even when a failed attempt moved HEAD without changing tracked source. Persist the completed empty-round result (on Claude Code, every payload returned `open`) through `post-selection-loop.md` `### No-progress obstacle`, using each failed row's last decision line as its failed prerequisite on pi and the restored scoped-test failure on Claude Code. Re-render with those open reasons; do not automatically dispatch unchanged work again.
 
 After the round's payloads, dispatch one fresh reviewer helper, `cwd` the PR worktree, read-only, over `<pushed_head>..HEAD`, where `pushed_head` is the digest's `headRefOid` (the assessed head), or Sync's recorded pushed_head_after_replay under a rewrite, so commits a previous round left unpushed are always inside the reviewed range. Append `## Re-review task` below with the findings whose payloads this wave dispatched under their `P#`/`L#` ids as the previous report, and `git diff <pushed_head> HEAD` as the fix delta. When the round holds a base-merge sync commit, `## Fix delta` is `git diff <pushed_head> <merge-sha>^1`, then `git show --remerge-diff <merge-sha>`, then `git diff <merge-sha> HEAD`.
 
