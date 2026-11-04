@@ -1,7 +1,6 @@
-for: e1168838fb6fa50d4e26c2cb5f42e029e06fee5f268b0a3173087adea30031f1
+for: 9cdc0d054e1de42279c1262d1c2bd6f0831778ea0427d561ed71a62946544a92
 
 ## Change
-Retain assessment-only runs without finding artifacts and the viewer's newest posted review as the bounded review baseline on a second run. Refresh prior-review-delta's delivery fixture to use loop row result commits, including P2's admitted failed attempt, instead of native open returns. No instruction behavior changes in this iteration; prior-review selection and ancestry sources remain unchanged. Selected model coverage is prior-review-delta only, including explicit no-ledger checkpoints and failed-result narration, not live admission or lifecycle recovery. Preserve earlier selected sample records and partial reports.
+Clarify the unchanged description-repair safeguards at the finding-artifact routing boundary: keep description targets and replies outside ACs and ledger rows, compare fresh head/body against the selected proposal before a description write, and require readback and a fresh claim-recheck helper before closing only the affected contribution. Keep replies behind their explicit pick. Preserve nit-batch-row/n6 without weakening its fact or changing description repair. Selected model coverage is nit-batch-row only: artifact construction and non-file routing narration, not live writes or row admission.
 
 ## Expected to move
-- prior-review-delta/d23: fails -> holds - Admit the failed loop row commit instead of requiring a native open return without a commit.
