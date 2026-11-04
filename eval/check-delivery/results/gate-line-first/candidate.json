@@ -39,45 +39,45 @@
       "factsSha": "3491cae8d2662278ccf947fdfffcafa713d1538c564ee7e0ceba146383e0180d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
-      "baselineOutputSha": "e1cc381aea9495c0e40815aeb697c01a4ac17cddee00b62e933db2321b3ac416",
+      "baselineOutputSha": "9100dc9364b46443b14a662a37f059daf3a9afcbc4beb29ffc96ef88bdfb34ed",
       "candidateOutputSha": "9100dc9364b46443b14a662a37f059daf3a9afcbc4beb29ffc96ef88bdfb34ed",
       "facts": {
         "gate-first": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After's first line is exactly `gauntlet: gate=check-delivery/confirmation-gate`, placed before the stage tables, evidence, and the fenced tracker comment; the comment payload still opens with `Delivered: a123456` and contains no gauntlet marker, and the output ends on the two-choice menu waiting for approval, so the fact holds. Before fails only because it opens with a markdown heading instead of the gate line. Nothing in After regressed a fact Before kept; one minor caution for future wording: keep the gauntlet line as the literal first line (no leading heading or blank preamble) and keep the fenced payload free of any gate marker, exactly as After does now.",
-      "wallMs": 6201,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical, so nothing moved: both open with `gauntlet: gate=check-delivery/confirmation-gate` as the first line ahead of the stage table, per-AC evidence, and the fenced tracker comment; both keep `Delivered: a123456` as the first payload line with no gauntlet marker inside the comment; and both end with a two-choice pick menu and wait for approval. If the Change was meant to be visible in this case, it isn't yet - the expected-to-move items (first-line gate id, separated two-choice menu after findings, label echo before simulated writes, typed yes) already hold in Before, so the After wording delivered no observable difference here. To make the change show, consider adding the explicit reply rule under the menu (e.g. 'Reply with a number or type yes to approve; I will echo your choice by label before any write') and keep the gate line, payload, and `Delivered:` placement exactly as they are.",
+      "wallMs": 6659,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3491cae8d2662278ccf947fdfffcafa713d1538c564ee7e0ceba146383e0180d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
-      "baselineOutputSha": "017257186a01098ecf802e119c901f77448157d347c87da4f941479e281d1147",
+      "baselineOutputSha": "5d07026be40effc06b6d5dc39bf7f999c486d8d0f984e6be3f15cee4b54999ef",
       "candidateOutputSha": "5d07026be40effc06b6d5dc39bf7f999c486d8d0f984e6be3f15cee4b54999ef",
       "facts": {
         "gate-first": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved gate-first from fails to holds by making `gauntlet: gate=check-delivery/confirmation-gate` the literal first line, keeping all stage evidence and the exact tracker comment below it, starting the fenced payload with `Delivered: a123456`, keeping the gauntlet marker out of the human-channel payload, and ending on the two-choice approve/decline menu that waits for approval. Nothing regressed on this fact, but one wording detail worth restoring: Before closed with an explicit bolded line `**No write has been authorized or performed.**` immediately above the menu, while After folds that into a softer sentence near the top; keep the bolded write-boundary statement directly above the `Pick one:` menu so the write boundary stays as visible as it was in Before while the gate line still leads the report.",
-      "wallMs": 9451,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical here, so nothing moved: both open with the exact line `gauntlet: gate=check-delivery/confirmation-gate`, place the evidence tables and the fenced tracker comment below it, keep `Delivered: a123456` as the first payload line with no gauntlet marker inside the fenced comment, and end with a separated two-item numbered menu (approve the write / decline) that waits for approval without any write. If the Change intended the After wording to also echo the chosen label back before any simulated write or to retain an explicit typed-yes path alongside the numbered picks, that is not visible in this output; add a short line under the menu such as 'Reply with the number or type yes to approve; I will echo your choice by label before any write' to deliver that without disturbing the gate-first ordering or the Delivered: first rule.",
+      "wallMs": 7341,
+      "verdict": "unchanged"
     }
   },
   "refresh": {
@@ -167,5 +167,5 @@
       }
     }
   },
-  "repoSha": "6ac868ad502fda06310a53624611712a1ac02028"
+  "repoSha": "3e2ee177fa9c9fdcd99efa4c74f00d7e5cfc6291"
 }

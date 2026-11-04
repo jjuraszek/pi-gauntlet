@@ -3,12 +3,12 @@
 base: d3aa93b651f89223161c6039446cd8af3ee3296c
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | done | 1 | node -e '["gate-line-first", "menu-after-numbered-findings"].forEach(s => require("node:assert").strictEqual(require("node:child_process").spawnSync(process.execPath, ["eval/run.mjs", "check-delivery", s, "--base", "d3aa93b651f89223161c6039446cd8af3ee3296c"], {stdio: "inherit"}).status, 0))'; both selected samples unchanged; four model cells pass with all facts holding; single-ticket skill text unchanged from base |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -21,3 +21,4 @@ allowance: 10
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 10
+row 1 done | Both single-ticket eval samples pass against the base with unchanged skill text and all facts holding. | nothing new to build on
