@@ -3,7 +3,7 @@
 base: d3aa93b651f89223161c6039446cd8af3ee3296c
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -12,7 +12,7 @@ allowance: 10
 | 2 | done | 1 | node eval/run.mjs check-delivery-batch batch-one-gate-per-turn --base d3aa93b651f89223161c6039446cd8af3ee3296c; 2 model cells improved with all 9 facts holding; first report and gate isolated in supplied order; dispatch and tracker calls require manual smoke |
 | 3 | done | 1 | node -e '["batch-decline-isolates", "batch-approved-after-decline"].forEach(s => require("node:assert").strictEqual(require("node:child_process").spawnSync(process.execPath, ["eval/run.mjs", "check-delivery-batch", s, "--base", "d3aa93b651f89223161c6039446cd8af3ee3296c"], {stdio: "inherit"}).status, 0))'; 4 model cells improved with all 32 facts holding; decline leaves the next gate independent and subsequent approval advances the turn; tool writes are supplied observations and require manual smoke |
 | 4 | done | 1 | node eval/run.mjs check-delivery-batch batch-approved-after-decline --base d3aa93b651f89223161c6039446cd8af3ee3296c; 2 current cached model cells improved with all 16 facts holding; approved outcome precedes next report under its gate marker; re-fetch and writes are supplied observations requiring manual smoke |
-| 5 | open | 0 | |
+| 5 | done | 1 | node -e '((f,a)=>((s,p)=>[a.strictEqual(p.length,4),a.deepStrictEqual(s.split("\n").filter(l=>/^\x7c [1-4] \x7c/.test(l)).map(l=>l.split(String.fromCharCode(124)).at(-2).trim()),p),["before any tracker call or fetch", "Start the message with `gauntlet: stuck`", "first failed check", "reject the whole set with that one message and take no further action", "branch on its absence, not a harness name", "Match every whole token", "default 8", "never chunk it", "Checks 1-3 perform no tracker or git operation", "the only git read in admission", "Normalize `#N` to lowercase", "Normalize Linear keys and Linear URLs to the uppercase key", "match URLs through the end of the token"].forEach(t=>a.ok(s.includes(t),t))])(f.readFileSync("skills/check-delivery/reference/batch.md","utf8").split("## Shared prep")[0],f.readFileSync("doc/specs/2026-11-04-check-delivery-multi-ticket.md","utf8").split("\n").filter(l=>/^\x7c [1-4] \x7c/.test(l)).map(l=>l.split(String.fromCharCode(124)).at(-2).trim())))(require("node:fs"),require("node:assert"))'; exit 0; four ordered rejection lines match spec exactly and admission constraints are present; prose conformance only, tool behavior requires manual smoke |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
 | 8 | open | 0 | |
@@ -27,3 +27,4 @@ row 9 done | Checked delivery-checker frontmatter against the exact tool list, c
 row 10 done | Checked both instruction files stay below the byte and line caps and omit the obsolete single-ref constraint. | nothing new to build on
 row 3 done | Added decline and subsequent approval evals with all 32 facts passing against existing set-turn instructions. | Reuse eval/check-delivery-batch's batch-decline-isolates and batch-approved-after-decline fixtures for later turn checks.
 row 4 done | Confirmed the approved-turn sample passes all 16 facts with existing write-order instructions and a plain delivered outcome before the next report. | nothing new to build on
+row 5 done | Checked all four ordered admission rejection lines against the spec and confirmed pre-call, normalization, and single-message constraints in existing prose. | nothing new to build on
