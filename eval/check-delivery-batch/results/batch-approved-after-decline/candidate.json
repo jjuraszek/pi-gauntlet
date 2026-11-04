@@ -1,0 +1,152 @@
+{
+  "sample": "batch-approved-after-decline",
+  "arm": "candidate",
+  "skillSha": "b85d91f9afdc5590718b8ad859a6214ed229205135ed16ceee1da91947ffc0cd",
+  "inputSha": "3a22e50de69c290829da5ebcd86feb9175deb0dd62c4dbaf055d1e236958e3d6",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n#### acme/widget#15\nacme/widget#15: delivered\n\n#### acme/widget#18\n## Report\nShipped SHA: c345678\nDeliverable: https://example.test/pull/18\nStages: 0 gathered; 1 landed on trunk; 2 skipped (no delivery target configured); 3 verified.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Archive preserves timestamps. | not externally observable | archive.test.ts at c345678 checks timestamps; fixture-only contract. |\n\nReviewer script: inspect archive.test.ts at c345678; no runtime surface.\nWrite about to happen: comment only; no target state configured.\n\n```text\nDelivered: c345678\nPR https://example.test/pull/18 landed on trunk. Stage 2 skipped: no delivery target configured. Archive preserves timestamps: not externally observable; archive.test.ts at c345678 checks timestamps. Reviewer: inspect archive.test.ts at c345678.\n```\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 101,
+      "wallMs": 6297,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "delivered-outcome": "holds",
+        "outcome-before-next": "holds",
+        "private-handoff": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n#### acme/widget#15\nacme/widget#15: delivered\n\n#### acme/widget#18\n## Report\nShipped SHA: c345678\nDeliverable: https://example.test/pull/18\nStages: 0 gathered; 1 landed on trunk; 2 skipped (no delivery target configured); 3 verified.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Archive preserves timestamps. | not externally observable | archive.test.ts at c345678 checks timestamps; fixture-only contract. |\n\nReviewer script: inspect archive.test.ts at c345678; no runtime surface.\nWrite about to happen: comment only; no target state configured.\n\n```text\nDelivered: c345678\nPR https://example.test/pull/18 landed on trunk. Stage 2 skipped: no delivery target configured. Archive preserves timestamps: not externally observable; archive.test.ts at c345678 checks timestamps. Reviewer: inspect archive.test.ts at c345678.\n```\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 101,
+      "wallMs": 3463,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "delivered-outcome": "holds",
+        "outcome-before-next": "holds",
+        "private-handoff": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8bc4f482f5dd8792de197789f47cab97cc4f6a54732ca79efa9d8c2e93a98dec",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ba2f54a5c232f1c3eb3bc1d10d54f414ff416c6c49ce1361ae00eff7aab54c63",
+      "baselineOutputSha": "db8638b27232ef4ef842b763b9e0324a6924fc4e744a3df5eb757d024831f6f8",
+      "candidateOutputSha": "49f51dc2775aa53fb90ac2cc5f348185557210eb50b5fcb04b8315e8e8496e66",
+      "facts": {
+        "report-verbatim": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "independent-approval": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "exact-halves": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "delivered-outcome": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "outcome-before-next": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "private-handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and fixes report-verbatim: Before reformatted ticket 18's Report (bold labels, bulleted stages, reworded reviewer script, an expanded write-about-to-happen with a re-fetch promise), so it was not the child's report unchanged, while After pastes the Report block as the child produced it, including the AC table, reviewer script line and exact comment. independent-approval and exact-halves hold in both: After's `acme/widget#15: delivered` line claims only the delivered outcome, makes no status-advance or body-edit claim for 15, says nothing about a write to 12, and asks for approval only on 18 with no settlement. One minor wording nit: the pasted `## Report` H2 sits under the `#### acme/widget#18` H4, which inverts heading levels; if the author wants cleaner structure, drop or demote the inner `## Report` line while keeping the body text byte-for-byte, which would still satisfy report-verbatim since the fact concerns the table, script and comment, not the heading.",
+      "wallMs": 12574,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8bc4f482f5dd8792de197789f47cab97cc4f6a54732ca79efa9d8c2e93a98dec",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ba2f54a5c232f1c3eb3bc1d10d54f414ff416c6c49ce1361ae00eff7aab54c63",
+      "baselineOutputSha": "c8ef7e5383e70f2f632737f2f08b2c3a7fb151204a8dc3b4048d4bcdfe4b2910",
+      "candidateOutputSha": "49f51dc2775aa53fb90ac2cc5f348185557210eb50b5fcb04b8315e8e8496e66",
+      "facts": {
+        "report-verbatim": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "independent-approval": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "exact-halves": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "delivered-outcome": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "outcome-before-next": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "private-handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved report-verbatim from fails to holds: it reproduces ticket 18's Report block exactly (plain `Shipped SHA`/`Deliverable`/`Stages` lines, the unmodified AC table, the `Reviewer script` line, the `Write about to happen: comment only; no target state configured.` line and the identical fenced comment) under its own `#### acme/widget#18` heading, directly after a plain `acme/widget#15: delivered` outcome. Before failed this fact because it re-rendered the report with bold labels and backticks, renamed the write line to `Exact write proposed`, expanded it into prose, and appended an extra sentence about re-fetching, so the report was rewritten rather than displayed unchanged. Both outputs keep independent-approval and exact-halves: neither claims a status advance or body edit for ticket 15, neither claims a write for ticket 12, neither re-asks approval for 15, and only ticket 18 gets the 1/2 gate with no settlement. After's one-line `delivered` outcome for 15 is sufficient; it drops Before's explicit `#12 declined; no write ran` reminder, which is not required by any fact here but could be kept as an optional one-line prior-outcome note under its own heading without touching the verbatim report, if the author wants the decline visible in the same turn.",
+      "wallMs": 19225,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "10608d95e7a498290146a0c6ef7bc174093a3370"
+}

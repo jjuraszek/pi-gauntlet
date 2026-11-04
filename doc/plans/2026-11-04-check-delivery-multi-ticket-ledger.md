@@ -3,14 +3,14 @@
 base: d3aa93b651f89223161c6039446cd8af3ee3296c
 verification: npm test
 checks: commands
-iterations: 3
+iterations: 4
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | node -e '["gate-line-first", "menu-after-numbered-findings"].forEach(s => require("node:assert").strictEqual(require("node:child_process").spawnSync(process.execPath, ["eval/run.mjs", "check-delivery", s, "--base", "d3aa93b651f89223161c6039446cd8af3ee3296c"], {stdio: "inherit"}).status, 0))'; both selected samples unchanged; four model cells pass with all facts holding; single-ticket skill text unchanged from base |
 | 2 | done | 1 | node eval/run.mjs check-delivery-batch batch-one-gate-per-turn --base d3aa93b651f89223161c6039446cd8af3ee3296c; 2 model cells improved with all 9 facts holding; first report and gate isolated in supplied order; dispatch and tracker calls require manual smoke |
-| 3 | open | 0 | |
+| 3 | done | 1 | node -e '["batch-decline-isolates", "batch-approved-after-decline"].forEach(s => require("node:assert").strictEqual(require("node:child_process").spawnSync(process.execPath, ["eval/run.mjs", "check-delivery-batch", s, "--base", "d3aa93b651f89223161c6039446cd8af3ee3296c"], {stdio: "inherit"}).status, 0))'; 4 model cells improved with all 32 facts holding; decline leaves the next gate independent and subsequent approval advances the turn; tool writes are supplied observations and require manual smoke |
 | 4 | open | 0 | |
 | 5 | open | 0 | |
 | 6 | open | 0 | |
@@ -25,3 +25,4 @@ row 1 done | Both single-ticket eval samples pass against the base with unchange
 row 2 done | Added fresh per-ticket dispatch and ordered parent turns with passing first-gate evals and updated docs. | Reuse skills/check-delivery/reference/batch.md and eval/check-delivery-batch for later turn and recovery checks.
 row 9 done | Checked delivery-checker frontmatter against the exact tool list, context pins, and indirect-dispatch description. | nothing new to build on
 row 10 done | Checked both instruction files stay below the byte and line caps and omit the obsolete single-ref constraint. | nothing new to build on
+row 3 done | Added decline and subsequent approval evals with all 32 facts passing against existing set-turn instructions. | Reuse eval/check-delivery-batch's batch-decline-isolates and batch-approved-after-decline fixtures for later turn checks.
