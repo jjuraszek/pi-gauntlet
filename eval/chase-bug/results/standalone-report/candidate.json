@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### Context\n\nA refresh with dark saved showed light. With the later starting-theme step turned off, dark stayed.\n\n### What is broken\n\nAfter a refresh, the account page shows the light theme even though the saved theme is dark.\n\n### Why it is broken\n\nThe page asks the part that supplies saved account preferences, the profile service, for the saved theme, and the profile service returns dark. A separate step that sets a starting theme runs after that and replaces dark with light. A local test reproduced dark becoming light. With that later step turned off, dark stayed, which confirms this cause.\n\n### How to fix it\n\nSkip setting the starting theme once a saved theme has loaded, so a refresh keeps dark. This is a small change to one step. Choose hotfix because the fix is small and safe.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n",
-      "words": 185,
-      "wallMs": 10020,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nAfter a refresh, the account page switches from the saved dark theme to the light theme.\n\n### Why it is broken\n\nThe part that supplies saved account preferences, the profile service, correctly returns dark, and the page applies it. A separate step that sets a default theme then runs and replaces dark with light. A local test repeated the refresh and saw dark become light. Turning off that later default step kept dark, which confirmed this cause.\n\n### How to fix it\n\nSkip the default-theme step once a saved theme has loaded, so a refresh keeps dark instead of resetting to light. This is a small change to a single step. Choose hotfix because the change is small and safe.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n",
+      "words": 170,
+      "wallMs": 9659,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nRefreshing the account page resets the saved dark theme to light instead of retaining dark.\n\n### Why it is broken\n\nThe part that supplies saved account preferences, the profile service, returns `{\"theme\":\"dark\"}`, and the page applies it. A separate step that sets the default theme then overwrites dark with light. The local test `node --test test/profile-theme.test.mjs` reproduced this reset; disabling the later default-setting step retained dark, confirming the overwrite cause.\n\n### How to fix it\n\nSkip default-theme initialization after a saved theme has loaded, at `src/profile-theme.ts:62`, so refreshing retains dark. This is a small, safe change. Choose hotfix because the overwrite is confirmed and the fix is narrowly scoped.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n",
-      "words": 159,
-      "wallMs": 7360,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nRefreshing the account page resets the saved dark theme to light instead of retaining dark.\n\n### Why it is broken\n\nThe part that supplies saved account preferences, the profile service, returns `{\"theme\":\"dark\"}`, which the page applies. A separate step that sets the default theme then overwrites it with light. The local test reproduced dark becoming light; disabling that later step retained dark, confirming the overwrite cause.\n\n### How to fix it\n\nSkip default-theme initialization after a saved theme has loaded, so refreshing retains dark. This is a small change to the default-setting step. Choose hotfix because the fix is small and safe and the test confirmed the cause.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n",
+      "words": 158,
+      "wallMs": 5429,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "434a808a4eb1ede8b3f3e33e93aacdeed3ffebacb72005d44453f82e7f0e7a11",
+      "factsSha": "70676cb078939cb853c8062f14490dc36f34022addaf392cca1e2b7d128dab1b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
       "baselineOutputSha": "db38b5867f85e50963a096939d6fb7f343e9160604cae8965e96f75634a14aa9",
-      "candidateOutputSha": "379cee429ca27ab29e3df1dfeff0947661b9db7c77b2ea141079eea74ada71b1",
+      "candidateOutputSha": "c555a1de9fd34cee0b78bb66f0ff19e944205818c2cdd10ed8ef2a0f852b561a",
       "facts": {
         "sections": {
           "before": "fails",
@@ -84,16 +84,16 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: the four ### headings replace Before's prose-plus-bullets, Context carries exactly one repro line and the surviving explanation with no status or tracker-search lines, the profile service gets its everyday role ('the part that supplies saved account preferences') before its name where Before named it bare, the mechanism is stated once instead of twice, the hypothesis/falsification bullets that read as appended investigation detail are gone, and How to fix it names the concrete change plus the retained-dark outcome with a single because-clause. Nothing that Before held was lost: gate marker, menu numbering, recommendation, eligibility line and fence are unchanged, and the report stays standalone. The only thing to watch in the new wording is that After drops every citation; the proof fact allows this, but if the author wants the reader to be able to act on the hotfix without re-discovery, the contract could permit one trailing path (`src/profile-theme.ts:62`) at the end of the How to fix it claim, since that is the citation the next action actually requires.",
-      "wallMs": 23696,
+      "feedback": "After keeps every fact Before kept and fixes the four Before failures: it uses the three exact ### headings, states the profile service's everyday role before naming it, drops the mid-claim `src/profile-theme.ts:62` and `node --test ...` citations the reader does not need to open to pick a menu item, describes the test as a refresh that saw dark become light plus the disable-check that kept dark, gives a literal fix with its intended result and size, and ends the third section with one because-clause instead of a bulleted discovery transcript repeating the mechanism and hypothesis ranking. Context is correctly omitted, and the tracker-search housekeeping line from Before is gone rather than relocated. One optional tightening: 'This is a small change to a single step. Choose hotfix because the change is small and safe.' says 'small' twice; merging into 'Choose the hotfix because this one-step change is small and safe' keeps the required fix/size/pick/because content with less repetition, and the menu fence can stay plain rather than `text` to match the Before marker exactly.",
+      "wallMs": 23902,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "434a808a4eb1ede8b3f3e33e93aacdeed3ffebacb72005d44453f82e7f0e7a11",
+      "factsSha": "70676cb078939cb853c8062f14490dc36f34022addaf392cca1e2b7d128dab1b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
       "baselineOutputSha": "d6e1461f497bc5dfb6ce536e39a166a47ec9a36f525e47831072514cd9d0d917",
-      "candidateOutputSha": "6bd88815f5fb2e1d460e6b6d4398617daa04aeede3bdb00db6bcb5ecfb8295ec",
+      "candidateOutputSha": "f3b46e1b4b912c8e0f0c2ad5b201dee67fef94884c835e5986675ea9826aef4f",
       "facts": {
         "sections": {
           "before": "fails",
@@ -101,9 +101,9 @@
           "label": "intended change"
         },
         "context": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "standalone": {
           "before": "holds",
@@ -116,9 +116,9 @@
           "label": "unplanned improvement"
         },
         "proof": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "concise": {
           "before": "fails",
@@ -141,325 +141,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After keeps every fact Before kept and recovers the ones Before lost: the three exact headings appear above Pick one:, the profile service is introduced by its everyday role before its name, the file path and test command trail their claims, the How to fix it section names the concrete skip-after-load change, its small-and-safe size, and the recommended pick with one because-clause, and nothing follows the eligibility line (Before's trailing repro/tracker-search paragraph was what broke gate-menu, unfenced, concise, and context-earns-place). Two small things to watch so the wording stays safe: the case records that the falsification test 'supports' the overwrite hypothesis, and After upgrades that to 'confirming the overwrite cause' — the contract's instruction to describe tests at the specificity the case supplies would be better served by 'supporting'; and the menu is wrapped in a text fence, which the gate-menu fact tolerates as a closing menu fence but which the unfenced fact could be read against if the fence ever crept up to include report prose, so the guidance should say explicitly that only the numbered options may sit inside a fence, never the sections above Pick one:.",
-      "wallMs": 23272,
+      "feedback": "After fixes every fact Before missed without losing any: it renders the three exact ### headings, names the profile service's everyday role before its name, drops the unnecessary `src/profile-theme.ts:62` path and the command embedded inside its claim, states the literal fix with its intended result (refresh retains dark), gives size plus one because-clause in the final section, and ends on the eligibility line instead of appending a trailing repro/tracker-search paragraph. Before's trailing paragraph was the main damage: it repeated the mechanism, cited the test command mid-claim, carried a tracker-search result as de-facto context, and pushed text past the eligibility line. Two things to watch in the After wording: the fenced menu is tolerated by gate-menu only because the eligibility line still ends the message, so keep the fence contents and numbering unchanged and never put the eligibility line inside it; and if an author chooses to add Context in a similar case, instruct them to limit it to the one-line repro (e.g. 'The local profile-theme test reproduced dark becoming light on refresh.') and the surviving explanation, with no prior-report-search or 'nothing blocked' status lines.",
+      "wallMs": 27503,
       "verdict": "improved"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "standalone-report",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "557c04177791247a7fe77e46f4c9b70c499a6cf58b334aba0347df9cc867613c",
-      "candidateSkillSha": "8735168a52897e26a8603d41a6a55e84aecba470620c9ca45382361e4bba9ef1",
-      "inputSha": "0e7f18da5823365960ecd9cc62ec21852c8bb8492d44f4b14de83b06772f08ad",
-      "factsSha": "c69b4b5de492e2eb9df53e2bbb2bfe14d71a1de85ae3f69991299c181d22826e",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "bf48434ae968ea0ed9fa81cbe82a459b78621f86eb63ca5f44bd1583e7db2bc6",
-      "models": {
-        "replay": [
-          "anthropic/claude-opus-5-5",
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "anthropic-fable/claude-fable-5-1"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "anthropic/claude-opus-5-5": {
-            "baselineOutputSha": "db38b5867f85e50963a096939d6fb7f343e9160604cae8965e96f75634a14aa9",
-            "payloadSha": "ecface66ea5b0abec0545d1d90e7dabe8fb26cf5403cf8f05e8fb7d470e68a3f"
-          },
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "d6e1461f497bc5dfb6ce536e39a166a47ec9a36f525e47831072514cd9d0d917",
-            "payloadSha": "e07f006cf1dfb66d411addfbface61782f23a567e965e61ba37c8e115a65f99a"
-          }
-        },
-        "candidate": {
-          "anthropic/claude-opus-5-5": {
-            "candidateOutputSha": "c2ef8e778fdd87854a8faed199dd3da2d48005c394f2b3e3d18a5e40e73df25d",
-            "payloadSha": "ccca42d88daa7ac9f1c53d5c3281e1eb464d1dbe94b45f6c940386a46ba5fb10"
-          },
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "5b9a2bf4e4cf5396af4dd56d1aeb89097a30f7983ffd8aaaf837e960e3240559",
-            "payloadSha": "47e3d2ccad30b071d18d96f2f09f3b0659e88e61e02b97c4c2ce2f8bf63d6edd"
-          }
-        }
-      }
-    },
-    "previous": {
-      "anthropic/claude-opus-5-5": {
-        "factsSha": "9612412f6116ae333dbd8d33e3e0b99bcd39b22f3166a1fc6a1e7d460307e1b9",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "854b8ac037b1fcefe05baff00ccac81fbde09f985046d31f96ecf370cabe1d00",
-        "baselineOutputSha": "db38b5867f85e50963a096939d6fb7f343e9160604cae8965e96f75634a14aa9",
-        "candidateOutputSha": "c2ef8e778fdd87854a8faed199dd3da2d48005c394f2b3e3d18a5e40e73df25d",
-        "facts": {
-          "sections": {
-            "before": "fails",
-            "after": "holds",
-            "label": "intended change"
-          },
-          "context": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "standalone": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "literal-fix": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "proof": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "concise": {
-            "before": "fails",
-            "after": "holds",
-            "label": "unplanned improvement"
-          },
-          "gate-menu": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "unfenced": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After delivers the Change cleanly: the four ### sections replace Before's verdict paragraph plus bullet list, which had repeated the overwrite, the test, and the fix across both forms and narrated hypothesis ranking, so sections moves to holds and concise also improves. Context stays under five lines and carries the repro and the surviving explanation without duplicating the later sections; Why it is broken names the mechanism by role ('a separate step that sets a default theme') with the path trailing the claim; How to fix it states the literal change and the retained-dark result. Nothing regressed. Two small refinements would make the wording more robust: drop the vague 'nothing was blocked' from Context (or say concretely 'no check was skipped'), and keep the 'Choose hotfix because...' sentence out of How to fix it since the recommendation already lives in the menu and the fact asks for a fix, not a menu pitch; also note the ```text fence is fine but the plain ``` fence from Before is the safer default if any consumer greps for it.",
-        "wallMs": 23742,
-        "verdict": "improved",
-        "judgeModel": null,
-        "thinking": null
-      },
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "9612412f6116ae333dbd8d33e3e0b99bcd39b22f3166a1fc6a1e7d460307e1b9",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "854b8ac037b1fcefe05baff00ccac81fbde09f985046d31f96ecf370cabe1d00",
-        "baselineOutputSha": "d6e1461f497bc5dfb6ce536e39a166a47ec9a36f525e47831072514cd9d0d917",
-        "candidateOutputSha": "5b9a2bf4e4cf5396af4dd56d1aeb89097a30f7983ffd8aaaf837e960e3240559",
-        "facts": {
-          "sections": {
-            "before": "fails",
-            "after": "holds",
-            "label": "intended change"
-          },
-          "context": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "standalone": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "literal-fix": {
-            "before": "fails",
-            "after": "holds",
-            "label": "unplanned improvement"
-          },
-          "proof": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "concise": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "gate-menu": {
-            "before": "fails",
-            "after": "holds",
-            "label": "unplanned improvement"
-          },
-          "unfenced": {
-            "before": "fails",
-            "after": "holds",
-            "label": "unplanned improvement"
-          }
-        },
-        "feedback": "After delivers the sectioned shape well: the three ### headings are present, the fix sentence is literal (skip default init after a saved theme loads so refresh keeps dark), the mechanism is named by role, and the citation trails its claim; it also fixes Before's trailing evidence paragraph so the eligibility line now ends the message. The one regression is concision inside How to fix it: 'This is a small, bounded change to the initializer, supported by the reproduction test' restates the Why section, and 'Choose hotfix because the fix is small and all six eligibility predicates pass' echoes the [recommended] marker and the 'eligible - all predicates pass' line, which the Change explicitly keeps outside the report. Keep How to fix it to the single fix sentence (optionally one clause on scope, e.g. 'one guard in the initializer'), and leave recommendation and eligibility to the gate marker, menu, and eligibility line; the wording 'reports are standalone and concise, with literal fixes... hotfix seed evidence without menu recommendations' would be clearer if it said the report body must not restate the menu recommendation or predicate outcome.",
-        "wallMs": 30629,
-        "verdict": "regressed",
-        "confirmation": {
-          "status": "ok",
-          "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nRefreshing the account page resets the saved dark theme to light.\n\n### Why it is broken\n\nTwo parts of the page set the theme: the profile loader applies the saved `\"dark\"` value, then the default-theme initializer overwrites it with `\"light\"` (`src/profile-theme.ts:62`). The local test `node --test test/profile-theme.test.mjs` reproduces the reset; disabling the later initializer keeps dark, supporting the overwrite as the cause.\n\n### How to fix it\n\nSkip default initialization after a saved theme has loaded so refresh retains dark. This is a small, bounded change to the initializer, with the existing local test covering the failure. Choose hotfix because the fix is small and all six eligibility predicates pass.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n",
-          "words": 160,
-          "wallMs": 6625,
-          "mechanical": {},
-          "judgeWallMs": 34184,
-          "facts": {
-            "sections": {
-              "before": "fails",
-              "after": "holds",
-              "label": "intended change"
-            },
-            "context": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            },
-            "standalone": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            },
-            "literal-fix": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            },
-            "proof": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            },
-            "concise": {
-              "before": "holds",
-              "after": "fails",
-              "label": "regression"
-            },
-            "gate-menu": {
-              "before": "fails",
-              "after": "holds",
-              "label": "unplanned improvement"
-            },
-            "unfenced": {
-              "before": "fails",
-              "after": "holds",
-              "label": "unplanned improvement"
-            }
-          },
-          "feedback": "After delivers the sectioned report, keeps the menu and eligibility line in the right place, and drops Before's appended evidence paragraph, so sections, gate-menu, and unfenced all improve. The one regression is concision: the How to fix it section repeats itself and echoes the menu - 'This is a small, bounded change to the initializer' restates 'small', and 'Choose hotfix because the fix is small and all six eligibility predicates pass' duplicates both the recommended=3 marker and the 'eligible - all predicates pass' line. The wording should tell authors that How to fix it ends at the literal change and its intended result (e.g. 'Skip default initialization after a saved theme has loaded so refresh retains dark; the existing local test covers the failure.'), and that the menu, gate marker, and eligibility line are the only places that carry the recommendation and predicate status - never the report body."
-        },
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "anthropic/claude-opus-5-5": {
-        "factsSha": "c69b4b5de492e2eb9df53e2bbb2bfe14d71a1de85ae3f69991299c181d22826e",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "bf48434ae968ea0ed9fa81cbe82a459b78621f86eb63ca5f44bd1583e7db2bc6",
-        "baselineOutputSha": "db38b5867f85e50963a096939d6fb7f343e9160604cae8965e96f75634a14aa9",
-        "candidateOutputSha": "c2ef8e778fdd87854a8faed199dd3da2d48005c394f2b3e3d18a5e40e73df25d",
-        "facts": {
-          "sections": {
-            "before": "fails",
-            "after": "holds",
-            "label": "intended change"
-          },
-          "context": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "standalone": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "literal-fix": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "proof": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "concise": {
-            "before": "fails",
-            "after": "holds",
-            "label": "unplanned improvement"
-          },
-          "gate-menu": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "unfenced": {
-            "before": "fails",
-            "after": "holds",
-            "label": "unplanned improvement"
-          }
-        },
-        "feedback": "After delivers the sectioned contract cleanly: the four ### headings carry whole sentences, Context is two lines with the repro and the surviving explanation, the mechanism is named by role (\"a separate step that sets a default theme\") with the file path trailing the claim, and How to fix it names the literal change, its one-step size, and the recommended pick with a single because-clause. Before failed sections, concise, and unfenced because it appended a six-bullet discovery transcript (hypothesis ranking, falsification narrative, prior-report search) that re-explained the overwrite already given in the lead paragraph; After drops that transcript without losing the dark-versus-light proof or the fix. The only nudge: Context's first sentence (\"turns a saved dark theme into light\") lightly echoes What is broken, so a tighter wording such as \"`node --test test/profile-theme.test.mjs` reproduces the reset; the overwrite explanation survived falsification and nothing was blocked\" would keep Context strictly to repro/testing status and avoid any risk of tripping the no-repeat clause.",
-        "wallMs": 22095,
-        "verdict": "improved",
-        "judgeModel": "anthropic-fable/claude-fable-5-1",
-        "thinking": "medium"
-      },
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "c69b4b5de492e2eb9df53e2bbb2bfe14d71a1de85ae3f69991299c181d22826e",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "bf48434ae968ea0ed9fa81cbe82a459b78621f86eb63ca5f44bd1583e7db2bc6",
-        "baselineOutputSha": "d6e1461f497bc5dfb6ce536e39a166a47ec9a36f525e47831072514cd9d0d917",
-        "candidateOutputSha": "5b9a2bf4e4cf5396af4dd56d1aeb89097a30f7983ffd8aaaf837e960e3240559",
-        "facts": {
-          "sections": {
-            "before": "fails",
-            "after": "holds",
-            "label": "intended change"
-          },
-          "context": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "standalone": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "literal-fix": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "proof": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "concise": {
-            "before": "fails",
-            "after": "holds",
-            "label": "unplanned improvement"
-          },
-          "gate-menu": {
-            "before": "fails",
-            "after": "holds",
-            "label": "unplanned improvement"
-          },
-          "unfenced": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After delivers the Change cleanly: the three exact ### headings replace the prose blob, each section is whole sentences, the mechanism is named by role (saved-choice applier vs. later default initializer) with the file path trailing the claim, and How to fix it ends with the fix, its size, and the recommended pick plus one because-clause. It also fixes two things Before failed incidentally: Before appended a post-eligibility paragraph restating the repro and hypothesis, which both broke the 'eligibility line ends the message' rule and repeated the mechanism; After drops that and ends on the eligibility line. Nothing regressed. Two cautions for the wording: After wraps the numbered menu in a ```text fence, which the gate-menu fact tolerates only as a 'closing menu fence' — keep the contract explicit that the report body and ideally the menu stay unfenced so a stray fence never swallows the eligibility line; and After dropped the test command (`node --test test/profile-theme.test.mjs`) in favour of 'the local test', which still passes proof, but the wording should say the trailing citation may include the command after the repro claim so standalone proof stays checkable.",
-        "wallMs": 32010,
-        "verdict": "improved",
-        "judgeModel": "anthropic-fable/claude-fable-5-1",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "af88faa3c8b37be4cc73be620f69bbaab47d747c"
+  "repoSha": "cb84cc63147053f71c8ef36146d376dd4c5be9b2"
 }
