@@ -1,5 +1,7 @@
 # chase-bug: verdict, draft, and summary as a short briefing for a non-coder
 
+> **Superseded by:** [doc/specs/2026-11-04-chase-bug-elevator-report.md](./2026-11-04-chase-bug-elevator-report.md) - "Verdict shape" rule and golden examples only
+
 **Goal:** Replace chase-bug's three code-fenced `Label: value` output templates (step-4 fault story, step-5 reporter draft, step-5 terminal summary) with one skill-local "Verdict shape" rule that renders each as three plain sentences a reader who does not know the code can act on, with no code fence and no label lines, while the numbered menu stays exactly as it works today.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves
