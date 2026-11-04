@@ -1,0 +1,108 @@
+{
+  "sample": "batch-ac-conflict-reading",
+  "arm": "candidate",
+  "skillSha": "b85d91f9afdc5590718b8ad859a6214ed229205135ed16ceee1da91947ffc0cd",
+  "inputSha": "cec979f4a166d8f549d696d50f1a28e3684177eed7e3dadd5c76b8fdd013e291",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\n\n#### acme/widget#12\n\nThe acceptance criteria conflict:\n\n- \"Export preserves twelve rows.\"\n- \"Export only the first ten rows.\"\n\nType the AC reading to apply, or skip\n",
+      "words": 25,
+      "wallMs": 4615,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "reading-prompt": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\nType the AC reading to apply, or skip\n",
+      "words": 10,
+      "wallMs": 2459,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "reading-prompt": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a648f8d42396b8c6aaa8f9fa25d207fb7faa8367355f86ae82ea65376c5cb13b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "3df7def369ca803fdb5e5a57602a8223e6713a4ce63e2233613ffd1220f24d4b",
+      "candidateOutputSha": "ebdc186b4af76b6cf4d0b20c99296b2ebd110e0cdb60a52013b2057ed1b59e93",
+      "facts": {
+        "wait-for-reading": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reading-prompt": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Both outputs satisfy the fact: each is a separate `gauntlet: question` turn that asks for the operator's reading, invents no reading, claims no retry or write, and shows neither ticket's retry/skip gate or a numeric menu. After is the cleaner of the two — the `#### acme/widget#12` heading and a bare 'type the reading' prompt — but two edges are worth tightening. First, the trailing 'or skip' re-surfaces half of the recovery gate the operator just answered; since the human already chose retry, drop it (or defer skip to a later gate) so the question turn asks for exactly one thing. Second, Before's closing line ('No retry has been dispatched and nothing has been written… #15's report is still waiting') makes the no-retry/no-write/no-sibling state explicit; After relies on silence. A one-line footer such as 'No retry dispatched yet; acme/widget#15 waits for its own turn' would keep that assurance without reintroducing the gate, a menu, or any guessed reading. Also note that Before's A/B/C lettered options skirt the 'numeric menu' prohibition only by not being numeric — After's free-text prompt is the safer pattern to keep.",
+      "wallMs": 18794,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a648f8d42396b8c6aaa8f9fa25d207fb7faa8367355f86ae82ea65376c5cb13b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "9e9dfdd1a02a4519adb726e33cddddfd6de6efe711045a9c7870144fbcaa848d",
+      "candidateOutputSha": "cfb98d46e3a70b3a77bcb6df915005cd7fc8e284707c7fbf58cb1a6c692a4587",
+      "facts": {
+        "wait-for-reading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reading-prompt": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After satisfies the fact cleanly: it opens a question turn, asks the operator to type the AC reading, and makes no claims about a retry, a write, or either ticket's gate. Before fails because it pre-composes candidate readings (A/B/C) and presents them as a menu—the assistant authored the readings instead of waiting for the operator's, which a careful reader counts as inventing a reading and offering a menu, even though the labels are letters rather than numbers; it also drags ticket 15 back into the turn. To keep the fact while delivering the Change, keep After's shape (one question, no options list, no sibling mention); if you want the retry context visible, prefix only a single line naming acme/widget#12 under its own heading and still ask for a typed reading rather than listing choices.",
+      "wallMs": 19033,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "35f3eeea18abb7ff128da4857d4827ecc20022ff"
+}

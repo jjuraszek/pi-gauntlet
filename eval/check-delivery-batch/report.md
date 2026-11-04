@@ -73,3 +73,81 @@ Add set-mode parent turns after one fresh parallel delivery-checker child per ex
 - batch-approved-after-decline / github-copilot/gpt-6.1-sol: After moved report-verbatim from fails to holds: it reproduces ticket 18's Report block exactly (plain `Shipped SHA`/`Deliverable`/`Stages` lines, the unmodified AC table, the `Reviewer script` line, the `Write about to happen: comment only; no target state configured.` line and the identical fenced comment) under its own `#### acme/widget#18` heading, directly after a plain `acme/widget#15: delivered` outcome. Before failed this fact because it re-rendered the report with bold labels and backticks, renamed the write line to `Exact write proposed`, expanded it into prose, and appended an extra sentence about re-fetching, so the report was rewritten rather than displayed unchanged. Both outputs keep independent-approval and exact-halves: neither claims a status advance or body edit for ticket 15, neither claims a write for ticket 12, neither re-asks approval for 15, and only ticket 18 gets the 1/2 gate with no settlement. After's one-line `delivered` outcome for 15 is sufficient; it drops Before's explicit `#12 declined; no write ran` reminder, which is not required by any fact here but could be kept as an optional one-line prior-outcome note under its own heading without touching the verbatim report, if the author wants the decline visible in the same turn.
 
 exit: 0
+
+---
+
+# eval report: check-delivery-batch (partial run: batch-ac-conflict-row)
+
+for: b85d91f9afdc5590718b8ad859a6214ed229205135ed16ceee1da91947ffc0cd
+
+wall: 16s
+
+## Change
+
+Add set-mode parent turns after one fresh parallel delivery-checker child per explicit ticket. Preserve each report and confirmation gate while showing only the current ticket, one marker and one gate per message in supplied order. Keep handoff metadata and child result lines private. The batch-one-gate-per-turn sample covers the first of three REPORT tickets. batch-decline-isolates checks that declining ticket 12 still presents ticket 15's unchanged report and independent gate. batch-approved-after-decline checks that ticket 15's completed approved write advances to ticket 18's gate with a plain delivered outcome. batch-ac-conflict-row checks the recovery marker, quoted conflicting rows and retry/skip menu without asking for a reading. batch-ac-conflict-reading checks that retry opens a separate question and waits for the typed reading. batch-closing-marker checks the final delivered=2,declined=1 marker and roster-ordered outcomes. These text samples take tool observations as inputs; they do not observe actual dispatch, reading transfer to a retry task, re-fetch, tracker writes, or cleanup.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| batch-ac-conflict-row | anthropic/claude-opus-5-5 | improved | 10678 | conflict-rows: fails -> holds (unplanned improvement); retry-skip: fails -> holds (unplanned improvement); first-line: fails -> holds (unplanned improvement); one-marker: holds -> holds (held); ticket-heading: fails -> holds (unplanned improvement); no-sibling: fails -> holds (unplanned improvement); private-handoff: holds -> holds (held) |
+| batch-ac-conflict-row | github-copilot/gpt-6.1-sol | improved | 10895 | conflict-rows: fails -> holds (unplanned improvement); retry-skip: fails -> holds (unplanned improvement); first-line: fails -> holds (unplanned improvement); one-marker: holds -> holds (held); ticket-heading: fails -> holds (unplanned improvement); no-sibling: fails -> holds (unplanned improvement); private-handoff: holds -> holds (held) |
+
+## Feedback
+
+- batch-ac-conflict-row / anthropic/claude-opus-5-5: After moves both facts to holds and loses nothing Before kept. Before paraphrased the recovery marker as "stopped at Stage 0 (AC conflict)" instead of showing the child's literal `STOPPED - AC conflict - ... versus ...` line, and it had no retry/skip menu at all: it told the user to re-run the skill manually and then moved straight into ticket 15's report and approve/decline confirmation gate in the same message. After shows only ticket 12 under its own heading, quotes the child's STOPPED line verbatim with both conflicting rows, and offers exactly `1. retry` / `2. skip` with no gate, no request for a reading, no automatic retry and no claimed write. Keep that structure; the one thing to guard going forward is that the quoted marker stays the child's exact line (don't let future edits reintroduce a paraphrase like Before's) and that ticket 15's gate continues to wait for its own turn.
+- batch-ac-conflict-row / github-copilot/gpt-6.1-sol: After moves both facts from fails to holds, in the intended direction. Before never printed the literal recovery marker — it rewrote the child's STOPPED line into a prose heading ("blocked by an AC conflict") and a verdict table — and it layered a confirmation gate ("approve the write / decline") plus a proposed findings comment and a mention of ticket 15 on top of the AC conflict, so retry-skip failed. After shows only acme/widget#12 under its own heading, quotes the child's STOPPED - AC conflict line verbatim with both conflicting rows, and offers exactly "1. retry / 2. skip" with no gate, no reading request, no automatic retry, no claimed write, and no sibling-ticket leakage, which is exactly what batch-ac-conflict-row asks for. Nothing in After regressed; the only thing to keep an eye on is that the heading level (####) stays consistent with the other set-mode turns so the ticket-heading fact reads the same across samples, and that the retry branch (batch-ac-conflict-reading) opens the reading question only after the user picks 1, not here.
+
+exit: 0
+
+---
+
+# eval report: check-delivery-batch (partial run: batch-ac-conflict-reading)
+
+for: b85d91f9afdc5590718b8ad859a6214ed229205135ed16ceee1da91947ffc0cd
+
+wall: 29s
+
+## Change
+
+Add set-mode parent turns after one fresh parallel delivery-checker child per explicit ticket. Preserve each report and confirmation gate while showing only the current ticket, one marker and one gate per message in supplied order. Keep handoff metadata and child result lines private. The batch-one-gate-per-turn sample covers the first of three REPORT tickets. batch-decline-isolates checks that declining ticket 12 still presents ticket 15's unchanged report and independent gate. batch-approved-after-decline checks that ticket 15's completed approved write advances to ticket 18's gate with a plain delivered outcome. batch-ac-conflict-row checks the recovery marker, quoted conflicting rows and retry/skip menu without asking for a reading. batch-ac-conflict-reading checks that retry opens a separate question and waits for the typed reading. batch-closing-marker checks the final delivered=2,declined=1 marker and roster-ordered outcomes. These text samples take tool observations as inputs; they do not observe actual dispatch, reading transfer to a retry task, re-fetch, tracker writes, or cleanup.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| batch-ac-conflict-reading | anthropic/claude-opus-5-5 | improved | 18794 | wait-for-reading: holds -> holds (held); first-line: holds -> holds (held); one-marker: holds -> holds (held); reading-prompt: fails -> holds (unplanned improvement) |
+| batch-ac-conflict-reading | github-copilot/gpt-6.1-sol | improved | 19033 | wait-for-reading: fails -> holds (unplanned improvement); first-line: holds -> holds (held); one-marker: holds -> holds (held); reading-prompt: fails -> holds (unplanned improvement) |
+
+## Feedback
+
+- batch-ac-conflict-reading / anthropic/claude-opus-5-5: Both outputs satisfy the fact: each is a separate `gauntlet: question` turn that asks for the operator's reading, invents no reading, claims no retry or write, and shows neither ticket's retry/skip gate or a numeric menu. After is the cleaner of the two — the `#### acme/widget#12` heading and a bare 'type the reading' prompt — but two edges are worth tightening. First, the trailing 'or skip' re-surfaces half of the recovery gate the operator just answered; since the human already chose retry, drop it (or defer skip to a later gate) so the question turn asks for exactly one thing. Second, Before's closing line ('No retry has been dispatched and nothing has been written… #15's report is still waiting') makes the no-retry/no-write/no-sibling state explicit; After relies on silence. A one-line footer such as 'No retry dispatched yet; acme/widget#15 waits for its own turn' would keep that assurance without reintroducing the gate, a menu, or any guessed reading. Also note that Before's A/B/C lettered options skirt the 'numeric menu' prohibition only by not being numeric — After's free-text prompt is the safer pattern to keep.
+- batch-ac-conflict-reading / github-copilot/gpt-6.1-sol: After satisfies the fact cleanly: it opens a question turn, asks the operator to type the AC reading, and makes no claims about a retry, a write, or either ticket's gate. Before fails because it pre-composes candidate readings (A/B/C) and presents them as a menu—the assistant authored the readings instead of waiting for the operator's, which a careful reader counts as inventing a reading and offering a menu, even though the labels are letters rather than numbers; it also drags ticket 15 back into the turn. To keep the fact while delivering the Change, keep After's shape (one question, no options list, no sibling mention); if you want the retry context visible, prefix only a single line naming acme/widget#12 under its own heading and still ask for a typed reading rather than listing choices.
+
+exit: 0
+
+---
+
+# eval report: check-delivery-batch (partial run: batch-closing-marker)
+
+for: b85d91f9afdc5590718b8ad859a6214ed229205135ed16ceee1da91947ffc0cd
+
+wall: 24s
+
+## Change
+
+Add set-mode parent turns after one fresh parallel delivery-checker child per explicit ticket. Preserve each report and confirmation gate while showing only the current ticket, one marker and one gate per message in supplied order. Keep handoff metadata and child result lines private. The batch-one-gate-per-turn sample covers the first of three REPORT tickets. batch-decline-isolates checks that declining ticket 12 still presents ticket 15's unchanged report and independent gate. batch-approved-after-decline checks that ticket 15's completed approved write advances to ticket 18's gate with a plain delivered outcome. batch-ac-conflict-row checks the recovery marker, quoted conflicting rows and retry/skip menu without asking for a reading. batch-ac-conflict-reading checks that retry opens a separate question and waits for the typed reading. batch-closing-marker checks the final delivered=2,declined=1 marker and roster-ordered outcomes. These text samples take tool observations as inputs; they do not observe actual dispatch, reading transfer to a retry task, re-fetch, tracker writes, or cleanup.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| batch-closing-marker | anthropic/claude-opus-5-5 | improved | 16870 | settled: fails -> holds (unplanned improvement); first-line: fails -> holds (unplanned improvement); one-marker: holds -> holds (held); roster-outcomes: fails -> holds (unplanned improvement) |
+| batch-closing-marker | github-copilot/gpt-6.1-sol | improved | 8447 | settled: holds -> holds (held); first-line: fails -> holds (unplanned improvement); one-marker: holds -> holds (held); roster-outcomes: fails -> holds (unplanned improvement) |
+
+## Feedback
+
+- batch-closing-marker / anthropic/claude-opus-5-5: After settles the set cleanly: the `done delivered=2,declined=1` marker, roster-ordered outcomes, an explicit 'No write ran for acme/widget#18', and no gate or re-approval prompt. Before lost the fact on its marker line alone: `gauntlet: stuck write declined` frames ticket 18's decline as a stuck/blocked state even though the body later says all three tickets are settled, so a careful reader sees the decline treated as a failure rather than a plain outcome. Keep After's `done` marker and three-line roster; if you want to retain Before's useful tail (how to record #18 later via re-running the skill), add it as a neutral sentence after the roster without reintroducing a stuck/failure marker, and phrase the cleanup as an instruction or observation rather than implying the `rm -rf` already ran, since these samples do not observe cleanup.
+- batch-closing-marker / github-copilot/gpt-6.1-sol: Neither output moved this fact: both settle the set with no gate, no further approval request, no claimed write for #18, and decline reported as decline rather than failure. After's `done delivered=2,declined=1` marker with roster-ordered one-line outcomes is cleaner than Before's `stuck write declined` header, which flirts with reading the decline as a stuck/failed state. The one thing After drops is Before's explicit reassurance that no comment, status change, or other write ran for #18 and that the #12/#15 writes remain intact; if you want to keep that without reintroducing a gate or extra tickets, a single trailing line such as `No write ran for #18.` after the roster would preserve it while still delivering the closing-marker format the Change asks for.
+
+exit: 0

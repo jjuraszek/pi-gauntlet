@@ -1,0 +1,108 @@
+{
+  "sample": "batch-closing-marker",
+  "arm": "candidate",
+  "skillSha": "b85d91f9afdc5590718b8ad859a6214ed229205135ed16ceee1da91947ffc0cd",
+  "inputSha": "30cd7370e26c0b5e00f2e9cb11feb6489e7f308857e72294da8e864a241f2480",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: done delivered=2,declined=1\n\nacme/widget#12: delivered\nacme/widget#15: delivered\nacme/widget#18: declined\n\nNo write ran for acme/widget#18. Its report remains in this session only. The temporary report directory is cleaned up with `rm -rf \"$REPORT_DIR\"` now that the set is settled.\n",
+      "words": 38,
+      "wallMs": 4396,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "roster-outcomes": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: done delivered=2,declined=1\nacme/widget#12: delivered\nacme/widget#15: delivered\nacme/widget#18: declined\n",
+      "words": 9,
+      "wallMs": 3332,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "roster-outcomes": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "2a98d6e6665a7e4c65bca1e0a62a2c74340f248fb7740b27c8afd08feb398a85",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "9ba916e586c259ef313147fbaf036763d1016ff80edcd1f68d5a81fe7c0f5760",
+      "candidateOutputSha": "d3390fc8dd99e561182154baa6c0f4ac1021956805117a03fc7f9092f9bbe9a1",
+      "facts": {
+        "settled": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "roster-outcomes": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After settles the set cleanly: the `done delivered=2,declined=1` marker, roster-ordered outcomes, an explicit 'No write ran for acme/widget#18', and no gate or re-approval prompt. Before lost the fact on its marker line alone: `gauntlet: stuck write declined` frames ticket 18's decline as a stuck/blocked state even though the body later says all three tickets are settled, so a careful reader sees the decline treated as a failure rather than a plain outcome. Keep After's `done` marker and three-line roster; if you want to retain Before's useful tail (how to record #18 later via re-running the skill), add it as a neutral sentence after the roster without reintroducing a stuck/failure marker, and phrase the cleanup as an instruction or observation rather than implying the `rm -rf` already ran, since these samples do not observe cleanup.",
+      "wallMs": 16870,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "2a98d6e6665a7e4c65bca1e0a62a2c74340f248fb7740b27c8afd08feb398a85",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "5132c88696d8ae7c3914eb47d7f766e8724a2e8f89c846509dbbfb458608c271",
+      "candidateOutputSha": "5169931e188f9038b51b6de7e9717343e5395edccd2b95f7d28751d2f7a74860",
+      "facts": {
+        "settled": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "roster-outcomes": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Neither output moved this fact: both settle the set with no gate, no further approval request, no claimed write for #18, and decline reported as decline rather than failure. After's `done delivered=2,declined=1` marker with roster-ordered one-line outcomes is cleaner than Before's `stuck write declined` header, which flirts with reading the decline as a stuck/failed state. The one thing After drops is Before's explicit reassurance that no comment, status change, or other write ran for #18 and that the #12/#15 writes remain intact; if you want to keep that without reintroducing a gate or extra tickets, a single trailing line such as `No write ran for #18.` after the roster would preserve it while still delivering the closing-marker format the Change asks for.",
+      "wallMs": 8447,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "35f3eeea18abb7ff128da4857d4827ecc20022ff"
+}
