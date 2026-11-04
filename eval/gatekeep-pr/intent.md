@@ -1,6 +1,6 @@
-for: 9cdc0d054e1de42279c1262d1c2bd6f0831778ea0427d561ed71a62946544a92
+for: ef3cf153b4804d5da28b8875f6aaa46bf2898c27a3fd98ebba6d17c10dbf2433
 
 ## Change
-Clarify the unchanged description-repair safeguards at the finding-artifact routing boundary: keep description targets and replies outside ACs and ledger rows, compare fresh head/body against the selected proposal before a description write, and require readback and a fresh claim-recheck helper before closing only the affected contribution. Keep replies behind their explicit pick. Preserve nit-batch-row/n6 without weakening its fact or changing description repair. Selected model coverage is nit-batch-row only: artifact construction and non-file routing narration, not live writes or row admission.
+Clarify the unchanged prior-item rendering contract: render open prior-review items under Blockers or Nits with the reviewer's posted text and locator unchanged, not rewritten into consequence sentences to satisfy the general wording rules. Preserve prior-review-delta/d9 and d17 without changing selection, closure, delivery or sample facts. Selected model coverage is prior-review-delta and nit-batch-row only: prior-item rendering and finding-artifact/non-file routing narration, not live writes or row admission.
 
 ## Expected to move
