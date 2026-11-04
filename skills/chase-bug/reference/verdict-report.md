@@ -49,7 +49,7 @@ including citation labels; retain the menu and eligibility vocabulary outside th
 |---|---|
 | CI runs lint | The automatic check scans the code for rule violations |
 | call site | The place in the code that starts this step |
-| normalize a path | The exact address change, such as removing a final slash |
+| normalize a path | Put an address in a standard form |
 | regression test | A test that repeats the failing action to check it stays fixed |
 | falsification test | The change tried and the result observed |
 | predicate | The safety or scope check it names |
@@ -65,19 +65,21 @@ Read every section back for unexpanded shorthand before sending it. Replace any
 remaining left-column shorthand with its right-column meaning. Keep numbered
 hotfix predicates in the menu's eligibility line only; in the report explain the
 actual constraint, such as tests that cannot check a changed file.
-Write the complete role-named claim first, then append its source location or
-linked label at the end of that sentence, only when the reader's next action
-requires opening that source; otherwise omit it. For example: Follow-up stays
-on the existing ticket ([ticket](https://example.org/issues/42)). Keep literal
-failing inputs as the visible example, not as source citations.
+Write the complete role-named claim as a standalone sentence. Replace its final period with a comma,
+its source location or linked label, and a period, only when the reader's next action requires opening it;
+otherwise omit the citation. Read just the words before the citation as a standalone sentence and complete that claim first. For example: The documented rule excludes final slashes, [page-address rules](https://example.org/docs/widget-addresses).
+Keep literal failing inputs as the visible example, not as source citations.
 Build every sentence from a fact gathered during the chase or a consequence that
 follows from it; ground each because-clause in that gathered fact. For example:
 "Ask the reporter for the dataset size, because the chase could not reproduce
 the failure without it." Match claims about who has an input and how a test ran
 to the recorded evidence; describe a test only at its recorded specificity.
-Keep proposed fixes distinct from completed tests. Take factual details from the
-current chase, using golden examples only for shape and register. State a bare
-confirmation of a cause as confirmation of that cause, keeping the test's
+Render Why as the current chase's cause sentence in everyday words, the supplied failing input's result, and the recorded confirmation; keep each action and purpose at its recorded specificity.
+Name each repeated pass by its own recorded purpose in every section, including What is broken and recommendation reasons.
+Copy the current chase's fix-size phrase verbatim into How to fix it and its recommendation reason.
+For example: "The part that matches web addresses to pages compares addresses without first putting them in a standard form, so `/widgets/` does not match its page. A test confirmed this cause. The proposed fix puts addresses in a standard form before matching; it is expected to make `/widgets/` load. The fix is small and safe. Choose hotfix because the fix is small and safe."
+Keep proposed fixes distinct from completed tests. Take facts from the current chase, using golden examples only for shape and register. State a bare
+confirmation of a cause as "A test confirmed this cause." Keep the test's
 unrecorded input, procedure, and result unspecified. Frame requests for missing
 input as the next investigative step; keep the cause unknown until evidence
 settles it and describe only the part of the setup that input identifies.

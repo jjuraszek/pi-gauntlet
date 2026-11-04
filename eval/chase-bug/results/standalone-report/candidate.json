@@ -1,7 +1,7 @@
 {
   "sample": "standalone-report",
   "arm": "candidate",
-  "skillSha": "c65e63037a4263c722702c734e8c08fce2da628a83a5fe6010fe8bbcb5edd9bb",
+  "skillSha": "348a4b1a4295873345d8e029b9025a0c8a89a7637fe7d1db0d98ca6e265983e2",
   "inputSha": "0e7f18da5823365960ecd9cc62ec21852c8bb8492d44f4b14de83b06772f08ad",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### Context\n\nA local test that refreshes the account page with a saved dark theme ends on light. Turning off the later default-setting step kept dark.\n\n### What is broken\n\nAfter a refresh, the account page shows the light theme even though the account's saved choice is dark.\n\n### Why it is broken\n\nTwo steps set the page's theme. The first loads the saved choice, \"dark,\" from the account's stored settings and applies it. A second step runs after that and applies the default theme, replacing dark with light (`src/profile-theme.ts:62`).\n\n### How to fix it\n\nSkip the default theme when a saved theme has already loaded, so a refresh keeps dark. This is a small change to one step. Choose hotfix because this one small change fixes the reset.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n",
-      "words": 174,
-      "wallMs": 9903,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nAfter a refresh, the account page shows the light theme instead of the saved dark theme.\n\n### Why it is broken\n\nThe page correctly reads the saved theme, dark, from the part that stores account settings. A separate step that sets a starting theme then runs and replaces it with light. An existing test reproduced dark becoming light, and turning off that later step kept dark. This confirms the later step is overwriting the saved choice.\n\n### How to fix it\n\nSkip the starting-theme step once a saved theme has loaded, so refresh keeps dark. The fix is small and safe. Choose hotfix because the fix is small and safe.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n",
+      "words": 160,
+      "wallMs": 9607,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nRefreshing the account page resets the saved dark theme to light instead of retaining dark.\n\n### Why it is broken\n\nThe service that stores profile preferences returns `{\"theme\":\"dark\"}`, and the page applies it. A separate step that sets the default theme then overwrites it with light. The local test reproduced dark becoming light; disabling that later step kept dark, supporting the overwrite explanation.\n\n### How to fix it\n\nSkip setting the default theme once a saved theme has loaded, so refreshing retains dark. This is a small, safe change to the default-setting step. Choose hotfix because the overwrite is confirmed and the fix is narrowly scoped.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n",
-      "words": 156,
-      "wallMs": 5899,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nRefreshing the account page resets the saved dark theme to light instead of retaining dark.\n\n### Why it is broken\n\nThe page loads and applies the saved theme, then a separate step that sets the default theme overwrites it. The profile service returns `{\"theme\":\"dark\"}`, but the later default step changes it to `\"light\"`. Disabling that step retained dark in the local test, confirming the overwrite cause.\n\n### How to fix it\n\nSkip default initialization after a saved theme has loaded so refreshing retains dark. The fix is small and safe. Choose hotfix because the fix is small and safe.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n",
+      "words": 149,
+      "wallMs": 5536,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "80d97918784e077c3810d3328c9e343214a0524da8db0eaf273ef0ca4b99d974",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
+      "intentSha": "257f0adc765dbfb088786622942aaca6f0c941f18c1e9b56268cc3d439131612",
       "baselineOutputSha": "db38b5867f85e50963a096939d6fb7f343e9160604cae8965e96f75634a14aa9",
-      "candidateOutputSha": "a6a4f52c435814a4d9fe572c73aec55181bacfd7d640e8f61f995685d1629e0e",
+      "candidateOutputSha": "df62ef6cbc6b7ad16723773b2b4ccfdd4bcf761086af4946436483fd8ebdb6e3",
       "facts": {
         "sections": {
           "before": "fails",
@@ -84,16 +84,16 @@
           "label": "held"
         }
       },
-      "feedback": "After moves sections, literal-fix, proof, concise and unfenced to holds without regressing anything Before kept: the four exact headings appear in order, Context carries only the one-line repro and the surviving explanation with no search/status lines, the mechanism is role-named (\"a second step ... applies the default theme\"), the file citation trails its claim, and the invented \"across open and closed issues\" detail from Before is gone. Two small polish points that would not change any fact: the How to fix it section says \"small change\" twice (\"This is a small change to one step. Choose hotfix because this one small change fixes the reset.\"), so fold the size into the because-clause, e.g. \"Choose hotfix because the fix is one small change to a single step and every hotfix check passed\"; and \"the account's stored settings\" slightly blurs the profile service's role — \"the service that stores the account's profile\" would keep the role-naming while staying faithful to the evidence.",
-      "wallMs": 20653,
+      "feedback": "After delivers the Change cleanly: the three ### headings carry whole sentences, the mechanism is named by role (the part that stores account settings, the step that sets a starting theme), the dark-versus-light proof is visible, and nothing invented appears (Before added 'across open and closed issues' and 'no other ranked hypothesis was needed', which the case never supplied). Nothing regressed relative to Before. One small tightening would help concision without losing the required recommendation: 'The fix is small and safe. Choose hotfix because the fix is small and safe.' says the size twice; fold it into one sentence such as 'Choose Implement hotfix now because the fix is small and safe.' Optionally, a two-line Context (the one-line repro 'A local test shows the saved dark theme becoming light after refresh' plus the surviving explanation) would be acceptable, but omitting it as After does is also within the contract since the Why section already carries that evidence.",
+      "wallMs": 29627,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "80d97918784e077c3810d3328c9e343214a0524da8db0eaf273ef0ca4b99d974",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
+      "intentSha": "257f0adc765dbfb088786622942aaca6f0c941f18c1e9b56268cc3d439131612",
       "baselineOutputSha": "d6e1461f497bc5dfb6ce536e39a166a47ec9a36f525e47831072514cd9d0d917",
-      "candidateOutputSha": "5b824e647f94ef6a09241c3576d754545b748468e8e2c4b289f0dfbb51e26dc3",
+      "candidateOutputSha": "804ec576b57aa350111f7982a1473cbd0e6365164b6306187ec26cbc82822d9c",
       "facts": {
         "sections": {
           "before": "fails",
@@ -101,9 +101,9 @@
           "label": "intended change"
         },
         "context": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "standalone": {
           "before": "holds",
@@ -111,9 +111,9 @@
           "label": "held"
         },
         "literal-fix": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "proof": {
           "before": "holds",
@@ -141,8 +141,8 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After keeps every fact Before kept and repairs the rest: the three exact ### headings sit above Pick one:, How to fix it names the literal change (skip default-theme setting once a saved theme has loaded) plus the intended result (refresh retains dark) and its size, and the final section ends with one because-clause for pick 3. Before failed gate-menu, unfenced, concise, and context-earns-place for a single reason - the trailing paragraph appended after the eligibility line, which restated the overwrite mechanism, echoed the repro command, and carried the tracker-search result ('prior-report search completed without a match'); After drops it entirely and omits Context rather than stuffing housekeeping into it, which is the right call since the repro and surviving explanation already live in Why it is broken. Two small cautions for the After wording: the menu is now wrapped in a ```text fence, which the gate-menu fact tolerates but which is an unnecessary deviation from Before's bare numbered list and could trip a stricter 'eligibility line ends the message' reader, so prefer leaving the menu unfenced; and 'the service that stores profile preferences' slightly over-describes the evidence (it is only known to return the saved theme), so 'the service that returns the saved profile theme' would stay closer to supplied facts. If a Context line is ever added here, keep it to the one-line repro (the local test shows dark becoming light on refresh) and nothing about search results or blocking status.",
-      "wallMs": 29842,
+      "feedback": "After delivers the sectioned contract cleanly: the three exact headings sit above Pick one:, each section is whole sentences, Context is omitted rather than filled with the tracker-search result and repeated hypothesis that Before dumped after its eligibility line, and the eligibility line now ends the message. Nothing regressed. Two tightening suggestions: the How to fix it section says the fix is small and safe twice back-to-back (\"The fix is small and safe. Choose hotfix because the fix is small and safe.\") — fold these into one sentence such as \"This is a small, safe change, so implement the hotfix now because it is small and safe\" to avoid reading as padding; and since the hotfix pick will send the reader into the file, consider appending the trailing citation `src/profile-theme.ts:62` after the fix sentence, which the proof fact permits when the citation follows the complete role-named claim.",
+      "wallMs": 36178,
       "verdict": "improved"
     }
   },
@@ -461,5 +461,5 @@
       }
     }
   },
-  "repoSha": "67594688963bced299bdf3f08c947e587c1f813a"
+  "repoSha": "b69551b3a5d95ac0da590597ae10cdf285ed88d7"
 }

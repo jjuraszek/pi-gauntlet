@@ -1,7 +1,7 @@
 {
   "sample": "returned-ticket-link",
   "arm": "candidate",
-  "skillSha": "b36f2e914f700b59dad7e2f0ff58fc22681cf530fb375870d7f95a33d2e8c353",
+  "skillSha": "4d8858a78e7f74a37034067316192fd337f91d042b5a5e10040706a12cae0248",
   "inputSha": "5084fec3faf934e0ad8402a53da684a3ae421dfd6ee55cf9a328968704976b9c",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` shows \"page not found\" (404) instead of loading the widgets page.\n\n### Why it is broken\n\nThe part of the code that matches web addresses to pages compares them exactly and does not remove a final slash, so `/widgets/` does not match the widgets page. A local test reproduced the failure, and a follow-up check confirmed this cause.\n\n### How to fix it\n\nRemove the final slash from the address before the comparison, so `/widgets/` and `/widgets` both open the widgets page. An existing ticket already covers this problem, so no new ticket was created and the tracker was not changed. Follow-up continues on that ticket ([ticket](https://github.com/example/widgets/issues/42)).\n",
-      "words": 113,
-      "wallMs": 7376,
+      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares addresses without first removing the final slash, so `/widgets/` does not match its page. A local reproduction showed the failure, and a test confirmed this cause.\n\n### How to fix it\n\nThe fix is to remove the final slash before comparing addresses, which is expected to make `/widgets/` load. An existing ticket already tracks this problem, [widgets issue 42](https://github.com/example/widgets/issues/42). No new ticket was created, and the tracker was not changed. Follow-up on the fix continues in that ticket.\n",
+      "words": 108,
+      "wallMs": 6995,
       "mechanical": {
         "no-labels": "holds",
         "no-fence": "holds",
@@ -28,9 +28,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of a successful page response (200).\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths without removing the final slash. Local reproduction confirmed the failure, and testing supported this cause.\n\n### How to fix it\n\nRemove the final slash before comparing addresses. Follow-up stays on the [existing ticket](https://github.com/example/widgets/issues/42), which already covers this concern; no new ticket was created.\n",
-      "words": 76,
-      "wallMs": 7707,
+      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of a successful response (200). The local reproduction confirmed the failure.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths without removing the trailing slash, so `/widgets/` does not match its page. A test confirmed this cause.\n\n### How to fix it\n\nFollow-up work is tracked in the existing ticket that already covers this concern, [ticket #42](https://github.com/example/widgets/issues/42). No new ticket was created and no tracker changes were made.\n",
+      "words": 86,
+      "wallMs": 9511,
       "mechanical": {
         "no-labels": "holds",
         "no-fence": "holds",
@@ -42,9 +42,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "47977eb505406573a2ad93a64750a5091a87867f6781574ebd8961f1a0c1a2a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
+      "intentSha": "257f0adc765dbfb088786622942aaca6f0c941f18c1e9b56268cc3d439131612",
       "baselineOutputSha": "d949eac86bbfb8a74bb84bb579a9da81a7c9ceb8cd384e70ac7ecacce0acb9c1",
-      "candidateOutputSha": "f4fc73143230d99e0e3ae29b383f837410d861bff441bff3a70ee3743af3aafd",
+      "candidateOutputSha": "6f3f270aba028e0564054c077c4b47c6f24e737274419d5dc392a3aae1dd8aed",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -87,16 +87,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moved two facts to holds and lost none. plain-reader moved because Before dropped an implementation citation (`src/router.ts:88`) into a mid-sentence parenthetical alongside its proof, so it neither trailed its claim nor was needed when the reader's next action is opening the ticket; After drops that citation, explains \"404\" as \"page not found\" on first use, names the matcher by its role, states the observed-vs-expected result as proof, and places the only citation (the ticket link) at the very end of its sentence. summary-not-draft moved because Before had no sections at all, whereas After uses the fixed headings, puts the existing ticket as the next step in the third section, and ends the message there with no trailing status. Keep the current shape; the only thing to watch is that \"the tracker was not changed\" is status wording inside the third section — it is acceptable here because it precedes the ticket line and restates the returned result, but if you tighten further, keep the sentence order (fix, existing-ticket truth, link last) so the section still ends on the reference.",
-      "wallMs": 20126,
+      "feedback": "After keeps every fact Before kept and repairs the two Before failed: Before had no sections (so no third section could carry the ticket as the next step) and tucked an unexplained `404` plus a mid-sentence parenthetical citation (`src/router.ts:88`) into the mechanism claim, while After uses the fixed headings, explains 'page not found (404)' on first use, names the component by role, states the reproduction and test as visible proof, drops the implementation citation the reader does not need, and ends with the existing-ticket link trailing a complete sentence as the final section. One wording risk to watch: 'The fix is to remove the final slash before comparing addresses, which is expected to make `/widgets/` load' invents a fix scope and outcome the case never recorded (the handoff only gives the cause and the existing ticket); safer wording would open the third section with the ticket as the next step and state that the fix itself is tracked there and has not been verified, which keeps summary-not-draft and plain-reader intact while honoring the Change's rule to label untested fixes as unknown rather than supported.",
+      "wallMs": 18308,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "47977eb505406573a2ad93a64750a5091a87867f6781574ebd8961f1a0c1a2a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
+      "intentSha": "257f0adc765dbfb088786622942aaca6f0c941f18c1e9b56268cc3d439131612",
       "baselineOutputSha": "4daad13ed0ba62da34110cfb7093a5d7f812ae8b28cc24a2a3033f787136e102",
-      "candidateOutputSha": "737a6651517e0589b14c7cd2d941f79747271a1a4e092462d87795b3f1265e14",
+      "candidateOutputSha": "7ad93ce60759d6e63378402f2e907850b1acdc5488f23ff10964d3f3e9b77d4d",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -139,10 +139,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves plain-reader and summary-not-draft from fails to holds without losing anything Before kept: it adds the fixed headings, translates 404/200 into everyday words, names the router by its role (\"the part that matches web addresses to pages\"), drops the `src/router.ts:88` citation that the reader has no reason to open, states a literal fix, and ends the third section with the existing-ticket link as the next step while still saying no new ticket was created. Two small things worth tightening in the wording: the proof sentence \"testing supported this cause\" is weaker than what the case supplied — the contract's \"describe tests at the specificity the case supplies\" would allow \"a test built to disprove this cause passed\" so the proof is visible rather than summarized — and the Before's \"no tracker state changed\" was dropped; that's fine for the no-new-creation fact, but if the returned-ticket-truth rule is meant to carry the full returned result verbatim, say so explicitly in the contract so summaries keep both halves of the shape-ticket line.",
-      "wallMs": 18078,
+      "feedback": "After keeps every fact Before kept and moves plain-reader and summary-not-draft to holds: it replaces the unexplained \"falsification test\" and bare 404/200 codes with everyday phrasing on first use, names the mechanism by its role (\"the part that matches web addresses to pages\"), drops the `src/router.ts:88` citation the reader does not need to open, and ends on a third section that names the existing ticket as the next step with the actual link trailing the claim and nothing after it. Before failed those two facts because it was a single unsectioned paragraph with investigation shorthand and a file citation that served no next action. One small risk to watch in the After wording: \"A test confirmed this cause\" is slightly vaguer than the case's \"falsification test passed\"; keep the specificity the case supplies (for example, \"a test that would have failed if this were not the cause passed\") so visible proof stays as concrete as the recorded evidence without reintroducing jargon.",
+      "wallMs": 13016,
       "verdict": "improved"
     }
   },
-  "repoSha": "67594688963bced299bdf3f08c947e587c1f813a"
+  "repoSha": "b69551b3a5d95ac0da590597ae10cdf285ed88d7"
 }

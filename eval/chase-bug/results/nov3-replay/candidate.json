@@ -1,7 +1,7 @@
 {
   "sample": "nov3-replay",
   "arm": "candidate",
-  "skillSha": "c65e63037a4263c722702c734e8c08fce2da628a83a5fe6010fe8bbcb5edd9bb",
+  "skillSha": "348a4b1a4295873345d8e029b9025a0c8a89a7637fe7d1db0d98ca6e265983e2",
   "inputSha": "6c809b833ead611132c17aa65d3a02e0a9b33a0330c55b85fb2dc471b097e575",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nThe automatic build check spends its last four minutes producing nothing new.\n\n### Why it is broken\n\nThe check scans the code for rule violations. The step that writes the final summary then scans the same files again instead of reusing that list. A timing trace showed each scan taking four minutes and listing identical files. Reusing the first list removed the extra four minutes without changing the summary.\n\n### How to fix it\n\nGive the summary step the first scan's results instead of starting a second scan. This saves four minutes per run and changes only the one place that starts the second scan. Choose hotfix because the change is that small and the controlled run already showed the summary stays the same.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nA slide heading that contains the letter \"z\" spills past the edge of its card.\n\n### Why it is broken\n\nThe heading's font has no drawing for \"z\", so the browser borrows a wider font for that one letter. That widens the heading from 280 to 312 pixels on a 300-pixel card. A trial with a complete font kept the heading at 280 pixels, inside the card.\n\n### How to fix it\n\nReplace the font file with a complete version and leave the card width unchanged. The font file is kept outside this repository, so the change is small but needs its owner's cooperation. This repository's tests also cannot check the new font. Choose brainstorm because the fix depends on coordinating with that owner.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [x] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: predicate 6 - the existing test harness cannot verify the changed external font\n```\n",
-      "words": 349,
-      "wallMs": 15238,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nThe automatic build check spends its last four minutes doing no new work.\n\n### Why it is broken\n\nThe automatic check first scans the code for rule violations. The step that builds the final summary then scans the same code again to produce the same list. A timing trace showed each scan taking four minutes, with identical file lists. A run that passed the first scan's results into the summary removed the extra four minutes without changing the summary.\n\n### How to fix it\n\nPass the existing results from the rule-violation scan to the summary instead of scanning again. This should make the check finish four minutes sooner with the same summary. The change touches only the place in the code that starts the second scan. Choose hotfix because the change touches only the place in the code that starts the second scan.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nA slide heading that contains the letter \"z\" spills past the edge of its card.\n\n### Why it is broken\n\nThe heading's font has no drawing for the letter \"z\", so the browser draws that letter from a wider font. This widens the heading from 280 to 312 pixels on a 300-pixel card. A browser inspection confirmed the substitution. A trial with a font that includes every letter kept the heading at 280 pixels, inside its card.\n\n### How to fix it\n\nReplace the font file, which is kept outside this repository, with a complete version that includes \"z\". The card width stays unchanged. This should keep the heading inside its card. The fix is small but needs coordination with the asset owner. This repository's existing tests also cannot check a changed outside font. Choose brainstorm because the fix is small but needs coordination with the asset owner.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [x] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: predicate 6 - existing test harness cannot verify the changed external font\n```\n",
+      "words": 391,
+      "wallMs": 20197,
       "mechanical": {
         "section-order": "holds",
         "no-labels": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nThe automatic code check spends its final four minutes repeating work instead of producing new results.\n\n### Why it is broken\n\nThe summary builder scans the same source files for rule violations a second time. Both scans take four minutes and produce identical file lists. Passing the first scan’s results into the summary removed the extra four minutes without changing the output.\n\n### How to fix it\n\nPass the existing result list to the summary instead of starting another scan. This changes one place in the code and should eliminate the redundant four minutes. Choose hotfix because the controlled run confirmed this small change preserves the summary.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nA slide-deck heading containing “z” grows to 312 pixels and overflows its 300-pixel card.\n\n### Why it is broken\n\nThe heading font lacks the drawing for “z,” so the browser substitutes a wider font for that letter. Browser inspection confirmed the substitution. A trial with a complete font kept the heading at 280 pixels, inside the card.\n\n### How to fix it\n\nReplace the external font asset with a complete version rather than widening the card. The change is small but requires coordination with the asset owner; the repository’s existing tests cannot verify the changed external font. Choose Brainstorm now because that verification needs coordination outside this repository.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [x] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary\n```\n\nnot eligible: predicate 6 — this repository’s existing test harness cannot verify the changed external font.\n",
-      "words": 317,
-      "wallMs": 9769,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nThe automatic build check spends its last four minutes repeating work: after scanning the source tree for rule violations, it scans again to produce the same list for the final summary.\n\n### Why it is broken\n\nThe summary builder starts another scan instead of using the first scan’s results. A local timing trace recorded four minutes for each pass, with identical file lists. A controlled run that passed the first results into the summary removed the extra four minutes without changing the output.\n\n### How to fix it\n\nPass the existing result list to the summary at the one place in the code that starts this step, rather than rescanning. This is a one-call-site change, expected to eliminate the summary’s duplicate scan. Choose hotfix because this is a one-call-site change.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nA slide-deck heading containing “z” overflows its 300-pixel card, reaching 312 pixels instead of 280.\n\n### Why it is broken\n\nThe heading font lacks the drawing for “z”, so the browser substitutes a wider font for that letter. Local browser inspection confirmed the substitution. A trial with a complete font kept the heading at 280 pixels and inside the card.\n\n### How to fix it\n\nReplace the external font asset with a complete version rather than widening the card. The fix is small but needs coordination with the asset owner. This repository’s existing tests cannot verify the changed external font, so the replacement’s outcome remains unverified. Choose Brainstorm now because the fix is small but needs coordination with the asset owner.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [x] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary\n```\n\nnot eligible: predicate 6 - this repository’s existing test harness cannot verify the changed external font.\n",
+      "words": 353,
+      "wallMs": 19734,
       "mechanical": {
         "section-order": "holds",
         "no-labels": "holds"
@@ -38,12 +38,17 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "65a0d292826ae438813fb170149b7e013ed7e1922e1e52120b650390d2eadb00",
+      "factsSha": "9fbea107df0f233bff9f364bf2a41d4dc9e68e2640a6313126f322453853f60a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
+      "intentSha": "257f0adc765dbfb088786622942aaca6f0c941f18c1e9b56268cc3d439131612",
       "baselineOutputSha": "0e555ea8688bf708d7e4e9031ab126a46a0125c1d5b980fe58fe2505f2f57057",
-      "candidateOutputSha": "94689ce85d2e341db2bcfe6202e1bf2472c9a5d619c4b40a23ca86d54aa60d11",
+      "candidateOutputSha": "657e62538a14e48a63d492fac210e9ab9deb91800589b9a43346a98400c22e11",
       "facts": {
+        "claims-supported": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
         "plain-reader": {
           "before": "fails",
           "after": "holds",
@@ -85,21 +90,26 @@
           "label": "held"
         }
       },
-      "feedback": "After kept every fact Before kept and moved plain-reader from fails to holds: Before leaned on unexplained shorthand (\"CI job\", \"the lint step's results\") and never said the fix replaces the font rather than the card, while After names the lint step by its action (\"scans the code for rule violations\"), says \"automatic build check\", states \"leave the card width unchanged\", and drops the file:line citations that the reader does not need for the next pick. Section bodies stayed to one paragraph each, both reports sit well under 180 words, Context was omitted rather than padded with status like \"Nothing was blocked\", the menus and eligibility lines are unchanged, and each gate still ends at its envelope. One minor wording note: the Change asks for \"the recommended pick and one because-clause\" at the end of the third section; After's \"Choose hotfix because the change is that small and the controlled run already showed the summary stays the same\" stacks two reasons, and the second gate's \"This repository's tests also cannot check the new font\" sits in How to fix it rather than being left to the eligibility line, so tightening to a single because-clause would match the contract more exactly without risking any of the facts above.",
-      "wallMs": 22725,
+      "feedback": "After delivers the Change cleanly: both gates use the three fixed headings, each section is a single paragraph, both stay around 150 words, Context is correctly omitted, menus and eligibility lines are untouched, and the second tree walk is described as producing the summary list rather than repeating the rule-violation scan. The only fact that moved is plain-reader, from fails to holds, because After replaces the unexplained 'CI job' and 'lint step' with 'automatic build check' and 'scans the code for rule violations', explains 'drawing' for glyph, and states that the card width stays unchanged, whereas Before left those terms bare and never contrasted the font swap with the card. Two small wording points for the author: the How to fix it sections restate the same sentence twice (the one-call-site scope and the asset-owner coordination appear once as a claim and again verbatim in the because-clause), so tell the contract to let the because-clause carry that reason alone; and the proposed outcome sentences ('This should make the check finish four minutes sooner') sit beside an already-observed controlled run, which is acceptable but could be folded into the observed result to avoid a reader wondering whether the outcome was tested.",
+      "wallMs": 30627,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "65a0d292826ae438813fb170149b7e013ed7e1922e1e52120b650390d2eadb00",
+      "factsSha": "9fbea107df0f233bff9f364bf2a41d4dc9e68e2640a6313126f322453853f60a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
+      "intentSha": "257f0adc765dbfb088786622942aaca6f0c941f18c1e9b56268cc3d439131612",
       "baselineOutputSha": "3af6800cdc87f51b89acfd624b4fc9883e86e4a5b43766db937c0c72ef208b51",
-      "candidateOutputSha": "134bce8536bdd9a5faed184d03f4c0d46c8aacfb35438d6b58b343558123860e",
+      "candidateOutputSha": "f67253e0ef689a8daf96505dc779f943516c4e1fc6cf46f0c286372a7dbdda3d",
       "facts": {
-        "plain-reader": {
-          "before": "holds",
+        "claims-supported": {
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
+        },
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         },
         "under-cap": {
           "before": "holds",
@@ -137,8 +147,8 @@
           "label": "held"
         }
       },
-      "feedback": "After moves ends-at-envelope from fails to holds by dropping the trailing \"Prior-report search completed ... baseline checks were clean\" housekeeping line that Before appended after the eligibility line; everything Before kept (plain register, word cap, one-paragraph sections, intact menus, no Context pollution) is preserved, and the new What is broken / Why it is broken / How to fix it headings with a closing because-clause deliver the sectioned contract. Two small refinements would strengthen the After wording without risking any fact: the hotfix case drops the call-site citation entirely (tools/check-job.mjs:73), yet the reader's next action is to open that call site, so the contract should say 'keep a trailing citation when the recommended pick requires opening the location' rather than letting the model omit all citations; and the glyph case never states the pre-overflow width proof in What is broken (280 vs 312 is split across sections), so instruct that the measured before/after numbers accompany the claim they support. Also consider wording the eligibility line as 'all six predicates pass' so the count is visible, matching the not-eligible line's explicit predicate naming.",
-      "wallMs": 21939,
+      "feedback": "After improves on every fact Before failed and regresses none: it drops the Before claim that the summary 'repeats the rule-violation scan' in favour of 'scans again to produce the same list for the final summary', keeps the one-call-site reuse and font-not-card fix scopes as recorded, labels the hotfix's effect as 'expected' rather than observed, uses role names ('automatic build check', 'summary builder', 'drawing for z') with no citations, and stops at the eligibility line instead of appending the prior-report/baseline housekeeping that Before trailed after the menu. Two spots are worth tightening so the next sample does not slip: in Checkpoint 1 say explicitly that the second pass 'walks the same tree to list files for the summary' so no reader can mistake 'the same list' for a second rule-violation check, and in Checkpoint 2 avoid the slightly overreaching 'the replacement's outcome remains unverified' when the complete-font trial did show 280 pixels - phrase it as 'this repository's tests cannot verify the changed external asset' only. Also consider keeping the recommended pick's because-clause from merely restating the preceding sentence ('one-call-site change' appears twice); one clause tied to the eligibility result would read less redundant while still ending the third section with the pick.",
+      "wallMs": 31491,
       "verdict": "improved"
     }
   },
@@ -386,5 +396,5 @@
       }
     }
   },
-  "repoSha": "67594688963bced299bdf3f08c947e587c1f813a"
+  "repoSha": "b69551b3a5d95ac0da590597ae10cdf285ed88d7"
 }

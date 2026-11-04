@@ -1,7 +1,7 @@
 {
   "sample": "plain-reader-first-use",
   "arm": "candidate",
-  "skillSha": "c65e63037a4263c722702c734e8c08fce2da628a83a5fe6010fe8bbcb5edd9bb",
+  "skillSha": "348a4b1a4295873345d8e029b9025a0c8a89a7637fe7d1db0d98ca6e265983e2",
   "inputSha": "d04af21add62d04821048b427937cc1c90e7902d3771314f4d192899c8100131",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nEach run of the automatic check spends four extra minutes. It scans the code for rule violations a second time.\n\n### Why it is broken\n\nThe step that builds the check's summary repeats the scan instead of reusing the first scan's results. Each scan takes four minutes and produces the same list of files. In a test run, the summary step was given the first scan's file list. That run did not spend the second four minutes, and the summary did not change.\n\n### How to fix it\n\nChange the one place in the code that starts the summary step so it reuses the first scan's file list. Each run should then finish four minutes sooner with the same summary. Choose hotfix because the change touches one place, and the test run already showed the summary stays the same.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment\n\n### What is broken\n\nThe report says the chart disappears after refresh. We loaded your ten-row sample data in Chrome and Firefox using browser settings with no saved preferences, and the chart was displayed in both. Clearing the browser's stored copy of the data did not change that result.\n\n### Why it is broken\n\nWe could not reproduce the disappearance, so the cause is still unknown.\n\n### What happens next\n\nPlease tell us how many rows the failing dataset has. We need that number to continue the investigation.\n\nReply `send it` to post this comment.\n\n---\n\ngauntlet: done summary\n\n### What is broken\n\nNothing is broken. Opening `/widgets/` shows page not found (404), and opening `/widgets` opens the page.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares them exactly. The documented rules for page addresses do not accept a final slash, so `/widgets/` does not match ([documented rules for page addresses](https://example.org/docs/widget-addresses)).\n\n### What happens next\n\nThe correct address is `/widgets` without the final slash. No fix or ticket is needed.\n",
-      "words": 355,
-      "wallMs": 19805,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nThe automatic check scans the code for rule violations, then runs the same scan again. This adds four wasted minutes to every run.\n\n### Why it is broken\n\nThe part that builds the check's summary starts a fresh scan instead of using the list the first scan already produced. Both scans take four minutes and return identical file lists. A test passed the first scan's list to the summary. That removed the second four minutes, and the summary stayed the same.\n\n### How to fix it\n\nChange one place in the code so the summary reuses the first scan's list. This should save four minutes per run with the same summary. Choose hotfix because the fix changes one place in the code.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nThis draft will post as a comment on the GitHub issue.\n\n### What is broken\n\nThe report says the chart disappears after refresh. With your sample data of ten rows, the chart stayed visible after refresh.\n\n### Why it is broken\n\nThe chart rendered in Chrome and Firefox using browser settings with no saved preferences. Clearing the browser's stored copy of the data did not change that. The cause is unknown.\n\n### What happens next\n\nPlease tell us how many rows the failing dataset has. We could not reproduce the problem with ten rows and need that number to continue.\n\nReply `send it` to post this comment.\n\n---\n\ngauntlet: done summary\n\n### What is broken\n\nNothing is broken. Opening `/widgets/` shows page not found (404), and opening `/widgets` opens the page as documented.\n\n### Why it is broken\n\nThe part that matches web addresses to pages accepts only exact matches. So `/widgets` opens the page and `/widgets/` shows page not found. The documented rules for page addresses do not accept a final slash, [page-address rules](https://example.org/docs/widget-addresses).\n\n### What happens next\n\nThe correct address is `/widgets`, without the final slash. No fix or ticket is needed.\n",
+      "words": 352,
+      "wallMs": 21659,
       "mechanical": {
         "no-labels": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nThe automatic code check wastes four minutes repeating a scan of the source tree for rule violations.\n\n### Why it is broken\n\nThe summary builder scans the source again instead of using the existing results. Both scans take four minutes and produce identical file lists. Passing the original list to the summary removed the second four minutes without changing its output.\n\n### How to fix it\n\nChange the one place that starts the summary step to pass the existing file list instead of scanning again. This removes the duplicate scan without changing the summary. Choose hotfix because the tested change is limited to that one place.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment\n\n### What is broken\n\nThe report says the chart disappears after refresh, but the supplied ten rows of sample data render the chart in both Chrome and Firefox.\n\n### Why it is broken\n\nThe attempts with browser settings containing no saved preferences did not reproduce the missing chart. Clearing the browser’s stored copy of the data did not change the result. The cause remains unknown; the number of rows in the failing dataset is missing and needed to continue.\n\n### What happens next\n\nPlease provide the number of rows in the dataset where the chart disappears after refresh so the investigation can continue.\n\nReply `send it` to post this draft.\n\n---\n\ngauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404), while opening `/widgets` displays the page.\n\n### Why it is broken\n\nNothing is broken: the part that matches web addresses to pages compares addresses exactly and follows the documented rule that trailing slashes are not accepted.\n\n### What happens next\n\nThe correct address is `/widgets`, without the final slash, as required by the documented rules for page addresses ([documentation](https://example.org/docs/widget-addresses)). No fix or ticket is needed.\n",
-      "words": 336,
-      "wallMs": 14850,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nThe automatic check wastes four minutes repeating a source-tree scan for rule violations to build its summary.\n\n### Why it is broken\n\nThe summary builder rescans instead of using the original scan’s results. Both scans take four minutes and produce identical file lists. A test passing the original list to the summary removed the second four minutes without changing the output.\n\n### How to fix it\n\nReuse the existing list where the code starts summary building, removing the redundant scan. The fix changes one place in the code. Choose hotfix because the fix changes one place in the code.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment\n\n### What is broken\n\nThe report says the chart disappears after refresh, but the supplied ten-row sample data renders the chart in Chrome and Firefox.\n\n### Why it is broken\n\nThe reproduction attempts used browser settings with no saved preferences. Clearing the browser’s stored copy of the data did not change the outcome. These attempts did not reproduce the disappearance; the cause remains unknown.\n\n### What happens next\n\nPlease provide the number of rows in the failing dataset so the investigation can continue with its size identified.\n\nReply with the exact text `send it` to post this draft.\n\n---\n\ngauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404), while `/widgets` opens the page. Nothing is broken under the documented address rule.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares them exactly, accepting `/widgets` but not `/widgets/`. The documented rule excludes final slashes, [page-address rules](https://example.org/docs/widget-addresses).\n\n### What happens next\n\nUse `/widgets` without the final slash. No fix or ticket is needed.\n",
+      "words": 310,
+      "wallMs": 16413,
       "mechanical": {
         "no-labels": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4ab9de7c939a0fad84f196b21e41f5ae6d79526e89d7f3d515bb373a5619de1a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
+      "intentSha": "257f0adc765dbfb088786622942aaca6f0c941f18c1e9b56268cc3d439131612",
       "baselineOutputSha": "de39b2349f1710e8405b44f95bf0fdac7c584a9b220d27e23e544f88497eb0c3",
-      "candidateOutputSha": "0b384959365bbbe64efcf6d2000dc79b47214d51f027e730a415cd9487d26758",
+      "candidateOutputSha": "f9a239a791be1e9f2b1446f4cdf068ad771de9c6f3287c7959d0c216e6c4d312",
       "facts": {
         "first-use": {
           "before": "fails",
@@ -58,14 +58,14 @@
           "label": "held"
         },
         "supported-story": {
-          "before": "fails",
-          "after": "holds",
-          "label": "unplanned improvement"
-        },
-        "context-earns-place": {
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "context-earns-place": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         },
         "surface-shape": {
           "before": "fails",
@@ -78,16 +78,16 @@
           "label": "held"
         }
       },
-      "feedback": "After moved every targeted fact in the right direction: the gate now reads as 'automatic check', 'scans the code for rule violations', 'one place in the code' and 'test run' instead of CI, lint, call site and falsification test; the reporter draft replaces fixture, clean profiles and cache with sample data, settings with no saved preferences and the browser's stored copy; the summary explains the address matcher and the documented rules and glosses 404 as page not found before the number appears. The implementation paths (tools/check-job.mjs:73, src/router.ts:88) are gone and the one surviving link trails its claim, so citations holds. The draft also now says the cause is unknown in so many words, which Before only implied with 'cannot replicate'; keep that explicit sentence. Headings, menu placement, confirmation outside the draft and the heading-only summary all match the contract and each body stays well under 180 words. Nothing regressed; the only residual wording to watch is 'Choose hotfix because…' in the gate's third section, which leans on a menu term the nontechnical reader meets only in the menu—'Choose the quick fix now because…' would keep the because-clause while staying in plain register.",
-      "wallMs": 21828,
+      "feedback": "After moves first-use, citations, context-earns-place and surface-shape to holds without losing anything Before kept: the CI/lint/fixture/clean-profile/cache/router/API terms are replaced with everyday descriptions, 404 is tied to 'page not found', the two implementation paths are dropped and the one docs link lands after its complete claim, the housekeeping bullets (prior-report search, tracked-file checks) that acted as context in Before are gone, and all three reports use the fixed headings with menu/confirmation outside the body. Two small risks to watch: the gate's because-clause uses 'hotfix' unexplained (not on the fact's term list, but 'Choose the small targeted fix (hotfix) because...' would be safer), and Checkpoint 2's draft opens with 'The report says...' addressed to the reporter, which reads slightly oddly in second person; 'You reported that the chart disappears after refresh' keeps it standalone and plain. Before's Checkpoint 2 only implied an unknown cause via 'cannot replicate this yet'; After's explicit 'The cause is unknown' is the clearer satisfaction of supported-story and should be kept.",
+      "wallMs": 26657,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4ab9de7c939a0fad84f196b21e41f5ae6d79526e89d7f3d515bb373a5619de1a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
+      "intentSha": "257f0adc765dbfb088786622942aaca6f0c941f18c1e9b56268cc3d439131612",
       "baselineOutputSha": "fdb7626fc338c244ed80f3e1c28538cd61c1b907e4d6e5fddd038f42980376de",
-      "candidateOutputSha": "49d2bce10aaa7a5bd2e7b29244156871e296d71445cb1d3e9127e43ee3b95fa0",
+      "candidateOutputSha": "da56e5c39955a346c7f1f65ea5bca3fabc8acdd9f9febb08847acd4424f42d00",
       "facts": {
         "first-use": {
           "before": "fails",
@@ -125,10 +125,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: every checkpoint now uses the fixed headings, the gate ends its third section with the pick and a because-clause, the draft keeps its confirmation outside the body, and the summary ends on its last section with no menu. The jargon that sank Before (CI, lint, call site, clean profiles, cache, router, bare 404, API) is replaced with everyday descriptions, and the two implementation citations (tools/check-job.mjs:73, src/router.ts:88) are dropped while the documentation link survives at the end of the usage sentence, which is exactly what the citations fact wants. Both outputs correctly omit Context, so context-earns-place holds throughout. Two small things to watch in future wording: 'hotfix' appears in the gate's because-clause without a gloss (not on the listed term set, so it passes here, but 'small targeted fix' would be safer), and 'Nothing is broken' under a heading titled 'What is broken' reads slightly oddly in the not-a-bug summary—consider letting the skill phrase that section as the observed behaviour first and the 'nothing is broken' verdict second, as After already does, so the heading contract stays intact.",
-      "wallMs": 18224,
+      "feedback": "After delivers the Change without losing anything Before kept: the sectioned headings appear in all three reports, the unneeded `tools/check-job.mjs:73` and `src/router.ts:88` paths are gone, the one surviving link trails its claim, and every investigation term (CI, lint, call site, clean profile, cache, router, 404) is replaced with an everyday description, while bodies stay unfenced, Context is omitted, and the stories match the supplied facts. Two wording tightenings would make the result more robust under the same facts: in Checkpoint 1 the third section repeats itself ('The fix changes one place in the code. Choose hotfix because the fix changes one place in the code.') — fold that into a single closing sentence whose because-clause cites the recorded evidence, e.g. 'Choose the hotfix because the fix changes one place in the code and every safety check passed'; and in Checkpoint 3 end the complete claim before the label rather than splicing it with a comma ('The documented rule excludes final slashes. [Page-address rules](...)'), so the trailing-citation rule reads unambiguously. Consider also rendering 'hotfix' in the recommendation sentence as 'the small direct fix' to keep the recommendation reason free of menu shorthand.",
+      "wallMs": 20861,
       "verdict": "improved"
     }
   },
-  "repoSha": "67594688963bced299bdf3f08c947e587c1f813a"
+  "repoSha": "b69551b3a5d95ac0da590597ae10cdf285ed88d7"
 }
