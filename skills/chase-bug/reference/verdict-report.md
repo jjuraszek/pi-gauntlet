@@ -146,7 +146,7 @@ Pick one:
 ```text
 1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.
 2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
-3. [x] Implement hotfix now - follow hotfix.md; add "as a PR" for a PR. [recommended]
+3. [x] Implement hotfix now - follow ../hotfix.md; add "as a PR" for a PR. [recommended]
 4. [ ] Respond to reporter only.
 
 eligible - all predicates pass
