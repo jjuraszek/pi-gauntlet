@@ -97,12 +97,13 @@ const qualifiesAsClosureDispatch = (details: unknown): boolean => {
 // One conformance fix round = one non-error subagent result carrying at least one
 // implementer child, regardless of dispatch mode or per-child exit code (a failed
 // implementer still spent the round; its retry is the next one). Async and
-// management dispatches return results: [] and never count.
-const isImplementerWave = (details: unknown, isError: boolean | undefined): boolean => {
+// management dispatches return results: [] and never count. Only fix-round
+// accounting includes loop workers; the open-task nudge stays implementer-only.
+const isImplementerWave = (details: unknown, isError: boolean | undefined, includeLoop = false): boolean => {
   if (isError === true) return false;
   const d = details as { results?: { agent?: unknown }[] } | undefined;
   if (!d || !Array.isArray(d.results) || d.results.length === 0) return false;
-  return d.results.some((r) => r?.agent === "implementer");
+  return d.results.some((r) => r?.agent === "implementer" || (includeLoop && r?.agent === "loop-implementer"));
 };
 
 type Task = { name: string; status: string };
@@ -236,8 +237,8 @@ const conformanceModels = (input: unknown): (string | undefined)[] =>
 // Conformance fix-loop dispatch guard (spec 2026-09-13-conformance-dispatch-guard):
 // after the first audit, pi-cohort honours worktree: true only in tasks mode, so a
 // lone implementer runs unisolated and yields no patch for the integrate step.
-const loneImplementerBlockReason =
-  'Conformance fix loop: dispatch implementers as a one-task tasks wave (tasks: [{ agent: "implementer", worktree: true, ... }]); ' +
+const loneImplementerBlockReason = (agent: string) =>
+  `Conformance fix loop: dispatch implementers as a one-task tasks wave (tasks: [{ agent: "${agent}", worktree: true, ... }]); ` +
   "a lone agent call runs unisolated and produces no worktree diff. " +
   "To disable this gate, set piGauntlet.closureReview.enforce: false.";
 
@@ -463,7 +464,7 @@ export default function (pi: ExtensionAPI) {
       gauntletEntered &&
       phases.verify.status === "in_progress" &&
       conformanceDispatched &&
-      isImplementerWave(details, isError) &&
+      isImplementerWave(details, isError, true) &&
       resolveClosureReview(loadGauntletSettings(ctx.cwd).gauntlet).enforce
     ) {
       if (fixRoundCredits > 0) fixRoundCredits -= 1;
@@ -685,10 +686,12 @@ export default function (pi: ExtensionAPI) {
       // Fix-loop window: verify in progress and the R0 audit observed. Read directly,
       // not via activeGuardPhase() - verify is not a GUARD_PHASES member.
       const fixLoopWindow = !isSubagentChild && !hasAction && phases.verify.status === "in_progress" && conformanceDispatched;
-      if (fixLoopWindow && (event.input as { agent?: unknown })?.agent === "implementer") {
-        return { block: true, reason: loneImplementerBlockReason };
+      const fixAgents = ["implementer", "loop-implementer"];
+      const singleAgent = (event.input as { agent?: unknown })?.agent;
+      if (fixLoopWindow && typeof singleAgent === "string" && fixAgents.includes(singleAgent)) {
+        return { block: true, reason: loneImplementerBlockReason(singleAgent) };
       }
-      if (fixLoopWindow && collectAgents(event.input, "implementer").length > 0) {
+      if (fixLoopWindow && fixAgents.some((agent) => collectAgents(event.input, agent).length > 0)) {
         const cap = resolveClosureReview(g()).maxFixRounds;
         if (fixRounds >= cap) {
           const funded = fixRoundCredits > 0 && (event.input as { async?: unknown })?.async !== true;

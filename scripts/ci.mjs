@@ -492,7 +492,7 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/gatekeep-fix-loop-contract.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
   ok("happy-path and wave-review shell fixtures, PR comment, brainstorming source and eval lib contracts pass");
 } catch (e) {
   fail(`happy-path, wave-review, PR comment, brainstorming or eval lib regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
@@ -653,9 +653,9 @@ try {
       // Bundle-local reference integrity: every .md path a bundled file mentions
       // must resolve against that file's own directory. Exempt consumer-repo
       // placeholders and references immediately following a <...>/ placeholder;
-      // exempt temp artifacts audit.md and snapshot.md only as bare names.
+      // exempt temp artifacts audit.md, snapshot.md, spec.md and ledger.md only as bare names.
       const refExcludedBasenames = new Set(["REVIEW.md", "AGENTS.md", "CLAUDE.md", "SKILL.md", "gauntlet-overrides.md", "linear.md"]);
-      const tempArtifactNames = new Set(["audit.md", "snapshot.md"]);
+      const tempArtifactNames = new Set(["audit.md", "snapshot.md", "spec.md", "ledger.md"]);
       const brokenRefs = [];
       for (const dir of skillDirs) {
         for (const file of walk(dir).filter((f) => f.endsWith(".md"))) {

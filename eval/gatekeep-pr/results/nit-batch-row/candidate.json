@@ -1,0 +1,140 @@
+{
+  "sample": "nit-batch-row",
+  "arm": "candidate",
+  "skillSha": "67d6b9dbc3dff6c1d49e5d55e54b92b07791949633e8dce3fe4f147ebaf98b33",
+  "inputSha": "8e07705415b23eb834e98d7fea779260dd726c7a0cfba57cff0b0d79fbfad21c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narration: gatekeep-pr PR 82, deliver-with-nits entry and terminal nit checkpoint\n\n## Part 1 - deliver with nits (`/tmp/gatekeep-82.record`)\n\n**Tracker.** It was already initialized at the start of the invocation, and nothing is re-initialized now. The `menu` stage closes `complete` on the pick. The re-opened work runs under the loop. The plan_tracker first task already names `state: /tmp/gatekeep-82.record`.\n\n**Assessed SHA.** Verification and the brief both assess `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n\n**1. Record the selection.** The pick was numeric, so I normalize it to the `deliver-nits` row. I validate `/tmp/gatekeep-82.record`:\n- `consent.target` reads `orchard/widgets`, 82, `main`.\n- It matches the live target.\n\n**2. Boundary read.** I run `gh pr view 82 -R orchard/widgets --json headRefOid,state,body,baseRefName`. The results are:\n- The head is still `aaaa…`.\n- The state is OPEN.\n- The body is unchanged.\n- The base is `main`.\n\n**3. Course and accounting.** I resolve `gauntlet_setting({ key: \"closureReview\" })`, which gives maxFixRounds 5. I persist these values to the record before any course-authorized write:\n- `course: deliver-nits`\n- `repair.rounds_cap: 10`\n- `repair.syncs_cap: 10`\n- `repair.rounds_used: 0`\n- `repair.syncs_used: 0`\n- `repair.poll_deadline: null`\n\n**4. Exit check.** No exit fires:\n- Readiness fails because blockers P1/L2, P2 and P3 are open.\n- No obstacle row matches.\n- Neither cap is reached.\n\nI continue the D3 body at step 1.\n\n**5. Fix wave preconditions (`fix-wave.md` `## Sync`).**\n- I run `git -C /work/widgets-pr-82 rev-parse HEAD`, which returns `aaaa…`.\n- I persist `repair.wave.pre_wave_head: aaaa…`, `repair.wave.pushed_head: aaaa…` and `repair.wave.sync: null`. No sync is needed.\n- I run `git -C /work/widgets-pr-82 fetch origin main`.\n- I run `git -C /work/widgets-pr-82 merge-tree --write-tree origin/main HEAD`. It exits 0: conflict-free, no sync trigger, and `syncs_used` stays 0.\n\n**6. Wave checkpoint.** I persist the following:\n- `repair.wave.round_start_head: aaaa…`\n- `counted: false`\n- `stage: apply`\n- `selected_ids: [P1, L2, P2, N1, N2, P3]`\n- `selected_payloads` holds a snapshot of each existing payload.\n- `affected_claims` holds the claim behind P3.\n\n**7. Resolver reads.**\n- `gauntlet_setting({ key: \"loopEngine\" })` gives maxIterationsPerRow 6 and escalateAfter 2.\n- `gauntlet_setting({ key: \"escalationLoop\" })` confirms implModel resolves.\n- `git -C /work/widgets-pr-82 merge-base origin/main aaaa…` gives `bbbb…`.\n\n**8. Scoped runners.** I read them from MB copies: `git show \"bbbb…:AGENTS.md\"` and the MB overrides file.\n- AGENTS.md labels two runners as scoped: `cd core && node --test <files>` and `cd cli && node --test <files>`.\n- Paths are made relative to each runner's directory and inserted bare, because they contain only safe characters.\n- These commands are never `npm test`.\n\n**9. Write the finding artifacts.** I write the two files beside the record, outside the checkout.\n\n`/tmp/gatekeep-82.record-spec.md`:\n\n```markdown\n# Findings spec - gatekeep-pr orchard/widgets#82\n\n## Scope\nTitle: Bound retries\nBody: Stop retries at the configured budget and report the last failure.\noriginal_intent: { title: \"Bound retries\", body: \"Stop retries at the configured budget and report the last failure.\" }\nAuthoritative scope contract: doc/specs/retry-budget.md at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n\n## Acceptance criteria\n- [ ] P1, L2: retries never terminate because attempts never decrement (core/retry.mjs:9); failing test core/test/retry.test.mjs expects termination at zero\n- [ ] P2: the final error is lost from the report (cli/report.mjs:12); failing test cli/test/report.test.mjs expects the last error in output\n- [ ] fix nits: N1: rename the counter (core/retry.mjs:8); N2: remove the duplicate label (cli/report.mjs:11)\n```\n\n`/tmp/gatekeep-82.record-ledger.md`:\n\n```markdown\n# Ledger - loop engine\n**Spec:** `/tmp/gatekeep-82.record-spec.md`\nbase: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nverification: npm test\nchecks: commands\niterations: 0\nallowance: 6\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | |\n| 2 | open | 0 | |\n| 3 | open | 0 | |\n\n## Leg mapping\n\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | gatekeep |\n| 2 | 2 | gatekeep |\n| 3 | 3 | gatekeep |\n\n## Decisions\n```\n\n**10. Record locators.** I persist the following and validate that both files parse:\n- `repair.wave.spec: /tmp/gatekeep-82.record-spec.md`\n- `repair.wave.ledger: /tmp/gatekeep-82.record-ledger.md`\n\n**11. Row tasks prepared (not dispatched).** Each row goes to `loop-implementer` with `cwd /work/widgets-pr-82`, fresh context and synchronous dispatch.\n- Each task carries:\n  - the shared worker context, including the HEAD check against `aaaa…`;\n  - the scope baseline;\n  - the smallest in-repo fix rule;\n  - the pi tail: commit contract, `needs`/`contract exception` slots, and never recording `npm test`;\n  - `Rules:` with the repo-relative `AGENTS.md` and overrides paths.\n- Escalation threshold is min(2, 6−1) = 2. With attempts at 0, no model is set.\n- Scoped commands per row:\n\n| Row | SCOPED_TEST_COMMANDS |\n|---|---|\n| 1 | `cd core && node --test test/retry.test.mjs` |\n| 2 | `cd cli && node --test test/report.test.mjs` |\n| 3 (nit batch) | `cd core && node --test test/retry.test.mjs`<br>`cd cli && node --test test/report.test.mjs` |\n\nRow 3 is the union of both nit payloads' runners, each with its `cd` prefix kept. Before row 1 dispatches I will write `iterations: 1` and `pending: 1 | gatekeep | aaaa…`. **I stop here.**\n\n**P3 (description target).** P3 never becomes an AC or a ledger row. It routes through `### Description repair`. I hold its exact old-to-new draft under the course. Later, the orchestrator itself will:\n1. re-fetch head and body, and compare them with the proposal's `assessed_head` and `original_body`;\n2. run `gh pr edit 82 --body-file <tmp>` scoped to orchard/widgets, before the mixed wave's push;\n3. read back the body, then run a fresh Section B `description recheck` worker that closes only the claim contribution.\n\nIt charges no round. Nothing is written yet.\n\n**C1.** The course does not authorize replies. C1's drafted reply stays unposted until an explicit `reply 1` or terminal reply pick.\n\n**Rendered output at this stop.**\n- No sync line renders, because `--rebase` was not passed.\n- No verdict line and no menu render. Under the course, no menu renders before an exit condition.\n\n## Part 2 - independent terminal checkpoint (`/tmp/gatekeep-82-terminal.record`)\n\nThis is a final menu with the course unset and no blockers remaining. The human picked `fix nits` for N1 and N2. That authorizes exactly one D3 iteration and never sets a standing `deliver-nits` course.\n\n**1. Validate and read.** I validate the record's `consent.target` as `orchard/widgets`, 82, `main`. I run `gh pr view 82 -R orchard/widgets --json headRefOid,state,body,baseRefName`; the head is `aaaa…`, the state OPEN, the body unchanged.\n\n**2. Persist the selection before the entry Exit check.**\n- `repair.wave.action: fix-nits`\n- `selected_ids: [N1, N2]`\n- `selected_payloads`: the N1/N2 payload snapshots\n- `course` stays `null`.\n- Missing accounting is initialized from the defaults (maxFixRounds 5): `rounds_cap: 10`, `syncs_cap: 10`, `rounds_used: 0`, `syncs_used: 0`.\n\n**3. Exit check.** Readiness is held, because the terminal fix-nits selection is outstanding. No obstacle and no cap applies.\n\n**4. Wave preconditions.** I run the same commands as in Part 1:\n- `rev-parse` gives `aaaa…`; I persist `pre_wave_head` and `pushed_head` as `aaaa…`.\n- `fetch origin main`, then `merge-tree --write-tree origin/main HEAD` exits 0, so there is no sync.\n- I persist `round_start_head: aaaa…`, `counted: false`, `stage: apply`.\n- Resolver reads give allowance 6, escalateAfter 2, implModel resolves; MB is `bbbb…`.\n\n**5. Write the finding artifacts.** There is exactly one batch row.\n\n`/tmp/gatekeep-82-terminal.record-spec.md`:\n\n```markdown\n# Findings spec - gatekeep-pr orchard/widgets#82\n\n## Scope\nTitle: Bound retries\nBody: Stop retries at the configured budget and report the last failure.\noriginal_intent: { title: \"Bound retries\", body: \"Stop retries at the configured budget and report the last failure.\" }\nAuthoritative scope contract: doc/specs/retry-budget.md at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n\n## Acceptance criteria\n- [ ] fix nits: N1: rename the counter (core/retry.mjs:8); N2: remove the duplicate label (cli/report.mjs:11)\n```\n\n`/tmp/gatekeep-82-terminal.record-ledger.md`:\n\n```markdown\n# Ledger - loop engine\n**Spec:** `/tmp/gatekeep-82-terminal.record-spec.md`\nbase: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nverification: npm test\nchecks: commands\niterations: 0\nallowance: 6\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | |\n\n## Leg mapping\n\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | gatekeep |\n\n## Decisions\n```\n\n**6. Record locators.** I persist `repair.wave.spec` and `repair.wave.ledger` with these two paths.\n\n**7. Row 1 task prepared.** It goes to `loop-implementer` with `cwd /work/widgets-pr-82`, fresh context and synchronous dispatch, with no model set. The scoped commands are:\n\n```text\ncd core && node --test test/retry.test.mjs\ncd cli && node --test test/report.test.mjs\n```\n\n**I stop before dispatch.** After that single iteration, which includes review, push, watch and re-review, the selection releases and the run returns to final or to an obstacle/cap. Later nits stay outside this selection.\n\n**Rendered output at this stop.** No sync line, verdict line or menu renders.\n",
+      "words": 1209,
+      "wallMs": 50254,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Selected delivery course\n\nThis entry resumes after the human selected deliver with nits. I do not initialize another tracker or reset the continuation record. The original invocation's initial stages were `gather`, `provision`, and `verify`; `82` has no `--rebase`, so there was no `sync` stage. I add `loop` when delivery starts.\n\nThe assessed head remains `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. No new verification or review runs before this checkpoint.\n\n### Commands and record updates, in order\n\n1. Read and validate `/tmp/gatekeep-82.record`, including its target identity and existing evidence, drafts, and scope baseline. No finding-artifact locators exist yet, so this is their initial creation, not recovery.\n\n2. Persist the direct human selection as `course: deliver-nits`. This authorizes blocker repairs and all current and subsequently discovered nits, but not merge, approval, comment replies, or coverage posts.\n\n3. Resolve settings, in order:\n   - `gauntlet_setting({ key: \"closureReview\" })`\n   - `gauntlet_setting({ key: \"loopEngine\" })`\n   - `gauntlet_setting({ key: \"escalationLoop\" })`\n\n   Retain `maxFixRounds: 5`, `maxIterationsPerRow: 6`, `escalateAfter: 2`, and the resolved `implModel`. Initialize both wave caps to 10, with usage still zero.\n\n4. Inspect the worktree and establish the wave boundary:\n\n   ```bash\n   git -C /work/widgets-pr-82 status --porcelain\n   git -C /work/widgets-pr-82 rev-parse HEAD\n   ```\n\n   The tree is clean and HEAD is `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. Persist `pre_wave_head` and `round_start_head` at that SHA, with `counted: false` and `stage: apply`.\n\n5. Fetch the base and check for local merge conflicts:\n\n   ```bash\n   git -C /work/widgets-pr-82 fetch origin main\n   git -C /work/widgets-pr-82 merge-tree --write-tree origin/main HEAD\n   ```\n\n   The check succeeds. There is no sync trigger, so I perform no merge, rebase, or sync-helper dispatch and spend no sync allowance.\n\n6. Establish the trusted configuration base and read the documented scoped runners:\n\n   ```bash\n   git -C /work/widgets-pr-82 merge-base origin/main aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n   git -C /work/widgets-pr-82 show bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:AGENTS.md\n   ```\n\n   The already-resolved merge-base configuration supplies no other scoped runner. I retain `npm test` as the ledger's verification command; I do not pass it as a worker's scoped command.\n\n### Derived spec\n\nI write `/tmp/gatekeep-82.record-spec.md`:\n\n```markdown\n# Findings spec - gatekeep-pr orchard/widgets#82\n\n## Scope\nBound retries\n\nStop retries at the configured budget and report the last failure.\n\nscope.original_intent:\ntitle: Bound retries\nbody: Stop retries at the configured budget and report the last failure.\n\nAuthoritative scope contract at assessed head\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:\ndoc/specs/retry-budget.md\n\nThe original spec governs scope. The acceptance criteria below are repair\nwork items and do not replace that contract.\n\n## Acceptance criteria\n- [ ] P1/L2: Retries do not terminate because attempts never decrement. This violates the configured retry budget. (core/retry.mjs:9; core/test/retry.test.mjs, termination at zero)\n- [ ] P2: The report loses the final error. This prevents output from reporting the last failure. (cli/report.mjs:12; cli/test/report.test.mjs, last error in output)\n- [ ] fix nits: N1: Rename the counter. (core/retry.mjs:8; scoped test core/test/retry.test.mjs); N2: Remove the duplicate label. (cli/report.mjs:11; scoped test cli/test/report.test.mjs)\n```\n\n`P1` and `L2` remain contributors to one defect and therefore one AC. The nits form one final batch AC, not two rows. The finding evidence packs and concrete draft edits remain available to the eventual worker; the worker chooses a scope-preserving fix rather than treating the draft as a mandatory solution.\n\n### Companion ledger\n\nI write `/tmp/gatekeep-82.record-ledger.md`:\n\n```markdown\n# Ledger - loop engine\n**Spec:** `/tmp/gatekeep-82.record-spec.md`\nbase: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nverification: npm test\nchecks: commands\niterations: 0\nallowance: 6\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | |\n| 2 | open | 0 | |\n| 3 | open | 0 | |\n\n## Leg mapping\n\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | gatekeep |\n| 2 | 2 | gatekeep |\n| 3 | 3 | gatekeep |\n\n## Decisions\n```\n\nThe row commands, kept in worker-task context rather than ledger columns, are:\n\n| Row | Selected work | `SCOPED_TEST_COMMANDS` |\n|---|---|---|\n| 1 | P1/L2 | `cd core && node --test test/retry.test.mjs` |\n| 2 | P2 | `cd cli && node --test test/report.test.mjs` |\n| 3 | N1 and N2 | Both commands below |\n\nThe nit batch receives this union, preserving both working-directory prefixes:\n\n```bash\ncd core && node --test test/retry.test.mjs\ncd cli && node --test test/report.test.mjs\n```\n\nI persist these absolute locators in `/tmp/gatekeep-82.record`:\n\n```text\nrepair.wave.spec: /tmp/gatekeep-82.record-spec.md\nrepair.wave.ledger: /tmp/gatekeep-82.record-ledger.md\n```\n\nThe record retains the scope baseline, contributor identities, payload snapshots, resolved row-budget settings, zero usage, and the per-pass checkpoint. `repair.poll_deadline` remains null. Neither ledger `iterations` nor row `attempts` advances, and no `pending:` tuple is written before this stop.\n\n### Description and reply handling\n\nP3 remains a description-target payload under its existing identity. It creates no derived AC or ledger row. The delivery course authorizes its repair, but this checkpoint stops before fetching for a write or editing the body. Application requires fresh head/body checks, preservation of unrelated text, readback, and a fresh description-recheck helper before closing only the claim contribution.\n\nC1 remains an unposted drafted reply. Deliver with nits does not authorize replies; it requires its own explicit selection.\n\nNo helper has been dispatched. The eventual file workers use persona `loop-implementer`, fresh sequential contexts, and cwd `/work/widgets-pr-82`; no seed worker runs. Their tasks carry the stored scope contract, mapped AC and contributor IDs, exact scoped commands, smallest-in-repo-fix restrictions, and Companion result commit contract.\n\n**Stop here, before dispatch, review, push, or external write.** No report, sync line, verdict, or menu renders at this entry checkpoint.\n\n## Independent terminal fix-nits checkpoint\n\nThis is a separate run using `/tmp/gatekeep-82-terminal.record`. Its course remains null. The final numeric pick authorizes exactly one complete nit iteration for N1 and N2; it does not establish a standing nit course.\n\nI validate that fresh record and persist, before work:\n\n```text\ncourse: null\nrepair.wave.action: fix-nits\nrepair.wave.selected_ids: [N1, N2]\nrepair.wave.selected_payloads: <existing exact N1 and N2 payload snapshots>\n```\n\nI resolve the same three settings, initialize missing caps to 10 each and usage to zero, then run the same clean-tree, HEAD, base-fetch, merge-tree, merge-base, and merge-base `AGENTS.md` reads listed above. HEAD remains `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; there is no sync trigger.\n\nI establish the same uncounted apply checkpoint. I write `/tmp/gatekeep-82-terminal.record-spec.md`:\n\n```markdown\n# Findings spec - gatekeep-pr orchard/widgets#82\n\n## Scope\nBound retries\n\nStop retries at the configured budget and report the last failure.\n\nscope.original_intent:\ntitle: Bound retries\nbody: Stop retries at the configured budget and report the last failure.\n\nAuthoritative scope contract at assessed head\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:\ndoc/specs/retry-budget.md\n\n## Acceptance criteria\n- [ ] fix nits: N1: Rename the counter. (core/retry.mjs:8; scoped test core/test/retry.test.mjs); N2: Remove the duplicate label. (cli/report.mjs:11; scoped test cli/test/report.test.mjs)\n```\n\nI write `/tmp/gatekeep-82-terminal.record-ledger.md`:\n\n```markdown\n# Ledger - loop engine\n**Spec:** `/tmp/gatekeep-82-terminal.record-spec.md`\nbase: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nverification: npm test\nchecks: commands\niterations: 0\nallowance: 6\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | |\n\n## Leg mapping\n\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | gatekeep |\n\n## Decisions\n```\n\nThe single selected row receives:\n\n```bash\ncd core && node --test test/retry.test.mjs\ncd cli && node --test test/report.test.mjs\n```\n\nI persist in `/tmp/gatekeep-82-terminal.record`:\n\n```text\nrepair.wave.spec: /tmp/gatekeep-82-terminal.record-spec.md\nrepair.wave.ledger: /tmp/gatekeep-82-terminal.record-ledger.md\n```\n\nThere is exactly one AC and one row for both nits. The one-shot action and selected payload snapshots remain held through the eventual iteration and reconciliation; later independent nits do not join this selection.\n\n**Stop before dispatch.** No helper, staging, commit, review, push, external write, or new menu occurs.\n",
+      "words": 1070,
+      "wallMs": 59067,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4539e463dde3de15569322ebb5e5c0d0cb57fb9a6a87186c80a5d00d8e9f56d5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b6ac0062015dc3f7364446972806f7dc418b2f3b1805d379bb35882a555baf72",
+      "baselineOutputSha": "3673ab5613fb867fe1406faf893501a36a47c386d93a98269a5effed5f093765",
+      "candidateOutputSha": "2ed4bba1a1d6d6098ec9bc7e87f403fae2123a62a2a308155e4bb7d28d569d4b",
+      "facts": {
+        "n1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "n7": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n8": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing regressed: After keeps every fact Before kept (n6 P3/C1 handling and n8 stop-before-dispatch) and additionally satisfies n1-n5 and n7, which Before failed outright by declaring that gatekeep-pr has no derived spec or companion ledger and by splitting N1 and N2 into separate wave rows. After's wording that does the work is concrete: it emits the spec with the Scope block (title, body, original_intent, authoritative spec path at the assessed head), three ACs with P1+L2 merged and N1+N2 batched, the ledger header (spec locator, base bbbb…, verification npm test, checks commands, iterations 0, allowance 6), three open rows at attempts 0 with empty evidence, same-numbered gatekeep leg mapping, sibling-of-record paths persisted to repair.wave.spec/ledger, and a row-3 SCOPED_TEST_COMMANDS union with both cd prefixes while stating npm test is never passed. The terminal checkpoint mirrors this with one AC, one row, and course kept null. Minor polish for future wording: After could state explicitly that the two artifact files are neither staged nor committed (it relies on 'outside the checkout' plus the entry's premise), and the `selected_ids` list in Part 1 includes L2 as a separate id while the AC merges it—harmless here, but a reader could wonder whether L2 gets its own row; a short note that L2 is a contributor id carried on row 1 would preempt that.",
+      "wallMs": 19049,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4539e463dde3de15569322ebb5e5c0d0cb57fb9a6a87186c80a5d00d8e9f56d5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b6ac0062015dc3f7364446972806f7dc418b2f3b1805d379bb35882a555baf72",
+      "baselineOutputSha": "006e77ec7744b571673bc00fc2b7bc434b5d4141f62ef8f3c02adda48a87d7ee",
+      "candidateOutputSha": "5dae636522ea124cb8d6f7796b01c6b2385f717b96c0566af62e537a54a371f1",
+      "facts": {
+        "n1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "n7": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "n8": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing regressed: After keeps both facts Before held (n6 P3/C1 handling, n8 no dispatch/push/external write) and additionally satisfies every spec/ledger fact that Before explicitly refused to deliver. Before declared 'this skill does not define a finding-derived spec, synthetic ACs, or a companion row ledger' and wrote neither artifact, so n1–n5 and n7 all failed there; After writes `/tmp/gatekeep-82.record-spec.md` and `-ledger.md` with the three-row/three-AC mapping, the Scope block carrying title, body, original intent and `doc/specs/retry-budget.md`, the correct ledger header (base, `npm test`, checks commands, iterations 0, allowance 6), the nit-row command union with `cd core`/`cd cli` prefixes kept out of ledger columns, persisted `repair.wave.spec`/`repair.wave.ledger` locators, and an independent one-AC/one-row terminal checkpoint without a standing nit course. Two small hardening suggestions for the After wording: state explicitly in the delivery-checkpoint stop line that nothing is staged or committed (it currently says that only in the terminal section), and say outright in the terminal section that no verification run occurs, so n4 and n8 do not rely on the reader inferring it from the /tmp paths and the generic 'no external write' phrase.",
+      "wallMs": 19077,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d5a8f481fa59b9784a22e8df2af4fa1fc35c8fdf"
+}

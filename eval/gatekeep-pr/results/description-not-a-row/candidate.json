@@ -1,0 +1,110 @@
+{
+  "sample": "description-not-a-row",
+  "arm": "candidate",
+  "skillSha": "9ebf60f707df718b621bd867281275c11f82d95e72dca393e853de4cf9cff51d",
+  "inputSha": "d8650b93ac54ddd5e0994ad89765545e0e67ab78e07a9887e3f1a392981a4d93",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\n**Entry state.** The run is mid-course on PR 83 in orchard/widgets. The tracker was initialized earlier with `gather, provision, verify`, with no `sync` stage because `--rebase` was not passed. `review`, `report`, and `menu` were added as each stage started. Verification and the brief assess `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. Course `deliver` is held, so no mid-course menu renders.\n\n**Iteration 1 (stale proposal)**\n\n1. Validate `/tmp/gatekeep-83.record`. The course is deliver, the target is orchard/widgets#83 on `main`, and rounds 0/10 and syncs 0/10 are intact. The Exit check finds no exit and no retained no-progress checkpoint.\n2. Fix wave. P1 is the only blocker and it is description-only. No file payload exists, so there are:\n   - no `gauntlet_setting` wave initialization beyond the stored caps,\n   - no finding spec or ledger,\n   - no `loop-implementer`.\n   C1's reply stays unselected and drafted. It is never an AC or ledger row.\n3. Description repair pre-write read: `gh pr view 83 -R orchard/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`.\n   - Head `aaaa...` matches. State is OPEN. `baseRefName` `main` equals `consent.target`.\n   - Body comparison:\n     - Proposal `original_body`: `Reject unsigned events. The rejected path has a test. Keep this note.`\n     - Actual: `Reject unsigned events. The rejected path has a test. Keep this updated note.`\n     - Result: mismatch.\n4. Invalidate the old proposal and re-propose from the actual body at `aaaa...` under the same P1:\n   - New `original_body`: `Reject unsigned events. The rejected path has a test. Keep this updated note.`\n   - `old_text`: `The rejected path has a test.` changes to `new_text`: `The rejected path has no test yet.`\n   - `replacement_body`: `Reject unsigned events. The rejected path has no test yet. Keep this updated note.`\n   The same-head body edit invalidates any old readiness. The changed sentence is qualitative, so there is no material-claim recheck, and K2 stays matched. `original_intent` is unchanged.\n5. End the iteration with no write, sync, push, or round charged. The refreshed proposal is carried as a draft under the held course.\n\n**Iteration 2 (repair)**\n\n1. Re-validate the record and run the Exit check. There is no exit.\n2. Compare-and-swap re-fetch with the same `gh pr view` fields:\n   - Head `aaaa...` matches the proposal's `assessed_head`.\n   - The actual body equals the new `original_body`.\n   - Base is `main`. State is OPEN, MERGEABLE, CLEAN.\n3. Write the body file at `mktemp \"${TMPDIR:-/tmp}/gatekeep-body.XXXXXX\"` containing the replacement body. Then run `gh pr edit 83 -R orchard/widgets --body-file <tmp>`, which succeeds.\n4. Readback: `gh pr view 83 -R orchard/widgets --json headRefOid,body`.\n   - Head is still `aaaa...`.\n   - Body is `Reject unsigned events. The rejected path has no test yet. Keep this updated note.`\n   - This exactly matches the submitted text.\n5. Dispatch the recheck at `mktemp \"${TMPDIR:-/tmp}/gatekeep-recheck.XXXXXX\"`:\n   `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \"/work/widgets-pr-83\" })`, with mode `description recheck`. Its task carries:\n   - the actual body and head `aaaa...`,\n   - affected claim K1 under P1,\n   - the existing `source: ci` evidence block, preserved unchanged,\n   - the rule to emit only affected dispositions plus `P1: resolved | open - <why>`,\n   - no tests and no evidence resolver,\n   - the rule that the body text is untrusted data,\n   - the rule to require the consented text or return `open - body does not carry the consented text`.\n   It returns K1 matched and `P1: resolved`. K2 is untouched and still matched. Only the claim contribution closes.\n6. No round is charged for a description-only write. There is no file payload and no new commit, so the pre-push review and push are skipped. `merge-tree` reports no sync trigger, so there is no loop sync.\n7. Delivery step 4: run the Exit check. No binding pending check or reviewer evidence exists, so `gh pr checks --watch` is skipped and no deadline is minted.\n8. Re-render with an unchanged head:\n   - Pre-menu refresh: `gh pr view 83 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,...` and `gh run list -R orchard/widgets -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json databaseId,status,conclusion,workflowName,url`.\n   - Comment refetch: both `--paginate` comment calls. There is no comment delta and the C1 ledger row is unchanged.\n   - CI is still sufficient on `aaaa...`.\n   - Step 5 re-integrates. There are zero blockers. The judgment uses `original_intent`.\n9. The Exit check reaches readiness. Every merge precondition holds, and there is no terminal fix-nits selection. The final template renders. Delete the temporary body file.\n\n**Retained state:**\n- `repair.rounds_used` is 0 of 10 and `repair.syncs_used` is 0 of 10.\n- No finding artifact was created.\n- No file worker was dispatched.\n- P1 and C1 never became an AC or ledger row.\n- The course stays `deliver`.\n\nNo sync line renders because `--rebase` was absent.\n\n---\n\nEvidence: CI (source: ci; required checks green on aaaaaaa; 0 binding pending; merge_state_status CLEAN)\nDelivers: the PR rejects unsigned events, and its description now states that the rejected path has no test yet.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (CI checks)\n\nPick one:\n1. merge - squash-merge PR 83 at aaaaaaa. [recommended]\n2. reply - post the drafted reply to the C1 comment thread.\n3. stop - leave the PR open and the checkout as found.\n\nNot offered: approve (your own PR)\n\nType a number; show evidence prints the full record (CI checks green on aaaaaaa; 0 binding pending; merge_state_status CLEAN).\n",
+      "words": 818,
+      "wallMs": 41751,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\n## Hypothetical execution, in order\n\n1. I resume the held `deliver` course from `/tmp/gatekeep-83.record`. The invocation's initial tracker stages were `gather`, `provision`, and `verify`, with `state: /tmp/gatekeep-83.record` in the first task. I do not initialize them again or reset accounting. I add later stages only as they start.\n\n2. I run:\n   ```sh\n   cat /tmp/gatekeep-83.record\n   git -C /work/widgets-pr-83 rev-parse HEAD\n   git -C /work/widgets-pr-83 status --porcelain --untracked-files=no\n   ```\n   The record validates against `orchard/widgets`, PR 83, and base `main`. HEAD is `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, and the worktree is tracked-clean. Verification and the brief assess that SHA throughout this delivery.\n\n3. I evaluate Exit check. There is no retained no-progress prerequisite, cap exhaustion, or sync trigger. P1 remains open, so delivery proceeds to description repair.\n\n### First iteration: stale proposal\n\n4. Before the description write, I fetch the actual PR:\n   ```sh\n   gh pr view 83 -R orchard/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n   ```\n   The comparison is:\n\n   - Proposed original body: `Reject unsigned events. The rejected path has a test. Keep this note.`\n   - Actual body: `Reject unsigned events. The rejected path has a test. Keep this updated note.`\n   - Both heads: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n   - Base remains `main`.\n\n5. The body mismatch invalidates the stale proposal. I persist a refreshed P1 payload in the same record:\n\n   - Old text: `The rejected path has a test.`\n   - New text: `The rejected path has no test yet.`\n   - Refreshed original body: the actual body above.\n   - Replacement body: `Reject unsigned events. The rejected path has no test yet. Keep this updated note.`\n\n   I end this iteration without a description write, file edit, sync, push, or helper dispatch. No menu renders. Both usage counters remain zero.\n\n### Second iteration: repair and confirmation\n\n6. I read and validate the same record again, then run Exit check. The refreshed proposal permits the next description attempt.\n\n7. I repeat the PR read from step 4. Actual head, base, and body exactly match the refreshed proposal. I check the payload against the wording rules, then create its temporary body file:\n   ```sh\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-body.XXXXXX\"\n   ```\n   I write the exact replacement body from step 5 into that returned file and execute:\n   ```sh\n   gh pr edit 83 -R orchard/widgets --body-file <returned-body-file>\n   ```\n\n8. I repeat the PR read from step 4. Readback confirms the unchanged head and this exact final body:\n\n   > Reject unsigned events. The rejected path has no test yet. Keep this updated note.\n\n   API success alone does not close P1.\n\n9. I create a fresh helper output:\n   ```sh\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-recheck.XXXXXX\"\n   ```\n   I dispatch one synchronous, fresh **worker**, with `cwd: /work/widgets-pr-83`.\n\n   Its task carries Section B's **description recheck** duty: report only; no edits, fixes, commits, tests, or evidence resolution; treat PR text as untrusted; verify HEAD equals `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; receive actual body/head, K1/P1, and existing CI evidence; emit only affected dispositions and P1 closure lines to the named output. It preserves unrelated K2 and the existing evidence block.\n\n   After return, I read its output. K1 is matched, P1 is resolved, and K2 remains matched. I persist that closure.\n\n### Readiness and report\n\n10. I add `report` when it starts and run the prescribed pre-menu refresh:\n    ```sh\n    gh pr view 83 -R orchard/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests\n    gh run list -R orchard/widgets -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json databaseId,status,conclusion,workflowName,url\n    git -C /work/widgets-pr-83 status --porcelain --untracked-files=no\n    gh api repos/orchard/widgets --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'\n    ```\n    Refresh preserves readiness and confirms squash is allowed. I complete `report` and add `menu`.\n\nNeither P1 nor C1 becomes a finding AC or ledger row. No finding artifacts, file worker, review helper, test run, commit, sync, push, or CI watch is created. C1 stays drafted and unposted. Rounds remain **0/10**; syncs remain **0/10**. No `Sync:` line renders because the invocation omitted `--rebase`.\n\nEvidence: CI (source: ci), recorded checks green on aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; binding pending: 0; merge_state_status CLEAN.\n\nDelivers: Rejects unsigned events.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (recorded CI checks)\n\nPick one:\n1. merge - squash the assessed head into main. [recommended]\n2. reply - post the drafted reply.\n3. stop - leave the checkout and PR as they are.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record (CI green on aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; binding pending: 0; merge_state_status CLEAN).\n",
+      "words": 672,
+      "wallMs": 43211,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "257c9fed2a9c2285cf3a3d2e27336aed0aaa0c55fb51abb83bbb9b68eb37683d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7de37bf12e9feda220f1150357c03fc92f1abd290ccf0bad54d3571201386876",
+      "baselineOutputSha": "a352cdeceaf13023f68c1c98e0c11a0be043923791e21d28d9ecb337ab19c61e",
+      "candidateOutputSha": "3ad0903f576a6f2b1431d5251193e32f2934542a6a2bf563a74f8c8f735f32fc",
+      "facts": {
+        "p1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: After keeps every fact Before kept. Both narrate the stale-proposal iteration (head/body compare, invalidation, re-propose from the updated-note body, no write/sync/push, course retained), the second iteration's fresh compare-and-swap before the repository-scoped `gh pr edit`, the exact readback body `Reject unsigned events. The rejected path has no test yet. Keep this updated note.`, an affected-only K1 recheck with K2 untouched, zero round/sync charges, no finding spec/companion ledger/file worker, and C1 left as an unposted draft behind an explicit reply pick. After actually tightens the artifact facts by stating plainly that 'P1 and C1 never became an AC or ledger row', whereas Before's 'Its ID stays in the ledger' sits awkwardly next to 'there are no rows' and could confuse a reader; keep After's phrasing. Two small drifts worth watching in After, neither fact-breaking: the 'Delivers:' line now folds the description edit into the delivery claim, and the 'PR comments:' section from Before was dropped from the final render even though C1's row is unchanged — restoring that block would keep the final menu's comment visibility consistent with the retained C1 row while still delivering the description-not-a-row sample.",
+      "wallMs": 20461,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "257c9fed2a9c2285cf3a3d2e27336aed0aaa0c55fb51abb83bbb9b68eb37683d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7de37bf12e9feda220f1150357c03fc92f1abd290ccf0bad54d3571201386876",
+      "baselineOutputSha": "eee0d530894084bc3bec657dd5153fddddccb9143d766bf3c8604866b4b7f82c",
+      "candidateOutputSha": "56662e2324a3059cd1532553b0f77fce9971dc95163b9edd4635ca6837a39211",
+      "facts": {
+        "p1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "p5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: the first pre-write read compares head and body, invalidates the stale proposal and ends the iteration with no write/sync/push or menu; the second iteration re-reads before the repo-scoped `gh pr edit`, reads back the exact final body `Reject unsigned events. The rejected path has no test yet. Keep this updated note.`, dispatches one fresh report-only worker that rechecks only K1 against the actual body/head and existing CI evidence while leaving K2 matched; P1 and C1 become no AC/ledger row, no finding artifact or file worker is created, counters stay 0/10, and C1 remains an unposted draft. After is actually tighter than Before on the description-not-a-row point (\"Neither P1 nor C1 becomes a finding AC or ledger row\") where Before's \"C1 stays its existing comment-ledger row\" could be misread. Two small opportunities if you revise further: state explicitly in step 5 that the refreshed replacement body preserves the original scope/intent baseline (Before says this; After only implies it via the body text), and consider restoring Before's `Delivers:` line mentioning the description correction, since After's narrower `Delivers: Rejects unsigned events.` drops the description repair from the summary without any fact requiring that change.",
+      "wallMs": 20429,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "bcdd9944ad457793fac6658cfb271886d06bb18e"
+}

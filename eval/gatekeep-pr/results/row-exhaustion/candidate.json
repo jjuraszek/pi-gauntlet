@@ -1,0 +1,150 @@
+{
+  "sample": "row-exhaustion",
+  "arm": "candidate",
+  "skillSha": "c5ef5e3aa553075a88bc324673d340c20f16921ab33112945aa3579fb459c775",
+  "inputSha": "df867c31d27d07b0dc8f2444fe8d80dccc466ff125e2f918a2eb5d026ebd6389",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr: delivery wave on PR 84, six independent checkpoints\n\nThese rules apply to every checkpoint below.\n\n**Common entry, read-only.**\n1. Validate `/tmp/gatekeep-state-row84`: base repository, PR number, and baseRefName match `consent.target`, and `course: deliver` is set.\n2. Validate that `repair.wave.spec` and `repair.wave.ledger` exist and parse.\n3. Run `git -C /work/widgets-pr-84 rev-parse HEAD`, which returns `bbbb…`. Save it as `HEAD_BEFORE`.\n4. Run `git -C /work/widgets-pr-84 merge-base origin/<baseRefName> aaaa…`, which returns `MB = cccc…`.\n5. Run the ordered Exit check. No helper `needs`, no contract exception, no BLOCKED or UNKNOWN state, the head is pushable, and no binding checks exist.\n\n**Common rules for every dispatch:**\n- Budgets run before any ledger write.\n- The escalation threshold is `min(escalateAfter 3, allowance − 1)`.\n- `iterations: i+1` and the `pending:` tuple are written before dispatch.\n- No seed worker runs.\n- No model is set unless the row escalates on this attempt.\n\n---\n\n## A\n\n**Row disposition**\n\n| Row | Attempts / allowance | Decision |\n|---|---|---|\n| 1 (P1) | 4 / 4 | `attempts >= allowance`, so the row is exhausted and never dispatched again. |\n| 2 (P2) | 1 / 4 | Eligible. Threshold is 3; attempts 1 is below it, so there is no escalation and the model is unset. |\n| 3 (P3) | 0 / 4 | Eligible. It waits behind row 2 in review order. |\n\n**P1 and its history.** Everything is preserved untouched:\n- Status `failed`, attempts 4.\n- Evidence `node --test test/zero.test.mjs; zero still retries`.\n- Both of its Decisions lines.\n- Its open reviewer closure.\n\nP1 stays an open Moderate blocker in the carried set. It is reported as:\n`open - row 1 failed | Zero still retries. | Keep test/zero.test.mjs and repair the zero branch.`\nThe `row 1 escalated` line is a spent-escalation marker, not a worker decision.\n\n**If the human later explicitly picks a review post (assess).** P1's numbered item is the blocker sentence, the locator, and the same suffix. For example:\n`A zero retry limit still retries, so the PR's promise that zero never retries is broken. open - row 1 failed | Zero still retries. | Keep test/zero.test.mjs and repair the zero branch. (<file:line>)`\nThe next run's prior review then keeps the failed-attempt knowledge.\n\n**Persisted before dispatch:**\n- In the record: `repair.wave.round_start_head = bbbb…` and `counted: false`, unless this pass's checkpoint already exists.\n- In the ledger: `iterations: 6` and `pending: 2 | gatekeep | bbbb…`.\n\n**Next dispatch:**\n```\nsubagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n  cwd: \"/work/widgets-pr-84\", output: <mktemp ${TMPDIR:-/tmp}/gatekeep-row.XXXXXX>,\n  outputMode: \"file-only\",\n  acceptance: { level: \"none\", reason: \"the parent validates the commit and keeps the ledger\" },\n  task: shared context + pi tail +\n    iteration: 5 / spec: /tmp/gatekeep-state-row84-spec.md / ledger: /tmp/gatekeep-state-row84-ledger.md\n    base: cccc… / target: 2\n    previous decision: row 2 failed | Negative still retries. | Keep test/negative.test.mjs and repair the negative branch.\n    hint: none / Leg: gatekeep / mapped original AC: row 2 -> AC 2 (P2), leg gatekeep\n    Rules: none / pending: 2 | gatekeep | bbbb…\n    SCOPED_TEST_COMMANDS: node --test test/negative.test.mjs })\n```\nNo `model` field is set.\n\n**Rules the task carries:**\n- Work in the worktree only, as `git -C` or `(cd …)`.\n- Check that HEAD equals `bbbb…` before starting.\n- Keep the original-intent scope baseline: a zero limit never retries.\n- Make the smallest in-repo fix, with no new infrastructure, dependency, or module, and no test skips.\n- Close AC 2 and choose the fix itself.\n- Run a selective check only, never `npm test`.\n- Make one commit `loop: row 2 done|failed` under the Companion result contract.\n- Use `needs <what>` or `contract exception: <why>` in the failed second slot when they apply.\n\nThe checkpoint stops here, before the worker returns.\n\n---\n\n## B\n\n**Row disposition**\n\n| Row | Attempts / allowance | Decision |\n|---|---|---|\n| 1 | 4 / 4 | Exhausted by attempts, as in A. |\n| 2 | 2 / 4 | Two consecutive validation misses (wrong body, then empty diff), so the row is exhausted. |\n| 3 | 0 / 4 | Eligible. Threshold 3, attempts 0, so there is no escalation and no model. |\n\n**Row 2 retained state.** Status `failed`, attempts 2, evidence `attempt 2: empty diff`, and miss count 2 are kept as they are. Row 2 reports:\n`open - row 2 failed | Negative still retries. | Keep test/negative.test.mjs and repair the negative branch.`\nThat is its last admitted decision, because the misses wrote none.\n\n**Persisted before dispatch:** the per-pass checkpoint as in A, plus `iterations: <i+1>` and `pending: 3 | gatekeep | bbbb…` in the ledger.\n\n**Next dispatch:** `loop-implementer`, cwd `/work/widgets-pr-84`, with the same envelope as A. The changed task fields are:\n- `iteration: <i>`\n- `target: 3`\n- `previous decision: none`\n- `mapped original AC: row 3 -> AC 3 (P3), leg gatekeep`\n- `pending: 3 | gatekeep | bbbb…`\n- `SCOPED_TEST_COMMANDS: node --test test/fractional.test.mjs`\n\nNo model is set.\n\n**Not dispatched:** row 1 (P1) and row 2 (P2), both exhausted.\n\n---\n\n## C\n\n**Row disposition.** Rows 1 and 2 are exhausted as in B. Row 3 is `done` with P3 resolved, so it gets nothing. No eligible row remains, and the carried set still holds two Moderate items, P1 and P2.\n\n**Round with no counted progress.** The latest round ended `counted: false` with no reviewer run. So:\n- Pre-push review and push are skipped.\n- No round is charged, so `rounds_used` stays 1.\n\n**Exit.** The result is persisted through the No-progress obstacle into `repair.wave.no_progress`:\n- `failed_prerequisite`: row 1 exhausted (P1) and row 2 exhausted (P2).\n- `observed_value`: each row's last decision line, quoted because no reviewer ran.\n- `result_path`: the helper result.\n\nThe ordered Exit check then returns:\n`stuck - no progress: row 1 exhausted (P1); row 2 exhausted (P2)`\n\nThe available row 1 decision quoted in that obstacle is:\n`row 1 failed | Zero still retries. | Keep test/zero.test.mjs and repair the zero branch.`\n\n**Retained state:**\n- `course: deliver`.\n- `rounds_used 1 / cap 10` and `syncs_used 0 / cap 10`.\n- All ledger rows, attempts, evidence, Decisions, the row 1 escalated marker, and miss counts.\n- Local commits up to `bbbb…`, unpushed.\n- The derived spec and ledger pair.\n\n**Obstacle menu shape:**\n1. deliver: resume the course and add 10 to each cap (+2 × maxFixRounds).\n2. assess.\n3. stop `[recommended]`.\n\n**Obstacle deliver pick.** The cumulative caps become 20 and 20; this is persisted, and usage is not reset. That does **not** permit another P1 or P2 attempt:\n- A raised wave cap never resets a row's budget. Row 1 is still at `attempts >= allowance`, and row 2 still has two consecutive misses.\n- The failed prerequisite is unchanged.\n\nThe next Exit check therefore re-exits with the same `stuck - no progress` obstacle. Nothing is dispatched and no round is charged.\n\n---\n\n## D\n\n**Row disposition**\n\n| Row | State | Decision |\n|---|---|---|\n| 1 | `done`, P1 resolved | Nothing to dispatch. |\n| 2 | attempts 3, allowance 4, no marker | Threshold is 3; attempts 3 meets it, so this attempt must escalate. |\n| 3 | open | Not reached. |\n\n**Action.** Escalation requires `implModel`, and it is undefined. So:\n- No dispatch happens.\n- The ledger is unchanged: no `iterations` bump, no `pending:` line, no escalated marker, row 2 stays at attempts 3, and no Decisions line is added.\n- No fabricated failed attempt is recorded.\n\n**Counters.** `rounds_used 1`, `syncs_used 0`, and both caps are unchanged. The round checkpoint is not counted.\n\n**Exit.** The ordered Exit check returns `stuck - escalationLoop.implModel unavailable`, with local commits retained. Row 3 is not dispatched because the wave exited at row 2, which comes first in review order.\n\n---\n\n## E\n\nEach variant uses MODEL_ESC as the resolved implModel. Attempts are left unchanged until a worker returns.\n\n| Variant | Attempts / allowance / marker | Threshold | Decision before dispatch | Model field |\n|---|---|---|---|---|\n| (i) | 3 / 4 / none | min(3, 3) = 3 | 3 meets the threshold. Append `row 2 escalated \\| implModel round \\| allowed attempts 4`. | `model: MODEL_ESC` on this attempt only |\n| (ii) | 4 / 6 / existing marker | min(3, 5) = 3 | The row is eligible because 4 < 6. Escalation is already spent, so no new marker is written. | Omitted |\n| (iii) | 0 / 1 / none | min(3, 0) = 0 | 0 meets the threshold. Append `row 2 escalated \\| implModel round \\| allowed attempts 1`. | `model: MODEL_ESC` on this attempt only |\n\nEvery variant also writes `iterations: i+1` and `pending: 2 | gatekeep | bbbb…`, then dispatches `loop-implementer` with `target: 2`.\n\n---\n\n## F\n\n**Cap check first.** The ordered Exit check runs before any row dispatch. `rounds_used` 10 equals `rounds_cap` 10, so the cap exit fires:\n`round cap reached: 10 of 10`\n\nThe obstacle template renders with local commits kept. Row 2 is **not** dispatched, even though it still has allowance left.\n\n**Retained state:**\n- `course: deliver`, `syncs_used 0 / cap 10`.\n- The ledger exactly as given: no `iterations` bump and no `pending:` line.\n- Row 1 exhausted with its history and marker; row 2 at attempts 1; row 3 open.\n- P1's `open - row 1 failed | Zero still retries. | …` report.\n- Local HEAD `bbbb…`, unpushed.\n\n**Later obstacle deliver pick.** It would add 10 to each cap. That reopens dispatch for rows 2 and 3 only. Row 1 stays exhausted.\n",
+      "words": 1373,
+      "wallMs": 70595,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are independent continuations of the existing run, not new invocations. I validate `/tmp/gatekeep-state-row84` and its spec and ledger before acting; I do not initialize a new tracker, reset accounting, or open a verify window. No Section B verification helper or Section C whole-diff review runs at these checkpoints. The assessed pushed SHA remains `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, and dispatched workers start at local SHA `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`.\n\nNo `Sync:` line renders: the invocation has no entry `--rebase`. Each checkpoint stops at its requested dispatch or obstacle rather than proceeding to a first assessment menu.\n\n## Shared dispatch procedure\n\nWhere a checkpoint below dispatches a row, I run these commands in order after validating the record, artifacts, exit conditions, and row budget:\n\n1. `git -C /work/widgets-pr-84 rev-parse HEAD`, recording `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` as `HEAD_BEFORE`.\n2. `git -C /work/widgets-pr-84 merge-base origin/main aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, recording the supplied MB, `cccccccccccccccccccccccccccccccccccccccc`.\n3. `mktemp \"${TMPDIR:-/tmp}/gatekeep-row.XXXXXX\"`, retaining its returned absolute output path.\n\nHere `main` denotes the record's recorded base branch; the scenario does not supply its literal name, so the actual command substitutes that recorded name rather than inventing or changing it.\n\nBefore dispatch, I persist `iterations: 6` and:\n\n```text\npending: <row> | gatekeep | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n```\n\nI preserve row attempts until a worker returns. I retain the existing round checkpoint rather than restarting or charging the attempt before a source-changing result exists.\n\nThe dispatch is:\n\n```text\nsubagent({\n  agent: \"loop-implementer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/widgets-pr-84\",\n  output: <new absolute output path>,\n  outputMode: \"file-only\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent validates the commit and keeps the ledger\"\n  },\n  <model field only where specified below>,\n  task: <row-specific task>\n})\n```\n\nEvery task carries these rules:\n\n- Run commands through `git -C /work/widgets-pr-84 ...` or inside that worktree, and check HEAD against `HEAD_BEFORE` before working.\n- Use the original intent as the authoritative scope, including the promise that a zero retry limit never retries. Close the mapped derived-spec AC, not merely implement a prescribed patch.\n- Use `/tmp/gatekeep-state-row84-spec.md`, `/tmp/gatekeep-state-row84-ledger.md`, MB `cccccccccccccccccccccccccccccccccccccccc`, `iteration: 5`, the selected target row, `Leg: gatekeep`, its row-to-AC mapping, and the persisted pending tuple.\n- Carry the finding's evidence, locator, and specified scoped command. Do not run `npm test`; it remains the whole-suite verification command.\n- Make the smallest in-repo fix without adding infrastructure, dependencies, or a module, and preserve tests needed by the contract.\n- Return the persona's Companion result commit contract, with a selective command and evidence. A credential or infrastructure obstacle begins the failed decision's second slot with `needs`; a required scope change begins it with `contract exception:`.\n- Name the freshly minted output path and carry the applicable repository rule-file declarations. There is no worker return or admission in this narration.\n\n## A. Row 1 exhausted; row 2 eligible\n\nRow 1 has reached allowance 4. I do not dispatch it, reset its attempts, erase its evidence, or reuse its spent escalation. P1 remains an open blocker, with its reviewer closure and full decision history retained.\n\nRow 2 runs next. Its attempts are 1, below escalation threshold `min(3, 4 - 1) = 3`, so I write no escalation decision and omit the dispatch's `model` field.\n\nI execute the shared dispatch procedure for row 2, using:\n\n```text\ntarget: 2\nmapped original AC: row 2 -> AC 2 (P2), leg gatekeep\nprevious decision: row 2 failed | Negative still retries. | Keep test/negative.test.mjs and repair the negative branch.\nSCOPED_TEST_COMMANDS: node --test test/negative.test.mjs\n```\n\nRow 2 remains at attempts 1 while the dispatch is outstanding. Row 3 is not dispatched before this return.\n\nIf the human later explicitly selects a review post, P1's item preserves the failed-attempt information, including:\n\n```text\nopen - row 1 failed | Zero still retries. | Keep test/zero.test.mjs and repair the zero branch.\n```\n\nThat line supplements the source-backed finding and its locator; it does not claim that P1 was fixed.\n\n## B. Rows 1 and 2 exhausted; row 3 eligible\n\nRow 1 remains exhausted at attempts 4. Row 2 is exhausted by two consecutive validation misses even though attempts 2 is below allowance 4. Neither row is dispatched.\n\nI retain row 2's `attempt 2: empty diff` evidence, both validation misses, its attempts, and its historical admitted decision. I do not manufacture an admitted decision for either malformed result.\n\nRow 3 runs next. Attempts 0 is below threshold 3, so there is no escalation decision and no `model` field.\n\nI execute the shared dispatch procedure for row 3, using:\n\n```text\ntarget: 3\nmapped original AC: row 3 -> AC 3 (P3), leg gatekeep\nprevious decision: none\nSCOPED_TEST_COMMANDS: node --test test/fractional.test.mjs\n```\n\nThe ledger becomes iterations 6 with pending row 3; its attempts remain 0 until a return.\n\n## C. No eligible row remains\n\nRow 1 is exhausted by allowance; row 2 is exhausted by consecutive validation misses. Row 3 is done, and its resolved P3 closure remains resolved. I dispatch none of them.\n\nBecause the completed round has `counted: false`, I skip pre-push review and push. No reviewer ran in that round, so I do not invent a reviewer finding or closure.\n\nI persist the completed no-progress checkpoint, retaining:\n\n- Row 1's exhausted allowance, P1's open closure, test evidence, and decision history.\n- Row 2's two validation misses and `attempt 2: empty diff` evidence.\n- Row 3's done state and P3's resolved closure.\n- The completed wave, existing accounting, and links to the retained attempt evidence.\n\nThe available row 1 decision is:\n\n```text\nrow 1 failed | Zero still retries. | Keep test/zero.test.mjs and repair the zero branch.\n```\n\nThe exit is:\n\n```text\nVerdict: stuck - no progress: row 1 exhausted (P1)\n```\n\nThe obstacle also identifies row 2's validation-miss exhaustion. No command, helper, review, or push follows that exit.\n\nWhen the human selects obstacle deliver, I persist caps of 20 for both rounds and syncs, preserving rounds used 1 and syncs used 0. This does **not** permit another P1 or P2 attempt: neither row's failed prerequisite or eligibility changed. The retained no-progress checkpoint causes an immediate re-exit without dispatch or a charged round.\n\n## D. Escalation model unavailable\n\nRow 1 is done and P1 remains resolved. Row 2 has attempts 3, allowance 4, and no escalation marker. Its threshold is 3, so its next attempt requires the escalation model.\n\nThe retained model is undefined. I dispatch nothing.\n\nThere are **no ledger or counter mutations**: iterations stays 5, attempts stays 3, no pending tuple is written, no escalation marker is appended, rounds used remains 1, and syncs used remains 0. I retain the missing-model prerequisite in the continuation record.\n\n```text\nVerdict: stuck - escalationLoop.implModel unavailable\n```\n\n## E. Escalation variants with MODEL_ESC available\n\nEach variant starts independently with iterations 5. Each executes the shared dispatch procedure for row 2 and uses its negative-retry scoped command.\n\n### (i) Attempts 3, allowance 4, no marker\n\nThreshold is 3. Before dispatch I append:\n\n```text\nrow 2 escalated | implModel round | allowed attempts 4\n```\n\nThe dispatch includes:\n\n```text\nmodel: MODEL_ESC\n```\n\nI persist iterations 6 and pending row 2. Attempts remains 3 until a return.\n\n### (ii) Attempts 4, allowance 6, existing marker\n\nRow 2 remains eligible because `4 < 6`. Its escalation marker is already spent, so I append no new escalation decision and **omit** `model`, even though attempts exceeds the threshold.\n\nI persist iterations 6 and pending row 2. Attempts remains 4.\n\n### (iii) Attempts 0, allowance 1, no marker\n\nThreshold is `min(3, 1 - 1) = 0`, so escalation applies to the first attempt. Before dispatch I append:\n\n```text\nrow 2 escalated | implModel round | allowed attempts 1\n```\n\nThe dispatch includes:\n\n```text\nmodel: MODEL_ESC\n```\n\nI persist iterations 6 and pending row 2. Attempts remains 0.\n\nNone of these variants invents a worker result, increments attempts, or charges a round before return and admission.\n\n## F. Wave round cap reached\n\nThe ordered Exit check finds rounds used 10 of cap 10 before row dispatch. Row 2's remaining allowance does not override the wave cap.\n\nI run no dispatch commands and mint no helper output file. I preserve the existing record, local commits, assessed pushed SHA, spec, ledger, attempts, decisions, iterations 5, and absent pending tuple. Sync usage remains 0 of 10.\n\n```text\nVerdict: round cap reached: 10 of 10\n```\n\nThe run exits to the cap obstacle with local HEAD `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` retained and no push.\n",
+      "words": 1319,
+      "wallMs": 58440,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6597f51cc110ede423ef1ffbc44abcde94ac3351beaff92154f438ed9a944cdb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "36e8482c4a4c5c57c72d896b78a4f812edb61fe9f5283b96c9d7983e0fdb29e9",
+      "baselineOutputSha": "1b49115249727107e4a2fb32e1f0289e3163b6635b90407c6e8bbe09005c997f",
+      "candidateOutputSha": "006fa38ef73d5b577f0d74d9f7244d328a9aaf29b91cf5b33a7098c197c824df",
+      "facts": {
+        "r1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "r7": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r8": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "r9": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: it names the loop-implementer dispatch with the pending tuple and iterations 5→6 (r1), carries the `open - row 1 failed | ...` suffix into the explicitly selected review item (r2), treats the second consecutive miss as row exhaustion rather than Before's premature `no_progress` checkpoint at B (r3), renders the `stuck - no progress: row 1 exhausted (P1); row 2 exhausted (P2)` reason and quotes the row 1 decision (r4), refuses the threshold attempt with `stuck - escalationLoop.implModel unavailable` and no ledger mutation where Before silently dispatched with the model omitted (r5), and states the min(escalateAfter, allowance−1) clamp so E(ii) omits the model and E(iii) escalates at attempt 0 with an `allowed attempts 1` marker where Before overrode the model on the spent row and skipped the allowance-one case (r7). Nothing that Before kept (r6, r8, r9) was lost. Two small nits to tighten without moving any fact: in A the task body says `iteration: 5` while the ledger write says `iterations: 6` — pick one convention (e.g. task carries the bumped value) so a reader doesn't suspect a mismatch; and in F the closing line 'reopens dispatch for rows 2 and 3 only' is consistent with r9 but could add 'with attempts and the spent escalation marker unchanged' to make the no-reset guarantee explicit.",
+      "wallMs": 25899,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6597f51cc110ede423ef1ffbc44abcde94ac3351beaff92154f438ed9a944cdb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "36e8482c4a4c5c57c72d896b78a4f812edb61fe9f5283b96c9d7983e0fdb29e9",
+      "baselineOutputSha": "0733f4b6cc2058c9bcf06666fdcaa271f20c4732d2d9bd89b2d493654ae2bf72",
+      "candidateOutputSha": "fea1eecc17e6cfe92b233aa2e9d8d0ea371b11176aa22cb3423dcfc00a03cade",
+      "facts": {
+        "r1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r6": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r7": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r8": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "r9": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves every row-exhaustion fact from fails to holds: it treats allowance-4 and double-validation-miss rows as exhausted before dispatch and continues the eligible sibling (A, B), carries the failed decision text 'open - row 1 failed | ...' into the explicitly selected review item without authorizing a post, exits 'stuck - no progress: row 1 exhausted (P1)' with the row 1 failed decision quoted and refuses retries after the cap raise (C), refuses the threshold attempt with zero ledger mutation when implModel is undefined (D), escalates exactly once at min(3, allowance-1) with the allowed-attempts marker and MODEL_ESC, keeps a spent marker from re-escalating, and clamps the allowance-one case to threshold 0 (E). It preserves the facts Before already held: the round-cap exit in F and no npm test, push, fabricated results, or attempt/escalation resets anywhere. Nothing regressed; the only wording I would tighten is the C exit line, which should name the row 2 validation-miss exhaustion in the verdict string itself (not just prose) so the 'corresponding row 2/P2 exhausted reason' alternative is unambiguous, and the 'main' placeholder in the merge-base command could simply say 'the recorded base branch' to avoid looking like an invented ref.",
+      "wallMs": 17901,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "423bdc190d6e8136df9d12101ec1e3c3ee67b699"
+}

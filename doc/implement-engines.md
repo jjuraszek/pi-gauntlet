@@ -15,6 +15,8 @@ The implement-start guard in [phase-tracker.ts](../extensions/phase-tracker.ts) 
 
 A non-file engine artifact is outside this contract. Supporting an engine whose plan cannot be a hashed file requires a phase-state engine field and corresponding admission changes; that field does not exist.
 
+Gatekeep-pr's [pi fix wave](../skills/gatekeep-pr/reference/fix-wave.md#row-dispatch) also consumes the loop worker on a parent-owned companion ledger. It dispatches file findings as rows without a seed, admits the worker's result commit rather than its reply, and keeps the round's `wave-reviewer` as the closure judge. Sync conflict-stop and base-merge helpers remain `implementer`; Claude Code keeps native drafted-payload helpers.
+
 ## Ledger returns
 
 An ordinary return may close the target plus extra `open` rows of its leg, each with its own command-first evidence and decision line. Only the target increments attempts; extras retain their counters. The worker completes the target before taking extras and reverts unfinished extras before its single commit. The parent admits the changed-row and new-decision sets without policing closure order or running checks after the return; an evidenced `done` extra beside a `failed` target is valid. The target's decision, not the last extra's, becomes the next dispatch's `previous decision:`.

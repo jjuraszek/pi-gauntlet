@@ -1541,37 +1541,38 @@ const verifyBranch = (extra: unknown[] = []) => [
 
 const subagentCall = (id: string, input: unknown) => ({ toolName: "subagent", toolCallId: id, input });
 const loneImplementer = (extra: Record<string, unknown> = {}) => ({ agent: "implementer", task: "fix G1", ...extra });
-const implementerWave = (n = 1) => ({
-  tasks: Array.from({ length: n }, (_, i) => ({ agent: "implementer", task: `fix G${i + 1}`, worktree: true })),
+const implementerWave = (n = 1, agent = "implementer") => ({
+  tasks: Array.from({ length: n }, (_, i) => ({ agent, task: `fix G${i + 1}`, worktree: true })),
 });
 
 const firstCallResult = async (h: ReturnType<typeof harness>, id: string, input: unknown) =>
   (await h.emitEvent("tool_call", subagentCall(id, input)))[0] as { block?: boolean; reason?: string } | undefined;
 
-test("shape guard: lone implementer blocked in verify after the audit, with and without closureReview.model, async or not", async () => {
+for (const agent of ["implementer", "loop-implementer"]) {
+test(`shape guard: lone ${agent} blocked in verify after the audit, with and without closureReview.model, async or not`, async () => {
   for (const settings of [
     { piGauntlet: { closureReview: { enforce: true } } },
     { piGauntlet: { closureReview: { enforce: true, model: "x/y" } } },
   ]) {
     const h = harness({ cwd: tempCwd(settings), branch: verifyBranch([subagentResult(["conformance-reviewer"])]) });
     await h.emit("session_start");
-    const sync = await firstCallResult(h, "s1", loneImplementer());
+    const sync = await firstCallResult(h, "s1", loneImplementer({ agent }));
     assert.equal(sync?.block, true);
     assert.match(sync?.reason ?? "", /dispatch implementers as a one-task tasks wave/);
     assert.match(sync?.reason ?? "", /piGauntlet\.closureReview\.enforce: false/);
-    const async = await firstCallResult(h, "s2", loneImplementer({ async: true }));
+    const async = await firstCallResult(h, "s2", loneImplementer({ agent, async: true }));
     assert.equal(async?.block, true);
   }
 });
 
-test("shape guard: lone implementer passes before the audit, in implement, in ship, and on management calls", async () => {
+test(`shape guard: lone ${agent} passes before the audit, in implement, in ship, and on management calls`, async () => {
   const preLatch = harness({ branch: verifyBranch() });
   await preLatch.emit("session_start");
-  assert.equal(await firstCallResult(preLatch, "s1", loneImplementer()), undefined);
+  assert.equal(await firstCallResult(preLatch, "s1", loneImplementer({ agent })), undefined);
 
   const implement = harness({ branch: implementBranch([subagentResult(["conformance-reviewer"])]) });
   await implement.emit("session_start");
-  assert.equal(await firstCallResult(implement, "s1", loneImplementer()), undefined);
+  assert.equal(await firstCallResult(implement, "s1", loneImplementer({ agent })), undefined);
 
   const ship = harness({
     branch: verifyBranch([
@@ -1581,12 +1582,13 @@ test("shape guard: lone implementer passes before the audit, in implement, in sh
     ]),
   });
   await ship.emit("session_start");
-  assert.equal(await firstCallResult(ship, "s1", loneImplementer()), undefined);
+  assert.equal(await firstCallResult(ship, "s1", loneImplementer({ agent })), undefined);
 
   const mgmt = harness({ branch: verifyBranch([subagentResult(["conformance-reviewer"])]) });
   await mgmt.emit("session_start");
-  assert.equal(await firstCallResult(mgmt, "s1", { action: "status", agent: "implementer" }), undefined);
+  assert.equal(await firstCallResult(mgmt, "s1", { action: "status", agent }), undefined);
 });
+}
 
 test("shape guard: dormant when the flow was never entered (cold start verify) and when closureReview.enforce is false", async () => {
   const cold = harness({
@@ -1713,19 +1715,21 @@ test("interrupted implementer waves still spend rounds and granted credits and n
 const guardedHarness = (settings: unknown, extra: unknown[] = []) =>
   harness({ cwd: tempCwd(settings), branch: verifyBranch([subagentResult(["conformance-reviewer"]), ...extra]) });
 
-test("cap guard: default 5 waves pass, the sixth is blocked with the escalation text", async () => {
+for (const agent of ["implementer", "loop-implementer"]) {
+test(`cap guard: default 5 ${agent} waves pass, the sixth is blocked with the escalation text`, async () => {
   const h = guardedHarness({ piGauntlet: { closureReview: { enforce: true } } });
   await h.emit("session_start");
   for (let i = 1; i <= 5; i++) {
-    assert.equal(await firstCallResult(h, `c${i}`, implementerWave(2)), undefined, `round ${i} passes`);
-    await h.emitEvent("tool_result", okWave(`c${i}`));
+    assert.equal(await firstCallResult(h, `c${i}`, implementerWave(2, agent)), undefined, `round ${i} passes`);
+    await h.emitEvent("tool_result", waveResult(`c${i}`, [{ agent, exitCode: 0 }, { agent, exitCode: 1 }]));
   }
-  const blocked = await firstCallResult(h, "c6", implementerWave(1));
+  const blocked = await firstCallResult(h, "c6", implementerWave(1, agent));
   assert.equal(blocked?.block, true);
   assert.match(blocked?.reason ?? "", /^Conformance fix loop: 5 fix round\(s\) used against a cap of 5 \(granted rounds included\); escalate to the human/);
   assert.ok((blocked?.reason ?? "").includes("Start the escalation message with the line: gauntlet: gate=verification-before-completion/step-6"));
   assert.doesNotMatch(blocked?.reason ?? "", /^gauntlet:/);
 });
+}
 
 test("cap guard: maxFixRounds 0 blocks the first wave; 1 blocks the second; a chain implementer is cap-checked and counted", async () => {
   const zero = guardedHarness({ piGauntlet: { closureReview: { maxFixRounds: 0 } } });
@@ -1849,13 +1853,14 @@ test("counter reset: start implement and reset zero it; start verify --force kee
   assert.equal(await firstCallResult(reset, "c1", loneImplementer()), undefined, "dormant after reset");
 });
 
-test("replay: two implementer waves after the audit in verify restore fixRounds 2; the same waves in ship restore 0", async () => {
+for (const agent of ["implementer", "loop-implementer"]) {
+test(`replay: two ${agent} waves after the audit in verify restore fixRounds 2; the same waves in ship restore 0`, async () => {
   const inVerify = guardedHarness({ piGauntlet: { closureReview: { maxFixRounds: 2 } } }, [
-    subagentResult(["implementer"]),
-    subagentResult(["implementer", "wave-reviewer"]),
+    subagentResult([agent]),
+    subagentResult([agent, "wave-reviewer"]),
   ]);
   await inVerify.emit("session_start");
-  assert.equal((await firstCallResult(inVerify, "c1", implementerWave(1)))?.block, true);
+  assert.equal((await firstCallResult(inVerify, "c1", implementerWave(1, agent)))?.block, true);
 
   const inShip = harness({
     cwd: tempCwd({ piGauntlet: { closureReview: { maxFixRounds: 2 } } }),
@@ -1863,14 +1868,15 @@ test("replay: two implementer waves after the audit in verify restore fixRounds 
       subagentResult(["conformance-reviewer"]),
       phaseResult("complete", phases({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete" })),
       phaseResult("start", phases({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "in_progress" })),
-      subagentResult(["implementer"]),
-      subagentResult(["implementer"]),
+      subagentResult([agent]),
+      subagentResult([agent]),
       phaseResult("start", phases({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "in_progress", ship: "in_progress" })),
     ]),
   });
   await inShip.emit("session_start");
-  assert.equal(await firstCallResult(inShip, "c1", implementerWave(1)), undefined);
+  assert.equal(await firstCallResult(inShip, "c1", implementerWave(1, agent)), undefined);
 });
+}
 
 // --- Human overrule of the fix-round cap (spec 2026-09-14-fix-round-human-overrule) ---
 

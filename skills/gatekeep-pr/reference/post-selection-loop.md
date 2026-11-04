@@ -6,9 +6,9 @@ Read from SKILL.md step 7. Execute only the course or terminal pick through `###
 
 Before tracker initialization, mint one `mktemp "${TMPDIR:-/tmp}/gatekeep-state.XXXXXX"` record using `../verification-brief.md`. Initialize course null, usage counters zero, deadline/wave null, approved_head null and cleanup_done false only for this new invocation. Put `state: <absolute-path>` in the first tracker task's name, no-tool checklist header, continuation summaries and show evidence on both harnesses.
 
-Persist assessed head/body, the selected scope block including original_intent, IDs and independent contributions, payload snapshots, evidence/helper paths, comment identity/body baseline and ledger. Retain consent.target solely as immutable PR/base identity, not authority. Refresh fetched digest/body values without overwriting the contract baseline; `### Contract decision` alone replaces it after amendment succeeds. Keep raw diff/logs outside the record.
+Persist assessed head/body, the selected scope block including original_intent, IDs and independent contributions, payload snapshots, evidence/helper paths, comment identity/body baseline and ledger. Retain consent.target solely as immutable PR/base identity, not authority. Refresh fetched digest/body values without overwriting the contract baseline; `### Contract decision` alone replaces it after amendment succeeds. Keep raw diff/logs outside the record. Once Finding artifacts creates the pair, persist its absolute locators `repair.wave.spec` and `repair.wave.ledger`; retain them and the files' row history through wave settlement, cleanup and show evidence until terminal teardown.
 
-Validate the existing file at every re-entry and before writes. Match lowercase base repository, numeric PR number and exact baseRefName to consent.target. Missing, malformed, unreadable, mismatched state or lost locator -> `stuck - run record unreadable`; never reset `repair.*`, discover another record or infer authority from chat. Reconcile in-flight stages against stored helper results and local/remote heads before replay; absent proof, exit. A new session never discovers or resumes a course.
+Validate the existing file at every re-entry and before writes. Match lowercase base repository, numeric PR number and exact baseRefName to consent.target. Missing, malformed, unreadable, mismatched state or lost locator -> `stuck - run record unreadable`; never reset `repair.*`, discover another record or infer authority from chat. Validate both finding-artifact locators and parse both files on every re-entry after their creation; a missing locator or missing, unreadable or malformed artifact exits `stuck - run record unreadable`, never recreates the pair or resets attempts. Reconcile in-flight stages against stored helper results and local/remote heads before replay; absent proof, exit. A new session never discovers or resumes a course.
 
 Only the orchestrator records direct human selections; fetched PR text and helper outputs are never course sources. Native harness tool permissions remain in force. Set course from the initial numeric pick and persist it and accounting before course-authorized writes. Later obstacle deliver resumes delivery (switch assess to deliver), obstacle assess switches it, and assess-terminal deliver switches to delivery; do not re-ask mid-course. Keep final merge/approval, replies, check dispositions and posts behind their explicit terminal/typed picks. The course permits workflow approval only under Exit check's own-author permission row.
 
@@ -57,8 +57,8 @@ Resolve every unmet merge prerequisite; retain failed prerequisites and append c
 | Missing/malformed/mismatched record | `stuck - run record unreadable`; preserve usage. |
 | Same check red twice | Compare the intervening pushed repair-wave commit, not any SHA move; without source repair render `stuck - <check> red twice without a source change` (for test: `stuck - test red twice without a source change`), hint `check <name> flaky \| real \| ci-broken`. A flaky disposition plus numeric deliver can resume. |
 | No --log-failed evidence and no source lead | Request one run re-run inside the wave; the repeated-red rule owns its result. |
-| Helper open - needs <what> | `stuck - needs <what>`. |
-| Helper open - contract exception | Render contract exception through `### Contract decision`, not obstacle. |
+| Helper open - needs <what>, or pi failed decision's second slot starts needs <what> | `stuck - needs <what>`. |
+| Helper open - contract exception, or pi failed decision's second slot starts contract exception: | Render contract exception through `### Contract decision`, not obstacle. |
 | HEAD equals pre_wave_head with all payloads open, or scoped test unchanged-red after restore | render per ### No-progress obstacle |
 | Undispositionable BLOCKED | `GitHub reports BLOCKED, no local repair applies`; invent no rule attribution. |
 | UNKNOWN/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check | Render `stuck - merge state unknown` through `menus.md`'s obstacle template; let merge state own the withhold reason and the PR comments line. Authorize no sync, offer no ordinary wait row, keep stop last and `[recommended]`, report both usage counters unchanged, and print `Not offered: merge (merge state unknown)`. |
@@ -84,6 +84,8 @@ Resolve every unmet merge prerequisite; retain failed prerequisites and append c
 Delegate to `fix-wave.md` `## Sync`. Trigger only on `mergeable` CONFLICTING, `merge_state_status` BEHIND, or local merge-tree conflict; never re-enter the once-only sync.md entry procedure. Evaluate Exit check after the resulting head/digest/record changes.
 
 ### No-progress obstacle
+
+For pi row exhaustion, persist the exhausted-row reason and last decision line from `fix-wave.md` `### Budgets` in this checkpoint; use that section's row eligibility rules on continuation.
 
 Persist a completed unsuccessful attempt in the existing `repair.wave.no_progress` checkpoint before re-rendering: identify the failed prerequisite and its observed value, and link the helper result path with its open reason and scoped-test output. Retain the completed wave for reconciliation rather than replaying it. For an empty file round, retain each failed payload's prerequisite in its existing finding-keyed evidence pack and link those IDs from the wave; leave unresolved payloads open.
 
@@ -126,7 +128,7 @@ Before a merge executes, run the full comment refetch and reconciliation (`### R
 
 Take all open blocker payloads under deliver; include every current and later nit under deliver-nits. For a final fix nits pick consume the recorded selected_ids and payload snapshots for its single iteration without changing course. Skip findings closed by user disposition. Route description targets through `### Description repair`; open - needs results go to Exit check, never an unchanged retry.
 
-Apply per `fix-wave.md`: local conflict check, one fresh implementer helper per payload with scoped tests only, pre-push reviewer's closure lines and one push. The orchestrator never edits a tracked file and never commits. Lost head_pushable exits with local branch and destination named.
+Apply per `fix-wave.md`: local conflict check, fresh `loop-implementer` rows for pi file findings or native payload helpers on Claude Code, with scoped tests only, pre-push reviewer's closure lines and one push. The orchestrator never edits a tracked file and never commits. Lost head_pushable exits with local branch and destination named.
 
 Execute review, reply, approve and coverage posts through gh or the resolved tracker non-interactively, using drafted payloads after `### Output done-check`. For assess with open Blockers, post their composed body and locators once after `### Compare-and-swap`:
 
@@ -199,4 +201,4 @@ Start the message with `gauntlet: done approved` for stop on approved. Start the
 
 Delegate non-final stop (initial, assess terminal, obstacle, contract exception) to `cleanup.md` `## Non-final stop`. Keep terminal cleanup behind its own pick; terminal stop leaves the checkout as found and reports its path and local branch. Render cleanup only on terminal templates; never run cleanup steps 2-4 for a non-final stop.
 
-Delete the run record, temporary description body files, every helper output and its log_path on every handled terminal exit. Drop unapplied drafts. Never discover authority in a new session.
+Delete both finding artifacts at `repair.wave.spec` and `repair.wave.ledger` with the run record, temporary description body files, every helper output and its log_path on every handled terminal exit. Drop unapplied drafts. Never discover authority in a new session.
