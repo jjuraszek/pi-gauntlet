@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.1.8 - 2026-11-04
 
 - Gatekeep-pr's pi fix wave dispatches file findings through `loop-implementer` companion rows and admits their result commits with selective evidence. Row allowances, consecutive validation misses, and one-shot model escalation bound retries within the wave cap; the verify-session dispatch and fix-round guards also cover `loop-implementer`. Both harnesses share worktree and scope context; Claude Code keeps drafted-payload helpers, and sync helpers remain on `implementer`.
 
