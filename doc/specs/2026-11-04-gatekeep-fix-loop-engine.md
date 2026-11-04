@@ -211,8 +211,9 @@ Every edited `skills/**/*.md` stays under 50,000 bytes and 2,000 lines (`fix-wav
 ## Tests
 
 - pi delivery dispatches `loop-implementer` with `target: <row>`, `pending:`, `Leg: gatekeep`, `acceptance: none` and never `implementer` for a file finding - `eval/gatekeep-pr` sample `loop-worker`
-- a `loop: row <n> failed` commit is admitted, charges the row's attempt, and leaves the round running; a reviewer `open` line becomes one `row <n> reopened |` decision with attempts unchanged and the row is the next carried-set dispatch - sample `loop-worker`
-- one batched row for `fix nits`; a partially resolved batch is reopened once with only the unresolved ids - sample `nit-batch-row`
+- a `loop: row <n> failed` commit is admitted, charges the row's attempt, and leaves the round running - sample `loop-worker`
+- a reviewer `open` line becomes one `row <n> reopened |` decision with attempts unchanged and the row is the next carried-set dispatch - sample `reviewer-row-reopen`
+- one batched row for `fix nits`; a partially resolved batch is reopened once with only the unresolved ids - samples `nit-batch-row` (one batched row) and `reviewer-row-reopen` (partial reopen)
 - description payload stays on the compare-and-swap path with no ledger row - sample `description-not-a-row`
 - ledger and derived spec beside the run record and never staged - sample `loop-worker` (asserts the paths and the clean-tree check)
 - row stops at `maxIterationsPerRow` or two misses, other rows continue, exhaustion obstacle when none remain; `implModel` undefined dispatches nothing - sample `row-exhaustion`
