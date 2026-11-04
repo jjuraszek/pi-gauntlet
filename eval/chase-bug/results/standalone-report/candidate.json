@@ -1,7 +1,7 @@
 {
   "sample": "standalone-report",
   "arm": "candidate",
-  "skillSha": "786b7034730705586776faf7c77e1b00eae731f92938575e0e6d562c53b1c9af",
+  "skillSha": "c65e63037a4263c722702c734e8c08fce2da628a83a5fe6010fe8bbcb5edd9bb",
   "inputSha": "0e7f18da5823365960ecd9cc62ec21852c8bb8492d44f4b14de83b06772f08ad",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### Context\n\nA local test that refreshes the account page turns the saved dark theme into light. Switching off the later default-theme step kept dark.\n\n### What is broken\n\nAfter a refresh, the account page shows the light theme even though the saved choice is dark.\n\n### Why it is broken\n\nTwo steps set the theme on the account page. The page first loads the saved choice, dark, from the user's stored profile. A separate step that applies the standard theme then runs and replaces it with light.\n\n### How to fix it\n\nSkip the standard-theme step once a saved theme has loaded, so a refresh keeps dark. This changes one small step. Choose hotfix because the change is small and passes every safety check.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n",
-      "words": 170,
-      "wallMs": 8791,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### Context\n\nA local test that refreshes the account page with a saved dark theme ends on light. Turning off the later default-setting step kept dark.\n\n### What is broken\n\nAfter a refresh, the account page shows the light theme even though the account's saved choice is dark.\n\n### Why it is broken\n\nTwo steps set the page's theme. The first loads the saved choice, \"dark,\" from the account's stored settings and applies it. A second step runs after that and applies the default theme, replacing dark with light (`src/profile-theme.ts:62`).\n\n### How to fix it\n\nSkip the default theme when a saved theme has already loaded, so a refresh keeps dark. This is a small change to one step. Choose hotfix because this one small change fixes the reset.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n",
+      "words": 174,
+      "wallMs": 9903,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nRefreshing the account page resets the saved dark theme to light instead of keeping the saved choice.\n\n### Why it is broken\n\nThe page first applies the saved dark theme returned by the service that stores profile settings. A separate step then applies the default light theme, overwriting that choice. The local test reproduced dark becoming light; disabling the later default-setting step kept dark.\n\n### How to fix it\n\nSkip default initialization once a saved theme has loaded, so refreshing retains dark instead of resetting to light. This is a small change to the default-setting step. Choose hotfix because the change is bounded and the failing action can be tested.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n```\n\neligible - all predicates pass\n",
-      "words": 160,
-      "wallMs": 6062,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nRefreshing the account page resets the saved dark theme to light instead of retaining dark.\n\n### Why it is broken\n\nThe service that stores profile preferences returns `{\"theme\":\"dark\"}`, and the page applies it. A separate step that sets the default theme then overwrites it with light. The local test reproduced dark becoming light; disabling that later step kept dark, supporting the overwrite explanation.\n\n### How to fix it\n\nSkip setting the default theme once a saved theme has loaded, so refreshing retains dark. This is a small, safe change to the default-setting step. Choose hotfix because the overwrite is confirmed and the fix is narrowly scoped.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n",
+      "words": 156,
+      "wallMs": 5899,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "80d97918784e077c3810d3328c9e343214a0524da8db0eaf273ef0ca4b99d974",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9178bfd6c8ddda57ba98cd4d3aacd21b5304a903cdad09098025b8204a6117b3",
+      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
       "baselineOutputSha": "db38b5867f85e50963a096939d6fb7f343e9160604cae8965e96f75634a14aa9",
-      "candidateOutputSha": "49a32418c0117769e9e1ba8f96817e565cf9070c698244f828261f4dc42ca864",
+      "candidateOutputSha": "a6a4f52c435814a4d9fe572c73aec55181bacfd7d640e8f61f995685d1629e0e",
       "facts": {
         "sections": {
           "before": "fails",
@@ -54,14 +54,14 @@
           "label": "held"
         },
         "literal-fix": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "proof": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "concise": {
           "before": "fails",
@@ -84,16 +84,16 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change without regressing anything: the four ### sections appear in order, Context is two source lines (repro plus the surviving explanation, no status or search result), the mechanism is role-named and stated once, and How to fix it ends with the fix, its size, and a because-clause for pick 3. Before failed sections (no headings), concise (a lead paragraph plus six bullets repeating the mechanism and narrating hypothesis ranking and the tracker search), and unfenced (the appended hypothesis/falsification detail). Two small tightenings would keep every held fact: (1) Context calls the overwriter the 'later default-theme step' while Why it is broken calls it 'a separate step that applies the standard theme' — use one name throughout so the role-naming is unambiguous; (2) since the recommended next action is a hotfix, the reader will open the code, so the Change's own rule ('omit implementation citations unless the reader's next action requires opening them') argues for appending the trailing citation to the fix sentence, e.g. 'Skip the standard-theme step once a saved theme has loaded, so a refresh keeps dark (`src/profile-theme.ts:62`).' and optionally the test command after the Context repro line. Both are additions after complete claims and would not disturb proof, concise, or context-earns-place.",
-      "wallMs": 26384,
+      "feedback": "After moves sections, literal-fix, proof, concise and unfenced to holds without regressing anything Before kept: the four exact headings appear in order, Context carries only the one-line repro and the surviving explanation with no search/status lines, the mechanism is role-named (\"a second step ... applies the default theme\"), the file citation trails its claim, and the invented \"across open and closed issues\" detail from Before is gone. Two small polish points that would not change any fact: the How to fix it section says \"small change\" twice (\"This is a small change to one step. Choose hotfix because this one small change fixes the reset.\"), so fold the size into the because-clause, e.g. \"Choose hotfix because the fix is one small change to a single step and every hotfix check passed\"; and \"the account's stored settings\" slightly blurs the profile service's role — \"the service that stores the account's profile\" would keep the role-naming while staying faithful to the evidence.",
+      "wallMs": 20653,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "80d97918784e077c3810d3328c9e343214a0524da8db0eaf273ef0ca4b99d974",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9178bfd6c8ddda57ba98cd4d3aacd21b5304a903cdad09098025b8204a6117b3",
+      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
       "baselineOutputSha": "d6e1461f497bc5dfb6ce536e39a166a47ec9a36f525e47831072514cd9d0d917",
-      "candidateOutputSha": "80aa9a7445e48b2021313077f1ae871e95463a3f411c1e699bfae0db0cf9fb67",
+      "candidateOutputSha": "5b824e647f94ef6a09241c3576d754545b748468e8e2c4b289f0dfbb51e26dc3",
       "facts": {
         "sections": {
           "before": "fails",
@@ -101,9 +101,9 @@
           "label": "intended change"
         },
         "context": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "standalone": {
           "before": "holds",
@@ -131,9 +131,9 @@
           "label": "unplanned improvement"
         },
         "unfenced": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "context-earns-place": {
           "before": "fails",
@@ -141,8 +141,8 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After moved sections, literal-fix, concise, gate-menu, context and context-earns-place from fails to holds: it renders the three ### headings with whole sentences, puts the concrete change (skip default initialization after a saved theme loads) and its intended result (refresh retains dark) under How to fix it, closes that section with size plus one because-clause, drops Before's trailing paragraph that re-explained the mechanism and reported the tracker search after the eligibility line, and ends the message on the eligibility line with the menu in its own fence. Nothing regressed; standalone, proof and unfenced hold in both. Two optional tightenings would strengthen After without disturbing any fact: since the recommended pick is the hotfix and the reader's next action is opening the code, append the implementation citation after the fix claim (\"...so refreshing retains dark instead of resetting to light (`src/profile-theme.ts:62`).\"), and give the repro its command after the observed result (\"The local test reproduced dark becoming light (`node --test test/profile-theme.test.mjs`)\") or move that one repro line into a short Context above What is broken, leaving tracker-search and status lines out as After already does.",
-      "wallMs": 30795,
+      "feedback": "After keeps every fact Before kept and repairs the rest: the three exact ### headings sit above Pick one:, How to fix it names the literal change (skip default-theme setting once a saved theme has loaded) plus the intended result (refresh retains dark) and its size, and the final section ends with one because-clause for pick 3. Before failed gate-menu, unfenced, concise, and context-earns-place for a single reason - the trailing paragraph appended after the eligibility line, which restated the overwrite mechanism, echoed the repro command, and carried the tracker-search result ('prior-report search completed without a match'); After drops it entirely and omits Context rather than stuffing housekeeping into it, which is the right call since the repro and surviving explanation already live in Why it is broken. Two small cautions for the After wording: the menu is now wrapped in a ```text fence, which the gate-menu fact tolerates but which is an unnecessary deviation from Before's bare numbered list and could trip a stricter 'eligibility line ends the message' reader, so prefer leaving the menu unfenced; and 'the service that stores profile preferences' slightly over-describes the evidence (it is only known to return the saved theme), so 'the service that returns the saved profile theme' would stay closer to supplied facts. If a Context line is ever added here, keep it to the one-line repro (the local test shows dark becoming light on refresh) and nothing about search results or blocking status.",
+      "wallMs": 29842,
       "verdict": "improved"
     }
   },
@@ -461,5 +461,5 @@
       }
     }
   },
-  "repoSha": "ef9ec2bdf29be67e86f05a5bb5ee15ed7a536a9d"
+  "repoSha": "67594688963bced299bdf3f08c947e587c1f813a"
 }

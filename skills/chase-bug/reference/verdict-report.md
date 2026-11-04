@@ -41,8 +41,8 @@ but explicitly say when nothing is broken. Use these sources and next steps:
 Write each report for a reader who has neither the code nor the investigation
 notes open. Translate technical nouns and acronyms into the action or thing they
 mean before shortening, including in Context and the recommendation's because-clause.
-Name components by what they do and describe tests by what changed and what
-happened. Use these translations for investigation shorthand in report bodies,
+Name components by what they do and describe tests using their recorded
+input and result, keeping omitted details unspecified. Use these translations for investigation shorthand in report bodies,
 including citation labels; retain the menu and eligibility vocabulary outside them:
 
 | Investigation shorthand | Report wording |
@@ -70,10 +70,18 @@ linked label at the end of that sentence, only when the reader's next action
 requires opening that source; otherwise omit it. For example: Follow-up stays
 on the existing ticket ([ticket](https://example.org/issues/42)). Keep literal
 failing inputs as the visible example, not as source citations.
-State only claims backed by concrete facts gathered during the chase. Report a
-test's input and outcome at the specificity supplied: a bare "test passed"
-supports only that result. Name untested causes, unmeasured costs, and unverified
-outcomes as unknown. Leave the routine baseline (tests pass, lint clean) unsaid. Cut repetition and process
+Build every sentence from a fact gathered during the chase or a consequence that
+follows from it; ground each because-clause in that gathered fact. For example:
+"Ask the reporter for the dataset size, because the chase could not reproduce
+the failure without it." Match claims about who has an input and how a test ran
+to the recorded evidence; describe a test only at its recorded specificity.
+Keep proposed fixes distinct from completed tests. Take factual details from the
+current chase, using golden examples only for shape and register. State a bare
+confirmation of a cause as confirmation of that cause, keeping the test's
+unrecorded input, procedure, and result unspecified. Frame requests for missing
+input as the next investigative step; keep the cause unknown until evidence
+settles it and describe only the part of the setup that input identifies.
+Name untested causes, unmeasured costs, and unverified outcomes as unknown. Leave the routine baseline (tests pass, lint clean) unsaid. Cut repetition and process
 narration. Let channel tone change wording, never headings or confirmation placement.
 
 Keep report bodies unfenced, without `->` chains or colon-prefixed evidence

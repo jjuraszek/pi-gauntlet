@@ -1,7 +1,7 @@
 {
   "sample": "prose-verdict-above-menu",
   "arm": "candidate",
-  "skillSha": "df31a0b91cc83dd2ac6309903afad8d3f5707add4edd3c7873c5bfbc3ad5260d",
+  "skillSha": "65290be4c5da57e42a8603a427340a7305dde39667de876ccb76406da7f09f0f",
   "inputSha": "3e652b4cced93b9b887b849ec646ee4555a8c974765811fa342e3b20bccc04bf",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page, while `/widgets` loads it.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares them exactly, so the final slash in `/widgets/` blocks a match. Removing that final slash in a local test made the page load.\n\n### How to fix it\n\nRemove the final slash from an address before comparing it, so `/widgets` and `/widgets/` both open the page. This is a small change in one comparison, plus a test that repeats the failing address to check it stays fixed. Choose hotfix because the change is small and safe.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: `gh issue comment` on the originating GitHub issue.\n\n### What is broken\n\nThe report says the page fails to show. We followed the documented steps in Chrome and in Firefox, and the page displayed correctly in both.\n\n### Why it is broken\n\nBoth attempts used browser settings with no saved preferences, and neither reproduced the failure. The cause is unknown without knowing which browser showed the problem.\n\n### What happens next\n\nPlease reply with the browser and exact version where the page failed. We will retry the steps in that browser.\n\nReply `send it` to post this comment.\n",
-      "words": 254,
-      "wallMs": 11582,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page (200).\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares them exactly as typed, without first making them uniform, so the final slash in `/widgets/` prevents a match. A local test confirmed this cause.\n\n### How to fix it\n\nMake each address uniform before comparing it, such as by removing a final slash, so `/widgets/` reaches the same page as `/widgets`. The change is small and limited to that one comparison. Choose hotfix because the fix is small and every safety check passes.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: `gh issue comment` on the reporting GitHub issue. The draft follows exactly as it would be posted:\n\n### What is broken\n\nThe report says the page does not load. We followed the documented steps in Chrome and Firefox, each with browser settings that had no saved preferences, and the page loaded correctly in both.\n\n### Why it is broken\n\nThe cause is unknown because neither documented attempt reproduced the failure.\n\n### What happens next\n\nPlease share the name and version of the browser where you saw this. We will then repeat the steps in that same browser.\n\n---\n\nReply `send it` to post this comment. Any other reply will be treated as a change to the draft.\n",
+      "words": 266,
+      "wallMs": 15530,
       "mechanical": {
         "no-labels": "holds",
         "section-order": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of loading the page successfully (200).\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths exactly, so the final slash prevents a match. The local test confirmed that removing the final slash before comparison lets the page load.\n\n### How to fix it\n\nRemove the final slash before comparing page addresses so `/widgets/` reaches the same page as `/widgets`. This is a small, safe change to the comparison. Choose hotfix because the failure is confirmed and the change is narrowly scoped.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: `gh issue comment`\n\n### What is broken\n\nThe reported page failure could not be reproduced: the page loaded successfully in both Chrome and Firefox.\n\n### Why it is broken\n\nFollowing the documented reproduction steps with browser settings containing no saved preferences did not trigger the failure in either browser. The cause remains unknown; the report does not include the browser or its version.\n\n### What happens next\n\nPlease share the browser name and version you used when the page failed so we can repeat the attempt in that environment.\n\nReply `send it` to post this draft.\n",
-      "words": 241,
-      "wallMs": 17193,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of loading successfully (200).\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths exactly, so the final slash prevents a match. Local reproduction and a test of this explanation confirmed the cause at `src/router.ts:88`.\n\n### How to fix it\n\nRemove the final slash before comparing paths so `/widgets/` reaches the widgets page. This is a small, safe change. Choose hotfix because the cause is confirmed and all six eligibility checks pass.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: `gh issue comment`\n\n### What is broken\n\nThe reported page failure could not be reproduced: the page loaded successfully in both Chrome and Firefox using browser settings with no saved preferences.\n\n### Why it is broken\n\nFollowing the documented reproduction steps in both browsers did not trigger the failure. The cause remains unknown; the report does not include the browser and version used when it failed.\n\n### What happens next\n\nPlease supply the browser name and version used when the failure occurred so the next reproduction attempt can match that part of your setup.\n\nReply `send it` to post this draft.\n",
+      "words": 236,
+      "wallMs": 14627,
       "mechanical": {
         "no-labels": "holds",
         "section-order": "holds"
@@ -38,12 +38,17 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "b742fd4d9cf0cad16dc3f88422c2e88fde99442c863d4b6654f666ad4786a2d8",
+      "factsSha": "a7dcc0c25c4e37482ca2c768a98bb5f37ec4ba1d20b45f036c31122895a56ab2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9178bfd6c8ddda57ba98cd4d3aacd21b5304a903cdad09098025b8204a6117b3",
+      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
       "baselineOutputSha": "822b20761b9a17ab637d4ad801e4ef378016801e90593079efa068ba0bb134a7",
-      "candidateOutputSha": "3323f2fcdc0d7db8e591ac0120efd49645dbfad48feb6b37791bd4e5186f05e1",
+      "candidateOutputSha": "df2307b959b2327f26d58fe67fe9f54e5e58289677ba748bf2f92bdb163366ef",
       "facts": {
+        "claims-supported": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
         "no-fence": {
           "before": "holds",
           "after": "holds",
@@ -85,17 +90,22 @@
           "label": "intended change"
         }
       },
-      "feedback": "After delivers the sectioned contract and fixes the plain-reader register that Before missed (Before leaned on shorthand like 'failed to falsify the missing-normalization hypothesis', 'tracked baseline', 'no delta at checkpoint 2', and a bare `src/router.ts:88` with no explanation of normalization); After names the matcher by its role, explains 404, and shows the trailing-slash test as proof. Two things worth tightening in the wording: first, After's reporter draft no longer has a visible boundary — Before used 'Here is the full draft:' plus a blockquote, so a reader knew exactly what text would be posted, whereas After runs the three sections straight into 'Reply `send it` to post this comment' with nothing marking where the draft ends; the contract should require an explicit 'Draft:' lead-in and a closing line (or indentation/blockquote, since blockquote is not a fence) so the confirmation is unambiguously outside the draft. Second, After dropped the router location entirely from the gate; since the recommended pick is 'implement hotfix now', the implementer's next action does require opening that file, so the 'omit implementation citations unless the next action requires opening them' rule should be phrased so that a hotfix recommendation keeps one trailing location citation (e.g. '...before comparing it (the comparison in the router, `src/router.ts:88`)') rather than reading as 'drop citations by default'.",
-      "wallMs": 24047,
+      "feedback": "After keeps every fact Before kept and repairs the two Before failed: the gate and draft now translate 404, \"clean profiles\", and \"normalizing\" into everyday words on first use, name the router by its role (\"the part that matches web addresses to pages\"), and the draft's What happens next section carries the browser-and-version request, which Before only had as unsectioned prose (so draft-asks-reporter failed there as written). Both outputs stay under the cap, unfenced above Pick one:, with the menu, eligibility line, and send-it confirmation unchanged and nothing trailing either ending. Two things to watch in the After wording so claims-supported keeps holding on other cases: \"The change is small and limited to that one comparison\" edges past the case (which says only \"small and safe\"), so prefer \"The change is small\" or \"The fix touches the comparison at the matcher\"; and the How to fix it section correctly frames slash removal as a proposal (\"such as by removing a final slash\") rather than an observed test result, so keep that hedge in the contract wording (\"describe the fix as what to change, not as a test you ran\"). Dropping `src/router.ts:88` is acceptable since the pick does not require opening it, but if a future case's next action is editing, append it after the claim in Why it is broken as a trailing label rather than inside a parenthetical.",
+      "wallMs": 37257,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "b742fd4d9cf0cad16dc3f88422c2e88fde99442c863d4b6654f666ad4786a2d8",
+      "factsSha": "a7dcc0c25c4e37482ca2c768a98bb5f37ec4ba1d20b45f036c31122895a56ab2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9178bfd6c8ddda57ba98cd4d3aacd21b5304a903cdad09098025b8204a6117b3",
+      "intentSha": "df6c8702b010e3b493faa8150b24e93f08474ef2abd8e23fda9eb0aea11f879a",
       "baselineOutputSha": "d0b01320fdb79d943fdf92aae3160049411c99db9350739ebbb15f11cb12e409",
-      "candidateOutputSha": "d202dc96725c75d7d973287e8b4467e13bf5d3b6148a63e3b0bd0718ee170a43",
+      "candidateOutputSha": "4ec0ade4ee9513cf47d86d65ac4834bc893a294e3afef6c644d5a14981528b74",
       "facts": {
+        "claims-supported": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
         "no-fence": {
           "before": "holds",
           "after": "holds",
@@ -137,10 +147,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves plain-reader and draft-asks-reporter to holds: it translates 404/200 and \"clean profiles\" into everyday words, describes the test by what was changed and what was observed, names the router by its role, and adds the What happens next section that asks for browser and version with the send it confirmation outside the draft. Nothing Before kept was lost, but two drifts are worth tightening in the wording: After fenced the menu as a ```text block and flipped row 3 to [x], which is unrequested and risks a future no-fence or menu-intact reading, so state that the menu stays unfenced with [ ] boxes and only the [recommended] tag marking the pick; and After dropped `src/router.ts:88` entirely, yet the recommended next action is a hotfix, so the contract should say the location trails the How to fix it claim when the pick requires opening it (e.g. \"...before comparing page addresses (`src/router.ts:88`).\"). Also preserve the eligibility line's specific count (\"all six predicates pass\") rather than letting it generalize.",
-      "wallMs": 23998,
+      "feedback": "After keeps every fact Before kept and fixes the two Before failures: it replaces unexplained shorthand (\"falsification test\", \"normalization\", \"clean profiles\", \"prior-report search\") with everyday phrasing and a trailing citation, and it gives the reporter draft a What happens next section that asks for browser and version with the `send it` confirmation outside the draft. Two things to tighten so the wording stays safely inside claims-supported: the slash-removal fix is correctly framed as a proposal under How to fix it, but \"so the final slash prevents a match\" leans toward an inferred mechanism the case only implies, so phrase it as \"compares paths without cleaning them up, so `/widgets/` with its final slash does not match\" and keep the fix sentence explicitly proposed (\"The fix would be to...\"). Also keep \"all six predicates pass\" in the eligibility line rather than \"all predicates pass\" so it mirrors the supplied count, and consider a neutral heading like \"Why it is unconfirmed\" for negative verdicts if the contract allows, since \"Why it is broken\" reads oddly when the verdict is cannot-replicate.",
+      "wallMs": 22200,
       "verdict": "improved"
     }
   },
-  "repoSha": "ef9ec2bdf29be67e86f05a5bb5ee15ed7a536a9d"
+  "repoSha": "67594688963bced299bdf3f08c947e587c1f813a"
 }
