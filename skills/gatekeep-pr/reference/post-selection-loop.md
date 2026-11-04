@@ -57,8 +57,8 @@ Resolve every unmet merge prerequisite; retain failed prerequisites and append c
 | Missing/malformed/mismatched record | `stuck - run record unreadable`; preserve usage. |
 | Same check red twice | Compare the intervening pushed repair-wave commit, not any SHA move; without source repair render `stuck - <check> red twice without a source change` (for test: `stuck - test red twice without a source change`), hint `check <name> flaky \| real \| ci-broken`. A flaky disposition plus numeric deliver can resume. |
 | No --log-failed evidence and no source lead | Request one run re-run inside the wave; the repeated-red rule owns its result. |
-| Helper open - needs <what> | `stuck - needs <what>`. |
-| Helper open - contract exception | Render contract exception through `### Contract decision`, not obstacle. |
+| Helper open - needs <what>, or pi failed decision's second slot starts needs <what> | `stuck - needs <what>`. |
+| Helper open - contract exception, or pi failed decision's second slot starts contract exception: | Render contract exception through `### Contract decision`, not obstacle. |
 | HEAD equals pre_wave_head with all payloads open, or scoped test unchanged-red after restore | render per ### No-progress obstacle |
 | Undispositionable BLOCKED | `GitHub reports BLOCKED, no local repair applies`; invent no rule attribution. |
 | UNKNOWN/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check | Render `stuck - merge state unknown` through `menus.md`'s obstacle template; let merge state own the withhold reason and the PR comments line. Authorize no sync, offer no ordinary wait row, keep stop last and `[recommended]`, report both usage counters unchanged, and print `Not offered: merge (merge state unknown)`. |
@@ -126,7 +126,7 @@ Before a merge executes, run the full comment refetch and reconciliation (`### R
 
 Take all open blocker payloads under deliver; include every current and later nit under deliver-nits. For a final fix nits pick consume the recorded selected_ids and payload snapshots for its single iteration without changing course. Skip findings closed by user disposition. Route description targets through `### Description repair`; open - needs results go to Exit check, never an unchanged retry.
 
-Apply per `fix-wave.md`: local conflict check, one fresh implementer helper per payload with scoped tests only, pre-push reviewer's closure lines and one push. The orchestrator never edits a tracked file and never commits. Lost head_pushable exits with local branch and destination named.
+Apply per `fix-wave.md`: local conflict check, fresh `loop-implementer` rows for pi file findings or native payload helpers on Claude Code, with scoped tests only, pre-push reviewer's closure lines and one push. The orchestrator never edits a tracked file and never commits. Lost head_pushable exits with local branch and destination named.
 
 Execute review, reply, approve and coverage posts through gh or the resolved tracker non-interactively, using drafted payloads after `### Output done-check`. For assess with open Blockers, post their composed body and locators once after `### Compare-and-swap`:
 
