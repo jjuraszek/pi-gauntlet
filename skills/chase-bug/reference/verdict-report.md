@@ -118,9 +118,11 @@ unsaid; do not lead or trail the report with operational evidence from steps 8-9
 
 Use these envelopes only at step 4. Drafts and summaries reuse the section
 shape, never these markers or menus; use step 5's marker and ending instead.
+Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting these menus and before acting on a numeric reply.
 
-## Real-bug gate example (addressable free text)
+### Real-bug gate example (addressable free text)
 
+````markdown
 gauntlet: gate=chase-bug/verdict-menu recommended=3
 
 ### Context
@@ -149,9 +151,11 @@ Pick one:
 
 eligible - all predicates pass
 ```
+````
 
-## Cannot-replicate gate example (GitHub issue)
+### Cannot-replicate gate example (GitHub issue)
 
+````markdown
 gauntlet: gate=chase-bug/verdict-menu
 
 ### What is broken
@@ -173,9 +177,11 @@ Pick one:
 2. [ ] Finish without a response.
 3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.
 ```
+````
 
-## Not-a-bug gate example (GitHub issue)
+### Not-a-bug gate example (GitHub issue)
 
+````markdown
 gauntlet: gate=chase-bug/verdict-menu
 
 ### What is broken
@@ -196,3 +202,4 @@ Pick one:
 1. [ ] Respond to reporter with this verdict and citation.
 2. [ ] Finish without a response.
 ```
+````
