@@ -29,6 +29,55 @@ On pi, dispatch selected file findings as companion `loop-implementer` rows in r
 
 Resolve `SCOPED_TEST_COMMANDS` once per wave from the merge-base copies of the overrides file, then `AGENTS.md` (`git show "$MB:<path>"`, the trust rule of `assessment.md` `## Configuration`): a scoped runner is a documented test command carrying a `<paths>` or `<files>` placeholder, or a command the doc labels scoped, in any section of either file (`## PR gate`, `## Project`, `## routing`, `## test-driven-development`, `## verification-before-completion` alike); keep its cwd and flags verbatim; with several runners take the one whose directory prefix matches the payload's test file; substitute the test files the payload touches or writes; insert each path made only of `[A-Za-z0-9/._-]` bare; insert any other path single-quoted with embedded `'` escaped as `'\''`; keep each path relative to the runner's working directory (strip the `cd <dir> &&` prefix's directory from the path), and for a `P#` carried by a `rebased locally` sync record the failing test file named in that record; no runner or no test file -> `none`. Never the resolved `verification command`, whatever a consumer sentence says about fix waves - that command runs only where `../verification-brief.md` Section B selects a local-run row.
 
+### Finding artifacts
+
+On pi, after a delivery course or terminal `fix nits` pick authorizes file work and before its first row dispatch, write the derived spec and companion ledger together at `<record path>-spec.md` and `<record path>-ledger.md`, beside the OS-temp continuation record outside the checkout. Reuse the existing pair on re-entry; create neither for assess/post-only work or on Claude Code. Never stage either file or include them in a PR-branch commit.
+
+Resolve `gauntlet_setting({ key: "loopEngine" })` for `maxIterationsPerRow` and `escalateAfter`, and `gauntlet_setting({ key: "escalationLoop" })` for `implModel`; retain the values for row budgets. An unavailable resolver stops the wave naming the missing tool; never guess the allowance or threshold. Resolve `MB` with `git -C <worktree> merge-base origin/<baseRefName> <headRefOid>` and take the ledger's verification command from the brief, not a scoped runner.
+
+Write the derived spec in this shape:
+
+```markdown
+# Findings spec - gatekeep-pr <owner/repo>#<N>
+
+## Scope
+<PR title and body verbatim; scope.original_intent; for scope.source: spec, the carried spec path at the assessed head as the authoritative scope contract>
+
+## Acceptance criteria
+- [ ] <P#/L# ids>: <finding evidence pack>
+- [ ] fix nits: <id>: <nit text>; <id>: <nit text>; ...
+```
+
+Create one AC per selected file blocker finding, in review order, carrying every contributor P#/L# id and the evidence pack: symptom, location, failing test or `no scoped test`. Follow those ACs with one final `fix nits` AC holding every selected nit id and text; omit it when no nit work is selected. Keep deduplicated contributors together in their finding's AC, not separate rows. For a terminal `fix nits` pick, create exactly that one batch row, never one per nit. Description-target and reply payloads never become ACs or ledger rows; keep Description repair's compare-and-swap and claim recheck, and the explicit reply pick, unchanged. Use the original PR spec or body for scope; use derived ACs only as work items.
+
+Write one ledger row per AC in the same order; row n indexes AC n. Expand the placeholder row and mapping below for every AC, keeping attempts zero and evidence empty:
+
+```markdown
+# Ledger - loop engine
+**Spec:** `<absolute <record path>-spec.md>`
+base: <MB>
+verification: <resolved verification command or none>
+checks: commands
+iterations: 0
+allowance: <maxIterationsPerRow>
+
+| row | status | attempts | evidence |
+|---|---|---|---|
+| <n> | open | 0 | |
+
+## Leg mapping
+
+| row | ac | leg |
+|---|---|---|
+| <n> | <n> | gatekeep |
+
+## Decisions
+```
+
+For a newly carried finding, append its AC before adding its ledger row and mapping; preserve existing ordinals, attempts and decisions. Keep scoped commands in the row task, not a ledger column. For the nit batch use the union of its payloads' scoped commands, preserving each documented `cd <dir> &&` prefix; use `none` when no runner or test file resolves. Start directly at the selected row under Row dispatch, with no seed worker.
+
+Persist the absolute paths as `repair.wave.spec` and `repair.wave.ledger` in the continuation record. Validate both files exist and parse on every re-entry; missing, unreadable or malformed artifacts exit `stuck - run record unreadable`, never recreate the pair or reset attempts. Carry both paths and their counters through `batch.md`'s private handoff. Retain them through cleanup and show evidence; delete both with the run record on every handled terminal exit.
+
 ### Shared worker context
 
 Build this block once for both harnesses, substituting the finding's evidence pack (`findings.md` `## Drafted payloads`), the stored scope baseline, and the resolved commands. Mint a fresh output path per dispatch with `mktemp "${TMPDIR:-/tmp}/gatekeep-row.XXXXXX"`.

@@ -4,6 +4,29 @@ import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
 
+test('finding artifacts index each selected blocker and one complete nit batch', () => {
+  const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
+  const artifacts = fixWave.split('\n### Finding artifacts\n')[1]?.split('\n### Shared worker context\n')[0];
+  assert.ok(artifacts, 'create finding artifacts before worker context and dispatch');
+  for (const token of [
+    '<record path>-spec.md', '<record path>-ledger.md',
+    'one AC per selected file blocker finding, in review order',
+    'every contributor P#/L# id', 'symptom, location, failing test or `no scoped test`',
+    'one final `fix nits` AC holding every selected nit id and text',
+    'PR title and body verbatim', 'scope.original_intent', 'authoritative scope contract',
+    '# Ledger - loop engine', '**Spec:**', 'base: <MB>',
+    'verification: <resolved verification command or none>', 'checks: commands',
+    'iterations: 0', 'allowance: <maxIterationsPerRow>',
+    '| row | status | attempts | evidence |', '| <n> | open | 0 | |',
+    '## Leg mapping', '| <n> | <n> | gatekeep |', '## Decisions',
+    'row n indexes AC n', 'gauntlet_setting({ key: "loopEngine" })',
+    'escalateAfter', 'gauntlet_setting({ key: "escalationLoop" })', 'implModel',
+    'union of its payloads', 'append its AC before adding its ledger row and mapping',
+  ]) assert.ok(artifacts.includes(token), `finding artifacts require ${token}`);
+  assert.match(artifacts, /Description-target and reply payloads never become ACs or ledger rows/);
+  assert.match(artifacts, /missing tool.*never guess/);
+});
+
 test('pi file findings dispatch companion loop rows while sync keeps implementer helpers', () => {
   const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
   const sync = fixWave.split('\n## Sync\n')[1].split('\n## Wave\n')[0];

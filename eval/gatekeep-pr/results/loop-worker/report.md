@@ -1,0 +1,23 @@
+# eval report: gatekeep-pr (partial run: loop-worker)
+
+for: a7a13e6814ec7223b07769aae116a20209a757b372782191deb7fabb4b85700f
+
+wall: 83s
+
+## Change
+
+Route pi file findings through fresh loop-implementer companion-row dispatches with parent-owned commit admission and scoped evidence. Share worktree, head check, evidence, scope limits and output context across harnesses; keep autonomous solving and companion commits in the pi tail and drafted edits with restored failures in the Claude Code tail. Selected coverage is loop-worker only; ledger creation, reopen aggregation, budgets, lifecycle and prior-review behavior remain outside this iteration's model evidence.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| loop-worker | anthropic/claude-opus-5-5 | improved | 31511 | w1: fails -> holds (intended change); w2: fails -> holds (intended change); w3: fails -> holds (intended change); w4: fails -> holds (intended change); w5: fails -> holds (unplanned improvement); w6: fails -> holds (intended change); w7: holds -> holds (held) |
+| loop-worker | github-copilot/gpt-6.1-sol | improved | 32733 | w1: fails -> holds (intended change); w2: fails -> holds (intended change); w3: fails -> holds (intended change); w4: fails -> holds (intended change); w5: fails -> holds (unplanned improvement); w6: fails -> holds (intended change); w7: holds -> holds (held) |
+
+## Feedback
+
+- loop-worker / anthropic/claude-opus-5-5: After delivers the Change cleanly: the pi dispatch is now a fresh loop-implementer with target 1, file-only output and acceptance none; HEAD_BEFORE, the iterations bump and the pending tuple are written before dispatch; the task carries iteration 0, base, both companion paths, previous decision/hint none, Leg, mapping and both Rules lines; the pi tail lets the worker choose the fix under the Companion result commit contract with needs/contract-exception routing; the shared context is stripped of commit rule, report shape and payload while gaining the worktree, HEAD check, evidence, scope baseline, limits and output path; and admission reads the commit (pending tuple, iteration 1, attempts 1, command-first scoped evidence, tracked diff) rather than the reply. w5 also moved to holds only because Before had placed the drafted-payload instruction and commit rule in the shared context instead of the Claude Code tail and omitted the no-scoped-test branch; After puts the full apply/commit-on-pass/restore-and-open/before-after-report instructions in the tail, which is the correct shape. No fact Before held was lost (w7 still holds: N1 untouched, npm test never run, no push, no pre-push reviewer). One minor tightening: the After return-admission narrative says `pending:` is cleared and the decision appended, but does not state explicitly that the orchestrator makes no commit of its own; adding one clause such as 'the orchestrator commits nothing; the round is counted from the worker's commit' would make w6's last conjunct unambiguous.
+- loop-worker / github-copilot/gpt-6.1-sol: After regresses nothing: w7 still holds (no nit dispatch, no npm test, no push, no reviewer in either checkpoint), and every targeted fact moved because the pi dispatch now names loop-implementer with target 1, file-only ROW_OUTPUT and acceptance none with the parent-validation reason (w1), the pre-dispatch section explicitly saves HEAD_BEFORE, bumps iterations to 1, writes the pending tuple and lists iteration 0, base MB, both absolute companion paths, previous decision/hint none, Leg, mapping and Rules (w2), the pi tail says 'choose the fix' and routes failure through needs/contract exception under the Companion result commit contract (w3), the shared context drops the drafted-payload mandate, commit rule and return format while keeping worktree, HEAD check, evidence, scope baseline, scoped test, limits and output path (w4), and admission walks the clean-tree/one-commit/pending-tuple/iteration/done-attempts/command-first-evidence/nonempty-diff checks and then writes the row, appends the decision, clears pending and counts one round without an orchestrator commit (w6). w5 also moved in my reading only because Before put payload application and the commit rule in the shared context rather than the Claude Code tail and omitted the 'or no scoped test' allowance; After's tail now owns all of that, so keep it as a standalone tail and keep the admission checks (status, rev-parse, rev-list count zero) as written. One small tightening would help w6 read unambiguously: in the admission bullet say the evidence command is the scoped runner and not the resolved npm test verification command, rather than relying on the earlier 'I do not substitute npm test' line.
+
+exit: 0
