@@ -1,4 +1,4 @@
-for: 21dd81f26a5919de165c601502716b30bff07c40a4b121b83049e4edd4d24ab2
+for: b5c099e66297f6de46572923ba21740e8542548602e14d04e05cf82950cb618d
 
 ## Change
 Replace the three-sentence, under-80-word verdict budget with one shared sectioned report contract. Use optional Context, What is broken, Why it is broken, and How to fix it for real bugs or What happens next for negative verdicts. Keep reports standalone and concise, with literal fixes, role-named mechanisms, visible proof, and trailing citations. Apply the shape to verdicts, reporter drafts, terminal summaries, and post-hotfix responses. End the gate's third section with the recommended pick and one because-clause; omit picks from drafts, summaries, and the hotfix seed. Preserve gate markers, menu numbering and recommendation, returned-ticket truth, citation sources, response confirmation, and hotfix seed evidence without menu recommendations.

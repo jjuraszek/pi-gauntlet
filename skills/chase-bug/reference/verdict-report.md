@@ -18,7 +18,7 @@ that do not fit; never append them after that ending.
 
 | Section | Content |
 |---|---|
-| Context | Build only from the failing action's repro (one line), the explanation that survived testing, and a line naming a specific unchecked fact. Leave the unchecked-fact line absent when nothing remains unchecked; omit Context when it adds no evidence. |
+| Context | Build only from the failing action's repro (one line), the explanation that survived testing, a line naming a specific unchecked fact, and the residual required by [Hotfix record and return](#hotfix-record-and-return). Leave the unchecked-fact line absent when nothing remains unchecked; omit Context when it adds no evidence. |
 | What is broken | State the failure in the reporter's terms; for a negative verdict, contrast the report with what the chase observed. |
 | Why it is broken | Explain the mechanism with one concrete before/after value or repro result. For a negative verdict, name the kind of source that settles it; state an unknown cause as unknown. |
 | Third section at the gate | Give the literal change, its intended result, and its size for a real bug, including unknown cost; for a negative verdict give the cited fact or missing input. End with the recommended pick and one because-clause, without replacing the fix explanation with a menu action. |
@@ -76,8 +76,7 @@ the failure without it." Match claims about who has an input and how a test ran
 to the recorded evidence; describe a test only at its recorded specificity.
 Render Why as the current chase's cause sentence in everyday words, the supplied failing input's result, and the recorded confirmation; keep each action and purpose at its recorded specificity.
 Name each repeated pass by its own recorded purpose in every section, including What is broken and recommendation reasons.
-Copy the current chase's fix-size phrase verbatim into How to fix it and its recommendation reason.
-For example: "The part that matches web addresses to pages compares addresses without first putting them in a standard form, so `/widgets/` does not match its page. A test confirmed this cause. The proposed fix puts addresses in a standard form before matching; it is expected to make `/widgets/` load. The fix is small and safe. Choose hotfix because the fix is small and safe."
+For example: "The part that matches web addresses to pages compares addresses without first putting them in a standard form, so `/widgets/` does not match its page. A test confirmed this cause. The proposed fix puts addresses in a standard form before matching; it is expected to make `/widgets/` load. Choose hotfix because the fix is small and safe."
 Keep proposed fixes distinct from completed tests. Take facts from the current chase, using golden examples only for shape and register. State a bare
 confirmation of a cause as "A test confirmed this cause." Keep the test's
 unrecorded input, procedure, and result unspecified. Frame requests for missing
