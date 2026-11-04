@@ -56,7 +56,7 @@ including citation labels; retain the menu and eligibility vocabulary outside th
 | router | The part that matches web addresses to pages |
 | fixture | Sample data |
 | clean browser profile | Browser settings with no saved preferences |
-| cache | The browser's stored copy of the data |
+| cache | A stored copy of data kept to avoid redoing work; say whose copy it is (the browser's, the server's, the build's) |
 | API routing documentation | The documented rules for page addresses |
 
 Explain a necessary code term in everyday words before its first use in each
