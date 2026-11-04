@@ -48,6 +48,9 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | chase-bug/verdict-menu | gate | skills/chase-bug/reference/verdict-report.md | ## Golden examples - step-4 gates only | N. rows; templates=3 |
 | chase-bug/response-to-origin | gate | skills/chase-bug/SKILL.md | ### 5. Response to origin | N. rows |
 | check-delivery/confirmation-gate | gate | skills/check-delivery/SKILL.md | ## Confirmation gate and the batched write | N. rows |
+| check-delivery/confirmation-gate | gate | skills/check-delivery/reference/batch.md | ## Turns | N. rows |
+| check-delivery/set-recovery | gate | skills/check-delivery/reference/batch.md | ## Turns | N. rows |
+| check-delivery/ac-conflict-reading | question | skills/check-delivery/reference/batch.md | ## Turns | free |
 | shape-ticket/step-3 | question | skills/shape-ticket/SKILL.md | ### 3 - Interactive questioning | free |
 | shape-ticket/step-8 | gate | skills/shape-ticket/reference/repo-audit.md | ## Complete the batch and present gates | N. rows |
 | shape-ticket/hard-stop | question | skills/shape-ticket/SKILL.md | ## AC integrity gate | free |
@@ -89,6 +92,10 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 | check-delivery | Findings-comment gate answered or not offered; partial write failure or declined success write | skills/check-delivery/SKILL.md § ## Confirmation gate and the batched write | gauntlet: stuck |
 | check-delivery | Quick-reference STOP: unreadable ref/repo mismatch, terminal ticket, zero ACs, open deliverable PR, ambiguous/off-default deliverables, unreachable/timed-out/unbound delivery target | skills/check-delivery/SKILL.md § ## Quick reference | gauntlet: stuck |
 | check-delivery | Already-terminal ticket with delivery recorded; no write | skills/check-delivery/SKILL.md § ## Quick reference | gauntlet: done already-recorded |
+| check-delivery | Set settled without failures; dynamic counters | skills/check-delivery/reference/batch.md § ## Turns | gauntlet: done delivered=1 |
+| check-delivery | Set settled with failed tickets; same dynamic counters | skills/check-delivery/reference/batch.md § ## Turns | gauntlet: stuck |
+| check-delivery | Set admission rejected | skills/check-delivery/reference/batch.md § ## Admit | gauntlet: stuck |
+| check-delivery | Set shared preparation stopped | skills/check-delivery/reference/batch.md § ## Shared prep | gauntlet: stuck |
 | chase-bug | Response sent | skills/chase-bug/SKILL.md § ### 5. Response to origin | gauntlet: done responded |
 | chase-bug | Unaddressable origin: rendered summary | skills/chase-bug/SKILL.md § ### 5. Response to origin | gauntlet: done summary |
 | chase-bug | Copy-paste draft is last act, including push failure | skills/chase-bug/SKILL.md § ### 5. Response to origin | gauntlet: done draft |
@@ -99,6 +106,8 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 | gauntlet-handoff | --out and --key exclusivity STOP | skills/gauntlet-handoff/SKILL.md § ## Sequence | gauntlet: stuck |
 
 Shape-ticket emits one batch settlement line after the last ticket, also for a singleton. Emit nonzero `<key>=<count>` counters, comma-joined without spaces, in this fixed order: `written,closed,declined,dropped,no-op,stopped,unfetched,close-failed,close-by-hand`. Use `done` unless any `unfetched`, `close-failed`, or `close-by-hand` count is nonzero; then use `stuck` with those same ordered counters. `declined` and `dropped` are human decisions, not failures. `stopped` means an integrity stop left without recovery values when the run ended; `gauntlet: done stopped=1` is valid. An active hard-stop recovery ask is still `question`, never a batch ending.
+
+Check-delivery set settlement uses nonzero counters in fixed order `delivered,manual,declined,already-recorded,skipped,failed`, comma-joined without spaces. Use `done` without failures and `stuck` with the same counters when `failed` is nonzero. Declined and skipped tickets are human decisions, not failures. While the roster continues, only the next ticket's gate marker appears; previous outcomes are plain text.
 
 Gatekeep terminal stop reports retain the checkout path and local branch. Non-final stops retain the obstacle's `stuck - ` reason, or `stopped at <template id>` for initial, assess-terminal, and contract-exception. Hard stops retain the actual error. A verdict above a menu is not an ending. A successful PR-subject push followed by the close-member question is still the finishing gate, not `done pushed`.
 
@@ -113,6 +122,8 @@ Resume's argument failures cover a spec seed with an extra worktree, an unrecogn
 | X) options | Send the letter or free text, preserving the question's recommendation format. |
 | item-letter | Send `<item>. <letter>` per the [carried-open response grammar](../skills/finishing-a-development-branch/reference/disposition-protocol.md#response-grammar); use the displayed choices for each item. |
 | free / question | Answer the words requested by the body: a number of funded rounds or stop for conformance escalation, typed `discard` for discard authorization, `retry <n> \| <hint>` or `rows +N` for loop row stops, or `yes`/`no` for the named confirmations. |
+
+Check-delivery's set-recovery gate takes `1` (retry), `2` (skip), or `stop`. An AC-conflict retry opens a separate reading question taking free text or `skip`; an empty reply also skips. Only a nonempty reading redispatches the ticket. `stop` at either set gate settles the current ticket without a write and skips the unrendered roster.
 
 Loop approval rows 4/5 display `allowance <n> per row` from `loopEngine.maxIterationsPerRow` (default 4), with settings warnings beside the menu. An explicit override emits `run allowance: <n>` immediately before loop entry; it is not an Amend-grant or spec field. A pre-seed crash loses that carrier. Existing ledgers use their durable allowance, not a later reply or settings change.
 

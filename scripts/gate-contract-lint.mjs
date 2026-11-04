@@ -72,7 +72,7 @@ export function lintGateContract(root) {
     const doc = markdown(text);
     const heading = doc.headings.find((h) => h.text.startsWith(site) && /^#{1,6}\s/.test(site));
     if (!heading) { error(`absent heading ${site}`); continue; }
-    if (kind === "gate" && rows.some((r) => r.kind === "gate" && r.file === file && r.site === site)) { error(`duplicate gate file/site ${file} ${site}`); continue; }
+    if (kind === "gate" && rows.some((r) => r.kind === "gate" && r.id === id && r.file === file && r.site === site)) { error(`duplicate gate file/site ${file} ${site}`); continue; }
     const start = heading.start;
     const end = doc.headings.find((h) => h.start > start && h.level <= heading.level)?.start ?? doc.lines.length;
     const blocks = doc.blocks.filter((b) => b.start > start && b.end < end);
@@ -82,7 +82,7 @@ export function lintGateContract(root) {
       return text.startsWith("Start the message with") && text.includes(`\`${literal}\``);
     }));
     if (count ? marked.length !== Number(count) : !marked.length && !sentence) diagnostics.push(`${table} ${id} not found at ${file} ${site}`);
-    rows.push({ file, site, kind, start, end });
+    rows.push({ id, file, site, kind, start, end });
   }
   for (const file of new Set(rows.filter((r) => r.kind).map((r) => r.file))) {
     if (!linked(read(file), file, MENU, root)) diagnostics.push(`${file}: no resolving menu-layout citation`);

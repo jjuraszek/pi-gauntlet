@@ -3,22 +3,25 @@
 base: d3aa93b651f89223161c6039446cd8af3ee3296c
 verification: npm test
 checks: commands
-iterations: 2
+iterations: 3
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | node -e '["gate-line-first", "menu-after-numbered-findings"].forEach(s => require("node:assert").strictEqual(require("node:child_process").spawnSync(process.execPath, ["eval/run.mjs", "check-delivery", s, "--base", "d3aa93b651f89223161c6039446cd8af3ee3296c"], {stdio: "inherit"}).status, 0))'; both selected samples unchanged; four model cells pass with all facts holding; single-ticket skill text unchanged from base |
-| 2 | open | 0 | |
+| 2 | done | 1 | node eval/run.mjs check-delivery-batch batch-one-gate-per-turn --base d3aa93b651f89223161c6039446cd8af3ee3296c; 2 model cells improved with all 9 facts holding; first report and gate isolated in supplied order; dispatch and tracker calls require manual smoke |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
 | 5 | open | 0 | |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
 | 8 | open | 0 | |
-| 9 | open | 0 | |
-| 10 | open | 0 | node -e '["skills/check-delivery/SKILL.md", "skills/check-delivery/reference/batch.md"].map(p => require("node:fs").readFileSync(p, "utf8")).forEach(s => [require("node:assert").ok(Buffer.byteLength(s) < 50000), require("node:assert").ok(s.split("\n").length - Number(s.endsWith("\n")) < 2000), require("node:assert").ok(!s.includes("Input is exactly one tracker ref"))])'; exit 1: ENOENT skills/check-delivery/reference/batch.md; batch reference is missing |
+| 9 | done | 0 | node -e '((s,a)=>[a.match(s,/^---\nname: delivery-checker\ndescription: .+Not for direct dispatch\./), a.deepStrictEqual(require("yaml").parse(s.split("---")[1]), {name:"delivery-checker", description:"Use for one ticket dispatched by check-delivery set mode. Not for direct dispatch.", tools:"read, grep, find, ls, bash, plan_tracker", defaultContext:"fresh", inheritProjectContext:true, inheritSkills:false, systemPromptMode:"replace", completionGuard:false})])(require("node:fs").readFileSync("agents/delivery-checker.md","utf8"),require("node:assert"))'; exit 0; CI name and description frontmatter checks and exact YAML fields pass; no extra tools or model/thinking pins |
+| 10 | done | 0 | node -e '["skills/check-delivery/SKILL.md", "skills/check-delivery/reference/batch.md"].map(p => require("node:fs").readFileSync(p, "utf8")).forEach(s => [require("node:assert").ok(Buffer.byteLength(s) < 50000), require("node:assert").ok(s.split("\n").length - Number(s.endsWith("\n")) < 2000), require("node:assert").ok(!s.includes("Input is exactly one tracker ref"))])'; exit 0; both files below 50000 bytes and 2000 lines; obsolete single-ref sentence absent |
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 10
 row 1 done | Both single-ticket eval samples pass against the base with unchanged skill text and all facts holding. | nothing new to build on
+row 2 done | Added fresh per-ticket dispatch and ordered parent turns with passing first-gate evals and updated docs. | Reuse skills/check-delivery/reference/batch.md and eval/check-delivery-batch for later turn and recovery checks.
+row 9 done | Checked delivery-checker frontmatter against the exact tool list, context pins, and indirect-dispatch description. | nothing new to build on
+row 10 done | Checked both instruction files stay below the byte and line caps and omit the obsolete single-ref constraint. | nothing new to build on

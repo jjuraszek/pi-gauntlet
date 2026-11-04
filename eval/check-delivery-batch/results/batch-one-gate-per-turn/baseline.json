@@ -1,0 +1,50 @@
+{
+  "sample": "batch-one-gate-per-turn",
+  "arm": "baseline",
+  "skillSha": "e6d50d066b663e4c5fd4444c034e41d2fb83156230ef54465010230e53cefb62",
+  "inputSha": "0ff3c7e89c158f3a0e88131fdf6894482d4f11c3be7820c3b0e7d90c0f2edb25",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\nAll three tickets passed with no unexplained gaps. Approving below writes the evidence comments for all three tickets, one at a time in roster order. Declining writes nothing for any of them.\n\nBefore each write, I re-fetch the ticket. If its ACs or status changed since gather, I show you the change instead of writing.\n\n---\n\n### acme/widget#12\n\n- **Shipped SHA:** a123456\n- **Deliverable:** https://example.test/pull/12\n- **Stages:**\n  - 0: gathered\n  - 1: landed on trunk\n  - 2: skipped (no delivery target configured)\n  - 3: verified\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Export preserves twelve rows. | not externally observable | export.test.ts at a123456 asserts twelve rows. This contract is checked only by test fixtures. |\n\n- **Reviewer script:** inspect export.test.ts at a123456 for the twelve-row assertion. There is no runtime surface.\n- **Write about to happen:** evidence comment only. No target state is configured, so there is no status change and no body edit.\n\n```text\nDelivered: a123456\nPR https://example.test/pull/12 landed on trunk. Stage 2 skipped: no delivery target configured. Export preserves twelve rows: not externally observable, implementation at a123456. Reviewer: inspect export.test.ts at a123456 for the twelve-row assertion.\n```\n\n### acme/widget#15\n\n- **Shipped SHA:** b234567\n- **Deliverable:** https://example.test/pull/15\n- **Stages:**\n  - 0: gathered\n  - 1: landed on trunk\n  - 2: skipped (no delivery target configured)\n  - 3: verified\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Import rejects empty names. | not externally observable | import.test.ts at b234567. This contract is checked only by test fixtures. |\n\n- **Reviewer script:** inspect import.test.ts at b234567.\n- **Write about to happen:** evidence comment only. No target state is configured, so there is no status change and no body edit.\n\nThe child's drafted comment put extra text on the `Delivered:` line. I rebuilt it from the report so the marker line stands alone and the comment carries every required section:\n\n```text\nDelivered: b234567\nPR https://example.test/pull/15 landed on trunk. Stage 2 skipped: no delivery target configured. Import rejects empty names: not externally observable, implementation at b234567. Reviewer: inspect import.test.ts at b234567.\n```\n\n### acme/widget#18\n\n- **Shipped SHA:** c345678\n- **Deliverable:** https://example.test/pull/18\n- **Stages:**\n  - 0: gathered\n  - 1: landed on trunk\n  - 2: skipped (no delivery target configured)\n  - 3: verified\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Archive preserves timestamps. | not externally observable | archive.test.ts at c345678. This contract is checked only by test fixtures. |\n\n- **Reviewer script:** inspect archive.test.ts at c345678.\n- **Write about to happen:** evidence comment only. No target state is configured, so there is no status change and no body edit.\n\nAs with #15, I rebuilt this comment from the report so the marker line stands alone:\n\n```text\nDelivered: c345678\nPR https://example.test/pull/18 landed on trunk. Stage 2 skipped: no delivery target configured. Archive preserves timestamps: not externally observable, implementation at c345678. Reviewer: inspect archive.test.ts at c345678.\n```\n\n---\n\nPick one:\n\n```text\n1. approve the write\n2. decline\n```\n",
+      "words": 426,
+      "wallMs": 17912,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "ticket-heading": "fails",
+        "no-second-ticket": "fails",
+        "no-third-ticket": "fails",
+        "private-handoff": "holds",
+        "private-result": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\nAll three delivery checks are clear. **No writes have been made.** One approval covers the three evidence comments below, in roster order. No body edits or status changes are planned: **no target state configured**.\n\n### acme/widget#12\n\n**Shipped SHA:** `a123456`  \n**Deliverable:** https://example.test/pull/12  \n**Stages:** 0 gathered; 1 landed on trunk; 2 skipped: no delivery target configured; 3 verified.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Export preserves twelve rows. | not externally observable | `export.test.ts` at `a123456` asserts twelve rows; this is a fixture-only contract. |\n\n**Reviewer script:** Inspect `export.test.ts` at `a123456` for the twelve-row assertion; no runtime surface.\n\n**Exact evidence comment:**\n```text\nDelivered: a123456\nPR https://example.test/pull/12 landed on trunk. Stage 2 skipped: no delivery target configured. Export preserves twelve rows: not externally observable, implementation at a123456. Reviewer: inspect export.test.ts at a123456 for the twelve-row assertion.\n```\n\n### acme/widget#15\n\n**Shipped SHA:** `b234567`  \n**Deliverable:** https://example.test/pull/15  \n**Stages:** 0 gathered; 1 landed on trunk; 2 skipped: no delivery target configured; 3 verified.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Import rejects empty names. | not externally observable | `import.test.ts` at `b234567`; fixture-only contract. |\n\n**Reviewer script:** Inspect `import.test.ts` at `b234567`.\n\n**Exact evidence comment:**\n```text\nDelivered: b234567\nPR https://example.test/pull/15 landed on trunk.\nStage 2 skipped: no delivery target configured.\nAC: Import rejects empty names.\nVerdict: not externally observable.\nEvidence: import.test.ts at b234567; fixture-only contract.\nReviewer: inspect import.test.ts at b234567.\n```\n\n### acme/widget#18\n\n**Shipped SHA:** `c345678`  \n**Deliverable:** https://example.test/pull/18  \n**Stages:** 0 gathered; 1 landed on trunk; 2 skipped: no delivery target configured; 3 verified.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Archive preserves timestamps. | not externally observable | `archive.test.ts` at `c345678`; fixture-only contract. |\n\n**Reviewer script:** Inspect `archive.test.ts` at `c345678`.\n\n**Exact evidence comment:**\n```text\nDelivered: c345678\nPR https://example.test/pull/18 landed on trunk.\nStage 2 skipped: no delivery target configured.\nAC: Archive preserves timestamps.\nVerdict: not externally observable.\nEvidence: archive.test.ts at c345678; fixture-only contract.\nReviewer: inspect archive.test.ts at c345678.\n```\n\nBefore writing, each ticket will be re-fetched. If its ACs or status changed, the delta will be presented instead of writing.\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 315,
+      "wallMs": 11504,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "ticket-heading": "fails",
+        "no-second-ticket": "fails",
+        "no-third-ticket": "fails",
+        "private-handoff": "holds",
+        "private-result": "holds"
+      }
+    }
+  },
+  "repoSha": "04aff69fb4535661ec467d9b9367ec58f42d847e"
+}

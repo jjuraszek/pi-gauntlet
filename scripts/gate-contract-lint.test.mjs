@@ -34,9 +34,10 @@ test("table and site parse failures name the row", () => {
     assert.match(lintGateContract(fixture({ "doc/gate-contract.md": contract(rows) })).join("\n"), /doc\/gate-contract.md:\d+.*parse error/);
   }
 });
-test("shared question sites and repeated ids at distinct sites", () => {
-  const rows = row + "\n" + question + "\n" + question.replace("demo/ask", "demo/other") + "\n" + question.replace("demo/ask", "demo/third") + "\n" + row.replace("## Review", "## Second");
-  assert.deepEqual(lintGateContract(fixture({ "doc/gate-contract.md": contract(rows), [file]: body + `\n## Second\n${fence(gate)}` })), []);
+test("shared gate and question sites and repeated ids at distinct sites", () => {
+  const rows = row + "\n" + row.replace("demo/review", "demo/recovery") + "\n" + question + "\n" + question.replace("demo/ask", "demo/other") + "\n" + question.replace("demo/ask", "demo/third") + "\n" + row.replace("## Review", "## Second");
+  const content = body.replace("## Ask", `${fence("gauntlet: gate=demo/recovery")}\n## Ask`) + `\n## Second\n${fence(gate)}`;
+  assert.deepEqual(lintGateContract(fixture({ "doc/gate-contract.md": contract(rows), [file]: content })), []);
 });
 test("heading slices ignore fenced headings, include children, and stop at peers", () => {
   for (const [name, content, valid] of [
