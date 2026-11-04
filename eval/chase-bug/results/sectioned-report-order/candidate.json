@@ -1,7 +1,7 @@
 {
   "sample": "sectioned-report-order",
   "arm": "candidate",
-  "skillSha": "21636b49159ff6b94c328682adb8fd114c5ae39278a20d5c90bcd4661a81df43",
+  "skillSha": "786b7034730705586776faf7c77e1b00eae731f92938575e0e6d562c53b1c9af",
   "inputSha": "bf194532307a772b90d2687dd2a5bff7ea4eb5a382f97db003e1bcc92e8cb077",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### Context\n\nA local test that requests `/widgets/` reproduced the page not found (404) error. Ignoring the final slash during the test made the page load. Nothing was blocked.\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page. Opening `/widgets` works normally.\n\n### Why it is broken\n\nThe part of the code that matches web addresses to pages compares them exactly. The extra final slash in `/widgets/` means it matches no page.\n\n### How to fix it\n\nRemove the final slash before that one comparison so both addresses reach the widgets page. The change is a single small edit. Choose hotfix because the fix touches only one contained comparison.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\n### Context\n\nThe documented steps were run with the small sample data supplied in the report. The chart displayed in both Chrome and Firefox, each using browser settings with no saved preferences. Clearing the browser's stored copy of the data did not change the result.\n\n### What is broken\n\nThe report says the chart disappears after a refresh. When the report's steps were followed, the chart stayed visible after refreshing.\n\n### Why it is broken\n\nThe documented reproduction attempts did not show the failure. The one explanation tested, stale stored data, was ruled out, so the cause is unknown.\n\n### What happens next\n\nThe report does not include the dataset size from the failing run, and that size is needed to continue. Respond with a request for it because it is the one known difference between the reporter's run and the attempts that worked.\n\nPick one:\n\n```text\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n```\n",
-      "words": 330,
-      "wallMs": 15494,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### Context\n\nA local test that requests `/widgets/` reproduced page not found (404). Ignoring the final slash made that same test pass.\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page. `/widgets` loads normally.\n\n### Why it is broken\n\nThe part of the code that matches web addresses to pages compares them exactly. `/widgets/` has an extra final slash, so it matches no page, while `/widgets` matches the widgets page.\n\n### How to fix it\n\nRemove the final slash before that one comparison so both addresses reach the widgets page. The change touches a single comparison. Choose hotfix because the fix is one small change that the failing test already checks.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\n### What is broken\n\nThe report says the chart disappears after refreshing the page. We followed the documented steps with the supplied small sample data, and the chart stayed visible in both Chrome and Firefox.\n\n### Why it is broken\n\nThe cause is unknown. Both browsers ran with settings that had no saved preferences. Clearing the browser's stored copy of the data did not make the chart disappear, which ruled out that explanation. No other explanation remains.\n\n### What happens next\n\nThe report does not include the size of the dataset in the failing run, and the investigation cannot continue without it. Respond asking for that dataset size, because only the reporter has it.\n\nPick one:\n\n```text\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n```\n",
+      "words": 303,
+      "wallMs": 27227,
       "mechanical": {
         "section-order": "holds",
         "no-labels": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of the widgets page (200); `/widgets` works.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths exactly, so the final slash prevents a match. A local request test reproduced the failure; ignoring that slash made the same request pass.\n\n### How to fix it\n\nRemove the final slash before comparing addresses so both forms open the widgets page. This changes one comparison. Choose hotfix because the change is confined to that comparison and the failing request can check the fix.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\n### What is broken\n\nThe report says the chart disappears after refresh, but following the documented steps with the supplied sample data kept the chart visible in Chrome and Firefox.\n\n### Why it is broken\n\nThe refresh attempts used browser settings with no saved preferences. Clearing the browser’s stored copy of the data also left the chart visible, ruling out that explanation. No other tested explanation survives; the cause remains unknown.\n\n### What happens next\n\nThe dataset size from the failing run is missing and is needed to continue. Respond with a request for that size because the supplied small dataset does not reproduce the disappearance.\n\nPick one:\n\n```text\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n```\n",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of the widgets page (200); `/widgets` works.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths exactly, so the final slash prevents a match. A local request test reproduced the failure; temporarily ignoring that slash made the test pass.\n\n### How to fix it\n\nRemove the final slash before comparing paths so both addresses reach the widgets page. This changes one comparison. Choose hotfix because the change is small and all safety and scope checks pass.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\n### What is broken\n\nThe report says the chart disappears after refresh, but following the documented steps with the supplied small sample data rendered the chart in both Chrome and Firefox, using browser settings with no saved preferences.\n\n### Why it is broken\n\nThe documented reproduction attempts did not show the failure. Clearing the browser’s stored copy of the data also left the chart visible, ruling out that explanation; no other tested explanation survives. The cause remains unknown.\n\n### What happens next\n\nThe dataset size from the failing run is missing and is needed to continue. Respond with that request because it supplies the missing input for further reproduction attempts.\n\nPick one:\n\n```text\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n```\n",
       "words": 276,
-      "wallMs": 7533,
+      "wallMs": 7855,
       "mechanical": {
         "section-order": "holds",
         "no-labels": "holds"
@@ -38,11 +38,11 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "cb590d78de6378291198e61bf076d36dc9cef71d59de1938737d63385855a406",
+      "factsSha": "8994215ac3eab9d208d20e064e8436584a0a08bcd3fec8c4ee7edd9a9bb373f4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "843ad4cf624259361a2ac7594ee23d4ec6a49c8249f654bb6c1390f759d8bf8b",
+      "intentSha": "9178bfd6c8ddda57ba98cd4d3aacd21b5304a903cdad09098025b8204a6117b3",
       "baselineOutputSha": "06933750b6d10824defecdf726793238b25f4e1a36cc827f2b3d22538ae9ffb1",
-      "candidateOutputSha": "4f306e772c6754f1e79bcb336c8e7bc31cbac84cef51c22aded0e856b23afd4c",
+      "candidateOutputSha": "5c85f9fbaa52f72fd3549dcca33b6ac01d33821198e49fbdcdf21097add70a37",
       "facts": {
         "third-heading-by-verdict": {
           "before": "fails",
@@ -74,6 +74,11 @@
           "after": "holds",
           "label": "held"
         },
+        "context-earns-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
         "section-order": {
           "before": "fails",
           "after": "holds",
@@ -85,16 +90,16 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: both gates now use the Context / What is broken / Why it is broken / How-to-fix-it-or-What-happens-next shape, the third section ends with a pick and a because-clause, Context carries only the repro and surviving explanation (no tracker-search or clean-check housekeeping), investigation shorthand like 'hypothesis', 'failed to falsify', 'baseline' and 'Phase 1' is gone, and the menus, markers and eligibility line are untouched. Before failed the section, plain-reader and lists facts because it was a bare paragraph plus a bullet list of status echoes with unexplained triage jargon. The one thing worth tightening in After is the citation rule: Checkpoint 1 dropped src/router.ts:88 entirely, yet the recommended pick is a hotfix, so the reader's next action plausibly does require opening that comparison; a trailing '(src/router.ts:88)' after the fix sentence in How to fix it would satisfy 'appear only when useful to open' without reintroducing mid-sentence parentheticals. Otherwise keep the After wording as is.",
-      "wallMs": 28056,
+      "feedback": "After delivers the Change cleanly and regresses nothing: both checkpoints now carry the fixed headings, Checkpoint 1 ends with How to fix it and Checkpoint 2 with What happens next naming dataset size, each section is a single short paragraph with no mixed paragraph-plus-list bodies, the Context in Checkpoint 1 is exactly a repro line plus the surviving explanation with no status or tracker-search housekeeping, and the menus, eligibility line and envelope endings are untouched. Before failed the heading, plain-reader and lists facts because it had no sections, mixed a summary paragraph with a status bullet list, used unexplained shorthand ('hypothesis', 'falsify', 'Phase 1 repro attempts', 'pre-menu tracked-file checks') and parked a code path mid-sentence. Two small tightenings would make After even safer against the stricter readings of these facts: in Checkpoint 2's Why, say outright 'We tried the documented steps in Chrome and Firefox and the chart stayed visible' so the failed repro attempts are named inside that section rather than only in What is broken, and in Checkpoint 1's pick sentence gloss 'hotfix' on first use (e.g. 'Choose the hotfix, a direct small fix applied now, because...') so no menu term enters the body unexplained.",
+      "wallMs": 28897,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "cb590d78de6378291198e61bf076d36dc9cef71d59de1938737d63385855a406",
+      "factsSha": "8994215ac3eab9d208d20e064e8436584a0a08bcd3fec8c4ee7edd9a9bb373f4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "843ad4cf624259361a2ac7594ee23d4ec6a49c8249f654bb6c1390f759d8bf8b",
+      "intentSha": "9178bfd6c8ddda57ba98cd4d3aacd21b5304a903cdad09098025b8204a6117b3",
       "baselineOutputSha": "599c62a08f86fecf8cd617b95185098858d939ca9b88248f95b7f069f45ec672",
-      "candidateOutputSha": "79888a84640f730e18ba601e13d161ae63ec50c18d34ddc512dc595dcbbe3bfb",
+      "candidateOutputSha": "6791e8f42dfc6279257a89a7ac663df0d8aa7dd3c508f20cf2dcbfa01230a4bf",
       "facts": {
         "third-heading-by-verdict": {
           "before": "fails",
@@ -126,6 +131,11 @@
           "after": "holds",
           "label": "held"
         },
+        "context-earns-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
         "section-order": {
           "before": "fails",
           "after": "holds",
@@ -137,10 +147,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: both gates now carry the fixed headings, Checkpoint 1 closes on How to fix it with a single because-clause, Checkpoint 2 closes on What happens next naming the missing dataset size, and the Why sections name the failed repro attempts and the unknown cause without inventing one. The register also moved: 'page not found (404)', 'the part that matches web addresses to pages', 'browser settings with no saved preferences' and 'browser's stored copy of the data' replace the 404/profile/cache/predicate shorthand that Before left unexplained, and the housekeeping lines (prior-report search, predicates, tracked-file checks) are gone from the body rather than parked in a Context section. Nothing Before kept was lost: word counts stay well under 180, every section is one paragraph, menus and eligibility lines are intact and terminal. One thing to watch in the wording: dropping src/router.ts:88 entirely is defensible under 'omit unless the next action needs it', but since the recommended pick is implementing the hotfix, a reader opening the file would benefit from that path trailing the fix sentence in How to fix it; phrasing the rule as 'cite the one location the recommended pick will open' would make that explicit without reintroducing implementation noise elsewhere.",
-      "wallMs": 25958,
+      "feedback": "After moves third-heading-by-verdict and plain-reader from fails to holds: both checkpoints now carry the fixed headings, Checkpoint 1 ends with How to fix it, Checkpoint 2 ends with What happens next naming dataset size as the missing fact with a Why that reports the failed repro attempts and the unknown cause without inventing one, and the shorthand Before left unexplained ('hotfix predicates', 'tracked-file checks', 'Prior-report search') is either translated ('all safety and scope checks pass') or dropped from the body, with no paths cited since none are needed for the next action. Nothing regressed: both reports stay well under 180 words, each section is a single short paragraph, menus and eligibility lines are intact and terminal, and Context is omitted in both so no status or tracker-search lines sneak in (Before had those status lines in free prose rather than a Context block, so it passed that check only by having no Context at all). Two small wording cautions for the author: the ```text fence around the menu is tolerated by ends-at-envelope but keeps the menu visually separated from the eligibility line, so consider stating explicitly that the fence is optional and must never enclose report sections; and Checkpoint 2's 'What is broken' leans toward repro results rather than the reported symptom, so a hint like 'state the reported symptom first, then the observed result' would keep that section's role crisp while preserving everything the Change delivers.",
+      "wallMs": 22189,
       "verdict": "improved"
     }
   },
-  "repoSha": "3979a4cb725481b73a45a305e1b3b209617f6bb3"
+  "repoSha": "ef9ec2bdf29be67e86f05a5bb5ee15ed7a536a9d"
 }

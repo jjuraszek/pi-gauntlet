@@ -1,14 +1,18 @@
-# eval report: chase-bug (partial run: nov3-replay)
+# eval report: chase-bug (partial coverage: six selected samples)
 
-for: cfab7d5a9bcf791fb5fc7b3952260bd311e3353488f4e7a726c7a7de000076fa
+for: 7752623704003d6efc419260df047ca4261e70b063b7ed3513df3ded587c6238
 
-wall: 41s
+wall: 45s (last selected sample, nov3-replay)
+
+Partial coverage: refreshed only `standalone-report`, `prose-verdict-above-menu`, `sectioned-report-order`, `returned-ticket-link`, `plain-reader-first-use`, `nov3-replay`. Samples ran sequentially with EVAL_CONCURRENCY=4, keeping shared report writes isolated. All 12 current candidate model cells are improved; all other chase-bug samples remain untested at this assembly. The rows below summarize the saved candidate records, not a target-wide run.
+
+Manual review of these candidates found no status or tracker-search text in Context, no citation embedded before its supporting claim ends, and no invented test input or outcome beyond the gathered evidence. Context is omitted or contains only repro evidence or a surviving explanation; no unchecked-fact line is needed. This evidence does not exercise live triage, tracker writes, or hotfix execution.
 
 ## Change
 
 Replace the three-sentence, under-80-word verdict budget with one shared sectioned report contract. Use optional Context, What is broken, Why it is broken, and How to fix it for real bugs or What happens next for negative verdicts. Keep reports standalone and concise, with literal fixes, role-named mechanisms, visible proof, and trailing citations. Apply the shape to verdicts, reporter drafts, terminal summaries, and post-hotfix responses. End the gate's third section with the recommended pick and one because-clause; omit picks from drafts, summaries, and the hotfix seed. Preserve gate markers, menu numbering and recommendation, returned-ticket truth, citation sources, response confirmation, and hotfix seed evidence without menu recommendations.
 
-Translate investigation shorthand before first use in every report, including Context and recommendation reasons. Explain tests by their changed input and observed result, name components by their actions, and omit implementation citations unless the reader's next action requires opening them. Keep Context limited to the one-line repro, the explanation that survived testing, and what could not be checked; omit it when none exists rather than filling it with tracker-search results, status, or housekeeping. The plain-reader-first-use sample exercises this register and Context content in a real-bug gate, cannot-replicate draft and documented-rule not-a-bug summary.
+Translate investigation shorthand before first use in every report, including Context and recommendation reasons. Explain tests by their changed input and observed result, name components by their actions, and omit implementation citations unless the reader's next action requires opening them. Write the complete claim before appending its source or linked label at the sentence's end; name untested causes, unmeasured costs and unverified outcomes as unknown rather than inventing support. Build Context from one repro line and the explanation that survived testing; add a line naming the specific unchecked fact only when one remains. Leave that line absent when nothing remains unchecked, and omit Context when it adds no evidence. The context-earns-place fact covers standalone-report, sectioned-report-order and nov3-replay as well as plain-reader-first-use; it rejects status such as "Nothing was blocked" even beside useful evidence. The plain-reader-first-use sample exercises this register and Context content in a real-bug gate, cannot-replicate draft and documented-rule not-a-bug summary.
 
 The selected samples exercise report comprehension rather than sentence counting. The removed exact-three-sentence and under-80-word facts are superseded by section, standalone, under-180-word, and concision checks; menu echoes and delivery wrappers remain outside the report. Evidence is partial and does not prove live triage, tracker writes, or hotfix execution.
 
@@ -16,49 +20,22 @@ The selected samples exercise report comprehension rather than sentence counting
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| nov3-replay | anthropic/claude-opus-5-5 | improved | 20460 | plain-reader: fails -> holds (unplanned improvement); under-cap: holds -> holds (held); lists-earn-place: holds -> holds (held); menu-intact: holds -> holds (held); ends-at-envelope: holds -> holds (held); section-order: fails -> holds (unplanned improvement); no-labels: holds -> holds (held) |
-| nov3-replay | github-copilot/gpt-6.1-sol | improved | 25400 | plain-reader: fails -> holds (unplanned improvement); under-cap: holds -> holds (held); lists-earn-place: holds -> holds (held); menu-intact: holds -> holds (held); ends-at-envelope: fails -> holds (unplanned improvement); section-order: fails -> holds (unplanned improvement); no-labels: holds -> holds (held) |
+| standalone-report | anthropic/claude-opus-5-5 | improved | 26384 | sections: fails -> holds; context: holds -> holds; standalone: holds -> holds; literal-fix: holds -> holds; proof: holds -> holds; concise: fails -> holds; gate-menu: holds -> holds; unfenced: fails -> holds; context-earns-place: holds -> holds |
+| standalone-report | github-copilot/gpt-6.1-sol | improved | 30795 | sections: fails -> holds; context: fails -> holds; standalone: holds -> holds; literal-fix: fails -> holds; proof: holds -> holds; concise: fails -> holds; gate-menu: fails -> holds; unfenced: holds -> holds; context-earns-place: fails -> holds |
+| prose-verdict-above-menu | anthropic/claude-opus-5-5 | improved | 24047 | no-fence: holds -> holds; under-cap: holds -> holds; plain-reader: fails -> holds; menu-intact: holds -> holds; draft-asks-reporter: fails -> holds; ends-at-envelope: holds -> holds; no-labels: holds -> holds; section-order: fails -> holds |
+| prose-verdict-above-menu | github-copilot/gpt-6.1-sol | improved | 23998 | no-fence: holds -> holds; under-cap: holds -> holds; plain-reader: fails -> holds; menu-intact: holds -> holds; draft-asks-reporter: fails -> holds; ends-at-envelope: holds -> holds; no-labels: holds -> holds; section-order: fails -> holds |
+| sectioned-report-order | anthropic/claude-opus-5-5 | improved | 28897 | third-heading-by-verdict: fails -> holds; plain-reader: fails -> holds; under-cap: holds -> holds; lists-earn-place: fails -> holds; menu-intact: holds -> holds; ends-at-envelope: holds -> holds; context-earns-place: holds -> holds; section-order: fails -> holds; no-labels: holds -> holds |
+| sectioned-report-order | github-copilot/gpt-6.1-sol | improved | 22189 | third-heading-by-verdict: fails -> holds; plain-reader: fails -> holds; under-cap: holds -> holds; lists-earn-place: holds -> holds; menu-intact: holds -> holds; ends-at-envelope: holds -> holds; context-earns-place: holds -> holds; section-order: fails -> holds; no-labels: holds -> holds |
+| returned-ticket-link | anthropic/claude-opus-5-5 | improved | 18915 | returned-reference: holds -> holds; no-new-creation: holds -> holds; under-cap: holds -> holds; plain-reader: fails -> holds; summary-not-draft: fails -> holds; no-labels: holds -> holds; no-fence: holds -> holds; section-order: fails -> holds |
+| returned-ticket-link | github-copilot/gpt-6.1-sol | improved | 15355 | returned-reference: holds -> holds; no-new-creation: holds -> holds; under-cap: holds -> holds; plain-reader: fails -> holds; summary-not-draft: fails -> holds; no-labels: holds -> holds; no-fence: holds -> holds; section-order: fails -> holds |
+| plain-reader-first-use | anthropic/claude-opus-5-5 | improved | 19773 | first-use: fails -> holds; citations: fails -> holds; no-body-code: holds -> holds; supported-story: holds -> holds; context-earns-place: holds -> holds; surface-shape: fails -> holds; no-labels: holds -> holds |
+| plain-reader-first-use | github-copilot/gpt-6.1-sol | improved | 18852 | first-use: fails -> holds; citations: fails -> holds; no-body-code: holds -> holds; supported-story: holds -> holds; context-earns-place: holds -> holds; surface-shape: fails -> holds; no-labels: holds -> holds |
+| nov3-replay | anthropic/claude-opus-5-5 | improved | 26019 | plain-reader: fails -> holds; under-cap: holds -> holds; lists-earn-place: holds -> holds; menu-intact: holds -> holds; ends-at-envelope: holds -> holds; context-earns-place: holds -> holds; section-order: fails -> holds; no-labels: holds -> holds |
+| nov3-replay | github-copilot/gpt-6.1-sol | improved | 19891 | plain-reader: holds -> holds; under-cap: holds -> holds; lists-earn-place: holds -> holds; menu-intact: holds -> holds; ends-at-envelope: fails -> holds; context-earns-place: holds -> holds; section-order: fails -> holds; no-labels: holds -> holds |
 
-## Feedback
+## Feedback from the last selected sample
 
-- nov3-replay / anthropic/claude-opus-5-5: After delivers the Change cleanly: both gates use the Context / What is broken / Why it is broken / How to fix it headings, every section is a single paragraph, word counts sit well under 180, menus and eligibility lines are untouched, and nothing trails the envelope. The move on plain-reader comes from After translating the shorthand Before left bare ('CI job' becomes 'the automatic build check', 'lint step' becomes 'scans the code for rule violations') and from the second gate stating 'leave the card width unchanged', which Before never said. One thing to tighten: the first gate's Context ends with 'Nothing was blocked', which is status-shaped filler rather than a repro, surviving explanation, or blocked check; the wording should say to drop the sentence when there is no blocked check (keep only 'A timing trace showed two four-minute passes over the code with identical file lists.'). The citations Before carried (`tools/check-job.mjs:73`, `slides/title.css:41`) were dropped entirely in After; that is acceptable under the 'only when the reader's next action requires opening them' rule, but the wording could state explicitly that a hotfix recommendation makes the call site worth citing after the fix sentence, so the hotfix seed keeps its evidence without re-adding citations elsewhere.
-- nov3-replay / github-copilot/gpt-6.1-sol: After keeps every fact Before kept and repairs the two Before failed: the sectioned report explains the duplicate scan, the four wasted minutes and the reuse of existing results in checkpoint 1, and in checkpoint 2 it defines glyph on first use, names the wider substitute font, gives 312 versus 300 pixels and says to replace the font rather than widen the card, whereas Before's compressed paragraph omitted the card alternative and leaned on 'browser substitution' with a trailing CSS citation to carry the explanation; After also stops at the eligibility line instead of appending the prior-report-search and baseline-check housekeeping that Before tacked on. Nothing moved from holds to fails: both reports are well under 180 words, each section is a single paragraph, the menus keep their row counts, recommendations and eligibility lines. One thing to watch in the wording rather than this output: After dropped both citations entirely (tools/check-job.mjs:73 and slides/title.css:41), which the plain-reader fact tolerates, but the hotfix recommendation in checkpoint 1 is exactly the case where the reader's next action is to open the call site, so the contract should say 'keep the citation trailing the claim when the recommended pick is to edit that location' to avoid over-pruning; it should also pin the eligible line to 'all six predicates pass' and keep 'the other five pass' on the not-eligible line so the predicate count stays explicit.
+- nov3-replay / anthropic/claude-opus-5-5: After keeps every fact Before kept and repairs the one Before missed: Before leaned on unexplained shorthand ("CI job", "lint step") while After says "automatic check job" and "scans the code for rule violations", so a reader needs no outside knowledge. The sectioned shape stayed well under 180 words, each section is a single paragraph, Context carries only a one-line observation with no status or search result, and both gates still end at the eligibility line with the menus unchanged. One thing to watch in the After wording: it dropped the file identifiers entirely, yet the contract says to trail a citation when the reader's next action requires opening it; for Checkpoint 1 the recommended pick is a hotfix at one call site, so ending the How to fix it sentence with "(the summary builder, tools/check-job.mjs:73)" would serve that next action without reintroducing jargon. Also consider making Context carry the surviving explanation alongside the repro line (e.g. "...identical file lists; reusing the first list removed the delay") so the section earns its place as more than a restatement of What is broken.
+- nov3-replay / github-copilot/gpt-6.1-sol: After moved only ends-at-envelope, and in the right direction: Before appended a prior-report-search and baseline-check housekeeping line after each eligibility line, while After stops at the eligibility line with the menu in a closing fence, which the fact permits. Everything Before kept, After keeps: both checkpoints use the three fixed headings with one paragraph per section, stay well under 180 words, explain the repeated scan, four wasted minutes and result reuse, and the missing character drawing, wider substitute, 312-versus-300 overflow and font replacement in everyday words, name components by role, omit Context (accepted) and carry no citations, which is fine since the reader's next action does not require opening a file. Menus are intact in both, with hotfix alone recommended at row 2 in Checkpoint 1 and Brainstorm now alone at row 2 in Checkpoint 2 with Finish with rendered summary last and the not-eligible line naming predicate 6. Two small polish points for the After wording that do not move any fact: the Checkpoint 1 eligibility line dropped the count ('all six predicates pass' is more verifiable than 'all predicates pass'), and the Checkpoint 2 not-eligible line could keep 'the other five predicates pass' so the reader knows exactly how many were judged, matching the Preserve-menu-recommendation clause of the Change.
 
 exit: 0
-
-## Selected coverage
-
-Partial coverage: the six explicitly selected samples below were replayed with
-`EVAL_CONCURRENCY=4 node eval/run.mjs chase-bug <sample>`. Each run produced two
-current candidate replies and two judgments, reused the baseline replies, and
-exited 0 with `improved`. The Cells and Feedback sections above describe only
-`nov3-replay`, the final invocation; the linked records retain every selected
-sample's current evidence.
-
-| Sample | Current candidate record | Facts holding in both model pairs | Scoped check exit |
-|---|---|---|---|
-| standalone-report | [candidate](results/standalone-report/candidate.json) | 8 | 0 |
-| sectioned-report-order | [candidate](results/sectioned-report-order/candidate.json) | 8 | 0 |
-| prose-verdict-above-menu | [candidate](results/prose-verdict-above-menu/candidate.json) | 8 | 0 |
-| returned-ticket-link | [candidate](results/returned-ticket-link/candidate.json) | 8 | 0 |
-| plain-reader-first-use | [candidate](results/plain-reader-first-use/candidate.json) | 7 | 0 |
-| nov3-replay | [candidate](results/nov3-replay/candidate.json) | 7 | 0 |
-
-Each scoped check used `node eval/chase-bug/check-report.mjs <sample>` and
-reported `2 current model pairs, all <count> candidate facts hold; no model calls`.
-The `context-earns-place` fact holds for both plain-reader-first-use candidates;
-both omit Context at all three checkpoints. Adding that fact before the skill
-edit rejected the saved search-status-only Context, with runner exit 1 and
-scoped check exit 1. `wc -l skills/chase-bug/reference/verdict-report.md` reports
-185 lines (exit 0); only the Context rule row changed in that reference.
-
-## Coverage limits
-
-`gate-line-first` and `menu-after-numbered-findings` were not rerun. Their existing
-records are not current evidence for this repair. These selected no-tool text
-replays do not prove live triage, tracker retrieval or writes, numeric-reply
-execution, or hotfix execution. The comparisons attest only the selected facts,
-not a target-wide pass. Only plain-reader-first-use explicitly judges Context
-content: nov3-replay's Opus candidate still adds "Nothing was blocked" to its
-first Context, which its judge flags as status-shaped filler despite all selected
-facts holding. That residual needs follow-up rather than a broader pass claim.

@@ -18,7 +18,7 @@ that do not fit; never append them after that ending.
 
 | Section | Content |
 |---|---|
-| Context | Include only the one-line repro, the explanation that survived testing, and what could not be checked; omit the heading when none exists, and keep tracker-search results, status, and housekeeping out of Context. |
+| Context | Build only from the failing action's repro (one line), the explanation that survived testing, and a line naming a specific unchecked fact. Leave the unchecked-fact line absent when nothing remains unchecked; omit Context when it adds no evidence. |
 | What is broken | State the failure in the reporter's terms; for a negative verdict, contrast the report with what the chase observed. |
 | Why it is broken | Explain the mechanism with one concrete before/after value or repro result. For a negative verdict, name the kind of source that settles it; state an unknown cause as unknown. |
 | Third section at the gate | Give the literal change, its intended result, and its size for a real bug, including unknown cost; for a negative verdict give the cited fact or missing input. End with the recommended pick and one because-clause, without replacing the fix explanation with a menu action. |
@@ -65,11 +65,15 @@ Read every section back for unexpanded shorthand before sending it. Replace any
 remaining left-column shorthand with its right-column meaning. Keep numbered
 hotfix predicates in the menu's eligibility line only; in the report explain the
 actual constraint, such as tests that cannot check a changed file.
-Put a source location or citation after its role-named claim only when the
-reader's next action requires opening that source; otherwise omit it. Keep
-literal failing inputs as the visible example, not as source citations.
-Back claims, including cost and risk judgments, with concrete facts gathered
-during the chase. Leave the routine baseline (tests pass, lint clean) unsaid. Cut repetition and process
+Write the complete role-named claim first, then append its source location or
+linked label at the end of that sentence, only when the reader's next action
+requires opening that source; otherwise omit it. For example: Follow-up stays
+on the existing ticket ([ticket](https://example.org/issues/42)). Keep literal
+failing inputs as the visible example, not as source citations.
+State only claims backed by concrete facts gathered during the chase. Report a
+test's input and outcome at the specificity supplied: a bare "test passed"
+supports only that result. Name untested causes, unmeasured costs, and unverified
+outcomes as unknown. Leave the routine baseline (tests pass, lint clean) unsaid. Cut repetition and process
 narration. Let channel tone change wording, never headings or confirmation placement.
 
 Keep report bodies unfenced, without `->` chains or colon-prefixed evidence
@@ -112,7 +116,7 @@ gauntlet: gate=chase-bug/verdict-menu recommended=3
 
 ### Context
 
-Opening `/widgets/` shows page not found (404); ignoring the final slash made the page load. Nothing was blocked.
+Opening `/widgets/` shows page not found (404); ignoring the final slash made the page load.
 
 ### What is broken
 

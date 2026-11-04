@@ -1,7 +1,7 @@
 {
   "sample": "returned-ticket-link",
   "arm": "candidate",
-  "skillSha": "edb81b3d393aabce7a922689c4946318eb36845a7b2118a99520aac4dbf90cbc",
+  "skillSha": "832b398b5af363f7b5c263f1c4837c52adaf7ec3c6293f1a1b835eefef84752d",
   "inputSha": "5084fec3faf934e0ad8402a53da684a3ae421dfd6ee55cf9a328968704976b9c",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page; `/widgets` works.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares them exactly, so the final slash in `/widgets/` prevents a match. Trying the address locally showed the failure, and ignoring the final slash made the page load.\n\n### How to fix it\n\nRemove the final slash before comparing addresses so both forms reach the widgets page. An existing ticket already covers this problem, so no new ticket was created and work continues there ([#42](https://github.com/example/widgets/issues/42)).\n",
-      "words": 96,
-      "wallMs": 6253,
+      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares them exactly, without removing a final slash. As a result, `/widgets/` fails to match the widgets page. A local attempt reproduced the failure, and a test confirmed the mismatch.\n\n### How to fix it\n\nRemove the final slash before comparing addresses so `/widgets/` reaches the widgets page. An existing ticket already covers this problem, so no new ticket was created and follow-up continues there ([ticket](https://github.com/example/widgets/issues/42)).\n",
+      "words": 95,
+      "wallMs": 5900,
       "mechanical": {
         "no-labels": "holds",
         "no-fence": "holds",
@@ -28,9 +28,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of loading the widgets page (200).\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths without removing the final slash. The local reproduction confirmed the failure, and testing supported this cause.\n\n### How to fix it\n\nRemove the final slash before comparing addresses so `/widgets/` reaches the widgets page. The work is already covered by [existing ticket #42](https://github.com/example/widgets/issues/42); follow-up belongs there. No new ticket was created, and no tracker state was changed.\n",
-      "words": 90,
-      "wallMs": 7180,
+      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of loading the widgets page (200).\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths without removing the final slash, so `/widgets/` fails to match `/widgets`. The local reproduction confirmed this mismatch.\n\n### How to fix it\n\nRemove the final slash before comparing page addresses so `/widgets/` reaches the widgets page. Follow-up stays on the existing ticket, which already covers this concern ([#42](https://github.com/example/widgets/issues/42)). No new ticket was created.\n",
+      "words": 86,
+      "wallMs": 7480,
       "mechanical": {
         "no-labels": "holds",
         "no-fence": "holds",
@@ -42,9 +42,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "47977eb505406573a2ad93a64750a5091a87867f6781574ebd8961f1a0c1a2a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "843ad4cf624259361a2ac7594ee23d4ec6a49c8249f654bb6c1390f759d8bf8b",
+      "intentSha": "9178bfd6c8ddda57ba98cd4d3aacd21b5304a903cdad09098025b8204a6117b3",
       "baselineOutputSha": "d949eac86bbfb8a74bb84bb579a9da81a7c9ceb8cd384e70ac7ecacce0acb9c1",
-      "candidateOutputSha": "0d3cd57a1789daced2abdea9c3653aaa5e6ffbac78926d3a592b7f06a13e5848",
+      "candidateOutputSha": "a515ae9bf1d899b5ab8ac680a44f8530c1ee6990f477cfb47b1906a00d10bd2d",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -87,16 +87,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "After keeps every fact Before kept and gains the two Before lacked: the fixed headings make the existing ticket the clear third-section ending with nothing after it, and the register improvement translates 404 as 'page not found', names the router by its role, drops the unneeded `src/router.ts:88` citation, and leaves only the trailing ticket link the reader actually needs to open. No fact regressed. One caution for the wording: After's proof line 'ignoring the final slash made the page load' goes slightly beyond the handoff ('the falsification test passed'), so the Why section should instruct the writer to describe the test by the input changed and the result observed as recorded, not to infer a result the evidence did not literally state; something like 'the local check reproduced the 404, and the test designed to disprove the explanation did not disprove it' would stay faithful while still being plain. Otherwise the shared contract delivers the Change here without touching returned-ticket truth, creation claims, or the cap.",
-      "wallMs": 16434,
+      "feedback": "After preserves everything Before kept (the real ticket URL as the next step, no claim of a new ticket, well under the word cap) and gains two facts: it adds the fixed sections so the third section genuinely ends on the existing ticket, and it explains 404 as page not found, names the matcher by its role, and drops the `src/router.ts:88` citation that the reader never needs to open for this summary, leaving only the trailing ticket link. Before failed plain-reader because it left 404 and 200 unexplained and tucked a file citation inside a mid-sentence parenthetical alongside the proof, and failed summary-not-draft simply because it had no sections. One thing to tighten in After: 'a test confirmed the mismatch' is still investigation shorthand; phrase it by changed input and observed result, e.g. 'requesting /widgets/ locally returned page not found while /widgets returned the page', so the visible proof lands in the Why section without relying on the reader knowing what the test was.",
+      "wallMs": 18915,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "47977eb505406573a2ad93a64750a5091a87867f6781574ebd8961f1a0c1a2a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "843ad4cf624259361a2ac7594ee23d4ec6a49c8249f654bb6c1390f759d8bf8b",
+      "intentSha": "9178bfd6c8ddda57ba98cd4d3aacd21b5304a903cdad09098025b8204a6117b3",
       "baselineOutputSha": "4daad13ed0ba62da34110cfb7093a5d7f812ae8b28cc24a2a3033f787136e102",
-      "candidateOutputSha": "eb9752809fe446381422431b847e3246a115d7c5b9c682d514f6a32c4b661b8d",
+      "candidateOutputSha": "1a289ff49a40dded033b965db3704e70f398890d9bb171aef937518f03eb88f1",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -139,10 +139,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After gains on both facts Before failed: it translates 404/200 into everyday terms, names the router by its role, drops the unexplained \"falsification test\" and the `src/router.ts:88` citation the reader never needs to open, and gives the summary a third section that ends the message with the existing ticket as the next step. Before had no sections at all, so summary-not-draft could not hold there regardless of its tone. Nothing regressed; the ticket link, no-new-creation statement, and word count all survive. One small risk to watch: the third section closes with the \"no new ticket / no tracker change\" status after the ticket link, which a strict reader could take as status trailing the next step. Consider wording the contract so the terminal summary's third section is \"What happens next\" for a handed-off result, and places the returned-ticket truth (\"already covered; nothing was created\") before the follow-there instruction so the section ends on the next step itself.",
-      "wallMs": 17819,
+      "feedback": "After keeps every fact Before kept and gains the two Before failed: it introduces the fixed What is broken / Why it is broken / How to fix it headings, translates 404 and 200 on first use, names the matcher by its role, drops the `src/router.ts:88` citation the reader never needs to open, keeps the #42 link trailing its claim, and ends the third section with the existing ticket as the next step. Before failed plain-reader because it left '404' and 'falsification test' unexplained and cited an implementation line that serves no next action, and failed summary-not-draft because it had no sections at all. The only soft spot in After is the closing 'No new ticket was created.', which reads as a status line inside the third section; it currently sits inside the section so the fact still holds, but if you tighten the wording, fold it into the ticket sentence ('Follow-up stays on the existing ticket, which already covers this concern, so no new ticket was filed') rather than leaving a separate trailing status sentence that could later drift below the section.",
+      "wallMs": 15355,
       "verdict": "improved"
     }
   },
-  "repoSha": "3979a4cb725481b73a45a305e1b3b209617f6bb3"
+  "repoSha": "ef9ec2bdf29be67e86f05a5bb5ee15ed7a536a9d"
 }
