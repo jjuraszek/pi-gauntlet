@@ -1,7 +1,7 @@
 {
   "sample": "returned-ticket-link",
   "arm": "candidate",
-  "skillSha": "dddc74cb8e6e10b79867d9ab6580ce12dceb4d8f7581924809f9453cb6bde135",
+  "skillSha": "7a82e55a1a907b51314b510b3be61951fde599149e4500bb834a3f35bdbfa717",
   "inputSha": "5084fec3faf934e0ad8402a53da684a3ae421dfd6ee55cf9a328968704976b9c",
   "kind": "text",
   "assembly": "concat",
@@ -17,32 +17,34 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: done summary\n\nOpening `/widgets/` with a trailing slash shows the 404 page, but the page should load. This is a real bug: the part that matches URLs to pages compares the text exactly and does not ignore the trailing slash, so the page is never found (the matcher in the router, `src/router.ts:88`; the local repro returns 404 where 200 is expected). An existing ticket already covers this, so no new ticket was filed and the fix will be tracked there (https://github.com/example/widgets/issues/42).\n",
-      "words": 82,
-      "wallMs": 3939,
+      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares addresses without first removing the final slash, so `/widgets/` does not match its page. A local reproduction showed the failure. A test confirmed this cause.\n\n### How to fix it\n\nThe proposed fix removes the final slash before comparing addresses, which is expected to make `/widgets/` load. That work will be tracked in an existing ticket that already covers this concern, [widgets issue 42](https://github.com/example/widgets/issues/42). No new ticket was created, and the tracker was not changed.\n",
+      "words": 105,
+      "wallMs": 7590,
       "mechanical": {
         "no-labels": "holds",
-        "no-fence": "holds"
+        "no-fence": "holds",
+        "section-order": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: done summary\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the local reproduction and falsification test show that the URL matcher compares paths without stripping the trailing slash (`src/router.ts:88`). Follow-up belongs in the existing ticket, https://github.com/example/widgets/issues/42, which already covers this concern; no new ticket was created and no tracker state changed.\n",
-      "words": 58,
-      "wallMs": 5330,
+      "text": "gauntlet: done summary\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of loading the page successfully (200).\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths without removing the trailing slash, so `/widgets/` does not match its page. The local reproduction confirmed the failure. A test confirmed this cause.\n\n### How to fix it\n\nRemove the trailing slash before comparing paths so `/widgets/` reaches its page. Follow-up belongs in the existing ticket, which already covers this bug, [ticket #42](https://github.com/example/widgets/issues/42). No new ticket was created.\n",
+      "words": 91,
+      "wallMs": 10031,
       "mechanical": {
         "no-labels": "holds",
-        "no-fence": "holds"
+        "no-fence": "holds",
+        "section-order": "holds"
       }
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "03c73d31db1f7f6555497d4959955c553a622b11395e591bba855a60f0920844",
+      "factsSha": "47977eb505406573a2ad93a64750a5091a87867f6781574ebd8961f1a0c1a2a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "55ef41bc30f87d86700f61cd3c0e897ce2602ed8cee004b73cb62ac2f502b288",
-      "baselineOutputSha": "4fb7450e75055156d2e1c79d9185f1ab090ed816d2d3c660f0940243592e8142",
-      "candidateOutputSha": "0ef9594f3351c47f79a549ba29acf62c718b52918616d8ab9425ee69a3b977d0",
+      "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
+      "baselineOutputSha": "d949eac86bbfb8a74bb84bb579a9da81a7c9ceb8cd384e70ac7ecacce0acb9c1",
+      "candidateOutputSha": "c9c9f7c2bf5fe468537c9053d6d4b490b17cc885c211ab640261746127263faa",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -54,42 +56,47 @@
           "after": "holds",
           "label": "held"
         },
-        "three-sentences": {
+        "under-cap": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "under-80-words": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "plain-reader": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "unplanned improvement"
+        },
+        "summary-not-draft": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         },
         "no-labels": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "no-fence": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "After keeps every fact Before kept: three whole sentences, role-named component (\"the part that matches URLs to pages\") with visible proof and trailing citations, the existing-ticket link cited as where the fix is tracked, and no claim of a new ticket. The only risk is length: the After prose is 79 words, one under the limit, and the prepended `gauntlet: done summary` marker line adds three more tokens that a stricter counter might include, pushing it to 82. The growth came from the longer verdict clause (\"and does not ignore the trailing slash, so the page is never found\") and the extra article \"the\" before \"local repro\". To keep headroom while still delivering the gate marker and the three-sentence Verdict shape, trim sentence two back toward Before's wording (e.g. \"compares the text exactly instead of ignoring the trailing slash\" and drop \"so the page is never found\") and consider wording the skill so the gate id line is explicitly excluded from the summary word count.",
-      "wallMs": 23656,
-      "verdict": "unchanged"
+      "feedback": "After moved plain-reader and summary-not-draft to holds: it explains 404 as \"page not found\" on first use, names the router by its role before any code term, puts the only citation (the ticket link) after a complete claim, drops the `src/router.ts:88` reference the reader never needs to open for a terminal summary, and ends on a third section whose next step is the existing ticket with no status trailing it. Both outputs keep the returned ticket, deny any new creation, and stay well under 180 words. One risk in After worth tightening, even though no listed fact catches it here: the \"How to fix it\" section invents a proposed fix (\"removes the final slash before comparing addresses, which is expected to make `/widgets/` load\") that the handoff never records; the case only supplies the cause and the existing ticket. To stay grounded while keeping the same shape, phrase the third section as the cause's consequence plus the ticket, e.g. \"The router needs to ignore the final slash when matching; that work is tracked in an existing ticket that already covers this concern, [widgets issue 42](...). No new ticket was created and the tracker was not changed.\" — and if a fix is unrecorded, say the exact change is not yet decided rather than describing one.",
+      "wallMs": 21960,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "03c73d31db1f7f6555497d4959955c553a622b11395e591bba855a60f0920844",
+      "factsSha": "47977eb505406573a2ad93a64750a5091a87867f6781574ebd8961f1a0c1a2a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "55ef41bc30f87d86700f61cd3c0e897ce2602ed8cee004b73cb62ac2f502b288",
-      "baselineOutputSha": "e0936e4f735e535c043b27ace16595fcc8e86608f1fc1dc8665a60a2d43beee3",
-      "candidateOutputSha": "fc794c7ecfcf42f25b82a93ffed63be9436cf6a73733001334791c33164d72f2",
+      "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
+      "baselineOutputSha": "4daad13ed0ba62da34110cfb7093a5d7f812ae8b28cc24a2a3033f787136e102",
+      "candidateOutputSha": "c2955040c5ea8112844255aa69acdde2dcb177f996e31e064e9a0f5383b17f07",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -101,36 +108,41 @@
           "after": "holds",
           "label": "held"
         },
-        "three-sentences": {
+        "under-cap": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "under-80-words": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "plain-reader": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "unplanned improvement"
+        },
+        "summary-not-draft": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         },
         "no-labels": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "no-fence": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "After keeps every fact Before held: the summary is three unfenced sentences (~55 words), names the component by role (\"the URL matcher\") with the file:line trailing the claim, cites https://github.com/example/widgets/issues/42 as the follow-up target, and explicitly states no new ticket was created and no tracker state changed, matching the handoff result. The only risk introduced is the leading \"gauntlet: done summary\" line: a reader could treat it as a labeled field or a fourth fragment of the summary, which would threaten three-sentences and no-labels. Keep the gate marker on its own line, visibly separated from the prose and using the exact gate id required by the skill, and make the wording state that the marker sits outside the summary paragraph so the three-sentence count is unambiguous; otherwise the After wording delivers the Change without moving any fact here.",
-      "wallMs": 19686,
-      "verdict": "unchanged"
+      "feedback": "After keeps every fact Before kept and gains plain-reader and summary-not-draft: Before leaned on unexplained shorthand (\"falsification test\") and a `src/router.ts:88` citation the reader never needs to open for a terminal summary, and had no third section at all; After names the router by its everyday role, describes the proof in plain words, drops the file citation, and ends the third section with the returned ticket link trailing its claim. Two small risks worth tightening in the wording: the sentence \"No new ticket was created\" sits after the ticket link inside the final section and reads as status, so a stricter judge of summary-not-draft could flag it — prefer phrasing the existing-ticket statement as the final sentence (e.g. \"No new ticket was created; follow-up belongs in the existing ticket, which already covers this bug, [ticket #42](...)\"). Also \"A test confirmed this cause\" is vaguer than the case supplies (the falsification test passed); the Change's instruction to describe tests at the case's specificity would be better served by \"a test that would have failed if this were not the cause passed.\"",
+      "wallMs": 17904,
+      "verdict": "improved"
     }
   },
-  "repoSha": "bbb7a05516ce051520bf5e19f1051db934839955"
+  "repoSha": "af88faa3c8b37be4cc73be620f69bbaab47d747c"
 }

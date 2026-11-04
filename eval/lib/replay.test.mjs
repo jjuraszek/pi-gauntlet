@@ -13,15 +13,18 @@ import { runTarget } from "../run.mjs";
 test("chase-bug prose samples preserve slices and reject label leaks", () => {
   const read = replay.treeReader(new URL("../../", import.meta.url).pathname);
   const target = JSON.parse(read("eval/chase-bug/target.json"));
-  assert.deepEqual(target.skillFiles, [{ path: "skills/chase-bug/SKILL.md", slice: "### 5. Response to origin (human gate 2)", sliceTo: "## Quick Reference" }]);
+  assert.deepEqual(target.skillFiles, [
+    { path: "skills/chase-bug/SKILL.md", slice: "### 5. Response to origin (human gate 2)", sliceTo: "## Quick Reference" },
+    { path: "skills/chase-bug/reference/verdict-report.md", new: true },
+  ]);
   for (const sample of ["prose-verdict-above-menu", "returned-ticket-link"]) {
     const { bundle } = parseCase(read(`eval/chase-bug/samples/${sample}/case.md`));
     assert.deepEqual(bundle, sample === "prose-verdict-above-menu" ? ["skills/brainstorming/reference/menu-layout.md", "skills/chase-bug/SKILL.md"] : ["skills/chase-bug/SKILL.md"]);
     const result = assemble(target, read, bundle);
     assert.ok(result.includes(stripFrontmatter(read("skills/chase-bug/SKILL.md")))) ;
-    assert.ok(result.includes("**Verdict shape.**"));
+    assert.ok(result.includes("### What is broken"));
     const { facts } = parseExpected(read(`eval/chase-bug/samples/${sample}/expected.md`));
-    for (const id of ["no-fence", "no-labels", "three-sentences", "under-80-words", "plain-reader", ...(sample === "prose-verdict-above-menu" ? ["menu-intact", "draft-asks-reporter"] : ["returned-reference", "no-new-creation"])]) assert.ok(facts.some((f) => f.id === id), id);
+    for (const id of ["no-fence", "no-labels", "section-order", "under-cap", "plain-reader", ...(sample === "prose-verdict-above-menu" ? ["menu-intact", "draft-asks-reporter", "claims-supported", "ends-at-envelope"] : ["returned-reference", "no-new-creation", "summary-not-draft"])]) assert.ok(facts.some((f) => f.id === id), id);
     const labels = facts.filter((f) => f.id === "no-labels");
     assert.equal(labels.length, 1);
     for (const label of ["Fault story:", "Proof:", "Symptom:", "Verdict:", "Evidence:", "Next step:"]) {

@@ -1,7 +1,7 @@
 {
   "sample": "prose-verdict-above-menu",
   "arm": "baseline",
-  "skillSha": "b965b9cd3e43ddae698323b4d6105cf9d9a71c33e7c8bb98ae619c596990b945",
+  "skillSha": "e19462ead69d4e7a6a503e1626e19b12ffca39edbfa1f973f60874237d188feb",
   "inputSha": "3e652b4cced93b9b887b849ec646ee4555a8c974765811fa342e3b20bccc04bf",
   "kind": "text",
   "assembly": "concat",
@@ -17,22 +17,24 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Checkpoint 1: Verdict menu\n\nOpening `/widgets/` returns the 404 page instead of the widgets page. The part that matches URLs to pages compares the path text exactly without normalizing it first, so the page is never found (the matcher in the router, `src/router.ts:88`; the local repro returns 404 where 200 is expected). Normalizing the path in that one comparison is a small, safe fix, so the hotfix is the recommended pick below.\n\n- The prior-report search completed and found no open or closed issue with this symptom.\n- The local repro reproduced the failure, and the falsification test for missing path normalization ran and passed.\n- The tracked baseline is clean at checkpoints 1 and 2, so this run caused no delta.\n\nPick one:\n\n```\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\nWaiting for your pick.\n\n---\n\n## Checkpoint 2: Draft to the reporter\n\nThis is the draft for the GitHub issue. The resolved channel is `gh issue comment <n> --body-file <draft>`.\n\n> Thanks for the report that the page fails to load. We couldn't reproduce it: following the documented steps in clean Chrome and Firefox profiles, the page rendered successfully both times. Could you share your browser name and exact version so we can retry with your setup?\n\nReply with exactly `send it` to post this comment. Any other reply is treated as a change to the draft. Nothing has been pushed.\n",
-      "words": 262,
-      "wallMs": 14993,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nOpening `/widgets/` with a trailing slash shows the 404 page instead of the widgets page. The part that matches URLs to pages compares the path exactly without normalizing it first, so this is a real bug (the matcher in the router, `src/router.ts:88`; `/widgets/` returns 404 where 200 is expected). The fix is small and safe and passes every hotfix check, so implementing the hotfix now is the recommended pick below.\n\n- The local repro confirmed the 404, and the falsification test ran and failed to falsify the missing-normalization hypothesis.\n- The prior-report search of open and closed issues completed with no match.\n- The tracked baseline is clean, with no delta at checkpoint 2.\n\nPick one:\n\n```\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nResolved channel: `gh issue comment` on the originating GitHub issue. Here is the full draft:\n\n> Thanks for the report. We couldn't reproduce this, because we followed the documented steps in Chrome and Firefox with clean profiles and the page rendered successfully in both (documented reproduction attempts, Chrome and Firefox, clean profiles). Please reply with your browser name and exact version so we can retry in your setup.\n\nReply with the exact text `send it` to post this comment. Any other reply counts as a change request to the draft.\n",
+      "words": 250,
+      "wallMs": 16546,
       "mechanical": {
-        "no-labels": "holds"
+        "no-labels": "holds",
+        "section-order": "fails"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Checkpoint 1 — Generate the gate\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages compares paths without normalization, and the local repro and falsification test confirmed the cause (`src/router.ts:88`). The fix is small and safe, so implementing the hotfix is recommended.\n\nPick one:\n\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible — all six predicates pass\n\n## Checkpoint 2 — Draft to the reporter\n\nChannel: `gh issue comment`\n\nThe reported page failure did not occur in our reproduction attempts. We cannot reproduce it: the documented steps rendered the page successfully in both Chrome and Firefox with clean profiles. Please provide your browser name and version so we can test the environment where the failure occurred.\n\nReply with the exact text `send it` to post this comment.\n",
-      "words": 166,
-      "wallMs": 10007,
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages compares paths without normalization, and the local reproduction and falsification test confirmed the cause (`src/router.ts:88`). The fix is small and safe, so implementing a hotfix is the recommended next step.\n\nPrior-report search completed without a match.\n\nPick one:\n\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all six predicates pass\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment via `gh issue comment`\n\nThe reported page failure did not occur when following the documented reproduction steps. We cannot reproduce it so far: Chrome and Firefox both render the page successfully with clean profiles. Please provide your browser name and version so we can investigate the difference.\n\nReply with the exact text `send it` to post this comment.\n",
+      "words": 169,
+      "wallMs": 13619,
       "mechanical": {
-        "no-labels": "holds"
+        "no-labels": "holds",
+        "section-order": "fails"
       }
     }
   },
-  "repoSha": "bbb7a05516ce051520bf5e19f1051db934839955"
+  "repoSha": "1bf58911f60f0ae28d56f4adebf20c80e9477487"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "returned-ticket-link",
   "arm": "baseline",
-  "skillSha": "0a00f78f57cd313d3870eeb05efb60827f270728fec2c404cd1fe608adf19748",
+  "skillSha": "283ad0139de9fd02e5d2ebd2259859c9d850ffb1a6794471defa22fc08188c26",
   "inputSha": "5084fec3faf934e0ad8402a53da684a3ae421dfd6ee55cf9a328968704976b9c",
   "kind": "text",
   "assembly": "concat",
@@ -17,24 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Opening `/widgets/` with a trailing slash shows the 404 page instead of the widgets page. The part that matches URLs to pages compares the text exactly instead of ignoring the trailing slash, so this is a real bug (the matcher in the router, `src/router.ts:88`; local repro returns 404 where 200 is expected). An existing ticket already covers this, so no new ticket was filed and follow-up happens there (https://github.com/example/widgets/issues/42).\n",
-      "words": 69,
-      "wallMs": 9198,
+      "text": "gauntlet: done summary\n\nOpening `/widgets/` with a trailing slash shows the 404 page while `/widgets` works. This is a real bug: the part that matches URLs to pages compares the text exactly and does not ignore the trailing slash (the matcher in the router, `src/router.ts:88`; `/widgets/` returns 404 where 200 is expected). The fix will be tracked in an existing ticket that already covers this concern, so no new ticket was filed (https://github.com/example/widgets/issues/42).\n",
+      "words": 73,
+      "wallMs": 4846,
       "mechanical": {
         "no-labels": "holds",
-        "no-fence": "holds"
+        "no-fence": "holds",
+        "section-order": "fails"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Opening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages does not strip the trailing slash, and the local reproduction and falsification test confirmed the cause (`src/router.ts:88`). The concern is already covered by https://github.com/example/widgets/issues/42, so follow-up belongs on that existing ticket; no new ticket was created.\n",
-      "words": 57,
-      "wallMs": 3281,
+      "text": "gauntlet: done summary\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the URL matcher compares paths without stripping the trailing slash, and the local reproduction and falsification test support that cause (`src/router.ts:88`). Follow the existing ticket at https://github.com/example/widgets/issues/42, which already covers this concern; no new ticket was created and no tracker state changed.\n",
+      "words": 59,
+      "wallMs": 5607,
       "mechanical": {
         "no-labels": "holds",
-        "no-fence": "holds"
+        "no-fence": "holds",
+        "section-order": "fails"
       }
     }
   },
-  "repoSha": "bbb7a05516ce051520bf5e19f1051db934839955"
+  "repoSha": "1bf58911f60f0ae28d56f4adebf20c80e9477487"
 }

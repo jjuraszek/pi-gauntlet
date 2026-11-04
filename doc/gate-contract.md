@@ -45,6 +45,7 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | gatekeep-pr/other-author-confirmation | question | skills/gatekeep-pr/reference/sync.md | ## Other-author confirmation | free |
 | gatekeep-pr/provision-serially | question | skills/gatekeep-pr/reference/batch.md | ## Provision serially | free |
 | chase-bug/verdict-menu | gate | skills/chase-bug/SKILL.md | ### 4. Verdict menu | N. rows |
+| chase-bug/verdict-menu | gate | skills/chase-bug/reference/verdict-report.md | ## Golden examples - step-4 gates only | N. rows; templates=3 |
 | chase-bug/response-to-origin | gate | skills/chase-bug/SKILL.md | ### 5. Response to origin | N. rows |
 | check-delivery/confirmation-gate | gate | skills/check-delivery/SKILL.md | ## Confirmation gate and the batched write | N. rows |
 | shape-ticket/step-3 | question | skills/shape-ticket/SKILL.md | ### 3 - Interactive questioning | free |

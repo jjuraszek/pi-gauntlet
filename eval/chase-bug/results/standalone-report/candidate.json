@@ -1,0 +1,150 @@
+{
+  "sample": "standalone-report",
+  "arm": "candidate",
+  "skillSha": "ab85207c37d2363588b40dc1b9039f31f82a83d2adc2fc92f3262d3914d6f9e6",
+  "inputSha": "0e7f18da5823365960ecd9cc62ec21852c8bb8492d44f4b14de83b06772f08ad",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nAfter a refresh, the account page switches from the saved dark theme to the light theme.\n\n### Why it is broken\n\nThe part that supplies saved account preferences, the profile service, correctly returns dark, and the page applies it. A separate step that sets a default theme then runs and replaces dark with light. A local test repeated the refresh and saw dark become light. Turning off that later default step kept dark, which confirmed this cause.\n\n### How to fix it\n\nSkip the default-theme step once a saved theme has loaded, so a refresh keeps dark instead of resetting to light. This is a small change to a single step. Choose hotfix because the change is small and safe.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n",
+      "words": 170,
+      "wallMs": 9659,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nRefreshing the account page resets the saved dark theme to light instead of retaining dark.\n\n### Why it is broken\n\nThe part that supplies saved account preferences, the profile service, returns `{\"theme\":\"dark\"}`, which the page applies. A separate step that sets the default theme then overwrites it with light. The local test reproduced dark becoming light; disabling that later step retained dark, confirming the overwrite cause.\n\n### How to fix it\n\nSkip default-theme initialization after a saved theme has loaded, so refreshing retains dark. This is a small change to the default-setting step. Choose hotfix because the fix is small and safe and the test confirmed the cause.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary\n```\n\neligible - all predicates pass\n",
+      "words": 158,
+      "wallMs": 5429,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "70676cb078939cb853c8062f14490dc36f34022addaf392cca1e2b7d128dab1b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
+      "baselineOutputSha": "db38b5867f85e50963a096939d6fb7f343e9160604cae8965e96f75634a14aa9",
+      "candidateOutputSha": "c555a1de9fd34cee0b78bb66f0ff19e944205818c2cdd10ed8ef2a0f852b561a",
+      "facts": {
+        "sections": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "context": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "standalone": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "literal-fix": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "proof": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "concise": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "gate-menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "unfenced": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "context-earns-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and fixes the four Before failures: it uses the three exact ### headings, states the profile service's everyday role before naming it, drops the mid-claim `src/profile-theme.ts:62` and `node --test ...` citations the reader does not need to open to pick a menu item, describes the test as a refresh that saw dark become light plus the disable-check that kept dark, gives a literal fix with its intended result and size, and ends the third section with one because-clause instead of a bulleted discovery transcript repeating the mechanism and hypothesis ranking. Context is correctly omitted, and the tracker-search housekeeping line from Before is gone rather than relocated. One optional tightening: 'This is a small change to a single step. Choose hotfix because the change is small and safe.' says 'small' twice; merging into 'Choose the hotfix because this one-step change is small and safe' keeps the required fix/size/pick/because content with less repetition, and the menu fence can stay plain rather than `text` to match the Before marker exactly.",
+      "wallMs": 23902,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "70676cb078939cb853c8062f14490dc36f34022addaf392cca1e2b7d128dab1b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
+      "baselineOutputSha": "d6e1461f497bc5dfb6ce536e39a166a47ec9a36f525e47831072514cd9d0d917",
+      "candidateOutputSha": "f3b46e1b4b912c8e0f0c2ad5b201dee67fef94884c835e5986675ea9826aef4f",
+      "facts": {
+        "sections": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "context": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "standalone": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "literal-fix": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "proof": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "concise": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "gate-menu": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "unfenced": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "context-earns-place": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After fixes every fact Before missed without losing any: it renders the three exact ### headings, names the profile service's everyday role before its name, drops the unnecessary `src/profile-theme.ts:62` path and the command embedded inside its claim, states the literal fix with its intended result (refresh retains dark), gives size plus one because-clause in the final section, and ends on the eligibility line instead of appending a trailing repro/tracker-search paragraph. Before's trailing paragraph was the main damage: it repeated the mechanism, cited the test command mid-claim, carried a tracker-search result as de-facto context, and pushed text past the eligibility line. Two things to watch in the After wording: the fenced menu is tolerated by gate-menu only because the eligibility line still ends the message, so keep the fence contents and numbering unchanged and never put the eligibility line inside it; and if an author chooses to add Context in a similar case, instruct them to limit it to the one-line repro (e.g. 'The local profile-theme test reproduced dark becoming light on refresh.') and the surviving explanation, with no prior-report-search or 'nothing blocked' status lines.",
+      "wallMs": 27503,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "cb84cc63147053f71c8ef36146d376dd4c5be9b2"
+}

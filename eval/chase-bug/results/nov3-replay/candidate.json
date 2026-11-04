@@ -1,0 +1,400 @@
+{
+  "sample": "nov3-replay",
+  "arm": "candidate",
+  "skillSha": "ab85207c37d2363588b40dc1b9039f31f82a83d2adc2fc92f3262d3914d6f9e6",
+  "inputSha": "6c809b833ead611132c17aa65d3a02e0a9b33a0330c55b85fb2dc471b097e575",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### Context\n\nA timing trace showed two four-minute passes over the code that produced identical file lists.\n\n### What is broken\n\nThe automatic build check spends its last four minutes repeating work it has already finished.\n\n### Why it is broken\n\nThe automatic check scans the code for rule violations. Then the part that writes the final report, the summary builder, scans the same code a second time instead of reusing that first list. A trial run that handed the first list to the summary builder removed the extra four minutes and left the report unchanged.\n\n### How to fix it\n\nPass the first scan's list to the summary builder instead of scanning again. This should cut four minutes from the check and leave the report the same. The change touches one place in the code. Choose hotfix because the change is small and the trial run already showed the expected result.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nA slide heading that contains the letter \"z\" spills past the edge of its card.\n\n### Why it is broken\n\nThe heading's font file has no drawing for the letter \"z\". The browser fills in that one letter from a wider font. This widens the heading from 280 to 312 pixels, but the card is only 300 pixels wide. A browser inspection confirmed the substitution. A trial with a complete font kept the heading at 280 pixels, inside its card.\n\n### How to fix it\n\nReplace the font file with a complete version that includes \"z\", and leave the card width unchanged. This is expected to keep the heading at 280 pixels. The change is small, but someone outside this project owns the font file. This project's tests also cannot check a changed font. Choose brainstorm because the fix needs coordination with the font file's owner.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [x] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: predicate 6 - this repository's existing test harness cannot verify the changed external font\n```\n",
+      "words": 395,
+      "wallMs": 15684,
+      "mechanical": {
+        "section-order": "holds",
+        "no-labels": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nThe automatic build check spends its last four minutes repeating work: it scans the source tree for rule violations, then scans it again to produce the same list for the final summary.\n\n### Why it is broken\n\nThe code that builds the final summary starts another scan instead of reusing the first scan’s results. A local timing trace recorded two four-minute scans with identical file lists. A controlled run supplying the first results to the summary removed the extra four minutes without changing the output.\n\n### How to fix it\n\nPass the existing result list to the summary instead of rescanning. This changes one place in the code that starts the summary step and should remove the redundant four minutes. Choose hotfix because the change is small and the controlled run preserved the output.\n\nPick one:\n\n```text\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu recommended=2\n\n### What is broken\n\nA slide-deck heading containing “z” grows beyond its 300-pixel card.\n\n### Why it is broken\n\nThe heading font lacks the drawing for “z”, so the browser substitutes a wider font for that letter. Local browser inspection confirmed the substitution, which widens the heading from 280 to 312 pixels. A trial with a complete font kept the heading at 280 pixels, inside the card.\n\n### How to fix it\n\nReplace the external font asset with a complete version rather than widening the card. This is a small replacement intended to keep the heading inside its card, but it requires coordination with the asset owner. Choose brainstorming because the repository’s existing tests cannot verify the changed external font.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [x] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary\n```\n\nnot eligible: predicate 6 — this repository’s existing test harness cannot verify the changed external font.\n",
+      "words": 352,
+      "wallMs": 16633,
+      "mechanical": {
+        "section-order": "holds",
+        "no-labels": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9fbea107df0f233bff9f364bf2a41d4dc9e68e2640a6313126f322453853f60a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
+      "baselineOutputSha": "0e555ea8688bf708d7e4e9031ab126a46a0125c1d5b980fe58fe2505f2f57057",
+      "candidateOutputSha": "3d332ec31fb73cf3e42737a8aedb8d44a7a362314d51312ae7453df5c4c7eb9f",
+      "facts": {
+        "claims-supported": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "under-cap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "lists-earn-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ends-at-envelope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "context-earns-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves plain-reader from fails to holds: Before leaned on unexplained shorthand ('CI job', 'lint step's results') and parenthetical citations, while After names the 'automatic build check' and 'the part that writes the final report, the summary builder' before using the shorthand, drops citations that no next action needs, and keeps every section a single paragraph well under the 180-word cap with a valid one-line Context. No fact that Before kept was lost. One wording risk to watch in checkpoint 1: 'scans the same code a second time instead of reusing that first list' is accurate but close to implying the second pass repeats the rule-violation check; phrasing it as 'walks the same code again only to list the files for the report, instead of reusing the list the rule check already produced' would make the first/second-pass distinction explicit and keep claims-supported robust in future samples.",
+      "wallMs": 32059,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9fbea107df0f233bff9f364bf2a41d4dc9e68e2640a6313126f322453853f60a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
+      "baselineOutputSha": "3af6800cdc87f51b89acfd624b4fc9883e86e4a5b43766db937c0c72ef208b51",
+      "candidateOutputSha": "4cf2fe9bc33ba63809ba1efdcf2a760360d5208dd7cb8471fa536ff024f65f3a",
+      "facts": {
+        "claims-supported": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "under-cap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "lists-earn-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ends-at-envelope": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "context-earns-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and repairs the three Before failures: it drops the 'repeating the rule-violation scan' claim and the unexplained 'CI job' / 'one-call-site' shorthand, names components by role (automatic build check, the code that builds the final summary, the heading font's missing drawing), omits citations the reader does not need, and ends each gate at its eligibility line with no trailing search/baseline housekeeping. One wording risk remains in checkpoint 1's What is broken: 'scans it again to produce the same list' could be read by a careful reader as re-producing the rule-violation list; saying 'then walks the same tree a second time only to list its files for the final summary' would make the two passes unmistakably distinct while still delivering the sectioned, plain-reader shape. Also consider restoring 'all six predicates pass' in the eligible line so the count stays visible.",
+      "wallMs": 28250,
+      "verdict": "improved"
+    }
+  },
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "nov3-replay",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "557c04177791247a7fe77e46f4c9b70c499a6cf58b334aba0347df9cc867613c",
+      "candidateSkillSha": "db9f5c1d9e19e4d1e888876829ae0fa305d7271870e94c0b05165271a880f47d",
+      "inputSha": "6c809b833ead611132c17aa65d3a02e0a9b33a0330c55b85fb2dc471b097e575",
+      "factsSha": "e1f406249e2616062e39e607eb065cd2452abbe3404c443537d8d3fea5665ed8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "0e555ea8688bf708d7e4e9031ab126a46a0125c1d5b980fe58fe2505f2f57057",
+            "payloadSha": "e84b72ea5536c568113ca9abaf63dd2c12b6193f73cd6911a23e944c2084801e"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "3af6800cdc87f51b89acfd624b4fc9883e86e4a5b43766db937c0c72ef208b51",
+            "payloadSha": "75e4af6e6a9a24d6305acc9984d795d78efca75f830ac6f23cf619a99458e2b6"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "242c5fca317bebfc6a51de4ec890e0c8f76f14c9db8a14ccc1b75f5b1f994d27",
+            "payloadSha": "dda11bb0d10b9d8f20a5fe0c14f6395fc009b778ccd9a9973bdc36f2f8b9e1ca"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "efed18cf88a513be3ad5dfaee57478d002cdc2208874873752e658dfee3c8970",
+            "payloadSha": "23126dbabcf29735aab26e291f0aa26cdd805ed6d4ae2cb13b71b7ec9aa128a3"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "e1f406249e2616062e39e607eb065cd2452abbe3404c443537d8d3fea5665ed8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+        "baselineOutputSha": "0e555ea8688bf708d7e4e9031ab126a46a0125c1d5b980fe58fe2505f2f57057",
+        "candidateOutputSha": "242c5fca317bebfc6a51de4ec890e0c8f76f14c9db8a14ccc1b75f5b1f994d27",
+        "facts": {
+          "plain-reader": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "under-cap": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "lists-earn-place": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "menu-intact": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "ends-at-envelope": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "section-order": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "no-labels": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps every fact Before kept and additionally satisfies plain-reader: the second Before report compressed the fix to \"swaps in a complete font\" and never said the card width stays as it is, so a reader could not tell from the text that the remedy was the font rather than the card; After's How-to-fix section states \"leave the card width alone\" explicitly, names the summary step and heading font by role, keeps citations trailing in parentheses, and stays unfenced with no arrow chains. Both After reports land around 115-125 words from first heading to Pick one:, each section is a single paragraph, Context is two lines of repro and blocked-check status, menus are byte-identical in structure to Before (three rows / four rows, correct recommended row, correct last row, eligibility lines naming predicate 6), and nothing follows the eligibility fence. The one soft spot worth a wording nudge in the contract: After's closing because-clause leans on \"every predicate passes\" and \"predicate 6\" without ever saying in everyday words what a predicate is; a line such as \"one of the six hotfix checks fails: this repository's tests cannot verify the external font\" would keep the plain-reader fact robust across cases where the eligibility line is the only place the term appears.",
+        "wallMs": 25847,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "e1f406249e2616062e39e607eb065cd2452abbe3404c443537d8d3fea5665ed8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+        "baselineOutputSha": "3af6800cdc87f51b89acfd624b4fc9883e86e4a5b43766db937c0c72ef208b51",
+        "candidateOutputSha": "efed18cf88a513be3ad5dfaee57478d002cdc2208874873752e658dfee3c8970",
+        "facts": {
+          "plain-reader": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "under-cap": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "lists-earn-place": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "menu-intact": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "ends-at-envelope": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "section-order": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "no-labels": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After delivers the Change cleanly: both gates use the fixed What is broken / Why it is broken / How to fix it headings, each section is a single paragraph, the mechanisms are named by role with citations trailing, and each third section closes with the recommended pick plus one because-clause while the menus and eligibility lines are untouched. The only fact that moved is ends-at-envelope, and it moved in After's favor: Before appended a 'Prior-report search completed ... baseline checks were clean' housekeeping line after the eligibility line on both gates, whereas After stops at the eligibility line. That improvement likely comes from the 'standalone and concise' framing plus the explicit 'end the gate's third section with the recommended pick' instruction, which left no slot for trailing status; if you want to make it durable, add a sentence such as 'The eligibility line is the last line of the gate; search and baseline results belong inside Context or Why it is broken, never after the menu.' Two minor tightening notes: After's checkpoint 1 eligibility line says 'all predicates pass' rather than 'all six', and checkpoint 2 drops the 'other five predicates pass' clause from the not-eligible line—both still satisfy menu-intact, but a phrase like 'name the failed predicate and the count passing' would keep that detail without adding words to the report body.",
+        "wallMs": 21104,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "e1f406249e2616062e39e607eb065cd2452abbe3404c443537d8d3fea5665ed8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+        "baselineOutputSha": "0e555ea8688bf708d7e4e9031ab126a46a0125c1d5b980fe58fe2505f2f57057",
+        "candidateOutputSha": "242c5fca317bebfc6a51de4ec890e0c8f76f14c9db8a14ccc1b75f5b1f994d27",
+        "facts": {
+          "plain-reader": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "under-cap": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "lists-earn-place": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "menu-intact": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "ends-at-envelope": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "section-order": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "no-labels": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Nothing moved: After keeps every fact Before kept while delivering the sectioned contract. Both After gates use the fixed headings, each section is a single paragraph, Context stays at two evidence lines, word counts land well under 180, the citation trails the claim, and the menus and eligibility lines are unchanged and terminal. Two small points to watch as you tighten the wording: the first After report's because-clause says 'every predicate passes' and the second leans on 'needs that coordination' without naming predicate 6 in the body, so if the contract wants the gate's third section to be readable without the eligibility line, prefer a because-clause like 'because it touches one call site and all six hotfix checks pass' / 'because the font lives outside this repo and its tests cannot verify it (predicate 6)'. Also note After's menu seeds say 'with this evidence' rather than 'with the above'; harmless here, but keep the menu text fixed if any downstream check compares it literally.",
+        "wallMs": 20273,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "e1f406249e2616062e39e607eb065cd2452abbe3404c443537d8d3fea5665ed8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "00804265df5d2337960f3e7529162a20e200fba459846fc6f7b9e76ce8dabad1",
+        "baselineOutputSha": "3af6800cdc87f51b89acfd624b4fc9883e86e4a5b43766db937c0c72ef208b51",
+        "candidateOutputSha": "efed18cf88a513be3ad5dfaee57478d002cdc2208874873752e658dfee3c8970",
+        "facts": {
+          "plain-reader": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "under-cap": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "lists-earn-place": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "menu-intact": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "ends-at-envelope": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "section-order": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "no-labels": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps every fact Before kept and additionally fixes ends-at-envelope: Before appended a 'Prior-report search completed... baseline checks were clean' housekeeping line after the eligibility line in both gates, while After stops at the eligibility line as required. The sectioned What is broken / Why it is broken / How to fix it shape reads plainly, each section is a single paragraph, citations trail the claims they support, both reports stay well under 180 words, and the menus match the expected row counts, recommendations, and eligibility statements (Checkpoint 2 names predicate 6 and the unverifiable external font). Two small wording nits worth tightening so the shape stays stable: keep the eligibility line explicit ('all six predicates pass' rather than 'all predicates pass') so the eligible line mirrors the not-eligible line's predicate specificity, and keep punctuation on the last menu row ('Finish with rendered summary.') consistent with the other rows so the row text is byte-identical to the menu contract. Otherwise the After wording delivers the Change without moving any fact in the wrong direction.",
+        "wallMs": 17169,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "af88faa3c8b37be4cc73be620f69bbaab47d747c"
+}

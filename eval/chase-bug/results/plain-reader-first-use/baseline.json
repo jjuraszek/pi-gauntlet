@@ -1,0 +1,38 @@
+{
+  "sample": "plain-reader-first-use",
+  "arm": "baseline",
+  "skillSha": "557c04177791247a7fe77e46f4c9b70c499a6cf58b334aba0347df9cc867613c",
+  "inputSha": "d04af21add62d04821048b427937cc1c90e7902d3771314f4d192899c8100131",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\nThe CI job spends an extra four minutes running the same lint scan of the source tree twice. This is a real bug: the part that builds the job summary rescans the tree instead of reusing the lint results already produced (the summary-builder, `tools/check-job.mjs:73`), and passing it the original file list removed the second four minutes with identical output. Changing that one call to reuse the list is a small, safe fix, so the hotfix is recommended.\n\n- Both scans take four minutes and produce identical file lists.\n- The falsification test passed the original list to the summary and ran. It removed the second four-minute scan without changing the summary output.\n- The prior-report search completed with no match.\n- Tracked-file checks are clean against the baseline.\n\nPick one:\n\n```\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment (`gh issue comment`).\n\n> We could not make the chart disappear after a refresh. Your ten-row sample fixture rendered the chart in both Chrome and Firefox with clean profiles, and clearing the cache changed nothing, so we cannot replicate this yet. Please tell us how many rows are in the dataset where the chart disappears so we can continue.\n\nReply `send it` to post this comment on the issue. Any other reply is treated as a change to the draft.\n\n---\n\ngauntlet: done summary\n\nOpening `/widgets/` with a trailing slash shows the page-not-found result, while `/widgets` opens the page. The router matches addresses exactly, which follows the documented rule that trailing slashes are not accepted, so this is not a bug (the router, `src/router.ts:88`; the API documentation's routing section, https://example.org/docs/widget-addresses). The correct usage is `/widgets` without the trailing slash, so no fix or ticket is needed.\n",
+      "words": 313,
+      "wallMs": 22162,
+      "mechanical": {
+        "no-labels": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\nThe CI job wastes four minutes scanning the source tree for lint results a second time. This is a real bug: passing the original file list to the summary builder removes those four minutes without changing its output (`tools/check-job.mjs:73`). Reusing that list requires changing one call site, and all six safety and scope checks pass, so a hotfix is recommended.\n\nPick one:\n\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/response-to-origin\n\nChannel: GitHub issue comment\n\nThe chart reportedly disappears after refresh, but we could not reproduce it with your ten-row sample. The cause remains unknown: the chart renders in Chrome and Firefox with clean profiles, and clearing the cache did not change that result. Please provide the number of rows in the failing dataset so we can continue investigating.\n\nReply with the exact text `send it` to post this comment.\n\n---\n\ngauntlet: done summary\n\nOpening `/widgets/` returns 404, while `/widgets` opens the page. This is not a bug: the router follows the documented exact-match rule that rejects trailing slashes (`src/router.ts:88`; [API routing documentation](https://example.org/docs/widget-addresses)). Use `/widgets` without the trailing slash; no fix or ticket is needed.\n",
+      "words": 214,
+      "wallMs": 10465,
+      "mechanical": {
+        "no-labels": "holds"
+      }
+    }
+  },
+  "repoSha": "8fe266135c064c02990def4338909132a15608b3"
+}

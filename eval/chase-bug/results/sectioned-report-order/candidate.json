@@ -1,0 +1,166 @@
+{
+  "sample": "sectioned-report-order",
+  "arm": "candidate",
+  "skillSha": "ab85207c37d2363588b40dc1b9039f31f82a83d2adc2fc92f3262d3914d6f9e6",
+  "inputSha": "bf194532307a772b90d2687dd2a5bff7ea4eb5a382f97db003e1bcc92e8cb077",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` shows page not found (404) instead of the widgets page; `/widgets` opens the widgets page.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares addresses exactly, so the extra final slash in `/widgets/` prevents a match. A local test request to `/widgets/` showed the same page-not-found result. Temporarily ignoring the final slash made that request succeed, which supports this cause.\n\n### How to fix it\n\nRemove the final slash in the one comparison that matches addresses to pages. `/widgets/` is then expected to open the widgets page, as `/widgets` does. The change is limited to that single comparison. Choose hotfix because the fix changes one comparison and meets every condition for a quick fix.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\n### What is broken\n\nThe report says the chart disappears after refresh. Following the documented steps with the supplied small sample data, the chart still displayed in Chrome and Firefox. Both browsers used settings with no saved preferences.\n\n### Why it is broken\n\nThe documented attempts did not reproduce the disappearance. Clearing the browser's stored copy of the data ruled out that stored copy as the cause. No other explanation survived, so the cause is unknown.\n\n### What happens next\n\nThe report does not include the dataset size from the failing run, and that size is needed to continue. Respond with a request for that size because the chase could not reproduce the failure without it.\n\nPick one:\n\n```text\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n```\n",
+      "words": 313,
+      "wallMs": 14712,
+      "mechanical": {
+        "section-order": "holds",
+        "no-labels": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\n### What is broken\n\nOpening `/widgets/` returns page not found (404) instead of the widgets page (200); `/widgets` works.\n\n### Why it is broken\n\nThe part that matches web addresses to pages compares paths exactly, so the final slash prevents a match. A local request test reproduced the failure; temporarily ignoring the final slash made it pass.\n\n### How to fix it\n\nStrip the final slash in one comparison before matching addresses so `/widgets/` reaches the widgets page. Choose hotfix because the change affects one comparison and all safety and scope checks pass.\n\nPick one:\n\n```text\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Respond to reporter only.\n```\n\neligible - all predicates pass\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu\n\n### What is broken\n\nThe report says the chart disappears after refresh, but following the documented steps with the supplied sample data rendered the chart in Chrome and Firefox, both using browser settings with no saved preferences.\n\n### Why it is broken\n\nThe documented reproduction attempts did not show a failure. Clearing the browser’s stored copy of the data ruled it out as the cause; no other hypothesis survives. The cause remains unknown.\n\n### What happens next\n\nThe dataset size from the failing run is missing and is needed to continue investigating. Respond requesting that size because the supplied small sample did not reproduce the disappearance.\n\nPick one:\n\n```text\n1. [ ] Respond to reporter with this verdict and citation.\n2. [ ] Finish without a response.\n3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.\n```\n",
+      "words": 271,
+      "wallMs": 5453,
+      "mechanical": {
+        "section-order": "holds",
+        "no-labels": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5b9b70f764e6478f9691a3c2ef832c75fd6c5ed2b00b02e15a4e47a11aac7ee0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
+      "baselineOutputSha": "06933750b6d10824defecdf726793238b25f4e1a36cc827f2b3d22538ae9ffb1",
+      "candidateOutputSha": "bc8bcda175ab8fc28301cbc93467ea5e8d98a24202755d869d76828e56a67203",
+      "facts": {
+        "claims-supported": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "third-heading-by-verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "under-cap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "lists-earn-place": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ends-at-envelope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "context-earns-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the sectioned contract cleanly: both checkpoints use the fixed headings, each section is a single paragraph, investigation shorthand (404, cache, clean profiles) is translated, the fix is stated as the one-comparison slash removal the case records, and the router path is dropped since the reader's next action is a menu pick. Before failed the heading, plain-reader and list checks because it mixed a prose verdict with a bullet evidence block carrying unexplained terms ('Phase 1 repro attempts', 'falsify') and a mid-sentence parenthetical citation. Two soft spots in After to watch: checkpoint 2's because-clause ('could not reproduce the failure without it') edges toward asserting the reporter is the only holder of the dataset size, and the case gave no recommended pick for the negative gate, so a safer wording would be 'The report does not include the dataset size from the failing run; continuing needs it, so the pick is whether to ask the reporter or file a discovery ticket' without choosing one. Also keep the fix verb identical to the recorded action ('strip'/'remove') rather than the test verb ('ignore') so mechanism and fix stay distinct, which After already does better than Before.",
+      "wallMs": 38321,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5b9b70f764e6478f9691a3c2ef832c75fd6c5ed2b00b02e15a4e47a11aac7ee0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f59018d3738e5b6daaa276e2e712e78e3a5afbba2c50989fb007d1dc84bcd7b1",
+      "baselineOutputSha": "599c62a08f86fecf8cd617b95185098858d939ca9b88248f95b7f069f45ec672",
+      "candidateOutputSha": "c4872ddfe55fa371d663ff70c1ac3cd64eb2fc62ca34fe9aa2b08aaab3b3c55c",
+      "facts": {
+        "claims-supported": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "third-heading-by-verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "under-cap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "lists-earn-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ends-at-envelope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "context-earns-place": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "section-order": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and gains the two Before lost: the fixed headings now put How to fix it and What happens next in the third slot with the recommended pick and a because-clause, and the investigation shorthand that made Before fail plain-reader (\"hotfix predicates\", \"tracked-file checks\", unexplained \"404\", \"clean profiles\") is translated into everyday phrasing (\"page not found (404)\", \"safety and scope checks\", \"browser settings with no saved preferences\", \"the part that matches web addresses to pages\"). Both checkpoints correctly omit Context and the housekeeping lines (prior-report search, tracked-file checks) that would have been rejected there, and neither invents who holds the dataset size or a test input. One thing to watch: After dropped the src/router.ts:88 citation entirely; that is permitted since the fact only forbids citations that are not useful, but because the recommended pick is to implement the hotfix, the author may want the wording to allow a single trailing path on the mechanism sentence in How to fix it (\"...in one comparison before matching addresses. src/router.ts:88\") so the reader's next action has its location without reintroducing jargon.",
+      "wallMs": 27801,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "af88faa3c8b37be4cc73be620f69bbaab47d747c"
+}

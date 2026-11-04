@@ -1,0 +1,40 @@
+{
+  "sample": "nov3-replay",
+  "arm": "baseline",
+  "skillSha": "557c04177791247a7fe77e46f4c9b70c499a6cf58b334aba0347df9cc867613c",
+  "inputSha": "6c809b833ead611132c17aa65d3a02e0a9b33a0330c55b85fb2dc471b097e575",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\nThe CI job spends its last four minutes redoing work it already did. The step that builds the final summary scans the whole source tree a second time instead of reusing the lint step's results, and a controlled run that reused them saved four minutes with identical output (the summary builder in the check job script, `tools/check-job.mjs:73`). Passing the existing results to that one call is a small, safe fix, so the hotfix is the recommended pick below.\n\nPick one:\n\n```\n1. [ ] Brainstorm now - /skill:brainstorming with the above as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all predicates pass\n```\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu recommended=2\n\nSlide headings that contain the letter \"z\" spill past their card. The heading font has no drawing for \"z\", so the browser borrows a wider font for that letter and stretches the heading from 280 to 312 pixels on a 300-pixel card, while a complete font keeps it at 280 (the heading style, `slides/title.css:41`). The fix swaps in a complete font that is owned outside this repository and needs that owner's help, so brainstorming is the recommended pick below.\n\nPick one:\n\n```\n1. [ ] File a ticket - /skill:shape-ticket, seeded with the above.\n2. [x] Brainstorm now - /skill:brainstorming with the above as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: predicate 6 - this repository's existing test harness cannot verify the changed external font\n```\n",
+      "words": 255,
+      "wallMs": 17347,
+      "mechanical": {
+        "section-order": "fails",
+        "no-labels": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=2\n\nThe CI job spends its last four minutes repeating the rule-violation scan for its final summary. This is a confirmed bug: reusing the first scan’s results removes four minutes without changing the output, because the summary builder otherwise scans again (`tools/check-job.mjs:73`). Passing those results into the summary is a one-call-site fix, so the recommended choice is a hotfix.\n\nPick one:\n\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n3. [ ] Respond to reporter only.\n\neligible - all six predicates pass\n\nPrior-report search completed across open and closed reports without a match; baseline checks were clean.\n\n---\n\ngauntlet: gate=chase-bug/verdict-menu recommended=2\n\nA heading containing “z” overflows its 300-pixel card. This is a confirmed bug: the heading font lacks that character, so browser substitution widens the text from 280 to 312 pixels; a complete font restores 280 pixels (the heading’s font selection, `slides/title.css:41`). Replacing the external font needs its owner’s coordination and cannot be verified by this repository’s test harness, so brainstorming is recommended.\n\nPick one:\n\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [x] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: predicate 6 fails - this repository’s existing test harness cannot verify the changed external font; the other five predicates pass.\n\nPrior-report search completed across open and closed reports without a match; baseline checks were clean.\n",
+      "words": 255,
+      "wallMs": 9965,
+      "mechanical": {
+        "section-order": "fails",
+        "no-labels": "holds"
+      }
+    }
+  },
+  "repoSha": "1bf58911f60f0ae28d56f4adebf20c80e9477487"
+}
