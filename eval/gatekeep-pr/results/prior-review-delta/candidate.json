@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0a7e4aaa3e4577b79b3ebbc5a8e6142708851df9386e886fd45d49588923a26b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7de37bf12e9feda220f1150357c03fc92f1abd290ccf0bad54d3571201386876",
+      "intentSha": "b6ac0062015dc3f7364446972806f7dc418b2f3b1805d379bb35882a555baf72",
       "baselineOutputSha": "cb5e44f674a976efff883c19584f50eafa620cec5885dc360f36d2c6eb8ce181",
       "candidateOutputSha": "5e337b46f0ea683a5fe13a8e6f86af0e8c7e6413aeac980d0bddc3966514d700",
       "facts": {
@@ -154,19 +154,19 @@
           "label": "held"
         },
         "d23": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "No fact moved: After keeps every behavior Before showed (702 selection by id tie-break, ancestor check feeding a bounded delta with src/legacy-helper.mjs in the path union, R1-R3 joined by review id 702 with 802 excluded, stable P1/P2 keyed to R2/R3 with dedup on re-integration, evidence-only outside-delta Moderate/Minor with tags and locators, Critical/in-delta/doc-drift blockers, C1 represented by R3 without a reply, explicit 'no finding spec or companion ledger' at the first gate and in the own-PR run, needs-stop with no round charge after P1's single charge, and the delivery re-render at 2 of 3 with R3's posted text retained). After also improves on the Change's intent by placing 'Prior review:' immediately above 'Blockers:' with no blank line, naming loop-implementer rows 1 and 2 explicitly, and recording the row-2 reopen decision line and the retained pushed_head boundary. Two small stylistic points to watch so they don't drift into fact failures later: After prints the 'gauntlet: gate=...' header twice (once at the very top of the narration and once inside the menu block), and the needs-checkpoint menu's row-2 wording ('retry the fallback fix') should keep saying 'P2's row' so the retained row identity stays tied to the minted P id and its locator.",
-      "wallMs": 33868,
-      "verdict": "unchanged"
+      "feedback": "No fact regressed from Before to After; the only movement is a gain on d23. Before never named the `loop-implementer` agent (it said only \"Fresh implementers\" carrying a \"commit-only-on-pass rule\", which reads as contradicting admission of a `loop: row 2 failed` commit), never stated `attempts 1`, and described the exit as reacting to the helper's \"open - needs\" result, so a careful reader could not confirm the failed companion row was admitted with its attempt count rather than treated as a native open return. After fixes this by dispatching `loop-implementer` explicitly, writing the spec/ledger after the pick, recording the row-2 commit as valid with attempts 1 and a selective failing command, and appending the decision line to the ledger. Keep that wording. Two minor cautions for the After text: the stray `gauntlet: gate=...` header duplicated at the very top of the narration and the delivery checkpoint's \"Ledger: Row 2 is reopened\" / `--watch` lines add material outside the Entry's scope (the Change says reviewer reopening is not rerun here); they don't move any listed fact, but trimming them would keep the narration tighter and avoid implying behavior this sample is not meant to evidence.",
+      "wallMs": 50471,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0a7e4aaa3e4577b79b3ebbc5a8e6142708851df9386e886fd45d49588923a26b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7de37bf12e9feda220f1150357c03fc92f1abd290ccf0bad54d3571201386876",
+      "intentSha": "b6ac0062015dc3f7364446972806f7dc418b2f3b1805d379bb35882a555baf72",
       "baselineOutputSha": "7833fc03c85748658f5a9527910a87166ce115ab5e64d595d6fb325af3a68921",
       "candidateOutputSha": "a71fee882e443c14615d48864d31bc96d37ed55f89ff3a4520166bdd1d2f713d",
       "facts": {
@@ -291,10 +291,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "No fact regressed in After; every selection, ancestry, delta, closure-mapping, C-ledger, show-evidence, own-PR and delivery fact that Before kept is still kept, with the same report lines and locators. The only movement is an improvement on d23/d24: Before denied that a loop-implementer/companion admission protocol was authorized, treated the valid `loop: row 2 failed` commit as a postcondition violation, and exited on unsafe moved HEAD instead of `stuck - needs an external dependency`; After dispatches loop-implementer rows 1 and 2, admits the failed companion commit with attempts 1, charges one round only for the ordinary row-1 source change, and stops at the needs-stuck obstacle before any repair, review, push or watch, while the delivery checkpoint starts with fresh accounting. One wording risk to watch in After: the needs-admission section says it creates the finding spec and companion ledger immediately after the deliver pick, which is consistent with d22 only because the first gate and own-PR run explicitly state their absence; keep those explicit absence notes so a reader does not infer the artifacts exist before the course pick.",
-      "wallMs": 41696,
+      "feedback": "No fact regressed; the After wording actually repaired two facts the Before had lost. Before disowned the loop-implementer protocol (\"authorizes fresh implementer payload helpers, not a separate loop-implementer/spec-companion admission protocol\"), rejected the valid `loop: row 2 failed` commit as an `open`-postcondition violation, and exited on \"unsafe moved HEAD\" rather than `stuck - needs an external dependency`, so d23 and d24 failed; After dispatches loop-implementer rows 1 and 2, admits both companion commits with attempts 1 and the exact needs decision, charges only the row-1 source round (1/10), and stops at the stuck exit before any further dispatch/review/push/watch. The rest of After tracks Before closely: review 702 selection with the numeric-ID tie-break, the ancestry check and union-path bounded delta including src/legacy-helper.mjs, R1-R3 previous report with closure lines, the shared pi/Claude Code contract, P1/P2 mapping with C1 represented by R3, the retained evidence-only outside-delta diagnostics with severity/tag/locator, the 1-of-3 and 1-of-2 Prior review lines directly above Blockers, and the delivery checkpoint's P1-to-R2 closure at local HEAD 5555 with Prior review 2 of 3. The only mild softening is that After's first-scenario and own-PR text never names commit 1111 or the pull_request_review_id 702 join key explicitly in prose (it is carried implicitly by the merge-base/diff commands and comment 802 landing as C2); adding one clause like \"baseline commit 1111…, joining inline comments by pull_request_review_id 702 so 802 stays C2\" would make d1/d4 unambiguous while keeping the new loop-worker admission wording intact.",
+      "wallMs": 39256,
       "verdict": "improved"
     }
   },
-  "repoSha": "ece38cf1f32f9769d4b624b85756109fdc98d610"
+  "repoSha": "d5a8f481fa59b9784a22e8df2af4fa1fc35c8fdf"
 }
