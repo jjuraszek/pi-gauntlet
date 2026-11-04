@@ -154,8 +154,9 @@ Start the message with `gauntlet: gate=chase-bug/verdict-menu` before the report
 
 Read `reference/verdict-report.md` now (resolve against this skill's directory;
 unreadable -> stop, naming the path) and render the report in its shape, including
-on a re-fire after a hotfix abort. `Pick one:` and the menu follow the last
-section; the eligibility line ends the message.
+on a re-fire after a hotfix abort. Put `Pick one:` and the menu after the last
+section; end a real-bug message with the eligibility line and a negative-verdict
+message with its menu.
 
 Render **only the matching action set** - never merge real-bug and negative-verdict
 menus into one list. The human may **overrule the verdict in prose** - that is a
