@@ -3,7 +3,7 @@
 base: d3aa93b651f89223161c6039446cd8af3ee3296c
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -11,7 +11,7 @@ allowance: 10
 | 1 | done | 1 | node -e '["gate-line-first", "menu-after-numbered-findings"].forEach(s => require("node:assert").strictEqual(require("node:child_process").spawnSync(process.execPath, ["eval/run.mjs", "check-delivery", s, "--base", "d3aa93b651f89223161c6039446cd8af3ee3296c"], {stdio: "inherit"}).status, 0))'; both selected samples unchanged; four model cells pass with all facts holding; single-ticket skill text unchanged from base |
 | 2 | done | 1 | node eval/run.mjs check-delivery-batch batch-one-gate-per-turn --base d3aa93b651f89223161c6039446cd8af3ee3296c; 2 model cells improved with all 9 facts holding; first report and gate isolated in supplied order; dispatch and tracker calls require manual smoke |
 | 3 | done | 1 | node -e '["batch-decline-isolates", "batch-approved-after-decline"].forEach(s => require("node:assert").strictEqual(require("node:child_process").spawnSync(process.execPath, ["eval/run.mjs", "check-delivery-batch", s, "--base", "d3aa93b651f89223161c6039446cd8af3ee3296c"], {stdio: "inherit"}).status, 0))'; 4 model cells improved with all 32 facts holding; decline leaves the next gate independent and subsequent approval advances the turn; tool writes are supplied observations and require manual smoke |
-| 4 | open | 0 | |
+| 4 | done | 1 | node eval/run.mjs check-delivery-batch batch-approved-after-decline --base d3aa93b651f89223161c6039446cd8af3ee3296c; 2 current cached model cells improved with all 16 facts holding; approved outcome precedes next report under its gate marker; re-fetch and writes are supplied observations requiring manual smoke |
 | 5 | open | 0 | |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
@@ -26,3 +26,4 @@ row 2 done | Added fresh per-ticket dispatch and ordered parent turns with passi
 row 9 done | Checked delivery-checker frontmatter against the exact tool list, context pins, and indirect-dispatch description. | nothing new to build on
 row 10 done | Checked both instruction files stay below the byte and line caps and omit the obsolete single-ref constraint. | nothing new to build on
 row 3 done | Added decline and subsequent approval evals with all 32 facts passing against existing set-turn instructions. | Reuse eval/check-delivery-batch's batch-decline-isolates and batch-approved-after-decline fixtures for later turn checks.
+row 4 done | Confirmed the approved-turn sample passes all 16 facts with existing write-order instructions and a plain delivered outcome before the next report. | nothing new to build on
