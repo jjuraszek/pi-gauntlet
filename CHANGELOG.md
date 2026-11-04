@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.1.9 - 2026-11-04
 
 - chase-bug's verdict gate, reporter draft, and terminal summary render as short sections: optional Context, What is broken, Why it is broken, then How to fix it or What happens next. The PM-readable register and report caps live in `skills/chase-bug/reference/verdict-report.md`; the action menu is unchanged.
 
