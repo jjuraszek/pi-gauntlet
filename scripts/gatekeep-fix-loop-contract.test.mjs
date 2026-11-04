@@ -4,6 +4,22 @@ import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
 
+test('review closure aggregates required ids once per row before carried retries', () => {
+  const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
+  const review = fixWave.split('\n## Review before push\n')[1].split('\n## Re-review task\n')[0].replaceAll('\\|', '|');
+  for (const token of [
+    'checkpoint ends with `counted` false',
+    'evaluate each ledger row once over all its required ids',
+    'every contributor P#/L# id', 'every selected nit id',
+    '`open - <why>` or has no closure line', 'status `failed`, attempts unchanged',
+    'row <n> reopened | review: <unresolved ids> - <why> | <reviewer\'s why>',
+    '200 characters', 'next `previous decision`',
+    'All required ids read `resolved`', 'Keep it `done` and dispatch nothing',
+    'same row as the next carried-set retry target',
+  ]) assert.ok(review.includes(token), `review aggregation requires ${token}`);
+  assert.doesNotMatch(review, /When HEAD equals `pre_wave_head`/);
+});
+
 test('finding artifacts index each selected blocker and one complete nit batch', () => {
   const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
   const artifacts = fixWave.split('\n### Finding artifacts\n')[1]?.split('\n### Shared worker context\n')[0];
