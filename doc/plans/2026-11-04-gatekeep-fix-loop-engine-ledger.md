@@ -3,7 +3,7 @@
 base: 5cfd9d352303f7c18191c644bbe6195f2d870253
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -16,7 +16,7 @@ allowance: 10
 | 6 | done | 0 | node eval/run.mjs gatekeep-pr nit-batch-row; both replay models hold n6; description compare-and-swap and claim recheck stay outside rows; replies remain explicitly selected |
 | 7 | done | 0 | node eval/run.mjs gatekeep-pr loop-worker; both replay models improved; shared context and separate pi/native tails held; partial coverage only |
 | 8 | done | 0 | git diff --exit-code 5cfd9d352303f7c18191c644bbe6195f2d870253 -- agents/loop-implementer.md skills/chase-bug/hotfix.md; exit 0; both files byte-identical to base |
-| 9 | open | 0 | |
+| 9 | done | 1 | node eval/run.mjs gatekeep-pr prior-review-delta; exit 0, both models improved; d1-d18 and d22-d23 hold on both models; d19-d21 remain pre-existing misses on one model |
 
 ## Decisions
 row 0 done | seeded 2 rows, closed 1 on baseline | row 1: use scripts/gatekeep-fix-loop-contract.test.mjs to replace the file-finding dispatch.
@@ -27,3 +27,4 @@ row 3 done | The selected nit-batch-row check confirms external record-sibling a
 row 6 done | The selected nit-batch-row check keeps description repair and explicit reply picks unchanged and outside finding rows. | nothing new to build on
 row 4 done | Aggregated reviewer closures per row, reopening open or missing ids once without charging attempts and skipping fully resolved rows. | Reuse fix-wave.md closure aggregation and reviewer-row-reopen fixtures for contributor, nit-batch and counted-false retry checks.
 row 5 done | Bounded finding retries by allowance, validation misses and wave caps, added one-shot escalation, and extended verify guards to loop workers. | Reuse fix-wave.md Budgets, row-exhaustion fixtures and phase-tracker tests for bounded retry and guard checks.
+row 9 done | Confirmed no finding artifacts before delivery and unchanged second-run posted-review baselines, and refreshed the failed-row fixture. | Reuse eval/gatekeep-pr/samples/prior-review-delta for no-ledger checkpoints and posted-review baseline checks.
