@@ -1,0 +1,6 @@
+anonymized: true
+- p1: judged: P1's description-target finding and C1's unselected reply create no finding AC, ledger row, derived spec or companion ledger, and no loop-implementer or file helper is dispatched.
+- p2: judged: The first pre-write read compares both actual head and body to the selected proposal, detects the changed note, invalidates the stale proposal and ends that iteration without any write, sync or push; it drafts a fresh proposal against the updated body and retains the delivery course without another selection.
+- p3: judged: The next iteration freshly compares head and body against the refreshed proposal before the orchestrator's repository-scoped gh pr edit; the final body is Reject unsigned events. The rejected path has no test yet. Keep this updated note. and preserves the unrelated updated note and original intent baseline.
+- p4: judged: After the write the body is read back and a fresh helper rechecks only affected K1 against actual head/body and that head's evidence before closing P1's claim contribution; unrelated matched K2 is preserved rather than reverified by a whole-wave review.
+- p5: judged: Description-only delivery charges no round or sync, keeps both usage counters zero, and runs no file review, source commit or push; C1 stays an unposted draft awaiting an explicit reply pick.

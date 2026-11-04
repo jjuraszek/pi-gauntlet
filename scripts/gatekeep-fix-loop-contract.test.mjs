@@ -59,6 +59,62 @@ test('finding artifacts index each selected blocker and one complete nit batch',
   ]) assert.ok(artifacts.includes(token), `finding artifacts require ${token}`);
   assert.match(artifacts, /Description-target and reply payloads never become ACs or ledger rows/);
   assert.match(artifacts, /missing tool.*never guess/);
+  assert.match(fixWave, /settle only per-pass wave fields; retain `repair\.wave\.spec` and `repair\.wave\.ledger` and all row history until terminal teardown/);
+  for (const path of ['post-selection-loop.md', 'batch.md']) {
+    const owner = readFileSync(new URL(`skills/gatekeep-pr/reference/${path}`, root), 'utf8');
+    for (const token of ['repair.wave.spec', 'repair.wave.ledger', 'missing', 'stuck - run record unreadable']) {
+      assert.ok(owner.includes(token), `${path} must retain and validate finding artifact ${token}`);
+    }
+  }
+});
+
+test('admission preserves failed companion work and charges only ordinary source results', () => {
+  const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
+  const admission = fixWave.split('\n### Admission\n')[1]?.split('\n## Review before push\n')[0];
+  const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
+  const companion = persona.split('\n## Companion result commit\n')[1]?.split('\n## Boundaries\n')[0];
+  assert.ok(admission && companion);
+  // Pin the caller's admission checks to the unchanged companion wire contract.
+  for (const token of ['pending:', 'iteration:', 'loop: row <n> <status>', 'target first', 'attempts unchanged']) {
+    assert.ok(companion.includes(token), `persona companion requires ${token}`);
+  }
+  assert.match(companion, /target, attempts \+1 and status done\/failed/);
+  assert.ok(admission.includes('loop: row <n> <done|failed>'), 'both done and failed are admitted subject statuses');
+  for (const [workerRule, callerRule] of [
+    ['leave the home ledger untouched', 'writing its row and extras to the external ledger'],
+    ['table rows without a header', 'without a header'],
+    ['at most three semicolon-separated result lines', 'at most three result lines'],
+    ['commit exactly once', 'exactly one new commit'],
+    ['check clean status', 'Require a clean tree'],
+  ]) {
+    assert.ok(companion.includes(workerRule), `persona result requires ${workerRule}`);
+    assert.ok(admission.includes(callerRule), `caller admits ${callerRule}`);
+  }
+  assert.match(admission, /target attempts = saved attempts \+ 1/);
+  assert.match(admission, /writing its row and extras.*appending its decision lines.*clearing `pending:`/);
+  assert.match(admission, /Keep failed partial work and tests on the branch/);
+  assert.match(admission, /Charge no round for an admitted failed `needs <what>` or `contract exception: <why>` decision/);
+  assert.match(admission, /independent ordinary source-changing result in the same pass still charges once/);
+  assert.match(admission, /reconcile.*same checks and round-charge exceptions/);
+  const dispatch = fixWave.split('\n### Row dispatch\n')[1].split('\n### Admission\n')[0];
+  for (const token of ['iteration', 'spec', 'ledger', 'base', 'target', 'previous decision', 'hint', 'Leg:', 'Rules:', 'mapped original AC', 'pending:']) {
+    assert.ok(dispatch.includes(token), `caller supplies persona input ${token}`);
+    assert.ok(persona.includes(token), `persona consumes caller input ${token}`);
+  }
+});
+
+test('shared context leaves solution and commit contracts to each harness tail', () => {
+  const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
+  const context = fixWave.split('\n### Shared worker context\n')[1].split('\n### Budgets\n')[0];
+  const [shared, tails] = context.split('Append only the matching harness tail:');
+  assert.doesNotMatch(shared, /re-solve|apply the payload|commit|reply/i);
+  const pi = tails.split('| pi |')[1].split('\n')[0];
+  const claude = tails.split('| Claude Code |')[1].split('\n')[0];
+  assert.match(pi, /choose the fix/);
+  assert.match(pi, /commit and reply.*Companion result commit/);
+  assert.match(claude, /Apply the course-authorized drafted payload/);
+  assert.match(claude, /Commit once/);
+  assert.match(claude, /return `open/);
 });
 
 test('pi file findings dispatch companion loop rows while sync keeps implementer helpers', () => {
