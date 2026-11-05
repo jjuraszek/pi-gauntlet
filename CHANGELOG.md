@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.2.0 - 2026-11-05
 
 - Check-delivery accepts explicit ticket sets in pi: fresh `delivery-checker` children verify in parallel after one parent fetch, then the parent gates and writes each ticket in turn. Single-ref behavior stays in-session. Per-ticket consent replaces the single-ticket refusal in Item 3 of the check-delivery consumer-feedback spec.
 
