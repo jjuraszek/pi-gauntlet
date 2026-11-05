@@ -1,0 +1,142 @@
+{
+  "sample": "batch-ac-conflict-row",
+  "arm": "candidate",
+  "skillSha": "b85d91f9afdc5590718b8ad859a6214ed229205135ed16ceee1da91947ffc0cd",
+  "inputSha": "e3fb5e742562f5bcc0850ba54b95d944fab75ced8178388dcf510fca137b18cd",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/set-recovery\n\n#### acme/widget#12\n\n> STOPPED - AC conflict - \"Export preserves twelve rows.\" versus \"Export only the first ten rows.\"\n\nPick one:\n\n1. retry\n2. skip\n",
+      "words": 23,
+      "wallMs": 5190,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "ticket-heading": "holds",
+        "no-sibling": "holds",
+        "private-handoff": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/set-recovery\n#### acme/widget#12\n\n> STOPPED - AC conflict - \"Export preserves twelve rows.\" versus \"Export only the first ten rows.\"\n\nPick one:\n\n1. retry\n2. skip\n",
+      "words": 23,
+      "wallMs": 3307,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "ticket-heading": "holds",
+        "no-sibling": "holds",
+        "private-handoff": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d90521a4c9e0309b1eaf5f95d02f5beb6d4dede5e5f331aade900bf3179e884a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "ef064d029ea7feb5c5a2a8e4a0e7b29e69b3f91835cfbe345477643aa7d7d6a8",
+      "candidateOutputSha": "e062a9638b6c4add6b0e155c19d4420a2f599da3f77c7cd6cb29086a3b2266e8",
+      "facts": {
+        "conflict-rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "retry-skip": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ticket-heading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-sibling": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "private-handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves both facts to holds and loses nothing Before kept. Before paraphrased the recovery marker as \"stopped at Stage 0 (AC conflict)\" instead of showing the child's literal `STOPPED - AC conflict - ... versus ...` line, and it had no retry/skip menu at all: it told the user to re-run the skill manually and then moved straight into ticket 15's report and approve/decline confirmation gate in the same message. After shows only ticket 12 under its own heading, quotes the child's STOPPED line verbatim with both conflicting rows, and offers exactly `1. retry` / `2. skip` with no gate, no request for a reading, no automatic retry and no claimed write. Keep that structure; the one thing to guard going forward is that the quoted marker stays the child's exact line (don't let future edits reintroduce a paraphrase like Before's) and that ticket 15's gate continues to wait for its own turn.",
+      "wallMs": 10678,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d90521a4c9e0309b1eaf5f95d02f5beb6d4dede5e5f331aade900bf3179e884a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "a90d22fc181b9c67ed608431692258c84cbec9440760820f6f1bfa38c3c6fe5d",
+      "candidateOutputSha": "c87298b93bd2b61d3e1c13934ac3aec5305a2a410bdbb3f4134c68de727c178d",
+      "facts": {
+        "conflict-rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "retry-skip": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ticket-heading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-sibling": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "private-handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves both facts from fails to holds, in the intended direction. Before never printed the literal recovery marker — it rewrote the child's STOPPED line into a prose heading (\"blocked by an AC conflict\") and a verdict table — and it layered a confirmation gate (\"approve the write / decline\") plus a proposed findings comment and a mention of ticket 15 on top of the AC conflict, so retry-skip failed. After shows only acme/widget#12 under its own heading, quotes the child's STOPPED - AC conflict line verbatim with both conflicting rows, and offers exactly \"1. retry / 2. skip\" with no gate, no reading request, no automatic retry, no claimed write, and no sibling-ticket leakage, which is exactly what batch-ac-conflict-row asks for. Nothing in After regressed; the only thing to keep an eye on is that the heading level (####) stays consistent with the other set-mode turns so the ticket-heading fact reads the same across samples, and that the retry branch (batch-ac-conflict-reading) opens the reading question only after the user picks 1, not here.",
+      "wallMs": 10895,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "35f3eeea18abb7ff128da4857d4827ecc20022ff"
+}

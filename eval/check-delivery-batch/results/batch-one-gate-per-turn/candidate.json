@@ -1,0 +1,166 @@
+{
+  "sample": "batch-one-gate-per-turn",
+  "arm": "candidate",
+  "skillSha": "b85d91f9afdc5590718b8ad859a6214ed229205135ed16ceee1da91947ffc0cd",
+  "inputSha": "0ff3c7e89c158f3a0e88131fdf6894482d4f11c3be7820c3b0e7d90c0f2edb25",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n#### acme/widget#12\n\n## Report\nShipped SHA: a123456\nDeliverable: https://example.test/pull/12\nStages: 0 gathered; 1 landed on trunk; 2 skipped (no delivery target configured); 3 verified.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Export preserves twelve rows. | not externally observable | export.test.ts at a123456 asserts twelve rows; this is a fixture-only contract. |\n\nReviewer script: inspect export.test.ts at a123456 for the twelve-row assertion; no runtime surface.\nWrite about to happen: comment only; no target state configured.\n\n```text\nDelivered: a123456\nPR https://example.test/pull/12 landed on trunk. Stage 2 skipped: no delivery target configured. Export preserves twelve rows: not externally observable, implementation at a123456. Reviewer: inspect export.test.ts at a123456 for the twelve-row assertion.\n```\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 110,
+      "wallMs": 3491,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "ticket-heading": "holds",
+        "no-second-ticket": "holds",
+        "no-third-ticket": "holds",
+        "private-handoff": "holds",
+        "private-result": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n#### acme/widget#12\n\n## Report\nShipped SHA: a123456\nDeliverable: https://example.test/pull/12\nStages: 0 gathered; 1 landed on trunk; 2 skipped (no delivery target configured); 3 verified.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Export preserves twelve rows. | not externally observable | export.test.ts at a123456 asserts twelve rows; this is a fixture-only contract. |\n\nReviewer script: inspect export.test.ts at a123456 for the twelve-row assertion; no runtime surface.\nWrite about to happen: comment only; no target state configured.\n\n```text\nDelivered: a123456\nPR https://example.test/pull/12 landed on trunk. Stage 2 skipped: no delivery target configured. Export preserves twelve rows: not externally observable, implementation at a123456. Reviewer: inspect export.test.ts at a123456 for the twelve-row assertion.\n```\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 110,
+      "wallMs": 3574,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "ticket-heading": "holds",
+        "no-second-ticket": "holds",
+        "no-third-ticket": "holds",
+        "private-handoff": "holds",
+        "private-result": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a08502fd1d33fbe31d1cafa3164396b0a18b8852367b828789b9808845222cb0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "c04ddf6aa573445a7b5e0cfed019bbb79122725548f9468ecbbb834b25d661de",
+      "candidateOutputSha": "cd729b1e649753ee2095e92cd0cb8e104c6fcba35e0ef8418b6e7d9e2687c6bb",
+      "facts": {
+        "report-verbatim": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "one-gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ticket-heading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-second-ticket": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-third-ticket": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "private-handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "private-result": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved report-verbatim from fails to holds: it reproduces File 01's Report section word-for-word (SHA, deliverable, stages line, AC table with the original 'fixture-only contract' evidence wording, reviewer script, write line, and the exact fenced comment) under its own ticket heading, and omits #15 and #18 entirely, whereas Before reformatted the report into bullets, reworded the evidence cell, and appended both sibling reports plus rebuilt comments. one-gate held in both: After still ends with a single two-choice approve/decline menu and makes no write claim. One small regression risk worth guarding in the wording: Before separated the gate with a `---` rule and a fenced `text` block, while After drops both and uses a bare numbered list after a blank line; a stricter reader of 'separated' could balk. Keep the current verbatim-report and current-ticket-only instructions, and add that the gate is rendered in its own fenced block (or after a horizontal rule) exactly as the single-ticket sample does, so the separation Before had is preserved alongside the new per-ticket turn behavior.",
+      "wallMs": 11403,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a08502fd1d33fbe31d1cafa3164396b0a18b8852367b828789b9808845222cb0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "7b9447f00668918537a67351f473ad2b173ff17a0d1b40edafc055c0d98f4262",
+      "candidateOutputSha": "cd729b1e649753ee2095e92cd0cb8e104c6fcba35e0ef8418b6e7d9e2687c6bb",
+      "facts": {
+        "report-verbatim": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "one-gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ticket-heading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-second-ticket": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-third-ticket": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "private-handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "private-result": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved report-verbatim to holds by pasting ticket 12's Report block exactly as saved (same labels, same parenthetical stage note, same table cells and fenced comment) and by omitting #15 and #18 entirely; Before failed because it restyled the fields (bold labels, backticks, colon instead of parentheses) and interleaved all three sibling reports under one approval. After keeps one-gate as Before did: the message closes on a separated 'Pick one' with exactly approve/decline and asserts no write. To keep both facts while delivering the Change, keep the current pattern: one ticket heading, the Report body copied unchanged (including the 'Write about to happen' line and the fenced comment), then the two-choice gate; one small cleanup would be to drop the literal '## Report' sub-heading beneath the ticket heading, since it is a file section label rather than report content and reads as leaked handoff structure, though its presence does not break either fact.",
+      "wallMs": 9304,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "ba822d411a47618a9d623108524f3819e3a47b8e"
+}

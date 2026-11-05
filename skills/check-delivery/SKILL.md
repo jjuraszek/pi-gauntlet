@@ -1,6 +1,7 @@
 ---
 name: check-delivery
-description: Use only when explicitly asked to prove delivery of a named merged ticket ("check delivery of ABC-123", a loop task naming the ticket and the verb) before its tracker status advances; pre-merge gating belongs to /skill:gatekeep-pr.
+description: Use only when explicitly asked to prove delivery of one or more named merged tickets ("check delivery of #12 #15", a loop task naming the ticket and the verb) before their tracker status advances; pre-merge gating belongs to /skill:gatekeep-pr.
+argument-hint: "<ref> | <ref> <ref>... (e.g. #12 #15 #18)"
 ---
 
 # Check Delivery
@@ -11,6 +12,7 @@ Start the message with `gauntlet: stuck` followed on that line by the concrete s
 
 | Situation | What happens |
 |---|---|
+| Two or more refs | Set mode - read [reference/batch.md](reference/batch.md): parallel fresh children verify, the parent gates and writes per ticket in turn |
 | Ref unreadable, or repo mismatch with no repo group naming this repo | STOP - abort, no write |
 | Ticket already in a terminal/done state | STOP - report only, no write, never downgraded |
 | Comments amend/contradict the body's ACs | pause for operator resolution, then proceed - never silently pick a reading |
@@ -56,23 +58,26 @@ misconfiguration is reported.
 
 Explicit ask only (`/skill:check-delivery <ticket-ref>`, or a task that names the ticket and the verb), read-only
 against the repository (no builds, no branch/tag/worktree mutation) plus at
-most one batched tracker write, runs from wherever invoked, no worktree.
+most one batched tracker write per ticket, runs from wherever invoked, no worktree.
 
 ## Scope boundary
 
-Single-ticket by design: the pipeline's depth (repo-identity preflight,
-stage-1 landed-commit resolution, per-AC evidence binding, one human gate
-with pre-write re-fetch) does not loop soundly - N tickets means N gates,
-or a batch gate that dilutes per-ticket consent. Sweep passes (bucketing
-open tickets, orphan scans for merged-but-unreferenced work) are
-portfolio triage - a different control, inherently project-flavored - and
-stay consumer territory. A consumer sweep may invoke this skill per
-ticket as its verification step.
+Take explicit refs only: use the list the user supplies in set mode; never
+discover tickets. Leave sweep passes (bucketing open tickets, orphan scans
+for merged-but-unreferenced work) to consumer portfolio triage - a different
+control, inherently project-flavored. Take a consumer sweep's supplied list
+through set mode.
 
 ## Hard constraint
 
-Input is exactly one tracker ref (`ABC-123`, `#N`, `owner/repo#N`, or a
-ticket URL) - no inference from surrounding context; missing ref = ask.
+Take one or more explicit tracker refs (`ABC-123`, `#N`, `owner/repo#N`, or a
+ticket URL: `https://github.com/<owner>/<repo>/issues/<n>` or
+`https://linear.app/<workspace>/issue/<KEY-N>[/<slug>]`), space- or
+comma-separated; strip a trailing comma. Never infer refs from surrounding
+context. Ask for a ref when none is supplied. Run the pipeline below for
+one ref. For two or more refs, read [reference/batch.md](reference/batch.md)
+before any tracker call or fetch and return through it; use the single-ticket
+text below for each child's procedure and the parent's gate and write.
 
 **Repo-identity preflight:** resolve the ticket's target repo (the
 `owner/repo#N` form, the ticket's attached PR links, or the overrides ref

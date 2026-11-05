@@ -1,6 +1,7 @@
 # Consumer feedback batch: check-delivery polarity + descope edits, shape-ticket comment + roast retry
 
 > **Superseded by:** [doc/specs/2026-10-11-gh-60-ticket-overlap-prevention.md](./2026-10-11-gh-60-ticket-overlap-prevention.md) - Item 4a's Reporter-note-only comment eligibility, overlap no-op, and associated comment/write restrictions only; other items remain unchanged
+> **Superseded by:** [doc/specs/2026-11-04-check-delivery-multi-ticket.md](./2026-11-04-check-delivery-multi-ticket.md) - `## Item 3 - single-ticket boundary (check-delivery): declined, recorded` only
 
 Adoption-audit feedback from a pi-gauntlet 4.12.0 consumer surfaced four design gaps, none addressable via the overrides file. Dispositions, ratified in the brainstorm questionary:
 

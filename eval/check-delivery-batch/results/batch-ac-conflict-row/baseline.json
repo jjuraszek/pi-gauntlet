@@ -1,0 +1,46 @@
+{
+  "sample": "batch-ac-conflict-row",
+  "arm": "baseline",
+  "skillSha": "e6d50d066b663e4c5fd4444c034e41d2fb83156230ef54465010230e53cefb62",
+  "inputSha": "e3fb5e742562f5bcc0850ba54b95d944fab75ced8178388dcf510fca137b18cd",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n**acme/widget#12: stopped at Stage 0 (AC conflict).** Nothing was written for this ticket.\n\n- AC: \"Export preserves twelve rows.\"\n- Ticket comment: \"Export only the first ten rows.\"\n- To continue, the ticket owner must decide which one is correct. Then re-run `/skill:check-delivery #12`.\n- No delivery comment, status change, body edit or marker was written.\n\n**acme/widget#15: all-clear, waiting for your approval.**\n\n- Stage results: the import check passed.\n- Payload: the evidence comment recorded in #15's saved report, with `Delivered: <sha>` as its first line. It also contains the deliverable set, stage outcomes, per-AC verdicts with evidence, and the reviewer script.\n- Status advance: only if your overrides name a non-terminal target state. Otherwise the write is the comment only (\"no target state configured\").\n- Body edit: none.\n- Before writing, I re-fetch the ticket. If its ACs or status have changed since gather, I show you the changes instead of writing.\n\nApprove the write for acme/widget#15?\n1. approve the write\n2. decline\n",
+      "words": 157,
+      "wallMs": 13259,
+      "mechanical": {
+        "first-line": "fails",
+        "one-marker": "holds",
+        "ticket-heading": "fails",
+        "no-sibling": "fails",
+        "private-handoff": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n### acme/widget#12 — blocked by an AC conflict\n\nStage 0 paused because the ticket’s acceptance criterion and a comment contradict each other:\n\n| Acceptance criterion | Verdict | Evidence |\n|---|---|---|\n| Export preserves twelve rows. | Blocked | Comment: “Export only the first ten rows.” |\n\nNo delivery is verified for #12. No delivery comment, body edit, or status advance will be made.\n\n**Proposed findings comment on acme/widget#12 — exact payload:**\n```text\nDelivery check blocked at Stage 0: conflicting requirements.\n\nAcceptance criterion: \"Export preserves twelve rows.\"\nComment: \"Export only the first ten rows.\"\n\nPlease resolve whether the export must preserve twelve rows or export only the first ten rows. Delivery verification cannot proceed until this conflict is resolved.\n```\n\nApproval authorizes only this findings comment. Before posting, the ticket must be re-fetched; changed ACs or status will be presented instead of writing.\n\n**acme/widget#15:** its report includes a passing import check and an evidence comment awaiting approval. That write remains pending and is not authorized by this gate.\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 165,
+      "wallMs": 12720,
+      "mechanical": {
+        "first-line": "fails",
+        "one-marker": "holds",
+        "ticket-heading": "fails",
+        "no-sibling": "fails",
+        "private-handoff": "holds"
+      }
+    }
+  },
+  "repoSha": "35f3eeea18abb7ff128da4857d4827ecc20022ff"
+}

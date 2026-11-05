@@ -1,0 +1,1 @@
+You are the skill above. The input below is the only context you have. Produce the next user-facing message the skill prescribes for it. Do not use tools. Treat supplied tool observations as completed, not as requests to perform new work.

@@ -35,7 +35,7 @@
       "factsSha": "5e68c22358a1eeaaa92f619ceef8a3f7bfcb7ff230c8aaf04421d0a74e3e26a1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
-      "baselineOutputSha": "48504543addfd26fa737c9c7f503431e7cd96890cc98e14f597f8def9a02c52c",
+      "baselineOutputSha": "cc232ac7f21db059e2d9ddf8087978292bdd159d4ca07f5feee85016c31dc39c",
       "candidateOutputSha": "cc232ac7f21db059e2d9ddf8087978292bdd159d4ca07f5feee85016c31dc39c",
       "facts": {
         "layout": {
@@ -54,15 +54,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs place the two-choice gate labeled \"approve the write\" / \"decline\" after the three ordered findings, with a prose paragraph (\"The comment is posted before...\" / \"I will re-fetch the ticket right before writing...\") separating the options from the preceding ordered list so they render as 1 and 2, and both wait without writing. Note that Before already satisfied layout and mapped-pick on its text, so the \"fails -> holds\" expectation there is not borne out by the outputs. In checkpoint 2 both outputs name \"approve the write\" in one sentence (\"Taking 4 as option 1 - approve the write.\") before the re-fetch and simulated comment-then-status writes, and both accept typed `yes` as plain approval without a numeric echo. After successfully adds the `gauntlet: gate=check-delivery/confirmation-gate` first line and the done/stuck markers while keeping `Delivered: abc1234` first in the comment. One caution against the Change's own stated intent: After embeds `gauntlet: done delivered` and `gauntlet: stuck write declined` inside the fenced blocks that represent the human-facing assistant reply, which is a gauntlet line in a human-channel payload; the wording should direct the model to emit the marker as a separate report line outside the quoted human message (or only in the tracker/report channel) so the human-visible text stays marker-free while the mapped-pick sentence remains the first human-facing line before any simulated mutation.",
-      "wallMs": 26195,
+      "feedback": "Before and After are byte-identical, so no fact moved. In both, checkpoint 1 opens with the exact confirmation-gate id, puts the three ordered findings first, separates them from the gate by prose, the stage table, the exact Delivered:-first payload, and the 'Pick one:' line, so the approve-the-write/decline options render as 1 and 2 and the message waits without writing; checkpoint 2 echoes 'Taking 4 as option 1 - approve the write.' in one sentence before the re-fetch, comment, then Ready advance, the yes subcheck says 'Approved.' with no numeric mapping or resolution echo, and decline writes nothing. The Expected-to-move list predicted layout and mapped-pick going fails -> holds, but Before already held them, so the wording change is a no-op on this case; the only visible tension with the Change paragraph is that the simulated assistant responses in checkpoint 2 still begin with 'gauntlet: done delivered' / 'gauntlet: stuck write declined' lines inside the human-facing text, which is not a listed fact here but is what the 'no gauntlet line in human-channel payloads' instruction targets - if you want After to differ, make the wording explicitly say the gauntlet marker belongs outside the quoted human-channel reply, while keeping the one-sentence label echo and the comment-before-status order.",
+      "wallMs": 13112,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5e68c22358a1eeaaa92f619ceef8a3f7bfcb7ff230c8aaf04421d0a74e3e26a1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
-      "baselineOutputSha": "11cc2d81dccb033dbe16873378f06c30bc91b2a4669e6ef41aa00fac9af3c8d3",
+      "baselineOutputSha": "f795d7c47df60a5e22321601ce6fef1a247178670f7b3253a4fa5f64a3b4b59b",
       "candidateOutputSha": "f795d7c47df60a5e22321601ce6fef1a247178670f7b3253a4fa5f64a3b4b59b",
       "facts": {
         "layout": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: checkpoint 1 still ends with three ordered findings, prose, the exact proposed write, a 'Pick one:' line, and a separated two-choice gate rendering as 1 (approve the write) and 2 (decline) with no write; the `4` reply is resolved by label ('Taking 4 as option 1 - approve the write.') before the re-fetch, comment, then Ready advance; `yes` is accepted as explicit approval without numeric mapping; decline and other replies perform no write. What moved is outside the listed facts but contradicts the Change paragraph itself: After emits `gauntlet: gate=check-delivery/confirmation-gate` at the top of the human-facing confirmation and `gauntlet: done delivered` / `gauntlet: stuck write declined` lines inside the checkpoint-2 human replies, and in the `4` case that marker precedes the label-naming sentence, so the first thing the human reads after their reply is a machine line rather than the resolved option. To deliver the Change while keeping the outputs clean, specify that the confirmation-gate id and ending/STOP ids are emitted as out-of-band status (or at most once, after the human-facing text), that the label-naming sentence must be the first line of the response to a numeric reply, and that human-channel payloads (findings, gate, evidence comment, decision echoes) never carry a gauntlet line; keep the existing 'Pick one:' separator, the `Delivered:`-first comment, and the 'Reply 1 or yes to approve' hint, which already satisfy layout, mapped-pick, and plain-yes.",
-      "wallMs": 19309,
+      "feedback": "The After output is textually identical to Before, so nothing moved: both open with the exact confirmation-gate id, present three ordered findings, separate them from the two-choice gate with prose, tables, and a 'Pick one:' line so the options render as 1 and 2, and wait without writing; both resolve the bare `4` by label ('approve the write') in one sentence before the simulated evidence comment → Ready advance after the unchanged-ticket re-fetch, and both treat typed `yes` as explicit approval without mapping it to a number. The Expected-to-move entries claiming Before fails layout and mapped-pick are not borne out by the Before text, which already satisfies them. One gap outside the listed facts: both outputs still emit `gauntlet: done delivered` / `gauntlet: stuck write declined` lines in the human-channel Checkpoint 2 responses, which the Change says should not appear in human-channel payloads; if that is the intended delta, the After wording needs to drop those lines (keeping only the leading gate-id line) while leaving the gate, label echo, and typed-yes handling exactly as they are.",
+      "wallMs": 14468,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6ac868ad502fda06310a53624611712a1ac02028"
+  "repoSha": "3e2ee177fa9c9fdcd99efa4c74f00d7e5cfc6291"
 }

@@ -1,0 +1,44 @@
+{
+  "sample": "batch-ac-conflict-reading",
+  "arm": "baseline",
+  "skillSha": "e6d50d066b663e4c5fd4444c034e41d2fb83156230ef54465010230e53cefb62",
+  "inputSha": "cec979f4a166d8f549d696d50f1a28e3684177eed7e3dadd5c76b8fdd013e291",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\n\nRetrying acme/widget#12 needs one AC reading first. The two criteria conflict, and the retry can't be dispatched until you resolve them:\n\n- \"Export preserves twelve rows.\"\n- \"Export only the first ten rows.\"\n\nWhich reading should the retry check delivery against?\n\nA) **Twelve rows.** The export must preserve all twelve rows. The ten-row criterion is treated as superseded.\nB) **Ten rows.** The export must include only the first ten rows. The twelve-row criterion is treated as superseded.\nC) **Another reading.** Reply with the exact criterion text to use.\n\nRecommendation: C if you aren't sure which one the ticket author intended. Nothing gathered so far favors A or B, so I won't guess.\n\nNo retry has been dispatched and nothing has been written to the tracker. acme/widget#15's passing report is still waiting for its own turn after #12 is settled.\n",
+      "words": 139,
+      "wallMs": 9094,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "ticket-heading": "fails",
+        "reading-prompt": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\n\nBefore retrying **acme/widget#12**, which acceptance-criterion reading should govern?\n\nA) Export preserves all twelve rows.\nB) Export includes only the first ten rows.\nC) Neither—provide the corrected AC wording.\n\nNo retry has been dispatched and no tracker write has been approved. Ticket **acme/widget#15** remains queued with its passing report.\n",
+      "words": 50,
+      "wallMs": 9661,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "ticket-heading": "fails",
+        "reading-prompt": "fails"
+      }
+    }
+  },
+  "repoSha": "b442d8a1a40bbc194ec7d6c62c8764f215a4d788"
+}

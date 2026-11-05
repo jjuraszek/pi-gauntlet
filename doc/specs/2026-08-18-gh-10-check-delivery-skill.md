@@ -2,6 +2,7 @@
 
 > **Superseded by:** [doc/specs/2026-08-18-check-delivery-consumer-feedback.md](./2026-08-18-check-delivery-consumer-feedback.md) - synthesized-AC blocking-cap clause (now conditional on the `synthesized AC gaps` slot) and the never-acts-on-proposed-descope clause (now conditional on the `descope edits` slot) only
 > **Superseded by:** [doc/specs/2026-10-14-model-invocable-gatekeep-delivery.md](./2026-10-14-model-invocable-gatekeep-delivery.md) - frontmatter `disable-model-invocation` decision only
+> **Superseded by:** [doc/specs/2026-11-04-check-delivery-multi-ticket.md](./2026-11-04-check-delivery-multi-ticket.md) - `### Identity and invocation` exactly-one-ref input clause only
 
 Issue: jjuraszek/pi-gauntlet#10. Ported from a consumer project's post-merge
 closeout prompt (`linear-ready.md`), generalized the same way `shape-ticket`

@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "71e6feede4ff0f1b987125ada8ffae79efdd7f4830382f305dd213073d7621e3",
+  "skillSha": "89b45f5ceda82c9d187a659335f50de103c9b2caec5c90035d1e2b6183b69717",
   "inputSha": "426819752fa939072a462695821943286108ef11685ed142a3ab69d1371d841b",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n**Simulated all-clear confirmation.** No tools ran, and nothing has been written to the tracker. The ticket ref and test path below are placeholders, because the input did not supply them.\n\n**Shipped SHA:** `a123456`. It is an ancestor of the default branch.\n\n**Deliverable set:** https://example.test/pull/8, landed as `a123456`.\n\n**Stage results**\n| Stage | Result |\n|---|---|\n| 0 - Pre-flight | pass: ticket is not terminal, 1 AC extracted, no `Delivered: a123456` marker exists |\n| 1 - Merge landed | pass: `a123456` is on the default branch |\n| 2 - Delivery target | ⊘ skipped: no delivery target configured |\n| 3 - AC re-verification | 1 AC, 0 blocking gaps |\n\n**Per-AC verdicts**\n| AC | Verdict | Evidence |\n|---|---|---|\n| Exports preserve 12 rows | `unverified: no delivery target` | The shipped test pinned at `a123456` asserts that the export preserves 12 rows (`<test-path>@a123456`). There was no runtime observation, because no delivery target is configured. |\n\n⚠ **Called out:** export output is behavior a user can observe. Without a delivery target, the only evidence is the test at the shipped SHA, so this AC is reported as unverified rather than `satisfied`.\n\n**Reviewer script**\n1. Check out `a123456`.\n2. Export a dataset that has 12 rows.\n3. Expect the exported file to contain exactly 12 data rows.\n4. Optionally run the shipped test at `a123456` and expect it to pass.\n\n**Exact write on approval**\n\nThe tracker gets one evidence comment. There is no status advance, because no target state is configured. I will re-fetch the ticket before writing. If the AC or status has changed since gather, I will show you the difference instead of writing.\n\n```markdown\nDelivered: a123456\n\nDeliverable set:\n- https://example.test/pull/8 (landed as a123456)\n\nStage 2 - Delivery target: skipped: no delivery target configured\n\nAcceptance criteria:\n| AC | Verdict | Evidence |\n|---|---|---|\n| Exports preserve 12 rows | unverified: no delivery target | Shipped test at a123456 asserts the export preserves 12 rows (<test-path>@a123456); no runtime observation, no delivery target configured |\n\nReviewer script:\n- Check out a123456.\n- Export a dataset containing 12 rows.\n- Expected: the exported file contains exactly 12 data rows.\n- Optional: run the shipped export test at a123456 and expect a pass.\n\nStatus: no target state configured, comment only.\n```\n\nPick one:\n1. approve the write\n2. decline\n",
-      "words": 346,
-      "wallMs": 12998,
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n**Simulation:** Nothing has been run or written. The ticket ref and test path are not in the input, so they appear as placeholders.\n\n**Shipped SHA:** `a123456`, an ancestor of `origin/<default>`.\n\n**Deliverable set:** https://example.test/pull/8 (merged, landed commit `a123456`).\n\n**Stage results**\n\n| Stage | Result |\n|---|---|\n| 0 - Pre-flight | pass: ticket is non-terminal, 1 AC extracted, no prior `Delivered: a123456` marker |\n| 1 - Merge landed | pass: landed commit `a123456` is on the default branch, no open deliverable PRs |\n| 2 - Delivery target | ⊘ skipped: no delivery target configured |\n| 3 - AC re-verification | pass: no `unexplained gap` |\n\n**Per-AC verdicts**\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Exports preserve 12 rows | `unverified: no delivery target` | The shipped test is pinned at `a123456`: `https://example.test/blob/a123456/<test path>`. This is observable behavior, but there is no delivery target to observe it against. The test is code evidence, not a runtime observation. |\n\n⚠️ **Call-out:** this AC is not marked `satisfied`. Export row preservation is externally observable, but stage 2 was skipped. It does not block the write. Configure a `## Delivery` → `delivery target` to get runtime proof.\n\n**Reviewer script**\n\n- Check out `a123456` and run the shipped export test (`<test path>`). Expect it to pass and to assert exactly 12 rows.\n- In any environment running `a123456`, export the 12-row fixture or dataset. Expect the output file to contain 12 data rows.\n\n**Exact write if approved**\n\nThe first write is one evidence comment on `<ticket ref>`, posted exactly as:\n\n```text\nDelivered: a123456\n\nDeliverable set:\n- https://example.test/pull/8 (landed commit a123456)\n\nStage 2 - delivery target: skipped: no delivery target configured\n\nAcceptance criteria:\n| AC | Verdict | Evidence |\n|---|---|---|\n| Exports preserve 12 rows | unverified: no delivery target | Shipped test pinned at a123456: https://example.test/blob/a123456/<test path> - observable behavior; no delivery target configured for runtime observation |\n\nReviewer script:\n- Check out a123456 and run the shipped export test (<test path>); expect it to pass and assert exactly 12 rows.\n- In an environment running a123456, export the 12-row fixture/dataset; expect the output to contain 12 data rows.\n```\n\nThere is no status advance, because no target state is configured. This is a comment-only write.\n\nBefore posting, I will re-fetch the ticket. If the ACs or status changed, I will show you the delta instead of writing.\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 358,
+      "wallMs": 15342,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n## Simulated delivery report\n\n**Shipped SHA:** `a123456`  \n**Deliverable:** https://example.test/pull/8\n\nThis simulation uses only the supplied facts; no tools were run and no write is authorized.\n\n| Stage | Result |\n|---|---|\n| 0 — Pre-flight | One supplied AC; tracker pre-flight not independently performed in this simulation |\n| 1 — Merge landed | Supplied as landed on the default branch at `a123456` |\n| 2 — Delivery target | **Skipped: no delivery target configured** |\n| 3 — AC verification | Non-blocking, with the explicit verification downgrade below |\n\n| Acceptance criterion | Verdict | Evidence |\n|---|---|---|\n| Exports preserve 12 rows | `unverified: no delivery target` | The supplied shipped test verifies preservation of 12 rows at `a123456`. No test path or permalink was supplied. This is test evidence, not observation against a delivery target. |\n\n**Reviewer script:** On an environment running `a123456`, export a dataset containing exactly 12 rows. Confirm the export contains all 12 data rows, excluding any header. This scenario has not been executed in this simulation.\n\n## Exact proposed tracker comment\n\n```text\nDelivered: a123456\n\nDeliverable set:\n- https://example.test/pull/8\n\nMerge evidence:\n- a123456 is on the default branch, per the supplied simulation facts.\n\nStage 2: skipped: no delivery target configured\n\nAcceptance criteria:\n- Exports preserve 12 rows\n  Verdict: unverified: no delivery target\n  Evidence: The supplied shipped test at a123456 verifies preservation of 12 rows. No test path or permalink was supplied. No runtime observation against a delivery target was performed.\n\nReviewer script:\nOn an environment running a123456, export a dataset containing exactly 12 rows. Confirm the export contains all 12 data rows, excluding any header.\n\nStatus advance: not performed — no target state configured.\n```\n\n**Proposed write:** Post only the comment above. No body edit or status advance. In an actual run, the ticket must be re-fetched before writing; changed ACs or status require a new gate.\n\nPick one:\n1. approve the write\n2. decline\n",
-      "words": 287,
-      "wallMs": 11664,
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n## Delivery evidence — simulated\n\n**Shipped SHA:** `a123456`  \n**Deliverable:** https://example.test/pull/8\n\n| Stage | Result |\n|---|---|\n| 0 — Pre-flight | One supplied AC; no independent tracker verification in this simulation |\n| 1 — Merge landed | `a123456` is on the default branch, per supplied context |\n| 2 — Delivery target | **Skipped: no delivery target configured** |\n| 3 — AC verification | Non-blocking configuration gap, detailed below |\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Exports preserve 12 rows | `unverified: no delivery target` | The supplied context reports verification by the shipped test at `a123456`. Export behavior is observable, so the test alone does not establish delivery-target behavior. No target is configured. |\n\n**Reviewer script:** Against an available deployment of `a123456`, export a dataset containing 12 data rows. Confirm the export contains exactly 12 data rows, excluding any header. This runtime scenario has not been executed in this simulation.\n\n## Exact proposed tracker comment\n\n```text\nDelivered: a123456\n\nDeliverable set:\n- https://example.test/pull/8\n\nMerge landed: a123456 is on the default branch, per supplied context.\nDelivery target: skipped: no delivery target configured.\n\nAcceptance criteria:\n- Exports preserve 12 rows\n  Verdict: unverified: no delivery target\n  Evidence: The supplied context reports verification by the shipped test at a123456. No delivery-target observation is available; the shipped test is supporting evidence, not proof of deployed export behavior.\n\nReviewer script:\nAgainst an available deployment of a123456, export a dataset containing 12 data rows. Confirm the export contains exactly 12 data rows, excluding any header. This runtime scenario has not been executed in this simulation.\n\nStatus advance: no target state configured.\n```\n\n**Proposed write:** Post only the comment above. No body edit or status advance. No write has been authorized or performed; this is a tool-free simulation.\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 270,
+      "wallMs": 12673,
       "mechanical": {
         "first-line": "holds"
       }
@@ -39,45 +39,45 @@
       "factsSha": "3491cae8d2662278ccf947fdfffcafa713d1538c564ee7e0ceba146383e0180d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
-      "baselineOutputSha": "e1cc381aea9495c0e40815aeb697c01a4ac17cddee00b62e933db2321b3ac416",
-      "candidateOutputSha": "9100dc9364b46443b14a662a37f059daf3a9afcbc4beb29ffc96ef88bdfb34ed",
+      "baselineOutputSha": "9100dc9364b46443b14a662a37f059daf3a9afcbc4beb29ffc96ef88bdfb34ed",
+      "candidateOutputSha": "21b88212962a28f8adee44043f5f6ce0c86ea09231e2c8745f93358d4b58fab0",
       "facts": {
         "gate-first": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After's first line is exactly `gauntlet: gate=check-delivery/confirmation-gate`, placed before the stage tables, evidence, and the fenced tracker comment; the comment payload still opens with `Delivered: a123456` and contains no gauntlet marker, and the output ends on the two-choice menu waiting for approval, so the fact holds. Before fails only because it opens with a markdown heading instead of the gate line. Nothing in After regressed a fact Before kept; one minor caution for future wording: keep the gauntlet line as the literal first line (no leading heading or blank preamble) and keep the fenced payload free of any gate marker, exactly as After does now.",
-      "wallMs": 6201,
-      "verdict": "improved"
+      "feedback": "Both outputs open with the exact `gauntlet: gate=check-delivery/confirmation-gate` line, keep all evidence and the exact tracker payload beneath it, start the fenced tracker comment with `Delivered: a123456` with no gauntlet marker inside the payload, and end on a two-choice gate that waits for approval, so the fact holds in both despite the expectation that Before would fail. After keeps everything Before kept; the only notable divergences are cosmetic (changing the fence from `markdown` to `text`, moving the 'no status advance / re-fetch before write' notes below the payload rather than above it, and adding the `blob/a123456/<test path>` link form). If the author wants a visible move on this fact the Before wording would need to actually lack the gate line, which it does not; otherwise the After wording is fine as is - just keep the re-fetch/delta sentence and the 'comment only' note adjacent to the payload so the write boundary stays obvious next to the approval menu.",
+      "wallMs": 8135,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3491cae8d2662278ccf947fdfffcafa713d1538c564ee7e0ceba146383e0180d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
-      "baselineOutputSha": "017257186a01098ecf802e119c901f77448157d347c87da4f941479e281d1147",
-      "candidateOutputSha": "5d07026be40effc06b6d5dc39bf7f999c486d8d0f984e6be3f15cee4b54999ef",
+      "baselineOutputSha": "5d07026be40effc06b6d5dc39bf7f999c486d8d0f984e6be3f15cee4b54999ef",
+      "candidateOutputSha": "b4e67f9926df60432fd0a6ae506b2ead92874bec5375877aea9882866ce63875",
       "facts": {
         "gate-first": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved gate-first from fails to holds by making `gauntlet: gate=check-delivery/confirmation-gate` the literal first line, keeping all stage evidence and the exact tracker comment below it, starting the fenced payload with `Delivered: a123456`, keeping the gauntlet marker out of the human-channel payload, and ending on the two-choice approve/decline menu that waits for approval. Nothing regressed on this fact, but one wording detail worth restoring: Before closed with an explicit bolded line `**No write has been authorized or performed.**` immediately above the menu, while After folds that into a softer sentence near the top; keep the bolded write-boundary statement directly above the `Pick one:` menu so the write boundary stays as visible as it was in Before while the gate line still leads the report.",
-      "wallMs": 9451,
-      "verdict": "improved"
+      "feedback": "Both outputs open with the exact line `gauntlet: gate=check-delivery/confirmation-gate`, place the evidence tables and the fenced tracker comment below it, begin that comment with `Delivered: a123456`, contain no gauntlet marker inside the payload, and end on the two-choice `Pick one:` menu without performing any write — so gate-first holds in Before and After and nothing moved. The After wording is safe for this fact; if you continue iterating, keep the gate line as the literal first line of the response (no heading above it), keep `Delivered:` as the first payload line, and keep the `1. approve the write / 2. decline` menu after all findings so the typed-yes and numbered-pick paths both remain available.",
+      "wallMs": 6477,
+      "verdict": "unchanged"
     }
   },
   "refresh": {
@@ -167,5 +167,5 @@
       }
     }
   },
-  "repoSha": "6ac868ad502fda06310a53624611712a1ac02028"
+  "repoSha": "eab2cc2f7ea6b1b03dfdccdcd2bcdb7fbabf297b"
 }

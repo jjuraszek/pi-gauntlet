@@ -1,0 +1,154 @@
+{
+  "sample": "batch-decline-isolates",
+  "arm": "candidate",
+  "skillSha": "b85d91f9afdc5590718b8ad859a6214ed229205135ed16ceee1da91947ffc0cd",
+  "inputSha": "07c3cd229ab5010925ea94f9a5c1d016955bcdfa86d0aa6f44455892d9b48442",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n#### acme/widget#12\n\nacme/widget#12: declined\n\n#### acme/widget#15\n\n## Report\nShipped SHA: b234567\nDeliverable: https://example.test/pull/15\nStages: 0 gathered; 1 landed on trunk; 2 skipped (no delivery target configured); 3 verified.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Import rejects empty names. | not externally observable | import.test.ts at b234567 checks empty input; fixture-only contract. |\n\nReviewer script: inspect import.test.ts at b234567; no runtime surface.\nWrite about to happen: comment only; no target state configured.\n\n```text\nDelivered: b234567\nPR https://example.test/pull/15 landed on trunk. Stage 2 skipped: no delivery target configured. Import rejects empty names: not externally observable; import.test.ts at b234567 checks empty input. Reviewer: inspect import.test.ts at b234567.\n```\n\nPick one:\n\n```text\n1. approve the write\n2. decline\n```\n",
+      "words": 106,
+      "wallMs": 6023,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "decline-outcome": "holds",
+        "ticket-heading": "holds",
+        "no-third-ticket": "holds",
+        "private-handoff": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n#### acme/widget#12\nacme/widget#12: declined\n\n#### acme/widget#15\n## Report\nShipped SHA: b234567\nDeliverable: https://example.test/pull/15\nStages: 0 gathered; 1 landed on trunk; 2 skipped (no delivery target configured); 3 verified.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Import rejects empty names. | not externally observable | import.test.ts at b234567 checks empty input; fixture-only contract. |\n\nReviewer script: inspect import.test.ts at b234567; no runtime surface.\nWrite about to happen: comment only; no target state configured.\n\n```text\nDelivered: b234567\nPR https://example.test/pull/15 landed on trunk. Stage 2 skipped: no delivery target configured. Import rejects empty names: not externally observable; import.test.ts at b234567 checks empty input. Reviewer: inspect import.test.ts at b234567.\n```\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 105,
+      "wallMs": 4456,
+      "mechanical": {
+        "first-line": "holds",
+        "one-marker": "holds",
+        "decline-outcome": "holds",
+        "ticket-heading": "holds",
+        "no-third-ticket": "holds",
+        "private-handoff": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "96d011ccdd8c42dc7f07f7c775201ba18941f5167962fe78c8aa667e5ab73658",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "16271abc4425c81de0655f9d5935a335c988cce22142f2b2d152bb701e882e00",
+      "candidateOutputSha": "6b96c257843936a22108e65a36ecab30ef354fd38b72f4442479d3aeb7352513",
+      "facts": {
+        "report-verbatim": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "approval-isolated": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "decline-outcome": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ticket-heading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-third-ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "private-handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps both facts. It reproduces ticket 15's Report byte-for-byte (SHA, deliverable, stages, AC table, reviewer script, write line, fenced comment) under its own heading, preceded by a plain one-line declined outcome for #12, and offers only ticket 15's approve/decline gate with no write claimed for either ticket. Before failed report-verbatim because it rewrote the report (bolded labels, 'there is no runtime surface', an expanded 'Write about to happen' paragraph adding re-fetch promises), even though its AC table and comment were exact. Two small things to watch in After: the literal '## Report' section header from the saved file is surfaced to the user, which borders on exposing file structure — if you want to drop it, instruct 'show the Report section's contents, not its heading' while keeping everything below it unchanged; and the gate options are inside a code fence rather than a plain numbered list, which is harmless here but should match the single-ticket gate format so the human's reply convention stays consistent.",
+      "wallMs": 12200,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "96d011ccdd8c42dc7f07f7c775201ba18941f5167962fe78c8aa667e5ab73658",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e291e1ffc7ac8376add0de1e4f345087a79ebafe3e313a5ff1e4bda807d6ba",
+      "baselineOutputSha": "6a02fbbb501b438d90e3b71f8fefe40ec3114cb352e6f7dcbca501b0bd6ac4be",
+      "candidateOutputSha": "1c401fc8748ae8a8ecacf8e2f158be32d0506d8532168c0a3db3d45b8a744ea6",
+      "facts": {
+        "report-verbatim": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "approval-isolated": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "one-marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "decline-outcome": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ticket-heading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-third-ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "private-handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps both facts: ticket 12 gets a plain one-line declined outcome under its own heading, and ticket 15's Report block is reproduced byte-for-byte from the child file (heading, Shipped SHA/Deliverable/Stages lines, AC table without added backticks, reviewer script, 'Write about to happen' line, and the fenced comment), followed by a single 1/2 gate for ticket 15 only. Before actually failed report-verbatim because it rewrote the report into bold labels, a bulleted stage list, 'Deliverable set', backticked table cells, and an 'Exact write awaiting approval' section with an added re-fetch sentence, so the After wording's 'display the current child's report without rewriting or combining it' is what fixed it — keep that instruction literal ('copy the Report section as-is'). The one thing Before stated more explicitly was 'no tracker writes ran' after the decline; After's bare 'declined' still implies no write and claims none, but if you want to hold approval-isolated more robustly across variants, allow the plain outcome line to be 'acme/widget#12: declined; no tracker writes ran' while still forbidding any mention of sibling tickets' gates or child result lines.",
+      "wallMs": 17883,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "eab2cc2f7ea6b1b03dfdccdcd2bcdb7fbabf297b"
+}
