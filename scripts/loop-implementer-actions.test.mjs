@@ -51,6 +51,13 @@ test('stored action replay holds every required fact without a paid rerun', () =
       assert.equal(cell.facts[fact].after, 'holds', `${model}: ${fact}`);
     }
   }
+  const carry = JSON.parse(read('../eval/loop-implementer/results/seed-evidence-carry/candidate.json'));
+  assert.ok(carry.models.replay.length > 0);
+  assert.deepEqual(Object.keys(carry.outputs).sort(), [...carry.models.replay].sort());
+  for (const model of carry.models.replay) {
+    assert.equal(carry.outputs[model].status, 'ok', `${model}: seed evidence replay`);
+    assert.equal(carry.judge[model].facts['carried-record'].after, 'holds', `${model}: carried-record`);
+  }
 });
 
 for (const [name, required] of [
