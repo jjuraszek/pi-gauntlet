@@ -3,7 +3,7 @@
 base: f7eff9832cab2266fded0d7e4f4cd34cda9d7388
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -11,6 +11,7 @@ allowance: 10
 | 1 | open | 0 | |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
-| 4 | open | 0 | |
+| 4 | open | 0 | node --test scripts/brainstorming-contract.test.mjs; 56 passed; 1 failed: shape-ticket integrity table lacks Workflow-stage proof |
 
 ## Decisions
+row 0 done | seeded 1 rows, closed 0 on baseline | row 1

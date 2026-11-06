@@ -107,6 +107,27 @@ test('tree-wide integrity splits only drafted rows using complete Design familie
   assert.ok(text.includes('human ticket repair through `/skill:shape-ticket` before approval'));
 });
 
+test('workflow-stage proof has an owning gate, ticket trigger, drafting rule, and example', () => {
+  const ticket = read('skills/shape-ticket/SKILL.md');
+  const brainstorming = read('skills/brainstorming/reference/ticket-acceptance.md');
+  for (const [path, text] of [
+    ['skills/shape-ticket/SKILL.md', ticket],
+    ['skills/brainstorming/reference/ticket-acceptance.md', brainstorming],
+  ]) {
+    assert.ok(Buffer.byteLength(text) < 50000, `${path}: byte limit`);
+    assert.ok(text.split('\n').length < 2000, `${path}: line limit`);
+    assert.match(text, /^\| Workflow-stage proof \|/m, `${path}: integrity class exists`);
+  }
+  const gateRow = ticket.split('\n').find((line) => line.startsWith('| Workflow-stage proof |'));
+  for (const marker of ['drop', 'Reporter note']) assert.ok(gateRow.includes(marker), marker);
+  assert.ok(ticket.includes('relocation or a stage-proof drop empties the AC list'));
+  const trigger = brainstorming.split('\n').find((line) => line.startsWith('| ') &&
+    line.includes('workflow-stage proof under `shape-ticket/SKILL.md` `## AC integrity gate`'));
+  assert.ok(trigger, 'cut-question trigger names the owning gate');
+  assert.ok(trigger.includes('D - a stage proof is not an outcome'));
+  assert.ok(read('skills/shape-ticket/reference/examples.md').includes('**Workflow-stage proof**'));
+});
+
 test('drafted requirements are protected in each actual critique task and the applier body', () => {
   const council = read('skills/roasting-the-spec/SKILL.md');
   const starts = ['task: "Problem statement: <the problem', 'task: "Problem statement: <paste>', 'task: "Problem statement: <same problem'];
