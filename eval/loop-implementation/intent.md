@@ -1,6 +1,8 @@
-for: e6d9bb6b7f5f1b80e4e871b40ae2054aaf9340a047f036007ce8ea2fece789ad
+for: 4def0aceb60c24ff468abfeeeb535de6b1158933cbae004c1938a48a141f595c
 
 ## Change
+
+Route each admitted failed return once, including companion admission and unrouted returns on resume. Treat a committed human answer or applied cut as answering that return so unchanged evidence cannot re-fire its marker before the next dispatch; retain unanswered stops and route new returns independently. Extend and run only unreachable-cut for immediate and resumed retry, rows raises and bound amendments, keeping action authorization separate from row allowance. This sample covers narrated routing, not live dispatch; preserve all other sample records.
 
 Migrate superseded fixture assertions in tracker-verify, scaled-cap-grant, last-attempt-model-boundary, tracker-boundary, human-stop-counts and decision-repair: allowance bounds verification repairs, rule3 passes stagnation hints through rule4, and admitted amendments reset windows. Migrate gate-line-first, allowance-10-escalate-after, spent-row-escalation and multi-row-return to the ownership-safe recovery-incomplete stop: project saved cells without overwriting an unadmitted ledger. Select only these ten model samples and preserve other records. Keep leg-iteration with its reason recorded in the case: attribution and valid interrupted admission are unchanged, and its invalid return lacks cleanup provenance. The contract test selectors stay intact while their obsolete once-per-flow assertions track the shared allowance. This is partial coverage, not a target-wide pass.
 
@@ -78,6 +80,7 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- unreachable-cut/answered-marker: fails -> holds - Continue ordered checks after an answered marker without re-routing unchanged evidence, while preserving unanswered and new-return stops.
 - seed-interrupted-count/count: fails -> holds - Count interrupted and invalid seeds together and redispatch below allowance.
 - seed-interrupted-count/exhaustion: fails -> holds - Stop at seed allowance and preserve counts across retries and raises.
 - seed-interrupted-count/one: fails -> holds - An interrupted seed consumes the sole repair at allowance 1.

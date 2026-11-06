@@ -7,7 +7,16 @@ const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root)
 const section = readFileSync(new URL('skills/loop-implementation/reference/unreachable-returns.md', root), 'utf8');
 
 test('admitted target evidence routes before budget and dispatch without driver diagnosis', () => {
-  assert.match(driver, /Before the ordered table, route the latest admitted failed target through ## Unreachable returns, including companion admission and resume/);
+  assert.match(driver, /Before the ordered table, route each admitted failed target through ## Unreachable returns once at admission \(including companions\), or on resume when admitted but not yet routed/);
+  for (const token of [
+    'Key routing to the admitted return, not unchanged evidence',
+    'Keep an unanswered stop pending',
+    'Recover answered state on resume from the existing retry, raise-allowance and amendment decisions/commits',
+    'Treat a human retry, `rows +N`, an applied amendment answering the stop, or an applied cut as answering that return',
+    'Continue at the ordered table without re-firing its marker',
+    'Route a newly admitted failed return independently, even with identical evidence',
+    'Keep action counts and authorization bounds unchanged by retry or `rows +N`',
+  ]) assert.ok(section.includes(token), token);
   for (const token of [
     'first result segment after the check name', 'trim whitespace',
     '^unreachable: .+ - .+$', '^bound spent: .+',

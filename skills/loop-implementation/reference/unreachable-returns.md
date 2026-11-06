@@ -1,5 +1,7 @@
 # Unreachable returns
 
+Key routing to the admitted return, not unchanged evidence. Keep an unanswered stop pending, including on resume. Treat a human retry, `rows +N`, an applied amendment answering the stop, or an applied cut as answering that return. Recover answered state on resume from the existing retry, raise-allowance and amendment decisions/commits after that admission; add no routing marker. Continue at the ordered table without re-firing its marker, even while the failed row's evidence is unchanged. Route a newly admitted failed return independently, even with identical evidence. Keep action counts and authorization bounds unchanged by retry or `rows +N`; only an approved amendment can raise an action's bound.
+
 Inspect only the target's first result segment after the check name in its admitted evidence cell; split on unescaped semicolons and trim whitespace. Never inspect later result segments, other rows or a rejected return. Leave malformed markers on the ordinary failed-attempt path.
 
 | First result segment | Action |
