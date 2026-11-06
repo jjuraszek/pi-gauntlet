@@ -323,9 +323,7 @@
         records = new Map();
         guardCache.set(key, records);
         const repo = (deps.telemetryRepo ?? telemetryRepo)(top);
-        const result = repo
-          ? (deps.readTelemetryBranch ?? readTelemetryBranch)(top, { remote: snap.telemetry.remote, prefix: `${repo}/brainstorming/` })
-          : { records: [], warning: "cannot resolve owner/name from origin" };
+        const result = (deps.readTelemetryBranch ?? readTelemetryBranch)(top, { remote: snap.telemetry.remote, prefix: `${repo}/brainstorming/` });
         for (const entry of result.records) {
           const parsed = parseRecord(entry.bytes);
           if (parsed?.shipped_at) records.set(parsed.spec, parsed.shipped_at);

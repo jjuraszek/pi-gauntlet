@@ -178,8 +178,8 @@ async function main() {
   if (opts.migrate === undefined && !validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
   const store = telemetryDir(root);
   const repo = telemetryRepo(root);
-  if (!store || !repo) {
-    process.stderr.write("warning: telemetry needs a git store and an owner/name origin\n");
+  if (!store) {
+    process.stderr.write("warning: telemetry needs a git store\n");
     return;
   }
   if (opts.migrate !== undefined) return migrate(root, resolve(opts.worktree, opts.migrate), repo, telemetry.remote);

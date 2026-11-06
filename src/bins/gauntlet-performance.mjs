@@ -54,7 +54,7 @@ function branchCorpus(root) {
   const repo = readLayer(join(root, ".pi", "settings.json"));
   const t = resolveTelemetry(mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet));
   if (t.warning) process.stderr.write(`warning: ${t.warning}\n`);
-  const label = telemetryRepo(root) ?? `local/${basename(root)}`;
+  const label = telemetryRepo(root);
   if (!t.enabled) {
     process.stderr.write("telemetry disabled\n");
     return { label, records: [] };

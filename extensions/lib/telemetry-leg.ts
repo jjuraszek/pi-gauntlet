@@ -128,7 +128,6 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
       if (!items) return;
       reset();
       const repo = (deps.telemetryRepo ?? telemetryRepo)(checkout.toplevel);
-      if (!repo) return notify("cannot resolve owner/name from origin");
       const [name, email] = await Promise.all([
         deps.git(["config", "user.name"], checkout.toplevel),
         deps.git(["config", "user.email"], checkout.toplevel),

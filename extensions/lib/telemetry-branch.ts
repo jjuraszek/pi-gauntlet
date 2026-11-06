@@ -1,6 +1,7 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
+import { checkoutOfSync } from "./checkout.ts";
 import { gitRun } from "./vcs.ts";
 
 export const TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
@@ -17,11 +18,25 @@ export function telemetryDir(root: string): string | undefined {
   return result.ok ? join(result.stdout, "gauntlet", "telemetry") : undefined;
 }
 
-export function telemetryRepo(root: string): string | undefined {
+export function telemetryRepo(root: string): string {
   // Read the configured URL, not get-url's transport rewrite (which may be local).
   const result = gitRun(["config", "--get", "remote.origin.url"], root);
-  const match = result.stdout.match(/^(?:https?:\/\/[^/]+\/|ssh:\/\/(?:[^@/]+@)?[^/]+\/|[^@\s]+@[^:\s]+:)([^/\s]+\/[^/\s]+?)\/?$/);
-  return result.ok && match ? match[1].replace(/\.git$/, "") : undefined;
+  const match = result.stdout.match(/^(?:https?:\/\/[^/]+\/|ssh:\/\/(?:[^@/]+@)?[^/]+\/|(?:[^@\s]+@)?[^:\s/]+:)(.+)$/);
+  const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
+  if (result.ok && path) return path;
+
+  const top = checkoutOfSync(root)?.toplevel ?? root;
+  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
+    const path = join(top, file);
+    if (!existsSync(path)) continue;
+    const section = readFileSync(path, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
+    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+    if (repo) return repo;
+    break;
+  }
+  const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
+  const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : undefined;
+  return `local/${basename(primary ?? top)}`;
 }
 
 const trackingRef = (remote: string) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;

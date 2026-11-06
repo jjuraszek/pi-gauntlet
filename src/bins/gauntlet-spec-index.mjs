@@ -358,7 +358,7 @@ function telemetryCorpus(root) {
   const settings = resolveTelemetry(settingsFor(root));
   if (settings.warning) process.stderr.write(`warning: ${settings.warning}\n`);
   if (!settings.enabled) return new Map();
-  const repo = telemetryRepo(root) ?? `local/${basename(root)}`;
+  const repo = telemetryRepo(root);
   const prefix = `${repo}/brainstorming/`;
   const result = readTelemetryBranch(root, { remote: settings.remote, prefix });
   if (result.warning) process.stderr.write(`warning: ${result.warning}\n`);

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // src/bins/gauntlet-telemetry-seal.mjs
-import { existsSync as existsSync2, readdirSync, readFileSync, realpathSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync as existsSync3, readdirSync, readFileSync as readFileSync2, realpathSync, unlinkSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute as isAbsolute2, join as join3, relative as relative2, resolve as resolve2 } from "node:path";
 import process2 from "node:process";
@@ -272,9 +272,9 @@ function changedNames(vcs, base) {
 }
 
 // extensions/lib/telemetry-branch.ts
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join as join2 } from "node:path";
+import { basename, join as join2 } from "node:path";
 var TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
 function trackerRefs(text) {
   const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
@@ -286,8 +286,21 @@ function telemetryDir(root) {
 }
 function telemetryRepo(root) {
   const result = gitRun(["config", "--get", "remote.origin.url"], root);
-  const match = result.stdout.match(/^(?:https?:\/\/[^/]+\/|ssh:\/\/(?:[^@/]+@)?[^/]+\/|[^@\s]+@[^:\s]+:)([^/\s]+\/[^/\s]+?)\/?$/);
-  return result.ok && match ? match[1].replace(/\.git$/, "") : void 0;
+  const match = result.stdout.match(/^(?:https?:\/\/[^/]+\/|ssh:\/\/(?:[^@/]+@)?[^/]+\/|(?:[^@\s]+@)?[^:\s/]+:)(.+)$/);
+  const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
+  if (result.ok && path) return path;
+  const top = checkoutOfSync(root)?.toplevel ?? root;
+  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
+    const path2 = join2(top, file);
+    if (!existsSync2(path2)) continue;
+    const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
+    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+    if (repo) return repo;
+    break;
+  }
+  const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
+  const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
+  return `local/${basename(primary ?? top)}`;
 }
 var trackingRef = (remote) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
 var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
@@ -529,9 +542,9 @@ function parseArgs(argv) {
   return opts;
 }
 function readLayer(file) {
-  if (!existsSync2(file)) return {};
+  if (!existsSync3(file)) return {};
   try {
-    return JSON.parse(readFileSync(file, "utf8"));
+    return JSON.parse(readFileSync2(file, "utf8"));
   } catch (e) {
     process2.stderr.write(`warning: ${file}: ${e.message}; using {} for this layer
 `);
@@ -547,7 +560,7 @@ function settings(root) {
   return { telemetry: resolveTelemetry(merged), planDirs: planDirsFor(specDirs), specDirs };
 }
 function walkRecords(absDir) {
-  if (!existsSync2(absDir)) return [];
+  if (!existsSync3(absDir)) return [];
   const out = [];
   for (const e of readdirSync(absDir, { withFileTypes: true })) {
     const p = join3(absDir, e.name);
@@ -559,7 +572,7 @@ function walkRecords(absDir) {
 function migrate(root, dir, repo, remote) {
   const writes = /* @__PURE__ */ new Map();
   for (const path of walkRecords(dir).sort()) {
-    const record = parseRecord(readFileSync(path, "utf8"));
+    const record = parseRecord(readFileSync2(path, "utf8"));
     if (!record) {
       process2.stderr.write(`warning: skipped unparseable schema-1 record ${path}
 `);
@@ -592,14 +605,14 @@ function branchBlob(root, path, remote) {
 async function seal(vcs, rec, o) {
   const abs = rec;
   const path = `${o.repo}/brainstorming/${toPosix(relative2(o.store, rec))}`;
-  if (!existsSync2(abs)) {
+  if (!existsSync3(abs)) {
     const sync2 = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map(), o.remote);
     const stored2 = parseRecord(branchBlob(vcs.root, path, o.remote) ?? "");
     if (stored2?.status !== "shipped") return console.log("no telemetry run");
     if (!sameLegs(stored2, o.legs)) fail(1, `seal legs differ: stored ${JSON.stringify(stored2.legs ?? [])}; supplied ${JSON.stringify(o.legs)}`);
     return console.log(sync2.ok ? `already sealed ${rec}` : `telemetry: not pushed (${sync2.reason}); record kept at ${path}`);
   }
-  const prior = readFileSync(abs, "utf8");
+  const prior = readFileSync2(abs, "utf8");
   const parsed = parseRecord(prior);
   if (!parsed) return console.log(`telemetry: skipped (unparseable record ${rec})`);
   if (parsed.status !== "in_progress" && !sameLegs(parsed, o.legs)) {
@@ -620,7 +633,7 @@ async function seal(vcs, rec, o) {
     parsed.derived = derive(parsed, now);
     writeFileSync(abs, serializeRecord(parsed));
   }
-  const bytes = readFileSync(abs, "utf8");
+  const bytes = readFileSync2(abs, "utf8");
   const storedBytes = branchBlob(vcs.root, path, o.remote);
   const stored = parseRecord(storedBytes ?? "");
   const already = stored?.status === "shipped" && sameLegs(stored, o.legs) && storedBytes === bytes;
@@ -631,12 +644,12 @@ async function seal(vcs, rec, o) {
 }
 async function main() {
   const opts = parseArgs(process2.argv.slice(2));
-  const vcs = existsSync2(opts.worktree) ? vcsFor(opts.worktree) : void 0;
+  const vcs = existsSync3(opts.worktree) ? vcsFor(opts.worktree) : void 0;
   if (!vcs) fail(1, "not a git or jj checkout");
   const root = vcs.root;
   let rel;
   if (opts.spec) {
-    const specAbs = isAbsolute2(opts.spec) && existsSync2(opts.spec) ? realpathSync(opts.spec) : opts.spec;
+    const specAbs = isAbsolute2(opts.spec) && existsSync3(opts.spec) ? realpathSync(opts.spec) : opts.spec;
     rel = repoRelativeToolPath(root, root, specAbs);
     if (!rel) usage();
   }
@@ -649,8 +662,8 @@ async function main() {
   if (opts.migrate === void 0 && !validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
   const store = telemetryDir(root);
   const repo = telemetryRepo(root);
-  if (!store || !repo) {
-    process2.stderr.write("warning: telemetry needs a git store and an owner/name origin\n");
+  if (!store) {
+    process2.stderr.write("warning: telemetry needs a git store\n");
     return;
   }
   if (opts.migrate !== void 0) return migrate(root, resolve2(opts.worktree, opts.migrate), repo, telemetry.remote);
