@@ -1,6 +1,8 @@
-for: b060021201ffa6585824b6609fb109b045f49f11666372f413561add0f3f4161
+for: 151f11a691ba796c91a089d7015ad6fce8681ec2eeee5aaa3c332ebca18ad014
 
 ## Change
+
+Keep marked mixed-row provenance out of Design alongside marked stage-only provenance. Extend workflow-stage-ticket-row's Reporter note with the realistic bundled original and strengthen f7 to reject the make ci passes suite obligation while retaining importRows. Return to the cut question unchanged and report no repair after a confirmation cancel or an initial ticket-read abort. The fixed A-answer continuation cannot exercise that D-path abort; cover its owning clause in the deterministic contract test, not a claimed model continuation. Preserve prior result records and run only the selected ticket-row sample.
 
 Name the owning Workflow-stage proof class in the drafting integrity table. Leave stage-only validation out before drafting and preserve an already drafted row's Design commitment through proof rewriting. The selected workflow-stage-drafted-row checkpoint keeps two Design behaviors while replacing a suite-only proof sketch with the missing-id observable. Keep full verification in Tests and ask no scope-cut question for delivery notes. Both baseline models already render the required rows; this is regression coverage, not a claimed behavioral improvement. Preserve ticket-screening evidence and prior partial reports.
 

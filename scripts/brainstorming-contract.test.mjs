@@ -119,7 +119,8 @@ test('workflow-stage proof has an owning gate, ticket trigger, drafting rule, an
     assert.match(text, /^\| Workflow-stage proof \|/m, `${path}: integrity class exists`);
   }
   const gateRow = ticket.split('\n').find((line) => line.startsWith('| Workflow-stage proof |'));
-  for (const marker of ['drop', 'Reporter note']) assert.ok(gateRow.includes(marker), marker);
+  for (const marker of ['drop', 'Reporter note', 'Label every retained original containing a dropped stage clause', "including AC uniqueness's split-row copy", 'leave no unmarked duplicate']) assert.ok(gateRow.includes(marker), marker);
+  assert.match(brainstorming, /on a cancel at that gate or an initial ticket-read abort, return to this question with the row unchanged and report no repair/);
   assert.ok(ticket.includes('relocation or a stage-proof drop empties the AC list'));
   const trigger = brainstorming.split('\n').find((line) => line.startsWith('| ') &&
     line.includes('workflow-stage proof under `shape-ticket/SKILL.md` `## AC integrity gate`'));

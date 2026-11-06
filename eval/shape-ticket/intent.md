@@ -1,6 +1,8 @@
-for: d61be3a3e499507e0d751572cb80140a47edf1027a90c22e7d6f418888d9f7f9
+for: 2e7a59fc68a876ffd5cd14ddfb38123dad93cf90fb696daacaf3abedfc50d020
 
 ## Change
+Label every retained original containing a retired stage clause, including AC uniqueness's verbatim bundled-row copy, so no unmarked duplicate can carry the suite obligation downstream. Strengthen workflow-stage-proof/f4 to check every retained copy; preserve prior result records and run only that selected sample.
+
 Resolve configured sibling clone URLs beside the primary checkout, with shared stored-origin identity parsing and parent-owned nonblocking report lines. Keep home cwd at the current checkout; cover linked worktrees, external Git directories, submodules and successful worktree-list output without a primary entry. Reject legacy paths with a migration line. Preserve report-only outcomes through missing, empty or malformed scout artifacts and quiet no-op reports without opening a gate. Fold grounded legs from found absolute paths using stored origin names; keep existing grounding and dispatch guards.
 
 Add sibling-primary-anchor and sibling-not-found-hint and extend audit-grounding and audit-dispatch with inline Git facts. Implementation evidence is deterministic structural lint and source/fixture review only; reserve historical before/after model comparison for final verification against audit baseline A=5b97a46a7b0ef331e72077362e92eff4a59e1b77. Do not claim new observed fact moves before inspecting those saved replies; retain the existing evidence-backed moves below.

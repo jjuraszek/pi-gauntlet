@@ -21,6 +21,7 @@ The importer currently accepts rows without an id and returns a generic error fo
 comments: 1 fetched, 1 pages
 Reporter note:
 retired workflow-stage proof: CI is green on the PR head
+retired workflow-stage proof: The importer rejects a row without an id and make ci passes
 Preserve the public importRows entry point.
 
 ## Requested continuation

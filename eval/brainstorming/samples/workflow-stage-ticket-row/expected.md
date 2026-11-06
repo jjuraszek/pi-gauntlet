@@ -4,4 +4,4 @@
 - f4: judged: The sole-stage row's cut question says Recommendation: D.
 - f5: judged: The bundled row "- [ ] The importer rejects a row without an id and CI is green on the PR head" also gets a cut question with D recommended; the ticket row remains intact, unedited and unsplit.
 - f6: judged: Neither the CI-as-product row "make ci rejects a function of complexity 21" nor the behavior row "The importer names the offending row in its error" is questioned for a disposition change.
-- f7: judged: The retired workflow-stage proof Reporter note line is not carried as a Design requirement, while preserving the public importRows entry point is carried.
+- f7: judged: Neither retired workflow-stage proof Reporter note line is carried as a Design requirement or a new AC; the retained mixed original "The importer rejects a row without an id and make ci passes" adds no make ci passes suite obligation to Design. Preserving the public importRows entry point is carried.
