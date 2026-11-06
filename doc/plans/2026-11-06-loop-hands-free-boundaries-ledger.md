@@ -3,7 +3,7 @@
 base: 82cc2b80e5c9c5216f8a55817628ca9532381a99
 verification: npm test
 checks: commands
-iterations: 7
+iterations: 8
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -13,7 +13,7 @@ allowance: 10
 | 3 | done | 1 | node --test scripts/loop-verification-repair.test.mjs; 2 passed; 4 selected verification-repair evals with 30 candidate facts holding; partial narrated repair coverage |
 | 4 | done | 1 | node --test scripts/loop-conformance-grant.test.mjs; 2 passed; conformance-grant eval improved with 16 candidate facts holding; partial narrated funding coverage |
 | 5 | done | 1 | node --test scripts/loop-unreachable-cut.test.mjs; 2 passed; unreachable-cut eval improved with 16 candidate facts holding; partial narrated amendment coverage |
-| 6 | open | 0 | |
+| 6 | done | 1 | timeout -k 30 60 node --test scripts/loop-implementer-actions.test.mjs; 7 passed; ran silence-bound-and-unreachable (1 of 1), 12 candidate facts hold; partial narrated action coverage |
 | 7 | open | 0 | |
 | 8 | done | 0 | rg --quiet 'Inside the implement loop, end a turn only with a stop header from ## Human stop.*follow every intermediate report with the next ordered-table action in the same turn' skills/loop-implementation/SKILL.md; exit 0; same-turn-continuation eval improved with 6 candidate facts holding; partial narrated continuation coverage |
 | 9 | open | 0 | rg --quiet --fixed-strings 'Name every paid or external action' skills/brainstorming/SKILL.md; exit 1; round 2 lacks the paid or external action Design clause |
@@ -29,3 +29,4 @@ row 8 done | Required intermediate implement reports to continue to the next ord
 row 3 done | Bound verification repairs by allowance with durable reservations and ownership-fenced recovery across legs and resume. | Reuse scripts/loop-verification-repair.test.mjs and verify-repair-count for repair-count, pending admission and recovery checks.
 row 4 done | Funded loop conformance rounds up to allowance under amend permission, preserving cap stops, tool-error stops and runtime credits. | Reuse scripts/loop-conformance-grant.test.mjs and conformance-grant for cap funding, enforcement-off, permission and resume checks.
 row 5 done | Routed admitted unreachable evidence through audited cuts, preserving venue failures, spent-bound stops and counters. | Reuse skills/loop-implementation/reference/unreachable-returns.md and unreachable-cut for marker routing and amendment integration.
+row 6 done | Added bounded action authorization and local replay evidence; ran silence-bound-and-unreachable (1 of 1). | Reuse agents/loop-implementer.md and the silence-bound-and-unreachable sample for timeout coverage; scripts/loop-implementer-actions.test.mjs replays stored action facts locally.
