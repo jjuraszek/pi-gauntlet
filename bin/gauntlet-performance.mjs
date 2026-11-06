@@ -421,10 +421,10 @@ function renderText3(agg) {
 // src/bins/performance/leg-rounds.mjs
 var LEG_SKILLS = ["shape-ticket", "gatekeep-pr", "check-delivery"];
 function loadLeg(doc) {
-  if (![doc.repo, doc.session, doc.ts].every((v) => typeof v === "string" && v.length) || !Array.isArray(doc.items) || !doc.items.length || !doc.items.every((item) => obj(item) && ["ticket", "pr"].includes(item.kind) && str(item.outcome) !== null && (item.key === void 0 || str(item.key) !== null))) {
+  if (![doc.session, doc.ts].every((v) => typeof v === "string" && v.length) || !Array.isArray(doc.items) || !doc.items.every((item) => obj(item) && ["ticket", "pr"].includes(item.kind) && str(item.outcome) !== null && (item.key === void 0 || str(item.key) !== null))) {
     return { skip: "not a leg record" };
   }
-  return { leg: doc };
+  return { leg: { ...doc, repo: str(doc.repo) ?? "unknown repo" } };
 }
 var legId = (leg) => JSON.stringify([leg.repo, leg.skill, leg.session, leg.ts]);
 function itemKey(key4, repo) {
@@ -441,27 +441,99 @@ function groupRounds(legs, skill) {
   for (const leg of legs.filter((leg2) => leg2.skill === skill).sort((a, b) => a.ts.localeCompare(b.ts) || a.session.localeCompare(b.session))) {
     const keys = new Set(leg.items.map((item) => itemKey(item.key, leg.repo)).filter(Boolean));
     for (const key4 of keys) {
-      const id = JSON.stringify([leg.repo, key4]);
-      if (!groups.has(id)) groups.set(id, { repo: leg.repo, key: key4, rounds: [] });
-      groups.get(id).rounds.push(leg);
+      const id2 = JSON.stringify([leg.repo, key4]);
+      if (!groups.has(id2)) groups.set(id2, { repo: leg.repo, key: key4, rounds: [] });
+      groups.get(id2).rounds.push(leg);
     }
   }
   return [...groups.values()].sort((a, b) => a.repo.localeCompare(b.repo) || a.key.localeCompare(b.key));
 }
-function section(key4, skill) {
-  return {
-    key: key4,
-    aggregate: (legs) => groupRounds(legs, skill),
-    renderText: (groups) => `${key4}
-${table(["repo", "ref", "rounds"], groups.map((g) => [g.repo, g.key, String(g.rounds.length)]))}`
-  };
+
+// src/bins/performance/costs.mjs
+var allocationNote = "costs: batch and multi-ticket records are split equally across their items; the rounding remainder lands on the last row";
+var columns = ["shape", "run", "gatekeep", "delivery"];
+var skillColumn = { "shape-ticket": "shape", "gatekeep-pr": "gatekeep", "check-delivery": "delivery" };
+var id = (repo, key4) => JSON.stringify([repo, key4]);
+var ordered = (map) => [...map.values()].sort((a, b) => a.repo.localeCompare(b.repo) || a.key.localeCompare(b.key));
+var add = (row, column, cost) => {
+  if (cost !== null) row[column] = (row[column] ?? 0) + cost;
+};
+function split(cost, count, cents) {
+  if (cost === null) return Array(count).fill(null);
+  if (!cents) return Array(count).fill(cost / count);
+  const total = Math.round(cost * 100);
+  const share = Math.round(total / count);
+  return Array.from({ length: count }, (_, i) => (i === count - 1 ? total - share * (count - 1) : share) / 100);
 }
-var tickets = section("tickets", "shape-ticket");
-var prs = section("prs", "gatekeep-pr");
+function aggregateCosts(entries, legs, cents = false) {
+  const tickets = /* @__PURE__ */ new Map(), prs = /* @__PURE__ */ new Map(), unattributed = /* @__PURE__ */ new Map();
+  const ensure = (map, repo, key4) => {
+    const identity = id(repo, key4);
+    if (!map.has(identity)) map.set(identity, { repo, key: key4, shape: null, run: null, gatekeep: null, delivery: null, rounds: [] });
+    return map.get(identity);
+  };
+  for (const { row } of entries) {
+    const keys = [...new Set(row.tickets.map((ref) => itemKey(ref, row.repo)))].sort();
+    const shares = split(row.cost, keys.length || 1, cents);
+    if (!keys.length) add(ensure(unattributed, row.repo, row.session), "run", shares[0]);
+    keys.forEach((key4, i) => add(ensure(tickets, row.repo, key4), "run", shares[i]));
+  }
+  const ticketPrs = /* @__PURE__ */ new Map();
+  for (const leg of [...legs].sort((a, b) => a.ts.localeCompare(b.ts) || a.session.localeCompare(b.session))) {
+    const items = [...leg.items].sort((a, b) => (itemKey(a.key, leg.repo) ?? "\uFFFF").localeCompare(itemKey(b.key, leg.repo) ?? "\uFFFF"));
+    const shares = split(num(leg.cost), items.length || 1, cents);
+    if (!items.length) add(ensure(unattributed, leg.repo, leg.session), skillColumn[leg.skill], shares[0]);
+    const roundShares = /* @__PURE__ */ new Map();
+    items.forEach((item, i) => {
+      const key4 = itemKey(item.key, leg.repo);
+      const ticket = item.kind === "ticket" ? key4 : itemKey(item.ticket, leg.repo);
+      const row = ticket ? ensure(tickets, leg.repo, ticket) : ensure(unattributed, leg.repo, item.kind === "pr" && key4 ? key4 : leg.session);
+      add(row, skillColumn[leg.skill], shares[i]);
+      if (item.kind !== "pr" || !key4 || leg.skill !== "gatekeep-pr") return;
+      const pr = ensure(prs, leg.repo, key4);
+      if (!roundShares.has(pr)) roundShares.set(pr, null);
+      roundShares.set(pr, sumOrNull([roundShares.get(pr), shares[i]]));
+      if (ticket) {
+        const identity = id(leg.repo, ticket);
+        if (!ticketPrs.has(identity)) ticketPrs.set(identity, /* @__PURE__ */ new Set());
+        ticketPrs.get(identity).add(pr);
+      }
+    });
+    for (const [pr, cost] of roundShares) {
+      pr.rounds.push(leg);
+      (pr.round_costs ??= []).push(cost);
+    }
+  }
+  for (const [identity, linked] of ticketPrs) {
+    const cost = tickets.get(identity).run;
+    const rows = [...linked].sort((a, b) => a.key.localeCompare(b.key));
+    const shares = split(cost, rows.length, cents);
+    rows.forEach((row, i) => add(row, "run", shares[i]));
+  }
+  for (const group of groupRounds(legs, "shape-ticket")) {
+    const row = tickets.get(id(group.repo, group.key));
+    if (row) row.rounds = group.rounds;
+  }
+  for (const row of [...tickets.values(), ...unattributed.values()]) row.total = sumOrNull(columns.map((column) => row[column]));
+  const prRows = ordered(prs).map(({ repo, key: key4, run, rounds, round_costs }) => ({ repo, key: key4, run, rounds, round_costs, total: sumOrNull([run, ...round_costs]) }));
+  return { tickets: ordered(tickets), prs: prRows, unattributed: ordered(unattributed) };
+}
+function renderCosts({ tickets, prs, unattributed }) {
+  const roundCount = Math.max(0, ...prs.map((row) => row.round_costs.length));
+  const costs = (rows) => rows.map((row) => [row.repo, row.key, ...columns.map((column) => fmtCost(row[column])), fmtCost(row.total)]);
+  return [
+    `tickets
+${table(["repo", "ticket", "rounds", ...columns, "total"], costs(tickets).map((cells, i) => [...cells.slice(0, 2), String(tickets[i].rounds.length), ...cells.slice(2)]))}`,
+    `prs
+${table(["repo", "PR", "rounds", "run", ...Array.from({ length: roundCount }, (_, i) => `round ${i + 1}`), "total"], prs.map((row) => [row.repo, row.key, String(row.rounds.length), fmtCost(row.run), ...Array.from({ length: roundCount }, (_, i) => fmtCost(row.round_costs[i] ?? null)), fmtCost(row.total)]))}`,
+    `unattributed
+${table(["repo", "PR/session", ...columns, "total"], costs(unattributed))}`,
+    allocationNote
+  ].join("\n\n");
+}
 
 // src/bins/gauntlet-performance.mjs
 var SECTIONS = [runs_exports, versions_exports, council_exports];
-var LEG_SECTIONS = [tickets, prs];
 var usage = () => {
   process2.stderr.write("usage: gauntlet-performance [--dir <telemetry dir>]... [--since <version>] [--json]\n");
   process2.exit(1);
@@ -581,6 +653,8 @@ function loadRecord(file, bytes) {
   return {
     row: {
       run_id: d.run_id,
+      session: Array.isArray(d.sessions) && typeof d.sessions[0] === "string" ? d.sessions[0] : d.run_id,
+      tickets: Array.isArray(d.tickets) ? d.tickets.filter((ref) => typeof ref === "string" && ref.length) : [],
       engine: str(derived.engine) ?? "waves",
       iterations: num(derived.iterations),
       repo: str(d.repo) ?? "unknown repo",
@@ -648,23 +722,24 @@ function main() {
         continue;
       }
       if (res.leg) {
-        const id = legId(res.leg);
-        if (seenLegs.has(id)) {
+        const id2 = legId(res.leg);
+        if (seenLegs.has(id2)) {
           skipped.push({ file, reason: "duplicate leg" });
           continue;
         }
-        seenLegs.add(id);
+        seenLegs.add(id2);
         const v2 = semver(res.leg.gauntlet_version);
         if (since && (!v2 || cmpSemver(v2, since) < 0)) continue;
         corpus[c.label]++;
         legs.push(res.leg);
         continue;
       }
-      if (seen.has(res.row.run_id)) {
+      const runId = JSON.stringify([res.row.repo, res.row.run_id]);
+      if (seen.has(runId)) {
         skipped.push({ file, reason: "duplicate run_id" });
         continue;
       }
-      seen.add(res.row.run_id);
+      seen.add(runId);
       const v = semver(res.row.version);
       if (since && (!v || cmpSemver(v, since) < 0)) continue;
       corpus[c.label]++;
@@ -672,14 +747,12 @@ function main() {
     }
   }
   entries.sort((a, b) => (a.row.created_at ?? "").localeCompare(b.row.created_at ?? "") || a.row.run_id.localeCompare(b.row.run_id));
-  const aggregates = [
-    ...SECTIONS.map((s) => [s, s.aggregate(entries)]),
-    ...LEG_SECTIONS.map((s) => [s, s.aggregate(legs)])
-  ];
+  const aggregates = SECTIONS.map((s) => [s, s.aggregate(entries)]);
   const hasRecords = entries.length + legs.length > 0;
   if (opts.json) {
     const out = { corpus, since: opts.since ?? null };
     for (const [s, agg] of aggregates) out[s.key] = agg;
+    Object.assign(out, aggregateCosts(entries, legs));
     out.skipped = skipped;
     console.log(JSON.stringify(out, null, 2));
     return;
@@ -688,7 +761,7 @@ function main() {
   if (!hasRecords) {
     console.log(`no records found in ${corpora.map((c) => c.dir ?? c.label).join(", ") || process2.cwd()}`);
   } else {
-    console.log(aggregates.map(([s, agg]) => s.renderText(agg)).join("\n\n"));
+    console.log([...aggregates.map(([s, agg]) => s.renderText(agg)), renderCosts(aggregateCosts(entries, legs, true))].join("\n\n"));
   }
   if (hasRecords && skipped.length) console.log("");
   if (hasRecords) for (const s of skipped) console.log(`skipped: ${s.file}: ${s.reason}`);

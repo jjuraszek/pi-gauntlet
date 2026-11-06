@@ -3,7 +3,7 @@ import { stringify } from "yaml";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import type { Deps } from "../telemetry.ts";
 import { checkoutOf } from "./checkout.ts";
-import { syncTelemetryBranch, telemetryRepo } from "./telemetry-branch.ts";
+import { syncTelemetryBranch, telemetryRepo, trackerRefs } from "./telemetry-branch.ts";
 import { textOf } from "./telemetry-collect.ts";
 import { addTokens, compact, emptyAccumulators, zeroTokens, type Accumulators, type Tokens } from "./telemetry-record.ts";
 
@@ -30,7 +30,7 @@ export interface LegRecord {
 
 const legSkill = (name: string | undefined): LegSkill | undefined => skills.find((skill) => skill === name);
 
-const ticketRef = /^(?:#\d+|[^\s/#]+\/[^\s/#]+#\d+|[A-Z][A-Z0-9]*-\d+|https?:\/\/\S+\/(?:issues\/\d+|issue\/[A-Z][A-Z0-9]*-\d+)(?:\/[^\s]*)?)$/;
+const ticketRef = (ref: string) => trackerRefs(ref).includes(ref);
 const outcomes: Record<LegSkill, string> = {
   "shape-ticket": "written|created|closed|close failed \\(.*\\)|close by hand|dropped|declined|stopped|no-op|unfetched",
   "gatekeep-pr": "approved|merged|closed-pr|final|merge-queued|stopped|stuck - .+",
@@ -44,7 +44,7 @@ export function settlementItems(skill: LegSkill, text: string, trackerless = fal
   const items = lines.flatMap((line): LegItem[] => {
     let ticket: string | undefined;
     const annotation = / \(([^()]+)\)$/.exec(line);
-    if (skill === "gatekeep-pr" && annotation && (trackerless || ticketRef.test(annotation[1]))) {
+    if (skill === "gatekeep-pr" && annotation && (trackerless || ticketRef(annotation[1]))) {
       ticket = annotation[1];
       line = line.slice(0, annotation.index);
     }
@@ -52,7 +52,7 @@ export function settlementItems(skill: LegSkill, text: string, trackerless = fal
     if (!match || match[1].startsWith("# ") || match[1].startsWith("#### ")) return [];
     const [, ref, outcome] = match;
     const pr = /^#\d+@[a-f\d]+$/i.test(ref) || /^https?:\/\/\S+\/pull\/\d+(?:@[a-f\d]+)?$/i.test(ref);
-    if (trackerless || pr || ticketRef.test(ref)) return [compact({ kind: pr || skill === "gatekeep-pr" ? "pr" : "ticket", key: ref, ticket, outcome }) as LegItem];
+    if (trackerless || pr || ticketRef(ref)) return [compact({ kind: pr || skill === "gatekeep-pr" ? "pr" : "ticket", key: ref, ticket, outcome }) as LegItem];
     if (skill === "shape-ticket" && (outcome === "dropped" || outcome === "declined")) return [{ kind: "ticket", outcome }];
     return [];
   });

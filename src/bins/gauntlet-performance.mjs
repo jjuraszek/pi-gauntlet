@@ -14,10 +14,10 @@ import { BIG_CACHE_WRITE, PHASES, TOKEN_KEYS, cmpSemver, num, obj, semver, str, 
 import * as runs from "./performance/runs.mjs";
 import * as versions from "./performance/versions.mjs";
 import * as council from "./performance/council.mjs";
-import { LEG_SKILLS, legId, loadLeg, tickets, prs } from "./performance/leg-rounds.mjs";
+import { LEG_SKILLS, legId, loadLeg } from "./performance/leg-rounds.mjs";
+import { aggregateCosts, renderCosts } from "./performance/costs.mjs";
 
 const SECTIONS = [runs, versions, council];
-const LEG_SECTIONS = [tickets, prs];
 
 const usage = () => {
   process.stderr.write("usage: gauntlet-performance [--dir <telemetry dir>]... [--since <version>] [--json]\n");
@@ -149,6 +149,8 @@ function loadRecord(file, bytes) {
   return {
     row: {
       run_id: d.run_id,
+      session: Array.isArray(d.sessions) && typeof d.sessions[0] === "string" ? d.sessions[0] : d.run_id,
+      tickets: Array.isArray(d.tickets) ? d.tickets.filter(ref => typeof ref === "string" && ref.length) : [],
       engine: str(derived.engine) ?? "waves",
       iterations: num(derived.iterations),
       repo: str(d.repo) ?? "unknown repo",
@@ -223,8 +225,9 @@ function main() {
         legs.push(res.leg);
         continue;
       }
-      if (seen.has(res.row.run_id)) { skipped.push({ file, reason: "duplicate run_id" }); continue; }
-      seen.add(res.row.run_id);
+      const runId = JSON.stringify([res.row.repo, res.row.run_id]);
+      if (seen.has(runId)) { skipped.push({ file, reason: "duplicate run_id" }); continue; }
+      seen.add(runId);
       const v = semver(res.row.version);
       if (since && (!v || cmpSemver(v, since) < 0)) continue;
       corpus[c.label]++;
@@ -232,14 +235,12 @@ function main() {
     }
   }
   entries.sort((a, b) => (a.row.created_at ?? "").localeCompare(b.row.created_at ?? "") || a.row.run_id.localeCompare(b.row.run_id));
-  const aggregates = [
-    ...SECTIONS.map((s) => [s, s.aggregate(entries)]),
-    ...LEG_SECTIONS.map((s) => [s, s.aggregate(legs)]),
-  ];
+  const aggregates = SECTIONS.map((s) => [s, s.aggregate(entries)]);
   const hasRecords = entries.length + legs.length > 0;
   if (opts.json) {
     const out = { corpus, since: opts.since ?? null };
     for (const [s, agg] of aggregates) out[s.key] = agg;
+    Object.assign(out, aggregateCosts(entries, legs));
     out.skipped = skipped;
     console.log(JSON.stringify(out, null, 2));
     return;
@@ -248,7 +249,7 @@ function main() {
   if (!hasRecords) {
     console.log(`no records found in ${corpora.map((c) => c.dir ?? c.label).join(", ") || process.cwd()}`);
   } else {
-    console.log(aggregates.map(([s, agg]) => s.renderText(agg)).join("\n\n"));
+    console.log([...aggregates.map(([s, agg]) => s.renderText(agg)), renderCosts(aggregateCosts(entries, legs, true))].join("\n\n"));
   }
   if (hasRecords && skipped.length) console.log("");
   if (hasRecords) for (const s of skipped) console.log(`skipped: ${s.file}: ${s.reason}`);

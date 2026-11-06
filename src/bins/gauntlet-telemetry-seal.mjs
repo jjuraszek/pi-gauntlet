@@ -6,8 +6,8 @@ import { isAbsolute, join, relative, resolve } from "node:path";
 import process from "node:process";
 import { DEFAULT_TELEMETRY_DIR, mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
 import { recordPathFor, repoRelativeToolPath, toPosix } from "../../extensions/lib/telemetry-paths.ts";
-import { changedNames, computeShipDiff, validateBase, vcsFor } from "../../extensions/lib/vcs.ts";
-import { syncTelemetryBranch, telemetryDir, telemetryRepo } from "../../extensions/lib/telemetry-branch.ts";
+import { changedNames, computeShipDiff, gitRun, validateBase, vcsFor } from "../../extensions/lib/vcs.ts";
+import { syncTelemetryBranch, telemetryDir, telemetryRepo, trackerRefs } from "../../extensions/lib/telemetry-branch.ts";
 import { derive, parseRecord, serializeRecord, validLegs } from "../../extensions/lib/telemetry-record.ts";
 
 const OPTIONS = new Set(["pr", "squash"]);
@@ -100,6 +100,12 @@ function migrate(root, dir, repo, remote) {
 
 const isoNow = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 
+function runTickets(vcs, record, base) {
+  const log = gitRun(["log", "--format=%B", `${base}..HEAD`], vcs.root);
+  return trackerRefs([record.spec, record.branch ?? gitRun(["branch", "--show-current"], vcs.root).stdout,
+    log.ok ? log.stdout : ""].join("\n"));
+}
+
 async function seal(vcs, rec, o) {
   const abs = rec;
   if (!existsSync(abs)) fail(2, `no record at ${rec}`);
@@ -112,6 +118,8 @@ async function seal(vcs, rec, o) {
   }
   if (parsed.status === "in_progress") {
     const now = isoNow();
+    parsed.repo = o.repo;
+    parsed.tickets = runTickets(vcs, parsed, o.base);
     if (o.legs.length) parsed.legs = o.legs;
     parsed.status = "shipped";
     parsed.shipped_at = now;

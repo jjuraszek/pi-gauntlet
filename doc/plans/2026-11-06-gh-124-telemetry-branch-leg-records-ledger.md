@@ -3,7 +3,7 @@
 base: d04aa00576eaaf802b8cdde8d8ab1917d0118f68
 verification: npm test
 checks: commands
-iterations: 16
+iterations: 17
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -26,7 +26,7 @@ allowance: 10
 | 16 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-no-write.test.ts; 6 passed, 0 failed on baseline; no-write settlements publish once with unchanged tracker fixture bytes; declined and dropped creates omit key |
 | 17 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-trackers.test.ts; 8 passed, 0 failed; GitHub and Linear differ only in item refs with no tracker calls; tracker none preserves typed refs using first-found overrides |
 | 18 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-failures.test.ts; 6 passed, 0 failed on baseline; disabled legs perform no I/O and rejected pushes retry once without changing settlement; local records survive rejection and recover on the next push |
-| 19 | open | 0 | |
+| 19 | done | 1 | node --test src/bins/gauntlet-performance-rollup.test.mjs; 4 passed, 0 failed; ticket and PR costs conserve mixed batches with unrounded JSON and displayed remainders; seal stamps repo and shared tracker refs from spec, branch and commit range |
 | 20 | open | 0 | |
 
 ## Decisions
@@ -49,3 +49,4 @@ row 15 done | Retained subsecond leg timestamps and added chronological ticket/P
 row 16 done | Verified six no-write settlements record costs once, preserve tracker fixture bytes, and omit keys for declined or dropped creates. | Extend the parameter cases in extensions/telemetry-leg-no-write.test.ts for no-write settlement checks; the sibling test is registered in CI.
 row 17 done | Added tracker-none typed refs and verified GitHub/Linear field parity without tracker calls. | Extend extensions/telemetry-leg-trackers.test.ts for tracker modes and overrides precedence; settlementItems accepts a trackerless flag.
 row 18 done | Verified disabled legs perform no I/O and rejected pushes preserve settlements, retry once and retain records for recovery. | Extend extensions/telemetry-leg-failures.test.ts for disabled and rejected-push cases; its local hooks count fetches and pushes.
+row 19 done | Added ticket and PR cost tables, unattributed shares, conserved display rounding and seal-stamped ticket refs with four passing tests. | Reuse src/bins/performance/costs.mjs for rollup rows and telemetry-branch.ts trackerRefs for seal and settlement references.

@@ -273,6 +273,10 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join as join2 } from "node:path";
 var TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
+function trackerRefs(text) {
+  const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
+  return [...new Set(tokens.map((ref) => ref.replace(/[.,;]+$/, "")).filter((ref) => !ref.startsWith("http") || /\/(?:issues\/\d+|pull\/\d+|issue\/[A-Z][A-Z0-9]*-\d+)(?:\/[^\s]*)?$/.test(ref)).map((ref) => ref.startsWith("gh-") ? `#${ref.slice(3)}` : ref))];
+}
 function telemetryDir(root) {
   const result = gitRun(["rev-parse", "--path-format=absolute", "--git-common-dir"], root);
   return result.ok ? join2(result.stdout, "gauntlet", "telemetry") : void 0;
@@ -565,6 +569,14 @@ function migrate(root, dir, repo, remote) {
   console.log(`migrated ${writes.size} records from ${dir}`);
 }
 var isoNow = () => (/* @__PURE__ */ new Date()).toISOString().replace(/\.\d{3}Z$/, "Z");
+function runTickets(vcs, record, base) {
+  const log = gitRun(["log", "--format=%B", `${base}..HEAD`], vcs.root);
+  return trackerRefs([
+    record.spec,
+    record.branch ?? gitRun(["branch", "--show-current"], vcs.root).stdout,
+    log.ok ? log.stdout : ""
+  ].join("\n"));
+}
 async function seal(vcs, rec, o) {
   const abs = rec;
   if (!existsSync2(abs)) fail(2, `no record at ${rec}`);
@@ -577,6 +589,8 @@ async function seal(vcs, rec, o) {
   }
   if (parsed.status === "in_progress") {
     const now = isoNow();
+    parsed.repo = o.repo;
+    parsed.tickets = runTickets(vcs, parsed, o.base);
     if (o.legs.length) parsed.legs = o.legs;
     parsed.status = "shipped";
     parsed.shipped_at = now;

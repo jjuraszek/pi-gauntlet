@@ -1,15 +1,15 @@
-import { obj, str, table } from "./shared.mjs";
+import { obj, str } from "./shared.mjs";
 
 export const LEG_SKILLS = ["shape-ticket", "gatekeep-pr", "check-delivery"];
 
 export function loadLeg(doc) {
-  if (![doc.repo, doc.session, doc.ts].every(v => typeof v === "string" && v.length)
-      || !Array.isArray(doc.items) || !doc.items.length
+  if (![doc.session, doc.ts].every(v => typeof v === "string" && v.length)
+      || !Array.isArray(doc.items)
       || !doc.items.every(item => obj(item) && ["ticket", "pr"].includes(item.kind)
         && str(item.outcome) !== null && (item.key === undefined || str(item.key) !== null))) {
     return { skip: "not a leg record" };
   }
-  return { leg: doc };
+  return { leg: { ...doc, repo: str(doc.repo) ?? "unknown repo" } };
 }
 
 export const legId = leg => JSON.stringify([leg.repo, leg.skill, leg.session, leg.ts]);
@@ -37,14 +37,3 @@ export function groupRounds(legs, skill) {
   }
   return [...groups.values()].sort((a, b) => a.repo.localeCompare(b.repo) || a.key.localeCompare(b.key));
 }
-
-function section(key, skill) {
-  return {
-    key,
-    aggregate: legs => groupRounds(legs, skill),
-    renderText: groups => `${key}\n${table(["repo", "ref", "rounds"], groups.map(g => [g.repo, g.key, String(g.rounds.length)]))}`,
-  };
-}
-
-export const tickets = section("tickets", "shape-ticket");
-export const prs = section("prs", "gatekeep-pr");

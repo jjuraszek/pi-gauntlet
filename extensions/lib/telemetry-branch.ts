@@ -5,6 +5,13 @@ import { gitRun } from "./vcs.ts";
 
 export const TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
 
+export function trackerRefs(text: string): string[] {
+  const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
+  return [...new Set(tokens.map(ref => ref.replace(/[.,;]+$/, ""))
+    .filter(ref => !ref.startsWith("http") || /\/(?:issues\/\d+|pull\/\d+|issue\/[A-Z][A-Z0-9]*-\d+)(?:\/[^\s]*)?$/.test(ref))
+    .map(ref => ref.startsWith("gh-") ? `#${ref.slice(3)}` : ref))];
+}
+
 export function telemetryDir(root: string): string | undefined {
   const result = gitRun(["rev-parse", "--path-format=absolute", "--git-common-dir"], root);
   return result.ok ? join(result.stdout, "gauntlet", "telemetry") : undefined;

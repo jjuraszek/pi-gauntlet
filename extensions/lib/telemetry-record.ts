@@ -103,6 +103,8 @@ export const validLegs = (legs: unknown): legs is TelemetryLeg[] => Array.isArra
   ((typeof leg.sha === "string" && leg.sha.trim().length > 0 && leg.pr === undefined) ||
    (typeof leg.pr === "string" && /^https?:\/\/\S+$/.test(leg.pr) && leg.sha === undefined)));
 export interface TelemetryRecord {
+  repo?: string;
+  tickets?: string[];
   legs?: TelemetryLeg[];
   schema: 1; spec: string; run_id: string; branch?: string; status: RecordStatus; created_at: string; approved_at?: string; shipped_at?: string; abandoned_at?: string;
   supersedes?: string[]; fixes?: string[]; versions?: Record<string, string>; author?: { name?: string; email?: string }; agent_overrides?: Record<string, unknown>;
