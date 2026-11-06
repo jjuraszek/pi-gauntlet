@@ -1226,9 +1226,9 @@ function coordinatedMetadata(lines: string[], legs: ReturnType<typeof parseLegs>
   const pending = header("pending");
   if (pending.length > 1) add(pending[1].i, "duplicate pending tuple");
   for (const row of pending) {
-    const m = /^(seed|[1-9]\d*) \| (\S+) \| ([a-f0-9]{7,40})$/.exec(row.value);
+    const m = /^(seed|verify|[1-9]\d*) \| (\S+) \| ([a-f0-9]{7,40})$/.exec(row.value);
     const repo = m?.[2].toLowerCase();
-    if (!m || !legs.some(l => l.repo === repo) || (m[1] !== "seed" && pairs[Number(m[1]) - 1]?.leg !== repo)) add(row.i, "invalid pending tuple or target leg");
+    if (!m || !legs.some(l => l.repo === repo) || (m[1] !== "seed" && m[1] !== "verify" && pairs[Number(m[1]) - 1]?.leg !== repo)) add(row.i, "invalid pending tuple or target leg");
   }
   const mapping = lines.findIndex(l => l === "## Leg mapping");
   if (lines.filter(l => l === "## Leg mapping").length > 1) add(mapping, "duplicate leg mapping section");

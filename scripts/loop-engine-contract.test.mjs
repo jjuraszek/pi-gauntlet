@@ -173,10 +173,11 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
     'With no marker and recoverable history, apply the threshold predicate',
     'a previously missing model or migrated row has not spent escalation',
   ]) assert.ok(before.includes(token), token);
-  const recovery = driver.split('\n## Interrupted recovery\n')[1].split('\n## Human stop\n')[0];
+  assert.ok(driver.includes('reference/interrupted-recovery.md'));
+  const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
   for (const token of [
     'including spent escalation', 'attempts = saved attempts +1',
-    'Commit `loop: repair row <n>`, refresh and return to the ordered table',
+    'Commit `loop: repair row <n>` with retained action records in its body, refresh and return to the ordered table',
     'rule 2 stops a repaired row at allowance', 'consume no attempt and make no repair commit',
   ]) assert.ok(recovery.includes(token), token);
   assert.doesNotMatch(driver, /Boundary rejection never increments attempts/);
@@ -269,7 +270,9 @@ test('ledger resume delegates gate execution to the loop skill', () => {
 test('coordinated reference reads use held membership before dispatch decisions', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const path = 'reference/coordinated-legs.md';
-  assert.equal(driver.split(path).length - 1, 3);
+  assert.equal(driver.split(path).length - 1, 2);
+  const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
+  assert.ok(recovery.includes('(coordinated-legs.md#companion-return-validation)'));
   const entry = driver.split('\n## Entry\n')[1].split('\n## Before each dispatch\n')[0];
   const dispatch = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0].trimStart();
   const entryRead = entry.split('\n').find(line => line.includes(path));
@@ -319,7 +322,8 @@ test('ledger refresh owns entry, dispatch and implement completion', () => {
 test('terminal home results refresh only after admission and retain pending on boundary stops', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
-  const validation = driver.split('\n## Validate the return\n')[1].split('\n## Human stop\n')[0];
+  const validation = driver.split('\n## Validate the return\n')[1].split('\n## Human stop\n')[0]
+    + readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
   assert.match(validation, /Route dispatch errors, non-DONE, killed, dirty and zero\/multiple-commit returns through ## Interrupted recovery/);
   for (const token of ['exclusive checkout provenance', 'every changed path and commit', 'all changes preserved',
     'OS-observed start identity captured at launch', 'matching start identity and command',

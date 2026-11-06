@@ -23,13 +23,27 @@ test('bounded action authorization keeps the persona and decision contracts', ()
   assert.match(persona, /Apply step 5's action authorization before running a check/);
 });
 
+test('a successful capture survives interrupted seed and row recovery without a second spend', () => {
+  const driver = read('../skills/loop-implementation/SKILL.md');
+  assert.ok(driver.includes('reference/action-spend.md'), 'recovery must preserve action accounting before restoring the ledger');
+  const accounting = read('../skills/loop-implementation/reference/action-spend.md');
+  const recovery = read('../skills/loop-implementation/reference/interrupted-recovery.md');
+  for (const token of ['ran capture (1 of 1)', 'seed', 'commit body', 'evidence', 'before', 'reset', 'uncertain', 'leaving row cells unchanged', 'copy them into the home repair marker']) {
+    assert.ok(accounting.includes(token), `action-spend recovery missing ${token}`);
+  }
+  assert.ok(recovery.indexOf('action-spend.md') < recovery.indexOf('reset --hard HEAD_BEFORE'));
+  for (const token of ['bound spent: <action> (<k> of <bound>)', 'before launching', '`loop: repair` commit bodies', 'evidence cells', 'highest recorded k', 'seed']) {
+    assert.ok(persona.includes(token), `next child accounting missing ${token}`);
+  }
+});
+
 test('stored action replay holds every required fact without a paid rerun', () => {
   const candidate = JSON.parse(read('../eval/loop-implementer/results/silence-bound-and-unreachable/candidate.json'));
   const cells = Object.entries(candidate.judge);
   assert.ok(cells.length > 0);
   for (const [model, cell] of cells) {
     assert.equal(candidate.outputs[model].status, 'ok');
-    for (const fact of ['named-action', 'unreachable', 'spent-bound', 'flow-count', 'local-evidence', 'bounded-contract']) {
+    for (const fact of ['named-action', 'unreachable', 'spent-bound', 'flow-count', 'local-evidence', 'bounded-contract', 'interrupted-spend', 'durable-reservation']) {
       assert.equal(cell.facts[fact].after, 'holds', `${model}: ${fact}`);
     }
   }
@@ -37,7 +51,7 @@ test('stored action replay holds every required fact without a paid rerun', () =
 
 for (const [name, required] of [
   ['named bounded action', ['runner, inputs, count per flow', 'acceptance row or Design', 'without asking', 'ran <action> (<k> of <bound>)']],
-  ['flow-wide accounting', ['all earlier decision lines', 'including other rows', 'seed, rows, repairs and finish', 'one more than the count']],
+  ['flow-wide accounting', ['all earlier decision lines', 'including other rows', 'seed, rows, repairs and finish', 'one more than the highest recorded k']],
   ['unreachable prerequisite', ['unreachable: <what is missing> - <where it can run>', 'credential, environment or data not present', 'action the spec does not name', 'no further attempt in this session']],
   ['spent bound', ['bound spent: <action> <k> of <k>', 'first result line', 'failed']],
   ['replay evidence', ['Never record a paid or external action as the evidence\'s first segment', 'local replay or fixture check', 'action in a result line']],

@@ -1,4 +1,4 @@
-for: bb97635c5cb5119ada96b92d8591070be70e9bb68f2adb882451aedb3d30831f
+for: b3bde0bbd467acbf420d81abc70fd9c452779785d1005d92960ef76e20384132
 
 ## Change
 
@@ -9,7 +9,7 @@ Name the owning Workflow-stage proof class in the drafting integrity table. Leav
 Screen verbatim ticket rows at step 4 using shape-ticket's Workflow-stage proof class before ordinary question one. Recommend ticket repair for sole-stage and bundled observations without editing rows; retain CI-as-product and behavior rows. Exclude retired proof provenance from Design while carrying other Reporter-note requirements. The selected workflow-stage-ticket-row continuation covers seven facts on fixed observations, not live ticket repair; preserve prior reports and run no target-wide sweep.
 
 
-Name paid and external implementation/verification actions with their scope and limits in Design. Approval authorizes only those named actions without per-step prompts; unnamed actions still need explicit authorization. The synthetic design-names-paid-actions checkpoint covers paid-call limits, sandbox lifecycle, named-action approval, excluded production actions and the pre-approval gate. Run only this selected sample; preserve other sample results and all existing accepted variance. This replay proves narrated authorization boundaries, not live external operations or target-wide coverage.
+Establish each paid/external action's runner, inputs and count for the whole flow across seed, rows, repairs and finish in round-two Design. Approval authorizes only those bounded named actions without per-step prompts; an action lacking that clause is unreachable in the loop and adding it requires explicit authorization. Extend design-names-paid-actions to establish one invocation of each verified runner across the flow, not restate fixture-supplied per-call request/cost limits. Run only this selected sample; preserve other sample results and all existing accepted variance. This replay proves narrated authorization boundaries, not live external operations or target-wide coverage.
 
 Cover the resolved allowance gate, waves-only funding grammar and amendment allowance preservation with selected fixtures. Supply the newly required successful settings result in shared gate fixture state, with each case's explicit settings or unavailable-tool observation taking precedence. Keep sample IDs and all must-hold facts, including the waves controls. Preserve recovered model records without treating them as current verification; defer selected model checks to the parent. Never run full targets, including at completion.
 
@@ -85,6 +85,8 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 - workflow-stage-ticket-row/f5: fails -> holds - Send the bundled row intact to its own cut question, recommending D.
 - workflow-stage-ticket-row/f6: holds -> holds - Do not question CI-as-product or behavior rows.
 - workflow-stage-ticket-row/f7: fails -> holds - Carry real Reporter-note requirements, never retired proof as Design.
+- design-names-paid-actions/flow-bound: fails -> holds - Propose runner/input-specific counts covering seed, rows, repairs and finish, with saved-result reuse.
+- design-names-paid-actions/unnamed-unreachable: fails -> holds - Name the loop's unreachable boundary for an action without the approved clause.
 - design-names-paid-actions/paid: fails -> holds - Name paid request count and spending limit in Design.
 - design-names-paid-actions/external: fails -> holds - Name the bounded remote sandbox lifecycle in Design.
 - design-names-paid-actions/approval: fails -> holds - Treat approval as authorization for named actions without per-step prompts.

@@ -22,6 +22,11 @@ test('verification repair dispatch carries blocking bounds and owned jobs into t
     'scratch Python controller', 'separate tool call', 'OS-observed process start identity',
     'affirmative exit evidence', 'timed out after <n> s', 'pre-bump task iteration',
   ]) assert.ok(rules.includes(token), token);
+  for (const path of ['doc/configuration.md', 'doc/implement-engines.md']) {
+    const docs = read(path);
+    assert.match(docs, /jobs.*pre-bump task iteration/);
+    assert.doesNotMatch(docs, /repair child (?:records|writes|uses) no jobs file|repair child does not (?:record|write|use).*jobs/);
+  }
   assert.ok(Buffer.byteLength(driver) < 45_000);
   assert.ok(driver.split('\n').length < 500);
 });
