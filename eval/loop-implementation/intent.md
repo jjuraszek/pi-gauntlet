@@ -1,6 +1,8 @@
-for: 4e18008f4ff86a253f954f941912952c3ab3ddd2f9c63b6ad4d5c50475597680
+for: 7a8d1fba0df5b2db1dadd878dbb662f8c6438d3a201dec4ff17d5f11f036e3b7
 
 ## Change
+
+Route an admitted failed target's first unreachable result through the existing amendment surface before the next dispatch, including companion admission and resume. Preserve venue rows as ordinary failures and stop on spent action bounds under both options. Cache dispositions at Entry/restore and refresh them at amendment return; keep diagnosis with the child. Extract only the marker routing into reference/unreachable-returns.md to stay below the driver's 45 KB limit, leaving amendment procedure and audit owned by amendment-surface. Select unreachable-cut only; its text replays prove narrated disposition, audit, counter and continuation behavior, not live spec edits or runtime dispatch. Keep deterministic checks beside scripts/loop-* siblings and preserve all other sample records.
 
 Fund conformance rounds from the loop allowance under amend permission at a live cap block or proactive step-6 cap ask. Use the observed used count and verbatim grant sentence, continue without a call when enforcement is off, and stop on exhaustion, missing permission or tool error. Preserve runtime credits on resume without probes or local counters. Select conformance-grant only, including the shared conformance reference in its bundle; these synthetic text replays prove narrated routing, not live tracker grants or resets. The deterministic check lives beside existing scripts/loop-* tests; keep all other sample results and partial coverage unchanged.
 
@@ -70,6 +72,14 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- unreachable-cut/cut: fails -> holds - Route eligible evidence to the exact disposition and Out of scope entry before another attempt.
+- unreachable-cut/audit: fails -> holds - Apply one audited home cut and continue with unchanged counters and spent escalation.
+- unreachable-cut/closure: fails -> holds - Carry the cut in closure as deviates, never venue proof or done.
+- unreachable-cut/permission: fails -> holds - Without amend permission use the existing batch rather than retrying the failure.
+- unreachable-cut/venue: fails -> holds - Preserve venue disposition and ordinary failed-attempt handling.
+- unreachable-cut/spent: fails -> holds - Stop at a named action bound under either option without automatic cut or dispatch.
+- unreachable-cut/matching: fails -> holds - Read only valid first-result markers from an admitted target.
+- unreachable-cut/companion: fails -> holds - Apply the mapped cut once at home and recover it without duplicate dispatch.
 - conformance-grant/funding: fails -> holds - Fund the remaining allowance from the live block under amend permission.
 - conformance-grant/proactive: fails -> holds - Route the proactive cap ask through loop funding before asking a human.
 - conformance-grant/unenforced: fails -> holds - Continue below allowance without a grant call when enforcement is off.

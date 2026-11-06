@@ -3,7 +3,7 @@
 base: 82cc2b80e5c9c5216f8a55817628ca9532381a99
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -12,7 +12,7 @@ allowance: 10
 | 2 | done | 1 | node --test scripts/loop-engine-contract.test.mjs; 45 passed; stagnation-and-retry and amend-resets-windows evals improved with 18 candidate facts holding; partial narrated routing coverage |
 | 3 | done | 1 | node --test scripts/loop-verification-repair.test.mjs; 2 passed; 4 selected verification-repair evals with 30 candidate facts holding; partial narrated repair coverage |
 | 4 | done | 1 | node --test scripts/loop-conformance-grant.test.mjs; 2 passed; conformance-grant eval improved with 16 candidate facts holding; partial narrated funding coverage |
-| 5 | open | 0 | |
+| 5 | done | 1 | node --test scripts/loop-unreachable-cut.test.mjs; 2 passed; unreachable-cut eval improved with 16 candidate facts holding; partial narrated amendment coverage |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
 | 8 | done | 0 | rg --quiet 'Inside the implement loop, end a turn only with a stop header from ## Human stop.*follow every intermediate report with the next ordered-table action in the same turn' skills/loop-implementation/SKILL.md; exit 0; same-turn-continuation eval improved with 6 candidate facts holding; partial narrated continuation coverage |
@@ -28,3 +28,4 @@ row 2 done | Replaced stagnation stops with row-local hints and reset both windo
 row 8 done | Required intermediate implement reports to continue to the next ordered action in the same turn and end only at a human stop. | Reuse eval/loop-implementation/samples/same-turn-continuation to check progress reports, hint dispatches and exhausted-row stops.
 row 3 done | Bound verification repairs by allowance with durable reservations and ownership-fenced recovery across legs and resume. | Reuse scripts/loop-verification-repair.test.mjs and verify-repair-count for repair-count, pending admission and recovery checks.
 row 4 done | Funded loop conformance rounds up to allowance under amend permission, preserving cap stops, tool-error stops and runtime credits. | Reuse scripts/loop-conformance-grant.test.mjs and conformance-grant for cap funding, enforcement-off, permission and resume checks.
+row 5 done | Routed admitted unreachable evidence through audited cuts, preserving venue failures, spent-bound stops and counters. | Reuse skills/loop-implementation/reference/unreachable-returns.md and unreachable-cut for marker routing and amendment integration.
