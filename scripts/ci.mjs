@@ -485,6 +485,7 @@ try {
       R("extensions/telemetry-leg-rounds.test.ts"),
       R("extensions/telemetry-leg-no-write.test.ts"),
       R("extensions/telemetry-leg-trackers.test.ts"),
+      R("extensions/telemetry-leg-failures.test.ts"),
       R("extensions/telemetry-settlement-contract.test.ts"),
       R("bin/gauntlet-spec-index.test.mjs"),
       R("bin/gauntlet-telemetry-seal.test.mjs"),
