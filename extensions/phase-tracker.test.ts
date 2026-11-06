@@ -76,7 +76,7 @@ type TestModel = { provider: string; id: string };
 
 function harness(options: { hasUI?: boolean; cwd?: string; branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean; model?: TestModel; thinkingLevel?: string; registry?: Record<string, TestModel>; setModelResult?: boolean | Error } = {}) {
   const handlers = new Map<string, ((event: unknown, ctx: unknown) => unknown)[]>();
-  const tools: { name: string; executionMode?: string; parameters?: any; execute: (...args: any[]) => unknown }[] = [];
+  const tools: { name: string; exposure?: string; executionMode?: string; parameters?: any; execute: (...args: any[]) => unknown }[] = [];
   const sent: { message: any; options: any }[] = [];
   const widgets: (string | undefined)[] = [];
   let idle = options.idle ?? true;
@@ -111,7 +111,7 @@ function harness(options: { hasUI?: boolean; cwd?: string; branch?: unknown[]; i
       registered.push(handler);
       handlers.set(event, registered);
     },
-    registerTool(tool: { name: string; executionMode?: string; parameters?: any; execute: (...args: any[]) => unknown }) {
+    registerTool(tool: { name: string; exposure?: string; executionMode?: string; parameters?: any; execute: (...args: any[]) => unknown }) {
       tools.push(tool);
     },
     sendMessage(message: unknown, sendOptions: unknown) {
@@ -491,9 +491,12 @@ const completePhase = async (h: ReturnType<typeof harness>, phase: "implement" |
   };
 };
 
-test("phase_tracker registration requests sequential execution", () => {
+test("tracker registration is model-only and phase_tracker requests sequential execution", () => {
   const h = harness();
   assert.equal(h.tools.find((t) => t.name === "phase_tracker")!.executionMode, "sequential");
+  for (const name of ["phase_tracker", "plan_check"]) {
+    assert.equal(h.tools.find((t) => t.name === name)!.exposure, "model-only", name);
+  }
 });
 
 test("all-complete plan activity auto-completes an active implement phase", async () => {

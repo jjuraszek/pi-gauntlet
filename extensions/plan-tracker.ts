@@ -237,6 +237,7 @@ export default function (pi: ExtensionAPI) {
 
   pi.registerTool({
     name: "plan_tracker",
+    exposure: "model-only",
     label: "Plan Tracker",
     description:
       "Track progress while EXECUTING an implementation plan (the implement phase), a verify-phase conformance fix wave, or another bounded gate checklist (e.g. pre-merge PR verification). Statuses: pending (not yet touched), in_progress (started; several at once is fine), complete, failed (terminal-negative: ran and did not pass; never counted done), skipped (terminal: not applicable in this run; counted done). Rule: pending tasks must trail every started or finished task - an update that would leave a pending task ahead of a non-pending one is rejected with the fix. update never sets pending; init and add do. Actions: init (set task list; elements are task-name strings or { name, status } to recreate a list with known statuses), add (append tasks as pending; existing statuses preserved), update (change task status), status (show current state), clear (remove plan), refresh (derive tasks from an artifact path while retaining other tasks). Do NOT use for brainstorming, research, or planning checklists: those phases are open-ended and a bounded task list misrepresents them as a fixed N-step process.",

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Make `phase_tracker`, `plan_check`, and `plan_tracker` model-only so codemode scripts cannot make updates that disappear on session reconstruction; requires pi >= 0.99.0.
+
 ## v8.2.1 - 2026-11-06
 
 - Shape-ticket's AC integrity gate drops workflow-stage proof after splitting bundled observations, retains retired proof in the Reporter note, and routes an emptied AC list to recovery or park.

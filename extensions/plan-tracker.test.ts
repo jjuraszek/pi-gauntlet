@@ -15,6 +15,7 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
   const tools: {
     name: string;
     description: string;
+    exposure?: string;
     executionMode?: string;
     parameters: any;
     execute: (...args: any[]) => unknown;
@@ -752,8 +753,9 @@ test("refresh rejects unreadable or malformed ledgers atomically, including abse
   }
 });
 
-test("registration: sequential, tasks schema is Array<Union<String, Object>>, description carries the contract", () => {
-  const { executionMode, parameters, description } = harness();
+test("registration: model-only, sequential, tasks schema is Array<Union<String, Object>>, description carries the contract", () => {
+  const { tool, executionMode, parameters, description } = harness();
+  assert.equal(tool().exposure, "model-only");
   assert.equal(executionMode(), "sequential");
   const tasksSchema = parameters().args[0].tasks.args[0];
   assert.equal(tasksSchema.kind, "Array");
