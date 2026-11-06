@@ -370,6 +370,7 @@ if (!existsSync(R("skills/gauntlet-performance/../../bin/gauntlet-performance.mj
     const block = finishing.split(opt)[1]?.split(/^#### /m)[0] ?? "";
     if (!block.includes("telemetry record")) fail(`skills/finishing-a-development-branch/SKILL.md: "${opt}" must name the telemetry record`);
   }
+  if (!txt("skills/gatekeep-pr/reference/post-selection-loop.md").includes("#<N>@<head sha>: <outcome>")) fail("gatekeep-pr: missing per-PR settlement rows");
   for (const f of walk(R("skills/gatekeep-pr")).filter((f) => f.endsWith(".md"))) {
     if (/telemetry/i.test(readFileSync(f, "utf8"))) fail(`${f.replace(root + "/", "")}: gatekeep-pr must not mention telemetry`);
   }
@@ -481,6 +482,7 @@ try {
       R("extensions/telemetry.test.ts"),
       R("extensions/telemetry-leg.test.ts"),
       R("extensions/telemetry-leg-fields.test.ts"),
+      R("extensions/telemetry-settlement-contract.test.ts"),
       R("bin/gauntlet-spec-index.test.mjs"),
       R("bin/gauntlet-telemetry-seal.test.mjs"),
       R("src/bins/gauntlet-telemetry-seal.test.mjs"),

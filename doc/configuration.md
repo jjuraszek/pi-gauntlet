@@ -311,6 +311,20 @@ Guard: during `brainstorm`, a `write` to a spec whose fetched branch record has 
 
 Readers refresh `gauntlet/telemetry` automatically: `gauntlet-performance` before reporting and `gauntlet-spec-index` before joining records to spec results. `piGauntlet.telemetry.remote` selects a separate repository URL; the default is `origin`. Each git operation has a 10-second timeout. A failed fetch emits one warning and serves the last fetched ref; no fetched ref means an empty corpus, never a read from the local unpublished branch. Refresh also pushes pending local commits, with one fetch-and-replay retry; a failed push warns without blocking the reader and retains every pending record. `telemetry.enabled: false` disables branch reads, fetches and pushes. `gauntlet-performance --dir <path>` reads YAML fixtures directly without fetching.
 
+#### Per-ref settlement contract
+
+The final assistant message starts with `gauntlet: done ...` or `gauntlet: stuck ...`, then one plain `<ref>: <outcome>[ (<ticket ref>)]` line per settled item. Rows have no bullets, emphasis or code fences. The marker appears only after every selected write, assessment, fix and cleanup step finishes. Gates and intermediate `gauntlet: retired #<N> - <reason>` messages do not settle a set; its final message includes earlier retired items too.
+
+| Skill | Ref | Outcome tokens |
+|---|---|---|
+| shape-ticket | Ticket ref returned by a successful create or enrichment; supplied ref for repair; draft title only for a dropped or declined create without a ticket | `written`, `closed`, `close failed (<operation>: <reason>)`, `close by hand`, `dropped`, `declined`, `stopped`, `no-op`, `unfetched` |
+| gatekeep-pr | `#<N>@<head sha>` using the full assessed `headRefOid`, in singleton and set mode | `approved`, `merged`, `closed-pr`, `final`, `merge-queued`, `stuck - <reason>` |
+| check-delivery | Supplied ticket ref, in singleton and set mode | `delivered`, `manual`, `declined`, `already recorded`, `skipped`, `failed - <reason>` |
+
+Ticket refs include `#N`, `owner/repo#N`, tracker keys such as `ABC-123`, and issue URLs. Gatekeep rows append ` (<ticket ref>)` only when the PR title or body's first line names the ticket under the overrides `## Issue tracker` `refs:` convention; no match means no annotation. The row parser also accepts PR URLs. It matches outcomes at the line end, preserving colons in a draft title or failure reason. Other explanations go on separate lines; headings and cleanup lines such as `worktree: done` are not items. A keyless create records `kind: ticket` with no `key`.
+
+For example, `#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)` records the assessed PR key, ticket `#12`, and outcome `merged`. Only `items` comes from these lines. The extension observes usage and identity itself and publishes the leg record; gatekeep-pr's skill neither handles records nor renders publication warnings. A failed publication adds `telemetry: not pushed (<reason>)` below settlement without changing the chosen outcome.
+
 #### Migrating checkout records
 
 From the product checkout, copy the old run corpus to `gauntlet/telemetry`:

@@ -3,7 +3,7 @@
 base: d04aa00576eaaf802b8cdde8d8ab1917d0118f68
 verification: npm test
 checks: commands
-iterations: 11
+iterations: 12
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -19,7 +19,7 @@ allowance: 10
 | 9 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry.test.ts extensions/lib/gauntlet-settings.test.ts src/bins/gauntlet-telemetry-seal-branch.test.mjs src/bins/gauntlet-telemetry-jj.test.mjs src/bins/gauntlet-telemetry-invariance.test.mjs src/bins/gauntlet-telemetry-concurrency.test.mjs; 141 passed; 0 failed |
 | 10 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg.test.ts extensions/telemetry.test.ts; 94 passed; 0 failed; final done or stuck settlements publish one record after follow-on work without changing checkout or index |
 | 11 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 4 passed; 0 failed |
-| 12 | open | 0 | |
+| 12 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-settlement-contract.test.ts; 5 passed, 0 failed; six selected eval replies parse with observed ticket refs and assessed PR heads; per-ref-settlement improved for all three skills |
 | 13 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 5 passed; 0 failed |
 | 14 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 8 passed; 0 failed |
 | 15 | open | 0 | |
@@ -44,3 +44,4 @@ row 10 done | Added session-leg publication for all three skills at final done o
 row 11 done | Leg records now carry observed author, version, models, tokens and cost, plus parsed item identities and outcomes. | Reuse telemetry-leg.ts settlementItems and accumulator accessor; telemetry-leg-fields.test.ts checks measured fields against forged assistant claims.
 row 13 done | Verified that council member usage and models enter shape-ticket totals once through the existing dispatch reducer. | Reuse the council usage fixture in extensions/telemetry-leg-fields.test.ts for parent and child cost conservation checks.
 row 14 done | Verified one record per batch for all three skills with every settled ref and conserved parent plus child costs. | Extend the batch cases in extensions/telemetry-leg-fields.test.ts to exercise additional item and accounting combinations.
+row 12 done | Standardized per-ref settlement rows across all three skills, documented tokens and verified six model replies parse correctly. | Reuse extensions/telemetry-settlement-contract.test.ts and each skill's per-ref-settlement eval fixtures to check settlement grammar and item identities.

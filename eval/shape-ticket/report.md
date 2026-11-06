@@ -1,10 +1,12 @@
-# eval report: shape-ticket (partial run: workflow-stage-proof)
+# eval report: shape-ticket (partial run: per-ref-settlement)
 
-for: 2e7a59fc68a876ffd5cd14ddfb38123dad93cf90fb696daacaf3abedfc50d020
+for: 77e71fd79d865e091ec6c3c2c43b4d4a4549609fedd87e412d3cc4ec28b4bb0a
 
-wall: 55s
+wall: 13s
 
 ## Change
+
+Require plain per-ref settlement rows after selected writes, including singleton creates; use the actual returned ticket ref rather than the drafted title on successful creation. Run only per-ref-settlement for this edit, with historical results preserved; this is sample-scoped coverage, not a target-wide pass.
 
 Label every retained original containing a retired stage clause, including AC uniqueness's verbatim bundled-row copy, so no unmarked duplicate can carry the suite obligation downstream. Strengthen workflow-stage-proof/f4 to check every retained copy; preserve prior result records and run only that selected sample.
 
@@ -31,12 +33,12 @@ Drop workflow-stage proof at the AC integrity gate after uniqueness splits bundl
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| workflow-stage-proof | anthropic/claude-opus-5-5 | improved | 18560 | f1: holds -> holds (held); f2: fails -> holds (unplanned improvement); f3: fails -> holds (unplanned improvement); f4: fails -> holds (intended change); f5: holds -> holds (held); f6: holds -> holds (held) |
-| workflow-stage-proof | github-copilot/gpt-6.1-sol | improved | 17191 | f1: fails -> holds (unplanned improvement); f2: fails -> holds (unplanned improvement); f3: fails -> holds (unplanned improvement); f4: fails -> holds (intended change); f5: holds -> holds (held); f6: fails -> holds (unplanned improvement) |
+| per-ref-settlement | anthropic/claude-opus-5-5 | improved | 7014 | settled: fails -> holds (unplanned improvement); terminal: holds -> holds (held); identity: fails -> holds (intended change); no-title-key: fails -> holds (intended change) |
+| per-ref-settlement | github-copilot/gpt-6.1-sol | improved | 4981 | settled: fails -> holds (unplanned improvement); terminal: holds -> holds (held); identity: fails -> holds (intended change); no-title-key: holds -> holds (intended but unchanged) |
 
 ## Feedback
 
-- workflow-stage-proof / anthropic/claude-opus-5-5: After delivers the Change cleanly: the bundled row is reduced to exactly `- [ ] The importer rejects a row without an id`, the third criterion is kept byte-for-byte, and the fenced Reporter note prefixes both the dropped standalone CI row and the verbatim bundled original with `retired workflow-stage proof:` so no unlabeled duplicate survives, moving f2, f3 and f4 from fails to holds while f1, f5 and f6 stay held. Before lost f2 and f3 by rewriting both surviving rows into setup/action/result prose and lost f4 by retaining the originals without the retired label. One wording risk in After's ABC-202 option B: 'The repaired body would carry no AC section rows until one is supplied' could be read as proposing to write an emptied AC list; it still held f6 here because parking is distinct from approval or filing, but a safer phrasing is 'the body is not rewritten while parked; the retired CI row goes into the Reporter note only once a real criterion is supplied', which keeps every held fact and removes the ambiguity.
-- workflow-stage-proof / github-copilot/gpt-6.1-sol: After delivers the Change cleanly: it drops the standalone CI-green row, strips only the `make ci passes` clause from the bundled row (leaving `- [ ] The importer rejects a row without an id` byte-exact), preserves the third row untouched, and labels both the dropped CI row and the verbatim bundled original with `retired workflow-stage proof:` inside an `untrusted` fence, so no unmarked duplicate survives. It also reaches the no-AC recovery for ABC-202 with only supply-or-park options and no invented behavior, whereas Before kept ABC-202's stage-proof row as a valid criterion and only mentioned recovery conditionally. Before failed f1–f4 because it rewrote every row into Given/When/Then form (altering bytes), kept both CI rows, and omitted the retired label. Nothing regressed in After; the only wording nit is that After's AC block uses `## Acceptance Criteria` while the ticket uses `### Acceptance Criteria` — keep the original heading level to stay byte-faithful to untouched structure, and keep ABC-202's own labeled note separate as you did.
+- per-ref-settlement / anthropic/claude-opus-5-5: Before closes with "Export: retain empty fields: written", keying the settlement row on the drafted title instead of the returned ref, so it fails the fact even though it correctly reports one write and opens no gate. After renders exactly "gauntlet: done written=1" followed by "#83: written" — a plain per-ref row below the terminal marker using the returned ticket ref, with no extra write claimed and no gate opened — so the fact moves to holds. The After wording delivers the Change as intended; if the author wants to retain Before's readback confirmation sentence, it can sit between the marker and the ref row without disturbing the fact, as long as the row itself stays "#83: written" and the title never reappears as a row key.
+- per-ref-settlement / github-copilot/gpt-6.1-sol: After satisfies the fact: a single plain `#83: written` row below the `gauntlet: done written=1` terminal marker, keyed by the returned ref, with no new gate and no extra write claimed. Before fails only on the row key — it leads with the drafted title `Export: retain empty fields (#83): written`, so the ref is parenthetical rather than the row key, which is exactly the per-ref-settlement/identity and no-title-key move the Change targets. Nothing else regressed between the two; the terminal marker, count, and absence of further prompts are identical, so the After wording delivers the Change without losing anything Before held. If you want to preserve a human-readable hint, keep the ref as the key and append the title afterward (e.g. `#83: written — Export: retain empty fields`) rather than leading with the title.
 
 exit: 0

@@ -112,7 +112,7 @@ See Roast below. Surface source-gap findings at step 8; never apply them by inve
 
 ### 8 - Confirmation gate
 
-Finish initial preparation and roasts for all eligible tickets before the first gate. Present only the current ticket in ref order: decline skips it; revision rechecks and re-presents its exact diff; approval completes step 9 before the next ticket prints. Never treat a reply as approval of an unseen ticket. Present stopped tickets' draft/report at their turn with no approval option; preserve a split's N-body subset-selection gate. End with one line per ref: `<ref>: written | closed | close failed (<operation>: <reason>) | close by hand | dropped | declined | stopped | no-op | unfetched` (use the drafted title for create).
+Finish initial preparation and roasts for all eligible tickets before the first gate. Present only the current ticket in ref order: decline skips it; revision rechecks and re-presents its exact diff; approval completes step 9 before the next ticket prints. Never treat a reply as approval of an unseen ticket. Present stopped tickets' draft/report at their turn with no approval option; preserve a split's N-body subset-selection gate. End with the settlement and per-ref rows from `reference/repo-audit.md` after the selected writes finish, including singleton creates.
 
 Present, per proposed issue:
 
