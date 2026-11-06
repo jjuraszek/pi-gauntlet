@@ -1,4 +1,4 @@
-for: 3bf346232dee3e1cf49fe11a7e2a20f8e8a36540e1c4c32ac22081453103a5be
+for: a5ab1c893f4c9175ba9bfbed8a13cfe8d561b8ebf02291dd0eafa45289694269
 
 ## Change
 Route interrupted home and companion pending returns through the loop driver's ownership-fenced recovery below allowance. Replace discard-only recovery only when retained checkout provenance and owned-job exit evidence permit cleanup; missing evidence preserves changes at recovery incomplete. Keep attribution ambiguity and unrecoverable before-images as stops. The selected interrupted-ownership sample covers owned home and companion recovery and an unrelated-write stop; this is narrated, partial coverage, not live process recovery proof. Correct its synthetic stop-header assertion to dispatch index i=7, not consumed iterations=8, matching the driver's unchanged pre-bump index contract; preserve all ownership and counter facts. Earlier blanket dirty/zero-commit stop expectations below are superseded only for proven owned interruptions.
