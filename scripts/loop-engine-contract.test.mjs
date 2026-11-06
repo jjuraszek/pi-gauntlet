@@ -21,7 +21,23 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   assert.ok(driver.indexOf('action: "complete", phase: "implement"') < driver.indexOf('## After the loop'));
   assert.ok(continuation.indexOf('whole-diff `wave-reviewer`') < continuation.indexOf('separate fresh `conformance-reviewer`'));
   for (const fact of ['effective allowance', 'count of that row', 'Two consecutive validation misses', 'only `open` -> `done`', 'attempts +1', 'zero or more other', 'attempts unchanged', 'exactly one new decision line, target first', 'No task reopen/update is awaited']) assert.ok(driver.includes(fact), fact);
-  assert.match(driver, /Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit\. Raising allowance resets neither window\. Preserve every row's attempts\./);
+  for (const token of [
+    'Count each row\'s empty child commits and validation misses only after the latest of',
+    '`loop: retry row <n>` for that row, `loop: amend`, or any `loop: cut row <n>`',
+    'an admitted amendment starts new windows for every row',
+    'Recover both windows from branch history on resume',
+    'two consecutive child `loop: row <n> ...` commits for the same row',
+    'commits for different rows never pair',
+    'the last two attempts changed nothing outside the ledger',
+    'two returns broke the contract: <concrete miss from the last repair evidence>',
+    'A pending human `retry <n> | <hint>` for that row wins over the fixed hint',
+    'a cut row or a different selected target carries none',
+    'Apply rule 2 before rule 3; a rule-3 hint dispatches through rule 4',
+    'Two consecutive validation misses on a row set its rule-3 hint',
+  ]) assert.ok(driver.includes(token), token);
+  assert.doesNotMatch(driver, /Only retry starts new windows|stagnation stops without dispatch|validation misses stop because/);
+  const rule3 = driver.split('\n| 3 |')[1].split('\n')[0];
+  assert.doesNotMatch(rule3, /Human stop/);
   assert.match(driver, /Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision survives on the branch, independently of `iterations`/);
   assert.match(driver, /Read seed survival from the ledger at HEAD/);
   assert.match(driver, /Never re-seed a validated partial seed to fill empty evidence cells/);
@@ -138,7 +154,7 @@ test('threshold escalation uses the held setting and resolved model under both a
     'starts no new empty-child or validation-miss window',
   ]) assert.ok(before.includes(token), token);
   assert.ok(before.indexOf('Select `seed` until') < before.indexOf('For a numbered target with'));
-  assert.ok(before.indexOf('Apply hard boundaries') < before.indexOf('For a numbered target with'));
+  assert.ok(before.indexOf('Apply rule 2 before rule 3') < before.indexOf('For a numbered target with'));
   assert.doesNotMatch(before, /attempts == effective allowance - 1|last-attempt escalation check|dispatch that last allowed attempt/);
   const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
   for (const token of ['`escalateAfter` (default 3)', 'Hold `escalateAfter` in driver memory', 'never print it or write it to the ledger', 'never re-resolve it inside the loop', 'including after amendment grant re-decodes', 'At an authorized fresh-session restore', 'exactly once', 'cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)', "Skip Entry step 1's allowance seeding"]) assert.ok(entry.includes(token), token);
@@ -607,7 +623,7 @@ test('fresh ledger seeds one allowance without row or leg scaling', () => {
 
 test('row budget replies preserve counters and reject malformed grants without writes', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
+  const stop = driver.split('\n## Human stop\n')[1].split('\n## After the loop\n')[0];
   const retry = stop.split('\n').find(line => line.startsWith('| Retry ('));
   for (const token of [
     'retry <n> \\| <hint>', 'Parse the row number and hint',
@@ -629,11 +645,11 @@ test('row budget replies preserve counters and reject malformed grants without w
     'On the first and every later invalid reply, keep the same stop open with no writes, commit or dispatch',
     'preserve allowance, decisions, iterations and all attempts',
   ]) assert.ok(raise.includes(token), token);
-  assert.match(stop, /Offer retry and `rows \+N` only at row stops \(allowance, stagnation or missing-model\) or seed exhaustion, alongside Amend and Stop/);
+  assert.match(stop, /Offer retry and `rows \+N` only at row stops \(allowance or missing-model\) or seed exhaustion, alongside Amend and Stop/);
   assert.match(stop, /The recovery-incomplete stop keeps discard authorization only/);
   assert.match(stop, /verification-failure stop keeps amend\/stop only/);
   assert.match(stop, /Raising allowance resets neither window/);
-  assert.match(stop, /Only retry starts new windows/);
+  assert.match(stop, /Use Before each dispatch's window rule for retry and admitted amendments/);
   assert.match(stop, /Retry, `rows \+N` and redraw wait for the human/);
   const replies = readFileSync(new URL('doc/gate-contract.md', root), 'utf8').split('\n').find(line => line.startsWith('| free / question'));
   assert.ok(replies.includes('`retry <n> \\| <hint>` or `rows +N` for loop row stops'));
@@ -642,16 +658,16 @@ test('row budget replies preserve counters and reject malformed grants without w
 
 test('human stop counts cover every boundary without widening its menu', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
+  const stop = driver.split('\n## Human stop\n')[1].split('\n## After the loop\n')[0];
   for (const token of [
-    'At every human stop, including allowance, stagnation, missing-model, dirty-tree, commit-boundary, interrupted-dispatch and exit-verification stops',
+    'At every human stop, including allowance, missing-model, dirty-tree, commit-boundary, interrupted-dispatch and exit-verification stops',
     'list every `open` or `failed` row after the header as `row <n>: <attempts> of <effective allowance>`',
     "then print `Preserve every row's attempts.`",
     'Compute each denominator from the ledger using Before each dispatch',
     'keep retry increments in `## Decisions`, never a new table column',
     'Use restored pre-dispatch row cells at rejected-return stops, not unadmitted child results',
     'With no open or failed rows, omit row lines but retain the preservation sentence',
-    'Offer retry and `rows +N` only at row stops (allowance, stagnation or missing-model)',
+    'Offer retry and `rows +N` only at row stops (allowance or missing-model)',
     'The recovery-incomplete stop keeps discard authorization only, never budget offers',
     'verification-failure stop keeps amend/stop only',
   ]) assert.ok(stop.includes(token), token);
@@ -676,8 +692,8 @@ test('retired loop budgets yield to durable shared allowance and keep waves deco
   assert.doesNotMatch(before, /\| 5 \|/);
   for (const fact of ['loop: raise allowance', 'including allowance', 'including the saved allowance', 'Preserve attempts, iterations and allowance']) assert.ok(driver.includes(fact), fact);
   for (const fact of ['saved allowance', 'without resetting attempts, iterations or allowance']) assert.ok(reference.includes(fact), fact);
-  const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
-  for (const fact of ['rows +50 |', '[1-9][0-9]*', 'rows +50x', 'rows +0', 'rows +x', 'rows -1', 'Raise the shared header allowance by N for every row and leg', 'leaving iterations and all attempts unchanged', 'Raising allowance resets neither window', 'Only retry starts new windows']) assert.ok(stop.includes(fact), fact);
+  const stop = driver.split('\n## Human stop\n')[1].split('\n## After the loop\n')[0];
+  for (const fact of ['rows +50 |', '[1-9][0-9]*', 'rows +50x', 'rows +0', 'rows +x', 'rows -1', 'Raise the shared header allowance by N for every row and leg', 'leaving iterations and all attempts unchanged', 'Raising allowance resets neither window', "Use Before each dispatch's window rule for retry and admitted amendments"]) assert.ok(stop.includes(fact), fact);
   assert.match(stop, /every human stop.*then print `Preserve every row's attempts\.`/);
   assert.match(stop, /The recovery-incomplete stop keeps discard authorization only/);
   assert.match(amendment, /Apply the budget to the waves engine only; loop ignores the budget token and keeps only the decoded amendment permission \(none for a budget-only value\)/);

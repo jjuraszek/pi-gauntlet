@@ -1,0 +1,90 @@
+{
+  "sample": "same-turn-continuation",
+  "arm": "candidate",
+  "skillSha": "9563d421c6b15cb795343b5ae8fb0fa1ffeaf820d941e18f67b5b78d5d9d4cf8",
+  "inputSha": "e5b421df384f25a9362c3884affe928b095ad390b52f8033adcc75ab9b034d8f",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "These three snapshots are independent. In each, nothing below has actually run: the calls are what I would issue, in order.\n\n---\n\n## Snapshot 1: row 1 admitted, row 2 open\n\n**Can I end the turn?** No. \"Row 1 is done; row 2 remains.\" is an intermediate report. Inside the loop, a turn may only end on a Human-stop header. I continue to the next ordered-table action without asking the human.\n\n**Calls this turn:**\n\n1. **Refresh after the admitted commit.** If the post-admission refresh has not happened yet, call `plan_tracker({ action: \"refresh\", path: \"<abs>/<spec stem>-ledger.md\" })` once.\n2. **Before each dispatch.** Read the ledger and confirm it has a `checks:` line, an `allowance:` line and no `cap:`.\n3. **Ordered table:**\n   - Rule 1: row 2 is open, so rule 1 does not apply.\n   - Rule 2: row 2's effective allowance is 8 + 0 retries = 8. Its attempts are 0, so rule 2 does not apply.\n   - Rule 3: row 2 has no empty-child pair and no validation misses, so no hint.\n   - Rule 4: dispatch.\n4. **Target selection.** The seed survives. There is no human retry, the previous decision is row 1 done (so it names no failed row), and no row is failed. The first open row is **row 2**.\n5. **Escalation check.** The threshold is min(3, 8−1) = 3. Row 2 has 0 attempts, which is below 3, so this is a normal round with no model override.\n6. **Dispatch preparation:**\n   - Run `git -C \"<worktree>\" rev-parse HEAD` and keep the result as `HEAD_BEFORE`.\n   - Save a copy of the ledger. Hold i = 9.\n   - Write `iterations: 10` and `pending: 2 | home | <HEAD_BEFORE sha>` into the ledger, uncommitted. The child's commit will carry these changes and remove the pending line.\n   - Refresh `plan_tracker` with the ledger path.\n   - Run `mktemp` to create an output path outside the repository.\n7. **Dispatch the child:**\n   ```text\n   subagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n     cwd: \"<abs worktree>\", output: \"<mktemp path>\", outputMode: \"file-only\",\n     acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n     task: \"iteration: 9\\nspec: <abs spec>\\nledger: <abs ledger>\\nbase: <base SHA>\\ntarget: 2\\nprevious decision: <row 1's admitted done line>\\nhint: none\" })\n   ```\n8. **On return.** Run ## Validate the return in the same turn. The commit body must carry `pending: 2 | home | <sha>` and `iteration: 10`.\n\n**Durable changes this turn:** the uncommitted iterations bump and pending tuple. I make no parent commit.\n\n---\n\n## Snapshot 2: after the stagnation report on row 2\n\n**Can I end the turn?** No. Rule 3 is an intermediate report, so I continue to rule 4 now.\n\n**Calls this turn:**\n\n1. **Rule order.**\n   - Rule 2 comes first: row 2 has 3 attempts against an effective allowance of 8, so rule 2 does not apply.\n   - Rule 3 sets row 2's hint to the fixed text: `the last two attempts changed nothing outside the ledger`. No human retry hint overrides it.\n2. **Target selection.** Rule 4 picks **row 2**: it is the still-failed row named by the previous decision, and also the first failed row.\n3. **Escalation check.**\n   - The threshold is min(3, 8−1) = 3.\n   - Row 2's pre-dispatch attempts are 3, which meets the threshold, and there is no `row 2 escalated` marker. So this dispatch is the escalated round.\n   - Call `gauntlet_setting({ key: \"escalationLoop\" })`. It returns a non-empty `implModel`.\n4. **Record the escalation:**\n   - Append `row 2 escalated | implModel round | allowed attempts 8` under `## Decisions`.\n   - Commit the parent commit `loop: escalate row 2`.\n   - Refresh `plan_tracker`.\n   - Print `escalated round for row 2`.\n   - This parent commit is excluded from the child-only stagnation window and starts no new window.\n5. **Dispatch preparation:**\n   - Record `HEAD_BEFORE` as the escalate commit and save the ledger copy. Hold i = 9.\n   - Write `iterations: 10` and `pending: 2 | home | <HEAD_BEFORE sha>`.\n   - Refresh, then run `mktemp`.\n6. **Dispatch the child.** Use the same `subagent` call as in snapshot 1, with these differences:\n   - Add `model: \"<implModel>\"`.\n   - `target: 2`.\n   - `previous decision:` is row 2's latest admitted failed line.\n   - `hint: the last two attempts changed nothing outside the ledger`.\n7. **On return.** Validate in the same turn. The escalation is spent from now on, even if the return errors or is invalid, so later rounds carry no model override.\n\n---\n\n## Snapshot 3: row 2 failed at its allowance\n\n**Calls before the stop:**\n\n1. Refresh after the admitted `loop: row 2 failed` commit.\n2. Run the Before-each-dispatch checks.\n3. **Ordered table.**\n   - Rule 1: row 2 is failed, so rule 1 does not apply.\n   - Rule 2: row 2's effective allowance is 8 + 0 retries = 8, and its attempts are 8, so rule 2 applies. This is a human stop.\n4. **Rendering preparation.** Read and apply `menu-layout`. Do not dispatch, write, commit or diagnose. Implement stays active.\n5. **\"Escalated round spent\" line.** Row 2 passed threshold 3 at attempt 4, so its `row 2 escalated` marker is recovered from `## Decisions`. If it were unrecoverable, it would still count as spent.\n\n**Can I end the turn?** Yes. This is a Human-stop header, so the turn ends with this message and nothing after it.\n\nThe message I would send (first line alone, no fence) is:\n\n---\n\ngauntlet: question\nStopped on row 2\nrow 2: 8 of 8\nPreserve every row's attempts.\nescalated round spent\n\nProblem: evidence `node --test boundary.test.mjs; expected colon, got comma`; last decision `row 2 failed | delimiter mismatch remains | inspect delimiter fixture`. The failing assertion comes from that evidence and was not investigated.\n\n1. Retry - `retry 2 | <hint>` grants row 2 one more attempt (allowed attempts 9).\n2. Raise allowance - `rows +N` raises the shared allowance for every row.\n3. Amend - change or cut row 2 through the brainstorming amendment surface.\n4. Stop - keep phase implement and preserve branch state.\n\nRecommendation: retry - the last decision names a concrete next step (inspect delimiter fixture) that a hinted retry can carry.\n",
+      "words": 943,
+      "wallMs": 42526,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are prescribed actions only; no calls or changes have been executed. Paths and SHAs below refer to the retained values for this run.\n\n## 1. Continue directly with row 2\n\n**Next target:** row 2. Its attempts are below its effective allowance, and escalation is not yet due.\n\nAfter the admitted row-1 commit, prescribe:\n```text\nplan_tracker({ action: \"refresh\", path: <absolute ledger path> })\n```\n\nRead the ledger and apply the ordered dispatch rules. Do not ask whether to continue.\n\nAt the dispatch boundary:\n\n1. Record `HEAD_BEFORE` using `git -C \"<worktree>\" rev-parse HEAD`, confirm the clean boundary, and save the pre-dispatch ledger.\n2. Change `iterations: 9` to `iterations: 10`.\n3. Add:\n   ```text\n   pending: 2 | home | <HEAD_BEFORE>\n   ```\n4. Persist those changes without a separate commit, then prescribe another ledger refresh.\n5. Create a unique absolute output path with `mktemp` outside the repository.\n6. Prescribe:\n   ```text\n   subagent({\n     agent: \"loop-implementer\",\n     context: \"fresh\",\n     async: false,\n     cwd: <absolute worktree>,\n     output: <unique absolute temp path>,\n     outputMode: \"file-only\",\n     acceptance: {\n       level: \"none\",\n       reason: \"the parent validates the ledger and the commit\"\n     },\n     task: \"iteration: 9\\nspec: <absolute spec path>\\nledger: <absolute ledger path>\\nbase: <ledger base SHA>\\ntarget: 2\\nprevious decision: <latest admitted target decision, verbatim>\\nhint: none\"\n   })\n   ```\n   Omit `model`.\n\n**Human-facing continuation:**\n> Dispatching row 2. The task carries pre-bump iteration 9; the consumed iteration and required commit-body attribution are 10.\n\nThe dispatch itself leaves attempts and row statuses unchanged. On return, perform the prescribed boundary and contract validation.\n\n**May the turn end here?** No. The report must be followed by the dispatch action, not a continuation question or a routine progress-only ending.\n\n## 2. Attach the stagnation hint, escalate, and dispatch now\n\n**Next target:** row 2. Stagnation supplies a hint; it does not itself require a human stop.\n\nRead the ledger and recover the row’s windows and escalation identity. Since escalation is due and unspent, prescribe:\n```text\ngauntlet_setting({ key: \"escalationLoop\" })\n```\n\nWith the resolved nonempty `implModel`, append:\n```text\nrow 2 escalated | implModel round | allowed attempts 8\n```\n\nCommit the ledger as:\n```text\nloop: escalate row 2\n```\n\nThen prescribe:\n```text\nplan_tracker({ action: \"refresh\", path: <absolute ledger path> })\n```\n\n**Human-facing continuation:**\n> escalated round for row 2\n\nRecord `HEAD_BEFORE` **after that escalation commit**, save the ledger, and persist:\n```text\niterations: 10\npending: 2 | home | <HEAD_BEFORE>\n```\n\nRefresh again and create the unique external output path. Dispatch with the same call shape as snapshot 1, but use:\n```text\nmodel: <resolved implModel>\n```\nand task fields:\n```text\niteration: 9\ntarget: 2\nprevious decision: <latest admitted target decision, verbatim>\nhint: the last two attempts changed nothing outside the ledger\n```\n\n**Additional human-facing output:**\n> Dispatching row 2 with the resolved escalation model. The task carries pre-bump iteration 9; the consumed iteration and required commit-body attribution are 10.\n\nThe escalation marker spends the row’s one escalated round. Dispatch does not yet increase attempts; a conforming ordinary return would record attempt 4.\n\n**May the turn end here?** No. Follow the report with escalation and dispatch in this turn, then handle the return. Stagnation is not permission to stop or ask whether to continue.\n\n## 3. Stop at the exhausted allowance\n\nPrescribe the refresh required after admitting the failed child commit:\n```text\nplan_tracker({ action: \"refresh\", path: <absolute ledger path> })\n```\n\nRead the ledger. Row 2 has exhausted its effective allowance. Make no further ledger change, escalation resolution, or dispatch. Keep implement active. Include `escalated round spent` only if the durable history establishes that fact; the snapshot alone does not.\n\n**May the turn end?** Yes, with this human stop:\n\ngauntlet: question\n\nStopped on row 2\n\nrow 2: 8 of 8\n\nPreserve every row's attempts.\n\nProblem:\nEvidence: \"node --test boundary.test.mjs; expected colon, got comma\"\nLast decision: \"row 2 failed | delimiter mismatch remains | inspect delimiter fixture\"\n\nChoose:\n- `retry 2 | inspect delimiter fixture` — authorize one additional attempt for row 2.\n- `rows +N` — increase the shared allowance by a positive integer.\n- Amend — enter the amendment approval process.\n- Stop — preserve the branch and leave implement active.\n\nRecommendation: retry 2 | inspect delimiter fixture - the last decision identifies a concrete next investigation.\n",
+      "words": 646,
+      "wallMs": 25599,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "647fdd4214440c4868c08679e2e4b1ebab56296a94cc725eceaeba58228bf8a8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fb608fab25451efa06a75fb4a0536a7ff3341cea7ac33e1372495fa71d2c0036",
+      "baselineOutputSha": "92009adb3bdc478e19dd51164d056478e5fb90004a4ac6846cf4a923d3672900",
+      "candidateOutputSha": "7a1e9215e57370f46bc6602f0e863f96c3effe19975c88b249e5f27cdaa772ed",
+      "facts": {
+        "intermediate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "hint": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved only the hint fact, and in the intended direction: snapshot 2 now treats the 'changed only the ledger' line as an intermediate report, sets the fixed row-local hint under rule 3, selects row 2 under rule 4, performs the threshold escalation (settings resolve, marker, parent escalate commit, model override) and dispatches with the hint in the same turn, rather than Before's stagnation human stop at 3 of 8. Snapshot 1 already dispatched in the same turn in Before and still does in After with the normal pending tuple and iterations bump; snapshot 3 in both versions ends at the gauntlet: question / Stopped on row 2 stop with 8 of 8, the preservation sentence, concrete evidence and decision, the row menu and a retry recommendation, and dispatches nothing. Nothing regressed; two small tightenings worth keeping in After: use the ledger field name consistently in the on-return validation (the commit body carries `iterations: 10`, not `iteration: 10`), and keep the Problem line adjacent to the Stopped line as in Before so the stop's required elements read in the documented order.",
+      "wallMs": 15089,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "647fdd4214440c4868c08679e2e4b1ebab56296a94cc725eceaeba58228bf8a8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fb608fab25451efa06a75fb4a0536a7ff3341cea7ac33e1372495fa71d2c0036",
+      "baselineOutputSha": "110cf10f0108d30ab908ebe4bfb9524c6d85215aabff52e8e7d3e2bc94df8d76",
+      "candidateOutputSha": "0bd5bbe8eaa05fbc08591021b0c57550d5adf3531b5216021037478056db7434",
+      "facts": {
+        "intermediate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "hint": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change on snapshot 2: it replaces Before's rule-3 stagnation stop with a row-local hint ('the last two attempts changed nothing outside the ledger'), resolves escalationLoop at the attempts-3 threshold, appends the escalation marker, commits it, bumps iterations to 10, writes the pending tuple and dispatches with the resolved model in the same turn, so hint moves from fails to holds. Snapshots 1 and 3 already held in Before and still hold in After: snapshot 1 continues through target selection, iterations bump, pending tuple and dispatch without a confirmation gate, and snapshot 3 ends only at the gauntlet: question stop with 'Stopped on row 2', 'row 2: 8 of 8', the preservation sentence, concrete evidence and decision, the retry/rows/Amend/Stop menu and a recommendation, with no exhausted dispatch. Two wording cautions for After: keep the snapshot 3 stop in a single fenced block as Before did (After separates header lines with blank lines, which a strict reader could see as a reformatted stop), and keep the hint text phrased as the row-local empty-commit observation so it stays clearly distinct from a human retry hint, which must take precedence when present.",
+      "wallMs": 14411,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "9c2492675af3f3b178230759bd859194c53097a6"
+}

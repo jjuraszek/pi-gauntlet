@@ -1,0 +1,3 @@
+- intermediate: judged: Snapshot 1 follows the progress report with ordered-table target selection and dispatch of row2 in the same turn, using the normal pending tuple and iterations bump, not an end-of-turn status report or a new confirmation gate.
+- hint: judged: Snapshot 2 continues in the same turn through the row-local empty-child hint and rule-4 threshold escalation dispatch; it neither pauses at the intermediate report nor presents a stagnation stop below allowance.
+- stop: judged: Snapshot 3 may end the turn only at the human stop: gauntlet: question followed by Stopped on row 2, row2's 8 of 8 count, the preservation sentence, concrete evidence and decision, and the row menu and recommendation; it dispatches no exhausted attempt.

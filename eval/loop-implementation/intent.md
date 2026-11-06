@@ -1,6 +1,8 @@
-for: fadfdbd2b7ff851fe287ab315178cca0d66730bfd7c7037f0e2ec595910bd6d7
+for: 911bdf5a0b93de4cddbb2ecc04d142b8d5f382b4854cdf69d6dbca337e6f4aa8
 
 ## Change
+
+Replace below-allowance stagnation stops with row-local hints through target selection and escalation. Pending human retry hints win; admitted amend/cut commits reset both windows for all rows, while retries reset only their row and allowance raises reset neither. Preserve counters and spent escalation. Require intermediate implement reports to continue to the next ordered action in the same turn, ending only at a Human stop header. Select stagnation-and-retry, amend-resets-windows and same-turn-continuation for this change; these text replays prove narrated routing, not live orchestration.
 
 Recover interrupted home, seed and companion returns only with exclusive checkout/write provenance and OS process start identity plus command and group-leader checks. Preserve unattributed changes and reused processes at recovery incomplete. Completed recovery consumes one row attempt or seed repair count and returns to allowance checks, retaining consumed iterations and escalation. Select interrupted-child-redispatch for owned cleanup, unsafe identity/provenance counterexamples, companion/resume and seed budgets; no other sample is rerun here. These text replays prove narrated decisions, not live signal or reset execution. The baseline lacks automatic recovery and fails the owned, row-budget, interruptions, companion-resume and seed facts.
 
@@ -64,6 +66,16 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- same-turn-continuation/intermediate: fails -> holds - Continue after progress reports without a new confirmation gate.
+- same-turn-continuation/hint: fails -> holds - Follow the below-allowance hint with a same-turn dispatch.
+- stagnation-and-retry/hints: fails -> holds - Continue below allowance with the fixed row hint and normal escalation.
+- stagnation-and-retry/retry: fails -> holds - Preserve human hint precedence and resume continuation after a new empty pair.
+- stagnation-and-retry/row-local: fails -> holds - Never combine empty commits for different rows.
+- amend-resets-windows/amend: fails -> holds - Admitted amendments reset both windows for all rows on resume.
+- amend-resets-windows/cut: fails -> holds - Admitted cuts reset all windows without resetting counters or escalation.
+- amend-resets-windows/new-window: fails -> holds - New empty pairs produce hints instead of human stops.
+- amend-resets-windows/threshold: fails -> holds - Validation hints continue through the normal escalation threshold.
+- amend-resets-windows/isolation: fails -> holds - Keep hints on their rows and preserve windows after allowance raises.
 - interrupted-child-redispatch/owned: fails -> holds - Recover only proven-owned processes and checkout writes in the required order.
 - interrupted-child-redispatch/row-budget: fails -> holds - Completed recovery consumes one attempt before ordered-table continuation.
 - interrupted-child-redispatch/identity: fails -> holds - Unresolved identity or cleanup uses recovery incomplete without signaling a reused process.
