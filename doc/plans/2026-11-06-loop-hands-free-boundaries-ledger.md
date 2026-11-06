@@ -3,12 +3,12 @@
 base: 82cc2b80e5c9c5216f8a55817628ca9532381a99
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | failed | 1 | python3 /tmp/loop-recovery-ownership.m5lEgy/recovery_ownership_test.py; 2 tests failed; PGID-only predicate selects a replacement leader with a different epoch; scratch reset/clean deletes an unrelated post-boundary write despite clean status |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -22,3 +22,4 @@ allowance: 10
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 9: add the round-2 bounded paid or external action clause and its selected eval sample
+row 1 failed | Scratch checks failed: PGID equality accepts a reused leader, and reset/clean deletes unrelated post-dispatch work. | Recommend amendment Ownership-fenced recovery: require process identity and exclusive checkout provenance, or stop; do not implement PGID-only kills or blanket reset/clean.
