@@ -35,8 +35,8 @@ export function aggregate(entries) {
     const members = obj(obj(e.council)?.members);
     if (!members) continue;
     const roster = Object.keys(members).sort();
-    const k = roster.join(", ");
-    if (!groups.has(k)) groups.set(k, { roster, entries: [] });
+    const k = JSON.stringify([e.row.repo, roster]);
+    if (!groups.has(k)) groups.set(k, { repo: e.row.repo, roster, entries: [] });
     groups.get(k).entries.push(e);
     groups.get(k).last = i;
   }
@@ -64,7 +64,7 @@ export function aggregate(entries) {
     const chairList = [...chairs.values()]
       .sort((a, b) => b.runs - a.runs || a.model.localeCompare(b.model))
       .map((c) => ({ model: c.model, runs: c.runs, avg_clusters: c.clusters / c.runs, avg_members_reported: c.reported / c.runs, retried_runs: c.retried_runs }));
-    return { roster: g.roster, runs, members, chairs: chairList, flags: runs >= MIN_RUNS ? flagsFor(members, runs) : [] };
+    return { repo: g.repo, roster: g.roster, runs, members, chairs: chairList, flags: runs >= MIN_RUNS ? flagsFor(members, runs) : [] };
   });
 }
 
@@ -72,7 +72,7 @@ export function renderText(agg) {
   if (!agg.length) return "council\nno council data in selected records";
   const out = ["council", "severity is the chair's consolidated severity (highest any co-raiser assigned), not the member's own"];
   for (const g of agg) {
-    out.push(`roster (${g.runs} runs): ${g.roster.join(", ")}`);
+    out.push(`repo: ${g.repo}`, `roster (${g.runs} runs): ${g.roster.join(", ")}`);
     const rows = g.roster.map((m) => {
       const x = g.members[m];
       return [m, cell(x.total), cell(x.unique), cell(x.applied), cell(x.unique_applied), cell(x.deferred), cell(x.rejected), x.unique_applied_nonminor_per_run.toFixed(2)];

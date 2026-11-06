@@ -280,7 +280,7 @@ __export(versions_exports, {
   renderText: () => renderText2
 });
 var key2 = "by_version";
-var HEADER2 = ["version", "n", "shipped", "truncated", "wall p50/max", "tokens p50/max", "cost p50/max", "disp p50", "grants p50/max", "reopens p50/max", "loops p50/max", "findings p50 b/M/m", "models"];
+var HEADER2 = ["repo", "version", "n", "shipped", "truncated", "wall p50/max", "tokens p50/max", "cost p50/max", "disp p50", "grants p50/max", "reopens p50/max", "loops p50/max", "findings p50 b/M/m", "models"];
 var versionOrder = (a, b) => {
   const x = semver(a), y = semver(b);
   return x && y ? cmpSemver(x, y) : x ? -1 : y ? 1 : 0;
@@ -289,15 +289,17 @@ function aggregate2(entries) {
   const rows = entries.map((e) => e.row);
   const groups = /* @__PURE__ */ new Map();
   for (const r of rows) {
-    if (!groups.has(r.version)) groups.set(r.version, []);
-    groups.get(r.version).push(r);
+    const key4 = JSON.stringify([r.repo, r.version]);
+    if (!groups.has(key4)) groups.set(key4, []);
+    groups.get(key4).push(r);
   }
-  return [...groups.entries()].sort(([a], [b]) => versionOrder(a, b)).map(([version, all]) => {
+  return [...groups.values()].sort(([a], [b]) => a.repo.localeCompare(b.repo) || versionOrder(a.version, b.version)).map((all) => {
     const shipped = all.filter((r) => r.status === "shipped" && !r.truncated);
     const models = {};
     for (const r of shipped) for (const m of r.models) models[m] = (models[m] ?? 0) + 1;
     return {
-      version,
+      repo: all[0].repo,
+      version: all[0].version,
       n: all.length,
       shipped: shipped.length,
       truncated: all.filter((r) => r.truncated).length,
@@ -318,6 +320,7 @@ function aggregate2(entries) {
   });
 }
 var versionRow = (g) => [
+  g.repo,
   g.version,
   String(g.n),
   String(g.shipped),
@@ -375,8 +378,8 @@ function aggregate3(entries) {
     const members = obj(obj(e.council)?.members);
     if (!members) continue;
     const roster = Object.keys(members).sort();
-    const k = roster.join(", ");
-    if (!groups.has(k)) groups.set(k, { roster, entries: [] });
+    const k = JSON.stringify([e.row.repo, roster]);
+    if (!groups.has(k)) groups.set(k, { repo: e.row.repo, roster, entries: [] });
     groups.get(k).entries.push(e);
     groups.get(k).last = i;
   }
@@ -402,14 +405,14 @@ function aggregate3(entries) {
     }
     for (const m of g.roster) members[m].unique_applied_nonminor_per_run = (members[m].unique_applied.blocker + members[m].unique_applied.major) / runs;
     const chairList = [...chairs.values()].sort((a, b) => b.runs - a.runs || a.model.localeCompare(b.model)).map((c) => ({ model: c.model, runs: c.runs, avg_clusters: c.clusters / c.runs, avg_members_reported: c.reported / c.runs, retried_runs: c.retried_runs }));
-    return { roster: g.roster, runs, members, chairs: chairList, flags: runs >= MIN_RUNS ? flagsFor(members, runs) : [] };
+    return { repo: g.repo, roster: g.roster, runs, members, chairs: chairList, flags: runs >= MIN_RUNS ? flagsFor(members, runs) : [] };
   });
 }
 function renderText3(agg) {
   if (!agg.length) return "council\nno council data in selected records";
   const out = ["council", "severity is the chair's consolidated severity (highest any co-raiser assigned), not the member's own"];
   for (const g of agg) {
-    out.push(`roster (${g.runs} runs): ${g.roster.join(", ")}`);
+    out.push(`repo: ${g.repo}`, `roster (${g.runs} runs): ${g.roster.join(", ")}`);
     const rows = g.roster.map((m) => {
       const x = g.members[m];
       return [m, cell(x.total), cell(x.unique), cell(x.applied), cell(x.unique_applied), cell(x.deferred), cell(x.rejected), x.unique_applied_nonminor_per_run.toFixed(2)];
@@ -486,7 +489,7 @@ function* yamlFiles(dir) {
     else if (e.isFile() && e.name.endsWith(".yaml")) yield p;
   }
 }
-function loadRecord(file, label, bytes) {
+function loadRecord(file, bytes) {
   let doc;
   try {
     doc = parseYaml(bytes);
@@ -544,7 +547,7 @@ function loadRecord(file, label, bytes) {
       run_id: d.run_id,
       engine: str(derived.engine) ?? "waves",
       iterations: num(derived.iterations),
-      repo: label,
+      repo: str(d.repo) ?? "unknown repo",
       spec: basename(file, ".yaml"),
       version: semver(version) ? version.trim() : "unknown",
       status: str(d.status),
@@ -601,7 +604,7 @@ function main() {
     corpus[c.label] = corpus[c.label] ?? 0;
     const records = c.records ?? [...yamlFiles(c.dir)].map((path2) => ({ path: path2, bytes: readFileSync(path2, "utf8") }));
     for (const { path: file, bytes } of records) {
-      const res = loadRecord(file, c.label, bytes);
+      const res = loadRecord(file, bytes);
       if (res.skip) {
         skipped.push({ file, reason: res.skip });
         continue;

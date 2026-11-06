@@ -3,7 +3,7 @@
 // src/bins/gauntlet-telemetry-seal.mjs
 import { existsSync as existsSync2, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { isAbsolute as isAbsolute2, join as join3, relative as relative2 } from "node:path";
+import { isAbsolute as isAbsolute2, join as join3, relative as relative2, resolve as resolve2 } from "node:path";
 import process2 from "node:process";
 
 // extensions/lib/gauntlet-settings.ts
@@ -305,17 +305,17 @@ function syncTelemetryBranch(root, records, remote = "origin") {
     fetchWarning = result.ok ? void 0 : `fetch failed: ${result.stderr}`;
     return result;
   };
-  const resolve2 = (ref) => {
+  const resolve3 = (ref) => {
     const result = gitRun(["rev-parse", "--verify", ref], root);
     return result.ok ? result.stdout : void 0;
   };
   const commit = (tree, parent, message) => git(["-c", "commit.gpgsign=false", "commit-tree", tree, ...parent ? ["-p", parent] : [], "-m", message]);
   let committed = false;
   try {
-    let tip = resolve2(TELEMETRY_REF);
+    let tip = resolve3(TELEMETRY_REF);
     committed = !!tip;
     fetch();
-    let upstream = resolve2(tracking);
+    let upstream = resolve3(tracking);
     if (records.size) {
       const parent = tip ?? upstream;
       git(parent ? ["read-tree", parent] : ["read-tree", "--empty"]);
@@ -336,7 +336,7 @@ function syncTelemetryBranch(root, records, remote = "origin") {
     if (first.ok) return { ok: true, committed, pushed: true, warning: fetchWarning };
     const fetched = fetch();
     if (!fetched.ok) throw new Error(`${first.stderr}; refresh failed: ${fetched.stderr}`);
-    upstream = resolve2(tracking);
+    upstream = resolve3(tracking);
     let replayed = upstream;
     for (const sha of pending()) {
       git(replayed ? ["read-tree", replayed] : ["read-tree", "--empty"]);
@@ -495,7 +495,7 @@ var fail = (code, message) => {
   process2.stderr.write(message + "\n");
   process2.exit(code);
 };
-var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>] [--dir <telemetry dir>]");
+var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>] [--dir <telemetry dir>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]");
 function parseArgs(argv) {
   const opts = { worktree: void 0, option: void 0, base: void 0, spec: void 0, dir: void 0, legs: [] };
   for (let i = 0; i < argv.length; i++) {
@@ -505,7 +505,8 @@ function parseArgs(argv) {
       if (value === void 0 || value.startsWith("--")) usage();
       opts[key] = argv[++i];
     };
-    if (a === "--worktree") takes("worktree");
+    if (a === "--migrate") opts.migrate = value !== void 0 && !value.startsWith("--") ? argv[++i] : ".pi/gauntlet/telemetry";
+    else if (a === "--worktree") takes("worktree");
     else if (a === "--option") takes("option");
     else if (a === "--base") takes("base");
     else if (a === "--spec") takes("spec");
@@ -520,7 +521,11 @@ function parseArgs(argv) {
     } else if (a === "--dir") takes("dir");
     else usage();
   }
-  if (!opts.worktree || !isAbsolute2(opts.worktree) || !opts.base || !OPTIONS.has(opts.option)) usage();
+  if (opts.migrate !== void 0) {
+    opts.worktree ??= process2.cwd();
+    if (opts.option || opts.base || opts.spec || opts.dir || opts.legs.length) usage();
+  } else if (!opts.base || !OPTIONS.has(opts.option)) usage();
+  if (!opts.worktree || !isAbsolute2(opts.worktree)) usage();
   return opts;
 }
 function readLayer(file) {
@@ -549,6 +554,22 @@ function walkRecords(absDir) {
     else if (e.isFile() && e.name.endsWith(".yaml")) out.push(p);
   }
   return out;
+}
+function migrate(root, dir, repo, remote) {
+  const writes = /* @__PURE__ */ new Map();
+  for (const path2 of walkRecords(dir).sort()) {
+    const record = parseRecord(readFileSync(path2, "utf8"));
+    if (!record) {
+      process2.stderr.write(`warning: skipped unparseable schema-1 record ${path2}
+`);
+      continue;
+    }
+    record.repo ??= repo;
+    writes.set(`${repo}/brainstorming/${toPosix(relative2(dir, path2))}`, serializeRecord(record));
+  }
+  const result = syncTelemetryBranch(root, writes, remote);
+  if (!result.ok) return console.log(`telemetry: not pushed (${result.reason})`);
+  console.log(`migrated ${writes.size} records from ${dir}`);
 }
 var isoNow = () => (/* @__PURE__ */ new Date()).toISOString().replace(/\.\d{3}Z$/, "Z");
 async function seal(vcs, rec, o) {
@@ -597,13 +618,14 @@ async function main() {
 `);
   if (!telemetry.enabled) return console.log("telemetry disabled");
   const dir = override?.dir ?? telemetry.dir;
-  if (!validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
+  if (opts.migrate === void 0 && !validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
   const store = telemetryDir(root);
   const repo = telemetryRepo(root);
   if (!store || !repo) {
     process2.stderr.write("warning: telemetry needs a git store and an owner/name origin\n");
     return;
   }
+  if (opts.migrate !== void 0) return migrate(root, resolve2(opts.worktree, opts.migrate), repo, telemetry.remote);
   const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs, repo };
   if (opts.spec) return seal(vcs, recordPathFor(store, rel), o);
   const diff = changedNames(vcs, opts.base);

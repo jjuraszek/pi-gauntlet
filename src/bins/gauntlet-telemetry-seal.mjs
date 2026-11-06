@@ -2,7 +2,7 @@
 // Seal the common-dir record and publish it without touching the checkout or its index.
 import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { isAbsolute, join, relative } from "node:path";
+import { isAbsolute, join, relative, resolve } from "node:path";
 import process from "node:process";
 import { mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
 import { recordPathFor, repoRelativeToolPath, toPosix } from "../../extensions/lib/telemetry-paths.ts";
@@ -16,7 +16,7 @@ const fail = (code, message) => {
   process.stderr.write(message + "\n");
   process.exit(code);
 };
-const usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>] [--dir <telemetry dir>]");
+const usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>] [--dir <telemetry dir>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]");
 
 function parseArgs(argv) {
   const opts = { worktree: undefined, option: undefined, base: undefined, spec: undefined, dir: undefined, legs: [] };
@@ -27,7 +27,8 @@ function parseArgs(argv) {
       if (value === undefined || value.startsWith("--")) usage();
       opts[key] = argv[++i];
     };
-    if (a === "--worktree") takes("worktree");
+    if (a === "--migrate") opts.migrate = value !== undefined && !value.startsWith("--") ? argv[++i] : ".pi/gauntlet/telemetry";
+    else if (a === "--worktree") takes("worktree");
     else if (a === "--option") takes("option");
     else if (a === "--base") takes("base");
     else if (a === "--spec") takes("spec");
@@ -43,7 +44,11 @@ function parseArgs(argv) {
     else if (a === "--dir") takes("dir");
     else usage();
   }
-  if (!opts.worktree || !isAbsolute(opts.worktree) || !opts.base || !OPTIONS.has(opts.option)) usage();
+  if (opts.migrate !== undefined) {
+    opts.worktree ??= process.cwd();
+    if (opts.option || opts.base || opts.spec || opts.dir || opts.legs.length) usage();
+  } else if (!opts.base || !OPTIONS.has(opts.option)) usage();
+  if (!opts.worktree || !isAbsolute(opts.worktree)) usage();
   return opts;
 }
 
@@ -76,6 +81,22 @@ function walkRecords(absDir) {
     else if (e.isFile() && e.name.endsWith(".yaml")) out.push(p);
   }
   return out;
+}
+
+function migrate(root, dir, repo, remote) {
+  const writes = new Map();
+  for (const path of walkRecords(dir).sort()) {
+    const record = parseRecord(readFileSync(path, "utf8"));
+    if (!record) {
+      process.stderr.write(`warning: skipped unparseable schema-1 record ${path}\n`);
+      continue;
+    }
+    record.repo ??= repo;
+    writes.set(`${repo}/brainstorming/${toPosix(relative(dir, path))}`, serializeRecord(record));
+  }
+  const result = syncTelemetryBranch(root, writes, remote);
+  if (!result.ok) return console.log(`telemetry: not pushed (${result.reason})`);
+  console.log(`migrated ${writes.size} records from ${dir}`);
 }
 
 const isoNow = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
@@ -127,13 +148,14 @@ async function main() {
   if (telemetry.warning) process.stderr.write(`warning: ${telemetry.warning}\n`);
   if (!telemetry.enabled) return console.log("telemetry disabled");
   const dir = override?.dir ?? telemetry.dir;
-  if (!validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
+  if (opts.migrate === undefined && !validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
   const store = telemetryDir(root);
   const repo = telemetryRepo(root);
   if (!store || !repo) {
     process.stderr.write("warning: telemetry needs a git store and an owner/name origin\n");
     return;
   }
+  if (opts.migrate !== undefined) return migrate(root, resolve(opts.worktree, opts.migrate), repo, telemetry.remote);
   const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs, repo };
   if (opts.spec) return seal(vcs, recordPathFor(store, rel), o);
   const diff = changedNames(vcs, opts.base);

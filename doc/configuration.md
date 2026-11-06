@@ -311,6 +311,20 @@ Guard: during `brainstorm`, a `write` to a spec whose fetched branch record has 
 
 Readers refresh `gauntlet/telemetry` automatically: `gauntlet-performance` before reporting and `gauntlet-spec-index` before joining records to spec results. `piGauntlet.telemetry.remote` selects a separate repository URL; the default is `origin`. Each git operation has a 10-second timeout. A failed fetch emits one warning and serves the last fetched ref; no fetched ref means an empty corpus, never a read from the local unpublished branch. Refresh also pushes pending local commits, with one fetch-and-replay retry; a failed push warns without blocking the reader and retains every pending record. `telemetry.enabled: false` disables branch reads, fetches and pushes. `gauntlet-performance --dir <path>` reads YAML fixtures directly without fetching.
 
+#### Migrating checkout records
+
+From the product checkout, copy the old run corpus to `gauntlet/telemetry`:
+
+```sh
+node bin/gauntlet-telemetry-seal.mjs --migrate
+```
+
+For an installed package, use its `bin/gauntlet-telemetry-seal.mjs` path. `--migrate <dir>` selects another source directory; the default is `.pi/gauntlet/telemetry`. `--worktree <absolute path>` selects the product checkout when running elsewhere; relative source paths resolve there. Migration needs no landing option or base ref.
+
+Migration recursively copies schema-1 `*.yaml` records to `<owner>/<name>/brainstorming/<source-relative path>`, assigning a missing `repo` from the checkout's origin. Existing `repo` values are preserved. Unparseable or other-schema files are skipped with a warning. The source files, checkout and its index are unchanged. Identical records add no commit on a repeat run. The whole batch uses the same branch publisher and configured `telemetry.remote` as readers; `telemetry.enabled: false` disables migration. A failed push prints `telemetry: not pushed (<reason>)` and keeps the local commit for a later refresh or migration retry; source files remain available even if no commit could be created.
+
+Migration preserves `derived.modified_files`, so `gauntlet-spec-index` prints the same `files` column as the former checkout-backed reader for the same existing files. Remove tracked checkout records only after confirming the branch push succeeded. `gauntlet-performance --dir <path>` can still read unmigrated records: records without `repo` appear under `unknown repo`, separately from named repositories in the run, version and council tables.
+
 Call site: `finishing-a-development-branch` runs the seal on the feature branch after the plan strip and before the Option 1/2 `git push` or the Option 3 `git merge --squash`; a nonzero exit stops the landing. Keep As-Is leaves the record untracked and `in_progress`; Discard removes it with the worktree. `gatekeep-pr` never reads, checks, or stamps the record.
 
 Example override (the `buckets` shown replace the defaults):

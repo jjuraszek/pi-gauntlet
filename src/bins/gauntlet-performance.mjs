@@ -84,7 +84,7 @@ function* yamlFiles(dir) {
   }
 }
 
-function loadRecord(file, label, bytes) {
+function loadRecord(file, bytes) {
   let doc;
   try {
     doc = parseYaml(bytes);
@@ -148,7 +148,7 @@ function loadRecord(file, label, bytes) {
       run_id: d.run_id,
       engine: str(derived.engine) ?? "waves",
       iterations: num(derived.iterations),
-      repo: label,
+      repo: str(d.repo) ?? "unknown repo",
       spec: basename(file, ".yaml"),
       version: semver(version) ? version.trim() : "unknown",
       status: str(d.status),
@@ -206,7 +206,7 @@ function main() {
     corpus[c.label] = corpus[c.label] ?? 0;
     const records = c.records ?? [...yamlFiles(c.dir)].map(path => ({ path, bytes: readFileSync(path, "utf8") }));
     for (const { path: file, bytes } of records) {
-      const res = loadRecord(file, c.label, bytes);
+      const res = loadRecord(file, bytes);
       if (res.skip) { skipped.push({ file, reason: res.skip }); continue; }
       if (seen.has(res.row.run_id)) { skipped.push({ file, reason: "duplicate run_id" }); continue; }
       seen.add(res.row.run_id);

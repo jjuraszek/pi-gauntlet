@@ -483,6 +483,7 @@ try {
       R("bin/gauntlet-telemetry-seal.test.mjs"),
       R("src/bins/gauntlet-telemetry-seal.test.mjs"),
       R("src/bins/gauntlet-telemetry-readers.test.mjs"),
+      R("src/bins/gauntlet-telemetry-migration.test.mjs"),
       R("bin/gauntlet-performance.test.mjs"),
     ],
     { stdio: "pipe" },
