@@ -20,7 +20,7 @@
 
   type Handler = (event: any, ctx: any) => unknown;
 
-  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; jjWorkspace?: boolean; jjFail?: (args: string[], cwd: string) => GitResult | undefined; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string; telemetryDir?: string } = {}) {
+  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; jjWorkspace?: boolean; jjFail?: (args: string[], cwd: string) => GitResult | undefined; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string } = {}) {
     const root = mkdtempSync(join(tmpdir(), "telemetry-test-"));
     tempDirs.push(root);
     mkdirSync(join(root, "doc/specs"), { recursive: true });
@@ -61,7 +61,7 @@
         if (args[0] === "ls-files") return { code: 0, stdout: "", stderr: "" };
         return { code: 0, stdout: "", stderr: "" };
       },
-      settings: () => ({ specDirs, planDirs: planDirsFor(specDirs), telemetry: { enabled: o.enabled ?? true, dir: o.telemetryDir ?? ".pi/gauntlet/telemetry", buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: "0.85.1" } }),
+      settings: () => ({ specDirs, planDirs: planDirsFor(specDirs), telemetry: { enabled: o.enabled ?? true, buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: "0.85.1" } }),
       // A plain jj workspace: `jj root` answers the temp root while git rev-parse fails.
       jj: async (args, cwd) => {
         jjCalls.push(args);
@@ -86,7 +86,7 @@
       for (const h of handlers.get(name) ?? []) out.push(await h(event, ctx));
       return out;
     };
-    const recordPath = (spec = "doc/specs/a.md") => join(ctx.cwd, ".pi/gauntlet/telemetry", spec.replace(/\.md$/, ".yaml"));
+    const recordPath = (spec = "doc/specs/a.md") => join(ctx.cwd.replace(/\/\.worktrees\/.*$/, ""), o.jjWorkspace ? ".jj/gauntlet/telemetry" : ".git/gauntlet/telemetry", spec.replace(/\.md$/, ".yaml"));
     const readRecord = (spec?: string) => parseRecord(readFileSync(recordPath(spec), "utf8"))!;
     const gitWrites = () => gitCalls.filter((a) => a[0] === "add" || a[0] === "commit");
     const excludeFile = () => join(root, ".git/info/exclude");
@@ -154,7 +154,7 @@
     }
   });
 
-  test("bind on first spec write flushes buffered phase event, mints run_id, writes the exclude line, never stages or commits", async () => {
+  test("bind on first spec write flushes buffered phase event and mints run_id without excludes, staging or commits", async () => {
     const h = harness();
     await h.emit("session_start", { type: "session_start", reason: "startup" });
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
@@ -178,19 +178,19 @@
     const rec2 = h.readRecord();
     assert.equal(rec2.approved_at, rec2.events.findLast((e) => e.kind === "phase")!.ts);
     assert.equal(h.gitWrites().length, 0, "the recorder never runs git add or git commit");
-    assert.equal(readFileSync(h.excludeFile(), "utf8"), ".pi/gauntlet/telemetry/\n");
+    assert.equal(existsSync(h.excludeFile()), false);
     await h.phaseResult("reset", P());
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md", "# Spec again\n");
-    assert.equal(readFileSync(h.excludeFile(), "utf8"), ".pi/gauntlet/telemetry/\n", "exclude line is written once after rebind");
+    assert.equal(existsSync(h.excludeFile()), false, "rebind never edits excludes");
   });
 
-  test("a docs/specs write binds under the default dirs and the record lands under telemetry.dir/docs/specs", async () => {
+  test("a docs/specs write binds under the common-dir in-progress store", async () => {
     const h = harness();
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     assert.equal(existsSync(h.recordPath("docs/specs/x.md")), false);
     await h.writeSpec("docs/specs/x.md");
-    assert.equal(h.recordPath("docs/specs/x.md"), join(h.root, ".pi/gauntlet/telemetry/docs/specs/x.yaml"));
+    assert.equal(h.recordPath("docs/specs/x.md"), join(h.root, ".git/gauntlet/telemetry/docs/specs/x.yaml"));
     assert.equal(h.readRecord("docs/specs/x.md").spec, "docs/specs/x.md");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     const rec = h.readRecord("docs/specs/x.md");
@@ -362,7 +362,7 @@
     const rec = h.readRecord("doc/specs/draft.md");
     assert.equal(rec.spec, "doc/specs/draft.md");
     assert.equal(readFileSync(h.recordPath("doc/specs/final.md"), "utf8"), "existing\n");
-    assert.deepEqual(rec.events.filter((e) => e.kind === "warning").map((e: any) => e.message), ["record move skipped: .pi/gauntlet/telemetry/doc/specs/final.yaml already exists"]);
+    assert.deepEqual(rec.events.filter((e) => e.kind === "warning").map((e: any) => e.message), [`record move skipped: ${h.recordPath("doc/specs/final.md")} already exists`]);
   });
 
   test("rename refuses a tracked destination collision and keeps the draft binding", async () => {
@@ -377,9 +377,9 @@
     assert.ok(rec.events.some((e) => e.kind === "warning" && (e as any).message.endsWith("already exists")));
   });
 
-  test("telemetry resolver warning is emitted once while its fallback directory is used", async () => {
-    const message = "telemetry.dir must be a non-empty path relative to the git toplevel; using the default";
-    const h = harness({ telemetryWarning: message, telemetryDir: ".pi/gauntlet/telemetry" });
+  test("telemetry resolver warning is emitted once", async () => {
+    const message = "telemetry.remote must be a non-empty URL; using origin";
+    const h = harness({ telemetryWarning: message });
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
     await h.writeSpec("doc/specs/a.md", "# Again\n");
@@ -412,11 +412,13 @@
     assert.deepEqual(nogit.readRecord().events.filter((e) => e.kind === "warning").map((e: any) => e.message), [`spec ${outsideSpec} is outside a git checkout; telemetry not recorded`]);
   });
 
-  test("failed git-common-dir lookup warns in the record", async () => {
+  test("failed git-common-dir lookup never falls back to writing inside the checkout", async () => {
     const h = harness({ gitFail: (args) => args.includes("--git-common-dir") && !args.includes("--show-toplevel") ? { code: 1, stdout: "", stderr: "unsupported flag\nmore detail" } : undefined });
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
-    assert.deepEqual(h.readRecord().events.filter((e) => e.kind === "warning").map((e: any) => e.message), ["exclude skipped: git rev-parse --git-common-dir failed: unsupported flag"]);
+    assert.equal(existsSync(h.recordPath()), false);
+    assert.equal(existsSync(join(h.root, ".pi/gauntlet")), false);
+    assert.equal(existsSync(h.excludeFile()), false);
   });
 
   test("jj-bound checkout: record is written with no warning, no exclude line, and no git add/commit", async () => {
@@ -441,27 +443,27 @@
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
     const wt = join(h.root, ".worktrees/x");
-    const sealedPath = join(wt, ".pi/gauntlet/telemetry/doc/specs/b.yaml");
-    mkdirSync(join(wt, ".pi/gauntlet/telemetry/doc/specs"), { recursive: true });
-    writeFileSync(sealedPath, serializeRecord({ ...h.readRecord(), spec: "doc/specs/b.md", status: "shipped", shipped_at: "2026-09-17T18:00:00Z" }));
-    const before = readFileSync(sealedPath, "utf8");
+    const sealedPath = "test/repo/brainstorming/doc/specs/b.yaml";
+    const before = serializeRecord({ ...h.readRecord(), spec: "doc/specs/b.md", status: "shipped", shipped_at: "2026-09-17T18:00:00Z" });
+    h.fetchedRecords.set(sealedPath, before);
     await h.emit("tool_result", { toolName: "write", toolCallId: "w", input: { path: join(wt, "doc/specs/b.md"), content: "# B\n" }, content: [], isError: false, details: undefined });
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     assert.ok(h.readRecord().events.some((e) => e.kind === "phase" && e.action === "complete"));
-    assert.equal(readFileSync(sealedPath, "utf8"), before);
+    assert.equal(h.fetchedRecords.get(sealedPath), before);
   });
 
-  test("worktree spec from a primary cwd: record keyed under the worktree, exclude written to the common dir (AC 8)", async () => {
+  test("worktree spec from a primary cwd uses the common-dir store without changing excludes", async () => {
     const h = harness();
     await h.emit("session_start", { type: "session_start", reason: "startup" });
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec(".worktrees/x/doc/specs/a.md");
     const wt = join(h.root, ".worktrees/x");
-    assert.ok(existsSync(join(wt, ".pi/gauntlet/telemetry/doc/specs/a.yaml")), "record lives under the worktree toplevel");
+    assert.ok(existsSync(h.recordPath()), "record lives under the shared git common dir");
+    assert.equal(existsSync(join(wt, ".pi/gauntlet")), false);
     assert.equal(existsSync(join(h.root, ".pi/gauntlet")), false, "nothing written under the primary checkout");
     assert.ok(h.gitCwds.every((c) => c === wt || c.startsWith(wt + "/")), "no git call runs in the primary");
     assert.equal(h.gitWrites().length, 0);
-    assert.equal(readFileSync(join(h.root, ".git/info/exclude"), "utf8"), ".pi/gauntlet/telemetry/\n", "exclude lands in the primary's common dir");
+    assert.equal(existsSync(h.excludeFile()), false);
   });
 
   test("a spec in another checkout is a fresh bind, never a git mv", async () => {
@@ -476,7 +478,7 @@
         await h.emit("tool_result", { toolName: "edit", toolCallId: "e", input: { path: "doc/specs/a.md", oldText: "# Old\n", newText: "# Spec\n" }, content: [], isError: false, details: undefined });
       }
       assert.ok(existsSync(h.recordPath("doc/specs/a.md")), `primary record created for ${tool}`);
-      assert.ok(existsSync(join(h.root, ".worktrees/x/.pi/gauntlet/telemetry/doc/specs/a.yaml")), `worktree record left in place for ${tool}`);
+      assert.equal(existsSync(join(h.root, ".worktrees/x/.pi/gauntlet")), false, `no worktree-local record for ${tool}`);
       assert.equal(h.gitCalls.some((a) => a[0] === "mv"), false);
       assert.equal(h.readRecord("doc/specs/a.md").events.some((e) => e.kind === "spec_renamed"), false);
     }
@@ -993,8 +995,10 @@
     const before = readFileSync(first.recordPath("doc/specs/old.md"), "utf8");
     const h = harness({ sessionId: "s2" });
     h.ctx.cwd = first.root;
+    h.fetchedRecords.set("test/repo/brainstorming/doc/specs/old.yaml", before);
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/old.md");
+    await h.emit("tool_result", { toolName: "plan_check", input: {}, content: [], isError: false, details: { status: "pass", specPath: join(first.root, "doc/specs/old.md") } });
     assert.equal(readFileSync(first.recordPath("doc/specs/old.md"), "utf8"), before);
     assert.equal(existsSync(h.excludeFile()), false);
     await h.writeSpec("doc/specs/new.md");

@@ -9,7 +9,6 @@ import process2 from "node:process";
 import { parse as parseYaml } from "yaml";
 
 // extensions/lib/gauntlet-settings.ts
-import path from "node:path";
 function mergeGauntlet(preset, repo) {
   return { ...preset ?? {}, ...repo ?? {} };
 }
@@ -33,7 +32,6 @@ function planDirsFor(specDirs) {
   }
   return [...out];
 }
-var DEFAULT_TELEMETRY_DIR = ".pi/gauntlet/telemetry";
 var DEFAULT_TELEMETRY_BUCKETS = [
   ["test", ["**/test/**", "**/tests/**", "**/__tests__/**", "**/*.test.*", "**/*.spec.*", "**/*_test.*"]],
   ["docs", ["**/*.md"]],
@@ -43,13 +41,8 @@ function resolveTelemetry(g) {
   const t = g.telemetry;
   const warnings = [];
   const enabled = t?.enabled !== false;
-  let dir = DEFAULT_TELEMETRY_DIR;
-  if (t?.dir !== void 0) {
-    const value = nonEmptyString(t.dir) ? t.dir.trim().replace(/\/+$/, "") : "";
-    const canonical = value.replace(/\\/g, "/");
-    const normalized = path.posix.normalize(canonical);
-    if (value && path.win32.parse(canonical).root === "" && normalized !== ".." && !normalized.startsWith("../")) dir = normalized;
-    else warnings.push("telemetry.dir must be a non-empty path relative to the git toplevel; using the default");
+  if (t && Object.hasOwn(t, "dir")) {
+    warnings.push("piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them");
   }
   let buckets = DEFAULT_TELEMETRY_BUCKETS;
   if (t?.buckets !== void 0) {
@@ -60,7 +53,7 @@ function resolveTelemetry(g) {
   }
   const remote = nonEmptyString(t?.remote) ? t.remote.trim() : void 0;
   if (t?.remote !== void 0 && !remote) warnings.push("telemetry.remote must be a non-empty URL; using origin");
-  return { enabled, dir, ...remote ? { remote } : {}, buckets, warning: joinWarn(warnings) };
+  return { enabled, ...remote ? { remote } : {}, buckets, warning: joinWarn(warnings) };
 }
 
 // extensions/lib/telemetry-branch.ts
@@ -146,9 +139,9 @@ function syncTelemetryBranch(root, records, remote = "origin") {
     if (records.size) {
       const parent = tip ?? upstream;
       git2(parent ? ["read-tree", parent] : ["read-tree", "--empty"]);
-      for (const [path2, content] of records) {
+      for (const [path, content] of records) {
         const blob = git2(["hash-object", "-w", "--stdin"], content);
-        git2(["update-index", "--add", "--cacheinfo", "100644", blob, path2]);
+        git2(["update-index", "--add", "--cacheinfo", "100644", blob, path]);
       }
       const tree = git2(["write-tree"]);
       const next = parent && git2(["rev-parse", `${parent}^{tree}`]) === tree ? parent : commit(tree, parent, "telemetry: update records");
@@ -170,8 +163,8 @@ function syncTelemetryBranch(root, records, remote = "origin") {
       const changes = git2(["diff-tree", "--root", "--no-commit-id", "--raw", "--no-abbrev", "--no-renames", "-r", "-z", sha]).split("\0");
       for (let i = 0; i + 1 < changes.length; i += 2) {
         const [, mode, , blob] = changes[i].split(" ");
-        const path2 = changes[i + 1];
-        git2(mode === "000000" ? ["update-index", "--force-remove", "--", path2] : ["update-index", "--add", "--cacheinfo", mode, blob, path2]);
+        const path = changes[i + 1];
+        git2(mode === "000000" ? ["update-index", "--force-remove", "--", path] : ["update-index", "--add", "--cacheinfo", mode, blob, path]);
       }
       replayed = commit(git2(["write-tree"]), replayed, git2(["log", "-1", "--format=%B", sha]));
     }
@@ -201,12 +194,12 @@ function readTelemetryBranch(root, { remote = "origin", prefix = "" } = {}) {
     const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...prefix ? ["--", prefix] : []], root);
     if (!tree.ok) throw new Error(tree.stderr);
     for (const entry of tree.stdout.split("\0").filter(Boolean)) {
-      const [meta, path2] = entry.split("	");
+      const [meta, path] = entry.split("	");
       const [, type, sha] = meta.split(" ");
-      if (type !== "blob" || !path2.startsWith(prefix) || !path2.endsWith(".yaml")) continue;
+      if (type !== "blob" || !path.startsWith(prefix) || !path.endsWith(".yaml")) continue;
       const blob = gitRun(["cat-file", "blob", sha], root, void 0, { raw: true });
       if (!blob.ok) throw new Error(blob.stderr);
-      records.push({ path: path2, bytes: blob.stdout });
+      records.push({ path, bytes: blob.stdout });
     }
     return { records, warning };
   } catch (error) {
@@ -455,11 +448,11 @@ function fenceMask(lines) {
   }
   return mask;
 }
-function extract(text, path2) {
+function extract(text, path) {
   const lines = text.split(/\r?\n/);
   const fenced = fenceMask(lines);
   const h1 = lines.findIndex((l, i) => !fenced[i] && l.startsWith("# "));
-  const title = (h1 >= 0 ? lines[h1].slice(2).trim() : "") || basename(path2, ".md");
+  const title = (h1 >= 0 ? lines[h1].slice(2).trim() : "") || basename(path, ".md");
   const goal = lines.find((l) => l.startsWith("**Goal:**"))?.slice("**Goal:**".length).trim() ?? "";
   const headings = lines.filter((l, i) => !fenced[i] && /^##{1,2} /.test(l)).map((l) => l.replace(/^#+ /, "")).join("\n");
   let state = "live";
@@ -485,9 +478,9 @@ function refresh(db, root, corpus) {
   const putFile = db.prepare("INSERT OR REPLACE INTO files (corpus, path, mtime_ms, size) VALUES (?, ?, ?, ?)");
   db.exec("BEGIN IMMEDIATE");
   try {
-    for (const path2 of known.keys()) if (!present.has(path2)) {
-      delRow.run(path2);
-      delFile.run(table, path2);
+    for (const path of known.keys()) if (!present.has(path)) {
+      delRow.run(path);
+      delFile.run(table, path);
     }
     for (const f of found) {
       const k = known.get(f.path);
@@ -564,7 +557,7 @@ function telemetryCorpus(root) {
   const result = readTelemetryBranch(root, { remote: settings.remote, prefix });
   if (result.warning) process2.stderr.write(`warning: ${result.warning}
 `);
-  return new Map(result.records.map(({ path: path2, bytes }) => [path2.slice(prefix.length), bytes]));
+  return new Map(result.records.map(({ path, bytes }) => [path.slice(prefix.length), bytes]));
 }
 function telemetry(root, specPath, records) {
   const blank = { status: null, shipped_at: null, files: "" };

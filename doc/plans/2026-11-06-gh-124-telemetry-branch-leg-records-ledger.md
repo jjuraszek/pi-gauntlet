@@ -3,7 +3,7 @@
 base: d04aa00576eaaf802b8cdde8d8ab1917d0118f68
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -16,7 +16,7 @@ allowance: 10
 | 6 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test src/bins/gauntlet-telemetry-readers.test.mjs extensions/telemetry.test.ts; 100 passed, 0 failed; readers refresh origin or configured remote and serve fetched refs offline; pending records retry, guard caches per session, timeout and bare-dir checks pass |
 | 7 | done | 1 | node --test src/bins/gauntlet-telemetry-migration.test.mjs; 5 passed, 0 failed; repeat migration adds no commit and disabled or rejected pushes preserve sources; 108 committed records plus one fixture retain byte-identical files columns and legacy records group under unknown repo |
 | 8 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test src/bins/gauntlet-telemetry-readers.test.mjs extensions/telemetry.test.ts; 100 passed, 0 failed; brainstorm writes to shipped specs block from refreshed or cached refs with the guard reason; absent refs allow writes with one guard-unavailable notice |
-| 9 | open | 0 | |
+| 9 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry.test.ts extensions/lib/gauntlet-settings.test.ts src/bins/gauntlet-telemetry-seal-branch.test.mjs src/bins/gauntlet-telemetry-jj.test.mjs src/bins/gauntlet-telemetry-invariance.test.mjs src/bins/gauntlet-telemetry-concurrency.test.mjs; 141 passed; 0 failed |
 | 10 | open | 0 | |
 | 11 | open | 0 | |
 | 12 | open | 0 | |
@@ -39,3 +39,4 @@ row 5 done | Confirmed telemetry branch pushes match neither workflow and consum
 row 6 done | Readers refresh telemetry refs, retry pending pushes and serve cached records with bounded warnings; explicit directories stay offline. | Reuse readTelemetryBranch in extensions/lib/telemetry-branch.ts; its src/bins/gauntlet-telemetry-readers.test.mjs fixtures sit beside the bin-test siblings.
 row 8 done | Confirmed brainstorm writes block from refreshed or cached shipped records and pass with one unavailable notice when no fetched ref exists. | nothing new to build on
 row 7 done | Added idempotent corpus migration, origin repo stamps and unknown-repo grouping, preserving files output for all 108 committed records. | Reuse --migrate in src/bins/gauntlet-telemetry-seal.mjs and src/bins/gauntlet-telemetry-migration.test.mjs to retire the tracked corpus.
+row 9 done | Moved recorder state into Git or jj metadata, retired telemetry.dir with a warning and made plain-jj sealing return the unsupported-store notice. | Reuse extensions/telemetry.ts metadata binding and src/bins/gauntlet-telemetry-jj.test.mjs to test local-only jj sealing.

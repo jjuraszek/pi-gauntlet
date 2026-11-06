@@ -14,7 +14,7 @@
   import * as piRuntime from "@earendil-works/pi-coding-agent";
   import { SettingsManager, getAgentDir } from "@earendil-works/pi-coding-agent";
   import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-  import { DEFAULT_TEST_COMMANDS, planDirsFor, resolveFlowGuards, resolveTelemetry, settingsErrorWarning, type TelemetryResolved } from "./lib/gauntlet-settings.ts";
+  import { DEFAULT_TELEMETRY_DIR, DEFAULT_TEST_COMMANDS, planDirsFor, resolveFlowGuards, resolveTelemetry, settingsErrorWarning, type TelemetryResolved } from "./lib/gauntlet-settings.ts";
   import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
   import { checkoutOf } from "./lib/checkout.ts";
   import { CONTEXT_DRAFT_MARKER, nextGauntletEntered } from "./lib/phase-tracker-helpers.ts";
@@ -208,7 +208,7 @@
     let boundSpec: string | undefined; // repo-relative
     let record: TelemetryRecord | undefined;
     const predecessorLinks = new Set<string>();
-    let recordRel: string | undefined; // repo-relative record path
+    let recordRel: string | undefined; // absolute record path outside the working tree
     let buffer: TelemetryEvent[] = [];
     let pending: Accumulators = emptyAccumulators();
     let frozen = false;
@@ -271,7 +271,7 @@
         frozen = true;
         return;
       }
-      const target = abs(recordRel);
+      const target = recordRel;
       if (sealedAt(target)) {
         frozen = true;
         return;
@@ -293,27 +293,9 @@
 
     const flush = writeRecord;
 
-    // Excluded untracked paths are invisible to `git status --porcelain`, skipped by
-    // `git add -A`, and never block `git worktree remove`; the seal stages with `git add -f`.
-    const ensureExcluded = async () => {
-      const common = await deps.git(["rev-parse", "--path-format=absolute", "--git-common-dir"], toplevel!);
-      const commonDir = common.stdout.trim();
-      if (common.code !== 0 || !commonDir) return void warn(`exclude skipped: git rev-parse --git-common-dir failed: ${common.stderr.trim().split("\n")[0]}`);
-      const line = `${currentDir.replace(/\/+$/, "")}/`;
-      const file = join(commonDir, "info", "exclude");
-      const existing = deps.fs.readFile(file) ?? "";
-      if (existing.split("\n").some((l) => l.trim() === line)) return;
-      try {
-        deps.fs.mkdirp(dirname(file));
-        deps.fs.writeFile(file, existing + (existing && !existing.endsWith("\n") ? "\n" : "") + line + "\n");
-      } catch (e) {
-        warn(`exclude write failed: ${String((e as Error).message ?? e).split("\n")[0]}`);
-      }
-    };
-
     const loadOrCreate = (specRel: string): TelemetryRecord => {
       const rel = recordPathFor(currentDir, specRel);
-      const existing = deps.fs.readFile(abs(rel));
+      const existing = deps.fs.readFile(rel);
       const parsed = existing ? parseRecord(existing) : undefined;
       if (parsed) {
         // fold stale live blocks (sessions that died without shutdown) into total
@@ -329,13 +311,42 @@
       return newRecord({ spec: specRel, session: sessionId, now: buffer[0]?.ts ?? deps.now(), runId: randomUUID() });
     };
 
-    const sealedOnDisk = (top: string, rel: string, dir: string): boolean => sealedAt(join(top, recordPathFor(dir, rel)));
+    const shippedRecords = (top: string, snap: SettingsSnapshot): Map<string, string> => {
+      const key = JSON.stringify([top, snap.telemetry.remote]);
+      let records = guardCache.get(key);
+      if (!records) {
+        records = new Map();
+        guardCache.set(key, records);
+        const repo = (deps.telemetryRepo ?? telemetryRepo)(top);
+        const result = repo
+          ? (deps.readTelemetryBranch ?? readTelemetryBranch)(top, { remote: snap.telemetry.remote, prefix: `${repo}/brainstorming/` })
+          : { records: [], warning: "cannot resolve owner/name from origin" };
+        for (const entry of result.records) {
+          const parsed = parseRecord(entry.bytes);
+          if (parsed?.shipped_at) records.set(parsed.spec, parsed.shipped_at);
+        }
+        if (result.warning && !guardWarned) {
+          guardWarned = true;
+          pi.sendMessage({ customType: "telemetry-warning", content: `telemetry guard unavailable: ${result.warning}`, display: true });
+        }
+      }
+      return records;
+    };
 
     const bind = async (specRel: string, snap: SettingsSnapshot, specToplevel: string, via: "git" | "jj") => {
-      if (sealedOnDisk(specToplevel, specRel, snap.telemetry.dir)) return;
+      if (via === "git" && shippedRecords(specToplevel, snap).has(specRel)) return;
+      let metadataDir = join(specToplevel, ".jj");
+      if (via === "git") {
+        const common = await deps.git(["rev-parse", "--path-format=absolute", "--git-common-dir"], specToplevel);
+        if (common.code !== 0 || !common.stdout.trim()) {
+          warn(`record bind skipped: git common dir unavailable: ${common.stderr.trim().split("\n")[0]}`);
+          return;
+        }
+        metadataDir = common.stdout.trim();
+      }
       toplevel = specToplevel;
       checkoutVia = via;
-      currentDir = snap.telemetry.dir;
+      currentDir = join(metadataDir, "gauntlet", "telemetry");
       boundSpec = specRel;
       recordRel = recordPathFor(currentDir, specRel);
       predecessorLinks.clear();
@@ -368,7 +379,6 @@
         if (snap.errors.length) warn(settingsErrorWarning(snap.errors));
         if (snap.telemetry.warning) warn(snap.telemetry.warning);
       }
-      if (via === "git") await ensureExcluded();
       refreshLinks();
     };
 
@@ -405,18 +415,13 @@
     const rebind = async (newSpec: string): Promise<boolean> => {
       const from = recordRel!;
       const to = recordPathFor(currentDir, newSpec);
-      if (deps.fs.exists(abs(to))) {
+      if (deps.fs.exists(to)) {
         warn(`record move skipped: ${to} already exists`);
         return false;
       }
-      const trackedResult = await deps.git(["ls-files", "--error-unmatch", "--", from], toplevel!);
-      const tracked = trackedResult.code === 0 && trackedResult.stdout.trim() !== "";
       try {
-        deps.fs.mkdirp(dirname(abs(to)));
-        if (tracked) {
-          const mv = await deps.git(["mv", "--", from, to], toplevel!);
-          if (mv.code !== 0) deps.fs.rename(abs(from), abs(to));
-        } else deps.fs.rename(abs(from), abs(to));
+        deps.fs.mkdirp(dirname(to));
+        deps.fs.rename(from, to);
       } catch (e) {
         warn(`record move failed: ${String((e as Error).message ?? e).split("\n")[0]}`);
         return false;
@@ -503,7 +508,6 @@
         guardWarned = false;
       }
       sessionId = ctx.sessionManager.getSessionId();
-      currentDir = snap.telemetry.dir;
       const replay = replayBranch(ctx.sessionManager.getBranch(), snap.specDirs);
       lastPlanTasks = replay.lastPlanTasks;
       phases = replay.phases;
@@ -614,7 +618,7 @@
       }
       if (loc.toplevel !== toplevel) {
         // Another checkout: a fresh run, never a rename of this record.
-        if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs) && canBind() && !sealedOnDisk(loc.toplevel, rel, snap.telemetry.dir)) {
+        if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs) && canBind() && (loc.via === "jj" || !shippedRecords(loc.toplevel, snap).has(rel))) {
           unbind();
           await bind(rel, snap, loc.toplevel, loc.via);
           if (!boundSpec) return undefined;
@@ -760,7 +764,7 @@
       if (!record || !toplevel || liveShipEvent(record.events)) return;
       record.status = "shipped";
       record.shipped_at = deps.now();
-      const out = await computeJjDiff({ jj: deps.jj ?? realJj, cwd: toplevel, spec: record.spec, dir: currentDir, buckets: snap.telemetry.buckets, planDirs: snap.planDirs });
+      const out = await computeJjDiff({ jj: deps.jj ?? realJj, cwd: toplevel, spec: record.spec, dir: DEFAULT_TELEMETRY_DIR, buckets: snap.telemetry.buckets, planDirs: snap.planDirs });
       if (out.warning) warn(out.warning);
       record.derived.modified_files = out.modified_files;
       record.derived.diff = out.diff;
@@ -775,26 +779,8 @@
         const rawPath = (event.input as { path?: unknown }).path;
         if (typeof rawPath === "string" && phases.brainstorm.status === "in_progress") {
           const loc = await locate(ctx, rawPath);
-          if (loc && isSpecPath(loc.rel, snap.specDirs)) {
-            const key = JSON.stringify([loc.toplevel, snap.telemetry.remote]);
-            let records = guardCache.get(key);
-            if (!records) {
-              records = new Map();
-              guardCache.set(key, records);
-              const repo = (deps.telemetryRepo ?? telemetryRepo)(loc.toplevel);
-              const result = repo
-                ? (deps.readTelemetryBranch ?? readTelemetryBranch)(loc.toplevel, { remote: snap.telemetry.remote, prefix: `${repo}/brainstorming/` })
-                : { records: [], warning: "cannot resolve owner/name from origin" };
-              for (const entry of result.records) {
-                const parsed = parseRecord(entry.bytes);
-                if (parsed?.shipped_at) records.set(parsed.spec, parsed.shipped_at);
-              }
-              if (result.warning && !guardWarned) {
-                guardWarned = true;
-                pi.sendMessage({ customType: "telemetry-warning", content: `telemetry guard unavailable: ${result.warning}`, display: true });
-              }
-            }
-            const shippedAt = records.get(loc.rel);
+          if (loc?.via === "git" && isSpecPath(loc.rel, snap.specDirs)) {
+            const shippedAt = shippedRecords(loc.toplevel, snap).get(loc.rel);
             if (shippedAt) return { block: true, reason: guardReason(loc.rel, shippedAt, "gauntlet/telemetry") };
           }
         }

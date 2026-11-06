@@ -4,7 +4,7 @@ import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } fr
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import process from "node:process";
-import { mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
+import { DEFAULT_TELEMETRY_DIR, mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
 import { recordPathFor, repoRelativeToolPath, toPosix } from "../../extensions/lib/telemetry-paths.ts";
 import { changedNames, computeShipDiff, validateBase, vcsFor } from "../../extensions/lib/vcs.ts";
 import { syncTelemetryBranch, telemetryDir, telemetryRepo } from "../../extensions/lib/telemetry-branch.ts";
@@ -16,10 +16,10 @@ const fail = (code, message) => {
   process.stderr.write(message + "\n");
   process.exit(code);
 };
-const usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>] [--dir <telemetry dir>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]");
+const usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]");
 
 function parseArgs(argv) {
-  const opts = { worktree: undefined, option: undefined, base: undefined, spec: undefined, dir: undefined, legs: [] };
+  const opts = { worktree: undefined, option: undefined, base: undefined, spec: undefined, legs: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const value = argv[i + 1];
@@ -41,12 +41,11 @@ function parseArgs(argv) {
       if (split < 1 || !validLegs([leg])) fail(1, "invalid --leg " + value);
       opts.legs.push(leg);
     }
-    else if (a === "--dir") takes("dir");
     else usage();
   }
   if (opts.migrate !== undefined) {
     opts.worktree ??= process.cwd();
-    if (opts.option || opts.base || opts.spec || opts.dir || opts.legs.length) usage();
+    if (opts.option || opts.base || opts.spec || opts.legs.length) usage();
   } else if (!opts.base || !OPTIONS.has(opts.option)) usage();
   if (!opts.worktree || !isAbsolute(opts.worktree)) usage();
   return opts;
@@ -132,8 +131,6 @@ async function seal(vcs, rec, o) {
 
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
-  const override = opts.dir === undefined ? undefined : resolveTelemetry({ telemetry: { enabled: true, dir: opts.dir } });
-  if (override?.warning) usage();
   const vcs = existsSync(opts.worktree) ? vcsFor(opts.worktree) : undefined;
   if (!vcs) fail(1, "not a git or jj checkout");
   const root = vcs.root;
@@ -147,7 +144,8 @@ async function main() {
   const { telemetry, planDirs } = settings(root);
   if (telemetry.warning) process.stderr.write(`warning: ${telemetry.warning}\n`);
   if (!telemetry.enabled) return console.log("telemetry disabled");
-  const dir = override?.dir ?? telemetry.dir;
+  if (vcs.kind === "jj") return console.log("telemetry: not pushed (jj workspace: no git remote)");
+  const dir = DEFAULT_TELEMETRY_DIR;
   if (opts.migrate === undefined && !validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
   const store = telemetryDir(root);
   const repo = telemetryRepo(root);

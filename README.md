@@ -624,7 +624,7 @@ The conformance gate's model, the spec council's roster, and the phase-tracker's
 | `verifyBeforeShip.testCommands` | verify-before-ship | the `DEFAULT_TEST_COMMANDS` patterns in `extensions/lib/gauntlet-settings.ts` (make, npm, pnpm, yarn, pytest, rspec, cargo, go) | patterns that count as a test run - [detail](./doc/configuration.md#verify-before-ship) |
 | `verifyBeforeShip.warningReference` | verify-before-ship | unset | pointer shown with the warning - [detail](./doc/configuration.md#verify-before-ship) |
 | `telemetry.enabled` | telemetry | `true` | record each flow - [detail](./doc/configuration.md#telemetry) |
-| `telemetry.dir` | telemetry | `.pi/gauntlet/telemetry` | record location - [detail](./doc/configuration.md#telemetry) |
+| `telemetry.remote` | telemetry and readers | `origin` | separate telemetry repository URL - [detail](./doc/configuration.md#telemetry) |
 | `telemetry.buckets` | telemetry | test / docs / config globs (`DEFAULT_TELEMETRY_BUCKETS`) | file classification - [detail](./doc/configuration.md#telemetry) |
 
 For Markdown instructions rather than runtime settings, use [Project-specific overrides](#project-specific-overrides). Repo-local settings replace each configured second-level object wholesale; see the [deep reference](./doc/configuration.md).

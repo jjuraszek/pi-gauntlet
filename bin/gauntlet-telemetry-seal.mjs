@@ -7,7 +7,6 @@ import { isAbsolute as isAbsolute2, join as join3, relative as relative2, resolv
 import process2 from "node:process";
 
 // extensions/lib/gauntlet-settings.ts
-import path from "node:path";
 function mergeGauntlet(preset, repo) {
   return { ...preset ?? {}, ...repo ?? {} };
 }
@@ -41,13 +40,8 @@ function resolveTelemetry(g) {
   const t = g.telemetry;
   const warnings = [];
   const enabled = t?.enabled !== false;
-  let dir = DEFAULT_TELEMETRY_DIR;
-  if (t?.dir !== void 0) {
-    const value = nonEmptyString(t.dir) ? t.dir.trim().replace(/\/+$/, "") : "";
-    const canonical = value.replace(/\\/g, "/");
-    const normalized = path.posix.normalize(canonical);
-    if (value && path.win32.parse(canonical).root === "" && normalized !== ".." && !normalized.startsWith("../")) dir = normalized;
-    else warnings.push("telemetry.dir must be a non-empty path relative to the git toplevel; using the default");
+  if (t && Object.hasOwn(t, "dir")) {
+    warnings.push("piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them");
   }
   let buckets = DEFAULT_TELEMETRY_BUCKETS;
   if (t?.buckets !== void 0) {
@@ -58,7 +52,7 @@ function resolveTelemetry(g) {
   }
   const remote = nonEmptyString(t?.remote) ? t.remote.trim() : void 0;
   if (t?.remote !== void 0 && !remote) warnings.push("telemetry.remote must be a non-empty URL; using origin");
-  return { enabled, dir, ...remote ? { remote } : {}, buckets, warning: joinWarn(warnings) };
+  return { enabled, ...remote ? { remote } : {}, buckets, warning: joinWarn(warnings) };
 }
 
 // extensions/lib/telemetry-paths.ts
@@ -104,15 +98,15 @@ function patchBlockPath(headers) {
 function parsePatchBlock(block) {
   const hunk = block.findIndex((l) => l.startsWith("@@"));
   const headers = hunk < 0 ? block : block.slice(0, hunk);
-  const path2 = patchBlockPath(headers);
-  if (path2 === void 0) return void 0;
+  const path = patchBlockPath(headers);
+  if (path === void 0) return void 0;
   let added = 0;
   let removed = 0;
   for (const line of hunk < 0 ? [] : block.slice(hunk)) {
     if (line.startsWith("+")) added++;
     else if (line.startsWith("-")) removed++;
   }
-  return { added, removed, path: path2 };
+  return { added, removed, path };
 }
 function parsePatchNumstat(patch) {
   if (!patch.trim()) return [];
@@ -201,9 +195,9 @@ function aggregateNumstat(numstat, files, buckets) {
   for (const line of numstat.split("\n")) {
     if (!line.trim()) continue;
     const [ins, del, ...rest] = line.split("	");
-    const path2 = numstatPath(rest.join("	"));
-    if (!files.has(path2)) continue;
-    const bucket = classifyBucket(path2, buckets);
+    const path = numstatPath(rest.join("	"));
+    if (!files.has(path)) continue;
+    const bucket = classifyBucket(path, buckets);
     const stat = out[bucket] ??= { files: 0, insertions: 0, deletions: 0 };
     stat.files += 1;
     stat.insertions += ins === "-" ? 0 : Number(ins) || 0;
@@ -319,9 +313,9 @@ function syncTelemetryBranch(root, records, remote = "origin") {
     if (records.size) {
       const parent = tip ?? upstream;
       git(parent ? ["read-tree", parent] : ["read-tree", "--empty"]);
-      for (const [path2, content] of records) {
+      for (const [path, content] of records) {
         const blob = git(["hash-object", "-w", "--stdin"], content);
-        git(["update-index", "--add", "--cacheinfo", "100644", blob, path2]);
+        git(["update-index", "--add", "--cacheinfo", "100644", blob, path]);
       }
       const tree = git(["write-tree"]);
       const next = parent && git(["rev-parse", `${parent}^{tree}`]) === tree ? parent : commit(tree, parent, "telemetry: update records");
@@ -343,8 +337,8 @@ function syncTelemetryBranch(root, records, remote = "origin") {
       const changes = git(["diff-tree", "--root", "--no-commit-id", "--raw", "--no-abbrev", "--no-renames", "-r", "-z", sha]).split("\0");
       for (let i = 0; i + 1 < changes.length; i += 2) {
         const [, mode, , blob] = changes[i].split(" ");
-        const path2 = changes[i + 1];
-        git(mode === "000000" ? ["update-index", "--force-remove", "--", path2] : ["update-index", "--add", "--cacheinfo", mode, blob, path2]);
+        const path = changes[i + 1];
+        git(mode === "000000" ? ["update-index", "--force-remove", "--", path] : ["update-index", "--add", "--cacheinfo", mode, blob, path]);
       }
       replayed = commit(git(["write-tree"]), replayed, git(["log", "-1", "--format=%B", sha]));
     }
@@ -495,9 +489,9 @@ var fail = (code, message) => {
   process2.stderr.write(message + "\n");
   process2.exit(code);
 };
-var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>] [--dir <telemetry dir>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]");
+var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]");
 function parseArgs(argv) {
-  const opts = { worktree: void 0, option: void 0, base: void 0, spec: void 0, dir: void 0, legs: [] };
+  const opts = { worktree: void 0, option: void 0, base: void 0, spec: void 0, legs: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const value = argv[i + 1];
@@ -518,12 +512,11 @@ function parseArgs(argv) {
       const leg = /^https?:\/\//.test(result) ? { repo, pr: result } : { repo, sha: result };
       if (split < 1 || !validLegs([leg])) fail(1, "invalid --leg " + value);
       opts.legs.push(leg);
-    } else if (a === "--dir") takes("dir");
-    else usage();
+    } else usage();
   }
   if (opts.migrate !== void 0) {
     opts.worktree ??= process2.cwd();
-    if (opts.option || opts.base || opts.spec || opts.dir || opts.legs.length) usage();
+    if (opts.option || opts.base || opts.spec || opts.legs.length) usage();
   } else if (!opts.base || !OPTIONS.has(opts.option)) usage();
   if (!opts.worktree || !isAbsolute2(opts.worktree)) usage();
   return opts;
@@ -557,15 +550,15 @@ function walkRecords(absDir) {
 }
 function migrate(root, dir, repo, remote) {
   const writes = /* @__PURE__ */ new Map();
-  for (const path2 of walkRecords(dir).sort()) {
-    const record = parseRecord(readFileSync(path2, "utf8"));
+  for (const path of walkRecords(dir).sort()) {
+    const record = parseRecord(readFileSync(path, "utf8"));
     if (!record) {
-      process2.stderr.write(`warning: skipped unparseable schema-1 record ${path2}
+      process2.stderr.write(`warning: skipped unparseable schema-1 record ${path}
 `);
       continue;
     }
     record.repo ??= repo;
-    writes.set(`${repo}/brainstorming/${toPosix(relative2(dir, path2))}`, serializeRecord(record));
+    writes.set(`${repo}/brainstorming/${toPosix(relative2(dir, path))}`, serializeRecord(record));
   }
   const result = syncTelemetryBranch(root, writes, remote);
   if (!result.ok) return console.log(`telemetry: not pushed (${result.reason})`);
@@ -595,15 +588,13 @@ async function seal(vcs, rec, o) {
     parsed.derived = derive(parsed, now);
     writeFileSync(abs, serializeRecord(parsed));
   }
-  const path2 = `${o.repo}/brainstorming/${parsed.spec.replace(/\.md$/, ".yaml")}`;
-  const sync = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map([[path2, readFileSync(abs, "utf8")]]));
+  const path = `${o.repo}/brainstorming/${parsed.spec.replace(/\.md$/, ".yaml")}`;
+  const sync = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map([[path, readFileSync(abs, "utf8")]]));
   if (!sync.ok) return console.log(`telemetry: not pushed (${sync.reason})`);
   console.log(`sealed ${rec}`);
 }
 async function main() {
   const opts = parseArgs(process2.argv.slice(2));
-  const override = opts.dir === void 0 ? void 0 : resolveTelemetry({ telemetry: { enabled: true, dir: opts.dir } });
-  if (override?.warning) usage();
   const vcs = existsSync2(opts.worktree) ? vcsFor(opts.worktree) : void 0;
   if (!vcs) fail(1, "not a git or jj checkout");
   const root = vcs.root;
@@ -617,7 +608,8 @@ async function main() {
   if (telemetry.warning) process2.stderr.write(`warning: ${telemetry.warning}
 `);
   if (!telemetry.enabled) return console.log("telemetry disabled");
-  const dir = override?.dir ?? telemetry.dir;
+  if (vcs.kind === "jj") return console.log("telemetry: not pushed (jj workspace: no git remote)");
+  const dir = DEFAULT_TELEMETRY_DIR;
   if (opts.migrate === void 0 && !validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
   const store = telemetryDir(root);
   const repo = telemetryRepo(root);
