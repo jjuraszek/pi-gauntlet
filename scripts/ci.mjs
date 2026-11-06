@@ -480,6 +480,7 @@ try {
       R("extensions/lib/telemetry-ship.test.ts"),
       R("extensions/telemetry.test.ts"),
       R("extensions/telemetry-leg.test.ts"),
+      R("extensions/telemetry-leg-fields.test.ts"),
       R("bin/gauntlet-spec-index.test.mjs"),
       R("bin/gauntlet-telemetry-seal.test.mjs"),
       R("src/bins/gauntlet-telemetry-seal.test.mjs"),

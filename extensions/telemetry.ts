@@ -243,7 +243,7 @@
     // Disarmed and unbound: activity outside the gauntlet is never charged to the next run.
     const live = (): Accumulators => record
       ? (record.accumulators[sessionId] ??= emptyAccumulators())
-      : gauntletEntered ? pending : emptyAccumulators();
+      : legAcc() ?? (gauntletEntered ? pending : emptyAccumulators());
 
     const canBind = (): boolean => gauntletEntered && !frozen && phases.ship.status !== "complete";
 
@@ -549,6 +549,10 @@
       if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
       if (event.toolName === "phase_tracker" && !event.isError) {
         await applyPhaseDetails(event.details as never, snap);
+        return undefined;
+      }
+      if (event.toolName === "subagent" && legAcc()) {
+        await onSubagentResult(event.details, event.content, event.isError);
         return undefined;
       }
       if (!record && !canBind()) return undefined;
@@ -888,5 +892,5 @@
       refreshLinks();
     };
 
-    registerLegTelemetry(pi, deps);
+    const legAcc = registerLegTelemetry(pi, deps, () => !!record);
 }

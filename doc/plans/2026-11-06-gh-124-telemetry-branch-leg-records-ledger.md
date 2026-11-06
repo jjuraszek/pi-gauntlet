@@ -3,7 +3,7 @@
 base: d04aa00576eaaf802b8cdde8d8ab1917d0118f68
 verification: npm test
 checks: commands
-iterations: 10
+iterations: 11
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -18,10 +18,10 @@ allowance: 10
 | 8 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test src/bins/gauntlet-telemetry-readers.test.mjs extensions/telemetry.test.ts; 100 passed, 0 failed; brainstorm writes to shipped specs block from refreshed or cached refs with the guard reason; absent refs allow writes with one guard-unavailable notice |
 | 9 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry.test.ts extensions/lib/gauntlet-settings.test.ts src/bins/gauntlet-telemetry-seal-branch.test.mjs src/bins/gauntlet-telemetry-jj.test.mjs src/bins/gauntlet-telemetry-invariance.test.mjs src/bins/gauntlet-telemetry-concurrency.test.mjs; 141 passed; 0 failed |
 | 10 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg.test.ts extensions/telemetry.test.ts; 94 passed; 0 failed; final done or stuck settlements publish one record after follow-on work without changing checkout or index |
-| 11 | open | 0 | |
+| 11 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 4 passed; 0 failed |
 | 12 | open | 0 | |
-| 13 | open | 0 | |
-| 14 | open | 0 | |
+| 13 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 5 passed; 0 failed |
+| 14 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 8 passed; 0 failed |
 | 15 | open | 0 | |
 | 16 | open | 0 | |
 | 17 | open | 0 | |
@@ -41,3 +41,6 @@ row 8 done | Confirmed brainstorm writes block from refreshed or cached shipped 
 row 7 done | Added idempotent corpus migration, origin repo stamps and unknown-repo grouping, preserving files output for all 108 committed records. | Reuse --migrate in src/bins/gauntlet-telemetry-seal.mjs and src/bins/gauntlet-telemetry-migration.test.mjs to retire the tracked corpus.
 row 9 done | Moved recorder state into Git or jj metadata, retired telemetry.dir with a warning and made plain-jj sealing return the unsupported-store notice. | Reuse extensions/telemetry.ts metadata binding and src/bins/gauntlet-telemetry-jj.test.mjs to test local-only jj sealing.
 row 10 done | Added session-leg publication for all three skills at final done or stuck settlement, after follow-on work. | Extend extensions/lib/telemetry-leg.ts for record fields; reuse extensions/telemetry-leg.test.ts beside its extension-test siblings for lifecycle checks.
+row 11 done | Leg records now carry observed author, version, models, tokens and cost, plus parsed item identities and outcomes. | Reuse telemetry-leg.ts settlementItems and accumulator accessor; telemetry-leg-fields.test.ts checks measured fields against forged assistant claims.
+row 13 done | Verified that council member usage and models enter shape-ticket totals once through the existing dispatch reducer. | Reuse the council usage fixture in extensions/telemetry-leg-fields.test.ts for parent and child cost conservation checks.
+row 14 done | Verified one record per batch for all three skills with every settled ref and conserved parent plus child costs. | Extend the batch cases in extensions/telemetry-leg-fields.test.ts to exercise additional item and accounting combinations.

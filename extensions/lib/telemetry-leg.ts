@@ -4,17 +4,24 @@ import type { Deps } from "../telemetry.ts";
 import { checkoutOf } from "./checkout.ts";
 import { syncTelemetryBranch, telemetryRepo } from "./telemetry-branch.ts";
 import { textOf } from "./telemetry-collect.ts";
+import { addTokens, compact, emptyAccumulators, zeroTokens, type Accumulators, type Tokens } from "./telemetry-record.ts";
 
 const skills = ["shape-ticket", "gatekeep-pr", "check-delivery"] as const;
 type LegSkill = (typeof skills)[number];
 export interface LegItem {
   kind: "ticket" | "pr";
-  key: string;
+  key?: string;
+  ticket?: string;
   outcome: string;
 }
 export interface LegRecord {
   skill: LegSkill;
   session: string;
+  author: { name?: string; email?: string };
+  gauntlet_version?: string;
+  models: string[];
+  tokens: Omit<Tokens, "cost">;
+  cost: number;
   repo: string;
   ts: string;
   items: LegItem[];
@@ -22,25 +29,44 @@ export interface LegRecord {
 
 const legSkill = (name: string | undefined): LegSkill | undefined => skills.find((skill) => skill === name);
 
+const ticketRef = /^(?:#\d+|[^\s/#]+\/[^\s/#]+#\d+|[A-Z][A-Z0-9]*-\d+|https?:\/\/\S+\/(?:issues\/\d+|issue\/[A-Z][A-Z0-9]*-\d+)(?:\/[^\s]*)?)$/;
+const outcomes: Record<LegSkill, string> = {
+  "shape-ticket": "written|created|closed|close failed \\(.*\\)|close by hand|dropped|declined|stopped|no-op|unfetched",
+  "gatekeep-pr": "approved|merged|closed-pr|final|merge-queued|stopped|stuck - .+",
+  "check-delivery": "delivered|manual|declined|already recorded|skipped|failed - .+",
+};
+
 export function settlementItems(skill: LegSkill, text: string): LegItem[] | undefined {
   const [marker, ...lines] = text.split("\n");
-  if (!/^gauntlet: (?:done|stuck) .+/.test(marker)) return undefined;
+  if (!/^gauntlet: (?:done|stuck)\b/.test(marker)) return undefined;
+  const row = new RegExp(`^(.+?): (${outcomes[skill]})$`);
   const items = lines.flatMap((line): LegItem[] => {
-    const match = /^(\S+): ([a-z][a-z-]*(?: [a-z]+)?)(?: - .+)?$/.exec(line);
-    return match ? [{ kind: skill === "gatekeep-pr" ? "pr" : "ticket", key: match[1], outcome: match[2] }] : [];
+    let ticket: string | undefined;
+    const annotation = / \(([^()]+)\)$/.exec(line);
+    if (skill === "gatekeep-pr" && annotation && ticketRef.test(annotation[1])) {
+      ticket = annotation[1];
+      line = line.slice(0, annotation.index);
+    }
+    const match = row.exec(line);
+    if (!match || match[1].startsWith("# ") || match[1].startsWith("#### ")) return [];
+    const [, ref, outcome] = match;
+    const pr = /^#\d+@[a-f\d]+$/i.test(ref) || /^https?:\/\/\S+\/pull\/\d+(?:@[a-f\d]+)?$/i.test(ref);
+    if (pr || ticketRef.test(ref)) return [compact({ kind: pr || skill === "gatekeep-pr" ? "pr" : "ticket", key: ref, ticket, outcome }) as LegItem];
+    if (skill === "shape-ticket" && (outcome === "dropped" || outcome === "declined")) return [{ kind: "ticket", outcome }];
+    return [];
   });
   return items.length ? items : undefined;
 }
 
-export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps): void {
-  let active: { skill: LegSkill; session: string; ts: string } | undefined;
+export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () => boolean): () => Accumulators | undefined {
+  let active: { skill: LegSkill; session: string; ts: string; acc: Accumulators; models: Set<string> } | undefined;
   let terminal: LegItem[] | undefined;
   const enabled = (ctx: ExtensionContext) => Number(process.env.PI_SUBAGENT_DEPTH ?? "0") === 0 && deps.settings(ctx.cwd).telemetry.enabled;
   const reset = () => { active = undefined; terminal = undefined; };
   const start = (skill: LegSkill | undefined, ctx: ExtensionContext) => {
-    if (!skill || !enabled(ctx)) return;
-    if (active?.skill === skill && active.session === ctx.sessionManager.getSessionId()) return;
-    active = { skill, session: ctx.sessionManager.getSessionId(), ts: deps.now() };
+    if (!skill || !enabled(ctx) || runBound() || active) return;
+    active = { skill, session: ctx.sessionManager.getSessionId(), ts: deps.now(), acc: emptyAccumulators(), models: new Set() };
+    if (ctx.model) active.models.add(`${ctx.model.provider}/${ctx.model.id}`);
     terminal = undefined;
   };
   const notify = (reason: string) => pi.sendMessage({
@@ -64,13 +90,19 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps): void {
     const path = (event.input as { path?: unknown }).path;
     if (typeof path === "string") start(legSkill(/(?:^|\/)skills\/([^/]+)\/SKILL\.md$/.exec(path)?.[1]), ctx);
   });
+  pi.on("model_select", async (event, ctx) => {
+    if (active && enabled(ctx) && !runBound()) active.models.add(`${event.model.provider}/${event.model.id}`);
+  });
   pi.on("message_end", async (event, ctx) => {
     if (event.message.role !== "assistant") return;
-    terminal = active && enabled(ctx) ? settlementItems(active.skill, textOf(event.message.content)) : undefined;
+    if (active && enabled(ctx) && !runBound()) {
+      if (event.message.provider && event.message.model) active.models.add(`${event.message.provider}/${event.message.model}`);
+      terminal = settlementItems(active.skill, textOf(event.message.content));
+    } else terminal = undefined;
   });
   // agent_end can precede queued follow-on work; only the final live message at settlement seals.
   pi.on("agent_settled", async (event, ctx) => {
-    if (!active || !terminal || event.aborted || !enabled(ctx)) return;
+    if (!active || !terminal || event.aborted || !enabled(ctx) || runBound()) return;
     const run = active;
     const items = terminal;
     reset();
@@ -80,7 +112,17 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps): void {
       if (checkout.via !== "git") return notify("jj workspace: no git remote");
       const repo = (deps.telemetryRepo ?? telemetryRepo)(checkout.toplevel);
       if (!repo) return notify("cannot resolve owner/name from origin");
-      const record: LegRecord = { ...run, repo, items };
+      const [name, email] = await Promise.all([
+        deps.git(["config", "user.name"], checkout.toplevel),
+        deps.git(["config", "user.email"], checkout.toplevel),
+      ]);
+      const { cost, ...tokens } = Object.values(run.acc.phases).reduce((total, phase) => addTokens(total, phase.tokens ?? zeroTokens()), zeroTokens());
+      for (const persona of Object.values(run.acc.personas)) for (const model of persona.models) run.models.add(model);
+      const record: LegRecord = {
+        skill: run.skill, session: run.session, ts: run.ts, repo, items,
+        author: compact({ name: name.stdout.trim() || undefined, email: email.stdout.trim() || undefined }),
+        gauntlet_version: deps.settings(ctx.cwd).versions["pi-gauntlet"], models: [...run.models], tokens, cost,
+      };
       const stamp = run.ts.replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
       const path = `${repo}/${run.skill}/${stamp}-${run.session}.yaml`;
       const result = (deps.syncTelemetryBranch ?? syncTelemetryBranch)(checkout.toplevel, new Map([[path, stringify(record)]]), deps.settings(ctx.cwd).telemetry.remote);
@@ -89,4 +131,5 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps): void {
       notify(String((error as Error).message ?? error));
     }
   });
+  return () => runBound() ? undefined : active?.acc;
 }
