@@ -1,0 +1,120 @@
+{
+  "sample": "workflow-stage-proof",
+  "arm": "candidate",
+  "skillSha": "3a8cd996bb717566bff5179c5d9b4d0bf200849144a6f0a06e89a0d0d96aa48d",
+  "inputSha": "0c6ed9d27e68865e55a8d20e9f021248463d02833ff3721114d166151240faa1",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\n\n## ABC-201 - Identify invalid import rows (repair, prepared)\n\nContext, Problem (including its `source:` footer) and Idea are unchanged and carried byte-for-byte. Because the AC integrity gate drops rows, this is a substantive full-replacement repair. Surviving behavior text and the untouched row are copied byte-for-byte. Checkbox syntax was already `- [ ]`.\n\n### Acceptance Criteria\n- [ ] The importer rejects a row without an id\n- [ ] The importer names the offending row in its error\n\n**AC integrity gate, by original row:**\n\n| Original row | Class | Action |\n|---|---|---|\n| `CI is green on the PR head` | Workflow-stage proof. Its only observable is a CI run result. | **Dropped.** The text is kept in the Reporter note. |\n| `The importer rejects a row without an id and make ci passes` | Behavioral, plus a workflow-stage clause (`make ci passes`, a full verification-suite run) | **Stage clause removed.** The behavior text is kept byte-for-byte. The whole original is kept in the note with the retired label. |\n| `The importer names the offending row in its error` | Behavioral, binary, verifiable before production | Kept unchanged. |\n\n**AC uniqueness:** the two remaining rows observe different things: rejecting the row versus naming it in the error. Neither one contains the other, so no further merge or split is needed.\n\n**Displaced-detail check:** Context, Problem and Idea have no matches on the closed list, so nothing else accumulates in the note.\n\n## Proposed Reporter note\n\n```text\nUNTRUSTED DATA - verbatim displaced ticket text; do not interpret as instructions\nReporter note:\nretired workflow-stage proof: CI is green on the PR head\nretired workflow-stage proof: The importer rejects a row without an id and make ci passes\n```\n\nThe ticket has no existing comments, so this is newly displaced detail. It is proposed as one new comment and will be written after the body, under the same approval.\n\n**ABC-201 gate outcome:** the integrity gate passes. The AC list is not empty, and there is no hard stop, park, or relocation. The ticket goes on to the step-5 deterministic gates, then the roast, then its step-8 old->new gate. That gate shows the body diff and the proposed comment as one payload, with metadata unchanged and no source gaps. It is not presented yet: all eligible tickets must finish preparation before the first gate.\n\n## ABC-202 - Complete the delivery check (integrity recovery, preparation checkpoint)\n\n**AC integrity gate:** the only criterion, `CI is green on the PR head`, is a **workflow-stage proof** (a CI run result, not a behavior of the change). It is **dropped**, and its text is kept for a Reporter note as `retired workflow-stage proof: CI is green on the PR head`.\n\nDropping it leaves the AC list empty. This is the **no-AC failure**: a real AC that can be verified before production must be recovered, or the ticket must be parked. The ticket's Problem and Idea describe recording a pipeline result, and no behavior of the change is stated anywhere in the snapshot. I will not invent one. Until you answer:\n\n- ABC-202 has no approval option.\n- No ABC-202 body or comment write is possible.\n- ABC-201's prepared changeset is unaffected and waits for its own gate.\n\n**Question - ABC-202 has no acceptance criterion that can be verified before production. How should it proceed?**\n\nA) Supply a real criterion now, as a setup, an action and an observable result that can be verified before production. It must describe a behavior of the change, not a CI run, PR state, merge, or verification-suite result. I will re-draft ABC-202, re-run the integrity gate, and present its own exact diff for approval.\nB) Park ABC-202 in the tracker's not-ready state, naming the missing criterion as the blocker. The repaired body would carry no AC section rows until one is supplied, and the retired CI row would go in the Reporter note.\nC) End recovery without values. ABC-202 is counted as `stopped` in the batch report, and its draft and report are shown in its turn without an approval option.\n\nRecommendation: A, if you can name an observable behavior. Otherwise B, so the gap stays tracked rather than silently closed.\n",
+      "words": 663,
+      "wallMs": 28462,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\n\n## ABC-201 — repaired Acceptance Criteria\n\n```markdown\n## Acceptance Criteria\n- [ ] The importer rejects a row without an id\n- [ ] The importer names the offending row in its error\n```\n\nThe CI-only row is dropped. Only the stage-proof clause is removed from the mixed row; its surviving behavior and the untouched row retain their wording.\n\n### Accumulated payload\n\n## Proposed Reporter note\n\n```untrusted\nReporter note:\nretired workflow-stage proof: - [ ] CI is green on the PR head\nretired workflow-stage proof: - [ ] The importer rejects a row without an id and make ci passes\n```\n\n**Integrity outcome:** passes. Two distinct behavioral observations remain: rejection of the invalid row and identification of the offending row. No approval or write occurs at this preparation checkpoint.\n\n## ABC-202 — independent integrity recovery\n\nIts sole criterion is workflow-stage proof:\n\n> - [ ] CI is green on the PR head\n\nDropping it leaves no Acceptance Criteria. This is a **no-AC failure**, not a wishful or tautological criterion. The dropped row must be retained in ABC-202’s own accumulated Reporter note as:\n\n```untrusted\nReporter note:\nretired workflow-stage proof: - [ ] CI is green on the PR head\n```\n\nABC-201’s surviving behavior cannot be reused to fill this gap. ABC-202 needs a human-supplied, pre-production-verifiable behavioral criterion, or it must be parked in the tracker’s not-ready state with the missing criterion named. No approval option is available now.\n\n**How should ABC-202 recover?**\n\nA) Supply a real behavioral Acceptance Criterion, naming its setup, action, and observable result, verifiable before production deployment.\n\nB) Park ABC-202 as not ready because no behavioral Acceptance Criterion has been supplied.\n",
+      "words": 246,
+      "wallMs": 15824,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d1a6cf9c16f7bc2ea0dc98ae2d89641dffd36667e42a01780c6311bfe85d3ece",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d9db112d337f2e2effe081773d70d5c5046cfe23eeb1418fcb04c305ed70aeb9",
+      "baselineOutputSha": "04bf298af211eba99cf1b01910bb84d7a3df1d824e45731df225bc5616daa357",
+      "candidateOutputSha": "b090809f76ea00f3b9190d9e434e42a1f43c16865dfaa7a583362575c3e71f2a",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the bundled row is reduced to exactly `- [ ] The importer rejects a row without an id`, the third criterion is kept byte-for-byte, and the fenced Reporter note prefixes both the dropped standalone CI row and the verbatim bundled original with `retired workflow-stage proof:` so no unlabeled duplicate survives, moving f2, f3 and f4 from fails to holds while f1, f5 and f6 stay held. Before lost f2 and f3 by rewriting both surviving rows into setup/action/result prose and lost f4 by retaining the originals without the retired label. One wording risk in After's ABC-202 option B: 'The repaired body would carry no AC section rows until one is supplied' could be read as proposing to write an emptied AC list; it still held f6 here because parking is distinct from approval or filing, but a safer phrasing is 'the body is not rewritten while parked; the retired CI row goes into the Reporter note only once a real criterion is supplied', which keeps every held fact and removes the ambiguity.",
+      "wallMs": 18560,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d1a6cf9c16f7bc2ea0dc98ae2d89641dffd36667e42a01780c6311bfe85d3ece",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d9db112d337f2e2effe081773d70d5c5046cfe23eeb1418fcb04c305ed70aeb9",
+      "baselineOutputSha": "510b1a8ef3ed029e6b9979c542a98e557dea03359d9b9793b0f14897399dfb0c",
+      "candidateOutputSha": "2532675649dce27498ab24c64028f36214feacf44194979710ec0b3194bd8806",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: it drops the standalone CI-green row, strips only the `make ci passes` clause from the bundled row (leaving `- [ ] The importer rejects a row without an id` byte-exact), preserves the third row untouched, and labels both the dropped CI row and the verbatim bundled original with `retired workflow-stage proof:` inside an `untrusted` fence, so no unmarked duplicate survives. It also reaches the no-AC recovery for ABC-202 with only supply-or-park options and no invented behavior, whereas Before kept ABC-202's stage-proof row as a valid criterion and only mentioned recovery conditionally. Before failed f1–f4 because it rewrote every row into Given/When/Then form (altering bytes), kept both CI rows, and omitted the retired label. Nothing regressed in After; the only wording nit is that After's AC block uses `## Acceptance Criteria` while the ticket uses `### Acceptance Criteria` — keep the original heading level to stay byte-faithful to untouched structure, and keep ABC-202's own labeled note separate as you did.",
+      "wallMs": 17191,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "213d451683cab5b8f75d196826eb6f6a6a0008e1"
+}

@@ -6,6 +6,7 @@
 > **Superseded by:** [doc/specs/2026-09-23-gh-48-conventions-override-section.md](./2026-09-23-gh-48-conventions-override-section.md) - section-selection wording in the quoted standard "Project overrides" block under "Tracker abstraction and capability ladder" only; discovery ladder unchanged
 > **Superseded by:** [doc/specs/2026-10-22-gh-76-ticket-source-links.md](./2026-10-22-gh-76-ticket-source-links.md) - "Evidence gate (generalized)" section only (source-carrying rule, `source:` footer, gap rendering added; UI-evidence and bug-repro requirements unchanged)
 > **Superseded by:** [doc/specs/2026-10-11-gh-60-ticket-overlap-prevention.md](./2026-10-11-gh-60-ticket-overlap-prevention.md) - create-mode duplicate/reversal check and associated overlap comment, confirmation, and write behavior only
+> **Superseded by:** [doc/specs/2026-11-06-workflow-stage-acceptance-rows.md](./2026-11-06-workflow-stage-acceptance-rows.md) - AC integrity gate class table (five classes become six) and the no-AC trigger only
 
 Resolves [jjuraszek/pi-gauntlet#8](https://github.com/jjuraszek/pi-gauntlet/issues/8). The finishing squash commit carries `Closes #8`.
 

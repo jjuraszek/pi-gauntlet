@@ -1,6 +1,12 @@
-for: 62d79f0ce46f12e958e9ae8e56a9ea3443755415346d90aa9929f339c19f0a5d
+for: 151f11a691ba796c91a089d7015ad6fce8681ec2eeee5aaa3c332ebca18ad014
 
 ## Change
+
+Keep marked mixed-row provenance out of Design alongside marked stage-only provenance. Extend workflow-stage-ticket-row's Reporter note with the realistic bundled original and strengthen f7 to reject the make ci passes suite obligation while retaining importRows. Return to the cut question unchanged and report no repair after a confirmation cancel or an initial ticket-read abort. The fixed A-answer continuation cannot exercise that D-path abort; cover its owning clause in the deterministic contract test, not a claimed model continuation. Preserve prior result records and run only the selected ticket-row sample.
+
+Name the owning Workflow-stage proof class in the drafting integrity table. Leave stage-only validation out before drafting and preserve an already drafted row's Design commitment through proof rewriting. The selected workflow-stage-drafted-row checkpoint keeps two Design behaviors while replacing a suite-only proof sketch with the missing-id observable. Keep full verification in Tests and ask no scope-cut question for delivery notes. Both baseline models already render the required rows; this is regression coverage, not a claimed behavioral improvement. Preserve ticket-screening evidence and prior partial reports.
+
+Screen verbatim ticket rows at step 4 using shape-ticket's Workflow-stage proof class before ordinary question one. Recommend ticket repair for sole-stage and bundled observations without editing rows; retain CI-as-product and behavior rows. Exclude retired proof provenance from Design while carrying other Reporter-note requirements. The selected workflow-stage-ticket-row continuation covers seven facts on fixed observations, not live ticket repair; preserve prior reports and run no target-wide sweep.
 
 Cover the resolved allowance gate, waves-only funding grammar and amendment allowance preservation with selected fixtures. Supply the newly required successful settings result in shared gate fixture state, with each case's explicit settings or unavailable-tool observation taking precedence. Keep sample IDs and all must-hold facts, including the waves controls. Preserve recovered model records without treating them as current verification; defer selected model checks to the parent. Never run full targets, including at completion.
 
@@ -65,6 +71,17 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
 
 ## Expected to move
+- workflow-stage-drafted-row/f1: holds -> holds - Exclude stage-only drafted rows.
+- workflow-stage-drafted-row/f2: holds -> holds - Preserve one row per Design behavior, including the suite-proof sketch's outcome.
+- workflow-stage-drafted-row/f3: holds -> holds - Ask no scope-cut question and emit no none fallback.
+- workflow-stage-drafted-row/f4: holds -> holds - Keep the full-suite command and focused cases in Tests.
+- workflow-stage-ticket-row/f1: fails -> holds - Ask the sole-stage cut question first after the holds-statement.
+- workflow-stage-ticket-row/f2: fails -> holds - Keep A-D on separate lines in order.
+- workflow-stage-ticket-row/f3: fails -> holds - Name the ticket in D's shape-ticket repair command.
+- workflow-stage-ticket-row/f4: fails -> holds - Recommend D for the sole-stage row.
+- workflow-stage-ticket-row/f5: fails -> holds - Send the bundled row intact to its own cut question, recommending D.
+- workflow-stage-ticket-row/f6: holds -> holds - Do not question CI-as-product or behavior rows.
+- workflow-stage-ticket-row/f7: fails -> holds - Carry real Reporter-note requirements, never retired proof as Design.
 - loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
 - loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
 - spec-pr-regate-legs/remote-only: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change

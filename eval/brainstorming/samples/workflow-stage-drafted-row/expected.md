@@ -1,0 +1,4 @@
+- f1: judged: The drafted Acceptance criteria section has no row whose sole observable is a CI or workflow result, PR state or approval, merge, or full-suite run.
+- f2: judged: Under Drafted from the design, no ticket rows:, exactly two unchecked in-scope rows name the two committed behaviors: rejecting a row without an id and naming the offending row in its error. The missing-id row names that behavior rather than npm test or a suite run; neither commitment is lost or cut.
+- f3: judged: No cut question or scope-decision question is asked, and no none fallback replaces the rows.
+- f4: judged: The rendered Tests section retains npm test as the full-verification command and the focused missing-id and offending-row error cases in test/importer.test.ts.
