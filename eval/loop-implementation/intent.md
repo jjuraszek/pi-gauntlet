@@ -1,6 +1,8 @@
-for: 911bdf5a0b93de4cddbb2ecc04d142b8d5f382b4854cdf69d6dbca337e6f4aa8
+for: 01d887140abfd2e19fa438d0841c181705849b0a70524704484daf132a1f27c1
 
 ## Change
+
+Bound exit-verification repairs by the shared allowance across legs, reserving each dispatch with pending: verify and replacing that reservation with one attributed home repair marker. Recover owned interrupted repairs without changing row cells or double-counting on resume; preserve uncertain ownership at recovery incomplete. Select verify-repair-count, exit-verification-escalates, cap-and-exit-verification and gate-set-failure only. The new sample includes reconstruction's verify routing; text replays prove narrated boundaries, not live recovery or signal execution. Preserve other sample records and leave broader coverage to later rows.
 
 Replace below-allowance stagnation stops with row-local hints through target selection and escalation. Pending human retry hints win; admitted amend/cut commits reset both windows for all rows, while retries reset only their row and allowance raises reset neither. Preserve counters and spent escalation. Require intermediate implement reports to continue to the next ordered action in the same turn, ending only at a Human stop header. Select stagnation-and-retry, amend-resets-windows and same-turn-continuation for this change; these text replays prove narrated routing, not live orchestration.
 
@@ -66,6 +68,11 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- verify-repair-count/budget: fails -> holds - Use allowance for repeated escalated repairs across legs without row retry funding.
+- verify-repair-count/reservation: fails -> holds - Persist and attribute each pending verify dispatch before the child starts.
+- verify-repair-count/exhaustion: fails -> holds - Render the repair count at allowance rather than a once-per-flow stop.
+- verify-repair-count/interruptions: fails -> holds - Recover owned interrupted repairs and retain their consumed reservation.
+- verify-repair-count/resume: fails -> holds - Convert pending verify into one marker even at the last reserved repair.
 - same-turn-continuation/intermediate: fails -> holds - Continue after progress reports without a new confirmation gate.
 - same-turn-continuation/hint: fails -> holds - Follow the below-allowance hint with a same-turn dispatch.
 - stagnation-and-retry/hints: fails -> holds - Continue below allowance with the fixed row hint and normal escalation.
@@ -195,8 +202,8 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - last-attempt-model-boundary/stagnation: fails -> holds - Stagnation wins before spending last-attempt escalation.
 - last-attempt-model-boundary/ordinary: fails -> holds - Ordinary attempts and seed do not enter the last-attempt model path.
 - escalated-row-attempt/amend: fails -> holds - Named amendments use section 5 and return to ordered checks; repeated row evidence waits with Recommendation none.
-- exit-verification-escalates/repair: fails -> holds - Repair automatically once under both options in the failing leg without amend permission or a cap condition; require a clean single-commit return, persist the once-per-flow parent marker, pass command/checkout/exit/log instead of output and rerun the failing checkout's gate pairs once before continuing still-unexecuted other-checkout pairs; rows remain closed.
-- exit-verification-escalates/boundaries: fails -> holds - Dirty/extra commits, errors and unrecoverable identity remain spent through recovery; failed rerun names spent escalation and recommendation and keeps the restricted verify stop.
+- exit-verification-escalates/repair: fails -> holds - Repair within allowance under both options using attributed pending reservations and home markers, scoped gate reruns and unchanged rows.
+- exit-verification-escalates/boundaries: fails -> holds - Recover owned interrupted repairs, count markers and pending once across legs and preserve uncertain ownership at recovery incomplete.
 - exit-repair-capability/automatic: fails -> holds - Resolve the fallback model and repair once under both options despite a high iterations count.
 - exit-repair-capability/missing: fails -> holds - A missing capability stops without consuming count or identity and may be resolved later.
 - exit-repair-capability/spent: fails -> holds - Durable or unrecoverable identity prevents another repair on resume.

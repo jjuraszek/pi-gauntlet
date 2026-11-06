@@ -103,7 +103,7 @@ After confirmation:
 
 ### Pending recovery
 
-Recover before dispatch or verification on every ledger restore. Run the read-only admission-evidence check below before phase/task restoration on every ledger route, including briefs; resolve its human question before any tracker call. Apply recovery writes only at the ordered pending-recovery step. Read the durable `pending:` tuple (target row or seed, repo, pre-dispatch HEAD); the parent's uncommitted iterations bump plus tuple is expected dispatch dirt, not a reason to skip recovery.
+Recover before dispatch or verification on every ledger restore. Run the read-only admission-evidence check below before phase/task restoration on every ledger route, including briefs; resolve its human question before any tracker call. Apply recovery writes only at the ordered pending-recovery step. Read the durable `pending:` tuple (target row, seed or verify, repo, pre-dispatch HEAD); the parent's uncommitted iterations bump plus tuple is expected dispatch dirt, not a reason to skip recovery. Route `pending: verify` through the loop driver's After the loop step 1 repair admission/recovery before the row/seed paths below; preserve its reserved count and consumed iteration without a second marker or bump.
 
 With no `pending:` on disk, inspect home commit history before any refresh. Find the latest home child row/seed commit that changed this ledger, even when unrelated commits follow it; read its subject and body with `git -C <worktree> log --format=%H -- <ledger path>` and `git -C <worktree> show -s --format=%B <sha>`. Exclude returns superseded by a parent admission/repair or approved ledger mutation proven by the evidence below; never replay those over the parent's current ledger.
 
