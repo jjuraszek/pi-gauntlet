@@ -327,6 +327,20 @@ Example override (the `buckets` shown replace the defaults):
 
 `enabled: false` turns every handler off (no file, no exclude line, no guard). `dir` is relative to the git toplevel. `buckets` is an ordered `{ name: [globs] }` object matched with `path.matchesGlob` against repo-relative paths; defaults are `test` = `**/test/**`, `**/tests/**`, `**/__tests__/**`, `**/*.test.*`, `**/*.spec.*`, `**/*_test.*`; `docs` = `**/*.md`; `config` = `**/*.json`, `**/*.yaml`, `**/*.yml`, `**/*.toml`, `**/*.lock`, `**/*-lock.*`; anything else `code`; first match wins. Read through the shared `gauntlet-settings` resolver (`resolveTelemetry`).
 
+#### Keep telemetry pushes out of CI
+
+Exclude `gauntlet/telemetry` from every push-triggered workflow in a consumer repo so record publication does not start builds. For GitHub Actions workflows that run on all product branches, use:
+
+```yaml
+on:
+  push:
+    branches-ignore: ['gauntlet/telemetry']
+```
+
+Do not combine `branches` and `branches-ignore` under the same `push` event. A workflow with an existing branch allowlist can keep it if it excludes `gauntlet/telemetry`. Pull-request triggers stay unchanged. This repo's `.github/workflows/test.yml` uses the exclusion, and `scripts/ci.mjs` pins it.
+
+Alternatively, set `piGauntlet.telemetry.remote` to a separate repository URL and exclude `gauntlet/telemetry` from push-triggered workflows there. The default destination is `origin`; changing the telemetry remote does not change the product repository's origin.
+
 ## Extensions summary
 
 | Extension | Configurable | Settings key |

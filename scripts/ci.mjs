@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-// Repo validator. Runs in CI on every push and as the release gate.
-// The validator itself uses only Node built-ins; `npm install` must run first
-// because the telemetry record module and its tests import the `yaml` dependency.
+// Repo validator. Runs in CI and as the release gate.
+// Run `npm install` first: workflow checks and telemetry tests use `yaml`.
 //
 // Usage:
 //   node scripts/ci.mjs                      # validate repo
@@ -11,6 +10,7 @@ import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { parse as parseYaml } from "yaml";
 import { scanTree } from "../eval/lib/hygiene.mjs";
 import { lintAll } from "../eval/lib/lint.mjs";
 
@@ -23,6 +23,14 @@ const ok = (msg) => console.log(`  ok  ${msg}`);
 
 const expectIdx = process.argv.indexOf("--expect-version");
 const expectVersion = expectIdx !== -1 ? process.argv[expectIdx + 1] : null;
+
+const pushTrigger = parseYaml(readFileSync(R(".github/workflows/test.yml"), "utf8")).on?.push;
+if (!Array.isArray(pushTrigger?.["branches-ignore"]) || !pushTrigger["branches-ignore"].includes("gauntlet/telemetry")) {
+  fail(".github/workflows/test.yml: push.branches-ignore must exclude gauntlet/telemetry");
+}
+if (pushTrigger && Object.hasOwn(pushTrigger, "branches")) {
+  fail(".github/workflows/test.yml: push must not combine branches with branches-ignore");
+}
 
 // ---- package.json ----------------------------------------------------------
 const pkg = JSON.parse(readFileSync(R("package.json"), "utf8"));

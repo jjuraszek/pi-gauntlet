@@ -3,7 +3,7 @@
 base: d04aa00576eaaf802b8cdde8d8ab1917d0118f68
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -11,7 +11,7 @@ allowance: 10
 | 1 | done | 1 | node --test src/bins/gauntlet-telemetry-seal-branch.test.mjs; 2 passed; 0 failed; PR and squash preserve feature HEAD and index while publishing orphan records |
 | 2 | done | 1 | node --test src/bins/gauntlet-telemetry-invariance.test.mjs; 9 passed, 0 failed, 0 skipped; seal and leg publisher preserve index, checkout bytes and worktree list in git, linked and jj-colocated workspaces; temporary indexes removed after successful and rejected pushes |
 | 3 | done | 1 | node --test src/bins/gauntlet-telemetry-concurrency.test.mjs; 6 passed, 0 failed; shared-tip and orphan races retry once without force; stranded records survive rejection and recover through refresh, seal or leg publication |
-| 4 | open | 0 | |
+| 4 | done | 1 | node -e 'require("node:assert/strict").deepEqual(require("yaml").parse(require("node:fs").readFileSync(".github/workflows/test.yml", "utf8")).on.push, {"branches-ignore":["gauntlet/telemetry"]})'; assertion passed; push excludes gauntlet/telemetry with no branches key; consumer CI exclusion and telemetry.remote guidance documented |
 | 5 | open | 0 | |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
@@ -34,3 +34,4 @@ row 0 done | seeded 1 rows, closed 0 on baseline | row 1 using src/bins/gauntlet
 row 1 done | Sealing publishes common-dir records to an orphan telemetry branch without changing feature HEAD, index, or the squash-delivered tree. | Reuse extensions/lib/telemetry-branch.ts for common-dir lookup and plumbing-based record publication; extend its sync helper for retries.
 row 2 done | Verified checkout and index byte invariance for seals and leg publication in git, linked worktrees and jj-colocated workspaces, including rejected pushes. | Reuse src/bins/gauntlet-telemetry-invariance.test.mjs to check publisher isolation and temporary-index cleanup when extending sync behavior.
 row 3 done | Replay resolves shared-tip and orphan races, retains stranded records after a second rejection, and prints nonblocking seal failures. | Reuse syncTelemetryBranch in extensions/lib/telemetry-branch.ts with an empty map to push pending commits during reader refreshes.
+row 4 done | Excluded telemetry pushes from CI and documented consumer workflow exclusions and the remote alternative. | scripts/ci.mjs pins telemetry push exclusion; reuse doc/configuration.md's CI snippet for consumer setup.
