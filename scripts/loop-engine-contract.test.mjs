@@ -157,17 +157,13 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
     'With no marker and recoverable history, apply the threshold predicate',
     'a previously missing model or migrated row has not spent escalation',
   ]) assert.ok(before.includes(token), token);
-  const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
+  const recovery = driver.split('\n## Interrupted recovery\n')[1].split('\n## Human stop\n')[0];
   for (const token of [
-    'Preserve the pre-dispatch escalation decision through authorized discard/reset',
-    'Boundary rejection never increments attempts', 'leaves attempts at the pre-dispatch count',
-    'after authorized recovery dispatch on the worker model without requiring retry or `rows +N`',
-    'An admitted validation miss instead increments attempts by exactly one through `loop: repair row <n>`',
-    'retains the spent decision and returns to the ordered table',
-    'at its effective allowance stops under rule 2',
-    'below it gets its next attempt on the worker model',
-  ]) assert.ok(stop.includes(token), token);
-  assert.doesNotMatch(stop, /attempts at effective allowance - 1|to the effective allowance and stops under rule 2/);
+    'including spent escalation', 'attempts = saved attempts +1',
+    'Commit `loop: repair row <n>`, refresh and return to the ordered table',
+    'rule 2 stops a repaired row at allowance', 'consume no attempt and make no repair commit',
+  ]) assert.ok(recovery.includes(token), token);
+  assert.doesNotMatch(driver, /Boundary rejection never increments attempts/);
 });
 
 test('automatic exit verification repair is once per flow under both options', () => {
@@ -200,7 +196,7 @@ test('coordinated loop owns stable mappings, attributed returns and pending reco
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
-  for (const token of ['missing/duplicate scope lines', 'duplicate indices within a list', 'malformed tokens', 'out-of-range original indices', 'cut original AC indices', 'absent from every valid list to home', 'repeat shared indices', 'independent of scope-list order', 'duplicate/missing mappings', 'All-cut ledgers exit without seed', 'unseeded leg with non-cut entries in membership order', 'wholly cut legs', 'scope: AC 1, AC 3', 'scope: none', 'original AC order', 'membership order', '## Leg mapping', 'row | ac | leg', 'base repo-a:', 'seeded repo-a:', 'allowance 4', 'pending: 2 | repo-b | abc1234', 'without another attempt or iteration bump', 'zero commits', 'foreign entry', 'disposition-only cut', 'design:']) assert.ok(reference.includes(token), token);
+  for (const token of ['missing/duplicate scope lines', 'duplicate indices within a list', 'malformed tokens', 'out-of-range original indices', 'cut original AC indices', 'absent from every valid list to home', 'repeat shared indices', 'independent of scope-list order', 'duplicate/missing mappings', 'All-cut ledgers exit without seed', 'unseeded leg with non-cut entries in membership order', 'wholly cut legs', 'scope: AC 1, AC 3', 'scope: none', 'original AC order', 'membership order', '## Leg mapping', 'row | ac | leg', 'base repo-a:', 'seeded repo-a:', 'allowance 4', 'pending: 2 | repo-b | abc1234', 'without another attempt or iteration bump', 'zero/multiple commits', 'foreign entry', 'disposition-only cut', 'design:']) assert.ok(reference.includes(token), token);
   for (const token of ['pending:', 'iteration:', 'four-column', 'home ledger untouched', 'loop: seed evidence', 'loop: row', 'mapped original AC', 'Rules:']) assert.ok(persona.includes(token), token);
   assert.match(reference, /`checks: commands`/);
   assert.match(reference, /gate set grouped by `## Leg mapping`/);
@@ -251,7 +247,7 @@ test('ledger resume delegates gate execution to the loop skill', () => {
 test('coordinated reference reads use held membership before dispatch decisions', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const path = 'reference/coordinated-legs.md';
-  assert.equal(driver.split(path).length - 1, 2);
+  assert.equal(driver.split(path).length - 1, 3);
   const entry = driver.split('\n## Entry\n')[1].split('\n## Before each dispatch\n')[0];
   const dispatch = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0].trimStart();
   const entryRead = entry.split('\n').find(line => line.includes(path));
@@ -302,15 +298,25 @@ test('terminal home results refresh only after admission and retain pending on b
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   const validation = driver.split('\n## Validate the return\n')[1].split('\n## Human stop\n')[0];
-  assert.match(validation, /restore every row the child changed \(target and extras\).*saved copy.*separately recorded dispatch identity.*`pending:` tuple/);
-  assert.match(validation, /seed.*all dispatched non-cut rows/);
-  assert.match(validation, /Preserve consumed iterations.*other child changes and commits.*Refresh before the discard\/reset stop/);
+  assert.match(validation, /Route dispatch errors, non-DONE, killed, dirty and zero\/multiple-commit returns through ## Interrupted recovery/);
+  for (const token of ['exclusive checkout provenance', 'every changed path and commit', 'all changes preserved',
+    'OS-observed start identity captured at launch', 'matching start identity and command',
+    'Recheck all three immediately before signaling', 'a replacement group leader is not owned',
+    'wait at most 10 s', 'after another identity recheck', 'then require `kill -0 <pid>` to fail',
+    'Print `terminated <k> child jobs`', 'consume no attempt and make no repair commit',
+    'Project saved pre-dispatch row cells at this stop without overwriting unadmitted work']) {
+    assert.ok(validation.includes(token), token);
+  }
+  assert.ok(validation.indexOf('Establish exclusive checkout provenance') < validation.indexOf('reset --hard HEAD_BEFORE'));
+  assert.ok(validation.indexOf('After exclusive provenance and job exit are both established') < validation.indexOf('reset --hard HEAD_BEFORE'));
   assert.match(validation, /Never project terminal child results before clean\/exactly-one-commit admission/);
   assert.match(validation, /`iterations` \+1 and removal of the dispatched `pending:` line.*reject every other header change/);
   assert.match(validation, /Seed or ordinary.*committed tuple.*validation miss for the dispatched target after boundary admission, not a boundary rejection/);
-  assert.match(validation, /after the first miss re-dispatch `seed` once.*seed miss: <concrete miss>/);
-  assert.match(validation, /After the second consecutive miss, repair and take the existing human stop without another dispatch/);
-  assert.match(validation, /A validated seed resets the window, so ordinary dispatch starts clean/);
+  assert.match(validation, /Count seed attempts as `loop: repair seed` commits since ledger base/);
+  assert.match(validation, /Dispatch seed while this count is below the ledger allowance/);
+  assert.match(validation, /seed: <k> of <allowance>/);
+  assert.match(validation, /A validated seed resets the validation-miss window, so ordinary dispatch starts clean/);
+  assert.doesNotMatch(validation, /second consecutive miss.*human stop|retry seed once/);
   assert.match(validation, /Clear `pending:`.*commit `loop: repair row <n>`/);
   assert.match(driver, /Retry, cut, amend, raise-allowance and escalate commits never clear the tuple/);
   assert.match(persona, /Remove the `pending:` line from the ledger in your commit/);
@@ -322,20 +328,22 @@ test('terminal home results refresh only after admission and retain pending on b
   assert.match(validation, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1/);
 });
 
-test('reconstruction restores rejected target and extras before task projection', () => {
+test('reconstruction fences interrupted recovery before mutation or task projection', () => {
   const recovery = readFileSync(new URL('skills/gauntlet-resume/reference/reconstruction.md', root), 'utf8');
   const interrupted = recovery.split('| Confirmed interrupted |')[1].split('\n')[0];
   const home = recovery.split('| Home leg or single-member `home` |')[1].split('\n')[0];
   for (const instruction of [interrupted, home]) {
-    assert.match(instruction, /restore every row the child changed \(target and extras\).*pre-dispatch copy.*tuple.*before refresh/);
-    assert.match(instruction, /decisions/);
+    assert.match(instruction, /## Interrupted recovery/);
+    assert.match(instruction, /provenance/);
+    assert.match(instruction, /preserv/i);
+    assert.match(instruction, /consumed/);
   }
   assert.doesNotMatch(recovery, /restore the target row and the tuple|restore row <n> to its pre-dispatch/);
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const resume = reference.split('\n## Resume\n')[1].split('\n## Targeting and dispatch\n')[0];
   const companion = recovery.split('| Actual multi-member companion |')[1].split('\n')[0];
   for (const instruction of [resume, companion]) {
-    assert.match(instruction, /boundary\/attribution failures/);
+    assert.match(instruction, /ownership-fenced interrupted recovery|ownership-fenced recovery/);
     assert.match(instruction, /post-boundary result-validation misses.*`loop: repair row <n>`.*`loop: repair seed`.*clear `pending:`.*preserve the consumed iteration/);
     assert.doesNotMatch(instruction, /attribution\/result mismatch|missing evidence take/);
   }
@@ -621,8 +629,8 @@ test('row budget replies preserve counters and reject malformed grants without w
     'On the first and every later invalid reply, keep the same stop open with no writes, commit or dispatch',
     'preserve allowance, decisions, iterations and all attempts',
   ]) assert.ok(raise.includes(token), token);
-  assert.match(stop, /Offer retry and `rows \+N` only at row stops \(allowance, stagnation or missing-model\), alongside Amend and Stop/);
-  assert.match(stop, /Dirty-tree and commit-boundary stops keep discard authorization only/);
+  assert.match(stop, /Offer retry and `rows \+N` only at row stops \(allowance, stagnation or missing-model\) or seed exhaustion, alongside Amend and Stop/);
+  assert.match(stop, /The recovery-incomplete stop keeps discard authorization only/);
   assert.match(stop, /verification-failure stop keeps amend\/stop only/);
   assert.match(stop, /Raising allowance resets neither window/);
   assert.match(stop, /Only retry starts new windows/);
@@ -644,8 +652,7 @@ test('human stop counts cover every boundary without widening its menu', () => {
     'Use restored pre-dispatch row cells at rejected-return stops, not unadmitted child results',
     'With no open or failed rows, omit row lines but retain the preservation sentence',
     'Offer retry and `rows +N` only at row stops (allowance, stagnation or missing-model)',
-    'Dirty-tree and commit-boundary stops keep discard authorization only',
-    'interrupted-dispatch stops keep their recovery authorization, never budget offers',
+    'The recovery-incomplete stop keeps discard authorization only, never budget offers',
     'verification-failure stop keeps amend/stop only',
   ]) assert.ok(stop.includes(token), token);
   assert.match(stop, /Start the message with `gauntlet: question` at every human stop/);
@@ -672,7 +679,7 @@ test('retired loop budgets yield to durable shared allowance and keep waves deco
   const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
   for (const fact of ['rows +50 |', '[1-9][0-9]*', 'rows +50x', 'rows +0', 'rows +x', 'rows -1', 'Raise the shared header allowance by N for every row and leg', 'leaving iterations and all attempts unchanged', 'Raising allowance resets neither window', 'Only retry starts new windows']) assert.ok(stop.includes(fact), fact);
   assert.match(stop, /every human stop.*then print `Preserve every row's attempts\.`/);
-  assert.match(stop, /Dirty-tree and commit-boundary stops keep discard authorization only/);
+  assert.match(stop, /The recovery-incomplete stop keeps discard authorization only/);
   assert.match(amendment, /Apply the budget to the waves engine only; loop ignores the budget token and keeps only the decoded amendment permission \(none for a budget-only value\)/);
   assert.match(amendment, /stop for human authorization before redraw resets or deletions/);
   assert.match(amendment, /Match exactly one `fund N fix rounds` or `N more fix rounds` anywhere on the line/);

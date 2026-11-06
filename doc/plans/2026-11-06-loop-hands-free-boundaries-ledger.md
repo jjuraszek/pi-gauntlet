@@ -3,12 +3,12 @@
 base: 82cc2b80e5c9c5216f8a55817628ca9532381a99
 verification: npm test
 checks: commands
-iterations: 2
+iterations: 3
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | failed | 1 | python3 /tmp/loop-recovery-ownership.m5lEgy/recovery_ownership_test.py; 2 tests failed; PGID-only predicate selects a replacement leader with a different epoch; scratch reset/clean deletes an unrelated post-boundary write despite clean status |
+| 1 | done | 2 | node eval/run.mjs loop-implementation interrupted-child-redispatch --base 82cc2b80e5c9c5216f8a55817628ca9532381a99; 2 model cells improved; 16 candidate facts hold; partial narrated recovery coverage |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -23,3 +23,4 @@ allowance: 10
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 9: add the round-2 bounded paid or external action clause and its selected eval sample
 row 1 failed | Scratch checks failed: PGID equality accepts a reused leader, and reset/clean deletes unrelated post-dispatch work. | Recommend amendment Ownership-fenced recovery: require process identity and exclusive checkout provenance, or stop; do not implement PGID-only kills or blanket reset/clean.
+row 1 done | Added ownership-fenced interrupted recovery for home, companion and seed returns, preserving uncertain work. | Reuse skills/loop-implementation/SKILL.md's recovery procedure and the interrupted-child-redispatch eval sample for later boundary changes.

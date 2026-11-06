@@ -1,6 +1,8 @@
-for: 66451dc5ab3ff7a2f9bf4a5123216c4d52fbd43bd31966c4c18c235dd91a6855
+for: 3bf346232dee3e1cf49fe11a7e2a20f8e8a36540e1c4c32ac22081453103a5be
 
 ## Change
+Route interrupted home and companion pending returns through the loop driver's ownership-fenced recovery below allowance. Replace discard-only recovery only when retained checkout provenance and owned-job exit evidence permit cleanup; missing evidence preserves changes at recovery incomplete. Keep attribution ambiguity and unrecoverable before-images as stops. The selected interrupted-ownership sample covers owned home and companion recovery and an unrelated-write stop; this is narrated, partial coverage, not live process recovery proof. Correct its synthetic stop-header assertion to dispatch index i=7, not consumed iterations=8, matching the driver's unchanged pre-bump index contract; preserve all ownership and counter facts. Earlier blanket dirty/zero-commit stop expectations below are superseded only for proven owned interruptions.
+
 Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving allowance migration, mixed task restoration and admission boundaries.
 
 
@@ -49,6 +51,9 @@ Cover home-bound coordinated admission, informational HEAD/dirt drift, membershi
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
 
 ## Expected to move
+- interrupted-ownership/home: fails -> holds - Recover an owned home interruption, repair once with the consumed iteration and continue below allowance without a discard prompt.
+- interrupted-ownership/ownership: fails -> holds - Preserve unrelated work and pending identity at recovery incomplete when exclusive checkout ownership is unproven.
+- interrupted-ownership/companion: fails -> holds - Reset only the owned companion and record a home-only repair, preserving foreign state and consumed counts.
 - legacy-cap-brief/continue: fails -> holds - Continue the original phase after allowance migration without reseeding, using one ledger-path refresh; verify/ship resumes at verify and delegates the gate set to the loop skill rather than full local verification.
 - ledger-tracker-verify/mixed-verify: fails -> holds - Keep mixed task statuses and fresh gates while routing commands to the loop-owned selective set.
 - loop-ledger-brief/gate-owner: fails -> holds - Delegate fresh logged gate-set execution to the loop skill without a resume-owned run or full command.
