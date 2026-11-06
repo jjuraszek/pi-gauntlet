@@ -3,12 +3,12 @@
 base: d04aa00576eaaf802b8cdde8d8ab1917d0118f68
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | open | 0 | node --test src/bins/gauntlet-telemetry-seal-branch.test.mjs; 0 passed, 1 failed; seal exits 2 looking for the retired checkout record instead of the git-common-dir record |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -30,3 +30,4 @@ allowance: 10
 | 20 | open | 0 | |
 
 ## Decisions
+row 0 done | seeded 1 rows, closed 0 on baseline | row 1 using src/bins/gauntlet-telemetry-seal-branch.test.mjs beside its bin-test siblings
