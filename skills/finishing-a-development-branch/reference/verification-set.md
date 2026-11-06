@@ -19,7 +19,7 @@ For ledger commands outside a checkout's configured test-command matcher, verify
 
 ## Skip proof
 
-**Skip rule.** Skip the run only when this set passed on a known clean commit in the verify phase of this session and no edit or write landed outside `<telemetry.dir>` since. Check the current tree: `git -C "$WORKTREE" diff --quiet <commit the run passed on> -- . ':!<telemetry.dir>'` must exit 0, and `git -C "$WORKTREE" status --porcelain --untracked-files=all -- . ':!<telemetry.dir>'` must exit 0 with empty output (`<telemetry.dir>` defaults to `.pi/gauntlet/telemetry`). These checks cover committed, staged, unstaged, and untracked changes outside telemetry. Otherwise run it once; a missing verified commit, a failed check, or uncertainty means run.
+**Skip rule.** Skip the run only when this set passed on a known clean commit in the verify phase of this session and no checkout edit or write landed since. Check the entire current tree: `git -C "$WORKTREE" diff --quiet <commit the run passed on> -- .` must exit 0, and `git -C "$WORKTREE" status --porcelain --untracked-files=all -- .` must exit 0 with empty output. Cover committed, staged, unstaged, and untracked changes without path exclusions; recorder metadata lives outside the working tree. Otherwise run it once; a missing verified commit, a failed check, or uncertainty means run.
 
 Apply the proof independently in each owning checkout. Post-squash verification is mandatory; the skip proof does not cover a changed primary tree.
 
@@ -31,4 +31,4 @@ For a fresh-session retry after a ledger was stripped, recover the committed pre
 
 ## Post-squash execution
 
-For Option 3, run each delivered leg's retained pairs in order as `(cd "<leg primary>" && <command>) > "$LOG_DIR/gate-<i>.log" 2>&1`, one command per pair, retaining its gate index and fail-fast exit reporting. For coordinated delivery, run only the just-squashed leg's pairs at that leg's delivery step; every remaining leg gets its own post-squash run when delivered. A failed-squash receipt retry runs those same pairs against the delivered primary, not the feature worktree, and never repeats the squash. Retain the Step 1 command set and execution form for non-ledger subjects.
+For Option 3, run each delivered leg's retained pairs in order as `(cd "<leg primary>" && <command>) > "$LOG_DIR/gate-<i>.log" 2>&1`, one command per pair; print `gate <i> exit <code> <log path>` after each and stop on the first failure. For coordinated delivery, run only the just-squashed leg's pairs at that leg's delivery step; every remaining leg gets its own post-squash run when delivered. A failed-squash receipt retry runs those same pairs against the delivered primary, not the feature worktree, and never repeats the squash. Retain the Step 1 command set and execution form for non-ledger subjects.

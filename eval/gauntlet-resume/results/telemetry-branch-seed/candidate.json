@@ -1,0 +1,284 @@
+{
+  "sample": "telemetry-branch-seed",
+  "arm": "candidate",
+  "skillSha": "e558027548839e7faecd98551aa90fa3fdd526dbeeecdd9b4f72b478928b14ed",
+  "inputSha": "09fa7b9657e168e1174653fcb81cdd3b77e64f4cea6761c5e589883a58171af8",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Seed route (`seed.md`): `<seed>` = `/tmp/widget/doc/specs/2026-01-02-widget.md` and `<rel>` = `doc/specs/2026-01-02-widget.md`. Entry check 1 (idle session) has passed.\n\n**Seed header.** I read the header of `<seed>`. It has no `**Home:**` header, so it is not a companion leg file. Continue.\n\n**1. Primary session.** I run `git rev-parse --git-dir --git-common-dir` in the session cwd. The two paths' `realpath`s agree, so this is the primary checkout. Continue.\n\n**2. Tracked.** I run `git -C /tmp/widget ls-files --error-unmatch doc/specs/2026-01-02-widget.md`, which exits 0. Line 1 of `<seed>` is not the context-draft marker. Continue.\n\n**3. Not shipped.**\n- I resolve `piGauntlet.telemetry` from preset and primary project settings. It is enabled, with remote `ssh://git@example.invalid/metrics.git`.\n- `<owner>/<name>` comes from the product origin, not the telemetry remote: `sample/widget`.\n- The remote is not `origin`, so `<fetched-ref>` is `refs/remotes/telemetry/gauntlet/telemetry`.\n- I request the refresh with a 10-second timeout:\n  `git -C /tmp/widget fetch --no-tags ssh://git@example.invalid/metrics.git +refs/heads/gauntlet/telemetry:refs/remotes/telemetry/gauntlet/telemetry`\n  The fetch succeeds.\n- I read the record from the fetched ref, not from any checkout YAML file:\n  `git -C /tmp/widget show refs/remotes/telemetry/gauntlet/telemetry:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml`\n  The record has `shipped_at: 2026-01-03T10:00:00Z`, which is a valued `shipped_at:`, so this check stops.\n\nPrinted reply:\n\n```\nspec already shipped at 2026-01-03T10:00:00Z - write a superseding spec\n(/tmp/widget/doc/specs/2026-01-02-widget.md)\n```\n\nThe restore stops here. I make no worktree lookup or creation, no `/skill:using-git-worktrees` call and no tracker call (`phase_tracker`, `plan_tracker` or `plan_check`). I do not reconstruct gates or continue into `reconstruction.md`.\n",
+      "words": 217,
+      "wallMs": 11662,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Would request, in order:\n\n1. Refresh telemetry with a 10-second timeout:\n   ```bash\n   git -C /tmp/widget fetch --no-tags ssh://git@example.invalid/metrics.git +refs/heads/gauntlet/telemetry:refs/remotes/telemetry/gauntlet/telemetry\n   ```\n2. Read the record from the fetched branch:\n   ```bash\n   git -C /tmp/widget show refs/remotes/telemetry/gauntlet/telemetry:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml\n   ```\n\nThen print and stop:\n\nspec already shipped at 2026-01-03T10:00:00Z - write a superseding spec\n",
+      "words": 46,
+      "wallMs": 7665,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9ba0aa989c168da9bb103ef7352d0af37ab570c49059c9ba6ac6fe61cb493fc9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3b2921c6d4ab09c4970b366084de2a46730b6cccfc3da7345d93cdf292749b1a",
+      "baselineOutputSha": "cae936a01b6a306df83ede2d27352a0cba0ad14b6f8af7b35a8a46032c28d1fc",
+      "candidateOutputSha": "fe7581278bf260b4476b751399cd8f3469cada0d4bf8884cafe788bf4f990048",
+      "facts": {
+        "refresh": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "shipped": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moves `refresh` by spelling out the exact bounded fetch: the ten-second timeout, the `refs/remotes/telemetry/gauntlet/telemetry` fetched ref (chosen because the remote is not `origin`), and the `git show <ref>:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml` read with the owner/name derived from the product origin rather than the telemetry remote; Before only said 'bounded refresh' and 'read ... from the fetched telemetry branch', so a reader could not confirm the timeout or ref. `shipped` and `stop` already held in Before (it read the absent local YAML, treated the fetched `shipped_at` as the stopping value, printed the exact message, and explicitly listed no worktree/tracker/gate work) and After keeps them by retaining the verbatim stop line, the 'not from any checkout YAML file' statement, and the explicit no-worktree/no-tracker/no-gate closing paragraph. To keep every fact stable in future wording, continue naming the timeout, the fetched ref, the product-prefixed path, the literal stop message, and an explicit sentence denying worktree creation and tracker/gate reconstruction.",
+      "wallMs": 13378,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9ba0aa989c168da9bb103ef7352d0af37ab570c49059c9ba6ac6fe61cb493fc9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3b2921c6d4ab09c4970b366084de2a46730b6cccfc3da7345d93cdf292749b1a",
+      "baselineOutputSha": "94737456ebba1dc52b10b49adedee9264457e5ba1b9b9e11b42f647fcae2d80d",
+      "candidateOutputSha": "aa1edbe266edf4a7dff57e4e86dff9cbe4fe89a6ef6d3c341f1f8e2788b88920",
+      "facts": {
+        "refresh": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "shipped": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved refresh to holds by making the fetch concrete: the 10-second timeout, the explicit `+refs/heads/gauntlet/telemetry:refs/remotes/telemetry/gauntlet/telemetry` refspec, and the `git show` of the product-prefixed record, none of which Before named (it only said 'bounded refresh of the configured telemetry branch'). Both outputs treat the fetched `shipped_at` as authoritative and stop with the required message, and neither performs any worktree or tracker work, so shipped and stop hold in both; however After only implies the stop boundary by listing two commands and saying 'print and stop', whereas Before stated it outright. To keep the Change while leaving no room for a reader to doubt stop, After should retain Before's explicit closing sentence ('No worktree creation, tracker calls, plan_check, or gate reconstruction'), keep the `Spec: /tmp/widget/doc/specs/2026-01-02-widget.md` line in the printed reply, and add one clause noting that the absence of checkout YAML does not override the fetched shipped record (with last-fetched fallback if the refresh fails) so the shipped fact is stated rather than merely implied.",
+      "wallMs": 17256,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
+    }
+  },
+  "repoSha": "c8e3e03adef258e23fca28066cac9fdc3d014075",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "telemetry-branch-seed",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "4804410fdbb8e0c057c3253538eb97648a2682139bead6367f7c69257ca455c7",
+      "candidateSkillSha": "e558027548839e7faecd98551aa90fa3fdd526dbeeecdd9b4f72b478928b14ed",
+      "inputSha": "09fa7b9657e168e1174653fcb81cdd3b77e64f4cea6761c5e589883a58171af8",
+      "factsSha": "9ba0aa989c168da9bb103ef7352d0af37ab570c49059c9ba6ac6fe61cb493fc9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3b2921c6d4ab09c4970b366084de2a46730b6cccfc3da7345d93cdf292749b1a",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "cae936a01b6a306df83ede2d27352a0cba0ad14b6f8af7b35a8a46032c28d1fc",
+            "payloadSha": "c6abb01b8cc6e53db5327ee882bf3e7f61114467564f09bf01837abdc73c6282"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "94737456ebba1dc52b10b49adedee9264457e5ba1b9b9e11b42f647fcae2d80d",
+            "payloadSha": "5ee2c989e5a05dae4a7adff63edd93af64df9d2b6238e9cff4f882d0fdb69096"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "fe7581278bf260b4476b751399cd8f3469cada0d4bf8884cafe788bf4f990048",
+            "payloadSha": "afa58f0e44c86846d2af1ef59e2873d9db30db81729e782d0eeb3c83b4ce19db"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "aa1edbe266edf4a7dff57e4e86dff9cbe4fe89a6ef6d3c341f1f8e2788b88920",
+            "payloadSha": "2118f908f97b197a8fe36bb5ed46c80d4de1b0cf7ac8e766efbb98c826cc4117"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "bebe455fc99724a61524ece0102b2e85ac1c45820d32097d829afb0516624314",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "3b2921c6d4ab09c4970b366084de2a46730b6cccfc3da7345d93cdf292749b1a",
+        "baselineOutputSha": "cae936a01b6a306df83ede2d27352a0cba0ad14b6f8af7b35a8a46032c28d1fc",
+        "candidateOutputSha": "fe7581278bf260b4476b751399cd8f3469cada0d4bf8884cafe788bf4f990048",
+        "facts": {
+          "refresh": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "shipped": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "stop": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After moved `refresh` from fails to holds by naming the exact fetch command with the ten-second timeout, the `refs/remotes/telemetry/gauntlet/telemetry` ref for a non-origin remote, and the `git show <ref>:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml` read keyed on the product-origin prefix; Before only said \"bounded refresh\" and read the path from \"the fetched telemetry branch\" without the timeout or ref. Both outputs already kept `shipped` (fetched `shipped_at` treated as authoritative with no checkout YAML, exact stop message, seed path named in the reply) and `stop` (no worktree, no tracker or gate reconstruction), and After preserves both. Nothing regressed; the wording to keep is the explicit `piGauntlet.telemetry` resolution, the owner/name derived from the product origin rather than the telemetry remote, the refspec-with-timeout fetch line, and the `git show` on the fetched ref, followed by the unchanged stop reply and the explicit no-worktree/no-tracker/no-`reconstruction.md` closing.",
+        "wallMs": 8447,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "bebe455fc99724a61524ece0102b2e85ac1c45820d32097d829afb0516624314",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "3b2921c6d4ab09c4970b366084de2a46730b6cccfc3da7345d93cdf292749b1a",
+        "baselineOutputSha": "94737456ebba1dc52b10b49adedee9264457e5ba1b9b9e11b42f647fcae2d80d",
+        "candidateOutputSha": "aa1edbe266edf4a7dff57e4e86dff9cbe4fe89a6ef6d3c341f1f8e2788b88920",
+        "facts": {
+          "refresh": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "shipped": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "stop": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After gained the refresh fact by naming the 10-second timeout, the exact fetch remote/refspec and the `refs/remotes/telemetry/gauntlet/telemetry:<product prefix>` read, which Before only described as a 'bounded refresh' with no timeout or ref. But After lost the shipped fact: it prints only the stop line and never names the seed spec path (`/tmp/widget/doc/specs/2026-01-02-widget.md` or `doc/specs/2026-01-02-widget.md`) anywhere in the reply, whereas Before printed a `Spec:` line. The stop fact survives in After only implicitly ('print and stop'); Before stated 'No worktree creation, tracker calls, plan_check, or gate reconstruction' explicitly. To keep every fact, retain After's concrete fetch/show commands and timeout wording, add back the `Spec: /tmp/widget/doc/specs/2026-01-02-widget.md` line (or name the seed path in prose) after the shipped message, and keep an explicit sentence that no worktree, tracker or gate reconstruction runs, optionally noting the fetched `shipped_at` is authoritative even with no checkout YAML present.",
+        "wallMs": 14641,
+        "verdict": "inconclusive",
+        "confirmation": {
+          "status": "ok",
+          "text": "Request refresh with a 10-second timeout:\n```bash\ngit -C /tmp/widget fetch --no-tags ssh://git@example.invalid/metrics.git +refs/heads/gauntlet/telemetry:refs/remotes/telemetry/gauntlet/telemetry\n```\n\nAfter the successful refresh, request:\n```bash\ngit -C /tmp/widget show refs/remotes/telemetry/gauntlet/telemetry:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml\n```\n\nPrint:\n```text\n/tmp/widget/doc/specs/2026-01-02-widget.md\nspec already shipped at 2026-01-03T10:00:00Z - write a superseding spec\n```\n\nStop.\n",
+          "words": 38,
+          "wallMs": 7615,
+          "mechanical": {},
+          "judgeWallMs": 13750,
+          "facts": {
+            "refresh": {
+              "before": "fails",
+              "after": "holds",
+              "label": "intended change"
+            },
+            "shipped": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "stop": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            }
+          },
+          "feedback": "After moved refresh from fails to holds by stating the concrete fetch: the 10-second timeout, the gauntlet/telemetry branch, the refs/remotes/telemetry/gauntlet/telemetry tracking ref, and the product-prefixed show path, none of which Before named explicitly (Before only said 'bounded refresh' and never cited the ref or timeout). shipped and stop already held in Before and still hold in After, so they are not genuine moves; note that After's stop fact holds only by omission ('Stop.' with no tracker/worktree/gate mention), whereas Before made it explicit. To keep every Before fact robustly while delivering the Change, have After keep its exact commands but append Before's closing line ('No worktree creation, tracker calls, plan_check, or gate reconstruction') and a sentence that the fetched record is authoritative despite the absent checkout YAML; also mention the last-fetched fallback path the Change calls for, since After currently describes only the success branch."
+        },
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "9ba0aa989c168da9bb103ef7352d0af37ab570c49059c9ba6ac6fe61cb493fc9",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "3b2921c6d4ab09c4970b366084de2a46730b6cccfc3da7345d93cdf292749b1a",
+        "baselineOutputSha": "cae936a01b6a306df83ede2d27352a0cba0ad14b6f8af7b35a8a46032c28d1fc",
+        "candidateOutputSha": "fe7581278bf260b4476b751399cd8f3469cada0d4bf8884cafe788bf4f990048",
+        "facts": {
+          "refresh": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "shipped": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "stop": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After moves `refresh` by spelling out the exact bounded fetch: the ten-second timeout, the `refs/remotes/telemetry/gauntlet/telemetry` fetched ref (chosen because the remote is not `origin`), and the `git show <ref>:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml` read with the owner/name derived from the product origin rather than the telemetry remote; Before only said 'bounded refresh' and 'read ... from the fetched telemetry branch', so a reader could not confirm the timeout or ref. `shipped` and `stop` already held in Before (it read the absent local YAML, treated the fetched `shipped_at` as the stopping value, printed the exact message, and explicitly listed no worktree/tracker/gate work) and After keeps them by retaining the verbatim stop line, the 'not from any checkout YAML file' statement, and the explicit no-worktree/no-tracker/no-gate closing paragraph. To keep every fact stable in future wording, continue naming the timeout, the fetched ref, the product-prefixed path, the literal stop message, and an explicit sentence denying worktree creation and tracker/gate reconstruction.",
+        "wallMs": 13378,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "9ba0aa989c168da9bb103ef7352d0af37ab570c49059c9ba6ac6fe61cb493fc9",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "3b2921c6d4ab09c4970b366084de2a46730b6cccfc3da7345d93cdf292749b1a",
+        "baselineOutputSha": "94737456ebba1dc52b10b49adedee9264457e5ba1b9b9e11b42f647fcae2d80d",
+        "candidateOutputSha": "aa1edbe266edf4a7dff57e4e86dff9cbe4fe89a6ef6d3c341f1f8e2788b88920",
+        "facts": {
+          "refresh": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "shipped": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "stop": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After moved refresh to holds by making the fetch concrete: the 10-second timeout, the explicit `+refs/heads/gauntlet/telemetry:refs/remotes/telemetry/gauntlet/telemetry` refspec, and the `git show` of the product-prefixed record, none of which Before named (it only said 'bounded refresh of the configured telemetry branch'). Both outputs treat the fetched `shipped_at` as authoritative and stop with the required message, and neither performs any worktree or tracker work, so shipped and stop hold in both; however After only implies the stop boundary by listing two commands and saying 'print and stop', whereas Before stated it outright. To keep the Change while leaving no room for a reader to doubt stop, After should retain Before's explicit closing sentence ('No worktree creation, tracker calls, plan_check, or gate reconstruction'), keep the `Spec: /tmp/widget/doc/specs/2026-01-02-widget.md` line in the printed reply, and add one clause noting that the absence of checkout YAML does not override the fetched shipped record (with last-fetched fallback if the refresh fails) so the shipped fact is stated rather than merely implied.",
+        "wallMs": 17256,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  }
+}

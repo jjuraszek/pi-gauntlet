@@ -3,6 +3,8 @@ for: a5ab1c893f4c9175ba9bfbed8a13cfe8d561b8ebf02291dd0eafa45289694269
 ## Change
 Route interrupted home and companion pending returns through the loop driver's ownership-fenced recovery below allowance. Replace discard-only recovery only when retained checkout provenance and owned-job exit evidence permit cleanup; missing evidence preserves changes at recovery incomplete. Keep attribution ambiguity and unrecoverable before-images as stops. The selected interrupted-ownership sample covers owned home and companion recovery and an unrelated-write stop; this is narrated, partial coverage, not live process recovery proof. Correct its synthetic stop-header assertion to dispatch index i=7, not consumed iterations=8, matching the driver's unchanged pre-bump index contract; preserve all ownership and counter facts. Earlier blanket dirty/zero-commit stop expectations below are superseded only for proven owned interruptions.
 
+Read the seed's shipped evidence from the fetched telemetry branch using the product prefix and configured remote, with a bounded refresh and last-fetched fallback. Add and run only telemetry-branch-seed for this edit; preserve prior evidence without claiming target-wide coverage.
+
 Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving allowance migration, mixed task restoration and admission boundaries.
 
 
@@ -54,6 +56,9 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - interrupted-ownership/home: fails -> holds - Recover an owned home interruption, repair once with the consumed iteration and continue below allowance without a discard prompt.
 - interrupted-ownership/ownership: fails -> holds - Preserve unrelated work and pending identity at recovery incomplete when exclusive checkout ownership is unproven.
 - interrupted-ownership/companion: fails -> holds - Reset only the owned companion and record a home-only repair, preserving foreign state and consumed counts.
+- telemetry-branch-seed/refresh: fails -> holds - Resume reads the configured remote and product-prefixed branch record.
+- telemetry-branch-seed/shipped: fails -> holds - Missing checkout YAML does not override a fetched shipped record.
+- telemetry-branch-seed/stop: fails -> holds - A shipped seed stops before reconstruction or worktree creation.
 - legacy-cap-brief/continue: fails -> holds - Continue the original phase after allowance migration without reseeding, using one ledger-path refresh; verify/ship resumes at verify and delegates the gate set to the loop skill rather than full local verification.
 - ledger-tracker-verify/mixed-verify: fails -> holds - Keep mixed task statuses and fresh gates while routing commands to the loop-owned selective set.
 - loop-ledger-brief/gate-owner: fails -> holds - Delegate fresh logged gate-set execution to the loop skill without a resume-owned run or full command.

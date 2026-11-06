@@ -26,7 +26,7 @@ test("ledger finish preserves gate set, strip and amendment contracts", () => {
   assert.match(skill, /take the `auto-apply` and `granted` records from those commit bodies/);
 });
 
-for (const telemetry of [".pi/gauntlet/telemetry", "records/custom telemetry"]) {
+for (const telemetry of [".git/gauntlet/telemetry"]) {
   for (const scenario of [
     ["clean tree", true, () => {}],
     ["unstaged source edit", false, ({ write }) => write("source.txt", "changed")],
@@ -36,8 +36,8 @@ for (const telemetry of [".pi/gauntlet/telemetry", "records/custom telemetry"]) 
     ["staged edit restored only in worktree", false, ({ write, git }) => { write("source.txt", "changed"); git("add", "source.txt"); write("source.txt", "original"); }],
     ["unstaged telemetry edit", true, ({ write }) => write(`${telemetry}/run.yaml`, "changed")],
     ["untracked telemetry file", true, ({ write }) => write(`${telemetry}/new.yaml`, "new")],
-    ["committed telemetry edit", true, ({ write, commit }) => { write(`${telemetry}/run.yaml`, "changed"); commit(); }],
-    ["telemetry-named sibling is not excluded", false, ({ write }) => write(`${telemetry}-other/source.txt`, "new")],
+    ["retired telemetry path is ordinary untracked content", false, ({ write }) => write(".pi/gauntlet/telemetry/run.yaml", "new")],
+    ["retired custom directory is ordinary committed content", false, ({ write, commit }) => { write("records/custom telemetry/run.yaml", "new"); commit(); }],
     ["unknown verified commit", false, ({ state }) => { state.sha = "missing-verified-commit"; }],
   ]) {
     const [name, maySkip, arrange] = scenario;
@@ -60,8 +60,7 @@ for (const telemetry of [".pi/gauntlet/telemetry", "records/custom telemetry"]) 
       const state = { sha: git("rev-parse", "HEAD") };
       arrange({ write, git, commit, state });
       const results = commands.map((command) => spawnSync("bash", ["-c", command
-        .replaceAll("<commit the run passed on>", state.sha)
-        .replaceAll("<telemetry.dir>", telemetry)], {
+        .replaceAll("<commit the run passed on>", state.sha)], {
         cwd: tmpdir(),
         env: { ...process.env, WORKTREE: worktree },
         encoding: "utf8",
@@ -93,6 +92,26 @@ test("non-ledger set resolution retains task and ad-hoc behavior", () => {
     assert.ok(Buffer.byteLength(text) < 50000);
     assert.ok(text.split('\n').length < 2000);
   }
+});
+
+test("telemetry docs and lifecycle skills describe branch records rather than checkout deliverables", () => {
+  const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+  const brainstorm = read("skills/brainstorming/SKILL.md");
+  const seed = read("skills/gauntlet-resume/reference/seed.md");
+  const config = read("doc/configuration.md");
+  const readme = read("README.md");
+  assert.match(brainstorm, /orphan `gauntlet\/telemetry` branch/);
+  assert.doesNotMatch(brainstorm, /record .*ships in the squash|telemetry:.*commit|snapshots the stamped record/);
+  for (const token of ["orphan `gauntlet/telemetry` branch", "telemetry: not pushed (<reason>)", "outside the working tree"]) assert.ok(skill.includes(token), token);
+  assert.doesNotMatch(skill, /telemetry\.dir|git-excluded|tree carries the spec, the telemetry record|record.*committed deliverable/);
+  assert.doesNotMatch(verification, /telemetry\.dir|:\!|telemetry flush/);
+  assert.match(seed, /fetched `gauntlet\/telemetry` branch/);
+  assert.doesNotMatch(seed, /path `<telemetry\.dir>|key: "telemetry\.dir"/);
+  for (const token of ["telemetry.remote", "gauntlet/telemetry", "Leg records", "UTC timestamp", "incomplete", "unattributed", "even split", "check-delivery"]) assert.ok(config.includes(token), token);
+  assert.match(config, /author.*name.*email/);
+  assert.match(config, /branches-ignore/);
+  assert.match(readme, /orphan `gauntlet\/telemetry` branch/);
+  assert.doesNotMatch(readme, /run record ship in the squash/);
 });
 
 // Wording checks pin the finish-owned contract, not a live GitHub boundary.

@@ -359,13 +359,13 @@ if (!existsSync(R("skills/brainstorming/../../bin/gauntlet-spec-index.mjs"))) {
 }
 if (!existsSync(R("skills/finishing-a-development-branch/../../bin/gauntlet-telemetry-seal.mjs"))) fail("gauntlet-telemetry-seal: path from skills/finishing-a-development-branch does not resolve");
 if (!existsSync(R("skills/gauntlet-performance/../../bin/gauntlet-performance.mjs"))) fail("gauntlet-performance: path from skills/gauntlet-performance does not resolve");
-// Telemetry record is a deliverable: the rule and the seal call site cannot be edited away silently;
-// gatekeep-pr is about the change and never names the record (spec 2026-09-25-gauntlet-bound-telemetry).
+// Telemetry publication stays separate from product delivery and gatekeep-pr instructions.
 {
   const worktreeFirst = txt("skills/brainstorming/SKILL.md").split(/^## /m).find((s) => s.startsWith("Worktree First")) ?? "";
-  if (!worktreeFirst.includes("telemetry record")) fail("skills/brainstorming/SKILL.md: Worktree First must name the telemetry record as a deliverable");
+  if (!worktreeFirst.includes("orphan `gauntlet/telemetry` branch")) fail("skills/brainstorming/SKILL.md: Worktree First must publish telemetry outside the checkout");
   const finishing = txt("skills/finishing-a-development-branch/SKILL.md");
   if (!finishing.includes("gauntlet-telemetry-seal.mjs")) fail("skills/finishing-a-development-branch/SKILL.md: missing the gauntlet-telemetry-seal.mjs call");
+  if (!finishing.includes("orphan `gauntlet/telemetry` branch") || /telemetry\.dir|git-excluded/.test(finishing)) fail("skills/finishing-a-development-branch/SKILL.md: seal to the telemetry branch, not the product checkout");
   for (const opt of ["#### Option 1: Push and Create PR", "#### Option 2: Push and Create Draft PR", "#### Option 3: Squash-merge to base"]) {
     const block = finishing.split(opt)[1]?.split(/^#### /m)[0] ?? "";
     if (!block.includes("telemetry record")) fail(`skills/finishing-a-development-branch/SKILL.md: "${opt}" must name the telemetry record`);

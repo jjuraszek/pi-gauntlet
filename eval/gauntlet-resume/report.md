@@ -1,12 +1,24 @@
-# eval report: gauntlet-resume (partial run: interrupted-ownership)
+# eval report: gauntlet-resume (partial runs: interrupted-ownership, telemetry-branch-seed)
 
 for: a5ab1c893f4c9175ba9bfbed8a13cfe8d561b8ebf02291dd0eafa45289694269
+
+## interrupted-ownership provenance
 
 wall: 74s
 
 ## Change
 
 Route interrupted home and companion pending returns through the loop driver's ownership-fenced recovery below allowance. Replace discard-only recovery only when retained checkout provenance and owned-job exit evidence permit cleanup; missing evidence preserves changes at recovery incomplete. Keep attribution ambiguity and unrecoverable before-images as stops. The selected interrupted-ownership sample covers owned home and companion recovery and an unrelated-write stop; this is narrated, partial coverage, not live process recovery proof. Correct its synthetic stop-header assertion to dispatch index i=7, not consumed iterations=8, matching the driver's unchanged pre-bump index contract; preserve all ownership and counter facts. Earlier blanket dirty/zero-commit stop expectations below are superseded only for proven owned interruptions.
+## telemetry-branch-seed provenance
+
+wall: 18s
+
+refresh: complete; sample: telemetry-branch-seed; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
+audit: [candidate.json](results/telemetry-branch-seed/candidate.json)
+
+## Change
+
+Read the seed's shipped evidence from the fetched telemetry branch using the product prefix and configured remote, with a bounded refresh and last-fetched fallback. Add and run only telemetry-branch-seed for this edit; preserve prior evidence without claiming target-wide coverage.
 
 Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving allowance migration, mixed task restoration and admission boundaries.
 
@@ -66,5 +78,16 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 
 - interrupted-ownership / anthropic/claude-opus-5-5: After moves `home` and `companion` cleanly: both A and C check provenance and the no-jobs/no-background evidence before resetting and cleaning only the tuple checkout, verify empty status and a zero count over `<tuple SHA>..HEAD`, commit a home-only `loop: repair row 2` that keeps `iterations: 8`, sets row 2 failed attempts 2 with concrete interrupted evidence, removes `pending:`, preserves every foreign row/mapping/base/seeded flag, refreshes once and returns to the ordered table below allowance with no discard prompt, and C states that home and repo-c are never reset. `ownership` still fails only on the stop header: B correctly sends no signals, runs no reset/clean, preserves the child file, user write, tuple and `iterations: 8`, keeps attempts at 1 and presents a discard-authorization menu, but it renders `Stopped: recovery incomplete on row 2` rather than the required `Stopped: iteration 7 recovery incomplete - checkout ownership unproven` (the Change explicitly fixes this header to dispatch index i=7). Changing B's header line to exactly `Stopped: iteration 7 recovery incomplete - checkout ownership unproven`, keeping the Problem and menu as written, would make all three facts hold while preserving everything else After already delivers.
 - interrupted-ownership / github-copilot/gpt-6.1-sol: After moves home and companion to holds: A and C now cite exclusive provenance and quiescent/no-background evidence before the reset to the tuple SHA and clean -fd, check empty status and a zero count over the tuple-SHA..HEAD range, write a home-only `loop: repair row 2`, keep iterations 8, set only row 2 to failed attempts 2 with interruption evidence, clear pending, preserve foreign rows/mappings/seeded flags, refresh and continue at Before each dispatch without a discard prompt or double count, and C explicitly never resets home or repo-c. Ownership still fails in After only on the stop header: the fact requires `Stopped: iteration 7 recovery incomplete - checkout ownership unproven` (the Change itself stresses the i=7 dispatch-index contract), but After prints `Stopped: recovery incomplete` with the ownership reason relegated to a Problem line and no iteration index; Before failed the same fact with `Stopped: iteration 7 left the tree dirty`. Everything else in B is right (no signals, no reset/clean, child and unrelated writes preserved, pending tuple and iterations 8 kept, attempts unchanged, discard-authorization menu, explicit refusal to treat option 5 or child exit as ownership). To keep all three facts, change B's header line to the exact `Stopped: iteration 7 recovery incomplete - checkout ownership unproven` (optionally keeping the Problem line beneath it) and, for completeness in C, name the retained no-jobs-file evidence alongside the provenance check so the no-job precondition is stated rather than implied.
+## Cells: telemetry-branch-seed
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| telemetry-branch-seed | anthropic/claude-opus-5-5 | improved | 13378 | refresh: fails -> holds (intended change); shipped: holds -> holds (intended but unchanged); stop: holds -> holds (intended but unchanged) |
+| telemetry-branch-seed | github-copilot/gpt-6.1-sol | improved | 17256 | refresh: fails -> holds (intended change); shipped: holds -> holds (intended but unchanged); stop: holds -> holds (intended but unchanged) |
+
+## Feedback
+
+- telemetry-branch-seed / anthropic/claude-opus-5-5: After moves `refresh` by spelling out the exact bounded fetch: the ten-second timeout, the `refs/remotes/telemetry/gauntlet/telemetry` fetched ref (chosen because the remote is not `origin`), and the `git show <ref>:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml` read with the owner/name derived from the product origin rather than the telemetry remote; Before only said 'bounded refresh' and 'read ... from the fetched telemetry branch', so a reader could not confirm the timeout or ref. `shipped` and `stop` already held in Before (it read the absent local YAML, treated the fetched `shipped_at` as the stopping value, printed the exact message, and explicitly listed no worktree/tracker/gate work) and After keeps them by retaining the verbatim stop line, the 'not from any checkout YAML file' statement, and the explicit no-worktree/no-tracker/no-gate closing paragraph. To keep every fact stable in future wording, continue naming the timeout, the fetched ref, the product-prefixed path, the literal stop message, and an explicit sentence denying worktree creation and tracker/gate reconstruction.
+- telemetry-branch-seed / github-copilot/gpt-6.1-sol: After moved refresh to holds by making the fetch concrete: the 10-second timeout, the explicit `+refs/heads/gauntlet/telemetry:refs/remotes/telemetry/gauntlet/telemetry` refspec, and the `git show` of the product-prefixed record, none of which Before named (it only said 'bounded refresh of the configured telemetry branch'). Both outputs treat the fetched `shipped_at` as authoritative and stop with the required message, and neither performs any worktree or tracker work, so shipped and stop hold in both; however After only implies the stop boundary by listing two commands and saying 'print and stop', whereas Before stated it outright. To keep the Change while leaving no room for a reader to doubt stop, After should retain Before's explicit closing sentence ('No worktree creation, tracker calls, plan_check, or gate reconstruction'), keep the `Spec: /tmp/widget/doc/specs/2026-01-02-widget.md` line in the printed reply, and add one clause noting that the absence of checkout YAML does not override the fetched shipped record (with last-fetched fallback if the refresh fails) so the shipped fact is stated rather than merely implied.
 
 exit: 0

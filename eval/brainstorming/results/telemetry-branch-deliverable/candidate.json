@@ -1,0 +1,90 @@
+{
+  "sample": "telemetry-branch-deliverable",
+  "arm": "candidate",
+  "skillSha": "6b592c203db30dff0a04d2f4938a117d3dd4a2c7f290cf4a26b7cef6dd9b30a1",
+  "inputSha": "9dd4a75b32d4ca47d4bfb93a4b189f57a7303db90718d0970a33dc352c402e8f",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "No. The recorder's YAML is not a deliverable, so it should not go beside the spec or into any branch commit. Here is how each artifact moves through this flow.\n\n**Deliverables (what ships in the squash)**\n- **The spec.** It is the first commit in this dedicated worktree and never a separate commit on `main`. It doesn't exist yet, because no design is approved. It gets written after the two design rounds and committed at the user review gate. Approval then amends that commit to record the `**Amend-grant:**` and `**Engine:**` fields.\n- **The implementation.** It is built in this same worktree, and the spec and implementation land together in one squash commit.\n\n**Kept in the worktree, then stripped**\n- **The plan**, if this run uses the waves engine. It lives in the worktree during execution, but finishing removes it and it does not ship.\n\n**Never committed to the branch**\n- **The telemetry recorder state.** It lives in Git common-dir metadata, outside the working tree. In a normal checkout with a linked worktree, that common dir is shared by the main checkout and the worktree. That is why the recorder doesn't need a file in the tree, and why adding the YAML beside the spec would be wrong. Committing it would put workflow metadata into the feature's squash history.\n\n**What finishing does with telemetry**\n`/skill:finishing-a-development-branch` handles telemetry before landing:\n1. It seals the telemetry record.\n2. It publishes the record to the orphan `gauntlet/telemetry` branch.\n3. It then lands the branch: spec plus implementation, with the plan stripped.\n\nThe orphan branch shares no history with `main`. The record is preserved there without ever touching the feature's squash. Since this is a normal Git setup with telemetry enabled, publication will happen. Only a plain jj workspace would differ: it keeps the local metadata and reports that publication is unavailable.\n\n**So, right now:** nothing should be added or committed. The next step is context gathering, and the first artifact commit will be the spec at the review gate. Leave the recorder alone and let finishing seal and publish it.\n",
+      "words": 342,
+      "wallMs": 11981,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Not quite—the recorder’s YAML is **not a deliverable beside the spec**, and it should not enter the eventual squash.\n\n- **Spec:** stays in the dedicated worktree. After design, self-review, critique, and gate preparation, it becomes the branch’s first commit—not a separate commit on `main`. We are still gathering context, so committing a spec now would be premature.\n- **Plan:** if one is later produced, it stays in that worktree during development but is stripped before landing.\n- **Implementation:** stays in the same worktree and ships together with the spec.\n- **Telemetry:** recorder state belongs in **Git common-directory metadata, outside the working tree**—not beside the spec or in the feature’s tracked files.\n\nWith telemetry enabled in this normal Git checkout, `/skill:finishing-a-development-branch` seals the telemetry record and publishes it to the orphan **`gauntlet/telemetry`** branch **before landing**. The record is published separately; it does not ship in the feature squash.\n",
+      "words": 143,
+      "wallMs": 8187,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "68eab14afea056372120bd994ce8471754042f02dcb9555542c45ebcb22b1eee",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d85363c99b9de536d6ff388c7f727aac8e022afa97e4dbc3e2696ae784c516b",
+      "baselineOutputSha": "71b13c2f42ef65fb737ffeb272f6a9dc1987d4505148791caeb3dec6a0bde9ea",
+      "candidateOutputSha": "e63de8b5b8a3a04d1120c67b94d1b0bc498b2b78a2485c764ae38443873cc2c9",
+      "facts": {
+        "store": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "delivery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "approval": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves store and delivery to holds by replacing Before's telemetry.dir row and 'Ships in the squash' fate with the Git common-dir placement ('outside the working tree', never committed to the branch) and by making finishing seal and then publish to the orphan gauntlet/telemetry branch before landing spec plus implementation with only the plan stripped. Approval is preserved in both: neither output advances to planning or implementation, writes anything, or claims an artifact was committed, and After's closing 'nothing should be added or committed' plus 'next step is context gathering' keeps that explicit. Keep that layout — deliverables / stripped / never-committed sections, then the numbered seal-publish-land sequence naming the orphan branch — and avoid reintroducing any telemetry.dir path or a table row that says the record ships in the squash; the brief jj aside is fine as long as it stays clearly marked as not this setup.",
+      "wallMs": 10279,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "68eab14afea056372120bd994ce8471754042f02dcb9555542c45ebcb22b1eee",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d85363c99b9de536d6ff388c7f727aac8e022afa97e4dbc3e2696ae784c516b",
+      "baselineOutputSha": "844d3b43ea28e7e27369962aa3b32edf552b0f6e167f56196a923ff766bddd13",
+      "candidateOutputSha": "a5fbcc624845b04f9738717d66d64e8f12e210a02db54883936572d31f585b8f",
+      "facts": {
+        "store": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "delivery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "approval": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved both telemetry facts as intended: it replaces Before's telemetry.dir path (`.pi/gauntlet/telemetry/doc/specs/<filename>.yaml`) and 'ships in the eventual squash' with recorder state in Git common-directory metadata outside the working tree, and has finishing seal and publish to the orphan `gauntlet/telemetry` branch before landing rather than in the feature squash; it also keeps the spec+implementation delivery and plan-only stripping. Approval holds in both: neither output advances stages, writes, or claims a commit was made, and After's 'committing a spec now would be premature' makes that explicit. Nothing regressed; if anything, After could reinforce the approval fact by restating that the spec itself is not yet written (only gathering context is next) so no reader infers an existing artifact, and could name the common-dir location (e.g. `.git` common dir, not the worktree or any tracked path) to keep store unambiguous across linked worktrees.",
+      "wallMs": 10548,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "c8e3e03adef258e23fca28066cac9fdc3d014075"
+}

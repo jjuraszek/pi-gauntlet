@@ -226,7 +226,7 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 #### Strip the plan, seal the record (Options 1-3)
 
-Run this on the feature branch before any landing path. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. The record is an untracked, git-excluded file until this step commits it (in a plain jj workspace there is no commit; jj snapshots the stamped record into the working-copy change). `<bin>` is `<directory of this skill's SKILL.md>/../../bin`, resolved from the skill's `<location>` in the system prompt.
+Run this on the feature branch before any landing path. Ship the spec and implementation; strip only the plan. Let the seal publish the telemetry record to the orphan `gauntlet/telemetry` branch without changing the product checkout, index or HEAD. Keep in-progress records in Git common-dir metadata, outside the working tree. Resolve `<bin>` as `<directory of this skill's SKILL.md>/../../bin` from the skill's `<location>` in the system prompt.
 
 Read the existing artifact's path-only `**Spec:**` header (repo-relative, backticks stripped) before removal; pass that value as `--spec`, including for a line-1 ledger. Resolve the spec dirs with `gauntlet_setting({ key: "flowGuards" })` and use their sibling `plans` dirs for plan paths. Enumerate both PLAN_PATH candidates: the task plan paired by basename and `<sibling plans dir>/<spec stem>-ledger.md`. Preserve the spec and telemetry.
 
@@ -242,13 +242,13 @@ elif [ -f "$WORKTREE/$PLAN_PATH" ] && jj -R "$WORKTREE" root >/dev/null 2>&1; th
 fi
 done
 
-# Seal the telemetry record: stamp shipped, compute the diff, commit it once.
-# The bin detects a plain jj workspace (no .git) itself: jj diff, no commit step.
+# Seal the telemetry record: stamp shipped, compute the diff, publish to gauntlet/telemetry.
+# The bin reports publication unavailable in a plain jj workspace and keeps local metadata.
 # --option is pr for Options 1-2 and squash for Option 3; --spec is the artifact header's **Spec:** value (omit when no artifact is known).
 node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squash> --base <base-branch> --spec <spec path>
 ```
 
-The seal prints one line per record (`sealed <path>`, `already sealed <path>`) or one bare outcome (`no telemetry run`, `telemetry disabled`) and exits 0; print its stdout verbatim in the ship completion message. Any nonzero exit stops the flow before the first landing command, quoting the bin's line: exit 2 (`no record at <path>`, `unparseable record <path>: <reason>`) means this gauntlet run's recorder never armed or its record is corrupt; exit 1 is a usage, environment, or git/jj failure (`seal failed <path>: <reason>` restored the pre-seal bytes). The user decides; never land without the seal.
+Print the seal's stdout verbatim in the ship completion message: `sealed <path>`, `already sealed <path>`, `no telemetry run` or `telemetry disabled`. Continue landing on exit 0, including `telemetry: not pushed (<reason>)`: publication failure keeps the record for retry and never blocks shipping. In a plain jj workspace, report `telemetry: not pushed (jj workspace: no git remote)` and retain local metadata. Stop before the first landing command on a nonzero exit, quoting the bin's line: exit 2 means a missing or unparseable record; exit 1 means invalid arguments, checkout or base. Ask the user how to proceed; never bypass a nonzero seal.
 #### PR-subject row 1: Push to the PR branch
 For the close-absorbed-PR question, start the message with `gauntlet: gate=finishing-a-development-branch/pr-subject-row-1`. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Do not report `done pushed` while this gate awaits an answer. Capture the scoped verification set and accepted-complete task/thread evidence before the strip. Refetch threads per recorded PR using the paginated single-`$n` query (one invocation per PR) owned by [pr-head](../using-git-worktrees/reference/pr-head.md); retain PR attribution and use the query's location rendering. For home, use the table below and omit threads now resolved on GitHub. For members, copy recorded dispositions and mark newly resolved or newly opened states from the refresh; never use home's first-parent history as member-fix proof.
 | Refetched thread / evidence | Resolution |
@@ -346,7 +346,7 @@ git -C "$PRIMARY" commit -m "<imperative summary> (ref <ticket-id>)"
 (cd "$PRIMARY" && <the Step 1 set>)
 ```
 
-The plan was already removed and the telemetry record sealed on the branch, so the staged squash tree carries the spec, the telemetry record, and the implementation - never the plan.
+Keep only the spec and implementation in the staged squash tree; the stripped plan stays in feature history and the sealed telemetry record belongs to `gauntlet/telemetry`.
 
 The post-squash re-verify is not optional - `git merge --squash` can surface conflict-resolution mistakes the worktree-side run couldn't catch. For a ledger, run the per-pair post-squash recipe in [verification-set.md](reference/verification-set.md) instead of the non-ledger subshell above.
 
@@ -356,7 +356,7 @@ Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `git -C "$PRIMA
 
 #### Option 4: Keep As-Is
 
-Report: "Keeping branch <name>. Worktree preserved at <path>." The telemetry record stays untracked and in_progress in the worktree; a later finishing run on this worktree seals it.
+Report: "Keeping branch <name>. Worktree preserved at <path>." Leave telemetry in local metadata; Keep As-Is publishes no record.
 
 **Don't cleanup worktree.**
 
@@ -374,7 +374,7 @@ Type 'discard' to confirm.
 
 Wait for exact confirmation.
 
-If confirmed: Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `git -C "$PRIMARY" branch -D "$FEATURE"`. The record is git-excluded, so git worktree remove needs no --force; it goes with the worktree.
+If confirmed: Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `git -C "$PRIMARY" branch -D "$FEATURE"`. Publish no telemetry for Discard; leave common-dir metadata outside worktree cleanup.
 
 ### Step 6: Cleanup Workspace
 
@@ -449,12 +449,12 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 - **Fix:** Require typed "discard" confirmation
 
 **Skipping the strip-and-seal block in Options 1-3 (any path that lands on base)**
-- **Problem:** Plan docs are ephemeral and shouldn't land on `<base-branch>`; the telemetry record is a deliverable and must. Skipping the block ships the plan, or drops the record the spec index reads.
-- **Fix:** Run the block on `$WORKTREE` before the squash or the push. The plan stays in the branch's git history (`git -C "$PRIMARY" log --all -- doc/plans/...`). Spec and telemetry record stay on `<base-branch>`; plan does not.
+- **Problem:** Skipping the block ships an ephemeral plan or skips publication of the record the spec index reads.
+- **Fix:** Run the block on `$WORKTREE` before the squash or push. Preserve the spec on `<base-branch>` and the telemetry record on `gauntlet/telemetry`; retain the plan only in feature history.
 
-**Widening the plan strip to the telemetry record**
-- **Problem:** `.pi/gauntlet/telemetry/**` looks like scaffolding next to the plan and gets deleted in the same commit - main then has no record for the run.
-- **Fix:** Never `git rm` under the telemetry dir. Until the seal the record is untracked and git-excluded, so a plan strip cannot reach it; after the seal it is a committed deliverable.
+**Treating telemetry as a checkout deliverable**
+- **Problem:** Staging a recorder file pollutes the product diff and bypasses branch publication.
+- **Fix:** Let the seal own publication from common-dir metadata; stage no telemetry record in the product checkout.
 
 ## Completion
 Start the final outcome message with exactly one terminal line before summaries. Start the message with `gauntlet: done pr-created` after successful normal or draft PR creation. Start the message with `gauntlet: done merged` after successful squash-merge and post-merge verification. Start the message with `gauntlet: done kept` after Keep. Start the message with `gauntlet: done discarded` only after typed discard authorization and successful discard. Start the message with `gauntlet: done pushed` after successful PR-subject push and body edit, only after the close-member gate is answered or no members qualify. Start the message with `gauntlet: stuck` followed on that line by a short concrete reason for an executed operation that fails, before error evidence or a return menu. Do not combine a terminal marker with a gate marker in one message; a subsequent menu starts a new gate message. Pending choices, implementation stalls and conformance escalation are not terminal outcomes. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Preserve strip, seal, cleanup and ship-state rules below; terminal reporting does not complete ship after Discard or failure. Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
@@ -478,7 +478,7 @@ Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>`
 - Run any step without the `<worktree-path>` argument
 - Auto-proceed past an undispositioned carried-open gap
 - Skip the strip-and-seal block before the Option 3 squash or the Option 1/2 push
-- Delete the telemetry record (`.pi/gauntlet/telemetry/**` or the configured `telemetry.dir`) on any path
+- Delete common-dir telemetry metadata or stage it into the product checkout
 
 **Always:**
 - Verify, or apply the Step 1 skip rule, before offering options

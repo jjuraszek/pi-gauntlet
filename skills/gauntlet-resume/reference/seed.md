@@ -13,12 +13,7 @@ Before starting the seed sequence, read the seed's header. A `**Home:**` header 
    stop: `not tracked: <seed> - commit it first`. Line 1 of `<seed>` equal to
    `# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing` -> stop:
    `context draft, not a spec: <seed> - finish brainstorming`.
-3. **Not shipped.** Read `<primary>/<telemetry.dir>/<rel with .md -> .yaml>`
-   (`piGauntlet.telemetry.dir`, default `.pi/gauntlet/telemetry`). A `shipped_at:` or
-   `abandoned_at:` line carrying a value -> stop:
-   `spec already shipped at <ts> - write a superseding spec`. No record, or
-   `in_progress`: continue; the extension folds this run into the record on
-   `plan_check` pass.
+3. **Not shipped.** Read the record from the fetched `gauntlet/telemetry` branch, never from a checkout YAML file. Resolve `piGauntlet.telemetry` from preset and primary project settings; `enabled: false` skips this check. Use `remote` or default `origin`, and resolve `<owner>/<name>` from the product's origin, not the telemetry remote. Set `<fetched-ref>` to `refs/remotes/origin/gauntlet/telemetry` for origin, otherwise `refs/remotes/telemetry/gauntlet/telemetry`. Run `git -C <primary> fetch --no-tags <remote> +refs/heads/gauntlet/telemetry:<fetched-ref>` with a 10-second timeout. On fetch failure, warn once and use the last fetched ref; with no fetched ref, warn and continue without telemetry evidence. Read `git -C <primary> show <fetched-ref>:<owner>/<name>/brainstorming/<rel with .md -> .yaml>`. A valued `shipped_at:` or `abandoned_at:` stops: `spec already shipped at <ts> - write a superseding spec`. No record or `in_progress`: continue; let the extension bind on `plan_check` pass.
 4. **Name.** `<name>` = basename of `<rel>` minus `.md`, minus a leading `YYYY-MM-DD-`:
    `2026-09-17-gh-31-gauntlet-resume.md` -> `gh-31-gauntlet-resume`. Same shape as
    brainstorming's Filename Convention slug; wrappers receive it as `<name>`.

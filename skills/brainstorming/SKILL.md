@@ -69,7 +69,7 @@ The spec is the first commit in a dedicated worktree, never a separate commit on
 
 Read [reference/legs.md](reference/legs.md) and settle membership before creation. Invoke `/skill:using-git-worktrees` for each member with explicit `$ROOT` = its primary and `$BRANCH` = the shared branch; carry every `Worktree ready at <full-path>` value, home first. Root the home spec at `<home worktree>/<home spec dir>/<filename>.md`; root each dispatch and `git -C` in its owning leg's worktree. Keep the process cwd unchanged. Gather each leg's rules and record portable contracts and companion artifacts using that reference; a one-member run adds only its one-block `## Legs` section.
 
-Spec, plan, and implementation share this worktree. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. `/skill:finishing-a-development-branch` strips the plan, then seals the record before landing (a `telemetry:` commit under git; the working-copy snapshot in a plain jj workspace). Explicit trivial one-off edits outside this flow need no worktree.
+Keep spec, plan, and implementation in this worktree. Ship the spec and implementation; strip only the plan. Let `/skill:finishing-a-development-branch` seal and publish the telemetry record to the orphan `gauntlet/telemetry` branch before landing; keep recorder state in Git common-dir metadata, outside the working tree. In a plain jj workspace, retain local metadata and report that publication is unavailable. Use no worktree for explicit trivial one-off edits outside this flow.
 
 ## The Process
 

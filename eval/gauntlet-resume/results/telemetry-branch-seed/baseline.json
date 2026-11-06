@@ -1,0 +1,34 @@
+{
+  "sample": "telemetry-branch-seed",
+  "arm": "baseline",
+  "skillSha": "4804410fdbb8e0c057c3253538eb97648a2682139bead6367f7c69257ca455c7",
+  "inputSha": "09fa7b9657e168e1174653fcb81cdd3b77e64f4cea6761c5e589883a58171af8",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "The seed route applies here because the argument is a single `.md` token, and entry check 1 (idle session) has passed. I ran no tracker operation, no `plan_check`, no worktree creation and no gate reconstruction: the seed checks stop at step 3, before any of those.\n\n**Operations requested, in order**\n\n1. **Read the seed header:** `/tmp/widget/doc/specs/2026-01-02-widget.md`\n   - There is no `**Home:**` header, so this is not a companion leg file. Continue.\n2. **Step 1, primary session:** `git rev-parse --git-dir --git-common-dir` in `/tmp/widget`\n   - Both paths resolve to the same location, so this is the primary checkout. Continue.\n3. **Step 2, tracked:** `git -C /tmp/widget ls-files --error-unmatch doc/specs/2026-01-02-widget.md`\n   - The command exits 0, so the spec is tracked.\n   - Line 1 is not `# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing`. Continue.\n4. **Step 3, not shipped:**\n   - Read the local record `/tmp/widget/.pi/gauntlet/telemetry/doc/specs/2026-01-02-widget.yaml`. It is absent; there are no checkout YAML files.\n   - Do a bounded refresh of the telemetry branch from `ssh://git@example.invalid/metrics.git`. The fetch succeeds.\n   - Read `sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml` from the fetched telemetry branch. It has `shipped_at: 2026-01-03T10:00:00Z`, which is a value.\n   - Result: **stop**.\n\n**Printed to the user**\n\n```\nspec already shipped at 2026-01-03T10:00:00Z - write a superseding spec\n```\nPath: `/tmp/widget/doc/specs/2026-01-02-widget.md` (record: `sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml` on the telemetry branch)\n\nThe restore ends here. Steps 4–8 (name, reuse or create the worktree, same-repository check, pinned copy, continue) did not run, and neither did any `phase_tracker`, `plan_tracker` or `plan_check` call. To continue, write a new spec that supersedes this one through `/skill:brainstorming`.\n",
+      "words": 239,
+      "wallMs": 12439,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Request a bounded refresh of the configured telemetry branch from `ssh://git@example.invalid/metrics.git`, without checking out files or scanning unrelated records.\n2. Read only `sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml` from that fetched branch. The product identity is `sample/widget`, derived from the product origin—not the telemetry remote.\n3. Observe `shipped_at: 2026-01-03T10:00:00Z`.\n\nPrint:\n\n```text\nspec already shipped at 2026-01-03T10:00:00Z - write a superseding spec\nSpec: /tmp/widget/doc/specs/2026-01-02-widget.md\n```\n\nStop. No worktree creation, tracker calls, `plan_check`, or gate reconstruction.\n",
+      "words": 68,
+      "wallMs": 10090,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "c8e3e03adef258e23fca28066cac9fdc3d014075"
+}

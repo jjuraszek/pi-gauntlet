@@ -1,0 +1,3 @@
+- refresh: judged: Refreshes gauntlet/telemetry from ssh://git@example.invalid/metrics.git with a ten-second timeout, using refs/remotes/telemetry/gauntlet/telemetry and the product prefix sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml for the read.
+- shipped: judged: Treats the fetched shipped timestamp as authoritative despite absent checkout YAML and stops with spec already shipped at 2026-01-03T10:00:00Z - write a superseding spec.
+- stop: judged: Creates no worktree and reconstructs no approval or tracker state.
