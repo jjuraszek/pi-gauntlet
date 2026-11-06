@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseRecord } from "../../extensions/lib/telemetry-record.ts";
@@ -75,7 +75,8 @@ test(`${option} seal pushes an orphan telemetry record to ${separateRemote ? "th
   }
   const indexTree = git(root, "write-tree");
   const status = git(root, "status", "--porcelain");
-  const result = spawnSync(process.execPath, [cli.pathname, "--worktree", root, "--option", option, "--base", "main", "--spec", spec], {
+  const legs = ["--leg", "Team/Companion=abc1234", "--leg", "team/other=https://example.test/pull/2"];
+  const result = spawnSync(process.execPath, [cli.pathname, "--worktree", root, "--option", option, "--base", "main", "--spec", spec, ...legs], {
     encoding: "utf8", env, timeout: 30_000,
   });
   assert.equal(result.status, 0, result.stderr);
@@ -98,6 +99,17 @@ test(`${option} seal pushes an orphan telemetry record to ${separateRemote ? "th
   assert.equal(record.spec, spec);
   assert.equal(record.status, "shipped");
   assert.ok(record.shipped_at);
+  assert.deepEqual(record.legs, [{ repo: "Team/Companion", sha: "abc1234" }, { repo: "team/other", pr: "https://example.test/pull/2" }]);
+  assert.equal(existsSync(join(pendingDir, "example.yaml")), false, "the branch owns the committed record");
+  const sealedHead = git(root, "rev-parse", branch);
+  for (const selector of [["--spec", spec], []]) {
+    const retry = spawnSync(process.execPath, [cli.pathname, "--worktree", root, "--option", option, "--base", "main", ...selector, "--leg", legs[3], "--leg", "team/companion=abc1234"], {
+      encoding: "utf8", env, timeout: 30_000,
+    });
+    assert.equal(retry.status, 0, retry.stderr);
+    assert.match(retry.stdout, /^already sealed /);
+    assert.equal(git(root, "rev-parse", branch), sealedHead, "retry must not re-stamp or commit");
+  }
 
   git(root, "restore", "--staged", "--worktree", "file.txt");
   git(root, "switch", "main");

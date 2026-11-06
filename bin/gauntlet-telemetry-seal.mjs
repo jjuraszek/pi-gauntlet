@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // src/bins/gauntlet-telemetry-seal.mjs
-import { existsSync as existsSync2, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync as existsSync2, readdirSync, readFileSync, realpathSync, unlinkSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute as isAbsolute2, join as join3, relative as relative2, resolve as resolve2 } from "node:path";
 import process2 from "node:process";
@@ -63,6 +63,9 @@ var STMT_START = "(?:^|[\\n;&|(])\\s*";
 
 // extensions/lib/telemetry-paths.ts
 var toPosix = (p) => p.split("\\").join("/");
+var escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+var inDirs = (rel, dirs) => dirs.some((d) => new RegExp(`(^|/)${escapeRe(d)}/[^/]+\\.md$`).test(rel));
+var isSpecPath = (rel, specDirs) => inDirs(rel, specDirs);
 var recordPathFor = (dir, specRel) => `${dir}/${specRel.replace(/\.md$/, ".yaml")}`;
 function repoRelativeToolPath(toplevel, cwd, p) {
   const abs = isAbsolute(p) ? p : resolve(cwd, p);
@@ -311,7 +314,7 @@ function syncTelemetryBranch(root, records, remote = "origin") {
   let committed = false;
   try {
     let tip = resolve3(TELEMETRY_REF);
-    committed = !!tip;
+    committed = records.size === 0 && !!tip;
     fetch();
     let upstream = resolve3(tracking);
     if (records.size) {
@@ -540,7 +543,8 @@ function settings(root) {
   const preset = readLayer(join3(agentDir, "settings.json"));
   const repo = readLayer(join3(root, ".pi", "settings.json"));
   const merged = mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet);
-  return { telemetry: resolveTelemetry(merged), planDirs: planDirsFor(resolveFlowGuards(merged).specDirs) };
+  const { specDirs } = resolveFlowGuards(merged);
+  return { telemetry: resolveTelemetry(merged), planDirs: planDirsFor(specDirs), specDirs };
 }
 function walkRecords(absDir) {
   if (!existsSync2(absDir)) return [];
@@ -577,14 +581,28 @@ function runTickets(vcs, record, base) {
     log.ok ? log.stdout : ""
   ].join("\n"));
 }
+var normalized = (legs) => [...new Set(legs.map((leg) => JSON.stringify([leg.repo.toLowerCase(), leg.sha ?? leg.pr])))].sort();
+var sameLegs = (record, legs) => JSON.stringify(normalized(record.legs ?? [])) === JSON.stringify(normalized(legs));
+function branchBlob(root, path, remote) {
+  const local = gitRun(["rev-parse", "--verify", TELEMETRY_REF], root);
+  const ref = local.ok ? TELEMETRY_REF : `refs/remotes/${!remote || remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+  const blob = gitRun(["show", `${ref}:${path}`], root, void 0, { raw: true });
+  return blob.ok ? blob.stdout : void 0;
+}
 async function seal(vcs, rec, o) {
   const abs = rec;
-  if (!existsSync2(abs)) fail(2, `no record at ${rec}`);
-  const prior = readFileSync(abs);
-  const parsed = parseRecord(prior.toString("utf8"));
-  if (!parsed) fail(2, `unparseable record ${rec}: schema 1 with spec and run_id required`);
-  const normalized = (legs) => [...new Set(legs.map((leg) => JSON.stringify([leg.repo.toLowerCase(), leg.sha ?? leg.pr])))].sort();
-  if (parsed.status !== "in_progress" && JSON.stringify(normalized(parsed.legs ?? [])) !== JSON.stringify(normalized(o.legs))) {
+  const path = `${o.repo}/brainstorming/${toPosix(relative2(o.store, rec))}`;
+  if (!existsSync2(abs)) {
+    const sync2 = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map(), o.remote);
+    const stored2 = parseRecord(branchBlob(vcs.root, path, o.remote) ?? "");
+    if (stored2?.status !== "shipped") return console.log("no telemetry run");
+    if (!sameLegs(stored2, o.legs)) fail(1, `seal legs differ: stored ${JSON.stringify(stored2.legs ?? [])}; supplied ${JSON.stringify(o.legs)}`);
+    return console.log(sync2.ok ? `already sealed ${rec}` : `telemetry: not pushed (${sync2.reason}); record kept at ${path}`);
+  }
+  const prior = readFileSync(abs, "utf8");
+  const parsed = parseRecord(prior);
+  if (!parsed) return console.log(`telemetry: skipped (unparseable record ${rec})`);
+  if (parsed.status !== "in_progress" && !sameLegs(parsed, o.legs)) {
     fail(1, `seal legs differ: stored ${JSON.stringify(parsed.legs ?? [])}; supplied ${JSON.stringify(o.legs)}`);
   }
   if (parsed.status === "in_progress") {
@@ -602,10 +620,14 @@ async function seal(vcs, rec, o) {
     parsed.derived = derive(parsed, now);
     writeFileSync(abs, serializeRecord(parsed));
   }
-  const path = `${o.repo}/brainstorming/${parsed.spec.replace(/\.md$/, ".yaml")}`;
-  const sync = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map([[path, readFileSync(abs, "utf8")]]), o.remote);
-  if (!sync.ok) return console.log(`telemetry: not pushed (${sync.reason})`);
-  console.log(`sealed ${rec}`);
+  const bytes = readFileSync(abs, "utf8");
+  const storedBytes = branchBlob(vcs.root, path, o.remote);
+  const stored = parseRecord(storedBytes ?? "");
+  const already = stored?.status === "shipped" && sameLegs(stored, o.legs) && storedBytes === bytes;
+  const sync = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map([[path, bytes]]), o.remote);
+  if (sync.committed) unlinkSync(abs);
+  if (!sync.ok) return console.log(`telemetry: not pushed (${sync.reason}); record kept at ${sync.committed ? path : rec}`);
+  console.log(`${already ? "already sealed" : "sealed"} ${rec}`);
 }
 async function main() {
   const opts = parseArgs(process2.argv.slice(2));
@@ -618,7 +640,7 @@ async function main() {
     rel = repoRelativeToolPath(root, root, specAbs);
     if (!rel) usage();
   }
-  const { telemetry, planDirs } = settings(root);
+  const { telemetry, planDirs, specDirs } = settings(root);
   if (telemetry.warning) process2.stderr.write(`warning: ${telemetry.warning}
 `);
   if (!telemetry.enabled) return console.log("telemetry disabled");
@@ -632,17 +654,12 @@ async function main() {
     return;
   }
   if (opts.migrate !== void 0) return migrate(root, resolve2(opts.worktree, opts.migrate), repo, telemetry.remote);
-  const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs, repo, remote: telemetry.remote };
+  const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs, repo, remote: telemetry.remote, store };
   if (opts.spec) return seal(vcs, recordPathFor(store, rel), o);
   const diff = changedNames(vcs, opts.base);
   if (!diff.ok) fail(1, `${vcs.kind} diff failed: ${diff.stderr}`);
   const changed = new Set(diff.stdout.split("\n").filter(Boolean));
-  const records = walkRecords(store).filter((abs) => {
-    const parsed = parseRecord(readFileSync(abs, "utf8"));
-    if (!parsed) process2.stderr.write(`warning: unparseable record ${toPosix(relative2(root, abs))}
-`);
-    return parsed && changed.has(parsed.spec);
-  }).sort();
+  const records = [...changed].filter((path) => isSpecPath(path, specDirs)).map((path) => recordPathFor(store, path)).sort();
   if (records.length === 0) return console.log("no telemetry run");
   for (const rec of records) await seal(vcs, rec, o);
 }

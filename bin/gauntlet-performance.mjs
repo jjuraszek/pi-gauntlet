@@ -120,7 +120,7 @@ function syncTelemetryBranch(root, records, remote = "origin") {
   let committed = false;
   try {
     let tip = resolve2(TELEMETRY_REF);
-    committed = !!tip;
+    committed = records.size === 0 && !!tip;
     fetch();
     let upstream = resolve2(tracking);
     if (records.size) {

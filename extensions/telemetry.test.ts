@@ -1098,7 +1098,7 @@
     assert.equal(h.readRecord().status, "in_progress", "git keep path no longer stamps; the seal bin owns shipped_at");
   });
 
-  test("a sealed on-disk record freezes the recorder: shutdown does not overwrite it", async () => {
+  test("a stamped pending record freezes the recorder on shutdown", async () => {
     const h = await boundInShip();
     const sealed = { ...h.readRecord(), status: "shipped" as const, shipped_at: "2026-09-17T18:00:00Z" };
     writeFileSync(h.recordPath(), serializeRecord(sealed));
@@ -1106,6 +1106,14 @@
     await h.emit("session_compact", { type: "session_compact", reason: "manual" });
     await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
     assert.equal(readFileSync(h.recordPath(), "utf8"), before);
+  });
+
+  test("a branch-owned record freezes the recorder on shutdown", async () => {
+    const h = await boundInShip();
+    rmSync(h.recordPath());
+    await h.emit("session_compact", { type: "session_compact", reason: "manual" });
+    await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
+    assert.equal(existsSync(h.recordPath()), false, "flush must not recreate a published record");
   });
 
   test("a frozen record cannot bind another spec through plan_check or another checkout write", async () => {

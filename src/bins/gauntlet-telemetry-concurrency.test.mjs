@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -60,6 +60,58 @@ function fixture() {
   return { scratch, origin, first, second, env, run, git, args, prepare, sealRun, sync, records };
 }
 
+test("seal with no file or blob reports no telemetry run", () => {
+  const f = fixture();
+  assert.equal(f.run(f.first, process.execPath, f.args(f.first, "missing")).stdout, "no telemetry run\n");
+});
+
+test("seal skips an unparseable file without changing it", () => {
+  const f = fixture();
+  f.prepare(f.first, "current");
+  const source = join(f.first, ".git/gauntlet/telemetry/doc/specs/current.yaml");
+  writeFileSync(source, "not a record\n");
+  const result = f.run(f.first, process.execPath, f.args(f.first, "current"));
+  assert.equal(result.stdout, `telemetry: skipped (unparseable record ${realpathSync(source)})\n`);
+  assert.equal(readFileSync(source, "utf8"), "not a record\n");
+});
+
+for (const existing of [false, true]) {
+  test(`failed seal commit retains its stamped file ${existing ? "with an older tip" : "on first use"}`, () => {
+    const f = fixture();
+    if (existing) f.sealRun(f.first, "older");
+    f.prepare(f.first, "current");
+    const source = join(f.first, ".git/gauntlet/telemetry/doc/specs/current.yaml");
+    const extra = { GIT_AUTHOR_NAME: "", GIT_AUTHOR_EMAIL: "", GIT_COMMITTER_NAME: "", GIT_COMMITTER_EMAIL: "" };
+    const result = f.run(f.first, process.execPath, f.args(f.first, "current"), extra);
+    assert.match(result.stdout, /telemetry: not pushed \(.+\); record kept at /);
+    const stamped = readFileSync(source, "utf8");
+    assert.match(stamped, /status: shipped/);
+    const synced = f.sync(f.first, [[`${prefix}current.yaml`, stamped]], extra);
+    assert.equal(synced.committed, false, "an older tip does not hold the current bytes");
+    assert.equal(synced.ok, false);
+    assert.match(f.run(f.first, process.execPath, f.args(f.first, "current")).stdout, /^sealed /);
+    assert.equal(existsSync(source), false);
+    assert.equal(f.git(f.origin, "show", `${ref}:${prefix}current.yaml`) + "\n", stamped, "retry must not re-stamp");
+  });
+}
+
+test("failed seal push leaves the branch authoritative for retry", () => {
+  const f = fixture();
+  f.prepare(f.first, "current");
+  const source = join(f.first, ".git/gauntlet/telemetry/doc/specs/current.yaml");
+  writeFileSync(join(f.origin, "hooks/pre-receive"), "#!/bin/sh\nexit 1\n", { mode: 0o755 });
+  const result = f.run(f.first, process.execPath, f.args(f.first, "current"));
+  assert.match(result.stdout, /^telemetry: not pushed \(/);
+  assert.ok(result.stdout.endsWith(`); record kept at ${prefix}current.yaml\n`));
+  assert.equal(existsSync(source), false, "a failed push keeps bytes on the local branch, not in the file");
+  const tip = f.git(f.first, "rev-parse", ref);
+  assert.match(f.run(f.first, process.execPath, f.args(f.first, "current")).stdout, /^telemetry: not pushed \(/);
+  assert.equal(f.git(f.first, "rev-parse", ref), tip);
+  rmSync(join(f.origin, "hooks/pre-receive"));
+  assert.match(f.run(f.first, process.execPath, f.args(f.first, "current")).stdout, /^already sealed /);
+  assert.equal(f.git(f.origin, "rev-parse", ref), tip);
+});
+
 for (const existing of [true, false]) {
   test(`seal retries a ${existing ? "shared-tip" : "first-use orphan"} race without force`, () => {
     const f = fixture();
@@ -114,7 +166,8 @@ for (const recovery of ["refresh", "seal", "leg"]) {
     f.git(f.second, "config", `url.${offline}.insteadOf`, "https://example.test/team/product.git");
     for (const name of ["pending-one", "pending-two"]) {
       const result = f.sealRun(f.second, name);
-      assert.match(result.stdout, /^telemetry: not pushed \(.+\)\n$/);
+      assert.ok(result.stdout.startsWith("telemetry: not pushed ("));
+      assert.ok(result.stdout.endsWith(`); record kept at ${prefix}${name}.yaml\n`));
     }
     const stranded = f.git(f.second, "rev-parse", ref);
     f.sealRun(f.first, "remote-new");

@@ -215,6 +215,7 @@
     let buffer: TelemetryEvent[] = [];
     let pending: Accumulators = emptyAccumulators();
     let frozen = false;
+    let recordWritten = false;
     let gauntletEntered = false;
     let settingsWarned = false;
     let sessionId = "";
@@ -260,8 +261,8 @@
     const warn = (message: string) => pushEvent({ kind: "warning", message });
 
     // ---- record store ----
-    // The record is the file on disk; nothing here stages or commits. A record the seal bin
-    // already stamped is frozen so a later flush cannot overwrite the seal.
+    // The seal either keeps a stamped file for retry or removes it after committing.
+    // Neither may be overwritten by a later recorder flush.
     const sealedAt = (path: string): boolean => {
       const text = deps.fs.readFile(path);
       const parsed = text ? parseRecord(text) : undefined;
@@ -275,7 +276,7 @@
         return;
       }
       const target = recordRel;
-      if (sealedAt(target)) {
+      if ((recordWritten && !deps.fs.exists(target)) || sealedAt(target)) {
         frozen = true;
         return;
       }
@@ -289,6 +290,7 @@
         deps.fs.mkdirp(dirname(target));
         deps.fs.writeFile(target + ".tmp", serializeRecord(record));
         deps.fs.rename(target + ".tmp", target);
+        recordWritten = true;
       } catch (e) {
         pushEvent({ kind: "warning", message: `record write failed: ${String((e as Error).message ?? e).split("\n")[0]}` });
       }
@@ -392,6 +394,7 @@
       record = undefined;
       recordRel = undefined;
       frozen = false;
+      recordWritten = false;
       councilPending = undefined;
     };
 
