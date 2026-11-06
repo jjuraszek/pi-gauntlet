@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, chmodSync } from "node:fs";
+import { isolatedGitEnv } from "../test-support/git-env.mjs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -12,12 +13,7 @@ function fixture() {
   const root = join(scratch, "primary product");
   const home = join(scratch, "home");
   mkdirSync(root); mkdirSync(home);
-  const env = {
-    ...process.env, HOME: home, GIT_CONFIG_GLOBAL: join(scratch, "gitconfig"), GIT_CONFIG_NOSYSTEM: "1",
-    GIT_AUTHOR_NAME: "test", GIT_AUTHOR_EMAIL: "test@example.test",
-    GIT_COMMITTER_NAME: "test", GIT_COMMITTER_EMAIL: "test@example.test",
-  };
-  writeFileSync(env.GIT_CONFIG_GLOBAL, "");
+  const env = { ...process.env, HOME: home, ...isolatedGitEnv(scratch) };
   const run = (binary: string, args: string[], cwd = root) => {
     const result = spawnSync(binary, args, { cwd, env, encoding: "utf8", timeout: 10_000 });
     assert.equal(result.status, 0, `${binary} ${args.join(" ")}: ${result.stderr}`);
@@ -28,7 +24,7 @@ function fixture() {
   const identity = (cwd = root) => JSON.parse(run(process.execPath, ["--input-type=module", "--eval",
     `import { telemetryRepo } from ${JSON.stringify(library)}; console.log(JSON.stringify(telemetryRepo(process.cwd()) ?? null));`,
   ], cwd));
-  return { scratch, root, git, identity };
+  return { scratch, root, git, identity, run };
 }
 
 test("repository identity normalizes origin URL forms and keeps every namespace segment", async (t) => {
@@ -50,6 +46,29 @@ test("repository identity normalizes origin URL forms and keeps every namespace 
   mkdirSync(join(f.root, ".pi"));
   writeFileSync(join(f.root, ".pi/settings.json"), JSON.stringify({ piGauntlet: { telemetry: { remote: "https://elsewhere.test/central/telemetry.git" } } }));
   assert.equal(f.identity(), "Team/Product", "telemetry.remote never changes product identity");
+});
+
+test("failed telemetry ref commit reports committed: false and preserves the feature index", (t) => {
+  const f = fixture();
+  t.after(() => rmSync(f.scratch, { recursive: true, force: true }));
+  writeFileSync(join(f.root, "file"), "feature\n");
+  f.git("add", "file");
+  f.git("commit", "-m", "initial");
+  const before = f.git("rev-parse", "HEAD");
+  const index = readFileSync(join(f.root, ".git/index"));
+  const hook = join(f.root, ".git/hooks/reference-transaction");
+  writeFileSync(hook, '#!/bin/sh\nif [ "$1" = prepared ]; then echo rejected >&2; exit 1; fi\n');
+  chmodSync(hook, 0o755);
+  const result = JSON.parse(f.run(process.execPath, ["--input-type=module", "--eval",
+    `import { syncTelemetryBranch } from ${JSON.stringify(library)}; console.log(JSON.stringify(syncTelemetryBranch(process.cwd(), new Map([["team/product/brainstorming/x.yaml", "schema: 1\\n"]]))));`,
+  ]));
+  assert.equal(result.ok, false);
+  assert.equal(result.committed, false);
+  assert.equal(result.pushed, false);
+  assert.match(result.reason, /rejected|reference transaction/);
+  assert.equal(f.git("rev-parse", "HEAD"), before);
+  assert.deepEqual(readFileSync(join(f.root, ".git/index")), index);
+  assert.equal(f.git("for-each-ref", "refs/heads/gauntlet/telemetry"), "");
 });
 
 test("origin-less identity uses repo from the first-found overrides Issue tracker section", () => {
