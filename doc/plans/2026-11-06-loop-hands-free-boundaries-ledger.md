@@ -3,7 +3,7 @@
 base: 82cc2b80e5c9c5216f8a55817628ca9532381a99
 verification: npm test
 checks: commands
-iterations: 11
+iterations: 12
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -17,7 +17,7 @@ allowance: 10
 | 7 | done | 2 | timeout -k 30 120 node --test scripts/loop-implementer-process.test.mjs; 3 passed, 0 failed; silence-bound-and-unreachable: all 10 facts hold on both models; scratch timeout 124, jobs empty, leader and group absent |
 | 8 | done | 0 | rg --quiet 'Inside the implement loop, end a turn only with a stop header from ## Human stop.*follow every intermediate report with the next ordered-table action in the same turn' skills/loop-implementation/SKILL.md; exit 0; same-turn-continuation eval improved with 6 candidate facts holding; partial narrated continuation coverage |
 | 9 | done | 1 | timeout -k 30 600 node eval/run.mjs brainstorming design-names-paid-actions --base 82cc2b80e5c9c5216f8a55817628ca9532381a99; 2 model cells improved; all 10 candidate facts hold; partial synthetic design-authorization coverage |
-| 10 | open | 0 | |
+| 10 | done | 1 | timeout -k 30 60 python3 -c 'assert all(all(s in __import__("pathlib").Path(p).read_text() for s in terms) for p, terms in {"doc/configuration.md": ["loop: repair seed", "pending: verify", "allowance - used", "unreachable:", "checkout ownership", "start_new_session=True"], "doc/implement-engines.md": ["660 seconds", "3600", "process start identity", "pending: verify"], "doc/gate-contract.md": ["recovery incomplete", "bound spent:", "loop: amend", "pending: verify"], "README.md": ["ownership-fenced recovery", "unreachable:", "conformance rounds", "pending: verify"], "CHANGELOG.md": ["## Unreleased"]}.items()) and __import__("pathlib").Path("doc/specs/2026-11-01-gh-108-loop-single-allowance.md").read_text().count("**Superseded by:** [doc/specs/2026-11-06-loop-hands-free-boundaries.md]") == 1 and all(s not in __import__("pathlib").Path(p).read_text() for p in ["doc/configuration.md", "doc/implement-engines.md", "doc/gate-contract.md", "README.md"] for s in ["one exit-verification repair per flow", "Only retry resets", "second consecutive seed miss stops", "One fresh-context `implementer` repair per flow", "Exhaustion and stagnation stop"])'; doc assertions passed; exactly one existing supersession banner; spec says repair child records no jobs but driver requires jobs records |
 | 11 | open | 0 | |
 
 ## Decisions
@@ -33,3 +33,4 @@ row 6 done | Added bounded action authorization and local replay evidence; ran s
 row 7 failed | Required setsid is absent; scratch Python launch proved an owned session, timeout and empty jobs without changing the persona. | Recommend amendment Portable owned-session launch: preflight Python start_new_session=True with timeout and identity fences; do not retry absent setsid or install dependencies.
 row 7 done | Bounded worker calls and proved portable session timeout cleanup with selected replay and live scratch checks. | Reuse scripts/loop-implementer-process.test.mjs for local process and stored replay checks.
 row 9 done | Required Design to name bounded paid and external actions and made approval authorize only those named steps; the selected synthetic replay passed. | Reuse eval/brainstorming/samples/design-names-paid-actions and its stored results to check named-action approval and unnamed-action limits.
+row 10 done | Updated loop docs for allowance-bound recovery, conformance funding, portable jobs and unreachable cuts; verified the existing supersession banner. | Reuse doc/configuration.md and doc/implement-engines.md for boundary contracts; commit body records spec-versus-driver discrepancies for follow-up.
