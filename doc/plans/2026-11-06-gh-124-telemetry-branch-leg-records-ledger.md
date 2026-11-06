@@ -3,7 +3,7 @@
 base: d04aa00576eaaf802b8cdde8d8ab1917d0118f68
 verification: npm test
 checks: commands
-iterations: 13
+iterations: 14
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -23,7 +23,7 @@ allowance: 10
 | 13 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 5 passed; 0 failed |
 | 14 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 8 passed; 0 failed |
 | 15 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-rounds.test.ts; 2 passed; 0 failed; repeated legs retained and grouped into chronological rounds |
-| 16 | open | 0 | |
+| 16 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-no-write.test.ts; 6 passed, 0 failed on baseline; no-write settlements publish once with unchanged tracker fixture bytes; declined and dropped creates omit key |
 | 17 | open | 0 | |
 | 18 | open | 0 | |
 | 19 | open | 0 | |
@@ -46,3 +46,4 @@ row 13 done | Verified that council member usage and models enter shape-ticket t
 row 14 done | Verified one record per batch for all three skills with every settled ref and conserved parent plus child costs. | Extend the batch cases in extensions/telemetry-leg-fields.test.ts to exercise additional item and accounting combinations.
 row 12 done | Standardized per-ref settlement rows across all three skills, documented tokens and verified six model replies parse correctly. | Reuse extensions/telemetry-settlement-contract.test.ts and each skill's per-ref-settlement eval fixtures to check settlement grammar and item identities.
 row 15 done | Retained subsecond leg timestamps and added chronological ticket/PR rounds, with sibling regression tests covering repeated sessions and source/bundle parity. | Reuse src/bins/performance/leg-rounds.mjs groupRounds and itemKey for ticket/PR totals and run joins.
+row 16 done | Verified six no-write settlements record costs once, preserve tracker fixture bytes, and omit keys for declined or dropped creates. | Extend the parameter cases in extensions/telemetry-leg-no-write.test.ts for no-write settlement checks; the sibling test is registered in CI.
