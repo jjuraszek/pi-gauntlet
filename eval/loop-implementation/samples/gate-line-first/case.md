@@ -1,2 +1,4 @@
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 The loop child returned one commit with a dirty working tree. Row 1 is open, attempts 1, evidence `check parser: expected colon, got comma`; last decision `row 1 failed | delimiter still wrong | retry`. Ledger iterations:2 allowance:4. No cleanup authorization has been given. Render only the human stop awaiting discard/reset authorization, including the supplied numeric ledger snapshot. Do not execute anything.
+
+No ownership manifest or affirmative process-exit evidence is available. Render saved row cells without changing the unadmitted working ledger.

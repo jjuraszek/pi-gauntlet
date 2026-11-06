@@ -1,8 +1,8 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "4895db8f3e06c057fa41f4cd2f4852832cb26add25f7367191beadd92288389a",
-  "inputSha": "f522bd02f831c5913fbcb37de32490d5049ab5d164ef88ab86d458c94a2157f5",
+  "skillSha": "578d8dfb4651ff3f03a8561f84a069f902c0dbd6db844a5e6b5033a2c6db2545",
+  "inputSha": "586b2732e6f61e251d1c0379140dd5f658ce7a59165866842929cc513f1a3911",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty\n\nThe loop child made one commit but left uncommitted changes, so its result was not admitted. The ledger shows the restored pre-dispatch row cells. Iterations stays at the consumed count, 2. Allowance stays 4.\n\nProblem: row 1 evidence `check parser: expected colon, got comma`; last decision `row 1 failed | delimiter still wrong | retry`\n\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nOptions:\n1. Authorize discard and reset. This discards the uncommitted changes and resets to the last valid commit, dropping the unadmitted child commit. Row 1 stays open at attempts 1. Before the next normal bump, iterations is set to the restored HEAD's value +1. Then the loop resumes at the ordered table with row 1 as the target.\n2. Stop. This keeps phase implement and leaves the branch and working tree exactly as they are.\n\nRecommendation: 1 - the return failed the clean-tree, exactly-one-commit boundary, so nothing from it can be admitted. Only an authorized discard/reset lets row 1 be retried from a known-good commit.\n",
-      "words": 175,
-      "wallMs": 10427,
+      "text": "gauntlet: question\nStopped: iteration 2 recovery incomplete - checkout ownership unproven; background jobs not confirmed exited\n\nProblem: the loop child returned 1 commit with a dirty working tree (`dirty tree`). This return was not admitted. No ownership manifest identifies the changed paths and the new commit as this child's output. There is also no affirmative exit evidence for any background job. Nothing has been reset, cleaned or signaled.\n- Row 1 evidence: `check parser: expected colon, got comma`\n- Last decision: `row 1 failed | delimiter still wrong | retry`\n\nLedger (saved pre-dispatch cells; the unadmitted working ledger is left untouched):\n- iterations: 2\n- allowance: 4\n- row 1: 1 of 4\n\nPreserve every row's attempts.\n\nStill preserved:\n- The uncommitted changes and the extra commit stay in place.\n- The pending dispatch identity and the consumed iteration stay unchanged.\n- No attempt is charged and no repair commit is made.\n\nOptions:\n1. **Authorize discard.** You confirm that every change and the commit since the pre-dispatch HEAD belong to this child and that no other writer or job is live. The driver then:\n   - runs `git -C \"<worktree>\" reset --hard HEAD_BEFORE` and `git -C \"<worktree>\" clean -fd`, leaving ignored files alone;\n   - requires a clean status and 0 commits after HEAD_BEFORE;\n   - writes the saved ledger with iterations 3 and no `pending:`, sets row 1 to `failed`, attempts 2, evidence `iteration 2: interrupted - dirty tree`;\n   - commits `loop: repair row 1`, refreshes, and returns to the ordered table.\n2. **Stop.** Keep phase implement active and preserve the branch, the working tree and the pending state as they are.\n\nRecommendation: none - discarding unproven-ownership changes needs your explicit authorization, and a budget reply does not grant it.\n",
+      "words": 271,
+      "wallMs": 12981,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty.\n\niterations: 2\nallowance: 4\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: \"check parser: expected colon, got comma\"\nLast decision: \"row 1 failed | delimiter still wrong | retry\"\n\nThe dirty return is not admitted. Row 1 remains open.\n\nAuthorize discarding uncommitted changes and resetting to the last valid commit, preserving the consumed iteration count? No cleanup or further dispatch will occur without authorization.\n\nRecommendation: authorize discard/reset - restore the valid boundary before continuing.\n",
-      "words": 82,
-      "wallMs": 7963,
+      "text": "gauntlet: question\nStopped: iteration 1 recovery incomplete - checkout ownership unproven\n\nChild returned one commit with a dirty working tree. Ownership provenance and affirmative process-exit evidence are unavailable.\n\nSaved row cells:\nrow 1: open\nrow 1: 1 of 4\niterations: 2\nallowance: 4\nPreserve every row's attempts.\n\nProblem:\nevidence: `check parser: expected colon, got comma`\nlast decision: `row 1 failed | delimiter still wrong | retry`\n\nNo reset, cleanup, ledger write, or repair commit has been performed. Unadmitted changes remain preserved.\n\n- Authorize discarding the unadmitted commit and working-tree changes despite unresolved ownership. Process safety must still be established before reset/cleanup.\n- Stop and preserve the current state.\n\nRecommendation: none - ownership and process-exit evidence are missing.\n",
+      "words": 111,
+      "wallMs": 10150,
       "mechanical": {
         "question-first": "holds"
       }
@@ -36,38 +36,11 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "c641fe100b09ba0e080c30c97026932f4dce4643fe4e0f7652ea77dcac0a8cee",
+      "factsSha": "64b31d0a21ead8d398bb350be23d101577f7d6849bda520eb420bd658625c806",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
-      "baselineOutputSha": "2275abf85457103610ff9e08375d3d72f6000a5414a3b007544fba37ff993612",
-      "candidateOutputSha": "33eb147255e54b1674fdea107149e19c40459b684e6fd826ba0e6889457deb5e",
-      "facts": {
-        "authorization": {
-          "before": "fails",
-          "after": "holds",
-          "label": "unplanned improvement"
-        },
-        "preserved": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "question-first": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "After moved authorization to holds by collapsing the stop to a pure discard/reset-or-stop menu: Before's option 1 bundled 'then retry with hint' (a row-budget action) and option 2 offered amend at a dirty-tree stop, so Before offered a retry alongside the authorization request; After's option 1 asks only for discard/reset authorization, option 2 is stop, and the recommendation merely describes that an authorized reset is what later permits an ordinary retry, which is not an offer. Preserved holds in both: each states restored pre-dispatch row cells, attempts 1 of 4, iterations 2, allowance 4, nothing discarded, implement active, no done/stuck marker. To make the preserved fact more observable rather than inferred, After could say explicitly 'the only working-ledger write is the restored row 1 cells and the cleared pending: tuple; no discard or reset has occurred' and keep the 'row 1: 1 of 4' count line — that keeps every Before-held fact while still delivering the restricted dirty-tree menu the Change requires.",
-      "wallMs": 19254,
-      "verdict": "improved"
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "c641fe100b09ba0e080c30c97026932f4dce4643fe4e0f7652ea77dcac0a8cee",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a938de967f3350b995ffcc8a39f764298a5e898a019e217a7cdebc4dea66d273",
-      "baselineOutputSha": "9add4d9c3ac1c047b19d918986903a69491b7143839056344b14d70984fdd7d7",
-      "candidateOutputSha": "cf1da4604f679ef7e7f66fe017891e8b7040a9e85439ac3b5f04c01a5a54ad1a",
+      "intentSha": "995073c44361dd577d834937ddc03e3555a56309ab8c977848f830f1f48c5778",
+      "baselineOutputSha": "9eaed24de6223ec387f825a913ca2e262065d5cfcaed194e53149add9cfa930c",
+      "candidateOutputSha": "33f22b6a557248d87a7ed598d574d8004a62a08d2a47e43939f99274a02726e7",
       "facts": {
         "authorization": {
           "before": "holds",
@@ -85,10 +58,37 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: After still asks a single explicit discard/reset authorization question with no retry, rows +N, cap or funding option, and it prints the preserved counters (iterations 2, allowance 4, row 1 at 1 of 4) with row 1 left open and nothing executed. The improvements are real — the stale 'total iteration cap' phrase is gone and the attempts-of-allowance line makes preservation observable. Two things were dropped that Before stated outright and a stricter reader could miss in After: the explicit 'leave implement active' statement and the explicit 'No discard or reset has been authorized or executed' line (After only says none will occur without authorization, which implies but does not assert current state). To keep the preserved fact unambiguous while delivering the change, add one sentence after the admission line such as 'Implement remains active; nothing has been discarded or reset; only row 1's restored cells and the pending: tuple were written to the working ledger.'",
-      "wallMs": 12785,
+      "feedback": "Neither fact moved: both outputs lead with `gauntlet: question`, offer only authorize-discard/reset or stop (no retry, rows +N, cap or funding), show row 1 at 1 of 4 with iteration 2 consumed, keep implement active and make no write, reset or terminal marker. After improves observability by printing the full numeric snapshot (iterations 2, allowance 4) and stating explicitly that the unadmitted working ledger is untouched and nothing has been reset or signaled. One wording risk to watch in After: option 1 narrates the post-authorization path as marking row 1 `failed`, attempts 2, with a `loop: repair row 1` commit, whereas Before (and the Change's rejected-commit-boundary rule) say a boundary rejection restores pre-dispatch attempts and redispatches without new budget; a careful reader could take After's option text as pre-committing to charging an attempt. To keep the stop clearly ownership-safe while delivering the Change, phrase option 1 as 'after authorized reset the driver restores the saved pre-dispatch row cells (row 1 stays at 1 of 4), bumps iterations, clears pending and returns to the ordered table', reserving the attempt-consuming repair wording for the owned/provenance-proven automatic recovery case rather than the human-authorized discard of unproven changes.",
+      "wallMs": 19307,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "64b31d0a21ead8d398bb350be23d101577f7d6849bda520eb420bd658625c806",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "995073c44361dd577d834937ddc03e3555a56309ab8c977848f830f1f48c5778",
+      "baselineOutputSha": "197d0d382f14a44c962857aeb1eaf6e46eb78b5619a786743265559eca8d6e2c",
+      "candidateOutputSha": "edd6d54602cef268860bc4c81676fa226e287ce81bcbf7c85e4d6053074768a4",
+      "facts": {
+        "authorization": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "preserved": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "question-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs gate discard/reset behind the human under the gauntlet: question marker, offer no retry, rows +N, cap or funding action, keep row 1 at 1 of 4 with iterations 2 / allowance 4, state that no write, cleanup, reset or ledger change occurred, and emit no done/stuck marker. After adds the intended ownership-safe framing (recovery incomplete, provenance missing, Recommendation: none, explicit 'stop and preserve' option), which is the Change delivered. Two small robustness notes: After's first option is phrased as an imperative bullet ('Authorize discarding ... despite unresolved ownership') rather than an explicit question, and its 'Process safety must still be established before reset/cleanup' clause slightly blurs whether the human is being asked to authorize the reset itself; phrasing it as 'Authorize discard/reset of the unadmitted commit and working-tree changes? (ownership unproven; process-exit evidence will still be required before any cleanup runs)' would keep the explicit ask unmistakable. Also consider labelling the iterations/allowance lines as 'Ledger snapshot:' rather than folding them under 'Saved row cells', so the preserved counters remain recognisable as the ledger snapshot the stop is required to include.",
+      "wallMs": 15674,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "5afae0b595961c8e57a9401ab34e1046b8ab1e41"
 }

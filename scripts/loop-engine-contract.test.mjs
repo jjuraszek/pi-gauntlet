@@ -185,25 +185,31 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
 test('automatic exit verification repair is once per flow under both options', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const gate = driver.split('\n## After the loop\n')[1].split('\n1. ')[1].split('\n2. ')[0];
-  for (const token of ['loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun the failing checkout\'s gate pairs once', 'gate set', 'Commit verification-produced tracked changes', 'escalated round spent']) assert.ok(gate.includes(token), token);
+  for (const token of ['loop: repair verification', 'exactly one commit', 'rows unchanged', 'Rerun the failing checkout\'s gate pairs once', 'gate set', 'Commit verification-produced tracked changes', 'repairs < allowance']) assert.ok(gate.includes(token), token);
   for (const token of ['Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only']) assert.ok(driver.includes(token), token);
   for (const token of [
-    'approval option 4 and option 5 alike', 'never consult amend permission or gate on the iteration count',
-    'gauntlet_setting({ key: "escalationLoop" })', "resolver's main-loop model fallback",
-    'Problem: escalationLoop.implModel unavailable', 'without a bump or spent marker',
-    'bump iterations once', 'record `HEAD_BEFORE` in the failing leg',
+    'approval option 4 and option 5 alike', 'never consult amend permission or gate on iterations',
+    'gauntlet_setting({ key: "escalationLoop" })', "resolver's main-loop fallback",
+    'Problem: escalationLoop.implModel unavailable', 'without a bump or marker',
+    'bump iterations once', 'Save the home ledger and home/failing-leg HEADs',
     'preserving attempts, mapping, allowance and prior decisions',
-    'Dispatch error or non-DONE consumes the round', 'preserve the consumed count and stop',
-    'interrupted or unrecoverable identity is spent', 'never add a carrier or fabricate success',
-    'rejected dirty/zero/multiple-commit return also keeps the round spent',
-    'Never repair again for another leg', 'Never spend verify-phase credits',
+    'On killed, error, non-DONE, dirty, zero/multiple-commit or invalid repair returns',
+    'after owned jobs exit and the boundary is clean', 'empty `loop: repair verification` marker (no repair code)',
+    'retain state at the recovery-incomplete stop; the pending reservation remains consumed',
+    'an already admitted matching marker needs no second marker',
+    'A new failure in any leg returns to the repair-count check', 'Never spend verify-phase credits',
   ]) assert.ok(gate.includes(token), token);
   assert.doesNotMatch(gate, /With amend permission|iterations < cap|at cap stop|With no permission/);
-  assert.match(gate, /With spent.*stop without dispatch or automatic rerun/);
+  assert.match(gate, /On failure at `repairs >= allowance`.*amend or stop only/);
   assert.match(driver, /Omit the model override except on an escalated round/);
-  assert.match(driver, /empty parent marker/);
-  assert.match(driver, /This marker is once per flow\./);
-  for (const token of ['the implementation worktree as cwd and its Rules', 'absolute spec path, failing command, its checkout, exit code and log path', 'On success record verified HEAD and clean status']) assert.ok(driver.includes(token), token);
+  for (const token of [
+    'Count `repairs` as home `loop: repair verification` commits since ledger base',
+    'plus one for a `pending: verify` tuple with no admitted repair commit',
+    'match marker bodies to pending tuples to avoid counting one dispatch twice',
+    'Recover an outstanding tuple before any new gate run or dispatch',
+    'failing checkout cwd and Rules', 'absolute spec path, failing command, checkout, exit code and log path',
+    'On success record verified HEAD and clean status',
+  ]) assert.ok(driver.includes(token), token);
   assert.ok(Buffer.byteLength(driver) < 50000);
   assert.deepEqual(lintTarget(new URL('eval/loop-implementation', root).pathname), []);
 });
@@ -221,7 +227,7 @@ test('coordinated loop owns stable mappings, attributed returns and pending reco
   const headings = ['## Entry', '## Resume', '## Targeting and dispatch', '## Companion return validation', '### Companion commit admission', '## Amendments'];
   for (let i = 1; i < headings.length; i++) assert.ok(reference.indexOf('\n' + headings[i] + '\n') > reference.indexOf('\n' + headings[i - 1] + '\n'), headings[i]);
   assert.ok(reference.indexOf('Recover pending companion work') < reference.indexOf('\n## Targeting and dispatch\n'));
-  for (const token of ['once per flow, not per failing leg', 'Success only after every leg passes']) assert.ok(reference.includes(token), token);
+  for (const token of ["shared allowance across failing legs", 'Success only after every leg passes']) assert.ok(reference.includes(token), token);
   assert.ok(Buffer.byteLength(reference) < 50000);
   assert.ok(reference.split('\n').length < 2000);
   assert.ok(driver.includes('legacy and single-member ledger bytes unchanged'));
@@ -375,7 +381,7 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   assert.match(driver, /Offer retry and `rows \+N` only at row stops.*alongside Amend and Stop/);
   assert.match(driver, /verification-failure stop keeps amend\/stop only/);
   const expected = readFileSync(new URL('eval/loop-implementation/samples/cap-and-exit-verification/expected.md', root), 'utf8');
-  assert.match(expected, /Closed rows run the gate set at verify step 1; option 4 automatically repairs once without amend permission or a cap check/);
+  assert.match(expected, /Closed rows run the gate set at verify step 1; option 4 automatically repairs twice within allowance2 without amend permission or an iteration cap check/);
   const intent = readFileSync(new URL('eval/loop-implementation/intent.md', root), 'utf8');
   assert.match(intent, /cap-and-exit-verification\/contract: fails -> holds - .*verify step 1/);
   assert.match(after, /Gn tasks.*same tracker/);
@@ -410,7 +416,7 @@ test('gate set owns membership, fail-fast logs and every loop verification site'
   assert.match(after, /0\. .*LOG_DIR=\$\(mktemp -d\)/);
   assert.match(after, /1\. Run the gate set/);
   assert.match(after, /Rerun the failing checkout's gate pairs once/);
-  assert.ok(after.includes("After the failing checkout's rerun passes, run the original fail-fast run's still-unexecuted pairs from other checkouts in ledger order under the same redirection before recording verified HEAD."));
+  assert.ok(after.includes("After that rerun passes, run the original fail-fast run's still-unexecuted pairs from other checkouts in ledger order before recording verified HEAD."));
   assert.match(after, /2\. .*Rerun the complete gate set after every fix round/);
   assert.match(after, /3\. .*gate set replacing plan Verification/);
   assert.doesNotMatch(after, /Run the ledger's `verification:` command|rerun the full command|Rerun full verification|`contract:` `- verification:`/);
@@ -432,9 +438,9 @@ test('gate output stays in session logs through repair, conformance and finish',
   assert.match(gate, /Use the executing process's `LOG_DIR` for every run and rerun: the parent's session directory minted at verify step 0, or the child's own temporary directory per the conformance ledger-subject override/);
   assert.match(gate, /Print `gate <i> exit <code> <log path>` and keep nothing else from output/);
   assert.match(after, /Mint `LOG_DIR=\$\(mktemp -d\)` once for this verify session; a resumed session mints a new one at its first gate-set site/);
-  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting at most the last 20 lines of that log with `tail -n 20`; this human-stop excerpt is the driver's only log read/);
+  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting at most the last 20 lines with `tail -n 20`; this human-stop excerpt is the driver's only log read/);
   assert.match(after, /Rerun the failing checkout's gate pairs once using ## Gate set's log redirection and fail-fast rule/);
-  assert.match(after, /absolute spec path, failing command, its checkout, exit code and log path, never pasted output/);
+  assert.match(after, /absolute spec path, failing command, checkout, exit code and log path, never pasted output/);
   assert.match(conformance, /Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site/);
   assert.match(conformance, /The child reads the log.*the driver does not read it/);
   assert.match(finish, /mint `LOG_DIR=\$\(mktemp -d\)` once for this session; reuse it for every finish rerun/);
@@ -708,7 +714,7 @@ test('configuration-allowance: binding documentation describes the single allowa
     'doc/configuration.md': [
       'iterations: 0\nallowance: 4', 'allowance <n> per row', 'run allowance: <n>',
       'allowance: <n> (reply)', 'allowance: <n> (setting)', 'positive safe integer',
-      'clamped to the last allowed attempt', 'at most once per row', 'one exit-verification repair per flow',
+      'clamped to the last allowed attempt', 'at most once per row', 'exit-verification repairs counted against the ledger allowance',
       'loopEngine.escalateAfter', 'default 3', 'floor 1',
       'loopEngine.escalateAfter must be an integer; using default 3',
       'min(escalateAfter, effective allowance - 1)', 'attempts >= threshold',
@@ -717,11 +723,11 @@ test('configuration-allowance: binding documentation describes the single allowa
       'retry <n> | <hint>', 'rows +N', 'loop: raise allowance', 'loop: migrate allowance',
       'effective allowance is the header allowance plus one per',
       'Preserve every row\'s attempts.', 'both or neither requires human repair',
-      'Old funding supplies no attempts', 'only discard/reset authorization',
+      'Old funding supplies no attempts', 'discard authorization only',
     ],
     'doc/implement-engines.md': [
-      'no total iteration cap', 'no amend permission required', 'rows +N',
-      'loop: migrate allowance', 'Only retry starts new stagnation',
+      'no total iteration cap', 'Neither needs amend permission', 'rows +N',
+      'loop: migrate allowance', 'admitted amendments restart both windows for every row',
       'escalateAfter', 'threshold attempt', 'without re-resolving the allowance',
     ],
     'doc/gate-contract.md': [
@@ -749,7 +755,7 @@ test('eval-allowance-contract: approved fixtures retain IDs and exercise the all
     'loop-implementation/leg-iteration': ['allowance 4'],
     'loop-implementation/leg-resume': ['allowance: 4'],
     'loop-implementation/commit-boundary': ['allowance:1'],
-    'loop-implementation/decision-repair': ['sufficient row allowance'],
+    'loop-implementation/decision-repair': ['Ledger allowance4', 'two consecutive misses leave attempts2', 'attempts5'],
     'loop-implementation/tracker-refresh': ['allowance 4'],
     'brainstorming/loop-gate': ['maxIterationsPerRow'],
     'brainstorming/loop-funded-reply': ['allowance'],

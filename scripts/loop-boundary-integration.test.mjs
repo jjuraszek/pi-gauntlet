@@ -41,6 +41,13 @@ test('boundary integration samples keep explicit ownership and allowance counter
     ['seed-interrupted-count', ['seed: 1 of 1', 'loop: repair seed', 'rows +N', 'attempts 0']],
     ['companion-interrupted-recovery', ['repo-b', 'pending:', 'missing provenance', 'loop: repair row 2']],
     ['exit-repair-capability', ['timeout -k 30', 'jobs', 'repairs: 4 of 4', 'recovery incomplete']],
+    ['tracker-verify', ['repairs: 4 of 4', 'second repair']],
+    ['scaled-cap-grant', ['rule 3 supplies the fixed hint', 'admitted amendments']],
+    ['last-attempt-model-boundary', ['rule 3 supplies the fixed hint', 'rule 4 escalates']],
+    ['tracker-boundary', ['rule 3 supplies the fixed hint', 'iteration10']],
+    ['human-stop-counts', ['repairs: 7 of 7', 'B dispatches']],
+    ['decision-repair', ['rule 3 supplies the fixed hint', 'rule 2 stops']],
+    ...['gate-line-first', 'allowance-10-escalate-after', 'spent-row-escalation', 'multi-row-return', 'tracker-boundary'].map(sample => [sample, ['without overwriting']]),
   ]) {
     const text = read(`eval/loop-implementation/samples/${sample}/expected.md`);
     for (const token of tokens) assert.ok(text.includes(token), `${sample}: ${token}`);

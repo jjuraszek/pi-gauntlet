@@ -132,3 +132,40 @@ The prior report's unreachable-cut run remains retained here at assembly `7a8d1f
 - Line 706 expects documentation to say one exit-verification repair per flow.
 
 Reconcile these assertions without changing their recorded selectors or weakening the safety checks. Audit the spec's remaining kept-reason annotations and superseded-stop facts before closing row 11: gate-line-first, allowance-10-escalate-after, exit-verification-escalates, tracker-verify, scaled-cap-grant, last-attempt-model-boundary, spent-row-escalation, tracker-boundary, multi-row-return, leg-iteration, human-stop-counts, cap-and-exit-verification, gate-set-failure and decision-repair. This is an audit list, not a model-replay sweep. Whole-project verification stays with the parent.
+
+## Named-sample audit and assertion maintenance
+
+This section supersedes the preceding integration-open findings. The six obsolete contract assertions now follow shared repair allowance, bounded log excerpts and current documentation. All existing test names and file selectors remain intact. `timeout -k 30 60 node --test scripts/loop-engine-contract.test.mjs scripts/loop-boundary-integration.test.mjs` passes 48 tests, with zero failures.
+
+The audit covers all 18 existing samples named in the spec. Ten required changed facts or clearer scenario inputs and were selected individually below; seven retain their already-migrated facts and prior records (commit-boundary, exit-verification-escalates, row-budget-actions, exit-repair-capability, cap-and-exit-verification, gate-set-failure, seed-retry). Leg-iteration is kept with a reason in its case: attribution, valid interrupted admission and the unsafe-return stop do not change. This is partial narrated coverage, not a target-wide pass or live recovery check.
+
+Commands: `timeout -k 30 600 node eval/run.mjs loop-implementation <sample>` for each row below. Runs were serial to isolate shared report writes; the runner's bounded model-cell concurrency remained enabled. All unselected result records are preserved. Final selected candidates hold 92 of 92 facts across 20 model cells.
+
+| sample | model | verdict | candidate facts holding |
+|---|---|---|---|
+| tracker-verify | anthropic/claude-opus-5-5 | improved | 5/5 |
+| tracker-verify | github-copilot/gpt-6.1-sol | improved | 5/5 |
+| last-attempt-model-boundary | anthropic/claude-opus-5-5 | improved | 5/5 |
+| last-attempt-model-boundary | github-copilot/gpt-6.1-sol | improved | 5/5 |
+| scaled-cap-grant | anthropic/claude-opus-5-5 | improved | 7/7 |
+| scaled-cap-grant | github-copilot/gpt-6.1-sol | improved | 7/7 |
+| tracker-boundary | anthropic/claude-opus-5-5 | improved | 5/5 |
+| tracker-boundary | github-copilot/gpt-6.1-sol | improved | 5/5 |
+| human-stop-counts | anthropic/claude-opus-5-5 | improved | 4/4 |
+| human-stop-counts | github-copilot/gpt-6.1-sol | improved | 4/4 |
+| decision-repair | anthropic/claude-opus-5-5 | improved | 1/1 |
+| decision-repair | github-copilot/gpt-6.1-sol | improved | 1/1 |
+| gate-line-first | anthropic/claude-opus-5-5 | unchanged | 3/3 |
+| gate-line-first | github-copilot/gpt-6.1-sol | unchanged | 3/3 |
+| allowance-10-escalate-after | anthropic/claude-opus-5-5 | improved | 5/5 |
+| allowance-10-escalate-after | github-copilot/gpt-6.1-sol | improved | 5/5 |
+| spent-row-escalation | anthropic/claude-opus-5-5 | improved | 5/5 |
+| spent-row-escalation | github-copilot/gpt-6.1-sol | improved | 5/5 |
+| multi-row-return | anthropic/claude-opus-5-5 | improved | 6/6 |
+| multi-row-return | github-copilot/gpt-6.1-sol | improved | 6/6 |
+
+The first last-attempt-model-boundary replay was inconclusive because one model used a placeholder for a resolved model; its case now makes the shared resolved model explicit. The first tracker-boundary replay regressed against obsolete restore-before-refresh facts; those facts now require the ownership-safe saved-cell projection without overwriting unadmitted work. The first allowance-10-escalate-after judgment retained an obsolete free-attempt expectation after completed recovery; the corrected fact consumes one attempt before the allowance check. Only affected samples were rerun, with the last allowance judgment reusing its cached primary outputs. Final outputs, hashes and judgments remain in each selected `results/<sample>/{baseline,candidate}.json`.
+
+## Remaining verification conflict
+
+The approved spec's verification integration requires `npm test`. This child's governing procedure forbids the owning checkout's full verification command or full suite and assigns whole-project verification to the parent. No `npm test` run is claimed. Resolve that authority conflict with a parent-owned verification amendment or an authorized execution path before closing row 11; no model replay or assertion migration needs repeating for this blocker.
