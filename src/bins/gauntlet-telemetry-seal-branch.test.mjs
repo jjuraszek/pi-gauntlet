@@ -8,7 +8,8 @@ import { parseRecord } from "../../extensions/lib/telemetry-record.ts";
 
 const cli = new URL("./gauntlet-telemetry-seal.mjs", import.meta.url);
 
-test("seal pushes an orphan telemetry record without putting it on the feature or squash branch", () => {
+for (const option of ["pr", "squash"]) {
+test(`${option} seal pushes an orphan telemetry record without touching the feature branch or index`, () => {
   const scratch = mkdtempSync(join(tmpdir(), "seal-branch-"));
   const root = join(scratch, "product");
   const origin = join(scratch, "origin.git");
@@ -55,14 +56,21 @@ test("seal pushes an orphan telemetry record without putting it on the feature o
   writeFileSync(join(pendingDir, "example.yaml"),
     `schema: 1\nspec: ${spec}\nrun_id: run-example\nstatus: in_progress\ncreated_at: 2026-01-01\n`);
 
-  const result = spawnSync(process.execPath, [cli.pathname, "--worktree", root, "--option", "squash", "--base", "main", "--spec", spec], {
+  if (option === "pr") {
+    writeFileSync(join(root, "file.txt"), "staged user change\n");
+    git(root, "add", "file.txt");
+  }
+  const indexTree = git(root, "write-tree");
+  const status = git(root, "status", "--porcelain");
+  const result = spawnSync(process.execPath, [cli.pathname, "--worktree", root, "--option", option, "--base", "main", "--spec", spec], {
     encoding: "utf8", env, timeout: 30_000,
   });
   assert.equal(result.status, 0, result.stderr);
   const branch = "refs/heads/gauntlet/telemetry";
   const recordPath = "team/product/brainstorming/doc/specs/example.yaml";
   assert.equal(git(root, "rev-parse", "HEAD"), featureHead);
-  assert.equal(git(root, "status", "--porcelain"), "");
+  assert.equal(git(root, "status", "--porcelain"), status);
+  assert.equal(git(root, "write-tree"), indexTree);
   assert.equal(git(root, "log", "--format=%s", "main..HEAD", "--grep=^telemetry:"), "");
   assert.equal(git(root, "rev-parse", branch), git(origin, "rev-parse", branch));
   const unrelated = gitResult(root, "merge-base", "main", branch);
@@ -74,8 +82,10 @@ test("seal pushes an orphan telemetry record without putting it on the feature o
   assert.equal(record.status, "shipped");
   assert.ok(record.shipped_at);
 
+  git(root, "restore", "--staged", "--worktree", "file.txt");
   git(root, "switch", "main");
   git(root, "merge", "--squash", "feature/example");
   git(root, "commit", "-m", "deliver example");
   assert.deepEqual(git(root, "ls-tree", "-r", "--name-only", "HEAD").split("\n"), [spec, "file.txt"]);
 });
+}

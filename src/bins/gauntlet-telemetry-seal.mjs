@@ -1,16 +1,13 @@
 #!/usr/bin/env node
-// Seal a gauntlet telemetry record at finish: stamp shipped, compute the ship diff,
-// re-derive, and commit the record once as `telemetry: <spec>`. The recorder never
-// commits; on git this is the only place the record enters git history. A plain jj
-// workspace (no .git) has no commit step: jj snapshots the stamped record into the
-// working copy. All git/jj dispatch lives in extensions/lib/vcs.ts.
+// Seal the common-dir record and publish it without touching the checkout or its index.
 import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative } from "node:path";
 import process from "node:process";
 import { mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
 import { recordPathFor, repoRelativeToolPath, toPosix } from "../../extensions/lib/telemetry-paths.ts";
-import { changedNames, commitRecordFile, computeShipDiff, recordSealed, validateBase, vcsFor } from "../../extensions/lib/vcs.ts";
+import { changedNames, computeShipDiff, validateBase, vcsFor } from "../../extensions/lib/vcs.ts";
+import { syncTelemetryBranch, telemetryDir, telemetryRepo } from "../../extensions/lib/telemetry-branch.ts";
 import { derive, parseRecord, serializeRecord, validLegs } from "../../extensions/lib/telemetry-record.ts";
 
 const OPTIONS = new Set(["pr", "squash"]);
@@ -84,7 +81,7 @@ function walkRecords(absDir) {
 const isoNow = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 
 async function seal(vcs, rec, o) {
-  const abs = join(vcs.root, rec);
+  const abs = rec;
   if (!existsSync(abs)) fail(2, `no record at ${rec}`);
   const prior = readFileSync(abs);
   const parsed = parseRecord(prior.toString("utf8"));
@@ -93,10 +90,7 @@ async function seal(vcs, rec, o) {
   if (parsed.status !== "in_progress" && JSON.stringify(normalized(parsed.legs ?? [])) !== JSON.stringify(normalized(o.legs))) {
     fail(1, `seal legs differ: stored ${JSON.stringify(parsed.legs ?? [])}; supplied ${JSON.stringify(o.legs)}`);
   }
-  if (parsed.status !== "in_progress") {
-    if (parsed.status !== "shipped" || recordSealed(vcs, rec)) return console.log(`already sealed ${rec}`);
-    // A previous seal stamped the file but its commit failed: commit the bytes as they are.
-  } else {
+  if (parsed.status === "in_progress") {
     const now = isoNow();
     if (o.legs.length) parsed.legs = o.legs;
     parsed.status = "shipped";
@@ -109,12 +103,9 @@ async function seal(vcs, rec, o) {
     parsed.derived = derive(parsed, now); // derive(rec, shipped_at): duration_s and gates.ship_option consistent at seal time
     writeFileSync(abs, serializeRecord(parsed));
   }
-  const commit = commitRecordFile(vcs, rec, `telemetry: ${parsed.spec}`);
-  if (!commit.ok) {
-    // Restore the pre-seal bytes on add/commit (jj: file track) failure.
-    writeFileSync(abs, prior);
-    fail(1, `seal failed ${rec}: ${commit.stderr}`);
-  }
+  const path = `${o.repo}/brainstorming/${parsed.spec.replace(/\.md$/, ".yaml")}`;
+  const sync = syncTelemetryBranch(vcs.root, new Map([[path, readFileSync(abs, "utf8")]]));
+  if (!sync.ok) process.stderr.write(`warning: ${sync.warning}\n`);
   console.log(`sealed ${rec}`);
 }
 
@@ -137,16 +128,22 @@ async function main() {
   if (!telemetry.enabled) return console.log("telemetry disabled");
   const dir = override?.dir ?? telemetry.dir;
   if (!validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
-  const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs };
-  if (opts.spec) return seal(vcs, recordPathFor(dir, rel), o);
+  const store = telemetryDir(root);
+  const repo = telemetryRepo(root);
+  if (!store || !repo) {
+    process.stderr.write("warning: telemetry needs a git store and an owner/name origin\n");
+    return;
+  }
+  const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs, repo };
+  if (opts.spec) return seal(vcs, recordPathFor(store, rel), o);
   const diff = changedNames(vcs, opts.base);
   if (!diff.ok) fail(1, `${vcs.kind} diff failed: ${diff.stderr}`);
   const changed = new Set(diff.stdout.split("\n").filter(Boolean));
-  const records = walkRecords(join(root, dir)).filter((abs) => {
+  const records = walkRecords(store).filter((abs) => {
     const parsed = parseRecord(readFileSync(abs, "utf8"));
     if (!parsed) process.stderr.write(`warning: unparseable record ${toPosix(relative(root, abs))}\n`);
     return parsed && changed.has(parsed.spec);
-  }).map((abs) => toPosix(relative(root, abs))).sort();
+  }).sort();
   if (records.length === 0) return console.log("no telemetry run");
   for (const rec of records) await seal(vcs, rec, o);
 }

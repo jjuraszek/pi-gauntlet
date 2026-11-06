@@ -6,20 +6,22 @@ import { checkoutOfSync } from "./checkout.ts";
 import { computeGitDiff, computeJjDiff, JJ_FORK_POINT, type Buckets, type DiffOutcome, type RunResult } from "./telemetry-diff.ts";
 
 export interface VcsResult extends RunResult { ok: boolean }
-export type VcsRun = (args: string[], cwd: string, timeoutMs?: number) => VcsResult;
+export type VcsRun = (args: string[], cwd: string, timeoutMs?: number, options?: { input?: string; env?: NodeJS.ProcessEnv }) => VcsResult;
 export interface Vcs { kind: "git" | "jj"; root: string; run: VcsRun }
 
 // Prompts off so a credential or editor request cannot hang a non-interactive caller.
 const NO_PROMPT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_EDITOR: "true" };
 
-const runBinary = (bin: "git" | "jj"): VcsRun => (args, cwd, timeoutMs = 10_000) => {
+const runBinary = (bin: "git" | "jj"): VcsRun => (args, cwd, timeoutMs = 10_000, options = {}) => {
   // jj diff --git returns full patches; spawnSync's 1 MiB default buffer truncates them (ENOBUFS).
-  const r = spawnSync(bin, args, { cwd, encoding: "utf8", env: NO_PROMPT_ENV, timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(bin, args, { cwd, encoding: "utf8", input: options.input, env: { ...NO_PROMPT_ENV, ...options.env }, timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
   const err = r.error as NodeJS.ErrnoException | undefined;
   const timedOut = err?.code === "ETIMEDOUT";
   const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || err?.message || `${bin} exited ${r.status}`;
   return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : (r.status ?? 1), stdout: (r.stdout ?? "").trim(), stderr };
 };
+
+export const gitRun: VcsRun = runBinary("git");
 
 export function vcsFor(absPath: string): Vcs | undefined {
   const co = checkoutOfSync(absPath);
@@ -52,23 +54,4 @@ export function changedNames(vcs: Vcs, base: string): VcsResult {
   const fork = forkR.stdout.split("\n")[0];
   if (!fork) return { ok: false, code: 1, stdout: "", stderr: "jj mainline unresolved (trunk() is root(); no main/master bookmark)" };
   return vcs.run(["--color=never", "diff", "--name-only", "--from", fork, "--to", "@"], vcs.root);
-}
-
-// git: sealed == tracked and clean (ls-files --error-unmatch, diff --quiet HEAD).
-// jj: no commit step, so a shipped record is always sealed.
-export function recordSealed(vcs: Vcs, rel: string): boolean {
-  if (vcs.kind === "jj") return true;
-  return vcs.run(["ls-files", "--error-unmatch", "--", rel], vcs.root).ok
-    && vcs.run(["diff", "--quiet", "HEAD", "--", rel], vcs.root).ok;
-}
-
-// jj has no commit step: `file track --include-ignored` is the `git add -f` equivalent - it
-// snapshots the stamped record into the working-copy change even under a gitignored dir.
-export function commitRecordFile(vcs: Vcs, rel: string, message: string): VcsResult {
-  if (vcs.kind === "jj") return vcs.run(["file", "track", "--include-ignored", "--", rel], vcs.root);
-  const add = vcs.run(["add", "-f", "--", rel], vcs.root);
-  const commit = add.ok ? vcs.run(["commit", "-q", "-m", message, "--", rel], vcs.root, 30_000) : add;
-  // Unstage the -f add so a retry sees the same state.
-  if (!commit.ok) vcs.run(["reset", "-q", "--", rel], vcs.root);
-  return commit;
 }
