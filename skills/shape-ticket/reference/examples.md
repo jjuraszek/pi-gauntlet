@@ -19,6 +19,11 @@ Read this when applying the AC integrity gate (drafting, repairing, or adjudicat
 - Bad: `- [ ] Import completes in acceptable time`
 - Good: `- [ ] Importing a 10k-row CSV completes in under 60s`
 
+**Workflow-stage proof**
+
+- Bad: `- [ ] The importer rejects a row without an id and CI is green on the PR head`
+- Good: `- [ ] The importer rejects a row without an id` (the CI result is the PR gate's observation, not an outcome)
+
 **Discovery pair** (bad ticket -> good ticket, not just a bad->good AC)
 
 - Bad ticket: `Investigate checkout performance` - unbounded, no artifact.
