@@ -48,13 +48,24 @@ function fixture(central = false) {
       import { resolveTelemetry, planDirsFor } from ${JSON.stringify(settings)};
       const handlers = new Map(), notices = [];
       const telemetry = resolveTelemetry(JSON.parse((await import('node:fs')).readFileSync('.pi/settings.json', 'utf8')).piGauntlet);
-      register({ on: (name, fn) => handlers.set(name, fn), sendMessage: m => notices.push(m.content) }, { ...realDeps, settings: () => ({ telemetry, specDirs: ['doc/specs'], planDirs: planDirsFor(['doc/specs']), errors: [], versions: {} }) });
+      register({ on: (name, fn) => handlers.set(name, [...(handlers.get(name) ?? []), fn]), sendMessage: m => notices.push(m.content) }, { ...realDeps, settings: () => ({ telemetry, specDirs: ['doc/specs'], planDirs: planDirsFor(['doc/specs']), errors: [], versions: {} }) });
       const ctx = { cwd: process.cwd(), sessionManager: { getSessionId: () => 'reader', getBranch: () => [] }, ui: { notify: text => notices.push(text) } };
-      await handlers.get('session_start')({}, ctx);
+      const emit = async (name, event) => {
+        let result;
+        for (const handler of handlers.get(name) ?? []) {
+          const next = await handler(event, ctx);
+          if (name === 'tool_call' && next) {
+            result = next;
+            if (result.block) return result;
+          }
+        }
+        return result;
+      };
+      await emit('session_start', {});
       const phases = Object.fromEntries(['brainstorm', 'plan', 'implement', 'verify', 'ship'].map(p => [p, { status: p === 'brainstorm' ? 'in_progress' : 'pending' }]));
-      await handlers.get('tool_result')({ toolName: 'phase_tracker', isError: false, details: { action: 'start', phases } }, ctx);
+      await emit('tool_result', { toolName: 'phase_tracker', isError: false, details: { action: 'start', phases } });
       const results = [];
-      for (const spec of ['a', 'b', 'a']) results.push(await handlers.get('tool_call')({ toolName: 'write', input: { path: 'doc/specs/' + spec + '.md' } }, ctx));
+      for (const spec of ['a', 'b', 'a']) results.push(await emit('tool_call', { toolName: 'write', input: { path: 'doc/specs/' + spec + '.md' } }));
       console.log(JSON.stringify({ results, notices }));
     `, extra);
     const cli = new URL(`./gauntlet-${name}.mjs`, import.meta.url).pathname;
