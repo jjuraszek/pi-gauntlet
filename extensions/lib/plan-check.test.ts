@@ -1369,6 +1369,16 @@ for (const [name, change] of Object.entries({
 })) test(`coordinated metadata rejects ${name}`, () => {
   assert.ok(checkPlan(change(coordinatedLedger()), coordinatedSpec, emptyPort).findings.length);
 });
+test("closed coordinated ledgers admit member verification reservations only", () => {
+  const closed = coordinatedLedger().replaceAll("| open | 0 | |", "| done | 1 | test -f result; pass |");
+  for (const [repo, accepted] of [["repo-b", true], ["stranger", false]] as const) {
+    const source = closed.replace("iterations: 0", `iterations: 1\npending: verify | ${repo} | abc1234`);
+    const findings = checkPlan(source, coordinatedSpec, emptyPort).findings;
+    if (accepted) assert.deepEqual(findings, []);
+    else assert.ok(findings.some((f) => f.reason === "invalid pending tuple or target leg"));
+  }
+});
+
 test("scope textual order does not change original AC or member order, and design claims no ownership", () => {
   const spec = coordinatedSpec.replace("scope: AC 1, AC 2", "scope: AC 2, AC 1\ndesign: AC 3 touches lib/other.ts");
   assert.deepEqual(checkPlan(coordinatedLedger().replace("| 4 | open | 0 | |", "| 4 | done | 1 | checked a\\|b |"), spec, emptyPort).findings, []);

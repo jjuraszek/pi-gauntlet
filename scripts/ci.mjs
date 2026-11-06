@@ -507,7 +507,15 @@ try {
 
 try {
   execFileSync(process.execPath, [R("scripts/stage-skill-lint.test.mjs")], { stdio: "pipe" });
-  execFileSync(process.execPath, ["--test", R("scripts/loop-engine-contract.test.mjs")], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test",
+    R("scripts/loop-engine-contract.test.mjs"),
+    R("scripts/loop-boundary-integration.test.mjs"),
+    R("scripts/loop-conformance-grant.test.mjs"),
+    R("scripts/loop-implementer-actions.test.mjs"),
+    R("scripts/loop-implementer-process.test.mjs"),
+    R("scripts/loop-unreachable-cut.test.mjs"),
+    R("scripts/loop-verification-repair.test.mjs"),
+  ], { stdio: "pipe" });
   ok("stage-skill lint fixtures pass");
 } catch (e) {
   fail(`stage-skill lint fixtures failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 20).join("\n    ")}`);
