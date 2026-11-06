@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.2.1 - 2026-11-06
 
 - Shape-ticket's AC integrity gate drops workflow-stage proof after splitting bundled observations, retains retired proof in the Reporter note, and routes an emptied AC list to recovery or park.
 
