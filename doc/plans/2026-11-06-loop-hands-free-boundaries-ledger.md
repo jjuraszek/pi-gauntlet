@@ -3,7 +3,7 @@
 base: 82cc2b80e5c9c5216f8a55817628ca9532381a99
 verification: npm test
 checks: commands
-iterations: 9
+iterations: 10
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -14,7 +14,7 @@ allowance: 10
 | 4 | done | 1 | node --test scripts/loop-conformance-grant.test.mjs; 2 passed; conformance-grant eval improved with 16 candidate facts holding; partial narrated funding coverage |
 | 5 | done | 1 | node --test scripts/loop-unreachable-cut.test.mjs; 2 passed; unreachable-cut eval improved with 16 candidate facts holding; partial narrated amendment coverage |
 | 6 | done | 1 | timeout -k 30 60 node --test scripts/loop-implementer-actions.test.mjs; 7 passed; ran silence-bound-and-unreachable (1 of 1), 12 candidate facts hold; partial narrated action coverage |
-| 7 | failed | 1 | timeout -k 30 60 bash -c 'command -v setsid'; exit 1: required setsid executable missing from PATH; scratch Python start_new_session=True proved pid=pgid=sid and timeout exit 124; leader and group absent after wait, log timed out after 2 s, jobs empty |
+| 7 | done | 2 | timeout -k 30 120 node --test scripts/loop-implementer-process.test.mjs; 3 passed, 0 failed; silence-bound-and-unreachable: all 10 facts hold on both models; scratch timeout 124, jobs empty, leader and group absent |
 | 8 | done | 0 | rg --quiet 'Inside the implement loop, end a turn only with a stop header from ## Human stop.*follow every intermediate report with the next ordered-table action in the same turn' skills/loop-implementation/SKILL.md; exit 0; same-turn-continuation eval improved with 6 candidate facts holding; partial narrated continuation coverage |
 | 9 | open | 0 | rg --quiet --fixed-strings 'Name every paid or external action' skills/brainstorming/SKILL.md; exit 1; round 2 lacks the paid or external action Design clause |
 | 10 | open | 0 | |
@@ -31,3 +31,4 @@ row 4 done | Funded loop conformance rounds up to allowance under amend permissi
 row 5 done | Routed admitted unreachable evidence through audited cuts, preserving venue failures, spent-bound stops and counters. | Reuse skills/loop-implementation/reference/unreachable-returns.md and unreachable-cut for marker routing and amendment integration.
 row 6 done | Added bounded action authorization and local replay evidence; ran silence-bound-and-unreachable (1 of 1). | Reuse agents/loop-implementer.md and the silence-bound-and-unreachable sample for timeout coverage; scripts/loop-implementer-actions.test.mjs replays stored action facts locally.
 row 7 failed | Required setsid is absent; scratch Python launch proved an owned session, timeout and empty jobs without changing the persona. | Recommend amendment Portable owned-session launch: preflight Python start_new_session=True with timeout and identity fences; do not retry absent setsid or install dependencies.
+row 7 done | Bounded worker calls and proved portable session timeout cleanup with selected replay and live scratch checks. | Reuse scripts/loop-implementer-process.test.mjs for local process and stored replay checks.
