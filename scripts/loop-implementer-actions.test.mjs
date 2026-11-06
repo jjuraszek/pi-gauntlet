@@ -31,6 +31,10 @@ test('a successful capture survives interrupted seed and row recovery without a 
   for (const token of ['ran capture (1 of 1)', 'seed', 'commit body', 'evidence', 'before', 'reset', 'uncertain', 'leaving row cells unchanged', 'copy them into the home repair marker']) {
     assert.ok(accounting.includes(token), `action-spend recovery missing ${token}`);
   }
+  for (const [name, text] of [['persona', persona], ['admission', accounting]]) {
+    assert.match(text, /Before replacing an evidence cell[\s\S]*?repeat each[\s\S]*?`ran <action> \(<k> of <bound>\)`[\s\S]*?`bound spent: <action>[\s\S]*?own decision sentence[\s\S]*?before any new spend/, `${name}: carry successful seed accounting into the replacing child's decision`);
+    assert.match(text, /Treat a dropped record as a validation miss/, `${name}: reject lost accounting`);
+  }
   assert.ok(recovery.indexOf('action-spend.md') < recovery.indexOf('reset --hard HEAD_BEFORE'));
   for (const token of ['bound spent: <action> (<k> of <bound>)', 'before launching', '`loop: repair` commit bodies', 'evidence cells', 'highest recorded k', 'seed']) {
     assert.ok(persona.includes(token), `next child accounting missing ${token}`);
