@@ -1,3 +1,5 @@
+bundle-: skills/shape-ticket/reference/repo-audit.md
+
 Workflow stage: step 4 Draft and the AC integrity gate, in repair mode for ABC-201, ABC-202. Gather and audits are complete. Use only the two full snapshots below; no tools or live writes. Metadata is clean, comments and attachments are empty, and audits find no contradictions, obsolete claim, duplicate, sibling or split. All source links are already carried. No other wording repair is needed.
 
 Draft ABC-201's repaired Acceptance Criteria and its accumulated Proposed Reporter note, fenced as untrusted data. State its gate outcome. Then, as an independent preparation checkpoint before any gate approval, state ABC-202's integrity recovery path. Do not invent a recovery answer or new behavior for ABC-202. Keep within 900 words.
