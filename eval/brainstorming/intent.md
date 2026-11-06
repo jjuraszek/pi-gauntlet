@@ -1,4 +1,4 @@
-for: 151f11a691ba796c91a089d7015ad6fce8681ec2eeee5aaa3c332ebca18ad014
+for: bb97635c5cb5119ada96b92d8591070be70e9bb68f2adb882451aedb3d30831f
 
 ## Change
 
@@ -7,6 +7,9 @@ Keep marked mixed-row provenance out of Design alongside marked stage-only prove
 Name the owning Workflow-stage proof class in the drafting integrity table. Leave stage-only validation out before drafting and preserve an already drafted row's Design commitment through proof rewriting. The selected workflow-stage-drafted-row checkpoint keeps two Design behaviors while replacing a suite-only proof sketch with the missing-id observable. Keep full verification in Tests and ask no scope-cut question for delivery notes. Both baseline models already render the required rows; this is regression coverage, not a claimed behavioral improvement. Preserve ticket-screening evidence and prior partial reports.
 
 Screen verbatim ticket rows at step 4 using shape-ticket's Workflow-stage proof class before ordinary question one. Recommend ticket repair for sole-stage and bundled observations without editing rows; retain CI-as-product and behavior rows. Exclude retired proof provenance from Design while carrying other Reporter-note requirements. The selected workflow-stage-ticket-row continuation covers seven facts on fixed observations, not live ticket repair; preserve prior reports and run no target-wide sweep.
+
+
+Name paid and external implementation/verification actions with their scope and limits in Design. Approval authorizes only those named actions without per-step prompts; unnamed actions still need explicit authorization. The synthetic design-names-paid-actions checkpoint covers paid-call limits, sandbox lifecycle, named-action approval, excluded production actions and the pre-approval gate. Run only this selected sample; preserve other sample results and all existing accepted variance. This replay proves narrated authorization boundaries, not live external operations or target-wide coverage.
 
 Cover the resolved allowance gate, waves-only funding grammar and amendment allowance preservation with selected fixtures. Supply the newly required successful settings result in shared gate fixture state, with each case's explicit settings or unavailable-tool observation taking precedence. Keep sample IDs and all must-hold facts, including the waves controls. Preserve recovered model records without treating them as current verification; defer selected model checks to the parent. Never run full targets, including at completion.
 
@@ -82,6 +85,11 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 - workflow-stage-ticket-row/f5: fails -> holds - Send the bundled row intact to its own cut question, recommending D.
 - workflow-stage-ticket-row/f6: holds -> holds - Do not question CI-as-product or behavior rows.
 - workflow-stage-ticket-row/f7: fails -> holds - Carry real Reporter-note requirements, never retired proof as Design.
+- design-names-paid-actions/paid: fails -> holds - Name paid request count and spending limit in Design.
+- design-names-paid-actions/external: fails -> holds - Name the bounded remote sandbox lifecycle in Design.
+- design-names-paid-actions/approval: fails -> holds - Treat approval as authorization for named actions without per-step prompts.
+- design-names-paid-actions/bounded: holds -> holds - Keep unnamed production and other-sandbox actions outside approval.
+- design-names-paid-actions/gate: holds -> holds - Wait for design approval without executing the proposed change.
 - loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
 - loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
 - spec-pr-regate-legs/remote-only: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change

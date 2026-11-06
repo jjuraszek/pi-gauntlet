@@ -3,7 +3,7 @@
 base: 82cc2b80e5c9c5216f8a55817628ca9532381a99
 verification: npm test
 checks: commands
-iterations: 10
+iterations: 11
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -16,7 +16,7 @@ allowance: 10
 | 6 | done | 1 | timeout -k 30 60 node --test scripts/loop-implementer-actions.test.mjs; 7 passed; ran silence-bound-and-unreachable (1 of 1), 12 candidate facts hold; partial narrated action coverage |
 | 7 | done | 2 | timeout -k 30 120 node --test scripts/loop-implementer-process.test.mjs; 3 passed, 0 failed; silence-bound-and-unreachable: all 10 facts hold on both models; scratch timeout 124, jobs empty, leader and group absent |
 | 8 | done | 0 | rg --quiet 'Inside the implement loop, end a turn only with a stop header from ## Human stop.*follow every intermediate report with the next ordered-table action in the same turn' skills/loop-implementation/SKILL.md; exit 0; same-turn-continuation eval improved with 6 candidate facts holding; partial narrated continuation coverage |
-| 9 | open | 0 | rg --quiet --fixed-strings 'Name every paid or external action' skills/brainstorming/SKILL.md; exit 1; round 2 lacks the paid or external action Design clause |
+| 9 | done | 1 | timeout -k 30 600 node eval/run.mjs brainstorming design-names-paid-actions --base 82cc2b80e5c9c5216f8a55817628ca9532381a99; 2 model cells improved; all 10 candidate facts hold; partial synthetic design-authorization coverage |
 | 10 | open | 0 | |
 | 11 | open | 0 | |
 
@@ -32,3 +32,4 @@ row 5 done | Routed admitted unreachable evidence through audited cuts, preservi
 row 6 done | Added bounded action authorization and local replay evidence; ran silence-bound-and-unreachable (1 of 1). | Reuse agents/loop-implementer.md and the silence-bound-and-unreachable sample for timeout coverage; scripts/loop-implementer-actions.test.mjs replays stored action facts locally.
 row 7 failed | Required setsid is absent; scratch Python launch proved an owned session, timeout and empty jobs without changing the persona. | Recommend amendment Portable owned-session launch: preflight Python start_new_session=True with timeout and identity fences; do not retry absent setsid or install dependencies.
 row 7 done | Bounded worker calls and proved portable session timeout cleanup with selected replay and live scratch checks. | Reuse scripts/loop-implementer-process.test.mjs for local process and stored replay checks.
+row 9 done | Required Design to name bounded paid and external actions and made approval authorize only those named steps; the selected synthetic replay passed. | Reuse eval/brainstorming/samples/design-names-paid-actions and its stored results to check named-action approval and unnamed-action limits.
