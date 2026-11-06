@@ -14,8 +14,10 @@ import { BIG_CACHE_WRITE, PHASES, TOKEN_KEYS, cmpSemver, num, obj, semver, str, 
 import * as runs from "./performance/runs.mjs";
 import * as versions from "./performance/versions.mjs";
 import * as council from "./performance/council.mjs";
+import { LEG_SKILLS, legId, loadLeg, tickets, prs } from "./performance/leg-rounds.mjs";
 
 const SECTIONS = [runs, versions, council];
+const LEG_SECTIONS = [tickets, prs];
 
 const usage = () => {
   process.stderr.write("usage: gauntlet-performance [--dir <telemetry dir>]... [--since <version>] [--json]\n");
@@ -93,6 +95,7 @@ function loadRecord(file, bytes) {
   }
   const d = obj(doc);
   if (!d) return { skip: "unparseable" };
+  if (LEG_SKILLS.includes(d.skill)) return loadLeg(d);
   if (d.schema !== 1) return { skip: `schema ${d.schema === undefined ? "missing" : String(d.schema)}` };
   if (typeof d.spec !== "string" || typeof d.run_id !== "string") return { skip: "not a record" };
   const derived = obj(d.derived) ?? {};
@@ -200,14 +203,26 @@ function main() {
   }
   const since = opts.since === undefined ? undefined : semver(opts.since);
   const seen = new Set();
+  const seenLegs = new Set();
   const corpus = {};
   const entries = [];
+  const legs = [];
   for (const c of corpora) {
     corpus[c.label] = corpus[c.label] ?? 0;
     const records = c.records ?? [...yamlFiles(c.dir)].map(path => ({ path, bytes: readFileSync(path, "utf8") }));
     for (const { path: file, bytes } of records) {
       const res = loadRecord(file, bytes);
       if (res.skip) { skipped.push({ file, reason: res.skip }); continue; }
+      if (res.leg) {
+        const id = legId(res.leg);
+        if (seenLegs.has(id)) { skipped.push({ file, reason: "duplicate leg" }); continue; }
+        seenLegs.add(id);
+        const v = semver(res.leg.gauntlet_version);
+        if (since && (!v || cmpSemver(v, since) < 0)) continue;
+        corpus[c.label]++;
+        legs.push(res.leg);
+        continue;
+      }
       if (seen.has(res.row.run_id)) { skipped.push({ file, reason: "duplicate run_id" }); continue; }
       seen.add(res.row.run_id);
       const v = semver(res.row.version);
@@ -217,7 +232,11 @@ function main() {
     }
   }
   entries.sort((a, b) => (a.row.created_at ?? "").localeCompare(b.row.created_at ?? "") || a.row.run_id.localeCompare(b.row.run_id));
-  const aggregates = SECTIONS.map((s) => [s, s.aggregate(entries)]);
+  const aggregates = [
+    ...SECTIONS.map((s) => [s, s.aggregate(entries)]),
+    ...LEG_SECTIONS.map((s) => [s, s.aggregate(legs)]),
+  ];
+  const hasRecords = entries.length + legs.length > 0;
   if (opts.json) {
     const out = { corpus, since: opts.since ?? null };
     for (const [s, agg] of aggregates) out[s.key] = agg;
@@ -226,13 +245,13 @@ function main() {
     return;
   }
   console.log(`corpus: ${Object.entries(corpus).map(([k, v]) => `${k}=${v}`).join(", ")}${opts.since === undefined ? "" : `   since: ${opts.since}`}`);
-  if (entries.length === 0) {
+  if (!hasRecords) {
     console.log(`no records found in ${corpora.map((c) => c.dir ?? c.label).join(", ") || process.cwd()}`);
   } else {
     console.log(aggregates.map(([s, agg]) => s.renderText(agg)).join("\n\n"));
   }
-  if (entries.length && skipped.length) console.log("");
-  if (entries.length) for (const s of skipped) console.log(`skipped: ${s.file}: ${s.reason}`);
+  if (hasRecords && skipped.length) console.log("");
+  if (hasRecords) for (const s of skipped) console.log(`skipped: ${s.file}: ${s.reason}`);
 }
 
 main();

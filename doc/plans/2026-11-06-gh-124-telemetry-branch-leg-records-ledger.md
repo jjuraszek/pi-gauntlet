@@ -3,7 +3,7 @@
 base: d04aa00576eaaf802b8cdde8d8ab1917d0118f68
 verification: npm test
 checks: commands
-iterations: 12
+iterations: 13
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -22,7 +22,7 @@ allowance: 10
 | 12 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-settlement-contract.test.ts; 5 passed, 0 failed; six selected eval replies parse with observed ticket refs and assessed PR heads; per-ref-settlement improved for all three skills |
 | 13 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 5 passed; 0 failed |
 | 14 | done | 0 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-fields.test.ts; 8 passed; 0 failed |
-| 15 | open | 0 | |
+| 15 | done | 1 | node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-leg-rounds.test.ts; 2 passed; 0 failed; repeated legs retained and grouped into chronological rounds |
 | 16 | open | 0 | |
 | 17 | open | 0 | |
 | 18 | open | 0 | |
@@ -45,3 +45,4 @@ row 11 done | Leg records now carry observed author, version, models, tokens and
 row 13 done | Verified that council member usage and models enter shape-ticket totals once through the existing dispatch reducer. | Reuse the council usage fixture in extensions/telemetry-leg-fields.test.ts for parent and child cost conservation checks.
 row 14 done | Verified one record per batch for all three skills with every settled ref and conserved parent plus child costs. | Extend the batch cases in extensions/telemetry-leg-fields.test.ts to exercise additional item and accounting combinations.
 row 12 done | Standardized per-ref settlement rows across all three skills, documented tokens and verified six model replies parse correctly. | Reuse extensions/telemetry-settlement-contract.test.ts and each skill's per-ref-settlement eval fixtures to check settlement grammar and item identities.
+row 15 done | Retained subsecond leg timestamps and added chronological ticket/PR rounds, with sibling regression tests covering repeated sessions and source/bundle parity. | Reuse src/bins/performance/leg-rounds.mjs groupRounds and itemKey for ticket/PR totals and run joins.

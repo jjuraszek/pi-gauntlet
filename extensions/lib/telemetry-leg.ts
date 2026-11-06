@@ -123,7 +123,7 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
         author: compact({ name: name.stdout.trim() || undefined, email: email.stdout.trim() || undefined }),
         gauntlet_version: deps.settings(ctx.cwd).versions["pi-gauntlet"], models: [...run.models], tokens, cost,
       };
-      const stamp = run.ts.replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+      const stamp = run.ts.replace(/[-:]/g, "");
       const path = `${repo}/${run.skill}/${stamp}-${run.session}.yaml`;
       const result = (deps.syncTelemetryBranch ?? syncTelemetryBranch)(checkout.toplevel, new Map([[path, stringify(record)]]), deps.settings(ctx.cwd).telemetry.remote);
       if (!result.ok) notify(result.reason ?? "unknown failure");

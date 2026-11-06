@@ -418,8 +418,50 @@ function renderText3(agg) {
   return out.join("\n");
 }
 
+// src/bins/performance/leg-rounds.mjs
+var LEG_SKILLS = ["shape-ticket", "gatekeep-pr", "check-delivery"];
+function loadLeg(doc) {
+  if (![doc.repo, doc.session, doc.ts].every((v) => typeof v === "string" && v.length) || !Array.isArray(doc.items) || !doc.items.length || !doc.items.every((item) => obj(item) && ["ticket", "pr"].includes(item.kind) && str(item.outcome) !== null && (item.key === void 0 || str(item.key) !== null))) {
+    return { skip: "not a leg record" };
+  }
+  return { leg: doc };
+}
+var legId = (leg) => JSON.stringify([leg.repo, leg.skill, leg.session, leg.ts]);
+function itemKey(key4, repo) {
+  if (!key4) return null;
+  const ref = key4.replace(/@[a-f\d]+$/i, "");
+  if (/^#\d+$/.test(ref)) return `${repo}${ref}`;
+  const github = /^https?:\/\/[^/]+\/([^/]+\/[^/]+)\/(?:issues|pull)\/(\d+)\/?$/.exec(ref);
+  if (github) return `${github[1]}#${github[2]}`;
+  const linear = /^https?:\/\/[^/]+\/[^/]+\/issue\/([A-Z][A-Z0-9]*-\d+)(?:\/.*)?$/.exec(ref);
+  return linear ? linear[1] : ref;
+}
+function groupRounds(legs, skill) {
+  const groups = /* @__PURE__ */ new Map();
+  for (const leg of legs.filter((leg2) => leg2.skill === skill).sort((a, b) => a.ts.localeCompare(b.ts) || a.session.localeCompare(b.session))) {
+    const keys = new Set(leg.items.map((item) => itemKey(item.key, leg.repo)).filter(Boolean));
+    for (const key4 of keys) {
+      const id = JSON.stringify([leg.repo, key4]);
+      if (!groups.has(id)) groups.set(id, { repo: leg.repo, key: key4, rounds: [] });
+      groups.get(id).rounds.push(leg);
+    }
+  }
+  return [...groups.values()].sort((a, b) => a.repo.localeCompare(b.repo) || a.key.localeCompare(b.key));
+}
+function section(key4, skill) {
+  return {
+    key: key4,
+    aggregate: (legs) => groupRounds(legs, skill),
+    renderText: (groups) => `${key4}
+${table(["repo", "ref", "rounds"], groups.map((g) => [g.repo, g.key, String(g.rounds.length)]))}`
+  };
+}
+var tickets = section("tickets", "shape-ticket");
+var prs = section("prs", "gatekeep-pr");
+
 // src/bins/gauntlet-performance.mjs
 var SECTIONS = [runs_exports, versions_exports, council_exports];
+var LEG_SECTIONS = [tickets, prs];
 var usage = () => {
   process2.stderr.write("usage: gauntlet-performance [--dir <telemetry dir>]... [--since <version>] [--json]\n");
   process2.exit(1);
@@ -491,6 +533,7 @@ function loadRecord(file, bytes) {
   }
   const d = obj(doc);
   if (!d) return { skip: "unparseable" };
+  if (LEG_SKILLS.includes(d.skill)) return loadLeg(d);
   if (d.schema !== 1) return { skip: `schema ${d.schema === void 0 ? "missing" : String(d.schema)}` };
   if (typeof d.spec !== "string" || typeof d.run_id !== "string") return { skip: "not a record" };
   const derived = obj(d.derived) ?? {};
@@ -591,8 +634,10 @@ function main() {
   }
   const since = opts.since === void 0 ? void 0 : semver(opts.since);
   const seen = /* @__PURE__ */ new Set();
+  const seenLegs = /* @__PURE__ */ new Set();
   const corpus = {};
   const entries = [];
+  const legs = [];
   for (const c of corpora) {
     corpus[c.label] = corpus[c.label] ?? 0;
     const records = c.records ?? [...yamlFiles(c.dir)].map((path) => ({ path, bytes: readFileSync(path, "utf8") }));
@@ -600,6 +645,19 @@ function main() {
       const res = loadRecord(file, bytes);
       if (res.skip) {
         skipped.push({ file, reason: res.skip });
+        continue;
+      }
+      if (res.leg) {
+        const id = legId(res.leg);
+        if (seenLegs.has(id)) {
+          skipped.push({ file, reason: "duplicate leg" });
+          continue;
+        }
+        seenLegs.add(id);
+        const v2 = semver(res.leg.gauntlet_version);
+        if (since && (!v2 || cmpSemver(v2, since) < 0)) continue;
+        corpus[c.label]++;
+        legs.push(res.leg);
         continue;
       }
       if (seen.has(res.row.run_id)) {
@@ -614,7 +672,11 @@ function main() {
     }
   }
   entries.sort((a, b) => (a.row.created_at ?? "").localeCompare(b.row.created_at ?? "") || a.row.run_id.localeCompare(b.row.run_id));
-  const aggregates = SECTIONS.map((s) => [s, s.aggregate(entries)]);
+  const aggregates = [
+    ...SECTIONS.map((s) => [s, s.aggregate(entries)]),
+    ...LEG_SECTIONS.map((s) => [s, s.aggregate(legs)])
+  ];
+  const hasRecords = entries.length + legs.length > 0;
   if (opts.json) {
     const out = { corpus, since: opts.since ?? null };
     for (const [s, agg] of aggregates) out[s.key] = agg;
@@ -623,12 +685,12 @@ function main() {
     return;
   }
   console.log(`corpus: ${Object.entries(corpus).map(([k, v]) => `${k}=${v}`).join(", ")}${opts.since === void 0 ? "" : `   since: ${opts.since}`}`);
-  if (entries.length === 0) {
+  if (!hasRecords) {
     console.log(`no records found in ${corpora.map((c) => c.dir ?? c.label).join(", ") || process2.cwd()}`);
   } else {
     console.log(aggregates.map(([s, agg]) => s.renderText(agg)).join("\n\n"));
   }
-  if (entries.length && skipped.length) console.log("");
-  if (entries.length) for (const s of skipped) console.log(`skipped: ${s.file}: ${s.reason}`);
+  if (hasRecords && skipped.length) console.log("");
+  if (hasRecords) for (const s of skipped) console.log(`skipped: ${s.file}: ${s.reason}`);
 }
 main();
