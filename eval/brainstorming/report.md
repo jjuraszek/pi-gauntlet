@@ -1,10 +1,14 @@
-# eval report: brainstorming (partial run: loop-gate)
+# eval report: brainstorming (partial run: workflow-stage-ticket-row)
 
-for: 62d79f0ce46f12e958e9ae8e56a9ea3443755415346d90aa9929f339c19f0a5d
+for: b060021201ffa6585824b6609fb109b045f49f11666372f413561add0f3f4161
 
-wall: 36s
+wall: 73s
 
 ## Change
+
+Name the owning Workflow-stage proof class in the drafting integrity table. Leave stage-only validation out before drafting and preserve an already drafted row's Design commitment through proof rewriting. The selected workflow-stage-drafted-row checkpoint keeps two Design behaviors while replacing a suite-only proof sketch with the missing-id observable. Keep full verification in Tests and ask no scope-cut question for delivery notes. Both baseline models already render the required rows; this is regression coverage, not a claimed behavioral improvement. Preserve ticket-screening evidence and prior partial reports.
+
+Screen verbatim ticket rows at step 4 using shape-ticket's Workflow-stage proof class before ordinary question one. Recommend ticket repair for sole-stage and bundled observations without editing rows; retain CI-as-product and behavior rows. Exclude retired proof provenance from Design while carrying other Reporter-note requirements. The selected workflow-stage-ticket-row continuation covers seven facts on fixed observations, not live ticket repair; preserve prior reports and run no target-wide sweep.
 
 Cover the resolved allowance gate, waves-only funding grammar and amendment allowance preservation with selected fixtures. Supply the newly required successful settings result in shared gate fixture state, with each case's explicit settings or unavailable-tool observation taking precedence. Keep sample IDs and all must-hold facts, including the waves controls. Preserve recovered model records without treating them as current verification; defer selected model checks to the parent. Never run full targets, including at completion.
 
@@ -72,10 +76,50 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
+| workflow-stage-ticket-row | anthropic/claude-opus-5-5 | improved | 14473 | f1: fails -> holds (intended change); f2: fails -> holds (intended change); f3: fails -> holds (intended change); f4: fails -> holds (intended change); f5: fails -> holds (intended change); f6: holds -> holds (intended but unchanged); f7: fails -> holds (intended change) |
+| workflow-stage-ticket-row | github-copilot/gpt-6.1-sol | improved | 14514 | f1: fails -> holds (intended change); f2: fails -> holds (intended change); f3: fails -> holds (intended change); f4: fails -> holds (intended change); f5: fails -> holds (intended change); f6: holds -> holds (intended but unchanged); f7: fails -> holds (intended change) |
+
+## Feedback
+
+- workflow-stage-ticket-row / anthropic/claude-opus-5-5: After delivers the Change cleanly: Message 1 opens with the holds-statement and immediately asks the cut question for the intact sole-stage row with A) in-scope / B) deviates: / C) deferred: / D) repair the ticket on separate lines, D naming /skill:shape-ticket acme/widgets#77, and Recommendation: D; Message 2 gives the bundled row its own cut question with the row quoted verbatim, explicitly intact, and D recommended; rows 3 and 4 are carried in-scope by stated assumption and the only question on row 4 is implementation detail, so f6 is preserved; and the closing Reporter-note block carries the importRows constraint while expressly refusing the retired-proof line as a Design requirement. Before failed f1-f5 and f7 because it skipped screening entirely, jumped to the error-format question, and wrote the retired-proof wording 'into Design as written'. Nothing that Before held was lost. The only wording to watch is Message 3's 'I'm making three assumptions' framing around rows 3 and 4 - keep it as a plain statement (not a question) so a judge never reads it as a disposition prompt, and keep the closing note's 'provenance of a proof shape-ticket dropped ... not a Design requirement' sentence, since that is the line that secures f7.
+- workflow-stage-ticket-row / github-copilot/gpt-6.1-sol: After delivers the Change cleanly: Message 1 follows the holds-statement with the cut question for the verbatim sole-stage row, lists A) in-scope / B) deviates: / C) deferred: / D) repair the ticket on separate lines with D naming `/skill:shape-ticket acme/widgets#77` and Recommendation: D; Message 2 gives the bundled row its own cut question with the row quoted intact and D recommended; the complexity-21 and offending-row rows are never put to a disposition question, and the implied Design requirements carry only `importRows`, explicitly declining to treat the `retired workflow-stage proof:` line as a requirement. Before failed f1–f5 by skipping straight to the error-format question and failed f7 by listing the retired CI-proof line as an implied Design requirement. Nothing After moved from holds to fails; the only wording worth tightening is Message 2's option B/D text, which paraphrases 'omit the CI clause' — keep that phrased as a proposed ticket repair outcome (as it is) rather than ever presenting an edited row, so f5's 'unedited and unsplit' stays unambiguous in future runs.
+
+exit: 0
+
+## Selected companion sample: workflow-stage-drafted-row
+
+for: b060021201ffa6585824b6609fb109b045f49f11666372f413561add0f3f4161
+
+wall: 39s
+
+Command: `node eval/run.mjs brainstorming workflow-stage-drafted-row`. Coverage is limited to this sample and workflow-stage-ticket-row above, not the whole target.
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| workflow-stage-drafted-row | anthropic/claude-opus-5-5 | unchanged | 10033 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged) |
+| workflow-stage-drafted-row | github-copilot/gpt-6.1-sol | unchanged | 12616 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged) |
+
+### Feedback
+
+- workflow-stage-drafted-row / anthropic/claude-opus-5-5: Nothing moved: both outputs render exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:` naming missing-id rejection and the offending-row error, neither includes a CI/PR/merge/suite-only row, neither asks a cut or scope question or emits a `none` fallback, and both keep `Full verification: npm test` plus the focused missing-id and offending-row cases in `test/importer.test.ts`. After delivers the Change cleanly by naming the Workflow-stage proof class (step 4) and explicitly classifying `npm test passes` as a suite-command stage proof while preserving behavior 1's outcome through the proof rewrite, and by treating delivery notes as stage-only material with no row and no scope decision. One wording risk to watch: After narrates a `read` of `shape-ticket/SKILL.md` under a case where no tools are available; it correctly frames this as narrated and readable per supplied observations, but if the After wording ever drifts toward claiming a live read, it could introduce a spurious blocking stop — keep the 'narrated, not performed' framing as written.
+- workflow-stage-drafted-row / github-copilot/gpt-6.1-sol: Nothing moved: both outputs render exactly two unchecked in-scope drafted rows under the "Drafted from the design, no ticket rows:" header, the missing-id row names rejection rather than `npm test` or a suite run, neither output asks a cut or scope question or emits a `none` fallback, and both Tests sections keep `npm test` as full verification plus the focused cases in `test/importer.test.ts`. The After wording delivers the Change cleanly — step 1 names the owning Workflow-stage proof class (shape-ticket's `## AC integrity gate`) before drafting, step 2 explicitly classifies CI green/PR approval/merge as delivery stages and the suite sketch as proof-not-outcome, and the rewritten rows preserve both Design commitments while folding the existing-error-format constraint into row 2. One small improvement over Before worth keeping: After reproduces the approved `## Tests` section verbatim rather than restating each case, which makes f4 trivially checkable; keep that verbatim carry-through and the explicit "No question is required" sentence in any further wording changes so f3 and f4 stay anchored.
+
+exit: 0
+
+## Preserved prior partial run: loop-gate
+
+for: 62d79f0ce46f12e958e9ae8e56a9ea3443755415346d90aa9929f339c19f0a5d
+
+wall: 36s
+
+This prior evidence is preserved, not rerun against the current assembly. Its Change text remains above after the two workflow-stage paragraphs.
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
 | loop-gate | anthropic/claude-opus-5-5 | improved | 24108 | menu: fails -> holds (intended change); settings: holds -> holds (intended but unchanged); loop: holds -> holds (intended but unchanged); no-ac: holds -> holds (intended but unchanged); drafted: holds -> holds (intended but unchanged) |
 | loop-gate | github-copilot/gpt-6.1-sol | improved | 35237 | menu: fails -> holds (intended change); settings: holds -> holds (intended but unchanged); loop: fails -> holds (intended change); no-ac: holds -> holds (intended but unchanged); drafted: holds -> holds (intended but unchanged) |
 
-## Feedback
+### Feedback
 
 - loop-gate / anthropic/claude-opus-5-5: After moved only the menu fact, and in the intended direction: options 4 and 5 now end with "allowance 7 per row", the funding suffix is confined to "1 or 2", and a separate "; allowance N" suffix is offered on 4 or 5, whereas Before offered funding on "1, 2, 4, or 5" with no allowance on either loop row. Every fact Before kept still holds in After: the settings lookup is narrated once per gate before the summary Read with the warning rendered as its own adjacent line and Branch E stops without a render or a guessed default; the reply-4 continuation writes Engine: loop directly below Amend-grant: none, amends preserving the audit, HEAD-checks both fields, completes brainstorm, and invokes loop-implementation with no writing-plans; Branch D keeps 1/2/3/6, the exact unavailable line, the not-fetched sentinel and paste affordance; Branch C renders the drafted row and in-scope verbatim with all six options. One wording note: After drops Before's "Loop engine setting: maxIterationsPerRow 7 (...)" label in favor of a bare "synthetic settings warning" line; that still satisfies the settings fact, but if you want the resolved value visible outside the option text, keeping a short label such as "Loop engine setting: allowance 7 per row - warning: synthetic settings warning" would preserve both readings without disturbing the waves-only grammar.
 - loop-gate / github-copilot/gpt-6.1-sol: After delivers the Change on the menu: options 4 and 5 now carry the resolved `allowance 7 per row` suffix, the funding sentence is confined to 1 or 2, and a separate `; allowance N` sentence covers 4/5, whereas Before offered funding on 1, 2, 4, or 5 and showed the setting only as a detached `Loop engine: maxIterationsPerRow 7.` line. After also repairs the continuation: Before turned the Standing-grants reference read into a hard block and then only listed the persistence/HEAD/phase/destination steps as an unauthorized hypothetical, while After narrates the intended `git add`/`commit --amend --no-edit -q`, the `git show HEAD:` check of both header fields, `phase_tracker complete brainstorm`, and the direct `/skill:loop-implementation` invocation skipping writing-plans, with the bare-`4` no-carrier rule. Settings, no-ac, and drafted held in both: each gate resolves the setting before the summary read, prints `Settings warning: synthetic settings warning` beside the council line, the not-fetched branch keeps `none - ticket not fetched (permission denied)`, the exact `Loop engine unavailable` line, 1/2/3/6 only, and a paste-rows affordance, and the drafted branch copies the row and `in-scope` verbatim with all six options. Two small things worth pinning so no fact drifts later: neither output states the driver's plan-skip reason (`loop engine`) explicitly, so the `loop` fact's second sentence is satisfied only by implication — add a sentence to the continuation wording like `the driver records the plan skip as reason: loop engine; no task-plan write`; and the After unavailable-tool trace names `loopEngine` while the gate traces only say `settings call`, so name the key `loopEngine` in every gate's lookup line to keep `settings` unambiguous.

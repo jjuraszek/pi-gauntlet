@@ -1,0 +1,100 @@
+{
+  "sample": "workflow-stage-drafted-row",
+  "arm": "candidate",
+  "skillSha": "87b3dc507182d8a20a58d2b1e66e57dab4a895a24571c1776848c1ebf4f2e641",
+  "inputSha": "ebdb120058b932e72f7d9efbae9d6cfcf9fc51d30d9201815b204089e6b190a1",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Trace A - spec-writing (checklist step 7), ticketless**\n\n1. **Stage: resume at checklist step 7.** Gather is complete and both design rounds are approved. No scope question is outstanding and no outcome has been cut. No tools are available, so every action below is narrated, not performed.\n\n2. **Read check: Ticket Handling (`reference/ticket-acceptance.md`).** The fixed observations say this reference is already in context this session. No re-read is needed. The Spec Self-Review instructions and the owning gate are also in context, so I write from them without re-reading or reconstructing them.\n\n3. **Stage: branch on the gathered result.** The gather sentinel is `none - no ticket`. The Row production table maps this to a drafted section under `Drafted from the design, no ticket rows:`. The rows come from the approved two-round design plus the original prompt. There is one `- [ ]` row per observable outcome, each with a default `in-scope` disposition.\n\n4. **Required read: `shape-ticket/SKILL.md` `## AC integrity gate`.** This is its first use for the Workflow-stage proof class. It is a `read` only, never a `/skill:shape-ticket` invocation. The supplied observations give no unreadable outcome, so I treat it as readable. I apply only the class that ticket-acceptance's own table names: a suite command, a CI or workflow result, a PR state, and a merge are stage proofs, not outcomes.\n\n5. **Stage: inline integrity pass over the draft's proof sketches.**\n   - **Behavior 1 (missing-id rejection).** Its sketch, `npm test passes`, is a suite-command stage proof attached to a committed outcome. I keep the outcome and rewrite the proof to the Design behavior: a row without an id is rejected. This is not a cut, so it needs no scope decision and no cut question.\n   - **Behavior 2 (offending-row error).** Its sketch, `the error names the offending row`, is already a behavioral observable. It needs setup and action added, and the Design clause supplies the rest: the existing error format stays and gains the row's position.\n   - **Delivery notes.** CI green on the PR head, PR approval, and merge are stage-only validation material. No row is drafted for them and no scope decision is involved.\n   - **Other classes.** No row is wishful, tautological, tree-wide, unspecified-but-binding, external-input, or post-deployment. No baseline, target, or yardstick is missing.\n\n6. **Stage: question check before writing.** No question is required:\n   - No outcome leaves in-scope.\n   - No drafted-row cut question applies, because nothing raises dropping or changing a committed outcome.\n   - No value or yardstick is missing.\n   - Approval at the user review gate ratifies the drafted rows, with no pre-gate acceptance stop.\n\n7. **Stage: write the `## Acceptance criteria` section** (rendered, not claimed as a live file write):\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Given an import batch containing a row with no id, calling `importRows` rejects that row.\n  in-scope\n- [ ] Given an import batch whose row at position N has no id, calling `importRows` raises an error in the existing importer error format that names position N as the offending row.\n  in-scope\n```\n\n8. **Stage: write the `## Tests` section** (rendered; no tests claimed as executed). There is one `<observable> - <test name or file>` line per acceptance row and per Design edge/error clause, and the approved full-verification line is retained:\n\n```markdown\n## Tests\n\n- Full verification: `npm test`.\n- A row with no id passed to `importRows` is rejected - `test/importer.test.ts` (focused missing-id rejection case)\n- The rejection error for a missing-id row names the offending row's position - `test/importer.test.ts` (focused offending-row error case)\n- The error keeps the existing importer error format, with only the position added - `test/importer.test.ts` (focused offending-row error case asserts the existing format plus position)\n- `importRows` remains the public entry point the importer is called through - `test/importer.test.ts` (both focused cases call `importRows`)\n```\n\n9. **Stage: hand off to checklist step 8 (spec self-review lint).** This covers the remaining Spec Self-Review steps, then the step 9 critique pass. The drafted rows above will be copied verbatim into the gate's `Drafted acceptance criteria (approval ratifies):` block. `Scope cuts:` will read `none`. No `Human input` cut-question record exists, because no disposition question was asked.\n",
+      "words": 660,
+      "wallMs": 28294,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Required read action (narrated only):** Consult `skills/shape-ticket/SKILL.md`, `## AC integrity gate`, at its installed absolute path before handling workflow-stage proof. This does not claim a live read or treat the bundled reference as previously loaded session context.\n2. **Integrity check:** The fixed observations establish two behavioral commitments. `npm test passes` is a proof sketch attached to missing-id rejection, not a separate outcome. Preserve rejection as a behavioral criterion; retain the verification command under Tests. CI green, PR approval, and merge do not become acceptance criteria.\n3. **Question check:** No question is required. Neither behavior is being cut, and no baseline, target, external yardstick, or behavioral value is missing.\n4. **Spec-writing stage (proposed text only; no file write or test execution):**\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Given a row without an id, when the caller passes it to `importRows`, the importer rejects that row.\n  in-scope\n- [ ] Given a row without an id, when `importRows` reports its rejection, the error identifies the offending row by its position while retaining the existing importer error format.\n  in-scope\n\n## Tests\n\n- Full verification: `npm test`.\n- Focused missing-id rejection and offending-row error cases in `test/importer.test.ts`.\n",
+      "words": 190,
+      "wallMs": 18322,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "89178eb6bdeb2f7e71560c534b3d6eb856c95032deccbabae7b2a518af9c7e4d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e5c1277506af5a4aa0d2cefbe772d86267d67633c1f7f96513d8b52faff20bed",
+      "baselineOutputSha": "12c78aa7aab2d9db868ac4d5f3a427dee36f602f4aa19f3014b4de8965618a07",
+      "candidateOutputSha": "790106461fe3f550916db7b802309430681a0cc55c692a15b69b88e6e49c5ca8",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both outputs render exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:` naming missing-id rejection and the offending-row error, neither includes a CI/PR/merge/suite-only row, neither asks a cut or scope question or emits a `none` fallback, and both keep `Full verification: npm test` plus the focused missing-id and offending-row cases in `test/importer.test.ts`. After delivers the Change cleanly by naming the Workflow-stage proof class (step 4) and explicitly classifying `npm test passes` as a suite-command stage proof while preserving behavior 1's outcome through the proof rewrite, and by treating delivery notes as stage-only material with no row and no scope decision. One wording risk to watch: After narrates a `read` of `shape-ticket/SKILL.md` under a case where no tools are available; it correctly frames this as narrated and readable per supplied observations, but if the After wording ever drifts toward claiming a live read, it could introduce a spurious blocking stop — keep the 'narrated, not performed' framing as written.",
+      "wallMs": 10033,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "89178eb6bdeb2f7e71560c534b3d6eb856c95032deccbabae7b2a518af9c7e4d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e5c1277506af5a4aa0d2cefbe772d86267d67633c1f7f96513d8b52faff20bed",
+      "baselineOutputSha": "62157971831e3786a286aafde11d3222ef1d9b8b990a65e935a86401f1450a18",
+      "candidateOutputSha": "fb39d62c88208b91cc944901b5e2e76144ffbbff7a9a2642da9cad291ad394b8",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both outputs render exactly two unchecked in-scope drafted rows under the \"Drafted from the design, no ticket rows:\" header, the missing-id row names rejection rather than `npm test` or a suite run, neither output asks a cut or scope question or emits a `none` fallback, and both Tests sections keep `npm test` as full verification plus the focused cases in `test/importer.test.ts`. The After wording delivers the Change cleanly — step 1 names the owning Workflow-stage proof class (shape-ticket's `## AC integrity gate`) before drafting, step 2 explicitly classifies CI green/PR approval/merge as delivery stages and the suite sketch as proof-not-outcome, and the rewritten rows preserve both Design commitments while folding the existing-error-format constraint into row 2. One small improvement over Before worth keeping: After reproduces the approved `## Tests` section verbatim rather than restating each case, which makes f4 trivially checkable; keep that verbatim carry-through and the explicit \"No question is required\" sentence in any further wording changes so f3 and f4 stay anchored.",
+      "wallMs": 12616,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "4e56925d5a84e0f2150fe939a90d8d3816cb0013"
+}
