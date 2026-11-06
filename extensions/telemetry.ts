@@ -1,6 +1,7 @@
   /**
-   * Telemetry extension: records one YAML record per gauntlet run, keyed by spec path,
-   * from pi events alone. Binds only after `phase_tracker start brainstorm` armed the
+   * Telemetry extension: records run and session-leg YAML from pi events alone.
+   * Session legs seal through telemetry-leg.ts at terminal settlement. Runs bind
+   * only after `phase_tracker start brainstorm` armed the
    * flow, writes the record to disk without ever staging or committing it (the seal bin
    * commits once at finish), and blocks `write` into an already-shipped spec while
    * brainstorm is in progress. Pure helpers: extensions/lib/telemetry-*.ts. The default
@@ -24,7 +25,8 @@
   import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countStructuredFindings, countOpenGaps, countReopens, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
   import { addTokens, capEvents, compact, currentPhase, derive, diffPhases, emptyAccumulators, emptyPhases, foldAccumulators, implementAutoCompletes, liveShipEvent, newRecord, parseRecord, serializeRecord, type Accumulators, type BaseEvent, type PhaseAcc, type PhaseKey, type PhaseMap, type TelemetryEvent, type TelemetryRecord, type Tokens } from "./lib/telemetry-record.ts";
   import { guardReason } from "./lib/telemetry-ship.ts";
-  import { readTelemetryBranch, telemetryRepo } from "./lib/telemetry-branch.ts";
+  import { readTelemetryBranch, telemetryRepo, type syncTelemetryBranch } from "./lib/telemetry-branch.ts";
+  import { registerLegTelemetry } from "./lib/telemetry-leg.ts";
   import { buildCouncil, parseAudit, parseChairReport, resolveMembers, type Cluster, type MemberResult } from "./lib/telemetry-council.ts";
 
   // ---- deps seam -------------------------------------------------------------------
@@ -52,6 +54,7 @@
     testCommands?: string[];
   }
   export interface Deps {
+    syncTelemetryBranch?: typeof syncTelemetryBranch;
     telemetryRepo?: typeof telemetryRepo;
     readTelemetryBranch?: typeof readTelemetryBranch;
     fs: FsPort;
@@ -885,4 +888,5 @@
       refreshLinks();
     };
 
+    registerLegTelemetry(pi, deps);
 }

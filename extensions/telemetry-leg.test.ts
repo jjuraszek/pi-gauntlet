@@ -1,0 +1,114 @@
+import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { after, test } from "node:test";
+import { parse } from "yaml";
+import registerTelemetry, { realDeps } from "./telemetry.ts";
+import { resolveTelemetry } from "./lib/gauntlet-settings.ts";
+
+const ref = "refs/heads/gauntlet/telemetry";
+const originalDepth = process.env.PI_SUBAGENT_DEPTH;
+process.env.PI_SUBAGENT_DEPTH = "0";
+after(() => {
+  if (originalDepth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+  else process.env.PI_SUBAGENT_DEPTH = originalDepth;
+});
+
+// Real plumbing stays local: origin's portable identity is rewritten to a scratch bare repo.
+function harness(skill: string) {
+  const scratch = mkdtempSync(join(tmpdir(), "telemetry-leg-"));
+  const root = join(scratch, "product");
+  const origin = join(scratch, "origin.git");
+  mkdirSync(root);
+  const git = (cwd: string, ...args: string[]) => execFileSync("git", ["-C", cwd, "-c", "commit.gpgsign=false", ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  git(scratch, "init", "--bare", origin);
+  git(root, "init", "-b", "feature/example");
+  git(root, "config", "user.name", "Leg Tester");
+  git(root, "config", "user.email", "leg@example.test");
+  git(root, "remote", "add", "origin", "https://example.test/team/product.git");
+  git(root, "config", `url.${origin}.insteadOf`, "https://example.test/team/product.git");
+  writeFileSync(join(root, "file.txt"), "base\n");
+  git(root, "add", "file.txt");
+  git(root, "commit", "-m", "initial");
+  writeFileSync(join(root, "file.txt"), "staged user change\n");
+  git(root, "add", "file.txt");
+  writeFileSync(join(root, "file.txt"), "unstaged user change\n");
+  const head = git(root, "rev-parse", "HEAD");
+  const index = readFileSync(join(root, ".git/index"));
+  const handlers = new Map<string, ((event: any, ctx: any) => unknown)[]>();
+  const messages: unknown[] = [];
+  const ctx = { cwd: root, sessionManager: { getBranch: () => [], getSessionId: () => `session-${skill}` } };
+  registerTelemetry({
+    on: (name: string, handler: (event: any, ctx: any) => unknown) => handlers.set(name, [...(handlers.get(name) ?? []), handler]),
+    sendMessage: (message: unknown) => messages.push(message),
+  } as any, {
+    ...realDeps,
+    now: () => "2026-11-06T12:34:56Z",
+    settings: () => ({ telemetry: resolveTelemetry({}), specDirs: [], planDirs: [], errors: [], versions: { "pi-gauntlet": "8.2.1" } }),
+  });
+  const emit = async (name: string, event: unknown = {}) => {
+    for (const handler of handlers.get(name) ?? []) await handler(event, ctx);
+  };
+  const say = (text: string) => emit("message_end", { message: { role: "assistant", content: [{ type: "text", text }] } });
+  const hasRecord = () => spawnSync("git", ["-C", origin, "rev-parse", "--verify", ref], { stdio: "ignore" }).status === 0;
+  return { root, origin, git, head, index, emit, say, hasRecord, messages };
+}
+
+for (const [skill, outcome, activation] of [
+  ["shape-ticket", "created", "input"],
+  ["gatekeep-pr", "approved", "expanded"],
+  ["check-delivery", "delivered", "read"],
+  ["gatekeep-pr", "stopped", "input"],
+]) {
+  test(`${skill} ${outcome} seals one session leg only after the final settlement and follow-on work`, async () => {
+    const marker = outcome === "stopped" ? "stuck" : "done";
+    const h = harness(skill);
+    await h.emit("session_start");
+    // Terminal-looking text outside a selected skill is not a leg.
+    await h.say(`gauntlet: done ${outcome}\n#42: ${outcome}`);
+    await h.emit("agent_settled", { aborted: false });
+    assert.equal(h.hasRecord(), false);
+    if (activation === "input") await h.emit("input", { text: `/skill:${skill} create a ticket`, source: "interactive" });
+    if (activation === "expanded") await h.emit("before_agent_start", { messageType: "user", prompt: `<skill name="${skill}" location="/package/skills/${skill}/SKILL.md">\nInstructions\n</skill>\n\n#42` });
+    if (activation === "read") await h.emit("tool_result", { toolName: "read", input: { path: `/package/skills/${skill}/SKILL.md` }, isError: false, content: [] });
+    await h.say("gauntlet: gate approval\n1. Approve\n2. Decline");
+    await h.emit("agent_settled", { aborted: false });
+    assert.equal(h.hasRecord(), false, "human gate is not completion");
+    await h.say(`gauntlet: done ${outcome}\n#42: ${outcome}`);
+    await h.emit("agent_end");
+    assert.equal(h.hasRecord(), false, "agent_end can precede follow-on work");
+    await h.emit("tool_call", { toolName: "bash", toolCallId: "follow-on", input: { command: "write approved result" } });
+    await h.emit("tool_result", { toolName: "bash", toolCallId: "follow-on", input: {}, isError: false, content: [] });
+    await h.say("Follow-on assessment is still running.");
+    await h.emit("agent_settled", { aborted: false });
+    assert.equal(h.hasRecord(), false, "an earlier terminal message cannot settle follow-on work");
+    await h.say(`gauntlet: ${marker} ${outcome}`);
+    await h.emit("agent_settled", { aborted: false });
+    assert.equal(h.hasRecord(), false, "settlement requires per-ref lines");
+    await h.say(`gauntlet: ${marker} ${outcome}\n#42: ${outcome}`);
+    await h.emit("agent_settled", { aborted: true });
+    assert.equal(h.hasRecord(), false, "aborting is not a terminal settlement");
+    await h.say(`gauntlet: ${marker} ${outcome}\n#42: ${outcome}`);
+    await h.emit("agent_settled", { aborted: false });
+    assert.equal(h.hasRecord(), true, "final settlement must push a leg record");
+    const path = `team/product/${skill}/20261106T123456Z-session-${skill}.yaml`;
+    assert.equal(h.git(h.origin, "ls-tree", "-r", "--name-only", ref), path);
+    const record = parse(h.git(h.origin, "show", `${ref}:${path}`));
+    assert.equal(record.skill, skill);
+    assert.equal(record.session, `session-${skill}`);
+    assert.equal(record.repo, "team/product");
+    assert.equal(record.ts, "2026-11-06T12:34:56Z");
+    assert.equal(record.items.length, 1);
+    assert.equal(record.items[0].outcome, outcome);
+    const tip = h.git(h.origin, "rev-parse", ref);
+    await h.emit("agent_settled", { aborted: false });
+    await h.emit("session_shutdown");
+    assert.equal(h.git(h.origin, "rev-parse", ref), tip, "duplicate lifecycle events do not append records");
+    assert.equal(h.git(h.root, "rev-parse", "HEAD"), h.head);
+    assert.deepEqual(readFileSync(join(h.root, ".git/index")), h.index);
+    assert.equal(readFileSync(join(h.root, "file.txt"), "utf8"), "unstaged user change\n");
+    assert.equal(h.git(h.root, "rev-parse", ref), tip);
+  });
+}
