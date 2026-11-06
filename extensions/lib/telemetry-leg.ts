@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { stringify } from "yaml";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import type { Deps } from "../telemetry.ts";
@@ -36,14 +37,14 @@ const outcomes: Record<LegSkill, string> = {
   "check-delivery": "delivered|manual|declined|already recorded|skipped|failed - .+",
 };
 
-export function settlementItems(skill: LegSkill, text: string): LegItem[] | undefined {
+export function settlementItems(skill: LegSkill, text: string, trackerless = false): LegItem[] | undefined {
   const [marker, ...lines] = text.split("\n");
   if (!/^gauntlet: (?:done|stuck)\b/.test(marker)) return undefined;
   const row = new RegExp(`^(.+?): (${outcomes[skill]})$`);
   const items = lines.flatMap((line): LegItem[] => {
     let ticket: string | undefined;
     const annotation = / \(([^()]+)\)$/.exec(line);
-    if (skill === "gatekeep-pr" && annotation && ticketRef.test(annotation[1])) {
+    if (skill === "gatekeep-pr" && annotation && (trackerless || ticketRef.test(annotation[1]))) {
       ticket = annotation[1];
       line = line.slice(0, annotation.index);
     }
@@ -51,7 +52,7 @@ export function settlementItems(skill: LegSkill, text: string): LegItem[] | unde
     if (!match || match[1].startsWith("# ") || match[1].startsWith("#### ")) return [];
     const [, ref, outcome] = match;
     const pr = /^#\d+@[a-f\d]+$/i.test(ref) || /^https?:\/\/\S+\/pull\/\d+(?:@[a-f\d]+)?$/i.test(ref);
-    if (pr || ticketRef.test(ref)) return [compact({ kind: pr || skill === "gatekeep-pr" ? "pr" : "ticket", key: ref, ticket, outcome }) as LegItem];
+    if (trackerless || pr || ticketRef.test(ref)) return [compact({ kind: pr || skill === "gatekeep-pr" ? "pr" : "ticket", key: ref, ticket, outcome }) as LegItem];
     if (skill === "shape-ticket" && (outcome === "dropped" || outcome === "declined")) return [{ kind: "ticket", outcome }];
     return [];
   });
@@ -60,7 +61,16 @@ export function settlementItems(skill: LegSkill, text: string): LegItem[] | unde
 
 export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () => boolean): () => Accumulators | undefined {
   let active: { skill: LegSkill; session: string; ts: string; acc: Accumulators; models: Set<string> } | undefined;
-  let terminal: LegItem[] | undefined;
+  let terminal: string | undefined;
+  const trackerless = (root: string): boolean => {
+    for (const path of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
+      const text = deps.fs.readFile(join(root, path));
+      if (text === undefined) continue;
+      const section = text.split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
+      return /^-\s*tracker:\s*none\s*$/m.test(section);
+    }
+    return false;
+  };
   const enabled = (ctx: ExtensionContext) => Number(process.env.PI_SUBAGENT_DEPTH ?? "0") === 0 && deps.settings(ctx.cwd).telemetry.enabled;
   const reset = () => { active = undefined; terminal = undefined; };
   const start = (skill: LegSkill | undefined, ctx: ExtensionContext) => {
@@ -97,19 +107,24 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
     if (event.message.role !== "assistant") return;
     if (active && enabled(ctx) && !runBound()) {
       if (event.message.provider && event.message.model) active.models.add(`${event.message.provider}/${event.message.model}`);
-      terminal = settlementItems(active.skill, textOf(event.message.content));
+      const text = textOf(event.message.content);
+      terminal = /^gauntlet: (?:done|stuck)\b/.test(text) ? text : undefined;
     } else terminal = undefined;
   });
   // agent_end can precede queued follow-on work; only the final live message at settlement seals.
   pi.on("agent_settled", async (event, ctx) => {
     if (!active || !terminal || event.aborted || !enabled(ctx) || runBound()) return;
     const run = active;
-    const items = terminal;
-    reset();
+    const text = terminal;
     try {
       const checkout = await checkoutOf(ctx.cwd, deps.git, deps.jj);
-      if (!checkout) return notify("no repository");
-      if (checkout.via !== "git") return notify("jj workspace: no git remote");
+      if (!checkout || checkout.via !== "git") {
+        reset();
+        return notify(checkout ? "jj workspace: no git remote" : "no repository");
+      }
+      const items = settlementItems(run.skill, text, trackerless(checkout.toplevel));
+      if (!items) return;
+      reset();
       const repo = (deps.telemetryRepo ?? telemetryRepo)(checkout.toplevel);
       if (!repo) return notify("cannot resolve owner/name from origin");
       const [name, email] = await Promise.all([
@@ -128,6 +143,7 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
       const result = (deps.syncTelemetryBranch ?? syncTelemetryBranch)(checkout.toplevel, new Map([[path, stringify(record)]]), deps.settings(ctx.cwd).telemetry.remote);
       if (!result.ok) notify(result.reason ?? "unknown failure");
     } catch (error) {
+      reset();
       notify(String((error as Error).message ?? error));
     }
   });
