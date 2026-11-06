@@ -154,7 +154,8 @@ Per `eval/README.md`: extend `eval/loop-implementation/` with `interrupted-child
 - Allowance 1 and a seed interrupted once: `loop: repair seed` count 1 equals the allowance; the seed stop renders `seed: 1 of 1`.
 - Rule-3 hints are used only when no human `retry <n> | <hint>` is pending for that row; a human hint wins. A rule-3 hint on a row at its threshold goes through the escalation check like any dispatch.
 - Recovery kills only pids the child recorded whose process group it owns; the driver's own shells and anything unrecorded are never signaled. A reused pid is reported, not killed, even when it remains a group leader; process start identity and command must match the launch record. Unattributed checkout changes remain preserved.
-- A verification repair runs the shared `implementer`, which records no jobs file; its interrupted-return recovery covers the checkout and the ledger only.
+- A verification repair runs the shared `implementer` with the loop's bounded-call, owned-session and jobs-recording contract injected into its dispatch text; its interrupted-return recovery applies the same ownership-fenced steps as a row child.
+- The coordinated ledger validator (`extensions/lib/plan-check.ts` `coordinatedMetadata`) admits a `pending: verify | <repo> | <HEAD>` tuple for a member leg exactly as it admits `seed`, with the same leg and SHA checks; this is the one extension edit in scope, covered by `extensions/lib/plan-check.test.ts` and followed by `npm run build:bins`. Home ledgers are unaffected.
 - The repair count never resets within a flow; an interrupted repair's tuple and an unrecoverable identity each count as one.
 - Conformance: a cap at or above the allowance already exceeds the budget, so its block or ask is the stop; `enforce: false` never blocks and the step-6 ask is answered by the same `<used>` rule without a tool call; option 4 (`**Amend-grant:** none`) has no sentence to quote and never calls the tool.
 - `unreachable:` is honored only as the first result line of the target row's own evidence; an extra row cannot be failed and is never cut this way; a row re-bound by a later amendment reopens as today; a `<where>` naming production still records as `deviates:` text, never a `venue:` disposition.
@@ -190,7 +191,7 @@ Verification ownership for this run: the loop child closes row 11 after the name
 
 - A run-wide or per-boundary funding token for options 4/5 (`fund N fix rounds` stays waves-only); the human raises the bound with `; allowance N`.
 - Raising or disabling pi-cohort's silence kill through `control:` overrides.
-- Changes to `extensions/phase-tracker.ts`, the `grant_fix_rounds` guard, the cap itself, or any `piGauntlet.*` setting.
+- Changes to `extensions/phase-tracker.ts`, the `grant_fix_rounds` guard, the cap itself, or any `piGauntlet.*` setting; the only extension edit is the coordinated pending-tuple validator named in Errors and edge cases.
 - The shared `implementer` persona and the waves engine; `skills/chase-bug/hotfix.md`'s one-row budget.
 - Actions the approved spec never names (a tracker comment, a production publish, a paid experiment without a Design or acceptance-row bound) - a ticket-shaping concern; the loop cuts the row that needs one.
 - Closing a row as `done` on `venue:` evidence; an unprovable row is cut, never closed.
