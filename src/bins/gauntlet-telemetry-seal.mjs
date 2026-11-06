@@ -105,7 +105,7 @@ async function seal(vcs, rec, o) {
   }
   const path = `${o.repo}/brainstorming/${parsed.spec.replace(/\.md$/, ".yaml")}`;
   const sync = syncTelemetryBranch(vcs.root, new Map([[path, readFileSync(abs, "utf8")]]));
-  if (!sync.ok) process.stderr.write(`warning: ${sync.warning}\n`);
+  if (!sync.ok) return console.log(`telemetry: not pushed (${sync.reason})`);
   console.log(`sealed ${rec}`);
 }
 

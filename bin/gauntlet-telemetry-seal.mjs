@@ -294,29 +294,58 @@ function syncTelemetryBranch(root, records, remote = "origin") {
     if (!result.ok) throw new Error(result.stderr);
     return result.stdout;
   };
+  const tracking = `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+  const fetch = () => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${tracking}`], root, 3e4);
+  const resolve2 = (ref) => {
+    const result = gitRun(["rev-parse", "--verify", ref], root);
+    return result.ok ? result.stdout : void 0;
+  };
+  const commit = (tree, parent, message) => git(["-c", "commit.gpgsign=false", "commit-tree", tree, ...parent ? ["-p", parent] : [], "-m", message]);
+  let committed = false;
   try {
-    const local = gitRun(["rev-parse", "--verify", TELEMETRY_REF], root);
-    let parent = local.ok ? local.stdout : void 0;
-    const fetched = gitRun(["fetch", "--no-tags", remote, TELEMETRY_REF], root, 3e4);
-    if (fetched.ok) {
-      const upstream = git(["rev-parse", "FETCH_HEAD"]);
-      if (!parent || gitRun(["merge-base", "--is-ancestor", parent, upstream], root).ok) parent = upstream;
-      else if (!gitRun(["merge-base", "--is-ancestor", upstream, parent], root).ok) {
-        throw new Error("local and remote telemetry histories diverged");
+    let tip = resolve2(TELEMETRY_REF);
+    committed = !!tip;
+    fetch();
+    let upstream = resolve2(tracking);
+    if (records.size) {
+      const parent = tip ?? upstream;
+      git(parent ? ["read-tree", parent] : ["read-tree", "--empty"]);
+      for (const [path2, content] of records) {
+        const blob = git(["hash-object", "-w", "--stdin"], content);
+        git(["update-index", "--add", "--cacheinfo", "100644", blob, path2]);
       }
+      const tree = git(["write-tree"]);
+      const next = parent && git(["rev-parse", `${parent}^{tree}`]) === tree ? parent : commit(tree, parent, "telemetry: update records");
+      git(["update-ref", TELEMETRY_REF, next, tip ?? ""]);
+      tip = next;
+      committed = true;
     }
-    git(parent ? ["read-tree", parent] : ["read-tree", "--empty"]);
-    for (const [path2, content] of records) {
-      const blob = git(["hash-object", "-w", "--stdin"], content);
-      git(["update-index", "--add", "--cacheinfo", "100644", blob, path2]);
+    const pending = () => tip ? git(["rev-list", "--reverse", "--topo-order", tip, ...upstream ? [`^${upstream}`] : []]).split("\n").filter(Boolean) : [];
+    if (!pending().length) return { ok: true, committed, pushed: false };
+    const push = () => gitRun(["push", remote, `${TELEMETRY_REF}:${TELEMETRY_REF}`], root, 3e4);
+    const first = push();
+    if (first.ok) return { ok: true, committed, pushed: true };
+    const fetched = fetch();
+    if (!fetched.ok) throw new Error(`${first.stderr}; refresh failed: ${fetched.stderr}`);
+    upstream = resolve2(tracking);
+    let replayed = upstream;
+    for (const sha of pending()) {
+      git(replayed ? ["read-tree", replayed] : ["read-tree", "--empty"]);
+      const changes = git(["diff-tree", "--root", "--no-commit-id", "--raw", "--no-abbrev", "--no-renames", "-r", "-z", sha]).split("\0");
+      for (let i = 0; i + 1 < changes.length; i += 2) {
+        const [, mode, , blob] = changes[i].split(" ");
+        const path2 = changes[i + 1];
+        git(mode === "000000" ? ["update-index", "--force-remove", "--", path2] : ["update-index", "--add", "--cacheinfo", mode, blob, path2]);
+      }
+      replayed = commit(git(["write-tree"]), replayed, git(["log", "-1", "--format=%B", sha]));
     }
-    const tree = git(["write-tree"]);
-    const tip = parent && git(["rev-parse", `${parent}^{tree}`]) === tree ? parent : git(["-c", "commit.gpgsign=false", "commit-tree", tree, ...parent ? ["-p", parent] : [], "-m", "telemetry: update records"]);
-    git(["update-ref", TELEMETRY_REF, tip, local.ok ? local.stdout : ""]);
-    git(["push", remote, `${TELEMETRY_REF}:${TELEMETRY_REF}`]);
-    return { ok: true };
+    if (replayed) git(["update-ref", TELEMETRY_REF, replayed, tip]);
+    const second = push();
+    if (!second.ok) throw new Error(second.stderr);
+    return { ok: true, committed, pushed: true };
   } catch (error) {
-    return { ok: false, warning: `telemetry sync failed: ${error.message}` };
+    const reason = error.message;
+    return { ok: false, committed, pushed: false, reason, warning: `telemetry: not pushed (${reason})` };
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
@@ -538,8 +567,7 @@ async function seal(vcs, rec, o) {
   }
   const path2 = `${o.repo}/brainstorming/${parsed.spec.replace(/\.md$/, ".yaml")}`;
   const sync = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map([[path2, readFileSync(abs, "utf8")]]));
-  if (!sync.ok) process2.stderr.write(`warning: ${sync.warning}
-`);
+  if (!sync.ok) return console.log(`telemetry: not pushed (${sync.reason})`);
   console.log(`sealed ${rec}`);
 }
 async function main() {
