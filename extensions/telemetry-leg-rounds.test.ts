@@ -5,12 +5,23 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { after, test } from "node:test";
 import { parse, stringify } from "yaml";
-import registerTelemetry, { realFs, type Deps } from "./telemetry.ts";
+import type { Deps } from "./telemetry.ts";
+import { isolatedGitEnv } from "./test-support/git-env.mjs";
 import { resolveTelemetry } from "./lib/gauntlet-settings.ts";
+
+const gitEnv = isolatedGitEnv(mkdtempSync(join(tmpdir(), "telemetry-leg-rounds-env-")));
+const originalGitEnv = Object.fromEntries(Object.keys(gitEnv).map(key => [key, process.env[key]]));
+Object.assign(process.env, gitEnv);
+// vcs.ts snapshots the environment at import time, including publisher subprocess settings.
+const { default: registerTelemetry, realFs } = await import("./telemetry.ts");
 
 const originalDepth = process.env.PI_SUBAGENT_DEPTH;
 process.env.PI_SUBAGENT_DEPTH = "0";
 after(() => {
+  for (const [key, value] of Object.entries(originalGitEnv)) {
+    if (value === undefined) delete process.env[key];
+    else process.env[key] = value;
+  }
   if (originalDepth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
   else process.env.PI_SUBAGENT_DEPTH = originalDepth;
 });

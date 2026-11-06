@@ -5,13 +5,23 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, test } from "node:test";
 import { parse } from "yaml";
-import registerTelemetry, { realDeps } from "./telemetry.ts";
+import { isolatedGitEnv } from "./test-support/git-env.mjs";
 import { resolveTelemetry } from "./lib/gauntlet-settings.ts";
+
+const gitEnv = isolatedGitEnv(mkdtempSync(join(tmpdir(), "telemetry-leg-env-")));
+const originalGitEnv = Object.fromEntries(Object.keys(gitEnv).map(key => [key, process.env[key]]));
+Object.assign(process.env, gitEnv);
+// vcs.ts snapshots the environment at import time, including publisher subprocess settings.
+const { default: registerTelemetry, realDeps } = await import("./telemetry.ts");
 
 const ref = "refs/heads/gauntlet/telemetry";
 const originalDepth = process.env.PI_SUBAGENT_DEPTH;
 process.env.PI_SUBAGENT_DEPTH = "0";
 after(() => {
+  for (const [key, value] of Object.entries(originalGitEnv)) {
+    if (value === undefined) delete process.env[key];
+    else process.env[key] = value;
+  }
   if (originalDepth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
   else process.env.PI_SUBAGENT_DEPTH = originalDepth;
 });
@@ -56,13 +66,14 @@ function harness(skill: string) {
   return { root, origin, git, head, index, emit, say, hasRecord, messages };
 }
 
-for (const [skill, outcome, activation] of [
+for (const [skill, outcome, activation, empty] of [
   ["shape-ticket", "created", "input"],
   ["gatekeep-pr", "approved", "expanded"],
   ["check-delivery", "delivered", "read"],
   ["gatekeep-pr", "stopped", "input"],
-]) {
-  test(`${skill} ${outcome} seals one session leg only after the final settlement and follow-on work`, async () => {
+  ["shape-ticket", "written", "input", true],
+] as const) {
+  test(`${skill} ${outcome}${empty ? " with no items" : ""} seals one session leg only after the final settlement and follow-on work`, async () => {
     const marker = outcome === "stopped" ? "stuck" : "done";
     const h = harness(skill);
     await h.emit("session_start");
@@ -84,15 +95,15 @@ for (const [skill, outcome, activation] of [
     await h.say("Follow-on assessment is still running.");
     await h.emit("agent_settled", { aborted: false });
     assert.equal(h.hasRecord(), false, "an earlier terminal message cannot settle follow-on work");
-    await h.say(`gauntlet: ${marker} ${outcome}`);
-    await h.emit("agent_settled", { aborted: false });
-    assert.equal(h.hasRecord(), false, "settlement requires per-ref lines");
     await h.say(`gauntlet: ${marker} ${outcome}\n#42: ${outcome}`);
     await h.emit("agent_settled", { aborted: true });
     assert.equal(h.hasRecord(), false, "aborting is not a terminal settlement");
-    await h.say(`gauntlet: ${marker} ${outcome}\n#42: ${outcome}`);
+    await h.emit("message_end", { message: {
+      role: "assistant", content: [{ type: "text", text: `gauntlet: ${marker} ${outcome}${empty ? "\nworktree: done\nNo settled items." : `\n#42: ${outcome}`}` }],
+      usage: { input: 12, output: 4, cost: 0.125 },
+    } });
     await h.emit("agent_settled", { aborted: false });
-    assert.equal(h.hasRecord(), true, "final settlement must push a leg record");
+    assert.equal(h.hasRecord(), true, "final settlement must push a leg record even without items");
     const path = `team/product/${skill}/20261106T123456Z-session-${skill}.yaml`;
     assert.equal(h.git(h.origin, "ls-tree", "-r", "--name-only", ref), path);
     const record = parse(h.git(h.origin, "show", `${ref}:${path}`));
@@ -100,9 +111,12 @@ for (const [skill, outcome, activation] of [
     assert.equal(record.session, `session-${skill}`);
     assert.equal(record.repo, "team/product");
     assert.equal(record.ts, "2026-11-06T12:34:56Z");
-    assert.equal(record.items.length, 1);
-    assert.equal(record.items[0].outcome, outcome);
+    assert.deepEqual(record.items, empty ? [] : [{ kind: skill === "gatekeep-pr" ? "pr" : "ticket", key: "#42", outcome }]);
+    assert.equal(record.cost, 0.125);
+    assert.equal(record.tokens.input, 12);
     const tip = h.git(h.origin, "rev-parse", ref);
+    await h.emit("agent_settled", { aborted: false });
+    await h.say(`gauntlet: done settled\n#43: ${outcome}`);
     await h.emit("agent_settled", { aborted: false });
     await h.emit("session_shutdown");
     assert.equal(h.git(h.origin, "rev-parse", ref), tip, "duplicate lifecycle events do not append records");

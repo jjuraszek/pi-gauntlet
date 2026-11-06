@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, readFileSync, readdirSync, readlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { isolatedGitEnv } from "../../extensions/test-support/git-env.mjs";
 
 const seal = new URL("./gauntlet-telemetry-seal.mjs", import.meta.url).pathname;
 const branchLibrary = new URL("../../extensions/lib/telemetry-branch.ts", import.meta.url).href;
@@ -34,13 +35,9 @@ for (const workspace of ["git", "linked", "jj-colocated"]) {
         ...process.env,
         TMPDIR: temporary,
         PI_CODING_AGENT_DIR: agent,
-        GIT_CONFIG_GLOBAL: join(scratch, "gitconfig"),
-        GIT_CONFIG_NOSYSTEM: "1",
-        GIT_AUTHOR_NAME: "test", GIT_AUTHOR_EMAIL: "test@example.test",
-        GIT_COMMITTER_NAME: "test", GIT_COMMITTER_EMAIL: "test@example.test",
+        ...isolatedGitEnv(scratch),
         JJ_CONFIG: join(scratch, "jjconfig.toml"),
       };
-      writeFileSync(env.GIT_CONFIG_GLOBAL, "");
       writeFileSync(env.JJ_CONFIG, '[user]\nname = "test"\nemail = "test@example.test"\n');
       const run = (binary, args, cwd = primary) => {
         const result = spawnSync(binary, args, { cwd, env, encoding: "utf8", timeout: 30_000 });

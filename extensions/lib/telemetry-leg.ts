@@ -56,7 +56,7 @@ export function settlementItems(skill: LegSkill, text: string, trackerless = fal
     if (skill === "shape-ticket" && (outcome === "dropped" || outcome === "declined")) return [{ kind: "ticket", outcome }];
     return [];
   });
-  return items.length ? items : undefined;
+  return items;
 }
 
 export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () => boolean): () => Accumulators | undefined {
