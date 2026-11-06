@@ -1,6 +1,8 @@
-for: 01d887140abfd2e19fa438d0841c181705849b0a70524704484daf132a1f27c1
+for: 4e18008f4ff86a253f954f941912952c3ab3ddd2f9c63b6ad4d5c50475597680
 
 ## Change
+
+Fund conformance rounds from the loop allowance under amend permission at a live cap block or proactive step-6 cap ask. Use the observed used count and verbatim grant sentence, continue without a call when enforcement is off, and stop on exhaustion, missing permission or tool error. Preserve runtime credits on resume without probes or local counters. Select conformance-grant only, including the shared conformance reference in its bundle; these synthetic text replays prove narrated routing, not live tracker grants or resets. The deterministic check lives beside existing scripts/loop-* tests; keep all other sample results and partial coverage unchanged.
 
 Bound exit-verification repairs by the shared allowance across legs, reserving each dispatch with pending: verify and replacing that reservation with one attributed home repair marker. Recover owned interrupted repairs without changing row cells or double-counting on resume; preserve uncertain ownership at recovery incomplete. Select verify-repair-count, exit-verification-escalates, cap-and-exit-verification and gate-set-failure only. The new sample includes reconstruction's verify routing; text replays prove narrated boundaries, not live recovery or signal execution. Preserve other sample records and leave broader coverage to later rows.
 
@@ -68,6 +70,9 @@ Cover `leg-resume` at reconstruction's Spec with ledger step 4: the full driver'
 Supply row 1's attempts value in the allowance snapshot so its existing fact is observable without inventing ledger data. Identify seed-recovery rows 1, 2 and 3 and the empty Decisions section; describe authorized reset followed by ordinary loop continuation instead of the ambiguous "then retrying" request. Preserve both facts and the seed's own selection/validation path; do not extend the numbered-row retry lifecycle to seed recovery.
 
 ## Expected to move
+- conformance-grant/funding: fails -> holds - Fund the remaining allowance from the live block under amend permission.
+- conformance-grant/proactive: fails -> holds - Route the proactive cap ask through loop funding before asking a human.
+- conformance-grant/unenforced: fails -> holds - Continue below allowance without a grant call when enforcement is off.
 - verify-repair-count/budget: fails -> holds - Use allowance for repeated escalated repairs across legs without row retry funding.
 - verify-repair-count/reservation: fails -> holds - Persist and attribute each pending verify dispatch before the child starts.
 - verify-repair-count/exhaustion: fails -> holds - Render the repair count at allowance rather than a once-per-flow stop.
