@@ -1,0 +1,197 @@
+# Loop engine: allowance is the only bound at every boundary
+
+**Goal:** Make the loop engine's per-row `allowance:` the single budget the driver spends at every boundary where it stops today with attempts left - a killed or contract-breaking child or seed, a stagnating row, a second exit-check failure, the conformance fix-round cap - and give the worker two missing signals: an `unreachable:` evidence form that turns a row no permitted attempt can prove into an auto-applied scope cut under the amend grant, and a blocking-call bound that keeps a long check below pi-cohort's silence kill while the driver can still prove its background jobs exited. No new grammar, setting, or extension code; every change is skill or persona text and its eval samples.
+**Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
+**Engine:** loop
+**Predecessor:** `doc/specs/2026-11-01-gh-108-loop-single-allowance.md` - supersedes its acceptance rows "A row whose attempts reach its effective allowance stops for a human under option 4 and option 5 alike" only for the interrupted-child, seed and stagnation paths below (the exhaustion stop itself stays), "Exit verification failure dispatches one escalated `implementer` repair ... once per flow", and its Design "stagnation stops unchanged" and "Dirty-tree and commit-boundary stops keep discard authorization only" clauses; the single allowance, retry and `rows +N` arithmetic, and the visible budget stay live.
+**Predecessor:** `doc/specs/2026-11-02-gh-119-escalate-after-row-history.md` - context only (one escalation per row, `escalateAfter` threshold, row decision history); nothing superseded.
+**Predecessor:** `doc/specs/2026-10-29-implement-grant-continuity.md` - context only (named recommendations auto-taken under the grant); nothing superseded.
+
+## Problem
+
+Approval option 5 ("approve, loop engine, auto-apply amends") is read by its users as hands-free to the ship menu, but across 28 option-5 runs between Oct 25 and Nov 6 (19 in two consumer repos, 9 in this repo) only 9 reached the ship menu without a human reply, and every human reply continued the run - "retry", "rows +10", "fund 5 more", "don't ask until ship menu" - none declined. The driver obeyed its text in nearly every stop; the text excludes those boundaries from the grant:
+
+- `skills/loop-implementation/SKILL.md` "Before each dispatch" rule 3 stops on two ledger-only child commits or two validation misses regardless of attempts left, and "Human stop" ends with "Only retry starts new windows"; four such stops fired on rows whose recorded check needed a staging data dump, a merge-time SHA, a paid model call, or a CI run - inputs no attempt in the worktree can supply.
+- A child killed by pi-cohort's silence watchdog (`inFlightSilenceKillMs`, default 1,800,000 ms, effective kill `max(inFlightSilenceKillMs, inFlightSilenceCeilingMs + needsAttentionAfterMs)`; a single blocking `bash` call emits no productive signal between `tool_execution_start` and `tool_execution_end`, `pi-cohort/src/runs/shared/subagent-control.ts` `resolveControlConfig`, `src/runs/foreground/execution.ts` tool lifecycle) or returning with a dirty tree stops for discard authorization, and "Human stop" says "Boundary rejection never increments attempts"; four such stops, each after a 30-60 minute eval or capture run, and in one case a surviving eval process kept writing into the tree after the kill. A killed or dirty `seed` return, where every row's first check runs, takes the same stop ("Keep dirty/zero/multiple-commit seed returns at the human-gated boundary stop").
+- After the loop step 1 dispatches one exit-check repair ("This marker is once per flow"); two stops fired on the second failure, both on eval bookkeeping (a stale `intent.md for:` hash after a fix round), and the human's reply was "why stop? is it possible to finish?".
+- The conformance fix-round cap is enforced by `extensions/phase-tracker.ts` (`grant_fix_rounds` rejects only a non-live block or unspent credits; the block reason reads `<used> fix round(s) used against a cap of <cap> (granted rounds included)`) and nothing in the loop skill funds it from the grant; two stops, replies "1" and "fund 5 more".
+- About nine turns ended with a status report no rule asked for ("so what now? are you asking about anything?" - "No, I should have continued").
+- A funding token on option 4/5 is rejected at the gate (`spec-finalization.md` "Interpret budget replies with this table": for 4/5 only `; allowance N` is accepted; `doc/gate-contract.md` "funding on 4/5 and malformed tokens re-present the gate") and the driver ignores budget tokens (`amendment-surface.md` "Value decoding"; the driver's "ignore its waves-only budget token"), so no reply at the gate can pre-authorize any of the above; `; allowance N` raises row attempts only.
+
+The remaining stops (about six) were rows whose check needed an action the approved spec never authorized - a tracker comment, a production publish, a paid experiment with no bound in the spec. Those stay human gates only while approval leaves them outstanding: an action the approved spec names with its bound is authorized by approval and needs no second ask within that bound.
+
+Framing: kept - checked the gate token grammar, Value decoding, SDD's funded-round ledger, the extension's cap guard and its tests, the ledger refresh parser (`extensions/plan-tracker.ts` ledger parse), and the cohort kill path; the scout's objection (never equate missing evidence with success) holds: a boundary spends an attempt where a human reply would have continued, and an unprovable row is cut, not closed.
+
+History: `2026-10-29-implement-grant-continuity` once read `fund N` as loop attempts; gh-108 removed loop funding, made `allowance:` the single budget, and kept the human stop under 4 and 5 alike; this spec extends gh-108's single number to every boundary and leaves gh-119's one escalation per row untouched.
+
+## Acceptance criteria
+
+Drafted from the design, no ticket rows:
+
+- [ ] A loop child that is killed, errors at dispatch, or returns with a dirty tree or a commit count other than one is an interrupted return. While the target row's attempts are below its effective allowance - for `seed`, while the count of `loop: repair seed` commits since ledger base is below the ledger `allowance:` - the driver recovers without a human turn: it terminates every job listed in the child's jobs file and confirms each exited, resets the checkout to the saved pre-dispatch boundary and observes clean status, commits `loop: repair row <n>` with the target `failed`, attempts +1 and evidence `iteration <i>: interrupted - <reason>` (for seed, `loop: repair seed` with rows unchanged and the reason in the commit body), and returns to the ordered table; at the effective allowance rule 2's stop renders with the repaired row; a job that cannot be confirmed exited or a boundary that cannot be observed clean renders `Stopped: iteration <i> recovery incomplete - <what>` with the discard-authorization menu. The same recovery applies to companion returns and to a pending tuple recovered on resume.
+  in-scope
+- [ ] Rule 3 (two consecutive `loop: row <n> ...` commits for the same row that changed nothing outside the ledger, or two consecutive validation misses on that row) sets the hint `the last two attempts changed nothing outside the ledger` or `two returns broke the contract: <last miss>` for that row and continues through rule 4's target selection and escalation check while the row's attempts are below its effective allowance; a pending human `retry <n> | <hint>` for that row wins over the fixed hint; an admitted `loop: amend` or `loop: cut row <n>` commit starts new windows for every row and `loop: retry row <n>` for its row; attempts, allowance and spent escalation never reset.
+  in-scope
+- [ ] When the gate set fails at After the loop step 1, the driver writes `pending: verify | <repo> | <HEAD>` to the ledger on disk before dispatching an escalated repair while `repairs < allowance`, where `repairs` is the count of `loop: repair verification` commits since ledger base plus one for a `pending: verify` tuple with no admitted repair commit; a killed, dirty or multi-commit repair is recovered like an interrupted return and its empty marker consumes one; at `repairs == allowance` the `Stopped: verification failed with every row closed` stop renders naming `repairs: <k> of <allowance>`.
+  in-scope
+- [ ] Under amend permission, each conformance fix-round cap block or step-6 cap ask whose `<used>` count is below the ledger `allowance:` is answered with `phase_tracker({ action: "grant_fix_rounds", rounds: <allowance - used>, reason: "<Amend-grant sentence verbatim>" })` when the runtime block is live, or by continuing the fix loop without a call when `closureReview.enforce` is false, and the fix loop continues; a block or ask with `<used>` at or above the allowance, an error reply from the tool, or a spec without amend permission renders the existing step-6 stop. The driver never calls the tool as a probe and never counts rounds itself.
+  in-scope
+- [ ] An admitted `failed` return whose target-row evidence carries `unreachable: <what is missing> - <where it can run>` as its first result line (the segment after the check name) is, under amend permission, an amend item applied through amendment-surface section 5: disposition `deviates: unreachable in this checkout - <what>; proof at <where>`, an `## Out of scope` entry `<row text, first 60 chars> - unreachable in this checkout - <what>`, the ledger row `cut` with the disposition as evidence, the single `loop: cut row <n>` commit from the surface's aftermath, and the printed line `amended the spec: row <n> - unreachable in this checkout - <what>`; without amend permission the surface's human batch is the stop; a `venue:` row keeps its disposition and fails as an ordinary attempt; the cut appears on the finish closure's `Deferred/deviates per spec:` line.
+  in-scope
+- [ ] The loop-implementer runs ordinary local checks as today; runs an action the approved spec names (acceptance row or Design) with its bound inside that bound, recording `ran <action> (<k> of <bound>)` in the row's decision line with `<k>` counted across the whole flow from earlier decision lines, without asking; records `unreachable: <what is missing> - <where it can run>` as the first result line and fails the row when a concrete prerequisite no permitted attempt in this checkout can supply is missing - a credential, environment or data not present, or an action the spec does not name; and records `bound spent: <action> <k> of <k>` as the first result line when a named action's count is exhausted, which the driver renders as a row stop under option 4 and 5 alike.
+  in-scope
+- [ ] The loop-implementer bounds every blocking tool call - a foreground command, a poll, a wait - with `timeout -k 30 <n>` where `<n>` is at most 600 seconds; longer work starts with `setsid` in the background under `timeout -k 30 3600`, writes a log under `$TMPDIR` and its pid to the jobs file `${TMPDIR:-/tmp}/loop-<base SHA>-<iteration>.jobs`; each poll is a separate tool call; the job is waited for or killed and its jobs line removed before the reply; a timeout is a failed attempt with `timed out after <n> s` in evidence.
+  in-scope
+- [ ] Inside the implement loop the driver ends a turn only with a stop header from `## Human stop`; an intermediate report is followed by the next ordered-table action in the same turn.
+  in-scope
+- [ ] Brainstorming's design round 2 names every paid or external action the implementation may take, with its bound (runner, inputs, count per flow), as a Design clause; approval authorizes it for the whole flow.
+  in-scope
+- [ ] `doc/configuration.md` (the escalation paragraph and "Loop engine operations"), `doc/implement-engines.md` "Stops, models and telemetry", `doc/gate-contract.md`'s loop-stop paragraph, and the README loop-engine paragraph describe allowance as the bound at every boundary, the repair count, the conformance funding, the jobs cleanup and the unreachable cut, and `doc/specs/2026-11-01-gh-108-loop-single-allowance.md` carries exactly one supersession banner for this spec.
+  in-scope
+- [ ] `node eval/run.mjs loop-implementation <sample>` for the new samples and every rewritten existing sample named in Tests, `node eval/run.mjs loop-implementer silence-bound-and-unreachable`, and `node eval/run.mjs brainstorming design-names-paid-actions` report every must-hold fact holding, with each target's `intent.md` and sample-scoped `report.md` committed; `npm test` passes, including the instruction-size lint with every touched skill and persona file under 50,000 bytes and 2,000 lines.
+  in-scope
+
+## Legs
+
+### Leg: jjuraszek/pi-gauntlet
+branch: loop-hands-free-boundaries
+contract:
+- create: git worktree add .worktrees/<name> -b <branch>
+- destroy: git worktree remove .worktrees/<name> && git worktree prune
+- home: .worktrees/<name>
+- spec-dir: doc/specs
+- plan-dir: doc/plans
+- verification: npm test (AGENTS.md Testing); node eval/run.mjs <target> <sample> for the samples named in Tests
+Rules: AGENTS.md
+Rules: AGENTS.core.md
+Rules: .pi/gauntlet-overrides.md
+Rules: doc/personas.md
+Rules: doc/configuration.md
+Rules: doc/implement-engines.md
+Rules: eval/README.md
+Rules: README.md
+scope: none
+design: skills/loop-implementation/SKILL.md, skills/loop-implementation/reference/coordinated-legs.md, skills/gauntlet-resume/reference/reconstruction.md, skills/verification-before-completion/reference/conformance-check.md, agents/loop-implementer.md, skills/brainstorming/SKILL.md, doc/configuration.md, doc/implement-engines.md, doc/gate-contract.md, README.md, CHANGELOG.md, eval/loop-implementation/, eval/loop-implementer/, eval/brainstorming/, doc/specs/2026-11-01-gh-108-loop-single-allowance.md
+
+## Design
+
+Every change below is text in a skill, a persona, a doc, or an eval sample. Follow `/skill:forge-skill` authoring rules; replace the clauses this spec supersedes instead of adding beside them; keep every touched skill and persona file under 50,000 bytes and 2,000 lines (`skills/loop-implementation/SKILL.md` is 37,263 bytes at base; apply forge-skill's oversized-skill extraction to `reference/` before the driver passes 45,000 bytes).
+
+### One bound
+
+`allowance:` in the ledger header, with the per-row effective allowance from `## Decisions` retry lines, is the only budget the driver consults at any boundary. Seed, verification repairs and conformance rounds spend it as counts of existing commits and tuples, never a new header line, decision kind, token, setting, or extension code. `; allowance N` at the gate stays the lever for larger budgets.
+
+### Driver - `skills/loop-implementation/SKILL.md`
+
+Replace these live clauses (each quoted from the owner section; no other sentence is touched):
+
+| Section | Replace | With |
+|---|---|---|
+| Before each dispatch, rule 3 | `Human stop.` | the hint rule below |
+| Before each dispatch | `Apply hard boundaries and rule 3 before escalation: stagnation stops without dispatch.` | `Apply rule 2 before rule 3; a rule-3 hint dispatches through rule 4.` |
+| Before each dispatch | `Preserve ... grant_fix_rounds boundaries; this is implement permission, not verify credit.` | `Preserve STAGNANT, REJECT and closureReview boundaries; After the loop step 3 funds conformance rounds from the allowance.` |
+| Before each dispatch | `Count empty child commits and validation misses only after the latest loop: retry row <n> commit.` | the window rule below |
+| Dispatch | `Stop on dispatch error or an async handle; never poll, join or relaunch.` | `A dispatch error is an interrupted return; an async handle still stops; never poll, join or relaunch.` |
+| Validate the return, step 1 | `Preserve consumed iterations and all other child changes and commits. Refresh before the discard/reset stop.` and the two `Stopped:` headers | the interrupted-return recovery below |
+| Validate the return, seed row | `A second consecutive miss stops for a human.` | `Re-dispatch seed while the seed count is below the allowance.` |
+| Validate the return | `After the second consecutive miss, repair and take the existing human stop without another dispatch.` and `Keep dirty/zero/multiple-commit seed returns at the human-gated boundary stop, outside this repair.` | the seed count rule below |
+| Validate the return | `Two consecutive validation misses stop because the child is not following the contract.` | `Two consecutive validation misses on a row set its rule-3 hint.` |
+| Human stop | `Dirty-tree and commit-boundary stops keep discard authorization only; interrupted-dispatch stops keep their recovery authorization, never budget offers;` | `The recovery-incomplete stop keeps discard authorization only;` |
+| Human stop | `Only retry starts new windows.` and the paragraph from `For dirty/commit-boundary retry` through `An interrupted dispatch consumes the same count; recover it from disk/branch rather than silently repeating iteration 0.` | `Recovered interrupted dispatches consume their count (iterations = restored HEAD's value +1) and keep spent escalation; recover from disk/branch, never repeat iteration 0.` |
+| After the loop, step 1 | `With spent loop: repair verification identity, stop without dispatch or automatic rerun.`, `This marker is once per flow.`, `On a second failure or a spent-identity stop,`, `A rejected dirty/zero/multiple-commit return also keeps the round spent through authorized recovery. Never repair again for another leg, reopen rows or reset the count.` | the repair count below (keep "never reopen rows") |
+
+Window rule (Before each dispatch): `Count a row's empty child commits and validation misses only after the latest of loop: retry row <n> for that row, loop: amend, or loop: cut row <n>; an admitted amendment starts new windows for every row because it changed what rows are measured against. Raising allowance resets neither window. Recover both windows from branch history on resume.` The empty-child window binds to a row: two consecutive `loop: row <n> ...` commits with the same `<n>` that changed no file outside the ledger and no row status; commits for different rows never pair.
+
+Hint rule (rule 3 action): `Set the hint for that row: the last two attempts changed nothing outside the ledger for empty-child stagnation, or two returns broke the contract: <concrete miss from the last repair evidence> for validation misses; continue to rule 4. A pending human retry <n> | <hint> for that row wins over the fixed hint. The hint attaches only to its row; a cut row or a different selected target carries none.` Rule 4 then selects the target, applies the escalation threshold check and dispatches as today; the hint rides in the existing `hint:` task field.
+
+Interrupted-return recovery (Validate the return step 1 and Dispatch): a dispatch error, a non-DONE return, a silence kill, a dirty tree, or zero/multiple commits is an **interrupted return**. Ownership comes from the dispatch boundary: the driver observed a clean tree at `HEAD_BEFORE` when it dispatched exactly one child into the worktree, so every non-ignored change and every commit after it is that child's output or its surviving job's. Recover in this order, all with `git -C "<worktree>"` and the driver's own shell:
+
+1. Read the child's jobs file `${TMPDIR:-/tmp}/loop-<base SHA>-<iteration i>.jobs` (one line per background job: `<pid> <epoch> <command>`; absent or empty means no jobs). For each pid: require `ps -o pgid= -p <pid>` to equal the pid (the child started it with `setsid`, so the recorded pid is its own group leader; a mismatch means the pid was reused and is not owned); send `kill -TERM -- -<pid>`, wait up to 10 s, send `kill -KILL -- -<pid>`, then require `kill -0 <pid>` to fail. Print `terminated <k> child jobs` when k > 0, then delete the jobs file. An unowned or still-alive pid is unresolved cleanup.
+2. Reset the checkout to the boundary: `git reset --hard HEAD_BEFORE` (discarding the child's commits in `HEAD_BEFORE..HEAD`) and `git clean -fd` (ignored files untouched); require empty `status --porcelain` and `rev-list HEAD_BEFORE..HEAD --count` of 0. A tree that is not clean after this is unresolved cleanup.
+3. Write the ledger from the saved pre-dispatch copy with `iterations:` = saved +1 and no `pending:` line. For a numbered row with attempts below its effective allowance set the target `failed`, attempts = saved attempts +1, evidence `iteration <i>: interrupted - <reason>` with `<reason>` one of `killed after silence`, `dispatch error: <text>`, `dirty tree`, `<k> commits`, `non-DONE`; commit `loop: repair row <n>`, refresh, return to the ordered table (rule 2 then stops the row at its effective allowance, with the repaired row cells; rule 3 and rule 4 otherwise dispatch again). For `seed`, leave every row cell unchanged and commit `loop: repair seed` with the reason in the body. The row keeps its spent escalation identity and its consumed iteration exactly as a validation miss does.
+
+Unresolved cleanup at step 1 or 2 renders `Stopped: iteration <i> recovery incomplete - <what>` (`job <pid> still running`, `job <pid> not owned`, or `tree dirty after reset`) with the discard-authorization menu, under option 4 and 5 alike; this is the only remaining boundary stop below the allowance, and it never consumes an attempt. A companion interrupted return recovers through `reference/coordinated-legs.md` with the companion checkout's `HEAD_BEFORE`, its jobs file and the home-ledger `loop: repair row <n>` commit; a `pending:` tuple recovered on resume applies the same three steps from the tuple's HEAD when the saved copy is the ledger at that HEAD, and keeps today's stop when the before-image is unrecoverable.
+
+Seed count (Validate the return): `Count seed attempts as loop: repair seed commits since ledger base; dispatch seed while that count is below the ledger allowance, with the seed-contract instruction and seed miss: <concrete miss> or seed interrupted: <reason> in hint:; at the allowance render the row stop with seed: <k> of <allowance> and the retry/rows +N menu. Row attempts stay 0.` A validated seed resets the window as today.
+
+Repair count (After the loop step 1): `repairs = number of commits with subject loop: repair verification since ledger base, plus one when the ledger on disk carries a pending: verify | <repo> | <HEAD> tuple with no admitted repair commit after that HEAD.` Before each repair dispatch write that tuple to the ledger on disk beside the iterations bump (the existing persisted-tuple rule, target `verify`), so an interruption before the parent marker still counts; the admitted repair commit removes it as a row child does. Dispatch a repair while `repairs < allowance`, each the same escalated `implementer` dispatch with the same rerun scope; a dispatch error, non-DONE, killed, dirty or multi-commit repair takes the interrupted-return recovery against the failing checkout's `HEAD_BEFORE` and then commits the empty parent marker `loop: repair verification`, consuming one; at `repairs == allowance` render the existing stop with `repairs: <k> of <allowance>` after `escalated round spent`. Recover the count from the branch and the on-disk tuple on resume; an unrecoverable identity counts as one. Keep "never reopen rows". Add to the dispatch text one sentence carrying the persona's blocking-call bound (`bound every blocking command with timeout -k 30 <n>, n <= 600; background and poll longer work`).
+
+Conformance funding (After the loop step 3): `When the conformance fix-round cap blocks (grant_fix_rounds block reason <used> fix round(s) used against a cap of <cap>) or the reference's step 6 asks at its cap, read <used> from that text. Under amend permission with <used> below the ledger allowance: when the block is live, call phase_tracker({ action: "grant_fix_rounds", rounds: <allowance - used>, reason: "<Amend-grant sentence verbatim>" }), print funded <allowance - used> conformance rounds under the grant, and continue the fix loop; when closureReview.enforce is false (no runtime block), continue without a call. With <used> at or above the allowance, an error reply, or no amend permission, take the reference's step-6 stop.` The driver never records the grant in memory and never calls the tool to learn state: the next block's `<used>` already includes granted rounds, so the second block with `<used> >= allowance` is the stop; a resumed run with unspent credits sees no block and continues. Total conformance rounds in a loop flow are therefore the larger of the cap and the allowance; the cap itself is unchanged.
+
+Unreachable cut (Validate the return, after the ordinary table): `An admitted failed return whose target evidence's first result line (the segment after the check name) matches ^unreachable: .+ - .+$ is an amend item. Under amend permission apply amendment-surface section 5 for that row: disposition deviates: unreachable in this checkout - <what>; proof at <where>, an ## Out of scope entry <row text, first 60 chars> - unreachable in this checkout - <what>, and the surface's aftermath (ledger row cut with the disposition as evidence, one loop: cut row <n> commit); print amended the spec: row <n> - unreachable in this checkout - <what>, refresh and return to the ordered table. Without amend permission render the surface's human batch (section 4) as the stop.` The attempts increment of the failed return stays. The cut never applies to an extra row, a `done` row, a `venue:` row (its disposition is preserved; the return is an ordinary failed attempt) or twice to the same row. A first result line matching `^bound spent: .+$` is a row stop under option 4 and 5 alike, with the ordinary row menu; it names the exhausted action from the evidence.
+
+Driver holds: add to the permitted reads `the child's jobs file, ps -o pgid= -p <pid>, kill, and git log --format=%s <base>..HEAD for commit subjects` so the read set matches the operations above; the driver still never reads logs, source or test output in the loop.
+
+### Coordinated and resume owners
+
+`skills/loop-implementation/reference/coordinated-legs.md`: replace `Keep loop: repair verification once per flow, not per failing leg.` with `Count loop: repair verification home-only against the allowance per the driver's After the loop step 1.`; in `## Companion return validation` and `### Companion commit admission`, replace the boundary-rejection stop with the driver's interrupted-return recovery against the companion checkout, keeping attribution and ambiguous-history stops.
+
+`skills/gauntlet-resume/reference/reconstruction.md` pending recovery: replace `Report any retained recovery stop now with no redispatch` with: a recovered pending tuple whose before-image is the ledger at the tuple's HEAD takes the driver's interrupted-return recovery (jobs, reset, repair commit) while the row's attempts are below its effective allowance and then continues at `Before each dispatch`; an unrecoverable before-image, unresolved cleanup or ambiguous history keeps today's stop. The main driver's resume paragraph (`stop on a dirty tree before dispatch`) points at that rule.
+
+`skills/verification-before-completion/reference/conformance-check.md` step 6: add one sentence: `Under the loop engine with amend permission, the loop driver's After the loop step 3 funds rounds up to the ledger allowance before this ask; ask the human only when it declines.`
+
+### Persona - `agents/loop-implementer.md`
+
+Add, in Procedure step 5: `Run ordinary local checks as today. An action the approved spec names with its bound (runner, inputs, count per flow) - in an acceptance row or Design - is authorized: run it inside that bound without asking, and append ran <action> (<k> of <bound>) to the row's decision line, with <k> one more than the count of earlier decision lines naming that action. When the check needs a concrete prerequisite no permitted attempt in this checkout can supply - a credential, environment or data not present, or an action the spec does not name - record unreachable: <what is missing> - <where it can run> as the first result line after the check name, set the row failed, and make no further attempt in this session. When a named action's count is exhausted, record bound spent: <action> <k> of <k> as the first result line and set the row failed.`
+
+Add, in Evidence command: `Bound every blocking tool call with timeout -k 30 <n>, <n> at most 600 seconds: a foreground command, a poll, a wait. Start longer work in the background as setsid timeout -k 30 3600 <command> > "$TMPDIR/<log>" 2>&1 & and append <pid> <epoch> <command> to ${TMPDIR:-/tmp}/loop-<base SHA>-<iteration>.jobs before anything else; poll it in separate tool calls, each bounded as above; wait for it or kill its group (kill -TERM -- -<pid>, then -KILL) and remove its jobs line before replying - never reply with a job running. Record a timeout as a failed attempt with timed out after <n> s. These bounds assume pi-cohort's effective silence kill of at least 660 seconds (max(inFlightSilenceKillMs, inFlightSilenceCeilingMs + needsAttentionAfterMs), default 1,800,000 ms); doc/implement-engines.md states the coupling.` Never record a paid or external action as the evidence's first segment: the gate set reruns that segment at verify, every fix round, conformance and finish; record the local replay or fixture check as the command and the action in a result line.
+
+### Brainstorming - `skills/brainstorming/SKILL.md` section 6
+
+Add, to round 2: `Name every paid or external action the implementation may take - a model call, a capture, a deploy, a tracker write - as a Design clause with its bound (runner, inputs, count for the whole flow across seed, rows, repairs and finish); approval authorizes it within that bound, and the loop treats an action without such a clause as unreachable.` This changes what brainstorming says to the user; it is a behavior edit with an eval sample, not a wording-only edit.
+
+### Docs
+
+Amend `doc/configuration.md` (the escalation paragraph: "one exit-verification repair per flow"; the recommendation paragraph: "dirty trees, commit-boundary failures, allowance exhaustion, stagnation and `REJECT` never authorize a bypass" and "`grant_fix_rounds` remain separate"; "Loop engine operations"), `doc/implement-engines.md` "Stops, models and telemetry" (the stop paragraph, the amend paragraph and the table row "One fresh-context `implementer` repair per flow", plus the silence-kill coupling sentence), `doc/gate-contract.md`'s loop-stop paragraph ("Only retry resets the row's stagnation and validation-miss windows", "Verification failure uses its one automatic repair"), and the README loop paragraph ("Exhaustion and stagnation stop for a human decision", "one exit-verification repair per flow") and its option-5 sentence. Add the `## Unreleased` CHANGELOG entry. `doc/specs/2026-11-01-gh-108-loop-single-allowance.md` already carries this spec's supersession banner at line 4 (uncommitted in the worktree); commit it with the change and insert no second banner.
+
+### Evals
+
+Per `eval/README.md`: extend `eval/loop-implementation/` with `interrupted-child-redispatch`, `seed-interrupted-count`, `verify-repair-count`, `conformance-grant`, `unreachable-cut`, `amend-resets-windows`, `companion-interrupted-recovery`; rewrite `stagnation-and-retry`'s facts (hint through rule 4 below allowance; rule 2 stop at allowance); rewrite every existing sample whose facts name a superseded stop as listed in Tests; extend `eval/loop-implementer/` with `silence-bound-and-unreachable`; extend `eval/brainstorming/` with `design-names-paid-actions`. Each sample's must-hold facts are the observable in its acceptance row. Update each target's `intent.md` `for:` hash and run only these samples; commit the sample-scoped `report.md`. Never run a target-wide sweep.
+
+## Errors and edge cases
+
+- Allowance 1 and an interrupted child: the repair consumes the only attempt and rule 2 stops; no free re-dispatch.
+- Allowance 1 and a seed interrupted once: `loop: repair seed` count 1 equals the allowance; the seed stop renders `seed: 1 of 1`.
+- Rule-3 hints are used only when no human `retry <n> | <hint>` is pending for that row; a human hint wins. A rule-3 hint on a row at its threshold goes through the escalation check like any dispatch.
+- Recovery kills only pids the child recorded whose process group it owns; the driver's own shells and anything unrecorded are never signaled. A reused pid (`pgid` differs) is reported, not killed.
+- A verification repair runs the shared `implementer`, which records no jobs file; its interrupted-return recovery covers the checkout and the ledger only.
+- The repair count never resets within a flow; an interrupted repair's tuple and an unrecoverable identity each count as one.
+- Conformance: a cap at or above the allowance already exceeds the budget, so its block or ask is the stop; `enforce: false` never blocks and the step-6 ask is answered by the same `<used>` rule without a tool call; option 4 (`**Amend-grant:** none`) has no sentence to quote and never calls the tool.
+- `unreachable:` is honored only as the first result line of the target row's own evidence; an extra row cannot be failed and is never cut this way; a row re-bound by a later amendment reopens as today; a `<where>` naming production still records as `deviates:` text, never a `venue:` disposition.
+- An approved action the spec names is reachable even when paid or external; a named action whose credential or environment is absent here is unreachable (the prerequisite is missing, not the approval); a named action whose flow-wide count is spent is `bound spent:`, a row stop, never a cut; the child never asks the driver.
+- A background job that outlives its 3600-second timeout is killed by `timeout -k 30` and recorded as `timed out after 3600 s`; the driver sees an ordinary `failed` return. A consumer whose configured silence kill is below 660 seconds must lower the persona's bound in its overrides file.
+- Coordinated runs: the interrupted-return recovery and the unreachable cut apply to companion returns through the same `loop: repair row <n>` and `loop: cut row <n>` parent commits; the repair count is home-only.
+
+## Tests
+
+- interrupted child: jobs terminated, checkout reset, repaired and re-dispatched, no human turn - `eval/loop-implementation/samples/interrupted-child-redispatch`
+- interrupted seed re-dispatched while `loop: repair seed` count is below allowance; at allowance stops with `seed: <k> of <allowance>` - `eval/loop-implementation/samples/seed-interrupted-count`
+- stagnation below allowance dispatches through rule 4 with the fixed hint; at allowance rule 2 stops - `eval/loop-implementation/samples/stagnation-and-retry` (rewritten facts)
+- `loop: amend` starts new windows; attempts and spent escalation unchanged; a rule-3 hint at the threshold still escalates - `eval/loop-implementation/samples/amend-resets-windows`
+- second exit-check failure with `repairs < allowance` dispatches another repair; a `pending: verify` tuple counts on resume; at allowance stops with `repairs: <k> of <allowance>` - `eval/loop-implementation/samples/verify-repair-count`
+- conformance block under option 5 funds `allowance - used` with the grant sentence once, the second block stops; under option 4 stops; `enforce: false` continues without a call - `eval/loop-implementation/samples/conformance-grant`
+- `unreachable:` evidence under option 5 yields one `loop: cut row <n>`, the Out-of-scope entry and the `amended the spec:` line; under option 4 the amendment batch; a `venue:` row is untouched; `bound spent:` is a row stop - `eval/loop-implementation/samples/unreachable-cut`
+- companion interrupted return recovered immediately and after resume - `eval/loop-implementation/samples/companion-interrupted-recovery`
+- existing samples rewritten where their facts name a superseded stop, or kept with the reason recorded in the sample: `commit-boundary`, `gate-line-first`, `allowance-10-escalate-after`, `exit-verification-escalates`, `tracker-verify`, `row-budget-actions`, `scaled-cap-grant`, `last-attempt-model-boundary`, `spent-row-escalation`, `tracker-boundary`, `multi-row-return`, `leg-iteration`, `human-stop-counts`, `exit-repair-capability`, `cap-and-exit-verification`, `gate-set-failure`, `decision-repair`, `seed-retry`
+- persona bounds every blocking call with `timeout -k 30`, backgrounds longer work with `setsid` and the jobs file, polls in separate calls, and reports `unreachable:` for an unnamed action while running a named one with `ran <action> (1 of 1)` - `eval/loop-implementer/samples/silence-bound-and-unreachable`
+- controlled process: before the finish, run the persona's background recipe once against `sleep 30` with a 2-second bound in a `mktemp -d` directory; require the log to end `timed out after 2 s`, the jobs file to be empty and `kill -0 <pid>` to fail; record the three observed lines in the commit body of the persona edit
+- brainstorming round 2 names the paid action with its flow-wide bound - `eval/brainstorming/samples/design-names-paid-actions`
+- size and literal lints, `pi.settings` ban, marketplace - `npm test` (existing suite; no extension change)
+
+## Documentation impact
+- Feature / user-facing docs introduced: none
+- Materially amended existing docs: `doc/configuration.md` - escalation paragraph and "Loop engine operations" (operations / tunable parameters: allowance as the bound at every boundary, the seed and repair counts, conformance funding to the allowance, the jobs cleanup, the unreachable cut); `doc/implement-engines.md` - "Stops, models and telemetry" (major procedures; the silence-kill coupling); `doc/gate-contract.md` - loop-stop paragraph (communication contract: which stops remain); `CHANGELOG.md` - deferred: release
+- Derived / memory docs invalidated: `README.md` loop-engine paragraph ("Exhaustion and stagnation stop for a human decision", "one exit-verification repair per flow") and option-5 sentence ("with redraws still stopping"); `doc/specs/2026-11-01-gh-108-loop-single-allowance.md` - existing supersession banner, committed with this change
+
+## Out of scope
+
+- A run-wide or per-boundary funding token for options 4/5 (`fund N fix rounds` stays waves-only); the human raises the bound with `; allowance N`.
+- Raising or disabling pi-cohort's silence kill through `control:` overrides.
+- Changes to `extensions/phase-tracker.ts`, the `grant_fix_rounds` guard, the cap itself, or any `piGauntlet.*` setting.
+- The shared `implementer` persona and the waves engine; `skills/chase-bug/hotfix.md`'s one-row budget.
+- Actions the approved spec never names (a tracker comment, a production publish, a paid experiment without a Design or acceptance-row bound) - a ticket-shaping concern; the loop cuts the row that needs one.
+- Closing a row as `done` on `venue:` evidence; an unprovable row is cut, never closed.
+
+## Open questions
+
+none
