@@ -8,8 +8,12 @@ import { parseRecord } from "../../extensions/lib/telemetry-record.ts";
 
 const cli = new URL("./gauntlet-telemetry-seal.mjs", import.meta.url);
 
-for (const option of ["pr", "squash"]) {
-test(`${option} seal pushes an orphan telemetry record without touching the feature branch or index`, () => {
+for (const { option, separateRemote } of [
+  { option: "pr", separateRemote: false },
+  { option: "squash", separateRemote: false },
+  { option: "pr", separateRemote: true },
+]) {
+test(`${option} seal pushes an orphan telemetry record to ${separateRemote ? "the configured remote" : "origin"} without touching the feature branch or index`, () => {
   const scratch = mkdtempSync(join(tmpdir(), "seal-branch-"));
   const root = join(scratch, "product");
   const origin = join(scratch, "origin.git");
@@ -43,6 +47,15 @@ test(`${option} seal pushes an orphan telemetry record without touching the feat
   git(root, "add", "file.txt");
   git(root, "commit", "-m", "initial");
   git(root, "push", "origin", "main");
+  const originRefs = git(origin, "show-ref");
+  const remoteConfig = git(root, "remote", "-v");
+  const destination = separateRemote ? join(scratch, "telemetry.git") : origin;
+  if (separateRemote) {
+    git(scratch, "init", "--bare", destination);
+    writeFileSync(join(agentDir, "settings.json"), JSON.stringify({
+      piGauntlet: { telemetry: { remote: new URL(`file://${destination}`).href } },
+    }));
+  }
   git(root, "switch", "-c", "feature/example");
   const spec = "doc/specs/example.md";
   mkdirSync(join(root, "doc/specs"), { recursive: true });
@@ -72,11 +85,15 @@ test(`${option} seal pushes an orphan telemetry record without touching the feat
   assert.equal(git(root, "status", "--porcelain"), status);
   assert.equal(git(root, "write-tree"), indexTree);
   assert.equal(git(root, "log", "--format=%s", "main..HEAD", "--grep=^telemetry:"), "");
-  assert.equal(git(root, "rev-parse", branch), git(origin, "rev-parse", branch));
+  if (separateRemote) {
+    assert.equal(git(origin, "show-ref"), originRefs, "origin must receive no telemetry refs");
+    assert.equal(git(root, "remote", "-v"), remoteConfig, "the seal must not add a remote");
+  }
+  assert.equal(git(root, "rev-parse", branch), git(destination, "rev-parse", branch));
   const unrelated = gitResult(root, "merge-base", "main", branch);
   assert.equal(unrelated.status, 1, "telemetry history must have no ancestor shared with main");
-  assert.equal(git(origin, "ls-tree", "-r", "--name-only", branch), recordPath);
-  const record = parseRecord(git(origin, "show", `${branch}:${recordPath}`));
+  assert.equal(git(destination, "ls-tree", "-r", "--name-only", branch), recordPath);
+  const record = parseRecord(git(destination, "show", `${branch}:${recordPath}`));
   assert.ok(record);
   assert.equal(record.spec, spec);
   assert.equal(record.status, "shipped");

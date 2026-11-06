@@ -8,16 +8,18 @@ const id = (repo, key) => JSON.stringify([repo, key]);
 const ordered = map => [...map.values()].sort((a, b) => a.repo.localeCompare(b.repo) || a.key.localeCompare(b.key));
 const add = (row, column, cost) => { if (cost !== null) row[column] = (row[column] ?? 0) + cost; };
 
-function split(cost, count, cents) {
-  if (cost === null) return Array(count).fill(null);
-  if (!cents) return Array(count).fill(cost / count);
-  const total = Math.round(cost * 100);
-  const share = Math.round(total / count);
-  return Array.from({ length: count }, (_, i) => (i === count - 1 ? total - share * (count - 1) : share) / 100);
-}
+const allocations = new WeakMap();
+const split = (cost, count) => Array(count).fill(cost === null ? null : cost / count);
 
-export function aggregateCosts(entries, legs, cents = false) {
+export function aggregateCosts(entries, legs) {
   const tickets = new Map(), prs = new Map(), unattributed = new Map();
+  const splits = [], links = [], cells = new Map();
+  const cell = (row, column) => {
+    if (!cells.has(row)) cells.set(row, new Map());
+    const columns = cells.get(row);
+    if (!columns.has(column)) columns.set(column, { row, column });
+    return columns.get(column);
+  };
   const ensure = (map, repo, key) => {
     const identity = id(repo, key);
     if (!map.has(identity)) map.set(identity, { repo, key, shape: null, run: null, gatekeep: null, delivery: null, rounds: [] });
@@ -25,15 +27,18 @@ export function aggregateCosts(entries, legs, cents = false) {
   };
   for (const { row } of entries) {
     const keys = [...new Set(row.tickets.map(ref => itemKey(ref, row.repo)))].sort();
-    const shares = split(row.cost, keys.length || 1, cents);
+    const shares = split(row.cost, keys.length || 1);
     if (!keys.length) add(ensure(unattributed, row.repo, row.session), "run", shares[0]);
-    keys.forEach((key, i) => add(ensure(tickets, row.repo, key), "run", shares[i]));
+    const recipients = keys.map(key => ensure(tickets, row.repo, key));
+    recipients.forEach((recipient, i) => add(recipient, "run", shares[i]));
+    splits.push(recipients.map(row => cell(row, "run")));
   }
   const ticketPrs = new Map();
   for (const leg of [...legs].sort((a, b) => a.ts.localeCompare(b.ts) || a.session.localeCompare(b.session))) {
     // Put keyless shares last, matching the separate unattributed table below the keyed rows.
     const items = [...leg.items].sort((a, b) => (itemKey(a.key, leg.repo) ?? "\uffff").localeCompare(itemKey(b.key, leg.repo) ?? "\uffff"));
-    const shares = split(num(leg.cost), items.length || 1, cents);
+    const shares = split(num(leg.cost), items.length || 1);
+    const recipients = [];
     if (!items.length) add(ensure(unattributed, leg.repo, leg.session), skillColumn[leg.skill], shares[0]);
     const roundShares = new Map();
     items.forEach((item, i) => {
@@ -41,6 +46,7 @@ export function aggregateCosts(entries, legs, cents = false) {
       const ticket = item.kind === "ticket" ? key : itemKey(item.ticket, leg.repo);
       const row = ticket ? ensure(tickets, leg.repo, ticket) : ensure(unattributed, leg.repo, item.kind === "pr" && key ? key : leg.session);
       add(row, skillColumn[leg.skill], shares[i]);
+      recipients.push(cell(row, skillColumn[leg.skill]));
       if (item.kind !== "pr" || !key || leg.skill !== "gatekeep-pr") return;
       const pr = ensure(prs, leg.repo, key);
       if (!roundShares.has(pr)) roundShares.set(pr, null);
@@ -51,27 +57,91 @@ export function aggregateCosts(entries, legs, cents = false) {
         ticketPrs.get(identity).add(pr);
       }
     });
+    splits.push(recipients);
+    const roundCells = [];
     for (const [pr, cost] of roundShares) {
       pr.rounds.push(leg);
       (pr.round_costs ??= []).push(cost);
+      roundCells.push(cell(pr.round_costs, pr.round_costs.length - 1));
     }
+    splits.push(roundCells);
   }
   for (const [identity, linked] of ticketPrs) {
     const cost = tickets.get(identity).run;
     const rows = [...linked].sort((a, b) => a.key.localeCompare(b.key));
-    const shares = split(cost, rows.length, cents);
+    const shares = split(cost, rows.length);
     rows.forEach((row, i) => add(row, "run", shares[i]));
+    links.push({ source: cell(tickets.get(identity), "run"), targets: rows.map(row => cell(row, "run")) });
   }
   for (const group of groupRounds(legs, "shape-ticket")) {
     const row = tickets.get(id(group.repo, group.key));
     if (row) row.rounds = group.rounds;
   }
   for (const row of [...tickets.values(), ...unattributed.values()]) row.total = sumOrNull(columns.map(column => row[column]));
-  const prRows = ordered(prs).map(({ repo, key, run, rounds, round_costs }) => ({ repo, key, run, rounds, round_costs, total: sumOrNull([run, ...round_costs]) }));
-  return { tickets: ordered(tickets), prs: prRows, unattributed: ordered(unattributed) };
+  const prRows = ordered(prs);
+  for (const row of prRows) {
+    for (const column of ["shape", "gatekeep", "delivery"]) delete row[column];
+    row.total = sumOrNull([row.run, ...row.round_costs]);
+  }
+  const result = { tickets: ordered(tickets), prs: prRows, unattributed: ordered(unattributed) };
+  allocations.set(result, { splits, links });
+  return result;
 }
 
-export function renderCosts({ tickets, prs, unattributed }) {
+function displayCosts(costs) {
+  const copies = new Map();
+  const result = Object.fromEntries(Object.entries(costs).map(([table, rows]) => [table, rows.map(row => {
+    const copy = { ...row };
+    for (const column of columns) if (typeof copy[column] === "number") copy[column] = Math.round(copy[column] * 100) / 100;
+    copies.set(row, copy);
+    if (row.round_costs) {
+      copy.round_costs = row.round_costs.map(cost => cost === null ? null : Math.round(cost * 100) / 100);
+      copies.set(row.round_costs, copy.round_costs);
+    }
+    return copy;
+  })]));
+  const { splits, links } = allocations.get(costs);
+  const order = new Map([...copies.keys()].map((row, i) => [row, i]));
+  const round = (groups, linked = false) => {
+    const components = [];
+    for (const group of groups) {
+      const cells = new Set(linked ? group.targets : group);
+      const sources = new Set(linked ? [group.source] : []);
+      // Overlapping splits share aggregated cells, so allocate their remainder only once.
+      for (let i = components.length - 1; i >= 0; i--) {
+        if (![...components[i].cells].some(cell => cells.has(cell))) continue;
+        for (const cell of components[i].cells) cells.add(cell);
+        for (const source of components[i].sources) sources.add(source);
+        components.splice(i, 1);
+      }
+      if (cells.size) components.push({ cells, sources });
+    }
+    for (const { cells, sources } of components) {
+      const active = [...cells].filter(({ row, column }) => row[column] !== null)
+        .sort((a, b) => order.get(a.row) - order.get(b.row));
+      const total = sumOrNull([...(linked ? sources : active)].map(({ row, column }) => (linked ? copies.get(row) : row)[column]));
+      let remaining = Math.round(total * 100);
+      active.forEach(({ row, column }, i) => {
+        const cents = i === active.length - 1 ? remaining : Math.round(row[column] * 100);
+        copies.get(row)[column] = cents / 100;
+        remaining -= cents;
+      });
+    }
+  };
+  round(splits);
+  round(links, true);
+  for (const rows of Object.values(costs)) for (const row of rows) {
+    const copy = copies.get(row);
+    const raw = row.round_costs ? [row.run, ...row.round_costs] : columns.map(column => row[column]);
+    const displayed = copy.round_costs ? [copy.run, ...copy.round_costs] : columns.map(column => copy[column]);
+    copy.total = row.total === null ? null : row.total + raw.reduce((delta, value, i) =>
+      delta + (value === null ? 0 : displayed[i] - Math.round(value * 100) / 100), 0);
+  }
+  return result;
+}
+
+export function renderCosts(aggregate) {
+  const { tickets, prs, unattributed } = displayCosts(aggregate);
   const roundCount = Math.max(0, ...prs.map(row => row.round_costs.length));
   const costs = rows => rows.map(row => [row.repo, row.key, ...columns.map(column => fmtCost(row[column])), fmtCost(row.total)]);
   return [

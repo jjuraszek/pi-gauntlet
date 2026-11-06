@@ -45,8 +45,23 @@ for (const [skill, section, lines] of [
     };
     await emit("session_start");
     for (round = 0; round < lines.length; round++) {
-      if (round === 2) await emit("session_switch");
-      await emit("input", { source: "interactive", text: `/skill:${skill}` });
+      if (round === 2) {
+        await emit("before_agent_start", { messageType: "user", prompt: "What is the weather?" });
+        await emit("message_end", { message: { role: "assistant", content: [{ type: "text", text: "It is sunny." }] } });
+        await emit("agent_settled", { aborted: false });
+        assert.equal(records.size, 2, "an unrelated follow-up without settlement writes nothing");
+        await emit("session_switch");
+        await emit("before_agent_start", { messageType: "user", prompt: "Check that again" });
+        await emit("message_end", { message: { role: "assistant", content: [{ type: "text", text: `gauntlet: done settled\n${lines[round]}` }] } });
+        await emit("agent_settled", { aborted: false });
+        assert.equal(records.size, 2, "session navigation clears the remembered skill");
+      }
+      if (round === 1) {
+        await emit("input", { source: "interactive", text: "Check that again" });
+        await emit("before_agent_start", { messageType: "user", prompt: "Check that again" });
+      } else {
+        await emit("input", { source: "interactive", text: `/skill:${skill}` });
+      }
       await emit("message_end", { message: { role: "assistant", content: [{ type: "text", text: `gauntlet: done settled\n${lines[round]}` }], usage: { input: round + 1, cost: 0.25 } } });
       await emit("agent_settled", { aborted: false });
       assert.equal(records.size, round + 1, "repeating in one second must not overwrite an earlier leg");

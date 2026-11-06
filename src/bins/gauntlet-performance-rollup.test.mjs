@@ -80,6 +80,28 @@ test("three-way shares stay unrounded in JSON and conserve cents across keyed an
   assert.match(text, /team\/product#12\s+1\s+0\.12\s+0\.34\s+0\.46/);
 });
 
+test("fractional records for one ticket aggregate before text rounding", () => {
+  const dir = corpus([
+    leg("shape-ticket", "first", 0.004, [ticket("#1")]),
+    leg("shape-ticket", "second", 0.004, [ticket("#1")]),
+    run("first", 0.004, ["#1"]), run("second", 0.004, ["#1"]),
+    leg("gatekeep-pr", "first", 0.004, [pr("#10@aa", "#1")]),
+    leg("gatekeep-pr", "second", 0.004, [pr("#10@bb", "#1")]),
+  ]);
+  for (const file of [cli, new URL("../../bin/gauntlet-performance.mjs", import.meta.url).pathname]) {
+    const digest = JSON.parse(invoke(file, ["--dir", dir, "--json"]));
+    const row = find(digest.tickets, `${repo}#1`);
+    assert.equal(row.shape, 0.008);
+    assert.equal(row.run, 0.008);
+    const text = invoke(file, ["--dir", dir]);
+    const cells = text.split("\n").find(line => line.includes(`${repo}#1`)).trim().split(/\s+/);
+    assert.deepEqual(cells.slice(3), [row.shape.toFixed(2), row.run.toFixed(2), row.gatekeep.toFixed(2), "-", row.total.toFixed(2)]);
+    const pull = find(digest.prs, `${repo}#10`);
+    const prCells = text.split("\n").find(line => line.includes(`${repo}#10`)).trim().split(/\s+/);
+    assert.deepEqual(prCells.slice(3), [pull.run, ...pull.round_costs, pull.total].map(cost => cost.toFixed(2)));
+  }
+});
+
 test("seal and settlement share tracker refs without treating ordinary URLs as tickets", () => {
   for (const [text, expected] of [
     ["gh-12", "#12"], ["E-12345", "E-12345"], ["#12", "#12"],

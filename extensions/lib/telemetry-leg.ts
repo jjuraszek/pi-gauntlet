@@ -62,6 +62,7 @@ export function settlementItems(skill: LegSkill, text: string, trackerless = fal
 export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () => boolean): () => Accumulators | undefined {
   let active: { skill: LegSkill; session: string; ts: string; acc: Accumulators; models: Set<string> } | undefined;
   let terminal: string | undefined;
+  let lastSkill: LegSkill | undefined;
   const trackerless = (root: string): boolean => {
     for (const path of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
       const text = deps.fs.readFile(join(root, path));
@@ -75,6 +76,7 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
   const reset = () => { active = undefined; terminal = undefined; };
   const start = (skill: LegSkill | undefined, ctx: ExtensionContext) => {
     if (!skill || !enabled(ctx) || runBound() || active) return;
+    lastSkill = skill;
     active = { skill, session: ctx.sessionManager.getSessionId(), ts: deps.now(), acc: emptyAccumulators(), models: new Set() };
     if (ctx.model) active.models.add(`${ctx.model.provider}/${ctx.model.id}`);
     terminal = undefined;
@@ -84,7 +86,7 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
   });
 
   for (const event of ["session_start", "session_switch", "session_fork", "session_tree", "session_shutdown"] as const) {
-    pi.on(event, async () => reset());
+    pi.on(event, async () => { reset(); lastSkill = undefined; });
   }
   pi.on("input", async (event, ctx) => {
     terminal = undefined;
@@ -92,7 +94,7 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
   });
   pi.on("before_agent_start", async (event, ctx) => {
     terminal = undefined;
-    if (event.messageType === "user") start(legSkill(/^<skill name="([^"]+)" location="/.exec(event.prompt)?.[1]), ctx);
+    if (event.messageType === "user") start(legSkill(/^<skill name="([^"]+)" location="/.exec(event.prompt)?.[1]) ?? lastSkill, ctx);
   });
   pi.on("tool_call", async () => { terminal = undefined; });
   pi.on("tool_result", async (event, ctx) => {

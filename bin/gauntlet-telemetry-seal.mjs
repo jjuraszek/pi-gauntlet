@@ -603,7 +603,7 @@ async function seal(vcs, rec, o) {
     writeFileSync(abs, serializeRecord(parsed));
   }
   const path = `${o.repo}/brainstorming/${parsed.spec.replace(/\.md$/, ".yaml")}`;
-  const sync = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map([[path, readFileSync(abs, "utf8")]]));
+  const sync = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map([[path, readFileSync(abs, "utf8")]]), o.remote);
   if (!sync.ok) return console.log(`telemetry: not pushed (${sync.reason})`);
   console.log(`sealed ${rec}`);
 }
@@ -632,7 +632,7 @@ async function main() {
     return;
   }
   if (opts.migrate !== void 0) return migrate(root, resolve2(opts.worktree, opts.migrate), repo, telemetry.remote);
-  const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs, repo };
+  const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs, repo, remote: telemetry.remote };
   if (opts.spec) return seal(vcs, recordPathFor(store, rel), o);
   const diff = changedNames(vcs, opts.base);
   if (!diff.ok) fail(1, `${vcs.kind} diff failed: ${diff.stderr}`);

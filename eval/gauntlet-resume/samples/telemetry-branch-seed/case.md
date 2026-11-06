@@ -1,5 +1,10 @@
 bundle+: skills/gauntlet-resume/reference/seed.md
 
-An idle primary session receives `/skill:gauntlet-resume doc/specs/2026-01-02-widget.md`. The primary is `/tmp/widget`, the Git directory equals the common directory, and the spec is tracked, readable and not a context draft. There is no Home header. The product origin is `git@github.com:sample/widget.git`; telemetry is enabled with remote `ssh://git@example.invalid/metrics.git`. There are no checkout YAML files. Do not execute tools: state the bounded refresh/read operations you would request, then the resulting user reply from the captured record below.
+Exercise the seed route's Step 3 (Not shipped) in isolation for each captured metadata lookup below. Earlier admission checks are outside this scenario. The seed is `/tmp/widget/doc/specs/2026-01-02-widget.md`, with `<primary>` `/tmp/widget` and `<rel>` `doc/specs/2026-01-02-widget.md`. Telemetry is enabled. No checkout YAML file exists and publication has failed, so no fetched telemetry record exists. Do not execute tools: state the local path-resolution/read operations you would request and the resulting user reply for each row.
 
-The remote refresh succeeds. The record at `sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml` in the fetched telemetry branch has `shipped_at: 2026-01-03T10:00:00Z`. No worktree creation, tracker operation or gate reconstruction has run yet. Stop at the first required decision; do not continue a hypothetical flow.
+| Row | Captured path resolution | Retained record |
+|---|---|---|
+| Git common directory | `git -C /tmp/widget rev-parse --git-common-dir` succeeds with `.git`, resolved relative to `/tmp/widget`. | `/tmp/widget/.git/gauntlet/telemetry/doc/specs/2026-01-02-widget.yaml` contains `shipped_at: 2026-01-03T10:00:00Z`; local commit creation failed and the sealed source file remains. |
+| jj-only metadata | `git -C /tmp/widget rev-parse --git-common-dir` fails; `jj root` in `/tmp/widget` succeeds with `/tmp/widget`. | `/tmp/widget/.jj/gauntlet/telemetry/doc/specs/2026-01-02-widget.yaml` contains `shipped_at: 2026-01-04T11:00:00Z`; the sealed record remains locally. |
+
+No worktree creation, tracker operation or gate reconstruction has run yet. Stop at the first required decision for each row; do not continue a hypothetical flow.
