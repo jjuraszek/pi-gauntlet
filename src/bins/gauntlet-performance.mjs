@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 import process from "node:process";
 import { parse as parseYaml } from "yaml";
 import { mergeGauntlet, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
+import { readTelemetryBranch, telemetryRepo } from "../../extensions/lib/telemetry-branch.ts";
 
 import { BIG_CACHE_WRITE, PHASES, TOKEN_KEYS, cmpSemver, num, obj, semver, str, sumOrNull } from "./performance/shared.mjs";
 import * as runs from "./performance/runs.mjs";
@@ -17,7 +18,7 @@ import * as council from "./performance/council.mjs";
 const SECTIONS = [runs, versions, council];
 
 const usage = () => {
-  process.stderr.write("usage: gauntlet-performance [--dir <repo root or telemetry dir>]... [--since <version>] [--json]\n");
+  process.stderr.write("usage: gauntlet-performance [--dir <telemetry dir>]... [--since <version>] [--json]\n");
   process.exit(1);
 };
 
@@ -45,13 +46,20 @@ function readLayer(file) {
 }
 
 // Same two layers the recorder and the seal bin read.
-function telemetryDirOf(root) {
+function branchCorpus(root) {
   const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
   const preset = readLayer(join(agentDir, "settings.json"));
   const repo = readLayer(join(root, ".pi", "settings.json"));
   const t = resolveTelemetry(mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet));
   if (t.warning) process.stderr.write(`warning: ${t.warning}\n`);
-  return join(root, t.dir);
+  const label = telemetryRepo(root) ?? `local/${basename(root)}`;
+  if (!t.enabled) {
+    process.stderr.write("telemetry disabled\n");
+    return { label, records: [] };
+  }
+  const result = readTelemetryBranch(root, { remote: t.remote, prefix: `${label}/` });
+  if (result.warning) process.stderr.write(`warning: ${result.warning}\n`);
+  return { label, records: result.records };
 }
 
 const gitToplevel = (cwd) => {
@@ -59,16 +67,10 @@ const gitToplevel = (cwd) => {
   return r.status === 0 ? r.stdout.trim() : undefined;
 };
 
-// A git toplevel contributes its resolved telemetry dir; anything else is a telemetry dir itself.
 function corpusFor(path) {
   const label = basename(resolve(path));
   if (!existsSync(path)) return { label, skip: "not found" };
   const abs = realpathSync(path);
-  const top = gitToplevel(abs);
-  if (top !== undefined && realpathSync(top) === abs) {
-    const dir = telemetryDirOf(abs);
-    return existsSync(dir) ? { label, dir } : { label, skip: "no telemetry dir" };
-  }
   if (!statSync(abs).isDirectory()) return { label, skip: "not a directory" };
   return { label, dir: abs };
 }
@@ -82,10 +84,10 @@ function* yamlFiles(dir) {
   }
 }
 
-function loadRecord(file, label) {
+function loadRecord(file, label, bytes) {
   let doc;
   try {
-    doc = parseYaml(readFileSync(file, "utf8"));
+    doc = parseYaml(bytes);
   } catch {
     return { skip: "unparseable" };
   }
@@ -186,9 +188,11 @@ function main() {
   const opts = parseArgs(process.argv.slice(2));
   const corpora = [];
   const skipped = [];
-  const top = gitToplevel(process.cwd());
-  if (top === undefined) process.stderr.write(`not a git checkout: ${process.cwd()}\n`);
-  else corpora.push({ label: basename(top), dir: telemetryDirOf(top) });
+  if (!opts.dirs.length) {
+    const top = gitToplevel(process.cwd());
+    if (top === undefined) process.stderr.write(`not a git checkout: ${process.cwd()}\n`);
+    else corpora.push(branchCorpus(top));
+  }
   for (const p of opts.dirs) {
     const c = corpusFor(p);
     if (c.skip) skipped.push({ file: p, reason: c.skip });
@@ -200,8 +204,9 @@ function main() {
   const entries = [];
   for (const c of corpora) {
     corpus[c.label] = corpus[c.label] ?? 0;
-    for (const file of yamlFiles(c.dir)) {
-      const res = loadRecord(file, c.label);
+    const records = c.records ?? [...yamlFiles(c.dir)].map(path => ({ path, bytes: readFileSync(path, "utf8") }));
+    for (const { path: file, bytes } of records) {
+      const res = loadRecord(file, c.label, bytes);
       if (res.skip) { skipped.push({ file, reason: res.skip }); continue; }
       if (seen.has(res.row.run_id)) { skipped.push({ file, reason: "duplicate run_id" }); continue; }
       seen.add(res.row.run_id);
@@ -222,7 +227,7 @@ function main() {
   }
   console.log(`corpus: ${Object.entries(corpus).map(([k, v]) => `${k}=${v}`).join(", ")}${opts.since === undefined ? "" : `   since: ${opts.since}`}`);
   if (entries.length === 0) {
-    console.log(`no records found in ${corpora.map((c) => c.dir).join(", ") || process.cwd()}`);
+    console.log(`no records found in ${corpora.map((c) => c.dir ?? c.label).join(", ") || process.cwd()}`);
   } else {
     console.log(aggregates.map(([s, agg]) => s.renderText(agg)).join("\n\n"));
   }

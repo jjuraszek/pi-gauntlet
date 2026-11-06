@@ -8,9 +8,9 @@ var __export = (target, all) => {
 // src/bins/gauntlet-performance.mjs
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { homedir } from "node:os";
-import { basename, join, resolve } from "node:path";
-import { spawnSync } from "node:child_process";
-import process from "node:process";
+import { basename, join as join2, resolve } from "node:path";
+import { spawnSync as spawnSync2 } from "node:child_process";
+import process2 from "node:process";
 import { parse as parseYaml } from "yaml";
 
 // extensions/lib/gauntlet-settings.ts
@@ -45,7 +45,160 @@ function resolveTelemetry(g) {
     if (valid) buckets = Object.entries(b).map(([name, globs]) => [name, [...globs]]);
     else warnings.push("telemetry.buckets is not an object of non-empty glob arrays; using the defaults");
   }
-  return { enabled, dir, buckets, warning: joinWarn(warnings) };
+  const remote = nonEmptyString(t?.remote) ? t.remote.trim() : void 0;
+  if (t?.remote !== void 0 && !remote) warnings.push("telemetry.remote must be a non-empty URL; using origin");
+  return { enabled, dir, ...remote ? { remote } : {}, buckets, warning: joinWarn(warnings) };
+}
+
+// extensions/lib/telemetry-branch.ts
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+// extensions/lib/vcs.ts
+import { spawnSync } from "node:child_process";
+
+// extensions/lib/checkout.ts
+import { execFileSync } from "node:child_process";
+var commandSync = (bin) => (args, cwd) => {
+  try {
+    const stdout = execFileSync(bin, args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 5e3 });
+    return { code: 0, stdout };
+  } catch (e) {
+    const status = e.status;
+    return { code: typeof status === "number" ? status : 1, stdout: "" };
+  }
+};
+var gitSync = commandSync("git");
+var jjSync = commandSync("jj");
+
+// extensions/lib/phase-tracker-helpers.ts
+var STMT_START = "(?:^|[\\n;&|(])\\s*";
+
+// extensions/lib/telemetry-paths.ts
+var GIT_FLAGS = "git\\s+(?:-\\S+(?:\\s+\\S+)?\\s+)*";
+var SHIP_RE = new RegExp(STMT_START + "(" + GIT_FLAGS + "(?:merge\\s+--squash|push)(?=\\s|$)|gh\\s+pr\\s+create)");
+var SQUASH_RE = new RegExp("^" + GIT_FLAGS + "merge\\s+--squash");
+
+// extensions/lib/telemetry-diff.ts
+var JJ_MAINLINE = "coalesce(trunk() ~ root(), present(main), present(master))";
+var JJ_FORK_POINT = `fork_point(${JJ_MAINLINE} | @) ~ root() & ::${JJ_MAINLINE}`;
+
+// extensions/lib/vcs.ts
+var NO_PROMPT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_EDITOR: "true" };
+var runBinary = (bin) => (args, cwd, timeoutMs = 1e4, options = {}) => {
+  const r = spawnSync(bin, args, { cwd, encoding: "utf8", input: options.input, env: { ...NO_PROMPT_ENV, ...options.env }, timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
+  const err = r.error;
+  const timedOut = err?.code === "ETIMEDOUT";
+  const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || err?.message || `${bin} exited ${r.status}`;
+  return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : r.status ?? 1, stdout: options.raw ? r.stdout ?? "" : (r.stdout ?? "").trim(), stderr };
+};
+var gitRun = runBinary("git");
+
+// extensions/lib/telemetry-branch.ts
+var TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
+function telemetryRepo(root) {
+  const result = gitRun(["config", "--get", "remote.origin.url"], root);
+  const match = result.stdout.match(/^(?:https?:\/\/[^/]+\/|ssh:\/\/(?:[^@/]+@)?[^/]+\/|[^@\s]+@[^:\s]+:)([^/\s]+\/[^/\s]+?)\/?$/);
+  return result.ok && match ? match[1].replace(/\.git$/, "") : void 0;
+}
+var trackingRef = (remote) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
+function syncTelemetryBranch(root, records, remote = "origin") {
+  const scratch = mkdtempSync(join(tmpdir(), "gauntlet-telemetry-index-"));
+  const env = { GIT_INDEX_FILE: join(scratch, "index") };
+  const git = (args, input) => {
+    const result = gitRun(args, root, void 0, { env, input });
+    if (!result.ok) throw new Error(result.stderr);
+    return result.stdout;
+  };
+  const tracking = trackingRef(remote);
+  let fetchWarning;
+  const fetch = () => {
+    const result = fetchBranch(root, remote);
+    fetchWarning = result.ok ? void 0 : `fetch failed: ${result.stderr}`;
+    return result;
+  };
+  const resolve2 = (ref) => {
+    const result = gitRun(["rev-parse", "--verify", ref], root);
+    return result.ok ? result.stdout : void 0;
+  };
+  const commit = (tree, parent, message) => git(["-c", "commit.gpgsign=false", "commit-tree", tree, ...parent ? ["-p", parent] : [], "-m", message]);
+  let committed = false;
+  try {
+    let tip = resolve2(TELEMETRY_REF);
+    committed = !!tip;
+    fetch();
+    let upstream = resolve2(tracking);
+    if (records.size) {
+      const parent = tip ?? upstream;
+      git(parent ? ["read-tree", parent] : ["read-tree", "--empty"]);
+      for (const [path2, content] of records) {
+        const blob = git(["hash-object", "-w", "--stdin"], content);
+        git(["update-index", "--add", "--cacheinfo", "100644", blob, path2]);
+      }
+      const tree = git(["write-tree"]);
+      const next = parent && git(["rev-parse", `${parent}^{tree}`]) === tree ? parent : commit(tree, parent, "telemetry: update records");
+      git(["update-ref", TELEMETRY_REF, next, tip ?? ""]);
+      tip = next;
+      committed = true;
+    }
+    const pending = () => tip ? git(["rev-list", "--reverse", "--topo-order", tip, ...upstream ? [`^${upstream}`] : []]).split("\n").filter(Boolean) : [];
+    if (!pending().length) return { ok: true, committed, pushed: false, warning: fetchWarning };
+    const push = () => gitRun(["push", remote, `${TELEMETRY_REF}:${TELEMETRY_REF}`], root);
+    const first = push();
+    if (first.ok) return { ok: true, committed, pushed: true, warning: fetchWarning };
+    const fetched = fetch();
+    if (!fetched.ok) throw new Error(`${first.stderr}; refresh failed: ${fetched.stderr}`);
+    upstream = resolve2(tracking);
+    let replayed = upstream;
+    for (const sha of pending()) {
+      git(replayed ? ["read-tree", replayed] : ["read-tree", "--empty"]);
+      const changes = git(["diff-tree", "--root", "--no-commit-id", "--raw", "--no-abbrev", "--no-renames", "-r", "-z", sha]).split("\0");
+      for (let i = 0; i + 1 < changes.length; i += 2) {
+        const [, mode, , blob] = changes[i].split(" ");
+        const path2 = changes[i + 1];
+        git(mode === "000000" ? ["update-index", "--force-remove", "--", path2] : ["update-index", "--add", "--cacheinfo", mode, blob, path2]);
+      }
+      replayed = commit(git(["write-tree"]), replayed, git(["log", "-1", "--format=%B", sha]));
+    }
+    if (replayed) git(["update-ref", TELEMETRY_REF, replayed, tip]);
+    const second = push();
+    if (!second.ok) throw new Error(second.stderr);
+    return { ok: true, committed, pushed: true };
+  } catch (error) {
+    const reason = error.message;
+    return { ok: false, committed, pushed: false, reason, warning: [fetchWarning, `telemetry: not pushed (${reason})`].filter(Boolean).join("; ") };
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+function readTelemetryBranch(root, { remote = "origin", prefix = "" } = {}) {
+  const records = [];
+  let warning;
+  try {
+    const synced = syncTelemetryBranch(root, /* @__PURE__ */ new Map(), remote);
+    warning = synced.warning;
+    if (synced.pushed) {
+      const fetched = fetchBranch(root, remote);
+      warning = fetched.ok ? void 0 : `fetch failed: ${fetched.stderr}`;
+    }
+    const tip = gitRun(["rev-parse", "--verify", trackingRef(remote)], root);
+    if (!tip.ok) return { records, warning: [warning, "no telemetry ref fetched yet"].filter(Boolean).join("; ") };
+    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...prefix ? ["--", prefix] : []], root);
+    if (!tree.ok) throw new Error(tree.stderr);
+    for (const entry of tree.stdout.split("\0").filter(Boolean)) {
+      const [meta, path2] = entry.split("	");
+      const [, type, sha] = meta.split(" ");
+      if (type !== "blob" || !path2.startsWith(prefix) || !path2.endsWith(".yaml")) continue;
+      const blob = gitRun(["cat-file", "blob", sha], root, void 0, { raw: true });
+      if (!blob.ok) throw new Error(blob.stderr);
+      records.push({ path: path2, bytes: blob.stdout });
+    }
+    return { records, warning };
+  } catch (error) {
+    return { records, warning: [warning, `read failed: ${error.message}`].filter(Boolean).join("; ") };
+  }
 }
 
 // src/bins/performance/shared.mjs
@@ -272,8 +425,8 @@ function renderText3(agg) {
 // src/bins/gauntlet-performance.mjs
 var SECTIONS = [runs_exports, versions_exports, council_exports];
 var usage = () => {
-  process.stderr.write("usage: gauntlet-performance [--dir <repo root or telemetry dir>]... [--since <version>] [--json]\n");
-  process.exit(1);
+  process2.stderr.write("usage: gauntlet-performance [--dir <telemetry dir>]... [--since <version>] [--json]\n");
+  process2.exit(1);
 };
 function parseArgs(argv) {
   const opts = { dirs: [], since: void 0, json: false };
@@ -292,48 +445,51 @@ function readLayer(file) {
   try {
     return JSON.parse(readFileSync(file, "utf8"));
   } catch (e) {
-    process.stderr.write(`warning: ${file}: ${e.message}; using {} for this layer
+    process2.stderr.write(`warning: ${file}: ${e.message}; using {} for this layer
 `);
     return {};
   }
 }
-function telemetryDirOf(root) {
-  const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
-  const preset = readLayer(join(agentDir, "settings.json"));
-  const repo = readLayer(join(root, ".pi", "settings.json"));
+function branchCorpus(root) {
+  const agentDir = process2.env.PI_CODING_AGENT_DIR || join2(homedir(), ".pi", "agent");
+  const preset = readLayer(join2(agentDir, "settings.json"));
+  const repo = readLayer(join2(root, ".pi", "settings.json"));
   const t = resolveTelemetry(mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet));
-  if (t.warning) process.stderr.write(`warning: ${t.warning}
+  if (t.warning) process2.stderr.write(`warning: ${t.warning}
 `);
-  return join(root, t.dir);
+  const label = telemetryRepo(root) ?? `local/${basename(root)}`;
+  if (!t.enabled) {
+    process2.stderr.write("telemetry disabled\n");
+    return { label, records: [] };
+  }
+  const result = readTelemetryBranch(root, { remote: t.remote, prefix: `${label}/` });
+  if (result.warning) process2.stderr.write(`warning: ${result.warning}
+`);
+  return { label, records: result.records };
 }
 var gitToplevel = (cwd) => {
-  const r = spawnSync("git", ["-C", cwd, "rev-parse", "--show-toplevel"], { encoding: "utf8", timeout: 1e4 });
+  const r = spawnSync2("git", ["-C", cwd, "rev-parse", "--show-toplevel"], { encoding: "utf8", timeout: 1e4 });
   return r.status === 0 ? r.stdout.trim() : void 0;
 };
 function corpusFor(path2) {
   const label = basename(resolve(path2));
   if (!existsSync(path2)) return { label, skip: "not found" };
   const abs = realpathSync(path2);
-  const top = gitToplevel(abs);
-  if (top !== void 0 && realpathSync(top) === abs) {
-    const dir = telemetryDirOf(abs);
-    return existsSync(dir) ? { label, dir } : { label, skip: "no telemetry dir" };
-  }
   if (!statSync(abs).isDirectory()) return { label, skip: "not a directory" };
   return { label, dir: abs };
 }
 function* yamlFiles(dir) {
   if (!existsSync(dir)) return;
   for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-    const p = join(dir, e.name);
+    const p = join2(dir, e.name);
     if (e.isDirectory()) yield* yamlFiles(p);
     else if (e.isFile() && e.name.endsWith(".yaml")) yield p;
   }
 }
-function loadRecord(file, label) {
+function loadRecord(file, label, bytes) {
   let doc;
   try {
-    doc = parseYaml(readFileSync(file, "utf8"));
+    doc = parseYaml(bytes);
   } catch {
     return { skip: "unparseable" };
   }
@@ -423,13 +579,15 @@ function loadRecord(file, label) {
   };
 }
 function main() {
-  const opts = parseArgs(process.argv.slice(2));
+  const opts = parseArgs(process2.argv.slice(2));
   const corpora = [];
   const skipped = [];
-  const top = gitToplevel(process.cwd());
-  if (top === void 0) process.stderr.write(`not a git checkout: ${process.cwd()}
+  if (!opts.dirs.length) {
+    const top = gitToplevel(process2.cwd());
+    if (top === void 0) process2.stderr.write(`not a git checkout: ${process2.cwd()}
 `);
-  else corpora.push({ label: basename(top), dir: telemetryDirOf(top) });
+    else corpora.push(branchCorpus(top));
+  }
   for (const p of opts.dirs) {
     const c = corpusFor(p);
     if (c.skip) skipped.push({ file: p, reason: c.skip });
@@ -441,8 +599,9 @@ function main() {
   const entries = [];
   for (const c of corpora) {
     corpus[c.label] = corpus[c.label] ?? 0;
-    for (const file of yamlFiles(c.dir)) {
-      const res = loadRecord(file, c.label);
+    const records = c.records ?? [...yamlFiles(c.dir)].map((path2) => ({ path: path2, bytes: readFileSync(path2, "utf8") }));
+    for (const { path: file, bytes } of records) {
+      const res = loadRecord(file, c.label, bytes);
       if (res.skip) {
         skipped.push({ file, reason: res.skip });
         continue;
@@ -469,7 +628,7 @@ function main() {
   }
   console.log(`corpus: ${Object.entries(corpus).map(([k, v]) => `${k}=${v}`).join(", ")}${opts.since === void 0 ? "" : `   since: ${opts.since}`}`);
   if (entries.length === 0) {
-    console.log(`no records found in ${corpora.map((c) => c.dir).join(", ") || process.cwd()}`);
+    console.log(`no records found in ${corpora.map((c) => c.dir ?? c.label).join(", ") || process2.cwd()}`);
   } else {
     console.log(aggregates.map(([s, agg]) => s.renderText(agg)).join("\n\n"));
   }

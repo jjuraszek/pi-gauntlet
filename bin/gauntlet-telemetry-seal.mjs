@@ -56,7 +56,9 @@ function resolveTelemetry(g) {
     if (valid) buckets = Object.entries(b).map(([name, globs]) => [name, [...globs]]);
     else warnings.push("telemetry.buckets is not an object of non-empty glob arrays; using the defaults");
   }
-  return { enabled, dir, buckets, warning: joinWarn(warnings) };
+  const remote = nonEmptyString(t?.remote) ? t.remote.trim() : void 0;
+  if (t?.remote !== void 0 && !remote) warnings.push("telemetry.remote must be a non-empty URL; using origin");
+  return { enabled, dir, ...remote ? { remote } : {}, buckets, warning: joinWarn(warnings) };
 }
 
 // extensions/lib/telemetry-paths.ts
@@ -249,7 +251,7 @@ var runBinary = (bin) => (args, cwd, timeoutMs = 1e4, options = {}) => {
   const err = r.error;
   const timedOut = err?.code === "ETIMEDOUT";
   const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || err?.message || `${bin} exited ${r.status}`;
-  return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : r.status ?? 1, stdout: (r.stdout ?? "").trim(), stderr };
+  return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : r.status ?? 1, stdout: options.raw ? r.stdout ?? "" : (r.stdout ?? "").trim(), stderr };
 };
 var gitRun = runBinary("git");
 function vcsFor(absPath) {
@@ -286,16 +288,23 @@ function telemetryRepo(root) {
   const match = result.stdout.match(/^(?:https?:\/\/[^/]+\/|ssh:\/\/(?:[^@/]+@)?[^/]+\/|[^@\s]+@[^:\s]+:)([^/\s]+\/[^/\s]+?)\/?$/);
   return result.ok && match ? match[1].replace(/\.git$/, "") : void 0;
 }
+var trackingRef = (remote) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
 function syncTelemetryBranch(root, records, remote = "origin") {
   const scratch = mkdtempSync(join2(tmpdir(), "gauntlet-telemetry-index-"));
   const env = { GIT_INDEX_FILE: join2(scratch, "index") };
   const git = (args, input) => {
-    const result = gitRun(args, root, 3e4, { env, input });
+    const result = gitRun(args, root, void 0, { env, input });
     if (!result.ok) throw new Error(result.stderr);
     return result.stdout;
   };
-  const tracking = `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
-  const fetch = () => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${tracking}`], root, 3e4);
+  const tracking = trackingRef(remote);
+  let fetchWarning;
+  const fetch = () => {
+    const result = fetchBranch(root, remote);
+    fetchWarning = result.ok ? void 0 : `fetch failed: ${result.stderr}`;
+    return result;
+  };
   const resolve2 = (ref) => {
     const result = gitRun(["rev-parse", "--verify", ref], root);
     return result.ok ? result.stdout : void 0;
@@ -321,10 +330,10 @@ function syncTelemetryBranch(root, records, remote = "origin") {
       committed = true;
     }
     const pending = () => tip ? git(["rev-list", "--reverse", "--topo-order", tip, ...upstream ? [`^${upstream}`] : []]).split("\n").filter(Boolean) : [];
-    if (!pending().length) return { ok: true, committed, pushed: false };
-    const push = () => gitRun(["push", remote, `${TELEMETRY_REF}:${TELEMETRY_REF}`], root, 3e4);
+    if (!pending().length) return { ok: true, committed, pushed: false, warning: fetchWarning };
+    const push = () => gitRun(["push", remote, `${TELEMETRY_REF}:${TELEMETRY_REF}`], root);
     const first = push();
-    if (first.ok) return { ok: true, committed, pushed: true };
+    if (first.ok) return { ok: true, committed, pushed: true, warning: fetchWarning };
     const fetched = fetch();
     if (!fetched.ok) throw new Error(`${first.stderr}; refresh failed: ${fetched.stderr}`);
     upstream = resolve2(tracking);
@@ -345,7 +354,7 @@ function syncTelemetryBranch(root, records, remote = "origin") {
     return { ok: true, committed, pushed: true };
   } catch (error) {
     const reason = error.message;
-    return { ok: false, committed, pushed: false, reason, warning: `telemetry: not pushed (${reason})` };
+    return { ok: false, committed, pushed: false, reason, warning: [fetchWarning, `telemetry: not pushed (${reason})`].filter(Boolean).join("; ") };
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }

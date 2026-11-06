@@ -24,6 +24,7 @@
   import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countStructuredFindings, countOpenGaps, countReopens, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
   import { addTokens, capEvents, compact, currentPhase, derive, diffPhases, emptyAccumulators, emptyPhases, foldAccumulators, implementAutoCompletes, liveShipEvent, newRecord, parseRecord, serializeRecord, type Accumulators, type BaseEvent, type PhaseAcc, type PhaseKey, type PhaseMap, type TelemetryEvent, type TelemetryRecord, type Tokens } from "./lib/telemetry-record.ts";
   import { guardReason } from "./lib/telemetry-ship.ts";
+  import { readTelemetryBranch, telemetryRepo } from "./lib/telemetry-branch.ts";
   import { buildCouncil, parseAudit, parseChairReport, resolveMembers, type Cluster, type MemberResult } from "./lib/telemetry-council.ts";
 
   // ---- deps seam -------------------------------------------------------------------
@@ -51,6 +52,8 @@
     testCommands?: string[];
   }
   export interface Deps {
+    telemetryRepo?: typeof telemetryRepo;
+    readTelemetryBranch?: typeof readTelemetryBranch;
     fs: FsPort;
     git: (args: string[], cwd: string) => Promise<GitResult>;
     // jj runner; production uses realJj for both checkout detection and the ship-time diff.
@@ -212,6 +215,8 @@
     let gauntletEntered = false;
     let settingsWarned = false;
     let sessionId = "";
+    const guardCache = new Map<string, Map<string, string>>();
+    let guardWarned = false;
     let currentDir = "";
     let councilPending: { memberResults: MemberResult[]; chair?: { model: string; dispatches: number; clusters?: Cluster[] } } | undefined;
 
@@ -493,6 +498,10 @@
       lastPlanTasks = undefined;
       amendmentOpen = false;
       pendingTest.clear();
+      if (sessionId !== ctx.sessionManager.getSessionId()) {
+        guardCache.clear();
+        guardWarned = false;
+      }
       sessionId = ctx.sessionManager.getSessionId();
       currentDir = snap.telemetry.dir;
       const replay = replayBranch(ctx.sessionManager.getBranch(), snap.specDirs);
@@ -767,10 +776,26 @@
         if (typeof rawPath === "string" && phases.brainstorm.status === "in_progress") {
           const loc = await locate(ctx, rawPath);
           if (loc && isSpecPath(loc.rel, snap.specDirs)) {
-            const recRel = recordPathFor(snap.telemetry.dir, loc.rel);
-            const existing = deps.fs.readFile(join(loc.toplevel, recRel));
-            const parsed = existing ? parseRecord(existing) : undefined;
-            if (parsed?.shipped_at) return { block: true, reason: guardReason(loc.rel, parsed.shipped_at, recRel) };
+            const key = JSON.stringify([loc.toplevel, snap.telemetry.remote]);
+            let records = guardCache.get(key);
+            if (!records) {
+              records = new Map();
+              guardCache.set(key, records);
+              const repo = (deps.telemetryRepo ?? telemetryRepo)(loc.toplevel);
+              const result = repo
+                ? (deps.readTelemetryBranch ?? readTelemetryBranch)(loc.toplevel, { remote: snap.telemetry.remote, prefix: `${repo}/brainstorming/` })
+                : { records: [], warning: "cannot resolve owner/name from origin" };
+              for (const entry of result.records) {
+                const parsed = parseRecord(entry.bytes);
+                if (parsed?.shipped_at) records.set(parsed.spec, parsed.shipped_at);
+              }
+              if (result.warning && !guardWarned) {
+                guardWarned = true;
+                pi.sendMessage({ customType: "telemetry-warning", content: `telemetry guard unavailable: ${result.warning}`, display: true });
+              }
+            }
+            const shippedAt = records.get(loc.rel);
+            if (shippedAt) return { block: true, reason: guardReason(loc.rel, shippedAt, "gauntlet/telemetry") };
           }
         }
         return undefined;

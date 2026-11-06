@@ -6,7 +6,7 @@ import { checkoutOfSync } from "./checkout.ts";
 import { computeGitDiff, computeJjDiff, JJ_FORK_POINT, type Buckets, type DiffOutcome, type RunResult } from "./telemetry-diff.ts";
 
 export interface VcsResult extends RunResult { ok: boolean }
-export type VcsRun = (args: string[], cwd: string, timeoutMs?: number, options?: { input?: string; env?: NodeJS.ProcessEnv }) => VcsResult;
+export type VcsRun = (args: string[], cwd: string, timeoutMs?: number, options?: { input?: string; env?: NodeJS.ProcessEnv; raw?: boolean }) => VcsResult;
 export interface Vcs { kind: "git" | "jj"; root: string; run: VcsRun }
 
 // Prompts off so a credential or editor request cannot hang a non-interactive caller.
@@ -18,7 +18,7 @@ const runBinary = (bin: "git" | "jj"): VcsRun => (args, cwd, timeoutMs = 10_000,
   const err = r.error as NodeJS.ErrnoException | undefined;
   const timedOut = err?.code === "ETIMEDOUT";
   const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || err?.message || `${bin} exited ${r.status}`;
-  return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : (r.status ?? 1), stdout: (r.stdout ?? "").trim(), stderr };
+  return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : (r.status ?? 1), stdout: options.raw ? (r.stdout ?? "") : (r.stdout ?? "").trim(), stderr };
 };
 
 export const gitRun: VcsRun = runBinary("git");

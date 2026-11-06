@@ -13,7 +13,7 @@ export interface PiGauntlet {
   escalationLoop?: { implModel?: unknown };
   loopEngine?: { maxIterationsPerRow?: unknown; escalateAfter?: unknown; maxIterations?: unknown };
   phaseModels?: { plan?: unknown; implement?: unknown; verify?: unknown; ship?: unknown };
-  telemetry?: { enabled?: unknown; dir?: unknown; buckets?: unknown };
+  telemetry?: { enabled?: unknown; dir?: unknown; remote?: unknown; buckets?: unknown };
 }
 
 // Whole-object second-level merge: each piGauntlet key present in the repo layer
@@ -231,6 +231,7 @@ export const DEFAULT_TELEMETRY_BUCKETS: [string, string[]][] = [
 export interface TelemetryResolved {
   enabled: boolean;
   dir: string;
+  remote?: string;
   buckets: [string, string[]][];
   warning: string | undefined;
 }
@@ -267,7 +268,9 @@ export function resolveTelemetry(g: PiGauntlet): TelemetryResolved {
     else warnings.push("telemetry.buckets is not an object of non-empty glob arrays; using the defaults");
   }
 
-  return { enabled, dir, buckets, warning: joinWarn(warnings) };
+  const remote = nonEmptyString(t?.remote) ? t.remote.trim() : undefined;
+  if (t?.remote !== undefined && !remote) warnings.push("telemetry.remote must be a non-empty URL; using origin");
+  return { enabled, dir, ...(remote ? { remote } : {}), buckets, warning: joinWarn(warnings) };
 }
 
 export function settingsErrorWarning(errors: string[]): string {

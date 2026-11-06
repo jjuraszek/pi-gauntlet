@@ -17,16 +17,24 @@ export function telemetryRepo(root: string): string | undefined {
   return result.ok && match ? match[1].replace(/\.git$/, "") : undefined;
 }
 
+const trackingRef = (remote: string) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+const fetchBranch = (root: string, remote: string) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
+
 export function syncTelemetryBranch(root: string, records: ReadonlyMap<string, string>, remote = "origin"): { ok: boolean; committed: boolean; pushed: boolean; reason?: string; warning?: string } {
   const scratch = mkdtempSync(join(tmpdir(), "gauntlet-telemetry-index-"));
   const env = { GIT_INDEX_FILE: join(scratch, "index") };
   const git = (args: string[], input?: string) => {
-    const result = gitRun(args, root, 30_000, { env, input });
+    const result = gitRun(args, root, undefined, { env, input });
     if (!result.ok) throw new Error(result.stderr);
     return result.stdout;
   };
-  const tracking = `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
-  const fetch = () => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${tracking}`], root, 30_000);
+  const tracking = trackingRef(remote);
+  let fetchWarning: string | undefined;
+  const fetch = () => {
+    const result = fetchBranch(root, remote);
+    fetchWarning = result.ok ? undefined : `fetch failed: ${result.stderr}`;
+    return result;
+  };
   const resolve = (ref: string) => {
     const result = gitRun(["rev-parse", "--verify", ref], root);
     return result.ok ? result.stdout : undefined;
@@ -54,10 +62,10 @@ export function syncTelemetryBranch(root: string, records: ReadonlyMap<string, s
       committed = true;
     }
     const pending = () => tip ? git(["rev-list", "--reverse", "--topo-order", tip, ...(upstream ? [`^${upstream}`] : [])]).split("\n").filter(Boolean) : [];
-    if (!pending().length) return { ok: true, committed, pushed: false };
-    const push = () => gitRun(["push", remote, `${TELEMETRY_REF}:${TELEMETRY_REF}`], root, 30_000);
+    if (!pending().length) return { ok: true, committed, pushed: false, warning: fetchWarning };
+    const push = () => gitRun(["push", remote, `${TELEMETRY_REF}:${TELEMETRY_REF}`], root);
     const first = push();
-    if (first.ok) return { ok: true, committed, pushed: true };
+    if (first.ok) return { ok: true, committed, pushed: true, warning: fetchWarning };
     const fetched = fetch();
     if (!fetched.ok) throw new Error(`${first.stderr}; refresh failed: ${fetched.stderr}`);
     upstream = resolve(tracking);
@@ -80,8 +88,36 @@ export function syncTelemetryBranch(root: string, records: ReadonlyMap<string, s
     return { ok: true, committed, pushed: true };
   } catch (error) {
     const reason = (error as Error).message;
-    return { ok: false, committed, pushed: false, reason, warning: `telemetry: not pushed (${reason})` };
+    return { ok: false, committed, pushed: false, reason, warning: [fetchWarning, `telemetry: not pushed (${reason})`].filter(Boolean).join("; ") };
   } finally {
     rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+export function readTelemetryBranch(root: string, { remote = "origin", prefix = "" }: { remote?: string; prefix?: string } = {}): { records: { path: string; bytes: string }[]; warning?: string } {
+  const records: { path: string; bytes: string }[] = [];
+  let warning: string | undefined;
+  try {
+    const synced = syncTelemetryBranch(root, new Map(), remote);
+    warning = synced.warning;
+    if (synced.pushed) {
+      const fetched = fetchBranch(root, remote);
+      warning = fetched.ok ? undefined : `fetch failed: ${fetched.stderr}`;
+    }
+    const tip = gitRun(["rev-parse", "--verify", trackingRef(remote)], root);
+    if (!tip.ok) return { records, warning: [warning, "no telemetry ref fetched yet"].filter(Boolean).join("; ") };
+    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...(prefix ? ["--", prefix] : [])], root);
+    if (!tree.ok) throw new Error(tree.stderr);
+    for (const entry of tree.stdout.split("\0").filter(Boolean)) {
+      const [meta, path] = entry.split("\t");
+      const [, type, sha] = meta.split(" ");
+      if (type !== "blob" || !path.startsWith(prefix) || !path.endsWith(".yaml")) continue;
+      const blob = gitRun(["cat-file", "blob", sha], root, undefined, { raw: true });
+      if (!blob.ok) throw new Error(blob.stderr);
+      records.push({ path, bytes: blob.stdout });
+    }
+    return { records, warning };
+  } catch (error) {
+    return { records, warning: [warning, `read failed: ${(error as Error).message}`].filter(Boolean).join("; ") };
   }
 }

@@ -33,8 +33,11 @@
     const jjCalls: string[][] = [];
     const readFileCalls: string[] = [];
     const specDirs = resolveFlowGuards({}).specDirs;
+    const fetchedRecords = new Map<string, string>();
     let clock = Date.parse("2026-09-17T10:00:00Z");
     const deps: Deps = {
+      telemetryRepo: () => "test/repo",
+      readTelemetryBranch: () => ({ records: [...fetchedRecords].map(([path, bytes]) => ({ path, bytes })) }),
       fs: { ...realFs, readFile: (p) => { readFileCalls.push(p); return realFs.readFile(p); } },
       now: () => new Date((clock += 1000)).toISOString().replace(/\.\d{3}Z$/, "Z"),
       git: async (args, cwd) => {
@@ -97,7 +100,7 @@
       await emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: rel, content: body } });
       return emit("tool_result", { toolName: "write", toolCallId: "w", input: { path: rel, content: body }, content: [], isError: false, details: undefined });
     };
-    return { root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
+    return { fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
   }
 
   const P = (over: Record<string, string> = {}) => Object.fromEntries(["brainstorm", "plan", "implement", "verify", "ship"].map((p) => [p, { status: over[p] ?? "pending" }]));
@@ -973,9 +976,10 @@
     const before = readFileSync(h.recordPath(), "utf8");
     const h2 = harness();
     h2.ctx.cwd = h.root;
+    h2.fetchedRecords.set("test/repo/brainstorming/doc/specs/a.yaml", before);
     await h2.phaseResult("start", P({ brainstorm: "in_progress" }));
     const [blocked] = await h2.emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: "doc/specs/a.md" } });
-    assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", rec.shipped_at, ".pi/gauntlet/telemetry/doc/specs/a.yaml") });
+    assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", rec.shipped_at, "gauntlet/telemetry") });
     assert.equal(readFileSync(h.recordPath(), "utf8"), before);
     assert.equal(h.readRecord().derived.spec_edits_after_ship, 0);
   });
@@ -1294,9 +1298,10 @@
     const before = readFileSync(h.recordPath(), "utf8");
     const h2 = harness();
     h2.ctx.cwd = h.root;
+    h2.fetchedRecords.set("test/repo/brainstorming/doc/specs/a.yaml", before);
     await h2.phaseResult("start", P({ brainstorm: "in_progress" }));
     const [blocked] = await h2.emit("tool_call", { toolName: "write", toolCallId: "w1", input: { path: "doc/specs/a.md", content: "# again" } });
-    assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", h.readRecord().shipped_at!, ".pi/gauntlet/telemetry/doc/specs/a.yaml") });
+    assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", h.readRecord().shipped_at!, "gauntlet/telemetry") });
     assert.equal(readFileSync(h.recordPath(), "utf8"), before, "shipped record byte-identical");
     const [editPass] = await h2.emit("tool_call", { toolName: "edit", toolCallId: "e1", input: { path: "doc/specs/a.md", edits: [] } });
     assert.equal(editPass, undefined);
