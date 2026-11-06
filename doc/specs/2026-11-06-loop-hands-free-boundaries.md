@@ -165,6 +165,8 @@ Per `eval/README.md`: extend `eval/loop-implementation/` with `interrupted-child
 
 ## Tests
 
+Verification ownership for this run: the loop child closes row 11 after the named selective tests, sample audit and committed evidence are complete. The parent runs `npm test` once at verify entry, in addition to the ordinary ledger gate set, and again after any repair that invalidates that result. This fulfills row 11's existing full-suite requirement; it is not a scope cut or permission to claim an unrun suite passed. A failure remains a verification blocker. This run-specific exception does not change the generic loop driver's selective gate-set policy.
+
 - interrupted child: known-owned jobs terminated and checkout reset, repaired and re-dispatched without a human turn; replacement group leaders and unrelated post-dispatch writes preserved with a recovery-incomplete stop - `eval/loop-implementation/samples/interrupted-child-redispatch`
 - interrupted seed re-dispatched while `loop: repair seed` count is below allowance; at allowance stops with `seed: <k> of <allowance>` - `eval/loop-implementation/samples/seed-interrupted-count`
 - stagnation below allowance dispatches through rule 4 with the fixed hint; at allowance rule 2 stops - `eval/loop-implementation/samples/stagnation-and-retry` (rewritten facts)
