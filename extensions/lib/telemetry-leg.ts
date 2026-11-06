@@ -60,7 +60,7 @@ export function settlementItems(skill: LegSkill, text: string, trackerless = fal
 }
 
 export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () => boolean): () => Accumulators | undefined {
-  let active: { skill: LegSkill; session: string; ts: string; acc: Accumulators; models: Set<string> } | undefined;
+  let active: { skill: LegSkill; provisional: boolean; session: string; ts: string; acc: Accumulators; models: Set<string> } | undefined;
   let terminal: string | undefined;
   let lastSkill: LegSkill | undefined;
   const trackerless = (root: string): boolean => {
@@ -74,10 +74,18 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
   };
   const enabled = (ctx: ExtensionContext) => Number(process.env.PI_SUBAGENT_DEPTH ?? "0") === 0 && deps.settings(ctx.cwd).telemetry.enabled;
   const reset = () => { active = undefined; terminal = undefined; };
-  const start = (skill: LegSkill | undefined, ctx: ExtensionContext) => {
-    if (!skill || !enabled(ctx) || runBound() || active) return;
+  const start = (skill: LegSkill | undefined, ctx: ExtensionContext, provisional = false) => {
+    if (!skill || !enabled(ctx) || runBound()) return;
+    if (active) {
+      if (active.provisional && !provisional) {
+        active.skill = skill;
+        active.provisional = false;
+        lastSkill = skill;
+      }
+      return;
+    }
     lastSkill = skill;
-    active = { skill, session: ctx.sessionManager.getSessionId(), ts: deps.now(), acc: emptyAccumulators(), models: new Set() };
+    active = { skill, provisional, session: ctx.sessionManager.getSessionId(), ts: deps.now(), acc: emptyAccumulators(), models: new Set() };
     if (ctx.model) active.models.add(`${ctx.model.provider}/${ctx.model.id}`);
     terminal = undefined;
   };
@@ -94,7 +102,10 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
   });
   pi.on("before_agent_start", async (event, ctx) => {
     terminal = undefined;
-    if (event.messageType === "user") start(legSkill(/^<skill name="([^"]+)" location="/.exec(event.prompt)?.[1]) ?? lastSkill, ctx);
+    if (event.messageType === "user") {
+      const skill = legSkill(/^<skill name="([^"]+)" location="/.exec(event.prompt)?.[1]);
+      start(skill ?? lastSkill, ctx, !skill);
+    }
   });
   pi.on("tool_call", async () => { terminal = undefined; });
   pi.on("tool_result", async (event, ctx) => {

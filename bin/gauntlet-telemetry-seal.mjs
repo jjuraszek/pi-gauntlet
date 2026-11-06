@@ -598,7 +598,9 @@ var normalized = (legs) => [...new Set(legs.map((leg) => JSON.stringify([leg.rep
 var sameLegs = (record, legs) => JSON.stringify(normalized(record.legs ?? [])) === JSON.stringify(normalized(legs));
 function branchBlob(root, path, remote) {
   const local = gitRun(["rev-parse", "--verify", TELEMETRY_REF], root);
-  const ref = local.ok ? TELEMETRY_REF : `refs/remotes/${!remote || remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+  const tracking = `refs/remotes/${!remote || remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+  const fetched = local.ok && gitRun(["merge-base", "--is-ancestor", TELEMETRY_REF, tracking], root).ok;
+  const ref = !local.ok || fetched ? tracking : TELEMETRY_REF;
   const blob = gitRun(["show", `${ref}:${path}`], root, void 0, { raw: true });
   return blob.ok ? blob.stdout : void 0;
 }
@@ -676,4 +678,7 @@ async function main() {
   if (records.length === 0) return console.log("no telemetry run");
   for (const rec of records) await seal(vcs, rec, o);
 }
-await main();
+await main().catch((error) => {
+  process2.stderr.write(`warning: telemetry: not pushed (${error.message})
+`);
+});

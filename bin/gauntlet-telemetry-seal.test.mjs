@@ -116,6 +116,61 @@ test("shipped CLI records companion legs and validates complete retry sets", (t)
   assert.equal(git(root, ["rev-parse", REF]), tip);
 });
 
+test("branch-backed retries use a fetched descendant without discarding pending local records", (t) => {
+  const root = repo(t);
+  const remote = mkdtempSync(join(tmpdir(), "gts-remote-"));
+  t.after(() => rmSync(remote, { recursive: true, force: true }));
+  git(root, ["init", "--bare", remote]);
+  git(root, ["config", `url.${root}.insteadOf`, "unused"]);
+  git(root, ["config", `url.${remote}.insteadOf`, "https://example.test/team/product.git"]);
+  assert.equal(run(root, ["--spec", SPEC]).status, 0);
+  const ancestor = git(root, ["rev-parse", REF]);
+  const other = "doc/specs/other.md";
+  write(root, `.git/gauntlet/telemetry/${other.replace(/\.md$/, ".yaml")}`, RECORD.replace(SPEC, other));
+  const args = ["--spec", other, "--leg", "repo-b=abc1234"];
+  assert.equal(run(root, args).status, 0);
+  const published = git(remote, ["rev-parse", REF]);
+  git(root, ["update-ref", REF, ancestor]);
+  const retry = run(root, args);
+  assert.equal(retry.status, 0, retry.stderr);
+  assert.deepEqual(retry.lines, [`already sealed ${recPath(root, other)}`]);
+  const mismatch = run(root, ["--spec", other]);
+  assert.equal(mismatch.status, 1);
+  assert.match(mismatch.stderr, /legs differ/);
+  assert.equal(git(remote, ["rev-parse", REF]), published, "retry adds no commit");
+
+  git(root, ["config", `url.${remote}.insteadOf`, "unused"]);
+  git(root, ["config", `url.${join(remote, "missing")}.insteadOf`, "https://example.test/team/product.git"]);
+  const pending = "doc/specs/pending.md";
+  write(root, `.git/gauntlet/telemetry/${pending.replace(/\.md$/, ".yaml")}`, RECORD.replace(SPEC, pending));
+  assert.match(run(root, ["--spec", pending]).lines.join("\n"), /telemetry: not pushed/);
+  const offlineRetry = run(root, ["--spec", pending]);
+  assert.equal(offlineRetry.status, 0, offlineRetry.stderr);
+  assert.match(offlineRetry.lines.join("\n"), /telemetry: not pushed/);
+  assert.doesNotMatch(offlineRetry.lines.join("\n"), /no telemetry run/);
+});
+
+test("source cleanup failure after publication warns without blocking the ship", (t) => {
+  const root = repo(t);
+  const source = recPath(root);
+  write(root, ".git/hooks/reference-transaction", `#!/bin/sh
+if [ "$1" = committed ]; then
+  while read old new ref; do
+    if [ "$ref" = "${REF}" ] && [ -f "${source}" ]; then
+      rm "${source}"
+      mkdir "${source}"
+    fi
+  done
+fi
+`);
+  chmodSync(join(root, ".git/hooks/reference-transaction"), 0o755);
+  const result = run(root, ["--spec", SPEC]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /telemetry: not pushed.*(?:EISDIR|EPERM)/);
+  assert.equal(record(root).status, "shipped", "the published record survives failed cleanup");
+  assert.equal(git(root, ["rev-parse", REF]), git(root, ["rev-parse", "refs/remotes/origin/gauntlet/telemetry"]));
+});
+
 test("shipped CLI rejects malformed leg values before sealing", () => {
   for (const value of ["missing", "=abc", "repo=", "repo= "]) {
     const r = invoke(["--leg", value]);

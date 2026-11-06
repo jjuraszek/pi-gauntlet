@@ -26,6 +26,49 @@ after(() => {
   else process.env.PI_SUBAGENT_DEPTH = originalDepth;
 });
 
+test("a plain follow-up can load another skill without losing provisional usage", async () => {
+  const root = mkdtempSync(join(tmpdir(), "telemetry-switch-"));
+  const records = new Map<string, string>();
+  const handlers = new Map<string, ((event: any, ctx: any) => unknown)[]>();
+  let round = 0;
+  registerTelemetry({
+    on: (name: string, handler: (event: any, ctx: any) => unknown) => handlers.set(name, [...(handlers.get(name) ?? []), handler]),
+    sendMessage: () => {},
+  } as any, {
+    fs: realFs, now: () => `2026-11-06T12:34:5${round}Z`,
+    settings: () => ({ telemetry: resolveTelemetry({}), specDirs: [], planDirs: [], errors: [], versions: {} }),
+    git: async (args) => ({ code: 0, stderr: "", stdout: args[0] === "config" ? "Tester\n" : `${root}\n${root}/.git\n${root}/.git\n` }),
+    telemetryRepo: () => "team/product",
+    syncTelemetryBranch: (_root, incoming) => {
+      for (const [path, bytes] of incoming) records.set(path, bytes);
+      return { ok: true, committed: true, pushed: true };
+    },
+  });
+  const ctx = { cwd: root, sessionManager: { getBranch: () => [], getSessionId: () => "same-session" } };
+  const emit = async (name: string, event: unknown = {}) => {
+    for (const handler of handlers.get(name) ?? []) await handler(event, ctx);
+  };
+  const say = (text: string, input: number, cost: number) => emit("message_end", {
+    message: { role: "assistant", content: [{ type: "text", text }], usage: { input, cost } },
+  });
+  await emit("session_start");
+  await emit("input", { source: "interactive", text: "/skill:shape-ticket" });
+  await say("gauntlet: done settled\n#42: written", 1, 0.1);
+  await emit("agent_settled", { aborted: false });
+  round++;
+  await emit("before_agent_start", { messageType: "user", prompt: "Review PR 7" });
+  await say("I'll load the PR review skill.", 2, 0.25);
+  await emit("tool_result", { toolName: "read", input: { path: "skills/gatekeep-pr/SKILL.md" }, isError: false, content: [] });
+  await say("gauntlet: done settled\n#7@abc123: approved (#42)", 3, 0.5);
+  await emit("agent_settled", { aborted: false });
+  const rows = [...records.values()].map(bytes => parse(bytes));
+  assert.deepEqual(rows.map(row => row.skill), ["shape-ticket", "gatekeep-pr"]);
+  assert.deepEqual(rows[1].items, [{ kind: "pr", key: "#7@abc123", ticket: "#42", outcome: "approved" }]);
+  assert.equal(rows[1].tokens.input, 5);
+  assert.equal(rows[1].cost, 0.75);
+  assert.match([...records.keys()][1], /\/gatekeep-pr\//);
+});
+
 for (const [skill, section, lines] of [
   ["shape-ticket", "tickets", ["#42: written", "team/product#42: no-op", "https://example.test/team/product/issues/42: written"]],
   ["gatekeep-pr", "prs", ["#42@abc123: approved", "https://example.test/team/product/pull/42@def456: merged", "#42@fed321: approved"]],

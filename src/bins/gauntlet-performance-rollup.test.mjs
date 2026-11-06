@@ -7,6 +7,7 @@ import { test } from "node:test";
 import { parse, stringify } from "yaml";
 import { trackerRefs } from "../../extensions/lib/telemetry-branch.ts";
 import { settlementItems } from "../../extensions/lib/telemetry-leg.ts";
+import { aggregateCosts, renderCosts } from "./performance/costs.mjs";
 
 const cli = new URL("./gauntlet-performance.mjs", import.meta.url).pathname;
 const invoke = (file, args, env = process.env) => {
@@ -80,6 +81,16 @@ test("three-way shares stay unrounded in JSON and conserve cents across keyed an
   assert.match(text, /team\/product#12\s+1\s+0\.12\s+0\.34\s+0\.46/);
 });
 
+test("one-cent two-item batch conserves displayed components and totals without rounding JSON shares", () => {
+  const costs = aggregateCosts([], [leg("shape-ticket", "penny", 0.01, [ticket("#1"), ticket("#2")])]);
+  assert.deepEqual(costs.tickets.map(row => [row.shape, row.total]), [[0.005, 0.005], [0.005, 0.005]]);
+  const rows = renderCosts(costs).split("\n").filter(line => line.includes(`${repo}#`))
+    .map(line => line.trim().split(/\s+/).slice(3));
+  assert.deepEqual(rows, [["0.01", "-", "-", "-", "0.01"], ["0.00", "-", "-", "-", "0.00"]]);
+  for (const column of [0, 4]) assert.equal(rows.reduce((sum, row) => sum + Number(row[column]), 0), 0.01);
+  assert.deepEqual(costs.tickets.map(row => row.total), [0.005, 0.005], "rendering leaves JSON shares unrounded");
+});
+
 test("fractional records for one ticket aggregate before text rounding", () => {
   const dir = corpus([
     leg("shape-ticket", "first", 0.004, [ticket("#1")]),
@@ -95,10 +106,12 @@ test("fractional records for one ticket aggregate before text rounding", () => {
     assert.equal(row.run, 0.008);
     const text = invoke(file, ["--dir", dir]);
     const cells = text.split("\n").find(line => line.includes(`${repo}#1`)).trim().split(/\s+/);
-    assert.deepEqual(cells.slice(3), [row.shape.toFixed(2), row.run.toFixed(2), row.gatekeep.toFixed(2), "-", row.total.toFixed(2)]);
+    const components = [row.shape, row.run, row.gatekeep].map(cost => cost.toFixed(2));
+    assert.deepEqual(cells.slice(3), [...components, "-", components.reduce((sum, cost) => sum + Number(cost), 0).toFixed(2)]);
     const pull = find(digest.prs, `${repo}#10`);
     const prCells = text.split("\n").find(line => line.includes(`${repo}#10`)).trim().split(/\s+/);
-    assert.deepEqual(prCells.slice(3), [pull.run, ...pull.round_costs, pull.total].map(cost => cost.toFixed(2)));
+    const prComponents = [pull.run, ...pull.round_costs].map(cost => cost.toFixed(2));
+    assert.deepEqual(prCells.slice(3), [...prComponents, prComponents.reduce((sum, cost) => sum + Number(cost), 0).toFixed(2)]);
   }
 });
 

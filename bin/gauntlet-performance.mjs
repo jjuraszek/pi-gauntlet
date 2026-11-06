@@ -629,9 +629,8 @@ function displayCosts(costs) {
   round(links, true);
   for (const rows of Object.values(costs)) for (const row of rows) {
     const copy = copies.get(row);
-    const raw = row.round_costs ? [row.run, ...row.round_costs] : columns.map((column) => row[column]);
     const displayed = copy.round_costs ? [copy.run, ...copy.round_costs] : columns.map((column) => copy[column]);
-    copy.total = row.total === null ? null : row.total + raw.reduce((delta, value, i) => delta + (value === null ? 0 : displayed[i] - Math.round(value * 100) / 100), 0);
+    copy.total = sumOrNull(displayed);
   }
   return result;
 }
