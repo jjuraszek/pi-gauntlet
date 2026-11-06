@@ -3,13 +3,13 @@
 base: d04aa00576eaaf802b8cdde8d8ab1917d0118f68
 verification: npm test
 checks: commands
-iterations: 2
+iterations: 3
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | node --test src/bins/gauntlet-telemetry-seal-branch.test.mjs; 2 passed; 0 failed; PR and squash preserve feature HEAD and index while publishing orphan records |
-| 2 | open | 0 | |
+| 2 | done | 1 | node --test src/bins/gauntlet-telemetry-invariance.test.mjs; 9 passed, 0 failed, 0 skipped; seal and leg publisher preserve index, checkout bytes and worktree list in git, linked and jj-colocated workspaces; temporary indexes removed after successful and rejected pushes |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
 | 5 | open | 0 | |
@@ -32,3 +32,4 @@ allowance: 10
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1 using src/bins/gauntlet-telemetry-seal-branch.test.mjs beside its bin-test siblings
 row 1 done | Sealing publishes common-dir records to an orphan telemetry branch without changing feature HEAD, index, or the squash-delivered tree. | Reuse extensions/lib/telemetry-branch.ts for common-dir lookup and plumbing-based record publication; extend its sync helper for retries.
+row 2 done | Verified checkout and index byte invariance for seals and leg publication in git, linked worktrees and jj-colocated workspaces, including rejected pushes. | Reuse src/bins/gauntlet-telemetry-invariance.test.mjs to check publisher isolation and temporary-index cleanup when extending sync behavior.
