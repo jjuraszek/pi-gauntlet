@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Make `phase_tracker`, `plan_check`, and `plan_tracker` model-only so codemode scripts cannot make updates that disappear on session reconstruction; requires pi >= 1.5.0.
+
 ## v8.4.0 - 2026-11-07
 
 - Telemetry publishes run and per-session skill records on the orphan `gauntlet/telemetry` branch, outside product commits. `telemetry.remote` replaces `telemetry.dir`; readers refresh the branch and cost digests allocate ticket and PR rounds, including unattributed shares. Finish and resume use branch records and full-checkout verification proofs. (#124)

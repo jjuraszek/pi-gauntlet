@@ -933,6 +933,7 @@ export default function (pi: ExtensionAPI) {
 
   pi.registerTool({
     name: "plan_check",
+    exposure: "model-only",
     label: "Plan Check",
     description:
       "Deterministically verify an implementation plan against its spec (mechanical checks); " +
@@ -1088,6 +1089,7 @@ export default function (pi: ExtensionAPI) {
 
   pi.registerTool({
     name: "phase_tracker",
+    exposure: "model-only",
     label: "Phase Tracker",
     description:
       "Track workflow phase progress (brainstorm → plan → implement → verify → ship); " +
