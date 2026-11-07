@@ -81,15 +81,21 @@ test("three-way shares stay unrounded in JSON and conserve cents across keyed an
   assert.match(text, /team\/product#12\s+1\s+0\.12\s+0\.34\s+0\.46/);
 });
 
-test("one-cent two-item batch conserves displayed components and totals without rounding JSON shares", () => {
-  const costs = aggregateCosts([], [leg("shape-ticket", "penny", 0.01, [ticket("#1"), ticket("#2")])]);
-  assert.deepEqual(costs.tickets.map(row => [row.shape, row.total]), [[0.005, 0.005], [0.005, 0.005]]);
-  const rows = renderCosts(costs).split("\n").filter(line => line.includes(`${repo}#`))
-    .map(line => line.trim().split(/\s+/).slice(3));
-  assert.deepEqual(rows, [["0.01", "-", "-", "-", "0.01"], ["0.00", "-", "-", "-", "0.00"]]);
-  for (const column of [0, 4]) assert.equal(rows.reduce((sum, row) => sum + Number(row[column]), 0), 0.01);
-  assert.deepEqual(costs.tickets.map(row => row.total), [0.005, 0.005], "rendering leaves JSON shares unrounded");
-});
+for (const [total, displayed] of [[0.01, [0.01, 0]], [0.02, [0.01, 0.01, 0, 0]]]) {
+  test(`${total} batch conserves nonnegative displayed shares without rounding JSON shares`, () => {
+    const items = displayed.map((_, i) => ticket(`#${i + 1}`));
+    const costs = aggregateCosts([], [leg("shape-ticket", "penny", total, items)]);
+    assert.deepEqual(costs.tickets.map(row => [row.shape, row.total]), items.map(() => [0.005, 0.005]));
+    const rows = renderCosts(costs).split("\n").filter(line => line.includes(`${repo}#`))
+      .map(line => line.trim().split(/\s+/).slice(3));
+    for (const column of [0, 4]) {
+      assert.ok(rows.every(row => Number(row[column]) >= 0), "displayed costs cannot be negative");
+      assert.equal(rows.reduce((sum, row) => sum + Number(row[column]), 0), total);
+    }
+    assert.deepEqual(rows, displayed.map(cost => [cost.toFixed(2), "-", "-", "-", cost.toFixed(2)]));
+    assert.deepEqual(costs.tickets.map(row => row.total), items.map(() => 0.005), "rendering leaves JSON shares unrounded");
+  });
+}
 
 test("fractional records for one ticket aggregate before text rounding", () => {
   const dir = corpus([

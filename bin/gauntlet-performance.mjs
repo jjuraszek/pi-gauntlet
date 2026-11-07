@@ -619,7 +619,7 @@ function displayCosts(costs) {
       const total = sumOrNull([...linked ? sources : active].map(({ row, column }) => (linked ? copies.get(row) : row)[column]));
       let remaining = Math.round(total * 100);
       active.forEach(({ row, column }, i) => {
-        const cents = i === active.length - 1 ? remaining : Math.round(row[column] * 100);
+        const cents = i === active.length - 1 ? remaining : Math.min(remaining, Math.round(row[column] * 100));
         copies.get(row)[column] = cents / 100;
         remaining -= cents;
       });
