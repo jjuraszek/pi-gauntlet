@@ -3,7 +3,9 @@ for: a5ab1c893f4c9175ba9bfbed8a13cfe8d561b8ebf02291dd0eafa45289694269
 ## Change
 Route interrupted home and companion pending returns through the loop driver's ownership-fenced recovery below allowance. Replace discard-only recovery only when retained checkout provenance and owned-job exit evidence permit cleanup; missing evidence preserves changes at recovery incomplete. Keep attribution ambiguity and unrecoverable before-images as stops. The selected interrupted-ownership sample covers owned home and companion recovery and an unrelated-write stop; this is narrated, partial coverage, not live process recovery proof. Correct its synthetic stop-header assertion to dispatch index i=7, not consumed iterations=8, matching the driver's unchanged pre-bump index contract; preserve all ownership and counter facts. Earlier blanket dirty/zero-commit stop expectations below are superseded only for proven owned interruptions.
 
-Read the seed's shipped evidence from `<git common dir>/gauntlet/telemetry/<spec>.yaml`, or `<jj root>/.jj/gauntlet/telemetry/<spec>.yaml` when Git resolution fails and `jj root` succeeds. Update telemetry-branch-seed to check local `shipped_at:` admission after failed publication, with no seed-owned branch fetch. Preserve the stop before worktree, tracker or gate work. Retain prior result artifacts as stale evidence; defer model evaluation for this repair and claim no current behavioral pass.
+telemetry-branch-seed for: 66451dc5ab3ff7a2f9bf4a5123216c4d52fbd43bd31966c4c18c235dd91a6855
+
+Read the seed's shipped evidence from `<git common dir>/gauntlet/telemetry/<spec>.yaml`, or `<jj root>/.jj/gauntlet/telemetry/<spec>.yaml` when Git resolution fails and `jj root` succeeds. Update telemetry-branch-seed to check local `shipped_at:` admission after failed publication, with no seed-owned branch fetch. Preserve the stop before worktree, tracker or gate work. Run only telemetry-branch-seed for current sample-scoped evidence; supersede the archived remote-fetch results without claiming target-wide coverage.
 
 Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving allowance migration, mixed task restoration and admission boundaries.
 
@@ -56,8 +58,8 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - interrupted-ownership/home: fails -> holds - Recover an owned home interruption, repair once with the consumed iteration and continue below allowance without a discard prompt.
 - interrupted-ownership/ownership: fails -> holds - Preserve unrelated work and pending identity at recovery incomplete when exclusive checkout ownership is unproven.
 - interrupted-ownership/companion: fails -> holds - Reset only the owned companion and record a home-only repair, preserving foreign state and consumed counts.
-- telemetry-branch-seed/refresh: fails -> holds - Resume reads the configured remote and product-prefixed branch record.
-- telemetry-branch-seed/shipped: fails -> holds - Missing checkout YAML does not override a fetched shipped record.
+- telemetry-branch-seed/metadata: fails -> holds - Resolve the Git common directory relative to the primary, or use jj metadata after Git resolution fails; read the local record without fetching or reading a telemetry branch.
+- telemetry-branch-seed/shipped: fails -> holds - Local shipped_at remains authoritative after failed publication, with the matching timestamp in each stop.
 - telemetry-branch-seed/stop: fails -> holds - A shipped seed stops before reconstruction or worktree creation.
 - legacy-cap-brief/continue: fails -> holds - Continue the original phase after allowance migration without reseeding, using one ledger-path refresh; verify/ship resumes at verify and delegates the gate set to the loop skill rather than full local verification.
 - ledger-tracker-verify/mixed-verify: fails -> holds - Keep mixed task statuses and fresh gates while routing commands to the loop-owned selective set.

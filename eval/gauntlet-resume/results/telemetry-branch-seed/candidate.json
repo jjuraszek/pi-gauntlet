@@ -1,8 +1,8 @@
 {
   "sample": "telemetry-branch-seed",
   "arm": "candidate",
-  "skillSha": "e558027548839e7faecd98551aa90fa3fdd526dbeeecdd9b4f72b478928b14ed",
-  "inputSha": "09fa7b9657e168e1174653fcb81cdd3b77e64f4cea6761c5e589883a58171af8",
+  "skillSha": "5efe2e7d8d09c7126c09ccb30ae054312cfd580a6d0f3970731b78abca14337c",
+  "inputSha": "9da0a357d79380b80faf27e0caff85d4a6f373c6c1c23316c3ff02c99a2ccede",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,36 +17,36 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Seed route (`seed.md`): `<seed>` = `/tmp/widget/doc/specs/2026-01-02-widget.md` and `<rel>` = `doc/specs/2026-01-02-widget.md`. Entry check 1 (idle session) has passed.\n\n**Seed header.** I read the header of `<seed>`. It has no `**Home:**` header, so it is not a companion leg file. Continue.\n\n**1. Primary session.** I run `git rev-parse --git-dir --git-common-dir` in the session cwd. The two paths' `realpath`s agree, so this is the primary checkout. Continue.\n\n**2. Tracked.** I run `git -C /tmp/widget ls-files --error-unmatch doc/specs/2026-01-02-widget.md`, which exits 0. Line 1 of `<seed>` is not the context-draft marker. Continue.\n\n**3. Not shipped.**\n- I resolve `piGauntlet.telemetry` from preset and primary project settings. It is enabled, with remote `ssh://git@example.invalid/metrics.git`.\n- `<owner>/<name>` comes from the product origin, not the telemetry remote: `sample/widget`.\n- The remote is not `origin`, so `<fetched-ref>` is `refs/remotes/telemetry/gauntlet/telemetry`.\n- I request the refresh with a 10-second timeout:\n  `git -C /tmp/widget fetch --no-tags ssh://git@example.invalid/metrics.git +refs/heads/gauntlet/telemetry:refs/remotes/telemetry/gauntlet/telemetry`\n  The fetch succeeds.\n- I read the record from the fetched ref, not from any checkout YAML file:\n  `git -C /tmp/widget show refs/remotes/telemetry/gauntlet/telemetry:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml`\n  The record has `shipped_at: 2026-01-03T10:00:00Z`, which is a valued `shipped_at:`, so this check stops.\n\nPrinted reply:\n\n```\nspec already shipped at 2026-01-03T10:00:00Z - write a superseding spec\n(/tmp/widget/doc/specs/2026-01-02-widget.md)\n```\n\nThe restore stops here. I make no worktree lookup or creation, no `/skill:using-git-worktrees` call and no tracker call (`phase_tracker`, `plan_tracker` or `plan_check`). I do not reconstruct gates or continue into `reconstruction.md`.\n",
-      "words": 217,
-      "wallMs": 11662,
+      "text": "# Seed route Step 3 (Not shipped): both rows stop\n\nTelemetry is enabled, so the check runs. Each row uses only the local metadata record. Nothing reads the telemetry branch, and the missing checkout YAML and failed publication are not consulted.\n\n## Row 1: Git common directory\n\n1. **Path resolution.** I request `git -C /tmp/widget rev-parse --git-common-dir`. It returns `.git`, which resolves against `<primary>` to `/tmp/widget/.git`.\n2. **Record path.** I change `<rel>` from `.md` to `.yaml`, giving `doc/specs/2026-01-02-widget.yaml`.\n3. **Local read.** I read `/tmp/widget/.git/gauntlet/telemetry/doc/specs/2026-01-02-widget.yaml`.\n4. **Result.** The record contains `shipped_at: 2026-01-03T10:00:00Z`. That field has a value, so the check stops. The failed local commit and the remaining sealed source file do not change this, because the local record decides.\n\nPrinted reply:\n\n```\nspec already shipped at 2026-01-03T10:00:00Z - write a superseding spec\n```\n\nThis stop concerns the seed `/tmp/widget/doc/specs/2026-01-02-widget.md`. The route stops here.\n\n## Row 2: jj-only metadata\n\n1. **Path resolution.** I request `git -C /tmp/widget rev-parse --git-common-dir`, and it fails.\n2. **Fallback.** I request `jj root` in `/tmp/widget`. It succeeds and returns `/tmp/widget`.\n3. **Local read.** I read `/tmp/widget/.jj/gauntlet/telemetry/doc/specs/2026-01-02-widget.yaml`.\n4. **Result.** The record contains `shipped_at: 2026-01-04T11:00:00Z`. That field has a value, so the check stops. The sealed local record is authoritative, and nothing is fetched.\n\nPrinted reply:\n\n```\nspec already shipped at 2026-01-04T11:00:00Z - write a superseding spec\n```\n\nThis stop concerns the seed `/tmp/widget/doc/specs/2026-01-02-widget.md`. The route stops here.\n\n## What does not run in either row\n\n- Step 4 (Name) and Step 5 (Reuse or create) do not run, so `/skill:using-git-worktrees` is never invoked.\n- No `phase_tracker` or `plan_tracker` calls are made.\n- `plan_check` is not called.\n- No gate history is reconstructed.\n",
+      "words": 261,
+      "wallMs": 12182,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Would request, in order:\n\n1. Refresh telemetry with a 10-second timeout:\n   ```bash\n   git -C /tmp/widget fetch --no-tags ssh://git@example.invalid/metrics.git +refs/heads/gauntlet/telemetry:refs/remotes/telemetry/gauntlet/telemetry\n   ```\n2. Read the record from the fetched branch:\n   ```bash\n   git -C /tmp/widget show refs/remotes/telemetry/gauntlet/telemetry:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml\n   ```\n\nThen print and stop:\n\nspec already shipped at 2026-01-03T10:00:00Z - write a superseding spec\n",
-      "words": 46,
-      "wallMs": 7665,
+      "text": "### Row 1 — Git common directory\n\n1. Request: `git -C /tmp/widget rev-parse --git-common-dir`\n   Result: `.git`.\n2. Resolve `.git` relative to `/tmp/widget` → `/tmp/widget/.git`.\n3. Read `/tmp/widget/.git/gauntlet/telemetry/doc/specs/2026-01-02-widget.yaml`.\n   Observe: `shipped_at: 2026-01-03T10:00:00Z`.\n4. Stop for seed `/tmp/widget/doc/specs/2026-01-02-widget.md`. Print:\n   ```text\n   spec already shipped at 2026-01-03T10:00:00Z - write a superseding spec\n   ```\n\n### Row 2 — jj-only metadata\n\n1. Request: `git -C /tmp/widget rev-parse --git-common-dir`\n   Result: failure.\n2. Request: `jj root`, with cwd `/tmp/widget`.\n   Result: `/tmp/widget`.\n3. Read `/tmp/widget/.jj/gauntlet/telemetry/doc/specs/2026-01-02-widget.yaml`.\n   Observe: `shipped_at: 2026-01-04T11:00:00Z`.\n4. Stop for seed `/tmp/widget/doc/specs/2026-01-02-widget.md`. Print:\n   ```text\n   spec already shipped at 2026-01-04T11:00:00Z - write a superseding spec\n   ```\n",
+      "words": 87,
+      "wallMs": 9767,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "9ba0aa989c168da9bb103ef7352d0af37ab570c49059c9ba6ac6fe61cb493fc9",
+      "factsSha": "ad65f00c94430258c9ab46b8624d775252c8cce2f7f8dfaa9f6efb4d504a719f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3b2921c6d4ab09c4970b366084de2a46730b6cccfc3da7345d93cdf292749b1a",
-      "baselineOutputSha": "cae936a01b6a306df83ede2d27352a0cba0ad14b6f8af7b35a8a46032c28d1fc",
-      "candidateOutputSha": "fe7581278bf260b4476b751399cd8f3469cada0d4bf8884cafe788bf4f990048",
+      "intentSha": "1b35d729acd79b320c613b7c33ed41d31ed194bdcf27f36e85217d8e16de9141",
+      "baselineOutputSha": "3d0d2bd998041e8f1ea54c408dbfa098e60b511dbbe59f9506fd6f87c691cda8",
+      "candidateOutputSha": "cc285d62980f24d6789275c2f95db806cb47e83bd66f43f4071195c39840bbca",
       "facts": {
-        "refresh": {
+        "metadata": {
           "before": "fails",
           "after": "holds",
           "label": "intended change"
         },
         "shipped": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "stop": {
           "before": "holds",
@@ -54,28 +54,26 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves `refresh` by spelling out the exact bounded fetch: the ten-second timeout, the `refs/remotes/telemetry/gauntlet/telemetry` fetched ref (chosen because the remote is not `origin`), and the `git show <ref>:sample/widget/brainstorming/doc/specs/2026-01-02-widget.yaml` read with the owner/name derived from the product origin rather than the telemetry remote; Before only said 'bounded refresh' and 'read ... from the fetched telemetry branch', so a reader could not confirm the timeout or ref. `shipped` and `stop` already held in Before (it read the absent local YAML, treated the fetched `shipped_at` as the stopping value, printed the exact message, and explicitly listed no worktree/tracker/gate work) and After keeps them by retaining the verbatim stop line, the 'not from any checkout YAML file' statement, and the explicit no-worktree/no-tracker/no-gate closing paragraph. To keep every fact stable in future wording, continue naming the timeout, the fetched ref, the product-prefixed path, the literal stop message, and an explicit sentence denying worktree creation and tracker/gate reconstruction.",
-      "wallMs": 13378,
-      "verdict": "improved",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "After moved metadata and shipped from fails to holds: it resolves `git rev-parse --git-common-dir` against `<primary>` to read `/tmp/widget/.git/gauntlet/telemetry/doc/specs/2026-01-02-widget.yaml`, falls back to `jj root` for `/tmp/widget/.jj/gauntlet/telemetry/...` when Git resolution fails, never fetches or reads a telemetry branch, treats each local `shipped_at:` as authoritative despite the failed publication, names the seed path, and prints the exact `spec already shipped at <timestamp> - write a superseding spec` stop for each row. Before read only `.pi/gauntlet/telemetry/...`, found nothing and passed, so neither of those facts held there. The stop fact held in both outputs: Before went no further after Step 3 and reconstructed nothing, and After adds an explicit list excluding worktree creation, tracker calls, `plan_check` and gate-history reconstruction, so nothing Before kept was lost. One small tightening for After: the opening sentence 'the missing checkout YAML and failed publication are not consulted' reads oddly — say instead that the absent checkout YAML and failed publication do not override the local record, which matches the per-row wording already used.",
+      "wallMs": 10150,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "9ba0aa989c168da9bb103ef7352d0af37ab570c49059c9ba6ac6fe61cb493fc9",
+      "factsSha": "ad65f00c94430258c9ab46b8624d775252c8cce2f7f8dfaa9f6efb4d504a719f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3b2921c6d4ab09c4970b366084de2a46730b6cccfc3da7345d93cdf292749b1a",
-      "baselineOutputSha": "94737456ebba1dc52b10b49adedee9264457e5ba1b9b9e11b42f647fcae2d80d",
-      "candidateOutputSha": "aa1edbe266edf4a7dff57e4e86dff9cbe4fe89a6ef6d3c341f1f8e2788b88920",
+      "intentSha": "1b35d729acd79b320c613b7c33ed41d31ed194bdcf27f36e85217d8e16de9141",
+      "baselineOutputSha": "35863d3e35aef85f6d9b45d22831a1e43d38d3987ed18fe3742646fb309ba68b",
+      "candidateOutputSha": "f7f2317ffa2345c4806327ea33d43777779c0c732819a80e7d15004c3c38cb0a",
       "facts": {
-        "refresh": {
+        "metadata": {
           "before": "fails",
           "after": "holds",
           "label": "intended change"
         },
         "shipped": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "stop": {
           "before": "holds",
@@ -83,14 +81,11 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved refresh to holds by making the fetch concrete: the 10-second timeout, the explicit `+refs/heads/gauntlet/telemetry:refs/remotes/telemetry/gauntlet/telemetry` refspec, and the `git show` of the product-prefixed record, none of which Before named (it only said 'bounded refresh of the configured telemetry branch'). Both outputs treat the fetched `shipped_at` as authoritative and stop with the required message, and neither performs any worktree or tracker work, so shipped and stop hold in both; however After only implies the stop boundary by listing two commands and saying 'print and stop', whereas Before stated it outright. To keep the Change while leaving no room for a reader to doubt stop, After should retain Before's explicit closing sentence ('No worktree creation, tracker calls, plan_check, or gate reconstruction'), keep the `Spec: /tmp/widget/doc/specs/2026-01-02-widget.md` line in the printed reply, and add one clause noting that the absence of checkout YAML does not override the fetched shipped record (with last-fetched fallback if the refresh fails) so the shipped fact is stated rather than merely implied.",
-      "wallMs": 17256,
-      "verdict": "improved",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "After moved metadata and shipped to holds exactly as intended: each row now requests `git -C /tmp/widget rev-parse --git-common-dir`, resolves `.git` relative to the primary (or falls back to `jj root` when Git fails), reads the `<common dir>/gauntlet/telemetry/<rel>.yaml` or `.jj/gauntlet/telemetry/<rel>.yaml` record, treats the local `shipped_at:` as authoritative with no telemetry-branch fetch, names the seed path, and prints the exact `spec already shipped at <timestamp> - write a superseding spec` stop with the matching timestamp per row. Before instead read the checkout `.pi/gauntlet/telemetry` path, found nothing, and reported `no record; continue`, so it never read the retained records or stopped. Note that stop already held in Before: it ended the exercise without creating a worktree or reconstructing any approval/tracker state, and After preserves that by halting at the printed line in step 4; the author should not expect a Before-fails result for that fact from this sample alone. No fact regressed, so the After wording can stand as is; if anything, adding a one-line explicit statement that no worktree, tracker or gate reconstruction is attempted after the stop would make the stop fact more legible without changing behavior.",
+      "wallMs": 12063,
+      "verdict": "improved"
     }
   },
-  "repoSha": "c8e3e03adef258e23fca28066cac9fdc3d014075",
   "refresh": {
     "status": "complete",
     "identity": {
@@ -280,5 +275,6 @@
         "thinking": "medium"
       }
     }
-  }
+  },
+  "repoSha": "5abfb657e78dd92463288f3b89f646b8b8e286e7"
 }
