@@ -1,0 +1,110 @@
+{
+  "sample": "bypass-eligible-check-pending",
+  "arm": "candidate",
+  "skillSha": "346057d43f5ebcc2b501de1e448e278ba85c47f2dd518b5de01e8363b9c42aee",
+  "inputSha": "2537a123c8c7289007a4232a13ba4d9af5d1f64793db4a5abaeef2384565424b",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=2\n\nDelivers: the feed fetch now retries once, bounded, with tests.\nRole: author\n\nPR comments:\n- The e2e check is still running on the assessed head, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - watch CI until e2e settles, repair anything it turns up, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: merge (e2e pending); deliver with nits (no nits)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 102,
+      "wallMs": 13911,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=2\n\nDelivers: retries feed fetching once, with tests.\nRole: author\n\nPR comments:\n- e2e is pending and binding, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\nNot offered: merge (e2e pending).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 93,
+      "wallMs": 12009,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "59ed44db7b0167f5367d518fbc1c837ec08040014b642b5cc5a0bfdcfae9736c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+      "baselineOutputSha": "ec5aefe7b6477cda8e054f5dc391583d751e68cf14349f654ad80f1e7bb473a7",
+      "candidateOutputSha": "a737f06085cc4f4285c0a8d2bac112c53629025c8b3e870eb06528027c1cd900",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs render the initial template with course unset, verdict 'not ready - e2e pending' tied to the assessed head, the merge row withheld with 'Not offered: merge (e2e pending)', no bypass annotation anywhere, and assess/deliver/stop with deliver recommended and nothing performed before a numeric pick. Two regressions in After are worth fixing even though no fact catches them here: the assess row now says 'then approve or stop', which is wrong for an own PR (the author cannot approve, and Before correctly said 'then stop, no repairs' and noted that zero blockers means nothing is posted); and the deliver row dropped the exact head ('watch e2e on abc1234') in favor of 'watch CI until e2e settles', which loosens the exact-head evidence binding the Change says to preserve. Suggested wording: '1. assess - post the review to the PR (zero blockers, so nothing is posted); then stop, no repairs.' and '2. deliver - watch e2e on abc1234, repair anything it turns up, sync with main if needed, repeat until merge is offered. [recommended]'. Keep the 'approve or stop' continuation only on other-author menus.",
+      "wallMs": 13457,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "59ed44db7b0167f5367d518fbc1c837ec08040014b642b5cc5a0bfdcfae9736c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+      "baselineOutputSha": "c400d5ead82ebb3dfa2fd9947aca7850f02a2bb7d6629fa0068953961653174b",
+      "candidateOutputSha": "24755d18235ea916be92b11c5a060de943b5ada885b2b08b0a542c7ba55de710",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After delivers the Change on this sample: it switches from the obstacle gate to initial with course unset, drops the \"blocked by GitHub\" withhold in favor of \"Not offered: merge (e2e pending)\", recommends deliver for the own PR, and makes no bypass claim anywhere. The one regression risk is the evidence rendering: Before printed an explicit \"Evidence: pending (e2e binding; head abc1234)\" line and echoed the record after \"show evidence\", while After only implies pending via the comment and verdict and never names the assessed head abc1234, so f1 holds only by inference. Keep the initial template's Evidence line (e.g. \"Evidence: pending (e2e binding; head abc1234)\") and the inline record on the show-evidence footer so exact-head evidence stays visible in course-unset pending reports without reintroducing any watch or bypass annotation.",
+      "wallMs": 16654,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "c25d0bcfe78739087247eca17d14cc3f99fd034f"
+}

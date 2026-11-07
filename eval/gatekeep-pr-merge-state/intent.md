@@ -8,7 +8,7 @@ Offer the ordinary merge row for BLOCKED only with fresh viewer-relative bypass 
 
 ## Comparison scope
 
-Select only bypass-eligible-green-ci against b9dd8f39286fdf8d13eb84a612885b2b835e617c for the bypass-menu contract correction. Keep bypass-eligible-blocked's unauthorized results as historical evidence only; never rerun that sample. Preserve prior reports and results as historical evidence, not current coverage. The remaining predictions concern the extracted-menu baseline 40d6c9e4; unselected samples are not rerun.
+Select bypass-eligible-green-ci and bypass-eligible-check-pending individually against b9dd8f39286fdf8d13eb84a612885b2b835e617c for the bypass-menu contract and binding-pending withhold. The pending sample keeps all CI safeguards binding and makes no rendered bypass claim. Keep bypass-eligible-blocked's unauthorized results as historical evidence only; never rerun that sample. Preserve prior reports and results as historical evidence, not current coverage. The remaining predictions concern the extracted-menu baseline 40d6c9e4; unselected samples are not rerun.
 
 ## Expected to move
 

@@ -3,13 +3,13 @@
 base: b9dd8f39286fdf8d13eb84a612885b2b835e617c
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 3 | timeout -k 30 60 node --test scripts/gatekeep-comment-reconcile.test.mjs; 68 passed, 0 failed including exact menu and Evidence strings plus saved replay checks; ran bypass-eligible-green-ci (1 of 2); both replay cells improved, child reaped and controller exited, no live GitHub probes or merges |
-| 2 | open | 0 | |
+| 2 | done | 1 | timeout -k 30 60 node --test scripts/gatekeep-comment-reconcile.test.mjs; 69 passed, 0 failed including pending bypass replay and independent merge withholds; bound spent: bypass-eligible-check-pending (1 of 2), ran bypass-eligible-check-pending (1 of 2); both candidate replay cells hold every fact, child reaped and controller exited, no live GitHub probes or merges |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
 | 5 | done | 0 | timeout -k 30 60 node --test scripts/gatekeep-comment-reconcile.test.mjs; 68 passed, 0 failed; no-attribution pins and saved bypass-eligible-green-ci f5 hold in both replay cells; offline recheck only, no new action spend |
@@ -21,3 +21,4 @@ row 1 failed | Confirmed the missing bypass menu clause but could not settle its
 row 1 failed | Unlisted replay ran and exact AC strings fail; child jobs reaped; bound spent: bypass-eligible-blocked (1 of 2); ran bypass-eligible-blocked (1 of 2). | Use bypass_eligible, the exact consequence/Evidence text, and authorized bypass-eligible-green-ci; preserve spend records and never rerun bypass-eligible-blocked.
 row 1 done | Fixed bypass contract; bound spent: bypass-eligible-blocked (1 of 2); ran bypass-eligible-blocked (1 of 2); ran bypass-eligible-green-ci (1 of 2). | Reuse bypass-eligible-green-ci fixtures and saved results through scripts/gatekeep-comment-reconcile.test.mjs for offline checks.
 row 5 done | Confirmed no named-rule attribution or admin identity using existing pins and saved replay outputs without further edits. | nothing new to build on
+row 2 done | Proved pending CI still withholds; bound spent: bypass-eligible-check-pending (1 of 2); ran bypass-eligible-check-pending (1 of 2). | Reuse bypass-eligible-check-pending fixtures and saved results via scripts/gatekeep-comment-reconcile.test.mjs for offline gates.

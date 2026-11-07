@@ -537,6 +537,47 @@ test('eligible BLOCKED uses fresh viewer-relative authority on the ordinary merg
   }
 });
 
+test('bypass eligibility preserves pending CI and every independent merge withhold', () => {
+  const pre = section(loop, '### Merge preconditions\n', '### Compare-and-swap\n');
+  for (const clause of [
+    'keep every other precondition binding',
+    '`mergeable == MERGEABLE`',
+    '`merge_state_status` is not `BEHIND`',
+    'no undispositioned failing check in the resolved set, no **binding** pending check',
+    'no retained, unreviewed comment delta',
+  ]) assert.ok(pre.includes(clause), clause);
+  assert.match(decisionMenu, /\| `merge` \| non-draft, viewer_permission `WRITE`, `MAINTAIN`, or `ADMIN`, all `### Merge preconditions` hold \|/);
+  assert.match(decisionMenu, /\| binding pending check \|[^\n]*Not offered: merge \(<check name> pending\)[^\n]*watch only at delivery step 4/);
+  const binding = section(brief, '**Binding classification**', '**Reviewer-check exception**');
+  assert.match(binding, /`merge_state_status` is `BLOCKED`, `UNKNOWN` \(after the step-2 re-poll\), or `unreadable`/);
+  assert.doesNotMatch(binding, /bypass_eligible/);
+  assert.match(loop, /Use initial for repairable blockers or a pending-only CI withhold/);
+
+  const root = '../eval/gatekeep-pr-merge-state';
+  const sample = 'bypass-eligible-check-pending';
+  const input = read(`${root}/samples/${sample}/case.md`);
+  assert.match(input, /merge_state_status: BLOCKED, bypass_eligible: true/);
+  assert.match(input, /name: e2e, kind: check_run, status: in_progress/);
+  const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
+  const parsed = parseCase(input);
+  const config = JSON.parse(read(`${root}/target.json`));
+  assert.equal(saved.skillSha, sha256(assemble(config, (path) => read(`../${path}`))));
+  assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
+  assert.equal(Object.keys(saved.outputs).length, 2);
+  const expected = read(`${root}/samples/${sample}/expected.md`);
+  for (const [model, output] of Object.entries(saved.outputs)) {
+    assert.equal(output.status, 'ok', model);
+    assert.match(output.text, /gate=gatekeep-pr\/initial/);
+    assert.match(output.text, /Not offered: merge \(e2e pending\)/);
+    assert.doesNotMatch(output.text, /^\d+\. merge\b/m);
+    assert.doesNotMatch(output.text, /ruleset bypass authority|bypass eligible|\badmin\b|blocked by GitHub/i);
+    const judge = saved.judge[model];
+    assert.equal(judge.factsSha, sha256(expected));
+    assert.equal(judge.candidateOutputSha, sha256(output.text));
+    for (const { id } of parseExpected(expected).facts) assert.equal(judge.facts[id].after, 'holds', `${model}/${id}`);
+  }
+});
+
 test('sync.md re-gather resolves pending checks through the binding rule', () => {
   assert.match(sync, /Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "implementer", context: "fresh", async: false, cwd: <worktree> \}\)[\s\S]*name each conflicted file by path in the task text[\s\S]*Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "wave-reviewer", context: "fresh", async: false, cwd: <worktree> \}\)/);
   assert.match(sync, /a binding check still pending routes to the initial or terminal template/);
