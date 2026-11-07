@@ -14,7 +14,7 @@ Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) befor
 - `preserve contract` - keep the baseline and independent blockers; resume scope-preserving course work without the rejected payload on that re-run.
 - `approve` - approve someone else's non-draft PR with zero blockers; persist approved_head only after success.
 - `approve workflow run` - execute `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve`, then refresh and watch under the course.
-- `merge` - execute `gh pr merge --match-head-commit <assessed-sha>` with the resolved policy flag and all merge preconditions; never infer approval from a setting.
+- `merge` - execute `gh pr merge --match-head-commit <assessed-sha>` with the resolved policy flag and all merge preconditions; append `--admin` only on the bypass path defined in `post-selection-loop.md` `### Merge course`; never infer approval from a setting.
 - `reply` - post drafted replyable C# replies; exact `reply <n>` selects one.
 - `post coverage to ticket` - post the rendered AC coverage block through the resolved tracker verb; renders only under the `own merge` template with issue and rows.
 - `post coverage to PR` - post the same block with `gh pr comment <N> --body-file`; renders only under the `own merge` template.
@@ -45,7 +45,7 @@ Resolve every actual unmet `### Merge preconditions` reason through `post-select
 
 | Observation | Render |
 |---|---|
-| BLOCKED with no local repair | Use findings.md `## Dispositions` for the actor-framed PR-comments line and obstacle verdict; render obstacle even with course unset, plus `Not offered: merge (blocked by GitHub)`; never attribute a named rule |
+| BLOCKED with no eligible bypass and no local repair | Use findings.md `## Dispositions` for the actor-framed PR-comments line and obstacle verdict; render obstacle even with course unset, plus `Not offered: merge (blocked by GitHub)`; never attribute a named rule |
 | UNKNOWN/unreadable after one re-poll | `stuck - merge state unknown`; `Not offered: merge (merge state unknown)` |
 | binding pending check | name the check under PR comments, `Not offered: merge (<check name> pending)`; watch only at delivery step 4 |
 | draft | `Not offered: merge (draft)` |

@@ -87,7 +87,7 @@ Any blocking conclusion in the resolved check set (required or not - `../verific
 
 Only `flaky` lifts the blocker; an undispositioned check, `real`, and `ci-infrastructure-broken` keep it until the check - or, for `ci-infrastructure-broken`, the fallback local run (brief Section B, Failed CI row) - is green.
 
-Record dispositions only from direct human check commands. A flaky disposition followed by numeric deliver can resume; no helper can disposition a check. With BLOCKED and no dispositionable local repair, render the obstacle template from `menus.md`, even with course unset, and use verdict `GitHub reports BLOCKED, no local repair applies`. Render its PR-comments line as `GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)`; keep the locator and never attribute a named rule.
+Record dispositions only from direct human check commands. A flaky disposition followed by numeric deliver can resume; no helper can disposition a check. With BLOCKED, no eligible bypass under `post-selection-loop.md` `### Merge preconditions`, and no dispositionable local repair, render the obstacle template from `menus.md`, even with course unset, and use verdict `GitHub reports BLOCKED, no local repair applies`. Render its PR-comments line as `GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)`; keep the locator and never attribute a named rule.
 
 ## Drafted payloads
 

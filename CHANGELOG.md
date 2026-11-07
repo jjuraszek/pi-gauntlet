@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- `gatekeep-pr`: a viewer GitHub reports as a ruleset bypass actor can merge a `BLOCKED` PR on the ordinary `merge` row, with CI evidence and every other merge precondition still binding. False or unreadable eligibility fails closed; live non-admin bypass behavior remains unverified.
+
 ## v8.4.1 - 2026-11-07
 
 - Make `phase_tracker`, `plan_check`, and `plan_tracker` model-only so codemode scripts cannot make updates that disappear on session reconstruction; requires pi >= 1.5.0.

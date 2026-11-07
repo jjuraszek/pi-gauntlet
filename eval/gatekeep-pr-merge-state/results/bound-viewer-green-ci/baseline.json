@@ -1,8 +1,8 @@
 {
   "sample": "bound-viewer-green-ci",
   "arm": "baseline",
-  "skillSha": "6041ed84fc59504cab924cdee16409bc5266884b61e4fb9053a2c30f15178c14",
-  "inputSha": "f86caeb485e69b68cc624ed264175f0d48283c07cebe5638d8a45dce511fa670",
+  "skillSha": "741f76d2140eb55b042610ff0c71d424cbfa5aa826f951180ec487691872493d",
+  "inputSha": "acd693b214914ed176be8b27a3e1c7c7fb645b8a3e6591850c7a1b5cbe98e12c",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Evidence resolution (Section B)\n\nThe rows are checked top-down and the first match wins:\n\n- **Opt-out:** does not apply. No `local verification: always` is configured.\n- **Failed CI:** does not apply. The resolved set (all checks on `9c1e4f2`) has no blocking conclusion:\n  - `test_unit` is `success`.\n  - `build_image` is `success`.\n  - `lint` is `skipped`, which is inert.\n- **Held run:** does not apply. No `action_required` appears in the rollup or in `actions_runs`.\n- **Pending:** does not apply. Every check has `status: completed`, so there is nothing to classify as binding.\n- **CI-sufficient: matches.** There are 2 completed `success` checks, zero blocking checks and zero binding pending checks.\n- **Result:**\n  - The local run is skipped.\n  - The evidence is `source: ci`, `head_sha: 9c1e4f2`, with these checks:\n    - `test_unit` success, https://github.com/harborline/tidewatch/actions/runs/7001/job/1\n    - `build_image` success, https://github.com/harborline/tidewatch/actions/runs/7001/job/2\n  - The one material claim, \"Tests cover the retry path\", is `matched` (test/feed/client.test.ts:12-40).\n  - The reviewer verdict is SHIP with no findings, so there are no blockers and no nits.\n\nThe evidence is CI-sufficient, but merge is still withheld:\n\n- **What withholds it:** `permissions.merge_state_status` is `BLOCKED`.\n  - This triggers the `merge state` overlay.\n  - It resolves through the Withhold reason resolver, reason 1, which reads \"blocked by GitHub\".\n- **Watch guard:** it does not fire. This is the first report and no binding check is pending.\n\n## Report and menu\n\n```\nDelivers: adds one bounded retry to the tide-feed client when a fetch gets a 503.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - blocked by GitHub\n\n1. wait - run one bounded CI watch, then re-render\n2. approve - approve tlindqvist's PR                                      [recommended]\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is\nType a number. Not offered: merge (blocked by GitHub).\n```\n",
-      "words": 277,
-      "wallMs": 16784,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=3\n\nDelivers: the tide-feed client retries a fetch once when it gets a 503.\nRole: none\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\nVerdict: not ready - GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - set course to deliver; retries after GitHub's merge state leaves BLOCKED, no round charged; add 10 to each cap (rounds 0 of 20, syncs 0 of 20).\n2. assess - switch course to assess; post the review to the PR, no repairs.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\n\nType a number; show evidence prints the full record (CI run 7001, test_unit and build_image green on 9c1e4f2)\n",
+      "words": 134,
+      "wallMs": 21307,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the tide-feed client retries once on a 503 response, with tests covering the retry path.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - blocked by GitHub\n\n1. wait - run one bounded CI watch, then re-render\n2. approve - approve the PR [recommended]\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is\n\nType a number. Not offered: merge (blocked by GitHub).\n",
-      "words": 74,
-      "wallMs": 7628,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=3\n\nDelivers: the tide-feed client retries once after a 503, with tests covering the retry path.\nRole: none\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (source: ci; run 7001, test_unit and build_image success on 9c1e4f2; lint skipped; 0 binding pending checks; merge_state_status BLOCKED)\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nNot offered: merge (blocked by GitHub)\n\nPick one:\n1. deliver - set course to deliver; retry after GitHub's BLOCKED state changes, no round charged; add 10 to each cap (rounds 0/10 -> 0/20; syncs 0/10 -> 0/20).\n2. assess - with zero blockers, post nothing; then render the assess terminal menu, no repairs or sync.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nType a number; show evidence prints the full record (CI (source: ci; run 7001, test_unit and build_image success on 9c1e4f2; lint skipped; 0 binding pending checks; merge_state_status BLOCKED)).\n",
+      "words": 154,
+      "wallMs": 14260,
       "mechanical": {}
     }
   },
-  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+  "repoSha": "edaffafe2dfea5ff047d8770ca6fa574939eec8a"
 }

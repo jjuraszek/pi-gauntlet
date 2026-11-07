@@ -1,0 +1,110 @@
+{
+  "sample": "bypass-eligible-green-ci",
+  "arm": "candidate",
+  "skillSha": "0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb",
+  "inputSha": "1d6e17fa3c85db5c736c041b75272e3f5e6389d47de145a6247767d2de9073bc",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci) on abc1234 - run 701 (CI): test success; 0 binding pending; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)\nDelivers: retries the feed fetch once, with a bounded retry covered by tests.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge on ruleset bypass authority; CI evidence stands [recommended]\n2. stop - end the run, leave the PR open and the checkout as found.\n\nNot offered: approve (your own PR)\n\nType a number; show evidence prints the full record (CI (source: ci) on abc1234 - run 701 (CI): test success; 0 binding pending; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)).\n",
+      "words": 108,
+      "wallMs": 13464,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nEvidence: CI (source: ci; head abc1234; run 701: test success; binding-pending 0; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED))\n\nDelivers: the feed fetch retries once, with tests.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge on ruleset bypass authority; CI evidence stands. [recommended]\n2. stop - leave the checkout as found and end the run.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record (CI; source: ci; head abc1234; run 701: test success; binding-pending 0; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)).\n",
+      "words": 95,
+      "wallMs": 11748,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0f218993dcdaacbf4224971eb19e502f2952aadce1a1973bc81d76ec3c18a089",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+      "baselineOutputSha": "ae643d3be9fa630d50fe16187347609c3a6fbb23cf736a026a7e7f9ff9d31272",
+      "candidateOutputSha": "818f07496a9544152fa3c1c9dcef481aaf4faeead232a27bec0182304df3f389",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved f1-f4 from fails to holds exactly as intended: the report is now rendered as final with the ordinary `merge - squash-merge on ruleset bypass authority; CI evidence stands` row recommended, approve is withheld as the author's own PR with stop last, the Evidence line carries `merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)` alongside the exact-head run 701 test success, and the old `merge waits` PR-comments line and `Not offered: merge` are gone. f5 held in both: neither output performs a merge, requests additional approval, cites a specific blocking rule, names an admin identity, or asserts live non-admin proof - 'ruleset bypass authority' names the authority basis without naming a rule, and 'bypass eligible' stays viewer-relative. Keep the current wording; the only caution is to keep the Evidence line's bypass clause phrased as eligibility rather than drifting toward 'admin merge' or a named ruleset, which would put f5 at risk.",
+      "wallMs": 12235,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0f218993dcdaacbf4224971eb19e502f2952aadce1a1973bc81d76ec3c18a089",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+      "baselineOutputSha": "c99e372e2abfb8d0069a82d8a5f864b6bb9ce2d13dcece4763af619abeec6cd7",
+      "candidateOutputSha": "a539320947ac083ab1e2422136c76f594ff0f186750bffa91a73a7689278b8dd",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the report moves from the obstacle gate to final, row 1 is the exact ordinary `merge - squash-merge on ruleset bypass authority; CI evidence stands` wording with merge recommended for the author's own PR, approve is withheld via `Not offered: approve (own PR)`, stop sits last, the Evidence line carries `merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)`, and the exact-head CI record (run 701, test success on abc1234) survives without the Before `merge waits` PR-comments line or `Not offered: merge`. f5 is preserved on both sides: After performs no merge, demands no approval, and names neither a specific blocking rule, an admin identity, nor live non-admin proof - `ruleset bypass authority` is a generic authority label, not a rule name. No fact that Before kept was lost, so the wording needs no correction; if anything, keep the `(own PR)` reason on the withheld approve row and the generic `ruleset bypass authority` phrasing exactly as is so future edits do not drift into naming a rule or an admin actor.",
+      "wallMs": 14351,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f9d896dcdd4ec2d6e8dfe120358f1577fdd49622"
+}

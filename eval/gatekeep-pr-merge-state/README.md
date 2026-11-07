@@ -1,6 +1,6 @@
 # gatekeep-pr-merge-state eval
 
-Tests evidence resolution and step 5-6 report and menu rendering for six fixed gather digests covering viewer-bound merge blocks, pending checks, unknown merge state, and refreshed merge eligibility.
+Tests evidence resolution and step 5-6 report and menu rendering for nine fixed gather digests covering viewer-bound merge blocks, pending checks, unknown merge state, and refreshed merge eligibility. Select `bypass-eligible-green-ci` for the exact bypass menu contract or `bypass-eligible-check-pending` for binding CI withholding merge despite bypass eligibility; retain `bypass-eligible-blocked` only as historical unauthorized evidence, not a runnable selection.
 
 | Skill file | Slice |
 |---|---|

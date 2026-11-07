@@ -1,6 +1,7 @@
+import './gatekeep-bypass-pick.test.mjs';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
-import { assemble, parseCase } from '../eval/lib/replay.mjs';
+import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
 import { parseIntent } from '../eval/lib/intent.mjs';
 import { lintTarget } from '../eval/lib/lint.mjs';
 import { test } from 'node:test';
@@ -235,6 +236,9 @@ test('assessment.md dispatches Verify and Review as fresh helpers with no inline
 
 test('undispositionable BLOCKED selects obstacle even before a course pick', () => {
   assert.match(menus, /course unset[\s\S]*undispositionable BLOCKED[\s\S]*obstacle/);
+  assert.match(menus, /Resolve BLOCKED through `post-selection-loop.md` `### Merge preconditions` before selecting an obstacle/);
+  assert.match(findings, /With BLOCKED, no eligible bypass under `post-selection-loop.md` `### Merge preconditions`, and no dispositionable local repair/);
+  assert.match(decisionMenu, /BLOCKED with no eligible bypass and no local repair/);
   assert.match(menus, /no wait row, no sync promise, and no approve row/);
   for (const text of [findings, report]) assert.ok(text.includes("GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)"));
   assert.match(cleanup, /both the cleanup row text and the result block/);
@@ -425,7 +429,7 @@ test('verification-brief.md drops the merge-proof rule and the ticket fetch', ()
 test('verification-brief.md gathers permissions, treats held runs as pending, and hands the orchestrator log paths', () => {
   const sectionA = section(brief, '## Section A', '## Section B');
   assert.ok(!sectionA.includes('--jq .viewerPermission'), 'REST viewerPermission read must go');
-  assert.ok(sectionA.includes("gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch } } }'"));
+  assert.ok(sectionA.includes("gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }'"));
   assert.match(sectionA, /headRepository,maintainerCanModify,mergeStateStatus/);
   assert.match(sectionA, /head_pushable/);
   const sectionB = section(brief, '## Section B', '## Section C');
@@ -495,6 +499,139 @@ test('verification-brief.md classifies pending checks as binding from merge_stat
   assert.match(assessment, /--json mergeable,mergeStateStatus/);
 });
 
+test('eligible BLOCKED uses fresh viewer-relative authority on the ordinary merge row', () => {
+  const gather = section(brief, '## Section A - Gatherer', '## Section B - Verifier');
+  assert.match(gather, /gh api graphql[^\n]*viewerCanUpdateBranch viewerCanMergeAsAdmin/);
+  assert.match(gather, /permissions: \{[^\n]*bypass_eligible/, 'AC 1 and Design require permissions.bypass_eligible');
+  assert.match(gather, /`bypass_eligible`.*`viewerCanMergeAsAdmin`/);
+  assert.match(gather, /false stays false; null, missing, non-boolean, or a failed\/error-bearing response becomes `unreadable`/);
+  assert.match(gather, /Never infer bypass eligibility from `viewer_permission`/);
+  const refresh = section(loop, '### Pre-menu refresh\n', '### Wait course\n');
+  assert.match(refresh, /Refresh `permissions.bypass_eligible` through Section A's fixed GraphQL query on every pre-menu refresh/);
+  const final = section(menus, '## final\n', '## assess terminal\n');
+  assert.ok(final.includes('merge - <policy>-merge on ruleset bypass authority; CI evidence stands'), 'AC 1 requires its exact merge consequence');
+  assert.ok(final.includes('merge_state_status BLOCKED (bypass eligible; reviewDecision <value>)'), 'AC 1 requires the bypass evidence locator');
+  assert.match(final, /Keep the ordinary `merge` row and the same recommendation defaults/);
+  assert.doesNotMatch(final, /merge \(admin\)/);
+  assert.match(report, /For an eligible BLOCKED merge, omit the blocked PR-comments line/);
+  for (const command of brief.matchAll(/gh pr view[^\n]+/g)) assert.ok(!command[0].includes('viewerCanMergeAsAdmin'));
+  assert.doesNotMatch(gather + refresh, /can_bypass_merge/);
+  assert.match(refresh, /replace merge state, bypass_eligible, reviewDecision/);
+  const sample = '../eval/gatekeep-pr-merge-state/samples/bypass-eligible-green-ci';
+  assert.match(read(`${sample}/case.md`), /viewer_permission: MAINTAIN[^\n]*bypass_eligible: true/);
+  assert.match(read(`${sample}/case.md`), /is_author: true/);
+  assert.match(read(`${sample}/expected.md`), /squash-merge on ruleset bypass authority; CI evidence stands/);
+  const saved = JSON.parse(read('../eval/gatekeep-pr-merge-state/results/bypass-eligible-green-ci/candidate.json'));
+  const parsed = parseCase(read(`${sample}/case.md`));
+  assert.equal(saved.inputSha, inputSha(read('../eval/gatekeep-pr-merge-state/replay.md'), parsed.text, parsed.bundle));
+  assert.equal(Object.keys(saved.outputs).length, 2);
+  for (const [model, output] of Object.entries(saved.outputs)) {
+    assert.equal(output.status, 'ok', model);
+    assert.match(output.text, /gate=gatekeep-pr\/final/);
+    assert.match(output.text, /merge - squash-merge on ruleset bypass authority; CI evidence stands/);
+    assert.match(output.text, /Evidence:[^\n]*merge_state_status BLOCKED \(bypass eligible; reviewDecision REVIEW_REQUIRED\)/);
+    assert.doesNotMatch(output.text, /merge waits|Not offered: merge|\badmin\b/i);
+    const judge = saved.judge[model];
+    assert.equal(judge.factsSha, sha256(read(`${sample}/expected.md`)));
+    assert.equal(judge.candidateOutputSha, sha256(output.text));
+    for (const fact of ['f1', 'f2', 'f3', 'f4', 'f5']) assert.equal(judge.facts[fact].after, 'holds', `${model}/${fact}`);
+  }
+});
+
+test('bypass eligibility preserves pending CI and every independent merge withhold', () => {
+  const pre = section(loop, '### Merge preconditions\n', '### Compare-and-swap\n');
+  for (const clause of [
+    'keep every other precondition binding',
+    '`mergeable == MERGEABLE`',
+    '`merge_state_status` is not `BEHIND`',
+    'no undispositioned failing check in the resolved set, no **binding** pending check',
+    'no retained, unreviewed comment delta',
+  ]) assert.ok(pre.includes(clause), clause);
+  assert.match(decisionMenu, /\| `merge` \| non-draft, viewer_permission `WRITE`, `MAINTAIN`, or `ADMIN`, all `### Merge preconditions` hold \|/);
+  assert.match(decisionMenu, /\| binding pending check \|[^\n]*Not offered: merge \(<check name> pending\)[^\n]*watch only at delivery step 4/);
+  const binding = section(brief, '**Binding classification**', '**Reviewer-check exception**');
+  assert.match(binding, /`merge_state_status` is `BLOCKED`, `UNKNOWN` \(after the step-2 re-poll\), or `unreadable`/);
+  assert.doesNotMatch(binding, /bypass_eligible/);
+  assert.match(loop, /Use initial for repairable blockers or a pending-only CI withhold/);
+
+  const root = '../eval/gatekeep-pr-merge-state';
+  const sample = 'bypass-eligible-check-pending';
+  const input = read(`${root}/samples/${sample}/case.md`);
+  assert.match(input, /merge_state_status: BLOCKED, bypass_eligible: true/);
+  assert.match(input, /name: e2e, kind: check_run, status: in_progress/);
+  const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
+  const parsed = parseCase(input);
+  // Pin the historical replay's source and assembly; the instruction checks above stay live.
+  assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
+    repoSha: '5197376a8f8d6b44480e866f474360e74ab3321d',
+    skillSha: '0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb',
+  });
+  assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
+  assert.equal(Object.keys(saved.outputs).length, 2);
+  const expected = read(`${root}/samples/${sample}/expected.md`);
+  for (const [model, output] of Object.entries(saved.outputs)) {
+    assert.equal(output.status, 'ok', model);
+    assert.match(output.text, /gate=gatekeep-pr\/initial/);
+    assert.match(output.text, /Not offered:[^\n]*\bmerge \(e2e pending\)/);
+    assert.doesNotMatch(output.text, /^\d+\. merge\b/m);
+    assert.doesNotMatch(output.text, /ruleset bypass authority|bypass eligible|\badmin\b|blocked by GitHub/i);
+    const judge = saved.judge[model];
+    assert.equal(judge.factsSha, sha256(expected));
+    assert.equal(judge.candidateOutputSha, sha256(output.text));
+    for (const { id } of parseExpected(expected).facts) assert.equal(judge.facts[id].after, 'holds', `${model}/${id}`);
+  }
+});
+
+test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
+  const gather = section(brief, '## Section A - Gatherer', '## Section B - Verifier');
+  assert.match(gather, /false stays false; null, missing, non-boolean, or a failed\/error-bearing response becomes `unreadable`/);
+  const pre = section(loop, '### Merge preconditions\n', '### Compare-and-swap\n');
+  assert.match(pre, /For `BLOCKED`, require fresh `permissions.bypass_eligible == true`/);
+  assert.match(loop, /Undispositionable BLOCKED without eligible bypass under Merge preconditions/);
+  assert.match(decisionMenu, /BLOCKED with no eligible bypass and no local repair/);
+  assert.match(findings, /With BLOCKED, no eligible bypass under `post-selection-loop.md` `### Merge preconditions`, and no dispositionable local repair/);
+  assert.ok(report.includes("GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)"));
+
+  assert.match(report, /Keep `bypass_eligible` and its value only in the digest `permissions` block; never name the field in rendered output/);
+  const renderedShape = section(report, '```\nDelivers:', '\n```');
+  assert.doesNotMatch(renderedShape, /bypass_eligible/);
+
+  const root = '../eval/gatekeep-pr-merge-state';
+  const sample = 'bound-viewer-green-ci';
+  for (const [name, value] of [
+    [sample, 'unreadable'],
+    ['exempt-viewer-status-pending', 'false'],
+    ['flip-after-update-branch', 'false'],
+    ['live-checkrun-pending', 'false'],
+    ['same-head-flip', 'false'],
+    ['unknown-after-repoll', 'false'],
+  ]) {
+    const input = read(`${root}/samples/${name}/case.md`);
+    assert.match(input, new RegExp(`permissions: \\{[^\\n]*bypass_eligible: ${value}`), name);
+  }
+  const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
+  const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
+  assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
+    repoSha: 'a356e807449ba62bb88ff91bb2e66bfc4472eec0',
+    skillSha: '0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb',
+  });
+  assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
+  assert.equal(Object.keys(saved.outputs).length, 2);
+  const expected = read(`${root}/samples/${sample}/expected.md`);
+  for (const [model, output] of Object.entries(saved.outputs)) {
+    assert.equal(output.status, 'ok', model);
+    assert.match(output.text, /gate=gatekeep-pr\/obstacle/);
+    assert.match(output.text, /Not offered: merge \(blocked by GitHub\)/);
+    assert.ok(output.text.includes("GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)"));
+    assert.doesNotMatch(output.text, /^\d+\. (?:merge|wait|approve)\b/m);
+    assert.doesNotMatch(output.text, /bypass_eligible|ruleset bypass authority|bypass eligible|\badmin\b/i);
+    const judge = saved.judge[model];
+    assert.equal(judge.factsSha, sha256(expected));
+    assert.equal(judge.candidateOutputSha, sha256(output.text));
+    for (const { id } of parseExpected(expected).facts) assert.equal(judge.facts[id].after, 'holds', `${model}/${id}`);
+  }
+});
+
 test('sync.md re-gather resolves pending checks through the binding rule', () => {
   assert.match(sync, /Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "implementer", context: "fresh", async: false, cwd: <worktree> \}\)[\s\S]*name each conflicted file by path in the task text[\s\S]*Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "wave-reviewer", context: "fresh", async: false, cwd: <worktree> \}\)/);
   assert.match(sync, /a binding check still pending routes to the initial or terminal template/);
@@ -513,7 +650,8 @@ test('post-selection-loop.md refreshes merge state before every menu and binds t
   assert.match(pre, /a check run or local result bound to any other head is not an input/);
   assert.doesNotMatch(pre, /When no check run is bound to the new head/);
   assert.match(pre, /no \*\*binding\*\* pending check/);
-  assert.match(pre, /`merge_state_status` is not `BLOCKED`, `UNKNOWN`, or `unreadable`, and the pre-menu refresh succeeded/);
+  assert.match(pre, /`merge_state_status` is not `UNKNOWN` or `unreadable`, and the pre-menu refresh succeeded/);
+  assert.match(pre, /For `BLOCKED`, require fresh `permissions.bypass_eligible == true`; lift only this merge-state withhold/);
   assert.ok(!pre.includes('no pending required check'));
   assert.match(section(loop, '### Compare-and-swap\n', '### Fix wave\n'), /re-fetch `headRefOid`, `state`, `mergeable`, and `mergeStateStatus`/);
   assert.match(section(loop, '### Re-render\n', '### Pre-menu refresh\n'), /1\. Run the pre-menu refresh \(`### Pre-menu refresh`\)/);
@@ -525,7 +663,7 @@ test('SKILL.md names the pre-menu refresh at step 5 and in the red flags', () =>
   assert.match(skill, /\| 5 Integrate \+ report \| `reference\/post-selection-loop.md` `### Pre-menu refresh`, then `reference\/findings.md`/);
   assert.match(skill, /\| 6 Menu \| `reference\/decision-menu.md`, then `reference\/menus.md` \|/);
   assert.match(skill, /an unchanged head re-enters step 5 through `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
-  assert.match(skill, /or a binding pending check, or a `BLOCKED`\/`UNKNOWN`\/`unreadable` merge state/);
+  assert.match(skill, /or a binding pending check, or a merge-state withhold under `reference\/post-selection-loop.md` `### Merge preconditions`/);
   assert.match(skill, /A menu rendered without the pre-menu refresh - owner: `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
   assert.match(skill, /Reading `mergeStateStatus` from anything but a `gh pr view` invocation, attributing a `BLOCKED` to a named rule, or treating a non-`BLOCKED` value as a merge verdict - owner: `verification-brief.md` Section A/);
   assert.ok(!skill.includes('pending required check'));

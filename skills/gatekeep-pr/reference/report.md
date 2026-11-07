@@ -6,6 +6,8 @@ Read from SKILL.md step 5, after `findings.md`. Input: the integration output. O
 
 Render bottom-up for a terminal: least important first, verdict and menu last. Empty sections are omitted - never "None". A failed comment refresh, an incomplete comment source review (`post-selection-loop.md` `### Re-render`), a blocked or unknown merge state, or a binding pending check renders its one line under `PR comments` as well.
 
+For an eligible BLOCKED merge, omit the blocked PR-comments line; resolve eligibility through `post-selection-loop.md` `### Merge preconditions` and render the bypass consequence through `menus.md` `## final`. For false or unreadable eligibility, render the actor-framed BLOCKED line below and `Not offered: merge (blocked by GitHub)` unchanged. Keep `bypass_eligible` and its value only in the digest `permissions` block; never name the field in rendered output, including obstacle explanations and `show evidence`.
+
 Section order is fixed:
 
 Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.

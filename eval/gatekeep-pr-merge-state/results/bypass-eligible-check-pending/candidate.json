@@ -1,0 +1,354 @@
+{
+  "sample": "bypass-eligible-check-pending",
+  "arm": "candidate",
+  "skillSha": "0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb",
+  "inputSha": "2537a123c8c7289007a4232a13ba4d9af5d1f64793db4a5abaeef2384565424b",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=2\n\nDelivers: the feed fetch now retries once, with a bounded retry and tests.\nRole: author\n\nPR comments:\n- The e2e check is still running on the assessed head, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending on the assessed head\n\nPick one:\n1. assess - no blockers to post, so nothing is posted; then stop, no repairs.\n2. deliver - watch e2e until it settles, repair anything it turns up, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits), merge (e2e pending)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 109,
+      "wallMs": 19744,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=2\n\nDelivers: the feed fetch retries once, with tests.\nRole: author\n\nPR comments:\n- e2e is pending and binding, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending; verification evidence is pending\n\nPick one:\n1. assess - post nothing with zero blockers; then stop, no repairs.\n2. deliver - rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\nNot offered: merge (e2e pending).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 93,
+      "wallMs": 13801,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "57922b10ca67315437542b25636ca78d9ebf853cae432b9a282b9254bc645622",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+      "baselineOutputSha": "ec5aefe7b6477cda8e054f5dc391583d751e68cf14349f654ad80f1e7bb473a7",
+      "candidateOutputSha": "7a28bad292a2711871dfdab31089fedf34c456f3af816823f2cce935ada81e6a",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved on this sample: both outputs render the initial template with course unset, name e2e pending in the verdict, omit the merge row with `Not offered: merge (e2e pending)`, make no bypass claim, offer assess/deliver/stop with deliver recommended, and perform no watch or merge before a numeric pick. After's only material edits are dropping the head SHA and the `rebase on main if needed` clause from the deliver row and adding `on the assessed head` to the verdict, all of which stay within the facts. If you want the After wording to remain robust across the wider change, keep the deliver row explicit that the watch binds to the assessed head (e.g. `watch e2e on the assessed head until it settles`) so the exact-head evidence ownership from the Change stays visible even when the SHA is not repeated, and continue to keep bypass eligibility out of the pending-check initial render as both versions do.",
+      "wallMs": 11922,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "57922b10ca67315437542b25636ca78d9ebf853cae432b9a282b9254bc645622",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+      "baselineOutputSha": "c400d5ead82ebb3dfa2fd9947aca7850f02a2bb7d6629fa0068953961653174b",
+      "candidateOutputSha": "b5726aea44f8d6047cd8ebc006c800468a9f243b00b62c2fc3f1f95f6984eb5e",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moves f1, f2, f3, and f5 from fails to holds while keeping f4: it renders the initial template (gate=gatekeep-pr/initial) instead of Before's BLOCKED obstacle template, names e2e pending in the verdict without a separate Evidence: line, prints `Not offered: merge (e2e pending)` rather than `blocked by GitHub`, keeps the `show evidence` hint, recommends deliver for the author's own PR, and makes no bypass claim anywhere despite bypass_eligible true. The only thing to watch is the deliver row's wording ('rebase on main, watch CI') — it currently reads as a description of what the course will do after numeric selection, which is fine; keep it phrased that way (e.g. 'set course to deliver: sync on main and watch CI until merge is offered') so it cannot be read as a watch performed before the pick, and keep the `(e2e pending)` reason and the absence of any bypass annotation on pending-check initial reports so f3 and f4 continue to hold.",
+      "wallMs": 11954,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
+    }
+  },
+  "repoSha": "5197376a8f8d6b44480e866f474360e74ab3321d",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "bypass-eligible-check-pending",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "741f76d2140eb55b042610ff0c71d424cbfa5aa826f951180ec487691872493d",
+      "candidateSkillSha": "0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb",
+      "inputSha": "2537a123c8c7289007a4232a13ba4d9af5d1f64793db4a5abaeef2384565424b",
+      "factsSha": "57922b10ca67315437542b25636ca78d9ebf853cae432b9a282b9254bc645622",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "ec5aefe7b6477cda8e054f5dc391583d751e68cf14349f654ad80f1e7bb473a7",
+            "payloadSha": "6c941ca68f44bd6003c8dbe59de17df97403fb80737de6df08ed220f07bccada"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "c400d5ead82ebb3dfa2fd9947aca7850f02a2bb7d6629fa0068953961653174b",
+            "payloadSha": "4b349752c3464e350e196ea74a88a2acc068a8ef98cdc91ddd0b4a8ab5eff0ae"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "7a28bad292a2711871dfdab31089fedf34c456f3af816823f2cce935ada81e6a",
+            "payloadSha": "675f3b43b2e229c712a235b005a100384944c37bea6f127cc428d3b9ceb9cb45"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "b5726aea44f8d6047cd8ebc006c800468a9f243b00b62c2fc3f1f95f6984eb5e",
+            "payloadSha": "4ff85ca49894a38ab7a9b8142be33bf7fe13db9187fa951c3d85647f5045e404"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "59ed44db7b0167f5367d518fbc1c837ec08040014b642b5cc5a0bfdcfae9736c",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+        "baselineOutputSha": "ec5aefe7b6477cda8e054f5dc391583d751e68cf14349f654ad80f1e7bb473a7",
+        "candidateOutputSha": "7a28bad292a2711871dfdab31089fedf34c456f3af816823f2cce935ada81e6a",
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved on this sample: both outputs render the initial template with course unset, resolve the verdict to e2e pending on the assessed head, omit the merge row with the exact `Not offered: ... merge (e2e pending)` line, make no bypass or ruleset-authority claim anywhere, and offer assess/deliver/stop with deliver recommended and no watch, verification, or merge executed before a numeric pick. Two small regressions in precision worth noting for the After wording: the deliver row dropped the explicit head oid (`watch e2e on abc1234` became `watch e2e until it settles`), which weakens the exact-head evidence contract the Change says to preserve, and it also dropped `rebase on main if needed`, which hid the merge-base-sync authority that a numeric deliver grants. Keeping `deliver - watch e2e on abc1234, repair anything it turns up, rebase on main if needed, repeat until merge is offered` would retain the exact-head binding and sync authorization while still using the shared initial template; the added blank line after the gauntlet header is harmless but inconsistent with Before and should be checked against menus.md.",
+        "wallMs": 11223,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "59ed44db7b0167f5367d518fbc1c837ec08040014b642b5cc5a0bfdcfae9736c",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+        "baselineOutputSha": "c400d5ead82ebb3dfa2fd9947aca7850f02a2bb7d6629fa0068953961653174b",
+        "candidateOutputSha": "b5726aea44f8d6047cd8ebc006c800468a9f243b00b62c2fc3f1f95f6984eb5e",
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "f2": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "f3": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f5": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          }
+        },
+        "feedback": "After correctly switches to the initial template, drops the GitHub-blocked withhold in favor of `Not offered: merge (e2e pending)`, keeps bypass out of the rendering, and recommends deliver for the own PR with no pre-selection watch — but it lost the Evidence line entirely, so the pending resolution is no longer tied to the assessed head abc1234 (the Verdict only says 'verification evidence is pending'). Before carried `Evidence: pending (e2e binding; head abc1234)` and the Change paragraph says exact-head evidence is preserved, so the initial template in menus.md should still render an explicit `Evidence: pending (e2e binding; head <sha>)` line (and have `show evidence` echo it) rather than folding evidence into the Verdict; everything else in After can stay as is.",
+        "wallMs": 12505,
+        "verdict": "regressed",
+        "confirmation": {
+          "status": "ok",
+          "text": "gauntlet: gate=gatekeep-pr/initial recommended=2\n\nDelivers: retries a failed feed fetch once, with tests.\nRole: author\n\nPR comments:\n- e2e is pending and binding, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits); merge (e2e pending).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+          "words": 93,
+          "wallMs": 9706,
+          "mechanical": {},
+          "judgeWallMs": 11597,
+          "facts": {
+            "f1": {
+              "before": "holds",
+              "after": "fails",
+              "label": "regression"
+            },
+            "f2": {
+              "before": "fails",
+              "after": "holds",
+              "label": "unplanned improvement"
+            },
+            "f3": {
+              "before": "fails",
+              "after": "holds",
+              "label": "unplanned improvement"
+            },
+            "f4": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "f5": {
+              "before": "fails",
+              "after": "holds",
+              "label": "unplanned improvement"
+            }
+          },
+          "feedback": "After correctly switches to the initial template with assess/deliver/stop, deliver recommended, and the 'Not offered: merge (e2e pending)' line without any bypass claim, but it drops the rendered Evidence line entirely, so the reader can no longer see that evidence resolved to pending on the assessed head abc1234 (f1 held in Before via 'Evidence: pending (e2e binding; head abc1234)'). The initial template wording should keep an explicit 'Evidence: pending (<check> binding; head <sha>)' line between the PR comments and the Verdict (and ideally echo it in the 'show evidence' footer), so exact-head evidence stays visible while the menu, recommendation, and withhold reason change as intended."
+        },
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "57922b10ca67315437542b25636ca78d9ebf853cae432b9a282b9254bc645622",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+        "baselineOutputSha": "ec5aefe7b6477cda8e054f5dc391583d751e68cf14349f654ad80f1e7bb473a7",
+        "candidateOutputSha": "7a28bad292a2711871dfdab31089fedf34c456f3af816823f2cce935ada81e6a",
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved on this sample: both outputs render the initial template with course unset, name e2e pending in the verdict, omit the merge row with `Not offered: merge (e2e pending)`, make no bypass claim, offer assess/deliver/stop with deliver recommended, and perform no watch or merge before a numeric pick. After's only material edits are dropping the head SHA and the `rebase on main if needed` clause from the deliver row and adding `on the assessed head` to the verdict, all of which stay within the facts. If you want the After wording to remain robust across the wider change, keep the deliver row explicit that the watch binds to the assessed head (e.g. `watch e2e on the assessed head until it settles`) so the exact-head evidence ownership from the Change stays visible even when the SHA is not repeated, and continue to keep bypass eligibility out of the pending-check initial render as both versions do.",
+        "wallMs": 11922,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "57922b10ca67315437542b25636ca78d9ebf853cae432b9a282b9254bc645622",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+        "baselineOutputSha": "c400d5ead82ebb3dfa2fd9947aca7850f02a2bb7d6629fa0068953961653174b",
+        "candidateOutputSha": "b5726aea44f8d6047cd8ebc006c800468a9f243b00b62c2fc3f1f95f6984eb5e",
+        "facts": {
+          "f1": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "f2": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "f3": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f5": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          }
+        },
+        "feedback": "After moves f1, f2, f3, and f5 from fails to holds while keeping f4: it renders the initial template (gate=gatekeep-pr/initial) instead of Before's BLOCKED obstacle template, names e2e pending in the verdict without a separate Evidence: line, prints `Not offered: merge (e2e pending)` rather than `blocked by GitHub`, keeps the `show evidence` hint, recommends deliver for the author's own PR, and makes no bypass claim anywhere despite bypass_eligible true. The only thing to watch is the deliver row's wording ('rebase on main, watch CI') — it currently reads as a description of what the course will do after numeric selection, which is fine; keep it phrased that way (e.g. 'set course to deliver: sync on main and watch CI until merge is offered') so it cannot be read as a watch performed before the pick, and keep the `(e2e pending)` reason and the absence of any bypass annotation on pending-check initial reports so f3 and f4 continue to hold.",
+        "wallMs": 11954,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  }
+}
