@@ -55,11 +55,13 @@ test("shape-ticket baseline preserves slices and excludes only audit from all ex
   const target = JSON.parse(read("eval/shape-ticket/target.json"));
   assert.deepEqual(target.skillFiles, [...shapeTicketFiles, { path: auditPath }]);
   const samples = readdirSync(join(root, "eval/shape-ticket/samples")).filter((name) => !auditSamples.includes(name));
-  assert.equal(samples.length, 15);
+  assert.equal(samples.length, 16);
   for (const sample of samples) {
     const raw = read(`eval/shape-ticket/samples/${sample}/case.md`);
-    if (sample === "gate-line-first") {
-      assert.deepEqual(parseCase(raw).bundle, ["skills/shape-ticket/SKILL.md", auditPath, "skills/brainstorming/reference/menu-layout.md"]);
+    if (["gate-line-first", "per-ref-settlement"].includes(sample)) {
+      assert.deepEqual(parseCase(raw).bundle, sample === "per-ref-settlement"
+        ? ["skills/shape-ticket/SKILL.md"]
+        : ["skills/shape-ticket/SKILL.md", auditPath, "skills/brainstorming/reference/menu-layout.md"]);
       assert.deepEqual(parseCase(raw).drop, []);
       continue;
     }

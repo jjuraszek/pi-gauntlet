@@ -1,4 +1,4 @@
-for: b3bde0bbd467acbf420d81abc70fd9c452779785d1005d92960ef76e20384132
+for: 0ccdc83bf439c49f8181e3323d8bcdc4bf913806da1a7b32e9c0c656c209a02e
 
 ## Change
 Correct Worktree First's artifact lifecycle: keep recorder state in Git common-dir metadata and publish sealed records to gauntlet/telemetry, not the product squash. Add the Worktree First slice to the target assembly and run only telemetry-branch-deliverable for this edit; preserve prior evidence without claiming target-wide coverage.

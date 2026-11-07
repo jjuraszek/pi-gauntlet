@@ -1,4 +1,4 @@
-for: 5c40065243cd4229a4c6ae4a8b80f87942aa996667d7519022212b7098a032f1
+for: d30b57aa60e343123261fc97b9dd03e8d162f304bccf9166b13ca316af2c13d4
 
 ## Change
 Emit plain per-PR settlement rows with assessed full heads, terminal outcomes and only observed ticket refs after cleanup and follow-ons finish. Retain retired PR rows until final set settlement and keep intermediate retirement nonterminal. Run only per-ref-settlement for this edit and preserve historical results; this is sample-scoped coverage, not a target-wide pass.
