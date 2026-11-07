@@ -7,12 +7,14 @@ import { after, test } from "node:test";
 import { parse } from "yaml";
 import { isolatedGitEnv } from "./test-support/git-env.mjs";
 import { resolveTelemetry } from "./lib/gauntlet-settings.ts";
+import type { ReadToolCallEvent } from "@earendil-works/pi-coding-agent";
 
 const gitEnv = isolatedGitEnv(mkdtempSync(join(tmpdir(), "telemetry-leg-env-")));
 const originalGitEnv = Object.fromEntries(Object.keys(gitEnv).map(key => [key, process.env[key]]));
 Object.assign(process.env, gitEnv);
 // vcs.ts snapshots the environment at import time, including publisher subprocess settings.
 const { default: registerTelemetry, realDeps } = await import("./telemetry.ts");
+const { registerLegTelemetry } = await import("./lib/telemetry-leg.ts");
 
 const ref = "refs/heads/gauntlet/telemetry";
 const originalDepth = process.env.PI_SUBAGENT_DEPTH;
@@ -25,6 +27,27 @@ after(() => {
   if (originalDepth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
   else process.env.PI_SUBAGENT_DEPTH = originalDepth;
 });
+
+for (const skill of ["shape-ticket", "gatekeep-pr", "check-delivery"] as const) {
+  test(`${skill} read tool_call opens a leg before any tool_result`, async () => {
+    const handlers = new Map<string, (event: unknown, ctx: unknown) => unknown>();
+    const live = registerLegTelemetry({
+      on: (name: string, handler: (event: unknown, ctx: unknown) => unknown) => handlers.set(name, handler),
+    } as any, {
+      ...realDeps,
+      now: () => "2026-11-06T12:34:56Z",
+      settings: () => ({ telemetry: resolveTelemetry({}), specDirs: [], planDirs: [], errors: [], versions: {} }),
+    }, () => false);
+    const ctx = { cwd: tmpdir(), sessionManager: { getSessionId: () => `session-${skill}` } };
+    const event: ReadToolCallEvent = {
+      type: "tool_call", toolCallId: "load-skill", toolName: "read",
+      input: { path: `/package/skills/${skill}/SKILL.md` },
+    };
+    assert.equal(live(), undefined);
+    await handlers.get("tool_call")!(event, ctx);
+    assert.ok(live(), "the read call must open the accumulator without waiting for a result");
+  });
+}
 
 // Real plumbing stays local: origin's portable identity is rewritten to a scratch bare repo.
 function harness(skill: string) {
@@ -83,7 +106,7 @@ for (const [skill, outcome, activation, empty] of [
     assert.equal(h.hasRecord(), false);
     if (activation === "input") await h.emit("input", { text: `/skill:${skill} create a ticket`, source: "interactive" });
     if (activation === "expanded") await h.emit("before_agent_start", { messageType: "user", prompt: `<skill name="${skill}" location="/package/skills/${skill}/SKILL.md">\nInstructions\n</skill>\n\n#42` });
-    if (activation === "read") await h.emit("tool_result", { toolName: "read", input: { path: `/package/skills/${skill}/SKILL.md` }, isError: false, content: [] });
+    if (activation === "read") await h.emit("tool_call", { type: "tool_call", toolName: "read", toolCallId: "load-skill", input: { path: `/package/skills/${skill}/SKILL.md` } });
     await h.say("gauntlet: gate approval\n1. Approve\n2. Decline");
     await h.emit("agent_settled", { aborted: false });
     assert.equal(h.hasRecord(), false, "human gate is not completion");

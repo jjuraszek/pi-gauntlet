@@ -107,9 +107,9 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
       start(skill ?? lastSkill, ctx, !skill);
     }
   });
-  pi.on("tool_call", async () => { terminal = undefined; });
-  pi.on("tool_result", async (event, ctx) => {
-    if (event.toolName !== "read" || event.isError) return;
+  pi.on("tool_call", async (event, ctx) => {
+    terminal = undefined;
+    if (event.toolName !== "read") return;
     const path = (event.input as { path?: unknown }).path;
     if (typeof path === "string") start(legSkill(/(?:^|\/)skills\/([^/]+)\/SKILL\.md$/.exec(path)?.[1]), ctx);
   });

@@ -58,7 +58,7 @@ test("a plain follow-up can load another skill without losing provisional usage"
   round++;
   await emit("before_agent_start", { messageType: "user", prompt: "Review PR 7" });
   await say("I'll load the PR review skill.", 2, 0.25);
-  await emit("tool_result", { toolName: "read", input: { path: "skills/gatekeep-pr/SKILL.md" }, isError: false, content: [] });
+  await emit("tool_call", { type: "tool_call", toolCallId: "load-skill", toolName: "read", input: { path: "skills/gatekeep-pr/SKILL.md" } });
   await say("gauntlet: done settled\n#7@abc123: approved (#42)", 3, 0.5);
   await emit("agent_settled", { aborted: false });
   const rows = [...records.values()].map(bytes => parse(bytes));

@@ -70,7 +70,7 @@ for (const [skill, marker, row] of [
     await h.emit("session_start");
     await h.emit("input", { source: "interactive", text: `/skill:${skill}` });
     await h.emit("before_agent_start", { messageType: "user", prompt: `<skill name="${skill}" location="/package/skills/${skill}/SKILL.md">` });
-    await h.emit("tool_result", { toolName: "read", input: { path: `/package/skills/${skill}/SKILL.md` }, isError: false });
+    await h.emit("tool_call", { type: "tool_call", toolCallId: "load-skill", toolName: "read", input: { path: `/package/skills/${skill}/SKILL.md` } });
     const message = await h.say(`gauntlet: ${marker} settled\n${row}`);
     await h.emit("agent_settled", { aborted: false });
     await h.emit("session_shutdown");
