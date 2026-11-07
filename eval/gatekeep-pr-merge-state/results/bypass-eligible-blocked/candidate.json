@@ -1,0 +1,110 @@
+{
+  "sample": "bypass-eligible-blocked",
+  "arm": "candidate",
+  "skillSha": "0fd99c79df5c8c05071c97e8f1b39a8d526c5727e8dc0b9c6b356292282fc393",
+  "inputSha": "78ae5e4fd3b37e2431310bad015f27e986cb9429fe779f3c282a03c7f51d2e82",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```text\ngauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci) on abc1234; run 701: test success; 0 binding pending; merge_state_status BLOCKED (bypass eligible)\nDelivers: the feed fetch retries once on failure, with tests.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge abc1234 using ruleset bypass authority. [recommended]\n2. stop - leave the PR as is and keep the checkout.\n\nNot offered: approve (your own PR)\nType a number; show evidence prints the full record (CI (source: ci) on abc1234; run 701: test success; 0 binding pending; merge_state_status BLOCKED).\n```\n\n```text\ngauntlet: gate=gatekeep-pr/final recommended=2\nEvidence: CI (source: ci) on abc1234; run 701: test success; 0 binding pending; merge_state_status BLOCKED (bypass eligible)\nDelivers: the feed fetch retries once on failure, with tests.\nRole: requested reviewer\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge abc1234 using ruleset bypass authority.\n2. approve - approve robin's PR at abc1234. [recommended]\n3. stop - leave the PR as is and keep the checkout.\n\nType a number; show evidence prints the full record (CI (source: ci) on abc1234; run 701: test success; 0 binding pending; merge_state_status BLOCKED).\n```\n",
+      "words": 188,
+      "wallMs": 18252,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci); head abc1234; run 701; test completed/success; binding-pending count 0; merge_state_status BLOCKED.\n\nDelivers: the feed fetch retries once, with tests.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge using ruleset bypass authority with squash. [recommended]\n2. stop - leave the checkout as found.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record (CI (source: ci); head abc1234; run 701; test completed/success; binding-pending count 0; merge_state_status BLOCKED).\n\n---\n\ngauntlet: gate=gatekeep-pr/final recommended=2\nEvidence: CI (source: ci); head abc1234; run 701; test completed/success; binding-pending count 0; merge_state_status BLOCKED.\n\nDelivers: the feed fetch retries once, with tests.\nRole: requested reviewer\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge using ruleset bypass authority with squash.\n2. approve - approve the PR at the assessed head. [recommended]\n3. stop - leave the checkout as found.\n\nType a number; show evidence prints the full record (CI (source: ci); head abc1234; run 701; test completed/success; binding-pending count 0; merge_state_status BLOCKED).\n",
+      "words": 173,
+      "wallMs": 13083,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ed4190ed4e97be0bfdaad63499e5e5cbdd70f8beb75b6d23a97c12eb30a4cfc7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4a7d4b72f776d8bdecb272636edab0877023cf3ffaf2974772986dc6cc786185",
+      "baselineOutputSha": "628e5a8e3f3ca28ddf327ef9919f57eb24875890e3e5f5ad97cee3d6992687f5",
+      "candidateOutputSha": "06fddaee3aa9475dd5fdc8a8d48797ec691f285c1fc054eb9e40b8c73f46299a",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: both snapshots now render final, the ordinary merge row carries 'using ruleset bypass authority' as its consequence with no separate bypass/admin row, A recommends merge and withholds approve only for the own PR, B recommends approve while retaining merge, stop is last in both, exact-head CI evidence (run 701, test success on abc1234) is preserved, and the blocked PR-comments line and 'Not offered: merge' from Before are gone. f5 is kept because the menus only offer merge, demand no extra approval, cite no named rule, and label the state as 'bypass eligible' rather than asserting admin status or live non-admin proof. Nothing regressed; if you want extra safety on f5, keep the evidence summary phrasing exactly as it is ('merge_state_status BLOCKED (bypass eligible)') rather than drifting toward 'admin' wording, and keep the 'Not offered' line present only when a row is actually withheld, as After already does.",
+      "wallMs": 13624,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ed4190ed4e97be0bfdaad63499e5e5cbdd70f8beb75b6d23a97c12eb30a4cfc7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4a7d4b72f776d8bdecb272636edab0877023cf3ffaf2974772986dc6cc786185",
+      "baselineOutputSha": "1d0ae2389d401936ae72b39aa074c5aabdec944abcc4e8261d4e6253f7a136c0",
+      "candidateOutputSha": "a3363a3d26f70ee840d1c171a325b01bb486c4458f52567dbe1d9968a9ea5021",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly on this sample: both snapshots now render gate=final with an ordinary merge row whose consequence names ruleset bypass authority (no separate bypass/admin row), Snapshot A recommends merge and withholds approve as own PR with stop last, Snapshot B recommends approve while retaining merge with stop last, and the exact-head CI evidence (head abc1234, run 701, test success) is preserved without the Before's blocked PR-comments line or 'Not offered: merge (blocked by GitHub)'. f5 is retained because After still only presents a menu, demands no additional approval, and names neither a blocking rule nor live non-admin proof; keeping the consequence phrased as 'using ruleset bypass authority' (rather than citing a specific ruleset or asserting what a non-admin would see) is what preserves it, so avoid any future wording that expands that consequence into a named rule or an assertion about live behavior.",
+      "wallMs": 12763,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e99ebee819660ba8620eb0a8f2befa29308daa5f"
+}

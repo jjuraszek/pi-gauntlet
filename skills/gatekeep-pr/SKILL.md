@@ -72,7 +72,7 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 - The orchestrator resolving a merge conflict itself, or editing or committing a tracked file during a fix wave - owner: `reference/fix-wave.md` `## Sync` and `## Wave`.
 - A helper's duty run in the orchestrator's own context - owner: `## Harness notes`.
 - Approving your own PR - owner: `reference/decision-menu.md` `## Availability`.
-- Merging around an undispositioned failing check or a binding pending check, or a `BLOCKED`/`UNKNOWN`/`unreadable` merge state - owner: `reference/findings.md` `## Dispositions`.
+- Merging around an undispositioned failing check or a binding pending check, or a merge-state withhold under `reference/post-selection-loop.md` `### Merge preconditions` - owner: `reference/findings.md` `## Dispositions`.
 - A menu rendered without the pre-menu refresh - owner: `reference/post-selection-loop.md` `### Pre-menu refresh`.
 - Reading `mergeStateStatus` from anything but a `gh pr view` invocation, attributing a `BLOCKED` to a named rule, or treating a non-`BLOCKED` value as a merge verdict - owner: `verification-brief.md` Section A.
 - A claim verdict recorded behind a pending tracker stage - owner: `## Progress tracking`.

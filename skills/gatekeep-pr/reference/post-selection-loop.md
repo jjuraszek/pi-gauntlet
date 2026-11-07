@@ -60,7 +60,7 @@ Resolve every unmet merge prerequisite; retain failed prerequisites and append c
 | Helper open - needs <what>, or pi failed decision's second slot starts needs <what> | `stuck - needs <what>`. |
 | Helper open - contract exception, or pi failed decision's second slot starts contract exception: | Render contract exception through `### Contract decision`, not obstacle. |
 | HEAD equals pre_wave_head with all payloads open, or scoped test unchanged-red after restore | render per ### No-progress obstacle |
-| Undispositionable BLOCKED | `GitHub reports BLOCKED, no local repair applies`; invent no rule attribution. |
+| Undispositionable BLOCKED without eligible bypass under Merge preconditions | `GitHub reports BLOCKED, no local repair applies`; invent no rule attribution. |
 | UNKNOWN/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check | Render `stuck - merge state unknown` through `menus.md`'s obstacle template; let merge state own the withhold reason and the PR comments line. Authorize no sync, offer no ordinary wait row, keep stop last and `[recommended]`, report both usage counters unchanged, and print `Not offered: merge (merge state unknown)`. |
 | Nonzero gh or incomplete pagination during refresh/refetch | One retry, then `stuck - refresh failed: <actual reason>`. |
 | Incomplete comment source review | One fresh reviewer retry, then `stuck - comment source review incomplete`. |
@@ -112,7 +112,7 @@ All must hold before `merge` executes; a `merge` pick while one fails is refused
 - `mergeable == MERGEABLE` (`UNKNOWN` after step 2's single re-poll withholds like `CONFLICTING`)
 - `merge_state_status` is not `BEHIND`; while it is, run `### Loop sync` under delivery
 - no undispositioned failing check in the resolved set, no **binding** pending check (`../verification-brief.md` Section B, binding classification)
-- `merge_state_status` is not `BLOCKED`, `UNKNOWN`, or `unreadable`, and the pre-menu refresh succeeded (`### Pre-menu refresh`); a non-`BLOCKED` value is never a verdict - it only leaves this row satisfied, and a `gh pr merge` refusal is reported verbatim
+- `merge_state_status` is not `UNKNOWN` or `unreadable`, and the pre-menu refresh succeeded (`### Pre-menu refresh`). For `BLOCKED`, require fresh `permissions.can_bypass_merge == true`; lift only this merge-state withhold and keep every other precondition binding. Treat false or unreadable eligibility as no bypass. A non-`BLOCKED` value is never a verdict - it only leaves this row satisfied, and a `gh pr merge` refusal is reported verbatim
 - no retained, unreviewed comment delta (`### Re-render` step 4)
 - worktree tracked-clean and synced with the remote head (fixes pushed first)
 - the repo allows the resolved merge policy: read `gh api repos/<owner>/<repo> --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'` and require the policy's flag (`squash` -> `allow_squash_merge`, `merge-commit` -> `allow_merge_commit`, `rebase` -> `allow_rebase_merge`) to be `true`; a `false` is a blocker on the `merge` pick, named as `merge policy <policy> is disabled on <owner>/<repo>`, never a `gh pr merge` failure
@@ -178,6 +178,8 @@ After every push or any mutation that can change readiness (fix wave pushed, PR 
 **Refetch failure** (`gh` non-zero, network, pagination incomplete): retry once, retaining prior ledger states; then exit `stuck - refresh failed: <actual reason>` without dropping the delta.
 
 ### Pre-menu refresh
+
+Refresh `permissions.can_bypass_merge` through Section A's fixed GraphQL query on every pre-menu refresh, using the recorded base repository and PR number; apply Section A's fail-closed decoding instead of retaining a cached true. On a head, body, or base mismatch across the reads, discard eligibility and refresh the matching snapshot before offering merge.
 
 Refresh read-only before step 5, first report included, and at each Re-render. Run one `gh pr view <N> --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests` and one `gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url`. Fold `gh pr view <N> --json headRefOid,body,baseRefName` into that read. Apply target/body freshness from Next action. While locally rewritten under a loop checkpoint compare remote to `repair.wave.sync.expected_remote_head`; preserve that expectation on mismatch and recover to `repair.wave.sync.pre_head` through Sync's restore/assert obstacle. An entry rewrite without a loop checkpoint keeps its own pre_head for comparison and recovery. An unmoved remote retains local-head source: pending until lease push; preserve the loop checkpoint through this read and any local-head assessment. On other head moves re-enter step 3. On an unchanged head replace merge state, reviewDecision, status_checks, actions_runs, and pr.review_requests together and re-derive `viewer.role` per Section A; reclassify via the brief's binding rule and re-resolve the Evidence resolution table. Pending to CI-sufficient dispatches a fresh helper in claim-check-only mode with a disposition for every material claim.
 
