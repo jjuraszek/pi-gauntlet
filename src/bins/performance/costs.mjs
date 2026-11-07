@@ -131,7 +131,10 @@ function displayCosts(costs) {
         .sort((a, b) => direction * (b.fraction - a.fraction)
           // Keep the last-row tie for thirds, but award half-cent ties in row order.
           || (Math.abs(a.fraction) < 0.5 ? b.index - a.index : a.index - b.index));
-      for (let i = 0; i < Math.abs(residual); i++) ranked[i].cents += direction;
+      const distributed = Math.min(Math.abs(residual), ranked.length);
+      for (let i = 0; i < distributed; i++) ranked[i].cents += direction;
+      // Linked totals inherit source rounding and can exceed the targets' fractional cents.
+      if (distributed < Math.abs(residual)) shares.at(-1).cents += residual - distributed * direction;
       for (const { row, column, cents } of shares) copies.get(row)[column] = cents / 100;
     }
   };

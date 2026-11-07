@@ -625,7 +625,9 @@ function displayCosts(costs) {
       const residual = Math.round(total * 100) - shares.reduce((sum2, share) => sum2 + share.cents, 0);
       const direction = Math.sign(residual);
       const ranked = shares.filter((share) => share.fraction * direction > 0).sort((a, b) => direction * (b.fraction - a.fraction) || (Math.abs(a.fraction) < 0.5 ? b.index - a.index : a.index - b.index));
-      for (let i = 0; i < Math.abs(residual); i++) ranked[i].cents += direction;
+      const distributed = Math.min(Math.abs(residual), ranked.length);
+      for (let i = 0; i < distributed; i++) ranked[i].cents += direction;
+      if (distributed < Math.abs(residual)) shares.at(-1).cents += residual - distributed * direction;
       for (const { row, column, cents } of shares) copies.get(row)[column] = cents / 100;
     }
   };

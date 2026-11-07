@@ -107,6 +107,25 @@ for (const [batch, displayed, adjustment = 0] of [
   });
 }
 
+test("linked PR run conserves rounded ticket totals when the residual exceeds eligible cells", () => {
+  const refs = ["#1", "#2", "#3"];
+  const costs = aggregateCosts(
+    refs.map(ref => ({ row: { repo, run_id: ref, tickets: [ref], cost: 0.006 } })),
+    [leg("gatekeep-pr", "linked", 0, refs.map(ref => pr("#10@aaaa", ref)))],
+  );
+  const before = JSON.stringify(costs);
+  let text;
+  assert.doesNotThrow(() => { text = renderCosts(costs); });
+  const rows = text.split("\n").map(line => line.trim().split(/\s+/));
+  const cells = key => rows.find(row => row[1] === `${repo}${key}`);
+  const ticketRuns = refs.map(ref => Number(cells(ref)[4]));
+  assert.deepEqual(ticketRuns, [0.01, 0.01, 0.01]);
+  assert.equal(cells("#10")[3], "0.03");
+  assert.equal(Number(cells("#10")[3]), ticketRuns.reduce((sum, cost) => sum + cost, 0));
+  assert.equal(JSON.stringify(costs), before, "rendering leaves JSON shares unrounded");
+  assert.ok(Math.abs(JSON.parse(before).prs[0].run - 0.018) < 1e-12);
+});
+
 test("fractional records for one ticket aggregate before text rounding", () => {
   const dir = corpus([
     leg("shape-ticket", "first", 0.004, [ticket("#1")]),
