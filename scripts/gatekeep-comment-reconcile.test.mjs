@@ -592,6 +592,10 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
   assert.match(findings, /With BLOCKED, no eligible bypass under `post-selection-loop.md` `### Merge preconditions`, and no dispositionable local repair/);
   assert.ok(report.includes("GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)"));
 
+  assert.match(report, /Keep `bypass_eligible` and its value only in the digest `permissions` block; never name the field in rendered output/);
+  const renderedShape = section(report, '```\nDelivers:', '\n```');
+  assert.doesNotMatch(renderedShape, /bypass_eligible/);
+
   const root = '../eval/gatekeep-pr-merge-state';
   const sample = 'bound-viewer-green-ci';
   for (const [name, value] of [
@@ -607,10 +611,9 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
   }
   const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
   const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
-  // Pin the historical replay's source and assembly; the instruction checks above stay live.
   assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
-    repoSha: 'edaffafe2dfea5ff047d8770ca6fa574939eec8a',
-    skillSha: '346057d43f5ebcc2b501de1e448e278ba85c47f2dd518b5de01e8363b9c42aee',
+    repoSha: 'a356e807449ba62bb88ff91bb2e66bfc4472eec0',
+    skillSha: '0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb',
   });
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
@@ -619,9 +622,9 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/obstacle/);
     assert.match(output.text, /Not offered: merge \(blocked by GitHub\)/);
-    assert.match(output.text, /GitHub reports this actor's merge as blocked, so merge waits/);
+    assert.ok(output.text.includes("GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)"));
     assert.doesNotMatch(output.text, /^\d+\. (?:merge|wait|approve)\b/m);
-    assert.doesNotMatch(output.text, /ruleset bypass authority|bypass eligible|\badmin\b/i);
+    assert.doesNotMatch(output.text, /bypass_eligible|ruleset bypass authority|bypass eligible|\badmin\b/i);
     const judge = saved.judge[model];
     assert.equal(judge.factsSha, sha256(expected));
     assert.equal(judge.candidateOutputSha, sha256(output.text));

@@ -1,4 +1,4 @@
-for: a2a82056783a9a53ab55f3e154fb6f08f08aa11de04ec6608d64e693cbfe748a
+for: 43ff42a3f353ebf3ff0e96dd06478e64c94fc250fa68b645fe858bc145652181
 
 ## Change
 Append the bypass-only merge flag, consume server refusals without retry and refresh before routing, and invalidate selected merges on eligibility changes even while BLOCKED stays unchanged. Test only bypass-merge-pick-refused and bypass-merge-pick-revoked for this edit. These synthetic post-pick replays establish sample-scoped gate behavior, not live GitHub eligibility or merge success. Preserve historical results for other samples.

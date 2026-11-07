@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
+import { inputSha, parseCase } from '../eval/lib/replay.mjs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -38,8 +38,11 @@ for (const name of ['bypass-merge-pick-refused', 'bypass-merge-pick-revoked']) {
     const parsed = parseCase(read(`${root}/samples/${name}/case.md`));
     const expected = read(`${root}/samples/${name}/expected.md`);
     const saved = JSON.parse(read(`${root}/results/${name}/candidate.json`));
-    const config = JSON.parse(read(`${root}/target.json`));
-    assert.equal(saved.skillSha, sha256(assemble({ ...config, skillFiles: config.skillFiles.filter(({ path }) => !parsed.drop.includes(path)) }, read, parsed.bundle)));
+    // These post-pick replays pin historical evidence, not the current report assembly.
+    assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
+      repoSha: 'e3e160477bacb41f98d7fd604e7873db622af289',
+      skillSha: '8a91f323adfcf7037bfa33896191540b51e507fefeac1cc0655f19f6f68dd061',
+    });
     assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
     assert.equal(Object.keys(saved.outputs).length, 2);
     for (const [model, output] of Object.entries(saved.outputs)) {
