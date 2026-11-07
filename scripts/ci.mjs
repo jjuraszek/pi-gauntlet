@@ -361,6 +361,8 @@ if (!existsSync(R("skills/finishing-a-development-branch/../../bin/gauntlet-tele
 if (!existsSync(R("skills/gauntlet-performance/../../bin/gauntlet-performance.mjs"))) fail("gauntlet-performance: path from skills/gauntlet-performance does not resolve");
 // Telemetry publication stays separate from product delivery and gatekeep-pr instructions.
 {
+  const trackedTelemetry = execFileSync("git", ["ls-files", "--", ".pi/gauntlet/telemetry"], { cwd: root, encoding: "utf8" }).trim();
+  if (trackedTelemetry) fail(".pi/gauntlet/telemetry: migrate tracked records to gauntlet/telemetry and remove them from the product branch");
   const worktreeFirst = txt("skills/brainstorming/SKILL.md").split(/^## /m).find((s) => s.startsWith("Worktree First")) ?? "";
   if (!worktreeFirst.includes("orphan `gauntlet/telemetry` branch")) fail("skills/brainstorming/SKILL.md: Worktree First must publish telemetry outside the checkout");
   const finishing = txt("skills/finishing-a-development-branch/SKILL.md");
