@@ -563,8 +563,8 @@ test('bypass eligibility preserves pending CI and every independent merge withho
   const parsed = parseCase(input);
   // Pin the historical replay's source and assembly; the instruction checks above stay live.
   assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
-    repoSha: 'c25d0bcfe78739087247eca17d14cc3f99fd034f',
-    skillSha: '346057d43f5ebcc2b501de1e448e278ba85c47f2dd518b5de01e8363b9c42aee',
+    repoSha: '5197376a8f8d6b44480e866f474360e74ab3321d',
+    skillSha: '0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb',
   });
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
