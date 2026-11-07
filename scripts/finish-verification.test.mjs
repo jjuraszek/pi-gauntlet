@@ -115,8 +115,29 @@ test("telemetry docs and lifecycle skills describe branch records rather than ch
   assert.doesNotMatch(seed, /path `<telemetry\.dir>|key: "telemetry\.dir"/);
   for (const token of ["telemetry.remote", "gauntlet/telemetry", "Leg records", "UTC timestamp", "incomplete", "unattributed", "even split", "check-delivery"]) assert.ok(config.includes(token), token);
   assert.match(config, /author.*name.*email/);
-  assert.match(config, /branches-ignore/);
-  assert.match(readme, /orphan `gauntlet\/telemetry` branch/);
+  const telemetry = config.split('### `telemetry`\n')[1].split('\n## ')[0];
+  const migration = telemetry.split('#### Moving off the gauntlet/telemetry branch\n')[1]?.split('\n#### ')[0];
+  assert.ok(migration, 'branch migration is a subsection of telemetry');
+  const steps = [...migration.matchAll(/^\d\. (.+)$/gm)].map((match) => match[1]);
+  assert.equal(steps.length, 5);
+  for (const [index, pattern] of [
+    /Upgrade every machine/,
+    /--migrate-branch.*every clone.*git branch --list gauntlet\/telemetry/,
+    /--retire-branch.*remote branch/,
+    /local cleanup.*each clone/,
+    /Remove.*branches[-]ignore: \['gauntlet\/telemetry'\]/,
+  ].entries()) assert.match(steps[index], pattern);
+  for (const token of [
+    'read only `refs/telemetry/records`', 'invisible until', 'seal during this window',
+    'checked carry', 'server-side copy', 'telemetry.remote',
+    'git update-ref -d refs/remotes/origin/gauntlet/telemetry',
+    'lease rejection', 're-run `--migrate-branch` then `--retire-branch`',
+    'remove or rename the wrong copy on the source branch',
+  ]) assert.ok(migration.includes(token), token);
+  assert.match(migration, /if git show-ref --verify --quiet refs\/heads\/gauntlet\/telemetry; then git branch -D gauntlet\/telemetry; fi/);
+  assert.doesNotMatch(telemetry, /Keep telemetry pushes out of CI/);
+  assert.match(readme, /publishes YAML records on the `refs\/telemetry\/records` ref/);
+  assert.match(readme, /refreshes the `refs\/telemetry\/records` ref/);
   assert.doesNotMatch(readme, /run record ship in the squash/);
 });
 

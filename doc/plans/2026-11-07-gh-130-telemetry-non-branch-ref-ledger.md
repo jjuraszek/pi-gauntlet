@@ -3,7 +3,7 @@
 base: 62a7baef6ae1f118b5c923348ce25c79d22c5e73
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -13,7 +13,7 @@ allowance: 10
 | 3 | done | 0 | timeout -k 30 180 node --test src/bins/gauntlet-telemetry-seal-branch.test.mjs; 3 passed, 0 failed; configured URL receives refs/telemetry/records while origin refs and remote configuration remain unchanged |
 | 4 | done | 1 | timeout -k 30 180 node --test src/bins/gauntlet-telemetry-readers.test.mjs; 10 passed, 0 failed; fresh default clones read both records through all three consumers without adding branches or fetch configuration; offline cached and empty-corpus warnings preserved |
 | 5 | done | 1 | timeout -k 30 180 node --test src/bins/gauntlet-telemetry-concurrency.test.mjs; 11 passed, 0 failed; shared-tip and first-use races retry without force, stranded records recover on refresh, seal and leg publication; not-pushed outcomes and last-writer-wins replay preserved |
-| 6 | open | 0 | |
+| 6 | done | 1 | timeout -k 30 180 node --test scripts/finish-verification.test.mjs; 43 passed, 0 failed; ordered upgrade, carry, retirement, cleanup and CI exclusion removal documented with upgrade-window and recovery guidance; README and telemetry reference name the new ref |
 | 7 | open | 0 | |
 | 8 | open | 0 | |
 | 9 | open | 0 | |
@@ -25,3 +25,4 @@ row 2 done | Moved publication and fetched tips outside branch namespaces, reuse
 row 3 done | Verified that the configured URL receives the new ref without changing origin refs or remote configuration in the existing seal fixture. | nothing new to build on
 row 4 done | Strengthened reader tests with fresh default clones, both records and branch invariance, repointed old ref assertions and passed 10 tests. | Reuse freshClone and the consumer matrix in src/bins/gauntlet-telemetry-readers.test.mjs to check origin, configured remotes and offline fallback.
 row 5 done | Repointed concurrency fixtures to the new destination and fetched ref, passed all 11 tests and rebuilt bins without changes. | Reuse src/bins/gauntlet-telemetry-concurrency.test.mjs for race injection, push rejection and stranded-record recovery checks on the new ref.
+row 6 done | Documented ordered migration, cleanup and recovery, updated ref descriptions and the changelog, and passed 43 tests after a missing-section failure. | Reuse doc/configuration.md's migration procedure and scripts/finish-verification.test.mjs to keep migration commands and their documented order aligned.
