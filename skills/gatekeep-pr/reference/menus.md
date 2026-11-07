@@ -48,7 +48,7 @@ Course holds until the final menu; `show evidence` prints the full record.
 
 Start the message with `gauntlet: gate=gatekeep-pr/final`.
 
-For eligible BLOCKED readiness, render `merge - merge using ruleset bypass authority` with the resolved policy in its consequence. Keep the ordinary `merge` row and the same recommendation defaults; render no separate bypass row.
+For eligible BLOCKED readiness, render `merge - <policy>-merge on ruleset bypass authority; CI evidence stands` with the resolved policy, and carry `merge_state_status BLOCKED (bypass eligible; reviewDecision <value>)` in the `Evidence:` line below. Keep the ordinary `merge` row and the same recommendation defaults; render no separate bypass row.
 
 Offer available `merge`, `approve`, `fix nits` when nits remain and the course excluded them, `reply` when drafted replies exist, then `stop`. Recommend merge for own PR; recommend approve for someone else's when available, else merge; with neither available recommend stop. Omit merge on a draft with `Not offered: merge (draft)` or below WRITE with `Not offered: merge (needs WRITE on <owner>/<repo>)`. Omit approve on drafts and own PRs. Authorize exactly one delivery iteration for fix nits, leaving course unchanged (`post-selection-loop.md` `### Next action`). Hint: `Type a number; show evidence prints the full record.` Print one compact `Evidence:` line above the `Delivers:` line naming the source (`CI (source: ci)` or the local run), the head SHA, each run and its checks with their conclusions, the binding-pending count, and `merge_state_status`; put the same record in the `show evidence` hint's parenthetical.
 

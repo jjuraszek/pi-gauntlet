@@ -1,8 +1,8 @@
-for: cb79ab2938a89be0baf9a9130dabfc0dbb1ab00abd32e15218d985eebbd42e25
+for: d36a844b19a3806e98af832a10d8a947b234f4e5023542962125ccddf94c2c01
 
 ## Change
 
-The shared bypass-menu edit is tested only by gatekeep-pr-merge-state/bypass-eligible-blocked; this assembly hash is refreshed for structural checks, not a new replay claim for this target.
+The shared bypass-menu edit is tested only by gatekeep-pr-merge-state/bypass-eligible-green-ci; this assembly hash is refreshed for structural checks, not a new replay claim for this target.
 
 Replace per-action repair authority and ordinary wait menus with persistent assess/deliver/deliver-nits courses and the shared menus.md templates. Preserve identity validation, independent claim/mechanism closure, exact-head evidence and terminal cleanup ownership. Source rounds count new repair-wave commits; body-only work and conflict-only syncs have independent accounting. Caps freeze at twice the entry setting, timeout renews only on own push or explicit obstacle continuation, and resumed sync preserves separate restore and lease heads.
 

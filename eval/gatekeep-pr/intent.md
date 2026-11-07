@@ -1,7 +1,7 @@
-for: 254cddb0c463f3e099e627a511eb78f1d0a152917f4c9e9764f65f21a9a6da6e
+for: 77b0106fab9fb53bf80aaf9b5b90cb43d287ea41343fbc65edae6c5a9a3c0212
 
 ## Change
-The shared bypass-menu edit is tested only by gatekeep-pr-merge-state/bypass-eligible-blocked; this assembly hash is refreshed for structural checks, not a new replay claim for this target.
+The shared bypass-menu edit is tested only by gatekeep-pr-merge-state/bypass-eligible-green-ci; this assembly hash is refreshed for structural checks, not a new replay claim for this target.
 
 Emit plain per-PR settlement rows with assessed full heads, terminal outcomes and only observed ticket refs after cleanup and follow-ons finish. Retain retired PR rows until final set settlement and keep intermediate retirement nonterminal. Run only per-ref-settlement for this edit and preserve historical results; this is sample-scoped coverage, not a target-wide pass.
 

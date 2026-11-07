@@ -514,15 +514,22 @@ test('eligible BLOCKED uses fresh viewer-relative authority on the ordinary merg
   assert.doesNotMatch(final, /merge \(admin\)/);
   assert.match(report, /For an eligible BLOCKED merge, omit the blocked PR-comments line/);
   for (const command of brief.matchAll(/gh pr view[^\n]+/g)) assert.ok(!command[0].includes('viewerCanMergeAsAdmin'));
-  const sample = '../eval/gatekeep-pr-merge-state/samples/bypass-eligible-blocked';
-  assert.match(read(`${sample}/case.md`), /viewer_permission: WRITE[\s\S]*can_bypass_merge: true/);
-  assert.match(read(`${sample}/expected.md`), /ordinary.*merge.*ruleset bypass authority/i);
-  const saved = JSON.parse(read('../eval/gatekeep-pr-merge-state/results/bypass-eligible-blocked/candidate.json'));
+  assert.doesNotMatch(gather + refresh, /can_bypass_merge/);
+  assert.match(refresh, /replace merge state, bypass_eligible, reviewDecision/);
+  const sample = '../eval/gatekeep-pr-merge-state/samples/bypass-eligible-green-ci';
+  assert.match(read(`${sample}/case.md`), /viewer_permission: MAINTAIN[^\n]*bypass_eligible: true/);
+  assert.match(read(`${sample}/case.md`), /is_author: true/);
+  assert.match(read(`${sample}/expected.md`), /squash-merge on ruleset bypass authority; CI evidence stands/);
+  const saved = JSON.parse(read('../eval/gatekeep-pr-merge-state/results/bypass-eligible-green-ci/candidate.json'));
   const parsed = parseCase(read(`${sample}/case.md`));
   assert.equal(saved.inputSha, inputSha(read('../eval/gatekeep-pr-merge-state/replay.md'), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
   for (const [model, output] of Object.entries(saved.outputs)) {
     assert.equal(output.status, 'ok', model);
+    assert.match(output.text, /gate=gatekeep-pr\/final/);
+    assert.match(output.text, /merge - squash-merge on ruleset bypass authority; CI evidence stands/);
+    assert.match(output.text, /Evidence:[^\n]*merge_state_status BLOCKED \(bypass eligible; reviewDecision REVIEW_REQUIRED\)/);
+    assert.doesNotMatch(output.text, /merge waits|Not offered: merge|\badmin\b/i);
     const judge = saved.judge[model];
     assert.equal(judge.factsSha, sha256(read(`${sample}/expected.md`)));
     assert.equal(judge.candidateOutputSha, sha256(output.text));

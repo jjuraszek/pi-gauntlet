@@ -1,21 +1,21 @@
-for: 0fd99c79df5c8c05071c97e8f1b39a8d526c5727e8dc0b9c6b356292282fc393
+for: 346057d43f5ebcc2b501de1e448e278ba85c47f2dd518b5de01e8363b9c42aee
 
 ## Change
 
 Replace per-action repair authority and ordinary wait menus with persistent assess/deliver/deliver-nits courses and the shared menus.md templates. Preserve identity validation, independent claim/mechanism closure, exact-head evidence and terminal cleanup ownership. Source rounds count new repair-wave commits; body-only work and conflict-only syncs have independent accounting. Caps freeze at twice the entry setting, timeout renews only on own push or explicit obstacle continuation, and resumed sync preserves separate restore and lease heads.
 
-Offer the ordinary merge row for BLOCKED only with fresh viewer-relative bypass eligibility and every other prerequisite satisfied. Name ruleset bypass authority in its consequence and preserve own/other-author recommendation defaults. Keep UNKNOWN/check_run/status_context classification unchanged, and fail closed on false or unreadable eligibility. Course-unset pending reports use initial without an unauthorized watch; bound CI obstacles and eligible delivery paths use the shared templates. Rename neither sample directories nor stable fact IDs.
+Offer the ordinary merge row for BLOCKED only with fresh viewer-relative bypass eligibility and every other prerequisite satisfied. Render `merge - <policy>-merge on ruleset bypass authority; CI evidence stands` and `merge_state_status BLOCKED (bypass eligible; reviewDecision <value>)` on the Evidence line and preserve own/other-author recommendation defaults. Keep UNKNOWN/check_run/status_context classification unchanged, and fail closed on false or unreadable eligibility. Course-unset pending reports use initial without an unauthorized watch; bound CI obstacles and eligible delivery paths use the shared templates. Rename neither sample directories nor stable fact IDs.
 
 ## Comparison scope
 
-Select only bypass-eligible-blocked against b9dd8f39286fdf8d13eb84a612885b2b835e617c for the bypass-menu change. Preserve prior reports and results as historical evidence, not current coverage. The remaining predictions concern the extracted-menu baseline 40d6c9e4; unselected samples are not rerun.
+Select only bypass-eligible-green-ci against b9dd8f39286fdf8d13eb84a612885b2b835e617c for the bypass-menu contract correction. Keep bypass-eligible-blocked's unauthorized results as historical evidence only; never rerun that sample. Preserve prior reports and results as historical evidence, not current coverage. The remaining predictions concern the extracted-menu baseline 40d6c9e4; unselected samples are not rerun.
 
 ## Expected to move
 
-- bypass-eligible-blocked/f1: fails -> holds - Eligible BLOCKED gets the ordinary merge row with a bypass consequence.
-- bypass-eligible-blocked/f2: fails -> holds - Own-PR readiness recommends merge rather than stopping at BLOCKED.
-- bypass-eligible-blocked/f3: fails -> holds - Other-author readiness recommends approve while retaining merge.
-- bypass-eligible-blocked/f4: fails -> holds - Eligible BLOCKED preserves CI evidence without a blocked withhold line.
+- bypass-eligible-green-ci/f1: fails -> holds - Eligible BLOCKED gets the exact ordinary merge consequence with CI evidence still binding.
+- bypass-eligible-green-ci/f2: fails -> holds - Own-PR readiness recommends merge rather than stopping at BLOCKED.
+- bypass-eligible-green-ci/f3: fails -> holds - Evidence carries bypass eligibility and the reviewDecision locator.
+- bypass-eligible-green-ci/f4: fails -> holds - Eligible BLOCKED preserves CI evidence without a blocked withhold line.
 
 - bound-viewer-green-ci/f3: fails -> holds - Render obstacle for undispositionable BLOCKED, stop recommended last, no ordinary wait row or automatic sync; approve is not fabricated as an obstacle row.
 - flip-after-update-branch/f1: fails -> holds - First not-ready report uses initial assess/deliver/stop, not update branch or merge; numeric deliver authorizes required merge-base sync for this other author.
