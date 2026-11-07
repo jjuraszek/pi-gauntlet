@@ -107,9 +107,11 @@ test("telemetry docs and lifecycle skills describe branch records rather than ch
   assert.doesNotMatch(verification, /telemetry\.dir|:\!|telemetry flush/);
   assert.match(seed, /git -C <primary> rev-parse --git-common-dir.*resolve a relative result against `<primary>` and read `<git common dir>\/gauntlet\/telemetry\/<rel with \.md -> \.yaml>`/);
   assert.match(seed, /When git resolution fails and `jj root` in `<primary>` succeeds, read `<jj root>\/\.jj\/gauntlet\/telemetry\/<rel with \.md -> \.yaml>` instead/);
-  assert.match(seed, /Use the local metadata record without fetching or reading the telemetry branch/);
+  assert.match(seed, /When the local record is absent, fetch `gauntlet\/telemetry` from `telemetry\.remote` \(default `origin`\) and read `<owner>\/<repo>\/brainstorming\/<rel with \.md -> \.yaml>` from the fetched ref/);
+  assert.match(seed, /using the last fetched ref on fetch failure/);
+  assert.match(seed, /Degrade to the local-only check when no fetched ref is available, including jj-only workspaces/);
   assert.match(seed, /A valued `shipped_at:` or `abandoned_at:` stops: `spec already shipped at <ts> - write a superseding spec`/);
-  assert.doesNotMatch(seed, /fetched `gauntlet\/telemetry` branch|git[^`\n]* fetch/);
+  assert.doesNotMatch(seed, /git[^`\n]* fetch/);
   assert.doesNotMatch(seed, /path `<telemetry\.dir>|key: "telemetry\.dir"/);
   for (const token of ["telemetry.remote", "gauntlet/telemetry", "Leg records", "UTC timestamp", "incomplete", "unattributed", "even split", "check-delivery"]) assert.ok(config.includes(token), token);
   assert.match(config, /author.*name.*email/);
