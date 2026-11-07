@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.4.1 - 2026-11-07
 
 - Make `phase_tracker`, `plan_check`, and `plan_tracker` model-only so codemode scripts cannot make updates that disappear on session reconstruction; requires pi >= 1.5.0.
 
