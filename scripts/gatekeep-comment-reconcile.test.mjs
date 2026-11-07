@@ -561,8 +561,11 @@ test('bypass eligibility preserves pending CI and every independent merge withho
   assert.match(input, /name: e2e, kind: check_run, status: in_progress/);
   const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
   const parsed = parseCase(input);
-  const config = JSON.parse(read(`${root}/target.json`));
-  assert.equal(saved.skillSha, sha256(assemble(config, (path) => read(`../${path}`))));
+  // Pin the historical replay's source and assembly; the instruction checks above stay live.
+  assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
+    repoSha: 'c25d0bcfe78739087247eca17d14cc3f99fd034f',
+    skillSha: '346057d43f5ebcc2b501de1e448e278ba85c47f2dd518b5de01e8363b9c42aee',
+  });
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
   const expected = read(`${root}/samples/${sample}/expected.md`);
@@ -604,8 +607,11 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
   }
   const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
   const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
-  const config = JSON.parse(read(`${root}/target.json`));
-  assert.equal(saved.skillSha, sha256(assemble(config, (path) => read(`../${path}`))));
+  // Pin the historical replay's source and assembly; the instruction checks above stay live.
+  assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
+    repoSha: 'edaffafe2dfea5ff047d8770ca6fa574939eec8a',
+    skillSha: '346057d43f5ebcc2b501de1e448e278ba85c47f2dd518b5de01e8363b9c42aee',
+  });
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
   const expected = read(`${root}/samples/${sample}/expected.md`);

@@ -3,8 +3,9 @@
 base: b9dd8f39286fdf8d13eb84a612885b2b835e617c
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
+pending: verify | home | bf038aa2d9efa100e96cfd5a556b370e32eb417e
 
 | row | status | attempts | evidence |
 |---|---|---|---|
