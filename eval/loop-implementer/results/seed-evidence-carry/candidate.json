@@ -1,0 +1,70 @@
+{
+  "sample": "seed-evidence-carry",
+  "arm": "candidate",
+  "skillSha": "f45fc3245f9d46d8570f551cfb961dc9f68b9cb9c67b899258f8ac15efc535ac",
+  "inputSha": "542679ec3d15729369aeb8f181a935fa18ed1b6e5ed1005697a59cea996fd22d",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Snapshot K: trace\n\n**1. Read the spec in full (first, before the ledger or code)**\n`timeout -k 30 30 cat /repo/doc/specs/chart.md`\n- AC 2: prove the supplied chart snapshot passes the ready-label replay.\n- Local check: `node --test test/chart-replay.test.mjs`. Never fabricate data.\n- `chart-capture` has a bound of 1 execution for the whole flow, with runner `node scripts/capture.mjs --source chart-preview --out fixtures/chart.json`.\n\n**2. Read the ledger and save its state**\n`timeout -k 30 30 cat /repo/doc/plans/chart-ledger.md`\n- Saved tuple: `pending: 2 | home | abc1234`.\n- Bumped header: `iterations: 4`. This is the consumed iteration for the commit body, not the task's 3.\n- Row 2 is `open`, attempts 0. Its evidence is `node --test test/chart-replay.test.mjs; ready-label mismatch; bound spent: chart-capture (1 of 1); ran chart-capture (1 of 1)`.\n- `## Decisions` holds only `row 0 done | seeded …`. There are no row-2 lines, no `retry` or `escalated` lines, and no `loop: repair` commits.\n- Accounting: the only records are the seed evidence's two records, which describe one spend. The highest k is 1 of bound 1, so the bound is exhausted. No capture may run, and none is needed because the fixture is present and valid.\n\n**3. Diff scope**\n`timeout -k 30 30 git diff --stat def5678`\n- The diff lists only `doc/plans/chart-ledger.md`, which is the parent's bump.\n\n**4. Read the test and the label code it exercises**\n- `timeout -k 30 30 cat test/chart-replay.test.mjs`\n- `timeout -k 30 30 cat src/ready-label.mjs`\n  - This is the module the test imports. In this synthetic replay, it is where the ready-label comparison lives.\n\n**5. RED: the seed test is reused, not rewritten**\n`timeout -k 30 60 node --test test/chart-replay.test.mjs`\n- Exit 1: the ready-label assertion fails with a ready-label mismatch, as the seed recorded.\n\n**6. GREEN: smallest local fix**\n- Edit `src/ready-label.mjs` so its ready-label comparison matches the label the spec's replay expects.\n- `fixtures/chart.json` is not touched, so no data is fabricated.\n\n`timeout -k 30 60 node --test test/chart-replay.test.mjs`\n- Exit 0: 1 passed, 0 failed.\n- The evidence records the test file, not a name filter. `node --test` exits nonzero on a missing file, so the recorded command cannot pass while selecting nothing.\n\n**7. Action accounting before replacing the cell**\n- No new spend happens. Nothing is appended to `${TMPDIR:-/tmp}/loop-def5678-3.jobs`, and no job is launched.\n- Both carried records are repeated verbatim, once each:\n  - in the decision sentence, and\n  - in the evidence result lines, keeping ordinal 1 of 1.\n\n**8. Ledger edit for row 2's mutable cells**\n- status: `done`\n- attempts: `1`\n- evidence: `timeout -k 30 60 node --test test/chart-replay.test.mjs; 1 passed, 0 failed; bound spent: chart-capture (1 of 1); ran chart-capture (1 of 1)`\n- Removed the line `pending: 2 | home | abc1234`.\n- Appended the row 2 decision line to `## Decisions`.\n- Extras: none, because every other row is already done.\n\n**9. Teammate suggestion to drop both records: rejected**\n- A passing replacement check does not erase spend history. Step 5 requires each carried `bound spent:` and `ran` record to be repeated verbatim before any new spend.\n- Admission treats a return that drops either record as a validation miss, even though the check passes. The parent would refuse to admit the return.\n- If such a return were admitted, later rows, repairs or finish could read zero spend and rerun `chart-capture` beyond its 1-of-1 bound.\n\n**10. Commit**\n- `timeout -k 30 30 git add src/ready-label.mjs doc/plans/chart-ledger.md`\n- `timeout -k 30 30 git commit -F -` with this message:\n```\nloop: row 2 done\n\npending: 2 | home | abc1234\niteration: 4\n```\n- `timeout -k 30 30 git status --porcelain` returns empty, so the tree is clean.\n\nFinal reply:\nrow 2 done | Carried bound spent: chart-capture (1 of 1) and ran chart-capture (1 of 1) with no new spend; fixed the local ready-label mismatch so the existing fixture's replay passes. | Reuse test/chart-replay.test.mjs against fixtures/chart.json for later replay checks; chart-capture is exhausted at 1 of 1, so never rerun it.\n",
+      "words": 624,
+      "wallMs": 29676,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Snapshot K — simulated tool trace\n\nAll commands below run in the supplied checkout.\n\n1. **Read the complete spec before the ledger.**\n\n   ```sh\n   timeout -k 30 10 cat /repo/doc/specs/chart.md\n   ```\n\n   Observation: the selective local check is `node --test test/chart-replay.test.mjs`. `chart-capture` is authorized for at most one execution across the entire flow. No Rules files are named.\n\n2. **Read the complete ledger, including all evidence and decisions.**\n\n   ```sh\n   timeout -k 30 10 cat /repo/doc/plans/chart-ledger.md\n   ```\n\n   Save the exact attribution:\n   ```text\n   pending: 2 | home | abc1234\n   iteration: 4\n   ```\n\n   Observation: row 2 is open, attempts 0, with evidence:\n   ```text\n   node --test test/chart-replay.test.mjs; ready-label mismatch; bound spent: chart-capture (1 of 1); ran chart-capture (1 of 1)\n   ```\n\n   All other rows are done. The only decision is the fixed seed decision; there are no target-row decision, retry, or escalation lines. The supplied previous decision and hint are both `none`.\n\n3. **Inspect the base-relative change summary and commit accounting.**\n\n   ```sh\n   timeout -k 30 10 git diff --stat def5678\n   ```\n\n   Observation: only the ledger is changed by the parent's bump.\n\n   ```sh\n   timeout -k 30 10 git log --format=%B def5678..HEAD\n   ```\n\n   Observation: there is no repair commit. The seeded evidence already records both reservation and confirmed execution of `chart-capture (1 of 1)`. These describe one spend, not two; the bound is exhausted.\n\n4. **Read scoped diff hunks and the existing replay artifacts.**\n\n   ```sh\n   timeout -k 30 10 git diff def5678 -- doc/plans/chart-ledger.md test/chart-replay.test.mjs fixtures/chart.json scripts/capture.mjs\n   ```\n\n   Observation: only the ledger bump appears.\n\n   ```sh\n   timeout -k 30 10 cat test/chart-replay.test.mjs fixtures/chart.json scripts/capture.mjs\n   ```\n\n   Observation: the existing test checks the supplied fixture against the ready label. The fixture is present and valid, and the local ready-label fix is already in place. This iteration adds no behavior or artifact; the existing selective assertion is sufficient.\n\n5. **Reject the teammate's accounting suggestion before replacing evidence.**\n\n   Preserve both carried records verbatim in the decision's first sentence:\n   ```text\n   bound spent: chart-capture (1 of 1)\n   ran chart-capture (1 of 1)\n   ```\n\n   A passing replay does not erase action history. Admission treats dropping either record as a validation miss even if the check passes. No capture is needed, and another capture is prohibited by the exhausted bound.\n\n6. **Preflight the required facilities.**\n\n   ```sh\n   timeout -k 30 10 bash -c 'command -v python3; command -v timeout'\n   ```\n\n   Observation: both facilities are available; exit 0.\n\n7. **Run only the existing row-2 local replay.**\n\n   ```sh\n   timeout -k 30 60 node --test test/chart-replay.test.mjs\n   ```\n\n   Observation: the ready-label replay passes; exit 0 in under a second. No external action runs. The invocation selects a test file, not a name filter.\n\n8. **Edit only row 2's mutable cells and the required ledger bookkeeping.**\n\n   Resulting row-2 cells:\n   ```text\n   status: done\n   attempts: 1\n   evidence: timeout -k 30 60 node --test test/chart-replay.test.mjs; ready-label replay passed; bound spent: chart-capture (1 of 1); ran chart-capture (1 of 1)\n   ```\n\n   Preserve row identifiers, row text, all other rows, existing decisions, and `iterations: 4`. Remove the exact saved `pending:` line.\n\n   Append to `## Decisions`:\n   ```text\n   row 2 done | Closed row 2 with a passing local replay; bound spent: chart-capture (1 of 1); ran chart-capture (1 of 1). | nothing new to build on\n   ```\n\n9. **Inspect the ledger edit, stage explicitly, and commit exactly once.**\n\n   ```sh\n   timeout -k 30 10 git diff -- doc/plans/chart-ledger.md\n   ```\n\n   Observation: only row 2's status, attempts and evidence, the appended decision, and removal of `pending:` change in this iteration; the parent's iteration bump remains.\n\n   ```sh\n   timeout -k 30 10 git add -- doc/plans/chart-ledger.md\n   ```\n\n   ```sh\n   timeout -k 30 10 git commit -m 'loop: row 2 done' -m 'pending: 2 | home | abc1234\n   iteration: 4'\n   ```\n\n   Observation: one commit succeeds. Its attribution body begins immediately after the subject's blank separator:\n   ```text\n   loop: row 2 done\n\n   pending: 2 | home | abc1234\n   iteration: 4\n   ```\n\n10. **Confirm a clean working tree.**\n\n    ```sh\n    timeout -k 30 10 git status --porcelain\n    ```\n\n    Observation: empty output.\n\nFinal reply:\nrow 2 done | Closed row 2 with a passing local replay; bound spent: chart-capture (1 of 1); ran chart-capture (1 of 1). | nothing new to build on\n",
+      "words": 649,
+      "wallMs": 30763,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6523ba01ad952b2992a946e99e73d57b6c360122cf482170177e4097e3776aee",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e79c3c0c4eca77d7a1670e542f5cb1d6f430565916cb106d1c0ddf7dac31f1",
+      "baselineOutputSha": "61a150f9665f5ecb880669d6c3f13d9eb023cdfecec52a16373a124e0f9b9057",
+      "candidateOutputSha": "47a49bf58bb42b460d27f95140a897993c432eb2d0ef775da63481dcc2e3cdd0",
+      "facts": {
+        "carried-record": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before closes row 2 done with attempts 1, never reruns chart-capture, and carries both records in the evidence cell, but its decision outcome sentence only says \"keeping both chart-capture records\" without repeating them verbatim, and it labels a dropped record an \"accounting regression\" rather than a validation miss, so the fact fails there. After fixes both gaps: the decision sentence begins \"Carried bound spent: chart-capture (1 of 1) and ran chart-capture (1 of 1) with no new spend\", step 7 states the records are repeated verbatim in the decision before any new spend, and step 9 explicitly says admission treats a return that drops either record as a validation miss even though the check passes. The After wording delivers the Change without regressing anything Before held; keep the explicit requirement that the carried records appear verbatim inside the decision sentence (not just the evidence cell) and the explicit \"validation miss\" classification, since those are exactly the two points Before omitted.",
+      "wallMs": 9736,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6523ba01ad952b2992a946e99e73d57b6c360122cf482170177e4097e3776aee",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "50e79c3c0c4eca77d7a1670e542f5cb1d6f430565916cb106d1c0ddf7dac31f1",
+      "baselineOutputSha": "63df6d91b33168bd76da546dea7a2fdc85cf142060637c6943b7d5ff57fffa4d",
+      "candidateOutputSha": "84c7a4403cfee997037e5da7a655482b435089045367b7ee20070414e9bf4a1f",
+      "facts": {
+        "carried-record": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved carried-record to holds by writing both action records verbatim into the row-2 decision outcome sentence itself (\"Closed row 2 with a passing local replay; bound spent: chart-capture (1 of 1); ran chart-capture (1 of 1).\") and by stating explicitly in step 5 that admission treats dropping either record as a validation miss even when the replay passes. Before kept the records only in the evidence cell and summarized them in the decision as \"preserving both chart-capture accounting records\" without repeating them, and said admission \"rejects\" a dropped record without classifying it as a validation miss, so it failed the fact as written. The After wording delivers the Change cleanly; keep the verbatim records inside the decision sentence and the explicit \"validation miss\" classification, and avoid paraphrasing the records in future revisions.",
+      "wallMs": 8557,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "14ed5b335bb9e3627908071e399c73b91d0c37de"
+}

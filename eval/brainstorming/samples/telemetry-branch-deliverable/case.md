@@ -1,0 +1,3 @@
+The user explicitly entered brainstorming for a small widget feature. The dedicated worktree has been created and context gathering is next; no design is approved. A teammate asks: "Which files are deliverables? I was going to add the recorder's YAML beside the spec and commit both now so the record ships in the eventual squash. Is that the right lifecycle?"
+
+Explain the lifecycle correction and what finishing does. There is a normal Git checkout with a linked worktree, and telemetry is enabled. Keep the answer focused on artifacts; do not invoke planning or implementation, ask a design question, or write anything.

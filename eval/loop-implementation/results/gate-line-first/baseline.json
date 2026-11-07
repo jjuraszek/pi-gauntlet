@@ -1,8 +1,8 @@
 {
   "sample": "gate-line-first",
   "arm": "baseline",
-  "skillSha": "a9f7bdbdf677aa2c8f30dee1b9dfe12663dc608f8176fb46699e78d8b73a6cc7",
-  "inputSha": "f522bd02f831c5913fbcb37de32490d5049ab5d164ef88ab86d458c94a2157f5",
+  "skillSha": "6dee958af2bac154f84fd4b7a1d10119eeab4e5fb37b187c849d346544bf1fdc",
+  "inputSha": "586b2732e6f61e251d1c0379140dd5f658ce7a59165866842929cc513f1a3911",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty\n\nThe loop child for row 1 made exactly one commit but left uncommitted changes in the working tree. I have not admitted that commit. Row 1's cells were restored to their state before the dispatch. All other child changes and commits are still in place.\n\nLedger snapshot:\n- row 1: open, attempts 1, allowance 4\n- iterations: 2 (iteration 1 was dispatched, so 2 iterations are now consumed)\n\nProblem: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nPreserve every row's attempts and the total iteration cap.\n\n1. **Authorize discard and reset, then retry with hint.** This discards the uncommitted changes and resets to the last valid commit. The consumed count is kept: `iterations` becomes the restored HEAD's value + 1 before the next normal bump. Row 1 is then retried with your hint. Its attempts stay as recorded.\n2. **Amend.** Change the spec through the brainstorming amendment surface. This also requires authorizing the discard first.\n3. **Stop.** The implement phase stays active, and the branch and tree are left exactly as they are now.\n\nRecommendation: 1 - the tree must be clean before any further dispatch, and row 1 still has attempts left (1 of 4). Please include a hint about the colon/comma delimiter, since the same evidence keeps repeating.\n",
-      "words": 222,
-      "wallMs": 11931,
+      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nThe loop child for row 1 returned one commit but left uncommitted changes in the implementation worktree. The return was not admitted. The rows below are the saved pre-dispatch cells, not the child's results.\n\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: row 1 evidence reads `check parser: expected colon, got comma`. The last decision reads `row 1 failed | delimiter still wrong | retry`.\n\nOptions:\n1. **Authorize discard/reset.** This discards the uncommitted changes and resets to the last valid commit. Row 1's attempts stay at 1, because a boundary rejection consumes no attempt. Iteration 2 stays consumed. Before the next dispatch, `iterations:` is set to the restored HEAD's value +1. Row 1 is then the next target, subject to the normal dispatch boundaries.\n2. **Stop.** Phase implement stays active. Branch and worktree state are preserved as they are, including the uncommitted changes.\n\nRecommendation: none - there is no ownership manifest and no evidence that the child process has exited. Confirm the uncommitted changes are safe to discard before authorizing option 1.\n",
+      "words": 180,
+      "wallMs": 13747,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty.\n\nLedger snapshot: iterations: 2; row 1: open; attempts: 1; allowance: 4. The child returned exactly one commit.\n\nProblem: the working tree is dirty, so the child commit cannot be admitted.\nEvidence: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nPreserve every row's attempts and the total iteration cap.\n\n1. Authorize discarding uncommitted changes and resetting to the last valid commit, preserving the consumed dispatch count.\n2. Stop — leave implement active and preserve branch state.\n\nNo discard or reset has been authorized or executed.\n\nRecommendation: 1 - restore the last valid state before considering another dispatch.\n",
-      "words": 110,
-      "wallMs": 7721,
+      "text": "gauntlet: question\n\nStopped: child returned one commit with a dirty working tree.\n\nSaved row cells:\nrow 1: open\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nLedger snapshot: iterations: 2; allowance: 4.\n\nProblem:\nEvidence: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nAuthorize discarding uncommitted changes and resetting to the last valid commit? The child’s commit remains unadmitted. No cleanup or ledger changes have been performed.\n\nRecommendation: authorize discard/reset - recover the valid boundary while preserving saved row cells and the consumed dispatch count.\n",
+      "words": 91,
+      "wallMs": 10270,
       "mechanical": {
         "question-first": "holds"
       }
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "5afae0b595961c8e57a9401ab34e1046b8ab1e41"
 }

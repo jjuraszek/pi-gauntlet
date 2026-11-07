@@ -182,7 +182,7 @@ Per round:
    that omits `model:` when `closureReview.model` is set, and warns (non-blocking)
    on one whose model differs. Mark every `Gn` the re-audit reports `DELIVERED`
    `complete`; open ones stay `in_progress`.
-6. **Converge or continue**: verdict `CONFORMS` → Convergence below. Start the message with `gauntlet: gate=verification-before-completion/step-6` alone on the first output line, followed by a newline before the human escalation text, including Convergence cap exhaustion. Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md); ask for explicit funding of additional rounds. Emit this proactively, independent of any runtime guard error. Keep verification incomplete; emit no done or stuck line here or at intermediate closure. Open gaps
+6. **Converge or continue**: verdict `CONFORMS` -> Convergence below. Under the loop engine with amend permission, apply the loop driver's After the loop step 3 funding up to the ledger allowance before this ask; ask the human only when it declines. Start the message with `gauntlet: gate=verification-before-completion/step-6` alone on the first output line, followed by a newline before the human escalation text, including Convergence cap exhaustion. Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md); ask for explicit funding of additional rounds. Emit this proactively, independent of any runtime guard error. Keep verification incomplete; emit no done or stuck line here or at intermediate closure. Open gaps
    within the cap → re-partition (per the rule above) and start the next
    round. Cap (`gauntlet_setting({ key: "closureReview" }).maxFixRounds`,
    default `5`, floors negatives at `0`, normalizes missing or non-integer values to `5`) reached

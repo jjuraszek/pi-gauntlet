@@ -12,7 +12,6 @@ import {
   planDirsFor,
   resolveVerifyBeforeShip,
   resolveTelemetry,
-  DEFAULT_TELEMETRY_DIR,
   DEFAULT_TELEMETRY_BUCKETS,
   DEFAULT_TEST_COMMANDS,
   buildTestCmdRegex,
@@ -250,11 +249,10 @@ test("verifyBeforeShip: default vs override", () => {
   assert.equal(o.warningReference, "doc/t.md");
 });
 
-test("telemetry: absent block -> enabled, default dir, default buckets, no warning", () => {
+test("telemetry: absent block -> enabled, default buckets, no directory key or warning", () => {
   const r = resolveTelemetry({});
   assert.equal(r.enabled, true);
-  assert.equal(r.dir, DEFAULT_TELEMETRY_DIR);
-  assert.equal(r.dir, ".pi/gauntlet/telemetry");
+  assert.equal("dir" in r, false);
   assert.deepEqual(r.buckets, DEFAULT_TELEMETRY_BUCKETS);
   assert.equal(r.warning, undefined);
 });
@@ -265,10 +263,10 @@ test("telemetry: enabled false is the only way to disable", () => {
   assert.equal(resolveTelemetry({ telemetry: { enabled: 0 } }).enabled, true);
 });
 
-test("telemetry: dir accepts a non-empty relative path, otherwise default + warning", () => {
-  assert.equal(resolveTelemetry({ telemetry: { dir: "telemetry/" } }).dir, "telemetry");
-  assert.equal(resolveTelemetry({ telemetry: { dir: "a/../b" } }).dir, "b");
-  for (const bad of [
+test("telemetry: retired dir setting is ignored with one migration warning", () => {
+  for (const dir of [
+    "telemetry/",
+    "a/../b",
     "",
     "   ",
     5,
@@ -284,9 +282,9 @@ test("telemetry: dir accepts a non-empty relative path, otherwise default + warn
     "a/../../outside",
     "..",
   ]) {
-    const r = resolveTelemetry({ telemetry: { dir: bad } });
-    assert.equal(r.dir, DEFAULT_TELEMETRY_DIR);
-    assert.match(r.warning ?? "", /telemetry\.dir/);
+    const r = resolveTelemetry(mergeGauntlet(undefined, { telemetry: { dir } }));
+    assert.equal("dir" in r, false);
+    assert.equal(r.warning, "piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them");
   }
 });
 
@@ -307,9 +305,9 @@ test("telemetry: malformed buckets -> default + warning", () => {
   }
 });
 
-test("telemetry: dir and buckets warnings join with '; '", () => {
-  const r = resolveTelemetry({ telemetry: { dir: 1, buckets: 2 } });
-  assert.match(r.warning ?? "", /telemetry\.dir.*; .*telemetry\.buckets/);
+test("telemetry: retired dir and invalid buckets each warn once", () => {
+  const r = resolveTelemetry(mergeGauntlet(undefined, { telemetry: { dir: 1, buckets: 2 } }));
+  assert.equal(r.warning, "piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them; telemetry.buckets is not an object of non-empty glob arrays; using the defaults");
 });
 
 test("DEFAULT_TEST_COMMANDS + buildTestCmdRegex match the documented entrypoints", () => {

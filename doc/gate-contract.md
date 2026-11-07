@@ -84,6 +84,8 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 | gatekeep-pr | stop on initial, assess-terminal, obstacle, or contract-exception; failed cleanup assertion | skills/gatekeep-pr/reference/cleanup.md § ## Non-final stop | gauntlet: stuck |
 | gatekeep-pr | Hard assertion failures in fix-wave Sync or loop Exit check | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: stuck |
 | gatekeep-pr | Sync restore/assert mismatch | skills/gatekeep-pr/reference/sync.md § ## Failure path | gauntlet: stuck |
+| gatekeep-pr | All PRs retired and selected follow-on steps finished; no stuck outcome | skills/gatekeep-pr/reference/batch.md § ## Between batches and retirement | gauntlet: done retired |
+| gatekeep-pr | All PRs retired and selected follow-on steps finished; any stuck outcome | skills/gatekeep-pr/reference/batch.md § ## Between batches and retirement | gauntlet: stuck retired |
 | shape-ticket | Ended batch or singleton with no failure contributor; dynamic counters | skills/shape-ticket/reference/repo-audit.md § ## Complete the batch and present gates | gauntlet: done written=1 |
 | shape-ticket | Ended batch with unfetched, close-failed, or close-by-hand contributor | skills/shape-ticket/reference/repo-audit.md § ## Complete the batch and present gates | gauntlet: stuck |
 | check-delivery | Batched write landed | skills/check-delivery/SKILL.md § ## Confirmation gate and the batched write | gauntlet: done delivered |
@@ -113,6 +115,10 @@ Gatekeep terminal stop reports retain the checkout path and local branch. Non-fi
 
 Resume's argument failures cover a spec seed with an extra worktree, an unrecognized file, a missing path, a missing/invalid bare-name worktree, and other unmatched input, plus no discovery briefs. Entry checks also reject invalid token/override combinations and stale or foreign briefs. Successful resume has no `done`: it continues into the resumed skill's gate.
 
+## Nonterminal retirement
+
+Gatekeep's multi-PR parent starts a per-PR retirement message with `gauntlet: retired #<N> - <reason>` while any PR remains, as defined in [Between batches and retirement](../skills/gatekeep-pr/reference/batch.md#between-batches-and-retirement). This marker is not a gate or a terminal settlement and takes no advancing reply. After the last retirement and selected follow-on steps, the parent emits one `done retired` or `stuck retired` settlement with every retained PR row in roster order.
+
 ## Reading a reply
 
 | Layout | Reply |
@@ -127,7 +133,13 @@ Check-delivery's set-recovery gate takes `1` (retry), `2` (skip), or `stop`. An 
 
 Loop approval rows 4/5 display `allowance <n> per row` from `loopEngine.maxIterationsPerRow` (default 4), with settings warnings beside the menu. An explicit override emits `run allowance: <n>` immediately before loop entry; it is not an Amend-grant or spec field. A pre-seed crash loses that carrier. Existing ledgers use their durable allowance, not a later reply or settings change.
 
-Every loop stop lists each open/failed row as `row <n>: <attempts> of <effective allowance>` and prints `Preserve every row's attempts.` At a row stop, `retry <n> | <hint>` buys one attempt for that row; `rows +N` raises the shared allowance for every row and leg without resetting counters or stagnation windows. Only retry resets the row's stagnation and validation-miss windows. Dirty-tree, commit-boundary and pending recovery stops keep their own authorization gates. Verification failure uses its one automatic repair, then offers amend/stop only. These execution actions do not grant amendment permission.
+Every loop stop starts with `gauntlet: question`, lists each open/failed row as `row <n>: <attempts> of <effective allowance>` and prints `Preserve every row's attempts.` The allowance bounds numbered attempts, seed repairs and verification repairs; under amend permission it also funds conformance rounds when the cap blocks. A row's stagnation or validation-miss pair supplies a hint and continues below allowance. `loop: retry row <n>` resets that row's windows; an admitted `loop: amend` or `loop: cut row <n>` starts new windows for every row. Neither resets attempts or spent escalation. Intermediate reports continue to the next ordered-table action in the same turn, never settle the loop.
+
+At a row stop, `retry <n> | <hint>` buys one attempt for that row; `rows +N` raises the shared allowance for every row and leg without resetting counters or windows. Seed exhaustion prints `seed: <k> of <allowance>` with retry/raise/amend/stop offers; only a raised allowance permits more seed repairs. Interrupted child or pending recovery continues without a human turn only after proven checkout ownership, identity-checked job cleanup and a clean reset. Missing provenance, an unrecoverable before-image or incomplete cleanup renders `Stopped: iteration <i> recovery incomplete - <what>` and keeps discard authorization only. A budget reply authorizes no discard.
+
+Verification repairs count home `loop: repair verification` commits plus an unmatched `pending: verify` reservation against the allowance; interrupted repairs consume a marker too. Exhaustion renders `Stopped: verification failed with every row closed` and `repairs: <k> of <allowance>`, offering amend/stop only, as do missing-capability stops. Conformance's step-6 ask is preceded by the loop driver's allowance-based funding under amend permission; a live cap block receives `allowance - used` through `grant_fix_rounds`, and `closureReview.enforce: false` continues without a tool call. Used rounds at or above allowance, no amend permission or a tool error retain the step-6 stop.
+
+An admitted target failure with first result `unreachable: <what> - <where>` enters the amendment surface: auto-apply the audited cut under amend permission, otherwise show its human batch. A `venue:` row retains its ordinary failed-attempt path. First result `bound spent: <action> <k> of <k>` instead renders a row stop under options 4 and 5 alike; it never authorizes a cut. Execution and budget replies do not grant amendment permission. The [loop driver](../skills/loop-implementation/SKILL.md#human-stop) owns these routes.
 
 Ordinary answers outside skill-owned turns, invented gates, tracker/ticket/PR payloads, and private child results are not marker surfaces. Evidence comments still begin with `Delivered: <sha>`; response drafts, close comments, and handoff brief contents keep their own formats. The marker belongs to the surrounding assistant message.
 

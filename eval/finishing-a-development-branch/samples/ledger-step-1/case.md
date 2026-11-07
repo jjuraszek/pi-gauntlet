@@ -6,6 +6,6 @@ Narrate independent finish snapshots without tools. Home worktree /work/app/.wor
 
 A: There is no known verified commit. Show the ordered foreground gate commands, logs and retained evidence, not a full command. The ship advisory warns because these commands do not match configured verification patterns.
 
-B: Reset to the same ledger. The complete gate set passed at clean commit aaaaaaa during verify in this same session. Only telemetry changed afterward. Both telemetry-excluding diff and status checks exit 0 with empty status output. Show the skip proof and whether Step 1 runs gates. A later squash choice still needs post-squash verification in the primary; show those commands rather than skipping them.
+B: Reset to the same ledger. The complete gate set passed at clean commit aaaaaaa during verify in this same session. Only common-dir telemetry metadata changed afterward. Both full-tree diff and status checks exit 0 with empty status output. Show the skip proof and whether Step 1 runs gates. A later squash choice still needs post-squash verification in the primary; show those commands rather than skipping them.
 
-C: Reset to B but an untracked test helper outside telemetry appears. The diff check exits 0 but status lists ?? test/helper.mjs. State whether the known verified commit still permits skipping and what runs instead. Do not treat the successful diff check alone as proof.
+C: Reset to B but an untracked test helper appears in the checkout. The diff check exits 0 but status lists ?? test/helper.mjs. State whether the known verified commit still permits skipping and what runs instead. Do not treat the successful diff check alone as proof.

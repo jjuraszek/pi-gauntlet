@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 // src/bins/gauntlet-spec-index.mjs
-import { readFileSync, appendFileSync, existsSync, statSync, lstatSync, readdirSync, mkdirSync, rmSync, realpathSync, openSync, readSync, closeSync } from "node:fs";
-import { join, dirname, basename, isAbsolute, matchesGlob } from "node:path";
+import { readFileSync as readFileSync2, appendFileSync, existsSync as existsSync3, statSync as statSync2, lstatSync, readdirSync, mkdirSync, rmSync as rmSync2, realpathSync, openSync, readSync, closeSync } from "node:fs";
+import { join as join3, dirname as dirname2, basename as basename2, isAbsolute, matchesGlob } from "node:path";
 import { homedir } from "node:os";
-import { execFileSync } from "node:child_process";
-import process from "node:process";
+import { execFileSync as execFileSync2 } from "node:child_process";
+import process2 from "node:process";
 import { parse as parseYaml } from "yaml";
 
 // extensions/lib/gauntlet-settings.ts
@@ -13,6 +13,7 @@ function mergeGauntlet(preset, repo) {
   return { ...preset ?? {}, ...repo ?? {} };
 }
 var nonEmptyString = (v) => typeof v === "string" && v.trim().length > 0;
+var joinWarn = (ws) => ws.length ? ws.join("; ") : void 0;
 var DEFAULT_SPEC_DIRS = ["doc/specs", "docs/specs"];
 var normalizeDir = (d) => d.trim().replace(/^\.\//, "").replace(/\/+$/, "");
 function resolveFlowGuards(g) {
@@ -30,6 +31,232 @@ function planDirsFor(specDirs) {
     out.add([...parts.slice(0, -1), "plans"].join("/"));
   }
   return [...out];
+}
+var DEFAULT_TELEMETRY_BUCKETS = [
+  ["test", ["**/test/**", "**/tests/**", "**/__tests__/**", "**/*.test.*", "**/*.spec.*", "**/*_test.*"]],
+  ["docs", ["**/*.md"]],
+  ["config", ["**/*.json", "**/*.yaml", "**/*.yml", "**/*.toml", "**/*.lock", "**/*-lock.*"]]
+];
+function resolveTelemetry(g) {
+  const t = g.telemetry;
+  const warnings = [];
+  const enabled = t?.enabled !== false;
+  if (t && Object.hasOwn(t, "dir")) {
+    warnings.push("piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them");
+  }
+  let buckets = DEFAULT_TELEMETRY_BUCKETS;
+  if (t?.buckets !== void 0) {
+    const b = t.buckets;
+    const valid = b !== null && typeof b === "object" && !Array.isArray(b) && Object.keys(b).length > 0 && Object.values(b).every((v) => Array.isArray(v) && v.length > 0 && v.every(nonEmptyString));
+    if (valid) buckets = Object.entries(b).map(([name, globs]) => [name, [...globs]]);
+    else warnings.push("telemetry.buckets is not an object of non-empty glob arrays; using the defaults");
+  }
+  const remote = nonEmptyString(t?.remote) ? t.remote.trim() : void 0;
+  if (t?.remote !== void 0 && !remote) warnings.push("telemetry.remote must be a non-empty URL; using origin");
+  return { enabled, ...remote ? { remote } : {}, buckets, warning: joinWarn(warnings) };
+}
+
+// extensions/lib/telemetry-branch.ts
+import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, join as join2 } from "node:path";
+
+// extensions/lib/checkout.ts
+import { execFileSync } from "node:child_process";
+import { existsSync, statSync } from "node:fs";
+import { dirname, join } from "node:path";
+var CHECKOUT_ARGS = ["rev-parse", "--path-format=absolute", "--show-toplevel", "--git-dir", "--git-common-dir"];
+function parseCheckout(r) {
+  if (r.code !== 0) return void 0;
+  const lines = r.stdout.trim().split("\n").map((l) => l.trim());
+  if (lines.length < 3 || !lines[0]) return void 0;
+  return { toplevel: lines[0], isPrimary: lines[1] === lines[2] };
+}
+var isDir = (p) => {
+  try {
+    return statSync(p).isDirectory();
+  } catch {
+    return false;
+  }
+};
+function nearestExistingDir(absPath) {
+  let p = absPath;
+  while (!(existsSync(p) && isDir(p))) {
+    const parent = dirname(p);
+    if (parent === p) return p;
+    p = parent;
+  }
+  return p;
+}
+var JJ_ROOT_ARGS = ["root"];
+function parseJjRoot(r) {
+  if (r.code !== 0) return void 0;
+  const toplevel = r.stdout.trim();
+  if (!toplevel) return void 0;
+  return { toplevel, isPrimary: isDir(join(toplevel, ".jj", "repo")) };
+}
+function checkoutOfSync(absPath, git2 = gitSync, jj = jjSync) {
+  const cwd = nearestExistingDir(absPath);
+  const g = parseCheckout(git2(CHECKOUT_ARGS, cwd));
+  if (g) return { ...g, via: "git" };
+  const j = parseJjRoot(jj(JJ_ROOT_ARGS, cwd));
+  return j ? { ...j, via: "jj" } : void 0;
+}
+var commandSync = (bin) => (args, cwd) => {
+  try {
+    const stdout = execFileSync(bin, args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 5e3 });
+    return { code: 0, stdout };
+  } catch (e) {
+    const status = e.status;
+    return { code: typeof status === "number" ? status : 1, stdout: "" };
+  }
+};
+var gitSync = commandSync("git");
+var jjSync = commandSync("jj");
+
+// extensions/lib/vcs.ts
+import { spawnSync } from "node:child_process";
+
+// extensions/lib/phase-tracker-helpers.ts
+var STMT_START = "(?:^|[\\n;&|(])\\s*";
+
+// extensions/lib/telemetry-paths.ts
+var GIT_FLAGS = "git\\s+(?:-\\S+(?:\\s+\\S+)?\\s+)*";
+var SHIP_RE = new RegExp(STMT_START + "(" + GIT_FLAGS + "(?:merge\\s+--squash|push)(?=\\s|$)|gh\\s+pr\\s+create)");
+var SQUASH_RE = new RegExp("^" + GIT_FLAGS + "merge\\s+--squash");
+
+// extensions/lib/telemetry-diff.ts
+var JJ_MAINLINE = "coalesce(trunk() ~ root(), present(main), present(master))";
+var JJ_FORK_POINT = `fork_point(${JJ_MAINLINE} | @) ~ root() & ::${JJ_MAINLINE}`;
+
+// extensions/lib/vcs.ts
+var NO_PROMPT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_EDITOR: "true" };
+var runBinary = (bin) => (args, cwd, timeoutMs = 1e4, options = {}) => {
+  const r = spawnSync(bin, args, { cwd, encoding: "utf8", input: options.input, env: { ...NO_PROMPT_ENV, ...options.env }, timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
+  const err = r.error;
+  const timedOut = err?.code === "ETIMEDOUT";
+  const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || err?.message || `${bin} exited ${r.status}`;
+  return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : r.status ?? 1, stdout: options.raw ? r.stdout ?? "" : (r.stdout ?? "").trim(), stderr };
+};
+var gitRun = runBinary("git");
+
+// extensions/lib/telemetry-branch.ts
+var TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
+function telemetryRepo(root) {
+  const result = gitRun(["config", "--get", "remote.origin.url"], root);
+  const match = result.stdout.match(/^(?:https?:\/\/[^/]+\/|ssh:\/\/(?:[^@/]+@)?[^/]+\/|(?:[^@\s]+@)?[^:\s/]+:)(.+)$/);
+  const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
+  if (result.ok && path) return path;
+  const top = checkoutOfSync(root)?.toplevel ?? root;
+  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
+    const path2 = join2(top, file);
+    if (!existsSync2(path2)) continue;
+    const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
+    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+    if (repo) return repo;
+    break;
+  }
+  const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
+  const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
+  return `local/${basename(primary ?? top)}`;
+}
+var trackingRef = (remote) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
+function syncTelemetryBranch(root, records, remote = "origin") {
+  const scratch = mkdtempSync(join2(tmpdir(), "gauntlet-telemetry-index-"));
+  const env = { GIT_INDEX_FILE: join2(scratch, "index") };
+  const git2 = (args, input) => {
+    const result = gitRun(args, root, void 0, { env, input });
+    if (!result.ok) throw new Error(result.stderr);
+    return result.stdout;
+  };
+  const tracking = trackingRef(remote);
+  let fetchWarning;
+  const fetch = () => {
+    const result = fetchBranch(root, remote);
+    fetchWarning = result.ok ? void 0 : `fetch failed: ${result.stderr}`;
+    return result;
+  };
+  const resolve = (ref) => {
+    const result = gitRun(["rev-parse", "--verify", ref], root);
+    return result.ok ? result.stdout : void 0;
+  };
+  const commit = (tree, parent, message) => git2(["-c", "commit.gpgsign=false", "commit-tree", tree, ...parent ? ["-p", parent] : [], "-m", message]);
+  let committed = false;
+  try {
+    let tip = resolve(TELEMETRY_REF);
+    committed = records.size === 0 && !!tip;
+    fetch();
+    let upstream = resolve(tracking);
+    if (records.size) {
+      const parent = tip ?? upstream;
+      git2(parent ? ["read-tree", parent] : ["read-tree", "--empty"]);
+      for (const [path, content] of records) {
+        const blob = git2(["hash-object", "-w", "--stdin"], content);
+        git2(["update-index", "--add", "--cacheinfo", "100644", blob, path]);
+      }
+      const tree = git2(["write-tree"]);
+      const next = parent && git2(["rev-parse", `${parent}^{tree}`]) === tree ? parent : commit(tree, parent, "telemetry: update records");
+      git2(["update-ref", TELEMETRY_REF, next, tip ?? ""]);
+      tip = next;
+      committed = true;
+    }
+    const pending = () => tip ? git2(["rev-list", "--reverse", "--topo-order", tip, ...upstream ? [`^${upstream}`] : []]).split("\n").filter(Boolean) : [];
+    if (!pending().length) return { ok: true, committed, pushed: false, warning: fetchWarning };
+    const push = () => gitRun(["push", remote, `${TELEMETRY_REF}:${TELEMETRY_REF}`], root);
+    const first = push();
+    if (first.ok) return { ok: true, committed, pushed: true, warning: fetchWarning };
+    const fetched = fetch();
+    if (!fetched.ok) throw new Error(`${first.stderr}; refresh failed: ${fetched.stderr}`);
+    upstream = resolve(tracking);
+    let replayed = upstream;
+    for (const sha of pending()) {
+      git2(replayed ? ["read-tree", replayed] : ["read-tree", "--empty"]);
+      const changes = git2(["diff-tree", "--root", "--no-commit-id", "--raw", "--no-abbrev", "--no-renames", "-r", "-z", sha]).split("\0");
+      for (let i = 0; i + 1 < changes.length; i += 2) {
+        const [, mode, , blob] = changes[i].split(" ");
+        const path = changes[i + 1];
+        git2(mode === "000000" ? ["update-index", "--force-remove", "--", path] : ["update-index", "--add", "--cacheinfo", mode, blob, path]);
+      }
+      replayed = commit(git2(["write-tree"]), replayed, git2(["log", "-1", "--format=%B", sha]));
+    }
+    if (replayed) git2(["update-ref", TELEMETRY_REF, replayed, tip]);
+    const second = push();
+    if (!second.ok) throw new Error(second.stderr);
+    return { ok: true, committed, pushed: true };
+  } catch (error) {
+    const reason = error.message;
+    return { ok: false, committed, pushed: false, reason, warning: [fetchWarning, `telemetry: not pushed (${reason})`].filter(Boolean).join("; ") };
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+function readTelemetryBranch(root, { remote = "origin", prefix = "" } = {}) {
+  const records = [];
+  let warning;
+  try {
+    const synced = syncTelemetryBranch(root, /* @__PURE__ */ new Map(), remote);
+    warning = synced.warning;
+    if (synced.pushed) {
+      const fetched = fetchBranch(root, remote);
+      warning = fetched.ok ? void 0 : `fetch failed: ${fetched.stderr}`;
+    }
+    const tip = gitRun(["rev-parse", "--verify", trackingRef(remote)], root);
+    if (!tip.ok) return { records, warning: [warning, "no telemetry ref fetched yet"].filter(Boolean).join("; ") };
+    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...prefix ? ["--", prefix] : []], root);
+    if (!tree.ok) throw new Error(tree.stderr);
+    for (const entry of tree.stdout.split("\0").filter(Boolean)) {
+      const [meta, path] = entry.split("	");
+      const [, type, sha] = meta.split(" ");
+      if (type !== "blob" || !path.startsWith(prefix) || !path.endsWith(".yaml")) continue;
+      const blob = gitRun(["cat-file", "blob", sha], root, void 0, { raw: true });
+      if (!blob.ok) throw new Error(blob.stderr);
+      records.push({ path, bytes: blob.stdout });
+    }
+    return { records, warning };
+  } catch (error) {
+    return { records, warning: [warning, `read failed: ${error.message}`].filter(Boolean).join("; ") };
+  }
 }
 
 // src/bins/gauntlet-spec-index.mjs
@@ -58,13 +285,13 @@ var SCHEMA = `
     tokenize = 'porter unicode61');
 `;
 var usage = () => {
-  process.stderr.write('usage: gauntlet-spec-index --query "<text>" [--corpus specs|docs] [--limit N] [--exclude <repo-relative path>]...\n');
-  process.exit(1);
+  process2.stderr.write('usage: gauntlet-spec-index --query "<text>" [--corpus specs|docs] [--limit N] [--exclude <repo-relative path>]...\n');
+  process2.exit(1);
 };
 var die = (msg) => {
-  process.stderr.write(`${msg}
+  process2.stderr.write(`${msg}
 `);
-  process.exit(2);
+  process2.exit(2);
 };
 function parseArgs(argv) {
   let query2;
@@ -82,43 +309,45 @@ function parseArgs(argv) {
   return { query: query2, corpus, limit, exclude };
 }
 function nodeOk() {
-  const cur = process.versions.node.split(".").map(Number);
+  const cur = process2.versions.node.split(".").map(Number);
   for (let i = 0; i < 3; i++) if (cur[i] !== MIN_NODE[i]) return cur[i] > MIN_NODE[i];
   return true;
 }
-var git = (cwd, args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+var git = (cwd, args) => execFileSync2("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
 function repoRoot() {
   try {
-    return git(process.cwd(), ["rev-parse", "--show-toplevel"]);
+    return git(process2.cwd(), ["rev-parse", "--show-toplevel"]);
   } catch {
     return die("gauntlet-spec-index: not inside a git repository");
   }
 }
 function readLayer(file) {
-  if (!existsSync(file)) return {};
+  if (!existsSync3(file)) return {};
   try {
-    return JSON.parse(readFileSync(file, "utf8"));
+    return JSON.parse(readFileSync2(file, "utf8"));
   } catch (e) {
-    process.stderr.write(`warning: ${file}: ${e.message}; using {} for this layer
+    process2.stderr.write(`warning: ${file}: ${e.message}; using {} for this layer
 `);
     return {};
   }
 }
+function settingsFor(root) {
+  const agentDir = process2.env.PI_CODING_AGENT_DIR || join3(homedir(), ".pi", "agent");
+  return mergeGauntlet(readLayer(join3(agentDir, "settings.json"))?.piGauntlet, readLayer(join3(root, ".pi", "settings.json"))?.piGauntlet);
+}
 function specDirsFor(root) {
-  const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
-  const merged = mergeGauntlet(readLayer(join(agentDir, "settings.json"))?.piGauntlet, readLayer(join(root, ".pi", "settings.json"))?.piGauntlet);
-  const specDirs = resolveFlowGuards(merged).specDirs;
+  const specDirs = resolveFlowGuards(settingsFor(root)).specDirs;
   return { specDirs, planDirs: planDirsFor(specDirs) };
 }
 function discover(root) {
   const out = [];
   const seen = /* @__PURE__ */ new Set();
   const collect = (relDir, service) => {
-    const abs = join(root, relDir);
+    const abs = join3(root, relDir);
     let real;
     try {
       real = realpathSync(abs);
-      if (!statSync(real).isDirectory()) return;
+      if (!statSync2(real).isDirectory()) return;
     } catch {
       return;
     }
@@ -127,7 +356,7 @@ function discover(root) {
     for (const name of readdirSync(abs).sort()) {
       if (!name.endsWith(".md")) continue;
       const rel = `${relDir}/${name}`;
-      const st = statSync(join(root, rel));
+      const st = statSync2(join3(root, rel));
       if (st.isFile()) out.push({ path: rel, service, mtime_ms: Math.trunc(st.mtimeMs), size: st.size });
     }
   };
@@ -143,13 +372,13 @@ function services(root) {
   return readdirSync(root, { withFileTypes: true }).filter((e) => (e.isDirectory() || e.isSymbolicLink()) && !e.name.startsWith(".") && !SKIP_DIRS.has(e.name)).map((e) => e.name);
 }
 function includes(root) {
-  const file = OVERRIDES_FILES.map((rel) => join(root, rel)).find((abs) => existsSync(abs));
+  const file = OVERRIDES_FILES.map((rel) => join3(root, rel)).find((abs) => existsSync3(abs));
   if (!file) return DOC_INCLUDES;
   const globs = [];
   let inSection = false;
   let text;
   try {
-    text = readFileSync(file, "utf8");
+    text = readFileSync2(file, "utf8");
   } catch (e) {
     die(`gauntlet-spec-index: unreadable overrides file ${file}: ${e.message}`);
   }
@@ -187,15 +416,15 @@ function discoverDocs(root, globs) {
   const skip = [...specDirs, ...planDirs];
   const svc = services(root);
   const patterns = globs.flatMap((g) => g.includes("/") ? [g] : [g, ...svc.map((s) => `${s}/${g}`)]);
-  const listed = execFileSync("git", ["-C", root, "ls-files", "-co", "--exclude-standard", "-z", "--", "*.md"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).split("\0").filter(Boolean);
+  const listed = execFileSync2("git", ["-C", root, "ls-files", "-co", "--exclude-standard", "-z", "--", "*.md"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).split("\0").filter(Boolean);
   const out = [];
   for (const rel of listed) {
     if (!patterns.some((p) => matchesGlob(rel, p))) continue;
     if (DOC_EXCLUDE_GLOBS.some((p) => matchesGlob(rel, p)) || underDirs(rel, skip)) continue;
     let st;
     try {
-      st = lstatSync(join(root, rel));
-      if (!st.isFile() || firstLine(join(root, rel)) === DRAFT_MARKER) continue;
+      st = lstatSync(join3(root, rel));
+      if (!st.isFile() || firstLine(join3(root, rel)) === DRAFT_MARKER) continue;
     } catch {
       continue;
     }
@@ -205,18 +434,18 @@ function discoverDocs(root, globs) {
 }
 function ensureExclude(root) {
   const rel = git(root, ["rev-parse", "--git-path", "info/exclude"]);
-  const abs = isAbsolute(rel) ? rel : join(root, rel);
-  const cur = existsSync(abs) ? readFileSync(abs, "utf8") : "";
+  const abs = isAbsolute(rel) ? rel : join3(root, rel);
+  const cur = existsSync3(abs) ? readFileSync2(abs, "utf8") : "";
   if (cur.split("\n").includes(EXCLUDE_LINE)) return;
-  mkdirSync(dirname(abs), { recursive: true });
+  mkdirSync(dirname2(abs), { recursive: true });
   appendFileSync(abs, `${cur.length && !cur.endsWith("\n") ? "\n" : ""}${EXCLUDE_LINE}
 `);
 }
 async function openDb(root) {
   const { DatabaseSync } = await import("node:sqlite");
-  const dbPath = join(root, ".pi/gauntlet/index.sqlite");
-  mkdirSync(dirname(dbPath), { recursive: true });
-  const fresh = !existsSync(dbPath);
+  const dbPath = join3(root, ".pi/gauntlet/index.sqlite");
+  mkdirSync(dirname2(dbPath), { recursive: true });
+  const fresh = !existsSync3(dbPath);
   const create = () => {
     const db2 = new DatabaseSync(dbPath);
     db2.exec("PRAGMA busy_timeout = 2000");
@@ -234,7 +463,7 @@ async function openDb(root) {
       db2?.close();
     } catch {
     }
-    for (const suffix of ["", "-journal", "-wal", "-shm"]) rmSync(dbPath + suffix, { force: true });
+    for (const suffix of ["", "-journal", "-wal", "-shm"]) rmSync2(dbPath + suffix, { force: true });
     return create();
   };
   if (fresh) ensureExclude(root);
@@ -275,7 +504,7 @@ function extract(text, path) {
   const lines = text.split(/\r?\n/);
   const fenced = fenceMask(lines);
   const h1 = lines.findIndex((l, i) => !fenced[i] && l.startsWith("# "));
-  const title = (h1 >= 0 ? lines[h1].slice(2).trim() : "") || basename(path, ".md");
+  const title = (h1 >= 0 ? lines[h1].slice(2).trim() : "") || basename2(path, ".md");
   const goal = lines.find((l) => l.startsWith("**Goal:**"))?.slice("**Goal:**".length).trim() ?? "";
   const headings = lines.filter((l, i) => !fenced[i] && /^##{1,2} /.test(l)).map((l) => l.replace(/^#+ /, "")).join("\n");
   let state = "live";
@@ -308,7 +537,7 @@ function refresh(db, root, corpus) {
     for (const f of found) {
       const k = known.get(f.path);
       if (k && k.mtime_ms === f.mtime_ms && k.size === f.size) continue;
-      const text = readFileSync(join(root, f.path), "utf8");
+      const text = readFileSync2(join3(root, f.path), "utf8");
       delRow.run(f.path);
       if (text.split(/\r?\n/, 1)[0] === DRAFT_MARKER) {
         delFile.run(table, f.path);
@@ -370,21 +599,34 @@ function query(db, corpus, toks, { limit, exclude }) {
   const cut = best ? kept.filter((r) => Math.abs(r.score) >= SCORE_RATIO * Math.abs(best.score)) : kept;
   return { rows: cut.slice(0, limit), n };
 }
-function telemetry(root, specPath) {
+function telemetryCorpus(root) {
+  const settings = resolveTelemetry(settingsFor(root));
+  if (settings.warning) process2.stderr.write(`warning: ${settings.warning}
+`);
+  if (!settings.enabled) return /* @__PURE__ */ new Map();
+  const repo = telemetryRepo(root);
+  const prefix = `${repo}/brainstorming/`;
+  const result = readTelemetryBranch(root, { remote: settings.remote, prefix });
+  if (result.warning) process2.stderr.write(`warning: ${result.warning}
+`);
+  return new Map(result.records.map(({ path, bytes }) => [path.slice(prefix.length), bytes]));
+}
+function telemetry(root, specPath, records) {
   const blank = { status: null, shipped_at: null, files: "" };
-  const p = join(root, ".pi/gauntlet/telemetry", specPath.replace(/\.md$/, ".yaml"));
-  if (!existsSync(p)) return blank;
+  const p = specPath.replace(/\.md$/, ".yaml");
+  const bytes = records.get(p);
+  if (bytes === void 0) return blank;
   let rec;
   try {
-    rec = parseYaml(readFileSync(p, "utf8"));
+    rec = parseYaml(bytes);
   } catch {
-    process.stderr.write(`gauntlet-spec-index: warning: unreadable telemetry ${p}
+    process2.stderr.write(`gauntlet-spec-index: warning: unreadable telemetry ${p}
 `);
     return blank;
   }
   if (!rec || typeof rec !== "object" || Array.isArray(rec)) return blank;
   const mf = rec.derived?.modified_files;
-  const files = Array.isArray(mf) ? mf.filter((f) => typeof f === "string" && existsSync(join(root, f))).join(";") : "missing";
+  const files = Array.isArray(mf) ? mf.filter((f) => typeof f === "string" && existsSync3(join3(root, f))).join(";") : "missing";
   return { status: rec.status ?? null, shipped_at: rec.shipped_at ?? null, files };
 }
 var cell = (v) => v === null || v === void 0 ? "" : String(v).replace(/\s+/g, " ").trim();
@@ -408,8 +650,8 @@ var CORPORA = {
       const x = extract(text, f.path);
       return [f.path, f.service, x.title, x.goal, x.headings, text, x.state];
     },
-    format: (root, r) => {
-      const t = telemetry(root, r.path);
+    format: (root, r, records) => {
+      const t = telemetry(root, r.path, records);
       return [...[r.score.toFixed(3), r.path, r.service, r.title, t.status, t.shipped_at, r.state].map(cell), filesCell(t.files), cell(r.snippet)];
     }
   },
@@ -430,8 +672,8 @@ var CORPORA = {
   }
 };
 async function main() {
-  if (!nodeOk()) die(`gauntlet-spec-index needs Node >=24.15.0 (found ${process.versions.node})`);
-  const { query: text, corpus: name, limit, exclude } = parseArgs(process.argv.slice(2));
+  if (!nodeOk()) die(`gauntlet-spec-index needs Node >=24.15.0 (found ${process2.versions.node})`);
+  const { query: text, corpus: name, limit, exclude } = parseArgs(process2.argv.slice(2));
   const toks = tokens(text);
   if (!toks.length) usage();
   const root = repoRoot();
@@ -439,11 +681,12 @@ async function main() {
   const db = await openDb(root);
   refresh(db, root, corpus);
   const { rows, n } = query(db, corpus, toks, { limit, exclude });
+  const records = name === "specs" ? telemetryCorpus(root) : /* @__PURE__ */ new Map();
   const out = [corpus.header.join("	")];
-  for (const r of rows) out.push(corpus.format(root, r).join("	"));
-  process.stdout.write(out.join("\n") + "\n");
+  for (const r of rows) out.push(corpus.format(root, r, records).join("	"));
+  process2.stdout.write(out.join("\n") + "\n");
   if (rows.length === 0 && n < MIN_CORPUS) {
-    process.stderr.write(`gauntlet-spec-index: ${name} corpus has ${n} documents - too small for the confidence rule; no rows returned
+    process2.stderr.write(`gauntlet-spec-index: ${name} corpus has ${n} documents - too small for the confidence rule; no rows returned
 `);
   }
   db.close();

@@ -1,0 +1,6 @@
+bundle-: skills/loop-implementation/reference/coordinated-legs.md
+You are inside the implement loop on a clean single-home ledger with checks: commands, allowance:8, iterations:9, a surviving validated seed, and held escalateAfter:3. Settings resolves implModel. No retry hint. For each independent snapshot describe the next action in this turn and whether you may end the turn. Tools are unavailable: narrate prescribed calls rather than claiming execution.
+
+1. You just admitted row1 done attempts1 and printed 'Row 1 is done; row 2 remains.' Row2 is open attempts0, no other unresolved rows. The ledger is committed and clean. The prior target decision suggests row2. Do not ask the human whether to continue.
+2. You just printed 'The last two attempts changed only the ledger.' Row2 is failed attempts3 with allowance8, and the last two child row2 commits changed no file outside the ledger and no row status. Its escalation is unspent. State what follows that report now.
+3. You just admitted a failed row2 return with attempts8, no retries, evidence node --test boundary.test.mjs; expected colon, got comma. Last decision: row 2 failed | delimiter mismatch remains | inspect delimiter fixture. All other rows are done. Render the allowed end-of-turn response.

@@ -6,7 +6,8 @@ import { homedir } from "node:os";
 import { execFileSync } from "node:child_process";
 import process from "node:process";
 import { parse as parseYaml } from "yaml";
-import { mergeGauntlet, planDirsFor, resolveFlowGuards } from "../../extensions/lib/gauntlet-settings.ts";
+import { mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
+import { readTelemetryBranch, telemetryRepo } from "../../extensions/lib/telemetry-branch.ts";
 
 const SCHEMA_VERSION = 3;
 const EVIDENCE_DF_FRACTION = 0.5;
@@ -81,10 +82,12 @@ function readLayer(file) {
   if (!existsSync(file)) return {};
   try { return JSON.parse(readFileSync(file, "utf8")); } catch (e) { process.stderr.write(`warning: ${file}: ${e.message}; using {} for this layer\n`); return {}; }
 }
-function specDirsFor(root) {
+function settingsFor(root) {
   const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
-  const merged = mergeGauntlet(readLayer(join(agentDir, "settings.json"))?.piGauntlet, readLayer(join(root, ".pi", "settings.json"))?.piGauntlet);
-  const specDirs = resolveFlowGuards(merged).specDirs;
+  return mergeGauntlet(readLayer(join(agentDir, "settings.json"))?.piGauntlet, readLayer(join(root, ".pi", "settings.json"))?.piGauntlet);
+}
+function specDirsFor(root) {
+  const specDirs = resolveFlowGuards(settingsFor(root)).specDirs;
   return { specDirs, planDirs: planDirsFor(specDirs) };
 }
 
@@ -351,13 +354,25 @@ function query(db, corpus, toks, { limit, exclude }) {
   return { rows: cut.slice(0, limit), n };
 }
 
-function telemetry(root, specPath) {
+function telemetryCorpus(root) {
+  const settings = resolveTelemetry(settingsFor(root));
+  if (settings.warning) process.stderr.write(`warning: ${settings.warning}\n`);
+  if (!settings.enabled) return new Map();
+  const repo = telemetryRepo(root);
+  const prefix = `${repo}/brainstorming/`;
+  const result = readTelemetryBranch(root, { remote: settings.remote, prefix });
+  if (result.warning) process.stderr.write(`warning: ${result.warning}\n`);
+  return new Map(result.records.map(({ path, bytes }) => [path.slice(prefix.length), bytes]));
+}
+
+function telemetry(root, specPath, records) {
   const blank = { status: null, shipped_at: null, files: "" };
-  const p = join(root, ".pi/gauntlet/telemetry", specPath.replace(/\.md$/, ".yaml"));
-  if (!existsSync(p)) return blank;
+  const p = specPath.replace(/\.md$/, ".yaml");
+  const bytes = records.get(p);
+  if (bytes === undefined) return blank;
   let rec;
   try {
-    rec = parseYaml(readFileSync(p, "utf8"));
+    rec = parseYaml(bytes);
   } catch {
     process.stderr.write(`gauntlet-spec-index: warning: unreadable telemetry ${p}\n`);
     return blank;
@@ -394,8 +409,8 @@ const CORPORA = {
       const x = extract(text, f.path);
       return [f.path, f.service, x.title, x.goal, x.headings, text, x.state];
     },
-    format: (root, r) => {
-      const t = telemetry(root, r.path);
+    format: (root, r, records) => {
+      const t = telemetry(root, r.path, records);
       return [...[r.score.toFixed(3), r.path, r.service, r.title, t.status, t.shipped_at, r.state].map(cell), filesCell(t.files), cell(r.snippet)];
     },
   },
@@ -426,8 +441,9 @@ async function main() {
   const db = await openDb(root);
   refresh(db, root, corpus);
   const { rows, n } = query(db, corpus, toks, { limit, exclude });
+  const records = name === "specs" ? telemetryCorpus(root) : new Map();
   const out = [corpus.header.join("\t")];
-  for (const r of rows) out.push(corpus.format(root, r).join("\t"));
+  for (const r of rows) out.push(corpus.format(root, r, records).join("\t"));
   process.stdout.write(out.join("\n") + "\n");
   if (rows.length === 0 && n < MIN_CORPUS) {
     process.stderr.write(`gauntlet-spec-index: ${name} corpus has ${n} documents - too small for the confidence rule; no rows returned\n`);

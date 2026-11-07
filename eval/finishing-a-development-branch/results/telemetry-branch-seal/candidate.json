@@ -1,0 +1,100 @@
+{
+  "sample": "telemetry-branch-seal",
+  "arm": "candidate",
+  "skillSha": "c3077027c782c088a43ae71d71a101dbe3d391db720a8b367c9a5c2c973bbdc1",
+  "inputSha": "bd334f99b4c12164aa84528ade8715e92419b83625d4e6becd09a979e850fdd2",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Option 1: commands and completion report for `/tmp/widget-work`\n\n## Skip decision (Step 1)\n\nThe retained ledger gate set passed in this session's verify phase on a known clean commit. Both proofs hold over the entire current tree:\n\n- `git -C /tmp/widget-work diff --quiet <verified commit> -- .` exits 0.\n- `git -C /tmp/widget-work status --porcelain --untracked-files=all -- .` exits 0 with empty output.\n\nThe only change since then is the recorder file under the Git common directory. That is outside the working tree, so neither proof covers it. **The gates are skipped. No rerun is needed.**\n\n## Next commands (Step 5, Option 1)\n\n**1. Derive the variables.**\n```bash\nWORKTREE=/tmp/widget-work\nPRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")\nFEATURE=$(git -C \"$WORKTREE\" branch --show-current)\n```\n\n**2. Strip the plan.**\n- The candidates are `doc/plans/2026-01-02-widget.md` (the task plan, paired by basename) and `doc/plans/2026-01-02-widget-ledger.md`.\n- The ledger is tracked, so it is removed with `git -C \"$WORKTREE\" rm doc/plans/2026-01-02-widget-ledger.md && git -C \"$WORKTREE\" commit -m \"Remove ephemeral plan doc\"`.\n- That commit succeeds.\n- The spec is preserved.\n\n**3. Seal the telemetry record.**\n- `--spec` takes the ledger's `**Spec:**` header value, which was read before removal.\n\n```bash\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree \"$WORKTREE\" --option pr --base main --spec doc/specs/2026-01-02-widget.md\n```\n\n- The result is exit 0 with `telemetry: not pushed (remote unavailable)`.\n- **This does not prevent landing.** Only exit 1, a usage error, stops before landing.\n- The unpublished record stays in common-dir metadata for a later retry. It is never staged into the product checkout.\n\n**4. Push the branch.**\n```bash\ngit -C \"$WORKTREE\" push -u origin \"$FEATURE\"\n```\n\n**5. Create the PR.**\n- Run `(cd \"$WORKTREE\" && gh pr create --title \"<title>\" --body ...)`.\n- `## Summary` has 2-3 bullets. Because this is a ledger subject, its last bullet is:\n  `Verification: scoped - <the retained gate commands>; CI on this push holds the full run`\n- `## Test Plan` is unchanged.\n- An `## Acceptance criteria` block is appended only if the spec has `venue:`, `deferred:` or `elsewhere:` rows.\n- There is no `Telemetry:` suffix, because that is rework-only.\n\n**What the PR carries:**\n- It carries the spec and the implementation.\n- The ledger is removed at the branch tip and survives only in feature history.\n- The PR carries no telemetry record.\n- The worktree is not cleaned up.\n\n**6. Mark the phase complete.**\n```\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n\n## Completion report\n\n```\ngauntlet: done pr-created\nPull request created: <PR URL> (branch <FEATURE> -> main).\ntelemetry: not pushed (remote unavailable)\nWorktree preserved at /tmp/widget-work for PR iteration.\nAfter merge/deploy, run /skill:check-delivery <ticket-ref> to prove delivery.\n```\n\n## Variant: untracked `.pi/gauntlet/telemetry/manual.yaml` in the checkout\n\nIf the status check reports that untracked file, the status proof fails because its output is not empty. The skip rule has no path exclusions, so this changes the decision:\n\n- **The skip is lost.** The retained gate set must run once, fail-fast, using the session `LOG_DIR`.\n- **The file must not be staged into the PR.** A telemetry file in the product checkout would pollute the product diff and bypass publication through the seal.\n- **I would stop and surface the stray file.** The verified HEAD and clean status can't be recorded while it is present, so the user needs to remove or relocate it before shipping continues.\n",
+      "words": 505,
+      "wallMs": 22030,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Next commands\n\n**Skip pre-push verification:** the retained gate set passed on a known clean commit, the full-tree diff is unchanged, and status is empty. Recorder changes outside the working tree do not invalidate that proof.\n\n1. Strip the ephemeral plan before pushing. Check both paired plan candidates:\n   - `doc/plans/2026-01-02-widget.md`\n   - `doc/plans/2026-01-02-widget-ledger.md`\n\n   For each tracked candidate, use `git -C /tmp/widget-work rm <path>` and commit with `Remove ephemeral plan doc`. The captured removal succeeds. Preserve the spec.\n\n2. Seal the telemetry record, resolving `<bin>` from the skill installation:\n\n   ```bash\n   node <bin>/gauntlet-telemetry-seal.mjs \\\n     --worktree /tmp/widget-work \\\n     --option pr \\\n     --base main \\\n     --spec doc/specs/2026-01-02-widget.md\n   ```\n\n   Its exit is **0**, so this output does **not** prevent landing:\n\n   ```text\n   telemetry: not pushed (remote unavailable)\n   ```\n\n   Preserve the unpublished telemetry in Git common-directory metadata for retry. Do not stage it in the product checkout.\n\n3. Push the derived feature branch and create the PR—no second permission is required:\n\n   ```bash\n   git -C /tmp/widget-work push -u origin \"$FEATURE\"\n\n   (cd /tmp/widget-work && gh pr create \\\n     --base main \\\n     --title \"<implementation title>\" \\\n     --body-file \"<prepared PR body file outside the checkout>\")\n   ```\n\n   The PR carries the **spec and implementation**, not the ephemeral plan or telemetry record. Its body includes Summary and Test Plan sections, with this as the last Summary bullet, substituting the retained gate commands:\n\n   ```text\n   Verification: scoped - <retained gate commands>; CI on this push holds the full run\n   ```\n\n   Include an Acceptance criteria block only if the spec contains qualifying `venue:`, `deferred:`, or `elsewhere:` rows.\n\nAfter successful push and PR creation, mark the ship phase complete. **Preserve the worktree and feature branch.**\n\n### Completion report\n\nWith the captured successful outcomes, the report would be:\n\n```text\ngauntlet: done pr-created\nCreated PR: <returned PR URL>\nShips the spec and implementation; ephemeral plans removed.\nWorktree preserved at /tmp/widget-work.\n\ntelemetry: not pushed (remote unavailable)\n```\n\n### If checkout status instead lists the untracked telemetry file\n\nAn untracked `.pi/gauntlet/telemetry/manual.yaml` in the **product checkout invalidates the skip proof**. The full-tree status is no longer empty; its telemetry-like path grants no exclusion.\n\nRun the retained gate set once, using finish’s session log directory and fail-fast logging. Keep telemetry metadata outside the product checkout—do not stage that file as a deliverable—and establish a clean tree before recording a new verified HEAD and clean status.\n",
+      "words": 362,
+      "wallMs": 14695,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b3059ac3b248095d8793d54f7d5efc78973c7bd00ce963dace65a630527d4bb0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0c526fd034203ada99746cd30c52692252529f5179b0fec3585b00c6f0a38c04",
+      "baselineOutputSha": "0c88ca008e516504b7b19e0f1f8f4c147bd2d854b0ec673010d36634a32a5d4e",
+      "candidateOutputSha": "a87cecca1e96d7c4b58e15d3fa9ee15106be6ad7b5ddbad63f794d16eb0027a7",
+      "facts": {
+        "skip": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "seal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "warning": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "artifacts": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After fixes the skip decision cleanly: both proofs are full-tree with no `':!.pi/gauntlet/telemetry'` exclusion, the common-dir recorder is explained as outside the working tree, and the untracked `manual.yaml` variant now loses the skip and forces one fail-fast gate run, which is exactly what the Change asked for. Seal and warning are preserved: the plan strip, the four-argument seal call before the push, the exit-0 continuation, and the verbatim `telemetry: not pushed (remote unavailable)` line in the completion report are all intact, and no permission to bypass is requested. The artifacts fact still fails in After, though, because the output never names where the telemetry record actually lives: it says the record 'stays in common-dir metadata' and the 'PR carries no telemetry record', but never states that the record belongs to the `gauntlet/telemetry` orphan branch and is published there rather than in the feature commits. Adding one sentence to step 3 or the 'What the PR carries' block such as 'The sealed record belongs to the orphan branch `gauntlet/telemetry`; the feature branch and its squash never contain it, and the remote push of that branch is retried later' would satisfy artifacts without disturbing the other three facts. Also consider dropping or softening the 'I would stop and surface the stray file' bullet in the variant, since it slightly muddies the stated rule that the gate set simply reruns; keep the rerun statement as the primary consequence.",
+      "wallMs": 25874,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b3059ac3b248095d8793d54f7d5efc78973c7bd00ce963dace65a630527d4bb0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0c526fd034203ada99746cd30c52692252529f5179b0fec3585b00c6f0a38c04",
+      "baselineOutputSha": "7b944a2dcd820c080d25ee53a22a3c68d64ea6057338ae766b3275fe497d8205",
+      "candidateOutputSha": "204ee989fd570dbfa4677193dd31d5f19f26a5d3750642bf5a10deedf417a034",
+      "facts": {
+        "skip": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "seal": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "warning": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "artifacts": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After correctly moves skip (the untracked product-checkout file now invalidates the proof with no telemetry-path exclusion) and seal (plan-only strip, full seal call before push, explicit 'do not stage it in the product checkout'), and keeps warning intact (continues to push/PR after exit 0, prints the line verbatim, no second permission). Artifacts still fails in After because the output never names where the telemetry record lives: it says the PR carries 'spec and implementation, not the ephemeral plan or telemetry record' and that the unpublished record stays in 'Git common-directory metadata', but the fact requires identifying the record as belonging to the gauntlet/telemetry orphan branch. Add one sentence after the seal step such as 'The sealed record belongs on the gauntlet/telemetry orphan branch, published separately from the feature squash; when the remote is unavailable it stays in common-directory metadata for retry', and mirror that in the completion report line. That keeps every fact After already holds while delivering the orphan-branch intent of the Change.",
+      "wallMs": 19228,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "c1104c39b10ac139abd78d937318ef40ad03769f"
+}

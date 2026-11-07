@@ -1,12 +1,17 @@
-for: 151f11a691ba796c91a089d7015ad6fce8681ec2eeee5aaa3c332ebca18ad014
+for: 0ccdc83bf439c49f8181e3323d8bcdc4bf913806da1a7b32e9c0c656c209a02e
 
 ## Change
+Correct Worktree First's artifact lifecycle: keep recorder state in Git common-dir metadata and publish sealed records to gauntlet/telemetry, not the product squash. Add the Worktree First slice to the target assembly and run only telemetry-branch-deliverable for this edit; preserve prior evidence without claiming target-wide coverage.
+
 
 Keep marked mixed-row provenance out of Design alongside marked stage-only provenance. Extend workflow-stage-ticket-row's Reporter note with the realistic bundled original and strengthen f7 to reject the make ci passes suite obligation while retaining importRows. Return to the cut question unchanged and report no repair after a confirmation cancel or an initial ticket-read abort. The fixed A-answer continuation cannot exercise that D-path abort; cover its owning clause in the deterministic contract test, not a claimed model continuation. Preserve prior result records and run only the selected ticket-row sample.
 
 Name the owning Workflow-stage proof class in the drafting integrity table. Leave stage-only validation out before drafting and preserve an already drafted row's Design commitment through proof rewriting. The selected workflow-stage-drafted-row checkpoint keeps two Design behaviors while replacing a suite-only proof sketch with the missing-id observable. Keep full verification in Tests and ask no scope-cut question for delivery notes. Both baseline models already render the required rows; this is regression coverage, not a claimed behavioral improvement. Preserve ticket-screening evidence and prior partial reports.
 
 Screen verbatim ticket rows at step 4 using shape-ticket's Workflow-stage proof class before ordinary question one. Recommend ticket repair for sole-stage and bundled observations without editing rows; retain CI-as-product and behavior rows. Exclude retired proof provenance from Design while carrying other Reporter-note requirements. The selected workflow-stage-ticket-row continuation covers seven facts on fixed observations, not live ticket repair; preserve prior reports and run no target-wide sweep.
+
+
+Establish each paid/external action's runner, inputs and count for the whole flow across seed, rows, repairs and finish in round-two Design. Approval authorizes only those bounded named actions without per-step prompts; an action lacking that clause is unreachable in the loop and adding it requires explicit authorization. Extend design-names-paid-actions to establish one invocation of each verified runner across the flow, not restate fixture-supplied per-call request/cost limits. Run only this selected sample; preserve other sample results and all existing accepted variance. This replay proves narrated authorization boundaries, not live external operations or target-wide coverage.
 
 Cover the resolved allowance gate, waves-only funding grammar and amendment allowance preservation with selected fixtures. Supply the newly required successful settings result in shared gate fixture state, with each case's explicit settings or unavailable-tool observation taking precedence. Keep sample IDs and all must-hold facts, including the waves controls. Preserve recovered model records without treating them as current verification; defer selected model checks to the parent. Never run full targets, including at completion.
 
@@ -71,6 +76,8 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
 
 ## Expected to move
+- telemetry-branch-deliverable/store: fails -> holds - Recorder YAML stays outside the product checkout.
+- telemetry-branch-deliverable/delivery: fails -> holds - Finishing publishes the record to the orphan branch.
 - workflow-stage-drafted-row/f1: holds -> holds - Exclude stage-only drafted rows.
 - workflow-stage-drafted-row/f2: holds -> holds - Preserve one row per Design behavior, including the suite-proof sketch's outcome.
 - workflow-stage-drafted-row/f3: holds -> holds - Ask no scope-cut question and emit no none fallback.
@@ -82,6 +89,13 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 - workflow-stage-ticket-row/f5: fails -> holds - Send the bundled row intact to its own cut question, recommending D.
 - workflow-stage-ticket-row/f6: holds -> holds - Do not question CI-as-product or behavior rows.
 - workflow-stage-ticket-row/f7: fails -> holds - Carry real Reporter-note requirements, never retired proof as Design.
+- design-names-paid-actions/flow-bound: fails -> holds - Propose runner/input-specific counts covering seed, rows, repairs and finish, with saved-result reuse.
+- design-names-paid-actions/unnamed-unreachable: fails -> holds - Name the loop's unreachable boundary for an action without the approved clause.
+- design-names-paid-actions/paid: fails -> holds - Name paid request count and spending limit in Design.
+- design-names-paid-actions/external: fails -> holds - Name the bounded remote sandbox lifecycle in Design.
+- design-names-paid-actions/approval: fails -> holds - Treat approval as authorization for named actions without per-step prompts.
+- design-names-paid-actions/bounded: holds -> holds - Keep unnamed production and other-sandbox actions outside approval.
+- design-names-paid-actions/gate: holds -> holds - Wait for design approval without executing the proposed change.
 - loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
 - loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
 - spec-pr-regate-legs/remote-only: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change

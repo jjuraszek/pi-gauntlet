@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-// Repo validator. Runs in CI on every push and as the release gate.
-// The validator itself uses only Node built-ins; `npm install` must run first
-// because the telemetry record module and its tests import the `yaml` dependency.
+// Repo validator. Runs in CI and as the release gate.
+// Run `npm install` first: workflow checks and telemetry tests use `yaml`.
 //
 // Usage:
 //   node scripts/ci.mjs                      # validate repo
@@ -11,6 +10,7 @@ import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { parse as parseYaml } from "yaml";
 import { scanTree } from "../eval/lib/hygiene.mjs";
 import { lintAll } from "../eval/lib/lint.mjs";
 
@@ -23,6 +23,14 @@ const ok = (msg) => console.log(`  ok  ${msg}`);
 
 const expectIdx = process.argv.indexOf("--expect-version");
 const expectVersion = expectIdx !== -1 ? process.argv[expectIdx + 1] : null;
+
+const pushTrigger = parseYaml(readFileSync(R(".github/workflows/test.yml"), "utf8")).on?.push;
+if (!Array.isArray(pushTrigger?.["branches-ignore"]) || !pushTrigger["branches-ignore"].includes("gauntlet/telemetry")) {
+  fail(".github/workflows/test.yml: push.branches-ignore must exclude gauntlet/telemetry");
+}
+if (pushTrigger && Object.hasOwn(pushTrigger, "branches")) {
+  fail(".github/workflows/test.yml: push must not combine branches with branches-ignore");
+}
 
 // ---- package.json ----------------------------------------------------------
 const pkg = JSON.parse(readFileSync(R("package.json"), "utf8"));
@@ -351,17 +359,20 @@ if (!existsSync(R("skills/brainstorming/../../bin/gauntlet-spec-index.mjs"))) {
 }
 if (!existsSync(R("skills/finishing-a-development-branch/../../bin/gauntlet-telemetry-seal.mjs"))) fail("gauntlet-telemetry-seal: path from skills/finishing-a-development-branch does not resolve");
 if (!existsSync(R("skills/gauntlet-performance/../../bin/gauntlet-performance.mjs"))) fail("gauntlet-performance: path from skills/gauntlet-performance does not resolve");
-// Telemetry record is a deliverable: the rule and the seal call site cannot be edited away silently;
-// gatekeep-pr is about the change and never names the record (spec 2026-09-25-gauntlet-bound-telemetry).
+// Telemetry publication stays separate from product delivery and gatekeep-pr instructions.
 {
+  const trackedTelemetry = execFileSync("git", ["ls-files", "--", ".pi/gauntlet/telemetry"], { cwd: root, encoding: "utf8" }).trim();
+  if (trackedTelemetry) fail(".pi/gauntlet/telemetry: migrate tracked records to gauntlet/telemetry and remove them from the product branch");
   const worktreeFirst = txt("skills/brainstorming/SKILL.md").split(/^## /m).find((s) => s.startsWith("Worktree First")) ?? "";
-  if (!worktreeFirst.includes("telemetry record")) fail("skills/brainstorming/SKILL.md: Worktree First must name the telemetry record as a deliverable");
+  if (!worktreeFirst.includes("orphan `gauntlet/telemetry` branch")) fail("skills/brainstorming/SKILL.md: Worktree First must publish telemetry outside the checkout");
   const finishing = txt("skills/finishing-a-development-branch/SKILL.md");
   if (!finishing.includes("gauntlet-telemetry-seal.mjs")) fail("skills/finishing-a-development-branch/SKILL.md: missing the gauntlet-telemetry-seal.mjs call");
+  if (!finishing.includes("orphan `gauntlet/telemetry` branch") || /telemetry\.dir|git-excluded/.test(finishing)) fail("skills/finishing-a-development-branch/SKILL.md: seal to the telemetry branch, not the product checkout");
   for (const opt of ["#### Option 1: Push and Create PR", "#### Option 2: Push and Create Draft PR", "#### Option 3: Squash-merge to base"]) {
     const block = finishing.split(opt)[1]?.split(/^#### /m)[0] ?? "";
     if (!block.includes("telemetry record")) fail(`skills/finishing-a-development-branch/SKILL.md: "${opt}" must name the telemetry record`);
   }
+  if (!txt("skills/gatekeep-pr/reference/post-selection-loop.md").includes("#<N>@<head sha>: <outcome>")) fail("gatekeep-pr: missing per-PR settlement rows");
   for (const f of walk(R("skills/gatekeep-pr")).filter((f) => f.endsWith(".md"))) {
     if (/telemetry/i.test(readFileSync(f, "utf8"))) fail(`${f.replace(root + "/", "")}: gatekeep-pr must not mention telemetry`);
   }
@@ -471,10 +482,24 @@ try {
       R("extensions/lib/telemetry-council.test.ts"),
       R("extensions/lib/telemetry-ship.test.ts"),
       R("extensions/telemetry.test.ts"),
+      R("extensions/telemetry-leg.test.ts"),
+      R("extensions/telemetry-leg-fields.test.ts"),
+      R("extensions/telemetry-leg-rounds.test.ts"),
+      R("extensions/telemetry-leg-no-write.test.ts"),
+      R("extensions/telemetry-leg-trackers.test.ts"),
+      R("extensions/telemetry-leg-failures.test.ts"),
+      R("extensions/telemetry-settlement-contract.test.ts"),
+      R("extensions/lib/telemetry-branch.test.ts"),
       R("bin/gauntlet-spec-index.test.mjs"),
       R("bin/gauntlet-telemetry-seal.test.mjs"),
       R("src/bins/gauntlet-telemetry-seal.test.mjs"),
+      R("src/bins/gauntlet-telemetry-jj.test.mjs"),
+      R("src/bins/gauntlet-telemetry-readers.test.mjs"),
+      R("src/bins/gauntlet-telemetry-migration.test.mjs"),
+      R("src/bins/gauntlet-telemetry-concurrency.test.mjs"),
+      R("src/bins/gauntlet-telemetry-invariance.test.mjs"),
       R("bin/gauntlet-performance.test.mjs"),
+      R("src/bins/gauntlet-performance-rollup.test.mjs"),
     ],
     { stdio: "pipe" },
   );
@@ -507,7 +532,15 @@ try {
 
 try {
   execFileSync(process.execPath, [R("scripts/stage-skill-lint.test.mjs")], { stdio: "pipe" });
-  execFileSync(process.execPath, ["--test", R("scripts/loop-engine-contract.test.mjs")], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test",
+    R("scripts/loop-engine-contract.test.mjs"),
+    R("scripts/loop-boundary-integration.test.mjs"),
+    R("scripts/loop-conformance-grant.test.mjs"),
+    R("scripts/loop-implementer-actions.test.mjs"),
+    R("scripts/loop-implementer-process.test.mjs"),
+    R("scripts/loop-unreachable-cut.test.mjs"),
+    R("scripts/loop-verification-repair.test.mjs"),
+  ], { stdio: "pipe" });
   ok("stage-skill lint fixtures pass");
 } catch (e) {
   fail(`stage-skill lint fixtures failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 20).join("\n    ")}`);

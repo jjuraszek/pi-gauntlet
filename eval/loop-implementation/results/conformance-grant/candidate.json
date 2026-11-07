@@ -1,0 +1,140 @@
+{
+  "sample": "conformance-grant",
+  "arm": "candidate",
+  "skillSha": "7e85ec9bb6c1034e33c4a12f8aa6486a27432f8293ca618114623a0e5f9c7795",
+  "inputSha": "3a0c2ddeffd0897966f6593b03645eea7deb4939ca513a83d51de9e07d9d9173",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Loop driver narration: four verify-phase conformance snapshots\n\nThese are synthetic snapshots, so nothing below has run. Each block lists the call I would make, the durable effect, the next target and what the human sees.\n\n**Rules that apply to every snapshot:**\n- **Shared state.** Phase is verify-active and implement is complete. Ledger allowance is 9 and iterations is 40. No row, attempt, iteration, allowance or setting changes in any branch.\n- **Amend permission.** It comes from the spec's verbatim grant sentence `Apply later spec amendments without asking; stop for redraws.` It applies only where a branch says so.\n- **Funding rule** (After the loop, step 3). I read `<used>` from the block or step-6 text and never count rounds myself.\n  - If amend permission holds and `<used> < 9`, a live block gets `grant_fix_rounds` with `rounds: 9 - <used>`.\n  - If enforcement is off, the fix loop continues without a call.\n  - Otherwise I take the reference's step-6 stop: `<used> >= 9`, an error reply, or no amend permission.\n- **Step-6 stop shape** (rendered per menu-layout, which I would read in full first):\n  - `gauntlet: gate=verification-before-completion/step-6` alone on line 1.\n  - The verdict trail, the preservation sentence, a request for explicit funding and a Recommendation line.\n  - No done or stuck line. Verify stays active.\n\n---\n\n## 1. Option 5, live block at used 5\n\n**Calls**\n```text\nphase_tracker({ action: \"grant_fix_rounds\", rounds: 4,\n  reason: \"Apply later spec amendments without asking; stop for redraws.\" })\n```\n- Rounds is 9 − 5 = 4.\n- The tool succeeds.\n- Printed: `funded 4 conformance rounds under the grant`\n\n**Durable changes**\n- The tracker records the grant.\n- Nothing is written to the ledger or driver memory: no grant counter and no round counter.\n\n**Next target: G1, back into conformance step 2 in the same turn.**\n- **Tracker.** Reuse the existing `G1:` task (no new append, no `init`) and set it to `in_progress`.\n- **Fix wave.** One foreground call:\n  ```text\n  subagent({ context: \"fresh\", async: false, tasks: [\n    { agent: \"implementer\", worktree: true, cwd: <conformance worktree>,\n      task: <G1 gap block verbatim>\n        + SCOPED_TEST_COMMANDS: <complete gate set, owning checkouts, per ## Gate set> } ] })\n  ```\n  - The repaired leg is remapped to its isolated worktree.\n  - The child uses its own `mktemp -d` LOG_DIR.\n- **Integrate.** Apply the child's patch with `git -C \"<conformance-worktree>\" apply` and commit it as `conformance fix G1`.\n- **Gate set.** Run the complete gate set into the session LOG_DIR, as `(cd … && cmd) > \"$LOG_DIR/gate-<i>.log\" 2>&1` with fail-fast.\n- **Happy path.** Re-run only if the step-5 path or evidence trigger fires.\n- **Re-audit.** Foreground `conformance-reviewer`, with `async: false` and `model:` from `gauntlet_setting({ key: \"closureReview\" }).model` (omitted if undefined). It receives the full prior report and the round diff.\n- **After the re-audit.** Re-partition the result: CONFORMS goes to Convergence, an open G1 starts the next round.\n\n**Later block reports 9 used against cap 5**\n- 9 ≥ 9, so I make no grant and no probe call.\n- This is the step-6 stop:\n```text\ngauntlet: gate=verification-before-completion/step-6\n\nStopped: conformance fix rounds reached the ledger allowance with G1 open\nConformance fix loop: 9 fix round(s) used against a cap of 5 (granted rounds included)\nallowance: 9 - the amend grant funds conformance rounds only up to the ledger allowance\nG1 - <title> - MISSING (recommended: fix)\n  round history: R1 <verdict/action>, … R9 <verdict/action>   (from the reviewer reports)\nPreserve every row's attempts.\n\n1. Fund more rounds - reply with the number and your words; recorded via grant_fix_rounds\n2. Stop - verify stays active, implement stays complete\n\nRecommendation: none - automatic funding is exhausted at the ledger allowance; more rounds need your explicit approval\n```\n\n**Used 10 against allowance 9**\n- This is the identical stop path, quoting `10 fix round(s) used…`.\n- No grant is made, because 10 ≥ 9.\n- I never compute a negative grant.\n\n---\n\n## 2. Proactive step-6 ask at used 5\n\n**Enforcement on (cap live, no unused credits)**\n- The block is effectively live and amend permission holds, so I route the grant before any human turn.\n- Call: `grant_fix_rounds` with `rounds: 4` and the verbatim sentence as the reason.\n- Printed: `funded 4 conformance rounds under the grant`\n- Then re-enter step 2 exactly as in snapshot 1.\n- No human turn.\n\n**Enforcement off, same used 5**\n- No runtime block is active, so there is nothing to overrule.\n- I make no tool call and print no funded line.\n- The fix loop continues straight to step 2.\n- No human turn.\n\n**Later step-6 ask at used 9**\n- 9 ≥ 9, so this is the step-6 human stop, rendered as in snapshot 1 with `9 fix round(s) used`.\n- This holds even with enforcement off. The allowance ceiling is the driver's rule, read from the reported text. It does not depend on the runtime guard.\n- No call.\n\n---\n\n## 3. Branches without automatic funding\n\n**3a. Option 4 with `**Amend-grant:** none`**\n- There is no amend permission, so no automatic funding.\n- No call. I take the step-6 stop:\n```text\ngauntlet: gate=verification-before-completion/step-6\n\nStopped: conformance fix cap reached with G1 open\nConformance fix loop: 5 fix round(s) used against a cap of 5 (granted rounds included)\nG1 - <title> - MISSING (recommended: fix)\n  round history: R1 … R5 <verdict/action>\nPreserve every row's attempts.\n\n1. Fund more rounds - reply with the number and your words\n2. Stop\n\nRecommendation: none - no amend permission; funding needs your explicit approval\n```\n\n**3b. Budget-only value `fund 12 fix rounds`**\n- A waves-only budget token is ignored and grants no amend permission.\n- Same stop as 3a.\n- I do not fund 12 rounds or 4 rounds.\n\n**3c. Option 5 with permission, but the grant call errors**\n- The tool returns `Error: grant_fix_rounds: no fix-round cap block is active (5 used, cap 5); nothing to overrule`.\n- An error reply is not success, so I print no funded line and make no retry or probe call.\n- Render the step-6 stop as in 3a, with one difference: the recommendation names the failed call.\n  - Recommendation: `Recommendation: none - grant_fix_rounds returned an error under the amend grant; funding needs your decision`\n- If the human later approves N rounds, I record `grant_fix_rounds({ rounds: N, reason: \"<their words>\" })` then.\n\n---\n\n## 4. Fresh-session resume\n\n**Restore boundary**\n- Read the overrides file and the skill references in full:\n  - the SDD `After All Tasks Complete` section\n  - `happy-path-run.md`\n  - `conformance-check.md`\n- Read the spec in full and re-decode `**Amend-grant:**`. The permission is held again.\n- Require the ledger's `checks:` line.\n- Mint a fresh LOG_DIR at the first gate-set site.\n- I do not replay the grant or rebuild a used counter from `conformance fix` commits or iterations.\n\n**Credits remain, no block**\n- Make no call and print no funded line.\n- Dispatch the next foreground G1 tasks wave directly, with step 2's shape.\n\n**Live block at used 9**\n- 9 ≥ 9, so this is the step-6 stop as in snapshot 1. No grant.\n\n**Cap 12, allowance 9, first cap ask at used 12**\n- 12 ≥ 9, so this is the step-6 human stop quoting `12 fix round(s) used against a cap of 12`. No grant.\n- The setting's higher cap does not raise the grant ceiling.\n- Settings are unchanged.\n\n**`maxFixRounds: 0` (audit-only)**\n- The fix loop never starts, so there is no block, no grant and no step-6 ask.\n- G1 is carried open under the precondition-unavailable rule. This is valid closure inventory, not escalation.\n- Steps, in order:\n  1. Convergence: run the complete gate set (all passes).\n  2. Call `phase_tracker({ action: \"complete\", phase: \"verify\" })` with the closure block:\n     - It opens with `status: GAPS (1 open)` and `audited-base: <full SHA>`.\n     - It contains the G1 header and a `G1/C1` card.\n     - On the card, `fix-now` is visible but unavailable because `maxFixRounds` is 0.\n     - The card's `recommended:` is `follow-up` only if a tracker convention can execute it. Otherwise it is `none`, with a rationale naming `maxFixRounds: 0`.\n     - It ends with `auto-applied fix commits: none` and `whole-diff minors: …`.\n  3. Invoke `/skill:finishing-a-development-branch <abs worktree path>` immediately.\n\n**Ordinary non-ledger subjects**\n- No automatic funding applies.\n- The step-6 ask always goes to the human.\n- Only an explicit human approval of N rounds is recorded, as `grant_fix_rounds({ rounds: N, reason: \"<their words>\" })`.\n",
+      "words": 1272,
+      "wallMs": 58530,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "All calls below are **prospective**, not executed. These snapshots are independent. None changes settings or the ledger’s rows, attempts, allowance, or `iterations: 40`.\n\n## Common continuation and stop rules\n\nFor an automatic funding decision, use **`used` from the current guard/step-6 text**, not a remembered grant count, commits, or iterations:\n\n- Amend permission and `used < 9`: fund the difference, subject to the live-block/enforcement rules below.\n- `used >= 9`, no amend permission, or a grant error: take the conformance reference’s step-6 human stop.\n- Option 4 versus option 5 does not independently supply amend permission.\n\n### Resumed fix-loop shape\n\nAfter authorized continuation:\n\n1. Re-partition the full current open-gap set. G1 remains `MISSING`, `recommended: fix`.\n2. Reuse G1’s existing tracker task, reopening it if necessary; do not initialize another task.\n3. Dispatch a foreground, fresh-context tasks wave:\n   ```text\n   subagent({\n     context: \"fresh\",\n     async: false,\n     tasks: [\n       {\n         agent: \"implementer\",\n         worktree: true,\n         cwd: <absolute conformance worktree>,\n         task: <G1 structured gap block verbatim,\n                ownership boundary,\n                ledger gate-set SCOPED_TEST_COMMANDS>\n       }\n     ]\n   })\n   ```\n   This is a `tasks` wave, not a lone `agent: \"implementer\"` call. The actual gap block and paths must come from the admitted report; they are not supplied here.\n4. Integrate the successful patch serially and commit it as `conformance fix G1`.\n5. Run the complete ledger gate set with the session `LOG_DIR`; do not run the ledger’s `verification:` command. The stated gate commands pass.\n6. Re-audit with a separate fresh `conformance-reviewer`, using the resolved closure-review model and the required prior report and regression scope.\n7. Re-partition after that report. A `CONFORMS` result enters Convergence; a remaining fix gap continues or stops according to the next authoritative cap observation.\n\nNo phase transition back to implement occurs. Verify remains active until valid closure.\n\n### Step-6 stop render\n\nFor the stops below, use this form, substituting the stated reason and round observation:\n\n```text\ngauntlet: gate=verification-before-completion/step-6\nStopped: conformance fix rounds require human authorization\nPreserve every row's attempts.\n\nProblem: <exact guard text or concrete step-6 boundary>\nG1 — Missing requirement: MISSING; recommended: fix.\nVerdict trail: <the actual available round-by-round verdict trail>\n\n1. Authorize N additional conformance fix rounds.\n2. Stop and preserve the current branch; verification remains incomplete.\n\nRecommendation: none - <specific reason automatic continuation is unavailable>\n```\n\nThere are **no open/failed ledger-row lines**, because every ledger row is done or cut. The synthetic snapshots do not supply a round-by-round verdict trail; an actual render must include the retained trail, not invent one.\n\nOnly after explicit human authorization would the driver call:\n\n```text\nphase_tracker({\n  action: \"grant_fix_rounds\",\n  rounds: <explicitly authorized N>,\n  reason: \"<the human's words>\"\n})\n```\n\nThat is not a call to make merely because the stop was rendered.\n\n## 1. Option 5: live block at used 5, then used 9 or 10\n\nThe live block reports `used = 5`. The ledger allowance is 9, and amend permission is held. The exact proposed call is:\n\n```text\nphase_tracker({\n  action: \"grant_fix_rounds\",\n  rounds: 4,\n  reason: \"Apply later spec amendments without asking; stop for redraws.\"\n})\n```\n\nOn the stipulated successful reply, print exactly:\n\n```text\nfunded 4 conformance rounds under the grant\n```\n\nThen immediately continue with the resumed fix-loop shape above. The next remediation target is **G1**, not a ledger row or seed. Do not write a grant counter or funding decision to the ledger.\n\nWhen the later runtime reports:\n\n```text\n9 fix round(s) used against a cap of 5 (granted rounds included)\n```\n\ntake the step-6 stop. Its specific fields are:\n\n```text\nProblem: 9 fix round(s) used against a cap of 5 (granted rounds included)\nRecommendation: none - 9 conformance fix rounds used equals the ledger allowance of 9; further funding requires human authorization\n```\n\n**No second automatic grant is made.** The reported 9 already includes granted rounds.\n\nAt **used 10 against allowance 9**, take the same stop, explaining that usage exceeds the automatic-funding allowance. Do not grant zero or negative rounds, reset usage, or undo an already-consumed round.\n\n## 2. Proactive step-6 ask at used 5\n\n### Enforcement true; cap live and no unused credits\n\nIntercept the proactive ask **before asking the human**. Its `used = 5` observation supplies the arithmetic.\n\nPropose the same exact four-round grant call from snapshot 1. On success, print:\n\n```text\nfunded 4 conformance rounds under the grant\n```\n\nThen continue the G1 tasks wave in the same turn. No human turn is needed.\n\n### `closureReview.enforce: false`\n\nWith amend permission and the same step-6 `used = 5` observation:\n\n- Make **no** `grant_fix_rounds` call.\n- Do **not** ask the human.\n- Continue the G1 fix loop under the driver’s automatic-funding rule.\n- Do not claim that a tracker grant succeeded or create a local round counter.\n\nA truthful intermediate report could be:\n\n```text\ncontinuing conformance fixes under the amend permission; no tracker grant call because enforcement is disabled\n```\n\nFollow it immediately with the next fix-loop action.\n\nIf a later step-6 ask supplies **used 9**, take the step-6 human stop even with enforcement off:\n\n```text\nProblem: 9 conformance fix rounds used; ledger allowance is 9.\nRecommendation: none - the automatic-funding allowance is exhausted; further rounds require human authorization\n```\n\nDisabled enforcement does not remove this driver boundary.\n\n## 3. No amend permission, and a grant error\n\n### Option 4 with `**Amend-grant:** none`\n\nNo automatic funding is authorized. Make no grant call and no next fix-wave dispatch. Render the step-6 stop quoting the initial live guard block:\n\n```text\nProblem: Conformance fix loop: 5 fix round(s) used against a cap of 5 (granted rounds included); escalate to the human with the verdict trail instead of re-looping.\nRecommendation: none - no amend permission authorizes automatic conformance funding\n```\n\nThe available difference `9 - 5` is not itself authorization.\n\n### Budget-only value `fund 12 fix rounds`\n\nThe result is the same. A budget-only decoded value supplies **no amend permission**, and its waves-only budget token is ignored for this decision.\n\nDo not automatically grant 12, 4, or any other number. Take the human funding stop.\n\n### Separate option-5 branch: grant returns an error\n\nAfter proposing the four-round call, the stipulated reply is:\n\n```text\nError: grant_fix_rounds: no fix-round cap block is active (5 used, cap 5); nothing to overrule\n```\n\nThe next action is the step-6 human stop:\n\n```text\nProblem: Error: grant_fix_rounds: no fix-round cap block is active (5 used, cap 5); nothing to overrule\nRecommendation: none - the funding call failed; automatic continuation is not authorized by that result\n```\n\nDo **not**:\n\n- Print `funded 4 conformance rounds under the grant`.\n- Retry the grant as a probe.\n- Infer that unused credits exist.\n- Dispatch another fix wave as though the grant succeeded.\n\nKeep verify active and the branch state intact.\n\n## 4. Fresh-session resume and other cap boundaries\n\n### Successful earlier grant; unused runtime credits remain\n\nThere is no live block, and the next foreground tasks wave is permitted.\n\nContinue directly with the G1 fix-loop shape. Do not replay the earlier grant, reconstruct a used-round counter from commits or `iterations: 40`, or write a local grant counter. The runtime retains the credit state.\n\n### Resume with a live block reporting used 9\n\nRead 9 from that block and take the step-6 stop. No automatic grant remains under allowance 9, regardless of whether the fresh session remembers the earlier grant.\n\n### Cap 12; first cap ask reports used 12\n\nThe initial configured cap can permit 12 rounds before the first ask. At that ask:\n\n```text\nProblem: 12 conformance fix rounds used against a cap of 12; ledger allowance is 9.\nRecommendation: none - reported usage exceeds the automatic-funding allowance; further rounds require human authorization\n```\n\nDo not automatically grant, reduce the configured cap, or retroactively invalidate the consumed rounds. The allowance controls the driver’s funding at this boundary; it is not a replacement runtime counter.\n\n### `maxFixRounds: 0`, audit-only\n\nThis is **opted out**, not an exhausted started fix loop:\n\n- Do not dispatch a fix wave.\n- Do not grant rounds automatically to override audit-only configuration.\n- Carry G1 open under the precondition-unavailable rule.\n- Produce the required concern decomposition and valid `status: GAPS (N open)` closure inventory.\n- Mark `fix-now` unavailable because `maxFixRounds: 0`.\n- Complete verify only under that valid deferred-inventory path, then invoke the finishing skill, whose gate owns disposition.\n\n### Ordinary non-ledger step 6\n\nLeave its existing human-funding behavior unchanged. Do not import the loop ledger’s allowance or its automatic amend-permission funding rule into a non-ledger flow.\n",
+      "words": 1324,
+      "wallMs": 51218,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c9999f5713acfb33495c5e5d170108a23195b1a96f85020841646d61bd173e9e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dd6dc7a647b8bf16c5d8ab363a9adc95475ca7c5f2224eaa625f8154578efc2e",
+      "baselineOutputSha": "8c56bb4279344459284fd710c200e7a31d2ff36481c8ce611081d4d3461a0096",
+      "candidateOutputSha": "791177ec8b743275ba4211a8629f14374b8e0badce1a9aa8985cac4ec6a71580",
+      "facts": {
+        "funding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "exhaustion": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "proactive": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unenforced": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "permission": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "error": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "resume": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers exactly the intended movement: Before treated amend permission as never funding fix rounds (so funding, proactive and unenforced all failed, with human stops at used 5 and under enforce:false), whereas After introduces the explicit funding rule (read `<used>` from the block/ask, grant `rounds: 9 - <used>` with the verbatim sentence as reason, print `funded 4 conformance rounds under the grant`, continue without a call when enforcement is off) and keeps every stop case intact. The facts Before already held survive: used 9/10 and cap-12/used-12 render the `gauntlet: gate=verification-before-completion/step-6` stop with the trail and no grant, the option-4/budget-only/error branches take the step-6 stop with no retry or probe, resume neither replays the grant nor reconstructs a counter, and maxFixRounds:0 stays audit-only with G1 carried open. Two small hardening suggestions: the After stop blocks say `verify stays active` but the explicit `verification is not complete` sentence Before used would make the exhaustion/error facts' 'verify incomplete' conjunct unmistakable, and the used-10 case should quote the runtime line as given (`10 fix round(s) used against a cap of 5`) rather than paraphrasing it as an allowance comparison, so the stop clearly uses the supplied count rather than a driver-computed one.",
+      "wallMs": 25132,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c9999f5713acfb33495c5e5d170108a23195b1a96f85020841646d61bd173e9e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dd6dc7a647b8bf16c5d8ab363a9adc95475ca7c5f2224eaa625f8154578efc2e",
+      "baselineOutputSha": "bac8fe7f65b925942a9b30f84aaf78584acd06fc103e40dfe2818a07f7326b36",
+      "candidateOutputSha": "8420b94ef952d691ae6b1024b780644f75184535a5fa6a333a08c92a398269d6",
+      "facts": {
+        "funding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "exhaustion": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "proactive": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unenforced": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "permission": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "error": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "resume": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: snapshot 1 gives the exact four-round grant_fix_rounds call with the verbatim spec sentence as reason, prints the required funded line and resumes the tasks-wave loop; snapshot 2 intercepts the proactive ask before any human prompt and, under enforce:false, continues with neither a grant call nor a human turn while still stopping at used 9. Nothing Before kept was lost — option 4/budget-only, the grant error, the credits-only resume, cap 12, maxFixRounds 0 and non-ledger step 6 all still take the existing human stop or unchanged path with no ledger or settings writes. Note that Before also failed exhaustion on its own text: it said there is 'no cross-budget stop at 10 > 9' and allowed continuation when credits remained, whereas After treats used 10 as the same step-6 stop; that is an improvement rather than a regression, so no wording rollback is needed. One minor tightening: the After step-6 render's 'Stopped:' line and 'Recommendation: none' wording differ slightly from the reference sentinel in Before ('Stopped: conformance fix rounds exhausted' / 'Recommendation: fund additional rounds'); keeping the gate line and verdict-trail placement exactly as the shared reference prints them would make the exhaustion and error facts more robust to strict readers without changing any behavior.",
+      "wallMs": 28102,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "eff0fe2bb24b3d307c3451e4d2e6b9996bb5d8f0"
+}
