@@ -3,7 +3,7 @@
 base: 62a7baef6ae1f118b5c923348ce25c79d22c5e73
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -14,9 +14,9 @@ allowance: 10
 | 4 | done | 1 | timeout -k 30 180 node --test src/bins/gauntlet-telemetry-readers.test.mjs; 10 passed, 0 failed; fresh default clones read both records through all three consumers without adding branches or fetch configuration; offline cached and empty-corpus warnings preserved |
 | 5 | done | 1 | timeout -k 30 180 node --test src/bins/gauntlet-telemetry-concurrency.test.mjs; 11 passed, 0 failed; shared-tip and first-use races retry without force, stranded records recover on refresh, seal and leg publication; not-pushed outcomes and last-writer-wins replay preserved |
 | 6 | done | 1 | timeout -k 30 180 node --test scripts/finish-verification.test.mjs; 43 passed, 0 failed; ordered upgrade, carry, retirement, cleanup and CI exclusion removal documented with upgrade-window and recovery guidance; README and telemetry reference name the new ref |
-| 7 | open | 0 | |
-| 8 | open | 0 | |
-| 9 | open | 0 | |
+| 7 | done | 1 | timeout -k 30 180 node --test extensions/lib/telemetry-branch.test.ts src/bins/gauntlet-telemetry-ref-migration.test.mjs; 35 passed, 0 failed; repeatable byte-preserving carry includes late and local records on origin and configured remotes; discovery failures and competing destination updates fail without replay |
+| 8 | done | 0 | timeout -k 30 180 node --test src/bins/gauntlet-telemetry-ref-migration.test.mjs; 11 passed, 0 failed; remote-local and source-destination conflicts name paths and both snapshots; rejected carries create no commit or push and leave source and destination tips unchanged |
+| 9 | done | 0 | timeout -k 30 180 node --test src/bins/gauntlet-telemetry-ref-migration.test.mjs; 23 passed, 0 failed; fresh comparison rejects missing or conflicting remote and local records and cached-destination transport failures; leased deletion preserves local refs, rejects late pushes and prints guarded cleanup |
 | 10 | open | 0 | |
 
 ## Decisions
@@ -26,3 +26,6 @@ row 3 done | Verified that the configured URL receives the new ref without chang
 row 4 done | Strengthened reader tests with fresh default clones, both records and branch invariance, repointed old ref assertions and passed 10 tests. | Reuse freshClone and the consumer matrix in src/bins/gauntlet-telemetry-readers.test.mjs to check origin, configured remotes and offline fallback.
 row 5 done | Repointed concurrency fixtures to the new destination and fetched ref, passed all 11 tests and rebuilt bins without changes. | Reuse src/bins/gauntlet-telemetry-concurrency.test.mjs for race injection, push rejection and stranded-record recovery checks on the new ref.
 row 6 done | Documented ordered migration, cleanup and recovery, updated ref descriptions and the changelog, and passed 43 tests after a missing-section failure. | Reuse doc/configuration.md's migration procedure and scripts/finish-verification.test.mjs to keep migration commands and their documented order aligned.
+row 7 done | Added repeatable lease-protected legacy carry, comparison preflight and late-record retirement protection, rebuilt bins and passed 35 tests. | Reuse compareRecords in extensions/lib/telemetry-branch.ts and the local Git fixtures in src/bins/gauntlet-telemetry-ref-migration.test.mjs for conflict and retirement checks.
+row 8 done | Added conflict cases for every source-destination pair and divergent legacy sources, confirming nonzero exits with no commit or push in 11 passing tests. | Reuse the conflict matrix in src/bins/gauntlet-telemetry-ref-migration.test.mjs to verify path diagnostics and unchanged source and destination tips.
+row 9 done | Completed leased retirement with fresh comparison, local-source protection and guarded cleanup; fixed Git's automatic tracking-ref deletion and passed 23 tests. | Reuse branchMigration's ephemeral push alias to preserve tracking refs and the retirement cases in src/bins/gauntlet-telemetry-ref-migration.test.mjs for race and stale-cache checks.
