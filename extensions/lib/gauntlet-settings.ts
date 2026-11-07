@@ -240,7 +240,7 @@ export function resolveTelemetry(g: PiGauntlet): TelemetryResolved {
   const warnings: string[] = [];
   const enabled = t?.enabled !== false;
   if (t && Object.hasOwn(t, "dir")) {
-    warnings.push("piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them");
+    warnings.push("piGauntlet.telemetry.dir is retired; records live on the refs/telemetry/records ref - set piGauntlet.telemetry.remote to redirect them");
   }
 
   let buckets = DEFAULT_TELEMETRY_BUCKETS;

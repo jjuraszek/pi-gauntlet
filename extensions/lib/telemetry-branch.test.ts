@@ -68,7 +68,7 @@ test("failed telemetry ref commit reports committed: false and preserves the fea
   assert.match(result.reason, /rejected|reference transaction/);
   assert.equal(f.git("rev-parse", "HEAD"), before);
   assert.deepEqual(readFileSync(join(f.root, ".git/index")), index);
-  assert.equal(f.git("for-each-ref", "refs/heads/gauntlet/telemetry"), "");
+  assert.equal(f.git("for-each-ref", "refs/telemetry/records"), "");
 });
 
 test("record comparison reports missing paths and every conflicting snapshot pair", () => {

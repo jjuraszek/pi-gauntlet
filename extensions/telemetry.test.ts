@@ -981,7 +981,7 @@
     h2.fetchedRecords.set("test/repo/brainstorming/doc/specs/a.yaml", before);
     await h2.phaseResult("start", P({ brainstorm: "in_progress" }));
     const [blocked] = await h2.emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: "doc/specs/a.md" } });
-    assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", rec.shipped_at, "gauntlet/telemetry") });
+    assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", rec.shipped_at, "refs/telemetry/records") });
     assert.equal(readFileSync(h.recordPath(), "utf8"), before);
     assert.equal(h.readRecord().derived.spec_edits_after_ship, 0);
   });
@@ -1313,7 +1313,7 @@
     h2.fetchedRecords.set("test/repo/brainstorming/doc/specs/a.yaml", before);
     await h2.phaseResult("start", P({ brainstorm: "in_progress" }));
     const [blocked] = await h2.emit("tool_call", { toolName: "write", toolCallId: "w1", input: { path: "doc/specs/a.md", content: "# again" } });
-    assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", h.readRecord().shipped_at!, "gauntlet/telemetry") });
+    assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", h.readRecord().shipped_at!, "refs/telemetry/records") });
     assert.equal(readFileSync(h.recordPath(), "utf8"), before, "shipped record byte-identical");
     const [editPass] = await h2.emit("tool_call", { toolName: "edit", toolCallId: "e1", input: { path: "doc/specs/a.md", edits: [] } });
     assert.equal(editPass, undefined);

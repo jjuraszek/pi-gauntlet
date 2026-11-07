@@ -1,3 +1,3 @@
 - store: judged: Rejects staging recorder YAML into the product checkout and places in-progress telemetry in Git common-dir metadata, outside the working tree, not telemetry.dir.
-- delivery: judged: Ships the spec and implementation, strips only the plan, and has finishing seal and publish telemetry to the orphan gauntlet/telemetry branch rather than the feature squash.
+- delivery: judged: Ships the spec and implementation, strips only the plan, and has finishing seal and publish telemetry to the refs/telemetry/records ref rather than the feature squash.
 - approval: judged: Does not advance to planning or implementation, perform writes, or claim to have committed artifacts.

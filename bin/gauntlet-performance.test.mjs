@@ -585,7 +585,7 @@ test("shipped seal preserves verification runs and plan totals for performance",
     GIT_AUTHOR_NAME: "t", GIT_AUTHOR_EMAIL: "t@t", GIT_COMMITTER_NAME: "t", GIT_COMMITTER_EMAIL: "t@t",
   }, join(dirname(CLI), "gauntlet-telemetry-seal.mjs"));
   assert.equal(result.status, 0, result.stderr);
-  const sealed = parseYaml(git(["show", "gauntlet/telemetry:team/product/brainstorming/doc/specs/seal.yaml"]));
+  const sealed = parseYaml(git(["show", "refs/telemetry/records:team/product/brainstorming/doc/specs/seal.yaml"]));
   assert.equal(sealed.status, "shipped");
   assert.equal(sealed.derived.verification_runs, 2);
   assert.deepEqual(sealed.derived.plan, { tasks: 2, complete: 1, skipped: 1, failed: 0 });

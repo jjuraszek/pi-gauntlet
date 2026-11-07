@@ -11,7 +11,7 @@ import { isolatedGitEnv } from "../extensions/test-support/git-env.mjs";
 const CLI = join(dirname(fileURLToPath(import.meta.url)), "gauntlet-telemetry-seal.mjs");
 const SPEC = "doc/specs/x.md";
 const REC = ".git/gauntlet/telemetry/doc/specs/x.yaml";
-const REF = "refs/heads/gauntlet/telemetry";
+const REF = "refs/telemetry/records";
 const BLOB = "team/product/brainstorming/doc/specs/x.yaml";
 const RECORD = `schema: 1
 spec: doc/specs/x.md
@@ -168,7 +168,7 @@ fi
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stderr, /telemetry: not pushed.*(?:EISDIR|EPERM)/);
   assert.equal(record(root).status, "shipped", "the published record survives failed cleanup");
-  assert.equal(git(root, ["rev-parse", REF]), git(root, ["rev-parse", "refs/remotes/origin/gauntlet/telemetry"]));
+  assert.equal(git(root, ["ls-remote", "origin", REF]), `${git(root, ["rev-parse", REF])}\t${REF}`);
 });
 
 test("shipped CLI rejects malformed leg values before sealing", () => {

@@ -226,7 +226,7 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 #### Strip the plan, seal the record (Options 1-3)
 
-Run this on the feature branch before any landing path. Ship the spec and implementation; strip only the plan. Let the seal publish the telemetry record to the orphan `gauntlet/telemetry` branch without changing the product checkout, index or HEAD. Keep in-progress records in Git common-dir metadata, outside the working tree. Resolve `<bin>` as `<directory of this skill's SKILL.md>/../../bin` from the skill's `<location>` in the system prompt.
+Run this on the feature branch before any landing path. Ship the spec and implementation; strip only the plan. Let the seal publish the telemetry record to the `refs/telemetry/records` ref without changing the product checkout, index or HEAD. Keep in-progress records in Git common-dir metadata, outside the working tree. Resolve `<bin>` as `<directory of this skill's SKILL.md>/../../bin` from the skill's `<location>` in the system prompt.
 
 Read the existing artifact's path-only `**Spec:**` header (repo-relative, backticks stripped) before removal; pass that value as `--spec`, including for a line-1 ledger. Resolve the spec dirs with `gauntlet_setting({ key: "flowGuards" })` and use their sibling `plans` dirs for plan paths. Enumerate both PLAN_PATH candidates: the task plan paired by basename and `<sibling plans dir>/<spec stem>-ledger.md`. Preserve the spec and telemetry.
 
@@ -242,7 +242,7 @@ elif [ -f "$WORKTREE/$PLAN_PATH" ] && jj -R "$WORKTREE" root >/dev/null 2>&1; th
 fi
 done
 
-# Seal the telemetry record: stamp shipped, compute the diff, publish to gauntlet/telemetry.
+# Seal the telemetry record: stamp shipped, compute the diff, publish to refs/telemetry/records.
 # The bin reports publication unavailable in a plain jj workspace and keeps local metadata.
 # --option is pr for Options 1-2 and squash for Option 3; --spec is the artifact header's **Spec:** value (omit when no artifact is known).
 node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squash> --base <base-branch> --spec <spec path>
@@ -346,7 +346,7 @@ git -C "$PRIMARY" commit -m "<imperative summary> (ref <ticket-id>)"
 (cd "$PRIMARY" && <the Step 1 set>)
 ```
 
-Keep only the spec and implementation in the staged squash tree; the stripped plan stays in feature history and the sealed telemetry record belongs to `gauntlet/telemetry`.
+Keep only the spec and implementation in the staged squash tree; the stripped plan stays in feature history and the sealed telemetry record belongs to `refs/telemetry/records`.
 
 The post-squash re-verify is not optional - `git merge --squash` can surface conflict-resolution mistakes the worktree-side run couldn't catch. For a ledger, run the per-pair post-squash recipe in [verification-set.md](reference/verification-set.md) instead of the non-ledger subshell above.
 
@@ -450,10 +450,10 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 
 **Skipping the strip-and-seal block in Options 1-3 (any path that lands on base)**
 - **Problem:** Skipping the block ships an ephemeral plan or skips publication of the record the spec index reads.
-- **Fix:** Run the block on `$WORKTREE` before the squash or push. Preserve the spec on `<base-branch>` and the telemetry record on `gauntlet/telemetry`; retain the plan only in feature history.
+- **Fix:** Run the block on `$WORKTREE` before the squash or push. Preserve the spec on `<base-branch>` and the telemetry record on `refs/telemetry/records`; retain the plan only in feature history.
 
 **Treating telemetry as a checkout deliverable**
-- **Problem:** Staging a recorder file pollutes the product diff and bypasses branch publication.
+- **Problem:** Staging a recorder file pollutes the product diff and bypasses ref publication.
 - **Fix:** Let the seal own publication from common-dir metadata; stage no telemetry record in the product checkout.
 
 ## Completion

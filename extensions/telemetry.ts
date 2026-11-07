@@ -789,7 +789,7 @@
           const loc = await locate(ctx, rawPath);
           if (loc?.via === "git" && isSpecPath(loc.rel, snap.specDirs)) {
             const shippedAt = shippedRecords(loc.toplevel, snap).get(loc.rel);
-            if (shippedAt) return { block: true, reason: guardReason(loc.rel, shippedAt, "gauntlet/telemetry") };
+            if (shippedAt) return { block: true, reason: guardReason(loc.rel, shippedAt, "refs/telemetry/records") };
           }
         }
         return undefined;

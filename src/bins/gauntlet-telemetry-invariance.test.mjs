@@ -91,7 +91,7 @@ for (const workspace of ["git", "linked", "jj-colocated"]) {
       assert.equal(git(root, "rev-parse", "HEAD"), before.head);
       assert.equal(git(root, "worktree", "list", "--porcelain"), before.worktrees);
       assert.deepEqual(readdirSync(temporary), [], "no clone, worktree, or temporary index remains");
-      const ref = "refs/heads/gauntlet/telemetry";
+      const ref = "refs/telemetry/records";
       assert.match(git(root, "ls-tree", "-r", "--name-only", ref), operation === "seal" ? /brainstorming\/doc\/specs\/example.yaml/ : /shape-ticket\/20260101T000000Z-session.yaml/);
       if (operation !== "rejected leg push") assert.equal(git(origin, "rev-parse", ref), git(root, "rev-parse", ref));
     });

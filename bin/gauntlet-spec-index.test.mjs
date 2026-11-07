@@ -21,12 +21,12 @@ const git = (root, args, options = {}) => {
 };
 const telemetry = (root, path, text) => {
   const env = { GIT_INDEX_FILE: join(root, ".git/telemetry-index") };
-  git(root, ["read-tree", "gauntlet/telemetry"], { env });
+  git(root, ["read-tree", "refs/telemetry/records"], { env });
   const blob = git(root, ["hash-object", "-w", "--stdin"], { input: text });
   git(root, ["update-index", "--add", "--cacheinfo", "100644", blob, `team/product/brainstorming/${path}`], { env });
   const tree = git(root, ["write-tree"], { env });
-  const commit = git(root, ["commit-tree", tree, "-p", "gauntlet/telemetry", "-m", "telemetry fixture"]);
-  git(root, ["update-ref", "refs/heads/gauntlet/telemetry", commit]);
+  const commit = git(root, ["commit-tree", tree, "-p", "refs/telemetry/records", "-m", "telemetry fixture"]);
+  git(root, ["update-ref", "refs/telemetry/records", commit]);
 };
 const DRAFT = "# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing";
 const HEADER = ["score", "path", "service", "title", "status", "shipped_at", "state", "files", "snippet"];
@@ -59,7 +59,7 @@ const gitRepo = () => {
   git(root, ["config", `url.${root}.insteadOf`, "https://example.test/team/product.git"]);
   const tree = git(root, ["mktree"], { input: "" });
   const tip = git(root, ["commit-tree", tree, "-m", "empty telemetry fixture"]);
-  git(root, ["update-ref", "refs/heads/gauntlet/telemetry", tip]);
+  git(root, ["update-ref", "refs/telemetry/records", tip]);
   return root;
 };
 const commit = (root) => {

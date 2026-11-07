@@ -3,7 +3,7 @@
 base: 62a7baef6ae1f118b5c923348ce25c79d22c5e73
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -17,7 +17,7 @@ allowance: 10
 | 7 | done | 1 | timeout -k 30 180 node --test extensions/lib/telemetry-branch.test.ts src/bins/gauntlet-telemetry-ref-migration.test.mjs; 35 passed, 0 failed; repeatable byte-preserving carry includes late and local records on origin and configured remotes; discovery failures and competing destination updates fail without replay |
 | 8 | done | 0 | timeout -k 30 180 node --test src/bins/gauntlet-telemetry-ref-migration.test.mjs; 11 passed, 0 failed; remote-local and source-destination conflicts name paths and both snapshots; rejected carries create no commit or push and leave source and destination tips unchanged |
 | 9 | done | 0 | timeout -k 30 180 node --test src/bins/gauntlet-telemetry-ref-migration.test.mjs; 23 passed, 0 failed; fresh comparison rejects missing or conflicting remote and local records and cached-destination transport failures; leased deletion preserves local refs, rejects late pushes and prints guarded cleanup |
-| 10 | open | 0 | |
+| 10 | done | 1 | timeout -k 30 180 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test scripts/finish-verification.test.mjs src/bins/gauntlet-telemetry-invariance.test.mjs extensions/lib/telemetry-branch.test.ts bin/gauntlet-spec-index.test.mjs bin/gauntlet-telemetry-seal.test.mjs bin/gauntlet-performance.test.mjs extensions/lib/gauntlet-settings.test.ts extensions/telemetry.test.ts; 272 passed, 0 failed; scoped retired-ref lint passes with history and filesystem-store exceptions, workflow filter removed; skills, samples, warnings and fixtures name the new ref and all three bundles rebuilt |
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 1 on baseline | row 2
@@ -29,3 +29,4 @@ row 6 done | Documented ordered migration, cleanup and recovery, updated ref des
 row 7 done | Added repeatable lease-protected legacy carry, comparison preflight and late-record retirement protection, rebuilt bins and passed 35 tests. | Reuse compareRecords in extensions/lib/telemetry-branch.ts and the local Git fixtures in src/bins/gauntlet-telemetry-ref-migration.test.mjs for conflict and retirement checks.
 row 8 done | Added conflict cases for every source-destination pair and divergent legacy sources, confirming nonzero exits with no commit or push in 11 passing tests. | Reuse the conflict matrix in src/bins/gauntlet-telemetry-ref-migration.test.mjs to verify path diagnostics and unchanged source and destination tips.
 row 9 done | Completed leased retirement with fresh comparison, local-source protection and guarded cleanup; fixed Git's automatic tracking-ref deletion and passed 23 tests. | Reuse branchMigration's ephemeral push alias to preserve tracking refs and the retirement cases in src/bins/gauntlet-telemetry-ref-migration.test.mjs for race and stale-cache checks.
+row 10 done | Replaced branch references in skills, samples, warnings and fixtures, added the scoped CI lint, removed the workflow filter, rebuilt bins and passed 272 tests. | Reuse retiredTelemetryReferences in scripts/ci.mjs and its table-driven checks in scripts/finish-verification.test.mjs to enforce the ref and history exceptions.

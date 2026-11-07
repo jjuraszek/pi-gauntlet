@@ -1,4 +1,4 @@
 - skip: judged: Reuses the passing gate set with the supplied clean full-tree proof because common-dir recorder writes are outside the checkout; the alternate untracked product file requires re-verification, with no telemetry path exclusion.
 - seal: judged: Strips only the plan and calls gauntlet-telemetry-seal.mjs with worktree, option pr, base and selected spec before pushing; stages no telemetry YAML into the product branch.
 - warning: judged: Continues to the feature push and PR creation after the exit-0 publication warning and preserves telemetry: not pushed (remote unavailable) verbatim in completion, without requesting permission to bypass it.
-- artifacts: judged: Describes the product delivery as spec plus implementation and the telemetry record as belonging to gauntlet/telemetry, not the feature squash; preserves the PR worktree.
+- artifacts: judged: Describes the product delivery as spec plus implementation and the telemetry record as belonging to refs/telemetry/records, not the feature squash; preserves the PR worktree.

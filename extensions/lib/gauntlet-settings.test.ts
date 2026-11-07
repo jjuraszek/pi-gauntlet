@@ -284,7 +284,7 @@ test("telemetry: retired dir setting is ignored with one migration warning", () 
   ]) {
     const r = resolveTelemetry(mergeGauntlet(undefined, { telemetry: { dir } }));
     assert.equal("dir" in r, false);
-    assert.equal(r.warning, "piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them");
+    assert.equal(r.warning, "piGauntlet.telemetry.dir is retired; records live on the refs/telemetry/records ref - set piGauntlet.telemetry.remote to redirect them");
   }
 });
 
@@ -307,7 +307,7 @@ test("telemetry: malformed buckets -> default + warning", () => {
 
 test("telemetry: retired dir and invalid buckets each warn once", () => {
   const r = resolveTelemetry(mergeGauntlet(undefined, { telemetry: { dir: 1, buckets: 2 } }));
-  assert.equal(r.warning, "piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them; telemetry.buckets is not an object of non-empty glob arrays; using the defaults");
+  assert.equal(r.warning, "piGauntlet.telemetry.dir is retired; records live on the refs/telemetry/records ref - set piGauntlet.telemetry.remote to redirect them; telemetry.buckets is not an object of non-empty glob arrays; using the defaults");
 });
 
 test("DEFAULT_TEST_COMMANDS + buildTestCmdRegex match the documented entrypoints", () => {

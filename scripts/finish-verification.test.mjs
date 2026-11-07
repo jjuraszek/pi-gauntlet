@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { runInNewContext } from "node:vm";
 
 const skill = readFileSync(new URL("../skills/finishing-a-development-branch/SKILL.md", import.meta.url), "utf8");
 const verificationPath = new URL("../skills/finishing-a-development-branch/reference/verification-set.md", import.meta.url);
@@ -94,26 +95,26 @@ test("non-ledger set resolution retains task and ad-hoc behavior", () => {
   }
 });
 
-test("telemetry docs and lifecycle skills describe branch records rather than checkout deliverables", () => {
+test("telemetry docs and lifecycle skills describe ref records rather than checkout deliverables", () => {
   const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
   const brainstorm = read("skills/brainstorming/SKILL.md");
   const seed = read("skills/gauntlet-resume/reference/seed.md");
   const config = read("doc/configuration.md");
   const readme = read("README.md");
-  assert.match(brainstorm, /orphan `gauntlet\/telemetry` branch/);
+  assert.match(brainstorm, /the `refs\/telemetry\/records` ref/);
   assert.doesNotMatch(brainstorm, /record .*ships in the squash|telemetry:.*commit|snapshots the stamped record/);
-  for (const token of ["orphan `gauntlet/telemetry` branch", "telemetry: not pushed (<reason>)", "outside the working tree"]) assert.ok(skill.includes(token), token);
+  for (const token of ["the `refs/telemetry/records` ref", "telemetry: not pushed (<reason>)", "outside the working tree"]) assert.ok(skill.includes(token), token);
   assert.doesNotMatch(skill, /telemetry\.dir|git-excluded|tree carries the spec, the telemetry record|record.*committed deliverable/);
   assert.doesNotMatch(verification, /telemetry\.dir|:\!|telemetry flush/);
   assert.match(seed, /git -C <primary> rev-parse --git-common-dir.*resolve a relative result against `<primary>` and read `<git common dir>\/gauntlet\/telemetry\/<rel with \.md -> \.yaml>`/);
   assert.match(seed, /When git resolution fails and `jj root` in `<primary>` succeeds, read `<jj root>\/\.jj\/gauntlet\/telemetry\/<rel with \.md -> \.yaml>` instead/);
-  assert.match(seed, /When the local record is absent, fetch `gauntlet\/telemetry` from `telemetry\.remote` \(default `origin`\) and read `<owner>\/<repo>\/brainstorming\/<rel with \.md -> \.yaml>` from the fetched ref/);
+  assert.match(seed, /When the local record is absent, fetch `refs\/telemetry\/records` from `telemetry\.remote` \(default `origin`\) and read `<owner>\/<repo>\/brainstorming\/<rel with \.md -> \.yaml>` from the fetched ref/);
   assert.match(seed, /using the last fetched ref on fetch failure/);
   assert.match(seed, /Degrade to the local-only check when no fetched ref is available, including jj-only workspaces/);
   assert.match(seed, /A valued `shipped_at:` or `abandoned_at:` stops: `spec already shipped at <ts> - write a superseding spec`/);
   assert.doesNotMatch(seed, /git[^`\n]* fetch/);
   assert.doesNotMatch(seed, /path `<telemetry\.dir>|key: "telemetry\.dir"/);
-  for (const token of ["telemetry.remote", "gauntlet/telemetry", "Leg records", "UTC timestamp", "incomplete", "unattributed", "even split", "check-delivery"]) assert.ok(config.includes(token), token);
+  for (const token of ["telemetry.remote", "refs/telemetry/records", "Leg records", "UTC timestamp", "incomplete", "unattributed", "even split", "check-delivery"]) assert.ok(config.includes(token), token);
   assert.match(config, /author.*name.*email/);
   const telemetry = config.split('### `telemetry`\n')[1].split('\n## ')[0];
   const migration = telemetry.split('#### Moving off the gauntlet/telemetry branch\n')[1]?.split('\n#### ')[0];
@@ -139,6 +140,38 @@ test("telemetry docs and lifecycle skills describe branch records rather than ch
   assert.match(readme, /publishes YAML records on the `refs\/telemetry\/records` ref/);
   assert.match(readme, /refreshes the `refs\/telemetry\/records` ref/);
   assert.doesNotMatch(readme, /run record ship in the squash/);
+});
+
+test("retired telemetry ref lint scans current files and confines historical exceptions", () => {
+  const root = new URL("../", import.meta.url);
+  const read = (path) => readFileSync(new URL(path, root), "utf8");
+  const ci = read("scripts/ci.mjs");
+  const block = ci.match(/\/\/ telemetry-ref-lint:begin\n([\s\S]*?)\/\/ telemetry-ref-lint:end/);
+  assert.ok(block, "CI defines the retired telemetry ref lint");
+  const { retiredTelemetryReferences } = runInNewContext(block[1] + "\n({ retiredTelemetryReferences })");
+  const legacy = "gauntlet/telemetry";
+  const tokens = ["refs/heads/" + legacy, `orphan \`${legacy}\` branch`, `${legacy}\` branch`, `fetch \`${legacy}\` `, "branches-" + "ignore"];
+  for (const token of tokens) {
+    for (const path of ["README.md", ".github/workflows/test.yml", "skills/example/SKILL.md", "eval/example/samples/one/case.md", "bin/other.mjs", "doc/plans/example.md"]) {
+      assert.equal(retiredTelemetryReferences(path, token).length, 1, `${path}: ${token}`);
+    }
+    for (const path of ["CHANGELOG.md", "doc/specs/example.md", "eval/example/results/one/result.md", "eval/example/report.md", "eval/example/intent.md", "extensions/lib/telemetry-branch.ts", "src/bins/gauntlet-telemetry-seal.mjs", "src/bins/gauntlet-telemetry-ref-migration.test.mjs", "bin/gauntlet-telemetry-seal.mjs", "bin/gauntlet-performance.mjs", "bin/gauntlet-spec-index.mjs", "scripts/ci.mjs"]) {
+      assert.equal(retiredTelemetryReferences(path, token).length, 0, path);
+    }
+    const config = `### telemetry\n${token}\n#### Moving off the ${legacy} branch\n${token}\n#### Other subsection\n${token}\n## Other extension\n${token}\n`;
+    assert.equal(JSON.stringify(retiredTelemetryReferences("doc/configuration.md", config).map(hit => hit.line)), "[2,6,8]");
+  }
+  for (const store of [`.pi/${legacy}`, `<git-common-dir>/${legacy}/`, `.jj/${legacy}/`]) {
+    assert.equal(retiredTelemetryReferences("README.md", store).length, 0, store);
+  }
+  const files = execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean);
+  const hits = files.flatMap(path => retiredTelemetryReferences(path, read(path)).map(hit => `${path}:${hit.line}: ${hit.text}`));
+  assert.deepEqual(hits, [], hits.join("\n"));
+  assert.match(read("extensions/lib/gauntlet-settings.ts"), /records live on the refs\/telemetry\/records ref/);
+  assert.match(read("extensions/telemetry.ts"), /guardReason\(loc\.rel, shippedAt, "refs\/telemetry\/records"\)/);
+  for (const path of ["eval/brainstorming/samples/telemetry-branch-deliverable/expected.md", "eval/finishing-a-development-branch/samples/telemetry-branch-seal/expected.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/case.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/expected.md"]) {
+    assert.ok(read(path).includes("refs/telemetry/records"), path);
+  }
 });
 
 // Wording checks pin the finish-owned contract, not a live GitHub boundary.
