@@ -1,0 +1,110 @@
+{
+  "sample": "bypass-merge-pick-refused",
+  "arm": "candidate",
+  "skillSha": "8a91f323adfcf7037bfa33896191540b51e507fefeac1cc0655f19f6f68dd061",
+  "inputSha": "0c9ca339d6aaf746ea4a61f79a87b3ad849b156f9280affabcdd75dc87eecc7b",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\n**Narration from the human's pick of `1` on the ready final menu**\n\nNothing below touches a live PR. Every read and write is the hypothetical result the digest supplies.\n\n1. **Reply mapping.** The reply `1` is a bare number inside the range 1-2, so it maps unchanged to the `merge` row with no echo. Course stays null because a terminal merge pick sets no course.\n\n2. **Run record check.** I validate `/tmp/gatekeep-state.synthetic`.\n   - consent.target is meadow/events, PR 642, base `main`.\n   - The record parses, the target matches, and no wave or repair artifacts exist.\n   - Usage stays at rounds 0/6 and syncs 0/6.\n\n3. **Tracker.** No `init` runs, because the tracker was initialized earlier in the run. The `menu` stage stays open for the re-render. No claim tasks are added because claims are already dispositioned.\n\n4. **Merge preconditions** (`### Merge preconditions`), checked against assessed head `2222222222222222222222222222222222222222`:\n   - There are zero blockers.\n   - CI evidence is bound to the exact head: `ci / test` succeeded in run 911.\n   - Every material claim is matched.\n   - The worktree is tracked-clean and synced.\n   - `mergeable` is MERGEABLE.\n   - The merge state is BLOCKED with `bypass_eligible == true`. That lifts only the merge-state withhold.\n   - `gh api repos/meadow/events --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'` returns `allow_rebase_merge: true`.\n\n5. **Compare-and-swap.**\n   - `gh pr view 642 -R meadow/events --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName` returns the same head, body \"Reject unsigned events.\", base `main`, OPEN, MERGEABLE and BLOCKED.\n   - The live base `main` matches consent.target.\n   - The fixed GraphQL query `gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }' -f o=meadow -f r=events -F n=642` returns `viewerCanMergeAsAdmin: true` with the same head, body and base.\n   - Eligibility did not change from the rendered menu, so the selection stands.\n\n6. **Full comment refetch and reconciliation** (`### Re-render` steps 1-5, before merge).\n   - The pre-menu refresh runs:\n     - `gh pr view 642 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests`\n     - `gh run list -R meadow/events -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url`\n     - the fixed GraphQL eligibility read.\n   - The comment fetches run:\n     - `gh api repos/meadow/events/pulls/642/comments --paginate`\n     - `gh api repos/meadow/events/issues/642/comments --paginate`\n     - the GraphQL `reviewThreads` query.\n   - There are no placeholder rows and no known reviewer workflow, so no `gh run view` or reviewer `gh run list` runs.\n   - Diffing against the empty C# ledger finds nothing new, edited or withdrawn. There is no body delta, so no source-review helper is dispatched.\n   - The `comments` snapshot is replaced with the identical empty set.\n\n7. **Merge command.** All preconditions hold on the bypass path (BLOCKED plus bypass eligible), so `--admin` is appended:\n   - `gh pr merge 642 -R meadow/events --match-head-commit 2222222222222222222222222222222222222222 --rebase --admin`\n   - It exits 1 with this stderr: `GraphQL: Pull request merge refused by repository policy (mergePullRequest)`\n   - Per `### Merge course`, I print the error verbatim and consume the selection. I make no second attempt, with or without `--admin`.\n   - No `gh pr view --json state,mergeCommit` read runs, because that read is for a zero exit only.\n   - The refusal is not a queued merge and not a `stuck` state on its own.\n\n8. **Pre-menu refresh after the refusal.**\n   - It runs the same `gh pr view 642 --json ...` full field read, the same `gh run list -R meadow/events -c 2222... --json ...`, and the fixed GraphQL query.\n   - Results:\n     - The head, body and base are unchanged.\n     - The PR is OPEN, MERGEABLE and BLOCKED, with `bypass_eligible` true and reviewDecision REVIEW_REQUIRED.\n     - Run 911 is still green on the exact head, and there are zero binding pending checks.\n   - `viewer.role` is re-derived as author, and `pr.review_requests` is empty.\n   - Evidence re-resolves to CI-sufficient on 2222222.\n\n9. **Template choice.** Exit check finds readiness, because all merge preconditions hold again. The state map selects **final**, with course still null. No helpers were dispatched in this segment: verification and review are complete for the assessed SHA `2222222222222222222222222222222222222222`.\n\n10. **Sync line.** None renders, because `--rebase` was not passed.\n\n---\n\ngh pr merge refused: `GraphQL: Pull request merge refused by repository policy (mergePullRequest)`\n\nEvidence: CI (source: ci) on 2222222, run 911: ci / test success; 0 binding pending; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)\nDelivers: the event guard rejects unsigned events.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - rebase-merge on ruleset bypass authority; CI evidence stands [recommended]\n2. stop - end the gate, leave the checkout at .worktrees/pr-642 and its local branch as found\n\nType a number; show evidence prints the full record (CI run 911, ci / test success on 2222222; merge_state_status BLOCKED, bypass eligible).\n",
+      "words": 711,
+      "wallMs": 38627,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis is a hypothetical continuation of the existing run after the human selected option 1, merge. No live commands run.\n\n### Ordered narration\n\n1. I read and validate `/tmp/gatekeep-state.synthetic`. Its immutable target, assessed head, assessed body, evidence, and completed assessments match the digest. I retain course null, both usage counters at zero, both caps at six, and the empty finding and comment ledgers. I create no new record or repair artifacts.\n\n   I do not initialize the tracker again. The invocation's initial stages were `gather`, `provision`, and `verify`; there was no `sync` stage because the arguments omitted `--rebase`. Verification and review assessed `2222222222222222222222222222222222222222`.\n\n2. At the selection boundary, I hypothetically run:\n\n   ```bash\n   gh pr view 642 -R meadow/events --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n   ```\n\n   The target, head, body, and merge state remain unchanged.\n\n3. Before consuming the selected merge, I run the full read-only reconciliation. Its pre-menu refresh runs:\n\n   ```bash\n   gh pr view 642 -R meadow/events --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests\n   gh run list -R meadow/events -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url\n   gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }' -f o=meadow -f r=events -F n=642\n   ```\n\n   These reads retain exact-head green CI and return bypass eligibility true on the matching snapshot.\n\n4. I complete the comment refetch:\n\n   ```bash\n   gh api repos/meadow/events/pulls/642/reviews --paginate\n   gh api repos/meadow/events/pulls/642/comments --paginate\n   gh api repos/meadow/events/issues/642/comments --paginate\n   gh api graphql --paginate -f query='query($o:String!,$r:String!,$n:Int!,$endCursor:String){ repository(owner:$o,name:$r){ pullRequest(number:$n){ reviewThreads(first:100,after:$endCursor){ nodes{ id isResolved isOutdated } pageInfo{ hasNextPage endCursor } } } } }' -f o=meadow -f r=events -F n=642\n   ```\n\n   The complete comment set remains empty. There are no placeholder runs, known reviewer workflows, or comment deltas requiring further commands or a helper.\n\n5. I check local cleanliness, head identity, and the allowed merge policy. Here, `W` denotes the absolute provisioned worktree path:\n\n   ```text\n   <scratch>/.worktrees/pr-642\n   ```\n\n   ```bash\n   git -C \"$W\" status --porcelain --untracked-files=no\n   git -C \"$W\" rev-parse HEAD\n   git -C \"$W\" ls-remote git@git.example.invalid:meadow/events.git refs/heads/feature/event-guard\n   gh api repos/meadow/events --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'\n   ```\n\n   The tree is tracked-clean, local and remote heads equal the assessed SHA, and rebase merging is enabled.\n\n6. Immediately before the external write, I run the freshness and eligibility reads together:\n\n   ```bash\n   gh pr view 642 -R meadow/events --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n   gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }' -f o=meadow -f r=events -F n=642\n   ```\n\n   Nothing changed. All merge preconditions hold, including fresh eligibility to bypass the `BLOCKED` merge-state withhold.\n\n7. I hypothetically execute the selected command exactly once:\n\n   ```bash\n   gh pr merge 642 -R meadow/events --match-head-commit 2222222222222222222222222222222222222222 --rebase --admin\n   ```\n\n   It exits 1 with this stderr:\n\n   ```text\n   GraphQL: Pull request merge refused by repository policy (mergePullRequest)\n   ```\n\n   I consume the selection without retrying. I do not claim a merge, approval, or queued merge.\n\n8. I add and start the tracker’s `report` stage, then run the subsequent pre-menu refresh: the same full `gh pr view`, exact-head `gh run list`, and fixed eligibility GraphQL commands from step 3. I check tracked cleanliness again with:\n\n   ```bash\n   git -C \"$W\" status --porcelain --untracked-files=no\n   ```\n\n   The refresh succeeds with the same head, body, base, green CI, `BLOCKED`, and bypass eligibility true. I persist that refreshed snapshot in the existing record without changing its contract or accounting.\n\n9. I complete `report`, add and start `menu`, and render the next final menu. The refusal does not itself create an obstacle: the refreshed merge preconditions still hold. The prior selection authorizes no second attempt.\n\n**Helpers dispatched:** none. Assessment and claim dispositions are already complete; unchanged source, evidence, and comments require no Verify, Review, or description-recheck helper. No local verification command, sync, push, or CI watch runs. No `Sync:` line renders.\n\n### Next menu\n\nEvidence: CI (source: ci); head 2222222222222222222222222222222222222222; run 911, ci / test success; 0 binding pending checks; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED).\n\nDelivers: Reject unsigned events.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - rebase-merge on ruleset bypass authority; CI evidence stands. [recommended]\n2. stop - end the gate and leave the checkout and local branch in place.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record (CI, run 911, ci / test success on 2222222222222222222222222222222222222222; 0 binding pending checks; merge_state_status BLOCKED, bypass eligible).\n",
+      "words": 677,
+      "wallMs": 35740,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "87ea994992b14cb5fb2d16d680efd881185f469673b0c7dfdc2358b718aa7b7d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7fc7ab3ee00a91d39215f32f0570cb76b1e762ba37650c129c0d913f939fab06",
+      "baselineOutputSha": "055d566c2a19d1a7724586d0a8878dcd50d8371efb7b9db6e22c09323f3bf153",
+      "candidateOutputSha": "699866c5d436c4693293820c6dbb5d7363e1e8aaf856e783dce2b72bd001e2ca",
+      "facts": {
+        "command": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "refusal": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "refresh": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "route": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "vocabulary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly and loses nothing Before kept: Before never attempted the merge at all (it refused the pick on a 'not BLOCKED' precondition the Change removes, skipped the GraphQL eligibility read, and routed to the obstacle template with a blocked-by-GitHub withhold), so command, refusal, refresh and route all fail there and hold in After, which narrates exactly one `gh pr merge ... --match-head-commit <full sha> --rebase --admin`, quotes the stderr verbatim with no retry, re-runs the full pre-menu refresh including the fixed GraphQL eligibility query and exact-head `gh run list` before re-rendering the final menu with the ordinary bypass-authority merge row. Vocabulary holds in both: After confines `viewerCanMergeAsAdmin` and `--admin` to the narration, names no rule for BLOCKED, never calls the viewer an admin, and uses only the canonical Evidence locator in the report. No wording adjustment is needed; if anything, keep the report line as `gh pr merge refused: <stderr>` rather than paraphrasing, since the verbatim quote is what satisfies the refusal fact without introducing rule names.",
+      "wallMs": 20066,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "87ea994992b14cb5fb2d16d680efd881185f469673b0c7dfdc2358b718aa7b7d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7fc7ab3ee00a91d39215f32f0570cb76b1e762ba37650c129c0d913f939fab06",
+      "baselineOutputSha": "77ec0143d0face65903d6be7f8541168561ec55838fa13554f2c9a0a96aa6b74",
+      "candidateOutputSha": "a7c59cb0804129f9a8028f5ba28ddfc544187dc7e41f0dc51c80358e98b0855f",
+      "facts": {
+        "command": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "refusal": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "refresh": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "route": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "vocabulary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves command, refusal, refresh, and route from fails to holds: it narrates exactly one `gh pr merge ... --match-head-commit <head> --rebase --admin`, reproduces the policy-refusal stderr verbatim, consumes the selection without a retry, re-runs the full pre-menu refresh (gh pr view, exact-head gh run list, and the viewerCanMergeAsAdmin GraphQL eligibility read) after the refusal, and re-renders the final template with the ordinary merge-on-bypass-authority option. Before instead vetoed the pick itself because BLOCKED, skipped the merge and the eligibility query, and fell through to the obstacle template, so it failed every behavioral fact. Vocabulary holds in both: After confines `--admin` and `viewerCanMergeAsAdmin` to command text, never calls the viewer an admin, names no rule as the BLOCKED cause, and uses the sanctioned `merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)` locator in the menu. No regression to repair; keep the wording that says the refusal does not create an obstacle when refreshed preconditions still hold, since that is what prevents the obstacle-route slip seen in Before.",
+      "wallMs": 18145,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e3e160477bacb41f98d7fd604e7873db622af289"
+}

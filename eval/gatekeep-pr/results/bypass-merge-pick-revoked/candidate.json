@@ -1,0 +1,110 @@
+{
+  "sample": "bypass-merge-pick-revoked",
+  "arm": "candidate",
+  "skillSha": "8a91f323adfcf7037bfa33896191540b51e507fefeac1cc0655f19f6f68dd061",
+  "inputSha": "99ca93f93d094f62be070a8f4352ebbe7410f36483277abf6cebdc2fe1cd940e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr: merge pick 1 through the next rendered menu\n\n**Entry.** The human typed `1` on the final menu. That menu has two options, so `1` is in range (1-2) and maps directly to `merge`, with no echo. The record's course is null, so this is a terminal merge pick, not course work.\n\n## Narration\n\n1. **Validate the run record.** I read `/tmp/gatekeep-state.synthetic` and it parses. `consent.target` is {meadow/events, 642, main}. It matches the recorded base repository, the PR number and baseRefName. Accounting is unchanged: rounds 0 of 6, syncs 0 of 6. No repair locators exist, and none are needed.\n\n2. **Re-read the PR before the write (Next action and compare-and-swap).**\n   `gh pr view 642 -R meadow/events --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`\n   - Head is `2222222222222222222222222222222222222222`, state OPEN, MERGEABLE, BLOCKED.\n   - The body is unchanged (\"Reject unsigned events.\") and the base is still `main`.\n   - Base, body and head all match the record.\n\n3. **Re-read bypass eligibility alongside it (compare-and-swap).**\n   `gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }' -f o=meadow -f r=events -F n=642`\n   - `viewerCanMergeAsAdmin` is false, so `bypass_eligible` is false.\n   - headRefOid, body and baseRefName match the first read, so there is no cross-read mismatch.\n   - Eligibility changed from the rendered menu (true to false) while BLOCKED stayed the same. That invalidates the selected merge.\n   - **No `gh pr merge` runs**, with or without `--admin`. The selection is consumed, and I re-enter the pre-menu refresh to get a fresh selection.\n\n4. **Re-open the tracker stage.** In `plan_tracker`, I re-open `report` for the unchanged-head re-entry into step 5.\n\n5. **Pre-menu refresh (read-only).**\n   - `gh pr view 642 -R meadow/events --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests` returns the same head, OPEN, MERGEABLE, BLOCKED and REVIEW_REQUIRED.\n   - `gh run list -R meadow/events -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url` shows run 911 (ci) completed and successful.\n   - The same fixed GraphQL query returns `viewerCanMergeAsAdmin` false, with no mismatch.\n   - Because the head is unchanged, I replace merge state, bypass_eligible (false), reviewDecision, status_checks and actions_runs together. The role is re-derived as `author`.\n   - There are no pending checks to classify. The Evidence resolution table resolves to CI-sufficient, using `ci / test` green on the assessed head.\n   - Claim dispositions carry forward, all matched. No C# rows are minted, and no watch runs.\n\n6. **Step 5 integrate.**\n   - Verification and the brief assess SHA `2222222222222222222222222222222222222222`.\n   - There are no blockers, nits, or comment delta.\n\n7. **Exit check.**\n   - BLOCKED holds with `bypass_eligible` false, so there is no eligible bypass under Merge preconditions.\n   - No local repair applies, so the state is undispositionable BLOCKED.\n   - The verdict is `GitHub reports BLOCKED, no local repair applies`.\n   - This renders the obstacle template even though course is unset. Usage is unchanged.\n\n8. **Tracker and menu.** I close `report` and add the `menu` stage.\n\n## Tracker and sync\n\n- **Tracker stages:** the original init was `gather, provision, verify`, with no `--rebase`. This re-entry re-opens `report`, then adds `menu`.\n- **Sync line:** none renders, because `--rebase` was not passed.\n\n## Rendered menu\n\n```\ngauntlet: gate=gatekeep-pr/obstacle recommended=3\nDelivers: the guard rejects unsigned events instead of accepting them.\nRole: author\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 911, ci / test green on 2222222)\nVerdict: not ready - GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - set course to deliver; retry only after GitHub's blocked state changes, with no automatic sync, no round charged, add 6 to each cap (rounds 0 of 12, syncs 0 of 12).\n2. assess - set course to assess; post nothing since no blockers are open.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\nType a number; show evidence prints the full record (CI run 911, ci / test green on 2222222).\n```\n",
+      "words": 606,
+      "wallMs": 35222,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=3\n\nAll commands below are hypothetical narration. No tools are used.\n\n### Execution order\n\n1. I take the human's `1` as the displayed merge row. It authorizes the selected merge only while its freshness checks and merge preconditions hold.\n\n2. I read and validate `/tmp/gatekeep-state.synthetic`. Its repository, PR number, and base match `meadow/events`, `642`, and `main`. I retain course null, the completed assessment, and both usage counters at zero. No repair artifacts need validation.\n\n   I do not mint a new record or initialize another tracker. This invocation's initial stages were `gather`, `provision`, and `verify`; no `sync` stage was initialized because the arguments contain no `--rebase`. Assessment, claim checks, and review remain complete.\n\n3. I perform the selected merge's freshness read:\n\n   ```bash\n   gh pr view 642 -R meadow/events --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n   ```\n\n   It returns the unchanged head, body, and base, with `OPEN`, `MERGEABLE`, and `BLOCKED`.\n\n4. Beside that read, I refresh viewer-relative bypass eligibility using the fixed query:\n\n   ```bash\n   gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }' -f o=meadow -f r=events -F n=642\n   ```\n\n   The response matches the assessed head, body, and base, but `viewerCanMergeAsAdmin` is now false. That change invalidates the selected merge. I consume the selection without running `gh pr merge`, with or without `--admin`.\n\n5. I re-enter the report stage and perform the required pre-menu refresh:\n\n   ```bash\n   gh pr view 642 -R meadow/events --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests\n   ```\n\n   ```bash\n   gh run list -R meadow/events -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url\n   ```\n\n   ```bash\n   gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }' -f o=meadow -f r=events -F n=642\n   ```\n\n   I persist the refreshed snapshot and eligibility false in the same record. The head and body remain unchanged, CI remains sufficient, and the viewer's role is author. There is no new comment delta.\n\n6. I evaluate the retained assessment and merge preconditions. GitHub still reports `BLOCKED`, bypass eligibility is false, and no local repair applies. This selects the obstacle template, not final or initial. I complete the report stage and add the menu stage when rendering begins.\n\n   No helper is dispatched: there is no head move, pending-to-green transition, changed claim, or comment delta requiring one. Verification evidence and the completed brief assessment remain bound to **2222222222222222222222222222222222222222**. I run no local verification command, CI watch, sync, push, approval, or merge.\n\n   No `Sync:` line renders because the invocation did not include `--rebase`.\n\n### Next menu\n\nDelivers: Rejects unsigned events.\nRole: author\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (source: ci; run 911, ci / test success on 2222222222222222222222222222222222222222; 0 binding pending checks)\nVerdict: not ready - GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - set course to deliver; retry after the merge prerequisite changes, no round charged; add 6 to each cap (rounds 0/6, syncs 0/6).\n2. assess - post nothing because no blockers remain, then render the assess terminal menu.\n3. stop - remove the eligible gate worktree and leave the PR unchanged. [recommended]\n\nNot offered: merge (blocked by GitHub).\n\nType a number; `show evidence` prints the full record (CI, source: ci; run 911, ci / test success on 2222222222222222222222222222222222222222; 0 binding pending checks).\n",
+      "words": 521,
+      "wallMs": 26093,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "cd964b445719ef1f4ad87ed92e6221ed0a109aec81de7c56214d276cd0ca3ae1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7fc7ab3ee00a91d39215f32f0570cb76b1e762ba37650c129c0d913f939fab06",
+      "baselineOutputSha": "5ff2c70289204b86901525c2ae71cfeaffeed359f1f27ee41afa4f1dc6363cbd",
+      "candidateOutputSha": "26dbe79a9d2f5a9a3eade6f4112df59f94d7e10588f93e2111a4e0a417aef1ce",
+      "facts": {
+        "invalidate": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-merge": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "refresh": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "route": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "vocabulary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves invalidate and refresh from fails to holds: Before explicitly declined to run the viewerCanMergeAsAdmin GraphQL re-read, refused the merge solely on the BLOCKED precondition, and ran the pre-menu refresh without any eligibility read, whereas After runs the fixed GraphQL query at compare-and-swap, treats the true-to-false flip as invalidating the selected merge despite unchanged head and BLOCKED, re-runs the same query inside the refresh so bypass_eligible false is carried into the exit check, and then routes to the obstacle template. Nothing regressed: both outputs skip gh pr merge and any repair/push/approval, both render the obstacle template with the actor-framed merge-waits line and `Not offered: merge (blocked by GitHub)` with no merge/wait row, and both keep field names (viewerCanMergeAsAdmin, --admin) strictly as mechanism without naming a rule or calling the viewer an admin. The After wording is sound; the only thing to watch is that the compare-and-swap step keeps saying 'bypass_eligible false' rather than ever paraphrasing it as the viewer 'not being an admin', and that the narration never attributes BLOCKED to a specific ruleset the way the defective prior menu row did.",
+      "wallMs": 17759,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "cd964b445719ef1f4ad87ed92e6221ed0a109aec81de7c56214d276cd0ca3ae1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7fc7ab3ee00a91d39215f32f0570cb76b1e762ba37650c129c0d913f939fab06",
+      "baselineOutputSha": "446d55a7721455b210a7dfd88a69621946d34eb7cfa3a60f239f948414ff69af",
+      "candidateOutputSha": "31e0641d03cf4058722371751ef793cb7178fa27953f786a6d42aef65ece4418",
+      "facts": {
+        "invalidate": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-merge": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "refresh": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "route": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "vocabulary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves invalidate and refresh from fails to holds without regressing anything: Before explicitly skipped the GraphQL bypass query (step 4) and refused the merge solely on the BLOCKED precondition, so it never re-read viewer-relative eligibility at compare-and-swap and its pre-menu refresh carried no fresh eligibility value; After runs the fixed query beside the gh pr view re-read, treats the true-to-false flip on viewerCanMergeAsAdmin as the invalidation despite unchanged head and BLOCKED tuple, consumes the pick without any gh pr merge (with or without --admin), then re-enters the report-stage refresh including the GraphQL eligibility read and persists false before selecting the obstacle template. Both outputs keep no-merge, route, and vocabulary: the obstacle menu has the actor-framed merge-waits line and the Not offered: merge (blocked by GitHub) line, no merge or wait row, no bypass-authority claim, and field names appear only as the eligibility mechanism. Minor suggestions for the After wording: keep the Not offered lines above the Pick one block as in Before for template consistency, and drop the stray reference to the row's prior ruleset bypass authority if it ever reappears, since it edges toward naming a cause for BLOCKED.",
+      "wallMs": 20358,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e3e160477bacb41f98d7fd604e7873db622af289"
+}

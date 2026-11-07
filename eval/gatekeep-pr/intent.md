@@ -1,7 +1,7 @@
-for: 77b0106fab9fb53bf80aaf9b5b90cb43d287ea41343fbc65edae6c5a9a3c0212
+for: a2a82056783a9a53ab55f3e154fb6f08f08aa11de04ec6608d64e693cbfe748a
 
 ## Change
-The shared bypass-menu edit is tested only by gatekeep-pr-merge-state/bypass-eligible-green-ci; this assembly hash is refreshed for structural checks, not a new replay claim for this target.
+Append the bypass-only merge flag, consume server refusals without retry and refresh before routing, and invalidate selected merges on eligibility changes even while BLOCKED stays unchanged. Test only bypass-merge-pick-refused and bypass-merge-pick-revoked for this edit. These synthetic post-pick replays establish sample-scoped gate behavior, not live GitHub eligibility or merge success. Preserve historical results for other samples.
 
 Emit plain per-PR settlement rows with assessed full heads, terminal outcomes and only observed ticket refs after cleanup and follow-ons finish. Retain retired PR rows until final set settlement and keep intermediate retirement nonterminal. Run only per-ref-settlement for this edit and preserve historical results; this is sample-scoped coverage, not a target-wide pass.
 

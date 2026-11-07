@@ -1,3 +1,4 @@
+import './gatekeep-bypass-pick.test.mjs';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
