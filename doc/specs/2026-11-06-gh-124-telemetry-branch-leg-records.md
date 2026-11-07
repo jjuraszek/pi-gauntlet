@@ -1,5 +1,7 @@
 # Telemetry on one shared `gauntlet/telemetry` branch, with shape-ticket, gatekeep-pr and check-delivery leg records
 
+> **Superseded by:** [doc/specs/2026-11-07-gh-130-telemetry-non-branch-ref.md](./2026-11-07-gh-130-telemetry-non-branch-ref.md) - the `gauntlet/telemetry` ref name in "Branch library" and the `branches-ignore` workflow filter with its `scripts/ci.mjs` pins in "Removal of the tracked corpus and the guards" only
+
 **Goal:** Every gauntlet cost record - the brainstorm-to-ship run record and a new per-session leg record for shape-ticket, gatekeep-pr and check-delivery - lands as an immutable file on one orphan `gauntlet/telemetry` branch pushed to `origin` (or `piGauntlet.telemetry.remote`), written and read through git plumbing without ever touching the checkout, so no telemetry file ever rides a working branch and every reader shares the corpus under the hood.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop
