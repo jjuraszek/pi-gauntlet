@@ -1,8 +1,8 @@
 {
   "sample": "bound-viewer-green-ci",
   "arm": "candidate",
-  "skillSha": "124b4f8717ce2f5e1e36caee0d780fce359d6508bfe156399cf44818b85f6448",
-  "inputSha": "f86caeb485e69b68cc624ed264175f0d48283c07cebe5638d8a45dce511fa670",
+  "skillSha": "346057d43f5ebcc2b501de1e448e278ba85c47f2dd518b5de01e8363b9c42aee",
+  "inputSha": "acd693b214914ed176be8b27a3e1c7c7fb645b8a3e6591850c7a1b5cbe98e12c",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Evidence resolution (Section B):**\n\n- **Resolved check set:** all checks on `9c1e4f2`, because no `ci checks:` setting is configured.\n- **Conclusions:**\n  - `test_unit` is `success`.\n  - `build_image` is `success`.\n  - `lint` is `skipped`, which is inert.\n  - No check is blocking or pending, so binding classification has nothing to classify.\n  - There is no `action_required` run, so there is no held run.\n- **Rows, checked top-down:**\n  - Opt-out: not configured.\n  - Failed CI: no blocking conclusion.\n  - Held run: none.\n  - Pending: no binding pending check.\n  - **CI-sufficient: matches.** At least one success, zero blocking, zero binding pending.\n- **Result:** `source: ci`, `head_sha: 9c1e4f2`, run 7001. The local command does not run. The material claim \"Tests cover the retry path\" is `matched`.\n\n**Merge decision:**\n\n- `merge_state_status` is `BLOCKED`.\n- There are zero blockers and no failing check, so nothing local can be repaired or dispositioned.\n- This is the undispositionable-BLOCKED obstacle. The obstacle template applies even though the course is unset.\n- `issue_ref` is null, so the scope is `source: pr` and there are no AC rows.\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\nVerdict: not ready - GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - set course to deliver; retries the merge check once GitHub's block changes, no round charged; add 10 to each cap (rounds 0 of 20, syncs 0 of 20).\n2. assess - switch course to assess; zero blockers, so nothing is posted and nothing is repaired.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\nType a number; show evidence prints the full record (CI run 7001, test_unit and build_image green on 9c1e4f2)\n```\n",
-      "words": 291,
-      "wallMs": 20786,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=3\n\nEvidence resolution (Section B): row **CI-sufficient**, so no local run.\n- `test_unit` and `build_image` completed `success` on 9c1e4f2.\n- `lint` is `skipped`, which is inert.\n- There are no blocking conclusions, no held run, and no pending checks, so nothing is binding.\n- The `BLOCKED` merge state does not change this row.\n\n```\nDelivers: the tide-feed client now retries a fetch once when the feed returns 503.\nRole: none\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\nVerdict: not ready - GitHub reports BLOCKED, no local repair applies\n```\n\nObstacle: GitHub reports `merge_state_status BLOCKED` and `bypass_eligible` is unreadable, so no bypass applies. There are no blockers, and the gate has no local repair for this. The prerequisite that still fails is `merge_state_status BLOCKED` (no eligible bypass).\n\nPick one:\n1. deliver - set course to deliver; retries the merge checks once GitHub's BLOCKED state changes, no round charged; add 10 to each cap (rounds 0/20, syncs 0/20).\n2. assess - post the review to the PR (zero blockers, so nothing posts); then approve or stop, no repairs.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub), approve (no approve row at a BLOCKED obstacle)\n\nType a number; show evidence prints the full record (CI run 7001, test_unit and build_image green on 9c1e4f2)\n",
+      "words": 231,
+      "wallMs": 27031,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: adds one bounded retry to the tide-feed client on a 503 response, with tests covering the retry path.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - set course to deliver; retry after GitHub's blocked merge state changes, no round charged; add 10 to each cap (rounds 0/10 to 0/20; syncs 0/10 to 0/20).\n2. assess - post nothing because there are no blockers; perform no repair or sync, then show the assess terminal menu.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\n\nType a number; show evidence prints the full record (CI (run 7001, test_unit and build_image green on 9c1e4f2)).\n",
-      "words": 139,
-      "wallMs": 10212,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=3\n\nDelivers: the tide-feed client adds one bounded retry on a 503 response, with tests covering the retry path.\nRole: none\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - set course to deliver; retry after the blocked merge prerequisite changes, no round charged; add 10 to each cap (rounds 0/10 -> 0/20; syncs 0/10 -> 0/20).\n2. assess - post nothing because there are zero blockers; then render assess terminal, no repairs or sync.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\n\nType a number; show evidence prints the full record (CI: run 7001, test_unit and build_image green on 9c1e4f2).\n",
+      "words": 138,
+      "wallMs": 14276,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b9e39ae64789f206f4deb2d600abfe2d1a56436894b8c683df500fa38a1ab0f2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
-      "baselineOutputSha": "d9cc433338c7c6ff9cb5c4bdf17ee72b11883154b3d1f8853109891ea0387915",
-      "candidateOutputSha": "0de6b1e7d0e8c40d9a71a9f3b60c4e862c726da8369f06f5242a7386182fcc04",
+      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+      "baselineOutputSha": "da905934cdc7214e48da92efa0accce085feb7594d05d09444d78f47d8f03c59",
+      "candidateOutputSha": "0885fdfa16430fd90ac55f0f363b511a939a90def8496e8b905f4fe5867374b8",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,9 +49,9 @@
           "label": "held"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f4": {
           "before": "holds",
@@ -64,21 +64,21 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the intended move on f3: the undispositionable-BLOCKED case is now rendered as an obstacle with deliver/assess/stop, stop is last and recommended, the ordinary wait row is gone, no automatic sync is implied, and approve is no longer fabricated as a menu row, while the evidence block, the single PR-comments line with the reviewDecision locator, the 'Not offered: merge (blocked by GitHub)' line, and the absence of any rule attribution or 'someone must approve' sentence are all preserved from Before. Two wording risks worth tightening so the obstacle template stays robust across samples: the deliver row's 'retries the merge check once GitHub's block changes' reads close to an unattended watch, so phrase it as a re-render on the next explicit continuation rather than a trigger on state change; and 'add 10 to each cap (rounds 0 of 20, syncs 0 of 20)' states the frozen-cap arithmetic inside the menu row, which is correct but is the kind of detail a judge could read as a counter change - consider moving it to the narration and keeping the row to the course effect only. Also keep 'show evidence' as a plain numbered row or a separate instruction line rather than folding it into the 'Type a number' sentence, so the menu shape matches the shared template exactly.",
-      "wallMs": 14886,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept: the CI evidence line, the BLOCKED withhold line with the reviewDecision locator, the merge not-offered reason, the obstacle gate with stop recommended last, no wait row, no automatic sync, and no fabricated approve row. The additions that deliver the Change are the explicit `Obstacle:` paragraph naming `bypass_eligible` unreadable (fail-closed) and the `Not offered: ... approve (no approve row at a BLOCKED obstacle)` note, both of which stay inside the facts. Two wordings are worth tightening so they cannot be misread: the deliver row's 'retries the merge checks once GitHub's BLOCKED state changes' reads close to an ordinary wait row - prefer 'set course to deliver; continuation only on explicit obstacle continuation, no round charged' - and the assess row's 'then approve or stop' hints at an approve path at a BLOCKED obstacle; dropping 'approve or' keeps the row a pure post-the-review action. Also consider moving the Section B resolution block outside the rendered report so the report body matches the shared template exactly.",
+      "wallMs": 20392,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b9e39ae64789f206f4deb2d600abfe2d1a56436894b8c683df500fa38a1ab0f2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
-      "baselineOutputSha": "2eb3f22d4e9a18201f26aa97e7cc93f65bc341b659b333dcd84fa14898e27f59",
-      "candidateOutputSha": "e8f7c964a189c62f255882dfa7884822072723e88e85c8eda028783b4bbaa773",
+      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
+      "baselineOutputSha": "70ea3efaf0d51bfb94a93d32c02ea257e46c68bdcfbe7d5529e0a4e45bd0fda9",
+      "candidateOutputSha": "4c9f992e9ca9a2919461a27c6f8c74e21ad911bed112168e8d902ef6f9e53662",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -86,9 +86,9 @@
           "label": "held"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f4": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change for f3: the BLOCKED state is rendered as an obstacle with assess/deliver/stop, stop is recommended and last, there is no ordinary wait row, no automatic sync, and approve is not fabricated. After also adds an explicit 'Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)' line, which is what f1 asks for and which Before never stated (Before only listed 'show evidence - gate output, CI run' without resolving to green checks on the head), so keep that line in the obstacle template. Two wording points worth tightening so the obstacle template reads cleanly: the deliver row's 'add 10 to each cap (rounds 0/10 to 0/20; syncs 0/10 to 0/20)' is correct for the twice-entry freeze but reads like a per-action grant - phrase it as 'caps freeze at 20/20 (twice the entry setting)'; and the assess row's 'post nothing because there are no blockers' sits oddly beside a BLOCKED verdict - say 'post nothing (reviewer found no Critical/Moderate/Minor findings)' so a reader does not confuse review findings with the GitHub block. Both PR-comments line (f4) and the not-offered merge reason (f2) were preserved unchanged, and nothing attributes the block to a rule or demands another approver (f5).",
-      "wallMs": 15717,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept: the Evidence line still resolves to CI with test_unit and build_image green on 9c1e4f2, merge is still listed under Not offered with 'blocked by GitHub', the PR comments line still carries the reviewDecision locator, the obstacle menu still ends with stop recommended and has no wait/approve/sync row, and no sentence names a rule or demands another approver. Note that Before already satisfied f3 as written (deliver/assess/stop, stop last and recommended, no wait or approve row), so the listed fails->holds move for bound-viewer-green-ci/f3 is not visible in this pair; if the intent was to distinguish an obstacle rendering from an ordinary wait menu, the differentiating signal would need to appear in the text (e.g. an explicit obstacle label on the deliver row or a template marker). Two wording shifts worth watching: After drops the 'source: ci' tag and the 'merge_state_status BLOCKED' suffix from the Evidence line — harmless here, but the Change requires 'merge_state_status BLOCKED (bypass eligible; reviewDecision <value>)' on the Evidence line in the eligible sample, so consider keeping the merge_state_status token on Evidence uniformly (e.g. 'Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2; merge_state_status BLOCKED)') rather than only in the eligible branch. Also, 'retry after the blocked merge prerequisite changes' is fine for f5 but edges toward naming a prerequisite; 'retry after GitHub's BLOCKED state changes' from Before is the safer phrasing.",
+      "wallMs": 20500,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "cc0a65f05c826c32b59ddd6cf7fa655a9aa91d24"
+  "repoSha": "edaffafe2dfea5ff047d8770ca6fa574939eec8a"
 }

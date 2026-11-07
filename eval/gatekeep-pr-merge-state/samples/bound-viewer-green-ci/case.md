@@ -7,7 +7,7 @@ Gather digest for a pull request on `harborline/tidewatch`; the gate is at step 
 ```text
 - pr: { number: 412, title: "Retry tide-feed fetch on 503 (ref TW-88)", body: "Adds one bounded retry to the tide-feed client. Tests cover the retry path.", author: tlindqvist, author_is_bot: false, state: OPEN, isDraft: false, headRefName: tlindqvist/tw-88-retry, baseRefName: main, isCrossRepository: false, mergeable: MERGEABLE, mergeStateStatus: BLOCKED, headRefOid: 9c1e4f2, headRepository: harborline/tidewatch, maintainerCanModify: true, files: [src/feed/client.ts, test/feed/client.test.ts], additions: 41, deletions: 3, reviewDecision: REVIEW_REQUIRED }
 - viewer: { login: rhee-ops, is_author: false }
-- permissions: { viewer_permission: MAINTAIN, is_cross_repository: false, maintainer_can_modify: true, merge_state_status: BLOCKED, can_update_branch: true, head_url: https://github.com/harborline/tidewatch.git, head_ref: tlindqvist/tw-88-retry, head_pushable: true }
+- permissions: { viewer_permission: MAINTAIN, is_cross_repository: false, maintainer_can_modify: true, merge_state_status: BLOCKED, bypass_eligible: unreadable, can_update_branch: true, head_url: https://github.com/harborline/tidewatch.git, head_ref: tlindqvist/tw-88-retry, head_pushable: true }
 - status_checks:
   - { name: "test_unit", kind: check_run, status: completed, conclusion: success, required: true, url: https://github.com/harborline/tidewatch/actions/runs/7001/job/1, workflowName: "tidewatch CI" }
   - { name: "build_image", kind: check_run, status: completed, conclusion: success, required: true, url: https://github.com/harborline/tidewatch/actions/runs/7001/job/2, workflowName: "tidewatch CI" }
