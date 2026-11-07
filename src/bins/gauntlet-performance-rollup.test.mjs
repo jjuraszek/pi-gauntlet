@@ -81,20 +81,29 @@ test("three-way shares stay unrounded in JSON and conserve cents across keyed an
   assert.match(text, /team\/product#12\s+1\s+0\.12\s+0\.34\s+0\.46/);
 });
 
-for (const [total, displayed] of [[0.01, [0.01, 0]], [0.02, [0.01, 0.01, 0, 0]], [-0.03, [-0.01, -0.01, -0.01]]]) {
-  test(`${total} batch conserves signed displayed shares without rounding JSON shares`, () => {
+for (const [batch, displayed, adjustment = 0] of [
+  [0.01, [0.01, 0]],
+  [0.02, [0.01, 0.01, 0, 0]],
+  [-0.03, [-0.01, -0.01, -0.01]],
+  [4, [-1, 2], -3],
+  [2, [-1, 1], -2],
+]) {
+  test(`${batch} batch with ${adjustment} adjustment conserves signed displayed shares without rounding JSON shares`, () => {
     const items = displayed.map((_, i) => ticket(`#${i + 1}`));
-    const costs = aggregateCosts([], [leg("shape-ticket", "penny", total, items)]);
-    const share = total / items.length;
-    assert.deepEqual(costs.tickets.map(row => [row.shape, row.total]), items.map(() => [share, share]));
+    const legs = [leg("shape-ticket", "penny", batch, items)];
+    if (adjustment) legs.push(leg("shape-ticket", "refund", adjustment, [items[0]]));
+    const costs = aggregateCosts([], legs);
+    const total = batch + adjustment;
+    const shares = items.map((_, i) => batch / items.length + (i === 0 ? adjustment : 0));
+    assert.deepEqual(costs.tickets.map(row => [row.shape, row.total]), shares.map(share => [share, share]));
     const rows = renderCosts(costs).split("\n").filter(line => line.includes(`${repo}#`))
       .map(line => line.trim().split(/\s+/).slice(3));
     for (const column of [0, 4]) {
-      assert.ok(rows.every(row => Number(row[column]) * Math.sign(total) >= 0), "displayed costs must follow the total's sign");
+      assert.ok(rows.every((row, i) => Number(row[column]) * Math.sign(shares[i]) >= 0), "displayed costs must follow each share's sign");
       assert.equal(rows.reduce((sum, row) => sum + Number(row[column]), 0), total);
     }
     assert.deepEqual(rows, displayed.map(cost => [cost.toFixed(2), "-", "-", "-", cost.toFixed(2)]));
-    assert.deepEqual(costs.tickets.map(row => row.total), items.map(() => share), "rendering leaves JSON shares unrounded");
+    assert.deepEqual(costs.tickets.map(row => row.total), shares, "rendering leaves JSON shares unrounded");
   });
 }
 

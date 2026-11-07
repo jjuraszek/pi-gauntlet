@@ -120,13 +120,19 @@ function displayCosts(costs) {
       const active = [...cells].filter(({ row, column }) => row[column] !== null)
         .sort((a, b) => order.get(a.row) - order.get(b.row));
       const total = sumOrNull([...(linked ? sources : active)].map(({ row, column }) => (linked ? copies.get(row) : row)[column]));
-      let remaining = Math.round(total * 100);
-      active.forEach(({ row, column }, i) => {
-        const cents = i === active.length - 1 ? remaining
-          : Math.max(Math.min(0, remaining), Math.min(Math.max(0, remaining), Math.round(row[column] * 100)));
-        copies.get(row)[column] = cents / 100;
-        remaining -= cents;
+      const shares = active.map(({ row, column }, index) => {
+        const value = row[column] * 100;
+        const cents = Math.trunc(value);
+        return { row, column, index, cents, fraction: value - cents };
       });
+      const residual = Math.round(total * 100) - shares.reduce((sum, share) => sum + share.cents, 0);
+      const direction = Math.sign(residual);
+      const ranked = shares.filter(share => share.fraction * direction > 0)
+        .sort((a, b) => direction * (b.fraction - a.fraction)
+          // Keep the last-row tie for thirds, but award half-cent ties in row order.
+          || (Math.abs(a.fraction) < 0.5 ? b.index - a.index : a.index - b.index));
+      for (let i = 0; i < Math.abs(residual); i++) ranked[i].cents += direction;
+      for (const { row, column, cents } of shares) copies.get(row)[column] = cents / 100;
     }
   };
   round(splits);
