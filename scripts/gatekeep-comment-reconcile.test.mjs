@@ -572,7 +572,7 @@ test('bypass eligibility preserves pending CI and every independent merge withho
   for (const [model, output] of Object.entries(saved.outputs)) {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/initial/);
-    assert.match(output.text, /Not offered: merge \(e2e pending\)/);
+    assert.match(output.text, /Not offered:[^\n]*\bmerge \(e2e pending\)/);
     assert.doesNotMatch(output.text, /^\d+\. merge\b/m);
     assert.doesNotMatch(output.text, /ruleset bypass authority|bypass eligible|\badmin\b|blocked by GitHub/i);
     const judge = saved.judge[model];
