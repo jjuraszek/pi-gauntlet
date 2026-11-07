@@ -1,8 +1,8 @@
-# eval report: gatekeep-pr-merge-state (partial run: bound-viewer-green-ci)
+# eval report: gatekeep-pr-merge-state (partial run: bypass-eligible-green-ci, bypass-eligible-check-pending)
 
 for: 0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb
 
-wall: 44s
+wall: 75s
 
 ## Change
 
@@ -14,12 +14,30 @@ Offer the ordinary merge row for BLOCKED only with fresh viewer-relative bypass 
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| bound-viewer-green-ci | anthropic/claude-opus-5-5 | unchanged | 18910 | f1: holds -> holds (held); f2: holds -> holds (held); f3: holds -> holds (intended but unchanged); f4: holds -> holds (held); f5: holds -> holds (held) |
-| bound-viewer-green-ci | github-copilot/gpt-6.1-sol | unchanged | 16632 | f1: holds -> holds (held); f2: holds -> holds (held); f3: holds -> holds (intended but unchanged); f4: holds -> holds (held); f5: holds -> holds (held) |
+| bypass-eligible-green-ci | anthropic/claude-opus-5-5 | improved | 12235 | f1: fails -> holds (intended change); f2: fails -> holds (intended change); f3: fails -> holds (intended change); f4: fails -> holds (intended change); f5: holds -> holds (held) |
+| bypass-eligible-green-ci | github-copilot/gpt-6.1-sol | improved | 14351 | f1: fails -> holds (intended change); f2: fails -> holds (intended change); f3: fails -> holds (intended change); f4: fails -> holds (intended change); f5: holds -> holds (held) |
+| bypass-eligible-check-pending | anthropic/claude-opus-5-5 | unchanged | 11223 | f1: holds -> holds (held); f2: holds -> holds (held); f3: holds -> holds (held); f4: holds -> holds (held); f5: holds -> holds (held) |
+| bypass-eligible-check-pending | github-copilot/gpt-6.1-sol | regressed | 12505 | f1: holds -> fails (regression); f2: fails -> holds (unplanned improvement); f3: fails -> holds (unplanned improvement); f4: holds -> holds (held); f5: fails -> holds (unplanned improvement) |
 
 ## Feedback
 
-- bound-viewer-green-ci / anthropic/claude-opus-5-5: Nothing moved on this sample: both outputs render the obstacle gate with assess/deliver/stop, stop last and recommended, no wait row, no automatic sync, no approve row, the merge row withheld as 'blocked by GitHub', the single PR-comments line with the reviewDecision locator, and CI evidence on 9c1e4f2. The Change expected bound-viewer-green-ci/f3 to go fails -> holds, but Before already satisfied it as written, so the After wording is a lateral rewrite here rather than a fix; the only substantive deltas are the explicit cap arithmetic ('+2 x maxFixRounds: 0 of 10 -> 0 of 20'), 'set course to assess' instead of 'switch course', and 'end the run' instead of 'remove the worktree' in the stop row. One caution: After's assess row says 'with zero blockers nothing is posted, then approve or stop' - that phrasing comes close to promising an approve step on another author's REVIEW_REQUIRED PR and could tempt a future variant into fabricating an approve row or a 'needs approval' sentence (f3/f5 risk). Safer wording that still delivers the shared-template intent: 'assess - set course to assess; post the review to the PR (nothing to post when there are no findings), no repairs', leaving approve/stop to the later final menu.
-- bound-viewer-green-ci / github-copilot/gpt-6.1-sol: Nothing moved in this sample: both outputs render gate=gatekeep-pr/obstacle with deliver/assess/stop, stop recommended last, no wait row, no automatic sync, no fabricated approve row, the merge row withheld with a 'blocked by GitHub' reason, one PR-comments line citing merge_state_status BLOCKED with reviewDecision REVIEW_REQUIRED as the locator, and no sentence naming a rule or demanding another developer's approval, so f3 already held in Before and the expected fails->holds does not show up in the text. The After wording is fine for every fact but it thinned the Evidence line (dropping 'source: ci', the lint skipped note, the '0 binding pending checks' count and the 'merge_state_status BLOCKED' marker) and moved 'Not offered' below the menu; if the Change intends the shared menus.md template to carry the Evidence line, keep the fuller Before form (source, skipped non-required checks, binding pending count, merge_state_status) so exact-head evidence stays complete, and keep the deliver row phrased as a course switch that waits for the GitHub block to change rather than letting it read as an ordinary wait row.
+- bypass-eligible-green-ci / anthropic/claude-opus-5-5: After moved f1-f4 from fails to holds exactly as intended: the report is now rendered as final with the ordinary `merge - squash-merge on ruleset bypass authority; CI evidence stands` row recommended, approve is withheld as the author's own PR with stop last, the Evidence line carries `merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)` alongside the exact-head run 701 test success, and the old `merge waits` PR-comments line and `Not offered: merge` are gone. f5 held in both: neither output performs a merge, requests additional approval, cites a specific blocking rule, names an admin identity, or asserts live non-admin proof - 'ruleset bypass authority' names the authority basis without naming a rule, and 'bypass eligible' stays viewer-relative. Keep the current wording; the only caution is to keep the Evidence line's bypass clause phrased as eligibility rather than drifting toward 'admin merge' or a named ruleset, which would put f5 at risk.
+- bypass-eligible-green-ci / github-copilot/gpt-6.1-sol: After delivers the Change cleanly: the report moves from the obstacle gate to final, row 1 is the exact ordinary `merge - squash-merge on ruleset bypass authority; CI evidence stands` wording with merge recommended for the author's own PR, approve is withheld via `Not offered: approve (own PR)`, stop sits last, the Evidence line carries `merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)`, and the exact-head CI record (run 701, test success on abc1234) survives without the Before `merge waits` PR-comments line or `Not offered: merge`. f5 is preserved on both sides: After performs no merge, demands no approval, and names neither a specific blocking rule, an admin identity, nor live non-admin proof - `ruleset bypass authority` is a generic authority label, not a rule name. No fact that Before kept was lost, so the wording needs no correction; if anything, keep the `(own PR)` reason on the withheld approve row and the generic `ruleset bypass authority` phrasing exactly as is so future edits do not drift into naming a rule or an admin actor.
+- bypass-eligible-check-pending / anthropic/claude-opus-5-5: No fact moved on this sample: both outputs render the initial template with course unset, resolve the verdict to e2e pending on the assessed head, omit the merge row with the exact `Not offered: ... merge (e2e pending)` line, make no bypass or ruleset-authority claim anywhere, and offer assess/deliver/stop with deliver recommended and no watch, verification, or merge executed before a numeric pick. Two small regressions in precision worth noting for the After wording: the deliver row dropped the explicit head oid (`watch e2e on abc1234` became `watch e2e until it settles`), which weakens the exact-head evidence contract the Change says to preserve, and it also dropped `rebase on main if needed`, which hid the merge-base-sync authority that a numeric deliver grants. Keeping `deliver - watch e2e on abc1234, repair anything it turns up, rebase on main if needed, repeat until merge is offered` would retain the exact-head binding and sync authorization while still using the shared initial template; the added blank line after the gauntlet header is harmless but inconsistent with Before and should be checked against menus.md.
+- bypass-eligible-check-pending / github-copilot/gpt-6.1-sol: After correctly switches to the initial template, drops the GitHub-blocked withhold in favor of `Not offered: merge (e2e pending)`, keeps bypass out of the rendering, and recommends deliver for the own PR with no pre-selection watch — but it lost the Evidence line entirely, so the pending resolution is no longer tied to the assessed head abc1234 (the Verdict only says 'verification evidence is pending'). Before carried `Evidence: pending (e2e binding; head abc1234)` and the Change paragraph says exact-head evidence is preserved, so the initial template in menus.md should still render an explicit `Evidence: pending (e2e binding; head <sha>)` line (and have `show evidence` echo it) rather than folding evidence into the Verdict; everything else in After can stay as is.
 
-exit: 0
+exit: 1
+
+## Selected runs
+
+Only the two named bypass samples were replayed on this assembly; this is not target-wide coverage.
+
+```text
+node eval/run.mjs gatekeep-pr-merge-state bypass-eligible-green-ci
+gatekeep-pr-merge-state: improved (report.md written; replay 2, judge 2, confirm 0, wall 27s)
+```
+
+```text
+node eval/run.mjs gatekeep-pr-merge-state bypass-eligible-check-pending
+gatekeep-pr-merge-state: regressed (report.md written; replay 2, judge 3, confirm 1, wall 48s)
+```
