@@ -22,7 +22,7 @@ Consequence clause for the menu row (`decision-menu.md`): `remove <worktree.path
 
 Follow the [shared layout](../../brainstorming/reference/menu-layout.md).
 
-Finish the stop consequences below before the final message. Start it with `gauntlet: stuck` followed on that line by the reason: use the obstacle's `stuck - ` text as the reason, or `stopped at <template id>` for initial, assess-terminal, and contract-exception. On a failed reset/assertion use the actual error instead. Print the PR row from `post-selection-loop.md` `### Settlement rows` with `stuck - <reason>` below the marker, then cleanup results. In set mode use `batch.md`'s per-PR retirement marker and retain the row for the final roster settlement.
+Finish the stop consequences below before the final message. Start the message with `gauntlet: stuck` followed on that line by the reason: use the obstacle's `stuck - ` text as the reason, or `stopped at <template id>` for initial, assess-terminal, and contract-exception. On a failed reset/assertion use the actual error instead. Print the PR row from `post-selection-loop.md` `### Settlement rows` with `stuck - <reason>` below the marker, then cleanup results. In set mode use `batch.md`'s per-PR retirement marker and retain the row for the final roster settlement.
 
 Enter here for `stop` on the initial, assess-terminal, obstacle, or contract-exception menu. On a `rebased locally` head, run `git -C <worktree.path> reset --hard <pre_head>` first; assert `HEAD == <pre_head>` and a clean tree. Stop on a failed assertion.
 
