@@ -1,6 +1,7 @@
   /**
-   * Telemetry extension: records one YAML record per gauntlet run, keyed by spec path,
-   * from pi events alone. Binds only after `phase_tracker start brainstorm` armed the
+   * Telemetry extension: records run and session-leg YAML from pi events alone.
+   * Session legs seal through telemetry-leg.ts at terminal settlement. Runs bind
+   * only after `phase_tracker start brainstorm` armed the
    * flow, writes the record to disk without ever staging or committing it (the seal bin
    * commits once at finish), and blocks `write` into an already-shipped spec while
    * brainstorm is in progress. Pure helpers: extensions/lib/telemetry-*.ts. The default
@@ -14,7 +15,7 @@
   import * as piRuntime from "@earendil-works/pi-coding-agent";
   import { SettingsManager, getAgentDir } from "@earendil-works/pi-coding-agent";
   import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-  import { DEFAULT_TEST_COMMANDS, planDirsFor, resolveFlowGuards, resolveTelemetry, settingsErrorWarning, type TelemetryResolved } from "./lib/gauntlet-settings.ts";
+  import { DEFAULT_TELEMETRY_DIR, DEFAULT_TEST_COMMANDS, planDirsFor, resolveFlowGuards, resolveTelemetry, settingsErrorWarning, type TelemetryResolved } from "./lib/gauntlet-settings.ts";
   import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
   import { checkoutOf } from "./lib/checkout.ts";
   import { CONTEXT_DRAFT_MARKER, nextGauntletEntered } from "./lib/phase-tracker-helpers.ts";
@@ -24,6 +25,8 @@
   import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countStructuredFindings, countOpenGaps, countReopens, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
   import { addTokens, capEvents, compact, currentPhase, derive, diffPhases, emptyAccumulators, emptyPhases, foldAccumulators, implementAutoCompletes, liveShipEvent, newRecord, parseRecord, serializeRecord, type Accumulators, type BaseEvent, type PhaseAcc, type PhaseKey, type PhaseMap, type TelemetryEvent, type TelemetryRecord, type Tokens } from "./lib/telemetry-record.ts";
   import { guardReason } from "./lib/telemetry-ship.ts";
+  import { readTelemetryBranch, telemetryRepo, type syncTelemetryBranch } from "./lib/telemetry-branch.ts";
+  import { registerLegTelemetry } from "./lib/telemetry-leg.ts";
   import { buildCouncil, parseAudit, parseChairReport, resolveMembers, type Cluster, type MemberResult } from "./lib/telemetry-council.ts";
 
   // ---- deps seam -------------------------------------------------------------------
@@ -51,6 +54,9 @@
     testCommands?: string[];
   }
   export interface Deps {
+    syncTelemetryBranch?: typeof syncTelemetryBranch;
+    telemetryRepo?: typeof telemetryRepo;
+    readTelemetryBranch?: typeof readTelemetryBranch;
     fs: FsPort;
     git: (args: string[], cwd: string) => Promise<GitResult>;
     // jj runner; production uses realJj for both checkout detection and the ship-time diff.
@@ -205,13 +211,16 @@
     let boundSpec: string | undefined; // repo-relative
     let record: TelemetryRecord | undefined;
     const predecessorLinks = new Set<string>();
-    let recordRel: string | undefined; // repo-relative record path
+    let recordRel: string | undefined; // absolute record path outside the working tree
     let buffer: TelemetryEvent[] = [];
     let pending: Accumulators = emptyAccumulators();
     let frozen = false;
+    let recordWritten = false;
     let gauntletEntered = false;
     let settingsWarned = false;
     let sessionId = "";
+    const guardCache = new Map<string, Map<string, string>>();
+    let guardWarned = false;
     let currentDir = "";
     let councilPending: { memberResults: MemberResult[]; chair?: { model: string; dispatches: number; clusters?: Cluster[] } } | undefined;
 
@@ -235,7 +244,7 @@
     // Disarmed and unbound: activity outside the gauntlet is never charged to the next run.
     const live = (): Accumulators => record
       ? (record.accumulators[sessionId] ??= emptyAccumulators())
-      : gauntletEntered ? pending : emptyAccumulators();
+      : legAcc() ?? (gauntletEntered ? pending : emptyAccumulators());
 
     const canBind = (): boolean => gauntletEntered && !frozen && phases.ship.status !== "complete";
 
@@ -252,8 +261,8 @@
     const warn = (message: string) => pushEvent({ kind: "warning", message });
 
     // ---- record store ----
-    // The record is the file on disk; nothing here stages or commits. A record the seal bin
-    // already stamped is frozen so a later flush cannot overwrite the seal.
+    // The seal either keeps a stamped file for retry or removes it after committing.
+    // Neither may be overwritten by a later recorder flush.
     const sealedAt = (path: string): boolean => {
       const text = deps.fs.readFile(path);
       const parsed = text ? parseRecord(text) : undefined;
@@ -266,8 +275,8 @@
         frozen = true;
         return;
       }
-      const target = abs(recordRel);
-      if (sealedAt(target)) {
+      const target = recordRel;
+      if ((recordWritten && !deps.fs.exists(target)) || sealedAt(target)) {
         frozen = true;
         return;
       }
@@ -281,6 +290,7 @@
         deps.fs.mkdirp(dirname(target));
         deps.fs.writeFile(target + ".tmp", serializeRecord(record));
         deps.fs.rename(target + ".tmp", target);
+        recordWritten = true;
       } catch (e) {
         pushEvent({ kind: "warning", message: `record write failed: ${String((e as Error).message ?? e).split("\n")[0]}` });
       }
@@ -288,27 +298,9 @@
 
     const flush = writeRecord;
 
-    // Excluded untracked paths are invisible to `git status --porcelain`, skipped by
-    // `git add -A`, and never block `git worktree remove`; the seal stages with `git add -f`.
-    const ensureExcluded = async () => {
-      const common = await deps.git(["rev-parse", "--path-format=absolute", "--git-common-dir"], toplevel!);
-      const commonDir = common.stdout.trim();
-      if (common.code !== 0 || !commonDir) return void warn(`exclude skipped: git rev-parse --git-common-dir failed: ${common.stderr.trim().split("\n")[0]}`);
-      const line = `${currentDir.replace(/\/+$/, "")}/`;
-      const file = join(commonDir, "info", "exclude");
-      const existing = deps.fs.readFile(file) ?? "";
-      if (existing.split("\n").some((l) => l.trim() === line)) return;
-      try {
-        deps.fs.mkdirp(dirname(file));
-        deps.fs.writeFile(file, existing + (existing && !existing.endsWith("\n") ? "\n" : "") + line + "\n");
-      } catch (e) {
-        warn(`exclude write failed: ${String((e as Error).message ?? e).split("\n")[0]}`);
-      }
-    };
-
     const loadOrCreate = (specRel: string): TelemetryRecord => {
       const rel = recordPathFor(currentDir, specRel);
-      const existing = deps.fs.readFile(abs(rel));
+      const existing = deps.fs.readFile(rel);
       const parsed = existing ? parseRecord(existing) : undefined;
       if (parsed) {
         // fold stale live blocks (sessions that died without shutdown) into total
@@ -324,13 +316,40 @@
       return newRecord({ spec: specRel, session: sessionId, now: buffer[0]?.ts ?? deps.now(), runId: randomUUID() });
     };
 
-    const sealedOnDisk = (top: string, rel: string, dir: string): boolean => sealedAt(join(top, recordPathFor(dir, rel)));
+    const shippedRecords = (top: string, snap: SettingsSnapshot): Map<string, string> => {
+      const key = JSON.stringify([top, snap.telemetry.remote]);
+      let records = guardCache.get(key);
+      if (!records) {
+        records = new Map();
+        guardCache.set(key, records);
+        const repo = (deps.telemetryRepo ?? telemetryRepo)(top);
+        const result = (deps.readTelemetryBranch ?? readTelemetryBranch)(top, { remote: snap.telemetry.remote, prefix: `${repo}/brainstorming/` });
+        for (const entry of result.records) {
+          const parsed = parseRecord(entry.bytes);
+          if (parsed?.shipped_at) records.set(parsed.spec, parsed.shipped_at);
+        }
+        if (result.warning && !guardWarned) {
+          guardWarned = true;
+          pi.sendMessage({ customType: "telemetry-warning", content: `telemetry guard unavailable: ${result.warning}`, display: true });
+        }
+      }
+      return records;
+    };
 
     const bind = async (specRel: string, snap: SettingsSnapshot, specToplevel: string, via: "git" | "jj") => {
-      if (sealedOnDisk(specToplevel, specRel, snap.telemetry.dir)) return;
+      if (via === "git" && shippedRecords(specToplevel, snap).has(specRel)) return;
+      let metadataDir = join(specToplevel, ".jj");
+      if (via === "git") {
+        const common = await deps.git(["rev-parse", "--path-format=absolute", "--git-common-dir"], specToplevel);
+        if (common.code !== 0 || !common.stdout.trim()) {
+          warn(`record bind skipped: git common dir unavailable: ${common.stderr.trim().split("\n")[0]}`);
+          return;
+        }
+        metadataDir = common.stdout.trim();
+      }
       toplevel = specToplevel;
       checkoutVia = via;
-      currentDir = snap.telemetry.dir;
+      currentDir = join(metadataDir, "gauntlet", "telemetry");
       boundSpec = specRel;
       recordRel = recordPathFor(currentDir, specRel);
       predecessorLinks.clear();
@@ -363,7 +382,6 @@
         if (snap.errors.length) warn(settingsErrorWarning(snap.errors));
         if (snap.telemetry.warning) warn(snap.telemetry.warning);
       }
-      if (via === "git") await ensureExcluded();
       refreshLinks();
     };
 
@@ -374,6 +392,7 @@
       record = undefined;
       recordRel = undefined;
       frozen = false;
+      recordWritten = false;
       councilPending = undefined;
     };
 
@@ -400,18 +419,13 @@
     const rebind = async (newSpec: string): Promise<boolean> => {
       const from = recordRel!;
       const to = recordPathFor(currentDir, newSpec);
-      if (deps.fs.exists(abs(to))) {
+      if (deps.fs.exists(to)) {
         warn(`record move skipped: ${to} already exists`);
         return false;
       }
-      const trackedResult = await deps.git(["ls-files", "--error-unmatch", "--", from], toplevel!);
-      const tracked = trackedResult.code === 0 && trackedResult.stdout.trim() !== "";
       try {
-        deps.fs.mkdirp(dirname(abs(to)));
-        if (tracked) {
-          const mv = await deps.git(["mv", "--", from, to], toplevel!);
-          if (mv.code !== 0) deps.fs.rename(abs(from), abs(to));
-        } else deps.fs.rename(abs(from), abs(to));
+        deps.fs.mkdirp(dirname(to));
+        deps.fs.rename(from, to);
       } catch (e) {
         warn(`record move failed: ${String((e as Error).message ?? e).split("\n")[0]}`);
         return false;
@@ -493,8 +507,11 @@
       lastPlanTasks = undefined;
       amendmentOpen = false;
       pendingTest.clear();
+      if (sessionId !== ctx.sessionManager.getSessionId()) {
+        guardCache.clear();
+        guardWarned = false;
+      }
       sessionId = ctx.sessionManager.getSessionId();
-      currentDir = snap.telemetry.dir;
       const replay = replayBranch(ctx.sessionManager.getBranch(), snap.specDirs);
       lastPlanTasks = replay.lastPlanTasks;
       phases = replay.phases;
@@ -533,6 +550,10 @@
       if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
       if (event.toolName === "phase_tracker" && !event.isError) {
         await applyPhaseDetails(event.details as never, snap);
+        return undefined;
+      }
+      if (event.toolName === "subagent" && legAcc()) {
+        await onSubagentResult(event.details, event.content, event.isError);
         return undefined;
       }
       if (!record && !canBind()) return undefined;
@@ -605,7 +626,7 @@
       }
       if (loc.toplevel !== toplevel) {
         // Another checkout: a fresh run, never a rename of this record.
-        if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs) && canBind() && !sealedOnDisk(loc.toplevel, rel, snap.telemetry.dir)) {
+        if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs) && canBind() && (loc.via === "jj" || !shippedRecords(loc.toplevel, snap).has(rel))) {
           unbind();
           await bind(rel, snap, loc.toplevel, loc.via);
           if (!boundSpec) return undefined;
@@ -751,7 +772,7 @@
       if (!record || !toplevel || liveShipEvent(record.events)) return;
       record.status = "shipped";
       record.shipped_at = deps.now();
-      const out = await computeJjDiff({ jj: deps.jj ?? realJj, cwd: toplevel, spec: record.spec, dir: currentDir, buckets: snap.telemetry.buckets, planDirs: snap.planDirs });
+      const out = await computeJjDiff({ jj: deps.jj ?? realJj, cwd: toplevel, spec: record.spec, dir: DEFAULT_TELEMETRY_DIR, buckets: snap.telemetry.buckets, planDirs: snap.planDirs });
       if (out.warning) warn(out.warning);
       record.derived.modified_files = out.modified_files;
       record.derived.diff = out.diff;
@@ -766,11 +787,9 @@
         const rawPath = (event.input as { path?: unknown }).path;
         if (typeof rawPath === "string" && phases.brainstorm.status === "in_progress") {
           const loc = await locate(ctx, rawPath);
-          if (loc && isSpecPath(loc.rel, snap.specDirs)) {
-            const recRel = recordPathFor(snap.telemetry.dir, loc.rel);
-            const existing = deps.fs.readFile(join(loc.toplevel, recRel));
-            const parsed = existing ? parseRecord(existing) : undefined;
-            if (parsed?.shipped_at) return { block: true, reason: guardReason(loc.rel, parsed.shipped_at, recRel) };
+          if (loc?.via === "git" && isSpecPath(loc.rel, snap.specDirs)) {
+            const shippedAt = shippedRecords(loc.toplevel, snap).get(loc.rel);
+            if (shippedAt) return { block: true, reason: guardReason(loc.rel, shippedAt, "gauntlet/telemetry") };
           }
         }
         return undefined;
@@ -874,4 +893,5 @@
       refreshLinks();
     };
 
+    const legAcc = registerLegTelemetry(pi, deps, () => !!record);
 }

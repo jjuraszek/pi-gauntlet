@@ -1,10 +1,12 @@
-# eval report: check-delivery (partial run: gate-line-first)
+# eval report: check-delivery (partial run: per-ref-settlement)
 
-for: abe104947ba8857759d24a70eb0322cffed3b750bae2672d1dfc77d7ef2ada95
+for: 918654767620334760c8323c15d63ef51c7c52612eab0b6edec1370d388b686f
 
-wall: 24s
+wall: 21s
 
 ## Change
+
+Require one plain per-ref outcome row below the terminal marker on singleton success and early stops, after selected writes or follow-ons finish. Preserve set settlement and tracker payload boundaries. Run only per-ref-settlement for this edit and preserve historical results; coverage is sample-scoped, not a target-wide pass.
 
 Add the numbered delivery approval gate and cite the shared menu layout and reply rule while retaining typed yes and the existing write boundary.
 
@@ -14,12 +16,12 @@ Mark confirmation before evidence and exact payloads with the exact confirmation
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| gate-line-first | anthropic/claude-opus-5-5 | unchanged | 8135 | gate-first: holds -> holds (intended but unchanged); first-line: holds -> holds (intended but unchanged) |
-| gate-line-first | github-copilot/gpt-6.1-sol | unchanged | 6477 | gate-first: holds -> holds (intended but unchanged); first-line: holds -> holds (intended but unchanged) |
+| per-ref-settlement | anthropic/claude-opus-5-5 | improved | 6099 | settled: fails -> holds (unplanned improvement); terminal: holds -> holds (held); identity: fails -> holds (intended change) |
+| per-ref-settlement | github-copilot/gpt-6.1-sol | improved | 6864 | settled: fails -> holds (unplanned improvement); terminal: holds -> holds (held); identity: fails -> holds (intended change) |
 
 ## Feedback
 
-- gate-line-first / anthropic/claude-opus-5-5: Both outputs open with the exact `gauntlet: gate=check-delivery/confirmation-gate` line, keep all evidence and the exact tracker payload beneath it, start the fenced tracker comment with `Delivered: a123456` with no gauntlet marker inside the payload, and end on a two-choice gate that waits for approval, so the fact holds in both despite the expectation that Before would fail. After keeps everything Before kept; the only notable divergences are cosmetic (changing the fence from `markdown` to `text`, moving the 'no status advance / re-fetch before write' notes below the payload rather than above it, and adding the `blob/a123456/<test path>` link form). If the author wants a visible move on this fact the Before wording would need to actually lack the gate line, which it does not; otherwise the After wording is fine as is - just keep the re-fetch/delta sentence and the 'comment only' note adjacent to the payload so the write boundary stays obvious next to the approval menu.
-- gate-line-first / github-copilot/gpt-6.1-sol: Both outputs open with the exact line `gauntlet: gate=check-delivery/confirmation-gate`, place the evidence tables and the fenced tracker comment below it, begin that comment with `Delivered: a123456`, contain no gauntlet marker inside the payload, and end on the two-choice `Pick one:` menu without performing any write — so gate-first holds in Before and After and nothing moved. The After wording is safe for this fact; if you continue iterating, keep the gate line as the literal first line of the response (no heading above it), keep `Delivered:` as the first payload line, and keep the `1. approve the write / 2. decline` menu after all findings so the typed-yes and numbered-pick paths both remain available.
+- per-ref-settlement / anthropic/claude-opus-5-5: After adds the plain `#52: delivered` row at the end of the message, below the `gauntlet: done delivered` terminal marker, which is exactly what the Change asked for; it also opens no gate and adds no tracker payload or new write, so the settled fact holds. Before lacked that per-ref row entirely, so it failed on the row requirement even though it otherwise opened no gate and added no payload. Keep the row as a bare `#<ref>: <outcome>` line after the closing status sentence; to avoid any reader taking it as a new write, retain the explicit 'Nothing is pending' sentence immediately before it, and consider restoring the explicit mention that the two halves landed in order (comment first, then status) so the readback and write-boundary detail from Before is not lost in the compressed After wording.
+- per-ref-settlement / github-copilot/gpt-6.1-sol: Before closes with "#52 delivered at `fedcba9`." inside a prose sentence, so there is no plain `#52: delivered` row under the `gauntlet: done delivered` marker and the fact fails there. After places a bare `#52: delivered` line directly below the terminal marker, then reports the readback and shipped SHA as separate prose, with no gate opened, no tracker comment reconstructed, and no new write, so the fact holds. The After wording already satisfies the Change for this case; keep the row exactly as a standalone `<ref>: <outcome>` line immediately after the marker and keep the SHA/readback detail in the trailing prose rather than folding it back into the row, which is what caused Before to miss.
 
 exit: 0

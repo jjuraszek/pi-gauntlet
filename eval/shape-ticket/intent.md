@@ -1,6 +1,8 @@
-for: 2e7a59fc68a876ffd5cd14ddfb38123dad93cf90fb696daacaf3abedfc50d020
+for: 77e71fd79d865e091ec6c3c2c43b4d4a4549609fedd87e412d3cc4ec28b4bb0a
 
 ## Change
+Require plain per-ref settlement rows after selected writes, including singleton creates; use the actual returned ticket ref rather than the drafted title on successful creation. Run only per-ref-settlement for this edit, with historical results preserved; this is sample-scoped coverage, not a target-wide pass.
+
 Label every retained original containing a retired stage clause, including AC uniqueness's verbatim bundled-row copy, so no unmarked duplicate can carry the suite obligation downstream. Strengthen workflow-stage-proof/f4 to check every retained copy; preserve prior result records and run only that selected sample.
 
 Resolve configured sibling clone URLs beside the primary checkout, with shared stored-origin identity parsing and parent-owned nonblocking report lines. Keep home cwd at the current checkout; cover linked worktrees, external Git directories, submodules and successful worktree-list output without a primary entry. Reject legacy paths with a migration line. Preserve report-only outcomes through missing, empty or malformed scout artifacts and quiet no-op reports without opening a gate. Fold grounded legs from found absolute paths using stored origin names; keep existing grounding and dispatch guards.
@@ -23,6 +25,8 @@ Mark active clarification and integrity questions, the exact-diff gate, and ende
 Drop workflow-stage proof at the AC integrity gate after uniqueness splits bundled observations, preserve surviving behavioral text and untouched rows byte-for-byte during that drop, retain displaced text in the fenced Reporter note with the retired workflow-stage proof label, and route an emptied AC list to recovery or park. The workflow-stage-proof sample checks repair of mixed behavior/stage rows and a second ticket with only stage proof; coverage is sample-scoped, not a target-wide pass.
 
 ## Expected to move
+- per-ref-settlement/identity: fails -> holds - Both baseline replies identify the create by title rather than the returned #83.
+- per-ref-settlement/no-title-key: fails -> holds - One baseline reply uses the drafted title as its row key; the other omits a plain row.
 - workflow-stage-proof/f4: fails -> holds - Both baseline replies retain the removed text but omit the retired workflow-stage proof label.
 - gate-line-first/settlement: fails -> holds - Render exact fixed-order nonzero counters on the first stuck line.
 - gate-line-first/per-ref: holds -> holds - Preserve the six lines and keep ended stops settled.

@@ -1,6 +1,7 @@
 # Gauntlet-bound telemetry: arm on flow entry, write-only until seal at finish
 
 > **Superseded by:** [doc/specs/2026-09-30-spec-dir-discovery.md](./2026-09-30-spec-dir-discovery.md) - spec/plan path classification (`isSpecPath`/`isPlanPath`), seal auto-selection, and the spec-index collect list
+> **Superseded by:** [doc/specs/2026-11-06-gh-124-telemetry-branch-leg-records.md](./2026-11-06-gh-124-telemetry-branch-leg-records.md) - on-disk record location, seal (feature-branch commit) and shipped-spec guard sections; binding lifecycle and gatekeep-pr separation stay
 
 **Goal:** The telemetry record exists only for runs that entered the gauntlet, lives as a git-excluded file in the worktree until `/skill:finishing-a-development-branch` seals and commits it once before landing, and is never read, checked, or stamped by `/skill:gatekeep-pr`.
 

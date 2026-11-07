@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Telemetry publishes run and per-session skill records on the orphan `gauntlet/telemetry` branch, outside product commits. `telemetry.remote` replaces `telemetry.dir`; readers refresh the branch and cost digests allocate ticket and PR rounds, including unattributed shares. Finish and resume use branch records and full-checkout verification proofs. (#124)
+
 ## v8.3.0 - 2026-11-06
 
 - Loop execution uses the ledger allowance for interrupted child and seed recovery, exit-verification repairs and grant-funded conformance rounds. Recovery requires checkout ownership and confirmed job exit; stagnation supplies a row-local hint rather than stopping early. Unreachable target failures become audited scope cuts under amend permission, while exhausted named-action bounds still stop. Loop workers bound blocking calls and track longer jobs in isolated POSIX sessions; design approval authorizes named paid or external actions only within their flow-wide bounds.

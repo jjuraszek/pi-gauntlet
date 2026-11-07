@@ -1,0 +1,96 @@
+{
+  "sample": "per-ref-settlement",
+  "arm": "candidate",
+  "skillSha": "918654767620334760c8323c15d63ef51c7c52612eab0b6edec1370d388b686f",
+  "inputSha": "bf75a92bab4b6b048f5c0f178973585d1fefdd43516bd7f5cf20a69eda89b06e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: done delivered\n\nThe batched write for #52 landed and the readback matched.\n\n- **Evidence comment:** posted, with first line `Delivered: fedcba9`.\n- **Status advance:** applied to the configured non-terminal target state.\n\nNothing is pending: no gate is open, nothing failed, and no manual or follow-on steps remain.\n\n#52: delivered\n",
+      "words": 48,
+      "wallMs": 2437,
+      "mechanical": {
+        "terminal": "holds",
+        "identity": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: done delivered\n#52: delivered\n\nEvidence comment and configured status advance completed; readback matched. Shipped SHA: fedcba9.\n",
+      "words": 17,
+      "wallMs": 13796,
+      "mechanical": {
+        "terminal": "holds",
+        "identity": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c98f582b49c4bd9deb3ac5d0a1ae3ba0966c9a84ed9be12248935937cf125a9d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1d6d2e0939a0736086f1b35823852177b5a3c0ff18f58de529f8d6889c036996",
+      "baselineOutputSha": "4da3e2e2a2aead0d82de365d01083c973c406aabefa3fee44bb1a7d428f934c2",
+      "candidateOutputSha": "07aae6c8943b6868b66e9696e3bb0613864cf5728ca1c8c46adb782b7ab9428d",
+      "facts": {
+        "settled": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "terminal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "identity": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After adds the plain `#52: delivered` row at the end of the message, below the `gauntlet: done delivered` terminal marker, which is exactly what the Change asked for; it also opens no gate and adds no tracker payload or new write, so the settled fact holds. Before lacked that per-ref row entirely, so it failed on the row requirement even though it otherwise opened no gate and added no payload. Keep the row as a bare `#<ref>: <outcome>` line after the closing status sentence; to avoid any reader taking it as a new write, retain the explicit 'Nothing is pending' sentence immediately before it, and consider restoring the explicit mention that the two halves landed in order (comment first, then status) so the readback and write-boundary detail from Before is not lost in the compressed After wording.",
+      "wallMs": 6099,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c98f582b49c4bd9deb3ac5d0a1ae3ba0966c9a84ed9be12248935937cf125a9d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1d6d2e0939a0736086f1b35823852177b5a3c0ff18f58de529f8d6889c036996",
+      "baselineOutputSha": "e76565deb2ae4c58f0b8c0afb8984569b1b634ec3f1d1cd0e690dd8258ad3d7d",
+      "candidateOutputSha": "e0350d7932dd53bc0eb3529ac7b109b40aebd79c2abad1e37dd3789ec9b75754",
+      "facts": {
+        "settled": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "terminal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "identity": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before closes with \"#52 delivered at `fedcba9`.\" inside a prose sentence, so there is no plain `#52: delivered` row under the `gauntlet: done delivered` marker and the fact fails there. After places a bare `#52: delivered` line directly below the terminal marker, then reports the readback and shipped SHA as separate prose, with no gate opened, no tracker comment reconstructed, and no new write, so the fact holds. The After wording already satisfies the Change for this case; keep the row exactly as a standalone `<ref>: <outcome>` line immediately after the marker and keep the SHA/readback detail in the trailing prose rather than folding it back into the row, which is what caused Before to miss.",
+      "wallMs": 6864,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "763be6225eb743ad21124eb317a6b50c49f4f9b0"
+}

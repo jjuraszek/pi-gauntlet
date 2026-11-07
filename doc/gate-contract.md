@@ -84,6 +84,8 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 | gatekeep-pr | stop on initial, assess-terminal, obstacle, or contract-exception; failed cleanup assertion | skills/gatekeep-pr/reference/cleanup.md § ## Non-final stop | gauntlet: stuck |
 | gatekeep-pr | Hard assertion failures in fix-wave Sync or loop Exit check | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: stuck |
 | gatekeep-pr | Sync restore/assert mismatch | skills/gatekeep-pr/reference/sync.md § ## Failure path | gauntlet: stuck |
+| gatekeep-pr | All PRs retired and selected follow-on steps finished; no stuck outcome | skills/gatekeep-pr/reference/batch.md § ## Between batches and retirement | gauntlet: done retired |
+| gatekeep-pr | All PRs retired and selected follow-on steps finished; any stuck outcome | skills/gatekeep-pr/reference/batch.md § ## Between batches and retirement | gauntlet: stuck retired |
 | shape-ticket | Ended batch or singleton with no failure contributor; dynamic counters | skills/shape-ticket/reference/repo-audit.md § ## Complete the batch and present gates | gauntlet: done written=1 |
 | shape-ticket | Ended batch with unfetched, close-failed, or close-by-hand contributor | skills/shape-ticket/reference/repo-audit.md § ## Complete the batch and present gates | gauntlet: stuck |
 | check-delivery | Batched write landed | skills/check-delivery/SKILL.md § ## Confirmation gate and the batched write | gauntlet: done delivered |
@@ -112,6 +114,10 @@ Check-delivery set settlement uses nonzero counters in fixed order `delivered,ma
 Gatekeep terminal stop reports retain the checkout path and local branch. Non-final stops retain the obstacle's `stuck - ` reason, or `stopped at <template id>` for initial, assess-terminal, and contract-exception. Hard stops retain the actual error. A verdict above a menu is not an ending. A successful PR-subject push followed by the close-member question is still the finishing gate, not `done pushed`.
 
 Resume's argument failures cover a spec seed with an extra worktree, an unrecognized file, a missing path, a missing/invalid bare-name worktree, and other unmatched input, plus no discovery briefs. Entry checks also reject invalid token/override combinations and stale or foreign briefs. Successful resume has no `done`: it continues into the resumed skill's gate.
+
+## Nonterminal retirement
+
+Gatekeep's multi-PR parent starts a per-PR retirement message with `gauntlet: retired #<N> - <reason>` while any PR remains, as defined in [Between batches and retirement](../skills/gatekeep-pr/reference/batch.md#between-batches-and-retirement). This marker is not a gate or a terminal settlement and takes no advancing reply. After the last retirement and selected follow-on steps, the parent emits one `done retired` or `stuck retired` settlement with every retained PR row in roster order.
 
 ## Reading a reply
 

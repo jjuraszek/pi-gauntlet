@@ -262,6 +262,8 @@ Start the message with `gauntlet: gate=check-delivery/confirmation-gate` before 
 
 Start the message with `gauntlet: done delivered` when the batched write landed. Start the message with `gauntlet: done already-recorded` for idempotent delivery. Start the message with `gauntlet: done manual` when the write halves are emitted for manual execution. Start the message with `gauntlet: stuck` followed on that line by the concrete reason once the findings-comment gate is answered or no comment is offered; use this for any partial write failure too. A declined success write ends with `gauntlet: stuck write declined`.
 
+After every selected write or follow-on step finishes, put one plain `<ref>: <outcome>` line below the terminal marker, including singleton and early STOP paths. Use the supplied ticket ref and exactly one outcome: `delivered`, `manual`, `declined`, `already recorded`, `skipped`, or `failed - <reason>`. Map a declined success write to `declined`, skipped-no-tracker to `skipped`, and a failed stage, findings-only path or partial write to `failed - <reason>`; report a terminal ticket without recorded delivery as `skipped`. Keep rows outside tracker payloads, without bullets, code fences or emphasis. In set mode use `reference/batch.md`'s one final roster settlement, never a per-ticket terminal marker while siblings continue.
+
 Any `unexplained gap` or failed stage -> **failure path**: no status
 advance, no delivery comment, no marker. The findings may be offered as a
 **findings comment** (no `Delivered:` line, so it never trips idempotency) -

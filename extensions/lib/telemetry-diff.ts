@@ -57,6 +57,6 @@ export async function computeGitDiff(o: { git: Runner; cwd: string; spec: string
   const names = await o.git(["diff", "--name-only", `${base}...HEAD`], o.cwd);
   const files = modifiedFilesFrom(names.stdout, o.spec, o.dir, o.planDirs);
   const numstat = await o.git(["diff", "--numstat", `${base}...HEAD`], o.cwd);
-  const count = await o.git(["rev-list", "--count", "--invert-grep", "--grep=^telemetry: ", `${base}..HEAD`], o.cwd);
+  const count = await o.git(["rev-list", "--count", `${base}..HEAD`], o.cwd);
   return { modified_files: files, diff: { base, commits: Number(count.stdout.trim()) || 0, buckets: aggregateNumstat(numstat.stdout, new Set(files), o.buckets) } };
 }

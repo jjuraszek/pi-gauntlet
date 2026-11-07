@@ -1,16 +1,18 @@
 import { parse as parseYaml } from "yaml";
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, realpathSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { isolatedGitEnv } from "../extensions/test-support/git-env.mjs";
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), "gauntlet-performance.mjs");
 const TDIR = ".pi/gauntlet/telemetry/doc/specs";
 const EMPTY_AGENT = mkdtempSync(join(tmpdir(), "gp-empty-agent-"));
 process.on("exit", () => rmSync(EMPTY_AGENT, { recursive: true, force: true }));
+const GIT_ENV = isolatedGitEnv(EMPTY_AGENT);
 
 const write = (root, rel, text) => {
   mkdirSync(join(root, dirname(rel)), { recursive: true });
@@ -18,13 +20,13 @@ const write = (root, rel, text) => {
 };
 const gitRepo = (prefix = "gp-") => {
   const root = mkdtempSync(join(tmpdir(), prefix));
-  spawnSync("git", ["init", "-q"], { cwd: root });
+  spawnSync("git", ["init", "-q"], { cwd: root, env: { ...process.env, ...GIT_ENV } });
   return root;
 };
 const SOURCE_CLI = join(dirname(CLI), "../src/bins/gauntlet-performance.mjs");
 const invoke = (cwd, args = [], env = {}, cli = CLI) => {
-  const r = spawnSync(process.execPath, [cli, ...args], {
-    cwd, encoding: "utf8", env: { ...process.env, PI_CODING_AGENT_DIR: EMPTY_AGENT, ...env },
+  const r = spawnSync(process.execPath, [cli, ...(cli.endsWith("gauntlet-performance.mjs") ? ["--dir", cwd] : []), ...args], {
+    cwd, encoding: "utf8", env: { ...process.env, ...GIT_ENV, PI_CODING_AGENT_DIR: EMPTY_AGENT, ...env },
   });
   return { status: r.status, stdout: r.stdout, stderr: r.stderr.trim(), lines: r.stdout.split("\n").filter(Boolean) };
 };
@@ -159,7 +161,7 @@ test("per-run fields: typed reads, unphased excluded, truncated wall null, findi
   assert.deepEqual(d.corpus, { [root.split("/").pop()]: 8 });
   assert.equal(d.since, null);
   const a = byId(d.runs, "aaaaaaaa");
-  assert.equal(a.repo, root.split("/").pop());
+  assert.equal(a.repo, "unknown repo", "legacy schema-1 records need no repo field");
   assert.equal(a.spec, "a");
   assert.equal(a.version, "5.9.1");
   assert.equal(a.status, "shipped");
@@ -329,8 +331,8 @@ test("text output: header, shipped* marker, - cells, by version block, skipped l
   const aRow = r.lines.find((l) => l.startsWith("aaaaaaaa"));
   assert.match(aRow, /\sshipped\s+waves\s+60m\s+10\/10\/10\/10\/10\s+6\.6k\s+2\.25\s+m\/alpha,m\/beta\s+7\s+n\/a\s+no\s+1\s+0\s+2\s+1\/2\/3\s+4\s+-$/);
   assert.ok(r.lines.includes("by version"));
-  const v = r.lines.find((l) => l.startsWith("5.9.1"));
-  assert.match(v, /^5\.9\.1\s+4\s+3\s+1\s+60m\/120m\s/);
+  const v = r.lines.find((l) => /^unknown repo\s+5\.9\.1\s/.test(l));
+  assert.match(v, /^unknown repo\s+5\.9\.1\s+4\s+3\s+1\s+60m\/120m\s/);
   assert.ok(r.lines.some((l) => /^skipped: .*broken\.yaml: unparseable$/.test(l)));
 });
 
@@ -349,30 +351,29 @@ test("--since numeric compare: 5.10.0 > 5.9.1, unknown and malformed versions dr
   const r = invoke(root, ["--since", "9.9.9"]);
   assert.equal(r.status, 0);
   assert.equal(r.lines[0], `corpus: ${root.split("/").pop()}=0   since: 9.9.9`);
-  assert.match(r.lines[1], /^no records found in .*\.pi\/gauntlet\/telemetry$/);
+  assert.equal(r.lines[1], `no records found in ${realpathSync(root)}`);
   assert.equal(r.lines.length, 2);
 });
 
-test("--dir: repo root with telemetry dir, repo root without (skipped, checkout not walked), bare telemetry dir; duplicate run_id collapses", (t) => {
+test("--dir reads bare directories without fetching and collapses duplicate run IDs", (t) => {
   const root = corpus(gitRepo());
   const other = gitRepo("gp-other-");
   write(other, `${TDIR}/dup.yaml`, COMPLETE);
   write(other, `${TDIR}/h.yaml`, COMPLETE.replace("run_id: aaaaaaaa-0000-0000-0000-000000000001", "run_id: 88888888-0000-0000-0000-000000000008"));
   const empty = gitRepo("gp-empty-");
-  write(empty, "doc/specs/decoy.yaml", COMPLETE.replace("run_id: aaaaaaaa-0000-0000-0000-000000000001", "run_id: 77777777-0000-0000-0000-000000000007"));
+  write(empty, "README.md", "not telemetry\n");
   const bare = mkdtempSync(join(tmpdir(), "gp-bare-"));
   write(bare, "x.yaml", COMPLETE.replace("run_id: aaaaaaaa-0000-0000-0000-000000000001", "run_id: 66666666-0000-0000-0000-000000000006"));
   cleanup(t, root, other, empty, bare);
   const d = json(root, ["--dir", other, "--dir", empty, "--dir", bare, "--dir", join(bare, "missing")]);
   assert.equal(d.corpus[other.split("/").pop()], 1);
   assert.equal(d.corpus[bare.split("/").pop()], 1);
-  assert.equal(d.corpus[empty.split("/").pop()], undefined);
+  assert.equal(d.corpus[empty.split("/").pop()], 0);
   assert.ok(d.runs.some((r) => r.run_id.startsWith("88888888")));
   assert.ok(d.runs.some((r) => r.run_id.startsWith("66666666")));
-  assert.ok(!d.runs.some((r) => r.run_id.startsWith("77777777")));
   assert.equal(d.runs.filter((r) => r.run_id.startsWith("aaaaaaaa")).length, 1);
   assert.ok(d.skipped.some((s) => s.file.endsWith("dup.yaml") && s.reason === "duplicate run_id"));
-  assert.ok(d.skipped.some((s) => s.file === empty && s.reason === "no telemetry dir"));
+  assert.equal(invoke(root, ["--dir", bare]).stderr, "", "explicit directories do not fetch, even without origin");
   assert.ok(d.skipped.some((s) => s.file === join(bare, "missing") && s.reason === "not found"));
 });
 
@@ -385,14 +386,6 @@ test("--dir skips an existing regular file as not a directory", (t) => {
   assert.equal(r.status, 0, r.stderr);
   const d = JSON.parse(r.stdout);
   assert.ok(d.skipped.some((s) => s.file === file && s.reason === "not a directory"));
-});
-
-test("repo .pi/settings.json telemetry.dir is honoured for the default corpus", (t) => {
-  const root = gitRepo(); cleanup(t, root);
-  write(root, ".pi/settings.json", JSON.stringify({ piGauntlet: { telemetry: { dir: "custom/dir" } } }));
-  write(root, "custom/dir/doc/specs/a.yaml", COMPLETE);
-  const d = json(root);
-  assert.equal(d.runs.length, 1);
 });
 
 test("usage error exits 1", (t) => {
@@ -474,8 +467,9 @@ test("council section: rosters, sums, chairs and flags", (t) => {
   const at = r.lines.indexOf("council");
   assert.ok(at > 0);
   assert.equal(r.lines[at + 1], "severity is the chair's consolidated severity (highest any co-raiser assigned), not the member's own");
-  assert.equal(r.lines[at + 2], "roster (2 runs): p/alpha:xhigh, p/delta:high");
-  assert.match(r.lines[at + 3], /^  member\s+total\s+unique\s+applied\s+uniq_appl\s+deferred\s+rejected\s+uniq_appl_nonminor\/run$/);
+  assert.equal(r.lines[at + 2], "repo: unknown repo");
+  assert.equal(r.lines[at + 3], "roster (2 runs): p/alpha:xhigh, p/delta:high");
+  assert.match(r.lines[at + 4], /^  member\s+total\s+unique\s+applied\s+uniq_appl\s+deferred\s+rejected\s+uniq_appl_nonminor\/run$/);
   assert.ok(r.lines.includes("  not enough runs to assess (2 of 5)"));
   assert.ok(r.lines.includes("roster (6 runs): p/alpha:xhigh, p/beta:high, p/gamma:high, p/zero:high"));
   assert.match(r.lines.find((l) => /^  p\/alpha:xhigh\s+6\/18\/6\s/.test(l)), /^  p\/alpha:xhigh\s+6\/18\/6\s+0\/6\/6\s+6\/18\/0\s+0\/6\/0\s+0\/0\/0\s+0\/0\/6\s+1\.00$/);
@@ -568,7 +562,7 @@ test("shipped seal preserves verification runs and plan totals for performance",
   const root = gitRepo(); cleanup(t, root);
   const git = (args) => {
     const result = spawnSync("git", ["-c", "user.name=t", "-c", "user.email=t@t",
-      "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8" });
+      "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8", env: { ...process.env, ...GIT_ENV } });
     assert.equal(result.status, 0, result.stderr);
     return result.stdout.trim();
   };
@@ -577,7 +571,9 @@ test("shipped seal preserves verification runs and plan totals for performance",
   const base = git(["rev-parse", "HEAD"]);
   write(root, "doc/specs/seal.md", "# Seal\n");
   git(["add", "doc/specs/seal.md"]); git(["commit", "-qm", "Spec"]);
-  const path = `${TDIR}/seal.yaml`;
+  git(["remote", "add", "origin", "https://example.test/team/product.git"]);
+  git(["config", `url.${root}.insteadOf`, "https://example.test/team/product.git"]);
+  const path = ".git/gauntlet/telemetry/doc/specs/seal.yaml";
   write(root, path, JSON.stringify({
     schema: 1, spec: "doc/specs/seal.md", run_id: "seal", status: "in_progress",
     created_at: "2026-09-01T00:00:00Z", sessions: ["s"], accumulators: {},
@@ -589,9 +585,13 @@ test("shipped seal preserves verification runs and plan totals for performance",
     GIT_AUTHOR_NAME: "t", GIT_AUTHOR_EMAIL: "t@t", GIT_COMMITTER_NAME: "t", GIT_COMMITTER_EMAIL: "t@t",
   }, join(dirname(CLI), "gauntlet-telemetry-seal.mjs"));
   assert.equal(result.status, 0, result.stderr);
-  const sealed = parseYaml(readFileSync(join(root, path), "utf8"));
+  const sealed = parseYaml(git(["show", "gauntlet/telemetry:team/product/brainstorming/doc/specs/seal.yaml"]));
   assert.equal(sealed.status, "shipped");
   assert.equal(sealed.derived.verification_runs, 2);
   assert.deepEqual(sealed.derived.plan, { tasks: 2, complete: 1, skipped: 1, failed: 0 });
-  assert.equal(json(root).runs[0].dispatches_per_task, 1);
+  const output = spawnSync(process.execPath, [CLI, "--json"], {
+    cwd: root, encoding: "utf8", env: { ...process.env, ...GIT_ENV, PI_CODING_AGENT_DIR: EMPTY_AGENT },
+  });
+  assert.equal(output.status, 0, output.stderr);
+  assert.equal(JSON.parse(output.stdout).runs[0].dispatches_per_task, 1);
 });

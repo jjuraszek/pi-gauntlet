@@ -6,9 +6,28 @@ import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
+import { isolatedGitEnv } from "../extensions/test-support/git-env.mjs";
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), "gauntlet-spec-index.mjs");
 const EMPTY_AGENT = mkdtempSync(join(tmpdir(), "gsi-empty-agent-"));
+const GIT_ENV = isolatedGitEnv(EMPTY_AGENT);
+process.on("exit", () => rmSync(EMPTY_AGENT, { recursive: true, force: true }));
+const git = (root, args, options = {}) => {
+  const result = spawnSync("git", ["-c", "commit.gpgsign=false", ...args], {
+    cwd: root, encoding: "utf8", ...options, env: { ...process.env, ...GIT_ENV, ...options.env },
+  });
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout.trim();
+};
+const telemetry = (root, path, text) => {
+  const env = { GIT_INDEX_FILE: join(root, ".git/telemetry-index") };
+  git(root, ["read-tree", "gauntlet/telemetry"], { env });
+  const blob = git(root, ["hash-object", "-w", "--stdin"], { input: text });
+  git(root, ["update-index", "--add", "--cacheinfo", "100644", blob, `team/product/brainstorming/${path}`], { env });
+  const tree = git(root, ["write-tree"], { env });
+  const commit = git(root, ["commit-tree", tree, "-p", "gauntlet/telemetry", "-m", "telemetry fixture"]);
+  git(root, ["update-ref", "refs/heads/gauntlet/telemetry", commit]);
+};
 const DRAFT = "# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing";
 const HEADER = ["score", "path", "service", "title", "status", "shipped_at", "state", "files", "snippet"];
 const DOCS_HEADER = ["score", "path", "title", "snippet"];
@@ -35,12 +54,17 @@ const write = (root, rel, text) => {
 
 const gitRepo = () => {
   const root = mkdtempSync(join(tmpdir(), "gsi-"));
-  spawnSync("git", ["init", "-q"], { cwd: root });
+  git(root, ["init", "-q"]);
+  git(root, ["remote", "add", "origin", "https://example.test/team/product.git"]);
+  git(root, ["config", `url.${root}.insteadOf`, "https://example.test/team/product.git"]);
+  const tree = git(root, ["mktree"], { input: "" });
+  const tip = git(root, ["commit-tree", tree, "-m", "empty telemetry fixture"]);
+  git(root, ["update-ref", "refs/heads/gauntlet/telemetry", tip]);
   return root;
 };
 const commit = (root) => {
-  spawnSync("git", ["add", "-A"], { cwd: root });
-  spawnSync("git", ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "fixture"], { cwd: root });
+  git(root, ["add", "-A"]);
+  git(root, ["commit", "-q", "-m", "fixture"]);
 };
 // Fillers keep the corpus large enough that two-document probe terms stay below N/2.
 const filler = (n) => `# Filler ${n}\n\n**Goal:** filler goal ${n}.\n\n## Design\n\nnothing of note here\n`;
@@ -69,7 +93,7 @@ const repo = () => {
 };
 
 const run = (cwd, args) => {
-  const r = spawnSync(process.execPath, [CLI, ...args], { cwd, encoding: "utf8", env: { ...process.env, PI_CODING_AGENT_DIR: EMPTY_AGENT } });
+  const r = spawnSync(process.execPath, [CLI, ...args], { cwd, encoding: "utf8", env: { ...process.env, ...GIT_ENV, PI_CODING_AGENT_DIR: EMPTY_AGENT } });
   const lines = r.stdout.split("\n").filter(Boolean);
   return { status: r.status, stderr: r.stderr, stdout: r.stdout, header: lines[0]?.split("\t"), rows: lines.slice(1).map((l) => l.split("\t")) };
 };
@@ -129,7 +153,7 @@ test("1: corpus boundary, ordering, draft skip, git status clean, exclude writte
   assert.equal(r1.status, 0, r1.stderr);
   assert.deepEqual(paths(r1), ["doc/specs/a.md", "svc-a/doc/specs/b.md"]);
   assert.deepEqual(r1.rows.map((r) => r[2]), ["root", "svc-a"]);
-  const status = spawnSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }).stdout;
+  const status = git(root, ["status", "--porcelain"]);
   assert.equal(status, "");
   run(root, ["--query", "zephyr widget"]);
   const exclude = readFileSync(join(root, ".git/info/exclude"), "utf8");
@@ -190,16 +214,16 @@ test("6: telemetry join is output-only and tolerant", (t) => {
   const filesBefore = withDb(root, (database) => JSON.stringify(database.prepare("SELECT * FROM files ORDER BY path").all()));
   write(root, "x", "x\n");
   write(root, "y", "y\n");
-  write(root, ".pi/gauntlet/telemetry/doc/specs/a.yaml", "status: shipped\nshipped_at: 2026-09-17T10:00:00Z\nderived:\n  modified_files:\n    - x\n    - y\n");
+  telemetry(root, "doc/specs/a.yaml", "status: shipped\nshipped_at: 2026-09-17T10:00:00Z\nderived:\n  modified_files:\n    - x\n    - y\n");
   let r = run(root, ["--query", "zephyr widget"]);
   assert.deepEqual(r.rows[0].slice(4, 8), ["shipped", "2026-09-17T10:00:00Z", "live", "x;y"]);
   assert.equal(r.rows[0].length, 9);
   assert.equal(r.rows[1][7], "");
   assert.equal(withDb(root, (database) => JSON.stringify(database.prepare("SELECT * FROM files ORDER BY path").all())), filesBefore);
-  write(root, ".pi/gauntlet/telemetry/doc/specs/a.yaml", "status: in_progress\nshipped_at: 2026-09-18T10:00:00Z\n");
+  telemetry(root, "doc/specs/a.yaml", "status: in_progress\nshipped_at: 2026-09-18T10:00:00Z\n");
   r = run(root, ["--query", "zephyr widget"]);
   assert.deepEqual(r.rows[0].slice(4, 8), ["in_progress", "2026-09-18T10:00:00Z", "live", "missing"]);
-  write(root, ".pi/gauntlet/telemetry/doc/specs/a.yaml", "status: [unclosed\n");
+  telemetry(root, "doc/specs/a.yaml", "status: [unclosed\n");
   r = run(root, ["--query", "zephyr widget"]);
   assert.equal(r.status, 0);
   assert.deepEqual(r.rows[0].slice(4, 8), ["", "", "live", ""]);
@@ -213,8 +237,8 @@ test("6b: files cell is the AC fixture - present paths kept, gone paths dropped,
   write(root, "doc/specs/b.md", "# Beta quokka wallaby\n\n**Goal:** quokka too.\n");
   for (const n of ["one", "two", "three"]) write(root, `doc/specs/filler-${n}.md`, filler(n));
   write(root, "src/x.ts", "export {};\n");
-  write(root, ".pi/gauntlet/telemetry/doc/specs/a.yaml", "status: shipped\nderived:\n  modified_files:\n    - src/x.ts\n    - src/gone.ts\n");
-  write(root, ".pi/gauntlet/telemetry/doc/specs/b.yaml", "status: shipped\n");
+  telemetry(root, "doc/specs/a.yaml", "status: shipped\nderived:\n  modified_files:\n    - src/x.ts\n    - src/gone.ts\n");
+  telemetry(root, "doc/specs/b.yaml", "status: shipped\n");
   commit(root);
   const r = run(root, ["--query", "quokka wallaby"]);
   assert.equal(r.status, 0, r.stderr);
@@ -227,26 +251,26 @@ test("6b: files cell is the AC fixture - present paths kept, gone paths dropped,
 test("6c: files cell edge cases - order, spaces kept, all gone, non-array, null record", (t) => {
   const root = repo();
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  const yaml = ".pi/gauntlet/telemetry/doc/specs/a.yaml";
+  const yaml = "doc/specs/a.yaml";
   const files = () => run(root, ["--query", "zephyr widget"]).rows[0][7];
   write(root, "b.js", "");
   write(root, "a.js", "");
   write(root, "sp  aced.txt", "");
-  write(root, yaml, "status: shipped\nderived:\n  modified_files:\n    - a.js\n    - b.js\n");
+  telemetry(root, yaml, "status: shipped\nderived:\n  modified_files:\n    - a.js\n    - b.js\n");
   assert.equal(files(), "a.js;b.js");
   write(root, "tab\there.js", "");
-  write(root, yaml, 'status: shipped\nderived:\n  modified_files:\n    - a.js\n    - "tab\\there.js"\n');
+  telemetry(root, yaml, 'status: shipped\nderived:\n  modified_files:\n    - a.js\n    - "tab\\there.js"\n');
   assert.equal(files(), "a.js;tab here.js");
   assert.equal(run(root, ["--query", "zephyr widget"]).rows[0].length, 9);
-  write(root, yaml, "status: shipped\nderived:\n  modified_files:\n    - 'sp  aced.txt'\n    - 7\n");
+  telemetry(root, yaml, "status: shipped\nderived:\n  modified_files:\n    - 'sp  aced.txt'\n    - 7\n");
   assert.equal(files(), "sp  aced.txt");
-  write(root, yaml, "status: shipped\nderived:\n  modified_files:\n    - nope1\n    - nope2\n");
+  telemetry(root, yaml, "status: shipped\nderived:\n  modified_files:\n    - nope1\n    - nope2\n");
   assert.equal(files(), "");
-  write(root, yaml, 'status: shipped\nderived:\n  modified_files: "x"\n');
+  telemetry(root, yaml, 'status: shipped\nderived:\n  modified_files: "x"\n');
   assert.equal(files(), "missing");
-  write(root, yaml, "");
+  telemetry(root, yaml, "");
   assert.equal(files(), "");
-  write(root, yaml, "- a\n- b\n");
+  telemetry(root, yaml, "- a\n- b\n");
   assert.equal(files(), "");
 });
 

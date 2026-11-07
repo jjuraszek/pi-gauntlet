@@ -1,6 +1,8 @@
-for: b3bde0bbd467acbf420d81abc70fd9c452779785d1005d92960ef76e20384132
+for: 0ccdc83bf439c49f8181e3323d8bcdc4bf913806da1a7b32e9c0c656c209a02e
 
 ## Change
+Correct Worktree First's artifact lifecycle: keep recorder state in Git common-dir metadata and publish sealed records to gauntlet/telemetry, not the product squash. Add the Worktree First slice to the target assembly and run only telemetry-branch-deliverable for this edit; preserve prior evidence without claiming target-wide coverage.
+
 
 Keep marked mixed-row provenance out of Design alongside marked stage-only provenance. Extend workflow-stage-ticket-row's Reporter note with the realistic bundled original and strengthen f7 to reject the make ci passes suite obligation while retaining importRows. Return to the cut question unchanged and report no repair after a confirmation cancel or an initial ticket-read abort. The fixed A-answer continuation cannot exercise that D-path abort; cover its owning clause in the deterministic contract test, not a claimed model continuation. Preserve prior result records and run only the selected ticket-row sample.
 
@@ -74,6 +76,8 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
 
 ## Expected to move
+- telemetry-branch-deliverable/store: fails -> holds - Recorder YAML stays outside the product checkout.
+- telemetry-branch-deliverable/delivery: fails -> holds - Finishing publishes the record to the orphan branch.
 - workflow-stage-drafted-row/f1: holds -> holds - Exclude stage-only drafted rows.
 - workflow-stage-drafted-row/f2: holds -> holds - Preserve one row per Design behavior, including the suite-proof sketch's outcome.
 - workflow-stage-drafted-row/f3: holds -> holds - Ask no scope-cut question and emit no none fallback.

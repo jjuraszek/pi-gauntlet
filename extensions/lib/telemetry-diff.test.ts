@@ -16,7 +16,7 @@ test("aggregateNumstat sums per bucket over the given file set; binary rows coun
   });
 });
 
-test("computeGitDiff: merge-base, name-only minus spec/plan/dir, numstat buckets, telemetry-free commit count", async () => {
+test("computeGitDiff: merge-base, name-only minus spec/plan/dir, numstat buckets, all product commits counted", async () => {
   const calls: string[][] = [];
   const git = (args: string[]) => {
     calls.push(args);
@@ -31,7 +31,7 @@ test("computeGitDiff: merge-base, name-only minus spec/plan/dir, numstat buckets
   assert.deepEqual(out.diff, { base: "abc123", commits: 9, buckets: { code: { files: 1, insertions: 100, deletions: 5 }, test: { files: 1, insertions: 40, deletions: 0 }, docs: { files: 1, insertions: 2, deletions: 1 } } });
   assert.equal(out.warning, undefined);
   assert.deepEqual(calls[0], ["merge-base", "HEAD", "main"]);
-  assert.deepEqual(calls.at(-1), ["rev-list", "--count", "--invert-grep", "--grep=^telemetry: ", "abc123..HEAD"]);
+  assert.deepEqual(calls.at(-1), ["rev-list", "--count", "abc123..HEAD"]);
 });
 
 test("computeGitDiff: custom plan dir excludes only configured plans", async () => {
