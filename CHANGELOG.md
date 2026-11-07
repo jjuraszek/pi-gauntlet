@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.4.0 - 2026-11-07
 
 - Telemetry publishes run and per-session skill records on the orphan `gauntlet/telemetry` branch, outside product commits. `telemetry.remote` replaces `telemetry.dir`; readers refresh the branch and cost digests allocate ticket and PR rounds, including unattributed shares. Finish and resume use branch records and full-checkout verification proofs. (#124)
 
