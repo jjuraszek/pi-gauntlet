@@ -4,7 +4,7 @@ import { basename, join } from "node:path";
 import { checkoutOfSync } from "./checkout.ts";
 import { gitRun } from "./vcs.ts";
 
-export const TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
+export const TELEMETRY_REF = "refs/telemetry/records";
 
 export function trackerRefs(text: string): string[] {
   const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
@@ -39,7 +39,7 @@ export function telemetryRepo(root: string): string {
   return `local/${basename(primary ?? top)}`;
 }
 
-const trackingRef = (remote: string) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+export const trackingRef = (remote: string) => `refs/telemetry/fetched/${remote === "origin" ? "origin" : "telemetry"}`;
 const fetchBranch = (root: string, remote: string) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
 
 export function syncTelemetryBranch(root: string, records: ReadonlyMap<string, string>, remote = "origin"): { ok: boolean; committed: boolean; pushed: boolean; reason?: string; warning?: string } {

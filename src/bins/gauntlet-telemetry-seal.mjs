@@ -7,7 +7,7 @@ import process from "node:process";
 import { DEFAULT_TELEMETRY_DIR, mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
 import { isSpecPath, recordPathFor, repoRelativeToolPath, toPosix } from "../../extensions/lib/telemetry-paths.ts";
 import { changedNames, computeShipDiff, gitRun, validateBase, vcsFor } from "../../extensions/lib/vcs.ts";
-import { syncTelemetryBranch, TELEMETRY_REF, telemetryDir, telemetryRepo, trackerRefs } from "../../extensions/lib/telemetry-branch.ts";
+import { syncTelemetryBranch, TELEMETRY_REF, telemetryDir, telemetryRepo, trackerRefs, trackingRef } from "../../extensions/lib/telemetry-branch.ts";
 import { derive, parseRecord, serializeRecord, validLegs } from "../../extensions/lib/telemetry-record.ts";
 
 const OPTIONS = new Set(["pr", "squash"]);
@@ -112,7 +112,7 @@ const sameLegs = (record, legs) => JSON.stringify(normalized(record.legs ?? []))
 
 function branchBlob(root, path, remote) {
   const local = gitRun(["rev-parse", "--verify", TELEMETRY_REF], root);
-  const tracking = `refs/remotes/${!remote || remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+  const tracking = trackingRef(remote ?? "origin");
   // A fetched descendant supersedes a stale head; divergent local commits remain pending writes.
   const fetched = local.ok && gitRun(["merge-base", "--is-ancestor", TELEMETRY_REF, tracking], root).ok;
   const ref = !local.ok || fetched ? tracking : TELEMETRY_REF;

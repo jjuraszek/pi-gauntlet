@@ -275,7 +275,7 @@ function changedNames(vcs, base) {
 import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join as join2 } from "node:path";
-var TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
+var TELEMETRY_REF = "refs/telemetry/records";
 function trackerRefs(text) {
   const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
   return [...new Set(tokens.map((ref) => ref.replace(/[.,;]+$/, "")).filter((ref) => !ref.startsWith("http") || /\/(?:issues\/\d+|pull\/\d+|issue\/[A-Z][A-Z0-9]*-\d+)(?:\/[^\s]*)?$/.test(ref)).map((ref) => ref.startsWith("gh-") ? `#${ref.slice(3)}` : ref))];
@@ -302,7 +302,7 @@ function telemetryRepo(root) {
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
   return `local/${basename(primary ?? top)}`;
 }
-var trackingRef = (remote) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+var trackingRef = (remote) => `refs/telemetry/fetched/${remote === "origin" ? "origin" : "telemetry"}`;
 var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
 function syncTelemetryBranch(root, records, remote = "origin") {
   const scratch = mkdtempSync(join2(tmpdir(), "gauntlet-telemetry-index-"));
@@ -598,7 +598,7 @@ var normalized = (legs) => [...new Set(legs.map((leg) => JSON.stringify([leg.rep
 var sameLegs = (record, legs) => JSON.stringify(normalized(record.legs ?? [])) === JSON.stringify(normalized(legs));
 function branchBlob(root, path, remote) {
   const local = gitRun(["rev-parse", "--verify", TELEMETRY_REF], root);
-  const tracking = `refs/remotes/${!remote || remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+  const tracking = trackingRef(remote ?? "origin");
   const fetched = local.ok && gitRun(["merge-base", "--is-ancestor", TELEMETRY_REF, tracking], root).ok;
   const ref = !local.ok || fetched ? tracking : TELEMETRY_REF;
   const blob = gitRun(["show", `${ref}:${path}`], root, void 0, { raw: true });

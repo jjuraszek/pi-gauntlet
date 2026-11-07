@@ -16,7 +16,7 @@ Object.assign(process.env, gitEnv);
 const { default: registerTelemetry, realDeps } = await import("./telemetry.ts");
 const { registerLegTelemetry } = await import("./lib/telemetry-leg.ts");
 
-const ref = "refs/heads/gauntlet/telemetry";
+const ref = "refs/telemetry/records";
 const originalDepth = process.env.PI_SUBAGENT_DEPTH;
 process.env.PI_SUBAGENT_DEPTH = "0";
 after(() => {
@@ -99,6 +99,7 @@ for (const [skill, outcome, activation, empty] of [
   test(`${skill} ${outcome}${empty ? " with no items" : ""} seals one session leg only after the final settlement and follow-on work`, async () => {
     const marker = outcome === "stopped" ? "stuck" : "done";
     const h = harness(skill);
+    const localHeads = h.git(h.root, "show-ref", "--heads");
     await h.emit("session_start");
     // Terminal-looking text outside a selected skill is not a leg.
     await h.say(`gauntlet: done ${outcome}\n#42: ${outcome}`);
@@ -147,5 +148,8 @@ for (const [skill, outcome, activation, empty] of [
     assert.deepEqual(readFileSync(join(h.root, ".git/index")), h.index);
     assert.equal(readFileSync(join(h.root, "file.txt"), "utf8"), "unstaged user change\n");
     assert.equal(h.git(h.root, "rev-parse", ref), tip);
+    assert.equal(h.git(h.root, "show-ref", "--heads"), localHeads, "settlement must not create a local branch");
+    assert.equal(h.git(h.root, "ls-remote", "--heads", "origin"), "", "settlement must not create a remote branch");
+    assert.equal(h.git(h.root, "ls-remote", "origin", "refs/telemetry/*"), `${tip}\t${ref}`);
   });
 }
