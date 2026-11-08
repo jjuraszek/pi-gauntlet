@@ -375,7 +375,7 @@ Example override (the `buckets` shown replace the defaults):
 }
 ```
 
-`enabled: false` turns every handler off (no file or guard). The retired `telemetry.dir` setting is ignored with one migration warning per session; the local metadata path is fixed. `buckets` is an ordered `{ name: [globs] }` object matched with `path.matchesGlob` against repo-relative paths; defaults are `test` = `**/test/**`, `**/tests/**`, `**/__tests__/**`, `**/*.test.*`, `**/*.spec.*`, `**/*_test.*`; `docs` = `**/*.md`; `config` = `**/*.json`, `**/*.yaml`, `**/*.yml`, `**/*.toml`, `**/*.lock`, `**/*-lock.*`; anything else `code`; first match wins. Read through the shared `gauntlet-settings` resolver (`resolveTelemetry`).
+`enabled: false` turns every handler off (no file or guard), except that a shipped-spec warning already held for a nested call still reaches its parent result after disabling telemetry. The retired `telemetry.dir` setting is ignored with one migration warning per session; the local metadata path is fixed. `buckets` is an ordered `{ name: [globs] }` object matched with `path.matchesGlob` against repo-relative paths; defaults are `test` = `**/test/**`, `**/tests/**`, `**/__tests__/**`, `**/*.test.*`, `**/*.spec.*`, `**/*_test.*`; `docs` = `**/*.md`; `config` = `**/*.json`, `**/*.yaml`, `**/*.yml`, `**/*.toml`, `**/*.lock`, `**/*-lock.*`; anything else `code`; first match wins. Read through the shared `gauntlet-settings` resolver (`resolveTelemetry`).
 
 #### Moving off the gauntlet/telemetry branch
 
