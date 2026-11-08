@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.4.3 - 2026-11-08
 
 - Telemetry publishes and reads `refs/telemetry/records` outside branch namespaces. The migration guide orders machine upgrades, repeatable record carry with `--migrate-branch`, verified remote retirement with `--retire-branch`, local cleanup and removal of the old CI exclusion. (#130)
 
