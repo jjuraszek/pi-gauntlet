@@ -1,5 +1,7 @@
 # Block scripted `subagent` dispatch in an entered flow and document codemode mode support
 
+> **Superseded by:** [doc/specs/2026-11-08-gh-135-direct-only-subagent-dispatch.md](./2026-11-08-gh-135-direct-only-subagent-dispatch.md) - Design's scripted-dispatch guard, nested-result exclusion, and codemode-mode guidance
+
 **Goal:** Refuse a `subagent` dispatch made from inside a codemode script while a gauntlet flow is entered, keep nested results out of replay-mirrored state, and state in `doc/configuration.md` which codemode modes a flow supports and how to read the literal dispatch examples in skills.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop
