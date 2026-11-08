@@ -172,15 +172,19 @@ for (const { name, existing, remoteSource } of [
   });
 }
 
-for (const { labels, destinationOnly = false } of [
+for (const { labels, destinationOnly = false, custom = false } of [
   { labels: ["remote legacy", "destination"] },
   { labels: ["local legacy", "destination"] },
   { labels: ["remote legacy", "local legacy"] },
   { labels: ["remote legacy", "local legacy", "destination"] },
+  { labels: ["remote legacy", "local legacy", "destination"], custom: true },
   { labels: ["remote legacy", "local legacy"], destinationOnly: true },
 ]) {
-  test(`migration rejects conflicting bytes in ${labels.join(" and ")}${destinationOnly ? " absent from an existing destination" : ""}`, () => {
-    const f = fixture();
+  test(`migration rejects conflicting bytes in ${labels.join(" and ")}${destinationOnly ? " absent from an existing destination" : ""}${custom ? " on configured remote" : ""}`, () => {
+    const f = fixture(custom);
+    const remote = custom ? f.remote : "origin";
+    const refLabels = labels.map(label => label === "remote legacy" ? `${remote}/${legacy}`
+      : label === "local legacy" ? legacy : `${remote}/${destination}`);
     for (const [index, label] of labels.entries()) {
       const oid = f.commit([[path("conflict"), `variant ${index}\n`]]);
       if (label === "local legacy") f.git("update-ref", legacy, oid);
@@ -197,7 +201,7 @@ for (const { labels, destinationOnly = false } of [
       assert.equal(conflicts.length, labels.length * (labels.length - 1) / 2, result.stderr);
       for (let a = 0; a < labels.length; a++) {
         for (let b = a + 1; b < labels.length; b++) {
-          assert.ok(conflicts.some(line => line.endsWith(`${labels[a]} and ${labels[b]}`) || line.endsWith(`${labels[b]} and ${labels[a]}`)), result.stderr);
+          assert.ok(conflicts.some(line => line.endsWith(`${refLabels[a]} and ${refLabels[b]}`) || line.endsWith(`${refLabels[b]} and ${refLabels[a]}`)), result.stderr);
         }
       }
       assert.equal(f.git("ls-remote", f.remote), refs);

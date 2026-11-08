@@ -121,13 +121,13 @@ function branchMigration(root, remote = "origin", retire) {
   };
   const oldRemote = discover(LEGACY_REF);
   if (retire && !oldRemote) return console.log("nothing to retire");
-  const sources = oldRemote ? [{ label: "remote legacy", oid: oldRemote }] : [];
+  const sources = oldRemote ? [{ label: `${remote}/${LEGACY_REF}`, oid: oldRemote }] : [];
   const local = gitRun(["show-ref", "--verify", "--quiet", LEGACY_REF], root);
-  if (local.ok) sources.push({ label: "local legacy", oid: required(["rev-parse", "--verify", LEGACY_REF]) });
+  if (local.ok) sources.push({ label: LEGACY_REF, oid: required(["rev-parse", "--verify", LEGACY_REF]) });
   else if (local.code !== 1) throw new Error(local.stderr || "git show-ref failed");
   if (!sources.length) return console.log("nothing to migrate");
   let destOid = discover(TELEMETRY_REF, trackingRef(remote));
-  let compared = compareRecords(root, sources, { label: "destination", oid: destOid ?? null });
+  let compared = compareRecords(root, sources, { label: `${remote}/${TELEMETRY_REF}`, oid: destOid ?? null });
   if (compared.conflicts.length) throw new Error(compared.conflicts.map(({ path, a, b }) => `conflict: ${path} differs between ${a} and ${b}`).join("\n"));
   if (retire && compared.missing.length) throw new Error(compared.missing.map(({ path }) => `not carried: ${path}`).join("\n"));
   const push = (args, config = []) => {
@@ -154,7 +154,7 @@ function branchMigration(root, remote = "origin", retire) {
   if (!destOid && oldRemote) {
     push([`--force-with-lease=${TELEMETRY_REF}:`, remote, `${oldRemote}:${TELEMETRY_REF}`]);
     destOid = oldRemote;
-    compared = compareRecords(root, sources, { label: "destination", oid: destOid });
+    compared = compareRecords(root, sources, { label: `${remote}/${TELEMETRY_REF}`, oid: destOid });
   }
   if (!compared.missing.length) return console.log("carried: 0 records");
   const scratch = mkdtempSync(join(tmpdir(), "gauntlet-ref-migration-"));
