@@ -1893,6 +1893,19 @@ for (const row of [
 
 }
 
+test("nested result: open-task nudge is skipped while the same direct result nudges", async () => {
+  const h = harness({ branch: verifyBranch([
+    subagentResult(["conformance-reviewer"]),
+    taskSnapshot([{ name: "repair", status: "in_progress" }]),
+  ]) });
+  await h.emit("session_start");
+  const result = okWave("repair");
+  const [nested] = await h.emitEvent("tool_result", { ...result, parentToolCallId: "script" });
+  assert.equal(nested, undefined);
+  const [direct] = await h.emitEvent("tool_result", result) as { content: { text: string }[] }[];
+  assert.match(direct.content[0].text, /0: repair \(in_progress\)/);
+});
+
 test("interrupted implementer waves still spend rounds and granted credits and nudge open tasks live and on replay", async () => {
   const cwd = tempCwd({ piGauntlet: { closureReview: { maxFixRounds: 1 } } });
   const interrupted = waveResult("paused", [{ agent: "implementer", exitCode: 0, interrupted: true }]);
