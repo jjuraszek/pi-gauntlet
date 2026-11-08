@@ -136,7 +136,11 @@ Template from `reference/documentation-impact.md`.
 
 ## Verification note
 
-Filled in during the verify phase with the live smoke outcome (Tests, end-to-end): the script value observed, the codemode result text with the advisory count, and the pi version used. Empty until then.
+Live smoke run once during verify on pi 1.5.0 against HEAD `17375b00`: scratch git repo with `src/`, `pi --no-extensions -e builtin:codemode -e <worktree>/extensions/phase-tracker.ts --tools bash,phase_tracker,codemode --mode json`, guard armed with `phase_tracker start brainstorm`, script `const r = await tools.bash({ command: "echo x > src/a.ts" }); return r.exit_code;`.
+
+- Script value: `0`; the nested bash `tool_result` (carrying `parentToolCallId`) kept `structuredContent` `{"output":"","truncated":false,"exit_code":0,"wall_time_seconds":0}` and carried no advisory text.
+- Codemode parent result text: the `Writing outside the spec directory during the brainstorm phase.` advisory once (count 1), then `Script completed ... Output: 0`.
+- Outcome: pass.
 
 ## Open questions
 
