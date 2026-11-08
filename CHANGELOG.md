@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.4.4 - 2026-11-08
 
 - Block scripted `subagent` dispatches in every entered gauntlet phase and exclude nested results from closure latch, fix-round counter, and cadence updates. Use direct tool calls instead; disable with `closureReview.enforce: false`. The configuration guide documents codemode `on` support with direct-only dispatch, why `only` is unsupported in an entered flow, and how to read literal skill dispatch examples (#132, #134).
 - Dev dependencies move to current: `@anthropic-ai/claude-code` 2.1.319 (the Claude Code loading smoke runs against it) and `typebox` ^1.4.6 (the pi 1.5.0 host serves 1.3.27 at runtime; both validate the extension schemas identically).
