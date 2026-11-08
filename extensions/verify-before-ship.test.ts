@@ -58,15 +58,20 @@ test("git commit is not watched: no warning even when unverified", async () => {
   assert.equal((await h.emitEvent("tool_result", bashResult("c1")))[0], undefined);
 });
 
-for (const toolName of ["bash", "write", "edit"]) {
-  test(`direct ${toolName} ship warning preserves the structured result`, async () => {
+for (const { name, toolName, resultFields } of [
+  { name: "bash", toolName: "bash", resultFields: { structuredContent: { output: "ok", exit_code: 0 } } },
+  { name: "write", toolName: "write", resultFields: { structuredContent: null } },
+  { name: "edit", toolName: "edit", resultFields: { structuredContent: { sentinel: "edit payload" } } },
+  { name: "edit without structuredContent", toolName: "edit", resultFields: {} },
+]) {
+  test(`direct ${name} ship warning preserves the result fields`, async () => {
     const h = harness();
     await editSource(h);
     await h.emitEvent("tool_call", bashCall("p1", "git push origin main"));
     // Synthetic write/edit results exercise the tool-independent pending drain.
     const event = {
       ...bashResult("p1", true), toolName,
-      ...(toolName === "edit" ? {} : { structuredContent: toolName === "bash" ? { output: "ok", exit_code: 0 } : null }),
+      ...resultFields,
       details: { sentinel: "ship details" }, usage: { sentinel: "ship usage" },
     };
     const [ret] = await h.emitEvent("tool_result", event);
@@ -76,7 +81,9 @@ for (const toolName of ["bash", "write", "edit"]) {
     assert.deepEqual(merged, { ...event, content: [merged.content[0], ...event.content] });
     assert.equal((await h.emitEvent("tool_result", event))[0], undefined);
   });
+}
 
+for (const toolName of ["bash", "write", "edit"]) {
   test(`nested ${toolName} ship warning leaves the child clean and reaches its parent once`, async () => {
     const h = harness();
     await editSource(h);

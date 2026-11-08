@@ -473,18 +473,24 @@ for (const toolName of ["bash", "write", "edit"]) {
   }
 }
 
-test("reset clears a deferred nested guard warning before the parent result", async () => {
-  const h = harness({ branch: [phaseResult("start", phases({ brainstorm: "in_progress" }))] });
-  await h.emit("session_start");
-  await h.emitEvent("tool_call", { ...writeCall("parent/0", "src/a.ts"), parentToolCallId: "parent" });
-  assert.equal((await h.emitEvent("tool_result", { ...writeResult("parent/0"), parentToolCallId: "parent" }))[0], undefined);
-  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
-  await tool.execute("reset", { action: "reset" }, undefined, undefined, h.ctx);
-  const parent = { ...writeResult("parent"), toolName: "codemode", structuredContent: { value: 0 } };
-  const [ret] = await h.emitEvent("tool_result", parent);
-  assert.equal(ret, undefined);
-  assert.deepEqual(mergeToolResult(parent, ret), parent);
-});
+for (const transition of ["reset", "session_start"]) {
+  test(`${transition} clears a deferred nested guard warning before the parent result`, async () => {
+    const h = harness({ branch: [phaseResult("start", phases({ brainstorm: "in_progress" }))] });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", { ...writeCall("parent/0", "src/a.ts"), parentToolCallId: "parent" });
+    assert.equal((await h.emitEvent("tool_result", { ...writeResult("parent/0"), parentToolCallId: "parent" }))[0], undefined);
+    if (transition === "reset") {
+      const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+      await tool.execute("reset", { action: "reset" }, undefined, undefined, h.ctx);
+    } else {
+      await h.emit("session_start");
+    }
+    const parent = { ...writeResult("parent"), toolName: "codemode", structuredContent: { value: 0 } };
+    const [ret] = await h.emitEvent("tool_result", parent);
+    assert.equal(ret, undefined);
+    assert.deepEqual(mergeToolResult(parent, ret), parent);
+  });
+}
 
 test("brainstorm write confinement: a docs/specs write under the default dirs does not warn", async () => {
   const priorDepth = process.env.PI_SUBAGENT_DEPTH;
