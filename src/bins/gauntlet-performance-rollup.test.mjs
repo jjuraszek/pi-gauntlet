@@ -188,7 +188,7 @@ test("seal stamps ticket refs from spec, branch and sealed commit bodies for rol
   mkdirSync(join(root, ".git/gauntlet/telemetry/doc/specs"), { recursive: true });
   writeFileSync(pending, stringify({ schema: 1, spec, branch: "feature/ENG-2", run_id: "sealed", status: "in_progress", created_at: "2026-11-06T00:00:00Z", sessions: ["session"], accumulators: { session: { phases: { implement: { tokens: { input: 1, output: 1, cache_read: 0, cache_write: 0, cost: 6 } } } } } }));
   invoke(new URL("./gauntlet-telemetry-seal.mjs", import.meta.url).pathname, ["--worktree", root, "--option", "pr", "--base", "main", "--spec", spec], env);
-  const record = parse(git("show", `gauntlet/telemetry:team/product/brainstorming/${spec.replace(/md$/, "yaml")}`));
+  const record = parse(git("show", `refs/telemetry/records:team/product/brainstorming/${spec.replace(/md$/, "yaml")}`));
   assert.equal(record.repo, repo);
   assert.deepEqual(record.tickets, ["#1", "ENG-2", "#3", "team/product#4", "https://example.test/team/product/issues/5", "https://linear.app/team/issue/ENG-6/title"]);
   const digest = JSON.parse(invoke(cli, ["--dir", corpus([record]), "--json"]));
