@@ -28,7 +28,7 @@ import {
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
-import { appendToolWarning } from "./lib/tool-result-warning.ts";
+import { createPendingWarnings } from "./lib/tool-result-warnings.ts";
 import { checkoutOf, gitSync } from "./lib/checkout.ts";
 import { checkPlan, renderManifest, legOwnership, sha256, type FsPort, type PlanCheckFinding } from "./lib/plan-check.ts";
 import {
@@ -498,11 +498,7 @@ export default function (pi: ExtensionAPI) {
   const firedGuards = new Map<string, boolean>();
   // Warnings stashed at tool_call, prepended at tool_result (verify-before-ship pattern).
   // Relies on tool_result firing for every tool_call; reconstructState clears any stragglers.
-  const pendingGuardWarnings = new Map<string, string>();
-  const addGuardWarning = (id: string, text: string) => {
-    const prior = pendingGuardWarnings.get(id);
-    pendingGuardWarnings.set(id, prior ? prior + "\n\n" + text : text);
-  };
+  const pendingWarnings = createPendingWarnings();
 
   const activeGuardPhase = (): Phase | undefined =>
     GUARD_PHASES.find((p) => phases[p].status === "in_progress");
@@ -555,7 +551,7 @@ export default function (pi: ExtensionAPI) {
     planCheckStamp = undefined;
     attemptedRecoveryEdges.clear();
     firedGuards.clear();
-    pendingGuardWarnings.clear();
+    pendingWarnings.clear();
     cadenceSeq = 0;
     cadenceLastSeen.implementer = 0;
     cadenceLastSeen["wave-reviewer"] = 0;
@@ -673,7 +669,7 @@ export default function (pi: ExtensionAPI) {
     const g = () => {
       if (!gauntletCache) {
         gauntletCache = loadGauntletSettings(ctx.cwd);
-        if (gauntletCache.errors.length > 0) addGuardWarning(event.toolCallId, settingsErrorWarning(gauntletCache.errors));
+        if (gauntletCache.errors.length > 0) pendingWarnings.add(event.toolCallId, settingsErrorWarning(gauntletCache.errors));
       }
       return gauntletCache.gauntlet;
     };
@@ -722,7 +718,7 @@ export default function (pi: ExtensionAPI) {
           }
           const mismatched = [...new Set((models as string[]).filter((m) => m !== configured))];
           if (mismatched.length > 0) {
-            addGuardWarning(event.toolCallId, closureModelMismatchWarning(configured, mismatched));
+            pendingWarnings.add(event.toolCallId, closureModelMismatchWarning(configured, mismatched));
           }
         }
       }
@@ -754,13 +750,13 @@ export default function (pi: ExtensionAPI) {
         if (firedGuards.get("brainstorm-write")) return undefined;
         if (typeof p !== "string" || pathInSpecDirs(p, specDirs())) return undefined;
         firedGuards.set("brainstorm-write", true);
-        addGuardWarning(event.toolCallId, brainstormWriteWarning(specDirs()));
+        pendingWarnings.add(event.toolCallId, brainstormWriteWarning(specDirs()));
         return undefined;
       }
       if (firedGuards.get("implement-write")) return undefined;
       if (typeof p !== "string" || pathInSpecDirs(p, implementExemptDirs(specDirs()))) return undefined;
       firedGuards.set("implement-write", true);
-      addGuardWarning(event.toolCallId, implementWriteWarning());
+      pendingWarnings.add(event.toolCallId, implementWriteWarning());
       return undefined;
     }
 
@@ -849,7 +845,7 @@ export default function (pi: ExtensionAPI) {
       }
     }
 
-    if (warnings.length > 0) addGuardWarning(event.toolCallId, warnings.join("\n\n"));
+    if (warnings.length > 0) pendingWarnings.add(event.toolCallId, warnings.join("\n\n"));
     return undefined;
   });
 
@@ -869,13 +865,15 @@ export default function (pi: ExtensionAPI) {
           const loaded = loadGauntletSettings(ctx.cwd);
           if (loaded.errors.length === 0 && resolveFlowGuards(loaded.gauntlet).enforce) {
             const open = unfinishedTaskLines(latestPlanSnapshot(ctx));
-            if (open.length) addGuardWarning(event.toolCallId, openTaskNudge(open));
+            if (open.length) pendingWarnings.add(event.toolCallId, openTaskNudge(open));
           }
         }
       }
     }
 
-    return appendToolWarning(event, pendingGuardWarnings);
+    const text = pendingWarnings.take(event.toolCallId);
+    if (text) return pendingWarnings.deliver(event, text);
+    return undefined;
   });
 
   pi.on("tool_execution_end", async (event, ctx) => {
@@ -1336,6 +1334,7 @@ export default function (pi: ExtensionAPI) {
           fixRoundCredits = 0;
           gauntletEntered = nextGauntletEntered(gauntletEntered, "reset", phases.brainstorm.status);
           firedGuards.clear();
+          pendingWarnings.clear();
           updateWidget(ctx);
           return {
             content: [{ type: "text", text: "Phase tracker reset. All phases pending." }],

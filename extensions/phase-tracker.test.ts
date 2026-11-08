@@ -407,7 +407,7 @@ for (const toolName of ["bash", "write", "edit"]) {
       const event = {
         ...writeResult(toolCallId), toolName, ...nesting, isError: true,
         details: { sentinel: "guard details" }, usage: { sentinel: "guard usage" },
-        ...(toolName === "edit" ? {} : { structuredContent: toolName === "bash" ? { output: "ok", exit_code: 0 } : null }),
+        structuredContent: toolName === "bash" ? { output: "ok", exit_code: 0 } : toolName === "write" ? null : { edited: true },
       };
       const original = structuredClone(event);
       const [ret] = await h.emitEvent("tool_result", event);
@@ -435,39 +435,56 @@ for (const toolName of ["bash", "write", "edit"]) {
   }
 }
 
-for (const nested of [false, true]) {
-  test(`implement-write and cadence warnings preserve results (${nested ? "nested" : "direct"})`, async () => {
-    const h = harness({ branch: implementBranch([subagentResult(["implementer"])]) });
-    await h.emit("session_start");
-    const nesting = nested ? { parentToolCallId: "parent" } : {};
-    for (const [index, call] of [writeCall("write", "src/a.ts"), commitCall("commit")].entries()) {
-      const toolCallId = nested ? `parent/${index}` : call.toolCallId;
-      await h.emitEvent("tool_call", { ...call, toolCallId, ...nesting });
-      const event = { ...writeResult(toolCallId), toolName: call.toolName, ...nesting, structuredContent: { exit_code: 0 } };
-      const [ret] = await h.emitEvent("tool_result", event);
-      if (nested) {
-        assert.equal(ret, undefined);
-        assert.deepEqual(mergeToolResult(event, ret), event);
-      } else {
-        const merged = mergeToolResult(event, ret);
-        assert.match(merged.content[0].text, index === 0 ? /Parent write/ : /no wave-reviewer observed/);
-        assert.deepEqual(merged, { ...event, content: [merged.content[0], ...event.content] });
+for (const toolName of ["bash", "write", "edit"]) {
+  for (const nested of [false, true]) {
+    test(`implement-write and cadence warnings preserve ${toolName} results (${nested ? "nested" : "direct"})`, async () => {
+      const h = harness({ branch: implementBranch([subagentResult(["implementer"])]) });
+      await h.emit("session_start");
+      const nesting = nested ? { parentToolCallId: "parent" } : {};
+      const write = { ...writeCall("write", "src/a.ts"), toolName: toolName === "edit" ? "edit" : "write" };
+      for (const [index, call] of [write, commitCall("commit")].entries()) {
+        const toolCallId = nested ? `parent/${index}` : call.toolCallId;
+        await h.emitEvent("tool_call", { ...call, toolCallId, ...nesting });
+        // Deferred cadence delivery is keyed by call ID, not the result's tool name.
+        const event = { ...writeResult(toolCallId), toolName: index === 0 ? write.toolName : toolName, ...nesting, structuredContent: { exit_code: 0 } };
+        const [ret] = await h.emitEvent("tool_result", event);
+        if (nested) {
+          assert.equal(ret, undefined);
+          assert.deepEqual(mergeToolResult(event, ret), event);
+        } else {
+          const merged = mergeToolResult(event, ret);
+          assert.match(merged.content[0].text, index === 0 ? /Parent write/ : /no wave-reviewer observed/);
+          assert.deepEqual(merged, { ...event, content: [merged.content[0], ...event.content] });
+        }
       }
-    }
-    if (nested) {
-      const parent = { ...commitResult("parent"), toolName: "codemode", structuredContent: { value: "done" } };
-      const [ret] = await h.emitEvent("tool_result", parent);
-      const merged = mergeToolResult(parent, ret);
-      assert.match(merged.content[0].text, /Parent write[\s\S]*no wave-reviewer observed/);
-      assert.equal(merged.content[0].text.split("Parent write").length - 1, 1);
-      assert.equal(merged.content[0].text.split("no wave-reviewer observed").length - 1, 1);
-      assert.deepEqual(merged, { ...parent, content: [merged.content[0], ...parent.content] });
-      assert.equal((await h.emitEvent("tool_result", parent))[0], undefined);
-    }
-    await h.emitEvent("tool_call", writeCall("later", "src/b.ts"));
-    assert.equal((await h.emitEvent("tool_result", writeResult("later")))[0], undefined);
-  });
+      if (nested) {
+        const parent = { ...commitResult("parent"), toolName: "codemode", structuredContent: { value: "done" } };
+        const [ret] = await h.emitEvent("tool_result", parent);
+        const merged = mergeToolResult(parent, ret);
+        assert.match(merged.content[0].text, /Parent write[\s\S]*no wave-reviewer observed/);
+        assert.equal(merged.content[0].text.split("Parent write").length - 1, 1);
+        assert.equal(merged.content[0].text.split("no wave-reviewer observed").length - 1, 1);
+        assert.deepEqual(merged, { ...parent, content: [merged.content[0], ...parent.content] });
+        assert.equal((await h.emitEvent("tool_result", parent))[0], undefined);
+      }
+      await h.emitEvent("tool_call", writeCall("later", "src/b.ts"));
+      assert.equal((await h.emitEvent("tool_result", writeResult("later")))[0], undefined);
+    });
+  }
 }
+
+test("reset clears a deferred nested guard warning before the parent result", async () => {
+  const h = harness({ branch: [phaseResult("start", phases({ brainstorm: "in_progress" }))] });
+  await h.emit("session_start");
+  await h.emitEvent("tool_call", { ...writeCall("parent/0", "src/a.ts"), parentToolCallId: "parent" });
+  assert.equal((await h.emitEvent("tool_result", { ...writeResult("parent/0"), parentToolCallId: "parent" }))[0], undefined);
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  await tool.execute("reset", { action: "reset" }, undefined, undefined, h.ctx);
+  const parent = { ...writeResult("parent"), toolName: "codemode", structuredContent: { value: 0 } };
+  const [ret] = await h.emitEvent("tool_result", parent);
+  assert.equal(ret, undefined);
+  assert.deepEqual(mergeToolResult(parent, ret), parent);
+});
 
 test("brainstorm write confinement: a docs/specs write under the default dirs does not warn", async () => {
   const priorDepth = process.env.PI_SUBAGENT_DEPTH;

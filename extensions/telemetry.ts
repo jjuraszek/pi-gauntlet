@@ -17,7 +17,7 @@
   import type { ExtensionAPI, ExtensionContext, ToolResultEvent } from "@earendil-works/pi-coding-agent";
   import { DEFAULT_TELEMETRY_DIR, DEFAULT_TEST_COMMANDS, planDirsFor, resolveFlowGuards, resolveTelemetry, settingsErrorWarning, type TelemetryResolved } from "./lib/gauntlet-settings.ts";
   import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
-  import { appendToolWarning } from "./lib/tool-result-warning.ts";
+  import { createPendingWarnings } from "./lib/tool-result-warnings.ts";
   import { checkoutOf } from "./lib/checkout.ts";
   import { CONTEXT_DRAFT_MARKER, nextGauntletEntered } from "./lib/phase-tracker-helpers.ts";
   import { sha256 } from "./lib/plan-check.ts";
@@ -508,7 +508,6 @@
       lastPlanTasks = undefined;
       amendmentOpen = false;
       pendingTest.clear();
-      pendingSpecWarnings.clear();
       if (sessionId !== ctx.sessionManager.getSessionId()) {
         guardCache.clear();
         guardWarned = false;
@@ -546,10 +545,11 @@
     });
 
     pi.on("tool_result", async (event, ctx) => {
+      const text = pendingWarnings.take(event.toolCallId);
+      if (text) return pendingWarnings.deliver(event, text);
       lastCtx = ctx;
       const snap = enabledSettings(ctx);
       if (!snap) return undefined;
-      if (pendingSpecWarnings.has(event.toolCallId)) return appendToolWarning(event, pendingSpecWarnings);
       if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
       if (event.toolName === "phase_tracker" && !event.isError) {
         await applyPhaseDetails(event.details as never, snap);
@@ -664,7 +664,7 @@
     let amendmentOpen = false;
     let lastPlanTasks: { name?: string; status: string }[] | undefined;
     const pendingTest = new Map<string, string>(); // toolCallId -> matched statement
-    const pendingSpecWarnings = new Map<string, string>();
+    const pendingWarnings = createPendingWarnings();
 
     const phaseAcc = (k: PhaseKey = phaseNow()): PhaseAcc => (live().phases[k] ??= {});
 
@@ -881,8 +881,7 @@
       refreshLinks();
       if (record.shipped_at) {
         const warning = `⚠️ spec shipped at ${record.shipped_at}; write a follow-up spec that supersedes it`;
-        pendingSpecWarnings.set(event.toolCallId, warning);
-        return appendToolWarning(event, pendingSpecWarnings);
+        return pendingWarnings.deliver(event, warning);
       }
       if (record.approved_at && !amendmentOpen) {
         acc.amendments += 1;
