@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Dev dependencies move to current: `@anthropic-ai/claude-code` 2.1.319 (the Claude Code loading smoke runs against it) and `typebox` ^1.4.6 (the pi 1.5.0 host serves 1.3.27 at runtime; both validate the extension schemas identically).
+
 ## v8.4.3 - 2026-11-08
 
 - Telemetry publishes and reads `refs/telemetry/records` outside branch namespaces. The migration guide orders machine upgrades, repeatable record carry with `--migrate-branch`, verified remote retirement with `--retire-branch`, local cleanup and removal of the old CI exclusion. (#130)
