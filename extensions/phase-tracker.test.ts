@@ -1551,6 +1551,96 @@ const implementerWave = (n = 1, agent = "implementer") => ({
 const firstCallResult = async (h: ReturnType<typeof harness>, id: string, input: unknown) =>
   (await h.emitEvent("tool_call", subagentCall(id, input)))[0] as { block?: boolean; reason?: string } | undefined;
 
+const nestedCall = (id: string, input: unknown) => ({ ...subagentCall(id, input), parentToolCallId: "script" });
+
+for (const phase of PHASES) {
+  test(`nested dispatch: blocked in ${phase}; reason names direct call, only-mode, and the switches`, async () => {
+    const h = harness({ hasUI: true, branch: enteredBranch(phases({ [phase]: "in_progress" })) });
+    await h.emit("session_start");
+    const widget = h.widgets.at(-1);
+    for (const [i, input] of [loneImplementer(), implementerWave(), { agent: "conformance-reviewer" }].entries()) {
+      const [blocked] = await h.emitEvent("tool_call", nestedCall(`script/${i}`, input)) as { block: boolean; reason: string }[];
+      assert.equal(blocked?.block, true);
+      assert.match(blocked.reason, /call subagent as a direct tool call/i);
+      assert.match(blocked.reason, /codemode only mode is unsupported while a gauntlet flow is entered/);
+      assert.match(blocked.reason, /codemode\.mode: on/);
+      assert.match(blocked.reason, /piGauntlet\.closureReview\.enforce: false/);
+      assert.equal(h.widgets.at(-1), widget);
+    }
+    assert.equal(await firstCallResult(h, "direct", { agent: "conformance-reviewer" }), undefined);
+    assert.ok(h.widgets.at(-1)!.includes(`${phase}(conformance)`));
+    assert.doesNotMatch(h.widgets.at(-1)!, /#2/);
+  });
+}
+
+for (const malformed of [false, true]) {
+  test(`nested dispatch: latch, counter, cadence, and liveDispatch unchanged after a block; malformed=${malformed}`, async () => {
+    const cwd = tempCwd({ piGauntlet: { closureReview: { maxFixRounds: 5 } } });
+    const h = harness({ hasUI: true, cwd, branch: verifyBranch([
+      subagentResult(["conformance-reviewer"]),
+      subagentResult(["wave-reviewer"]),
+      ...Array.from({ length: 5 }, () => subagentResult(["implementer"])),
+    ]) });
+    await h.emit("session_start");
+    const before = await firstCallResult(h, "cap-before", implementerWave());
+    assert.equal(before?.block, true);
+    assert.match(before?.reason ?? "", /5 fix round\(s\) used against a cap of 5/);
+    if (malformed) writeFileSync(join(cwd, ".pi/settings.json"), "{");
+    const widget = h.widgets.at(-1);
+    const [blocked] = await h.emitEvent("tool_call", nestedCall("script/1", implementerWave())) as { block: boolean; reason: string }[];
+    assert.equal(blocked?.block, true);
+    assert.match(blocked.reason, /call subagent as a direct tool call/i);
+    assert.equal(h.widgets.at(-1), widget);
+    assert.deepEqual(await firstCallResult(h, "cap-after", implementerWave()), before);
+    const tool = h.tools.find(t => t.name === "phase_tracker")!;
+    const status = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
+    assert.equal(status.details.phases.verify.substep, undefined);
+    assert.equal((await completePhase(h, "verify")).details.error, undefined);
+
+    // Re-enter implement without replay so the commit guard observes the live cadence.
+    writeFileSync(join(cwd, ".pi/settings.json"), JSON.stringify({ piGauntlet: { flowGuards: { enforce: false } } }));
+    const started = await tool.execute("restart", { action: "start", phase: "implement", force: true }, undefined, undefined, h.ctx) as any;
+    assert.equal(started.details.error, undefined);
+    writeFileSync(join(cwd, ".pi/settings.json"), "{}");
+    await h.emitEvent("tool_call", commitCall("commit"));
+    const [warning] = await h.emitEvent("tool_result", commitResult("commit")) as { content: { text: string }[] }[];
+    assert.match(warning.content[0].text, /no wave-reviewer observed since the last implementer/);
+    assert.equal(await firstCallResult(h, "direct", { agent: "wave-reviewer" }), undefined);
+    assert.match(h.widgets.at(-1)!, /implement\(wave-review\)/);
+    assert.deepEqual(await h.emitEvent("tool_result", waveResult("direct", [{ agent: "wave-reviewer", exitCode: 0 }])), [undefined]);
+    assert.doesNotMatch(h.widgets.at(-1)!, /implement\(/);
+  });
+}
+
+for (const entered of [false, true]) {
+  test(`nested dispatch: child follows replayed flow entry=${entered}`, async () => {
+    const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+    let h: ReturnType<typeof harness>;
+    try {
+      process.env.PI_SUBAGENT_DEPTH = "1";
+      h = harness({ branch: entered ? verifyBranch() : [] });
+    } finally {
+      if (priorDepth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+      else process.env.PI_SUBAGENT_DEPTH = priorDepth;
+    }
+    await h.emit("session_fork");
+    const [result] = await h.emitEvent("tool_call", nestedCall("script/1", loneImplementer())) as ({ block?: boolean } | undefined)[];
+    assert.equal(result?.block, entered ? true : undefined);
+  });
+}
+
+test("nested dispatch: allowed without flow entry", async () => {
+  const h = harness({ cwd: tempCwd() });
+  await h.emit("session_start");
+  assert.deepEqual(await h.emitEvent("tool_call", nestedCall("script/1", implementerWave())), [undefined]);
+});
+
+test("nested dispatch: dormant when closureReview.enforce is false", async () => {
+  const h = harness({ cwd: tempCwd({ piGauntlet: { closureReview: { enforce: false } } }), branch: verifyBranch() });
+  await h.emit("session_start");
+  assert.deepEqual(await h.emitEvent("tool_call", nestedCall("script/1", loneImplementer())), [undefined]);
+});
+
 for (const agent of ["implementer", "loop-implementer"]) {
 test(`shape guard: lone ${agent} blocked in verify after the audit, with and without closureReview.model, async or not`, async () => {
   for (const settings of [
