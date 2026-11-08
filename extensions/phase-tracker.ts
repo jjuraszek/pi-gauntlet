@@ -854,20 +854,22 @@ export default function (pi: ExtensionAPI) {
 
   pi.on("tool_result", async (event, ctx) => {
     if (finishDispatch(event.toolName, event.toolCallId, event.isError, event.details)) updateWidget(ctx);
-    if (event.toolName === "subagent" && !event.parentToolCallId) {
-      observeFixWave(event.details, event.isError, ctx);
-      if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
-      observeCadence(event.details);
-      if (
-        !isSubagentChild &&
-        gauntletEntered &&
-        phases.verify.status === "in_progress" &&
-        isImplementerWave(event.details, event.isError)
-      ) {
-        const loaded = loadGauntletSettings(ctx.cwd);
-        if (loaded.errors.length === 0 && resolveFlowGuards(loaded.gauntlet).enforce) {
-          const open = unfinishedTaskLines(latestPlanSnapshot(ctx));
-          if (open.length) addGuardWarning(event.toolCallId, openTaskNudge(open));
+    if (event.toolName === "subagent") {
+      if (!event.parentToolCallId) {
+        observeFixWave(event.details, event.isError, ctx);
+        if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
+        observeCadence(event.details);
+        if (
+          !isSubagentChild &&
+          gauntletEntered &&
+          phases.verify.status === "in_progress" &&
+          isImplementerWave(event.details, event.isError)
+        ) {
+          const loaded = loadGauntletSettings(ctx.cwd);
+          if (loaded.errors.length === 0 && resolveFlowGuards(loaded.gauntlet).enforce) {
+            const open = unfinishedTaskLines(latestPlanSnapshot(ctx));
+            if (open.length) addGuardWarning(event.toolCallId, openTaskNudge(open));
+          }
         }
       }
       const warning = pendingGuardWarnings.get(event.toolCallId);
