@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.4.5 - 2026-11-08
 
 - Guard, ship-verification, and post-ship spec warnings preserve tool `structuredContent`; nested-call warnings reach the parent codemode result once without changing the child's value or re-arming warn-once guards. (#133)
 
