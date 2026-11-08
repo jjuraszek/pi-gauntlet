@@ -4,7 +4,7 @@ import { basename, join } from "node:path";
 import { checkoutOfSync } from "./checkout.ts";
 import { gitRun } from "./vcs.ts";
 
-export const TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
+export const TELEMETRY_REF = "refs/telemetry/records";
 
 export function trackerRefs(text: string): string[] {
   const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
@@ -39,8 +39,44 @@ export function telemetryRepo(root: string): string {
   return `local/${basename(primary ?? top)}`;
 }
 
-const trackingRef = (remote: string) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+export const trackingRef = (remote: string) => `refs/telemetry/fetched/${remote === "origin" ? "origin" : "telemetry"}`;
 const fetchBranch = (root: string, remote: string) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
+
+type RecordSnapshot = { label: string; oid: string | null };
+
+export function compareRecords(root: string, sources: RecordSnapshot[], destination: RecordSnapshot): {
+  conflicts: { path: string; a: string; b: string }[];
+  missing: { path: string; source: RecordSnapshot }[];
+} {
+  const snapshots = [...sources, destination].map(source => {
+    const blobs = new Map<string, string>();
+    if (source.oid) {
+      const tree = gitRun(["ls-tree", "-r", "-z", source.oid], root, undefined, { raw: true });
+      if (!tree.ok) throw new Error(tree.stderr);
+      for (const entry of tree.stdout.split("\0").filter(Boolean)) {
+        const tab = entry.indexOf("\t");
+        const [, type, oid] = entry.slice(0, tab).split(" ");
+        if (type === "blob") blobs.set(entry.slice(tab + 1), oid);
+      }
+    }
+    return { source, blobs };
+  });
+  const conflicts: { path: string; a: string; b: string }[] = [];
+  const missing = new Map<string, RecordSnapshot>();
+  const dest = snapshots.at(-1)!;
+  for (let i = 0; i < sources.length; i++) {
+    const { source, blobs } = snapshots[i];
+    for (const [path, oid] of blobs) {
+      if (!dest.blobs.has(path) && !missing.has(path)) missing.set(path, source);
+      for (const other of snapshots.slice(i + 1)) {
+        if (other.blobs.has(path) && other.blobs.get(path) !== oid) {
+          conflicts.push({ path, a: source.label, b: other.source.label });
+        }
+      }
+    }
+  }
+  return { conflicts, missing: [...missing].map(([path, source]) => ({ path, source })) };
+}
 
 export function syncTelemetryBranch(root: string, records: ReadonlyMap<string, string>, remote = "origin"): { ok: boolean; committed: boolean; pushed: boolean; reason?: string; warning?: string } {
   const scratch = mkdtempSync(join(tmpdir(), "gauntlet-telemetry-index-"));

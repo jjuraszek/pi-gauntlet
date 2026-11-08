@@ -7,7 +7,7 @@ import { dirname, join, relative } from "node:path";
 import { parseRecord } from "../../extensions/lib/telemetry-record.ts";
 
 const sourceRoot = new URL("../../", import.meta.url).pathname;
-const ref = "refs/heads/gauntlet/telemetry";
+const ref = "refs/telemetry/records";
 const prefix = "team/product/brainstorming/";
 const legacyDir = ".pi/gauntlet/telemetry";
 const record = (id, repo) => `schema: 1\nspec: doc/specs/${id}.md\nrun_id: ${id}\nstatus: shipped\ncreated_at: 2026-01-01\nshipped_at: 2026-01-02\n${repo ? `repo: ${repo}\n` : ""}versions: {pi-gauntlet: 1.0.0}\nderived:\n  modified_files: [code.txt, gone.txt]\n  council:\n    members: {model: {dispatches: 1}}\n`;
@@ -49,8 +49,12 @@ for (const custom of [false, true]) {
     f.write(`${dir}/ignored.txt`, record("ignored"));
     f.write("code.txt", "staged change\n"); f.git("add", "code.txt");
     const before = [f.git("rev-parse", "HEAD"), f.git("write-tree"), f.git("status", "--porcelain")];
+    const localHeads = f.git("show-ref", "--heads");
     assert.match(f.cli("telemetry-seal", args).stdout, /migrated 2 records/);
     const tip = f.git("rev-parse", ref);
+    assert.equal(f.git("show-ref", "--heads"), localHeads, "migration must not create a local branch");
+    assert.equal(f.git("ls-remote", "--heads", "origin"), "", "migration must not create a remote branch");
+    assert.equal(f.git("ls-remote", "origin", "refs/telemetry/*"), `${tip}\t${ref}`);
     assert.equal(f.git("--git-dir", f.remote, "rev-parse", ref), tip);
     assert.deepEqual(f.git("ls-tree", "-r", "--name-only", ref).split("\n"), [...originals.keys()].sort().map(p => prefix + p));
     for (const [path, bytes] of originals) {

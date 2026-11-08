@@ -17,6 +17,15 @@ test("malformed leg arguments name the value", () => {
     assert.ok(result.stderr.includes(value));
   }
 });
+test("branch flags reject other modes and seal options", () => {
+  for (const mode of ["--migrate-branch", "--retire-branch"]) {
+    for (const other of [[mode === "--migrate-branch" ? "--retire-branch" : "--migrate-branch"], ["--migrate"], ["--option", "pr"], ["--base", "HEAD"], ["--spec", "doc/specs/x.md"], ["--leg", "org/repo=abcdef0"]]) {
+      const result = invoke([mode, ...other]);
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stderr, /usage:/);
+    }
+  }
+});
 test("source seal stores repeated legs, splits first equals, and checks retry sets without companion writes", (t) => {
   const root = mkdtempSync(join(tmpdir(), "seal-legs-"));
   const companion = mkdtempSync(join(tmpdir(), "seal-companion-"));
@@ -38,7 +47,7 @@ test("source seal stores repeated legs, splits first equals, and checks retry se
   const base = ["--worktree", root, "--option", "pr", "--base", "main", "--spec", "x.md"];
   const a = `${companion}=abc`, b = "second=https://example.test/pull/1?q=yes";
   const run = (legs) => spawnSync(process.execPath, [cli.pathname, ...base, ...legs.flatMap((leg) => ["--leg", leg])], { encoding: "utf8", env });
-  const record = () => parseRecord(git("show", "gauntlet/telemetry:team/product/brainstorming/x.yaml"));
+  const record = () => parseRecord(git("show", "refs/telemetry/records:team/product/brainstorming/x.yaml"));
   let result = run([a, b]); assert.equal(result.status, 0, result.stderr);
   assert.equal(existsSync(file), false);
   assert.deepEqual(record().legs, [{ repo: companion, sha: "abc" }, { repo: "second", pr: "https://example.test/pull/1?q=yes" }]);

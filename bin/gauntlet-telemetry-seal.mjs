@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 // src/bins/gauntlet-telemetry-seal.mjs
-import { existsSync as existsSync3, readdirSync, readFileSync as readFileSync2, realpathSync, unlinkSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
+import { existsSync as existsSync3, mkdtempSync as mkdtempSync2, readdirSync, readFileSync as readFileSync2, realpathSync, rmSync as rmSync2, unlinkSync, writeFileSync } from "node:fs";
+import { homedir, tmpdir as tmpdir2 } from "node:os";
+import { spawnSync as spawnSync2 } from "node:child_process";
 import { isAbsolute as isAbsolute2, join as join3, relative as relative2, resolve as resolve2 } from "node:path";
 import process2 from "node:process";
 
@@ -41,7 +42,7 @@ function resolveTelemetry(g) {
   const warnings = [];
   const enabled = t?.enabled !== false;
   if (t && Object.hasOwn(t, "dir")) {
-    warnings.push("piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them");
+    warnings.push("piGauntlet.telemetry.dir is retired; records live on the refs/telemetry/records ref - set piGauntlet.telemetry.remote to redirect them");
   }
   let buckets = DEFAULT_TELEMETRY_BUCKETS;
   if (t?.buckets !== void 0) {
@@ -275,7 +276,7 @@ function changedNames(vcs, base) {
 import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join as join2 } from "node:path";
-var TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
+var TELEMETRY_REF = "refs/telemetry/records";
 function trackerRefs(text) {
   const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
   return [...new Set(tokens.map((ref) => ref.replace(/[.,;]+$/, "")).filter((ref) => !ref.startsWith("http") || /\/(?:issues\/\d+|pull\/\d+|issue\/[A-Z][A-Z0-9]*-\d+)(?:\/[^\s]*)?$/.test(ref)).map((ref) => ref.startsWith("gh-") ? `#${ref.slice(3)}` : ref))];
@@ -302,8 +303,38 @@ function telemetryRepo(root) {
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
   return `local/${basename(primary ?? top)}`;
 }
-var trackingRef = (remote) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+var trackingRef = (remote) => `refs/telemetry/fetched/${remote === "origin" ? "origin" : "telemetry"}`;
 var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
+function compareRecords(root, sources, destination) {
+  const snapshots = [...sources, destination].map((source) => {
+    const blobs = /* @__PURE__ */ new Map();
+    if (source.oid) {
+      const tree = gitRun(["ls-tree", "-r", "-z", source.oid], root, void 0, { raw: true });
+      if (!tree.ok) throw new Error(tree.stderr);
+      for (const entry of tree.stdout.split("\0").filter(Boolean)) {
+        const tab = entry.indexOf("	");
+        const [, type, oid] = entry.slice(0, tab).split(" ");
+        if (type === "blob") blobs.set(entry.slice(tab + 1), oid);
+      }
+    }
+    return { source, blobs };
+  });
+  const conflicts = [];
+  const missing = /* @__PURE__ */ new Map();
+  const dest = snapshots.at(-1);
+  for (let i = 0; i < sources.length; i++) {
+    const { source, blobs } = snapshots[i];
+    for (const [path, oid] of blobs) {
+      if (!dest.blobs.has(path) && !missing.has(path)) missing.set(path, source);
+      for (const other of snapshots.slice(i + 1)) {
+        if (other.blobs.has(path) && other.blobs.get(path) !== oid) {
+          conflicts.push({ path, a: source.label, b: other.source.label });
+        }
+      }
+    }
+  }
+  return { conflicts, missing: [...missing].map(([path, source]) => ({ path, source })) };
+}
 function syncTelemetryBranch(root, records, remote = "origin") {
   const scratch = mkdtempSync(join2(tmpdir(), "gauntlet-telemetry-index-"));
   const env = { GIT_INDEX_FILE: join2(scratch, "index") };
@@ -509,7 +540,7 @@ var fail = (code, message) => {
   process2.stderr.write(message + "\n");
   process2.exit(code);
 };
-var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]");
+var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]\n       gauntlet-telemetry-seal [--worktree <abs path>] <--migrate-branch|--retire-branch>");
 function parseArgs(argv) {
   const opts = { worktree: void 0, option: void 0, base: void 0, spec: void 0, legs: [] };
   for (let i = 0; i < argv.length; i++) {
@@ -520,6 +551,8 @@ function parseArgs(argv) {
       opts[key] = argv[++i];
     };
     if (a === "--migrate") opts.migrate = value !== void 0 && !value.startsWith("--") ? argv[++i] : ".pi/gauntlet/telemetry";
+    else if (a === "--migrate-branch") opts.migrateBranch = true;
+    else if (a === "--retire-branch") opts.retireBranch = true;
     else if (a === "--worktree") takes("worktree");
     else if (a === "--option") takes("option");
     else if (a === "--base") takes("base");
@@ -534,7 +567,9 @@ function parseArgs(argv) {
       opts.legs.push(leg);
     } else usage();
   }
-  if (opts.migrate !== void 0) {
+  const modes = [opts.migrate !== void 0, opts.migrateBranch, opts.retireBranch].filter(Boolean).length;
+  if (modes > 1) usage();
+  if (modes) {
     opts.worktree ??= process2.cwd();
     if (opts.option || opts.base || opts.spec || opts.legs.length) usage();
   } else if (!opts.base || !OPTIONS.has(opts.option)) usage();
@@ -585,6 +620,74 @@ function migrate(root, dir, repo, remote) {
   if (!result.ok) return console.log(`telemetry: not pushed (${result.reason})`);
   console.log(`migrated ${writes.size} records from ${dir}`);
 }
+var LEGACY_REF = "refs/heads/gauntlet/telemetry";
+function branchMigration(root, remote = "origin", retire) {
+  const required = (args, options) => {
+    const result = gitRun(args, root, void 0, options);
+    if (!result.ok) throw new Error(result.stderr || `git ${args[0]} failed`);
+    return result.stdout;
+  };
+  const discover = (ref, tracking) => {
+    const found = gitRun(["ls-remote", "--exit-code", remote, ref], root);
+    if (found.code === 2) return void 0;
+    if (!found.ok) throw new Error(found.stderr || "git ls-remote failed");
+    required(["fetch", "--no-tags", remote, tracking ? `+${ref}:${tracking}` : ref]);
+    return required(["rev-parse", "--verify", tracking ?? "FETCH_HEAD"]);
+  };
+  const oldRemote = discover(LEGACY_REF);
+  if (retire && !oldRemote) return console.log("nothing to retire");
+  const sources = oldRemote ? [{ label: `${remote}/${LEGACY_REF}`, oid: oldRemote }] : [];
+  const local = gitRun(["show-ref", "--verify", "--quiet", LEGACY_REF], root);
+  if (local.ok) sources.push({ label: LEGACY_REF, oid: required(["rev-parse", "--verify", LEGACY_REF]) });
+  else if (local.code !== 1) throw new Error(local.stderr || "git show-ref failed");
+  if (!sources.length) return console.log("nothing to migrate");
+  let destOid = discover(TELEMETRY_REF, trackingRef(remote));
+  let compared = compareRecords(root, sources, { label: `${remote}/${TELEMETRY_REF}`, oid: destOid ?? null });
+  if (compared.conflicts.length) throw new Error(compared.conflicts.map(({ path, a, b }) => `conflict: ${path} differs between ${a} and ${b}`).join("\n"));
+  if (retire && compared.missing.length) throw new Error(compared.missing.map(({ path }) => `not carried: ${path}`).join("\n"));
+  const push = (args, config = []) => {
+    const result = spawnSync2("git", [...config, "push", ...args], { cwd: root, encoding: "utf8", timeout: 3e4 });
+    if (result.status !== 0) {
+      const stderr = result.stderr?.trim() || result.error?.message || "git push failed";
+      const retry = retire ? "gauntlet/telemetry moved since verification - re-run --migrate-branch then --retire-branch" : "destination changed since comparison - re-run --migrate-branch";
+      throw new Error(`${stderr}
+${retry}`);
+    }
+  };
+  if (retire) {
+    const remotes = required(["remote"]).split("\n");
+    const pushRemote = remotes.includes(remote) ? required(["remote", "get-url", "--push", remote]) : remote;
+    let alias = `gauntlet-retire-${process2.pid}`;
+    while (remotes.includes(alias)) alias += "-";
+    push([`--force-with-lease=${LEGACY_REF}:${oldRemote}`, alias, `:${LEGACY_REF}`], ["-c", `remote.${alias}.url=${pushRemote}`]);
+    console.log(`retired: gauntlet/telemetry on ${remote}`);
+    console.log(`if git show-ref --verify --quiet ${LEGACY_REF}; then git branch -D gauntlet/telemetry; fi`);
+    return console.log(`git update-ref -d refs/remotes/${trackingRef(remote).split("/").at(-1)}/gauntlet/telemetry`);
+  }
+  if (!destOid && oldRemote) {
+    push([`--force-with-lease=${TELEMETRY_REF}:`, remote, `${oldRemote}:${TELEMETRY_REF}`]);
+    destOid = oldRemote;
+    compared = compareRecords(root, sources, { label: `${remote}/${TELEMETRY_REF}`, oid: destOid });
+  }
+  if (!compared.missing.length) return console.log("carried: 0 records");
+  const scratch = mkdtempSync2(join3(tmpdir2(), "gauntlet-ref-migration-"));
+  try {
+    const env = { GIT_INDEX_FILE: join3(scratch, "index") };
+    required(destOid ? ["read-tree", destOid] : ["read-tree", "--empty"], { env });
+    for (const { path, source } of compared.missing) {
+      const entry = required(["ls-tree", "-z", source.oid, "--", path], { raw: true });
+      const [mode, , blob] = entry.slice(0, entry.indexOf("	")).split(" ");
+      required(["update-index", "--add", "--cacheinfo", `${mode},${blob},${path}`], { env });
+    }
+    const tree = required(["write-tree"], { env });
+    const author = { ...env, GIT_AUTHOR_NAME: "gauntlet", GIT_AUTHOR_EMAIL: "gauntlet@local", GIT_COMMITTER_NAME: "gauntlet", GIT_COMMITTER_EMAIL: "gauntlet@local" };
+    const commit = required(["-c", "commit.gpgsign=false", "commit-tree", tree, ...destOid ? ["-p", destOid] : [], "-m", "Carry legacy gauntlet telemetry"], { env: author });
+    push([`--force-with-lease=${TELEMETRY_REF}:${destOid ?? ""}`, remote, `${commit}:${TELEMETRY_REF}`]);
+    console.log(`carried: ${compared.missing.length} records from ${[...new Set(compared.missing.map(({ source }) => source.label))].join(", ")}`);
+  } finally {
+    rmSync2(scratch, { recursive: true, force: true });
+  }
+}
 var isoNow = () => (/* @__PURE__ */ new Date()).toISOString().replace(/\.\d{3}Z$/, "Z");
 function runTickets(vcs, record, base) {
   const log = gitRun(["log", "--format=%B", `${base}..HEAD`], vcs.root);
@@ -598,7 +701,7 @@ var normalized = (legs) => [...new Set(legs.map((leg) => JSON.stringify([leg.rep
 var sameLegs = (record, legs) => JSON.stringify(normalized(record.legs ?? [])) === JSON.stringify(normalized(legs));
 function branchBlob(root, path, remote) {
   const local = gitRun(["rev-parse", "--verify", TELEMETRY_REF], root);
-  const tracking = `refs/remotes/${!remote || remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+  const tracking = trackingRef(remote ?? "origin");
   const fetched = local.ok && gitRun(["merge-base", "--is-ancestor", TELEMETRY_REF, tracking], root).ok;
   const ref = !local.ok || fetched ? tracking : TELEMETRY_REF;
   const blob = gitRun(["show", `${ref}:${path}`], root, void 0, { raw: true });
@@ -660,6 +763,13 @@ async function main() {
 `);
   if (!telemetry.enabled) return console.log("telemetry disabled");
   if (vcs.kind === "jj") return console.log("telemetry: not pushed (jj workspace: no git remote)");
+  if (opts.migrateBranch || opts.retireBranch) {
+    try {
+      return branchMigration(root, telemetry.remote, opts.retireBranch);
+    } catch (error) {
+      fail(1, error.message);
+    }
+  }
   const dir = DEFAULT_TELEMETRY_DIR;
   if (opts.migrate === void 0 && !validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
   const store = telemetryDir(root);

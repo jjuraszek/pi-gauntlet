@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Repo validator. Runs in CI and as the release gate.
-// Run `npm install` first: workflow checks and telemetry tests use `yaml`.
+// Run `npm install` first: telemetry tests use `yaml`.
 //
 // Usage:
 //   node scripts/ci.mjs                      # validate repo
@@ -10,7 +10,6 @@ import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
-import { parse as parseYaml } from "yaml";
 import { scanTree } from "../eval/lib/hygiene.mjs";
 import { lintAll } from "../eval/lib/lint.mjs";
 
@@ -24,12 +23,27 @@ const ok = (msg) => console.log(`  ok  ${msg}`);
 const expectIdx = process.argv.indexOf("--expect-version");
 const expectVersion = expectIdx !== -1 ? process.argv[expectIdx + 1] : null;
 
-const pushTrigger = parseYaml(readFileSync(R(".github/workflows/test.yml"), "utf8")).on?.push;
-if (!Array.isArray(pushTrigger?.["branches-ignore"]) || !pushTrigger["branches-ignore"].includes("gauntlet/telemetry")) {
-  fail(".github/workflows/test.yml: push.branches-ignore must exclude gauntlet/telemetry");
+// telemetry-ref-lint:begin
+function retiredTelemetryReferences(path, text) {
+  if (path === "CHANGELOG.md" || path.startsWith("doc/specs/") ||
+      /^eval\/.*\/(?:results\/.*|report\.md|intent\.md)$/.test(path) ||
+      ["extensions/lib/telemetry-branch.ts", "src/bins/gauntlet-telemetry-seal.mjs",
+        "src/bins/gauntlet-telemetry-ref-migration.test.mjs", "bin/gauntlet-telemetry-seal.mjs",
+        "bin/gauntlet-performance.mjs", "bin/gauntlet-spec-index.mjs", "scripts/ci.mjs"].includes(path)) return [];
+  const retired = /refs\/heads\/gauntlet\/telemetry|orphan `gauntlet\/telemetry` branch|gauntlet\/telemetry` branch|fetch `gauntlet\/telemetry` |branches-ignore/;
+  let migration = false;
+  return text.split("\n").flatMap((text, index) => {
+    if (path === "doc/configuration.md" && /^#{1,4} /.test(text)) {
+      migration = text === "#### Moving off the gauntlet/telemetry branch";
+    }
+    return !migration && retired.test(text) ? [{ line: index + 1, text }] : [];
+  });
 }
-if (pushTrigger && Object.hasOwn(pushTrigger, "branches")) {
-  fail(".github/workflows/test.yml: push must not combine branches with branches-ignore");
+// telemetry-ref-lint:end
+for (const path of execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean)) {
+  for (const hit of retiredTelemetryReferences(path, readFileSync(R(path), "utf8"))) {
+    fail(`${path}:${hit.line}: retired telemetry branch reference: ${hit.text}`);
+  }
 }
 
 // ---- package.json ----------------------------------------------------------
@@ -362,12 +376,12 @@ if (!existsSync(R("skills/gauntlet-performance/../../bin/gauntlet-performance.mj
 // Telemetry publication stays separate from product delivery and gatekeep-pr instructions.
 {
   const trackedTelemetry = execFileSync("git", ["ls-files", "--", ".pi/gauntlet/telemetry"], { cwd: root, encoding: "utf8" }).trim();
-  if (trackedTelemetry) fail(".pi/gauntlet/telemetry: migrate tracked records to gauntlet/telemetry and remove them from the product branch");
+  if (trackedTelemetry) fail(".pi/gauntlet/telemetry: migrate tracked records to refs/telemetry/records and remove them from the product branch");
   const worktreeFirst = txt("skills/brainstorming/SKILL.md").split(/^## /m).find((s) => s.startsWith("Worktree First")) ?? "";
-  if (!worktreeFirst.includes("orphan `gauntlet/telemetry` branch")) fail("skills/brainstorming/SKILL.md: Worktree First must publish telemetry outside the checkout");
+  if (!worktreeFirst.includes("the `refs/telemetry/records` ref")) fail("skills/brainstorming/SKILL.md: Worktree First must publish telemetry outside the checkout");
   const finishing = txt("skills/finishing-a-development-branch/SKILL.md");
   if (!finishing.includes("gauntlet-telemetry-seal.mjs")) fail("skills/finishing-a-development-branch/SKILL.md: missing the gauntlet-telemetry-seal.mjs call");
-  if (!finishing.includes("orphan `gauntlet/telemetry` branch") || /telemetry\.dir|git-excluded/.test(finishing)) fail("skills/finishing-a-development-branch/SKILL.md: seal to the telemetry branch, not the product checkout");
+  if (!finishing.includes("the `refs/telemetry/records` ref") || /telemetry\.dir|git-excluded/.test(finishing)) fail("skills/finishing-a-development-branch/SKILL.md: seal to the telemetry ref, not the product checkout");
   for (const opt of ["#### Option 1: Push and Create PR", "#### Option 2: Push and Create Draft PR", "#### Option 3: Squash-merge to base"]) {
     const block = finishing.split(opt)[1]?.split(/^#### /m)[0] ?? "";
     if (!block.includes("telemetry record")) fail(`skills/finishing-a-development-branch/SKILL.md: "${opt}" must name the telemetry record`);
@@ -493,9 +507,11 @@ try {
       R("bin/gauntlet-spec-index.test.mjs"),
       R("bin/gauntlet-telemetry-seal.test.mjs"),
       R("src/bins/gauntlet-telemetry-seal.test.mjs"),
+      R("src/bins/gauntlet-telemetry-seal-branch.test.mjs"),
       R("src/bins/gauntlet-telemetry-jj.test.mjs"),
       R("src/bins/gauntlet-telemetry-readers.test.mjs"),
       R("src/bins/gauntlet-telemetry-migration.test.mjs"),
+      R("src/bins/gauntlet-telemetry-ref-migration.test.mjs"),
       R("src/bins/gauntlet-telemetry-concurrency.test.mjs"),
       R("src/bins/gauntlet-telemetry-invariance.test.mjs"),
       R("bin/gauntlet-performance.test.mjs"),

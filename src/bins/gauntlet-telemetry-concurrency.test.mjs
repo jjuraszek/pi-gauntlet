@@ -7,7 +7,7 @@ import { join } from "node:path";
 
 const seal = new URL("./gauntlet-telemetry-seal.mjs", import.meta.url).pathname;
 const library = new URL("../../extensions/lib/telemetry-branch.ts", import.meta.url).href;
-const ref = "refs/heads/gauntlet/telemetry";
+const ref = "refs/telemetry/records";
 const prefix = "team/product/brainstorming/doc/specs/";
 
 function fixture() {
@@ -95,7 +95,7 @@ for (const existing of [false, true]) {
   });
 }
 
-test("failed seal push leaves the branch authoritative for retry", () => {
+test("failed seal push leaves the ref authoritative for retry", () => {
   const f = fixture();
   f.prepare(f.first, "current");
   const source = join(f.first, ".git/gauntlet/telemetry/doc/specs/current.yaml");
@@ -103,7 +103,7 @@ test("failed seal push leaves the branch authoritative for retry", () => {
   const result = f.run(f.first, process.execPath, f.args(f.first, "current"));
   assert.match(result.stdout, /^telemetry: not pushed \(/);
   assert.ok(result.stdout.endsWith(`); record kept at ${prefix}current.yaml\n`));
-  assert.equal(existsSync(source), false, "a failed push keeps bytes on the local branch, not in the file");
+  assert.equal(existsSync(source), false, "a failed push keeps bytes on the local ref, not in the file");
   const tip = f.git(f.first, "rev-parse", ref);
   assert.match(f.run(f.first, process.execPath, f.args(f.first, "current")).stdout, /^telemetry: not pushed \(/);
   assert.equal(f.git(f.first, "rev-parse", ref), tip);
@@ -117,7 +117,7 @@ for (const existing of [true, false]) {
     const f = fixture();
     if (existing) {
       f.sealRun(f.first, "baseline");
-      f.git(f.second, "fetch", "origin", `${ref}:refs/remotes/origin/gauntlet/telemetry`);
+      f.git(f.second, "fetch", "origin", `${ref}:refs/telemetry/fetched/origin`);
     }
     f.prepare(f.first, "first");
     const shim = join(f.scratch, "shim");

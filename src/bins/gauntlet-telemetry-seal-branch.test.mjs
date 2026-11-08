@@ -75,12 +75,17 @@ test(`${option} seal pushes an orphan telemetry record to ${separateRemote ? "th
   }
   const indexTree = git(root, "write-tree");
   const status = git(root, "status", "--porcelain");
+  const localHeads = git(root, "show-ref", "--heads");
+  const remoteHeads = git(root, "ls-remote", "--heads", destination);
   const legs = ["--leg", "Team/Companion=abc1234", "--leg", "team/other=https://example.test/pull/2"];
   const result = spawnSync(process.execPath, [cli.pathname, "--worktree", root, "--option", option, "--base", "main", "--spec", spec, ...legs], {
     encoding: "utf8", env, timeout: 30_000,
   });
   assert.equal(result.status, 0, result.stderr);
-  const branch = "refs/heads/gauntlet/telemetry";
+  const branch = "refs/telemetry/records";
+  assert.equal(git(root, "show-ref", "--heads"), localHeads, "sealing must not create a local branch");
+  assert.equal(git(root, "ls-remote", "--heads", destination), remoteHeads, "sealing must not create a remote branch");
+  assert.equal(git(root, "ls-remote", destination, "refs/telemetry/*"), `${git(root, "rev-parse", branch)}\t${branch}`);
   const recordPath = "team/product/brainstorming/doc/specs/example.yaml";
   assert.equal(git(root, "rev-parse", "HEAD"), featureHead);
   assert.equal(git(root, "status", "--porcelain"), status);

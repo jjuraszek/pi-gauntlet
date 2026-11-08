@@ -8,13 +8,13 @@ import { dirname, join } from "node:path";
 const branch = new URL("../../extensions/lib/telemetry-branch.ts", import.meta.url).href;
 const extension = new URL("../../extensions/telemetry.ts", import.meta.url).href;
 const settings = new URL("../../extensions/lib/gauntlet-settings.ts", import.meta.url).href;
-const ref = "refs/heads/gauntlet/telemetry";
+const ref = "refs/telemetry/records";
 const prefix = "team/product/brainstorming/";
 const record = (name) => `schema: 1\nspec: doc/specs/${name}.md\nrun_id: ${name}\nstatus: shipped\ncreated_at: 2026-01-01\nshipped_at: 2026-01-02\nderived:\n  modified_files: [code.txt]\n`;
 
 function fixture(central = false) {
   const scratch = mkdtempSync(join(tmpdir(), "telemetry-readers-"));
-  const root = join(scratch, "product");
+  let root = join(scratch, "product");
   const remote = join(scratch, "remote.git");
   const agent = join(scratch, "agent");
   mkdirSync(root); mkdirSync(agent);
@@ -33,7 +33,7 @@ function fixture(central = false) {
   git("config", `url.${remote}.insteadOf`, "https://example.test/team/product.git");
   const write = (path, text) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), text); };
   write("code.txt", "code\n");
-  write("doc/specs/a.md", "# Zephyr widget\n\n**Goal:** zephyr widget\n");
+  for (const name of ["a", "b"]) write(`doc/specs/${name}.md`, "# Zephyr widget\n\n**Goal:** zephyr widget\n");
   for (let n = 0; n < 10; n++) write(`doc/specs/filler${n}.md`, `# Filler ${n}\n`);
   git("add", "."); git("-c", "commit.gpgsign=false", "commit", "-m", "initial");
   const configure = (enabled = true) => write(".pi/settings.json", JSON.stringify({ piGauntlet: { telemetry: { enabled, ...(central ? { remote } : {}) } } }));
@@ -71,7 +71,16 @@ function fixture(central = false) {
     const cli = new URL(`./gauntlet-${name}.mjs`, import.meta.url).pathname;
     return run(process.execPath, [cli, ...(name === "performance" ? ["--json"] : ["--query", "zephyr widget"])], extra);
   };
-  return { scratch, root, remote, target, env, run, git, write, configure, sync, read, consumer };
+  const freshClone = () => {
+    git("push", "origin", "main");
+    const clone = join(scratch, "reader");
+    git("clone", "--branch", "main", remote, clone);
+    root = clone;
+    git("remote", "set-url", "origin", "https://example.test/team/product.git");
+    git("config", `url.${remote}.insteadOf`, "https://example.test/team/product.git");
+    configure();
+  };
+  return { scratch, root, remote, target, env, run, git, write, configure, sync, read, consumer, freshClone };
 }
 
 for (const central of [false, true]) {
@@ -79,18 +88,26 @@ for (const central of [false, true]) {
     test(`${consumer} refreshes ${central ? "configured remote" : "origin"}, serves cached records offline and warns once`, () => {
       const f = fixture(central);
       assert.equal(f.sync(["a", "b"]).ok, true);
-      // A fresh reader must fetch; no local branch or tracking ref may supply the read.
-      f.git("update-ref", "-d", ref);
-      f.git("update-ref", "-d", `refs/remotes/${central ? "telemetry" : "origin"}/gauntlet/telemetry`);
+      f.freshClone();
+      const fetchSpec = "+refs/heads/*:refs/remotes/origin/*";
+      assert.equal(f.git("config", "--get-all", "remote.origin.fetch"), fetchSpec);
+      assert.equal(f.git("for-each-ref", "refs/telemetry/"), "", "a default clone must not fetch telemetry");
+      const branches = f.git("branch", "--list", "--all");
       const check = (result) => {
-        if (consumer === "performance") assert.equal(JSON.parse(result.stdout).runs.length, 2);
-        else if (consumer === "spec-index") assert.match(result.stdout, /\tshipped\t2026-01-02\tlive\tcode.txt\t/);
-        else assert.deepEqual(JSON.parse(result.stdout).results.map(r => r?.block), [true, true, true]);
+        if (consumer === "performance") assert.deepEqual(JSON.parse(result.stdout).runs.map(r => r.run_id).sort(), ["a", "b"]);
+        else if (consumer === "spec-index") {
+          const rows = result.stdout.trimEnd().split("\n").slice(1).map(line => line.split("\t"));
+          assert.deepEqual(rows.map(row => row[1]).sort(), ["doc/specs/a.md", "doc/specs/b.md"]);
+          for (const row of rows) assert.deepEqual(row.slice(4, 8), ["shipped", "2026-01-02", "live", "code.txt"]);
+        } else assert.deepEqual(JSON.parse(result.stdout).results.map(r => r?.block), [true, true, true]);
       };
       const trace = join(f.scratch, "online.trace");
       const online = f.consumer(consumer, { GIT_TRACE: trace });
       check(online);
       assert.equal((readFileSync(trace, "utf8").match(/built-in: git fetch /g) ?? []).length, 1);
+      assert.equal(f.git("rev-parse", `refs/telemetry/fetched/${central ? "telemetry" : "origin"}`), f.git("--git-dir", f.remote, "rev-parse", ref));
+      assert.equal(f.git("branch", "--list", "--all"), branches, "refresh must not create local or remote-tracking branches");
+      assert.equal(f.git("config", "--get-all", "remote.origin.fetch"), fetchSpec);
       f.git("config", `url.${join(f.scratch, "missing.git")}.insteadOf`, central ? f.remote : "https://example.test/team/product.git");
       if (!central) f.git("config", "--unset-all", `url.${f.remote}.insteadOf`);
       const offline = f.consumer(consumer);
@@ -98,7 +115,7 @@ for (const central of [false, true]) {
       const warning = consumer === "guard" ? JSON.parse(offline.stdout).notices.join("\n") : offline.stderr;
       assert.match(warning, /(?:fetch|refresh).*failed/i);
       assert.equal((warning.match(/(?:warning:|telemetry guard unavailable:)/g) ?? []).length, 1);
-      f.git("update-ref", "-d", `refs/remotes/${central ? "telemetry" : "origin"}/gauntlet/telemetry`);
+      f.git("update-ref", "-d", `refs/telemetry/fetched/${central ? "telemetry" : "origin"}`);
       const empty = f.consumer(consumer);
       if (consumer === "performance") assert.equal(JSON.parse(empty.stdout).runs.length, 0);
       else if (consumer === "guard") assert.deepEqual(JSON.parse(empty.stdout).results, [null, null, null]);

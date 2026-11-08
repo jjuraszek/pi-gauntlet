@@ -29,7 +29,7 @@ function resolveTelemetry(g) {
   const warnings = [];
   const enabled = t?.enabled !== false;
   if (t && Object.hasOwn(t, "dir")) {
-    warnings.push("piGauntlet.telemetry.dir is retired; records live on the gauntlet/telemetry branch - set piGauntlet.telemetry.remote to redirect them");
+    warnings.push("piGauntlet.telemetry.dir is retired; records live on the refs/telemetry/records ref - set piGauntlet.telemetry.remote to redirect them");
   }
   let buckets = DEFAULT_TELEMETRY_BUCKETS;
   if (t?.buckets !== void 0) {
@@ -128,7 +128,7 @@ var runBinary = (bin) => (args, cwd, timeoutMs = 1e4, options = {}) => {
 var gitRun = runBinary("git");
 
 // extensions/lib/telemetry-branch.ts
-var TELEMETRY_REF = "refs/heads/gauntlet/telemetry";
+var TELEMETRY_REF = "refs/telemetry/records";
 function telemetryRepo(root) {
   const result = gitRun(["config", "--get", "remote.origin.url"], root);
   const match = result.stdout.match(/^(?:https?:\/\/[^/]+\/|ssh:\/\/(?:[^@/]+@)?[^/]+\/|(?:[^@\s]+@)?[^:\s/]+:)(.+)$/);
@@ -147,7 +147,7 @@ function telemetryRepo(root) {
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
   return `local/${basename(primary ?? top)}`;
 }
-var trackingRef = (remote) => `refs/remotes/${remote === "origin" ? "origin" : "telemetry"}/gauntlet/telemetry`;
+var trackingRef = (remote) => `refs/telemetry/fetched/${remote === "origin" ? "origin" : "telemetry"}`;
 var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
 function syncTelemetryBranch(root, records, remote = "origin") {
   const scratch = mkdtempSync(join2(tmpdir(), "gauntlet-telemetry-index-"));

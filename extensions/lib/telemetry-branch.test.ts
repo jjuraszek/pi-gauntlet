@@ -68,7 +68,34 @@ test("failed telemetry ref commit reports committed: false and preserves the fea
   assert.match(result.reason, /rejected|reference transaction/);
   assert.equal(f.git("rev-parse", "HEAD"), before);
   assert.deepEqual(readFileSync(join(f.root, ".git/index")), index);
-  assert.equal(f.git("for-each-ref", "refs/heads/gauntlet/telemetry"), "");
+  assert.equal(f.git("for-each-ref", "refs/telemetry/records"), "");
+});
+
+test("record comparison reports missing paths and every conflicting snapshot pair", () => {
+  const f = fixture();
+  const snapshots = ["remote", "local", "destination"].map(label => {
+    writeFileSync(join(f.root, "record.yaml"), label + "\n");
+    f.git("add", "."); f.git("commit", "-m", label);
+    return { label, oid: f.git("rev-parse", "HEAD") };
+  });
+  const [remote, local, destination] = snapshots;
+  const empty = { label: "empty", oid: null };
+  for (const [sources, dest, conflicts, missing] of [
+    [[remote], remote, [], []],
+    [[remote], empty, [], [{ path: "record.yaml", source: remote }]],
+    [[remote], destination, [{ path: "record.yaml", a: "remote", b: "destination" }], []],
+    [[remote, local], empty, [{ path: "record.yaml", a: "remote", b: "local" }], [{ path: "record.yaml", source: remote }]],
+    [[remote, local], destination, [
+      { path: "record.yaml", a: "remote", b: "local" },
+      { path: "record.yaml", a: "remote", b: "destination" },
+      { path: "record.yaml", a: "local", b: "destination" },
+    ], []],
+  ]) {
+    const result = JSON.parse(f.run(process.execPath, ["--input-type=module", "--eval",
+      `import { compareRecords } from ${JSON.stringify(library)}; console.log(JSON.stringify(compareRecords(process.cwd(), ${JSON.stringify(sources)}, ${JSON.stringify(dest)})));`,
+    ]));
+    assert.deepEqual(result, { conflicts, missing });
+  }
 });
 
 test("origin-less identity uses repo from the first-found overrides Issue tracker section", () => {
