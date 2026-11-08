@@ -59,7 +59,9 @@ test("two nested guards reach one parent once in arrival order", () => {
   }
   const parent = { toolName: "codemode", toolCallId: "c1", isError: false, content: [], structuredContent: null };
   const ret = store.deliver(parent as any, store.take("c1")!)!;
-  assert.deepEqual(ret, { content: [{ type: "text", text: "first guard\n\nsecond guard" }], structuredContent: null });
+  const merged = mergeToolResult(parent, ret);
+  assert.deepEqual(merged.content, [{ type: "text", text: "first guard\n\nsecond guard" }]);
+  assert.deepEqual(merged.structuredContent, parent.structuredContent);
   assert.equal(store.take("c1"), undefined);
 });
 
@@ -74,9 +76,10 @@ test("depth-two nesting re-keys c1/0/2 -> c1/0 -> c1", () => {
     assert.equal(store.take(toolCallId), undefined);
   }
   const parent = { toolCallId: "c1", content: [], structuredContent: { value: 0 } };
-  assert.deepEqual(store.deliver(parent as any, store.take("c1")!), {
-    content: [{ type: "text", text: "warning" }], structuredContent: { value: 0 },
-  });
+  const ret = store.deliver(parent as any, store.take("c1")!);
+  const merged = mergeToolResult(parent, ret);
+  assert.deepEqual(merged.content, [{ type: "text", text: "warning" }]);
+  assert.deepEqual(merged.structuredContent, parent.structuredContent);
   assert.equal(store.take("c1"), undefined);
 });
 
