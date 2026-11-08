@@ -260,13 +260,6 @@ const fixRoundCapBlockReason = (used: number, cap: number, settingsPath: string)
   "a repo closureReview block replaces the preset's whole block, so restate model and maxFixRounds alongside). " +
   "Start the escalation message with the line: gauntlet: gate=verification-before-completion/step-6";
 
-const nestedDispatchBlockReason = (): string =>
-  "Call subagent as a direct tool call, not from inside a codemode script; " +
-  "codemode only mode is unsupported while a gauntlet flow is entered, because a scripted dispatch's result " +
-  "is not replayed on reload or fork and the fix-round counter, closure-review latch, and cadence would reset. " +
-  "Switch codemode.mode: on and issue the call directly. " +
-  "Last resort: set piGauntlet.closureReview.enforce: false (disables all closure guards).";
-
 const closureModelBlockReason = (model: string, missing: number, total: number): string =>
   `Blocked: ${missing} of ${total} conformance-reviewer ${total === 1 ? "dispatch" : "entries"} ` +
   `omitted a model while piGauntlet.closureReview.model is set to "${model}".\n` +
@@ -687,9 +680,6 @@ export default function (pi: ExtensionAPI) {
       // Only execution-mode dispatches carry a model or run agents; management/control
       // modes (action: list/get/create/update/delete/status/...) execute nothing, so skip them.
       const hasAction = !!(event.input as { action?: unknown })?.action;
-      if (event.parentToolCallId && !hasAction) {
-        return { block: true, reason: nestedDispatchBlockReason() };
-      }
       // Fix-loop window: verify in progress and the R0 audit observed. Read directly,
       // not via activeGuardPhase() - verify is not a GUARD_PHASES member.
       const fixLoopWindow = !isSubagentChild && !hasAction && phases.verify.status === "in_progress" && conformanceDispatched;
@@ -852,21 +842,19 @@ export default function (pi: ExtensionAPI) {
   pi.on("tool_result", async (event, ctx) => {
     if (finishDispatch(event.toolName, event.toolCallId, event.isError, event.details)) updateWidget(ctx);
     if (event.toolName === "subagent") {
-      if (!event.parentToolCallId) {
-        observeFixWave(event.details, event.isError, ctx);
-        if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
-        observeCadence(event.details);
-        if (
-          !isSubagentChild &&
-          gauntletEntered &&
-          phases.verify.status === "in_progress" &&
-          isImplementerWave(event.details, event.isError)
-        ) {
-          const loaded = loadGauntletSettings(ctx.cwd);
-          if (loaded.errors.length === 0 && resolveFlowGuards(loaded.gauntlet).enforce) {
-            const open = unfinishedTaskLines(latestPlanSnapshot(ctx));
-            if (open.length) pendingWarnings.add(event.toolCallId, openTaskNudge(open));
-          }
+      observeFixWave(event.details, event.isError, ctx);
+      if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
+      observeCadence(event.details);
+      if (
+        !isSubagentChild &&
+        gauntletEntered &&
+        phases.verify.status === "in_progress" &&
+        isImplementerWave(event.details, event.isError)
+      ) {
+        const loaded = loadGauntletSettings(ctx.cwd);
+        if (loaded.errors.length === 0 && resolveFlowGuards(loaded.gauntlet).enforce) {
+          const open = unfinishedTaskLines(latestPlanSnapshot(ctx));
+          if (open.length) pendingWarnings.add(event.toolCallId, openTaskNudge(open));
         }
       }
     }

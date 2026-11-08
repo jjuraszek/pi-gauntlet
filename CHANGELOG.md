@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Require pi-cohort >=7.7.0 for model-only `subagent` registrations; remove the now-unreachable scripted-dispatch guard and nested-result exclusion. The codemode guide documents direct-only dispatch under both `on` and `only` and clarifies that skill examples illustrate direct tool calls, not scripts to execute. (#135)
+
 ## v8.4.5 - 2026-11-08
 
 - Guard, ship-verification, and post-ship spec warnings preserve tool `structuredContent`; nested-call warnings reach the parent codemode result once without changing the child's value or re-arming warn-once guards. (#133)
