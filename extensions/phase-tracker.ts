@@ -28,6 +28,7 @@ import {
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
+import { appendToolWarning } from "./lib/tool-result-warning.ts";
 import { checkoutOf, gitSync } from "./lib/checkout.ts";
 import { checkPlan, renderManifest, legOwnership, sha256, type FsPort, type PlanCheckFinding } from "./lib/plan-check.ts";
 import {
@@ -872,23 +873,9 @@ export default function (pi: ExtensionAPI) {
           }
         }
       }
-      const warning = pendingGuardWarnings.get(event.toolCallId);
-      if (warning) {
-        pendingGuardWarnings.delete(event.toolCallId);
-        return { content: [{ type: "text" as const, text: warning }, ...event.content] };
-      }
-      return undefined;
     }
 
-    // Guards 2/3 — prepend the stashed advisory warning to the bash/write/edit result.
-    if (event.toolName === "bash" || event.toolName === "write" || event.toolName === "edit") {
-      const warning = pendingGuardWarnings.get(event.toolCallId);
-      if (!warning) return undefined;
-      pendingGuardWarnings.delete(event.toolCallId);
-      return { content: [{ type: "text" as const, text: warning }, ...event.content] };
-    }
-
-    return undefined;
+    return appendToolWarning(event, pendingGuardWarnings);
   });
 
   pi.on("tool_execution_end", async (event, ctx) => {

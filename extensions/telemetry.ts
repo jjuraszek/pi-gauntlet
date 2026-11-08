@@ -14,9 +14,10 @@
   import { dirname, isAbsolute, join, posix, resolve } from "node:path";
   import * as piRuntime from "@earendil-works/pi-coding-agent";
   import { SettingsManager, getAgentDir } from "@earendil-works/pi-coding-agent";
-  import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+  import type { ExtensionAPI, ExtensionContext, ToolResultEvent } from "@earendil-works/pi-coding-agent";
   import { DEFAULT_TELEMETRY_DIR, DEFAULT_TEST_COMMANDS, planDirsFor, resolveFlowGuards, resolveTelemetry, settingsErrorWarning, type TelemetryResolved } from "./lib/gauntlet-settings.ts";
   import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
+  import { appendToolWarning } from "./lib/tool-result-warning.ts";
   import { checkoutOf } from "./lib/checkout.ts";
   import { CONTEXT_DRAFT_MARKER, nextGauntletEntered } from "./lib/phase-tracker-helpers.ts";
   import { sha256 } from "./lib/plan-check.ts";
@@ -507,6 +508,7 @@
       lastPlanTasks = undefined;
       amendmentOpen = false;
       pendingTest.clear();
+      pendingSpecWarnings.clear();
       if (sessionId !== ctx.sessionManager.getSessionId()) {
         guardCache.clear();
         guardWarned = false;
@@ -547,6 +549,7 @@
       lastCtx = ctx;
       const snap = enabledSettings(ctx);
       if (!snap) return undefined;
+      if (pendingSpecWarnings.has(event.toolCallId)) return appendToolWarning(event, pendingSpecWarnings);
       if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
       if (event.toolName === "phase_tracker" && !event.isError) {
         await applyPhaseDetails(event.details as never, snap);
@@ -605,7 +608,7 @@
     });
 
     // Binding + spec-write bookkeeping; the bound-spec hooks are defined in block 2.
-    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: { toplevel: string; rel: string; via: "git" | "jj" }, event: { input: unknown; content: unknown[] }, snap: SettingsSnapshot): Promise<unknown> => {
+    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: { toplevel: string; rel: string; via: "git" | "jj" }, event: ToolResultEvent, snap: SettingsSnapshot): Promise<unknown> => {
       const rel = loc.rel;
       if (!boundSpec) {
         if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs)) {
@@ -655,12 +658,13 @@
     };
 
     // Defined in block 2.
-    let onBoundSpecWrite: (tool: "write" | "edit", rel: string, event: { input: unknown; content: unknown[] }) => unknown;
+    let onBoundSpecWrite: (tool: "write" | "edit", rel: string, event: ToolResultEvent) => unknown;
     let onOtherSpecEdit: (rel: string, event: { input: unknown }, specDirs: string[]) => void;
 
     let amendmentOpen = false;
     let lastPlanTasks: { name?: string; status: string }[] | undefined;
     const pendingTest = new Map<string, string>(); // toolCallId -> matched statement
+    const pendingSpecWarnings = new Map<string, string>();
 
     const phaseAcc = (k: PhaseKey = phaseNow()): PhaseAcc => (live().phases[k] ??= {});
 
@@ -877,7 +881,8 @@
       refreshLinks();
       if (record.shipped_at) {
         const warning = `⚠️ spec shipped at ${record.shipped_at}; write a follow-up spec that supersedes it`;
-        return { content: [{ type: "text" as const, text: warning }, ...(event.content as { type: string }[])] };
+        pendingSpecWarnings.set(event.toolCallId, warning);
+        return appendToolWarning(event, pendingSpecWarnings);
       }
       if (record.approved_at && !amendmentOpen) {
         acc.amendments += 1;

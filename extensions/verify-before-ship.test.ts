@@ -64,12 +64,16 @@ for (const toolName of ["bash", "write", "edit"]) {
     await editSource(h);
     await h.emitEvent("tool_call", bashCall("p1", "git push origin main"));
     // Synthetic write/edit results exercise the tool-independent pending drain.
-    const event = { ...bashResult("p1"), toolName, structuredContent: { output: "ok", exit_code: 0 } };
+    const event = {
+      ...bashResult("p1", true), toolName,
+      ...(toolName === "edit" ? {} : { structuredContent: toolName === "bash" ? { output: "ok", exit_code: 0 } : null }),
+      details: { sentinel: "ship details" }, usage: { sentinel: "ship usage" },
+    };
     const [ret] = await h.emitEvent("tool_result", event);
     const merged = mergeToolResult(event, ret);
     assert.match(merged.content[0].text, /ran without verification/);
     assert.deepEqual(merged.content.slice(1), event.content);
-    assert.deepEqual(merged.structuredContent, event.structuredContent);
+    assert.deepEqual(merged, { ...event, content: [merged.content[0], ...event.content] });
     assert.equal((await h.emitEvent("tool_result", event))[0], undefined);
   });
 
@@ -93,10 +97,33 @@ for (const toolName of ["bash", "write", "edit"]) {
     assert.match(merged.content[0].text, /ran without verification/);
     assert.equal(merged.content[0].text.split("ran without verification").length - 1, 1);
     assert.deepEqual(merged.content.slice(1), parent.content);
-    assert.deepEqual(merged.structuredContent, parent.structuredContent);
+    assert.deepEqual(merged, { ...parent, content: [merged.content[0], ...parent.content] });
     assert.equal((await h.emitEvent("tool_result", parent))[0], undefined);
   });
 }
+
+test("nested ship warnings aggregate in arrival order without crediting the parent as a test", async () => {
+  const h = harness();
+  for (const [index, command] of ["git push origin first", "git push origin second"].entries()) {
+    const toolCallId = `parent/${index}`;
+    await h.emitEvent("tool_call", { ...bashCall(toolCallId, command), parentToolCallId: "parent" });
+    const child = { ...bashResult(toolCallId), parentToolCallId: "parent", structuredContent: { exit_code: 0 } };
+    assert.equal((await h.emitEvent("tool_result", child))[0], undefined);
+  }
+  const parent = { ...bashResult("parent", true), toolName: "codemode", structuredContent: null };
+  const [ret] = await h.emitEvent("tool_result", parent);
+  const merged = mergeToolResult(parent, ret);
+  assert.match(merged.content[0].text, /origin first[\s\S]*origin second/);
+  assert.equal(merged.content[0].text.split("ran without verification").length - 1, 2);
+  assert.deepEqual(merged, { ...parent, content: [merged.content[0], ...parent.content] });
+  assert.equal((await h.emitEvent("tool_result", parent))[0], undefined);
+
+  await h.emitEvent("tool_call", { ...bashCall("test-parent/0", "npm test"), parentToolCallId: "test-parent" });
+  await h.emitEvent("tool_result", { ...bashResult("test-parent/0"), parentToolCallId: "test-parent" });
+  await h.emitEvent("tool_result", { ...bashResult("test-parent", true), toolName: "codemode" });
+  await h.emitEvent("tool_call", bashCall("verified", "git push"));
+  assert.equal((await h.emitEvent("tool_result", bashResult("verified")))[0], undefined);
+});
 
 test("gh pr create warns when unverified", async () => {
   const h = harness();

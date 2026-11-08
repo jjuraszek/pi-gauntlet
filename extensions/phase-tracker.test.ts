@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import registerPhaseTracker from "./phase-tracker.ts";
 import registerPlanTracker from "./plan-tracker.ts";
+import { mergeToolResult } from "./test-support/merge-tool-result.mjs";
 
 const originalSubagentDepth = process.env.PI_SUBAGENT_DEPTH;
 process.env.PI_SUBAGENT_DEPTH = "0";
@@ -391,19 +392,82 @@ test("implement-write guard: silent when unarmed, when enforce is false, and in 
   }
 });
 
-test("brainstorm write guard is unchanged by the implement guard", async () => {
-  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
-  delete process.env.PI_SUBAGENT_DEPTH;
-  try {
-    const h = harness({ cwd: tempCwd(), branch: [phaseResult("start", phases({ brainstorm: "in_progress" }))] });
-    await h.emit("session_start");
-    await h.emitEvent("tool_call", writeCall("t1", "src/x.ts"));
-    const warned = (await h.emitEvent("tool_result", writeResult("t1")))[0] as { content: { text: string }[] };
-    assert.match(warned.content[0].text, /brainstorm/);
-  } finally {
-    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+for (const toolName of ["bash", "write", "edit"]) {
+  for (const nested of [false, true]) {
+    test(`brainstorm ${toolName} warning preserves results (${nested ? "nested" : "direct"}) and stays fired`, async () => {
+      const h = harness({ branch: [phaseResult("start", phases({ brainstorm: "in_progress" }))] });
+      await h.emit("session_start");
+      const toolCallId = nested ? "parent/0" : "direct";
+      const nesting = nested ? { parentToolCallId: "parent" } : {};
+      const call = {
+        toolName, toolCallId, ...nesting,
+        input: toolName === "bash" ? { command: "echo x > src/a.ts" } : { path: "src/a.ts" },
+      };
+      await h.emitEvent("tool_call", call);
+      const event = {
+        ...writeResult(toolCallId), toolName, ...nesting, isError: true,
+        details: { sentinel: "guard details" }, usage: { sentinel: "guard usage" },
+        ...(toolName === "edit" ? {} : { structuredContent: toolName === "bash" ? { output: "ok", exit_code: 0 } : null }),
+      };
+      const original = structuredClone(event);
+      const [ret] = await h.emitEvent("tool_result", event);
+      let delivered = event;
+      let merged = mergeToolResult(event, ret);
+      if (nested) {
+        assert.equal(ret, undefined);
+        assert.deepEqual(merged, original);
+        const parent = {
+          ...event, toolName: "codemode", toolCallId: "parent", parentToolCallId: undefined,
+          content: [{ type: "text", text: "script value: 0" }], structuredContent: { value: 0 },
+        };
+        delivered = parent;
+        const [parentRet] = await h.emitEvent("tool_result", parent);
+        merged = mergeToolResult(parent, parentRet);
+      }
+      assert.deepEqual(event, original);
+      assert.match(merged.content[0].text, /Writing outside the spec directory/);
+      assert.equal(merged.content[0].text.split("Writing outside the spec directory").length - 1, 1);
+      assert.deepEqual(merged, { ...delivered, content: [merged.content[0], ...delivered.content] });
+      assert.equal((await h.emitEvent("tool_result", delivered))[0], undefined);
+      await h.emitEvent("tool_call", writeCall("later", "src/b.ts"));
+      assert.equal((await h.emitEvent("tool_result", writeResult("later")))[0], undefined);
+    });
   }
-});
+}
+
+for (const nested of [false, true]) {
+  test(`implement-write and cadence warnings preserve results (${nested ? "nested" : "direct"})`, async () => {
+    const h = harness({ branch: implementBranch([subagentResult(["implementer"])]) });
+    await h.emit("session_start");
+    const nesting = nested ? { parentToolCallId: "parent" } : {};
+    for (const [index, call] of [writeCall("write", "src/a.ts"), commitCall("commit")].entries()) {
+      const toolCallId = nested ? `parent/${index}` : call.toolCallId;
+      await h.emitEvent("tool_call", { ...call, toolCallId, ...nesting });
+      const event = { ...writeResult(toolCallId), toolName: call.toolName, ...nesting, structuredContent: { exit_code: 0 } };
+      const [ret] = await h.emitEvent("tool_result", event);
+      if (nested) {
+        assert.equal(ret, undefined);
+        assert.deepEqual(mergeToolResult(event, ret), event);
+      } else {
+        const merged = mergeToolResult(event, ret);
+        assert.match(merged.content[0].text, index === 0 ? /Parent write/ : /no wave-reviewer observed/);
+        assert.deepEqual(merged, { ...event, content: [merged.content[0], ...event.content] });
+      }
+    }
+    if (nested) {
+      const parent = { ...commitResult("parent"), toolName: "codemode", structuredContent: { value: "done" } };
+      const [ret] = await h.emitEvent("tool_result", parent);
+      const merged = mergeToolResult(parent, ret);
+      assert.match(merged.content[0].text, /Parent write[\s\S]*no wave-reviewer observed/);
+      assert.equal(merged.content[0].text.split("Parent write").length - 1, 1);
+      assert.equal(merged.content[0].text.split("no wave-reviewer observed").length - 1, 1);
+      assert.deepEqual(merged, { ...parent, content: [merged.content[0], ...parent.content] });
+      assert.equal((await h.emitEvent("tool_result", parent))[0], undefined);
+    }
+    await h.emitEvent("tool_call", writeCall("later", "src/b.ts"));
+    assert.equal((await h.emitEvent("tool_result", writeResult("later")))[0], undefined);
+  });
+}
 
 test("brainstorm write confinement: a docs/specs write under the default dirs does not warn", async () => {
   const priorDepth = process.env.PI_SUBAGENT_DEPTH;
@@ -2433,19 +2497,40 @@ test("open-task nudge: fires on every qualifying wave and leaves fix-round count
 });
 
 // The closure-model mismatch warning is stashed at tool_call; it must render first.
-test("open-task nudge: a stashed tool_call warning stays ahead of the nudge on the same result", async () => {
-  const h = harness({
-    cwd: tempCwd({ piGauntlet: { closureReview: { enforce: true, model: "p/configured" } } }),
-    branch: verifyBranch([taskSnapshot(eightTasks([3]))]),
+for (const nested of [false, true]) {
+  test(`open-task nudge and mismatch preserve results and warning order (${nested ? "nested" : "direct"})`, async () => {
+    const h = harness({
+      cwd: tempCwd({ piGauntlet: { closureReview: { enforce: true, model: "p/configured", maxFixRounds: 1 } } }),
+      branch: verifyBranch([taskSnapshot(eightTasks([3])), subagentResult(["conformance-reviewer"])]),
+    });
+    await h.emit("session_start");
+    const call = { tasks: [{ agent: "conformance-reviewer", model: "p/other", task: "audit" }, { agent: "implementer", task: "fix", worktree: true }] };
+    const toolCallId = nested ? "parent/0" : "m1";
+    const nesting = nested ? { parentToolCallId: "parent" } : {};
+    assert.equal((await h.emitEvent("tool_call", { toolName: "subagent", toolCallId, input: call, ...nesting }))[0], undefined);
+    const event = {
+      ...waveResult(toolCallId, [{ agent: "implementer", exitCode: 0 }]), ...nesting,
+      structuredContent: { results: [{ value: "repair" }] }, usage: { sentinel: "subagent usage" },
+    };
+    const original = structuredClone(event);
+    const [ret] = await h.emitEvent("tool_result", event);
+    let delivered = event;
+    let merged = mergeToolResult(event, ret);
+    if (nested) {
+      assert.equal(ret, undefined);
+      assert.deepEqual(merged, original);
+      const parent = { ...event, toolName: "codemode", toolCallId: "parent", parentToolCallId: undefined, structuredContent: null };
+      delivered = parent;
+      const [parentRet] = await h.emitEvent("tool_result", parent);
+      merged = mergeToolResult(parent, parentRet);
+      assert.equal((await h.emitEvent("tool_result", parent))[0], undefined);
+    }
+    assert.deepEqual(event, original);
+    assert.match(merged.content[0].text, /p\/other[\s\S]*Plan tasks still open after this repair wave:/);
+    assert.deepEqual(merged, { ...delivered, content: [merged.content[0], ...delivered.content] });
+    assert.equal((await firstCallResult(h, "next", implementerWave(1)))?.block, true, "nested repair still spends one fix round");
   });
-  await h.emit("session_start");
-  const call = { tasks: [{ agent: "conformance-reviewer", model: "p/other", task: "audit" }, { agent: "implementer", task: "fix", worktree: true }] };
-  assert.equal(await firstCallResult(h, "m1", call), undefined);
-  const text = (await resultText(h, "m1")) ?? "";
-  const warningAt = text.indexOf("p/other");
-  const nudgeAt = text.indexOf("Plan tasks still open after this repair wave:");
-  assert.ok(warningAt >= 0 && nudgeAt > warningAt, `warning first, nudge second: ${text}`);
-});
+}
 
 test("open-task nudge: silent outside the verify window and without open rows", async () => {
   const cases: [string, ReturnType<typeof harness>][] = [

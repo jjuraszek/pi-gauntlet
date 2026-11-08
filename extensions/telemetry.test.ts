@@ -7,6 +7,7 @@
   import { DEFAULT_TELEMETRY_BUCKETS, planDirsFor, resolveFlowGuards } from "./lib/gauntlet-settings.ts";
   import { emptyAccumulators, parseRecord, serializeRecord } from "./lib/telemetry-record.ts";
   import { guardReason } from "./lib/telemetry-ship.ts";
+  import { mergeToolResult } from "./test-support/merge-tool-result.mjs";
 
 
   const originalDepth = process.env.PI_SUBAGENT_DEPTH;
@@ -1220,6 +1221,44 @@
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "in_progress" }));
     await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "complete" }));
     return h;
+  }
+
+  for (const toolName of ["write", "edit"]) {
+    for (const nested of [false, true]) {
+      test(`post-ship ${toolName} warning preserves results (${nested ? "nested" : "direct"})`, async () => {
+        const h = await boundInJjShip();
+        const before = readFileSync(h.recordPath(), "utf8");
+        const event = {
+          toolName, toolCallId: nested ? "parent/0" : "direct",
+          ...(nested ? { parentToolCallId: "parent" } : {}),
+          input: { path: "doc/specs/a.md", content: "# Spec\n", newText: "updated" },
+          content: [{ type: "text", text: "spec updated" }], isError: false,
+          structuredContent: toolName === "write" ? { written: true } : null,
+          details: { sentinel: "telemetry details" }, usage: { sentinel: "telemetry usage" },
+        };
+        const original = structuredClone(event);
+        const [ret] = await h.emit("tool_result", event);
+        let delivered = event;
+        let merged = mergeToolResult(event, ret);
+        if (nested) {
+          assert.equal(ret, undefined);
+          assert.deepEqual(merged, original);
+          const parent = {
+            ...event, toolName: "codemode", toolCallId: "parent", parentToolCallId: undefined,
+            content: [{ type: "text", text: "script complete" }], structuredContent: { value: true },
+          };
+          delivered = parent;
+          const [parentRet] = await h.emit("tool_result", parent);
+          merged = mergeToolResult(parent, parentRet);
+          assert.equal((await h.emit("tool_result", parent))[0], undefined);
+        }
+        assert.deepEqual(event, original);
+        assert.match(merged.content[0].text, /spec shipped at .*write a follow-up spec/);
+        assert.equal(merged.content[0].text.split("spec shipped at").length - 1, 1);
+        assert.deepEqual(merged, { ...delivered, content: [merged.content[0], ...delivered.content] });
+        assert.equal(readFileSync(h.recordPath(), "utf8"), before, "sealed record stays frozen");
+      });
+    }
   }
 
   const diffWarnings = (h: { readRecord: () => ReturnType<typeof parseRecord> }) =>

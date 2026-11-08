@@ -36,6 +36,7 @@ import {
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
+import { appendToolWarning } from "./lib/tool-result-warning.ts";
 import { matchShipStatement } from "./lib/telemetry-paths.ts";
 import { checkoutOfSync, gitSync } from "./lib/checkout.ts";
 import { parseLegs } from "./lib/plan-check.ts";
@@ -268,18 +269,12 @@ export default function (pi: ExtensionAPI) {
 
   pi.on("tool_result", async (event, ctx) => {
     rememberPlan(event, ctx.cwd);
-    if (event.toolName !== "bash") return undefined;
+    if (event.toolName === "bash") {
+      const targets = pendingTests.get(event.toolCallId);
+      pendingTests.delete(event.toolCallId);
+      if (!event.isError) for (const target of targets ?? []) verified.add(target);
+    }
 
-    const targets = pendingTests.get(event.toolCallId);
-    pendingTests.delete(event.toolCallId);
-    if (!event.isError) for (const target of targets ?? []) verified.add(target);
-
-    const warning = pendingShipWarnings.get(event.toolCallId);
-    if (!warning) return undefined;
-    pendingShipWarnings.delete(event.toolCallId);
-
-    return {
-      content: [{ type: "text" as const, text: warning }, ...event.content],
-    };
+    return appendToolWarning(event, pendingShipWarnings);
   });
 }

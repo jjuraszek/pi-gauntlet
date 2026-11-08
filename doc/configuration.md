@@ -250,6 +250,8 @@ Completion exclusions do not change attempted-work accounting: interrupted imple
 
 **Flow guards.** Nine guards, on by default, active **only inside a brainstorming-entered flow**. The first six are disabled per preset with `settings.json#piGauntlet.flowGuards.enforce: false`; the three closure guards (fix-loop shape, fix-round cap, scripted dispatch) ride `piGauntlet.closureReview.enforce: false` instead. Outside such a flow (no `start brainstorm` observed) all nine stay dormant:
 
+Advisories preserve the result's `structuredContent`; warnings from nested calls are queued on `parentToolCallId` and prepended once to the parent codemode result, leaving child results clean and warn-once latches set.
+
 - **Worktree discipline (blocks).** During `brainstorm`/`plan`/`implement`, an in-place `git switch` / `git checkout -b`/`-B` is blocked — the bash call does not run. The block evaluates the command's target checkout - its `-C <path>` or leading `cd <path>`, else the session cwd - and fires only when that target is the primary checkout; `git -C <worktree> switch -c x` passes, `git -C <primary> switch` blocks from anywhere, an unresolvable target passes. `git worktree ...` and plain `git checkout <file>` never trip it. Override via `piGauntlet.flowGuards.enforce: false`.
 - **Spec-phase confinement (advisory).** During `brainstorm`, a `write`/`edit` (or a bash mutation: `>`/`>>`/`tee`/`sed -i`/`git apply`) outside the spec dir warns that brainstorming may only touch the spec. Spec dirs come from `flowGuards.specDirs` (default `["doc/specs", "docs/specs"]`). Redirects to scratch paths (`/tmp`, `/var/folders`, `/dev`) are exempt. Warns once per brainstorm.
 
@@ -265,7 +267,7 @@ Completion exclusions do not change attempted-work accounting: interrupted imple
 
 ### `verify-before-ship`
 
-A hook on statement-start anchored `git merge --squash`, `git push`, and `gh pr create` commands; `git -C <path>` is accepted. Local commits are not ship events; commit-time review-cadence advisories come from the phase-tracker flow guard. If you haven't run a passing test command since your last source-file write in this session, an advisory warning is injected into the tool result. The warning clears automatically after a passing test run.
+A hook on statement-start anchored `git merge --squash`, `git push`, and `gh pr create` commands; `git -C <path>` is accepted. Local commits are not ship events; commit-time review-cadence advisories come from the phase-tracker flow guard. If you haven't run a passing test command since your last source-file write in this session, an advisory warning is injected into the tool result. The warning clears automatically after a passing test run. Advisory prepends preserve `structuredContent`; nested-call warnings leave child results clean and reach the parent codemode result once, keyed by `parentToolCallId`.
 
 Default test-command regex matches: `make ci`, `make test`, `npm test`, `pnpm test`, `yarn test`, `pytest`, `rspec`, `cargo test`, `go test`.
 
