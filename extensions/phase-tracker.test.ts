@@ -1747,7 +1747,7 @@ test("nested dispatch: allowed without flow entry", async () => {
 });
 
 for (const malformed of [false, true]) {
-  test(`nested dispatch: management passes and its result consumes queued warnings; malformed=${malformed}`, async () => {
+  test(`nested dispatch: management passes and its parent consumes queued warnings; malformed=${malformed}`, async () => {
     const cwd = tempCwd({});
     if (malformed) writeFileSync(join(cwd, ".pi/settings.json"), "{");
     const h = harness({ cwd, branch: verifyBranch() });
@@ -1755,13 +1755,27 @@ for (const malformed of [false, true]) {
     assert.deepEqual(await h.emitEvent("tool_call", nestedCall("script/status", { action: "status" })), [undefined]);
     const content = [{ type: "text", text: "status result" }];
     const result = { ...waveResult("script/status", []), parentToolCallId: "script", content };
-    const [warning] = await h.emitEvent("tool_result", result) as ({ content: { text: string }[] } | undefined)[];
-    assert.equal(warning !== undefined, malformed);
-    if (warning) {
-      assert.match(warning.content[0].text, /gauntlet settings load error \(using defaults\)/);
-      assert.deepEqual(warning.content.slice(1), content);
-    }
+    const original = structuredClone(result);
+    const [ret] = await h.emitEvent("tool_result", result);
+    assert.equal(ret, undefined);
+    assert.deepEqual(result, original);
+    assert.deepEqual(mergeToolResult(result, ret), original);
     assert.deepEqual(await h.emitEvent("tool_result", result), [undefined]);
+    const parent = {
+      ...result, toolName: "codemode", toolCallId: "script", parentToolCallId: undefined,
+      content: [{ type: "text", text: "script status result" }], structuredContent: { value: "status" },
+    };
+    const [warning] = await h.emitEvent("tool_result", parent);
+    assert.equal(warning !== undefined, malformed);
+    const merged = mergeToolResult(parent, warning);
+    if (malformed) {
+      assert.match(merged.content[0].text, /gauntlet settings load error \(using defaults\)/);
+      assert.equal(merged.content[0].text.split("gauntlet settings load error").length - 1, 1);
+      assert.deepEqual(merged, { ...parent, content: [merged.content[0], ...parent.content] });
+    } else {
+      assert.deepEqual(merged, parent);
+    }
+    assert.deepEqual(await h.emitEvent("tool_result", parent), [undefined]);
   });
 }
 
@@ -2520,40 +2534,27 @@ test("open-task nudge: fires on every qualifying wave and leaves fix-round count
 });
 
 // The closure-model mismatch warning is stashed at tool_call; it must render first.
-for (const nested of [false, true]) {
-  test(`open-task nudge and mismatch preserve results and warning order (${nested ? "nested" : "direct"})`, async () => {
-    const h = harness({
-      cwd: tempCwd({ piGauntlet: { closureReview: { enforce: true, model: "p/configured", maxFixRounds: 1 } } }),
-      branch: verifyBranch([taskSnapshot(eightTasks([3])), subagentResult(["conformance-reviewer"])]),
-    });
-    await h.emit("session_start");
-    const call = { tasks: [{ agent: "conformance-reviewer", model: "p/other", task: "audit" }, { agent: "implementer", task: "fix", worktree: true }] };
-    const toolCallId = nested ? "parent/0" : "m1";
-    const nesting = nested ? { parentToolCallId: "parent" } : {};
-    assert.equal((await h.emitEvent("tool_call", { toolName: "subagent", toolCallId, input: call, ...nesting }))[0], undefined);
-    const event = {
-      ...waveResult(toolCallId, [{ agent: "implementer", exitCode: 0 }]), ...nesting,
-      structuredContent: { results: [{ value: "repair" }] }, usage: { sentinel: "subagent usage" },
-    };
-    const original = structuredClone(event);
-    const [ret] = await h.emitEvent("tool_result", event);
-    let delivered = event;
-    let merged = mergeToolResult(event, ret);
-    if (nested) {
-      assert.equal(ret, undefined);
-      assert.deepEqual(merged, original);
-      const parent = { ...event, toolName: "codemode", toolCallId: "parent", parentToolCallId: undefined, structuredContent: null };
-      delivered = parent;
-      const [parentRet] = await h.emitEvent("tool_result", parent);
-      merged = mergeToolResult(parent, parentRet);
-      assert.equal((await h.emitEvent("tool_result", parent))[0], undefined);
-    }
-    assert.deepEqual(event, original);
-    assert.match(merged.content[0].text, /p\/other[\s\S]*Plan tasks still open after this repair wave:/);
-    assert.deepEqual(merged, { ...delivered, content: [merged.content[0], ...delivered.content] });
-    assert.equal((await firstCallResult(h, "next", implementerWave(1)))?.block, true, "nested repair still spends one fix round");
+test("open-task nudge and mismatch preserve results and warning order (direct)", async () => {
+  const h = harness({
+    cwd: tempCwd({ piGauntlet: { closureReview: { enforce: true, model: "p/configured", maxFixRounds: 1 } } }),
+    branch: verifyBranch([taskSnapshot(eightTasks([3])), subagentResult(["conformance-reviewer"])]),
   });
-}
+  await h.emit("session_start");
+  const call = { tasks: [{ agent: "conformance-reviewer", model: "p/other", task: "audit" }, { agent: "implementer", task: "fix", worktree: true }] };
+  const toolCallId = "m1";
+  assert.equal((await h.emitEvent("tool_call", { toolName: "subagent", toolCallId, input: call }))[0], undefined);
+  const event = {
+    ...waveResult(toolCallId, [{ agent: "implementer", exitCode: 0 }]),
+    structuredContent: { results: [{ value: "repair" }] }, usage: { sentinel: "subagent usage" },
+  };
+  const original = structuredClone(event);
+  const [ret] = await h.emitEvent("tool_result", event);
+  const merged = mergeToolResult(event, ret);
+  assert.deepEqual(event, original);
+  assert.match(merged.content[0].text, /p\/other[\s\S]*Plan tasks still open after this repair wave:/);
+  assert.deepEqual(merged, { ...event, content: [merged.content[0], ...event.content] });
+  assert.equal((await firstCallResult(h, "next", implementerWave(1)))?.block, true, "repair still spends one fix round");
+});
 
 test("open-task nudge: silent outside the verify window and without open rows", async () => {
   const cases: [string, ReturnType<typeof harness>][] = [
