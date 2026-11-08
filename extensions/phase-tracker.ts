@@ -854,7 +854,7 @@ export default function (pi: ExtensionAPI) {
 
   pi.on("tool_result", async (event, ctx) => {
     if (finishDispatch(event.toolName, event.toolCallId, event.isError, event.details)) updateWidget(ctx);
-    if (event.toolName === "subagent") {
+    if (event.toolName === "subagent" && !event.parentToolCallId) {
       observeFixWave(event.details, event.isError, ctx);
       if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
       observeCadence(event.details);

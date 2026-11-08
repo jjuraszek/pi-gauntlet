@@ -1775,6 +1775,70 @@ for (const delivery of ["live", "session_start", "session_switch", "session_fork
   });
 }
 
+for (const enforce of [true, false]) {
+  test(`nested results: closure latch stays replay-equivalent with enforce=${enforce}`, async () => {
+    const cwd = tempCwd({ piGauntlet: { closureReview: { enforce } } });
+    const h = harness({ cwd, branch: verifyBranch() });
+    await h.emit("session_start");
+    await h.emitEvent("tool_result", {
+      ...waveResult("nested", [{ agent: "conformance-reviewer", exitCode: 0 }]),
+      parentToolCallId: "script",
+    });
+    writeFileSync(join(cwd, ".pi/settings.json"), "{}");
+    assert.equal((await completePhase(h, "verify")).details.error, "no conformance-reviewer dispatch observed");
+    await h.emit("session_switch");
+    assert.equal((await completePhase(h, "verify")).details.error, "no conformance-reviewer dispatch observed");
+    await h.emitEvent("tool_result", waveResult("direct", [{ agent: "conformance-reviewer", exitCode: 0 }]));
+    assert.equal((await completePhase(h, "verify")).details.error, undefined);
+  });
+}
+
+for (const agent of ["implementer", "loop-implementer"]) {
+  test(`nested results: ${agent} preserves rounds and granted credits`, async () => {
+    const h = guardedHarness({ piGauntlet: { closureReview: { maxFixRounds: 1 } } });
+    await h.emit("session_start");
+    const result = waveResult("wave", [{ agent, exitCode: 0 }]);
+    await h.emitEvent("tool_result", { ...result, parentToolCallId: "script" });
+    assert.equal(await firstCallResult(h, "first", implementerWave(1, agent)), undefined);
+    await h.emitEvent("tool_result", result);
+    assert.equal((await firstCallResult(h, "capped", implementerWave(1, agent)))?.block, true);
+    assert.equal((await grant(h, "grant", { rounds: 1, reason: "one more repair" })).details.error, undefined);
+    await h.emitEvent("tool_result", { ...result, parentToolCallId: "script" });
+    assert.equal(await firstCallResult(h, "funded", implementerWave(1, agent)), undefined);
+    await h.emitEvent("tool_result", result);
+    const spent = await firstCallResult(h, "spent", implementerWave(1, agent));
+    assert.equal(spent?.block, true);
+    assert.match(spent?.reason ?? "", /2 fix round\(s\) used against a cap of 1/);
+  });
+}
+
+for (const row of [
+  { agent: "implementer", prior: [], warns: false },
+  { agent: "wave-reviewer", prior: [subagentResult(["implementer"])], warns: true },
+]) {
+  test(`nested results: ${row.agent} leaves cadence unchanged but finishes the live dispatch`, async () => {
+    const h = harness({ hasUI: true, branch: implementBranch(row.prior) });
+    await h.emit("session_start");
+    await firstCallResult(h, "work", { agent: row.agent });
+    assert.match(h.widgets.at(-1)!, /implement\(/);
+    await h.emitEvent("tool_result", {
+      ...waveResult("work", [{ agent: row.agent, exitCode: 0 }]),
+      parentToolCallId: "script",
+    });
+    assert.doesNotMatch(h.widgets.at(-1)!, /implement\(/);
+    for (const delivery of ["live", "session_switch"]) {
+      if (delivery !== "live") await h.emit(delivery);
+      await h.emitEvent("tool_call", commitCall("commit"));
+      const [warning] = await h.emitEvent("tool_result", commitResult("commit"));
+      assert.equal(warning !== undefined, row.warns, delivery);
+    }
+    await h.emitEvent("tool_result", waveResult("direct", [{ agent: row.agent, exitCode: 0 }]));
+    await h.emitEvent("tool_call", commitCall("direct-commit"));
+    const [warning] = await h.emitEvent("tool_result", commitResult("direct-commit"));
+    assert.equal(warning !== undefined, !row.warns);
+  });
+}
+
 test("interrupted implementer waves still spend rounds and granted credits and nudge open tasks live and on replay", async () => {
   const cwd = tempCwd({ piGauntlet: { closureReview: { maxFixRounds: 1 } } });
   const interrupted = waveResult("paused", [{ agent: "implementer", exitCode: 0, interrupted: true }]);
