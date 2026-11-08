@@ -17,6 +17,15 @@ test("malformed leg arguments name the value", () => {
     assert.ok(result.stderr.includes(value));
   }
 });
+test("branch flags reject other modes and seal options", () => {
+  for (const mode of ["--migrate-branch", "--retire-branch"]) {
+    for (const other of [[mode === "--migrate-branch" ? "--retire-branch" : "--migrate-branch"], ["--migrate"], ["--option", "pr"], ["--base", "HEAD"], ["--spec", "doc/specs/x.md"], ["--leg", "org/repo=abcdef0"]]) {
+      const result = invoke([mode, ...other]);
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stderr, /usage:/);
+    }
+  }
+});
 test("source seal stores repeated legs, splits first equals, and checks retry sets without companion writes", (t) => {
   const root = mkdtempSync(join(tmpdir(), "seal-legs-"));
   const companion = mkdtempSync(join(tmpdir(), "seal-companion-"));

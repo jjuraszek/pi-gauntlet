@@ -115,48 +115,96 @@ for (const custom of [false, true]) {
   });
 }
 
-for (const existing of [false, true]) {
-  test(`migration unions legacy sources with ${existing ? "an existing" : "no"} destination`, () => {
+for (const { name, existing, remoteSource } of [
+  { name: "legacy sources with no destination", existing: false, remoteSource: true },
+  { name: "legacy sources with an existing destination", existing: true, remoteSource: true },
+  { name: "a local-only branch with both remote refs absent", existing: false, remoteSource: false },
+]) {
+  test(`migration unions ${name}`, () => {
     const f = fixture();
-    const empty = f.cli("--migrate-branch");
-    assert.equal(empty.status, 0, empty.stderr);
-    assert.match(empty.stdout, /nothing to migrate/);
+    if (!existing && remoteSource) {
+      const refs = f.git("ls-remote", f.remote);
+      const localRefs = f.git("show-ref");
+      const empty = f.cli("--migrate-branch");
+      assert.equal(empty.status, 0, empty.stderr);
+      assert.match(empty.stdout, /nothing to migrate/);
+      assert.equal(f.git("ls-remote", f.remote), refs);
+      assert.equal(f.git("show-ref"), localRefs);
+    }
     const local = f.commit([[path("local [copy]"), "local bytes\n"]]);
     f.git("update-ref", legacy, local);
-    const remote = f.commit([[path("remote"), "remote bytes\n"]]);
-    f.publish(legacy, remote);
-    const dest = f.commit([[path("new"), "destination bytes\n"]]);
+    const remote = remoteSource ? f.commit([[path("remote"), "remote bytes\n"]]) : null;
+    if (remoteSource) f.publish(legacy, remote);
+    const dest = existing ? f.commit([[path("new"), "destination bytes\n"]]) : null;
     if (existing) f.publish(destination, dest);
+    if (!remoteSource) assert.equal(f.git("ls-remote", f.remote), "", "both remote refs are absent before the local-only carry");
+    if (!existing && remoteSource) {
+      const refs = f.git("ls-remote", f.remote);
+      const refused = f.cli("--retire-branch");
+      assert.equal(refused.status, 1, refused.stdout + refused.stderr);
+      for (const name of ["local [copy]", "remote"]) assert.ok(refused.stderr.includes(`not carried: ${path(name)}`), refused.stderr);
+      assert.equal(f.git("ls-remote", f.remote), refs);
+      assert.equal(f.git("rev-parse", legacy), local);
+    }
     const result = f.cli("--migrate-branch");
     assert.equal(result.status, 0, result.stderr);
-    const expected = [["local [copy]", "local bytes"], ["remote", "remote bytes"], ...(existing ? [["new", "destination bytes"]] : [])];
+    const expected = [["local [copy]", "local bytes"], ...(remoteSource ? [["remote", "remote bytes"]] : []), ...(existing ? [["new", "destination bytes"]] : [])];
     for (const [name, bytes] of expected) {
       assert.equal(f.git("--git-dir", f.remote, "show", `${destination}:${path(name)}`), bytes);
     }
     assert.equal(f.git("rev-parse", legacy), local);
-    assert.equal(f.remoteTip(legacy), remote);
-    assert.equal(f.git("--git-dir", f.remote, "rev-parse", `${destination}^`), existing ? dest : remote);
+    if (remoteSource) {
+      assert.equal(f.remoteTip(legacy), remote);
+      assert.equal(f.git("--git-dir", f.remote, "rev-parse", `${destination}^`), existing ? dest : remote);
+      const carried = f.remoteTip(destination);
+      const retired = f.cli("--retire-branch");
+      assert.equal(retired.status, 0, retired.stderr);
+      assert.match(retired.stdout, /retired: gauntlet\/telemetry on origin/);
+      assert.ok(retired.stdout.includes(`if git show-ref --verify --quiet ${legacy}; then git branch -D gauntlet/telemetry; fi`));
+      assert.ok(retired.stdout.includes("git update-ref -d refs/remotes/origin/gauntlet/telemetry"));
+      assert.equal(f.git("ls-remote", f.remote, legacy), "");
+      assert.equal(f.remoteTip(destination), carried);
+      assert.equal(f.git("rev-parse", legacy), local);
+    } else {
+      assert.equal(f.git("ls-remote", f.remote, legacy), "");
+      assert.equal(f.git("--git-dir", f.remote, "rev-list", "--count", destination), "1");
+    }
   });
 }
 
-for (const pair of [["remote legacy", "destination"], ["local legacy", "destination"], ["remote legacy", "local legacy"]]) {
-  test(`migration rejects conflicting bytes in ${pair.join(" and ")}`, () => {
+for (const { labels, destinationOnly = false } of [
+  { labels: ["remote legacy", "destination"] },
+  { labels: ["local legacy", "destination"] },
+  { labels: ["remote legacy", "local legacy"] },
+  { labels: ["remote legacy", "local legacy", "destination"] },
+  { labels: ["remote legacy", "local legacy"], destinationOnly: true },
+]) {
+  test(`migration rejects conflicting bytes in ${labels.join(" and ")}${destinationOnly ? " absent from an existing destination" : ""}`, () => {
     const f = fixture();
-    for (const [index, label] of pair.entries()) {
+    for (const [index, label] of labels.entries()) {
       const oid = f.commit([[path("conflict"), `variant ${index}\n`]]);
       if (label === "local legacy") f.git("update-ref", legacy, oid);
       else f.publish(label === "remote legacy" ? legacy : destination, oid);
     }
+    if (destinationOnly) f.publish(destination, f.commit([[path("destination-only"), "destination bytes\n"]]));
     const refs = f.git("ls-remote", f.remote);
     const localRefs = f.git("show-ref");
     const trace = join(f.scratch, "conflict.trace");
-    const result = f.cli("--migrate-branch", { GIT_TRACE: trace });
-    assert.equal(result.status, 1, result.stdout + result.stderr);
-    assert.match(result.stderr, /conflict: team\/product\/brainstorming\/doc\/specs\/conflict.yaml/);
-    for (const label of pair) assert.ok(result.stderr.includes(label), result.stderr);
-    assert.equal(f.git("ls-remote", f.remote), refs);
-    for (const line of localRefs.split("\n")) assert.ok(f.git("show-ref").includes(line));
-    assert.doesNotMatch(readFileSync(trace, "utf8"), /built-in: git (push|commit-tree)/);
+    for (const mode of ["--migrate-branch", ...(labels.includes("remote legacy") ? ["--retire-branch"] : [])]) {
+      const result = f.cli(mode, { GIT_TRACE: trace });
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      const conflicts = result.stderr.split("\n").filter(line => line.startsWith(`conflict: ${path("conflict")} differs between `));
+      assert.equal(conflicts.length, labels.length * (labels.length - 1) / 2, result.stderr);
+      for (let a = 0; a < labels.length; a++) {
+        for (let b = a + 1; b < labels.length; b++) {
+          assert.ok(conflicts.some(line => line.endsWith(`${labels[a]} and ${labels[b]}`) || line.endsWith(`${labels[b]} and ${labels[a]}`)), result.stderr);
+        }
+      }
+      assert.equal(f.git("ls-remote", f.remote), refs);
+      const currentLocalRefs = f.git("show-ref").split("\n");
+      for (const line of localRefs.split("\n")) assert.ok(currentLocalRefs.includes(line));
+      assert.doesNotMatch(readFileSync(trace, "utf8"), /built-in: git (push|commit-tree)/);
+    }
   });
 }
 
@@ -237,17 +285,6 @@ for (const stage of ["ls-remote", "fetch", "push"]) {
   });
 }
 
-test("branch flags reject other modes and seal options", () => {
-  const f = fixture();
-  for (const mode of ["--migrate-branch", "--retire-branch"]) {
-    for (const other of [[mode === "--migrate-branch" ? "--retire-branch" : "--migrate-branch"], ["--migrate"], ["--option", "pr"], ["--base", "HEAD"], ["--spec", "doc/specs/x.md"], ["--leg", "org/repo=abcdef0"]]) {
-      const result = f.run(process.execPath, [seal, mode, ...other]);
-      assert.equal(result.status, 1, result.stdout + result.stderr);
-      assert.match(result.stderr, /usage:/);
-    }
-  }
-});
-
 test("retirement lease leaves a late old-client push intact", () => {
   const f = fixture();
   const source = f.commit([[path("old"), "bytes\n"]]);
@@ -261,6 +298,20 @@ test("retirement lease leaves a late old-client push intact", () => {
   assert.match(result.stderr, /gauntlet\/telemetry moved since verification - re-run --migrate-branch then --retire-branch/);
   assert.equal(f.remoteTip(legacy), late);
   assert.equal(f.remoteTip(destination), source);
+  const refs = f.git("ls-remote", f.remote);
+  const refused = f.cli("--retire-branch");
+  assert.equal(refused.status, 1, refused.stdout + refused.stderr);
+  assert.ok(refused.stderr.includes(`not carried: ${path("late")}`), refused.stderr);
+  assert.equal(f.git("ls-remote", f.remote), refs);
+  const carried = f.cli("--migrate-branch");
+  assert.equal(carried.status, 0, carried.stderr);
+  assert.match(carried.stdout, /carried: 1 records/);
+  assert.equal(f.records(destination), f.records(legacy));
+  const dest = f.remoteTip(destination);
+  const retired = f.cli("--retire-branch");
+  assert.equal(retired.status, 0, retired.stderr);
+  assert.equal(f.git("ls-remote", f.remote, legacy), "");
+  assert.equal(f.remoteTip(destination), dest);
 });
 
 for (const existing of [false, true]) {
@@ -280,5 +331,22 @@ for (const existing of [false, true]) {
     assert.equal(f.remoteTip(destination), racer);
     assert.equal(f.remoteTip(legacy), source);
     assert.equal(readFileSync(trace, "utf8").split("\n").filter(line => /built-in: git push/.test(line)).length, 1);
+    const refs = f.git("ls-remote", f.remote);
+    const refused = f.cli("--retire-branch");
+    assert.equal(refused.status, 1, refused.stdout + refused.stderr);
+    assert.ok(refused.stderr.includes(`not carried: ${path("old")}`), refused.stderr);
+    assert.equal(f.git("ls-remote", f.remote), refs);
+    const carried = f.cli("--migrate-branch");
+    assert.equal(carried.status, 0, carried.stderr);
+    assert.match(carried.stdout, /carried: 1 records/);
+    assert.equal(f.git("--git-dir", f.remote, "show", `${destination}:${path("old")}`), "old");
+    assert.equal(f.git("--git-dir", f.remote, "show", `${destination}:${path("racer")}`), "concurrent bytes");
+    assert.equal(f.git("--git-dir", f.remote, "rev-parse", `${destination}^`), racer);
+    assert.equal(f.remoteTip(legacy), source);
+    const dest = f.remoteTip(destination);
+    const retired = f.cli("--retire-branch");
+    assert.equal(retired.status, 0, retired.stderr);
+    assert.equal(f.git("ls-remote", f.remote, legacy), "");
+    assert.equal(f.remoteTip(destination), dest);
   });
 }
