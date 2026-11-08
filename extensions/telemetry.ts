@@ -14,9 +14,10 @@
   import { dirname, isAbsolute, join, posix, resolve } from "node:path";
   import * as piRuntime from "@earendil-works/pi-coding-agent";
   import { SettingsManager, getAgentDir } from "@earendil-works/pi-coding-agent";
-  import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+  import type { ExtensionAPI, ExtensionContext, ToolResultEvent } from "@earendil-works/pi-coding-agent";
   import { DEFAULT_TELEMETRY_DIR, DEFAULT_TEST_COMMANDS, planDirsFor, resolveFlowGuards, resolveTelemetry, settingsErrorWarning, type TelemetryResolved } from "./lib/gauntlet-settings.ts";
   import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
+  import { createPendingWarnings } from "./lib/tool-result-warnings.ts";
   import { checkoutOf } from "./lib/checkout.ts";
   import { CONTEXT_DRAFT_MARKER, nextGauntletEntered } from "./lib/phase-tracker-helpers.ts";
   import { sha256 } from "./lib/plan-check.ts";
@@ -544,6 +545,8 @@
     });
 
     pi.on("tool_result", async (event, ctx) => {
+      const text = pendingWarnings.take(event.toolCallId);
+      if (text) return pendingWarnings.deliver(event, text);
       lastCtx = ctx;
       const snap = enabledSettings(ctx);
       if (!snap) return undefined;
@@ -605,7 +608,7 @@
     });
 
     // Binding + spec-write bookkeeping; the bound-spec hooks are defined in block 2.
-    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: { toplevel: string; rel: string; via: "git" | "jj" }, event: { input: unknown; content: unknown[] }, snap: SettingsSnapshot): Promise<unknown> => {
+    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: { toplevel: string; rel: string; via: "git" | "jj" }, event: ToolResultEvent, snap: SettingsSnapshot): Promise<unknown> => {
       const rel = loc.rel;
       if (!boundSpec) {
         if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs)) {
@@ -655,12 +658,13 @@
     };
 
     // Defined in block 2.
-    let onBoundSpecWrite: (tool: "write" | "edit", rel: string, event: { input: unknown; content: unknown[] }) => unknown;
+    let onBoundSpecWrite: (tool: "write" | "edit", rel: string, event: ToolResultEvent) => unknown;
     let onOtherSpecEdit: (rel: string, event: { input: unknown }, specDirs: string[]) => void;
 
     let amendmentOpen = false;
     let lastPlanTasks: { name?: string; status: string }[] | undefined;
     const pendingTest = new Map<string, string>(); // toolCallId -> matched statement
+    const pendingWarnings = createPendingWarnings();
 
     const phaseAcc = (k: PhaseKey = phaseNow()): PhaseAcc => (live().phases[k] ??= {});
 
@@ -877,7 +881,7 @@
       refreshLinks();
       if (record.shipped_at) {
         const warning = `⚠️ spec shipped at ${record.shipped_at}; write a follow-up spec that supersedes it`;
-        return { content: [{ type: "text" as const, text: warning }, ...(event.content as { type: string }[])] };
+        return pendingWarnings.deliver(event, warning);
       }
       if (record.approved_at && !amendmentOpen) {
         acc.amendments += 1;

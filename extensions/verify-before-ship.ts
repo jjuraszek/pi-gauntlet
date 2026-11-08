@@ -36,6 +36,7 @@ import {
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
+import { createPendingWarnings } from "./lib/tool-result-warnings.ts";
 import { matchShipStatement } from "./lib/telemetry-paths.ts";
 import { checkoutOfSync, gitSync } from "./lib/checkout.ts";
 import { parseLegs } from "./lib/plan-check.ts";
@@ -214,7 +215,7 @@ export default function (pi: ExtensionAPI) {
     });
   };
   const pendingTests = new Map<string, Set<string>>();
-  const pendingShipWarnings = new Map<string, string>();
+  const pendingWarnings = createPendingWarnings();
 
   const getCommand = (event: { input: unknown }): string => {
     const input = event.input as { command?: unknown } | undefined;
@@ -236,11 +237,6 @@ export default function (pi: ExtensionAPI) {
     const command = getCommand(event);
     if (!command) return undefined;
 
-    const addShipWarning = (id: string, text: string) => {
-      const prior = pendingShipWarnings.get(id);
-      pendingShipWarnings.set(id, prior ? prior + "\n\n" + text : text);
-    };
-
     const targets = new Set<string>();
     let settingsErrShown = false;
     for (const statement of statements(command, ctx.cwd)) {
@@ -255,11 +251,11 @@ export default function (pi: ExtensionAPI) {
       const isTest = buildTestCmdRegex(testCommands).test(statement.testCommand) && !/^(?:echo|printf|rg|grep)\b/.test(statement.command);
       if (isTest && statement.trusted) targets.add(statement.target);
       if ((isTest || matchShipStatement(statement.command)) && errors.length && !settingsErrShown) {
-        addShipWarning(event.toolCallId, settingsErrorWarning(errors));
+        pendingWarnings.add(event.toolCallId, settingsErrorWarning(errors));
         settingsErrShown = true;
       }
       if (matchShipStatement(statement.command) && (!statement.trusted || !verified.has(statement.target))) {
-        addShipWarning(event.toolCallId, formatWarning(command, testCommands, warningReference));
+        pendingWarnings.add(event.toolCallId, formatWarning(command, testCommands, warningReference));
       }
     }
     if (targets.size) pendingTests.set(event.toolCallId, targets);
@@ -268,18 +264,14 @@ export default function (pi: ExtensionAPI) {
 
   pi.on("tool_result", async (event, ctx) => {
     rememberPlan(event, ctx.cwd);
-    if (event.toolName !== "bash") return undefined;
+    if (event.toolName === "bash") {
+      const targets = pendingTests.get(event.toolCallId);
+      pendingTests.delete(event.toolCallId);
+      if (!event.isError) for (const target of targets ?? []) verified.add(target);
+    }
 
-    const targets = pendingTests.get(event.toolCallId);
-    pendingTests.delete(event.toolCallId);
-    if (!event.isError) for (const target of targets ?? []) verified.add(target);
-
-    const warning = pendingShipWarnings.get(event.toolCallId);
-    if (!warning) return undefined;
-    pendingShipWarnings.delete(event.toolCallId);
-
-    return {
-      content: [{ type: "text" as const, text: warning }, ...event.content],
-    };
+    const text = pendingWarnings.take(event.toolCallId);
+    if (text) return pendingWarnings.deliver(event, text);
+    return undefined;
   });
 }

@@ -7,6 +7,7 @@
   import { DEFAULT_TELEMETRY_BUCKETS, planDirsFor, resolveFlowGuards } from "./lib/gauntlet-settings.ts";
   import { emptyAccumulators, parseRecord, serializeRecord } from "./lib/telemetry-record.ts";
   import { guardReason } from "./lib/telemetry-ship.ts";
+  import { mergeToolResult } from "./test-support/merge-tool-result.mjs";
 
 
   const originalDepth = process.env.PI_SUBAGENT_DEPTH;
@@ -35,6 +36,7 @@
     const specDirs = resolveFlowGuards({}).specDirs;
     const fetchedRecords = new Map<string, string>();
     let clock = Date.parse("2026-09-17T10:00:00Z");
+    let enabled = o.enabled ?? true;
     const deps: Deps = {
       telemetryRepo: () => "test/repo",
       readTelemetryBranch: () => ({ records: [...fetchedRecords].map(([path, bytes]) => ({ path, bytes })) }),
@@ -61,7 +63,7 @@
         if (args[0] === "ls-files") return { code: 0, stdout: "", stderr: "" };
         return { code: 0, stdout: "", stderr: "" };
       },
-      settings: () => ({ specDirs, planDirs: planDirsFor(specDirs), telemetry: { enabled: o.enabled ?? true, buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: "0.85.1" } }),
+      settings: () => ({ specDirs, planDirs: planDirsFor(specDirs), telemetry: { enabled, buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: "0.85.1" } }),
       // A plain jj workspace: `jj root` answers the temp root while git rev-parse fails.
       jj: async (args, cwd) => {
         jjCalls.push(args);
@@ -100,7 +102,7 @@
       await emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: rel, content: body } });
       return emit("tool_result", { toolName: "write", toolCallId: "w", input: { path: rel, content: body }, content: [], isError: false, details: undefined });
     };
-    return { fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
+    return { setEnabled: (value: boolean) => (enabled = value), fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
   }
 
   const P = (over: Record<string, string> = {}) => Object.fromEntries(["brainstorm", "plan", "implement", "verify", "ship"].map((p) => [p, { status: over[p] ?? "pending" }]));
@@ -1222,6 +1224,69 @@
     return h;
   }
 
+  for (const toolName of ["write", "edit"]) {
+    for (const nested of [false, true]) {
+      test(`post-ship ${toolName} warning preserves results (${nested ? "nested" : "direct"})`, async () => {
+        const h = await boundInJjShip();
+        const before = readFileSync(h.recordPath(), "utf8");
+        const event = {
+          toolName, toolCallId: nested ? "parent/0" : "direct",
+          ...(nested ? { parentToolCallId: "parent" } : {}),
+          input: { path: "doc/specs/a.md", content: "# Spec\n", newText: "updated" },
+          content: [{ type: "text", text: "spec updated" }], isError: false,
+          structuredContent: toolName === "write" ? { written: true } : null,
+          details: { sentinel: "telemetry details" }, usage: { sentinel: "telemetry usage" },
+        };
+        const original = structuredClone(event);
+        const [ret] = await h.emit("tool_result", event);
+        let delivered = event;
+        let merged = mergeToolResult(event, ret);
+        if (nested) {
+          assert.equal(ret, undefined);
+          assert.deepEqual(merged, original);
+          const parent = {
+            ...event, toolName: "codemode", toolCallId: "parent", parentToolCallId: undefined,
+            content: [{ type: "text", text: "script complete" }], structuredContent: { value: true },
+          };
+          delivered = parent;
+          const [parentRet] = await h.emit("tool_result", parent);
+          merged = mergeToolResult(parent, parentRet);
+          assert.equal((await h.emit("tool_result", parent))[0], undefined);
+        }
+        assert.deepEqual(event, original);
+        assert.match(merged.content[0].text, /spec shipped at .*write a follow-up spec/);
+        assert.equal(merged.content[0].text.split("spec shipped at").length - 1, 1);
+        assert.deepEqual(merged, { ...delivered, content: [merged.content[0], ...delivered.content] });
+        assert.equal(readFileSync(h.recordPath(), "utf8"), before, "sealed record stays frozen");
+      });
+    }
+  }
+
+  for (const transition of ["disabled", "session_tree"] as const) {
+    test(`deferred shipped-spec warning survives ${transition} before its parent result`, async () => {
+      const h = await boundInJjShip();
+      const before = readFileSync(h.recordPath(), "utf8");
+      const child = {
+        toolName: "edit", toolCallId: "parent/0", parentToolCallId: "parent",
+        input: { path: "doc/specs/a.md", newText: "updated" },
+        content: [{ type: "text", text: "updated" }], structuredContent: { edited: true }, isError: false,
+      };
+      assert.equal((await h.emit("tool_result", child))[0], undefined);
+      if (transition === "disabled") h.setEnabled(false);
+      else await h.emit("session_tree", { type: "session_tree" });
+      const parent = {
+        toolName: "codemode", toolCallId: "parent", input: {}, isError: false,
+        content: [{ type: "text", text: "done" }], structuredContent: { value: 0 },
+      };
+      const [ret] = await h.emit("tool_result", parent);
+      const merged = mergeToolResult(parent, ret);
+      assert.match(merged.content[0].text, /spec shipped at .*write a follow-up spec/);
+      assert.deepEqual(merged, { ...parent, content: [merged.content[0], ...parent.content] });
+      assert.equal((await h.emit("tool_result", parent))[0], undefined);
+      assert.equal(readFileSync(h.recordPath(), "utf8"), before, "sealed record stays frozen");
+    });
+  }
+
   const diffWarnings = (h: { readRecord: () => ReturnType<typeof parseRecord> }) =>
     h.readRecord()!.events.filter((e) => e.kind === "warning").map((e: any) => e.message as string).filter((m) => m.startsWith("diff omitted"));
 
@@ -1234,7 +1299,7 @@
     assert.equal(rec.derived.gates.ship_option, "keep");
     const beforeWrite = readFileSync(h.recordPath(), "utf8");
     const out = await h.writeSpec("doc/specs/a.md");
-    assert.deepEqual(out.filter(Boolean), [{ content: [{ type: "text", text: `⚠️ spec shipped at ${rec.shipped_at}; write a follow-up spec that supersedes it` }] }]);
+    assert.deepEqual(out.filter(Boolean), [{ content: [{ type: "text", text: `⚠️ spec shipped at ${rec.shipped_at}; write a follow-up spec that supersedes it` }], structuredContent: undefined }]);
     assert.equal(readFileSync(h.recordPath(), "utf8"), beforeWrite);
     assert.equal(h.readRecord().derived.spec_edits_after_ship, 0);
     assert.deepEqual(rec.derived.modified_files, ["src/a.ts", "test/a.test.ts"]);

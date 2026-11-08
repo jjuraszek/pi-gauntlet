@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Guard, ship-verification, and post-ship spec warnings preserve tool `structuredContent`; nested-call warnings reach the parent codemode result once without changing the child's value or re-arming warn-once guards. (#133)
+
 ## v8.4.4 - 2026-11-08
 
 - Block scripted `subagent` dispatches in every entered gauntlet phase and exclude nested results from closure latch, fix-round counter, and cadence updates. Use direct tool calls instead; disable with `closureReview.enforce: false`. The configuration guide documents codemode `on` support with direct-only dispatch, why `only` is unsupported in an entered flow, and how to read literal skill dispatch examples (#132, #134).

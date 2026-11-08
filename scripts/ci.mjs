@@ -487,6 +487,7 @@ try {
       R("extensions/lib/checkout.test.ts"),
       R("extensions/lib/plan-check.test.ts"),
       R("extensions/lib/phase-tracker-helpers.test.ts"),
+      R("extensions/lib/tool-result-warnings.test.ts"),
       R("extensions/plan-tracker.test.ts"),
       R("extensions/phase-tracker.test.ts"),
       R("extensions/verify-before-ship.test.ts"),
