@@ -3,7 +3,7 @@
 base: 6939fd9ee8b3460f92fc4edb918eefe3f2d0be5c
 verification: npm test
 checks: commands
-iterations: 18
+iterations: 19
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -28,7 +28,7 @@ allowance: 10
 | 18 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-plain-payloads.test.mjs; 2 passed, 0 failed; plain-payloads: all 5 facts hold on both models; bound spent: gatekeep-pr/plain-payloads (1 of 3), ran gatekeep-pr/plain-payloads (1 of 3) |
 | 19 | done | 0 | timeout -k 30 30 python3 -c 'assert all(s in __import__("pathlib").Path("skills/gatekeep-pr/SKILL.md").read_text().split("### Output done-check\n")[1].split("## Red flags")[0] for s in ("Before sending any report, menu or external payload", "internal jargon, raw field/value pairs, labeled-field scaffolding", "instructions for the human to run a command the skill can run", "Rewrite those lines in plain language", "execute selected commands yourself"))'; 5 output done-check assertions passed; no further model or external actions launched |
 | 20 | done | 1 | timeout -k 30 60 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry-settlement-contract.test.ts extensions/telemetry-leg.test.ts scripts/gate-contract-lint.test.mjs; 22 passed, 0 failed; nine state markers and terminal settlement grammar verified; no model or external actions launched |
-| 21 | failed | 2 | timeout -k 30 20 python3 -c 'exec("from pathlib import Path\nr = Path(\"skills/gatekeep-pr\")\ns = [p.stat().st_size for p in r.rglob(\"*.md\")]\nprint(sum(s), max(s), (r / \"reference/decision-menu.md\").exists())\nassert sum(s) < 218934 and max(s) <= 50000 and not (r / \"reference/decision-menu.md\").exists()")'; exit 1: total 225089 bytes exceeds 218934 bound, largest file 41502 bytes; decision-menu.md exists and protected row 1 test loads it at line 63; protected test line 664 requires its step-6 reference, contradicting AC21 removal |
+| 21 | failed | 3 | timeout -k 30 20 python3 -c 'exec("from pathlib import Path\nr = Path(\"skills/gatekeep-pr\")\ns = [p.stat().st_size for p in r.rglob(\"*.md\")]\nprint(\"total\", sum(s), \"largest\", max(s))\nt = Path(\"scripts/gatekeep-bypass-pick.test.mjs\").read_text()\nassert \"reference/decision-menu.md\" not in t, \"Protected imported bypass test line 24 still requires decision-menu.md outside the authorized reconcile-test exception\"\nassert sum(s) < 218934 and max(s) <= 50000 and not (r / \"reference/decision-menu.md\").exists()")'; exit 1: protected bypass test line 24 requires decision-menu.md, imported by row 1 reconcile test line 1; human exception covers reconcile test only, not bypass test; total 225089 bytes, largest 41502 bytes, no model or external actions launched |
 
 ## Decisions
 
@@ -55,3 +55,4 @@ row 18 done | Removed payload fences and kept coverage verbatim; bound spent: ga
 row 20 done | Preserved gate IDs and settlement outcomes, repaired batch marker inventory, and passed 22 scoped tests; no model or external actions launched. | Reuse extensions/telemetry-settlement-contract.test.ts with the pi-stubs loader for gate and settlement checks; lintGateContract also accepts the existing post-menu wording.
 row 21 failed | Measured 225089 bytes and found decision-menu.md still present; deletion conflicts with row 1's protected test reader; no model or external actions launched. | Resolve the closed-test edit restriction for scripts/gatekeep-comment-reconcile.test.mjs before migrating its reader and removing decision-menu.md; deletion alone still leaves 220245 bytes.
 row 21 failed | Confirmed AC21 fails at 225089 bytes; the protected row 1 test loads decision-menu.md and requires its step-6 reference; no model or external actions ran. | Authorize migration of scripts/gatekeep-comment-reconcile.test.mjs before redispatch; line 664 contradicts AC21, so do not retry deletion or size-only edits under unchanged restrictions.
+row 21 failed | Found a second protected reader in the imported bypass test at line 24; no code edits, model calls or external actions ran. | Authorize scripts/gatekeep-bypass-pick.test.mjs migration too; reconcile-only authorization cannot preserve its coverage while deleting decision-menu.md.
