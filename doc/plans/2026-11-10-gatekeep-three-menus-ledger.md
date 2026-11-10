@@ -3,12 +3,12 @@
 base: 6939fd9ee8b3460f92fc4edb918eefe3f2d0be5c
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | done | 1 | timeout -k 30 60 node --test scripts/gatekeep-comment-reconcile.test.mjs; ran gatekeep-pr/gate-line-first (1 of 3); ran gatekeep-pr/gate-line-first (2 of 3); 74 passed, 0 failed, candidate facts hold for both models |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -33,3 +33,4 @@ allowance: 10
 ## Decisions
 
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1
+row 1 done | Put recommendations on row 1; ran gatekeep-pr/gate-line-first (1 of 3); ran gatekeep-pr/gate-line-first (2 of 3). | Reuse menus.md ordering and gate-line-first's saved candidate via scripts/gatekeep-comment-reconcile.test.mjs.

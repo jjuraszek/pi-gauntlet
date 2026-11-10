@@ -739,6 +739,23 @@ test('ten templates own menus and typed dispatch is not row authority', () => {
   assert.match(menus, /Quote a numeric pick only after the rendered menu/);
   assert.match(menus, /Never narrate or summarize a menu/);
   assert.match(menus, /approved_head/);
+  assert.match(menus, /Move the recommended action to row 1 before numbering every menu, including child and batch menus/);
+  assert.match(menus, /Append ` recommended=1` to each gate line/);
+  assert.match(menus, /Keep non-recommended stop last/);
+  assert.doesNotMatch(menus, /recommended=<n>|stop not last|[Kk]eep stop last|Put stop last/);
+  assert.match(skill, /a recommendation not on row 1/);
+  for (const text of [loop, batch]) assert.doesNotMatch(text, /keep stop last|and stop last/);
+  for (const row of menus.matchAll(/^(\d+)\. .*\[recommended\].*$/gm)) assert.equal(row[1], '1');
+  for (const gate of menus.matchAll(/^gauntlet: gate=gatekeep-pr\/\S+ recommended=(\d+)$/gm)) assert.equal(gate[1], '1');
+  const replay = JSON.parse(read('../eval/gatekeep-pr/results/gate-line-first/candidate.json'));
+  assert.ok(Object.keys(replay.outputs).length > 0);
+  for (const [model, output] of Object.entries(replay.outputs)) {
+    assert.equal(output.status, 'ok', model);
+    assert.match(output.text, /^gauntlet: gate=gatekeep-pr\/obstacle recommended=1\r?\n/);
+    assert.match(output.text, /^1\. .*\bstop\b.*\[recommended\]/m);
+    assert.equal([...output.text.matchAll(/\[recommended\]/g)].length, 1);
+    for (const fact of ['first-line', 'gate-first']) assert.equal(replay.judge[model].facts[fact].after, 'holds', `${model}: ${fact}`);
+  }
   assert.match(menus, /For a recovered `CONFLICTING` child, offer only safe `retry` and `stop`/);
   assert.match(batch, /conflicts through `menus.md` `## batch summary`'s recovered CONFLICTING template/);
   assert.match(menus, /failed post keeps its row/);

@@ -66,7 +66,7 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 - Judging a ticket row the spec does not carry, or treating a spec `deferred: <ref>` row as a gap - owner: `reference/findings.md` `## AC outcomes`.
 - Reading the rubric, the verification command, or any ladder source from the PR's head instead of the base branch's merge-base - owner: `reference/assessment.md` `## Configuration`.
 - Raw command output, drafted payloads except the exact description consent preview, or internal IDs in the rendered report - owner: `reference/report.md`.
-- A menu rendered under deliver before an exit condition, other than the contract-exception template; a menu not rendered from `reference/menus.md`, two recommendations, stop not last or no show evidence hint - owner: `reference/menus.md`.
+- A menu rendered under deliver before an exit condition, other than the contract-exception template; a menu not rendered from `reference/menus.md`, two recommendations, a recommendation not on row 1 or no show evidence hint - owner: `reference/menus.md`.
 - `cleanup` rendered on a non-terminal template, or cleanup steps 2-4 run on non-final stop - owner: `reference/cleanup.md` `## Non-final stop`.
 - A CI watch outside D3 step 4 or before the first report, or a second push inside one iteration - owner: `reference/post-selection-loop.md` `### Next action`.
 - The orchestrator resolving a merge conflict itself, or editing or committing a tracked file during a fix wave - owner: `reference/fix-wave.md` `## Sync` and `## Wave`.
