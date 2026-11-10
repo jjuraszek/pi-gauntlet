@@ -3,13 +3,13 @@
 base: 6939fd9ee8b3460f92fc4edb918eefe3f2d0be5c
 verification: npm test
 checks: commands
-iterations: 2
+iterations: 3
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | timeout -k 30 60 node --test scripts/gatekeep-comment-reconcile.test.mjs; ran gatekeep-pr/gate-line-first (1 of 3); ran gatekeep-pr/gate-line-first (2 of 3); 74 passed, 0 failed, candidate facts hold for both models |
-| 2 | open | 0 | |
+| 2 | done | 1 | timeout -k 30 30 python3 -c 'assert all(s in __import__("pathlib").Path("skills/gatekeep-pr/reference/menus.md").read_text() for s in ("Recommend deliver for the human\x27s own PR, assess for someone else\x27s", "1. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]", "gauntlet: gate=gatekeep-pr/initial recommended=1"))'; 3 own-PR default assertions passed; no model actions launched |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
 | 5 | open | 0 | |
@@ -34,3 +34,4 @@ allowance: 10
 
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1
 row 1 done | Put recommendations on row 1; ran gatekeep-pr/gate-line-first (1 of 3); ran gatekeep-pr/gate-line-first (2 of 3). | Reuse menus.md ordering and gate-line-first's saved candidate via scripts/gatekeep-comment-reconcile.test.mjs.
+row 2 done | Confirmed own-PR menus recommend deliver on row 1 with a local assertion; no model actions ran. | nothing new to build on
