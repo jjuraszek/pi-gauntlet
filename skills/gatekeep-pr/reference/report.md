@@ -1,114 +1,29 @@
 # gatekeep-pr: step 5 - report
 
-Read from SKILL.md step 5, after `findings.md`. Input: the integration output. Output: the rendered report, then the menu (`decision-menu.md`). SKILL.md `## Wording rules` bind every line.
+Read from SKILL.md step 5, after `findings.md`. Input: the integration output. Output: the report followed by the selected menu from `menus.md`. Apply SKILL.md `## Wording rules` to both; keep internal records unchanged.
 
-## Order
+## Report
 
-Render bottom-up for a terminal: least important first, verdict and menu last. Empty sections are omitted - never "None". A failed comment refresh, an incomplete comment source review (`post-selection-loop.md` `### Re-render`), a blocked or unknown merge state, or a binding pending check renders its one line under `PR comments` as well.
+Write whole sentences, not labeled fields or a fixed template. Keep the report bottom-up: what the PR does and its scope, the viewer's role, comments and nits, prior-review result, blockers, sync result, then one standing sentence immediately before the menu. Omit empty sections. Use headings or numbered findings when they help the reader choose; keep concrete file, test and comment locators without forcing a parenthetical layout.
 
-For an eligible BLOCKED merge, omit the blocked PR-comments line; resolve eligibility through `post-selection-loop.md` `### Merge preconditions` and render the bypass consequence through `menus.md` `## final`. For false or unreadable eligibility, render the actor-framed BLOCKED line below and `Not offered: merge (blocked by GitHub)` unchanged. Keep `bypass_eligible` and its value only in the digest `permissions` block; never name the field in rendered output, including obstacle explanations and `show evidence`.
+Preserve these facts in prose:
 
-Section order is fixed:
+- Explain what the PR does. With a spec, name the covered rows, deferred rows and their references, deviations and their reasons, rows handled elsewhere and their repositories, and observation halves checked after merge. Count a covered mechanism in the covered rows even when its observation waits. Group rows by reference or repository without losing their numbers; say when no rows are covered. Keep the detailed per-row assessment under `show evidence`.
+- State whether the viewer is the author, a requested reviewer, neither, or unreadable, using refreshed `viewer.role` and `pr.review_requests`. Keep other requested users and teams in API order: exclude the viewer by case-insensitive User login comparison, exclude nobody when that login is unreadable, render Users by login and Teams by slug, and use `unknown` for a missing login or slug. Say, for example, "You are a requested reviewer; robin and acme/reviewers are also requested." Omit the list when empty.
+- Explain replyable PR comments and the drafted reply's meaning, a pending reviewer run, a failed refresh or incomplete source review, and any merge prerequisite that still blocks progress. Name each concrete blocker and why it matters; retain the exact supplied failing test name and its file, or the file alone when no test name was supplied. Keep nits distinct and name their count and the offered action that can take them.
+- For a non-null `prior_review`, count addressed items from distinct resolved `R#` entries and the supplied total. For an ancestor, say how many were addressed; with nonzero items and `prior_review.commit == headRefOid`, also say there are no commits since that review and name its short SHA. With zero items, say no items were posted at that SHA and the changes since it were reviewed. For a baseline that is not an ancestor, retain its short SHA (or `unknown`), the reason from `assessment.md` `## Prior-review ancestry`, and that the whole diff was reviewed. Omit the prior-review sentence when null.
+- Only with `--rebase`, explain the sync outcome, including resolved files on success and the actual reason on a skip, decline or failure. Translate the digest's status into prose; keep its exact value in the evidence record. Do not invent a sync result on loop re-entry.
 
-Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+For eligible BLOCKED readiness, omit the blocked comment and explain the admin override through `menus.md` `## final`. Otherwise say GitHub blocks this actor from merging; never invent a named rule. Keep `bypass_eligible` and its value in the digest's permissions only, including when answering `show evidence`. Resolve other unavailable actions through `menus.md` and explain their actual missing prerequisites in prose, not a separate omission line.
 
-```
-Delivers: <one sentence: what the PR does. With source: spec, a second sentence built from these clauses in
-          order, each present only when it applies, joined with semicolons: covered rows ("ACs 1, 2, 4";
-          "ACs 1-5" when every row is covered; "no ACs" when none; a row whose mechanism half is covered
-          counts in the covered list and its observation half adds the trailing clause); deferred rows grouped by ref, in row
-          order ("3, 5 deferred per spec to <ref>"); deviating rows ("2 deviates per spec: <why>"); elsewhere rows grouped by repo ("6 elsewhere per spec: <repo>");
-          observation halves ("4's observable half (<what>) is checked after merge, not here").>
+## Standing
 
-Role: <author | requested reviewer | none | unreadable>
+End with one standing sentence immediately before the choices: what blocks merging or why it can proceed, with the recommendation's reason from `menus.md` when applicable. For example, "Two fixes are needed before this can merge, so I recommend deliver" or "Nothing blocks this PR from merging, so I recommend merge." Name a running required check or an unchanged obstacle rather than claiming readiness. Translate the internal verdict and exit state; do not print their fixed strings.
 
-PR comments:             (replyable review comments, a pending reviewer run, a blocked or unknown merge state, a binding pending check, a failed refresh, or an incomplete source review - see the paragraph above)
-- <reviewer>'s comment on <topic> <verdict clause>, so the drafted reply <what it says>. (<locator>)
-- The reviewer run is still in progress, so merge waits. (<run url>)
-- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)
-- <other applicable line from decision-menu.md `## Withhold reason resolver`>
-
-Nits:                   (after the list, one line `<N> nits open - fix nits to take them` (`1 nit open` for one); rendered only while the `fix nits` row renders.)
-- <1-2 sentences>. (<file:line>)
-
-Prior review: <baseline outcome>   (non-null prior_review only; forms and placement below)
-
-Blockers:                (numbered; menu picks reference these numbers)
-1. <1-2 sentences: what is wrong, why it matters>. (<file:line and exact supplied test name for a failing test; file only when no test name was supplied> | <check name> | <doc path>)
-
-Description: <optional concise non-blocking uncertainty: author assertion versus what the gate cannot verify>
-
-Sync: <digest's sync field value verbatim; optional explanation after it as a second clause or sentence; only when --rebase was passed>
-
-Verdict: mergeable - <evidence clause> | fixable - <N> blockers | not ready - <withhold reason>
-
-<menu>
-```
-
-Print exactly one `Role:` directly under `Delivers` on every report from the refreshed `viewer.role` and `pr.review_requests`; append `(also requested: <entries>)` for requested reviewer, `(requested: <entries>)` otherwise, omitted when `<entries>` is empty. `<entries>`: the User and Team entries other than the viewer, API order (Keep API order, exclude the viewer by case-insensitive User login comparison, exclude nobody when the login is unreadable), User as login, Team as `slug`; render missing login/slug as `unknown`. Example: `Role: requested reviewer (also requested: robin, acme/reviewers)`.
-
-Render `Sync:` only when `--rebase` was passed. Open the `Sync:` line with the digest's `sync` field value verbatim (for example `Sync: declined - other author's branch`). Put any explanation after that value as a second clause or sentence. Never paraphrase the status value into prose. Exempt `Sync:`, `Role:`, and `Prior review:` from SKILL.md wording rule 5 (passing facts only under `show evidence`): name the resolved files even when the sync succeeded.
-
-For a non-null `prior_review`, print exactly one `Prior review:` line directly
-above `Blockers` when it renders; otherwise directly above the obstacle `Evidence:` line when that line renders; otherwise directly above `Verdict`:
-
-| Ancestry result | Line |
-|---|---|
-| `delta: ancestor` | `Prior review: <k> of <n> items addressed`; count `k` from distinct `R#` items recorded resolved through `findings.md` **Prior-item closure**, and `n` from the supplied item count. For nonzero items, append ` - no commits since <sha7>` whenever `prior_review.commit` equals `headRefOid`, regardless of `k`. For zero items use `Prior review: no items posted at <sha7>; the delta since it was reviewed`. |
-| `delta: not ancestor (<reason>)` | `Prior review: baseline <sha7> is not an ancestor of the head (<reason>), so the whole diff was reviewed`; carry the reason from `assessment.md` `## Prior-review ancestry` verbatim. Use `unknown` for a null review commit. |
-
-With `prior_review: null`, print no `Prior review:` line.
-
-For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head, immediately before the verdict (for example `Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)`). Use the resolved local verification summary instead when local evidence owns the assessment; do not invent a passing result when evidence is unavailable. Carry the same source summary into the obstacle menu's evidence hint. Exempt this compact source summary and the final template's `Evidence:` line from the evidence-only rules below and SKILL.md wording rule 5; keep the full record under `show evidence`.
-
-## Verdict
-
-For ordinary assessments, use `mergeable`, `fixable`, or `not ready`. Carry the mergeable evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. Name the blocker count or concrete unmet prerequisite for fixable/not-ready assessments. Delegate obstacle/cap verdicts to `post-selection-loop.md` `### Exit check` and menu verdicts to `menus.md`.
-
-`<N> blockers` reads `1 blocker` for one.
+Keep evidence provenance true. Mention a passing result only when useful to explain the standing, distinguish CI from a local run, and never turn pending or missing evidence into a pass. Put check conclusions, run URLs, SHAs and raw field/value pairs under `show evidence`, not in a separate evidence line or a hint parenthetical. A pending reviewer's run URL may still locate its comment. Apply the same rule to obstacle and final reports.
 
 ## What stays out
 
-Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. CI run URLs and conclusions (the pending-reviewer locator in `PR comments` is the one URL that prints in the report), drafted file edits and full description bodies, drafted replies, matched claims, per-row AC outcomes, internal IDs, and disposition annotations print only under the `show evidence` command. A clean run with a spec renders `Delivers`, `Role`, the applicable `Prior review:` line, the verdict line, and the menu.
+Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. Keep full drafted file edits, description bodies and replies, matched claims, per-row AC outcomes, internal IDs and check classifications behind that command. Print a compact exact old-to-new description preview under its blocker for consent; retain a declined proposal's preview on every re-render until the claim resolves. An author assertion the gate cannot verify is non-blocking uncertainty, not a fabricated finding.
 
-Print the compact exact old-to-new description preview under its blocker; keep the full replacement body under `show evidence`. Keep a declined correction's proposal open and its preview line under the blocker on every re-render until the claim resolves. Uncertainty alone preserves the mergeable verdict.
-
-Print `state: <absolute-path>` under `show evidence`, followed by the run record's course, immutable target, stored scope baseline, cumulative round/sync usage and caps, deadline, wave checkpoints and failed-prerequisite history. Then print, in this order: the evidence record (CI: each satisfying check's name, conclusion, SHA, run URL; local: each run's command, `result`, `exit_code`, and one `show evidence: <log_path>` line pointing at its captured output - never the output itself); claim dispositions; AC outcomes per row and the `cross-check:` line (`assessment.md` `## Select the scope contract`); check dispositions; drafted payloads keyed by the blocker or nit number they fix; drafted replies keyed by the `PR comments` item they answer.
-
-## Worked example
-
-Own PR, ticket gh-45:
-
-```
-Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.
-Role: author
-
-PR comments:
-- maria's comment on the missing CSV header is already addressed, so the drafted reply points her at the fix. (3f2a1c0)
-
-Nits:
-- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)
-1 nit open - fix nits to take them
-
-Blockers:
-1. The export endpoint ships with no test, so nothing proves it works and nothing
-   catches it breaking. (src/api/export.ts:10-58)
-2. The export guide still says exports run nightly; the PR makes them on-demand, so a
-   reader following the docs waits for a job that no longer exists; the doc fix is drafted.
-   (docs/exports.rst:88)
-
-Verdict: fixable - 2 blockers
-
-```
-
-A clean own PR with ticket gh-45 and CI green:
-
-```
-Delivers: the reports page exports CSV on demand. ACs 1-5.
-Role: author
-
-Verdict: mergeable - CI green on the assessed head (test)
-
-```
-
-Render the initial example and every later menu from `menus.md`; keep all evidence-only details under the hint command. Preserve bottom-up report order before the selected template.
+Under `show evidence`, print `state: <absolute-path>`, then the run record's course, immutable target, stored scope baseline, cumulative round/sync usage and caps, deadline, wave checkpoints and failed-prerequisite history. Follow with the evidence record (CI: each satisfying check's name, conclusion, SHA and run URL; local: each run's command, `result`, `exit_code` and `show evidence: <log_path>`); claim dispositions; AC outcomes and `cross-check:` from `assessment.md` `## Select the scope contract`; check dispositions; drafted payloads keyed by blocker or nit; drafted replies keyed by comment. Keep these records inspectable without copying them into the report.

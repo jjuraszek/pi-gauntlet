@@ -21,7 +21,7 @@ Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) befor
 
 ## Availability
 
-Derive availability from the digest's permissions; `unreadable` fails closed. Omit unavailable rows and name concrete reasons in `Not offered:`; never render an unavailable row with a suffix.
+Derive availability from the digest's permissions; `unreadable` fails closed. Omit unavailable rows and explain concrete reasons in plain prose through `report.md`; never render an unavailable row with a suffix or a labeled omission line.
 
 | Row | Available when |
 |---|---|
@@ -43,9 +43,9 @@ Resolve every actual unmet `### Merge preconditions` reason through `post-select
 
 | Observation | Render |
 |---|---|
-| BLOCKED with no eligible bypass and no local repair | Use findings.md `## Dispositions` for the actor-framed PR-comments line and obstacle verdict; render obstacle even with course unset, plus `Not offered: merge (blocked by GitHub)`; never attribute a named rule |
-| UNKNOWN/unreadable after one re-poll | `stuck - merge state unknown`; `Not offered: merge (merge state unknown)` |
-| binding pending check | name the check under PR comments, `Not offered: merge (<check name> pending)`; watch only at delivery step 4 |
-| draft | `Not offered: merge (draft)` |
-| below WRITE | `Not offered: merge (needs WRITE on <owner>/<repo>)` |
+| BLOCKED with no eligible bypass and no local repair | Explain that GitHub blocks this actor from merging and no local repair applies; render obstacle even with course unset; never attribute a named rule |
+| UNKNOWN/unreadable after one re-poll | Explain that GitHub's merge status could not be read, so merging cannot proceed |
+| binding pending check | Name the required check still running under PR comments; watch only at delivery step 4 |
+| draft | Explain that the draft must be marked ready for review before merging |
+| below WRITE | Explain that merging needs write access to <owner>/<repo> |
 | other failed prerequisite | name its actual missing evidence/input or unsafe-state obstacle from Exit check |

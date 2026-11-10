@@ -1,0 +1,140 @@
+{
+  "sample": "plain-report",
+  "arm": "candidate",
+  "skillSha": "b0b184db21bc8d5a2905cef03df6cadf0ecdb346d59fa4c0b9a4b35a3d96ecee",
+  "inputSha": "659fc38a59950a0b9f1daf991a351e59c614de5afb850237a1a6334125ba17a0",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\nPR #42 adds CSV export to acme/widgets. Spec rows 1 and 2 are covered, and row 2's production latency is checked after merge. Row 3 is deferred per spec to acme/widgets#46. Row 4 deviates per spec because buffered CSV is accepted instead of streamed CSV. Row 5 is handled elsewhere per spec in acme/export-ui.\n\nYou are the author of this PR. Review is also requested from robin and acme/reviewers.\n\nMaria's comment on the missing header (comment-73) is correct. A reply is drafted that acknowledges the missing header and says a fix is planned. One optional nit remains: the export loop duplicates the existing paging helper (src/export.ts:44).\n\nYour earlier review at 8a0b1c2 is part of this branch's history, and 2 of its 3 items are now addressed.\n\nTwo problems block merging:\n\n1. The exporter leaves out the CSV header row (src/export.ts:31), so exported files have unlabeled columns. The local test run failed export_header in tests/export.test.mjs.\n2. The guide says the export runs nightly (docs/export.md:8), but the button exports on demand. Readers will expect a scheduled export that does not exist. A doc fix is drafted.\n\nThe branch was rebased from 8a0b1c2 to 9c1e4f2 onto origin/main. One conflict in src/export.ts was resolved, and no commits were dropped as already applied.\n\nTwo fixes are needed and the required unit check is still running, so I recommend deliver.\n\nPick one:\n1. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n2. assess - post the current blockers as a review, without repairs or sync.\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nThe selected work continues until a decision is needed; `show evidence` prints the full record.\n\n---\n\ngauntlet: gate=gatekeep-pr/final recommended=1\nPR #42 adds CSV export to acme/widgets, and it covers all five spec rows.\n\nYou are the author of this PR. Review is also requested from robin and acme/reviewers.\n\nCI passed on the commit being reviewed. Nothing blocks this PR from merging, so I recommend merge.\n\nPick one:\n1. merge - squash-merge PR #42 into main. [recommended]\n2. stop - remove the worktree, leave the PR as is.\n\nType a number; show evidence prints the full record.\n\n---\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\nPR #42 adds CSV export to acme/widgets, and it covers all five spec rows.\n\nYou are the author of this PR. Review is also requested from robin and acme/reviewers.\n\nYour earlier review at 9c1e4f2 is part of this branch's history, and 2 of its 3 items are addressed. There are no commits since that review.\n\nCI passed on the commit being reviewed. GitHub still won't let you merge this PR, and no local repair applies.\n\nGitHub blocks you from merging and nothing here can change that, so I recommend stop.\n\nPick one:\n1. stop - remove the worktree, leave the PR as is. [recommended]\n2. deliver - start the work and retry the merge only after GitHub stops blocking it, without charging a repair round. This adds 4 repair attempts and 4 sync attempts, and none have been used yet. No automatic sync is promised.\n3. assess - switch to assessing. There are no open blockers, so no review is posted.\n\nType a number; show evidence prints the full record.\n",
+      "words": 543,
+      "wallMs": 36512,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nPR #42 exports CSV. Spec rows 1 and 2 are covered; row 3 is deferred to acme/widgets#46, row 4 accepts buffered rather than streamed CSV, and row 5 is handled in acme/export-ui. Row 2's production latency observation is checked after merge, not here.\n\nYou are the author; robin and acme/reviewers are requested reviewers.\n\nMaria's header comment at comment-73 is valid. The drafted reply acknowledges the missing header and the planned fix; it has not been posted.\n\nOne optional nit remains at src/export.ts:44: the export loop duplicates the paging helper. Choose deliver with nits to include it in the repairs.\n\nTwo of the prior review's three items at 8a0b1c2 have been addressed.\n\n## Blockers\n\n- The exporter omits the header at src/export.ts:31. Local verification with `node --test tests/export.test.mjs` failed the `export_header` test, so the CSV does not provide the promised header.\n- The guide at docs/export.md:8 promises a nightly export, but the button exports on demand. The drafted correction makes the guide describe the behavior users actually receive.\n\nThe required unit check is still running. No CI watch has run.\n\nThe branch was rebased from 8a0b1c2 to 9c1e4f2 onto origin/main. One conflict stop was resolved in src/export.ts, and no commits were dropped as already applied.\n\nTwo fixes and the running required unit check prevent merging, so I recommend deliver; one optional nit also remains.\n\nPick one:\n1. deliver - repair blockers, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the current blockers as a review, without repairs or sync.\n3. deliver with nits - deliver, and include the optional paging-helper cleanup.\n4. stop - remove the PR worktree if safe, and leave the PR unchanged.\n\nThe selected work continues until a decision is needed; `show evidence` prints the full record.\n\n---\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nPR #42 exports CSV and covers all five spec rows.\n\nYou are the author; robin and acme/reviewers are requested reviewers.\n\nCI passed for the commit being reviewed. No local verification ran. There are no blockers, nits, comments, or replies to address.\n\nNothing blocks this PR from merging, so I recommend merge.\n\nPick one:\n1. merge - squash-merge the PR. [recommended]\n2. stop - leave the PR and checkout unchanged.\n\nType a number; `show evidence` prints the full record.\n\n---\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nPR #42 exports CSV and covers all five spec rows.\n\nYou are the author; robin and acme/reviewers are requested reviewers.\n\nTwo of the prior review's three items have been addressed. There are no commits since that review at 9c1e4f2.\n\nCI passed for the commit being reviewed. There are no code blockers, nits, or replies to address.\n\nGitHub blocks this actor from merging, and no local repair applies. Retrying without a change to that prerequisite cannot make progress.\n\nGitHub must allow this actor to merge before work can proceed, so I recommend stop.\n\nPick one:\n1. stop - remove the PR worktree if safe, and leave the PR unchanged. [recommended]\n2. deliver - start the work and retry after GitHub allows merging; add 4 repair attempts and 4 sync attempts, bringing each allowance to 8, with 0 used.\n3. assess - post nothing because there are no blockers, then offer the remaining choices without repairs or sync.\n\nType a number; `show evidence` prints the full record.\n",
+      "words": 537,
+      "wallMs": 30277,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "258881a9eed75a3d8114ec67b541568d4ef403cceb4bc11291ab6c26cf93e28e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f603d818aed751271510cbd702644d46e5b98e99410730619f6fd59165b29684",
+      "baselineOutputSha": "327ad60a9b9c87e55de7156aad0d01153738287e6cc65250ca16ab6b9970ec99",
+      "candidateOutputSha": "db872f49bc133e1b317baea4d5b94180d79ed9c6cc2ccd70432e62333b31aa58",
+      "facts": {
+        "prose": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "role": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "sync": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "findings": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "standing": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "language": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "choices": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves every expected fact and loses none: the labeled Delivers/Role/Prior review/Sync/Verdict/Evidence/Not offered lines are gone, the sync outcome is explained in a sentence, each snapshot ends with one plain standing sentence before the choices, raw tokens like merge_state_status CLEAN/BLOCKED, reviewDecision REVIEW_REQUIRED, 'binding pending' and 'assessed head' are translated, the final/obstacle hints no longer print CI run records, and the recommended choice sits on row 1 in all three menus (deliver, merge, stop). Role, scope, prior-review, sync and concrete findings are all preserved with the same specifics as Before, including maria's comment-73, the export_header failure attributed to a local run, the nit at src/export.ts:44, and C's 'no commits since' with 2 of 3 items. Two small refinements would make the wording tighter without risking any fact: in snapshot C the deliver choice could be shortened to a single clause about retrying only after GitHub lifts the block (the cap arithmetic reads as leaked bookkeeping even though it is translated), and the initial-menu trailer 'The selected work continues until a decision is needed' could name what that decision is (the next menu) so a reader does not have to infer it.",
+      "wallMs": 21595,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "258881a9eed75a3d8114ec67b541568d4ef403cceb4bc11291ab6c26cf93e28e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f603d818aed751271510cbd702644d46e5b98e99410730619f6fd59165b29684",
+      "baselineOutputSha": "e7aa1cdddccc42903d545aa55849b215eca3484a508706d89021486550b7758b",
+      "candidateOutputSha": "c1e1cba30415c6dcb948eadb4390089b37029f8da4698d3b4e8ad157141d2a03",
+      "facts": {
+        "prose": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "role": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "sync": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "findings": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "standing": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "language": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "choices": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves every expected fact to holds and keeps the ones Before held: the labeled Delivers/Role/Prior review/Sync/Verdict/Evidence lines are gone, the rebase is explained in a sentence, each snapshot ends with one standing sentence immediately before its choices, raw values like merge_state_status and binding pending are translated, the recommendation sits on row 1 under the correct initial/final/obstacle markers, and B and C correctly attribute evidence to CI with no local run claimed. Role, scope, prior-review counts and A's concrete findings are all preserved. Two small spots to tighten so nothing drifts in later increments: A's \"No CI watch has run\" and \"One conflict stop was resolved\" lean on near-internal vocabulary (watch, stop) that a reader can still infer from context — plainer forms like \"CI has not been monitored yet\" and \"one merge conflict in src/export.ts was resolved\" would remove any doubt; and A's blocker list uses a \"## Blockers\" heading, which the facts allow, but keep headings limited to comments, nits and blockers so the report never reacquires field scaffolding.",
+      "wallMs": 24183,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "0b7e6102e5b155934e6a63e7f53bc87038c81ebb"
+}

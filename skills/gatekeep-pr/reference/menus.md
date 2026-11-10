@@ -17,7 +17,7 @@ Read with `decision-menu.md` at step 6. Select the template from this state map;
 
 Resolve BLOCKED through `post-selection-loop.md` `### Merge preconditions` before selecting an obstacle; treat only BLOCKED without eligible bypass as undispositionable.
 
-Render every menu in full from its template: the verdict line, every available row, and the hint line. Never narrate or summarize a menu; do not substitute "the initial template applied; the human picked 2" for its rendering. Quote a numeric pick only after the rendered menu.
+Render every menu in full from its template: the report's standing sentence, every available row, and the hint line. Use SKILL.md's plain-language rules for reasons, consequences and hints; keep internal field/value pairs in saved evidence. Never narrate or summarize a menu; do not substitute "the initial template applied; the human picked 2" for its rendering. Quote a numeric pick only after the rendered menu.
 
 Append ` recommended=1` to each gate line. Emit one first line per turn; when combining batch summary and nonterminal child menus, emit only the parent `gatekeep-pr/batch-summary` line. Render each terminal post menu in its own message under its terminal gate marker, separate from the batch summary. Keep runtime guard text, including any quoted escalation instruction, inside the obstacle body, never as a second standalone marker.
 
@@ -31,34 +31,34 @@ Use `viewer.is_author` (`viewer.login == pr.author.login`) and `author_is_bot` f
 
 Choose the action recommendation from the findings, including obstacle and cap exits. When no available non-stop row can change the outcome, recommend `stop` before applying authorship defaults; an unchanged failed prerequisite remains blocking even after a cap extension. Recommend deliver for the human's own PR, assess for someone else's when an open blocker needs the author's decision; when delivery is omitted on an own PR, recommend assess. Treat a blocker as needing the author's decision only when its repair requires a missing requirement, an acceptance-criteria change, or a scope choice, rather than a code or description-only repair already drafted in the findings.
 
-When every open blocker has a drafted repair, none needs the author's decision, and the head is pushable and `deliver` is offered, recommend `deliver` regardless of authorship. When a pending binding check or a failing check classified flaky is the only obstacle and a continuation can make progress, recommend `deliver`; keep the no-progress stop pin ahead of this choice. Choose among available rows from the findings for any other action state. Put one prose sentence immediately above `Pick one:` naming the recommendation and its reason from the finding or state. A recommendation confers no authority: wait for the numeric pick before any repair, push, body edit, or post.
+When every open blocker has a drafted repair, none needs the author's decision, and the head is pushable and `deliver` is offered, recommend `deliver` regardless of authorship. When a pending binding check or a failing check classified flaky is the only obstacle and a continuation can make progress, recommend `deliver`; keep the no-progress stop pin ahead of this choice. Choose among available rows from the findings for any other action state. Use the report's standing sentence immediately above `Pick one:` to name the recommendation and its reason from the finding or state; do not add a separate verdict line. A recommendation confers no authority: wait for the numeric pick before any repair, push, body edit, or post.
 
 In the final state, recommend `merge` whenever available through the ordinary path or an eligible admin override, regardless of authorship; otherwise recommend `approve` when available, else `stop`. Apply the same row-1 ordering, reason sentence, and numeric-pick boundary.
 
 ## initial
 
-Offer `assess`, eligible `deliver`, eligible `deliver with nits`, then `stop`. Choose the recommendation through `## Recommendation`. Omit deliver with nits with zero nits, and both delivery rows with cap zero, missing helpers, or non-pushable/unreadable head; name each reason, including `Not offered: deliver (needs push to <head_url>:<head_ref>)`. For someone else's/bot PR change the sync consequence to "merge main into the branch". Map `deliver with nits` to stored `deliver-nits`.
+Offer `assess`, eligible `deliver`, eligible `deliver with nits`, then `stop`. Choose the recommendation through `## Recommendation`. Omit deliver with nits with zero nits, and both delivery rows with cap zero, missing helpers, or non-pushable/unreadable head; explain each reason in prose, such as "Delivery needs permission to push this branch." For someone else's/bot PR change the sync consequence to "merge main into the branch". Map `deliver with nits` to stored `deliver-nits`.
 
 ```text
 gauntlet: gate=gatekeep-pr/initial recommended=1
-Verdict: not ready - 2 blockers, 1 nit
+Two fixes are needed before this can merge, so I recommend deliver; one optional nit also remains.
 
 Pick one:
 1. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]
-2. assess - post the review to the PR; then approve or stop, no repairs.
+2. assess - post the current blockers as a review, without repairs or sync.
 3. deliver with nits - deliver, and fold the 1 nit into the repairs.
 4. stop - remove the worktree, leave the PR as is.
 
-Course holds until the final menu; `show evidence` prints the full record.
+The selected work continues until a decision is needed; `show evidence` prints the full record.
 ```
 
 ## final
 
 Start the message with `gauntlet: gate=gatekeep-pr/final`.
 
-For eligible BLOCKED readiness, render `merge - <policy>-merge on ruleset bypass authority; CI evidence stands` with the resolved policy, and carry `merge_state_status BLOCKED (bypass eligible; reviewDecision <value>)` in the `Evidence:` line below. Keep the ordinary `merge` row and the same recommendation defaults; render no separate bypass row.
+For eligible BLOCKED readiness, explain that GitHub requires an admin override and that the required checks passed. Render `merge - <policy>-merge with an admin override` with the resolved policy. Keep the ordinary merge row and recommendation defaults; render no separate bypass row. Keep raw merge-state and review values under `show evidence`.
 
-Offer available `merge`, `approve`, `fix nits` when nits remain and the course excluded them, `reply` when drafted replies exist, then `stop`. Choose the recommendation through `## Recommendation`. Omit merge on a draft with `Not offered: merge (draft)` or below WRITE with `Not offered: merge (needs WRITE on <owner>/<repo>)`. Omit approve on drafts and own PRs. Authorize exactly one delivery iteration for fix nits, leaving course unchanged (`post-selection-loop.md` `### Next action`). Hint: `Type a number; show evidence prints the full record.` Print one compact `Evidence:` line above the `Delivers:` line naming the source (`CI (source: ci)` or the local run), the head SHA, each run and its checks with their conclusions, the binding-pending count, and `merge_state_status`; put the same record in the `show evidence` hint's parenthetical.
+Offer available `merge`, `approve`, `fix nits` when nits remain and the course excluded them, `reply` when drafted replies exist, then `stop`. Choose the recommendation through `## Recommendation` and print its `[recommended]` tag on row 1. Omit merge on a draft or below WRITE and explain why in prose: "Mark this PR ready for review before merging" or "Merging needs write access to <owner>/<repo>." Omit approve on drafts and own PRs. Authorize exactly one delivery iteration for fix nits, leaving course unchanged (`post-selection-loop.md` `### Next action`). Hint: `Type a number; show evidence prints the full record.` Keep the resolved source, head, check results and merge state in that record, not a separate report line or hint parenthetical.
 
 ## assess terminal
 
@@ -72,7 +72,7 @@ Start the message with `gauntlet: gate=gatekeep-pr/obstacle`.
 
 For undispositionable BLOCKED with no local repair, use this template even with course unset: recommend stop, with no wait row, no sync promise, and no approve row. Describe eligible deliver only as retrying after the failed prerequisite changes; promise no automatic sync. Reserve the course-unset initial assess/deliver/stop template for a pending-only report when its sole withhold is a not-yet-resolved binding CI check; source blockers still use initial under the state map.
 
-Print the concrete obstacle and retained failed prerequisites. Keep the `Delivers:` line in the obstacle report. Offer eligible `deliver`, `approve workflow run` only for the held-run permission case, `assess` (switch course), then `stop`. Choose the recommendation through `## Recommendation`. Feed the `Evidence:` line from the verifier record's resolved source, never from the raw check or run rollup - render a `source: pending` record as `Evidence: pending (<binding check> binding; head <sha>)`, and when `course` is unset render the deliver row as `deliver - set course to deliver; <one clause naming what retries>, no round charged` instead of `resume the retained course`. Render ordinary obstacle continuation as `deliver - resume the retained course; <one clause naming what retries>, no round charged`. For every non-timeout deliver selection, add exactly `2 x maxFixRounds` to both caps and persist before work, preserving usage. Append `add <n> to each cap` (`+2 x maxFixRounds`, with cumulative usage/caps) to the row even below both caps. On timeout describe exactly one additional watch window instead, with neither cap extended. An unchanged prerequisite re-exits even after extension. Print exactly one `Evidence:` line before the verdict, naming the resolved evidence source and assessed head per `report.md` (for example `Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)`). Include `check <name> flaky | real | ci-broken` in the hint for failing checks; flaky followed by a numeric deliver selection can resume. Hint: `Type a number; show evidence prints the full record (<source summary>)`. Replace `<source summary>` with the same source summary used in `Evidence:`, including the CI run, check outcomes, and assessed head when CI is the source.
+Explain the concrete obstacle and failed prerequisites in the report, preserving scope and standing through `report.md`. Offer eligible `deliver`, `approve workflow run` only for the held-run permission case, `assess` (switch course), then `stop`. Choose the recommendation through `## Recommendation`. Base evidence claims on the verifier's resolved source, never the raw rollup; pending evidence is not a pass. With course unset, describe deliver as starting the work and retrying the named prerequisite without charging a repair round; otherwise describe continuing the selected work and the same retry. For every non-timeout deliver selection, add exactly `2 x maxFixRounds` to both caps and persist before work, preserving usage. Explain the added repair and sync attempts in the row, including how many are used and allowed, even below both caps. On timeout describe exactly one additional watch window instead, with neither cap extended. An unchanged prerequisite re-exits even after extension. Keep full source, head and check records under `show evidence`. Include `check <name> flaky | real | ci-broken` in the hint for failing checks; flaky followed by a numeric deliver selection can resume. Hint: `Type a number; show evidence prints the full record.`
 
 ## contract exception
 

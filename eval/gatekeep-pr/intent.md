@@ -1,19 +1,19 @@
-for: fb4e03b48655bb4ae13b9b70b027afd8aaa03bf91d9488dfcaf9b32153abf6ab
+for: b0b184db21bc8d5a2905cef03df6cadf0ecdb346d59fa4c0b9a4b35a3d96ecee
 
 ## Change
 
-In set mode, render one post menu per merged PR in its own message and retire each PR after its chosen steps or stop, without a post-menu ladder. Recommend a shared cleanup override only on the last merged PR in the round; an early explicit selection runs it then, and the parent retains that execution across rounds to prevent a second run or later offer. Keep PR-specific items local, collect all picks before executing in roster order, and copy the child's standing sentence unchanged in the summary. Retain per-PR not-run sentences for the single parent closing message.
+Replace gatekeep-pr's labeled report and evidence lines with whole-sentence prose that preserves scope, role, prior-review and sync facts, concrete findings and one standing sentence before the choices. Translate internal vocabulary and field/value pairs in reports and menus; keep full evidence behind show evidence and distinguish CI from local verification. Preserve numeric selection, recommendation ordering and machine markers. Keep assess's consequence free of self-approval promises and retain the recommendation tag in the final menu.
 
-Select only batch-post-menu for this increment. Its two synthetic variants cover recommended picks and an explicit early shared-item pick followed by stop on the other PR. Keep all other saved sample results as historical evidence, not current coverage. No live PR, multi-PR dispatch or external cleanup is exercised.
+Select only plain-report for this increment. Its three snapshots cover a repairable report with a running required check and prior sync, a clean CI-backed final report, and a GitHub-blocked obstacle with no local repair. Other saved samples are historical evidence, not current coverage. This text-only replay makes no live PR, tracker or cleanup calls.
 
 ## Expected to move
 
-- batch-post-menu/separate: fails -> holds - Render each merged PR's post menu once in its own message.
-- batch-post-menu/shared: fails -> holds - Recommend the shared item only on the last merged PR while keeping an individual early row.
-- batch-post-menu/once: fails -> holds - Run the shared item once at the selected PR and omit it thereafter.
-- batch-post-menu/retirement: fails -> holds - Retire after the pick and carry every PR's not-run sentences into one parent closing message.
-- batch-post-menu/standing: fails -> holds - Copy the child standing sentence instead of labeled summary fields.
+- plain-report/prose: fails -> holds - Remove labeled-field scaffolding and the fenced report template.
+- plain-report/sync: fails -> holds - Explain the sync outcome instead of copying a raw status.
+- plain-report/standing: fails -> holds - End with one standing sentence, not a verdict or evidence field.
+- plain-report/language: fails -> holds - Translate internal terms and raw field/value pairs in reports and menus.
+- plain-report/choices: fails -> holds - Keep the assessed recommendation on row 1 in every snapshot.
 
 ## Validation boundary
 
-Require every candidate fact to hold, not merely improvement over baseline. Preserve all-picks collection, roster execution order, primary-checkout ownership and the existing cleanup guards. The target's bundle-free hash is unchanged because batch.md is added by the selected sample. Other samples and live behavior are not covered; this is a partial result, not a target-wide pass.
+Require all eight candidate facts on both replay models, including facts expected to remain true. Keep report detail without a separate evidence dump, preserve the actor-framed merge block without naming a rule, and never describe CI as a local run. Review bodies, replies, commit subjects and tracker comments are not exercised by this sample; this is partial report/menu coverage, not a target-wide pass.

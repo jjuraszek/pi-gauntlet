@@ -47,16 +47,27 @@ For pi file-finding row dispatch, use `subagent({ agent: "loop-implementer", con
 
 These bind every rendered report, menu, and external payload (review bodies, replies, commit subjects, tracker comments). A `## comms style` section in the overrides file extends them.
 
-1. One item is one or two whole sentences: what is wrong, then why it matters. No fragments, no field separators.
-2. Name the behavior, not the artifact: "retries forever" beats "attempts counter not incremented".
-3. Locators trail in parentheses (`file:line`, check name, doc path), never inside the sentence.
-4. No category tags, severity words, or IDs in prose - the section heading is the severity, the list number is the ID.
-5. Report only non-conformance; passing checks, per-row AC outcomes, and matched claims print only under `show evidence`; `Delivers` names the covered and settled rows.
-6. Omit empty sections.
-7. `Delivers` is always present and names which spec rows this PR covers, which are `deferred per spec`, `deviates per spec`, or `elsewhere per spec`, and which observable half is checked after merge.
-8. The verdict is one line in the fixed form.
-9. Menu rows start with a verb selected numerically, carry one clause of consequence, and exactly one row is `[recommended]`; typed evidence/reply/check commands live in the hint line only.
-10. ASCII only, American English, no hedges on checked facts, no intensifiers.
+- Write one or two whole sentences per finding: what is wrong, then why it matters. Avoid fragments and field separators.
+- Name the behavior, not the artifact: "retries forever" beats "attempts counter not incremented".
+- Omit empty sections. Use ASCII, American English, no hedges on checked facts and no intensifiers.
+- Speak in plain language in reports, menus, review bodies, replies, commit subjects and tracker comments. Translate internal vocabulary and field/value pairs instead of copying them; keep the run record and digest unchanged. Preserve concrete facts and exact command arguments, protocol markers and consent previews.
+
+| Internal term | Say instead |
+|---|---|
+| binding pending check | a required check is still running |
+| merge_state_status BLOCKED | GitHub won't let this merge yet |
+| assessed head | the commit being reviewed |
+| durable run record | saved progress |
+| PR-named action | the step the PR asks for |
+| coverage post | a comment saying which requirements the PR covers |
+| withhold | the reason this cannot merge yet |
+| terminal pick | your choice |
+| post set | the steps you picked |
+| disposition | how you classified the check |
+
+### Output done-check
+
+Before sending any report, menu or external payload, reread it for internal jargon, raw field/value pairs, labeled-field scaffolding and instructions for the human to run a command the skill can run. Rewrite those lines in plain language, preserve the facts and concrete step commands needed for a choice, and execute selected commands yourself. Treat commands for steps not run as information, never a request to paste them.
 
 ## Red flags - STOP
 

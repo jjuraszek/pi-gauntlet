@@ -4,7 +4,7 @@ Read from SKILL.md step 5, before `report.md`. Inputs: the digest, the step-2 `s
 
 ## Provenance
 
-Local evidence: `worktree_root` matches the provisioned path, every `run_cwd` sits inside it, `head_sha` matches the digest's `headRefOid`. On mismatch, re-fetch the PR head once and re-sync + re-run steps 3-4 when it advanced; a second mismatch, or any path mismatch, is missing evidence. The evidence clause names its source exactly: local -> `verification command passed locally`; CI -> `CI green on the assessed head (<check name>)`, never worded as a local run.
+Local evidence: `worktree_root` matches the provisioned path, every `run_cwd` sits inside it, `head_sha` matches the digest's `headRefOid`. On mismatch, re-fetch the PR head once and re-sync + re-run steps 3-4 when it advanced; a second mismatch, or any path mismatch, is missing evidence. Preserve the resolved evidence source in the record. In report prose, distinguish a local verification result from CI; never describe CI success as a local run (`report.md` `## Standing`).
 
 ## AC outcomes
 
@@ -102,7 +102,7 @@ Any blocking conclusion in the resolved check set (required or not - `../verific
 
 Only `flaky` lifts the blocker; an undispositioned check, `real`, and `ci-infrastructure-broken` keep it until the check - or, for `ci-infrastructure-broken`, the fallback local run (brief Section B, Failed CI row) - is green.
 
-Record dispositions only from direct human check commands. A flaky disposition followed by numeric deliver can resume; no helper can disposition a check. With BLOCKED, no eligible bypass under `post-selection-loop.md` `### Merge preconditions`, and no dispositionable local repair, render the obstacle template from `menus.md`, even with course unset, and use verdict `GitHub reports BLOCKED, no local repair applies`. Render its PR-comments line as `GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)`; keep the locator and never attribute a named rule.
+Record dispositions only from direct human check commands. A flaky disposition followed by numeric deliver can resume; no helper can disposition a check. With BLOCKED, no eligible bypass under `post-selection-loop.md` `### Merge preconditions`, and no dispositionable local repair, render the obstacle template from `menus.md`, even with course unset, and explain that GitHub blocks this actor from merging and no local repair applies. Keep raw merge-state and review values under `show evidence`; never attribute a named rule.
 
 ## Drafted payloads
 
