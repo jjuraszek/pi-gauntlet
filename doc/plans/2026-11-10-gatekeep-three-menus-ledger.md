@@ -3,7 +3,7 @@
 base: 6939fd9ee8b3460f92fc4edb918eefe3f2d0be5c
 verification: npm test
 checks: commands
-iterations: 13
+iterations: 14
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -24,7 +24,7 @@ allowance: 10
 | 14 | done | 0 | timeout -k 30 30 node --test scripts/gatekeep-pr-named-step.test.mjs; 2 passed, 0 failed; no-command and ambiguous-command candidate facts hold for both models; no further model actions launched |
 | 15 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-set-post.test.mjs; 2 passed, 0 failed; bound spent: gatekeep-pr/batch-post-menu (1 of 3), ran gatekeep-pr/batch-post-menu (1 of 3); bound spent: gatekeep-pr/batch-post-menu (2 of 3), ran gatekeep-pr/batch-post-menu (2 of 3) |
 | 16 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-plain-report.test.mjs; 3 passed, 0 failed, all eight facts hold for both replay models; bound spent: gatekeep-pr/plain-report (1 of 3), ran gatekeep-pr/plain-report (1 of 3); bound spent: gatekeep-pr/plain-report (2 of 3), ran gatekeep-pr/plain-report (2 of 3) |
-| 17 | open | 0 | |
+| 17 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-report-evidence.test.mjs; 2 passed, 0 failed; bound spent: gatekeep-pr/plain-report (3 of 3); ran gatekeep-pr/plain-report (3 of 3) |
 | 18 | open | 0 | |
 | 19 | done | 0 | timeout -k 30 30 python3 -c 'assert all(s in __import__("pathlib").Path("skills/gatekeep-pr/SKILL.md").read_text().split("### Output done-check\n")[1].split("## Red flags")[0] for s in ("Before sending any report, menu or external payload", "internal jargon, raw field/value pairs, labeled-field scaffolding", "instructions for the human to run a command the skill can run", "Rewrite those lines in plain language", "execute selected commands yourself"))'; 5 output done-check assertions passed; no further model or external actions launched |
 | 20 | open | 0 | |
@@ -50,3 +50,4 @@ row 14 done | Confirmed missing and ambiguous commands stay open with their sour
 row 15 done | Fixed sets; bound spent: gatekeep-pr/batch-post-menu (1 of 3); ran gatekeep-pr/batch-post-menu (1 of 3); bound spent: gatekeep-pr/batch-post-menu (2 of 3); ran gatekeep-pr/batch-post-menu (2 of 3). | Reuse batch.md's shared-item scheduling and scripts/gatekeep-set-post.test.mjs to check saved per-PR menus, single shared execution and retirement.
 row 16 done | Wrote plain reports; bound spent: gatekeep-pr/plain-report (1 of 3); ran gatekeep-pr/plain-report (1 of 3); bound spent: gatekeep-pr/plain-report (2 of 3); ran gatekeep-pr/plain-report (2 of 3). | Reuse report.md's prose contract and scripts/gatekeep-plain-report.test.mjs to validate scope, reviewer, sync, standing and saved plain-report facts.
 row 19 done | Confirmed the output done-check covers jargon, raw fields, field scaffolding and human-run instructions across reports, menus and external payloads with five assertions. | nothing new to build on
+row 17 done | Moved raw report evidence behind inspection; bound spent: gatekeep-pr/plain-report (3 of 3); ran gatekeep-pr/plain-report (3 of 3). | Reuse scripts/gatekeep-report-evidence.test.mjs to check saved action, final and obstacle reports and report.md's full inspection contract.
