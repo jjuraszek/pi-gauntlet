@@ -3,7 +3,7 @@
 base: 6939fd9ee8b3460f92fc4edb918eefe3f2d0be5c
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -28,6 +28,8 @@ allowance: 10
 | 18 | open | 0 | |
 | 19 | open | 0 | |
 | 20 | open | 0 | |
-| 21 | open | 0 | |
+| 21 | open | 0 | timeout -k 30 20 test ! -f skills/gatekeep-pr/reference/decision-menu.md; exit 1: decision-menu.md still exists; byte bounds not checked |
 
 ## Decisions
+
+row 0 done | seeded 1 rows, closed 0 on baseline | row 1
