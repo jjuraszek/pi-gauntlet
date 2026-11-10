@@ -1,21 +1,19 @@
-for: c20ea711ca78f59e4ef38c9a0005a1828400c32a80ec4aeeffe0fdc3d7157fa0
+for: fb4e03b48655bb4ae13b9b70b027afd8aaa03bf91d9488dfcaf9b32153abf6ab
 
 ## Change
 
-Resolve merger actions named in the PR body or head spec into post steps using only merge-base overrides, AGENTS.md and directly linked documents. Exactly one distinct documented command makes an action runnable and mandatory in row 1. Deduplicate action sources, repeated command citations and matching cleanup items. Keep missing or ambiguous commands and unresolved tokens open with their source sentences in the menu and closing message. PR text supplies the action, never command authority; observations and automatic deployments are not merger actions.
+In set mode, render one post menu per merged PR in its own message and retire each PR after its chosen steps or stop, without a post-menu ladder. Recommend a shared cleanup override only on the last merged PR in the round; an early explicit selection runs it then, and the parent retains that execution across rounds to prevent a second run or later offer. Keep PR-specific items local, collect all picks before executing in roster order, and copy the child's standing sentence unchanged in the summary. Retain per-PR not-run sentences for the single parent closing message.
 
-Select only post-step-pr-named for this increment. Its synthetic merged PR exercises one unique command, duplicate sources and citations, an override match, missing and ambiguous commands, an unresolved token, and observation-only text. Retain all other sample records as historical evidence, not current coverage. Coverage is sample-scoped, not a target-wide pass or live PR verification.
+Select only batch-post-menu for this increment. Its two synthetic variants cover recommended picks and an explicit early shared-item pick followed by stop on the other PR. Keep all other saved sample results as historical evidence, not current coverage. No live PR, multi-PR dispatch or external cleanup is exercised.
 
 ## Expected to move
 
-- post-step-pr-named/unique-command: fails -> holds - Offer one documented publish command in row 1 and retain the action source.
-- post-step-pr-named/override-match: fails -> holds - Fold the matching action into the cleanup item's single row and execution.
-- post-step-pr-named/no-command: fails -> holds - Keep the source sentence open rather than executing PR text or a second-hop command.
-- post-step-pr-named/ambiguous-command: fails -> holds - Keep two distinct documented commands unresolved, without guessing.
-- post-step-pr-named/unresolved-token: fails -> holds - Keep an action with an unfilled token open instead of running it.
-- post-step-pr-named/observation: fails -> holds - Exclude observation-only and automatic actions from post steps.
-- post-step-pr-named/execution: fails -> holds - Run the picked trusted steps once after base sync, then settle without another menu.
+- batch-post-menu/separate: fails -> holds - Render each merged PR's post menu once in its own message.
+- batch-post-menu/shared: fails -> holds - Recommend the shared item only on the last merged PR while keeping an individual early row.
+- batch-post-menu/once: fails -> holds - Run the shared item once at the selected PR and omit it thereafter.
+- batch-post-menu/retirement: fails -> holds - Retire after the pick and carry every PR's not-run sentences into one parent closing message.
+- batch-post-menu/standing: fails -> holds - Copy the child standing sentence instead of labeled summary fields.
 
 ## Validation boundary
 
-Judge every candidate fact absolutely, not only improvement over baseline. Preserve cleanup ownership, branch-deletion and base-sync guards. The runner assembles both arms from the working-tree file list; no baseline file is removed in this increment. Later removal of decision-menu.md limits baseline completeness, so comparison direction alone is never evidence of preserved mechanics. Other samples, live commands and multi-PR dispatch are not covered here.
+Require every candidate fact to hold, not merely improvement over baseline. Preserve all-picks collection, roster execution order, primary-checkout ownership and the existing cleanup guards. The target's bundle-free hash is unchanged because batch.md is added by the selected sample. Other samples and live behavior are not covered; this is a partial result, not a target-wide pass.

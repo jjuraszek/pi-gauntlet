@@ -3,7 +3,7 @@
 base: 6939fd9ee8b3460f92fc4edb918eefe3f2d0be5c
 verification: npm test
 checks: commands
-iterations: 11
+iterations: 12
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -22,7 +22,7 @@ allowance: 10
 | 12 | done | 0 | timeout -k 30 30 node --test scripts/gatekeep-post-menu.test.mjs; 2 passed, 0 failed; saved draft fact holds for both models; no further model actions launched |
 | 13 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-pr-named-step.test.mjs; bound spent: gatekeep-pr/post-step-pr-named (1 of 3); ran gatekeep-pr/post-step-pr-named (1 of 3); 2 passed, 0 failed, all seven candidate facts hold for both models |
 | 14 | done | 0 | timeout -k 30 30 node --test scripts/gatekeep-pr-named-step.test.mjs; 2 passed, 0 failed; no-command and ambiguous-command candidate facts hold for both models; no further model actions launched |
-| 15 | open | 0 | |
+| 15 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-set-post.test.mjs; 2 passed, 0 failed; bound spent: gatekeep-pr/batch-post-menu (1 of 3), ran gatekeep-pr/batch-post-menu (1 of 3); bound spent: gatekeep-pr/batch-post-menu (2 of 3), ran gatekeep-pr/batch-post-menu (2 of 3) |
 | 16 | open | 0 | |
 | 17 | open | 0 | |
 | 18 | open | 0 | |
@@ -47,3 +47,4 @@ row 10 done | Confirmed invalid post sets and multi-number action/final replies 
 row 11 done | Confirmed closing messages name every unpicked, skipped or failed step with its reason and command or payload path, with four local assertions and no model or external actions. | nothing new to build on
 row 13 done | Resolved trusted post steps; bound spent: gatekeep-pr/post-step-pr-named (1 of 3); ran gatekeep-pr/post-step-pr-named (1 of 3). | Reuse findings.md's PR-named steps and scripts/gatekeep-pr-named-step.test.mjs to check saved resolution, deduplication and execution facts.
 row 14 done | Confirmed missing and ambiguous commands stay open with their source sentences and never execute, using the saved replay without further edits or model actions. | nothing new to build on
+row 15 done | Fixed sets; bound spent: gatekeep-pr/batch-post-menu (1 of 3); ran gatekeep-pr/batch-post-menu (1 of 3); bound spent: gatekeep-pr/batch-post-menu (2 of 3); ran gatekeep-pr/batch-post-menu (2 of 3). | Reuse batch.md's shared-item scheduling and scripts/gatekeep-set-post.test.mjs to check saved per-PR menus, single shared execution and retirement.
