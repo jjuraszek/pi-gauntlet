@@ -1,0 +1,7 @@
+- subset: judged: For input A (2,4), posts only drafted reply 1 and PR coverage, once each in that order; does not post reply 2 or run cleanup, and settles merged without another menu.
+- union: judged: For input B (1,5), expands the combination and deduplicates cleanup: replies 1 and 2, PR coverage, then cleanup each run once in step order, with no repeated cleanup or follow-up gatekeep-pr menu.
+- typed-reply: judged: For input C (reply 1), posts only drafted reply 1 to thread 81; does not interpret 1 as the combination row or post reply 2, coverage, or run cleanup.
+- inspection: judged: For input D (show evidence), shows evidence and re-renders the same six-row menu with the same mapping, without running any post step, settling, or changing the selection.
+- stop: judged: For input E (6), runs no post step or cleanup, closes with gauntlet: done merged, and reports the retained worktree and unposted payloads rather than offering another menu.
+- mixed-stop: judged: For input F (2,6), asks exactly one clarifying question naming the valid range 1-6, runs nothing including reply 1, and does not settle.
+- out-of-range: judged: For input G, the first 99 asks one clarifying question naming the valid range 1-6 and runs nothing; the second 99 leaves the menu waiting without another clarifying question, running steps, or settling.

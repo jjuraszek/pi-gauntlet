@@ -1,19 +1,20 @@
-for: 1e0e326d4e8c00118f54ab0afb38b9ed29bbec6a157c38d5e310a0d61b13ed1e
+for: 3736c94b4b4424fa0885782867e6007f2b35451aaf8b6ffddea16273884053d8
 
 ## Change
 
-Collect terminal follow-ups in one post menu. Recommend a combination that names its member rows, keep each runnable step separately selectable, omit the duplicate PR coverage copy from the combination, and settle after the selected set finishes. Keep pre-merge drafted replies available, separate cleanup overrides from checkout cleanup, and preserve skipped-step reasons and unrun payloads.
+Collect terminal follow-ups in one post menu. Expand a comma-separated pick through the saved mapping, deduplicate its steps and run them in step order. Keep typed reply numbers distinct from menu row numbers. Evidence inspection changes no selection; invalid or mixed-stop picks run nothing, and a second invalid reply leaves the menu waiting without another question or question marker.
 
-Select only post-menu-combined for this increment. It covers one merged PR with a drafted reply, two coverage destinations, partially runnable checkout cleanup, a notification and a fully skipped release. Retain all other sample results as historical evidence, not current coverage. This is sample-scoped coverage, not a target-wide pass or live PR verification. Set parsing edge cases, batch scheduling and PR-named command resolution are not covered by this sample.
+Select only post-menu-set-reply for this increment. It exercises seven independent input cases against a retained merged-PR menu: a subset, overlapping combination, typed reply, evidence inspection, stop, mixed stop and repeated out-of-range input. Only the second-invalid reply rule changes in this increment; the sample also checks the existing selection rules. Retain all other sample records as historical evidence, not current coverage. This is sample-scoped coverage, not a target-wide pass or live PR verification. Batch scheduling and PR-named command resolution are not covered here.
 
 ## Expected to move
 
-- post-menu-combined/single-menu: fails -> holds - A post selection ends the run instead of opening another terminal menu.
-- post-menu-combined/combination: fails -> holds - Row 1 names the recommended combination and its member row numbers.
-- post-menu-combined/runnable-rows: fails -> holds - Each executable step has its own informative row.
-- post-menu-combined/guards: fails -> holds - Fully skipped release is unnumbered and partial cleanup names the skipped base pull.
-- post-menu-combined/draft: fails -> holds - Unposted pre-merge reply drafts remain selectable after merge.
-- post-menu-combined/execution: fails -> holds - A single pick runs the recommended steps in order, then reports results and unrun work.
+- post-menu-set-reply/subset: fails -> holds - Comma-separated picks select only their member steps and settle.
+- post-menu-set-reply/union: fails -> holds - Combination expansion deduplicates steps before execution.
+- post-menu-set-reply/typed-reply: fails -> holds - Typed reply 1 selects the saved draft, not menu row 1.
+- post-menu-set-reply/inspection: fails -> holds - Inspection preserves the retained post mapping without settlement.
+- post-menu-set-reply/stop: fails -> holds - Terminal stop declines all post work and preserves the checkout.
+- post-menu-set-reply/mixed-stop: fails -> holds - Stop mixed with another number is rejected before any work.
+- post-menu-set-reply/out-of-range: fails -> holds - Repeated invalid picks remain waiting without executing steps.
 
 ## Validation boundary
 

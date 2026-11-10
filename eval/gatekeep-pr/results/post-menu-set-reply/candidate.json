@@ -1,0 +1,130 @@
+{
+  "sample": "post-menu-set-reply",
+  "arm": "candidate",
+  "skillSha": "3736c94b4b4424fa0885782867e6007f2b35451aaf8b6ffddea16273884053d8",
+  "inputSha": "b8d399dc2747aa3ed819a7fafc36ef0aa9d14d51b4bc0c42791ee84fed4de1c0",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Shared re-entry (every input)\n\nEach input starts from the same saved own-merge post menu. Before parsing the reply, the orchestrator:\n\n1. Validates the run record against consent.target (`sample/forge-kit`, PR 642, base `main`).\n2. Validates the retained `post_steps` mapping:\n   - row 1 = rows 2, 3, 4, 5\n   - row 2 = reply 1\n   - row 3 = reply 2\n   - row 4 = coverage to PR\n   - row 5 = cleanup\n   - row 6 = stop\n3. Checks that `/tmp/gate-reply-1.md`, `/tmp/gate-reply-2.md` and `/tmp/gate-coverage.md` exist.\n\nExact `show evidence` and `reply <n>` are recognized before numeric lookup. Comma sets are parsed against the retained mapping.\n\nBefore each external write, the orchestrator reads `gh pr view 642 -R sample/forge-kit --json headRefOid,state,body,baseRefName`. The result is: state MERGED, body unchanged, base `main`. These posts go to a merged PR, so no compare-and-swap is needed.\n\nEach reply body passes the Output done-check: ASCII only, specific to its thread, and ending on the answer. The AC coverage block posts verbatim, which is the done-check's one exception.\n\n---\n\n## A. `2,4`\n\nThe set is valid: {reply 1, coverage to PR}. The orchestrator persists `picked: true` on both and enters Post steps, running them in step order.\n\n1. `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`. It succeeds, and the result is persisted.\n2. `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`. It succeeds, and the result is persisted.\n\nTeardown deletes the run record, the finding artifacts, the helper outputs and their logs. It keeps `/tmp/gate-reply-2.md`.\n\n```text\ngauntlet: done merged\n#642@9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2: merged\nCheckout: /work/forge-kit/.worktrees/health-version on local branch health-version (left in place).\npost drafted reply 1: done\npost coverage to PR: done\nDrafted reply 2 was not picked; it can run now with `gh api --method POST repos/sample/forge-kit/pulls/642/comments/82/replies -F body=@/tmp/gate-reply-2.md`, and its body stays at /tmp/gate-reply-2.md.\nCleanup was not picked; it can run now with `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, `git -C /work/forge-kit worktree prune` and `git -C /work/forge-kit branch -D health-version`.\nPulling main stays skipped because the primary is on maintenance (`git -C /work/forge-kit fetch origin` then `git -C /work/forge-kit pull --ff-only` once it is on main).\n```\n\n## B. `1,5`\n\nRow 1 expands to rows 2, 3, 4 and 5. Row 5 is a duplicate and collapses. The orchestrator persists four picked steps and runs them in step order.\n\n1. `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`. Done.\n2. `gh api --method POST repos/sample/forge-kit/pulls/642/comments/82/replies -F body=@/tmp/gate-reply-2.md`. Done.\n3. `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`. Done.\n4. Cleanup runs through `cleanup.md` steps 1-3:\n   - **Worktree.** The path is not the primary. `git -C /work/forge-kit/.worktrees/health-version status --porcelain --untracked-files=no` is empty. The PR is landed, and `merge-base --is-ancestor HEAD 9c1e4f2...` succeeds. The worktree was created by this run and has no destroy command. The orchestrator runs `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, then `git -C /work/forge-kit worktree prune`.\n   - **Branch.** `git -C /work/forge-kit worktree list --porcelain` shows no holder of `refs/heads/health-version`. The orchestrator runs `git -C /work/forge-kit branch -D health-version`.\n   - **Base.** The primary is on maintenance, so this sub-step is skipped.\n\nTeardown deletes the record, the finding artifacts and the helper outputs.\n\n```text\ngauntlet: done merged\n#642@9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2: merged\nCheckout: primary /work/forge-kit on maintenance; worktree /work/forge-kit/.worktrees/health-version and local branch health-version removed.\npost drafted reply 1: done\npost drafted reply 2: done\npost coverage to PR: done\nworktree: done\nbranch: done\nbase: skipped - primary on maintenance\nPulling main was skipped because the primary is on maintenance; run `git -C /work/forge-kit fetch origin` and `git -C /work/forge-kit pull --ff-only` after switching it to main.\n```\n\n## C. `reply 1`\n\nOn a post menu that lists drafted replies, exact `reply 1` selects drafted reply 1, not menu row 1. The orchestrator persists that single step.\n\n1. `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`. Done.\n\nTeardown deletes the record, the artifacts and the helper outputs. It keeps `/tmp/gate-reply-2.md` and `/tmp/gate-coverage.md`.\n\n```text\ngauntlet: done merged\n#642@9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2: merged\nCheckout: /work/forge-kit/.worktrees/health-version on local branch health-version (left in place).\npost drafted reply 1: done\nDrafted reply 2 was not picked; it can run now with `gh api --method POST repos/sample/forge-kit/pulls/642/comments/82/replies -F body=@/tmp/gate-reply-2.md`, body at /tmp/gate-reply-2.md.\nCoverage to PR was not picked; it can run now with `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`, body at /tmp/gate-coverage.md.\nCleanup was not picked; it can run now with `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, `git -C /work/forge-kit worktree prune` and `git -C /work/forge-kit branch -D health-version`.\nPulling main stays skipped because the primary is on maintenance.\n```\n\n## D. `show evidence`\n\nThe orchestrator prints the record as `report.md` \"What stays out\" specifies. Nothing is settled. The `post_steps` mapping stays unpicked, and the same menu is re-rendered.\n\n```text\ngauntlet: gate=gatekeep-pr/own-merge recommended=1\n\nstate: <absolute path of this run's gatekeep-state record>\ncourse: deliver; target: sample/forge-kit #642, base main; scope baseline: stored spec contract (one requirement: the health endpoint responds with the build version).\nusage: rounds 1 of 3, syncs 0 of 3; deadline: as stored; wave checkpoint: settled; failed-prerequisite history: none.\nevidence record: stored evidence for assessed head 9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2.\nclaim dispositions: stored; no contradicted claim.\nAC outcomes: the health endpoint responds with the build version - covered.\ncheck dispositions: none.\ndrafted payloads: the one nit was fixed and pushed; no open payload.\ndrafted reply 1 (robin, thread 81): \"The build version is read once at startup and reused for each request.\" (/tmp/gate-reply-1.md)\ndrafted reply 2 (lee, thread 82): \"An empty build version returns unknown.\" (/tmp/gate-reply-2.md)\ncoverage: /tmp/gate-coverage.md; PR merged 7d8e9f0.\n\nI recommend both replies, the PR checklist and cleanup because all four have work ready to run.\n\nPick one, or several separated by commas:\n1. post both replies, post coverage to PR, cleanup - rows 2, 3, 4 and 5. [recommended]\n2. post drafted reply 1 - answer robin in thread 81 using /tmp/gate-reply-1.md.\n3. post drafted reply 2 - answer lee in thread 82 using /tmp/gate-reply-2.md.\n4. post coverage to PR - comment /tmp/gate-coverage.md on PR 642.\n5. cleanup - remove /work/forge-kit/.worktrees/health-version, prune and delete local branch health-version; skip pulling main because the primary is on maintenance.\n6. stop - run nothing and retain the unpicked payloads.\n\nType a number; show evidence prints the full record.\n```\n\n## E. `6`\n\nA sole stop runs Teardown. No post, cleanup or git command runs, and the checkout is left as found. The run record, artifacts and helper outputs are deleted. All three payload files are retained.\n\n```text\ngauntlet: done merged\n#642@9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2: merged\nCheckout: /work/forge-kit/.worktrees/health-version on local branch health-version (left in place).\nDrafted reply 1 was not picked; it can run now with `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`, body at /tmp/gate-reply-1.md.\nDrafted reply 2 was not picked; it can run now with `gh api --method POST repos/sample/forge-kit/pulls/642/comments/82/replies -F body=@/tmp/gate-reply-2.md`, body at /tmp/gate-reply-2.md.\nCoverage to PR was not picked; it can run now with `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`, body at /tmp/gate-coverage.md.\nCleanup was not picked; it can run now with `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, `git -C /work/forge-kit worktree prune` and `git -C /work/forge-kit branch -D health-version`.\nPulling main stays skipped because the primary is on maintenance.\n```\n\n## F. `2,6`\n\nStop cannot be combined with another number. The orchestrator asks one clarifying question, runs nothing and persists nothing.\n\n```text\ngauntlet: question\nStop (6) cannot be combined with other rows. Reply with one or more of rows 1-5 separated by commas, or 6 alone to stop. Which do you want?\n```\n\n## G. `99`, then `99`\n\n**First `99`.** The options follow a prose line, so L = 0. 99 is outside 1-6 and cannot be remapped. The orchestrator asks one clarifying question and runs nothing.\n\n```text\ngauntlet: question\n99 is not on this menu. Reply with a row number from 1-6, or several of 1-5 separated by commas. Which do you want?\n```\n\n**Second `99`.** This is the second invalid reply. The same post menu stays waiting. The orchestrator emits no new question and no marker, runs nothing and persists nothing.\n\n```text\nNothing ran; the post menu above is still waiting for a pick.\n```\n",
+      "words": 1292,
+      "wallMs": 63408,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## A. Input `2,4`\n\nValidate the saved record and resolve the retained mapping to reply 1 and PR coverage. Persist both picks. Run them in post-step order after the external-write and wording checks:\n\n1. `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`\n2. `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`\n\nPersist each success immediately. Dispatch no helper. Delete the run record, helper outputs and logs, temporary description files, and any finding artifacts; retain the unposted reply file.\n\nRender:\n\n```text\ngauntlet: done merged\n#642@9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2: merged\n\nCheckout: /work/forge-kit/.worktrees/health-version\nLocal branch: health-version\n\npost drafted reply 1: done\npost coverage to PR: done\n\nPost drafted reply 2 was not picked and could run now; its retained payload is /tmp/gate-reply-2.md.\nCleanup was not picked and could run now: git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version, git -C /work/forge-kit worktree prune, then git -C /work/forge-kit branch -D health-version.\nBase pull was skipped because the primary is on maintenance; git -C /work/forge-kit fetch origin and git -C /work/forge-kit pull --ff-only were not run.\n```\n\n## B. Input `1,5`\n\nExpand row 1 to rows 2, 3, 4 and 5, then collapse the duplicate cleanup selection. Persist four picked steps. After validation and external-write checks, execute in post-step order:\n\n1. `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`\n2. `gh api --method POST repos/sample/forge-kit/pulls/642/comments/82/replies -F body=@/tmp/gate-reply-2.md`\n3. `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`\n4. `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`\n5. `git -C /work/forge-kit worktree prune`\n6. `git -C /work/forge-kit branch -D health-version`\n\nWorktree removal also deletes its untracked files. Persist each result immediately. Skip base fetch and pull because the primary is on maintenance. Touch nothing under the removed worktree. Dispatch no helper. Perform terminal artifact deletion.\n\nRender:\n\n```text\ngauntlet: done merged\n#642@9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2: merged\n\nCheckout removed: /work/forge-kit/.worktrees/health-version\nLocal branch deleted: health-version\nPrimary checkout: /work/forge-kit, on maintenance\n\npost drafted reply 1: done\npost drafted reply 2: done\npost coverage to PR: done\nworktree: done\nbranch: done\nbase: skipped - primary on maintenance\n\nBase pull was skipped because the primary is on maintenance; git -C /work/forge-kit fetch origin and git -C /work/forge-kit pull --ff-only were not run.\n```\n\nThere is no second post menu.\n\n## C. Input `reply 1`\n\nRecognize the exact reply command before numeric lookup. Select drafted reply 1, not menu row 1. Validate and persist that single pick, perform the external-write and wording checks, then run:\n\n`gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`\n\nPersist success. Dispatch no helper. Complete teardown, retaining both unrun post payloads.\n\nRender:\n\n```text\ngauntlet: done merged\n#642@9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2: merged\n\nCheckout: /work/forge-kit/.worktrees/health-version\nLocal branch: health-version\n\npost drafted reply 1: done\n\nPost drafted reply 2 was not picked and could run now; its retained payload is /tmp/gate-reply-2.md.\nPost coverage to PR was not picked and could run now; its retained payload is /tmp/gate-coverage.md.\nCleanup was not picked and could run now: git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version, git -C /work/forge-kit worktree prune, then git -C /work/forge-kit branch -D health-version.\nBase pull was skipped because the primary is on maintenance; git -C /work/forge-kit fetch origin and git -C /work/forge-kit pull --ff-only were not run.\n```\n\n## D. Input `show evidence`\n\nInspect the saved record and payloads without selecting, posting, cleaning up, or settling anything. Run no external command and dispatch no helper. Preserve the existing numbered mapping.\n\nThe exercise supplies no absolute run-record locator, verification-source record, claim list, or helper paths. Do not invent those fields. Render the supplied evidence and the same menu:\n\n```text\ngauntlet: gate=gatekeep-pr/own-merge recommended=1\n\nSaved record:\nTarget: sample/forge-kit#642, base main.\nPR state: MERGED.\nAssessed head: 9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2.\nMerge commit: 7d8e9f0.\nThe target, body and base remain unchanged.\nRounds: 1 of 3. Syncs: 0 of 3.\nNo post steps have been picked or run.\n\nAssessment:\nZero blockers remain, and the one nit is fixed.\nThe health endpoint's build-version requirement is covered.\nThe replies and coverage passed source and wording review.\n\nDrafted reply 1:\nThe build version is read once at startup and reused for each request.\nPayload: /tmp/gate-reply-1.md.\nCommand: gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md\n\nDrafted reply 2:\nAn empty build version returns unknown.\nPayload: /tmp/gate-reply-2.md.\nCommand: gh api --method POST repos/sample/forge-kit/pulls/642/comments/82/replies -F body=@/tmp/gate-reply-2.md\n\nCoverage:\nPayload: /tmp/gate-coverage.md.\nCommand: gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md\n\nCleanup:\nThe worktree and branch pass removal guards.\nCommands: git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version\ngit -C /work/forge-kit worktree prune\ngit -C /work/forge-kit branch -D health-version\nRemoval deletes untracked files.\nBase pull is skipped because the primary is on maintenance.\nNo ticket, PR-named action or cleanup override exists.\n\nI recommend both replies, the PR checklist and cleanup because all four have work ready to run.\n\nPick one, or several separated by commas:\n1. post both replies, post coverage to PR, cleanup - rows 2, 3, 4 and 5. [recommended]\n2. post drafted reply 1 - answer robin in thread 81 using /tmp/gate-reply-1.md.\n3. post drafted reply 2 - answer lee in thread 82 using /tmp/gate-reply-2.md.\n4. post coverage to PR - comment /tmp/gate-coverage.md on PR 642.\n5. cleanup - remove /work/forge-kit/.worktrees/health-version, prune and delete local branch health-version; skip pulling main because the primary is on maintenance.\n6. stop - run nothing and retain the unpicked payloads.\n\nType a number; show evidence prints the full record.\n```\n\n## E. Input `6`\n\nResolve row 6 to terminal stop. Select no post steps. Perform no posting, worktree removal, branch deletion, fetch, or pull. Dispatch no helper. Delete terminal run artifacts while retaining all three unrun payload files. The merged outcome stays merged.\n\nRender:\n\n```text\ngauntlet: done merged\n#642@9c1e4f29c1e4f29c1e4f29c1e4f29c1e4f29c1e4f2: merged\n\nCheckout: /work/forge-kit/.worktrees/health-version\nLocal branch: health-version\n\nPost drafted reply 1 was not picked and could run now; its retained payload is /tmp/gate-reply-1.md.\nPost drafted reply 2 was not picked and could run now; its retained payload is /tmp/gate-reply-2.md.\nPost coverage to PR was not picked and could run now; its retained payload is /tmp/gate-coverage.md.\nCleanup was not picked and could run now: git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version, git -C /work/forge-kit worktree prune, then git -C /work/forge-kit branch -D health-version.\nBase pull was skipped because the primary is on maintenance; git -C /work/forge-kit fetch origin and git -C /work/forge-kit pull --ff-only were not run.\n```\n\n## F. Input `2,6`\n\nReject stop combined with another selection. Persist no picks, run no command, dispatch no helper, and leave the saved menu waiting.\n\nRender:\n\n```text\ngauntlet: question\n\nStop cannot be combined with another selection. Which option or options from 1-6 do you choose, with 6 selected only by itself?\n```\n\n## G. Input `99`, then `99`\n\nFor the first input, reject the out-of-range number. The menu's prose separator makes its valid bare-numeric range exactly 1-6; no offset mapping applies. Run nothing and preserve the mapping.\n\nFirst response:\n\n```text\ngauntlet: question\n\nWhich option or options from 1-6 do you choose?\n```\n\nFor the second input, record the second invalid reply. Run nothing, change no picks, and leave the same menu waiting. Emit no new question or question marker.\n\nSecond response:\n\n```text\nThe selection is still invalid. The existing menu remains open with options 1-6; nothing has run.\n```\n",
+      "words": 1144,
+      "wallMs": 33019,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "64703a812626ed2ac5c779d2766163b5186cf77f9475b99b42c37c6f8544d808",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8d9966f068038d151349887506d261dd46040e0da458276ea897f309a24ee4d3",
+      "baselineOutputSha": "39b4c6c87610174cb6a12efb7f7c8f01d25bea57be92a05bd99c28d8198fcbdd",
+      "candidateOutputSha": "3a1668ede56da7c0d54721342bb58149ac19b45207485c86b8acc6c8e2b6ed69",
+      "facts": {
+        "subset": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "union": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "typed-reply": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "inspection": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "mixed-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "out-of-range": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change: comma picks now settle to `gauntlet: done merged` instead of re-rendering a follow-up menu (A, B), the stop close reports the retained checkout plus every unposted payload with its command (E), the mixed-stop and first out-of-range replies each ask a single question, and the second `99` leaves the menu waiting with no new question or marker (G). Nothing that Before kept was lost: `reply 1` still selects the draft rather than row 1, and `show evidence` still re-renders the identical six-row menu with no selection change. One wording risk worth tightening: the fact asks the clarifying question to name 'the valid range 1-6', and F's question says 'rows 1-5 ... or 6 alone' rather than '1-6' literally; G's first question does say '1-6'. To make F unambiguous, phrase it as 'Reply with a row number from 1-6: one or more of rows 1-5 separated by commas, or 6 alone to stop.' Also, A and C currently show the orchestrator persisting `picked: true` and running teardown without a per-write freshness line under each step; the shared re-entry section covers it, but if a reader expects the read narrated per post, a one-line 'freshness read passes' before each command would keep that visible without adding another menu.",
+      "wallMs": 21419,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "64703a812626ed2ac5c779d2766163b5186cf77f9475b99b42c37c6f8544d808",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8d9966f068038d151349887506d261dd46040e0da458276ea897f309a24ee4d3",
+      "baselineOutputSha": "042c8a8dc293c936c22ca7bdb2100e5061869f811c2c79b63ea98262e828acf9",
+      "candidateOutputSha": "2ead0edce925af13179525350d7ecdf52e54cd96b6bfa2b878f0fa9a2af76ce8",
+      "facts": {
+        "subset": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "union": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "typed-reply": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "inspection": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mixed-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "out-of-range": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves every target fact in the intended direction and loses none that Before kept. Subset and union now expand comma picks through the saved mapping, collapse the duplicate cleanup, and run in step order before settling with no second menu; inspection re-renders the identical six-row mapping instead of swapping in the own-merge three-row template; mixed-stop and the first out-of-range reply now name the full 1-6 range; and the second 99 produces no question marker while stating the menu remains open. Note that typed-reply and stop already held in Before (Before C posted only reply 1 to thread 81, and Before E settled merged with the worktree retained), so those are preserved rather than moved. Two small refinements if you revise: in F the question 'Which option or options from 1-6 do you choose, with 6 selected only by itself?' is clear, but keeping it as a single sentence avoids any reading of two questions; and in E/A/C the 'could run now' phrasing after 'gauntlet: done merged' is fine for reporting retained payloads, but make sure it never reads as an offer or menu, e.g. 'retained payload: /tmp/gate-reply-2.md (not posted)' would keep the stop fact unambiguous while still delivering the Change.",
+      "wallMs": 21451,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "c5976a4be203d5f77e659667a9d82d00a6b2f8ae"
+}
