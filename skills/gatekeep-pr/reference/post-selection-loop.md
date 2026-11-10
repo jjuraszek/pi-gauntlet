@@ -164,7 +164,6 @@ On a zero exit, read `gh pr view <N> --json state,mergeCommit`. `state: MERGED` 
 
 Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
-```markdown
 ## AC coverage
 Informational - the ticket's rows are unchanged. PR <url>, merged <sha>, spec <path>
 - [ ] <row 1 text verbatim> - covered
@@ -172,7 +171,6 @@ Informational - the ticket's rows are unchanged. PR <url>, merged <sha>, spec <p
 - [ ] <row 2 text verbatim> - deviates per spec: <why>
 - [ ] <row 4 text verbatim> - venue: <env> - <observation>, checked before prod deploy
 - [ ] <row 5 text verbatim> - elsewhere per spec: <repo>
-```
 
 A post is one write of that block, verbatim; a post that succeeded cannot be picked again in this run. `/skill:check-delivery` reads a posted block as any other comment, and the block's first line states that it amends nothing.
 
@@ -211,7 +209,7 @@ On completion or timeout, refresh then run steps 2-5 of Re-render plus step 1's 
 
 ### Output done-check
 
-Before posting or committing any external payload - review bodies, replies, commit subjects, tracker comments - re-read it against SKILL.md `## Wording rules` and any `## comms style` rules: ASCII only; no headings or template scaffolding under ~150 words; findings `file:line`-specific where one exists; ends on the fix or asked action, not a recap; never invents content to fill a section. The `AC coverage` block is the one exception: it posts verbatim, heading and checkbox rows included.
+Before posting or committing any external payload, apply SKILL.md `### Output done-check` and `## Wording rules`, including its coverage exception, plus any `## comms style` rules. End review bodies and replies on the fix or asked action, not a recap; never invent content to fill a section.
 
 ### Settlement rows
 

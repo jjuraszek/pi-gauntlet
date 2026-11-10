@@ -1,19 +1,16 @@
-for: ee511dd29d8410964d128d3cfa650e8006872e397f48888252d14eecb3f40080
+for: fe358e7663fd355de996c77d65f132ac020aa311733e3cd6be4e5dfc2a223dfd
 
 ## Change
 
-Replace gatekeep-pr's labeled report and evidence lines with whole-sentence prose that preserves scope, role, prior-review and sync facts, concrete findings and one standing sentence before the choices. Translate internal vocabulary and field/value pairs in reports and menus; keep full evidence behind show evidence and distinguish CI from local verification. Preserve numeric selection, recommendation ordering and machine markers. Keep assess's consequence free of self-approval promises and retain the recommendation tag in the final menu. Keep head, prior-review and sync SHAs and raw check fields out of report prose, including obstacles; retain those records under show evidence without losing prior-review or sync outcomes.
+Keep reports, menus and posted payloads unfenced. Remove the coverage template's fence without changing its heading, informational line or checkbox rows. Apply the shared wording rules to review findings and thread replies: trailing file/line locators in reviews, plain replies without internal fields or ids. Keep posting authority, freshness checks and protocol strings unchanged.
 
-Select only plain-report for this increment. Its three snapshots cover a repairable report with a running required check and prior sync, a clean CI-backed final report, and a GitHub-blocked obstacle with no local repair. Other saved samples are historical evidence, not current coverage. This text-only replay makes no live PR, tracker or cleanup calls.
+Select only plain-payloads for this increment. It exercises a selected review, a selected thread reply and a selected coverage comment as independent text-only snapshots, with no live PR or tracker write. Preserve all earlier sample results as historical evidence.
 
 ## Expected to move
 
-- plain-report/prose: fails -> holds - Remove labeled-field scaffolding and the fenced report template.
-- plain-report/sync: fails -> holds - Explain the sync outcome instead of copying a raw status.
-- plain-report/standing: fails -> holds - End with one standing sentence, not a verdict or evidence field.
-- plain-report/language: fails -> holds - Translate internal terms and raw field/value pairs in reports and menus, including prior-review and sync hashes.
-- plain-report/choices: fails -> holds - Keep the assessed recommendation on row 1 in every snapshot.
+- plain-payloads/fences: fails -> holds - Render posted bodies as text instead of fenced examples.
+- plain-payloads/coverage: fails -> holds - Preserve the coverage block verbatim without a wrapper.
 
 ## Validation boundary
 
-Require all eight candidate facts on both replay models, including facts expected to remain true. Keep report detail without a separate evidence dump, preserve the actor-framed merge block without naming a rule, and never describe CI as a local run. scripts/gatekeep-report-evidence.test.mjs checks the saved reports and the retained show evidence record contract beside the existing script tests; no slow-test convention applies to these local assertions. The replay does not request show evidence or exercise review bodies, replies, commit subjects or tracker comments; this is partial report/menu coverage, not a target-wide pass.
+Require all five candidate facts on both replay models, regardless of comparative verdict. scripts/gatekeep-plain-payloads.test.mjs checks the shared no-fence contract, the coverage template, and saved plain-report and plain-payloads outputs. Tests sit beside existing script siblings; no slow-test tier applies to these local assertions. The plain-report snapshots are reused locally, not rerun. Other samples and live posting are not covered. The runner assembles both arms from the working-tree skillFiles list, so any later removal of decision-menu.md limits baseline comparison; absolute candidate facts, not direction alone, determine success.

@@ -1,0 +1,34 @@
+{
+  "sample": "plain-payloads",
+  "arm": "baseline",
+  "skillSha": "43ff42a3f353ebf3ff0e96dd06478e64c94fc250fa68b645fe858bc145652181",
+  "inputSha": "033f1e1a3897e20434f9b38eef1a2942e947780959d54a4783e0a81c87ba1f7a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Review body**\n\n```text\nTwo changes are needed before this can merge.\n\n1. The CSV export omits the header row, so a spreadsheet treats the first data row as column names. (src/export.ts:31)\n2. The export guide promises nightly exports, but the code only exports on a button click, so readers expect a job that does not exist. (docs/export.md:8)\n\nPlease add the header row to the export and change the guide to say exports run on demand.\n```\n\n**Thread reply**\n\n```text\nYes, the export now writes a header row first, so spreadsheets read the column names instead of treating the first data row as headers. A test covers the header and passed in CI on the current head. (export_header, 9c1e4f2)\n```\n\n**Coverage comment**\n\n```text\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/42, merged 7d8e9f0, spec doc/specs/csv-export.md\n- [ ] Export includes a header row. - covered\n- [ ] Schedule nightly exports. - deferred per spec to acme/widgets#46\n- [ ] Stream large exports. - deviates per spec: buffer CSV in memory\n```\n",
+      "words": 158,
+      "wallMs": 11339,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Review body\n\nThe export needs a header row, and the guide needs to describe on-demand exports.\n\n1. The export omits the CSV header, so a spreadsheet treats the first data row as column names. Add a header row before the data. (src/export.ts:31)\n2. The guide promises nightly exports, but exports run only on a button click, so readers expect a job that does not exist. Correct the guide to say exports run on demand. (docs/export.md:8)\n\nThread reply\n\nThanks for checking. The export now includes column names in a header row, and the header test passed in CI. (export_header)\n\nCoverage comment\n\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/42, merged 7d8e9f0, spec doc/specs/csv-export.md\n- [ ] Export includes a header row. - covered\n- [ ] Schedule nightly exports. - deferred per spec to acme/widgets#46\n- [ ] Stream large exports. - deviates per spec: buffer CSV in memory\n\n",
+      "words": 138,
+      "wallMs": 9638,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "1cc85d77078bfdeb66772ee620c39979f634263c"
+}

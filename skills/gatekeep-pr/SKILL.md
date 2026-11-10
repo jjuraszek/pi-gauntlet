@@ -47,9 +47,11 @@ For pi file-finding row dispatch, use `subagent({ agent: "loop-implementer", con
 
 These bind every rendered report, menu, and external payload (review bodies, replies, commit subjects, tracker comments). A `## comms style` section in the overrides file extends them.
 
-- Write one or two whole sentences per finding: what is wrong, then why it matters. Avoid fragments and field separators.
+- Write one or two whole sentences per finding: what is wrong, then why it matters. Avoid fragments and field separators. In a posted review body, put the file and line after each finding in parentheses.
 - Name the behavior, not the artifact: "retries forever" beats "attempts counter not incremented".
 - Omit empty sections. Use ASCII, American English, no hedges on checked facts and no intensifiers.
+- Never wrap reports, menus or posted payloads in code fences. Post the `AC coverage` heading and checkbox rows from `reference/post-selection-loop.md` verbatim; preserve that block's fixed text instead of rewriting it as prose.
+- Write thread replies as plain sentences without field names, run ids or commit ids.
 - Speak in plain language in reports, menus, review bodies, replies, commit subjects and tracker comments. Translate internal vocabulary and field/value pairs instead of copying them; keep the run record and digest unchanged. Preserve concrete facts and exact command arguments, protocol markers and consent previews.
 
 | Internal term | Say instead |
