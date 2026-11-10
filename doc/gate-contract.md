@@ -38,6 +38,7 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | gatekeep-pr/obstacle | gate | skills/gatekeep-pr/reference/menus.md | ## obstacle | N. rows |
 | gatekeep-pr/contract-exception | gate | skills/gatekeep-pr/reference/menus.md | ## contract exception | N. rows |
 | gatekeep-pr/own-merge | gate | skills/gatekeep-pr/reference/menus.md | ## own merge | N. rows |
+| gatekeep-pr/own-merge | gate | skills/gatekeep-pr/reference/batch.md | ## Summary and menu round | N. rows |
 | gatekeep-pr/merge-queued | gate | skills/gatekeep-pr/reference/menus.md | ## merge queued | N. rows |
 | gatekeep-pr/approved | gate | skills/gatekeep-pr/reference/menus.md | ## approved | N. rows |
 | gatekeep-pr/closed-pr | gate | skills/gatekeep-pr/reference/menus.md | ## closed PR | N. rows |

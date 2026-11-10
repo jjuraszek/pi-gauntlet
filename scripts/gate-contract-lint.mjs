@@ -79,7 +79,8 @@ export function lintGateContract(root) {
     const marked = blocks.filter((b) => b.first === literal || b.first?.startsWith(literal + " recommended="));
     const sentence = doc.prose.some((p) => p.index > start && p.index < end && p.text.split(/(?<=[.!?])\s+|\|/).some((part) => {
       const text = part.trim().replace(/^(?:[-*+]|\d+[.)])\s+/, "");
-      return text.startsWith("Start the message with") && text.includes(`\`${literal}\``);
+      const startsMessage = text.startsWith("Start the message with") || text.startsWith("Each post-menu message starts with");
+      return startsMessage && [...text.matchAll(/`([^`]+)`/g)].some(([, marker]) => marker === literal || kind === "gate" && marker.startsWith(literal + " recommended="));
     }));
     if (count ? marked.length !== Number(count) : !marked.length && !sentence) diagnostics.push(`${table} ${id} not found at ${file} ${site}`);
     rows.push({ id, file, site, kind, start, end });

@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { lintGateContract } from "../scripts/gate-contract-lint.mjs";
 import { settlementItems } from "./lib/telemetry-leg.ts";
 import { MODELS } from "../eval/lib/models.mjs";
 
@@ -41,7 +43,7 @@ test("skill owners keep terminal rows after writes and cleanup", () => {
   const gate = read("skills/gatekeep-pr/reference/post-selection-loop.md");
   assert.ok(gate.includes("#<N>@<head sha>: <outcome>"));
   assert.match(gate, /full assessed `headRefOid`/);
-  assert.match(gate, /cleanup pick is answered/);
+  assert.match(gate, /Emit the terminal message only after the selected post set finishes or stop declines it; a report or menu is not settlement/);
   assert.match(read("skills/gatekeep-pr/reference/batch.md"), /gauntlet: retired #<N> - <reason>/);
   assert.match(read("skills/gatekeep-pr/reference/cleanup.md"), /### Settlement rows/);
   const ci = read("scripts/ci.mjs");
@@ -49,6 +51,32 @@ test("skill owners keep terminal rows after writes and cleanup", () => {
   assert.ok(ci.includes("gatekeep-pr must not mention telemetry"));
   for (const file of readdirSync(new URL("../skills/gatekeep-pr/", import.meta.url), { recursive: true })) {
     if (file.endsWith(".md")) assert.doesNotMatch(read(`skills/gatekeep-pr/${file}`), /telemetry/i);
+  }
+});
+
+test("gatekeep published gate markers and terminal settlements stay compatible", () => {
+  const contract = read("doc/gate-contract.md");
+  for (const id of ["initial", "obstacle", "contract-exception", "final", "assess-terminal", "own-merge", "approved", "closed-pr", "merge-queued"]) {
+    assert.ok(contract.includes(`| gatekeep-pr/${id} | gate | skills/gatekeep-pr/reference/menus.md |`), id);
+  }
+  assert.deepEqual(lintGateContract(fileURLToPath(new URL("../", import.meta.url))), []);
+  const terminals = contract.split("\n")
+    .filter((line) => line.startsWith("| gatekeep-pr |"))
+    .map((line) => line.split("|")[4].trim());
+  assert.deepEqual([...new Set(terminals)].sort(), [
+    "gauntlet: done approved", "gauntlet: done merged", "gauntlet: done closed-pr",
+    "gauntlet: done final", "gauntlet: done merge-queued", "gauntlet: stuck",
+    "gauntlet: done retired", "gauntlet: stuck retired",
+  ].sort());
+  for (const outcome of ["approved", "merged", "closed-pr", "final", "merge-queued", "stuck - CI failed"]) {
+    const marker = outcome.startsWith("stuck -") ? "gauntlet: stuck CI failed" : `gauntlet: done ${outcome}`;
+    for (const ticket of [undefined, "#12"]) {
+      const row = `#31@${head}: ${outcome}${ticket ? ` (${ticket})` : ""}`;
+      assert.deepEqual(settlementItems("gatekeep-pr", `${marker}\n${row}\nCleanup was not picked.`), [
+        { kind: "pr", key: `#31@${head}`, outcome, ...(ticket ? { ticket } : {}) },
+      ]);
+      assert.equal(settlementItems("gatekeep-pr", `gauntlet: gate=gatekeep-pr/final recommended=1\n${row}`), undefined);
+    }
   }
 });
 
