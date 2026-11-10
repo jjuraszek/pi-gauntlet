@@ -16,9 +16,7 @@ Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) befor
 - `approve workflow run` - execute `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve`, then refresh and watch under the course.
 - `merge` - execute `gh pr merge --match-head-commit <assessed-sha>` with the resolved policy flag and all merge preconditions; append `--admin` only on the bypass path defined in `post-selection-loop.md` `### Merge course`; never infer approval from a setting.
 - `reply` - post drafted replyable C# replies; exact `reply <n>` selects one.
-- `post coverage to ticket` - post the rendered AC coverage block through the resolved tracker verb; renders only under the `own merge` template with issue and rows.
-- `post coverage to PR` - post the same block with `gh pr comment <N> --body-file`; renders only under the `own merge` template.
-- `cleanup` - run `cleanup.md` behind a terminal pick; name each resolved cleanup override command in the consequence, or say "tear down the gate's checkout and local branch (untracked files there are deleted)" with no override.
+- Post steps (`post coverage to ticket`, `post coverage to PR`, `cleanup`, replies and follow-ups) - render through `menus.md` `## post` and execute its picked set through `post-selection-loop.md` `### Post steps`.
 - `stop` - run `### Teardown`; delegate non-final stop to `cleanup.md` `## Non-final stop`, keeping terminal behavior distinct.
 
 ## Availability
@@ -35,7 +33,7 @@ Derive availability from the digest's permissions; `unreadable` fails closed. Om
 | `approve` | viewer.is_author false, zero blockers, non-draft |
 | `approve workflow run` | held run on assessed head and viewer_permission `WRITE`, `MAINTAIN`, or `ADMIN` |
 | `reply` | drafted reply exists and source review complete |
-| `cleanup` | terminal template and cleanup_done false |
+| `cleanup` | post menu with at least one runnable worktree, branch or base sub-step through `menus.md` `## post` |
 | `post coverage to ticket`, `post coverage to PR` | own merge template, not previously successful; ticket also needs issue and rows |
 | `stop` | every template |
 

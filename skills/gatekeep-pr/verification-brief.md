@@ -97,7 +97,7 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 - repair.poll_deadline: null | <absolute timestamp for the watch window; reference/post-selection-loop.md ### Wait course>
 - repair.wave: null | { pre_wave_head, pushed_head, selected_ids, selected_payloads, sync: null | { pre_head, expected_remote_head }, action: fix-nits?, affected_claims, round_start_head, counted: false | true, counted_head, checkpoint_history: [], stage: apply | review | push, no_progress: { failed_prerequisite, observed_value, result_path }? }
 - approved_head: null | <sha>   # set by reference/post-selection-loop.md when gh pr review --approve exits 0; selects the approved template
-- cleanup_done: false | true   # set by reference/cleanup.md after the cleanup pick runs
+- post_steps: [ { label, source, command: null | <exact command>, payload_file: null | <absolute path>, picked: false | true, result: null | <result> } ]   # reference/post-selection-loop.md ### Post steps; preserve mapping and results through nested gates
 - pr.review_requests: [ { __typename: User, login } | { __typename: Team, name, slug } ]   # raw reviewRequests entries
 - viewer: { login, is_author, role }
 - prior_review: null | { id, state, commit, submitted_at, body, inline[ { id, path, original_line, body } ], delta: ancestor | not ancestor (<reason>) | unset }

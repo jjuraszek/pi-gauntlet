@@ -3,7 +3,7 @@
 base: 6939fd9ee8b3460f92fc4edb918eefe3f2d0be5c
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -15,11 +15,11 @@ allowance: 10
 | 5 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-obstacle-recommendation.test.mjs; bound spent: gatekeep-pr/action-row-one (1 of 3); ran gatekeep-pr/action-row-one (1 of 3); 2 passed, 0 failed, all four candidate facts hold for both models |
 | 6 | done | 0 | timeout -k 30 30 python3 -c 'assert all(s in __import__("pathlib").Path("skills/gatekeep-pr/reference/menus.md").read_text() for s in ("Offer `accept contract change`, `preserve contract` `[recommended]`, then `stop`", "Move the recommended action to row 1 before numbering every menu", "Append ` recommended=1` to each gate line"))'; 3 preserve-contract row-1 assertions passed; no further model actions launched |
 | 7 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-final-recommendation.test.mjs; bound spent: gatekeep-pr/final-row-one (1 of 3), ran gatekeep-pr/final-row-one (1 of 3); bound spent: gatekeep-pr/final-row-one (2 of 3), ran gatekeep-pr/final-row-one (2 of 3); 2 passed, 0 failed, all five candidate facts hold for both models |
-| 8 | open | 0 | |
+| 8 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-post-menu.test.mjs; bound spent: gatekeep-pr/post-menu-combined (1 of 3); ran gatekeep-pr/post-menu-combined (1 of 3); 2 passed, 0 failed, all six sample facts hold for both models |
 | 9 | open | 0 | |
 | 10 | open | 0 | |
 | 11 | open | 0 | |
-| 12 | open | 0 | |
+| 12 | done | 0 | timeout -k 30 30 node --test scripts/gatekeep-post-menu.test.mjs; 2 passed, 0 failed; saved draft fact holds for both models; no further model actions launched |
 | 13 | open | 0 | |
 | 14 | open | 0 | |
 | 15 | open | 0 | |
@@ -40,3 +40,5 @@ row 4 done | Confirmed author-only blockers recommend assess on row 1 with four 
 row 6 done | Confirmed preserve contract is recommended on row 1 with three local assertions and no further edits. | nothing new to build on
 row 5 done | Pinned obstacle choices to progress; bound spent: gatekeep-pr/action-row-one (1 of 3); ran gatekeep-pr/action-row-one (1 of 3). | Reuse scripts/gatekeep-obstacle-recommendation.test.mjs and action-row-one's saved three-case replay for local obstacle checks.
 row 7 done | Ranked merge first; bound spent: gatekeep-pr/final-row-one (1 of 3); ran gatekeep-pr/final-row-one (1 of 3); bound spent: gatekeep-pr/final-row-one (2 of 3); ran gatekeep-pr/final-row-one (2 of 3). | Reuse scripts/gatekeep-final-recommendation.test.mjs to replay final-row-one's four saved final states; both models satisfy every fact.
+row 8 done | Added one post menu and its executor; bound spent: gatekeep-pr/post-menu-combined (1 of 3); ran gatekeep-pr/post-menu-combined (1 of 3). | Reuse menus.md's post mapping and scripts/gatekeep-post-menu.test.mjs to check the saved combination, guards and terminal results.
+row 12 done | Confirmed the saved replay offers the unposted pre-merge reply as its own post-menu row for both models, with no further edits or model actions. | nothing new to build on

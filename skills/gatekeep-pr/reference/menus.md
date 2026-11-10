@@ -23,7 +23,7 @@ Append ` recommended=1` to each gate line. Emit one first line per turn; when co
 
 Render flat numbers through [menu-layout](../../brainstorming/reference/menu-layout.md); preserve its bare-numeric mapping. Move the recommended action to row 1 before numbering every menu, including child and batch menus; tag only that row `[recommended]`. Treat each template's row list as available actions, not fixed display order. Keep non-recommended stop last and the remaining actions in their listed order. Put `show evidence` in every hint line, never in a row. Include every omission reason from `decision-menu.md`. A menu rendered under `deliver` before an exit condition, other than the contract-exception template, is a red flag; so is a menu not rendered from these templates, two recommendations, a recommendation not on row 1, or no evidence hint.
 
-Render terminal cleanup consequences through `cleanup.md`; use `skipped - needs a landed change` for merge-SHA-dependent overrides in the row text and result block.
+Render terminal steps through `## post` and `cleanup.md`; keep each override separate from worktree, branch and base cleanup.
 
 Use `viewer.is_author` (`viewer.login == pr.author.login`) and `author_is_bot` for defaults. Treat a bot-authored head as someone else's throughout. Keep `merge policy` (`squash | merge-commit | rebase`) solely as the `gh pr merge` flag selector, never approval or sync strategy. Treat `approve (round 1) / approve (round 2)` as spec approval history, not menu configuration.
 
@@ -80,11 +80,42 @@ Start the message with `gauntlet: gate=gatekeep-pr/contract-exception`.
 
 Print the concrete proposed contract change before the rows. Offer `accept contract change`, `preserve contract` `[recommended]`, then `stop`. Render preserve's consequence as "reject the proposal, keep <named requirement>, and resume authorized implementation repair within it". Route through `post-selection-loop.md` `### Contract decision`; show evidence settles nothing. Hint: `Type a number; show evidence prints the full record.`
 
+## post
+
+Render this archetype once on entry to own merge, approved or closed PR. Retain the numbered step mapping in `post_steps` through inspection and execution. Build rows in this step order:
+
+| Step | Availability and consequence |
+|---|---|
+| post the drafted replies | Unposted, source-reviewed drafted replies; post their saved bodies to their PR threads. |
+| post coverage to ticket | Own merge with an issue and scope rows; post the saved AC coverage block to the resolved ticket. |
+| post coverage to PR | Own merge; post the same block as a PR comment. |
+| cleanup | At least one worktree, local branch or base-pull sub-step can run through `cleanup.md` steps 1-3. |
+| each PR-named step | Merged PR with a resolved runnable after-merge action; show its source sentence beside its command. |
+| each cleanup override | One row per runnable merge-base `## cleanup` item, in list order, through `cleanup.md` step 4. |
+
+Only number a step with work to execute, showing its exact command or what it posts and where. List a fully skipped step under the rows with its reason, not a number. Keep cleanup as one row and name each skipped sub-step and its reason alongside the executable sub-steps. Show substituted commands, including the primary cwd and the base-pull prerequisite for a step that needs the merged change when cleanup is not picked.
+
+With multiple runnable steps, make row 1 a combination naming its members' labels and row numbers; give every runnable step its own row below it. Include all runnable steps except the PR copy of coverage when the ticket copy is included. Apply `batch.md`'s shared-item scheduling in set mode. Omit another step only for a concrete assessment reason; always include runnable PR-named steps. Put the reason for each omission in the recommendation sentence above the prompt. With one runnable step, make that step row 1 without a combination; with none, offer only stop. Keep stop last otherwise, and tag only row 1 `[recommended]`.
+
+Use `Pick one, or several separated by commas:` and `Type a number; show evidence prints the full record.` Parse and execute through `post-selection-loop.md` `### Next action`, then its `### Post steps`; a pick settles the PR rather than re-rendering the menu. Treat the merge queued variant separately: wait and stop take one number, not a combination.
+
+> I recommend the reply, ticket checklist and cleanup because the ticket already holds the checklist's PR copy.
+>
+> Pick one, or several separated by commas:
+> 1. post the reply, post coverage to ticket, cleanup - rows 2, 3 and 5. [recommended]
+> 2. post the reply - answer robin's retry question in its PR thread.
+> 3. post coverage to ticket - comment the acceptance checklist on acme/widgets#45.
+> 4. post coverage to PR - comment the same checklist on the PR.
+> 5. cleanup - remove .worktrees/csv-export (including untracked files), delete branch csv-export and pull main in the primary checkout.
+> 6. stop - run nothing and list the unpicked steps with their commands.
+>
+> Type a number; show evidence prints the full record.
+
 ## own merge
 
 Start the message with `gauntlet: gate=gatekeep-pr/own-merge`.
 
-After this run's merge returns `MERGED`, offer `cleanup` `[recommended]` until attempted, `post coverage to ticket` when issue and scope rows exist, `post coverage to PR`, then `stop`. Suppress each successful post for the rest of the run; a failed post keeps its row and prints the error. A post re-renders this template, never tears down or ends the run, and runs no compare-and-swap. After cleanup removes its row recommend the first available post, else stop. Hint: `Type a number; show evidence prints the full record.`
+After this run's merge returns `MERGED`, render `## post` once with own-merge coverage availability. Run the selected set through `post-selection-loop.md` `### Post steps`.
 
 ## merge queued
 
@@ -96,13 +127,13 @@ After this run's merge returns a state other than `MERGED`, offer `wait` - re-ru
 
 Start the message with `gauntlet: gate=gatekeep-pr/approved`.
 
-When `approved_head` equals the assessed head, offer `cleanup` `[recommended]` until attempted, then `stop`; recommend stop after cleanup. Hint: `Type a number; show evidence prints the full record.`
+When `approved_head` equals the assessed head, render `## post` once without coverage or PR-named rows. Keep reply freshness through `post-selection-loop.md` `### Post steps`.
 
 ## closed PR
 
 Start the message with `gauntlet: gate=gatekeep-pr/closed-pr`.
 
-When state is not OPEN at step 1 or mid-course, offer `cleanup` `[recommended]` until attempted, then `stop`; recommend stop after cleanup. Keep this distinct from this run's own merge. Hint: `Type a number; show evidence prints the full record.`
+When state is not OPEN at step 1 or mid-course, render `## post` once without own-merge coverage. Keep this distinct from this run's own merge; list merge-dependent steps on a closed-unmerged PR as `skipped - PR not merged`.
 
 ## batch summary
 

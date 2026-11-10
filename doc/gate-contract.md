@@ -77,9 +77,9 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 | finishing-a-development-branch | Option 5: authorized discard completed | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: done discarded |
 | finishing-a-development-branch | PR-subject push and body edit; close-member gate answered or no qualifying members | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: done pushed |
 | finishing-a-development-branch | Executed option fails after the gate | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: stuck |
-| gatekeep-pr | stop on approved | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done approved |
-| gatekeep-pr | stop on own-merge | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done merged |
-| gatekeep-pr | stop on closed-pr | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done closed-pr |
+| gatekeep-pr | post pick or stop on approved | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done approved |
+| gatekeep-pr | post pick or stop on own-merge | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done merged |
+| gatekeep-pr | post pick or stop on closed-pr | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done closed-pr |
 | gatekeep-pr | stop on final | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done final |
 | gatekeep-pr | stop on merge-queued | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done merge-queued |
 | gatekeep-pr | stop on initial, assess-terminal, obstacle, or contract-exception; failed cleanup assertion | skills/gatekeep-pr/reference/cleanup.md § ## Non-final stop | gauntlet: stuck |
@@ -124,7 +124,7 @@ Gatekeep's multi-PR parent starts a per-PR retirement message with `gauntlet: re
 
 | Layout | Reply |
 |---|---|
-| N. rows | Send the displayed row number. Apply the shared grammar's numeric remap-and-echo rule before acting, not a guessed stable row index. Gatekeep also accepts `show evidence`, `check <name> flaky`, `check <name> real`, and `check <name> ci-broken`; another string is a change request. Finishing Step 4 also accepts `fix minors` or selected IDs such as `fix minors F3, F9`. |
+| N. rows | Send the displayed row number. Apply the shared grammar's numeric remap-and-echo rule before acting, not a guessed stable row index. Gatekeep's own-merge, approved and closed-pr post menus accept a comma-separated set of displayed numbers; row 1 expands its combination and duplicate steps run once in step order. Other menus take one number. Gatekeep recognizes `show evidence`, `reply <n>` for a drafted reply, `check <name> flaky`, `check <name> real`, and `check <name> ci-broken` before numeric parsing on their eligible states; another string is a change request. Finishing Step 4 also accepts `fix minors` or selected IDs such as `fix minors F3, F9`. |
 | 1 - rows | Send the leading number. The spec approval gate accepts `; allowance N` (or `, allowance N`) on 4/5 for this run's per-row ledger allowance, or `; fund N fix rounds` on 1/2 for waves funding. N must be a positive safe integer. Allowance on 1/2, funding on 4/5 and malformed tokens re-present the gate quoting the token without writes; a second invalid reply leaves it waiting. The close-absorbed-members gate uses its displayed approval/revision rows. |
 | X) options | Send the letter or free text, preserving the question's recommendation format. |
 | item-letter | Send `<item>. <letter>` per the [carried-open response grammar](../skills/finishing-a-development-branch/reference/disposition-protocol.md#response-grammar); use the displayed choices for each item. |

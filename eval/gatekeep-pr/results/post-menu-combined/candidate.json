@@ -1,0 +1,120 @@
+{
+  "sample": "post-menu-combined",
+  "arm": "candidate",
+  "skillSha": "1e0e326d4e8c00118f54ab0afb38b9ed29bbec6a157c38d5e310a0d61b13ed1e",
+  "inputSha": "790cf01e042c7dc379ecdea72889f745bde0e219d8bb60fe68e20d9a9c5bfcad",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Narration from merge return to post menu**\n\n1. `gh pr merge --match-head-commit 9c1e4f2...` exited 0. `gh pr view 642 -R sample/forge-kit --json state,mergeCommit` returned `state: MERGED` and `mergeCommit.oid` 7d8e9f0. I recorded `pr.state: MERGED` and `pr.merge_commit: 7d8e9f0`, then selected the own merge template.\n2. The `AC coverage` payload is already saved at `/tmp/gate-coverage.md`. Drafted reply 1 is saved at `/tmp/gate-reply-1.md`.\n3. I resolved the step guards through `cleanup.md`. The worktree and branch sub-steps are runnable. The base pull is skipped because the primary is on `maintenance`. Override `notify` is runnable. Override `release` is fully skipped because the base is not synced.\n4. I persisted one `post_steps` entry per known step, each with `picked: false` and `result: null`. The `release` entry carries its guard skip reason. Then I rendered the menu once.\n\n---\n\ngauntlet: gate=gatekeep-pr/own-merge recommended=1\n\nI recommend the reply, the ticket coverage, cleanup and the notification because the ticket copy makes the PR copy of the checklist a duplicate.\n\nPick one, or several separated by commas:\n1. post the reply, post coverage to ticket, cleanup, notify - rows 2, 3, 5 and 6. [recommended]\n2. post the reply - answer robin's question about startup caching in its PR thread (`gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`).\n3. post coverage to ticket - comment the acceptance checklist on sample/forge-kit#91 (`gh issue comment 91 -R sample/forge-kit --body-file /tmp/gate-coverage.md`).\n4. post coverage to PR - comment the same checklist on the PR (`gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`).\n5. cleanup - remove the worktree and delete its local branch. The commands are `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, which also deletes untracked files, then `git -C /work/forge-kit worktree prune`, then `git -C /work/forge-kit branch -D health-version`. The base pull is skipped because the primary is on maintenance.\n6. notify - comment on the ticket from /work/forge-kit (`gh issue comment 91 -R sample/forge-kit --body \"Health version merged.\"`).\n7. stop - run nothing and list the unpicked steps with their commands.\n\nSkipped: release (`/skill:release patch`) is skipped because the base is not synced. The primary is on maintenance, and cleanup never switches it.\n\nType a number; show evidence prints the full record.\n\n---\n\n**Human reply:** `1`\n\n**Execution of the picked set**\n\nThe pick expands to rows 2, 3, 5 and 6. I persisted `picked: true` on those four entries. They run in menu step order: reply, ticket coverage, cleanup, notify.\n\n1. **Output done-check.** I re-read `/tmp/gate-reply-1.md` and `/tmp/gate-coverage.md` against the wording rules. The reply is ASCII, ends on the fact asked and has no scaffolding. The coverage block posts verbatim, which is its stated exception. The PR is merged, so the posts need no compare-and-swap.\n2. **Post the reply.** I ran `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`. It succeeded, and I recorded the new comment id as gate-posted and persisted the result.\n3. **Post coverage to ticket.** I ran `gh issue comment 91 -R sample/forge-kit --body-file /tmp/gate-coverage.md`. It succeeded, and I persisted the result.\n4. **Cleanup: worktree sub-step.**\n   - `git -C /work/forge-kit/.worktrees/health-version status --porcelain --untracked-files=no` was empty.\n   - `git -C /work/forge-kit/.worktrees/health-version merge-base --is-ancestor HEAD 9c1e4f2` succeeded.\n   - The keyed-home ownership match is unique, and no custom destroy command is recorded.\n   - I ran `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, then `git -C /work/forge-kit worktree prune`. Both succeeded.\n5. **Cleanup: branch sub-step.** `git -C /work/forge-kit worktree list --porcelain` lists no `branch refs/heads/health-version`. I ran `git -C /work/forge-kit branch -D health-version`, which succeeded.\n6. **Cleanup: base sub-step.** It is skipped because the primary is on maintenance. No fetch or pull ran, and the primary's branch was not changed.\n7. **Override `notify`.**\n   - The landed-change guard passes: the PR is merged and the item needs no local change.\n   - There are no placeholders to substitute.\n   - I ran `gh issue comment 91 -R sample/forge-kit --body \"Health version merged.\"` non-interactively, with cwd /work/forge-kit and a 15-minute timeout bound. It succeeded.\n8. **Teardown.** I deleted the run record, `/tmp/gate-reply-1.md` and every helper output and its `log_path`. I retained `/tmp/gate-coverage.md` because the PR coverage copy was never posted.\n\n---\n\ngauntlet: done merged\n#642@9c1e4f2: merged\n\nCheckout: primary /work/forge-kit on branch maintenance. Local branch health-version is deleted, and its worktree /work/forge-kit/.worktrees/health-version is removed.\n\npost the reply: done\npost coverage to ticket: done\nworktree: done\nbranch: done\nbase: skipped - primary on maintenance\nnotify: done\n\nThe following steps did not run:\n- **post coverage to PR** was not picked because the ticket already holds the checklist. It can run now with `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`, and its payload is kept at /tmp/gate-coverage.md.\n- **base**, a cleanup sub-step, was skipped because the primary is on maintenance. It can run after you switch the primary to main yourself, with `git -C /work/forge-kit fetch origin` then `git -C /work/forge-kit pull --ff-only`.\n- **release** was skipped because the base is not synced. It awaits a synced local main and runs as `/skill:release patch`.\n",
+      "words": 792,
+      "wallMs": 31837,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/own-merge recommended=1\n\nDelivers: The health endpoint responds with the build version. AC 1 is covered.\n\nI recommend posting the reply and ticket coverage, cleaning up, and notifying the ticket because all four can run now. The combination excludes duplicate PR coverage; release cannot run because the primary checkout is on maintenance.\n\nPick one, or several separated by commas:\n1. post the reply, post coverage to ticket, cleanup, notify - execute rows 2, 3, 5, and 6. [recommended]\n2. post the reply - answer robin's startup-caching question with `/tmp/gate-reply-1.md` using `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`.\n3. post coverage to ticket - post `/tmp/gate-coverage.md` using `gh issue comment 91 -R sample/forge-kit --body-file /tmp/gate-coverage.md`.\n4. post coverage to PR - post the same coverage using `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`.\n5. cleanup - remove the worktree, including untracked files, using `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, then run `git -C /work/forge-kit worktree prune` and `git -C /work/forge-kit branch -D health-version`; base pull is skipped because the primary is on maintenance.\n6. notify - run `gh issue comment 91 -R sample/forge-kit --body \"Health version merged.\"`.\n7. stop - run nothing and retain the unposted payloads.\n\nSkipped: release (`/skill:release patch`) needs a synced local base; the primary is on maintenance.\n\nType a number; show evidence prints the full record.\n\n**Simulated human reply: 1**\n\nI resolve row 1 to rows 2, 3, 5, and 6, persist that selected set, and execute it in post-step order. No helper is dispatched, and no assessment or tracker initialization is repeated.\n\n### Selected execution\n\n1. **Post the reply.** I check the saved reply against the wording rules. Its source review is complete, and the PR is merged, so no open-PR freshness check is required. I run:\n   ```bash\n   gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md\n   ```\n   The reply succeeds. I persist its successful result without reposting it.\n\n2. **Post coverage to the ticket.** I check the saved coverage block against the verbatim coverage-post contract and run:\n   ```bash\n   gh issue comment 91 -R sample/forge-kit --body-file /tmp/gate-coverage.md\n   ```\n   The post succeeds. I persist its successful result. I do not post the duplicate PR copy and retain `/tmp/gate-coverage.md`.\n\n3. **Clean up.** The supplied completed reads establish that the worktree is tracked-clean, owned by this gate, and contains no commits outside the assessed head's history. I run:\n   ```bash\n   git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version\n   git -C /work/forge-kit worktree prune\n   ```\n   Both commands succeed. I persist `worktree: done` and do not touch the removed path again.\n\n   Removal makes the branch deletion eligible; no other worktree holds it. I run:\n   ```bash\n   git -C /work/forge-kit branch -D health-version\n   ```\n   Deletion succeeds. I persist `branch: done`.\n\n   I persist `base: skipped - primary on maintenance`. I run no base fetch or pull and do not switch the primary's branch.\n\n4. **Notify.** The notification needs no local merged change, and its guards pass. After checking its payload against the wording rules, I run:\n   ```bash\n   gh issue comment 91 -R sample/forge-kit --body \"Health version merged.\"\n   ```\n   The notification succeeds. I persist its successful result.\n\nThe selected set is complete. Release is not invoked. Teardown retains the unposted PR coverage payload and removes the run's disposable records, helper outputs, and unapplied drafts.\n\ngauntlet: done merged\n#642@9c1e4f2: merged\n\nCheckout: `/work/forge-kit` remains on `maintenance`. The gate worktree and local branch `health-version` were removed.\n\npost the reply: done  \npost coverage to ticket: done  \nworktree: done  \nbranch: done  \nbase: skipped - primary on maintenance  \nnotify: done\n\nPost coverage to PR was not selected; it can still run using `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`, and its payload remains at `/tmp/gate-coverage.md`.\n\nBase synchronization was skipped because the primary is on maintenance; the guarded `git -C /work/forge-kit fetch origin` and `git -C /work/forge-kit pull --ff-only` commands were not run.\n\nRelease was skipped because the local base was not synced; `/skill:release patch` was not invoked.\n",
+      "words": 630,
+      "wallMs": 25643,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ad43a47611e26e1f521afc6e99e2fd5311cdbc83cdcb09531479bf0d10177d8c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a3237b0ce4d08ff339db44fd10de9c444f542244965cd2e39607b5b9bff8c0a7",
+      "baselineOutputSha": "dfac6eca239ecd5b3396ba08632d7a9687e1f326083884b4be1ab7299a193457",
+      "candidateOutputSha": "d50847e5e681ea53ba2ebefb8f9e996f9d458caf9355bd16927015c47fc04ee9",
+      "facts": {
+        "single-menu": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "combination": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "runnable-rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "guards": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "draft": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "execution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves every fact from fails to holds and regresses nothing. Before had a single menu but used the old 'Pick one:' prompt, folded notify and release into the cleanup row, offered no row for robin's drafted reply, and after reply 1 ran only checkout cleanup while leaving the ticket coverage and reply unposted. After renders one own-merge menu with 'Pick one, or several separated by commas', puts the duplicate-PR-copy reason above the prompt, makes row 1 the sole recommendation naming its labels and member rows 2, 3, 5 and 6, gives reply, ticket coverage, PR coverage, cleanup and notify their own rows with exact commands or post destinations, lists release unnumbered under the rows with the base-not-synced reason, keeps the base pull skip and no-switch guarantee inside the single cleanup row, executes the picked set in reply/ticket/cleanup/notify order without posting the PR copy, and closes with 'gauntlet: done merged' plus the settlement row and a did-not-run list that gives each skipped or unpicked step its reason and command or payload path. Two small things worth watching in the wording, though neither breaks a fact here: the teardown step deletes the run record and the reply draft after posting, which is fine for a posted reply but would need an explicit 'retain unposted payloads' clause if a post failed, and the base sub-step's 'can run after you switch the primary to main yourself' advice should stay phrased as human action so no reader infers the gate might switch the branch.",
+      "wallMs": 22978,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ad43a47611e26e1f521afc6e99e2fd5311cdbc83cdcb09531479bf0d10177d8c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a3237b0ce4d08ff339db44fd10de9c444f542244965cd2e39607b5b9bff8c0a7",
+      "baselineOutputSha": "c4961370c8f5b57f74c65653273e7ec41db4b9a7225cfd84a3341c16b42aa846",
+      "candidateOutputSha": "c04b6c1918499c665f6e2f5211b63f13f5be585a9bc4f338ae2e73341caf275a",
+      "facts": {
+        "single-menu": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "combination": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "runnable-rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "guards": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "draft": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "execution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved every fact from fails to holds and matches the Change exactly. Before used a cleanup-only recommendation under a single-pick \"Pick one:\" prompt, folded notify and the release skip into the cleanup row, dropped the pre-merge drafted reply entirely, and re-rendered a second terminal menu after the pick instead of settling. After fixes each of these: one header line, the comma-separated prompt, row 1 naming the four member labels and their row numbers (2, 3, 5, 6) with the duplicate-PR-coverage exclusion stated above the prompt, a dedicated reply row with robin's subject and the thread-reply command, separate rows for ticket coverage, PR coverage, cleanup (worktree removal, prune, branch delete, and the skipped base pull with the maintenance reason) and notify with its resolved command, an unnumbered \"Skipped: release\" line under the rows, stop last, and show-evidence as a hint only. The simulated reply 1 executes the four members once in post-step order, never posts the PR copy, prints per-step results, then ends with `gauntlet: done merged` and the `#642@9c1e4f2: merged` settlement row, with the closing naming the unpicked PR coverage command and payload path and the skipped release reason and command. Nothing regressed; the wording is sound as written. One optional tightening: in the pre-prompt paragraph, name the release skip reason as \"local base not synced\" in addition to \"primary on maintenance\" so the recommendation paragraph and the Skipped line use identical phrasing.",
+      "wallMs": 19950,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "b8d1f7e4dc7e322b89d0282dfe6bdcf6fa687073"
+}
