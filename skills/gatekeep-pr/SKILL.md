@@ -28,7 +28,7 @@ Verify (step 3) and Review (step 4) each run as a fresh helper with `cwd` the PR
 | 3 Verify | `verification-brief.md` Section B | evidence record (CI-first) and one disposition per material claim | `verify` |
 | 4 Review | `verification-brief.md` Section C | reviewer findings and the internal comment ledger | `review` |
 | 5 Integrate + report | `reference/post-selection-loop.md` `### Pre-menu refresh`, then `reference/findings.md`, then `reference/report.md` | AC outcomes, blockers, nits, drafted payloads, the rendered report | `report` |
-| 6 Menu | `reference/decision-menu.md`, then `reference/menus.md` | initial for a repairable or pending-only not-ready first report, obstacle for undispositionable BLOCKED even with course unset, final for first-report readiness or a readiness exit, assess terminal after assess, obstacle at obstacle/cap, or the matching terminal/contract-exception template; exactly one `[recommended]` | `menu` |
+| 6 Menu | `reference/menus.md` | state-selected action, final or post archetype; row 1 is the sole recommendation | `menu` |
 | 7 Loop | `reference/post-selection-loop.md` (delivery continues in `reference/fix-wave.md`) | the fixed delivery body until readiness, obstacle or cap; terminal picks and contract decisions through `reference/menus.md`; re-entry until stop or completion of the terminal post set | (re-opens the re-entered stage) |
 
 Re-entry: a fix wave's own push re-enters step 4 through the own-push sequence (`reference/fix-wave.md` `## Evidence after push`, then `reference/post-selection-loop.md` `### Re-render`); any other head move re-enters step 3; an unchanged head re-enters step 5 through `reference/post-selection-loop.md` `### Pre-menu refresh`. A loop re-entry never re-runs step 2b; the sync runs once per invocation.
@@ -84,7 +84,7 @@ Before sending any report, menu or external payload, reread it for internal jarg
 - A CI watch outside D3 step 4 or before the first report, or a second push inside one iteration - owner: `reference/post-selection-loop.md` `### Next action`.
 - The orchestrator resolving a merge conflict itself, or editing or committing a tracked file during a fix wave - owner: `reference/fix-wave.md` `## Sync` and `## Wave`.
 - A helper's duty run in the orchestrator's own context - owner: `## Harness notes`.
-- Approving your own PR - owner: `reference/decision-menu.md` `## Availability`.
+- Approving your own PR - owner: `reference/menus.md` `## final`.
 - Merging around an undispositioned failing check or a binding pending check, or a merge-state withhold under `reference/post-selection-loop.md` `### Merge preconditions` - owner: `reference/findings.md` `## Dispositions`.
 - A menu rendered without the pre-menu refresh - owner: `reference/post-selection-loop.md` `### Pre-menu refresh`.
 - Reading `mergeStateStatus` from anything but a `gh pr view` invocation, attributing a `BLOCKED` to a named rule, or treating a non-`BLOCKED` value as a merge verdict - owner: `verification-brief.md` Section A.

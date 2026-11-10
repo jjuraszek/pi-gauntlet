@@ -16,12 +16,12 @@ test('merge execution confines the flag to bypass and consumes refusals before s
   assert.match(merge, /nonzero exit, print gh's error verbatim, consume the selection without retry/);
   assert.match(merge, /no second attempt with or without `--admin`/);
   assert.match(merge, /re-run `### Pre-menu refresh`/);
-  assert.match(merge, /final while all merge preconditions hold; obstacle with `Not offered: merge \(blocked by GitHub\)`/);
+  assert.match(merge, /final while all merge preconditions hold; obstacle explaining that GitHub still blocks this actor from merging/);
   assert.ok(merge.indexOf('nonzero exit') < merge.indexOf('state: MERGED'));
   assert.match(merge, /On a zero exit/);
   assert.match(merge, /skips the merge queue/);
   assert.match(merge, /parent reads `permissions.bypass_eligible` from the retained child record/);
-  assert.match(read('skills/gatekeep-pr/reference/decision-menu.md'), /`merge`[^\n]*`--admin` only on the bypass path/);
+  assert.match(read('skills/gatekeep-pr/reference/menus.md'), /`merge`[^\n]*`--admin` only on the bypass path/);
 });
 
 test('eligibility changes invalidate the selected merge even without a merge-state change', () => {

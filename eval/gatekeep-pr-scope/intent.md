@@ -1,8 +1,8 @@
-for: d2655f66b7650d7c64f65a2920419f3cb5d408274bc94856981e8427b3997221
+for: cf9dee847d023eb75cd392a1d76c33f64eacd234400ed555d5b1723f3b738406
 
 ## Change
 
-The shared row-1 ordering rule is tested only by gatekeep-pr/gate-line-first; this assembly hash is refreshed for structural checks, not a new replay claim for this target.
+Remove the deleted decision-menu.md bundle entry and point the replay and README at menus.md. These path-only migrations preserve the instructions' meaning. Refresh this assembly hash for structural checks only; no new model replay coverage is claimed for this target. The following comparison notes and predictions describe historical results.
 
 Replace per-action repair authority and ordinary wait menus with persistent assess/deliver/deliver-nits courses and the shared menus.md templates. Preserve identity validation, independent claim/mechanism closure, exact-head evidence and terminal cleanup ownership. Source rounds count new repair-wave commits; body-only work and conflict-only syncs have independent accounting. Caps freeze at twice the entry setting, timeout renews only on own push or explicit obstacle continuation, and resumed sync preserves separate restore and lease heads.
 

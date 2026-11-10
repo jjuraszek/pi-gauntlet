@@ -32,16 +32,16 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | finishing-a-development-branch/option-5 | question | skills/finishing-a-development-branch/SKILL.md | #### Option 5: Discard | free |
 | using-git-worktrees/step-3 | question | skills/using-git-worktrees/SKILL.md | ## Step 3 | free |
 | using-git-worktrees/detached-head | question | skills/using-git-worktrees/SKILL.md | ## Detached HEAD | free |
-| gatekeep-pr/initial | gate | skills/gatekeep-pr/reference/menus.md | ## initial | N. rows |
-| gatekeep-pr/final | gate | skills/gatekeep-pr/reference/menus.md | ## final | N. rows |
-| gatekeep-pr/assess-terminal | gate | skills/gatekeep-pr/reference/menus.md | ## assess terminal | N. rows |
-| gatekeep-pr/obstacle | gate | skills/gatekeep-pr/reference/menus.md | ## obstacle | N. rows |
-| gatekeep-pr/contract-exception | gate | skills/gatekeep-pr/reference/menus.md | ## contract exception | N. rows |
-| gatekeep-pr/own-merge | gate | skills/gatekeep-pr/reference/menus.md | ## own merge | N. rows |
+| gatekeep-pr/initial | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/final | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/assess-terminal | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/obstacle | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/contract-exception | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/own-merge | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
 | gatekeep-pr/own-merge | gate | skills/gatekeep-pr/reference/batch.md | ## Summary and menu round | N. rows |
-| gatekeep-pr/merge-queued | gate | skills/gatekeep-pr/reference/menus.md | ## merge queued | N. rows |
-| gatekeep-pr/approved | gate | skills/gatekeep-pr/reference/menus.md | ## approved | N. rows |
-| gatekeep-pr/closed-pr | gate | skills/gatekeep-pr/reference/menus.md | ## closed PR | N. rows |
+| gatekeep-pr/merge-queued | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/approved | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/closed-pr | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
 | gatekeep-pr/batch-summary | gate | skills/gatekeep-pr/reference/menus.md | ## batch summary | N. rows |
 | gatekeep-pr/sync-preconditions | gate | skills/gatekeep-pr/reference/sync.md | ## Preconditions | N. rows |
 | gatekeep-pr/other-author-confirmation | question | skills/gatekeep-pr/reference/sync.md | ## Other-author confirmation | free |

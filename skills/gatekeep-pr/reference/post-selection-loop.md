@@ -32,7 +32,7 @@ On own-merge, approved and closed-pr post menus, parse a comma-separated set of 
 
 At this boundary and before each external write fetch actual body and live baseRefName with head/state. Compare live `baseRefName` against `consent.target.baseRefName`; an unreadable or changed base exits without overwriting `consent.target`. A same-head body edit invalidates old readiness and selected merge; narrowly recheck changed claims, preserving original intent. Refresh proposals against actual body.
 
-First report ready -> final with course unset. Before choosing initial for a not-ready first report, resolve obstacle states through `### Exit check`; render obstacle for undispositionable BLOCKED even with course unset. Use initial for repairable blockers or a pending-only CI withhold through `menus.md`. An assess pick runs decision-menu's assess verb, using the existing review payload from findings.md Namespaces, then assess terminal; perform no repair or sync. Under deliver or deliver-nits and no exit, continue the body below. Under deliver or deliver-nits or an outstanding terminal nit selection, run only this D3 body, with no menu except contract exception:
+First report ready -> final with course unset. Before choosing initial for a not-ready first report, resolve obstacle states through `### Exit check`; render obstacle for undispositionable BLOCKED even with course unset. Use initial for repairable blockers or a pending-only CI withhold through `menus.md`. An assess pick runs `menus.md`'s assess row with the review payload from `findings.md` Namespaces. Under deliver or deliver-nits and no exit, continue the body below. Under deliver or deliver-nits or an outstanding terminal nit selection, run only this D3 body, with no menu except contract exception:
 
 1. Run `### Exit check`, then repair every source-backed and CI-minted `P#` blocker through `### Fix wave` and `fix-wave.md` `## Wave`. Under deliver-nits include all current and later nits. Preserve independent P#/L# contributor IDs; close only reviewer resolved lines.
 2. Run `### Loop sync` only for CONFLICTING, BEHIND, or local merge-tree conflict.
@@ -58,7 +58,7 @@ Evaluate before every iteration and after every head, digest, or record change. 
 
 | Exit | Condition and render |
 |---|---|
-| readiness | Every `### Merge preconditions` holds and no outstanding terminal fix-nits selection remains; deliver-nits also requires resolved closure lines for every opted-in and subsequently minted nit. Render final, with draft/WRITE omissions from decision-menu.md. Permission never converts a repairable source gap into readiness. |
+| readiness | Every `### Merge preconditions` holds and no outstanding terminal fix-nits selection remains; deliver-nits also requires resolved closure lines for every opted-in and subsequently minted nit. Render final, with omissions from `menus.md`. Permission never converts a repairable source gap into readiness. |
 | obstacle | Resolve the table below; render obstacle with its concrete reason, except contract exception and closed PR use their own templates. |
 | cap | rounds_used reaches rounds_cap -> `round cap reached: <used> of <cap>`; syncs_used reaches syncs_cap -> `sync cap reached: <used> of <cap>`; render obstacle, keep local commits. |
 

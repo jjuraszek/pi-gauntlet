@@ -1,6 +1,5 @@
 bundle+: skills/gatekeep-pr/reference/batch.md
 bundle-: skills/gatekeep-pr/reference/sync.md
-bundle-: skills/gatekeep-pr/reference/decision-menu.md
 bundle-: skills/gatekeep-pr/reference/menus.md
 bundle-: skills/gatekeep-pr/reference/findings.md
 bundle-: skills/gatekeep-pr/reference/fix-wave.md

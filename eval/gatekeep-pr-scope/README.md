@@ -7,7 +7,7 @@ Test the step 5-7 report, numbered menu, and handling of one pick against fourte
 | `skills/gatekeep-pr/SKILL.md` | Full file |
 | `skills/gatekeep-pr/verification-brief.md` | Full file |
 | `skills/gatekeep-pr/reference/assessment.md` | Full file |
-| `skills/gatekeep-pr/reference/decision-menu.md` | Full file |
+| `skills/gatekeep-pr/reference/menus.md` | Full file |
 | `skills/gatekeep-pr/reference/findings.md` | Full file |
 | `skills/gatekeep-pr/reference/fix-wave.md` | Full file |
 | `skills/gatekeep-pr/reference/post-selection-loop.md` | Full file |

@@ -1,5 +1,5 @@
 import './gatekeep-bypass-pick.test.mjs';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
 import { parseIntent } from '../eval/lib/intent.mjs';
@@ -55,14 +55,28 @@ for (const target of ['gatekeep-pr', 'gatekeep-pr-scope', 'gatekeep-pr-merge-sta
       const input = read(`../eval/${target}/samples/${sample}/case.md`);
       assert.doesNotMatch(input, /"(?:fix|merge_base|scope_at_grant|granted_by)"\s*:|consent\.(?:fix|merge_base|scope_at_grant)/);
     }
+    if (target === 'gatekeep-pr') for (const sample of ['per-ref-settlement', 'reviewer-row-reopen', 'loop-worker', 'nit-batch-row']) {
+      const parsed = parseCase(read(`../eval/${target}/samples/${sample}/case.md`));
+      const selected = { ...config, skillFiles: config.skillFiles.filter(f => !parsed.drop.includes(f.path)) };
+      const saved = JSON.parse(read(`../eval/${target}/results/${sample}/candidate.json`));
+      assert.equal(saved.skillSha, sha256(assemble(selected, path => read(`../${path}`), parsed.bundle)), sample);
+      assert.equal(saved.inputSha, inputSha(read(`../eval/${target}/replay.md`), parsed.text, parsed.bundle), sample);
+      assert.equal(Object.keys(saved.outputs).length, 2, sample);
+      for (const [model, output] of Object.entries(saved.outputs)) {
+        assert.equal(output.status, 'ok', `${sample}/${model}`);
+        assert.equal(saved.judge[model].factsSha, sha256(read(`../eval/${target}/samples/${sample}/expected.md`)));
+        assert.equal(saved.judge[model].candidateOutputSha, sha256(output.text));
+        for (const fact of knownFacts[sample]) assert.equal(saved.judge[model].facts[fact].after, 'holds', `${sample}/${model}/${fact}`);
+      }
+    }
   });
 }
 
 const skill = read('../skills/gatekeep-pr/SKILL.md');
 const loop = read('../skills/gatekeep-pr/reference/post-selection-loop.md');
-const decisionMenu = read('../skills/gatekeep-pr/reference/decision-menu.md');
 const menus = readOrEmpty('../skills/gatekeep-pr/reference/menus.md');
-const menu = decisionMenu;
+const decisionMenu = menus;
+const menu = menus;
 const brief = read('../skills/gatekeep-pr/verification-brief.md');
 const findings = read('../skills/gatekeep-pr/reference/findings.md');
 const report = readOrEmpty('../skills/gatekeep-pr/reference/report.md');
@@ -74,7 +88,7 @@ const sync = read('../skills/gatekeep-pr/reference/sync.md');
 const batch = readOrEmpty('../skills/gatekeep-pr/reference/batch.md');
 test('UNKNOWN exit precedes pending CI and other-author explanation stays verbatim', () => {
   assert.match(loop, /UNKNOWN\/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check/);
-  assert.match(loop, /Not offered: merge \(merge state unknown\)/);
+  assert.match(loop, /merging cannot proceed until GitHub's merge status is readable/);
   assert.match(loop, /let merge state own the withhold reason and the PR comments line/);
   assert.match(sync, /print this fixed block verbatim, one line per point/);
   assert.match(sync, /^Authorship stays, but the committer becomes this checkout's local git identity\.$/m);
@@ -125,7 +139,7 @@ for (const [name, text, patterns] of [
     /STOPPED - spec candidate/, /same record/, /UNKNOWN/,
     /parent.*menus/i, /refresh before.*execute/i, /pr-<N> state: <record path>/,
     /session-local/, /Not offered: retry \(worktree dirty or mid-rebase: <state>\)/,
-    /#<N> <verdict line> \| evidence:/, /#<N> - files unknown/,
+    /print `#<N>` and copy the child's standing sentence unchanged/, /#<N> - files unknown/,
   ]],
 ]) {
   test(`multi-PR contract: ${name}`, () => {
@@ -175,41 +189,39 @@ test('batch rendering preserves child reports and confines pending checks to men
   const round = section(batch, '## Summary and menu round\n', '## Between batches and retirement\n');
   assert.match(round, /Substitute `<observed state>` with the concrete observation - the porcelain line\(s\) or the rebase directory name - one line per snapshot, never the placeholder text/);
   assert.match(round, /Print each supplied child report file verbatim in roster order/);
-  assert.match(round, /child's supplied Verdict text unchanged/);
-  assert.match(round, /Never rewrite, correct, or reconcile a child's report/);
-  assert.match(round, /off-contract lines.*show evidence/);
-  assert.match(round, /pending binding check only in that PR's queued menu/);
-  assert.match(round, /Not offered: merge \(<check> pending\)/);
+  assert.match(round, /copy the child's standing sentence unchanged/);
+  assert.match(round, /Preserve each supplied child report unchanged, including under show evidence/);
+  assert.match(round, /Describe a pending required check in that PR's deliver row; leave the supplied standing sentence unchanged/);
+  assert.match(round, /add no verdict, evidence or blocker fields/);
 });
 
 test('obstacle menus extend both caps even below their limits', () => {
-  const obstacle = section(menus, '## obstacle\n', '## contract exception\n');
-  assert.match(obstacle, /Feed the `Evidence:` line from the verifier record's resolved source, never from the raw check or run rollup[\s\S]*source: pending[\s\S]*Evidence: pending \(<binding check> binding; head <sha>\)[\s\S]*course` is unset[\s\S]*deliver - set course to deliver;/);
-  assert.match(obstacle, /Keep the `Delivers:` line/);
-  assert.match(obstacle, /Evidence: CI \(run 7001, test_unit and build_image green on 9c1e4f2\)/);
-  assert.match(obstacle, /show evidence prints the full record \(<source summary>\)/);
-  assert.match(report, /For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head/);
-  assert.match(report, /Exempt this compact source summary and the final template's `Evidence:` line from the evidence-only rules below and SKILL.md wording rule 5/);
-  assert.match(obstacle, /deliver - resume the retained course; <one clause naming what retries>, no round charged/);
-  assert.match(obstacle, /For every non-timeout deliver selection, add exactly/);
-  assert.match(obstacle, /cumulative usage\/caps/);
+  const obstacle = section(menus, '### obstacle\n', '## final\n');
+  assert.match(report, /distinguish CI from a local run, and never turn pending or missing evidence into a pass/);
+  assert.match(report, /check conclusions, run URLs, head, prior-review and sync SHAs, pending-check counts and raw field\/value pairs under `show evidence`/);
+  assert.match(report, /Apply the same rule to obstacle and final reports/);
+  assert.match(obstacle, /course unset describe starting work; otherwise describe continuing it/);
+  assert.match(obstacle, /For every non-timeout deliver selection, add exactly `2 x maxFixRounds` to both caps and persist before work, preserving usage/);
+  assert.match(obstacle, /explain the added repair and sync attempts in the row, leaving counters under show evidence/);
+  assert.match(obstacle, /timeout.*exactly one additional watch window.*neither cap extended/);
+  assert.match(obstacle, /unchanged prerequisite re-exits even after extension/);
 });
 
 test('multi-PR terminal picks stay parent-owned after worktree cleanup', () => {
   const round = section(batch, '## Summary and menu round\n', '## Between batches and retirement\n');
-  assert.match(round, /For terminal overlays, the parent handles `post coverage to ticket`, `post coverage to PR`, and `show evidence` from the primary checkout/);
-  assert.match(round, /even after cleanup removes the PR worktree/);
-  assert.match(round, /parent.*`merge queued`.*`wait`.*after all picks are collected/);
+  assert.match(round, /Execute queued terminal picks in roster order from the primary checkout through `post-selection-loop.md` `### Post steps`/);
+  assert.match(round, /Show evidence in-place from retained record\/helper paths and leave the same menu waiting/);
+  assert.match(round, /parent owns every post step, even after cleanup removes a PR worktree/);
+  assert.match(round, /`merge queued`, the parent handles `wait` after all picks/);
   assert.match(round, /gh pr view <N> --json state,mergeCommit/);
   assert.match(round, /`MERGED`.*`pr.state`.*`pr.merge_commit`.*`own merge`/);
-  assert.match(round, /otherwise re-render `merge queued`.*`wait`.*`show evidence`.*`stop`/);
-  assert.match(round, /no helper, child, or CI watch/);
-  assert.match(round, /`post-selection-loop.md` `### Merge course` and `### Output done-check`/);
-  assert.match(round, /direct selected post only, with no compare-and-swap or helper dispatch/);
-  assert.match(round, /Queue terminal posts with all other external writes until every PR's pick is collected/);
+  assert.match(round, /otherwise re-render `merge queued` with wait\/stop and the evidence hint, without helper, child or CI watch/);
+  assert.match(round, /`post-selection-loop.md` `### Merge course`/);
+  assert.match(section(loop, '### Post steps\n', '### Exit check\n'), /Execute posts in the orchestrator after Output done-check/);
+  assert.match(round, /Run no helper or compare-and-swap for terminal posts/);
   assert.match(round, /Queue every parent-owned terminal pick.*until every roster entry's pick for the round is collected/);
   assert.match(round, /Print `Queued until all picks are collected \(<roster summary>\)` before the execution block for each queued pick, including a single-entry roster/);
-  assert.match(round, /Exclude terminal picks from child dispatch; never use a removed worktree as cwd/);
+  assert.match(round, /exclude terminal picks from child dispatch and never use a removed worktree as cwd/);
 });
 
 test('gatekeeper leaves model knobs unset and has no skill discovery machinery', () => {
@@ -240,9 +252,10 @@ test('undispositionable BLOCKED selects obstacle even before a course pick', () 
   assert.match(findings, /With BLOCKED, no eligible bypass under `post-selection-loop.md` `### Merge preconditions`, and no dispositionable local repair/);
   assert.match(decisionMenu, /BLOCKED with no eligible bypass and no local repair/);
   assert.match(menus, /no wait row, no sync promise, and no approve row/);
-  for (const text of [findings, report]) assert.ok(text.includes("GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)"));
+  assert.match(report, /Otherwise say GitHub blocks this actor from merging; never invent a named rule/);
   assert.match(cleanup, /both the cleanup row text and the result block/);
-  assert.match(menus, /skipped - needs a landed change/);
+  assert.match(cleanup, /skipped - needs a landed change/);
+  assert.match(menus, /cleanup \| At least one worktree, local branch or base-pull sub-step can run/);
 });
 
 test('scope-narrowing description proposals require the contract decision for either owner', () => {
@@ -254,10 +267,10 @@ test('exact description selection and narrow recheck preserve independent eviden
   assert.ok(!findings.includes('Every new description proposal requires exact-text selection'), 'selection sentence deleted');
   assert.ok(!findings.includes('decline writes nothing'), 'decline clause deleted');
   assert.match(findings, /A delivery course applies a description payload alongside the file payloads/);
-  const exclusions = section(report, '## What stays out\n', '## Worked example\n');
-  assert.match(exclusions, /drafted file edits and full description bodies[^\n]*only under the `show evidence` command/, 'keep file edits and full description bodies evidence-only');
-  assert.match(exclusions, /Print the compact exact old-to-new description preview under its blocker; keep the full replacement body under `show evidence`/);
-  assert.match(exclusions, /Keep a declined correction's proposal open and its preview line under the blocker on every re-render until the claim resolves/);
+  const exclusions = section(report, '## What stays out\n');
+  assert.match(exclusions, /`show evidence`[^\n]*Keep full drafted file edits, description bodies and replies[^\n]*behind that command/, 'keep file edits and full description bodies evidence-only');
+  assert.match(exclusions, /Print a compact exact old-to-new description preview under its blocker for consent/);
+  assert.match(exclusions, /retain a declined proposal's preview on every re-render until the claim resolves/);
   assert.ok(!exclusions.includes('before selection at the rendered consent menu'), 'consent-menu clause deleted');
   assert.match(findings, /independent contributions/);
   assert.match(loop, /gh pr edit <N> --body-file <temporary-file>/);
@@ -365,35 +378,29 @@ test('conformance-check.md sentinel names the deferred/deviates line', () => {
 });
 
 test('report.md renders bottom-up and delegates exit and menu verdicts', () => {
-  assert.match(report, /For ordinary assessments, use `mergeable`, `fixable`, or `not ready`/);
-  assert.match(report, /Delegate obstacle\/cap verdicts to `post-selection-loop.md` `### Exit check` and menu verdicts to `menus.md`/);
-  assert.doesNotMatch(report, /Two states:/);
-  const order = ['Delivers', 'Role:', 'PR comments', 'Nits', 'Blockers', 'Verdict:'];
-  const orderSection = section(report, '## Order\n');
-  const fence = orderSection.match(/```[^\n]*\n([\s\S]*?)\n```/);
-  assert.ok(fence, 'Missing fenced report template after ## Order');
-  const idx = order.map((s) => fence[1].indexOf(s));
-  assert.ok(idx.every((i) => i >= 0), `report.md is missing section ${order[idx.indexOf(-1)]}`);
-  assert.deepEqual([...idx].sort((a, b) => a - b), idx, 'sections must appear in bottom-up order');
-  assert.match(report, /Print exactly one `Role:` directly under `Delivers`/);
-  assert.match(report, /Keep API order, exclude the viewer by case-insensitive User login comparison/);
-  assert.match(report, /render missing login\/slug as `unknown`/);
+  assert.match(report, /what the PR does and its scope, the viewer's role, comments and nits, prior-review result, blockers, sync result, then one standing sentence immediately before the menu/);
+  assert.match(report, /recommendation's reason from `menus.md`/);
+  assert.match(report, /Translate the internal verdict and exit state; do not print their fixed strings/);
+  assert.match(report, /Write whole sentences, not labeled fields or a fixed template/);
+  assert.match(report, /Keep other requested users and teams in API order: exclude the viewer by case-insensitive User login comparison/);
+  assert.match(report, /exclude nobody when that login is unreadable/);
+  assert.match(report, /render Users by login and Teams by slug, and use `unknown` for a missing login or slug/);
   assert.match(brief, /viewer: \{ login, is_author, role \}/);
   assert.match(brief, /else author when is_author; else requested reviewer/);
   assert.match(brief, /Pending reviewRequests only, never reviews history/);
-  assert.match(report, /^Verdict: mergeable - [^\n]*\| fixable - <N> blockers/m);
-  assert.ok(!report.includes('not mergeable'));
-  assert.ok(!report.includes('Ticket changes'));
-  assert.match(fence[1], /1\. <1-2 sentences: what is wrong, why it matters>\. \(<file:line and exact supplied test name for a failing test; file only when no test name was supplied> \| <check name> \| <doc path>\)/);
-  assert.match(report, /[Ee]mpty sections are omitted/);
+  assert.match(report, /Name a running required check or an unchanged obstacle rather than claiming readiness/);
+  assert.match(report, /distinguish CI from a local run, and never turn pending or missing evidence into a pass/);
+  assert.match(report, /retain the exact supplied failing test name and its file, or the file alone when no test name was supplied/);
+  assert.match(report, /Keep nits distinct and name their count and the offered action that can take them/);
+  assert.match(report, /Omit empty sections/);
   assert.match(report, /show evidence: <log_path>/);
-  assert.match(report, /Open the `Sync:` line with the digest's `sync` field value verbatim/);
-  assert.match(report, /Sync: declined - other author's branch/);
-  assert.match(report, /Never paraphrase the status value into prose/);
-  assert.ok(!report.includes('captured tail'));
-  const examples = section(report, '## Worked example\n');
-  for (const text of ['Delivers: the reports page exports CSV on demand. ACs 1, 2, 4;', "maria's comment on the missing CSV header", 'src/api/export.ts:31, lib/page.ts', 'src/api/export.ts:10-58', 'docs/exports.rst:88', 'Verdict: fixable - 2 blockers', 'Delivers: the reports page exports CSV on demand. ACs 1-5.', 'Verdict: mergeable - CI green on the assessed head (test)']) assert.ok(examples.includes(text), text);
-  assert.doesNotMatch(examples, /^\d+\. (?:fix|review|reply|show evidence|merge|stop) -/m);
+  assert.match(report, /Only with `--rebase`, explain the sync outcome, including resolved files on success and the actual reason on a skip, decline or failure/);
+  assert.match(report, /Translate the digest's status into prose; keep its exact value in the evidence record/);
+  assert.match(report, /Do not invent a sync result on loop re-entry/);
+  assert.match(report, /name the covered rows, deferred rows and their references, deviations and their reasons, rows handled elsewhere and their repositories, and observation halves checked after merge/);
+  assert.match(report, /Count a covered mechanism in the covered rows even when its observation waits/);
+  assert.match(report, /Explain replyable PR comments and the drafted reply's meaning/);
+  assert.doesNotMatch(report, /```|captured tail|^Verdict:|^Delivers:|^Evidence:/m);
 });
 
 test('post-selection-loop.md delegates the wave to fix-wave.md and re-enters step 4 after its own push', () => {
@@ -508,12 +515,13 @@ test('eligible BLOCKED uses fresh viewer-relative authority on the ordinary merg
   assert.match(gather, /Never infer bypass eligibility from `viewer_permission`/);
   const refresh = section(loop, '### Pre-menu refresh\n', '### Wait course\n');
   assert.match(refresh, /Refresh `permissions.bypass_eligible` through Section A's fixed GraphQL query on every pre-menu refresh/);
-  const final = section(menus, '## final\n', '## assess terminal\n');
-  assert.ok(final.includes('merge - <policy>-merge on ruleset bypass authority; CI evidence stands'), 'AC 1 requires its exact merge consequence');
-  assert.ok(final.includes('merge_state_status BLOCKED (bypass eligible; reviewDecision <value>)'), 'AC 1 requires the bypass evidence locator');
-  assert.match(final, /Keep the ordinary `merge` row and the same recommendation defaults/);
+  const final = section(menus, '## final\n', '## post\n');
+  assert.match(final, /merge - <policy>-merge using your admin override/);
+  assert.match(final, /GitHub requires an admin override and required checks passed/);
+  assert.match(final, /Keep one merge row, no bypass row/);
+  assert.match(final, /merge state under show evidence/);
   assert.doesNotMatch(final, /merge \(admin\)/);
-  assert.match(report, /For an eligible BLOCKED merge, omit the blocked PR-comments line/);
+  assert.match(report, /For eligible BLOCKED readiness, omit the blocked comment/);
   for (const command of brief.matchAll(/gh pr view[^\n]+/g)) assert.ok(!command[0].includes('viewerCanMergeAsAdmin'));
   assert.doesNotMatch(gather + refresh, /can_bypass_merge/);
   assert.match(refresh, /replace merge state, bypass_eligible, reviewDecision/);
@@ -547,8 +555,8 @@ test('bypass eligibility preserves pending CI and every independent merge withho
     'no undispositioned failing check in the resolved set, no **binding** pending check',
     'no retained, unreviewed comment delta',
   ]) assert.ok(pre.includes(clause), clause);
-  assert.match(decisionMenu, /\| `merge` \| non-draft, viewer_permission `WRITE`, `MAINTAIN`, or `ADMIN`, all `### Merge preconditions` hold \|/);
-  assert.match(decisionMenu, /\| binding pending check \|[^\n]*Not offered: merge \(<check name> pending\)[^\n]*watch only at delivery step 4/);
+  assert.match(decisionMenu, /\| `merge` \| Non-draft; viewer_permission WRITE, MAINTAIN or ADMIN; all `### Merge preconditions` hold \|/);
+  assert.match(decisionMenu, /\| binding pending check \| Name the required check still running; watch only at delivery step 4/);
   const binding = section(brief, '**Binding classification**', '**Reviewer-check exception**');
   assert.match(binding, /`merge_state_status` is `BLOCKED`, `UNKNOWN` \(after the step-2 re-poll\), or `unreadable`/);
   assert.doesNotMatch(binding, /bypass_eligible/);
@@ -590,11 +598,9 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
   assert.match(loop, /Undispositionable BLOCKED without eligible bypass under Merge preconditions/);
   assert.match(decisionMenu, /BLOCKED with no eligible bypass and no local repair/);
   assert.match(findings, /With BLOCKED, no eligible bypass under `post-selection-loop.md` `### Merge preconditions`, and no dispositionable local repair/);
-  assert.ok(report.includes("GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)"));
-
-  assert.match(report, /Keep `bypass_eligible` and its value only in the digest `permissions` block; never name the field in rendered output/);
-  const renderedShape = section(report, '```\nDelivers:', '\n```');
-  assert.doesNotMatch(renderedShape, /bypass_eligible/);
+  assert.match(report, /Otherwise say GitHub blocks this actor from merging; never invent a named rule/);
+  assert.match(report, /Keep `bypass_eligible` and its value in the digest's permissions only, including when answering `show evidence`/);
+  assert.match(report, /explain their actual missing prerequisites in prose, not a separate omission line/);
 
   const root = '../eval/gatekeep-pr-merge-state';
   const sample = 'bound-viewer-green-ci';
@@ -661,7 +667,7 @@ test('post-selection-loop.md refreshes merge state before every menu and binds t
 
 test('SKILL.md names the pre-menu refresh at step 5 and in the red flags', () => {
   assert.match(skill, /\| 5 Integrate \+ report \| `reference\/post-selection-loop.md` `### Pre-menu refresh`, then `reference\/findings.md`/);
-  assert.match(skill, /\| 6 Menu \| `reference\/decision-menu.md`, then `reference\/menus.md` \|/);
+  assert.match(skill, /\| 6 Menu \| `reference\/menus.md` \|/);
   assert.match(skill, /an unchanged head re-enters step 5 through `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
   assert.match(skill, /or a binding pending check, or a merge-state withhold under `reference\/post-selection-loop.md` `### Merge preconditions`/);
   assert.match(skill, /A menu rendered without the pre-menu refresh - owner: `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
@@ -728,14 +734,24 @@ test('watch belongs only to delivery and renews only on own push', () => {
   assert.match(wait, /gh pr checks <N> -R <base-owner>\/<base-repo> --watch/);
 });
 
-test('ten templates own menus and typed dispatch is not row authority', () => {
-  assert.deepEqual([...menus.matchAll(/^## (.+)$/gm)].map(m => m[1]), ['initial', 'final', 'assess terminal', 'obstacle', 'contract exception', 'own merge', 'merge queued', 'approved', 'closed PR', 'batch summary']);
-  for (const verb of ['wait', 'merge base', 'update branch', 'show evidence']) assert.doesNotMatch(decisionMenu, new RegExp('^(?:- |\\| )`'+verb+'`', 'm'));
-  assert.match(menus, /Course holds until the final menu; `show evidence` prints the full record/);
-  assert.match(menus, /\+2 x maxFixRounds/);
+test('three archetypes own menus and typed dispatch is not row authority', () => {
+  const root = new URL('../skills/gatekeep-pr/', import.meta.url);
+  assert.equal(existsSync(new URL('reference/decision-menu.md', root)), false);
+  for (const path of ['SKILL.md', 'verification-brief.md', 'review-baseline.md', ...readdirSync(new URL('reference/', root)).filter(p => p.endsWith('.md')).map(p => `reference/${p}`)]) {
+    assert.doesNotMatch(readFileSync(new URL(path, root), 'utf8'), /decision-menu/, path);
+  }
+  assert.deepEqual([...menus.matchAll(/^## (.+)$/gm)].map(m => m[1]), ['States', 'Recommendation', 'action', 'final', 'post', 'Missing rows', 'batch summary']);
+  const states = section(menus, '## States\n', '## Recommendation\n');
+  for (const [archetype, ids] of Object.entries({ action: ['initial', 'obstacle', 'contract-exception'], final: ['final', 'assess-terminal'], post: ['own-merge', 'approved', 'closed-pr', 'merge-queued'] })) {
+    for (const id of ids) assert.match(states, new RegExp(`^\\| ${id} \\|[^\\n]*\\| ${archetype} \\|[^\\n]*Start the message with \x60gauntlet: gate=gatekeep-pr/${id}\x60`, 'm'));
+  }
+  const nonterminal = section(menus, '## action\n', '## post\n');
+  for (const verb of ['wait', 'merge base', 'update branch', 'show evidence']) assert.doesNotMatch(nonterminal, new RegExp('^(?:- |\\| )`'+verb+'`', 'm'));
+  assert.match(menus, /Under deliver, render no menu before an exit except contract exception/);
+  assert.match(menus, /add exactly `2 x maxFixRounds` to both caps/);
   assert.match(loop, /every other non-numeric string is a change request/);
   assert.match(loop, /including typed `deliver`/);
-  assert.match(menus, /Render every menu in full from its template: the verdict line, every available row, and the hint line/);
+  assert.match(menus, /Render every menu in full: the standing sentence, every available row as `<n>\. <verb> - <consequence>`, then the hint/);
   assert.match(menus, /Quote a numeric pick only after the rendered menu/);
   assert.match(menus, /Never narrate or summarize a menu/);
   assert.match(menus, /approved_head/);
@@ -758,8 +774,11 @@ test('ten templates own menus and typed dispatch is not row authority', () => {
   }
   assert.match(menus, /For a recovered `CONFLICTING` child, offer only safe `retry` and `stop`/);
   assert.match(batch, /conflicts through `menus.md` `## batch summary`'s recovered CONFLICTING template/);
-  assert.match(menus, /failed post keeps its row/);
-  assert.match(section(menus, '## final\n', '## assess terminal\n'), /Print one compact `Evidence:` line above the `Delivers:` line/);
+  assert.match(menus, /settle without another menu/);
+  assert.match(loop, /continue after a failed step without retry/);
+  assert.match(loop, /After all picked steps finish, end through Teardown without another gatekeep-pr menu/);
+  assert.match(loop, /Retain the body files of unrun or failed posts and name them/);
+  assert.match(section(menus, '## final\n', '## post\n'), /Keep the resolved source, head, check results and merge state under show evidence, not a report line or hint parenthetical/);
   for (const redFlag of ['validated action-scoped retained authority', 'without `fix` while an open blocker exists', 'A CI wait while a blocker is open', 'cleanup` rendered on an ordinary open-PR menu', 'An ordinary open-PR `stop` offers teardown', 'Blockers are empty', 'Count file, description-only, and conflict-only attempts under the same cap', 'a grant never raises the cap', '## Consent table', '## Overlays', '## Conflicts']) {
     for (const text of [skill, loop, fixWave, brief, decisionMenu, menus, findings, report, sync]) assert.ok(!text.includes(redFlag), redFlag);
   }
@@ -767,15 +786,15 @@ test('ten templates own menus and typed dispatch is not row authority', () => {
 
 
 test('assess and terminal nit paths retain bounded write authority', () => {
-  assert.match(decisionMenu, /^\| `approve` \| viewer\.is_author false, zero blockers, non-draft \|$/m);
+  assert.match(decisionMenu, /^\| `approve` \| viewer\.is_author false, zero blockers, non-draft \| Approve; persist approved_head only after success\. \|$/m);
   assert.match(loop, /^\| action_required \| `viewer\.is_author` true and `viewer_permission` at least `WRITE`: approve workflow run then watch under the course;/m);
   assert.match(decisionMenu, /zero blockers post nothing/);
   assert.match(decisionMenu, /one head-pinned review through `post-selection-loop.md` `### Fix wave`/);
   assert.match(loop, /pulls\/<N>\/reviews -f commit_id=<assessed headRefOid> -f event=<event>/);
   assert.match(loop, /`COMMENT` for `viewer\.is_author` true, `REQUEST_CHANGES` otherwise/);
-  assert.match(decisionMenu, /Perform no repair or sync/);
-  assert.match(decisionMenu, /C# thread replies behind reply/);
-  assert.match(menus, /someone else's non-draft PR with zero blockers/);
+  assert.match(decisionMenu, /without repair or sync/);
+  assert.match(decisionMenu, /keep C# replies behind reply/);
+  assert.match(section(menus, '## States\n', '## Recommendation\n'), /\| assess-terminal \| Assess completed \| final \| merge, fix nits \|/);
   assert.match(loop, /exactly one complete D3 iteration/);
   assert.match(loop, /without changing course/);
   assert.match(loop, /Initialize missing accounting/);
@@ -845,7 +864,7 @@ test('batch courses preserve two budgets and parent lifecycle ownership', () => 
   assert.doesNotMatch(batch, /mode `assess`|assess and execute task|`assess` with ordinary|grant grammar|Retained fix\/merge-base grants/);
   assert.match(batch, /Only the first course pick may resolve.*initial D4 allowance/);
   assert.match(batch, /re-dispatch never reinitializes usage or caps/);
-  assert.match(batch, /Record direct picks as the child's `course` or terminal verb/);
+  assert.match(batch, /Record direct picks as the child's `course` or terminal selection/);
   assert.match(batch, /under `deliver`.*readiness, obstacle, or cap.*`REPORT`/);
   assert.match(batch, /child's template from `menus.md`/);
   assert.match(batch, /after all children finish, never on a live child's tree/);
