@@ -1,16 +1,17 @@
-for: 4882b38efa143d6388f8e5febf4fdc1af53e796628f5d4efb64092cd77c34dc4
+for: 99a9d6055d02cdfd5b91b7bfefc20850b38d6bc2f440e61189c5fcf507d5e382
 
 ## Change
 
-Choose obstacle recommendations from available progress rather than a blanket stop default. Recommend deliver for a pending binding check or flaky failure when continuation can make progress. Pin stop before authorship and pending-check defaults when no available non-stop action can change the outcome, including an unchanged failed prerequisite at the cap.
+Recommend merge on the final menu whenever it is available, on either author's PR and through either the ordinary or eligible admin-override path. Recommend approve only when merge is unavailable and approval is available. Keep availability and numeric-pick authority unchanged.
 
-Select only action-row-one for this increment. Its three obstacle cases cover a pending binding check, BLOCKED without bypass, and an unchanged missing workflow approval at the cap. Retain the prior gate-line-first and pr-body-false-claim results as historical evidence, not current coverage. This is sample-scoped coverage, not a target-wide pass or live PR verification. The other action-row-one scenarios remain outside this increment's coverage.
+Select only final-row-one for this increment. Its four states cover own-PR merge, another author's merge with approve available, eligible bypass merge with approve available, and approval without merge permission. Retain gate-line-first, pr-body-false-claim and action-row-one results as historical evidence, not current coverage. This is sample-scoped coverage, not a target-wide pass or live PR verification.
 
 ## Expected to move
 
-- action-row-one/pending: fails -> holds - A runnable pending binding check recommends deliver on row 1 instead of the blanket obstacle stop.
-- action-row-one/authority: fails -> holds - All obstacle recommendations include a reason above the prompt, without acting on the recommendation.
+- final-row-one/other: fails -> holds - Another author's ready PR recommends merge instead of approve when both are available.
+- final-row-one/bypass: fails -> holds - An eligible bypass merge outranks approve on another author's ready PR.
+- final-row-one/authority: fails -> holds - Each final recommendation has a state-based reason above the prompt and waits for the numeric pick.
 
 ## Validation boundary
 
-Judge candidate facts absolutely, not only the comparison direction. BLOCKED without bypass and unchanged failed prerequisites must retain stop even for an author viewer. Keep availability, cap accounting, numeric authority and execution mechanics unchanged. No baseline file is removed in this increment.
+Judge candidate facts absolutely, not only the comparison direction. Own-PR merge and approval without merge permission must remain available and recommended. Preserve bypass eligibility, admin execution mechanics and omission reasons. No baseline file is removed in this increment.

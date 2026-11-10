@@ -3,7 +3,7 @@
 base: 6939fd9ee8b3460f92fc4edb918eefe3f2d0be5c
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -14,7 +14,7 @@ allowance: 10
 | 4 | done | 0 | timeout -k 30 30 python3 -c 'assert all(s in __import__("pathlib").Path("skills/gatekeep-pr/reference/menus.md").read_text() for s in ("assess for someone else\x27s when an open blocker needs the author\x27s decision", "a missing requirement, an acceptance-criteria change, or a scope choice", "Move the recommended action to row 1 before numbering every menu", "Choose the recommendation through `## Recommendation`"))'; 4 author-decision recommendation assertions passed; no further model actions launched |
 | 5 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-obstacle-recommendation.test.mjs; bound spent: gatekeep-pr/action-row-one (1 of 3); ran gatekeep-pr/action-row-one (1 of 3); 2 passed, 0 failed, all four candidate facts hold for both models |
 | 6 | done | 0 | timeout -k 30 30 python3 -c 'assert all(s in __import__("pathlib").Path("skills/gatekeep-pr/reference/menus.md").read_text() for s in ("Offer `accept contract change`, `preserve contract` `[recommended]`, then `stop`", "Move the recommended action to row 1 before numbering every menu", "Append ` recommended=1` to each gate line"))'; 3 preserve-contract row-1 assertions passed; no further model actions launched |
-| 7 | open | 0 | |
+| 7 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-final-recommendation.test.mjs; bound spent: gatekeep-pr/final-row-one (1 of 3), ran gatekeep-pr/final-row-one (1 of 3); bound spent: gatekeep-pr/final-row-one (2 of 3), ran gatekeep-pr/final-row-one (2 of 3); 2 passed, 0 failed, all five candidate facts hold for both models |
 | 8 | open | 0 | |
 | 9 | open | 0 | |
 | 10 | open | 0 | |
@@ -39,3 +39,4 @@ row 3 done | Enabled drafted-repair recommendations; bound spent: gatekeep-pr/pr
 row 4 done | Confirmed author-only blockers recommend assess on row 1 with four local assertions and no further edits. | nothing new to build on
 row 6 done | Confirmed preserve contract is recommended on row 1 with three local assertions and no further edits. | nothing new to build on
 row 5 done | Pinned obstacle choices to progress; bound spent: gatekeep-pr/action-row-one (1 of 3); ran gatekeep-pr/action-row-one (1 of 3). | Reuse scripts/gatekeep-obstacle-recommendation.test.mjs and action-row-one's saved three-case replay for local obstacle checks.
+row 7 done | Ranked merge first; bound spent: gatekeep-pr/final-row-one (1 of 3); ran gatekeep-pr/final-row-one (1 of 3); bound spent: gatekeep-pr/final-row-one (2 of 3); ran gatekeep-pr/final-row-one (2 of 3). | Reuse scripts/gatekeep-final-recommendation.test.mjs to replay final-row-one's four saved final states; both models satisfy every fact.
