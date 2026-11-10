@@ -3,7 +3,7 @@
 base: 6939fd9ee8b3460f92fc4edb918eefe3f2d0be5c
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -17,7 +17,7 @@ allowance: 10
 | 7 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-final-recommendation.test.mjs; bound spent: gatekeep-pr/final-row-one (1 of 3), ran gatekeep-pr/final-row-one (1 of 3); bound spent: gatekeep-pr/final-row-one (2 of 3), ran gatekeep-pr/final-row-one (2 of 3); 2 passed, 0 failed, all five candidate facts hold for both models |
 | 8 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-post-menu.test.mjs; bound spent: gatekeep-pr/post-menu-combined (1 of 3); ran gatekeep-pr/post-menu-combined (1 of 3); 2 passed, 0 failed, all six sample facts hold for both models |
 | 9 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-post-selection.test.mjs; 2 passed and 0 failed, all 7 facts hold for both replay models; ran gatekeep-pr/post-menu-set-reply (1 of 3); ran gatekeep-pr/post-menu-set-reply (2 of 3) |
-| 10 | open | 0 | |
+| 10 | done | 1 | timeout -k 30 30 python3 -c 'assert all(s in __import__("pathlib").Path("skills/gatekeep-pr/reference/post-selection-loop.md").read_text().split("### Next action\n")[1].split("\n### Post steps")[0] for s in ("A number outside 1-N, stop combined with another number, or several numbers on any other menu asks one clarifying question naming the valid range and runs nothing.", "On a second invalid reply, leave the same menu waiting", "emit no new question or `gauntlet: question` marker and run nothing."))'; 3 invalid-reply rule assertions passed; no model or external actions launched |
 | 11 | open | 0 | |
 | 12 | done | 0 | timeout -k 30 30 node --test scripts/gatekeep-post-menu.test.mjs; 2 passed, 0 failed; saved draft fact holds for both models; no further model actions launched |
 | 13 | open | 0 | |
@@ -43,3 +43,4 @@ row 7 done | Ranked merge first; bound spent: gatekeep-pr/final-row-one (1 of 3)
 row 8 done | Added one post menu and its executor; bound spent: gatekeep-pr/post-menu-combined (1 of 3); ran gatekeep-pr/post-menu-combined (1 of 3). | Reuse menus.md's post mapping and scripts/gatekeep-post-menu.test.mjs to check the saved combination, guards and terminal results.
 row 12 done | Confirmed the saved replay offers the unposted pre-merge reply as its own post-menu row for both models, with no further edits or model actions. | nothing new to build on
 row 9 done | Verified post-set picks and stopped repeated questions; ran gatekeep-pr/post-menu-set-reply (1 of 3); ran gatekeep-pr/post-menu-set-reply (2 of 3). | Reuse scripts/gatekeep-post-selection.test.mjs and post-menu-set-reply's saved replay to check subset, union, reply ids, inspection and invalid inputs.
+row 10 done | Confirmed invalid post sets and multi-number action/final replies ask once and run nothing, with three local assertions and no model or external actions. | nothing new to build on
