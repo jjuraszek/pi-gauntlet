@@ -1,0 +1,100 @@
+{
+  "sample": "action-row-one",
+  "arm": "candidate",
+  "skillSha": "4882b38efa143d6388f8e5febf4fdc1af53e796628f5d4efb64092cd77c34dc4",
+  "inputSha": "dc4ef450c7abb894b1b65e8079b8bd81363a35240a0519a9a7a5cb3fcd1fda1e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Case A - pending binding CI can progress**\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\nDelivers: the health endpoint responds with the build version, matching ticket APP-91 and the README.\nRole: author\n\nPR comments:\n- The binding test_unit check is still running on the assessed head, so merge waits. (test_unit, run 7001)\n\nEvidence: pending (test_unit binding; head 9c1e4f2)\nVerdict: stuck - CI pending past 15 minutes\n\nNot offered: merge (test_unit pending), approve (own PR)\n\nDeliver is recommended because the only obstacle is a still-running binding check, and one more watch window can see it finish.\n\nPick one:\n1. deliver - resume the retained course; watch test_unit for exactly one more window, no round charged and neither cap extended. [recommended]\n2. assess - switch course and post the same findings to the PR, with no new evidence.\n3. stop - remove the worktree and leave the PR as is.\n\nType a number; show evidence prints the full record (pending: test_unit binding in run 7001 on 9c1e4f2).\n\n---\n\n**Case B - BLOCKED without bypass cannot progress**\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\nDelivers: the health endpoint responds with the build version, matching ticket APP-91 and the README.\nRole: author\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nNot offered: merge (blocked by GitHub), approve (own PR)\n\nStop is recommended because no repair, sync, watch, or workflow approval available here can lift the block, and none of the other rows can change the outcome.\n\nPick one:\n1. stop - remove the worktree and leave the PR as is. [recommended]\n2. deliver - resume the retained course only after the failed prerequisite changes; it runs no automatic sync, charges no round, and adds 10 to each cap.\n3. assess - switch course and post the same findings to the PR, with no new evidence.\n\nType a number; show evidence prints the full record (CI: run 7001, test_unit and build_image green on 9c1e4f2).\n\n---\n\n**Case C - unchanged prerequisite at the cap cannot progress**\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\nDelivers: the health endpoint responds with the build version, matching ticket APP-91 and the README.\nRole: author\n\nPR comments:\n- The binding test_unit job cannot start until a repository maintainer approves the workflow run, so merge waits. (test_unit)\n\nEvidence: pending (test_unit binding; head 9c1e4f2)\nVerdict: stuck - no progress: workflow run awaiting approval from a repository maintainer\n\nNot offered: merge (test_unit pending), approve workflow run (needs a repository maintainer), approve (own PR)\n\nStop is recommended because the missing maintainer approval is unchanged since the last attempt, and a cap extension cannot supply it.\n\nPick one:\n1. stop - remove the worktree and leave the PR as is. [recommended]\n2. deliver - resume the retained course after a maintainer approves the workflow run; charges no round and adds 10 to each cap (rounds 10 of 20, syncs 0 of 20).\n3. assess - switch course and post the same findings to the PR, with no new evidence.\n\nType a number; show evidence prints the full record (pending: test_unit binding, workflow run awaiting maintainer approval on 9c1e4f2).\n\nNone of the three reports renders a `Sync:` line, because `--rebase` was not passed.\n",
+      "words": 522,
+      "wallMs": 30780,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Case A: pending binding CI can progress\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\nDelivers: Make the health endpoint respond with the build version.\nRole: author\n\nPR comments:\n- The test_unit check is still running, so merge waits. (test_unit)\n\nRepair rounds used: 1 of 10. Syncs used: 0 of 10.\n\nEvidence: pending (test_unit binding; run 7001; head 9c1e4f2)\nVerdict: stuck - CI pending past 15 minutes\n\nNot offered: merge (test_unit pending); approve (own PR).\n\nDeliver is recommended because one additional watch window can observe the binding check finishing.\nPick one:\n1. deliver - open exactly one additional watch window without extending either cap. [recommended]\n2. assess - switch course to assess and post no review because there are no blockers.\n3. stop - end the course and remove the eligible gate worktree, leaving the PR unchanged.\n\nType a number; show evidence prints the full record (pending; test_unit binding; run 7001; head 9c1e4f2).\n\n### Case B: BLOCKED without bypass cannot progress\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\nDelivers: Make the health endpoint respond with the build version.\nRole: author\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nNot offered: merge (blocked by GitHub); approve (own PR).\n\nStop is recommended because no available non-stop action can change the blocked outcome.\nPick one:\n1. stop - end the course and remove the eligible gate worktree, leaving the PR unchanged. [recommended]\n2. deliver - resume the retained course after the blocked prerequisite changes, no round charged; add 10 to each cap without resetting usage.\n3. assess - switch course to assess and post no review because there are no blockers.\n\nType a number; show evidence prints the full record (CI; run 7001; test_unit and build_image green; head 9c1e4f2).\n\n### Case C: unchanged prerequisite at the cap cannot progress\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\nDelivers: Make the health endpoint respond with the build version.\nRole: author\n\nPR comments:\n- The test_unit job awaits workflow approval from a repository maintainer, so merge waits. (test_unit)\n\nRepair rounds used: 10 of 10. Syncs used: 0 of 10. The retained missing workflow approval is unchanged, so extending the caps would immediately reach the same obstacle.\n\nEvidence: pending (test_unit binding; head 9c1e4f2)\nVerdict: stuck - needs workflow approval from a repository maintainer\n\nNot offered: merge (test_unit pending); approve workflow run (viewer lacks workflow-approval permission); approve (own PR).\n\nStop is recommended because a cap extension cannot supply the unchanged missing workflow approval.\nPick one:\n1. stop - end the course and remove the eligible gate worktree, leaving the PR unchanged. [recommended]\n2. deliver - resume the retained course after workflow approval changes, no round charged; add 10 to each cap, retaining rounds used 10 of 20 and syncs used 0 of 20.\n3. assess - switch course to assess and post no review because there are no blockers.\n\nType a number; show evidence prints the full record (pending; test_unit binding; head 9c1e4f2).\n",
+      "words": 483,
+      "wallMs": 22872,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c6d893c94f843dc159ed48c523e4c0b4e1444be86a7a157540fa1d968997f9dd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5203cd96a8fb0e986a07ffb40adb784a82da44cc77029b3417b6d211844dc5d8",
+      "baselineOutputSha": "964a3b49caee29a30f72119c92943878dfe71476bc8d90e6aaca3f60c91394e3",
+      "candidateOutputSha": "d37860334db448aa4d3e32d8a6ae9e3a9a5a991f6b1c4774150a9900fc648ab6",
+      "facts": {
+        "pending": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "blocked": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "cap": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "authority": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Nothing regressed: After keeps Case A's deliver-on-row-1 with one watch window, no cap extension and no round charged, and it fixes Cases B and C by putting stop at row 1 with recommended=1 and a single prose reason above Pick one, which is what the authority and blocked/cap facts needed (Before had recommended=3 with stop at row 3, so row 1 was deliver). Two small risks to watch in the After wording: the blank line between the reason sentence and Pick one, and the trailing note about no Sync: line being rendered after Case C — both are outside any row and do not simulate a pick or action, so they pass here, but keeping the reason as the line directly above Pick one and dropping report-external commentary would make the gate-line-first and reason-adjacency properties unambiguous. Also keep the explicit 'neither cap extended' and 'retries only after the failed prerequisite changes' phrasing in Cases A and B respectively; those words are what keep pending and blocked holding.",
+      "wallMs": 17173,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c6d893c94f843dc159ed48c523e4c0b4e1444be86a7a157540fa1d968997f9dd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5203cd96a8fb0e986a07ffb40adb784a82da44cc77029b3417b6d211844dc5d8",
+      "baselineOutputSha": "f621169c750c5537d453a4238f29fa524ec3ec4c4fc879f6d390aa376adcaac4",
+      "candidateOutputSha": "751887cfe38950e8c19d59e2a6b81bacedcfdfd6835b7863ea8cb2a004d54a14",
+      "facts": {
+        "pending": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "blocked": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "cap": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "authority": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves every fact to holds: Before put the [recommended] marker on row 3 (stop) in all three cases with recommended=3, so pending, blocked, cap and authority all failed, while After places the single recommended row at position 1 with recommended=1 on the first line and keeps one prose reason directly above Pick one in each case. Case A now recommends deliver with exactly one additional watch window and no cap extension, Case B and C pin stop and keep deliver only as a retry after the prerequisite changes, and approve workflow run is withheld for lack of permission. Two small wording tightenings would make the facts more unambiguous without changing the behaviour: in Case A's deliver row add 'no round charged' alongside 'without extending either cap' so the reader need not infer it, and in Case B's reason name the specific blocker ('because BLOCKED has no bypass actor and the required independent review is missing') rather than the generic 'no available non-stop action can change the blocked outcome', so the reason itself, not just the PR-comment line, carries the REVIEW_REQUIRED/bypass justification.",
+      "wallMs": 17283,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "53a5e7c6fd8a8bca8f3952d087f62a9e6ec78f1e"
+}

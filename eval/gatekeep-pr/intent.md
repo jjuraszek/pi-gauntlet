@@ -1,17 +1,16 @@
-for: da59b6fec3f5471bab1b76d1733913ccc2c893bce674150c07a27540d8d13c86
+for: 4882b38efa143d6388f8e5febf4fdc1af53e796628f5d4efb64092cd77c34dc4
 
 ## Change
 
-Put the recommended action first in every gatekeep-pr menu, including stop when it is recommended, and emit recommended=1 on the gate line. Preserve availability, numeric authority, and execution mechanics. Keep non-recommended stop last.
+Choose obstacle recommendations from available progress rather than a blanket stop default. Recommend deliver for a pending binding check or flaky failure when continuation can make progress. Pin stop before authorship and pending-check defaults when no available non-stop action can change the outcome, including an unchanged failed prerequisite at the cap.
 
-Recommend deliver for another author's PR when every blocker has a drafted repair needing no author decision, the head is pushable, and deliver is offered. Distinguish missing requirements, acceptance-criteria changes, and scope choices from drafted code or description repairs. Explain the recommendation above the prompt without granting write authority.
-
-Select only pr-body-false-claim for this increment. Its other-author, description-only blocker exercises the repairable path and retains the decline, readback, local-evidence, and pending-evidence checks. Retain gate-line-first and all other saved results as historical evidence, not current coverage. This is sample-scoped coverage, not a target-wide pass or live PR verification.
+Select only action-row-one for this increment. Its three obstacle cases cover a pending binding check, BLOCKED without bypass, and an unchanged missing workflow approval at the cap. Retain the prior gate-line-first and pr-body-false-claim results as historical evidence, not current coverage. This is sample-scoped coverage, not a target-wide pass or live PR verification. The other action-row-one scenarios remain outside this increment's coverage.
 
 ## Expected to move
 
-- pr-body-false-claim/recommendation: fails -> holds - A repairable body-only blocker on another author's PR recommends deliver on row 1, with a reason above the prompt and no write before selection.
+- action-row-one/pending: fails -> holds - A runnable pending binding check recommends deliver on row 1 instead of the blanket obstacle stop.
+- action-row-one/authority: fails -> holds - All obstacle recommendations include a reason above the prompt, without acting on the recommendation.
 
 ## Validation boundary
 
-Judge candidate facts absolutely, not only the comparison direction. The runner assembles both arms from the working-tree skillFiles list; removing a file later also removes it from the baseline assembly. No baseline file is removed in this increment.
+Judge candidate facts absolutely, not only the comparison direction. BLOCKED without bypass and unchanged failed prerequisites must retain stop even for an author viewer. Keep availability, cap accounting, numeric authority and execution mechanics unchanged. No baseline file is removed in this increment.
