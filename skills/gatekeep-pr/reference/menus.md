@@ -20,17 +20,17 @@ Take the first matching row. Resolve BLOCKED through `post-selection-loop.md` `#
 | final | Readiness exit, including ready first report with course unset | final | deliver | Start the message with `gauntlet: gate=gatekeep-pr/final` |
 | obstacle | Obstacle or cap exit, including course unset with undispositionable BLOCKED | action | Contract rows, deliver with nits | Start the message with `gauntlet: gate=gatekeep-pr/obstacle` |
 | assess-terminal | Assess completed | final | merge, fix nits | Start the message with `gauntlet: gate=gatekeep-pr/assess-terminal` |
-| initial | First report not ready, course unset: repairable blockers or pending-only CI | action | Contract rows, approve workflow run | Start the message with `gauntlet: gate=gatekeep-pr/initial` |
+| initial | First report not ready, course unset: repairable blockers or pending-only CI | action | Contract rows, approve workflow run | Start the message with `gauntlet: gate=gatekeep-pr/initial`; render: `gauntlet: gate=gatekeep-pr/initial recommended=1` |
 
 ## Recommendation
 
-Choose from the findings, including obstacle and cap exits. Apply these pins in order: contract-exception recommends `preserve contract`; when no available non-stop row can change the outcome, recommend `stop`; otherwise in action on the human's own PR, recommend offered `deliver`. Treat bot-authored heads as someone else's. An unchanged failed prerequisite still blocks after a cap extension; a cap with a changed prerequisite does not force stop.
+Choose from the findings, including obstacle and cap exits. Apply these pins in order: contract-exception recommends `preserve contract`; when no available non-stop row can change the outcome, recommend `stop`; else use rule 3's own-PR action default. Treat bot-authored heads as someone else's. An unchanged failed prerequisite still blocks after a cap extension; a cap with a changed prerequisite does not force stop.
 
 Without a pin, use the first match:
 
 1. After assess, recommend stop unless a concrete change since that pick (new head, cleared blocker, author answer) warrants another row; name that change.
 2. With a pending binding check or a failing check classified flaky as the only obstacle, recommend `deliver` when offered.
-3. Recommend assess when an open blocker needs the author's decision. That means a behavior, contract or scope choice not settled by the ticket, spec or PR text, not a repair to match their existing promises.
+3. Recommend deliver for the human's own PR, assess for someone else's when an open blocker needs the author's decision. Use offered action rows. Require an author decision for behavior, contract or scope not settled by the ticket, spec or PR text: a missing requirement, an acceptance-criteria change, or a scope choice. Exclude repairs matching their promises.
 4. When every open blocker has a drafted repair, none needs the author's decision, and the head is pushable and `deliver` is offered, recommend `deliver` regardless of authorship.
 5. In the final state, recommend `merge` whenever available through the ordinary path or an eligible admin override, regardless of authorship; otherwise recommend `approve` when available, else `stop`.
 
@@ -48,7 +48,9 @@ Otherwise choose the available row that settles this PR with the fewest human st
 | `preserve contract` | Pending recorded proposal | Reject the proposal, keep the named requirement and independent blockers, resume scope-preserving authorized work without the rejected payload this re-run. |
 | `stop` | Always | Run `### Teardown`; non-final stop delegates to `cleanup.md` `## Non-final stop`. |
 
-Show a contract proposal before its rows. Describe delivery sync as rebase for the viewer's own PR, merge main into the branch for someone else's or a bot's.
+Show the proposal. Offer `accept contract change`, `preserve contract` `[recommended]`, then `stop` before numbering. Describe delivery sync as rebase for the viewer's own PR, merge main into the branch for someone else's or a bot's.
+
+Own-PR: `1. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]`
 
 ### obstacle
 
@@ -58,7 +60,7 @@ For every non-timeout deliver selection, add exactly `2 x maxFixRounds` to both 
 
 ## final
 
-Choose the recommendation through `## Recommendation`.
+Choose the recommendation through `## Recommendation`; print its `[recommended]` tag on row 1.
 
 | Row | Availability | Pick |
 |---|---|---|

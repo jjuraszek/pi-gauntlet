@@ -1,6 +1,8 @@
-for: cf9dee847d023eb75cd392a1d76c33f64eacd234400ed555d5b1723f3b738406
+for: 77539abda09c520cd16adb01516b894543720e9c58abb829c95912502daf0b4f
 
 ## Change
+
+Refresh the assembly hash for meaning-preserving menus.md wording that restores selector-bound recommendations and the own-PR row example. Keep recommendation precedence, menu archetypes and pick authority unchanged; claim no new model coverage.
 
 Remove the deleted decision-menu.md bundle entry and point the replay and README at menus.md. These path-only migrations preserve the instructions' meaning. Refresh this assembly hash for structural checks only; no new model replay coverage is claimed for this target. The following comparison notes and predictions describe historical results.
 

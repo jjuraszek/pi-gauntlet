@@ -1,6 +1,8 @@
-for: f93959199c9490c9c6a256a4364809bebf96e43f318d890b8ddd8225579461d2
+for: a81ed63c4edfcc29708f2ffd2e777782636906da8e20b58abf33eef225d7e91e
 
 ## Change
+
+Restore selector-bound recommendation wording and the own-PR row example without changing recommendation precedence, menu archetypes or pick authority. Refresh the assembly hash for this meaning-preserving wording repair; use ledger-selected deterministic checks without new model calls. The four selected samples below exclude menus.md, so their saved assembly hashes remain current.
 
 Consolidate menu availability, picks and recommendations in menus.md's States and action/final/post tables; delete decision-menu.md and route its readers to the owner. Preserve pick authority, bypass preconditions, capped work, payload freshness and terminal settlement. Preserve plain reports and the one-pick post lifecycle from the earlier increments.
 

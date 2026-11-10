@@ -1,6 +1,8 @@
-for: 02fe5aa847bba7d1536e655ede26bca6cdae62ff94501e6593feda3d3ba6bc94
+for: 0816db4477b3b8ea44ba2ea2ef98a761d0072a3f15f82029e0c7e6ea4e392560
 
 ## Change
+
+Refresh the assembly hash for meaning-preserving menus.md wording that restores selector-bound recommendations and the own-PR row example. Keep recommendation precedence, menu archetypes and pick authority unchanged; claim no new model coverage.
 
 Remove the deleted decision-menu.md bundle entry. Refresh this assembly hash for structural checks only; no new model replay coverage is claimed for this target. The following comparison notes and predictions describe historical results.
 
