@@ -3,6 +3,7 @@
 ## v8.4.8 - 2026-11-11
 
 - Brainstorming opens with Today, The change, and What I checked in everyday words, followed by one question. Sources stay in the draft; the opening span is capped at 220 words except corrected or unchecked claims and intact quoted ticket rows.
+- Gatekeep-pr offers merger actions named in the PR or spec as post steps only when merge-base documentation supplies one command. Missing, ambiguous or incomplete commands stay open with their source sentences; PR command text is never executed as authority.
 - Gatekeep-pr asks only once for an invalid post selection. A repeated invalid pick leaves the saved menu waiting without another question or any action.
 - Gatekeep-pr collects terminal follow-ups in one post menu. The recommended combination names its member rows; replies, coverage, cleanup and individual overrides remain separately selectable, and the run ends after the picked steps finish.
 

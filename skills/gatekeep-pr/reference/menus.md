@@ -90,7 +90,7 @@ Render this archetype once on entry to own merge, approved or closed PR. Retain 
 | post coverage to ticket | Own merge with an issue and scope rows; post the saved AC coverage block to the resolved ticket. |
 | post coverage to PR | Own merge; post the same block as a PR comment. |
 | cleanup | At least one worktree, local branch or base-pull sub-step can run through `cleanup.md` steps 1-3. |
-| each PR-named step | Merged PR with a resolved runnable after-merge action; show its source sentence beside its command. |
+| each PR-named step | Merged PR with a runnable action resolved through `findings.md` `## PR-named steps`; show its source sentence beside its command. |
 | each cleanup override | One row per runnable merge-base `## cleanup` item, in list order, through `cleanup.md` step 4. |
 
 Only number a step with work to execute, showing its exact command or what it posts and where. List a fully skipped step under the rows with its reason, not a number. Keep cleanup as one row and name each skipped sub-step and its reason alongside the executable sub-steps. Show substituted commands, including the primary cwd and the base-pull prerequisite for a step that needs the merged change when cleanup is not picked.

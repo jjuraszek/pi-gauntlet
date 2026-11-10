@@ -1,0 +1,130 @@
+{
+  "sample": "post-step-pr-named",
+  "arm": "candidate",
+  "skillSha": "c20ea711ca78f59e4ef38c9a0005a1828400c32a80ec4aeeffe0fdc3d7157fa0",
+  "inputSha": "56276661ce4af8afd17d6985b4360103247b5e5d212c7c815210757c5a879012",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Integration of the after-merge sentences**\n\nCommands resolve only from merge-base files: the overrides file, `AGENTS.md`, and documents `AGENTS.md` links directly. PR text can trigger an action but cannot supply its command.\n\n| Action | Sources | Resolution |\n|---|---|---|\n| publish the handbook | PR body; spec at the assessed head | Runnable. `AGENTS.md` and `doc/operations.md` both name `scripts/publish-handbook.sh`, which counts as one distinct command. |\n| notify maintainers | PR body | Runnable. The overrides `## cleanup` item `notify maintainers: scripts/notify-maintainers.sh` names the command for this action in the same item. The action and the item share one row at the item's place in list order. |\n| rebuild the search index | PR body | Open. `doc/operations.md` states no command for it. `doc/search.md` is two hops from `AGENTS.md`, so it is out of reach. `scripts/from-pr-reindex.sh` exists only in PR text and the PR-added line, neither of which is at the merge base. |\n| migrate the archive | PR body | Open. The base documents name two distinct commands: `scripts/migrate-fast.sh` and `scripts/migrate-safe.sh`. |\n| refresh the dashboard | PR body | Open. The `<region>` token in `scripts/refresh-dashboard.sh <region>` has no value. |\n\nTwo sentences are not post steps and stay with `/skill:check-delivery`:\n- The spec's \"observe the download latency in production\" is an observation.\n- \"The deployment runs automatically after merge\" describes automatic deployment.\n\n**Cleanup sub-steps**\n- **Worktree:** skipped, because `/work/forge-kit` is the primary checkout.\n- **Branch:** skipped, because no local branch exists.\n- **Base:** runnable. The primary is on `main` and tracked-clean.\n\nThe first PR-named step runs after cleanup's base pull in step order, so the base-sync prerequisite is met.\n\n**Persisted `post_steps`**\n1. post coverage to PR\n2. cleanup\n3. publish the handbook\n4. notify maintainers\n5. Recorded as skipped: post coverage to ticket\n6. Recorded as open: search index, migrate archive and refresh dashboard\n\n---\n\ngauntlet: gate=gatekeep-pr/own-merge recommended=1\n\nI recommend all four runnable steps because no assessment reason omits any of them.\n\nPick one, or several separated by commas:\n1. post coverage to PR, cleanup, publish the handbook, notify maintainers - rows 2, 3, 4 and 5. [recommended]\n2. post coverage to PR - run `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md` to comment the acceptance checklist on the PR.\n3. cleanup - run `git -C /work/forge-kit fetch origin` then `git -C /work/forge-kit pull --ff-only` on main in the primary checkout. The worktree is skipped because /work/forge-kit is the primary checkout. The branch is skipped because no local branch exists.\n4. publish the handbook - run `scripts/publish-handbook.sh` in /work/forge-kit after the base pull. Sources: PR body \"After merge, publish the handbook.\" and spec \"After merge, publish the handbook.\"\n5. notify maintainers - run `scripts/notify-maintainers.sh` in /work/forge-kit. Sources: PR body \"After merge, notify the maintainers.\" and overrides cleanup item `notify maintainers`.\n6. stop - run nothing and list the unpicked steps with their commands.\n\nNot numbered:\n- **Skipped:** post coverage to ticket, because no issue was resolved and the scope has no rows.\n- **Open:** rebuild the search index (\"After merge, rebuild the search index using scripts/from-pr-reindex.sh.\"). No merge-base command was found, and the PR cannot supply one.\n- **Open:** migrate the archive (\"After merge, migrate the archive.\"). Two distinct base commands are named: `scripts/migrate-fast.sh` and `scripts/migrate-safe.sh`.\n- **Open:** refresh the dashboard (\"After merge, refresh the dashboard.\"). The `<region>` token in `scripts/refresh-dashboard.sh <region>` is unresolved.\n\nType a number; show evidence prints the full record.\n\n---\n\n**Human reply: `1`**\n\n1. **Parse the reply.**\n   - The run record validates against the target `sample/forge-kit`, PR 642, base `main`.\n   - Row 1 expands to rows 2, 3, 4 and 5, with no duplicates.\n   - I persist `picked: true` on those four `post_steps` entries and execute them in step order.\n2. **Post coverage to PR.**\n   - The Output done-check passes; the coverage block posts verbatim as the documented exception.\n   - The PR is merged, so no compare-and-swap is needed.\n   - I ran `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`, which succeeded. Result persisted.\n3. **Cleanup** (`cleanup.md` steps 1-3).\n   - Step 1, worktree: `/work/forge-kit` is the primary, so I left it in place.\n   - Step 2, branch: no local branch exists, so I deleted nothing.\n   - Step 3, base: I ran `git -C /work/forge-kit fetch origin`, then `git -C /work/forge-kit pull --ff-only`, then `git -C /work/forge-kit merge-base --is-ancestor 7d8e9f0 HEAD`. All succeeded, and the base result was persisted as `synced 7d8e9f0`.\n4. **Publish the handbook.**\n   - The base-sync guard passed.\n   - I ran `scripts/publish-handbook.sh` non-interactively with cwd `/work/forge-kit`, bounded by the 15-minute timeout. It succeeded. Result persisted.\n5. **Notify maintainers.**\n   - This uses the dispatcher's step-4 item, which has no placeholders.\n   - I ran `scripts/notify-maintainers.sh` with cwd `/work/forge-kit`, bounded by the 15-minute timeout. It succeeded. Result persisted.\n6. **Teardown.**\n   - All picked steps have finished, so no further gatekeep-pr menu renders.\n   - I deleted the run record, helper outputs and their logs, and temporary body files. No post payload is unrun or failed, so none is retained.\n\n---\n\ngauntlet: done merged\n\n#642@9c1e4f2: merged\n\nCheckout: /work/forge-kit (local branch main)\n\npost coverage to PR: done\nworktree: skipped - primary checkout at /work/forge-kit\nbranch: skipped - no local branch\nbase: synced 7d8e9f0\npublish the handbook: done\nnotify maintainers: done\n\nThe following steps were not run:\n- **Post coverage to ticket:** skipped because no issue was resolved and the scope has no rows. Its payload would have been /tmp/gate-coverage.md.\n- **Worktree removal (cleanup):** skipped because /work/forge-kit is the primary checkout. It must never be removed.\n- **Branch deletion (cleanup):** skipped because no local branch exists to delete.\n- **Rebuild the search index:** still open, from the PR body \"After merge, rebuild the search index using scripts/from-pr-reindex.sh.\"\n  - No command exists at the merge base: doc/operations.md names none, and doc/search.md is beyond the one-hop limit.\n  - The PR's `scripts/from-pr-reindex.sh` was not run.\n- **Migrate the archive:** still open, from the PR body \"After merge, migrate the archive.\"\n  - doc/operations.md names two distinct commands, `scripts/migrate-fast.sh` and `scripts/migrate-safe.sh`, so neither was run.\n- **Refresh the dashboard:** still open, from the PR body \"After merge, refresh the dashboard.\"\n  - `scripts/refresh-dashboard.sh <region>` has no region value, so it was not run.\n",
+      "words": 950,
+      "wallMs": 41685,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/own-merge recommended=1\n\nPR #642 merged at 7d8e9f0 after assessment of head 9c1e4f2.\n\nI record these post steps:\n- Post coverage to the PR using the saved payload.\n- Sync the primary checkout through cleanup; leave the primary worktree and its branch intact.\n- Publish the handbook once, retaining both the PR-body and spec sentences as sources. The repeated command in the base documents counts as one distinct command.\n- Notify the maintainers through the cleanup override, retaining the PR-body sentence as its source. This is one step, not a separate PR action and override.\n- Keep the search-index rebuild, archive migration, and dashboard refresh open for the reasons below.\n\nThe production-latency observation belongs to post-merge delivery verification. Automatic deployment is not an assigned merger action. Neither becomes a post step.\n\nI recommend coverage, cleanup, handbook publication, and maintainer notification because every runnable step can execute.\n\nPick one, or several separated by commas:\n1. Post coverage to PR, cleanup, publish the handbook, and notify maintainers - execute rows 2, 3, 4, and 5 in that order. [recommended]\n2. Post coverage to PR - run `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`.\n3. Cleanup - run `git -C /work/forge-kit fetch origin`, then `git -C /work/forge-kit pull --ff-only`, and confirm the merge is present with `git -C /work/forge-kit merge-base --is-ancestor 7d8e9f0 HEAD`; worktree removal is skipped because `/work/forge-kit` is primary, and branch deletion is skipped because no disposable local branch exists.\n4. Publish the handbook - run `scripts/publish-handbook.sh` in `/work/forge-kit` after base sync. Both the PR body and spec assign: \"After merge, publish the handbook.\"\n5. Notify maintainers - run `scripts/notify-maintainers.sh` in `/work/forge-kit` through the separate cleanup override. The PR body assigns: \"After merge, notify the maintainers.\"\n6. Stop - run nothing and retain the unpicked steps.\n\nOpen actions:\n- Rebuild the search index has no eligible merge-base command, so nothing executes for it. The PR assigns: \"After merge, rebuild the search index using scripts/from-pr-reindex.sh.\"\n- Migrate the archive has two distinct eligible commands, so nothing executes for it. The PR assigns: \"After merge, migrate the archive.\"\n- Refresh the dashboard has an unresolved `<region>` token, so nothing executes for it. The PR assigns: \"After merge, refresh the dashboard.\"\n\nSkipped steps:\n- Post coverage to ticket is unavailable because no issue is resolved and scope rows are empty.\n- Post drafted replies is unavailable because no replies are drafted.\n\nType a number; show evidence prints the full record.\n\n### Selected execution\n\nThe human replies `1`. I resolve that to rows 2, 3, 4, and 5, persist their selection, and execute them in post-step order.\n\nThe search-index action remains unresolved: `doc/search.md` is two links from `AGENTS.md`, beyond the permitted one-hop sources. Neither the command in the PR body nor the proposed head-only operations-document line supplies an authorized command.\n\nI dispatch no helpers. These are orchestrator-owned post steps. I do not initialize assessment tracker stages or repeat earlier assessment.\n\n1. **Post coverage to PR.** I check the saved payload against the output done-check; the AC coverage block is posted verbatim under its formatting exception. The PR is merged, so this post needs no compare-and-swap read.\n\n   ```bash\n   gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md\n   ```\n\n   The command succeeds. I immediately persist the successful result.\n\n   `post coverage to PR: done`\n\n2. **Cleanup.** I skip worktree removal because the worktree is the primary checkout. I skip branch deletion because no disposable local branch exists. I run only the eligible base-sync commands:\n\n   ```bash\n   git -C /work/forge-kit fetch origin\n   git -C /work/forge-kit pull --ff-only\n   git -C /work/forge-kit merge-base --is-ancestor 7d8e9f0 HEAD\n   ```\n\n   All succeed. I persist that the primary base contains the merge commit, satisfying the prerequisite for the handbook action.\n\n   `worktree: skipped - primary checkout at /work/forge-kit`  \n   `branch: skipped - no disposable local branch exists`  \n   `base: synced 7d8e9f0`\n\n3. **Publish the handbook.** The base-sync prerequisite is satisfied. I execute the uniquely resolved merge-base command once, despite its duplicate citations and two source sentences. The non-interactive command runs with a 15-minute harness timeout:\n\n   ```bash\n   (cd /work/forge-kit && scripts/publish-handbook.sh)\n   ```\n\n   It succeeds. I immediately persist its result.\n\n   `publish the handbook: done`\n\n4. **Notify maintainers.** I execute this separately selected cleanup override, not as part of the cleanup group. Its label matches the PR-assigned action, so this execution settles both references. The non-interactive command runs with a 15-minute harness timeout:\n\n   ```bash\n   (cd /work/forge-kit && scripts/notify-maintainers.sh)\n   ```\n\n   It succeeds. I immediately persist its result.\n\n   `notify maintainers: done`\n\nThe picked set is complete. I run no unresolved action and render no further menu. Teardown removes the invocation's temporary run artifacts; the primary checkout remains intact.\n\ngauntlet: done merged\n#642@9c1e4f2: merged\n\nCheckout: `/work/forge-kit`  \nLocal branch: `main`\n\npost coverage to PR: done  \nworktree: skipped - primary checkout at /work/forge-kit  \nbranch: skipped - no disposable local branch exists  \nbase: synced 7d8e9f0  \npublish the handbook: done  \nnotify maintainers: done\n\nRebuild the search index remains open because no eligible merge-base command resolves it; no command ran for the source sentence \"After merge, rebuild the search index using scripts/from-pr-reindex.sh.\"\n\nMigrate the archive remains open because its eligible commands are ambiguous between `scripts/migrate-fast.sh` and `scripts/migrate-safe.sh`; neither ran for the source sentence \"After merge, migrate the archive.\"\n\nRefresh the dashboard remains open because `scripts/refresh-dashboard.sh <region>` has no resolved region; it did not run for the source sentence \"After merge, refresh the dashboard.\"\n\nPost coverage to ticket was skipped because no issue is resolved and scope rows are empty; no ticket payload or command was created.\n\nPost drafted replies was skipped because no replies are drafted; no reply payload or command exists.\n",
+      "words": 895,
+      "wallMs": 41572,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "cfeafed0e159dc5e7043b520beddd33dd8777c8b6ec626fb0969d0f8d9fe9634",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f111ab600a55f1e52774f7388ae28d3d9ff6877f7660041fc86dd2b97c96cd06",
+      "baselineOutputSha": "e20585a10af28207c8f664849de4576e3c44acd0d6203dc0d9a33b50f4e5e94f",
+      "candidateOutputSha": "e93a332f933c004357fd1e58cea7970cc04071181e8ca3e2b801f9d8dc481fb5",
+      "facts": {
+        "unique-command": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "override-match": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-command": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ambiguous-command": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unresolved-token": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "observation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "execution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves every targeted fact to holds and keeps the one fact Before already held (observation): the menu now quotes each source sentence verbatim beside the runnable rows and the unnumbered open actions, folds the notify action into the single cleanup-item row with its PR sentence, orders base sync before scripts/publish-handbook.sh, runs scripts/notify-maintainers.sh exactly once, posts PR coverage as part of row 1, and settles with gauntlet: done merged without re-rendering a menu. Before failed chiefly because it never showed the source sentences (it only paraphrased the action names) and because row 1 omitted the runnable PR-coverage post, so 'Coverage was not posted' broke execution. Nothing regressed in After; the only wording worth tightening is to avoid calling the notify item a separate 'row 5' in prose while also describing it as the cleanup item's row — e.g. 'notify maintainers (cleanup item, one row)' — so a reader cannot mistake it for a duplicated PR-named step, and to keep the closing message's open-action bullets exactly mirroring the menu's unnumbered list, which After already does.",
+      "wallMs": 21932,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "cfeafed0e159dc5e7043b520beddd33dd8777c8b6ec626fb0969d0f8d9fe9634",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f111ab600a55f1e52774f7388ae28d3d9ff6877f7660041fc86dd2b97c96cd06",
+      "baselineOutputSha": "64f01eadb2ce52bb1737c121d3fa276b17279dd0eff0c87f3b2808bd9dc6ba70",
+      "candidateOutputSha": "2c0fe4d3bc39529fe9888f6a224c796debe0f7cd19b935a655cc002e1f931114",
+      "facts": {
+        "unique-command": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "override-match": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-command": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ambiguous-command": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unresolved-token": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "observation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "execution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers every intended move: the publish-handbook step appears once in row 4 with its documented command and quoted source sentence and sits inside the recommended composite row 1; notify-maintainers is a single cleanup-override row carrying the PR sentence and runs once after publication; search-index, archive migration and dashboard refresh stay open and unnumbered with their source sentences in both the menu and the closing block, with the two-hop doc/search.md explicitly rejected as authority; observation and automatic deployment are excluded; and the run syncs base before publishing, posts coverage, keeps the primary checkout, and ends with `gauntlet: done merged` with no second menu. The only fact Before already held was observation, and After keeps it. Note that Before's failures were not just missing execution but missing provenance: it never quoted the source sentences for open actions and treated the second-hop `deep-reindex.sh` as resolved, so the After wording that quotes each source sentence verbatim next to its open reason and names the one-hop limit is exactly what carries these facts — keep that explicit 'The PR assigns: \"...\"' pattern and the one-hop statement in any future revision, and keep the composite row 1 ordering (coverage, cleanup/base sync, publish, notify) so the 'after publication' and 'after base sync' orderings remain visible.",
+      "wallMs": 18549,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "126a3fde6bead3ef1d417e9b34feb9e36e4f15c9"
+}

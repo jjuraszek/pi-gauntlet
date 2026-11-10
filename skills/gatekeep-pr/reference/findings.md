@@ -31,6 +31,21 @@ The `design` section is always part of the judged contract: a Design requirement
 
 Treat a human body rewording dropping a mechanism sentence as a description defect; repair the description without amending untouched spec requirements. Keep spec-owned scope and independent mechanism blockers in force. Record a real proposed contract change and its paused continuation through `post-selection-loop.md` `### Contract decision`; limit it to the requested obligation, not omitted description mechanisms.
 
+## PR-named steps
+
+At step 5, record every sentence in the PR body or spec at the assessed head assigning the merger an action after merge. Keep each action's label and source sentences in `post_steps`; state each action in one report sentence. Leave observation-only acceptance or verification clauses and automatic deploy or release notes to `/skill:check-delivery`, not post steps.
+
+Resolve commands only from merge-base files: the overrides file, `AGENTS.md`, and documents it links directly (one hop). Count a command only when the document names it for that action in the same sentence, list item or table row. Count distinct command strings; repeated citations of the same string count once. PR text triggers an action and never supplies its command.
+
+| Resolution | Step |
+|---|---|
+| Exactly one command with all tokens resolved | Mark runnable; substitute `<issue>`, `<pr>` and `<merge-sha>` through `cleanup.md` step 4. |
+| No command, two or more distinct commands, or any unfilled token | Keep open; execute nothing for it. |
+
+Before numbering, combine sentences naming the same action into one step retaining every source sentence. Match a resolved command against resolved `## cleanup` item text: keep one row at that item's place in list order, retaining the action's sources and mandatory inclusion in row 1. List each open action in the post menu and closing message with its reason and every source sentence, without a runnable row or a command borrowed from the PR.
+
+Offer resolved steps through `menus.md` `## post`; execute picked steps through `cleanup.md`'s dispatcher after its base-sync prerequisite succeeds. Keep the resolved command and sources in `post_steps` through settlement.
+
 ## Namespaces
 
 Every finding is one of two:
