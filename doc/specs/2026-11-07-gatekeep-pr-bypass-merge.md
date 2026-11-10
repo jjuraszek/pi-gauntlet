@@ -1,5 +1,7 @@
 # gatekeep-pr merges a BLOCKED PR on ruleset bypass authority
 
+> **Superseded by:** [doc/specs/2026-11-10-gatekeep-three-menus.md](./2026-11-10-gatekeep-three-menus.md) - the row text, `Evidence:` clause and `Not offered:` line in the Design "Menu and report" paragraph only
+
 **Goal:** When GitHub reports the gate's viewer as a ruleset bypass actor, the ordinary `merge` row merges a `BLOCKED` PR and says so; every other merge precondition (CI evidence, binding pending checks, dispositions, comment delta, sync, policy flags) stays as it is.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop
