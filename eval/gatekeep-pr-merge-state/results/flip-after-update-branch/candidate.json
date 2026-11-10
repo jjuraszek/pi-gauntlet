@@ -1,8 +1,8 @@
 {
   "sample": "flip-after-update-branch",
   "arm": "candidate",
-  "skillSha": "124b4f8717ce2f5e1e36caee0d780fce359d6508bfe156399cf44818b85f6448",
-  "inputSha": "9d660971be20fb8b27e60dc82e66739cdb8e4e8dad5b5388cc1321e26d6b6552",
+  "skillSha": "784637826a9f7e65d33a037bfef84d54766471bcb764783074c410adad94a7f8",
+  "inputSha": "35e6a24b1f77f67311b888be3574166461e1fa327d786ecb2cafac2d4632924a",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Snapshot 1 - head `9c1e4f2`, first report**\n\nRun record: course null; rounds 0/10; syncs 0/10; deadline null; wave null.\n\nEvidence resolution:\n- `test_unit` and `build_image` (run 7001) are `success`.\n- `lint` is `skipped`, which is inert.\n- `crew-approval` is a pending `status_context`. With `merge_state_status` BEHIND it is **not binding**, so it only prints under show evidence.\n- Zero blocking conclusions and zero binding pending checks, so the row is **CI-sufficient**: `source: ci` on `9c1e4f2`.\n- The claim \"Tests cover the retry path\" is matched.\n- The merge precondition `merge_state_status` not BEHIND fails. This is repairable through Loop sync, so the template is initial.\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nVerdict: not ready - the branch is behind main (merge_state_status BEHIND)\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits)\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\nPick `2` sets course to deliver and persists it.\n\n---\n\n**Snapshot 2 - head `b7d0a91`, after Loop sync and push**\n\nRun record: course deliver; rounds 0/10; syncs 1/10; assessed head `b7d0a91`; approved_head null; wave cleared.\n\nEvidence resolution:\n- `test_unit` and `build_image` (run 7101) are `success`.\n- `lint` is `skipped`, which is inert.\n- `crew-approval` is a pending `status_context`. With `merge_state_status` UNSTABLE it is **not binding**.\n- The row is **CI-sufficient** on `b7d0a91`.\n- The claim disposition carries over from before the gate's own push.\n\nExit check:\n- `mergeable` is MERGEABLE and `merge_state_status` is no longer BEHIND or BLOCKED.\n- There are no blockers, no binding pending checks, no comment delta, and the merge policy is allowed.\n- The **readiness** exit applies, so the final template renders.\n\n```\nEvidence: CI (source: ci; run 7101: test_unit success, build_image success, lint skipped; head b7d0a91; 0 binding pending; merge_state_status UNSTABLE)\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - run gh pr merge --match-head-commit b7d0a91 with the resolved merge policy flag.\n2. approve - approve tlindqvist's PR at b7d0a91 as rhee-ops. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nType a number; show evidence prints the full record (CI run 7101, test_unit and build_image green on b7d0a91; crew-approval pending - not binding this viewer (merge_state_status UNSTABLE)).\n```\n",
-      "words": 401,
-      "wallMs": 25905,
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds one bounded retry to the tide-feed client when the feed returns a 503. No ticket or spec is linked, so the PR is judged against its own description, and its new tests do exercise the retry path; you are not the author and are not a requested reviewer.\n\nMerging waits on one thing: the branch is behind main, so main has to be merged into it first. The code has no problems, and the sync needs no decision from the author.\n\nI recommend deliver because the only obstacle is the branch sync, and the gate can do that itself.\n\nPick one:\n1. deliver - merge main into the branch, review and push the result, watch the checks, and continue until merge is offered. [recommended]\n2. assess - make no repairs and post nothing, because there are no code problems to report.\n3. stop - end the run and leave the PR as it is.\n\nType a number; show evidence prints the full record.\n\n---\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds one bounded retry to the tide-feed client when the feed returns a 503. No ticket or spec is linked, so the PR is judged against its own description, and its new tests do exercise the retry path; you are not the author and are not a requested reviewer.\n\nNothing blocks merging. Main was merged into the branch, and the checks passed again on the new head.\n\nI recommend merge because nothing blocks it and you have permission to merge.\n\nPick one:\n1. merge - merge this PR at its current head using the repository's configured merge method. [recommended]\n2. approve - approve the PR without merging it.\n3. stop - end the run and leave the PR open as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 299,
+      "wallMs": 25934,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Run record: course null; rounds 0/10; syncs 0/10; assessed head 9c1e4f2; evidence row CI-sufficient; source ci; no local run.\n\nEvidence: CI (source: ci); head 9c1e4f2; run 7001: test_unit success, build_image success, lint skipped; binding-pending count 0; merge_state_status BEHIND.\n\nDelivers: adds one bounded retry to the tide-feed client, with tests exercising the 503 retry path.\n\nVerdict: not ready - branch is behind main\n\nPick one:\n1. assess - post open blockers as a review; with zero blockers, post nothing; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits); merge (branch is behind main).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\nNumeric pick: 2.\n\nRun record: course deliver; rounds 0/10; syncs 1/10; assessed head b7d0a91; evidence row CI-sufficient; source ci; no local run. Prior-head evidence replaced.\n\nEvidence: CI (source: ci); head b7d0a91; run 7101: test_unit success, build_image success, lint skipped; binding-pending count 0; merge_state_status UNSTABLE.\n\nDelivers: adds one bounded retry to the tide-feed client, with tests exercising the 503 retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the assessed head using the resolved merge policy.\n2. approve - approve this PR at the assessed head. [recommended]\n3. stop - leave the checkout as found and retain the local branch.\n\nNot offered: fix nits (no nits); reply (no drafted replies).\n\nType a number; `show evidence` prints the full record (CI, source: ci; head b7d0a91; run 7101: test_unit success, build_image success, lint skipped; binding-pending count 0; merge_state_status UNSTABLE).\n",
-      "words": 275,
-      "wallMs": 27919,
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds one bounded retry when the tide-feed client receives a 503, with tests covering the retry path. You are neither the author nor a recorded requested reviewer.\n\nThe branch needs to be brought up to date before merging. CI supplies the verification evidence, so no local verification run is needed; the pending approval status does not withhold merging for this viewer. The source review found no blockers or nits.\n\nI recommend deliver because merging main into the branch is ready to do and needs no author decision.\n\nPick one:\n1. deliver - merge main into the branch, watch the checks, and continue until merge is offered. [recommended]\n2. assess - post no review because there are no open blockers, and make no repairs.\n3. stop - end the assessment and run non-final teardown without changing the PR.\n\nType a number; show evidence prints the full record.\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds one bounded retry when the tide-feed client receives a 503, with tests covering the retry path. You are neither the author nor a recorded requested reviewer.\n\nNothing blocks merging. CI supplies the verification evidence for the current head, so no local verification run is needed. The pending approval status does not withhold merging for this viewer, and the source review found no blockers or nits.\n\nI recommend merge because the verification and review requirements are satisfied.\n\nPick one:\n1. merge - merge the PR using the configured merge policy. [recommended]\n2. approve - approve the current head without merging.\n3. stop - leave the PR, checkout, and local branch as they are.\n\nType a number; show evidence prints the full record.\n",
+      "words": 272,
+      "wallMs": 17549,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "43eb0e80d34240783ca94a8e0ba0675533e8e811b08ff35df94f93107446cf86",
+      "factsSha": "a68984e126a51c9ea46569288b8c5601980762f0d034015cf71e03dda16bd424",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
-      "baselineOutputSha": "652e31dffa2db9361ee46b24868f4d4fcb56f3379d0ab599066de44806f19322",
-      "candidateOutputSha": "12533c84c0ef9aedfc2d79ab45eb8c3388f9b51b071e7865c2dc2c6a553d8ee1",
+      "intentSha": "386c9ffa34b28a17ed959410e4e1b59d451a73241da953f9606c52da5ffb3faa",
+      "baselineOutputSha": "0583eff95f71d1a265a51d93b56da1d7d5e565d2018f336dd938ac262af1de82",
+      "candidateOutputSha": "80b50734aac63378a9c03926bb458275dcce9f50a2b8636bf466b8abf99f94bf",
       "facts": {
         "f1": {
           "before": "fails",
@@ -44,9 +44,9 @@
           "label": "intended change"
         },
         "f2": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f3": {
           "before": "holds",
@@ -64,16 +64,16 @@
           "label": "held"
         }
       },
-      "feedback": "After moved f1 from fails to holds: the first not-ready report now renders the initial assess/deliver/stop template with assess recommended and stop last, and the numeric `2` pick persists course deliver and accounts the merge-base sync as syncs 1/10 rather than mapping it onto a per-action `merge base` verb with an `update branch` row. Nothing regressed: both menus still have exactly one recommended row ending in stop, the second menu still classifies crew-approval as a non-binding status_context under UNSTABLE, resolves evidence to CI-sufficient on b7d0a91 with test_unit/build_image green, and offers merge plus approve with approve recommended. Note f2 already held in Before (approve [recommended] and merge were both offered on the second menu), so the expected flip there was not observable in the text. Two small tightenings would keep every fact robust: state the explicit merge flag (`--squash`) in the merge row rather than 'the resolved merge policy flag', and keep the `Evidence:` summary line out of the fenced menu block (or make it a show-evidence line) so the menu template matches menus.md exactly and the 'ends with stop' structure stays unambiguous.",
-      "wallMs": 13068,
+      "feedback": "After moves f1 and f2 to holds without losing anything Before kept. f1 moved because the first After report states outright that the sync 'needs no decision from the author' and that the gate can perform it, which Before never said (Before only reported 'behind main, must be synced'); the deliver/assess/stop ordering with deliver recommended was already right in both. f2 moved because After puts merge on row 1 recommended with approve below it, whereas Before recommended approve on row 1 and demoted merge to row 2 despite green exact-head CI and MAINTAIN permission. f3, f4 and f5 hold in both: After's 'Nothing blocks merging ... the checks passed again on the new head' resolves the evidence to the new-head CI in plain prose without treating crew-approval as binding, both menus keep one recommended row and stop last, and the raw run/head IDs are correctly left to show evidence. To keep this stable, retain the explicit 'needs no decision from the author' sentence in the not-ready report, keep merge on row 1 whenever CI is green on the assessed head regardless of authorship, and keep the plain-prose check summary rather than reintroducing an Evidence line with SHAs and run IDs.",
+      "wallMs": 21762,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "43eb0e80d34240783ca94a8e0ba0675533e8e811b08ff35df94f93107446cf86",
+      "factsSha": "a68984e126a51c9ea46569288b8c5601980762f0d034015cf71e03dda16bd424",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
-      "baselineOutputSha": "02df5e9af6b608b24ebd9c62dd7a72370237ddfc6be839152f5790a81d423e65",
-      "candidateOutputSha": "fa8a41b55e9fbbdb82caea1d6fa1b6afeea5c688157562cf7a36f7ad0be2f847",
+      "intentSha": "386c9ffa34b28a17ed959410e4e1b59d451a73241da953f9606c52da5ffb3faa",
+      "baselineOutputSha": "6b4a66203ed7dcf2af61e2632f30a8eae5177064ae6f3bfc29d48317e65faa07",
+      "candidateOutputSha": "f89273f8a57b7ff2aba3b3f8fd057d317fbafb5e0c674cb863a9bd0295c3f52b",
       "facts": {
         "f1": {
           "before": "fails",
@@ -81,9 +81,9 @@
           "label": "intended change"
         },
         "f2": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f3": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: the first not-ready menu is now assess/deliver/stop with assess recommended and stop last, the numeric deliver pick is recorded as the persistent course and the merge-base sync is counted (syncs 1/10), and the final menu after the fresh b7d0a91 evidence offers merge and approve with approve recommended and ends with stop. Nothing Before kept was lost. Note that f2 already held in Before (approve recommended, merge offered on the second menu), so the only real movement is f1. One wording risk worth tightening: After collapses the crew-approval status_context into 'binding-pending count 0' and never names it, whereas Before stated 'crew-approval pending - not binding this viewer'; a strict reader of f3 might want the pending status named and explicitly marked non-binding. Consider adding a one-line entry such as 'crew-approval: pending status_context, not binding this viewer' to the evidence block (or to the show-evidence summary) so the classification stays visibly unchanged while keeping the compact course/menu format.",
-      "wallMs": 13194,
+      "feedback": "After delivers the intended moves: the initial menu now puts deliver on row 1 recommended with assess and stop below and states the sync needs no author decision, and the final menu puts merge on row 1 recommended with approve beneath it and stop last, while the pending crew-approval status is explicitly described as non-binding for this viewer. The one soft spot is f5: After says CI supplies the verification evidence for the current head and that verification requirements are satisfied, but it never says in plain prose that the required checks passed or names them (test_unit, build_image), which the Change itself asked for; a reader infers green from 'nothing blocks merging' rather than reading it. To make f5 unambiguous without reintroducing raw IDs, add a sentence like 'The required checks (test_unit and build_image) passed on the current head; lint was skipped and is not required,' keeping the SHA and run number under show evidence. Also consider rewording the assess row ('post no review because there are no open blockers') since 'assess' that posts nothing reads oddly, though it does not affect any fact.",
+      "wallMs": 17275,
       "verdict": "improved"
     }
   },
-  "repoSha": "cc0a65f05c826c32b59ddd6cf7fa655a9aa91d24"
+  "repoSha": "3ca98e2d9da46194bf4cef1fb837d665c17fd7f8"
 }

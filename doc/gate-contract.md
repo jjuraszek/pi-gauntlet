@@ -4,6 +4,14 @@ A driver reads the first line of the last user-facing assistant message at settl
 
 A proper reply can advance a `gate` or `question`; `done` and `stuck` are true endings with no advancing reply. Questions retain inventory IDs below but emit only the bare `gauntlet: question` line, not their IDs. Row bodies define input: there is no `picks=` field or per-gate token list in the marker.
 
+## Gatekeep menus
+
+Gatekeep has three menu archetypes: action (initial, obstacle and contract-exception), final (ready or assess-terminal), and post (own-merge, approved and closed-pr, with merge-queued as a wait/stop variant). State IDs identify variants, not fixed row positions. Row 1 is the sole judged recommendation. Contract proposals favor preserve contract, and no available action that can change the outcome favors stop. Otherwise, your own PR defaults to deliver, author-decision blockers favor assess on someone else's PR, ready repairs or pending-only checks favor deliver, and readiness favors merge regardless of author. An unchanged assess result favors stop. The [recommendation owner](../skills/gatekeep-pr/reference/menus.md#recommendation) defines precedence and exceptions.
+
+The report uses plain-language change/scope, standing/problems and recommendation parts, with evidence behind `show evidence`. A post menu renders once, accepts a set reply and ends after the picked steps settle; its closing message lists every unpicked, skipped or failed command or payload. Row 1 combines runnable steps except duplicate PR coverage when ticket coverage is included. Each step retains an individual row; nested skills retain their own gates. Set replies expand combinations and collapse duplicates before execution in step order. Shared overrides execute at most once in set mode.
+
+PR-named steps come from merger actions in the PR body or head spec, but their executable commands come only from the merge-base overrides, `AGENTS.md` or its one-hop linked documents. Exactly one distinct documented command makes a step runnable; unresolved or ambiguous actions stay visible with their source sentences. See the [post execution owner](../skills/gatekeep-pr/reference/post-selection-loop.md#post-steps) and [PR-named steps](../skills/gatekeep-pr/reference/findings.md#pr-named-steps).
+
 ## Gates
 
 Sites are real ATX heading prefixes, excluding headings inside fenced examples. Repeated IDs identify the same gate at distinct rendering sites, not additional gates.

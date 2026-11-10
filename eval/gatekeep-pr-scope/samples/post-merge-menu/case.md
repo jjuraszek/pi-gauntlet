@@ -58,6 +58,6 @@ baseRefName main; the primary checkout (parent of rev-parse --git-common-dir) is
 pr.url https://github.com/acme/widgets/pull/210; pr.state MERGED.
 
 ## Pick
-numeric merge row selected (gh pr merge succeeded; gh pr view returned state MERGED, mergeCommit.oid 9f1c2d3e4b5a6978). Render the post-merge menu, then handle the reply numeric `3` (post coverage to PR from cleanup=1, post coverage to ticket=2, post coverage to PR=3, stop=4) (the gh pr comment succeeds), render the menu again, then handle the reply numeric `3` (stop after successful PR post removes its row).
+The numeric merge row was selected; gh pr merge succeeded and gh pr view returned MERGED with mergeCommit.oid 9f1c2d3e4b5a6978. Render the single post-merge menu with row 1 combining ticket coverage and cleanup, ticket coverage=2, PR coverage=3, cleanup=4, stop=5. Handle two independent variants from that menu: A selects `3`, whose gh pr comment succeeds; B selects `5`, running nothing. Settle each variant without another menu.
 
-Menu checkpoint: show evidence is a hint command only; stop is last, exactly one available recommendation. Course is unset at a first ready report; no numeric course selection is implied by scope evidence.
+Menu checkpoint: show evidence is a hint command only; the combination is row 1 and the only recommendation, and stop is last. Course is unset at a first ready report; no numeric course selection is implied by scope evidence.

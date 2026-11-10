@@ -2,4 +2,4 @@
 - f2: judged: The base step pulls main with --ff-only and prints base: synced.
 - f3: judged: The release step invokes /skill:release and pauses at its level pick instead of naming a level itself.
 - f4: judged: The worktree is removed and git branch -D csv-export runs.
-- f5: judged: After cleanup no cleanup row remains; show evidence remains a hint, never a numeric row.
+- f5: judged: Run the picked steps in order, preserving the release skill's pending gate and continuation instead of rendering another gatekeep menu; after it settles, close with the done marker and unpicked step commands. Keep show evidence hint-only before the pick.

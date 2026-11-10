@@ -1,8 +1,8 @@
 {
   "sample": "mixed-coverage",
   "arm": "candidate",
-  "skillSha": "fede4cdab5a4626c3b62f900205437a83fc4ce7f85be774067411cccb8ffa602",
-  "inputSha": "ed2b8bcb0c4fec7a56688839cc00bac441af96b131a36b46461d6935c6afff99",
+  "skillSha": "fe9d31172f809b24b640b19c789ecbb3f73fcab90513802d07ec5d4854cf5ead",
+  "inputSha": "92231f4839427671ec0b6a9b2c375924faa5922ba4c1c6964749f32ebf2b4756",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,31 +17,31 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nEvidence: CI (source: ci), check test success on the assessed head; 0 binding pending; merge_state_status CLEAN.\n\nDelivers: the reports page exports a 12-column CSV on demand with bounded paging. ACs 1, 4; 3, 5 deferred per spec to acme/widgets#46; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (export completes under 5s on production data) is checked after merge, not here.\nRole: author\n\nNits:\n- The export handler pages results with its own loop instead of the shared paging helper, so a paging bug fixed in one place would also need fixing in the other. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge the PR at the assessed head. [recommended]\n2. fix nits - run one repair pass on the paging nit, then return here.\n3. stop - leave the PR as is and report the checkout path and local branch.\n\nNot offered: approve (your own PR)\n\nType a number; show evidence prints the full record (CI: test success on the assessed head; 0 binding pending; merge_state_status CLEAN).\n",
-      "words": 198,
-      "wallMs": 14713,
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds an Export CSV button to the reports page that downloads the report as a CSV file, reading rows in pages of at most 100 with a 4-second deadline and returning \"not found\" for unknown reports. It covers the button and the bounded export. As the spec intends, it exports the 12 columns shown by default rather than all 40, because the full table is too wide for most readers. It defers emailed exports and audit-log events to acme/widgets#46, and the under-5-seconds target on production data is checked after merge.\n\nNothing blocks merging. The checks passed in CI on the commit being reviewed. The tests cover the exact column list and order, escaping of commas, quotes and line breaks in cells, the paging limit, the deadline, and the response for unknown reports. One smaller point does not block merging: the export pages through rows with its own loop instead of the shared paging helper in lib/page.ts, so any later change to paging rules would have to be made in two places. The fix nits option can take that change. You are the author, so approval is not offered because you cannot approve your own PR.\n\nI recommend merge because nothing blocks it and the checks passed.\n\nPick one:\n1. merge - squash-merge the PR at the commit being reviewed. [recommended]\n2. fix nits - switch the export to the shared paging helper, review and push that change, watch the checks once, then return here.\n3. stop - leave the PR open and the worktree and branch as they are.\n\nType a number; show evidence prints the full record.\n",
+      "words": 270,
+      "wallMs": 19720,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nEvidence: CI (source: ci), test success on the assessed head; SHA and run ID not supplied; 0 binding pending checks; merge_state_status CLEAN.\n\nDelivers: The reports page downloads an on-demand CSV with bounded paging and the 12 visible-by-default columns. ACs 1, 4; 3, 5 deferred per spec to acme/widgets#46; 2 deviates per spec: the export includes the 12 visible-by-default columns instead of all 40 table columns; 4's observable half (completion under 5s on production data) is checked after merge, not here.\nRole: author\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so paging fixes would need to be maintained twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take it\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head into the base branch. [recommended]\n2. fix nits - run one delivery iteration to address the paging-helper nit.\n3. stop - leave the checkout and local branch as found.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record (CI, source: ci; test success on the assessed head; SHA and run ID not supplied; 0 binding pending checks; merge_state_status CLEAN).\n",
-      "words": 198,
-      "wallMs": 12691,
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds on-demand CSV downloads with bounded paging, a 4-second deadline, and a 404 response for unknown reports. The spec deliberately exports the 12 visible-by-default columns rather than all 40 table columns, defers email delivery and audit events to acme/widgets#46, and leaves production-data timing to be checked after merge.\n\nYou are the author.\n\nNothing blocks merging. One smaller point does not block merging: the export handler uses its own paging loop instead of the existing helper in `lib/page.ts`; choosing fix nits would replace that duplication (`src/api/export.ts:31`). You cannot approve your own PR.\n\nI recommend merge because the code, tests, and docs satisfy the spec's pre-merge requirements.\n\nPick one:\n1. merge - squash-merge the PR. [recommended]\n2. fix nits - replace the duplicated paging loop, review and push the repair, and check the results before returning to a merge choice.\n3. stop - leave the PR unmerged and keep the checkout as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 163,
+      "wallMs": 10100,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "7de846ac42f81a1c1ea9139480835e2fb10f4237bf76c190bd623a2c6a196554",
+      "factsSha": "57f6c633472845a41dcea6e181b9cf5762126d5d9b4ef4767eef48cfb2b96948",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
-      "baselineOutputSha": "01cc95842267c9967a695d3e0114b45013011e216b33fd59a7827dc463d8f308",
-      "candidateOutputSha": "1ad251d7becf154c643b9506eea391949af787455300ee87e8886d1c6fbdca45",
+      "intentSha": "fe5c4d2d4a012b50d8f3b6033424d69b19a5e7ddade3db8114a566729dbf9290",
+      "baselineOutputSha": "c4b3656e61082ea9aca463c043682ec440d2095ffa6d80d77af70e0a4515cfd6",
+      "candidateOutputSha": "b8200f3eb4a9b98c0b7bf30440833c7d44f5e6075ea6c91cc7dc7093e9b99673",
       "facts": {
         "f1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "before": "fails",
+          "after": "fails",
+          "label": "pre-existing"
         },
         "f2": {
           "before": "holds",
@@ -51,7 +51,7 @@
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "held"
+          "label": "intended but unchanged"
         },
         "f4": {
           "before": "holds",
@@ -64,21 +64,21 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs keep the Delivers line covering ACs 1 and 4, marking AC 2 as deviating per spec with the Design clause 3 rationale, and deferring ACs 3 and 5 to acme/widgets#46; neither mints a blocker, both offer merge=1 recommended with stop last, show evidence stays a hint, and no comment is posted with pick=none. The only differences are cosmetic: After reorders the Delivers clauses (deferred before deviating), rewrites the stop row to mention reporting the checkout path and local branch, and drops '(source: ci)' from the show-evidence hint. If you want the migrated menus.md templates to be a strict superset of Before, keep the Before clause order in Delivers (covered; deviates; deferred) so readers scan rows in numeric order, and retain the evidence source tag in the hint so the hint and the Evidence line stay identical.",
-      "wallMs": 9467,
+      "feedback": "After drops the Delivers label and the AC row numbers and names the covered, deviated and deferred behaviors plainly with the acme/widgets#46 reference intact, which is the right direction, but the opening runs four sentences (adds button/paging; covers the button; exports 12 of 40 per spec; defers email/audit plus the post-merge check), so it does not satisfy f1's two-sentence requirement. It also invents a rationale (\"the full table is too wide for most readers\") that the spec does not state; use the spec's own reason. A wording that keeps every fact and delivers the Change: \"This PR adds an Export CSV button to the reports page that downloads the report in pages of at most 100 rows under a 4-second deadline, returning not-found for unknown reports, and as the spec intends it exports the 12 columns shown by default rather than all 40. Emailed exports and audit-log events are deferred to acme/widgets#46, and the under-5-seconds target on production data is checked after merge rather than here.\" Keep the test and nit detail in the following gate paragraph and the AC-to-row mapping under show evidence, as After already does.",
+      "wallMs": 14984,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "7de846ac42f81a1c1ea9139480835e2fb10f4237bf76c190bd623a2c6a196554",
+      "factsSha": "57f6c633472845a41dcea6e181b9cf5762126d5d9b4ef4767eef48cfb2b96948",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
-      "baselineOutputSha": "d10e4c3b4c8b95fe8c327ccdabfcd21f332c923226387c1c762a730d77a74554",
-      "candidateOutputSha": "331fe7c412df767524f4b1baca81a1865ac0e829436af18ba044fa9b671058bf",
+      "intentSha": "fe5c4d2d4a012b50d8f3b6033424d69b19a5e7ddade3db8114a566729dbf9290",
+      "baselineOutputSha": "9cf5fe308ec99af11fedab408548360c1c4e025bb4875ef853ce40a1748dd981",
+      "candidateOutputSha": "0b46f9c0c6f8233a05dc59f76c3ec5d31fcdf502783d7c4ac5c186b5d47f2892",
       "facts": {
         "f1": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "f2": {
           "before": "holds",
@@ -88,7 +88,7 @@
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "held"
+          "label": "intended but unchanged"
         },
         "f4": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs keep the Delivers line with ACs 1 and 4 covered, 2 deviating per spec, 3 and 5 deferred to acme/widgets#46, list no blockers, offer merge as the recommended row 1, mint nothing for deferred/deviating rows, and post no comment without a pick. Two wording drifts in After are worth tightening even though they did not flip a fact here: the merge row dropped 'squash-merge the assessed head after fresh merge-precondition checks' in favour of a generic 'merge the assessed head into the base branch', which loses the exact-head/precondition guarantee the Change says to preserve — keep the Before phrasing in the shared menus.md merge template; and the stop row changed from 'leave the checkout and PR unchanged' to 'leave the checkout and local branch as found', which no longer says the PR is untouched — add 'and PR' back so the no-side-effect promise stays explicit. The new 'Not offered: approve (own PR)' line and the hint-only show evidence are consistent with the Change and fine to keep; also restore the blank line before '1 nit open' so the nit count reads as a separate status line rather than a list item.",
-      "wallMs": 11068,
-      "verdict": "unchanged"
+      "feedback": "After delivers the Change: the opening is two plain sentences naming behaviors (on-demand CSV downloads with bounded paging, the deliberate 12-column choice, email delivery and audit events deferred to acme/widgets#46, production timing checked after merge) with no row numbers and no Delivers label, so f1 moves from fails to holds, while the gate still lists zero blockers, merge is offered, no blocker is minted for the deferred or deviating rows, and nothing is posted without a pick. One wording risk: the first sentence says 'on-demand CSV downloads' rather than naming the Export CSV button, so a stricter reader could argue the button itself is not described as covered; writing 'adds an Export CSV button that downloads a CSV with bounded paging, a 4-second deadline, and a 404 for unknown reports' would name the UI mechanism explicitly without reintroducing row numbers. Also note the evidence summary (CI test success, 0 binding pending checks, merge_state_status CLEAN) now lives only behind show evidence; that is consistent with the Change, but keep the hint line's parenthetical if you want the gate verdict to remain self-evidencing in the main body.",
+      "wallMs": 17659,
+      "verdict": "improved"
     }
   },
-  "repoSha": "6f61a4a98fe7f07574808e8fb84a0cb48a6d96e3"
+  "repoSha": "3ca98e2d9da46194bf4cef1fb837d665c17fd7f8"
 }

@@ -32,7 +32,7 @@ Supply these three labeled command blocks in chronological order under the revie
 2. git show --remerge-diff 3333333333333333333333333333333333333333 shows one conflict resolution preserving the rejection in src/guard.mjs; ordinary upstream changes imported by the merge are not supplied as author work.
 3. git diff 3333333333333333333333333333333333333333 4444444444444444444444444444444444444444 -- src/guard.mjs src/caller.mjs shows an author hunk in src/caller.mjs restoring the retry bypass to content that happens to match origin/main.
 
-The verifier reports green CI and matched claims on head 4444444444444444444444444444444444444444 with no contract findings. The narrated reviewer receives all three blocks, reviews the base-matching author hunk anyway and the remerge conflict resolution, and returns R1: resolved and R2: open - retries still bypass the guard with no new findings. Show its task, closure mapping and report/menu: Prior review: 1 of 2 items addressed, without a no-commits-since suffix. Stop at that menu; no writes occur.
+The verifier reports green CI and matched claims on head 4444444444444444444444444444444444444444 with no contract findings. The narrated reviewer receives all three blocks, reviews the base-matching author hunk anyway and the remerge conflict resolution, and returns R1: resolved and R2: open - retries still bypass the guard with no new findings. Show its task, closure mapping and report/menu; explain in plain prose that one of two prior items is addressed, without claiming no new commits or printing a Prior review field. Stop at that menu; no writes occur.
 
 ## Arguments
 

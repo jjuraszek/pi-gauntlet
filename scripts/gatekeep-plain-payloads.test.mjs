@@ -7,8 +7,8 @@ const fence = /(?:^|\n)[ \t]*(?:`{3,}|~{3,})/;
 
 test("wording owns unfenced output and coverage keeps its literal checklist", () => {
   const wording = read("skills/gatekeep-pr/SKILL.md").split("## Wording rules\n")[1].split("## Red flags")[0];
-  assert.match(wording, /Never wrap reports, menus or posted payloads in code fences/);
-  assert.match(wording, /coverage.*heading and checkbox rows.*verbatim/s);
+  assert.match(wording, /Keep output unfenced/);
+  assert.match(wording, /Preserve these exceptions verbatim:.*coverage.*heading and checkbox rows/s);
   const loop = read("skills/gatekeep-pr/reference/post-selection-loop.md");
   const merge = loop.split("### Merge course\n")[1].split("### Re-render")[0];
   assert.doesNotMatch(merge, fence);

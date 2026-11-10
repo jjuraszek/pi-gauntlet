@@ -1,7 +1,7 @@
 {
   "sample": "per-ref-settlement",
   "arm": "candidate",
-  "skillSha": "6a18ad28fb3991c77944698f5bebbdd9b0fe88e022513cbed21dede8f7388947",
+  "skillSha": "96f87bec6d040bf1b378db76be8c85b28a5729d8080ad48eb61ea18ea248f670",
   "inputSha": "5eeffe816354ca29106a4f3419d0d1d098e9dd8af6e5f475ee6b335ede3f5f48",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n\n#31 cleanup results:\nworktree: done\nbranch: done\nbase: synced\n\n#32 cleanup results:\nworktree: kept - the primary checkout was left in place.\n\n#32 stopped while a required check was still running after the 15-minute wait. Nothing was merged, and none of its later steps ran.\n",
-      "words": 57,
-      "wallMs": 8547,
+      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n\n#31 merged into its base branch. Its cleanup finished:\nworktree: done\nbranch: done\nbase: synced\n\n#31's merge commit is now on the local base branch. Its separate checkout and local branch are gone. No picked step was skipped or failed.\n\n#32 stopped because a required check was still running after the 15-minute wait. It has not merged. Its checkout was the main checkout, so the run kept it:\nworktree: kept - primary at <scratch>\n\nIts branch and the base branch were left unchanged. No post steps were picked for #32, and none are waiting to run.\n",
+      "words": 108,
+      "wallMs": 10550,
       "mechanical": {
         "terminal": "holds",
         "merged": "holds",
@@ -28,9 +28,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n\n#31 cleanup: worktree removed, branch removed, and base synced.\n#32 cleanup: primary checkout kept.\n",
-      "words": 27,
-      "wallMs": 6584,
+      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n",
+      "words": 13,
+      "wallMs": 5614,
       "mechanical": {
         "terminal": "holds",
         "merged": "holds",
@@ -42,9 +42,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c45ecc49ebfe1c8977866a116d08a98b262038cf051222a950334504ca625f05",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f0a346bc2ed5d87d701fb5a56fe0b2966bd213b72195ff4010a0e28d08497393",
+      "intentSha": "d867996cca2c8540a834dacf34e9d3c8a55f2fb098bdd07d8ba019a51bf31ded",
       "baselineOutputSha": "3432be4602533a2aa9ac222395523438a3ff01a0de62155e200ef07aed17e3f5",
-      "candidateOutputSha": "4801470d07606f0fc26ecb518c366aeeb18eff6ce3270a8d5caab0469aec6929",
+      "candidateOutputSha": "f68191ba69b34a1cb90545b6a5ca070130f9de543f4b66c9a2752e008a7e9efd",
       "facts": {
         "settled": {
           "before": "holds",
@@ -67,16 +67,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved. Both outputs open with a single terminal settlement block (\"gauntlet: stuck retired\") followed by the two roster rows in order #31, #32, each with its full 40-character assessed head, with the ticket annotation (#12) on #31 only, and neither output opens a menu or proposes a new action. After reformats the cleanup detail into per-PR \"cleanup results\" lists and adds a closing explanatory sentence about #32's stop; that sentence restates the outcome rather than issuing a second settlement, so it does not break the fact, but to keep the terminal block unambiguous as the only settlement, prefer folding that explanation into the #32 cleanup line (as Before does: \"Branch deletion, base pull, and override steps did not run because this was a non-final stop\") instead of adding a trailing standalone paragraph that could read as a second status report.",
-      "wallMs": 7724,
+      "feedback": "Neither output moved the settled fact: both open with the single `gauntlet: stuck retired` header, list #31 then #32 with their full 40-char assessed heads, annotate only #31 with (#12), and close without a menu or new action. One regression to watch in After that this fact does not catch but the Change's raw-leak check would: the #32 cleanup line renders a literal `<scratch>` placeholder (\"worktree: kept - primary at <scratch>\") instead of a translated location — Before at least said \"the primary checkout\". Keep After's prose structure (merged/stopped explanations, explicit 'no picked step was skipped', 'none are waiting to run'), but route the kept-worktree path through the wording owner so it reads e.g. \"worktree: kept - it is the primary checkout\", and avoid re-listing the cleanup rows under the header as a second status block so the settlement stays unmistakably singular.",
+      "wallMs": 10924,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c45ecc49ebfe1c8977866a116d08a98b262038cf051222a950334504ca625f05",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f0a346bc2ed5d87d701fb5a56fe0b2966bd213b72195ff4010a0e28d08497393",
+      "intentSha": "d867996cca2c8540a834dacf34e9d3c8a55f2fb098bdd07d8ba019a51bf31ded",
       "baselineOutputSha": "8da89e4fef0e3aa76c78a59ca67297ae57d160f3164db78a8d1f4358923b341d",
-      "candidateOutputSha": "2806f3d0184dd435224610a12a80b44a2665f4e9ff4335df659ab411bdafd039",
+      "candidateOutputSha": "6a0287d3b2212a9b01fa22352a3c3fb5e896e711f72834c82c922ed325938776",
       "facts": {
         "settled": {
           "before": "holds",
@@ -99,10 +99,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs open with the single terminal settlement line, list #31 and #32 in roster order with their full 40-character assessed heads, annotate only #31 with (#12), and end with the completed cleanup lines without any menu or new action, so the fact holds identically on both sides. The only difference After introduces is the Oxford-style 'and' in '#31 cleanup: worktree removed, branch removed, and base synced', a cosmetic change that moves nothing; no wording adjustment is needed, though keeping the cleanup line format unchanged from Before would avoid even this incidental drift while the consolidation into menus.md delivers the Change.",
-      "wallMs": 4199,
+      "feedback": "Neither output moved the settled fact: both open with the single `gauntlet: stuck retired` settlement line, list #31 then #32 with their full 40-character assessed heads, annotate only #31 with (#12), and open no menu or new action. The only difference is that After drops Before's two cleanup-result lines (#31 worktree/branch/base sync, #32 primary checkout kept). That trim does not break the fact as written, but it discards the one place the message confirms cleanup actually completed and which checkout state each PR left behind, which the case explicitly asks to be included in the final report. To keep the After wording's plain-prose/one-pick settlement goal while losing nothing, keep the settlement block as the opening and append the cleanup outcomes as a short trailing sentence or two in prose (e.g. '#31 cleanup finished: worktree and branch removed, base synced. #32 kept the primary checkout.') rather than removing them entirely.",
+      "wallMs": 9223,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f998f61cacde1a3ac1838c27d3491732d12b4712"
+  "repoSha": "3ca98e2d9da46194bf4cef1fb837d665c17fd7f8"
 }

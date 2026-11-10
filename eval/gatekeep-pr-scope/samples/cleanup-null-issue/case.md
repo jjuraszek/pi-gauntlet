@@ -57,6 +57,6 @@ pr.url https://github.com/acme/widgets/pull/210; pr.state MERGED.
 - release: /skill:release
 
 ## Pick
-numeric merge row selected (gh pr merge succeeded; gh pr view returned state MERGED, mergeCommit.oid 9f1c2d3e4b5a6978). Render the post-merge menu, then handle the reply numeric `1` (cleanup).
+numeric merge row selected (gh pr merge succeeded; gh pr view returned state MERGED, mergeCommit.oid 9f1c2d3e4b5a6978). Render the post-merge menu, then handle numeric `1`, the recommended combination of PR coverage, cleanup and release; close ticket is skipped because no issue was resolved. Pause at release's own gate and preserve its continuation instead of rendering another gatekeep menu.
 
 Menu checkpoint: show evidence is a hint command only; stop is last, exactly one available recommendation. Course is unset at a first ready report; no numeric course selection is implied by scope evidence.

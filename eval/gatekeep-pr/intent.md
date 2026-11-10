@@ -1,15 +1,18 @@
-for: a81ed63c4edfcc29708f2ffd2e777782636906da8e20b58abf33eef225d7e91e
+for: 4e38c882ff6adae6764db4690d2a5719a8d92717a810f092046aaf192124cb45
 
 ## Change
 
-Restore selector-bound recommendation wording and the own-PR row example without changing recommendation precedence, menu archetypes or pick authority. Refresh the assembly hash for this meaning-preserving wording repair; use ledger-selected deterministic checks without new model calls. The four selected samples below exclude menus.md, so their saved assembly hashes remain current.
+Restore the approved/open reply freshness guard in batch routing and classify shared cleanup items from all three unresolved placeholders. Render three unlabeled report parts: a two-sentence change/scope opening, standing and concrete problems, then a separate recommendation. Keep row mappings under show evidence, preserve consent previews and required test locators, and translate internal fields and counters through SKILL.md's wording owner. Delete duplicate red flags whose owning rules remain in the references.
 
-Consolidate menu availability, picks and recommendations in menus.md's States and action/final/post tables; delete decision-menu.md and route its readers to the owner. Preserve pick authority, bypass preconditions, capped work, payload freshness and terminal settlement. Preserve plain reports and the one-pick post lifecycle from the earlier increments.
+Migrate remaining expected facts from labeled reports and per-action terminal menus to plain prose, row-1 recommendations and one-pick settlement. Preserve every authority, freshness, cap, sync, CI-watch and merge prerequisite assertion. Extend post-menu-set-reply with approved/open head movement and batch-post-menu with issue-only cleanup items. Strengthen stored-output checks for complete fact IDs and for raw field/counter leaks.
 
-Remove the deleted file's bundle exclusions from per-ref-settlement, reviewer-row-reopen, loop-worker and nit-batch-row. Select only those four samples: require every candidate fact on both models, including full-head settlement, grouped reviewer reopening, failed-row retry accounting and the single nit batch. Their expected facts do not change. Run them serially to isolate the shared report writes, with the runner's model-cell pool within each sample.
+Select action-row-one, post-menu-set-reply, batch-post-menu, batch-cleanup-stop, conflict-free-sync, prior-review-delta and role-line-requested individually. Run serially to isolate report writes, with the runner's model-cell pool within a sample. Leave plain-report's saved candidate untouched: its invocation bound is spent at three of three, so its revised wording facts need a parent-authorized rerun.
 
 ## Expected to move
 
+- action-row-one/authority: fails -> holds - Keep the row-1 recommendation and explicit-pick authority while omitting internal fields, raw evidence and repair/sync counters from prose.
+- batch-cleanup-stop/c5: fails -> holds - Inspection precedes the retained pick; selected posts execute before cleanup and the remaining nested-skill continuation survives without another gatekeep menu.
+
 ## Validation boundary
 
-These four samples cover their retained responsibilities, not the whole menu matrix. Preserve earlier results as historical evidence. The deterministic reconcile and bypass tests migrate both removed-file readers and rendering assertions while retaining permission, authority, freshness, cap and post-action boundaries. The scope and merge-state assembly hashes are refreshed for structural checks only; their historical replays are not current coverage. The runner assembles both arms from the current target list, so deleting a listed file also removes it from the comparison arm; absolute candidate facts determine success.
+These selected samples establish only their named facts, not target-wide coverage. Unselected samples' migrated expectations are contracts, not fresh model evidence. Preserve earlier results as historical evidence, including plain-report's known incorrect wording. No bundle lines change. The owner consolidation keeps mechanics intact; structural checks alone do not prove model behavior.

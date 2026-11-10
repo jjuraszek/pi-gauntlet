@@ -11,7 +11,7 @@ test("set post menus reserve shared cleanup for the last merged PR and retire af
   assert.match(batch, /one post menu per merged PR, each in its own message/);
   assert.match(batch, /Each post-menu message starts with `gauntlet: gate=gatekeep-pr\/own-merge recommended=1`/);
   assert.match(batch, /summary in a separate message/);
-  assert.match(batch, /no PR.*shared.*last merged PR.*row 1/s);
+  assert.match(batch, /Before substitution.*none of `<issue>`, `<pr>`, `<merge-sha>`.*shared.*last merged PR.*row 1/s);
   assert.match(batch, /picked earlier.*runs then.*omit it from every later menu/s);
   assert.match(batch, /shared item.*at most once.*set/s);
   assert.match(batch, /all selected post steps finish.*retire.*no re-render/s);

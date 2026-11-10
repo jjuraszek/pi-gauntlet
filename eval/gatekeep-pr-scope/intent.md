@@ -1,25 +1,19 @@
-for: 77539abda09c520cd16adb01516b894543720e9c58abb829c95912502daf0b4f
+for: fe9d31172f809b24b640b19c789ecbb3f73fcab90513802d07ec5d4854cf5ead
 
 ## Change
 
-Refresh the assembly hash for meaning-preserving menus.md wording that restores selector-bound recommendations and the own-PR row example. Keep recommendation precedence, menu archetypes and pick authority unchanged; claim no new model coverage.
+Describe scope in a two-sentence plain-language opening using behavior names, not acceptance-row numbers or a Delivers field. Keep covered mechanisms, deferred references, deliberate deviations, external repositories and post-merge observations intact; retain detailed row mapping under show evidence and in posted coverage.
 
-Remove the deleted decision-menu.md bundle entry and point the replay and README at menus.md. These path-only migrations preserve the instructions' meaning. Refresh this assembly hash for structural checks only; no new model replay coverage is claimed for this target. The following comparison notes and predictions describe historical results.
+Migrate post-merge-menu and cleanup-null-issue to the single post menu: row 1 combines runnable steps, a numeric set executes in step order, and settlement prints a done marker and unpicked commands without another gatekeep menu. Preserve cleanup guards, nested release continuation and selected-only authority.
 
-Replace per-action repair authority and ordinary wait menus with persistent assess/deliver/deliver-nits courses and the shared menus.md templates. Preserve identity validation, independent claim/mechanism closure, exact-head evidence and terminal cleanup ownership. Source rounds count new repair-wave commits; body-only work and conflict-only syncs have independent accounting. Caps freeze at twice the entry setting, timeout renews only on own push or explicit obstacle continuation, and resumed sync preserves separate restore and lease heads.
-
-Keep every scope verdict and terminal cleanup side effect unchanged. Migrate menu rows and numeric terminal picks only; show evidence moves to the hint and post-merge cleanup remains the sole path to branch deletion, base pull and ordered overrides.
-
-## Comparison scope
-
-These are predictions against the extracted-menu baseline 40d6c9e4, not observed model outcomes. Rewritten facts encode the new contract; other existing facts must hold unchanged.
+Select mixed-coverage and post-merge-menu individually. Retain all other saved results as historical evidence, not current coverage. No bundle lines change.
 
 ## Expected to move
 
-- cleanup-merged-at-step-1/f4: fails -> holds - The first menu is closed PR cleanup/stop, with no own-merge coverage rows; explicit numeric cleanup may run landed guards.
-- cleanup-null-issue/f5: fails -> holds - After cleanup no cleanup row remains; show evidence remains a hint, never a numeric row.
-- post-merge-menu/f1: fails -> holds - Own-merge menu offers cleanup=1 recommended, post coverage to ticket=2, post coverage to PR=3, stop=4 last; show evidence appears only in the hint.
+- post-merge-menu/f1: fails -> holds - Row 1 combines ticket coverage and cleanup, with individual steps below and show evidence hint-only.
+- post-merge-menu/f6: fails -> holds - The PR coverage pick settles once without another menu or cleanup.
+- mixed-coverage/f3: fails -> holds - The opening describes covered, deliberately different and deferred behaviors without row numbers or labeled fields.
 
 ## Validation boundary
 
-Deterministic structural tests and lint do not establish model behavior. Retain previous reports/results until the scoped baseline/candidate replays and judges run after header verification; do not treat their older assembly hashes as candidate evidence.
+Selected samples cover only scope wording and one-shot post settlement. Structural checks do not establish model behavior; migrated facts on unselected samples have no fresh replay evidence. Preserve identity validation, independent claim/mechanism closure, exact-head evidence, repair/sync accounting and cleanup ownership.

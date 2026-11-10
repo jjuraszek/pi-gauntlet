@@ -1,8 +1,8 @@
 {
   "sample": "bypass-eligible-check-pending",
   "arm": "candidate",
-  "skillSha": "0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb",
-  "inputSha": "2537a123c8c7289007a4232a13ba4d9af5d1f64793db4a5abaeef2384565424b",
+  "skillSha": "784637826a9f7e65d33a037bfef84d54766471bcb764783074c410adad94a7f8",
+  "inputSha": "b13360cfc200792dabd63fe71f68d173ecbf62a1cd46fccc1b62978eef8d81b8",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/initial recommended=2\n\nDelivers: the feed fetch now retries once, with a bounded retry and tests.\nRole: author\n\nPR comments:\n- The e2e check is still running on the assessed head, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending on the assessed head\n\nPick one:\n1. assess - no blockers to post, so nothing is posted; then stop, no repairs.\n2. deliver - watch e2e until it settles, repair anything it turns up, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits), merge (e2e pending)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 109,
-      "wallMs": 19744,
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds a single bounded retry to the feed fetch, with tests that exercise it. It has no linked spec, so it is judged against its own description, and the code and tests match what that description promises; you are the author.\n\nMerging is waiting on one thing: the required e2e check is still running on this head. Nothing needs fixing, and there are no PR comments, replies or smaller points to handle. Merge is not offered until e2e finishes green, and this gate watches checks only during delivery.\n\nI recommend deliver because the running e2e check is the only thing holding up merge, and deliver will watch it through to a result.\n\nPick one:\n1. deliver - watch the e2e check, rebase on main if the branch falls behind, repair anything that turns up, and continue until merge is offered. [recommended]\n2. assess - post nothing because there are no problems to report, make no repairs, and end without watching the check.\n3. stop - end the run and leave the PR as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 186,
+      "wallMs": 18017,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/initial recommended=2\n\nDelivers: the feed fetch retries once, with tests.\nRole: author\n\nPR comments:\n- e2e is pending and binding, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending; verification evidence is pending\n\nPick one:\n1. assess - post nothing with zero blockers; then stop, no repairs.\n2. deliver - rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\nNot offered: merge (e2e pending).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 93,
-      "wallMs": 13801,
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds one bounded retry to feed fetching, with tests. You are the author.\n\nMerging waits for the required e2e check, which is still running. Verification evidence remains pending, so no local command runs and merge is not offered. You cannot approve your own PR.\n\nI recommend deliver because the running e2e check is the only obstacle.\n\nPick one:\n1. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n2. assess - complete the assessment without repairs; with no blockers, post nothing.\n3. stop - stop verification and leave the PR unchanged.\n\nType a number; show evidence prints the full record.\n",
+      "words": 108,
+      "wallMs": 11861,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "57922b10ca67315437542b25636ca78d9ebf853cae432b9a282b9254bc645622",
+      "factsSha": "dfcd0cdaec16fa7ab5b613b5be54f55707c5dde8cc27ed6f15174b71b6372d58",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
-      "baselineOutputSha": "ec5aefe7b6477cda8e054f5dc391583d751e68cf14349f654ad80f1e7bb473a7",
-      "candidateOutputSha": "7a28bad292a2711871dfdab31089fedf34c456f3af816823f2cce935ada81e6a",
+      "intentSha": "386c9ffa34b28a17ed959410e4e1b59d451a73241da953f9606c52da5ffb3faa",
+      "baselineOutputSha": "51b2ea0d41f3a700201e565a6d823013ae959ff37298827c12fec10086219108",
+      "candidateOutputSha": "31bac5b47fa69c483a9dff7ebab72f71a44cdd305e27e2b3789fe10d8ef09d0f",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,9 +49,9 @@
           "label": "held"
         },
         "f3": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "f4": {
           "before": "holds",
@@ -64,28 +64,26 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this sample: both outputs render the initial template with course unset, name e2e pending in the verdict, omit the merge row with `Not offered: merge (e2e pending)`, make no bypass claim, offer assess/deliver/stop with deliver recommended, and perform no watch or merge before a numeric pick. After's only material edits are dropping the head SHA and the `rebase on main if needed` clause from the deliver row and adding `on the assessed head` to the verdict, all of which stay within the facts. If you want the After wording to remain robust across the wider change, keep the deliver row explicit that the watch binds to the assessed head (e.g. `watch e2e on the assessed head until it settles`) so the exact-head evidence ownership from the Change stays visible even when the SHA is not repeated, and continue to keep bypass eligibility out of the pending-check initial render as both versions do.",
-      "wallMs": 11922,
-      "verdict": "unchanged",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "After keeps every fact Before kept and fixes f3: the `Not offered: merge (...)` field and the synthetic `PR comments:` bullet are gone, replaced by plain prose that the required e2e check is still running on this head and that merge is not offered until it finishes, with the `show evidence` hint retained and no `Evidence:` line or bypass/override language. The deliver recommendation moved to row 1 as the Change asks, and assess, deliver, and stop are all still offered. Two small things to watch in the After wording: the assess row now reads 'post nothing because there are no problems to report', which drifts from the standard assess semantics (post the review, then approve or stop, no repairs) and could confuse a reader about what assess does on a PR with no findings; and the phrase 'this gate watches checks only during delivery' is a slightly odd aside that could be dropped without losing anything. Keeping the assess row's canonical description while leaving the prose explanation and row ordering as-is would preserve all five facts and the Change.",
+      "wallMs": 13328,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "57922b10ca67315437542b25636ca78d9ebf853cae432b9a282b9254bc645622",
+      "factsSha": "dfcd0cdaec16fa7ab5b613b5be54f55707c5dde8cc27ed6f15174b71b6372d58",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
-      "baselineOutputSha": "c400d5ead82ebb3dfa2fd9947aca7850f02a2bb7d6629fa0068953961653174b",
-      "candidateOutputSha": "b5726aea44f8d6047cd8ebc006c800468a9f243b00b62c2fc3f1f95f6984eb5e",
+      "intentSha": "386c9ffa34b28a17ed959410e4e1b59d451a73241da953f9606c52da5ffb3faa",
+      "baselineOutputSha": "76aa017b19c829375388dc616026223b1dcbd4bc6921fc8c040a48a325ac8849",
+      "candidateOutputSha": "d2e7b6f38b00721d9f684f10fa4e7aa9769b2a032ea65bebaa3128210650d5d4",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "f3": {
           "before": "fails",
@@ -98,19 +96,16 @@
           "label": "held"
         },
         "f5": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         }
       },
-      "feedback": "After moves f1, f2, f3, and f5 from fails to holds while keeping f4: it renders the initial template (gate=gatekeep-pr/initial) instead of Before's BLOCKED obstacle template, names e2e pending in the verdict without a separate Evidence: line, prints `Not offered: merge (e2e pending)` rather than `blocked by GitHub`, keeps the `show evidence` hint, recommends deliver for the author's own PR, and makes no bypass claim anywhere despite bypass_eligible true. The only thing to watch is the deliver row's wording ('rebase on main, watch CI') — it currently reads as a description of what the course will do after numeric selection, which is fine; keep it phrased that way (e.g. 'set course to deliver: sync on main and watch CI until merge is offered') so it cannot be read as a watch performed before the pick, and keep the `(e2e pending)` reason and the absence of any bypass annotation on pending-check initial reports so f3 and f4 continue to hold.",
-      "wallMs": 11954,
-      "verdict": "improved",
-      "judgeModel": "anthropic-fable/claude-fable-5-1",
-      "thinking": "medium"
+      "feedback": "After moves only f3, from fails to holds: Before printed two `Not offered:` fields (including the merge one), which f3 forbids, while After drops them and instead explains in plain prose that merge waits on the still-running required e2e check without blaming GitHub or the actor. Nothing regressed: After still uses the initial template with course unset, prints no `Evidence:` line, keeps the `show evidence` hint, makes no bypass or override claim, and offers assess/deliver/stop with deliver recommended on row 1 and no action taken before a pick. Two minor wording notes that do not move any fact here but could in neighbouring fixtures: the sentence \"You cannot approve your own PR\" adds an authorship consequence the Change did not ask for and could be read as a permission claim in a bypass-sensitive sample, so consider leaving it under show evidence; and the assess row changed from \"post the review to the PR; then approve or stop, no repairs\" to \"complete the assessment without repairs; with no blockers, post nothing\", which is fine for this clean snapshot but should be checked against samples where comments or nits exist.",
+      "wallMs": 14811,
+      "verdict": "improved"
     }
   },
-  "repoSha": "5197376a8f8d6b44480e866f474360e74ab3321d",
   "refresh": {
     "status": "complete",
     "identity": {
@@ -350,5 +345,6 @@
         "thinking": "medium"
       }
     }
-  }
+  },
+  "repoSha": "3ca98e2d9da46194bf4cef1fb837d665c17fd7f8"
 }

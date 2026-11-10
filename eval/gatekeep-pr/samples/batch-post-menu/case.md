@@ -11,9 +11,10 @@ Each PR has its own eligible cleanup, including owned worktree removal, local br
 
 Merge-base cleanup overrides in their configured order:
 - `announce PR <pr>: node scripts/announce.mjs <pr> <merge-sha>` is PR-specific, substituting #12/aaaaaaa or #15/bbbbbbb.
-- `publish docs: node scripts/publish-docs.mjs` names no PR and is shared by the set. It needs the merged change; a successful cleanup base pull supplies it. No nested skill or approval gate is involved.
+- `close ticket: gh issue close <issue>` is PR-specific even though it names no PR token. Issues are 112 for #12 and 115 for #15.
+- `publish docs: node scripts/publish-docs.mjs` contains none of `<issue>`, `<pr>`, `<merge-sha>` before substitution and is shared by the set. It needs the merged change; a successful cleanup base pull supplies it. No nested skill or approval gate is involved.
 
-Each PR has no coverage destinations, drafted reply, or PR-named action. The steps offered are its own cleanup, its own announce override and the shared publish override while that item has not run. The shared override is an individual selectable row on an earlier merged PR, but belongs to row 1 only on the last merged PR in this round.
+Each PR has no coverage destinations, drafted reply, or PR-named action. The steps offered are its own cleanup, its own announce and close-ticket overrides and the shared publish override while that item has not run. The shared override is an individual selectable row on an earlier merged PR, but belongs to row 1 only on the last merged PR in this round.
 
 ## Entry
 
@@ -21,6 +22,6 @@ Replay two independent variants, each starting from the snapshots above with no 
 
 A: The human selects row 1 for #12 and then row 1 for #15. Shared publish is omitted from #12's recommended combination and included in #15's. After both picks are collected, run them in roster order. Each PR retires immediately after its picked steps finish. There is no post-menu re-render after cleanup or announce.
 
-B: The human selects all individual runnable rows on #12, explicitly including publish docs, then selects stop on #15. Both picks are collected before executing either. Publish runs once on #12, so skip the already-run shared item when processing #15; it runs no second time. #15's cleanup and announce were not picked. End with one parent closing message carrying their not-run sentences and exact commands. State what any later-round post menu in this set can offer after the shared publish has run; do not render a new menu for either retired PR.
+B: The human selects all individual runnable rows on #12, explicitly including publish docs, then selects stop on #15. Both picks are collected before executing either. Publish runs once on #12, so skip the already-run shared item when processing #15; it runs no second time. #15's cleanup, announce and close-ticket steps were not picked. End with one parent closing message carrying their not-run sentences and exact commands. State what any later-round post menu in this set can offer after the shared publish has run; do not render a new menu for either retired PR.
 
 These are text-only simulated snapshots. Describe only the supplied results; do not invoke tools, dispatch children, or invent an extra confirmation.

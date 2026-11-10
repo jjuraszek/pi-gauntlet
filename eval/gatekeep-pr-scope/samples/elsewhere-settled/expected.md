@@ -1,3 +1,3 @@
-- f1: judged: The Delivers line names rows 3 and 5 as elsewhere per spec: acme/mailer.
+- f1: judged: The two-sentence opening explains that the spec assigns email delivery and audit events to acme/mailer, without row numbers or a Delivers label.
 - f2: judged: The gate lists zero blockers.
 - f3: judged: The menu offers merge.

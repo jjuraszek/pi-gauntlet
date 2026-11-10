@@ -2,7 +2,7 @@
 
 ## Entry
 
-Override replay.md's command narration and first-menu stop. Start from the already-rendered post menu below. Replay each labeled input independently from that same saved state, except G's two consecutive inputs. Under each label, narrate the resulting operations and render the response, including any question, inspection menu or closing message. Do not replay assessment, sync absence, or menu construction before the input. All observations below are completed reads; do not use tools. Keep the whole answer under 1900 words.
+Override replay.md's command narration and first-menu stop. Start from the already-rendered post menu below. Replay each labeled input independently from that same saved state, except G's two consecutive inputs and H's approved/open variant. Under each label, narrate the resulting operations and render the response, including any question, inspection menu or closing message. Do not replay assessment, sync absence, or menu construction before the input. All observations below are completed reads; do not use tools. Keep the whole answer under 1900 words.
 
 ## Saved state
 
@@ -41,3 +41,4 @@ D. The human replies `show evidence`.
 E. The human replies `6`.
 F. The human replies `2,6`.
 G. The human replies `99`, then replies `99` again to the response. Stop after the second response.
+H. Independently, the PR is still OPEN after this run approved head 9c1e4f2; no merge has occurred. The approved post menu offers only drafted reply 1 as row 1 and stop as row 2. The human picks 1. Its required freshness re-read observes new head aabbccdd, with the saved body and base unchanged. Post nothing; record skipped - head moved, retain the reply body and settle approved without re-entering assessment or another menu. Do not copy the merged variant's freshness exemption.

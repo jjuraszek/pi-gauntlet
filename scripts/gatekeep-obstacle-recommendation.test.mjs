@@ -38,6 +38,9 @@ test('saved obstacle replay distinguishes pending progress, ruleset block and un
     const output = saved.outputs[model];
     const judge = saved.judge[model];
     assert.equal(output.status, 'ok', model);
+    assert.doesNotMatch(output.text, /^(?:Delivers|Role|Prior review|Sync|Verdict|Evidence|Not offered):/m, model);
+    assert.doesNotMatch(output.text, /\b(?:rounds_used|rounds_cap|syncs_used|syncs_cap)\b|\b(?:rounds?|syncs?|attempts?)\s+(?:used\s*[:=]?\s*)?\d+\s*(?:of|\/)\s*\d+/i, model);
+    assert.doesNotMatch(output.text, /9c1e4f2|7001|merge_state_status|reviewDecision|binding check/, model);
     assert.equal(judge.factsSha, sha256(expected), model);
     assert.equal(judge.candidateOutputSha, sha256(output.text), model);
     for (const { id } of facts) assert.equal(judge.facts[id]?.after, 'holds', `${model}: ${id}`);

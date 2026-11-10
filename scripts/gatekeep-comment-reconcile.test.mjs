@@ -138,7 +138,7 @@ for (const [name, text, patterns] of [
     /empty, off-contract, non-zero, or async/, /STOPPED - verification command/,
     /STOPPED - spec candidate/, /same record/, /UNKNOWN/,
     /parent.*menus/i, /refresh before.*execute/i, /pr-<N> state: <record path>/,
-    /session-local/, /Not offered: retry \(worktree dirty or mid-rebase: <state>\)/,
+    /session-local/, /omit retry and explain that the worktree is dirty or mid-rebase, naming the observed porcelain line or rebase directory/,
     /print `#<N>` and copy the child's standing sentence unchanged/, /#<N> - files unknown/,
   ]],
 ]) {
@@ -187,7 +187,8 @@ for (const [sample, ids] of [
 
 test('batch rendering preserves child reports and confines pending checks to menus', () => {
   const round = section(batch, '## Summary and menu round\n', '## Between batches and retirement\n');
-  assert.match(round, /Substitute `<observed state>` with the concrete observation - the porcelain line\(s\) or the rebase directory name - one line per snapshot, never the placeholder text/);
+  assert.match(round, /naming the observed porcelain line or rebase directory/);
+  assert.doesNotMatch(round, /`<observed state>`|print `Not offered:/);
   assert.match(round, /Print each supplied child report file verbatim in roster order/);
   assert.match(round, /copy the child's standing sentence unchanged/);
   assert.match(round, /Preserve each supplied child report unchanged, including under show evidence/);
@@ -218,7 +219,9 @@ test('multi-PR terminal picks stay parent-owned after worktree cleanup', () => {
   assert.match(round, /otherwise re-render `merge queued` with wait\/stop and the evidence hint, without helper, child or CI watch/);
   assert.match(round, /`post-selection-loop.md` `### Merge course`/);
   assert.match(section(loop, '### Post steps\n', '### Exit check\n'), /Execute posts in the orchestrator after Output done-check/);
-  assert.match(round, /Run no helper or compare-and-swap for terminal posts/);
+  assert.match(round, /Run no helper for terminal posts/);
+  assert.match(round, /Skip compare-and-swap only on merged or closed PRs/);
+  assert.match(round, /approved\/open reply freshness to `### Post steps`/);
   assert.match(round, /Queue every parent-owned terminal pick.*until every roster entry's pick for the round is collected/);
   assert.match(round, /Print `Queued until all picks are collected \(<roster summary>\)` before the execution block for each queued pick, including a single-entry roster/);
   assert.match(round, /exclude terminal picks from child dispatch and never use a removed worktree as cwd/);
@@ -269,8 +272,8 @@ test('exact description selection and narrow recheck preserve independent eviden
   assert.match(findings, /A delivery course applies a description payload alongside the file payloads/);
   const exclusions = section(report, '## What stays out\n');
   assert.match(exclusions, /`show evidence`[^\n]*Keep full drafted file edits, description bodies and replies[^\n]*behind that command/, 'keep file edits and full description bodies evidence-only');
-  assert.match(exclusions, /Print a compact exact old-to-new description preview under its blocker for consent/);
-  assert.match(exclusions, /retain a declined proposal's preview on every re-render until the claim resolves/);
+  assert.match(report, /Print a compact exact old-to-new description preview under its blocker for consent/);
+  assert.match(report, /retain a declined proposal's preview on every re-render until the claim resolves/);
   assert.ok(!exclusions.includes('before selection at the rendered consent menu'), 'consent-menu clause deleted');
   assert.match(findings, /independent contributions/);
   assert.match(loop, /gh pr edit <N> --body-file <temporary-file>/);
@@ -330,8 +333,9 @@ test('SKILL.md is a short orchestrator carrying none of the retired vocabulary',
   assert.ok(skill.includes('## Harness notes'));
   assert.match(skill, /only when it starts/);
   assert.match(skill, /one task per pending claim/);
-  assert.match(skill, /resolving a merge conflict itself/);
-  assert.match(skill, /A CI watch outside D3 step 4 or before the first report, or a second push inside one iteration/);
+  assert.match(fixWave, /Never resolve conflicts in the orchestrator/);
+  assert.match(loop, /Admit one bounded watch only at D3 step 4, after the first report/);
+  assert.match(loop, /3\. Run pre-push review and one push through/);
   assert.ok(!skill.includes('Run every step inline'));
 });
 
@@ -377,8 +381,11 @@ test('conformance-check.md sentinel names the deferred/deviates line', () => {
   assert.ok(cc.includes('Deferred/deviates per spec:'));
 });
 
-test('report.md renders bottom-up and delegates exit and menu verdicts', () => {
-  assert.match(report, /what the PR does and its scope, the viewer's role, comments and nits, prior-review result, blockers, sync result, then one standing sentence immediately before the menu/);
+test('report.md renders three unlabeled parts and delegates the recommendation', () => {
+  assert.match(report, /three unlabeled parts/);
+  assert.match(report, /two sentences at most/);
+  assert.match(report, /name the behavior, never a row number/);
+  assert.match(report, /Start the second part with the standing sentence/);
   assert.match(report, /recommendation's reason from `menus.md`/);
   assert.match(report, /Translate the internal verdict and exit state; do not print their fixed strings/);
   assert.match(report, /Write whole sentences, not labeled fields or a fixed template/);
@@ -397,8 +404,8 @@ test('report.md renders bottom-up and delegates exit and menu verdicts', () => {
   assert.match(report, /Only with `--rebase`, explain the sync outcome, including resolved files on success and the actual reason on a skip, decline or failure/);
   assert.match(report, /Translate the digest's status into prose; keep its exact value in the evidence record/);
   assert.match(report, /Do not invent a sync result on loop re-entry/);
-  assert.match(report, /name the covered rows, deferred rows and their references, deviations and their reasons, rows handled elsewhere and their repositories, and observation halves checked after merge/);
-  assert.match(report, /Count a covered mechanism in the covered rows even when its observation waits/);
+  assert.match(report, /covered and deferred behavior, its references, deliberate deviations and their reasons, behavior handled elsewhere and its repositories, and observations checked after merge/);
+  assert.match(report, /Count a covered mechanism as covered even when its observation waits/);
   assert.match(report, /Explain replyable PR comments and the drafted reply's meaning/);
   assert.doesNotMatch(report, /```|captured tail|^Verdict:|^Delivers:|^Evidence:/m);
 });
@@ -528,7 +535,7 @@ test('eligible BLOCKED uses fresh viewer-relative authority on the ordinary merg
   const sample = '../eval/gatekeep-pr-merge-state/samples/bypass-eligible-green-ci';
   assert.match(read(`${sample}/case.md`), /viewer_permission: MAINTAIN[^\n]*bypass_eligible: true/);
   assert.match(read(`${sample}/case.md`), /is_author: true/);
-  assert.match(read(`${sample}/expected.md`), /squash-merge on ruleset bypass authority; CI evidence stands/);
+  assert.match(read(`${sample}/expected.md`), /squash-merge using your admin override/);
   const saved = JSON.parse(read('../eval/gatekeep-pr-merge-state/results/bypass-eligible-green-ci/candidate.json'));
   const parsed = parseCase(read(`${sample}/case.md`));
   assert.equal(saved.inputSha, inputSha(read('../eval/gatekeep-pr-merge-state/replay.md'), parsed.text, parsed.bundle));
@@ -536,9 +543,9 @@ test('eligible BLOCKED uses fresh viewer-relative authority on the ordinary merg
   for (const [model, output] of Object.entries(saved.outputs)) {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/final/);
-    assert.match(output.text, /merge - squash-merge on ruleset bypass authority; CI evidence stands/);
-    assert.match(output.text, /Evidence:[^\n]*merge_state_status BLOCKED \(bypass eligible; reviewDecision REVIEW_REQUIRED\)/);
-    assert.doesNotMatch(output.text, /merge waits|Not offered: merge|\badmin\b/i);
+    assert.match(output.text, /merge - squash-merge using your admin override/);
+    assert.match(output.text, /required(?: CI)? checks.*passed|checks.*passed.*required/i);
+    assert.doesNotMatch(output.text, /merge waits|Not offered: merge|^Evidence:|merge_state_status|reviewDecision|ruleset bypass authority/im);
     const judge = saved.judge[model];
     assert.equal(judge.factsSha, sha256(read(`${sample}/expected.md`)));
     assert.equal(judge.candidateOutputSha, sha256(output.text));
@@ -569,18 +576,18 @@ test('bypass eligibility preserves pending CI and every independent merge withho
   assert.match(input, /name: e2e, kind: check_run, status: in_progress/);
   const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
   const parsed = parseCase(input);
-  // Pin the historical replay's source and assembly; the instruction checks above stay live.
-  assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
-    repoSha: '5197376a8f8d6b44480e866f474360e74ab3321d',
-    skillSha: '0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb',
-  });
+  const target = JSON.parse(read(`${root}/target.json`));
+  const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
+  assert.equal(saved.repoSha, '3ca98e2d9da46194bf4cef1fb837d665c17fd7f8');
+  assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
   const expected = read(`${root}/samples/${sample}/expected.md`);
   for (const [model, output] of Object.entries(saved.outputs)) {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/initial/);
-    assert.match(output.text, /Not offered:[^\n]*\bmerge \(e2e pending\)/);
+    assert.match(output.text, /e2e[^\n]*(?:pending|running|progress)|(?:pending|running)[^\n]*e2e/i);
+    assert.doesNotMatch(output.text, /^Not offered:|^Evidence:|merge_state_status|reviewDecision/im);
     assert.doesNotMatch(output.text, /^\d+\. merge\b/m);
     assert.doesNotMatch(output.text, /ruleset bypass authority|bypass eligible|\badmin\b|blocked by GitHub/i);
     const judge = saved.judge[model];
@@ -617,18 +624,18 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
   }
   const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
   const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
-  assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
-    repoSha: 'a356e807449ba62bb88ff91bb2e66bfc4472eec0',
-    skillSha: '0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb',
-  });
+  const target = JSON.parse(read(`${root}/target.json`));
+  const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
+  assert.equal(saved.repoSha, '3ca98e2d9da46194bf4cef1fb837d665c17fd7f8');
+  assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
   const expected = read(`${root}/samples/${sample}/expected.md`);
   for (const [model, output] of Object.entries(saved.outputs)) {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/obstacle/);
-    assert.match(output.text, /Not offered: merge \(blocked by GitHub\)/);
-    assert.ok(output.text.includes("GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)"));
+    assert.match(output.text, /GitHub[^\n]*(?:blocks|blocked)[^\n]*(?:merg|actor)|GitHub[^\n]*merg[^\n]*blocked/i);
+    assert.doesNotMatch(output.text, /^Not offered:|^Evidence:|merge_state_status|reviewDecision/im);
     assert.doesNotMatch(output.text, /^\d+\. (?:merge|wait|approve)\b/m);
     assert.doesNotMatch(output.text, /bypass_eligible|ruleset bypass authority|bypass eligible|\badmin\b/i);
     const judge = saved.judge[model];
@@ -671,7 +678,11 @@ test('SKILL.md names the pre-menu refresh at step 5 and in the red flags', () =>
   assert.match(skill, /an unchanged head re-enters step 5 through `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
   assert.match(skill, /or a binding pending check, or a merge-state withhold under `reference\/post-selection-loop.md` `### Merge preconditions`/);
   assert.match(skill, /A menu rendered without the pre-menu refresh - owner: `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
-  assert.match(skill, /Reading `mergeStateStatus` from anything but a `gh pr view` invocation, attributing a `BLOCKED` to a named rule, or treating a non-`BLOCKED` value as a merge verdict - owner: `verification-brief.md` Section A/);
+  const gather = section(brief, '## Section A - Gatherer', '## Section B - Verifier');
+  assert.match(gather, /written only from a `gh pr view` invocation that names `mergeStateStatus`/);
+  assert.match(gather, /never from an ad hoc GraphQL query or `gh pr list`/);
+  assert.match(gather, /gate never names which rule blocks/);
+  assert.match(gather, /A non-`BLOCKED` value never approves a merge/);
   assert.ok(!skill.includes('pending required check'));
 });
 

@@ -17,8 +17,15 @@ test("reports keep facts and evidence provenance without field scaffolding", () 
   assert.match(report, /CI.*local|local.*CI/s);
   assert.match(report, /--rebase/);
   assert.match(report, /covered.*deferred.*deviat.*elsewhere/s);
+  assert.match(report, /three unlabeled parts/);
+  assert.match(report, /two sentences at most/);
+  assert.match(report, /name the behavior, never a row number/);
+  assert.match(report, /Start the second part with the standing sentence/);
+  assert.match(report, /part three.*recommendation's reason/s);
+  assert.match(report, /^> This PR /m, 'ship the unfenced report example');
+  assert.doesNotMatch(read('skills/gatekeep-pr/reference/batch.md'), /Not offered:/);
   const wording = skill.split("## Wording rules\n")[1].split("## Red flags")[0];
-  for (const phrase of ["binding pending check", "merge_state_status BLOCKED", "assessed head", "durable run record", "PR-named action", "coverage post", "withhold", "terminal pick", "post set", "disposition", "Output done-check"]) {
+  for (const phrase of ["binding pending check", "merge_state_status BLOCKED", "assessed head", "durable run record", "PR-named action", "coverage post", "withhold", "terminal pick", "post set", "disposition", "cap reached", "nit", "contradicted claim", "observable half", "conflicting / behind", "deferred / deviates / elsewhere", "pending reviewer placeholder", "Output done-check"]) {
     assert.ok(wording.includes(phrase), phrase);
   }
   assert.doesNotMatch(wording, /verdict is one line in the fixed form|Report only non-conformance|Locators trail in parentheses|Menu rows start with a verb/);
@@ -33,7 +40,7 @@ test("menu explanations use standing prose and put raw evidence behind its hint"
   assert.match(menus.split("## final\n")[1].split("## assess terminal")[0], /print its `\[recommended\]` tag on row 1/);
 });
 
-test("saved plain-report replays retain the facts without leaking internal vocabulary", () => {
+test("historical plain-report replays retain their originally checked facts and vocabulary constraints", () => {
   const facts = [...read("eval/gatekeep-pr/samples/plain-report/expected.md").matchAll(/^- ([\w-]+): judged:/gm)].map((match) => match[1]);
   assert.equal(facts.length, 8);
   const candidate = JSON.parse(read("eval/gatekeep-pr/results/plain-report/candidate.json"));

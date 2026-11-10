@@ -4,4 +4,5 @@
 - inspection: judged: For input D (show evidence), shows evidence and re-renders the same six-row menu with the same mapping, without running any post step, settling, or changing the selection.
 - stop: judged: For input E (6), runs no post step or cleanup, closes with gauntlet: done merged, and reports the retained worktree and unposted payloads rather than offering another menu.
 - mixed-stop: judged: For input F (2,6), asks exactly one clarifying question naming the valid range 1-6, runs nothing including reply 1, and does not settle.
+- approved-freshness: judged: In H, retain the approved/open reply's pre-write freshness read. Head movement yields skipped - head moved, no post, and a retained body file named in the closing message. Settle with gauntlet: done approved without re-entering assessment or rendering another menu; only merged/closed posts skip this read.
 - out-of-range: judged: For input G, the first 99 asks one clarifying question naming the valid range 1-6 and runs nothing; the second 99 leaves the menu waiting without another clarifying question, running steps, or settling.

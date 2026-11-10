@@ -16,7 +16,7 @@ test("reports reserve raw evidence and prior-review hashes for show evidence", (
   assert.match(inspection, /prior-review.*sync.*SHA/s);
 });
 
-test("plain-report snapshots omit raw evidence from action, final and obstacle prose", () => {
+test("historical plain-report snapshots satisfy their originally checked evidence constraints", () => {
   const candidate = JSON.parse(read("eval/gatekeep-pr/results/plain-report/candidate.json"));
   assert.equal(Object.keys(candidate.outputs).length, 2);
   for (const [model, output] of Object.entries(candidate.outputs)) {

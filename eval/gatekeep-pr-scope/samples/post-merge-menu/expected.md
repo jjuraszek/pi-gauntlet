@@ -1,6 +1,6 @@
-- f1: judged: Own-merge menu offers cleanup=1 recommended, post coverage to ticket=2, post coverage to PR=3, stop=4 last; show evidence appears only in the hint.
-- f2: judged: After stop, nothing is posted.
+- f1: judged: The own-merge menu recommends ticket coverage plus cleanup on row 1, then offers ticket coverage=2, PR coverage=3, cleanup=4 and stop=5; show evidence appears only in the hint.
+- f2: judged: In B, stop runs no step and nothing is posted.
 - f3: judged: No blocker is minted for a row the spec defers.
 - f4: judged: The ticket's rows are not judged beyond the spec's rows.
-- f5: judged: On stop the worktree is left in place and its path is named.
-- f6: judged: A successful coverage post re-renders the menu and runs no teardown.
+- f5: judged: In B, stop leaves the worktree in place and names its path and unpicked step commands.
+- f6: judged: In A, the successful PR coverage post settles with gauntlet: done merged and a closing message listing unpicked steps with commands, without another menu or cleanup.

@@ -6,7 +6,7 @@ argument-hint: "[no argument: my open PRs] | <pr> [issue-ref] [--rebase [base]] 
 
 # gatekeep-pr
 
-Verify, don't trust: a PR description is a claim, and over-claimed coverage, hallucinated references, and "tests pass" that never ran are the normal case on generated code. Judge the mechanism only - whether code, tests, and docs at the assessed head make each promised behavior possible - and leave what can be seen only after merge (a staging run, production data, an external system) to `/skill:check-delivery`. Persist one course through `reference/post-selection-loop.md`'s run record; keep final merge/approval and posts separately selected. Before the initial pick, permit only provisioning and the explicit `--rebase` sync; steps 1-5 read, verify and draft. Execute later writes under a set course, terminal pick or the sync's `--rebase` authority. A menu pick authorizes every command that pick needs: run them yourself, never print a command for the human to paste. Show commands in rows for an informed pick and in closing messages for steps not run as information, not instructions to execute them by hand. Running the verification command executes PR code with your ambient credentials and no sandbox - gate only PRs you are willing to execute.
+Judge whether code, tests and docs at the assessed head make each promised behavior possible; leave observations requiring the merged change to `/skill:check-delivery`. Persist one course through `reference/post-selection-loop.md`'s run record; keep final merge/approval and posts separately selected. Before the initial pick, permit only provisioning and the explicit `--rebase` sync; steps 1-5 read, verify and draft. Execute later writes under a set course, terminal pick or the sync's `--rebase` authority. Running the verification command executes PR code with your ambient credentials and no sandbox - gate only PRs you are willing to execute.
 
 ## Arguments
 
@@ -47,12 +47,11 @@ For pi file-finding row dispatch, use `subagent({ agent: "loop-implementer", con
 
 These bind every rendered report, menu, and external payload (review bodies, replies, commit subjects, tracker comments). A `## comms style` section in the overrides file extends them.
 
-- Write one or two whole sentences per finding: what is wrong, then why it matters. Avoid fragments and field separators. In a posted review body, put the file and line after each finding in parentheses.
-- Name the behavior, not the artifact: "retries forever" beats "attempts counter not incremented".
+- Write for a reader with neither the code nor this run's notes open. Ground each claim in gathered facts; name the behavior and give one concrete example per problem. Explain a needed term in everyday words before using it.
+- Write one or two whole sentences per finding: what is wrong, then why it matters. In a posted review body, trail each finding with its file and line in parentheses. Name files, lines and checks only where the reader must open or type them; keep exact supplied failing-test locators with their blocker.
 - Omit empty sections. Use ASCII, American English, no hedges on checked facts and no intensifiers.
-- Never wrap reports, menus or posted payloads in code fences. Post the `AC coverage` heading and checkbox rows from `reference/post-selection-loop.md` verbatim; preserve that block's fixed text instead of rewriting it as prose.
-- Write thread replies as plain sentences without field names, run ids or commit ids.
-- Speak in plain language in reports, menus, review bodies, replies, commit subjects and tracker comments. Translate internal vocabulary and field/value pairs instead of copying them; keep the run record and digest unchanged. Preserve concrete facts and exact command arguments, protocol markers and consent previews.
+- Keep explanatory prose free of field names, run ids, commit ids and repair or sync counters outside `show evidence`; translate internal vocabulary and leave records unchanged. Write thread replies as plain sentences.
+- Keep output unfenced. Preserve these exceptions verbatim: first-line markers, settlement rows, per-step result lines, typed commands, `[recommended]`, set queue/retirement lines, consent previews, the `AC coverage` heading and checkbox rows, and exact commands with substituted values in rows or closing messages. Keep repository-owned cleanup item text unchanged.
 
 | Internal term | Say instead |
 |---|---|
@@ -66,6 +65,16 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 | terminal pick | your choice |
 | post set | the steps you picked |
 | disposition | how you classified the check |
+| merge blocked, no bypass | GitHub reports the merge as blocked for you |
+| bypass eligible | your admin rights can override the block |
+| conflicting / behind | the branch conflicts with, or is behind, the base branch |
+| evidence source ci / local | the checks ran in CI / on this machine |
+| cap reached | the repair attempts allowed for this run are used up |
+| nit | a smaller point that does not block merging |
+| contradicted claim | the description says one thing and the code does another |
+| observable half | the part that can only be seen after merge |
+| deferred / deviates / elsewhere | the spec defers it, deliberately differs, or assigns it to another repo |
+| pending reviewer placeholder | an automated review is still running |
 
 ### Output done-check
 
@@ -73,22 +82,11 @@ Before sending any report, menu or external payload, reread it for internal jarg
 
 ## Red flags - STOP
 
-- A mutation without a set course, a terminal pick, or the sync's `--rebase` authority - owner: `reference/post-selection-loop.md` `### Continuation record`.
-- A code or doc edit sitting in the worktree when a menu renders - except helper residue that `reference/fix-wave.md` `## Wave` names in the re-rendered menu - owner: `reference/findings.md` `## Drafted payloads`.
-- Blocking on an AC's observation half, or on a PR-body claim the gate cannot check - owner: `reference/findings.md` `## AC outcomes`.
-- Judging a ticket row the spec does not carry, or treating a spec `deferred: <ref>` row as a gap - owner: `reference/findings.md` `## AC outcomes`.
-- Reading the rubric, the verification command, or any ladder source from the PR's head instead of the base branch's merge-base - owner: `reference/assessment.md` `## Configuration`.
-- Raw command output, drafted payloads except the exact description consent preview, or internal IDs in the rendered report - owner: `reference/report.md`.
+- Merging around an undispositioned failing check or a binding pending check, or a merge-state withhold under `reference/post-selection-loop.md` `### Merge preconditions` - owner: `reference/findings.md` `## Dispositions`.
 - A menu rendered under deliver before an exit condition, other than the contract-exception template; a menu not rendered from `reference/menus.md`, two recommendations, a recommendation not on row 1 or no show evidence hint - owner: `reference/menus.md`.
 - `cleanup` rendered on a non-terminal template, or cleanup steps 2-4 run on non-final stop - owner: `reference/cleanup.md` `## Non-final stop`.
-- A CI watch outside D3 step 4 or before the first report, or a second push inside one iteration - owner: `reference/post-selection-loop.md` `### Next action`.
-- The orchestrator resolving a merge conflict itself, or editing or committing a tracked file during a fix wave - owner: `reference/fix-wave.md` `## Sync` and `## Wave`.
-- A helper's duty run in the orchestrator's own context - owner: `## Harness notes`.
 - Approving your own PR - owner: `reference/menus.md` `## final`.
-- Merging around an undispositioned failing check or a binding pending check, or a merge-state withhold under `reference/post-selection-loop.md` `### Merge preconditions` - owner: `reference/findings.md` `## Dispositions`.
 - A menu rendered without the pre-menu refresh - owner: `reference/post-selection-loop.md` `### Pre-menu refresh`.
-- Reading `mergeStateStatus` from anything but a `gh pr view` invocation, attributing a `BLOCKED` to a named rule, or treating a non-`BLOCKED` value as a merge verdict - owner: `verification-brief.md` Section A.
-- A claim verdict recorded behind a pending tracker stage - owner: `## Progress tracking`.
 
 ## Project overrides
 
