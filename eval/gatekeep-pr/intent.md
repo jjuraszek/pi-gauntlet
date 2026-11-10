@@ -1,15 +1,16 @@
-for: 50dcfa116c0315ed655bf13df681043e855931134e77ada09370fcc64a396302
+for: da59b6fec3f5471bab1b76d1733913ccc2c893bce674150c07a27540d8d13c86
 
 ## Change
 
 Put the recommended action first in every gatekeep-pr menu, including stop when it is recommended, and emit recommended=1 on the gate line. Preserve availability, numeric authority, and execution mechanics. Keep non-recommended stop last.
 
-Select only gate-line-first for this increment. Its obstacle scenario checks that stop moves ahead of assess without turning a quoted runtime nudge into a terminal marker. Retain all other saved results as historical evidence, not current coverage. This is sample-scoped coverage, not a target-wide pass or live PR verification.
+Recommend deliver for another author's PR when every blocker has a drafted repair needing no author decision, the head is pushable, and deliver is offered. Distinguish missing requirements, acceptance-criteria changes, and scope choices from drafted code or description repairs. Explain the recommendation above the prompt without granting write authority.
+
+Select only pr-body-false-claim for this increment. Its other-author, description-only blocker exercises the repairable path and retains the decline, readback, local-evidence, and pending-evidence checks. Retain gate-line-first and all other saved results as historical evidence, not current coverage. This is sample-scoped coverage, not a target-wide pass or live PR verification.
 
 ## Expected to move
 
-- gate-line-first/first-line: fails -> holds - The gate line ends in recommended=1 even when stop is recommended.
-- gate-line-first/gate-first: fails -> holds - Stop is row 1 and carries the sole recommendation instead of staying last.
+- pr-body-false-claim/recommendation: fails -> holds - A repairable body-only blocker on another author's PR recommends deliver on row 1, with a reason above the prompt and no write before selection.
 
 ## Validation boundary
 

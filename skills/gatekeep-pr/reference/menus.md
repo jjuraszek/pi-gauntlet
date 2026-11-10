@@ -27,9 +27,15 @@ Render terminal cleanup consequences through `cleanup.md`; use `skipped - needs 
 
 Use `viewer.is_author` (`viewer.login == pr.author.login`) and `author_is_bot` for defaults. Treat a bot-authored head as someone else's throughout. Keep `merge policy` (`squash | merge-commit | rebase`) solely as the `gh pr merge` flag selector, never approval or sync strategy. Treat `approve (round 1) / approve (round 2)` as spec approval history, not menu configuration.
 
+## Recommendation
+
+Choose the initial recommendation from the findings. Recommend deliver for the human's own PR, assess for someone else's when an open blocker needs the author's decision; when delivery is omitted on an own PR, recommend assess. Treat a blocker as needing the author's decision only when its repair requires a missing requirement, an acceptance-criteria change, or a scope choice, rather than a code or description-only repair already drafted in the findings.
+
+When every open blocker has a drafted repair, none needs the author's decision, and the head is pushable and `deliver` is offered, recommend `deliver` regardless of authorship. Choose among available rows from the findings for any other initial state. Put one prose sentence immediately above `Pick one:` naming the recommendation and its reason from the finding or state. A recommendation confers no authority: wait for the numeric pick before any repair, push, body edit, or post.
+
 ## initial
 
-Offer `assess`, eligible `deliver`, eligible `deliver with nits`, then `stop`. Recommend deliver for the human's own PR, assess for someone else's; when delivery is omitted on an own PR, recommend assess. Omit deliver with nits with zero nits, and both delivery rows with cap zero, missing helpers, or non-pushable/unreadable head; name each reason, including `Not offered: deliver (needs push to <head_url>:<head_ref>)`. For someone else's/bot PR change the sync consequence to "merge main into the branch". Map `deliver with nits` to stored `deliver-nits`.
+Offer `assess`, eligible `deliver`, eligible `deliver with nits`, then `stop`. Choose the recommendation through `## Recommendation`. Omit deliver with nits with zero nits, and both delivery rows with cap zero, missing helpers, or non-pushable/unreadable head; name each reason, including `Not offered: deliver (needs push to <head_url>:<head_ref>)`. For someone else's/bot PR change the sync consequence to "merge main into the branch". Map `deliver with nits` to stored `deliver-nits`.
 
 ```text
 gauntlet: gate=gatekeep-pr/initial recommended=1
