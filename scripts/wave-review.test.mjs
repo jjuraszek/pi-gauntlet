@@ -266,23 +266,10 @@ test('repair snapshot commits the integrated tree and exports only repair delta'
   assert.equal(git(f.repo, 'rev-parse', 'HEAD'), f.base);
 });
 
-test('rebuild removes Create/Test paths and restores deduplicated existing paths only', () => {
-  const f = fixture();
-  writeFileSync(join(f.repo, 'sibling.txt'), 'sibling\n'); git(f.repo, 'add', '-A');
-  const paths = { Create: ['new.txt'], Modify: ['existing.txt'], Test: ['new.txt', 'existing.txt'] };
-  const create = [...new Set(paths.Create)];
-  const restore = [...new Set([...paths.Modify, ...paths.Test])].filter(p => !create.includes(p));
-  git(f.repo, 'rm', '-q', '-f', '--ignore-unmatch', '--', ...create);
-  git(f.repo, 'restore', `--source=${f.base}`, '--staged', '--worktree', '--', ...restore);
-  assert.equal(existsSync(join(f.repo, 'new.txt')), false);
-  assert.equal(readFileSync(join(f.repo, 'existing.txt'), 'utf8'), 'before\n');
-  assert.equal(readFileSync(join(f.repo, 'sibling.txt'), 'utf8'), 'sibling\n');
-  assert.match(wave, /deduplicated and excluding every `Create` path/);
-});
-
 test('rebuild restores base-owned Delete paths without touching siblings or passing empty path lists', () => {
   const rebuild = skill.split('### Rebuild')[1].split('### Escalation')[0];
   for (const token of ['trailing `:N[-M]` stripped', '`Delete` paths', 'ls-tree -r --name-only "$WAVE_BASE_SHA" -- <Delete paths>', 'Skip a command with no paths']) assert.ok(rebuild.includes(token), token);
+  assert.match(wave, /deduplicated and excluding every `Create` path/);
   assert.match(skill, /only Test\/Test may share a path/);
   assert.ok(Buffer.byteLength(skill) < 50000);
   const commands = Object.fromEntries(['rm', 'ls-tree', 'restore'].map(command => [command, rebuild.match(new RegExp('`(git -C <worktree> ' + command + '[^`]+)`'))[1]]));

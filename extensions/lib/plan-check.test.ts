@@ -1076,6 +1076,21 @@ test("unknown kinds outside Files are not Files findings", () => {
   }
 });
 
+test("unheaded line in the Files run is a files-block finding", () => {
+  const entry = "- none: docs";
+  const plan = VALID_PLAN.replace(T2_FILES_TEST, "")
+    .replace(T2_TESTS + "- baseline: abc1234 pass\n", `${entry}\n`);
+  const findings = checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings;
+  assert.deepEqual(findingsFor(findings, "files-block"), [{
+    check: "files-block",
+    line: lineOf(plan, entry),
+    text: entry,
+    reason: `Task 2: Files line "${entry}" is not a Create, Modify, Test or Delete entry with a path`,
+  }]);
+  assert.ok(tb(plan).some((f) => f.reason.includes("block missing") && f.reason.includes("Task 2")));
+  assert.equal(findings.length, 2);
+});
+
 test("tests-block: block missing when a task has no **Tests:**", () => {
   const mutated = VALID_PLAN.replace(T2_TESTS, "");
   assert.ok(tb(mutated).some((f) => f.reason.includes("block missing") && f.reason.includes("Task 2")));
