@@ -26,8 +26,8 @@ test('saved post selections cover sets, inspection, reply ids and invalid picks'
   const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
   const expected = read(`${root}/samples/${sample}/expected.md`);
   const facts = parseExpected(expected).facts;
-  assert.equal(facts.length, 8);
-  for (const id of ['subset', 'union', 'typed-reply', 'inspection', 'stop', 'mixed-stop', 'out-of-range', 'approved-freshness']) {
+  assert.equal(facts.length, 13);
+  for (const id of ['subset', 'union', 'typed-reply', 'inspection', 'stop', 'mixed-stop', 'out-of-range', 'approved-freshness', 'all-rows', 'typed-stop', 'failure-continuation', 'nested-pause', 'queued-stop']) {
     assert.ok(facts.some((fact) => fact.id === id), id);
   }
   const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));

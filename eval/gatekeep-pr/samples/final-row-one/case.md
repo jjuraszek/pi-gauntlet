@@ -2,7 +2,7 @@
 
 ## Data
 
-Render four independent final reports and menus in the order below. Use these observations as the completed step-5 assessment. Override replay.md's command narration, sync-line-absence note and initial/final simulation: render only these four final reports, without simulating a pick or running a tool. Label each case outside its report so its gate line remains the report's first line. Do not repair, post, push, approve or merge anything.
+Render four independent final reports and menus in the order below. Use these observations as the completed step-5 assessment. Override replay.md's command narration and initial/final simulation: render only these four final reports, without simulating a pick or running a tool. Label each case outside its report so its gate line remains the report's first line. Tag row 1 [recommended] in all four menus, including the admin-override case. Do not repair, post, push, approve or merge anything.
 
 Shared record: PR 642 in sample/forge-kit, OPEN and non-draft; viewer mira; head 9c1e4f2 is pushable; helpers are present; course deliver; maxFixRounds 5. There are zero blockers, zero nits, no drafted replies and no contract proposal. Delivers: make the health endpoint respond with the build version; Ticket APP-91 OK and README OK. Both binding checks test_unit and build_image are green in run 7001 on the assessed head. Verification source is ci. Review is complete with no placeholder; base main is unchanged, and head is current with base. Repair rounds used 1 of 10; sync used 0 of 10. Merge policy is squash. All merge prerequisites other than the permissions and merge-state facts specified below hold. Each case is at a readiness exit, not an assess-terminal exit.
 

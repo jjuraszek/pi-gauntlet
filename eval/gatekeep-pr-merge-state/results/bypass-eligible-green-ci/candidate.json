@@ -1,8 +1,8 @@
 {
   "sample": "bypass-eligible-green-ci",
   "arm": "candidate",
-  "skillSha": "784637826a9f7e65d33a037bfef84d54766471bcb764783074c410adad94a7f8",
-  "inputSha": "1d6e17fa3c85db5c736c041b75272e3f5e6389d47de145a6247767d2de9073bc",
+  "skillSha": "be9907dbc46b886ce97f0dd9bc35b98dd39c7584796403712a9e24c9dbc3f5cd",
+  "inputSha": "257565773e72905c92a60b954bd625946f20853d61cd1d5b196a3ca4a43f6285",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds one bounded retry to the feed fetch and includes tests for it. There is no spec, so the change is judged against the PR description, and every claim in that description matches the code. You are the author.\n\nNothing blocks merging. GitHub requires an admin override to merge this PR, and you are allowed to use one. The required CI checks passed on the current head. Approval is not offered because you cannot approve your own PR.\n\nI recommend merge because the change is ready and your admin override covers GitHub's merge requirement.\n\nPick one:\n1. merge - squash-merge using your admin override. [recommended]\n2. stop - leave the PR open and the checkout as it is.\n\nType a number; show evidence prints the full record.\n",
-      "words": 130,
-      "wallMs": 13926,
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the feed fetch retry once when it fails and adds tests for that retry. You are the author, and with no spec behind it the PR is judged against its description: the bounded retry and the tests it claims are both present and match the code.\n\nNothing blocks merging. GitHub still requires an admin override to merge this branch, and your account can use one. The required test check passed on the current head regardless of that block. You cannot approve your own PR, so merging is the remaining action.\n\nI recommend merge because the PR is ready and your override covers the one thing GitHub still requires.\n\nPick one:\n1. merge - squash-merge using your admin override. [recommended]\n2. stop - end here and leave the PR open and the checkout as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 148,
+      "wallMs": 12084,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds a bounded retry for feed fetching, with tests. You are the author, so you cannot approve your own PR.\n\nNothing blocks merging. GitHub requires an admin override, and the required checks have passed.\n\nI recommend merge because all merge prerequisites hold and you can use your admin override.\n\nPick one:\n1. merge - squash-merge using your admin override. [recommended]\n2. stop - leave the checkout as found and end this run without merging.\n\nType a number; show evidence prints the full record.\n",
-      "words": 86,
-      "wallMs": 7339,
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds a bounded, single retry for feed fetching, with tests. You are the author, and the retry behavior and test coverage match the PR’s stated intent.\n\nNothing blocks merging: required checks passed in CI, so no local verification run was needed. GitHub requires an admin override, and you are eligible to use it; all other merge prerequisites hold. You cannot approve your own PR.\n\nI recommend merge because the change is verified and your eligible override permits merging.\n\nPick one:\n1. merge - squash-merge using your admin override. [recommended]\n2. stop - leave the PR unchanged and the checkout as found.\n\nType a number; show evidence prints the full record.\n",
+      "words": 113,
+      "wallMs": 14945,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4a903461a7492a86851480ef3b91523668e948685e56be2b44a36d3cecec10e0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "386c9ffa34b28a17ed959410e4e1b59d451a73241da953f9606c52da5ffb3faa",
-      "baselineOutputSha": "594175b74304e2f3f3eee1bfdd1570b7fa3d8354c309235cb9d5612655e6f180",
-      "candidateOutputSha": "939ffbe47dd080f133f7d3ba814b2d7a3672f1ec42dcf08e2aa0fcb2caab3827",
+      "intentSha": "c7fba65c7bad29f3443883d6801e679161d16274342a70bc9e244880f78ff522",
+      "baselineOutputSha": "3cdc3fdc7df3ed318efeaaa22a5921914f396af26fdaf0d2bc1bd033be3b528c",
+      "candidateOutputSha": "af57d08a76f77c1584b1f7157e67e12d9c98563630a9eba8dd85b05a3eda873c",
       "facts": {
         "f1": {
           "before": "fails",
@@ -64,16 +64,16 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: the single merge row reads \"squash-merge using your admin override\" (f1), the prose explains both the admin-override requirement and that required checks passed on the current head without an Evidence, Not offered, or merge-waits field (f3, f4), approve stays out of the menu with stop last (f2), and no merge is performed, no rule or admin identity is named, and no non-admin proof is claimed (f5). Note that f4 as written cannot hold for Before because Before prints an Evidence line and a Not offered field and repeats abc1234/701 in prose, so the expected holds->holds is really fails->holds; the After wording is what fixes it. One small risk to watch in After: \"show evidence prints the full record\" now gives no hint that the record carries the raw merge-state/review-decision fields and run identifiers, so if a future reader needs reassurance those are inspectable, a clause like \"show evidence prints the full record, including the raw merge-state fields and the CI run\" would keep f3/f4 robust without reintroducing the identifiers into the report body.",
-      "wallMs": 16974,
+      "feedback": "After delivers the Change cleanly: the single merge row now reads \"squash-merge using your admin override\" (f1), the prose explains that GitHub requires an admin override and that the required test check passed on the current head while the raw merge_state_status / reviewDecision fields are pushed entirely under \"show evidence\" (f3), and the Evidence and Not offered lines that Before carried are gone (f4). Nothing regressed: merge is still row 1, approve is not offered as a row, stop stays last, no merge is performed, and no admin identity, rule name, or non-admin proof is asserted. One caution for the author: the sentence \"You cannot approve your own PR, so merging is the remaining action\" is harmless here but is close to re-introducing a Not-offered-style accounting line in prose; if you want to keep f4's \"no Not offered field\" robust across samples, consider dropping that clause or folding it into the recommendation sentence (e.g. \"I recommend merge because the PR is ready and your override covers the one thing GitHub still requires\" already carries the point).",
+      "wallMs": 16280,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4a903461a7492a86851480ef3b91523668e948685e56be2b44a36d3cecec10e0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "386c9ffa34b28a17ed959410e4e1b59d451a73241da953f9606c52da5ffb3faa",
-      "baselineOutputSha": "846b6450606d28ac61fba966e1b5e79940bc9a2c2ae6f5aea423f8a6a9f21f38",
-      "candidateOutputSha": "f402d20cb2b86871cebc144d62eddb90be032d2c9a3bda918a5a2996c4da150f",
+      "intentSha": "c7fba65c7bad29f3443883d6801e679161d16274342a70bc9e244880f78ff522",
+      "baselineOutputSha": "4b4ce91d1e1a1f1e5ed6058c0ab2dd778b1d77b8b1117039b9bb1018f25653ad",
+      "candidateOutputSha": "b2c21d499ab7abb80215699a885b272f70369f105adcc577003a16576edb3bc6",
       "facts": {
         "f1": {
           "before": "fails",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: the single merge row now reads \"squash-merge using your admin override\" (f1), the prose explains that GitHub requires an admin override and the required checks passed while the raw merge_state_status/reviewDecision fields and head/run identifiers are gone from the report and left to show evidence (f3, f4), approve is omitted with stop last (f2), and nothing is merged, no extra approval is demanded, and no rule name, admin identity, or live non-admin proof is cited (f5). Note that f4 actually fails in Before as written, not holds as the Expected list claims, because Before prints an Evidence line, a Not offered field, and the SHA/run ID in rendered prose; After fixes all three. One minor risk to watch: the closing line \"show evidence prints the full record\" no longer names what the record contains, so if a later wording drops the digest's head/run identifiers from the show-evidence payload, f4's inspectability clause would break - keep the full digest (head abc1234, run 701, test success, binding-pending 0) behind show evidence even though it is correctly absent from the prose.",
-      "wallMs": 16366,
+      "feedback": "After delivers the Change cleanly: row 1 now reads 'merge - squash-merge using your admin override' instead of the 'ruleset bypass authority' phrasing (f1), the raw merge_state_status/reviewDecision fields and run/head identifiers are gone from the prose and the Evidence line is dropped in favor of 'show evidence prints the full record' (f3, f4), and the 'Not offered' field is replaced by the plain sentence 'You cannot approve your own PR' while still omitting approve from the menu and keeping stop last (f2). No fact regressed: no merge is performed, no extra approval is demanded, and neither a specific blocking rule, an admin identity, nor live non-admin proof is named (f5). Nothing needs to change in After for this sample; if anything, keep the three unlabeled parts exactly as structured here, since reintroducing any field label (Evidence, Not offered, merge-waits) would re-fail f3/f4.",
+      "wallMs": 14525,
       "verdict": "improved"
     }
   },
-  "repoSha": "3ca98e2d9da46194bf4cef1fb837d665c17fd7f8"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

@@ -1,4 +1,4 @@
-- f1: judged: PR12 becomes failed - helper timeout after 600s despite no closing line, PR15 retains its distinct head-not-pushable failure, and PR18's successful report remains independent and reaches its unchanged ordinary menu.
+- f1: judged: PR12 becomes failed - helper timeout after 600s despite no closing line, PR15 retains its distinct head-not-pushable failure, and PR18's successful report remains independent and reaches its ordinary final menu with merge recommended at row 1.
 - f2: judged: Failures retain unknown evidence/blockers and safe retry/stop rows with show evidence hint-only, not conflict choices; PR15 runs no Verify.
 - f3: judged: After all numeric picks the mixed batch contains report-mode retry12 and execute reply18 with original paths/cwd, no child for stopped15.
 - f4: judged: Retried assessment validates and preserves the supplied record rather than minting a replacement or resetting course, caps, counters or ledger; no sibling authority is borrowed.

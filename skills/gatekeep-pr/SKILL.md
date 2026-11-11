@@ -66,7 +66,7 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 | post set | the steps you picked |
 | disposition | how you classified the check |
 | merge blocked, no bypass | GitHub reports the merge as blocked for you |
-| bypass eligible | your admin rights can override the block |
+| bypass eligible | you can use GitHub's admin override |
 | conflicting / behind | the branch conflicts with, or is behind, the base branch |
 | evidence source ci / local | the checks ran in CI / on this machine |
 | cap reached | the repair attempts allowed for this run are used up |

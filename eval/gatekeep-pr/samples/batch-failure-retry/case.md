@@ -1,5 +1,11 @@
 bundle+: skills/gatekeep-pr/reference/batch.md
 bundle+: agents/pr-gatekeeper.md
+## Entry clarification
+
+PR18 returned a report, so its menu turn starts gauntlet: gate=gatekeep-pr/final recommended=1, not batch-summary, and row 1 names squash-merge the assessed head. Reserve batch-summary for the parent summary and failed-child retry/stop turns.
+
+For both PR12 and PR15, state that the evidence source and blocker count are unknown because verification and review produced no report. Keep this fact in the summary and each retry/stop menu's standing prose.
+
 ## Arguments
 
 `12 15 18`
@@ -9,11 +15,11 @@ bundle+: agents/pr-gatekeeper.md
 Pi, origin acme/widgets, viewer alex, parallel.maxTasks 8. Primary /tmp/widgets; installed procedure root /tmp/procedures/gatekeep-pr. Provisioning already completed serially; heads verified; no rebase requested. Worktrees /tmp/widgets-pr-12, /tmp/widgets-pr-15, /tmp/widgets-pr-18; retained records /tmp/state-12, /tmp/state-15, /tmp/state-18; supplied reports /tmp/report-12, /tmp/report-15, /tmp/report-18. Records have matching consent.target, PR identity and existing worktree, independent course/caps/counters. Files respectively [src/a.ts], [src/b.ts], [src/c.ts].
 
 One fresh foreground report batch returned: PR12 timeout, first error `helper timeout after 600s`, no closing result line; PR15 `FAILED - head not pushable: https://github.com/acme/widgets:feature/b`; PR18 `REPORT /tmp/report-18`. PR15 failed before Verify; PR18 completed fresh Verify then Review, source ci and zero blockers. Its verbatim report:
-Delivers
 The encoder accepts empty input.
-Verdict: mergeable - all mechanisms match
+Nothing blocks merging.
+I recommend merge because the changes are ready.
 
-PR18 is another author's PR with WRITE permission and CLEAN merge state; its final menu offers merge=1, approve=2 recommended, reply=3, stop=4; show evidence is hint-only. Failed PRs have no source/review count, so unknown. PR12/15 safe retry reads show empty status --porcelain and no rebase-merge or rebase-apply in the actual gitdir. The human picks numeric 1 (retry12), numeric 2 (stop15), numeric 3 (reply18); stop15 keeps any unsafe tree with its reason. No writes occur before the corresponding selection. PR18's comment draft is already in its retained record.
+PR18 is another author's PR with WRITE permission and CLEAN merge state; its final menu offers merge=1 recommended, approve=2, reply=3, stop=4; show evidence is hint-only. Failed PRs have no source/review count, so unknown. PR12/15 safe retry reads show empty status --porcelain and no rebase-merge or rebase-apply in the actual gitdir. The human picks numeric 1 (retry12), numeric 2 (stop15), numeric 3 (reply18); stop15 keeps any unsafe tree with its reason. No writes occur before the corresponding selection. PR18's comment draft is already in its retained record.
 
 Separate safety/provisioning probe snapshots, not extra results for the first batch: a failed PR12 with ` M src/a.ts` or rebase-merge present cannot safely retry. A fresh roster member PR21 initially has `failed - provisioning - foreign branch at default path`, with no child; after the human clears that obstacle, provision retry observes expected branch, clean tree, fast-forward-only and HEAD==headRefOid, allowing report mode with the original record /tmp/state-21 and report /tmp/report-21.
 

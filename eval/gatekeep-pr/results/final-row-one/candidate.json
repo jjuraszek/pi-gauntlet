@@ -1,8 +1,8 @@
 {
   "sample": "final-row-one",
   "arm": "candidate",
-  "skillSha": "99a9d6055d02cdfd5b91b7bfefc20850b38d6bc2f440e61189c5fcf507d5e382",
-  "inputSha": "58eaf0050fdc18fd6dc49acb933357d91a3dde17501a2147544c3e18b9662f09",
+  "skillSha": "cbfd2d6b35c4b3e800b06b5ca28fb3e3a2b0537604feec1a762122eed2aa17a0",
+  "inputSha": "a001ed1b7a0f5cd63e95d181f8d029ef2c17d6b3b3988bd575f62770a811a62d",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Case A - own PR, ordinary merge**\n\n```text\ngauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci), head 9c1e4f2, run 7001: test_unit success, build_image success; 0 binding pending; merge_state_status CLEAN\nDelivers: the health endpoint responds with the build version; ticket APP-91 and the README agree with it.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nMerge is recommended because every merge precondition holds on 9c1e4f2.\nPick one:\n1. merge - squash-merge 9c1e4f2 into main. [recommended]\n2. stop - end the gate and leave the PR and checkout as they are.\n\nNot offered: approve (own PR)\nType a number; show evidence prints the full record (CI run 7001: test_unit success, build_image success on 9c1e4f2; 0 binding pending; merge_state_status CLEAN).\n```\n\n**Case B - another author's PR, ordinary merge**\n\n```text\ngauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci), head 9c1e4f2, run 7001: test_unit success, build_image success; 0 binding pending; merge_state_status CLEAN\nDelivers: the health endpoint responds with the build version; ticket APP-91 and the README agree with it.\nRole: none\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nMerge is recommended because every merge precondition holds on 9c1e4f2.\nPick one:\n1. merge - squash-merge 9c1e4f2 into main. [recommended]\n2. approve - approve robin's PR at 9c1e4f2 without merging it.\n3. stop - end the gate and leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record (CI run 7001: test_unit success, build_image success on 9c1e4f2; 0 binding pending; merge_state_status CLEAN).\n```\n\n**Case C - another author's PR, admin override**\n\n```text\ngauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci), head 9c1e4f2, run 7001: test_unit success, build_image success; 0 binding pending; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)\nDelivers: the health endpoint responds with the build version; ticket APP-91 and the README agree with it.\nRole: none\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nMerge is recommended because the ruleset lets you bypass the block and every other merge precondition holds on 9c1e4f2.\nPick one:\n1. merge - squash-merge on ruleset bypass authority; CI evidence stands. [recommended]\n2. approve - approve robin's PR at 9c1e4f2 without merging it.\n3. stop - end the gate and leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record (CI run 7001: test_unit success, build_image success on 9c1e4f2; 0 binding pending; merge_state_status BLOCKED, bypass eligible, reviewDecision REVIEW_REQUIRED).\n```\n\n**Case D - another author's PR, no merge permission**\n\n```text\ngauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci), head 9c1e4f2, run 7001: test_unit success, build_image success; 0 binding pending; merge_state_status CLEAN\nDelivers: the health endpoint responds with the build version; ticket APP-91 and the README agree with it.\nRole: none\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nApprove is recommended because merge needs WRITE and the PR has no open blockers.\nPick one:\n1. approve - approve robin's PR at 9c1e4f2 without merging it. [recommended]\n2. stop - end the gate and leave the PR and checkout as they are.\n\nNot offered: merge (needs WRITE on sample/forge-kit)\nType a number; show evidence prints the full record (CI run 7001: test_unit success, build_image success on 9c1e4f2; 0 binding pending; merge_state_status CLEAN).\n```\n",
-      "words": 513,
-      "wallMs": 22729,
+      "text": "Case A: own PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version. You wrote it, and it fully covers what ticket APP-91 asks for: the health endpoint reports the build version, and the README describes that behavior.\n\nNothing blocks merging. The required unit tests and image build both passed in CI on the commit being reviewed, the review found no problems, and the branch is current with main. You cannot approve your own PR, so there is no approve option.\n\nI recommend merge because every requirement is met and GitHub allows the merge.\n\nPick one:\n1. merge - squash-merge the PR into main. [recommended]\n2. stop - end here and leave the PR and the checkout as they are.\n\nType a number; show evidence prints the full record.\n\n---\n\nCase B: another author's PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR by robin makes the health endpoint respond with the build version. You are not the author or a requested reviewer, and the PR fully covers what ticket APP-91 asks for: the health endpoint reports the build version, and the README describes that behavior.\n\nNothing blocks merging. The required unit tests and image build both passed in CI on the commit being reviewed, the review found no problems, and the branch is current with main.\n\nI recommend merge because every requirement is met and GitHub allows the merge.\n\nPick one:\n1. merge - squash-merge the PR into main. [recommended]\n2. approve - submit an approving review on the PR.\n3. stop - end here and leave the PR and the checkout as they are.\n\nType a number; show evidence prints the full record.\n\n---\n\nCase C: another author's PR with admin override\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR by robin makes the health endpoint respond with the build version. You are not the author or a requested reviewer, and the PR fully covers what ticket APP-91 asks for: the health endpoint reports the build version, and the README describes that behavior.\n\nNothing in the code blocks merging. The required unit tests and image build both passed in CI on the commit being reviewed, the review found no problems, and the branch is current with main. GitHub still requires an admin override before this can merge, and your admin rights let you use that override.\n\nI recommend merge because every requirement is met and the required checks passed, so your admin override can complete the merge.\n\nPick one:\n1. merge - squash-merge using your admin override. [recommended]\n2. approve - submit an approving review on the PR.\n3. stop - end here and leave the PR and the checkout as they are.\n\nType a number; show evidence prints the full record.\n\n---\n\nCase D: another author's PR without merge permission\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR by robin makes the health endpoint respond with the build version. You are not the author or a requested reviewer, and the PR fully covers what ticket APP-91 asks for: the health endpoint reports the build version, and the README describes that behavior.\n\nNothing blocks merging. The required unit tests and image build both passed in CI on the commit being reviewed, the review found no problems, and the branch is current with main. You cannot merge this PR because merging needs write access to the repository, and you do not have it.\n\nI recommend approve because the PR is ready, and merging is not available to you.\n\nPick one:\n1. approve - submit an approving review on the PR. [recommended]\n2. stop - end here and leave the PR and the checkout as they are.\n\nType a number; show evidence prints the full record.\n",
+      "words": 605,
+      "wallMs": 22975,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Case A: own PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci); head 9c1e4f2; run 7001: test_unit success, build_image success; binding pending 0; merge_state_status CLEAN.\nDelivers: The health endpoint responds with the build version.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nMerge is recommended because all merge prerequisites hold.\n\nPick one:\n1. merge - squash-merge the assessed head. [recommended]\n2. stop - leave the checkout and PR as is.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record (CI, source: ci; head 9c1e4f2; run 7001: test_unit success, build_image success; binding pending 0; merge_state_status CLEAN).\n\n### Case B: another author's PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci); head 9c1e4f2; run 7001: test_unit success, build_image success; binding pending 0; merge_state_status CLEAN.\nDelivers: The health endpoint responds with the build version.\nRole: none\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nMerge is recommended because all merge prerequisites hold.\n\nPick one:\n1. merge - squash-merge the assessed head. [recommended]\n2. approve - submit an approval for the assessed head.\n3. stop - leave the checkout and PR as is.\n\nType a number; show evidence prints the full record (CI, source: ci; head 9c1e4f2; run 7001: test_unit success, build_image success; binding pending 0; merge_state_status CLEAN).\n\n### Case C: another author's PR with admin override\n\ngauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci); head 9c1e4f2; run 7001: test_unit success, build_image success; binding pending 0; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED).\nDelivers: The health endpoint responds with the build version.\nRole: none\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nMerge is recommended because ruleset bypass authority permits it and every other merge prerequisite holds.\n\nPick one:\n1. merge - squash-merge on ruleset bypass authority; CI evidence stands. [recommended]\n2. approve - submit an approval for the assessed head.\n3. stop - leave the checkout and PR as is.\n\nType a number; show evidence prints the full record (CI, source: ci; head 9c1e4f2; run 7001: test_unit success, build_image success; binding pending 0; merge_state_status BLOCKED, bypass eligible; reviewDecision REVIEW_REQUIRED).\n\n### Case D: another author's PR without merge permission\n\ngauntlet: gate=gatekeep-pr/final recommended=1\nEvidence: CI (source: ci); head 9c1e4f2; run 7001: test_unit success, build_image success; binding pending 0; merge_state_status CLEAN.\nDelivers: The health endpoint responds with the build version.\nRole: none\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nApprove is recommended because the assessment is ready and the viewer lacks permission to merge.\n\nPick one:\n1. approve - submit an approval for the assessed head. [recommended]\n2. stop - leave the checkout and PR as is.\n\nNot offered: merge (needs WRITE on sample/forge-kit).\n\nType a number; show evidence prints the full record (CI, source: ci; head 9c1e4f2; run 7001: test_unit success, build_image success; binding pending 0; merge_state_status CLEAN).\n",
-      "words": 458,
-      "wallMs": 14558,
+      "text": "### Case A: own PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version, and you are its author. That behavior meets APP-91's requirement and agrees with the README.\n\nNothing blocks merging, and the checks passed in CI. You cannot approve your own PR.\n\nI recommend merge because the change is ready and you have permission to merge it.\n\nPick one:\n1. merge - squash-merge the reviewed change. [recommended]\n2. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n\n### Case B: another author's PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version, and you are neither its author nor a requested reviewer. That behavior meets APP-91's requirement and agrees with the README.\n\nNothing blocks merging, and the checks passed in CI.\n\nI recommend merge because the change is ready and you have permission to merge it.\n\nPick one:\n1. merge - squash-merge the reviewed change. [recommended]\n2. approve - submit an approving review without merging.\n3. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n\n### Case C: another author's PR with admin override\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version, and you are neither its author nor a requested reviewer. That behavior meets APP-91's requirement and agrees with the README.\n\nNothing blocks merging through your available admin override, and the required checks passed in CI. GitHub requires that override to merge this PR.\n\nI recommend merge because the change is ready and you can merge it using your admin override.\n\nPick one:\n1. merge - squash-merge using your admin override. [recommended]\n2. approve - submit an approving review without merging.\n3. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n\n### Case D: another author's PR without merge permission\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version, and you are neither its author nor a requested reviewer. That behavior meets APP-91's requirement and agrees with the README.\n\nNothing in the change blocks merging, and the checks passed in CI. Merging needs write access to the repository, which you do not have.\n\nI recommend approve because the change is ready and you can submit an approving review, but you cannot merge it.\n\nPick one:\n1. approve - submit an approving review without merging. [recommended]\n2. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n",
+      "words": 431,
+      "wallMs": 28836,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "eb49a99dbe7cde7fb79261acc86c21d929a1e1356000848ef18db549b1b0e71d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5beebe65bf69eef0a9a448d886a07d20ffe348781536470b894918d6d692dd87",
-      "baselineOutputSha": "b038872fa92b8a4855595158a2252d089ec6896b19d0171b96474fdaea0980ff",
-      "candidateOutputSha": "7dbc768a173f621845fa8ec17e1f206f0a675bcfc2d2aafa8cbaff67f59f94a5",
+      "intentSha": "9db9d85e6e8c96357d65500ea01fb04c68abc055827bcd63242bee37930dd7bf",
+      "baselineOutputSha": "2d86a272d3e0809fc0d84fe8e708c725ed3e8d01cfe085532f198bfa37ce2743",
+      "candidateOutputSha": "6aed55589ec41f4f267d2f70787de393e89a2c5009e28429c99d012126b6eb6f",
       "facts": {
         "own": {
           "before": "holds",
@@ -44,14 +44,14 @@
           "label": "held"
         },
         "other": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "bypass": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "approve": {
           "before": "holds",
@@ -61,19 +61,19 @@
         "authority": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "After moves exactly the three intended facts and regresses none. Cases B and C now put the [recommended] tag on merge at row 1 with recommended=1 in the gate line, Case C's merge consequence names the ruleset bypass while stating that CI evidence stands (no separate bypass action, no claim that CI is bypassed), and every case gains a one-line prose reason immediately above 'Pick one' that ties the recommendation to the case's state (preconditions hold, bypass eligible, WRITE missing). Cases A and D are unchanged in substance, stop stays last, evidence remains hint-only, and no pick or action is simulated. One small tightening to consider: the Case A and B reasons both read 'every merge precondition holds' and are identical; naming the distinguishing state explicitly (e.g. 'you are the author, so approve is not offered' for A, 'merge_state_status CLEAN and reviewDecision APPROVED on robin's PR' for B) would make the 'names the case's state' requirement unambiguous without altering any menu row or the recommendation ordering.",
-      "wallMs": 15780,
+      "feedback": "After keeps every fact Before kept and moves authority to holds: each report opens with the gate line, carries exactly one [recommended] tag on row 1, keeps stop last, confines raw evidence (run ids, check names, counters) to the show-evidence hint, and places a prose recommendation reason directly above Pick one instead of Before's inline Evidence line and labeled Verdict. Two wording points are worth tightening so neighboring facts don't slip: in Case C, 'your admin rights let you use that override' edges toward the admin-identity phrasing the bypass-merge-pick-revoked fact rejects - prefer 'you are eligible to use GitHub's admin override for this ruleset' - and the Case A/B recommendation sentences are identical ('every requirement is met and GitHub allows the merge'), so consider naming the case's state there too (e.g. 'because this is your own ready PR' / 'because robin's PR is ready and you have merge access') to make 'naming the case's state' unambiguous rather than relying on the paragraph above.",
+      "wallMs": 19732,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "eb49a99dbe7cde7fb79261acc86c21d929a1e1356000848ef18db549b1b0e71d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5beebe65bf69eef0a9a448d886a07d20ffe348781536470b894918d6d692dd87",
-      "baselineOutputSha": "02a77e4af5de6a5353264c94c8943817b5736fe0cc994147cc9cf24aab8b3746",
-      "candidateOutputSha": "e64c7daeea0660ab5e8dc1191d7617d8b97b090b572bd41c0760e1a6c39e9d2d",
+      "intentSha": "9db9d85e6e8c96357d65500ea01fb04c68abc055827bcd63242bee37930dd7bf",
+      "baselineOutputSha": "6ef2161252ebb319755b87417326460f88c01bab435c5c15996514105e661ad7",
+      "candidateOutputSha": "4b1a6d423c5e831270813d1618f31c258ae81debcd08059437863fab2b13e403",
       "facts": {
         "own": {
           "before": "holds",
@@ -83,12 +83,12 @@
         "other": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         },
         "bypass": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         },
         "approve": {
           "before": "holds",
@@ -98,13 +98,13 @@
         "authority": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "After delivers the Change cleanly: Cases B and C now put merge on row 1 with the only [recommended] tag and recommended=1 in the gate line, Case C's merge row carries the bypass consequence without a separate bypass action or any claim that CI is bypassed, Case D keeps approve on row 1 with merge omitted and now states the WRITE-permission reason in prose, and every report has a recommendation sentence immediately above Pick one with stop last and show evidence hint-only. Nothing that Before kept was lost. Two things to tighten: the reason sentence in Cases A and B is identical (\"all merge prerequisites hold\"), so it names the readiness state but not what distinguishes the case; wording like \"Merge is recommended because the viewer can merge and all merge prerequisites hold (own PR; approve not offered)\" for A and \"...another author's ready PR, so merge outranks approve\" for B would make the state-naming unambiguous. Also, After silently rewrote the Delivers line from the imperative \"Make the health endpoint respond...\" to \"The health endpoint responds...\" and moved the \"Not offered\" line below the menu in A and D; neither affects a fact here, but those are unrequested drifts the Change did not ask for and should be reverted or made deliberate.",
-      "wallMs": 18653,
+      "feedback": "After moved every fact in the intended direction and lost none: Cases B and C now carry recommended=1 with the single [recommended] tag on the merge row, Case C's merge consequence names the admin override without inventing a separate bypass action or implying CI is bypassed, Case D still explains the missing write access, and all four reports open with the gauntlet gate line, keep stop last, keep evidence hint-only, and place a prose 'I recommend ... because ...' sentence naming the case's state directly above Pick one. Before failed other/bypass/authority because its final-menu rule preferred approve for another author's PR (recommended=2) and printed raw evidence inline rather than behind show evidence. Keep the After wording as is; the only thing worth guarding is that the 'you are neither its author nor a requested reviewer' opening and the 'required checks passed in CI' phrasing in Case C stay, since they are what let the override case read as a merge recommendation on ordinary row 1 while still distinguishing the ruleset bypass from any CI bypass.",
+      "wallMs": 14455,
       "verdict": "improved"
     }
   },
-  "repoSha": "46e91e5760226c108777f88b53d367c4cc9f2509"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

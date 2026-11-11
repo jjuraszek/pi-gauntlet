@@ -1,3 +1,3 @@
 - f1: judged: After the approve succeeds the menu offers cleanup as row 1 recommended.
-- f2: judged: The release step and the merge-sha close ticket step print skipped - needs a landed change.
+- f2: judged: The menu and closing not-run list explain that release and the merge-sha close ticket step need a landed change. Neither override is invoked or executed; selecting cleanup runs only its worktree, branch and base sub-steps.
 - f3: judged: The output prints branch: skipped - PR not merged and no git branch -D runs.

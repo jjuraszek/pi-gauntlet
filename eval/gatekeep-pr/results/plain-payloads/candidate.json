@@ -1,8 +1,8 @@
 {
   "sample": "plain-payloads",
   "arm": "candidate",
-  "skillSha": "fe358e7663fd355de996c77d65f132ac020aa311733e3cd6be4e5dfc2a223dfd",
-  "inputSha": "033f1e1a3897e20434f9b38eef1a2942e947780959d54a4783e0a81c87ba1f7a",
+  "skillSha": "ec38bfbfdeadd2d7136371362517d2fb3b0d099366cadb9396ede1e608f364ec",
+  "inputSha": "84ab91e9ad0e627bd0fd326defe10963c4f204a742855862df6da68a485f9605",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Review body\n\nTwo problems need fixing before this can merge.\n\n1. The CSV export leaves out the header row, so a spreadsheet treats the first data row as column names (src/export.ts:31).\n2. The export guide promises nightly exports, but the code only exports when someone clicks the button, so readers will expect a scheduled job that does not exist (docs/export.md:8).\n\nPlease add the header row to the export and change the guide to say exports run on demand.\n\nThread reply\n\nThanks for asking, Maria. Yes, the export now writes a header row with the column names, so spreadsheets no longer mistake the first data row for headers. The test that checks the header passes in CI.\n\nCoverage comment\n\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/42, merged 7d8e9f0, spec doc/specs/csv-export.md\n- [ ] Export includes a header row. - covered\n- [ ] Schedule nightly exports. - deferred per spec to acme/widgets#46\n- [ ] Stream large exports. - deviates per spec: buffer CSV in memory\n",
-      "words": 156,
-      "wallMs": 8061,
+      "text": "Review body\n\nTwo problems in this change need fixing before it can merge.\n\n1. The CSV export leaves out the header row, so a spreadsheet treats the first row of data as the column names and that row of data is lost from view (src/export.ts:31).\n2. The export guide says exports run every night, but the code only exports when someone clicks the button, so readers will wait for a nightly export that never runs (docs/export.md:8).\n\nPlease add the header row to the export and change the guide to say that exports run on demand when someone clicks the button.\n\nThread reply\n\nYes, it does now. The export writes a header row with the column names before the first row of data, so a spreadsheet no longer mistakes your first record for the column names. The test that checks for the header row passed in CI.\n\nCoverage comment\n\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/42, merged 7d8e9f0, spec doc/specs/csv-export.md\n- [ ] Export includes a header row. - covered\n- [ ] Schedule nightly exports. - deferred per spec to acme/widgets#46\n- [ ] Stream large exports. - deviates per spec: buffer CSV in memory\n",
+      "words": 186,
+      "wallMs": 7079,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Review body\n\nTwo fixes are needed before this PR can merge.\n\n1. The export omits the CSV header, so a spreadsheet treats the first data row as column names. Add the header row. (src/export.ts:31)\n2. The guide promises nightly exports, but exports run only on a button click, so readers expect a job that does not exist. Correct the guide to say exports run on demand. (docs/export.md:8)\n\nThread reply\n\nYes, the export now includes column names in a header row, and the export_header test passed in CI.\n\nCoverage comment\n\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/42, merged 7d8e9f0, spec doc/specs/csv-export.md\n- [ ] Export includes a header row. - covered\n- [ ] Schedule nightly exports. - deferred per spec to acme/widgets#46\n- [ ] Stream large exports. - deviates per spec: buffer CSV in memory\n\n",
-      "words": 127,
-      "wallMs": 9134,
+      "text": "Review body\n\nTwo problems need fixing before this PR can merge.\n\n1. The CSV export omits the header, so a spreadsheet treats the first data row as column names. Add a header row containing the column names. (src/export.ts:31)\n2. The guide promises nightly exports, but exports only run on a button click, so readers expect a scheduled job that does not exist. Correct the guide to say exports run on demand. (docs/export.md:8)\n\nThread reply\n\nYes, the export now includes column names in a header row. The export_header test passed in CI with the header fix.\n\nCoverage comment\n\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/42, merged 7d8e9f0, spec doc/specs/csv-export.md\n- [ ] Export includes a header row. - covered\n- [ ] Schedule nightly exports. - deferred per spec to acme/widgets#46\n- [ ] Stream large exports. - deviates per spec: buffer CSV in memory\n\n",
+      "words": 135,
+      "wallMs": 10604,
       "mechanical": {}
     }
   },
@@ -34,14 +34,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "70868d178c661f16cad834db579815670f690ab78cc8927d9575814a0635720e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3adbe5604cb6d243d957ff4b4cf69b80de3f9096d42d5d55bcaa0ac1a7ac29a1",
-      "baselineOutputSha": "abc70bc7e7289836668eed8bdbb8a2b50889d1cfc3381108aaa62947093b9a76",
-      "candidateOutputSha": "66b7c47912e5a3168057959b8595f5ef6dbd792bb727052aef58ad74b623e61e",
+      "intentSha": "18a73433e7df4e9f33593e4779a2096cbeda1a52fa4c7a20f57ec927f2752291",
+      "baselineOutputSha": "55860a660c86f5f159e3f83787f183dd6fb79c7b08dd2f6bacbbe4dd0cdae187",
+      "candidateOutputSha": "ff247ecc24aa37649f5235cf70151ba7f5c8985d80993536b6ec4f5e6bbab5e3",
       "facts": {
         "fences": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         },
         "review": {
           "before": "holds",
@@ -49,14 +49,14 @@
           "label": "held"
         },
         "reply": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "coverage": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "authority": {
           "before": "holds",
@@ -64,21 +64,21 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: all three payloads are plain text under bare labels, the coverage block is reproduced verbatim with its heading, informational line and three unchecked rows in order, and the review keeps both findings with their consequences and trailing parenthesized locators. The reply also improved beyond the expected list — Before leaked the commit id 9c1e4f2 and the test name in a trailing parenthetical, which the 'plain replies without internal fields or ids' rule correctly strips; After says only that the header test passes in CI, acknowledges the question, and makes no merge promise. No fact regressed. One small wording note for the author: the reply capitalizes 'Maria' while the input gives the handle as 'maria'; if the skill wants to address the asker, prefer reusing the handle exactly as supplied or omitting the name, so the reply never invents a form of the name that was not in the thread.",
-      "wallMs": 14084,
+      "feedback": "After moved only the fences fact, and in the right direction: Before wrapped every payload in ```text fences, while After prints the review body, thread reply and coverage comment as bare text under plain labels, so the coverage block's heading and unchecked rows survive verbatim without becoming a code block. Everything else held in both: the review keeps both findings with their consequences and trailing parenthetical locators and asks for the two fixes without inventing a failed attempt; the reply explains the header and the CI pass without run ids, commit ids, BLOCKED or repair counters (After even drops Before's stray locator and the test's internal name, which is cleaner); the coverage rows and informational line are unchanged and unchecked; and neither output claims an extra post, push or merge or renders a menu. Keep the After wording as is - the only thing to watch is that the plain-label wrapper stays as bare labels rather than drifting back toward fenced or bolded presentation.",
+      "wallMs": 11032,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "70868d178c661f16cad834db579815670f690ab78cc8927d9575814a0635720e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3adbe5604cb6d243d957ff4b4cf69b80de3f9096d42d5d55bcaa0ac1a7ac29a1",
-      "baselineOutputSha": "4f7e864610fae96f4471aa2e80d13a2abc4ab6dee9c54a09b55943bc26574da7",
-      "candidateOutputSha": "ac0cc6e1609583c5dab67b373ee71ada024163c15a6d3795d8337970122661c7",
+      "intentSha": "18a73433e7df4e9f33593e4779a2096cbeda1a52fa4c7a20f57ec927f2752291",
+      "baselineOutputSha": "83fd2f2476700da3a7f77630cf89b6b96305a3f2981f99314616caff933f1ed2",
+      "candidateOutputSha": "f752c1c0285c183278e390cfbb94aefb7aa6e467ecd626b13a6ae1a7e9aa28ed",
       "facts": {
         "fences": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "review": {
           "before": "holds",
@@ -93,7 +93,7 @@
         "coverage": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "authority": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs render all three payloads unfenced, keep the coverage block verbatim with its heading, informational line and three unchecked rows, trail the review findings with (src/export.ts:31) and (docs/export.md:8), and keep the reply free of run ids, commit ids, BLOCKED and repair counters. The expected fences/coverage moves did not show up as failures in Before on this sample, so the After wording confirms rather than changes behaviour here. After's reply is a small improvement over Before, which appended a stray '(export_header)' locator to prose where the shared reply rule asks for plain sentences; After folds the test name into the sentence instead. One caution: After's opening review line 'before this PR can merge' edges toward merge-gating language — a wording like 'Two fixes are needed' alone keeps the request-changes intent without implying the reviewer controls merging, which is safer for the authority fact across other samples.",
-      "wallMs": 10954,
+      "feedback": "Nothing moved on this case: both outputs render the three labeled, unfenced payloads only, keep both review findings with their consequences and trailing parenthesised locators, keep the thread reply free of record fields, run id, commit, BLOCKED and repair counters, and reproduce the coverage block verbatim. The only wording drift in After is the review opener 'Two problems need fixing before this PR can merge', which is a verdict-style framing rather than the behavior-based summary Before used ('The export needs a CSV header and a guide that matches its on-demand behavior'); since the Change asks for a behavior-based change/scope opening and plain prose, keep Before's style of opener in the review body (state what the code does and what must change, not merge status) so the wording stays aligned with the new report convention without risking an implied merge-gate claim.",
+      "wallMs": 9948,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "1cc85d77078bfdeb66772ee620c39979f634263c"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

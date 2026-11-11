@@ -19,19 +19,19 @@ Direct user-review-requested query rows:
 Set routing admits the three discovered PRs. All are alex's open non-draft same-repository PRs, head pushable, base main, no rebase requested. Primary fetch and worktree provisioning succeed serially; /tmp/widgets-pr-N has the gathered head for each N, records /tmp/state-N and reports /tmp/report-N. Procedure root /tmp/procedures/gatekeep-pr. No shared files. Report tasks return REPORT /tmp/report-N, clean Verify then Review, CI green at each exact head, zero blockers or nits; pre-menu refresh preserves these observations. Viewer permission WRITE, merge state CLEAN, course null, counters zero and caps 6.
 
 Supplied child report /tmp/report-101 (verbatim):
-Delivers: validate widget 101.
-Role: author
-Verdict: mergeable - CI green on the assessed head (test)
+This PR validates widget 101; you are the author.
+Nothing blocks merging; the required CI check passed.
+I recommend merge because the changes are ready.
 
 Supplied child report /tmp/report-97 (verbatim):
-Delivers: validate widget 97.
-Role: author
-Verdict: mergeable - CI green on the assessed head (test)
+This PR validates widget 97; you are the author.
+Nothing blocks merging; the required CI check passed.
+I recommend merge because the changes are ready.
 
 Supplied child report /tmp/report-112 (verbatim):
-Delivers: validate widget 112.
-Role: author
-Verdict: mergeable - CI green on the assessed head (test)
+This PR validates widget 112; you are the author.
+Nothing blocks merging; the required CI check passed.
+I recommend merge because the changes are ready.
 
 
 ## Entry

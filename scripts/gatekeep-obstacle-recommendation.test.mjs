@@ -23,12 +23,13 @@ test('obstacle recommendations rank unavailable progress above authorship and pe
   assert.doesNotMatch(obstacle, /then `stop` `\[recommended\]`/);
 });
 
-test('saved obstacle replay distinguishes pending progress, ruleset block and unchanged cap prerequisite', () => {
+test('saved action replay covers authorship, safe repairs, contract proposals and obstacle progress', () => {
   const caseText = read(`${root}/samples/${sample}/case.md`);
   const parsed = parseCase(caseText);
   const expected = read(`${root}/samples/${sample}/expected.md`);
   const facts = parseExpected(expected).facts;
-  for (const id of ['pending', 'blocked', 'cap', 'authority']) {
+  assert.equal(facts.length, 8);
+  for (const id of ['pending', 'blocked', 'cap', 'authority', 'own', 'body-only', 'author-only', 'contract']) {
     assert.ok(facts.some((fact) => fact.id === id), id);
   }
   const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
@@ -44,9 +45,9 @@ test('saved obstacle replay distinguishes pending progress, ruleset block and un
     assert.equal(judge.factsSha, sha256(expected), model);
     assert.equal(judge.candidateOutputSha, sha256(output.text), model);
     for (const { id } of facts) assert.equal(judge.facts[id]?.after, 'holds', `${model}: ${id}`);
-    const menus = output.text.split('gauntlet: gate=gatekeep-pr/obstacle recommended=1').slice(1);
-    assert.equal(menus.length, 3, model);
-    for (const [index, action] of ['deliver', 'stop', 'stop'].entries()) {
+    const menus = output.text.split(/gauntlet: gate=gatekeep-pr\/(?:obstacle|initial|contract-exception) recommended=1/).slice(1);
+    assert.equal(menus.length, 7, model);
+    for (const [index, action] of ['deliver', 'stop', 'stop', 'deliver', 'deliver', 'assess', 'preserve contract'].entries()) {
       assert.match(menus[index], new RegExp(`^1\\. ${action}\\b.*\\[recommended\\]`, 'm'), model);
     }
   }

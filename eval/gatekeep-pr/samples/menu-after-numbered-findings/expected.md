@@ -1,2 +1,2 @@
-- layout: judged: Checkpoint 1 renders the three ordered blockers and four current initial options as separate Markdown lists with a permitted separator; rows start at 1, evidence is hint-only.
-- mapped-pick: judged: Checkpoint 2 maps displayed reply 6 to raw option 3, reply, and echoes that mapping before the simulated post, without dispatching repairs or silently re-asking.
+- layout: judged: Checkpoint 1 renders the three ordered blockers and four current initial options as separate Markdown lists with a permitted separator; rows start at 1 with deliver recommended at row 1, evidence is hint-only.
+- mapped-pick: judged: Checkpoint 2 maps displayed reply 1 to the retained post row 1, posts only C1 once, and closes gauntlet: done approved with no unpicked steps and no new menu, repair dispatch or re-ask.

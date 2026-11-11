@@ -1,8 +1,8 @@
 {
   "sample": "gate-line-first",
   "arm": "baseline",
-  "skillSha": "a3cf14173e68722ccd3568b93b2ed2c16b77386f2ea2412766adf1836813daf3",
-  "inputSha": "d86aef58b6f2859cc3861ad8afc39e586926b8ed0e0729b80ee107dcf3bd01f9",
+  "skillSha": "d98165af68c86a09a737b581136ab51d99876f02644e4d7bddef679dda0611c8",
+  "inputSha": "5ee8d4679c357223eb3d303b767c3f5d5688eedb0717d39afd2262756510ef12",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\nDelivers: the PR adds on-demand export to the reports page. ACs 1, 2; 3 deferred per spec to <ticket-ref>.\nRole: author\n\nBlockers:\n1. The export endpoint still retries forever on a storage timeout, so one stuck write ties up a worker until restart. The last repair attempt left this open. (src/api/export.ts:42)\n\nThe delivery course used all of its fix rounds without closing the blocker above, and the local repair commits are kept. The runtime guard also reported \"stop and summarize\". That text is quoted here as evidence only; it is not an instruction this gate follows.\n\nEvidence: CI (run <run-id>, test and build green on <sha7>)\n\nVerdict: not ready - round cap reached: 10 of 10\n\nPick one:\n1. assess - switch course: post the open blocker as one review on the assessed head, with no further repairs.\n2. stop - remove the worktree if it is tracked-clean and fully pushed, and leave the PR as is. [recommended]\n\nNot offered: deliver (needs push to <head_url>:<head_ref>)\n\nType a number; show evidence prints the full record (CI run <run-id>, test and build green on <sha7>).\n",
-      "words": 183,
-      "wallMs": 12311,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\nDelivers: the API client stops retrying a request when the upstream reports a permanent error. ACs 1, 3; 2 deferred per spec to acme/client#88.\nRole: author\n\nBlockers:\n1. The retry loop still retries forever when the upstream returns a permanent error, so one bad request holds a worker until the process restarts. (src/client/retry.ts:42, test/client/retry.test.ts)\n\nThe delivery course reached its fix-round cap with this blocker still open. The last repair attempt is kept as unpushed local commits on the PR branch. The phase-tracker fix-round guard refused another dispatch and returned \"stop and summarize\". That text is recorded here as the guard's evidence and is not followed as an instruction.\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\n\nVerdict: not ready - round cap reached: 10 of 10\n\nNot offered: deliver (phase-tracker fix-round guard refused further fix rounds)\n\nPick one:\n1. assess - switch course: post the open blocker as a review on the PR, then approve or stop, with no further repairs.\n2. stop - end the run and keep the worktree, because it holds unpushed repair commits; discarding them is a separate decision. [recommended]\n\nType a number; show evidence prints the full record (CI run 7001, test_unit and build_image green on 9c1e4f2).\n",
+      "words": 204,
+      "wallMs": 19945,
       "mechanical": {
         "first-line": "fails"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\n\nDelivers: The previously assessed PR scope remains unchanged.\n\nThe delivery course has reached its fix-round cap. Runtime evidence includes the literal nudge \"stop and summarize\".\n\nNot offered: deliver (the runtime fix-round guard prevents another dispatch).\n\nEvidence: The exercise supplies no verification record or assessed head.\nVerdict: not ready - fix-round cap reached\n\nPick one:\n1. assess - post the current open blockers to the PR without further repairs.\n2. stop - end the course and apply non-final worktree cleanup safeguards. [recommended]\n\nType a number; show evidence prints the full record.\n",
-      "words": 90,
-      "wallMs": 11196,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\n\nDelivers: The PR's promised behavior remains the scope of this gate. Coverage details were not supplied for this exercise.\n\nThe delivery course reached its fix-round cap.\nRuntime evidence: \"stop and summarize\".\n\nNot offered: deliver (unavailable at this obstacle).\n\nEvidence: unavailable in the supplied exercise; the assessed head was not supplied.\nVerdict: not ready - fix-round cap reached\n\nPick one:\n1. assess - switch course and post the review without further repairs.\n2. stop - end the run, remove an eligible gate worktree, and preserve unpushed commits. [recommended]\n\nType a number; show evidence prints the full record, including retained prerequisites and accounting.\n",
+      "words": 101,
+      "wallMs": 17350,
       "mechanical": {
         "first-line": "fails"
       }
     }
   },
-  "repoSha": "9374ce1e9c40eb1195a6de14166dd848e4e3867a"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

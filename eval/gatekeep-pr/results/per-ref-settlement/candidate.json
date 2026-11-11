@@ -1,8 +1,8 @@
 {
   "sample": "per-ref-settlement",
   "arm": "candidate",
-  "skillSha": "96f87bec6d040bf1b378db76be8c85b28a5729d8080ad48eb61ea18ea248f670",
-  "inputSha": "5eeffe816354ca29106a4f3419d0d1d098e9dd8af6e5f475ee6b335ede3f5f48",
+  "skillSha": "8d90e7104041436f2cd7c823b19c793a8c5a27cbb6b5692fe472a0eda61d32be",
+  "inputSha": "1d0edab204de0c88f8d4e551874fab29e1d3573891bb6191def5a23a3e206835",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n\n#31 merged into its base branch. Its cleanup finished:\nworktree: done\nbranch: done\nbase: synced\n\n#31's merge commit is now on the local base branch. Its separate checkout and local branch are gone. No picked step was skipped or failed.\n\n#32 stopped because a required check was still running after the 15-minute wait. It has not merged. Its checkout was the main checkout, so the run kept it:\nworktree: kept - primary at <scratch>\n\nIts branch and the base branch were left unchanged. No post steps were picked for #32, and none are waiting to run.\n",
-      "words": 108,
-      "wallMs": 10550,
+      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n\nFor #31, cleanup finished before the stop. The review checkout was removed, the local branch was deleted, and the local base branch was updated to include the merge.\n\n#32 stopped because a required check was still running after the 15-minute wait. Cleanup kept the main checkout and did not change its branch. Stopping before merge does not run branch deletion, the base update, or project cleanup steps, so none of them ran for #32.\n",
+      "words": 87,
+      "wallMs": 8066,
       "mechanical": {
         "terminal": "holds",
         "merged": "holds",
@@ -28,9 +28,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n",
-      "words": 13,
-      "wallMs": 5614,
+      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n\n#31 cleanup: worktree removed, branch removed, base synced.\n#32 worktree: kept - primary checkout.\n",
+      "words": 26,
+      "wallMs": 4210,
       "mechanical": {
         "terminal": "holds",
         "merged": "holds",
@@ -42,9 +42,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c45ecc49ebfe1c8977866a116d08a98b262038cf051222a950334504ca625f05",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d867996cca2c8540a834dacf34e9d3c8a55f2fb098bdd07d8ba019a51bf31ded",
-      "baselineOutputSha": "3432be4602533a2aa9ac222395523438a3ff01a0de62155e200ef07aed17e3f5",
-      "candidateOutputSha": "f68191ba69b34a1cb90545b6a5ca070130f9de543f4b66c9a2752e008a7e9efd",
+      "intentSha": "59a78a881c06032edc9aa86e5f92ec575606fb111a44224f8ae8bc0b44afd0af",
+      "baselineOutputSha": "d80e10ee4cdb26088c38ba2a7c67d1ef6ea35322c90b076e019831b7395dccc5",
+      "candidateOutputSha": "717757facfdb872b63f9e2ef9f669acb8c1d5f024c05c647e0de01567cf25096",
       "facts": {
         "settled": {
           "before": "holds",
@@ -67,16 +67,16 @@
           "label": "held"
         }
       },
-      "feedback": "Neither output moved the settled fact: both open with the single `gauntlet: stuck retired` header, list #31 then #32 with their full 40-char assessed heads, annotate only #31 with (#12), and close without a menu or new action. One regression to watch in After that this fact does not catch but the Change's raw-leak check would: the #32 cleanup line renders a literal `<scratch>` placeholder (\"worktree: kept - primary at <scratch>\") instead of a translated location — Before at least said \"the primary checkout\". Keep After's prose structure (merged/stopped explanations, explicit 'no picked step was skipped', 'none are waiting to run'), but route the kept-worktree path through the wording owner so it reads e.g. \"worktree: kept - it is the primary checkout\", and avoid re-listing the cleanup rows under the header as a second status block so the settlement stays unmistakably singular.",
-      "wallMs": 10924,
+      "feedback": "After preserves the settlement exactly as Before did: the message opens with the single terminal line, lists #31 and #32 in roster order with their full assessed heads, annotates only #31 with (#12), and offers no menu or new action. The only change is that the compact cleanup/stop lines became prose explaining what ran and what did not, which fits the plain-report direction without disturbing the settlement header. One caution for the After wording: the added sentence about which steps did not run for #32 is correct here, but keep it strictly explanatory and never phrase it as an available next step, or the no-menu part of the fact would be at risk; also avoid re-stating #32's intermediate retirement as if it were new, since the case forbids replaying that message.",
+      "wallMs": 6705,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c45ecc49ebfe1c8977866a116d08a98b262038cf051222a950334504ca625f05",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d867996cca2c8540a834dacf34e9d3c8a55f2fb098bdd07d8ba019a51bf31ded",
+      "intentSha": "59a78a881c06032edc9aa86e5f92ec575606fb111a44224f8ae8bc0b44afd0af",
       "baselineOutputSha": "8da89e4fef0e3aa76c78a59ca67297ae57d160f3164db78a8d1f4358923b341d",
-      "candidateOutputSha": "6a0287d3b2212a9b01fa22352a3c3fb5e896e711f72834c82c922ed325938776",
+      "candidateOutputSha": "653dd22a8200fa19101b1253c9a67206f79e9969524b9439e0db2167900003ce",
       "facts": {
         "settled": {
           "before": "holds",
@@ -99,10 +99,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither output moved the settled fact: both open with the single `gauntlet: stuck retired` settlement line, list #31 then #32 with their full 40-character assessed heads, annotate only #31 with (#12), and open no menu or new action. The only difference is that After drops Before's two cleanup-result lines (#31 worktree/branch/base sync, #32 primary checkout kept). That trim does not break the fact as written, but it discards the one place the message confirms cleanup actually completed and which checkout state each PR left behind, which the case explicitly asks to be included in the final report. To keep the After wording's plain-prose/one-pick settlement goal while losing nothing, keep the settlement block as the opening and append the cleanup outcomes as a short trailing sentence or two in prose (e.g. '#31 cleanup finished: worktree and branch removed, base synced. #32 kept the primary checkout.') rather than removing them entirely.",
-      "wallMs": 9223,
+      "feedback": "Both outputs open with the single terminal 'gauntlet: stuck retired' settlement, list #31 then #32 with their full assessed heads, annotate only #31 with (#12), and open no menu or new action, so the fact holds in both. The only difference is the trailing cleanup line for #32 ('#32 worktree: kept - primary checkout.' versus '#32 cleanup: primary checkout kept.'), which does not affect the settlement fact either way; if you want consistency with the #31 row, keeping the '#32 cleanup: ...' phrasing is slightly cleaner, but nothing in After moved this fact, and the plain-report Change is not exercised by this final-settlement case.",
+      "wallMs": 5641,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3ca98e2d9da46194bf4cef1fb837d665c17fd7f8"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

@@ -1,8 +1,8 @@
 {
   "sample": "live-checkrun-pending",
   "arm": "baseline",
-  "skillSha": "6041ed84fc59504cab924cdee16409bc5266884b61e4fb9053a2c30f15178c14",
-  "inputSha": "763dcaf0927a0637b70419b246a24e4081b9094fc981752bc9d5fe6f8e6eb595",
+  "skillSha": "30f9bba369f1ace5b6111f0bc7e92995e9885381823448698bf115c02ccd19d3",
+  "inputSha": "b919f8ff89f3fcb2fc815ac675230370a5a0e6c1404a268d4b329c2e45c0a90f",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Evidence resolution (Section B)\n\n**Resolved check set.** No `ci checks:` filter is configured, so the set is every check on `9c1e4f2`:\n\n| Check | Kind | Status / conclusion | Run (from `detailsUrl`) | `actions_runs` match | Classification |\n|---|---|---|---|---|---|\n| test_unit | check_run | completed / success | 7001 | completed, success | satisfies |\n| build_image | check_run | completed / success | 7001 | completed, success | satisfies |\n| e2e | check_run | in_progress / null | 7003 | `status: waiting` | pending, **binding** |\n\n**Binding classification for e2e.**\n- `merge_state_status` is `UNSTABLE`, so the state-based binding triggers do not apply.\n- `kind` is `check_run`, and its matched run 7003 has `status: waiting`, which is not `completed`.\n- Under that rule the check is **binding**.\n\n**Held run.** None applies. No rollup entry and no `actions_runs` entry carries `action_required`, and `waiting` is not a held run.\n\n**Row precedence.**\n- Opt-out does not apply because it is not configured.\n- Failed CI does not apply because there are no blocking conclusions.\n- Held run does not apply.\n- **Pending applies**: there is at least one binding pending check and no blocking conclusion.\n- Result: `source: pending`, with no local run and no CI sufficiency.\n\n**Claims (source-checkable now).** \"Tests cover the retry path\" is matched by `test/feed/client.test.ts:12-40`.\n\n**Scope.** The scope is `source: pr` (`issue_ref: null`), so there are no AC rows. `Delivers` states the PR's intent.\n\n**Overlays that fire.**\n- `verification evidence pending`\n- `CI check` for the binding pending check, which uses the same reason 3 and a single `PR comments` line\n\n**Overlays that do not fire.**\n- `merge state`, because the value is `UNSTABLE`\n- `held run`\n- `pending reviewer`\n\n**Watch.** The watch guard does not auto-run because this is the first report.\n\n**Consent rows.** These are the someone-else / mergeable rows with `merge` omitted, because this is a zero-blocker withhold.\n- `fix nits` is dropped because there is no nit.\n- `reply` is dropped because there is no drafted reply.\n- `wait` becomes row 1 and is `[recommended]`.\n\n---\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nPR comments:\n- A check that binds this actor is still pending, so merge waits. (e2e)\n\nVerdict: fixable - binding check pending\n\n1. wait - run one bounded CI watch on the pending e2e check, then re-render [recommended]\n2. approve - approve the PR\n3. show evidence - claim dispositions, CI checks on 9c1e4f2\n4. stop - leave the PR as-is\nType a number. Not offered: merge (e2e pending).\n```\n",
-      "words": 368,
-      "wallMs": 21053,
+      "text": "Evidence resolves to the **Pending** row. Both completed checks are green and none are blocking. The e2e check is still running, and its workflow run is waiting rather than completed. Since merge state is not BLOCKED, it is still classified as binding, so no local run fires and merge waits. Verification is recorded as pending, and the retry-path test claim is matched against source now.\n\n```\nDelivers: the tide-feed client now retries a fetch once when the feed answers 503, with a test covering the retry path. No ticket or spec was found, so the PR is judged against its own stated intent.\nRole: none\n\nPR comments:\n- The e2e check is still running on this head, so merge waits. (e2e, tidewatch e2e)\n\nVerdict: not ready - the e2e check is still running on the assessed head\n```\n\n```text\ngauntlet: gate=gatekeep-pr/initial recommended=1\nVerdict: not ready - e2e still running, 0 blockers, 0 nits\n\nPick one:\n1. assess - record the review (no blockers, so nothing is posted); then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits)\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n",
+      "words": 213,
+      "wallMs": 17420,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the tide-feed client retries once on a 503 response, with tests covering the retry path.\n\nPR comments:\n- A check that binds this actor is still pending, so merge waits. (e2e)\n\nVerdict: fixable - binding check pending\n\n1. wait - run one bounded CI watch, then re-render [recommended]\n2. approve - approve the PR\n3. show evidence - gate output, CI evidence, claim dispositions\n4. stop - leave the PR as-is\n\nType a number. Not offered: merge (e2e pending).\n",
-      "words": 74,
-      "wallMs": 6941,
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nDelivers: The PR adds one bounded retry when the tide-feed fetch returns 503. Its stated scope includes tests covering that retry path.\nRole: none\n\nPR comments:\n- The e2e check is pending and binding because its linked Actions run has not completed, so merge waits.\n\nVerdict: not ready - binding CI check pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record, including the Pending resolution, assessed head, check/run evidence, claim dispositions, and accounting. No local verification runs for this resolution.\n",
+      "words": 135,
+      "wallMs": 16205,
       "mechanical": {}
     }
   },
-  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

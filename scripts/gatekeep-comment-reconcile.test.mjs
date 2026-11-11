@@ -198,8 +198,8 @@ test('batch rendering preserves child reports and confines pending checks to men
 
 test('obstacle menus extend both caps even below their limits', () => {
   const obstacle = section(menus, '### obstacle\n', '## final\n');
-  assert.match(report, /distinguish CI from a local run, and never turn pending or missing evidence into a pass/);
-  assert.match(report, /check conclusions, run URLs, head, prior-review and sync SHAs, pending-check counts and raw field\/value pairs under `show evidence`/);
+  assert.match(report, /distinguish CI from local runs and never turn pending or missing evidence into a pass/);
+  assert.match(report, /check conclusions, run URLs, head, prior-review and sync SHAs, pending-check counts, repair\/sync usage counters and raw field\/value pairs under `show evidence`/);
   assert.match(report, /Apply the same rule to obstacle and final reports/);
   assert.match(obstacle, /course unset describe starting work; otherwise describe continuing it/);
   assert.match(obstacle, /For every non-timeout deliver selection, add exactly `2 x maxFixRounds` to both caps and persist before work, preserving usage/);
@@ -383,21 +383,22 @@ test('conformance-check.md sentinel names the deferred/deviates line', () => {
 
 test('report.md renders three unlabeled parts and delegates the recommendation', () => {
   assert.match(report, /three unlabeled parts/);
-  assert.match(report, /two sentences at most/);
+  assert.match(report, /one paragraph of exactly two sentences/);
   assert.match(report, /name the behavior, never a row number/);
   assert.match(report, /Start the second part with the standing sentence/);
-  assert.match(report, /recommendation's reason from `menus.md`/);
-  assert.match(report, /Translate the internal verdict and exit state; do not print their fixed strings/);
-  assert.match(report, /Write whole sentences, not labeled fields or a fixed template/);
+  assert.match(report, /part three's recommendation sentence and reason immediately above `Pick one:`; follow `menus\.md`\./);
+  assert.match(report, /Translate verdict and exit state into prose\./);
+  assert.match(report, /Write whole sentences in three unlabeled parts/);
   assert.match(report, /Keep other requested users and teams in API order: exclude the viewer by case-insensitive User login comparison/);
   assert.match(report, /exclude nobody when that login is unreadable/);
   assert.match(report, /render Users by login and Teams by slug, and use `unknown` for a missing login or slug/);
   assert.match(brief, /viewer: \{ login, is_author, role \}/);
   assert.match(brief, /else author when is_author; else requested reviewer/);
   assert.match(brief, /Pending reviewRequests only, never reviews history/);
-  assert.match(report, /Name a running required check or an unchanged obstacle rather than claiming readiness/);
-  assert.match(report, /distinguish CI from a local run, and never turn pending or missing evidence into a pass/);
-  assert.match(report, /retain the exact supplied failing test name and its file, or the file alone when no test name was supplied/);
+  assert.match(report, /Name a running required check or unchanged obstacle, not readiness\./);
+  assert.match(report, /distinguish CI from local runs and never turn pending or missing evidence into a pass/);
+  assert.match(report, /retain the exact supplied failing test name and its file, or the file when no test name was supplied/);
+  assert.match(report, /Retain supplied path:line locators for every problem and nit/);
   assert.match(report, /Keep nits distinct and name their count and the offered action that can take them/);
   assert.match(report, /Omit empty sections/);
   assert.match(report, /show evidence: <log_path>/);
@@ -544,7 +545,7 @@ test('eligible BLOCKED uses fresh viewer-relative authority on the ordinary merg
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/final/);
     assert.match(output.text, /merge - squash-merge using your admin override/);
-    assert.match(output.text, /required(?: CI)? checks.*passed|checks.*passed.*required/i);
+    assert.match(output.text, /required(?: CI)? (?:checks|test check) passed|checks.*passed.*required/i);
     assert.doesNotMatch(output.text, /merge waits|Not offered: merge|^Evidence:|merge_state_status|reviewDecision|ruleset bypass authority/im);
     const judge = saved.judge[model];
     assert.equal(judge.factsSha, sha256(read(`${sample}/expected.md`)));
@@ -578,7 +579,7 @@ test('bypass eligibility preserves pending CI and every independent merge withho
   const parsed = parseCase(input);
   const target = JSON.parse(read(`${root}/target.json`));
   const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-  assert.equal(saved.repoSha, '3ca98e2d9da46194bf4cef1fb837d665c17fd7f8');
+  assert.equal(saved.repoSha, '064b62030be28326fda979af0ce9af54c18a0a0d');
   assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
@@ -586,7 +587,7 @@ test('bypass eligibility preserves pending CI and every independent merge withho
   for (const [model, output] of Object.entries(saved.outputs)) {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/initial/);
-    assert.match(output.text, /e2e[^\n]*(?:pending|running|progress)|(?:pending|running)[^\n]*e2e/i);
+    assert.match(output.text, /e2e[^\n]*(?:pending|running|progress)|(?:pending|running)[^\n]*e2e|the required end-to-end check is still running/i);
     assert.doesNotMatch(output.text, /^Not offered:|^Evidence:|merge_state_status|reviewDecision/im);
     assert.doesNotMatch(output.text, /^\d+\. merge\b/m);
     assert.doesNotMatch(output.text, /ruleset bypass authority|bypass eligible|\badmin\b|blocked by GitHub/i);
@@ -626,7 +627,7 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
   const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
   const target = JSON.parse(read(`${root}/target.json`));
   const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-  assert.equal(saved.repoSha, '3ca98e2d9da46194bf4cef1fb837d665c17fd7f8');
+  assert.equal(saved.repoSha, '064b62030be28326fda979af0ce9af54c18a0a0d');
   assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);

@@ -16,7 +16,7 @@ test("reports reserve raw evidence and prior-review hashes for show evidence", (
   assert.match(inspection, /prior-review.*sync.*SHA/s);
 });
 
-test("historical plain-report snapshots satisfy their originally checked evidence constraints", () => {
+test("saved plain-report candidates keep labels, field names, row numbers and counters behind inspection", () => {
   const candidate = JSON.parse(read("eval/gatekeep-pr/results/plain-report/candidate.json"));
   assert.equal(Object.keys(candidate.outputs).length, 2);
   for (const [model, output] of Object.entries(candidate.outputs)) {
@@ -24,7 +24,11 @@ test("historical plain-report snapshots satisfy their originally checked evidenc
     assert.doesNotMatch(output.text, /9c1e4f2|8a0b1c2|700[123]|\/tmp\/gatekeep-export\.log|\b(?:MERGEABLE|CLEAN|BLOCKED|APPROVED|REVIEW_REQUIRED)\b/, model);
     assert.doesNotMatch(output.text, /\b(?:source|head|course|merge_state_status|bypass_eligible|reviewDecision|exit_code)\s*[:=]/, model);
     assert.doesNotMatch(output.text, /binding[- ]pending(?:[- ]check)?\s*(?:count)?\s*[:=]\s*\d/i, model);
-    assert.match(output.text, /no (?:new )?commits|no .*commits since|has not changed|no changes since/i, model);
+    assert.doesNotMatch(output.text, /\b(?:Evidence|Role|Prior review|Sync|Verdict|Delivers|Not offered):/i, model);
+    assert.doesNotMatch(output.text, /\b(?:rounds_used|rounds_cap|syncs_used|syncs_cap|failed-prerequisite|failed_prerequisite|log_path|checked_at)\b/i, model);
+    assert.doesNotMatch(output.text, /\b(?:requirements?|AC|acceptance (?:criteria|rows?))\s*(?:#|rows?\s*)?\d/i, model);
+    assert.doesNotMatch(output.text, /\b(?:repair|sync|rounds?|attempts?)\b[^\n.]{0,45}\d+\s*(?:of|\/)\s*\d+/i, model);
+    assert.match(output.text, /no (?:new )?commits|no .*commits since|has not changed|no changes since|nothing has been committed since/i, model);
     assert.match(output.text, /show evidence/i, model);
     const facts = candidate.judge[model].facts;
     assert.equal(Object.keys(facts).length, 8);

@@ -11,7 +11,7 @@
 
 ## Entry
 
-First report has no blockers, all merge prerequisites satisfied, course unset, N1 unused import open. Render the report and menu. Human selects the numeric row labeled `fix nits`, with N1 payload remove unused import. If dispatched for N1, the helper commits, the scoped test passes, and the reviewer resolves N1; the base has not moved. If pushed, the head becomes 2222222222222222222222222222222222222222. If watched, exact-head CI succeeds. If source re-review runs, it discovers independent N2 duplicate helper; reconciliation is otherwise clean. Render the next menu without any further selection. Independent B: same operation but the watch times out.
+First report has no blockers, all merge prerequisites satisfied, course unset, N1 unused import open. Render the report and menu. Human selects the numeric row labeled `fix nits`, with N1 payload remove unused import. If dispatched for N1, the helper commits, the scoped test passes, and the reviewer resolves N1; the base has not moved. If pushed, the head becomes 2222222222222222222222222222222222222222. If watched, exact-head CI succeeds. The post-push comment refetch returns one new inline comment (id 501, body "The helper is duplicated", updated_at 2026-11-10T10:00:00Z). Its narrow source review confirms independent N2 duplicate helper; reconciliation is otherwise clean. Render the next menu without any further selection. Independent B: same operation but the watch times out.
 
 ## Arguments
 

@@ -1,8 +1,8 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "0f3455f2c0b701bf3c0c732357be9f98fc8120e4b455a4cc89fb11447fe11e8e",
-  "inputSha": "d86aef58b6f2859cc3861ad8afc39e586926b8ed0e0729b80ee107dcf3bd01f9",
+  "skillSha": "6e8408e4fc7efb6c9fc8b1d5ac56cba2d559149a3e0d442d763361b6b4ba6484",
+  "inputSha": "5ee8d4679c357223eb3d303b767c3f5d5688eedb0717d39afd2262756510ef12",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\nDelivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\nRole: author\n\nBlockers:\n1. The export endpoint still returns an empty file when a report has more than one page, so large exports silently lose data. (src/api/export.ts:42, test/api/export.test.ts \"exports every page\")\n\nThe delivery course stopped at its fix-round cap. The phase-tracker fix-round guard refused another dispatch and returned this runtime text, quoted here as evidence and not acted on: \"stop and summarize\". The retained failed prerequisite is the paging test above, which stayed red after the last repair round. Local commits from the course are kept on the PR branch.\n\nEvidence: CI (run 7001, test_unit failed and build_image green on 9c1e4f2)\nVerdict: not ready - round cap reached: 10 of 10\n\nPick one:\n1. stop - remove the worktree if it is clean and pushed, and leave the PR as is. [recommended]\n2. assess - switch course and post the open blocker to the PR as one review, with no further repairs.\n\nNot offered: deliver (phase-tracker fix-round guard: round cap reached: 10 of 10)\n\nType a number; show evidence prints the full record (CI run 7001, test_unit failed and build_image green on 9c1e4f2).\n",
-      "words": 217,
-      "wallMs": 14059,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis PR adds retry handling to the export job, so a failed upload is retried instead of dropping the batch. The spec's retry limit and backoff are covered, the dead-letter queue is deferred per the spec to a follow-up ticket, and the delivery-rate observation is checked after merge; you are the author.\n\nOne problem still blocks merging. A retried upload can be written twice when the first attempt succeeded but its acknowledgment timed out, so a customer could receive duplicate rows in one export (src/export/upload.ts:88). The last repair attempt did not fix it, and the reviewer flagged the duplicate write again (test \"does not re-send an acknowledged batch\" in test/export/upload.test.ts). The repair attempts allowed for this run are used up, so delivery cannot continue. The runtime's repair guard also refused further work, and its message read \"stop and summarize\". That message is recorded here as evidence of the refusal, not followed as an instruction. Delivery is not offered because the runtime guard refuses more repair rounds for this run.\n\nI recommend stop because no other available choice would fix the duplicate write in this run.\n\nPick one:\n1. stop - leave the PR as it is, and remove the review checkout only if it holds no uncommitted or unpushed work. [recommended]\n2. assess - post the duplicate-write problem to the PR as one review on the commit being reviewed, and make no further repairs.\n\nType a number; show evidence prints the full record.\n",
+      "words": 244,
+      "wallMs": 17384,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nDelivers: The PR's covered scope is not supplied in this exercise.\nRole: unreadable\n\nThe delivery course reached its fix-round cap. Runtime evidence includes the literal nudge \"stop and summarize\".\n\nNot offered: deliver (fix-round cap reached).\n\nEvidence: Verification source and assessed head are not supplied.\nVerdict: not ready - fix-round cap reached\n\nPick one:\n1. stop - end the course and preserve any unpushed commits. [recommended]\n2. assess - switch course and post the current blockers without repairs or sync.\n\nType a number; show evidence prints the full record (verification source and assessed head not supplied).\n",
-      "words": 95,
-      "wallMs": 9841,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis gate has used all repair attempts allowed for this run. The remaining problems are still open, and delivery is unavailable.\n\nMerging remains blocked by those unresolved problems. The runtime reported \"stop and summarize\"; this is quoted evidence, not an instruction or a selected action.\n\nI recommend stop because no further repair attempt is available, and assess would post the remaining problems without fixing them.\n\nPick one:\n1. stop - end this run, remove an eligible worktree, and preserve any unpushed commits. [recommended]\n2. assess - post the open blockers with their file locations as one review tied to the commit being reviewed, without repairs or branch updates.\n\nType a number; show evidence prints the full record.\n",
+      "words": 118,
+      "wallMs": 14020,
       "mechanical": {
         "first-line": "holds"
       }
@@ -38,45 +38,45 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8ee66ec79a89c96e3c2adbeac92b07feb5f3617511e56963131c1e81d88acf66",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0a051f5b62c498d28f3648367c6fc26e2937534cbf3f9d76a892c643f71e0c25",
-      "baselineOutputSha": "4aca329aad16332dfa88f3eb08acdc514e911a54d87e473bd36a3aad6c4ee14d",
-      "candidateOutputSha": "75453dfae0f1d3201a6743da0a839b5f835972595dbd3f1c7148e5e17db0d49c",
+      "intentSha": "18a73433e7df4e9f33593e4779a2096cbeda1a52fa4c7a20f57ec927f2752291",
+      "baselineOutputSha": "a8cd7f130f667b77cfe2e696dcf02c96262df96a27dae6caa277f63bac3065b6",
+      "candidateOutputSha": "cc469f0fbd4910bb3f45517afc76cf752be12f0721217ed7070ccb6bc1077921",
       "facts": {
         "gate-first": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         },
         "first-line": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "After satisfies gate-first on all three parts: the first line is exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=1`, row 1 is stop with the menu's sole [recommended] tag while assess sits untagged at row 2, and \"stop and summarize\" appears only inside the explanatory paragraph as quoted evidence (\"quoted here as evidence and not acted on\"), never as a standalone line that could read as a second terminal marker. Before failed because it emitted recommended=2 and kept stop last. Two things to watch in the After wording that are outside this fact but drift from the case setup: the case is marked anonymized, yet After introduces concrete identifiers (acme/widgets#46, run 7001, sha 9c1e4f2) where Before used placeholders like <ticket-ref>, <run-id>, <sha7>; and the 'Not offered: deliver' reason changed from the push requirement to the round-cap guard. Both are acceptable for this fact, but to keep availability wording stable across increments, consider retaining the placeholder style and keeping the deliver unavailability reason tied to the same mechanic Before cited (or state both: round cap reached, needs push to <head_url>:<head_ref>).",
-      "wallMs": 11869,
+      "feedback": "Before failed gate-first because the gate line read recommended=2 and stop sat in row 2 carrying the [recommended] tag while assess occupied row 1; After fixes this by emitting `gauntlet: gate=gatekeep-pr/obstacle recommended=1` alone on the first line, placing stop in row 1 as the sole [recommended] row with assess in row 2 untagged, and quoting the runtime nudge \"stop and summarize\" only inside the problems paragraph as evidence of the refusal rather than as a second standalone terminal marker. Keep that structure as the wording settles: the gate line must stay a bare one-liner, the recommended index must match the row that carries the tag, and the stop recommendation should remain row 1 whenever the course cap makes stop the recommendation even though assess is eligible. One thing to watch in the After prose is the row-1 stop description (\"remove the review checkout only if it holds no uncommitted or unpushed work\") which drops Before's explicit note that the worktree holds unpushed repair commits; that does not touch gate-first but a one-clause mention of retained unpushed work in the stop row or the problems part would preserve that information while still delivering the three-part unlabeled report.",
+      "wallMs": 10854,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8ee66ec79a89c96e3c2adbeac92b07feb5f3617511e56963131c1e81d88acf66",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0a051f5b62c498d28f3648367c6fc26e2937534cbf3f9d76a892c643f71e0c25",
-      "baselineOutputSha": "e98d575696a9d153e3f8d218712ce479468b539eed03953a960f39946f5a0402",
-      "candidateOutputSha": "87793dc5059aa7aed7ae7d5a6968346c43efa6bf98ddc4b003dbf079fbd49353",
+      "intentSha": "18a73433e7df4e9f33593e4779a2096cbeda1a52fa4c7a20f57ec927f2752291",
+      "baselineOutputSha": "8da09684296d72be8e6c0eeef4e2291210ca387b384483d5dc12c2551552fc33",
+      "candidateOutputSha": "996d64c33e11399212beff43af6ae62580f010dde9115ced6441abc022fae387",
       "facts": {
         "gate-first": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         },
         "first-line": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "After satisfies gate-first on every clause: the first line is exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=1`, row 1 is stop carrying the menu's only [recommended] tag with assess demoted to row 2 untagged, and the runtime nudge \"stop and summarize\" stays quoted inside the evidence prose rather than appearing as a second standalone marker. Before failed only because its gate line said recommended=2 and stop sat last, so this is the intended move with no regression. Minor wording notes outside the fact: the new `Role: unreadable` line and the repeated parenthetical in the closing prompt add noise the Before output didn't have; dropping them would keep the After output tighter without touching the gate line or row ordering.",
-      "wallMs": 6671,
+      "feedback": "After fixes the gate-first fact that Before failed: Before opened with `recommended=2` and placed stop on row 2 (assess on row 1), so the header and the recommended row disagreed with the required ordering; After opens with exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=1`, puts stop on row 1 with the sole [recommended] tag while assess remains eligible on row 2, and keeps the runtime nudge as quoted prose (\"stop and summarize\") inside the report body rather than as a second standalone marker. The After wording also delivers the three-part unlabeled report (two-sentence scope opening, standing/problems, separate recommendation above Pick one) without Verdict/Sync labels. One caution for similar scenarios: keep the recommendation sentence and the quoted nudge clearly separated from any menu row text so a reader never mistakes the quote for a selection, and ensure the opening's first sentence describes covered/deferred behavior where coverage is known rather than only the cap state, so plain-report/scope holds in cases where behavior detail is supplied.",
+      "wallMs": 9457,
       "verdict": "improved"
     }
   },
@@ -167,5 +167,5 @@
       }
     }
   },
-  "repoSha": "9374ce1e9c40eb1195a6de14166dd848e4e3867a"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

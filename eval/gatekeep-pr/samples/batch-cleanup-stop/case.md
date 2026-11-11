@@ -18,6 +18,8 @@ Separate ordinary open-PR probe: human selects numeric stop21 from its current m
 
 ## Entry
 
+Include the already completed show evidence inspection in the opening narration, with its retained mapping; then execute the supplied picks. Do not simulate an extra inspection or menu.
+
 Narrate parent consequences in order, including validation of each supplied record's acme/widgets PR/base identity before acting, one-shot terminal settlement, non-final stop guards and stale-execute handling. Show each step's persisted result transition and the release pause: notify waits for release completion before it can run. Preserve course, caps, usage, ledger and record identity until each PR's actual stop. Describe requests from snapshots, not live tools or fabricated new results.
 
 All supplied records retain PR-local course, repair.rounds_cap 6, repair.syncs_cap 6 and both usage fields; unspecified usage is zero. These are text-only simulated snapshots, not requests to call tools.

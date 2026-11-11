@@ -25,9 +25,9 @@ H: viewer alex, author alex, refreshed requests [].
 I: viewer alex, author sam, refreshed requests [{"__typename":"User","login":"ALEx"}].
 
 Separate batch-parent rendering observation only, no dispatch: supplied child report text is exactly:
-Delivers: preserve widget labels.
-Role: requested reviewer (also requested: robin, acme/reviewers)
-Verdict: mergeable - CI green on the assessed head (test)
+This PR preserves widget labels. You are a requested reviewer; robin and acme/reviewers are also requested.
+Nothing blocks merging; the required CI check passed.
+I recommend merge because the changes are ready.
 
 
 ## Entry
