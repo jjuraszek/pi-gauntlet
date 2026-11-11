@@ -53,6 +53,7 @@ interface Task {
   waveNumber: number;
   filesBlockMissing: boolean;
   files: FileEntry[];
+  filesUnknown: { line: number; text: string }[];
   specAnchorLine: number | undefined;
   anchors: Anchor[];
   anchorParseError: boolean;
@@ -216,7 +217,9 @@ function parsePlan(planText: string): ParsedPlan {
     }
 
     let filesLine: number | undefined;
+    let lastFilesLine = -1;
     const files: FileEntry[] = [];
+    const filesUnknown: Task["filesUnknown"] = [];
     let specAnchorLine: number | undefined;
     let anchors: Anchor[] = [];
     let anchorParseError = false;
@@ -225,6 +228,7 @@ function parsePlan(planText: string): ParsedPlan {
       const line = lines[k];
       if (filesLine === undefined && /^(?:\*\*Files:\*\*|Files:)/.test(line)) {
         filesLine = k + 1;
+        lastFilesLine = k;
         let p = k + 1;
         while (p <= bodyEndIdx) {
           const l = lines[p];
@@ -232,14 +236,19 @@ function parsePlan(planText: string): ParsedPlan {
             p++;
             continue;
           }
-          const fm = /^- (Create|Modify|Test|Delete): (.+)$/.exec(l);
-          if (!fm) break;
-          files.push({
-            kind: fm[1].toLowerCase() as FileEntry["kind"],
-            line: p + 1,
-            text: l,
-            path: fm[2].trim().replace(/^`|`$/g, ""),
-          });
+          if (!/^- [^\s:]+: /.test(l)) break;
+          lastFilesLine = p;
+          const fm = /^- (Create|Modify|Test|Delete): (.*\S.*)$/.exec(l);
+          if (fm) {
+            files.push({
+              kind: fm[1].toLowerCase() as FileEntry["kind"],
+              line: p + 1,
+              text: l,
+              path: fm[2].trim().replace(/^`|`$/g, ""),
+            });
+          } else {
+            filesUnknown.push({ line: p + 1, text: l });
+          }
           p++;
         }
       }
@@ -260,15 +269,7 @@ function parsePlan(planText: string): ParsedPlan {
 
     let headingIdx = -1;
     if (filesLine !== undefined) {
-      let lastEntry = filesLine - 1;
-      let p = filesLine;
-      while (p <= bodyEndIdx) {
-        const l = lines[p];
-        if (l.trim() === "") { p++; continue; }
-        if (/^- \w+: /.test(l)) { lastEntry = p; p++; continue; }
-        break;
-      }
-      let q = lastEntry + 1;
+      let q = lastFilesLine + 1;
       while (q <= bodyEndIdx && lines[q].trim() === "") q++;
       if (q <= bodyEndIdx && !mask[q] && lines[q] === "**Tests:**") {
         headingIdx = q;
@@ -307,6 +308,7 @@ function parsePlan(planText: string): ParsedPlan {
       orchestrator: lines.slice(i + 1, bodyEndIdx + 1).map(line => /^Orchestrator: (.+)$/.exec(line)).find(match => match)?.[1],
       filesBlockMissing: filesLine === undefined,
       files,
+      filesUnknown,
       specAnchorLine,
       anchors,
       anchorParseError,
@@ -872,6 +874,32 @@ function checkAnchorResolution(parsed: ParsedPlan, specLines: string[]): PlanChe
   return findings;
 }
 
+function checkFilesBlock(parsed: ParsedPlan): PlanCheckFinding[] {
+  const out: PlanCheckFinding[] = [];
+  for (const task of parsed.tasks) {
+    for (const entry of task.filesUnknown) {
+      out.push({
+        check: "files-block",
+        line: entry.line,
+        text: entry.text,
+        reason: `Task ${task.number}: Files line "${entry.text}" is not a Create, Modify, Test or Delete entry with a path`,
+      });
+    }
+    for (const entry of task.files) {
+      const path = stripLineSuffix(entry.path);
+      if (entry.kind === "delete" && isGlob(path)) {
+        out.push({
+          check: "files-block",
+          line: entry.line,
+          text: entry.text,
+          reason: `Task ${task.number}: Delete: path "${path}" is a glob; Delete takes a literal path`,
+        });
+      }
+    }
+  }
+  return out;
+}
+
 function checkPathsExist(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
   const findings: PlanCheckFinding[] = [];
   for (const task of parsed.tasks) {
@@ -1335,6 +1363,7 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): { fin
     findings.push(...checkQuoteIntegrity(parsed, specLines));
     findings.push(...checkAnchorResolution(parsed, specLines));
     findings.push(...checkPathsExist(parsed, fs));
+    findings.push(...checkFilesBlock(parsed));
     findings.push(...checkTestsBlock(parsed, fs));
     const { policies, local } = baselinePolicy(parsed);
     if (policies.length && !local) findings.push({ check: "baseline-line", line: 0, text: policies.join("\n"), reason: "expected one header Baseline policy: implement-local" });

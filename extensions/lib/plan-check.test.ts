@@ -177,6 +177,61 @@ test("valid fixture: checkPlan returns no findings (also covers the placeholder 
   assert.deepEqual(findings, []);
 });
 
+test("unknown Files kind fails and later Modify is still checked", () => {
+  const missing = "extensions/lib/fixture-missing.ts";
+  const malformed = [
+    "- Modfy: old.ts",
+    "- Rename: old.ts",
+    "- Mod-ify: old.ts",
+    ...["Create", "Modify", "Test", "Delete"].flatMap(kind => [`- ${kind}: `, `- ${kind}:   `]),
+  ];
+  for (const entry of malformed) {
+    const plan = VALID_PLAN.replace(
+      "- Modify: extensions/lib/fixture-shared.ts",
+      `${entry}\n\n- Modify: ${missing}`,
+    );
+    const result = checkPlan(plan, SPEC_TEXT, {
+      exists: path => path !== missing,
+      glob: () => [],
+    });
+    assert.deepEqual(findingsFor(result.findings, "files-block"), [{
+      check: "files-block",
+      line: plan.split("\n").indexOf(entry) + 1,
+      text: entry,
+      reason: `Task 1: Files line "${entry}" is not a Create, Modify, Test or Delete entry with a path`,
+    }], entry);
+    assert.deepEqual(findingsFor(result.findings, "paths-exist"), [{
+      check: "paths-exist",
+      line: lineOf(plan, `- Modify: ${missing}`),
+      text: `- Modify: ${missing}`,
+      reason: `Modify: path "${missing}" does not exist`,
+    }], entry);
+    assert.deepEqual(result.parsed.tasks[0].files.map(file => file.path), [
+      "extensions/lib/fixture-task1.ts", missing, "extensions/lib/fixture-task1.test.ts",
+    ], entry);
+    assert.deepEqual(findingsFor(result.findings, "tests-block"), [], entry);
+    assert.equal(result.findings.length, 2, entry);
+  }
+});
+
+test("Delete glob fails", () => {
+  for (const path of ["src/*.ts", "src/file?.ts", "src/{old,new}.ts", "app/[id]/page.tsx"]) {
+    for (const suffix of ["", ":1-2"]) {
+      const entry = `- Delete: \`${path}${suffix}\``;
+      const plan = VALID_PLAN.replace(
+        "- Test: extensions/lib/fixture-task1.test.ts",
+        `${entry}\n- Test: extensions/lib/fixture-task1.test.ts`,
+      );
+      assert.deepEqual(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, [{
+        check: "files-block",
+        line: lineOf(plan, entry),
+        text: entry,
+        reason: `Task 1: Delete: path "${path}" is a glob; Delete takes a literal path`,
+      }]);
+    }
+  }
+});
+
 test("Delete entry passes before and after removal", () => {
   const path = "extensions/lib/fixture-removed.ts";
   const plan = VALID_PLAN.replace("- Test: extensions/lib/fixture-task1.test.ts", `- Delete: ${path}\n- Test: extensions/lib/fixture-task1.test.ts`);
@@ -974,6 +1029,23 @@ const T2_FILES_TEST = "- Test: extensions/lib/fixture-task2.test.ts\n";
 function tb(plan: string, spec = SPEC_TEXT, fs: FsPort = alwaysTruePort()): PlanCheckFinding[] {
   return findingsFor(checkPlan(plan, spec, fs).findings, "tests-block");
 }
+
+test("unknown kinds outside Files are not Files findings", () => {
+  const nonePlan = VALID_PLAN.replace(T2_FILES_TEST, "")
+    .replace(T2_TESTS + "- baseline: abc1234 pass\n", "**Tests:**\n- none: docs\n");
+  for (const plan of [
+    nonePlan,
+    VALID_PLAN.replace("**Files:**", "- Rename: before.ts\n\n**Files:**"),
+    VALID_PLAN.replace("This task handles naming details.", "- Rename: after.ts"),
+    ...["- [ ] **Step 1: Work**", "- `echo work`"].map(boundary =>
+      VALID_PLAN.replace(T2_FILES_TEST, `${T2_FILES_TEST}${boundary}\n- Modfy: outside.ts\n`)),
+  ]) {
+    const result = checkPlan(plan, SPEC_TEXT, alwaysTruePort());
+    assert.deepEqual(findingsFor(result.findings, "files-block"), []);
+    assert.ok(result.parsed.tasks.every(task => task.filesUnknown.length === 0));
+    if (plan === nonePlan) assert.deepEqual(result.findings, []);
+  }
+});
 
 test("tests-block: block missing when a task has no **Tests:**", () => {
   const mutated = VALID_PLAN.replace(T2_TESTS, "");
