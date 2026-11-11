@@ -1,4 +1,4 @@
-- opening-titles: mechanical: matches /gauntlet: question\s+(?:\*\*Message 1[^\n]*\*\*\s+)?## Today\n[\s\S]*?\n## The change\n[\s\S]*?\n## What I checked\n/
+- opening-titles: mechanical: matches /gauntlet: question\s+(?:\*\*Message 1[^\n]*\*\*\s+)?## Today\n(?!(?:(?:(?!\n## The change\n)[\s\S])*?[.!?](?=\s|$)){4})[\s\S]*?\n## The change\n(?!(?:(?:(?!\n## What I checked\n)[\s\S])*?[.!?](?=\s|$)){4})[\s\S]*?\n## What I checked\n/
 - opening-register: judged: In the first message, prose around the intact quoted ticket row uses everyday words and names checked parts by their role. File-and-line references, commit ids and trace counts are absent from this opening; the tracker id appears only in the repair command option. Literal wording inside the quoted row stays intact rather than being simplified.
 - f1: judged: The first ordinary question follows the holds-statement and is the cut question for the intact row "- [ ] GitHub CI is green on the head of the pull request", before any implementation-detail question.
 - f2: judged: That cut question offers A) in-scope, B) deviates:, C) deferred:, D) repair the ticket, in that order and on separate lines.
