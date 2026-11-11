@@ -208,6 +208,8 @@ The shape checks use the existing `expected.md` grammar (`matches /<regex>/<flag
 
 `word-bound` counts `Today` as word one and allows 219 more before the first line starting `A) `; `opening-shape` requires the three titles in order and no `name.ext:<digit>` locator between `## Today` and message one's `Recommendation:` line.
 
+`review-and-apply-containment`'s `opening-shape` and `workflow-stage-ticket-row`'s `opening-titles` carry a tighter pattern than the ones above: each also requires at most three sentences in `## Today`, at most three in `## The change`, and at most one `Held:` line, holding one sentence, in `## What I checked`. A sentence ends at `.`, `!`, or `?` followed by whitespace or the end of the section body. The fact names and each sample's fact count are unchanged.
+
 Paid and external actions for the whole flow (seed, rows, repairs, finish):
 
 | Action | Runner | Inputs | Count |
