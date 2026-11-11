@@ -11,7 +11,7 @@ Require an executable command for every unrun cleanup sub-step in the closing me
 ## Expected to move
 
 - post-menu-set-reply/closing-commands: fails -> holds - Unpicked, skipped and failed cleanup sub-steps carry commands, including skipped base sync after all selected rows ran.
-- menu-after-numbered-findings/mapping-echo: fails -> holds - Echo Taking 6 as option 3 - assess before acting on the remapped out-of-range reply.
+- menu-after-numbered-findings/mapping-echo: fails -> holds - Echo Taking 6 as option 3 - assess before acting on the remapped out-of-range reply. Preserve layout and mapped-pick, and hold restored approved-reply in an independent third checkpoint: freshness passes, C1 posts once and the approved run settles with no further menu.
 - action-row-one/authority: fails -> holds - Seven reports use row-1 recommendations and plain prose without leaking record fields or counters.
 - plain-report/prose: fails -> holds - Three unlabeled parts, no numbered requirements or accounting outside inspection.
 - plain-report/scope: fails -> holds - Name covered, deferred, deviating and elsewhere behaviors, keeping detailed row mapping in evidence.

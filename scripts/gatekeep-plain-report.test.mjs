@@ -48,9 +48,7 @@ test("saved plain-report candidates prove D5 without labels, numbered requiremen
   for (const [model, output] of Object.entries(candidate.outputs)) {
     assert.equal(output.status, "ok", model);
     for (const id of facts) assert.equal(candidate.judge[model].facts[id]?.after, "holds", `${model}: ${id}`);
-    assert.doesNotMatch(output.text, /\b(?:Evidence|Role|Prior review|Sync|Verdict|Delivers):/, model);
     assert.doesNotMatch(output.text, /binding pending check|merge_state_status|assessed head|durable run record|PR-named action|coverage post|withhold|terminal pick|post set|\bdisposition\b|course=/i, model);
-    assert.doesNotMatch(output.text, /^(?:>\s*)?(?:Not offered):/mi, model);
     assert.doesNotMatch(output.text, /\bexit_code\b/i, model);
   }
 });

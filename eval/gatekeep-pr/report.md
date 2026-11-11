@@ -1,8 +1,8 @@
-# eval report: gatekeep-pr (partial run: post-menu-set-reply, menu-after-numbered-findings, per-ref-settlement, bypass-merge-pick-refused, bypass-merge-pick-revoked, gate-line-first)
+# eval report: gatekeep-pr (partial run: menu-after-numbered-findings)
 
 for: c563ecce762825fbd5e573a380564effe8eff785c0f2aa35f548ce43b662ad86
 
-wall: 28s
+wall: 86s
 
 ## Change
 
@@ -14,44 +14,26 @@ Require an executable command for every unrun cleanup sub-step in the closing me
 
 ## Coverage and authority
 
-Coverage is sample-scoped, not a target-wide pass. The seven invocations in this review round are post-menu-set-reply (5 and 6 of 6), menu-after-numbered-findings (3 of 6), per-ref-settlement (6 of 6), bypass-merge-pick-refused (6 of 6), bypass-merge-pick-revoked (6 of 6), and gate-line-first (5 of 6). Each exits 0 with a nonzero replay count. No live PR or target-wide model sweep runs.
+Coverage is sample-scoped, not a target-wide pass. This final review fix runs only gatekeep-pr/menu-after-numbered-findings (4 of 6), once. The runner exits 0 and records replay 4, judge 2, confirm 0, wall 86s. All four candidate facts hold on both replay models: layout, mapped-pick, mapping-echo and approved-reply. The independent third checkpoint checks freshness on an approved, still-open PR, one successful C1 reply post and approved settlement with no further gatekeep-pr menu. No skill text changes or other sample replays occur in this fix.
 
-The first post-menu-set-reply replay leaves closing-commands failing on both models. It also exposes an incorrect expectation for L: its supplied variant explicitly makes every guard pass, including base sync. The final expectation preserves L's successful-sync variant while requiring B and I to name the skipped base sync and its commands. The final replay holds all 14 facts on both models, including closing-commands; its summary records replay 2, judge 2, confirm 0, wall 124s. The first replay records replay 2, judge 2, confirm 0, wall 123s.
+The Change section's seven-invocation review round precedes this final fix; its other sample results are retained, not rerun here. The runner rewrites this report for one sample per invocation. This coverage section restores the earlier disclosures after that rewrite; saved results remain runner-authored.
 
-menu-after-numbered-findings holds layout, mapped-pick and mapping-echo on both models. Its summary records replay 4, judge 2, confirm 0, wall 65s. Its saved skillSha is 5ab302e916b0cf08675689f981a83dda226f89b71067d55781f88b3155281b64, before the final cleanup-only clarification; the menu and reply-mapping text are unchanged between those assemblies. It is not final-assembly coverage of cleanup.
-
-per-ref-settlement holds its four settlement facts on both models; its summary records replay 2, judge 2, confirm 0, wall 20s. Those facts do not independently prove the cleanup-command rule. The Anthropic feedback notes missing commands in its cleanup recap; the Copilot feedback notes a dropped cleanup recap. Preserve that limitation rather than treating unchanged comparison verdicts as command coverage.
-
-Both bypass samples hold all five candidate facts on both models after regeneration, and gate-line-first holds both candidate facts on both models. All six cells are improved. The runner summaries record replay 2, judge 2, confirm 0 with wall 65s, 62s and 28s, respectively. Both bypass results bind to skillSha a48f1c4ede945b9ef783fa42579872cdf7e3419995724ab6e4c96d0bd5123620; gate-line-first binds to 1b95aa36883f83c1fe9b8dd4887ed98d7683e521e011b7ae3596298b3d812dcb. All three bind to repoSha 7d2c739f7fe3aef3bec08b26c5b50c31ae57d6cd. The scoped preflight reports only the two bypass skillSha mismatches; gate-line-first's deterministic test checks saved output without asserting assembly freshness.
-
-An earlier replay of loop-worker on this branch failed w5 on anthropic/claude-opus-5-5. A fresh replay held every must-hold fact on both replay models, on unchanged skills/gatekeep-pr/reference/fix-wave.md text. Run 5 failed w5 on one model, run 6 made no model call, and run 7 is the fresh replay. Its saved assembly remains fresh because cleanup.md is excluded; this round does not replay it.
+An earlier replay of loop-worker on this branch failed w5 on anthropic/claude-opus-5-5. A fresh replay held every must-hold fact on both replay models, on unchanged skills/gatekeep-pr/reference/fix-wave.md text. Run 5 failed w5 on one model, run 6 made no model call, and run 7 is the fresh replay. Its saved assembly remains fresh because cleanup.md is excluded; this fix does not replay it.
 
 The saved gatekeep-pr/wave-closure-retry failure and the single-model f2 failure on github-copilot/gpt-6.1-sol in gatekeep-pr/course-deliver-no-mid-menu fail the same way on the base commit and are outside this change. Their wave-closure accounting and first own-push watch deadline mechanics are unchanged, and neither failure is hidden by a comparison verdict.
 
 D8 baseline limitation: the frozen baseline uses the working-tree skillFiles list, with menus.md and without decision-menu.md. It does not establish the original 11-template flow. Candidate must-hold facts are judged absolutely; mechanics evidence comes from deterministic assertions and selected candidate facts, not comparison direction.
 
-The runner rewrites the report for one sample per invocation. This coverage section restores the review-round disclosures after the last rewrite; saved results remain runner-authored.
-
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| post-menu-set-reply | anthropic/claude-opus-5-5 | improved | - | All 14 candidate facts hold |
-| post-menu-set-reply | github-copilot/gpt-6.1-sol | improved | - | All 14 candidate facts hold |
-| menu-after-numbered-findings | anthropic/claude-opus-5-5 | unchanged | - | layout, mapped-pick and mapping-echo hold |
-| menu-after-numbered-findings | github-copilot/gpt-6.1-sol | unchanged | - | layout, mapped-pick and mapping-echo hold |
-| per-ref-settlement | anthropic/claude-opus-5-5 | unchanged | - | All four settlement facts hold |
-| per-ref-settlement | github-copilot/gpt-6.1-sol | unchanged | - | All four settlement facts hold |
-| bypass-merge-pick-refused | anthropic/claude-opus-5-5 | improved | 17321 | All five candidate facts hold |
-| bypass-merge-pick-refused | github-copilot/gpt-6.1-sol | improved | 18790 | All five candidate facts hold |
-| bypass-merge-pick-revoked | anthropic/claude-opus-5-5 | improved | - | All five candidate facts hold |
-| bypass-merge-pick-revoked | github-copilot/gpt-6.1-sol | improved | - | All five candidate facts hold |
-| gate-line-first | anthropic/claude-opus-5-5 | improved | 8525 | gate-first: fails -> holds (unplanned improvement); first-line: fails -> holds (unplanned improvement) |
-| gate-line-first | github-copilot/gpt-6.1-sol | improved | 8744 | gate-first: fails -> holds (unplanned improvement); first-line: fails -> holds (unplanned improvement) |
+| menu-after-numbered-findings | anthropic/claude-opus-5-5 | unchanged | 18624 | layout: holds -> holds (held); mapped-pick: holds -> holds (held); mapping-echo: holds -> holds (intended but unchanged); approved-reply: holds -> holds (held) |
+| menu-after-numbered-findings | github-copilot/gpt-6.1-sol | improved | 27733 | layout: fails -> holds (unplanned improvement); mapped-pick: holds -> holds (held); mapping-echo: holds -> holds (intended but unchanged); approved-reply: holds -> holds (held) |
 
 ## Feedback
 
-- gate-line-first / anthropic/claude-opus-5-5: Before failed gate-first on its own terms: the gate line read recommended=2 and stop sat in row 2, so the recommended row and the gate pointer disagreed with the fact's requirement that stop be row 1 with recommended=1. After fixes this cleanly - the first line is exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=1` with nothing else, row 1 is stop and carries the menu's only [recommended] tag while assess is still offered as row 2, and the guard's "stop and summarize" text is quoted inside the prose as evidence under that gate rather than printed as a second standalone marker. The three unlabeled parts, the explicit recommendation paragraph above Pick one, the deliver-unavailable explanation with its added-attempt consequence, and the evidence kept behind show evidence all land without disturbing the gate fact. One thing worth tightening: row 1's wording ("keep the checkout if it holds commits that were not pushed, and name them") hedges on whether unpushed commits exist, whereas the second part already states the last attempt left work behind; stating plainly that the checkout holds unpushed repair commits and will be kept would match Before's concreteness while preserving every fact After now satisfies.
-- gate-line-first / github-copilot/gpt-6.1-sol: After fixes gate-first: the first line is exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=1`, stop sits in row 1 as the sole [recommended] row with assess still offered in row 2, and `"stop and summarize"` appears only as quoted evidence beneath the gate rather than as a second terminal marker. Before failed on all three counts (recommended=2, assess in row 1, stop tagged in row 2), so nothing was lost in the move. Keep the After structure as-is - gate line alone, unlabeled two-sentence opening, quoted nudge with the explicit "does not select an action" sentence, separate recommendation sentence above `Pick one:`, stop first and tagged - and avoid reintroducing `Verdict:`/`Evidence:` labels or a `Not offered:` line that could read as a second standalone marker.
+- menu-after-numbered-findings / anthropic/claude-opus-5-5: Nothing moved: both outputs render the three blockers and four options as separate lists split by prose with deliver recommended at row 1 and a hint-only show evidence line, both count N=4/L=3, print `Taking 6 as option 3 - assess` before recording the assess course and narrating the freshness re-fetch as the first assessment operation without inventing results, and both re-fetch PR #123, post C1 once and close on the `#123@0123456789abcdef0123456789abcdef01234567: approved` row with no further menu. The one thing in After that cuts against the Change's own intent is the checkpoint-1 opening paragraph about the plan tracker holding gather/provision/verify and stages being added without --rebase; that leaks record fields and stage bookkeeping into the plain report the Change says should be two behavior-based sentences. Drop that paragraph and start directly with the CSV-export/scope sentences, keeping the recommendation paragraph above Pick one and the mapping echo line exactly as it is, and all four facts continue to hold.
+- menu-after-numbered-findings / github-copilot/gpt-6.1-sol: The only fact that moved is layout, and it moved in the right direction: Before placed assess at row 1 and deliver [recommended] at row 2 (header recommended=2) against the entry's deliver=1 mapping, while After renders deliver [recommended] at row 1, the three blockers and four options as separate lists split by a `---` rule, and keeps evidence behind a single `show evidence` hint. mapping-echo and approved-reply already held in Before (the `Taking 6 as option 3 - assess.` line precedes the course record in both, and both post C1 once and settle on `#123@0123…4567: approved` without a further menu), so After preserved rather than restored them; After's explicit `gauntlet: done approved` line is a welcome tightening. One risk worth trimming in After: checkpoint 1 narrates three long `gh` command lines and the counter statement `No repair or sync attempt is spent` above the report, which is exactly the raw-evidence/usage content the Change says should stay behind `show evidence`; drop that preamble (or reduce it to one sentence saying the refreshed snapshot is unchanged) so the report starts at the two-sentence opening and the layout fact stays unambiguous. Likewise, in checkpoint 2 consider adding the literal counts (`4 options, 3 preceding findings`) before the subtraction sentence so mapped-pick's N/L requirement is visibly satisfied rather than implied.
 
 exit: 0
