@@ -36,9 +36,9 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "378e801e0c38491ceab61e2ae555558a84ff8db0951821f3e30284b91cf0947b",
+      "factsSha": "1216bbde40eb74e0047bf62c5c0a73daba22792e1a8e7fd18e2dc80429df9c00",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2d71a2fbe544db9574eb12227e3e7b15e7dc91de19e440d4dd83bb65e4fb2278",
+      "intentSha": "56cbf89d77d090d110bae69bd3d91a51937d2d425aae3ab4e3bbaa1438d15384",
       "baselineOutputSha": "f0f7321f875eb7601a1fe5c0ae45d254604eb8001ec9d5eabeb7351cf6cee8d2",
       "candidateOutputSha": "c2c45ff33bd45a4167e0e981ebef042419e8be13a5eae964755236dd14b887be",
       "facts": {
@@ -48,9 +48,9 @@
           "label": "intended change"
         },
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f2": {
           "before": "holds",
@@ -68,9 +68,9 @@
           "label": "intended but unchanged"
         },
         "f5": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f6": {
           "before": "holds",
@@ -88,14 +88,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moved opening-register, f1 and f5 from fails to holds and kept everything Before kept. Before's opening named src/importer.ts and scripts/complexity.mjs in prose and placed the tracker id in 'Row 1 of acme/widgets#77' outside the repair command, and both cut questions quoted the rows with the '- [ ] ' marker stripped, so the rows were not reproduced intact; After renders Today / The change / What I checked in role-based everyday words, keeps acme/widgets#77 only inside option D, and quotes both rows verbatim with their checkbox prefix. f2-f4, f6 and f7 held in both: option order and separate lines, the shape-ticket command, Recommendation: D, no disposition question for the complexity or naming rows, and the retired-proof lines kept as provenance while importRows is carried. One small redundancy worth tightening in After: the sentence 'The framing holds: checked ...' repeats the What I checked bullet; dropping it (or folding it into the Held: line) keeps the 220-word span tighter without moving any fact. Keep the rule that quoted ticket rows retain their literal '- [ ] ' prefix, since that is what distinguishes After's f1/f5 from Before's.",
-      "wallMs": 31135,
-      "verdict": "improved"
+      "feedback": "The only fact that moved is opening-register, and it moved the right way: Before's first message leaned on src/importer.ts, scripts/complexity.mjs and a 'Row 1 of acme/widgets#77' mention outside the D option, while After renders Today / The change / What I checked in everyday words, keeps the tracker id inside the shape-ticket command only, and quotes the row verbatim with its '- [ ]' prefix. Every other fact (f1-f7) already held in Before and still holds in After: the holds-statement precedes the sole-stage cut question, A-D are on separate lines in order, D names /skill:shape-ticket acme/widgets#77 with Recommendation: D for both the sole-stage and bundled rows, the complexity-21 and row-naming rows get no disposition question, and the retired proof lines are kept as provenance with importRows carried into Design and no 'make ci passes' suite obligation added. Two small things worth keeping an eye on so this stays stable: After's message 1 repeats the Held: content in a second 'The framing holds: checked ...' sentence (harmless for the one-Held-line bound but redundant), and After pre-fills the B)/C) option text ('the row is a delivery-stage proof...', 'to a destination you name') rather than Before's '<why...>' placeholders; both still satisfy f2, but a wording that keeps the B)/C) labels as bare 'deviates:' / 'deferred: <destination>' slots while retaining the three titles and role-named checked parts would deliver the Change with the least drift from the Before question shape.",
+      "wallMs": 29042,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "378e801e0c38491ceab61e2ae555558a84ff8db0951821f3e30284b91cf0947b",
+      "factsSha": "1216bbde40eb74e0047bf62c5c0a73daba22792e1a8e7fd18e2dc80429df9c00",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2d71a2fbe544db9574eb12227e3e7b15e7dc91de19e440d4dd83bb65e4fb2278",
+      "intentSha": "56cbf89d77d090d110bae69bd3d91a51937d2d425aae3ab4e3bbaa1438d15384",
       "baselineOutputSha": "5da598e305c3c06ce5568aec75235753180fd1d5b1d0685bc44a599e738bc619",
       "candidateOutputSha": "9379decc543854605f0fa44a32e949f2627b77eff97a016fd053c0499d308299",
       "facts": {
@@ -105,9 +107,9 @@
           "label": "intended change"
         },
         "f1": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f2": {
           "before": "holds",
@@ -125,9 +127,9 @@
           "label": "intended but unchanged"
         },
         "f5": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f6": {
           "before": "holds",
@@ -145,10 +147,296 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves opening-register from fails to holds: Before's first message says \"Ticket acme/widgets#77 includes this intact row\" (tracker id outside the repair option) and its framing line cites `scripts/complexity.mjs`, while After confines the id to option D, keeps file paths out of Today/The change/What I checked, names parts by role (\"the importer\", \"the complexity check\"), and quotes the row with its `- [ ]` prefix intact. Every other fact already held in Before and still holds in After: the cut question follows the holds-statement before the error-format question, A-D stay on separate ordered lines, D names /skill:shape-ticket acme/widgets#77 with Recommendation: D on both the sole-stage and bundled rows, the complexity and behavior rows get no disposition question, and the closing Design section carries only importRows while marking both retired lines as provenance with no make ci passes obligation. To keep this, retain the rule that the tracker id appears only inside the repair command and that the opening prose names checked parts by role; the one soft spot is the `importRows` identifier and \"Not checked\" line in the opening, which a stricter reader of \"everyday words\" could question, so consider phrasing it as \"the public import entry point\" in the opening and naming the identifier only from the approaches onward, and keep quoting rows with their checkbox prefix in every message as After does and Before did not.",
-      "wallMs": 31381,
-      "verdict": "improved"
+      "feedback": "After moves opening-register, f1 and f5 to holds for concrete textual reasons: message one now opens with Today / The change / What I checked in plain words, keeps the tracker id only inside the D option's `/skill:shape-ticket acme/widgets#77` command, drops the `scripts/complexity.mjs` file reference that Before's holds-statement carried, and quotes both ticket rows verbatim including the `- [ ]` marker, whereas Before prefixed the opening with 'Ticket acme/widgets#77 includes this intact row' and stripped the checkbox marker from both quoted rows (so a careful reader would not call them intact). f2, f3, f4 and f6 were already satisfied in Before and survive unchanged; f7 also held in Before (both outputs label the retired lines as provenance, add no `make ci passes` obligation, and carry `importRows`), so the Change's claimed f7 move is not visible in these two texts. To keep every Before-held fact while delivering the Change, retain exactly what After does: one-sentence Held: and Not checked: lines, no path or line locators before the Recommendation: line, the row quoted byte-for-byte with its checkbox, and the tracker id confined to option D; the only thing to watch is that `importRows` in The change is a role-named entry point rather than a locator, which stays within the register.",
+      "wallMs": 34384,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
     }
   },
-  "repoSha": "547a0a8a51fbdb2290c2312d41d291c7f9d0fc85"
+  "repoSha": "07d48d68d667ec5e132f8f904de1cdfd7ac8b522",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "workflow-stage-ticket-row",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "5d3661808a5644c51777f5deb28f275eee788cdaf97ab15855a25de3a563a98e",
+      "candidateSkillSha": "333826b095278f9418331cad9c5b0fb588e5d947d364c9904d25bd11c7a3cbef",
+      "inputSha": "08fda0ab063fdc1c2f7960b0c141b27eb66a2aeb9fb0e10887cddcb765aa5dd4",
+      "factsSha": "1216bbde40eb74e0047bf62c5c0a73daba22792e1a8e7fd18e2dc80429df9c00",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "56cbf89d77d090d110bae69bd3d91a51937d2d425aae3ab4e3bbaa1438d15384",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "f0f7321f875eb7601a1fe5c0ae45d254604eb8001ec9d5eabeb7351cf6cee8d2",
+            "payloadSha": "08b3558052b60f5126f1dfb3a201ab1f38cea2c64a46395127daa3e93b5a63a7"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "5da598e305c3c06ce5568aec75235753180fd1d5b1d0685bc44a599e738bc619",
+            "payloadSha": "3f56e1b244e14ac5a13d7d1da03c8750224e13eb13f04705c21a2c76a50b13f1"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "c2c45ff33bd45a4167e0e981ebef042419e8be13a5eae964755236dd14b887be",
+            "payloadSha": "f77e9785362562f1accdcb766e57d0786a385e93d763fde1ff82a18af64e9af4"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "9379decc543854605f0fa44a32e949f2627b77eff97a016fd053c0499d308299",
+            "payloadSha": "56314545d8d253ca565e4af69d5956bc226a3c15f46cf61ff8eae02989c54471"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "378e801e0c38491ceab61e2ae555558a84ff8db0951821f3e30284b91cf0947b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "2d71a2fbe544db9574eb12227e3e7b15e7dc91de19e440d4dd83bb65e4fb2278",
+        "baselineOutputSha": "f0f7321f875eb7601a1fe5c0ae45d254604eb8001ec9d5eabeb7351cf6cee8d2",
+        "candidateOutputSha": "c2c45ff33bd45a4167e0e981ebef042419e8be13a5eae964755236dd14b887be",
+        "facts": {
+          "opening-register": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "f1": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f5": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "f6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f7": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "opening-titles": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moved opening-register, f1 and f5 from fails to holds and kept everything Before kept. Before's opening named src/importer.ts and scripts/complexity.mjs in prose and placed the tracker id in 'Row 1 of acme/widgets#77' outside the repair command, and both cut questions quoted the rows with the '- [ ] ' marker stripped, so the rows were not reproduced intact; After renders Today / The change / What I checked in role-based everyday words, keeps acme/widgets#77 only inside option D, and quotes both rows verbatim with their checkbox prefix. f2-f4, f6 and f7 held in both: option order and separate lines, the shape-ticket command, Recommendation: D, no disposition question for the complexity or naming rows, and the retired-proof lines kept as provenance while importRows is carried. One small redundancy worth tightening in After: the sentence 'The framing holds: checked ...' repeats the What I checked bullet; dropping it (or folding it into the Held: line) keeps the 220-word span tighter without moving any fact. Keep the rule that quoted ticket rows retain their literal '- [ ] ' prefix, since that is what distinguishes After's f1/f5 from Before's.",
+        "wallMs": 31135,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "378e801e0c38491ceab61e2ae555558a84ff8db0951821f3e30284b91cf0947b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "2d71a2fbe544db9574eb12227e3e7b15e7dc91de19e440d4dd83bb65e4fb2278",
+        "baselineOutputSha": "5da598e305c3c06ce5568aec75235753180fd1d5b1d0685bc44a599e738bc619",
+        "candidateOutputSha": "9379decc543854605f0fa44a32e949f2627b77eff97a016fd053c0499d308299",
+        "facts": {
+          "opening-register": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f7": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "opening-titles": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moves opening-register from fails to holds: Before's first message says \"Ticket acme/widgets#77 includes this intact row\" (tracker id outside the repair option) and its framing line cites `scripts/complexity.mjs`, while After confines the id to option D, keeps file paths out of Today/The change/What I checked, names parts by role (\"the importer\", \"the complexity check\"), and quotes the row with its `- [ ]` prefix intact. Every other fact already held in Before and still holds in After: the cut question follows the holds-statement before the error-format question, A-D stay on separate ordered lines, D names /skill:shape-ticket acme/widgets#77 with Recommendation: D on both the sole-stage and bundled rows, the complexity and behavior rows get no disposition question, and the closing Design section carries only importRows while marking both retired lines as provenance with no make ci passes obligation. To keep this, retain the rule that the tracker id appears only inside the repair command and that the opening prose names checked parts by role; the one soft spot is the `importRows` identifier and \"Not checked\" line in the opening, which a stricter reader of \"everyday words\" could question, so consider phrasing it as \"the public import entry point\" in the opening and naming the identifier only from the approaches onward, and keep quoting rows with their checkbox prefix in every message as After does and Before did not.",
+        "wallMs": 31381,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "1216bbde40eb74e0047bf62c5c0a73daba22792e1a8e7fd18e2dc80429df9c00",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "56cbf89d77d090d110bae69bd3d91a51937d2d425aae3ab4e3bbaa1438d15384",
+        "baselineOutputSha": "f0f7321f875eb7601a1fe5c0ae45d254604eb8001ec9d5eabeb7351cf6cee8d2",
+        "candidateOutputSha": "c2c45ff33bd45a4167e0e981ebef042419e8be13a5eae964755236dd14b887be",
+        "facts": {
+          "opening-register": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f7": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "opening-titles": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "The only fact that moved is opening-register, and it moved the right way: Before's first message leaned on src/importer.ts, scripts/complexity.mjs and a 'Row 1 of acme/widgets#77' mention outside the D option, while After renders Today / The change / What I checked in everyday words, keeps the tracker id inside the shape-ticket command only, and quotes the row verbatim with its '- [ ]' prefix. Every other fact (f1-f7) already held in Before and still holds in After: the holds-statement precedes the sole-stage cut question, A-D are on separate lines in order, D names /skill:shape-ticket acme/widgets#77 with Recommendation: D for both the sole-stage and bundled rows, the complexity-21 and row-naming rows get no disposition question, and the retired proof lines are kept as provenance with importRows carried into Design and no 'make ci passes' suite obligation added. Two small things worth keeping an eye on so this stays stable: After's message 1 repeats the Held: content in a second 'The framing holds: checked ...' sentence (harmless for the one-Held-line bound but redundant), and After pre-fills the B)/C) option text ('the row is a delivery-stage proof...', 'to a destination you name') rather than Before's '<why...>' placeholders; both still satisfy f2, but a wording that keeps the B)/C) labels as bare 'deviates:' / 'deferred: <destination>' slots while retaining the three titles and role-named checked parts would deliver the Change with the least drift from the Before question shape.",
+        "wallMs": 29042,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "1216bbde40eb74e0047bf62c5c0a73daba22792e1a8e7fd18e2dc80429df9c00",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "56cbf89d77d090d110bae69bd3d91a51937d2d425aae3ab4e3bbaa1438d15384",
+        "baselineOutputSha": "5da598e305c3c06ce5568aec75235753180fd1d5b1d0685bc44a599e738bc619",
+        "candidateOutputSha": "9379decc543854605f0fa44a32e949f2627b77eff97a016fd053c0499d308299",
+        "facts": {
+          "opening-register": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "f1": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f5": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "f6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f7": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "opening-titles": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moves opening-register, f1 and f5 to holds for concrete textual reasons: message one now opens with Today / The change / What I checked in plain words, keeps the tracker id only inside the D option's `/skill:shape-ticket acme/widgets#77` command, drops the `scripts/complexity.mjs` file reference that Before's holds-statement carried, and quotes both ticket rows verbatim including the `- [ ]` marker, whereas Before prefixed the opening with 'Ticket acme/widgets#77 includes this intact row' and stripped the checkbox marker from both quoted rows (so a careful reader would not call them intact). f2, f3, f4 and f6 were already satisfied in Before and survive unchanged; f7 also held in Before (both outputs label the retired lines as provenance, add no `make ci passes` obligation, and carry `importRows`), so the Change's claimed f7 move is not visible in these two texts. To keep every Before-held fact while delivering the Change, retain exactly what After does: one-sentence Held: and Not checked: lines, no path or line locators before the Recommendation: line, the row quoted byte-for-byte with its checkbox, and the tracker id confined to option D; the only thing to watch is that `importRows` in The change is a role-named entry point rather than a locator, which stays within the register.",
+        "wallMs": 34384,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  }
 }

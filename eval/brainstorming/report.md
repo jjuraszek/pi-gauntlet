@@ -2,67 +2,32 @@
 
 for: 7a8c2f5253fcf0e717622780bd2944b0bcbdea7784937af2bd488d75570be72a
 
-wall: 186s (ticket-row retry 1: 92s; retry 2: 94s)
+wall: 35s
+
+refresh: complete; sample: workflow-stage-ticket-row; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
+audit: [candidate.json](results/workflow-stage-ticket-row/candidate.json)
 
 ## Selected coverage and accounting
 
-G2 retry changed only the tracker-id sentence in the opening-message reference and refreshed only workflow-stage-ticket-row. The final candidate holds all nine facts on both replay models; all seven scoped gates exit 0, including the formerly red gate 6. Every fact line in the sample and every existing Expected to move line remain byte-identical. No Held: check was added, and the What I checked row is unchanged.
+G4 changes only review-and-apply-containment/opening-shape and workflow-stage-ticket-row/opening-titles, adding at most one Held: line with at most one sentence in message one's What I checked. The existing Today and The change guards, fact names, seven and nine fact counts, first-message scope, and every other fact line are unchanged. Offline new RegExp probes pass all four saved candidate first messages, reject duplicate Held: lines and two-sentence Held: lines, accept deck.pptx and an omitted Held: line, and still reject four Today or The change sentences.
 
-The first retry held opening-register on both models but github-copilot/gpt-6.1-sol failed opening-titles by inserting `*Message 1*` between the marker and Today, outside the pinned optional `**Message 1...**` spelling. Its deferral option was `C) deferred: supply a tracker reference, spec path, or URL for the CI-status requirement`. After a further edit to the same owning sentence, the second and final authorized run holds every fact. The first candidate and partial report are retained in scratch as /tmp/g2-first-candidate.json and /tmp/g2-first-run-report.md.
+Judgment-only refresh completed for workflow-stage-ticket-row: all nine candidate facts hold on both replay models, with no primary replay or confirmation calls. The judgment-only attempt for review-and-apply-containment refused before model calls with `review-and-apply-containment/candidate/anthropic/claude-opus-5-5: saved reply is not reusable`. Its saved candidate assembly is stale, contrary to the refresh premise. The binding two-invocation, one-per-sample cap leaves no authorized comparing fallback. Containment's records remain unchanged: all seven saved candidate facts hold on both models, but they are not refreshed evidence for this mechanical edit.
 
-Today / The change sentence counts are retry 1 opus 2/3 and sol 2/2, and retry 2 opus 2/3 and sol 2/2. All four fresh messages keep the sentence bounds. Each has one Held: line holding one sentence; this is reported only, not enforced by G2.
+The other six selected samples' saved replies predate the later tracker-id sentence changes: opening-message-shape, opening-message-ticket-not-fetched, gate-line-first, implicit-template-not-found, missing-db-extension, and review-and-apply-containment. The other five also predate the Today and The change sentence changes. Coverage is partial, not a target-wide pass or a fresh replay of all seven selected samples. Concern coverage remains synthetic gate-line-first only; latest-run-indicator/framing and explicit-unit-normalization/framing were not run. Tool-free replays do not prove draft writes or live overflow handling. The fixed A-answer continuation does not prove live ticket repair or the D-path abort. The carried review-and-apply-containment/constraints: holds -> fails accepted variance and every existing Expected to move line remain byte-identical in intent.md. The earlier containment opus response-consumer-stub versus real-consumer wording ambiguity remains outside this repair.
 
-The other six selected samples' saved replies predate this sentence change: opening-message-shape, opening-message-ticket-not-fetched, gate-line-first, implicit-template-not-found, missing-db-extension, and review-and-apply-containment. Their saved evidence is unchanged. This is a partial run, not a target-wide pass or a fresh replay of all seven selected samples. Concern coverage remains synthetic gate-line-first only; latest-run-indicator/framing and explicit-unit-normalization/framing were not run. Tool-free replays do not prove draft writes or live overflow handling. The fixed A-answer continuation does not prove live ticket repair or the D-path abort.
+The running total starts at 80/280. README documents no lower refresh worst case, so each invocation reserves 14 calls. The refused attempt emits no completion line and spends zero calls. The completed refresh spends replay 0, judge 2, confirm 0: final running total 82/280, leaving 198 calls. No other paid or external action ran.
 
-The carried review-and-apply-containment/constraints: holds -> fails accepted variance and every existing Expected to move line remain byte-identical in intent.md. The earlier containment opus judge's response-consumer-stub versus real-consumer wording ambiguity remains outside this repair.
+bound spent: Model eval run (94 of 280)
 
-The completion-line running total before this retry was 72/280. Earlier `(k of 280)` values tracked cumulative worst-case reservations, not actual spend. Each retry consumed replay 2, judge 2, confirm 0; actual spend is now 80/280, leaving 200 calls under the ceiling. Each invocation started only after its 14-call worst case fit the remaining budget. No other paid or external action was run.
+Containment refresh refused (exit 2); no completion line, running total unchanged at 80 of 280.
 
-bound spent: Model eval run (86 of 280)
-ran Model eval run (76 of 280): brainstorming: improved (report.md written; replay 2, judge 2, confirm 0, wall 92s)
-bound spent: Model eval run (90 of 280)
-ran Model eval run (80 of 280): brainstorming: improved (report.md written; replay 2, judge 2, confirm 0, wall 94s)
+bound spent: Model eval run (94 of 280)
 
-## Prior reservation records (historical, not the running actual total)
-
-bound spent: Model eval run (238 of 280)
-ran Model eval run (238 of 280): brainstorming: improved (report.md written; replay 2, judge 2, confirm 0, wall 75s)
-bound spent: Model eval run (252 of 280)
-ran Model eval run (252 of 280): brainstorming: improved (report.md written; replay 2, judge 2, confirm 0, wall 88s)
-
-bound spent: Model eval run (224 of 280)
-ran Model eval run (224 of 280): brainstorming: improved (report.md written; replay 2, judge 2, confirm 0, wall 76s)
-
-Prior accounting, carried unchanged:
-- bound spent: Model eval run (14 of 280)
-- ran Model eval run (6 of 280)
-- bound spent: Model eval run (28 of 280)
-- ran Model eval run (10 of 280)
-- bound spent: Model eval run (42 of 280)
-- ran Model eval run (34 of 280)
-- bound spent: Model eval run (84 of 280)
-- ran Model eval run (60 of 280)
-- bound spent: Model eval run (98 of 280)
-- ran Model eval run (90 of 280)
-- bound spent: Model eval run (112 of 280)
-- bound spent: Model eval run (126 of 280)
-- ran Model eval run (118 of 280)
-- bound spent: Model eval run (140 of 280)
-- ran Model eval run (128 of 280)
-
-Round 1 accounting, reserved in scratch before each invocation:
-- bound spent: Model eval run (154 of 280)
-- ran Model eval run (154 of 280): replay 0, judge 2, confirm 0, wall 22s (unread-ticket RED refresh)
-- bound spent: Model eval run (168 of 280)
-- ran Model eval run (168 of 280): replay 0, judge 2, confirm 0, wall 19s (implicit-template-not-found refresh)
-- bound spent: Model eval run (182 of 280)
-- ran Model eval run (182 of 280): replay 0, judge 2, confirm 0, wall 16s (missing-db-extension refresh)
-- bound spent: Model eval run (196 of 280)
-- ran Model eval run (196 of 280): replay 0, judge 2, confirm 0, wall 18s (review-and-apply-containment refresh)
-- bound spent: Model eval run (210 of 280)
-- ran Model eval run (210 of 280): replay 2, judge 2, confirm 0, wall 25s (unread-ticket wording round 1)
+ran Model eval run (82 of 280): brainstorming: improved (report.md written; refresh workflow-stage-ticket-row [anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol]; replay 0, judge 2, confirm 0, wall 35s)
 
 ## Change
+
+Complete review-and-apply-containment/opening-shape and workflow-stage-ticket-row/opening-titles with at most one Held: line and at most one sentence on that line in message one's What I checked. Keep the existing Today and The change sentence guards, fact names, seven and nine fact counts, and every other fact line. Refresh judgments against saved replies for these two samples only, without replaying primary arms; preserve accepted variance and partial coverage limits. No skill wording changes.
 
 Keep the tracker id inside the command option and render a request for an unsupplied destination in a lettered option. Refresh only workflow-stage-ticket-row after this owning-sentence change; preserve all nine fact lines byte-identically and keep the Today and The change sentence bounds. Report the other six selected samples' saved replies as predating this sentence change, retain coverage limits, and count paid calls from runner completion lines against the 280-call ceiling.
 Render question one's message as Today, The change, and What I checked, with everyday words and sources in the draft. The opening-message reference owns wording, a 220-word span cap, and holds/concern examples; SKILL.md keeps flow and records every checked claim before sending. Selected coverage is opening-message-shape, opening-message-ticket-not-fetched, gate-line-first, implicit-template-not-found, missing-db-extension, review-and-apply-containment, and workflow-stage-ticket-row, run individually within the approved 280-call budget. Preserve prior records and accepted variance; report only completed selected samples, not a target-wide pass. The not-fetched sample supplies only a ticket reference, a denied fetch, and unrelated repo recon; require the Not checked: reason and design wait without inventing the ticket's request. Concern coverage is synthetic gate-line-first only; latest-run-indicator/framing and explicit-unit-normalization/framing are not run. Tool-free replays cannot prove draft writes or live overflow handling. The three dependency and containment samples use the mechanical opening-shape fact for ordered titles and locator-free chat through message one's Recommendation: line; preserve every other fact and source-backed approaches. Summarize Today and The change within three sentences each, combining related behaviors and counting any stated assumption inside The change toward its bound. Tighten only review-and-apply-containment/opening-shape and workflow-stage-ticket-row/opening-titles, retaining their seven and nine facts and every other fact line. Replay only those two samples, containment first, once each within the approved remaining budget; the other five selected samples' saved replies predate the Today and The change sentence changes.
@@ -143,12 +108,12 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| workflow-stage-ticket-row | anthropic/claude-opus-5-5 | improved | 31135 | opening-register: fails -> holds (intended change); f1: fails -> holds (intended change); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); f5: fails -> holds (intended change); f6: holds -> holds (intended but unchanged); f7: holds -> holds (intended but unchanged); opening-titles: fails -> holds (intended change) |
-| workflow-stage-ticket-row | github-copilot/gpt-6.1-sol | improved | 31381 | opening-register: fails -> holds (intended change); f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); f5: holds -> holds (intended but unchanged); f6: holds -> holds (intended but unchanged); f7: holds -> holds (intended but unchanged); opening-titles: fails -> holds (intended change) |
+| workflow-stage-ticket-row | anthropic/claude-opus-5-5 | improved | 29042 | opening-register: fails -> holds (intended change); f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); f5: holds -> holds (intended but unchanged); f6: holds -> holds (intended but unchanged); f7: holds -> holds (intended but unchanged); opening-titles: fails -> holds (intended change) |
+| workflow-stage-ticket-row | github-copilot/gpt-6.1-sol | improved | 34384 | opening-register: fails -> holds (intended change); f1: fails -> holds (intended change); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); f5: fails -> holds (intended change); f6: holds -> holds (intended but unchanged); f7: holds -> holds (intended but unchanged); opening-titles: fails -> holds (intended change) |
 
 ## Feedback
 
-- workflow-stage-ticket-row / anthropic/claude-opus-5-5: After moved opening-register, f1 and f5 from fails to holds and kept everything Before kept. Before's opening named src/importer.ts and scripts/complexity.mjs in prose and placed the tracker id in 'Row 1 of acme/widgets#77' outside the repair command, and both cut questions quoted the rows with the '- [ ] ' marker stripped, so the rows were not reproduced intact; After renders Today / The change / What I checked in role-based everyday words, keeps acme/widgets#77 only inside option D, and quotes both rows verbatim with their checkbox prefix. f2-f4, f6 and f7 held in both: option order and separate lines, the shape-ticket command, Recommendation: D, no disposition question for the complexity or naming rows, and the retired-proof lines kept as provenance while importRows is carried. One small redundancy worth tightening in After: the sentence 'The framing holds: checked ...' repeats the What I checked bullet; dropping it (or folding it into the Held: line) keeps the 220-word span tighter without moving any fact. Keep the rule that quoted ticket rows retain their literal '- [ ] ' prefix, since that is what distinguishes After's f1/f5 from Before's.
-- workflow-stage-ticket-row / github-copilot/gpt-6.1-sol: After moves opening-register from fails to holds: Before's first message says "Ticket acme/widgets#77 includes this intact row" (tracker id outside the repair option) and its framing line cites `scripts/complexity.mjs`, while After confines the id to option D, keeps file paths out of Today/The change/What I checked, names parts by role ("the importer", "the complexity check"), and quotes the row with its `- [ ]` prefix intact. Every other fact already held in Before and still holds in After: the cut question follows the holds-statement before the error-format question, A-D stay on separate ordered lines, D names /skill:shape-ticket acme/widgets#77 with Recommendation: D on both the sole-stage and bundled rows, the complexity and behavior rows get no disposition question, and the closing Design section carries only importRows while marking both retired lines as provenance with no make ci passes obligation. To keep this, retain the rule that the tracker id appears only inside the repair command and that the opening prose names checked parts by role; the one soft spot is the `importRows` identifier and "Not checked" line in the opening, which a stricter reader of "everyday words" could question, so consider phrasing it as "the public import entry point" in the opening and naming the identifier only from the approaches onward, and keep quoting rows with their checkbox prefix in every message as After does and Before did not.
+- workflow-stage-ticket-row / anthropic/claude-opus-5-5: The only fact that moved is opening-register, and it moved the right way: Before's first message leaned on src/importer.ts, scripts/complexity.mjs and a 'Row 1 of acme/widgets#77' mention outside the D option, while After renders Today / The change / What I checked in everyday words, keeps the tracker id inside the shape-ticket command only, and quotes the row verbatim with its '- [ ]' prefix. Every other fact (f1-f7) already held in Before and still holds in After: the holds-statement precedes the sole-stage cut question, A-D are on separate lines in order, D names /skill:shape-ticket acme/widgets#77 with Recommendation: D for both the sole-stage and bundled rows, the complexity-21 and row-naming rows get no disposition question, and the retired proof lines are kept as provenance with importRows carried into Design and no 'make ci passes' suite obligation added. Two small things worth keeping an eye on so this stays stable: After's message 1 repeats the Held: content in a second 'The framing holds: checked ...' sentence (harmless for the one-Held-line bound but redundant), and After pre-fills the B)/C) option text ('the row is a delivery-stage proof...', 'to a destination you name') rather than Before's '<why...>' placeholders; both still satisfy f2, but a wording that keeps the B)/C) labels as bare 'deviates:' / 'deferred: <destination>' slots while retaining the three titles and role-named checked parts would deliver the Change with the least drift from the Before question shape.
+- workflow-stage-ticket-row / github-copilot/gpt-6.1-sol: After moves opening-register, f1 and f5 to holds for concrete textual reasons: message one now opens with Today / The change / What I checked in plain words, keeps the tracker id only inside the D option's `/skill:shape-ticket acme/widgets#77` command, drops the `scripts/complexity.mjs` file reference that Before's holds-statement carried, and quotes both ticket rows verbatim including the `- [ ]` marker, whereas Before prefixed the opening with 'Ticket acme/widgets#77 includes this intact row' and stripped the checkbox marker from both quoted rows (so a careful reader would not call them intact). f2, f3, f4 and f6 were already satisfied in Before and survive unchanged; f7 also held in Before (both outputs label the retired lines as provenance, add no `make ci passes` obligation, and carry `importRows`), so the Change's claimed f7 move is not visible in these two texts. To keep every Before-held fact while delivering the Change, retain exactly what After does: one-sentence Held: and Not checked: lines, no path or line locators before the Recommendation: line, the row quoted byte-for-byte with its checkbox, and the tracker id confined to option D; the only thing to watch is that `importRows` in The change is a role-named entry point rather than a locator, which stays within the register.
 
 exit: 0
