@@ -202,7 +202,7 @@ Reading of AC 9: "otherwise valid" means the plan has no other finding after the
 
 ### Eval samples
 
-Each sample is a `case.md` plus `expected.md` with synthetic, anonymized inputs, following `eval/README.md`. The two writing-plans samples carry `bundle+: agents/plan-writer.md`, as `eval/writing-plans/samples/implement-amend-from-head` does.
+Each sample is a `case.md` plus `expected.md` with synthetic, anonymized inputs, following `eval/README.md`. `maintenance-after-delete` carries `bundle+: agents/plan-writer.md`, as `eval/writing-plans/samples/implement-amend-from-head` does. `removal-lists-delete` carries no persona bundle: it asks for the plan Markdown as reply text, and the persona's reply contract is exactly one status line (`agents/plan-writer.md:15`), so the sample exercises the target's skill slices and plan contract, which own the Delete rule.
 
 | Target | Sample | Must-hold facts |
 |---|---|---|
