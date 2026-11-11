@@ -3,7 +3,7 @@
 base: 196d5abb0ac05f8336839944fed72c5ae2e928bb
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -16,7 +16,7 @@ allowance: 10
 | 6 | done | 1 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 209 passed, 0 failed; Unknown and empty-path Files entries fail without hiding later Modify findings |
 | 7 | done | 0 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 210 passed, 0 failed; Tests none and kind-like bullets outside Files yield no files-block findings |
 | 8 | done | 0 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 211 passed, 0 failed; Delete rejects four glob forms with and without line suffixes |
-| 9 | open | 0 | |
+| 9 | done | 1 | timeout -k 30 30 node -e 'require("node:assert/strict").deepEqual(Object.values(require("./eval/writing-plans/results/maintenance-after-delete/candidate.json").judge).map(cell => Object.values(cell.facts).map(fact => fact.after)), Array(2).fill(Array(6).fill("holds")))'; 12 candidate facts hold across both maintenance modes; bound spent: maintenance-after-delete (1 of 4); ran maintenance-after-delete (1 of 4) |
 | 10 | open | 0 | |
 | 11 | open | 0 | |
 | 12 | open | 0 | |
@@ -31,3 +31,4 @@ row 5 done | Verified Delete ownership conflicts in 64 cases across all kinds, F
 row 6 done | Unified the Files scan and rejected unknown kinds and empty paths while checking later entries. | Reuse checkFilesBlock and the single Files boundary in extensions/lib/plan-check.ts for Files validation.
 row 7 done | Verified that none tests and kind-like bullets outside Files produce no unknown-kind findings. | Reuse the outside-Files cases in extensions/lib/plan-check.test.ts to protect scan boundaries.
 row 8 done | Rejected Delete globs with entry-specific findings after stripping line suffixes. | Reuse the Delete glob cases in extensions/lib/plan-check.test.ts for literal-path validation.
+row 9 done | Verified both maintenance modes; bound spent: maintenance-after-delete (1 of 4); ran maintenance-after-delete (1 of 4). | Reuse eval/writing-plans/samples/maintenance-after-delete and its result records to check Delete ownership without restoring source.

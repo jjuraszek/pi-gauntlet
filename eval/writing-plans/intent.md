@@ -2,6 +2,8 @@ for: 1ebe05c54d7d7f7667003d0999807376e7c6dd53a0e80114717a64fef92e68aa
 
 ## Change
 
+Preserve existing Delete ownership through ordinary Findings maintenance and implement-phase Amend-apply. The maintenance-after-delete sample checks unchanged Files entries, absent removed paths, untouched task-owned source and successful self-checks in both modes. These are invariants, not expected fact moves; the checker half is the Delete-before/after-removal fixture in extensions/lib/plan-check.test.ts. This sample adds partial coverage without changing the maintenance instructions.
+
 Derive implement amendment deltas and retained evidence from committed home plan/spec originals read before edits and on retry; previousApplyReport holds findings only. Commit only the plan at handoff after parent PASS and before tracker initialization. Missing originals fail write-free with exact command/stderr marker. The from-head, untracked-plan and handoff samples exercise these changes; existing historical/changed-command samples retain staged-repair and truthful execution requirements. Model evidence remains verification-owned.
 
 Specialize implement-phase Amend-apply for local patches and historical per-command evidence. Preserve original declarations, evidence suffixes and staged repairs when no execution is needed; compare semantic obligations rather than offsets. Execute changed commands only on identified trees with nonzero counts, and retain failure/resolution evidence. Initial planning and explicit full refresh remain unchanged. The two implement-amend samples exercise these boundaries; parent verification owns full model runs and real report/result updates.
