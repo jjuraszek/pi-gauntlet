@@ -1,4 +1,4 @@
-for: cbfd2d6b35c4b3e800b06b5ca28fb3e3a2b0537604feec1a762122eed2aa17a0
+for: c563ecce762825fbd5e573a380564effe8eff785c0f2aa35f548ce43b662ad86
 
 ## Change
 
@@ -6,8 +6,12 @@ Render three unlabeled report parts: a two-sentence behavior-based change/scope 
 
 Cover all seven action-row-one scenarios: pending progress, ruleset block, unchanged cap prerequisite, own source repair, another author's body-only deliver, author-only assess and a pending proposal with preserve contract recommended. Cover all thirteen post-menu-set-reply operations, including numeric unions, typed reply 2 versus row 2, invalid stop sets, failed-step continuation, nested release pause, queued-merge stop and retained not-run work. Preserve existing freshness and explicit-pick facts. Migrate stale supplied reports and action mappings in batch-failure-retry, batch-summary-queue, role-line-requested, no-arg-discovery-under-cap and menu-after-numbered-findings.
 
+Require an executable command for every unrun cleanup sub-step in the closing message; a retained path substitutes for a command only for post text. Validate post-menu-set-reply/closing-commands and restore menu-after-numbered-findings' adjoining-list numeric remapping and pre-action echo. This review round runs post-menu-set-reply twice, menu-after-numbered-findings once, per-ref-settlement once, and refreshes bypass-merge-pick-refused, bypass-merge-pick-revoked and gate-line-first once each. Gate 2 uses ledger row 2's first evidence segment, not the obsolete assertion extracted by the earlier worker. Preserve loop-worker's earlier replay disclosure and the existing wave-closure-retry and course-deliver-no-mid-menu f2 failures; those results are not rerun here.
+
 ## Expected to move
 
+- post-menu-set-reply/closing-commands: fails -> holds - Unpicked, skipped and failed cleanup sub-steps carry commands, including skipped base sync after all selected rows ran.
+- menu-after-numbered-findings/mapping-echo: fails -> holds - Echo Taking 6 as option 3 - assess before acting on the remapped out-of-range reply.
 - action-row-one/authority: fails -> holds - Seven reports use row-1 recommendations and plain prose without leaking record fields or counters.
 - plain-report/prose: fails -> holds - Three unlabeled parts, no numbered requirements or accounting outside inspection.
 - plain-report/scope: fails -> holds - Name covered, deferred, deviating and elsewhere behaviors, keeping detailed row mapping in evidence.

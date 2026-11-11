@@ -1,4 +1,4 @@
-for: 1c5817f14a6cda876abbf9f16359759b71d586267873b398acb6608eb7aa8b63
+for: 4a57c580438cd5abf874d90370466f7c67b737bb3f0d4037d2a6ff246e49f77e
 
 ## Change
 
@@ -13,6 +13,10 @@ Render the single post menu after approve or merge, execute the validated select
 - mixed-coverage/f1: fails -> holds - Two-sentence grounded opening preserves deliberate deviation reasons without inventing one.
 - mixed-coverage/f3: fails -> holds - Describe behaviors without row numbers or labeled fields.
 - cleanup-after-approve/f1: fails -> holds - Cleanup is row 1; release and close ticket stay unselected, with their landed-change prerequisite in the not-run list, not execution result lines.
+
+## Closing-command coverage
+
+The cleanup owner requires each unrun cleanup sub-step's command in the closing message. Its shared assembly identity is current; no scope sample is rerun for that instruction, so saved scope cells retain their earlier identities. Selected command and remapping evidence lives in gatekeep-pr's sample-scoped report.
 
 ## Validation boundary
 

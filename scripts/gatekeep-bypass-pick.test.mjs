@@ -40,7 +40,7 @@ for (const name of ['bypass-merge-pick-refused', 'bypass-merge-pick-revoked']) {
     const saved = JSON.parse(read(`${root}/results/${name}/candidate.json`));
     const target = JSON.parse(read(`${root}/target.json`));
     const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-    assert.equal(saved.repoSha, '064b62030be28326fda979af0ce9af54c18a0a0d');
+    assert.equal(saved.repoSha, '7d2c739f7fe3aef3bec08b26c5b50c31ae57d6cd');
     assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, read, parsed.bundle)));
     assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
     assert.equal(Object.keys(saved.outputs).length, 2);

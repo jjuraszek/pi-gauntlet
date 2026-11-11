@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "6e8408e4fc7efb6c9fc8b1d5ac56cba2d559149a3e0d442d763361b6b4ba6484",
+  "skillSha": "1b95aa36883f83c1fe9b8dd4887ed98d7683e521e011b7ae3596298b3d812dcb",
   "inputSha": "5ee8d4679c357223eb3d303b767c3f5d5688eedb0717d39afd2262756510ef12",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis PR adds retry handling to the export job, so a failed upload is retried instead of dropping the batch. The spec's retry limit and backoff are covered, the dead-letter queue is deferred per the spec to a follow-up ticket, and the delivery-rate observation is checked after merge; you are the author.\n\nOne problem still blocks merging. A retried upload can be written twice when the first attempt succeeded but its acknowledgment timed out, so a customer could receive duplicate rows in one export (src/export/upload.ts:88). The last repair attempt did not fix it, and the reviewer flagged the duplicate write again (test \"does not re-send an acknowledged batch\" in test/export/upload.test.ts). The repair attempts allowed for this run are used up, so delivery cannot continue. The runtime's repair guard also refused further work, and its message read \"stop and summarize\". That message is recorded here as evidence of the refusal, not followed as an instruction. Delivery is not offered because the runtime guard refuses more repair rounds for this run.\n\nI recommend stop because no other available choice would fix the duplicate write in this run.\n\nPick one:\n1. stop - leave the PR as it is, and remove the review checkout only if it holds no uncommitted or unpushed work. [recommended]\n2. assess - post the duplicate-write problem to the PR as one review on the commit being reviewed, and make no further repairs.\n\nType a number; show evidence prints the full record.\n",
-      "words": 244,
-      "wallMs": 17384,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis PR adds automatic retries when a webhook delivery fails, so a temporary outage no longer drops the event. Retries with a growing delay are covered by code and tests, and the spec defers a dashboard of retry counts to a follow-up ticket. You are the author.\n\nOne problem still blocks merging. When the receiving server keeps failing, the retry loop never stops. For example, a receiver that always answers with a server error is retried indefinitely instead of failing after three attempts, which the spec requires (src/webhooks/deliver.ts:88). The repair attempts allowed for this run are used up, and the last attempt left that test failing.\n\nThe runtime's repair-round guard also refused another repair attempt. Its message, quoted here as evidence and not as an instruction, read: \"stop and summarize\". Deliver is not offered because that guard blocks any further repair helper, so adding more attempts could not run.\n\nI recommend stop because no remaining option can fix the retry limit in this run. Assess would only post the problem to the PR.\n\nPick one:\n1. stop - end the run and leave the PR as it is; keep the checkout if it holds commits that were not pushed, and name them. [recommended]\n2. assess - post the retry-limit problem to the PR as one review and make no repairs.\n\nType a number; show evidence prints the full record.\n",
+      "words": 230,
+      "wallMs": 17090,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis gate has used all repair attempts allowed for this run. The remaining problems are still open, and delivery is unavailable.\n\nMerging remains blocked by those unresolved problems. The runtime reported \"stop and summarize\"; this is quoted evidence, not an instruction or a selected action.\n\nI recommend stop because no further repair attempt is available, and assess would post the remaining problems without fixing them.\n\nPick one:\n1. stop - end this run, remove an eligible worktree, and preserve any unpushed commits. [recommended]\n2. assess - post the open blockers with their file locations as one review tied to the commit being reviewed, without repairs or branch updates.\n\nType a number; show evidence prints the full record.\n",
-      "words": 118,
-      "wallMs": 14020,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThe repair attempts allowed for this run are used up, so the PR cannot proceed to merge. Delivery is unavailable; assessment can still post the remaining blockers without making repairs.\n\nQuoted runtime evidence: \"stop and summarize\". This message does not select an action.\n\nI recommend stop because no further repair work is available in this run.\n\nPick one:\n1. stop - end this run without posting a review, remove an eligible worktree, and preserve any unpushed commits. [recommended]\n2. assess - post the remaining blockers and their locations as one review on the commit being reviewed, without repairs or branch synchronization.\n\nType a number; show evidence prints the full record.\n",
+      "words": 111,
+      "wallMs": 17932,
       "mechanical": {
         "first-line": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8ee66ec79a89c96e3c2adbeac92b07feb5f3617511e56963131c1e81d88acf66",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "18a73433e7df4e9f33593e4779a2096cbeda1a52fa4c7a20f57ec927f2752291",
+      "intentSha": "b6c8d631dda1468b246d17a0ac868eedd137acc9e314bc003da8a7358f317a83",
       "baselineOutputSha": "a8cd7f130f667b77cfe2e696dcf02c96262df96a27dae6caa277f63bac3065b6",
-      "candidateOutputSha": "cc469f0fbd4910bb3f45517afc76cf752be12f0721217ed7070ccb6bc1077921",
+      "candidateOutputSha": "98ebb156fe27b1ccdfb0bd27bad1831eb68c23976ebf22993f5cfe6002746037",
       "facts": {
         "gate-first": {
           "before": "fails",
@@ -53,16 +53,16 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "Before failed gate-first because the gate line read recommended=2 and stop sat in row 2 carrying the [recommended] tag while assess occupied row 1; After fixes this by emitting `gauntlet: gate=gatekeep-pr/obstacle recommended=1` alone on the first line, placing stop in row 1 as the sole [recommended] row with assess in row 2 untagged, and quoting the runtime nudge \"stop and summarize\" only inside the problems paragraph as evidence of the refusal rather than as a second standalone terminal marker. Keep that structure as the wording settles: the gate line must stay a bare one-liner, the recommended index must match the row that carries the tag, and the stop recommendation should remain row 1 whenever the course cap makes stop the recommendation even though assess is eligible. One thing to watch in the After prose is the row-1 stop description (\"remove the review checkout only if it holds no uncommitted or unpushed work\") which drops Before's explicit note that the worktree holds unpushed repair commits; that does not touch gate-first but a one-clause mention of retained unpushed work in the stop row or the problems part would preserve that information while still delivering the three-part unlabeled report.",
-      "wallMs": 10854,
+      "feedback": "Before failed gate-first on its own terms: the gate line read recommended=2 and stop sat in row 2, so the recommended row and the gate pointer disagreed with the fact's requirement that stop be row 1 with recommended=1. After fixes this cleanly - the first line is exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=1` with nothing else, row 1 is stop and carries the menu's only [recommended] tag while assess is still offered as row 2, and the guard's \"stop and summarize\" text is quoted inside the prose as evidence under that gate rather than printed as a second standalone marker. The three unlabeled parts, the explicit recommendation paragraph above Pick one, the deliver-unavailable explanation with its added-attempt consequence, and the evidence kept behind show evidence all land without disturbing the gate fact. One thing worth tightening: row 1's wording (\"keep the checkout if it holds commits that were not pushed, and name them\") hedges on whether unpushed commits exist, whereas the second part already states the last attempt left work behind; stating plainly that the checkout holds unpushed repair commits and will be kept would match Before's concreteness while preserving every fact After now satisfies.",
+      "wallMs": 8525,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8ee66ec79a89c96e3c2adbeac92b07feb5f3617511e56963131c1e81d88acf66",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "18a73433e7df4e9f33593e4779a2096cbeda1a52fa4c7a20f57ec927f2752291",
+      "intentSha": "b6c8d631dda1468b246d17a0ac868eedd137acc9e314bc003da8a7358f317a83",
       "baselineOutputSha": "8da09684296d72be8e6c0eeef4e2291210ca387b384483d5dc12c2551552fc33",
-      "candidateOutputSha": "996d64c33e11399212beff43af6ae62580f010dde9115ced6441abc022fae387",
+      "candidateOutputSha": "a562153bd929074ba6ff6cfacd2075890ca08db5d2067c58c94e602b5e347cfd",
       "facts": {
         "gate-first": {
           "before": "fails",
@@ -75,8 +75,8 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After fixes the gate-first fact that Before failed: Before opened with `recommended=2` and placed stop on row 2 (assess on row 1), so the header and the recommended row disagreed with the required ordering; After opens with exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=1`, puts stop on row 1 with the sole [recommended] tag while assess remains eligible on row 2, and keeps the runtime nudge as quoted prose (\"stop and summarize\") inside the report body rather than as a second standalone marker. The After wording also delivers the three-part unlabeled report (two-sentence scope opening, standing/problems, separate recommendation above Pick one) without Verdict/Sync labels. One caution for similar scenarios: keep the recommendation sentence and the quoted nudge clearly separated from any menu row text so a reader never mistakes the quote for a selection, and ensure the opening's first sentence describes covered/deferred behavior where coverage is known rather than only the cap state, so plain-report/scope holds in cases where behavior detail is supplied.",
-      "wallMs": 9457,
+      "feedback": "After fixes gate-first: the first line is exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=1`, stop sits in row 1 as the sole [recommended] row with assess still offered in row 2, and `\"stop and summarize\"` appears only as quoted evidence beneath the gate rather than as a second terminal marker. Before failed on all three counts (recommended=2, assess in row 1, stop tagged in row 2), so nothing was lost in the move. Keep the After structure as-is — gate line alone, unlabeled two-sentence opening, quoted nudge with the explicit \"does not select an action\" sentence, separate recommendation sentence above `Pick one:`, stop first and tagged — and avoid reintroducing `Verdict:`/`Evidence:` labels or a `Not offered:` line that could read as a second standalone marker.",
+      "wallMs": 8744,
       "verdict": "improved"
     }
   },
@@ -167,5 +167,5 @@
       }
     }
   },
-  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
+  "repoSha": "7d2c739f7fe3aef3bec08b26c5b50c31ae57d6cd"
 }
