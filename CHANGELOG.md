@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.4.9 - 2026-11-11
 
 - Gatekeep-pr uses action, final and post menus with the judged recommendation on row 1. Its plain-language report describes the change and scope, explains standing and problems, then recommends a choice; detailed evidence stays behind `show evidence`.
 - Gatekeep-pr preserves the freshness read for replies on approved, open PRs; a moved head skips the reply and retains its body. Set cleanup sharing checks unresolved `<issue>`, `<pr>` and `<merge-sha>` tokens, so an issue-only command remains PR-specific.
