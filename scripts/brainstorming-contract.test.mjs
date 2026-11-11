@@ -452,24 +452,39 @@ test('section 3 asks the framing question once, with a named alternative, after 
   const right = section.indexOf('verify the draft\'s `Framing:` line');
   assert.ok(left > -1 && right > -1 && left < right, 'framing paragraph follows the premise note');
   assert.ok(section.includes('every checked claim'), 'evidence write includes held claims as well as corrections');
-  for (const marker of ['A) as framed', 'B) pivot:', 'C) smaller or none:', 'The framing holds: checked', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
-  assert.match(section, /^Bad: `The ask adds another settings path - should we\? Recommendation: no`$/m);
+  for (const marker of ['reference/opening-message.md', 'never write it from memory', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
+  for (const removed of ['with sources and attempted lookups, in full sentences - no status-keyword lists, no template', 'name the traces and dependencies in the holds-statement, not only the files read']) assert.ok(!section.includes(removed), removed);
   const good = [...section.matchAll(/^Good:\n```text\n([\s\S]*?)\n```$/gm)].map((match) => match[1]);
-  const framing = section.match(/^```text\n(gauntlet: question\nA\) as framed[\s\S]*?)\n```$/m);
-  assert.equal(good.length, 2, 'both Good examples use fenced text blocks');
-  assert.ok(framing, 'framing template uses a fenced text block');
+  assert.equal(good.length, 1, 'ordinary-question Good example stays in the flow');
+  assert.equal([...section.matchAll(/^```text\ngauntlet: /gm)].length, 1, 'wording templates move to their owner');
   const preserved = [
     'gauntlet: question The two ACs name a path that moved; the spec keeps them in-scope with the new path as a Design clause. Which surface owns the refresh? A) the extension B) a new bin C) the existing skill step. Recommendation: A - the extension already holds the poll loop, so no new entrypoint.',
-    'gauntlet: question The ask adds a second settings path beside the resolver that already owns every setting (settings/resolver.ts:11). A) as framed B) pivot: a key under the existing resolver - one read path, no new boundary C) smaller or none: document the default and ship no setting. Recommendation: B - the owning schema already exists.',
   ];
   for (const [index, example] of good.entries()) {
     assert.equal(example.replace(/\n/g, ' '), preserved[index], 'preserve example wording');
     assert.ok(example.indexOf('\nA)') > 0, 'lead-in precedes first option');
   }
-  assert.equal(framing[1].replace(/\n/g, ' '), 'gauntlet: question A) as framed B) pivot: <named alternative> - <cited reason> C) smaller or none: <what ships, or what happens if nothing ships> Recommendation: <letter> - <why>');
-  for (const rendering of [...good, framing[1]]) {
+  for (const rendering of good) {
     const lines = rendering.split('\n');
     assert.deepEqual(lines.filter((line) => /^[A-Z]\)/.test(line)).map((line) => line.slice(0, 2)), ['A)', 'B)', 'C)']);
+    assert.ok(lines.every((line) => (line.match(/[A-Z]\)/g) ?? []).length <= 1), 'one labeled option per physical line');
+    assert.match(lines.at(-1), /^Recommendation: /, 'recommendation owns the final line');
+  }
+});
+
+test('opening-message reference owns the shape, register, cap and framing renderings', () => {
+  const text = read('skills/brainstorming/reference/opening-message.md');
+  assert.match(text, /^# Opening message\n/);
+  assert.ok(text.includes('(menu-layout.md)'), 'first-line owner resolves beside this reference');
+  assert.ok(text.split('\n').length <= 120, 'reference stays within its design limit');
+  for (const marker of ['Held:', 'Corrected:', 'Not checked:', 'The framing holds: checked', 'A) as framed', 'B) pivot:', 'C) smaller or none:', '220', 'one sentence each', 'none of them is dropped', 'The design rests on no claims.', 'with no section titles', 'the recon at hand', 'on a redraw, the approved spec']) assert.ok(text.includes(marker), marker);
+  const blocks = [...text.matchAll(/^```text\n(gauntlet: question[\s\S]*?)\n```$/gm)].map((match) => match[1]);
+  assert.equal(blocks.length, 3, 'shape template and two examples');
+  for (const block of blocks) {
+    assert.deepEqual([...block.matchAll(/^## (.+)$/gm)].map((match) => match[1]), ['Today', 'The change', 'What I checked']);
+    const lines = block.split('\n');
+    const options = lines.filter((line) => /^[A-Z]\)/.test(line));
+    assert.ok(options.length >= 2 && options.length <= 4);
     assert.ok(lines.every((line) => (line.match(/[A-Z]\)/g) ?? []).length <= 1), 'one labeled option per physical line');
     assert.match(lines.at(-1), /^Recommendation: /, 'recommendation owns the final line');
   }

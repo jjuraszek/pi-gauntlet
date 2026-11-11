@@ -8,9 +8,11 @@ Tests questionary and approaches messages (checklist steps 3-5) and same-turn co
 | `skills/brainstorming/SKILL.md` | `### 3` through before `### 6` |
 | `skills/brainstorming/SKILL.md` | `### 6` through before `## Ticket Handling` |
 | `skills/brainstorming/reference/ticket-acceptance.md` | Whole file |
+| `skills/brainstorming/reference/opening-message.md` | Whole file; new in the candidate assembly |
 
 | Sample | Must-hold behavior |
 |---|---|
+| `opening-message-shape` | First message only: three titles, everyday role names, no source locator, a 220-word span, then holds-statement and one question. |
 | `explicit-unit-normalization` | Correct the premise and preserve the shared representation contract. |
 | `latest-run-indicator` | Keep per-surface provenance and persisted run metadata. |
 | `review-and-apply-containment` | Keep the producer out of scope and reuse field candidates. |
