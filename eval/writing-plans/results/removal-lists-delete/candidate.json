@@ -1,0 +1,100 @@
+{
+  "sample": "removal-lists-delete",
+  "arm": "candidate",
+  "skillSha": "c2cc4616599afae436601f5c58a8a7af1b2b6e15221709d4afdc3e2745ec997e",
+  "inputSha": "e0575ad750cc68765fcbf85d3e69fa47f83c6b247a6403abf01762da78e982cf",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Retire unused adapter: Implementation Plan\n\n**Spec:** doc/specs/retire.md\n**Verification:** `npm test`\n\nBaseline provenance: BASE abc1234; `git status --porcelain --untracked-files=all` was empty before and after the run; no in-flight paths were admitted; HEAD did not move.\n\n---\n\n## Wave 1 — Retirement\n\n### Task 1: Remove the unused adapter\n\n**TDD scenario:** Modifying tested code. Run the existing tests first.\n\n**Spec:** doc/specs/retire.md § \"Design\" L4-L5, § \"Acceptance criteria\" L8-L9\n\n**Files:**\n- Delete: `src/legacy.ts`\n- Test: `tests/retirement.test.mjs`\n\n**Tests:**\n- `node --test tests/retirement.test.mjs`\n- baseline: abc1234 pass\n- via: supported public entrypoint\n\nDecision: no other file changes. The spec states that only `src/legacy.ts` is removed. Source inspection shows that no file imports it. `tests/retirement.test.mjs` exercises the supported public entrypoint without importing the adapter, so the test needs no edit.\n\n- [ ] **Step 1: Confirm the existing test passes before removal**\n\n  Run: `node --test tests/retirement.test.mjs`\n  Expected: PASS, 2 tests, 0 failures\n\n- [ ] **Step 2: Confirm nothing references the adapter**\n\n  Run: `git grep -n \"legacy\" -- src tests`\n  Expected: matches only inside `src/legacy.ts` itself, with no importers\n\n- [ ] **Step 3: Remove the file**\n\n  ```bash\n  git rm src/legacy.ts\n  ```\n\n  Expected: `src/legacy.ts` no longer exists in the working tree.\n\n- [ ] **Step 4: Confirm the supported entrypoint still works**\n\n  Run: `node --test tests/retirement.test.mjs`\n  Expected: PASS, 2 tests, 0 failures\n\n- [ ] **Step 5: Format and lint**\n\n  Skip this step. The task deletes its only owned file, so no remaining file needs formatting or linting.\n\n- [ ] **Step 6: Commit**\n\n  ```bash\n  git commit -m \"Remove unused adapter src/legacy.ts\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L4-L5 | remove `src/legacy.ts` with no other file changes; keep the supported public entrypoint working | Task 1 |\n| § \"Acceptance criteria\" L8-L9 | unused adapter absent; supported public entrypoint still works | Task 1 |\n",
+      "words": 261,
+      "wallMs": 14990,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "# Retire unused adapter — Implementation Plan\n\n**Spec:** doc/specs/retire.md\n**Verification:** `npm test`\n\nBaseline provenance: Supplied observations identify clean HEAD `abc1234`, with no admitted dirty paths. `node --test tests/retirement.test.mjs` exited 0 with 2 passing tests and 0 failures, without changing the working tree or HEAD. This plan retains that measured evidence; no additional execution is claimed.\n\n---\n\n## Wave 1 — Remove the unused adapter\n\n### Task 1: Delete the unused adapter and preserve the public entrypoint\n\n**TDD scenario:** Modifying tested code — run existing tests first.\n\n**Spec:** doc/specs/retire.md § \"Design\" L4-L5, § \"Acceptance criteria\" L8-L9\n\n**Files:**\n- Delete: `src/legacy.ts`\n- Test: `tests/retirement.test.mjs`\n\n**Tests:**\n- `node --test tests/retirement.test.mjs`\n- baseline: abc1234 pass\n\nDecision: Delete only `src/legacy.ts`, preserving the existing test unchanged — source inspection confirms the file contains only `export const retired = true;`, has no importers, and the existing test exercises the supported public entrypoint without importing the retired file. No source, test, configuration, or documentation edits are needed.\n\n- [ ] **Step 1: Run the existing regression test before deletion**\n\n  Run: `node --test tests/retirement.test.mjs`\n\n  Expected: exit 0, 2 passing tests, 0 failures. Stop if the existing test fails; do not expand this task into unrelated repairs.\n\n- [ ] **Step 2: Remove the unused adapter**\n\n  Run: `git rm -- src/legacy.ts`\n\n  Expected: `src/legacy.ts` is removed and its deletion is staged. Do not change any other repository file.\n\n- [ ] **Step 3: Confirm absence and preserved behavior**\n\n  Run: `test ! -e src/legacy.ts`\n\n  Expected: exit 0.\n\n  Run: `node --test tests/retirement.test.mjs`\n\n  Expected: exit 0, 2 passing tests, 0 failures. Keep `tests/retirement.test.mjs` unchanged.\n\n- [ ] **Step 4: Check formatting applicability and change scope**\n\n  No formatting or lint command is documented in the supplied conventions, and deletion leaves no task-owned source content to format. Do not invent a command or edit another file.\n\n  Run: `git diff HEAD --name-status`\n\n  Expected: exactly one repository change: deletion of `src/legacy.ts`.\n\n- [ ] **Step 5: Commit the deletion**\n\n  ```bash\n  git commit -m \"Remove unused adapter\" -- src/legacy.ts\n  ```\n\n  Expected: the commit contains only the deletion of `src/legacy.ts`.\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L4-L5 | Remove `src/legacy.ts`; change no other repository file and keep the supported public entrypoint working. | Task 1 |\n| § \"Acceptance criteria\" L8-L9 | Confirm the unused adapter is absent and the supported public entrypoint still works. | Task 1 |\n",
+      "words": 348,
+      "wallMs": 25757,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "e925bf4505727cbcd4d189e8f9714f49330ec0c607bc06e3dbc6208492aa3576",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b9de1191f27708ea3bce34d57af380a7ac7f119b2b7be66c0a14fadff3e88cf4",
+      "baselineOutputSha": "a6db15e015c6662edd4b6863643c3307125ffbbd5436d67ead1863c2ff62a393",
+      "candidateOutputSha": "8dc43f6c824b22a75e713e977028319ceb8d7722bb66f5eee34a53771648971e",
+      "facts": {
+        "delete-owner": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-modify": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "checker-shape": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scoped-check": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: Task 1's Files block now reads `Delete: src/legacy.ts` with no Modify entry and no second task touching the path, which flips delete-owner and no-modify to holds, while the `---` separator, the exact § \"Design\" L4-L5 / § \"Acceptance criteria\" L8-L9 anchors in both the task Spec line and the coverage table, the `Test:` anchor on tests/retirement.test.mjs, the scoped `node --test` command with `baseline: abc1234 pass`, and `npm test` confined to the Verification header are all preserved. Nothing regressed among the listed facts. Two minor wording notes that do not move facts but weaken fidelity to the supplied observations: After's Baseline provenance paragraph drops the measured result (exit 0, 2 passing, 0 failures) that Before recorded, and After collapses Before's explicit `test ! -e src/legacy.ts` absence check into an Expected line under the git rm step; keeping Before's provenance bullet list and the standalone absence-confirmation step alongside the new `Delete:` entry would carry the measured baseline through unchanged while still delivering the Delete-ownership change.",
+      "wallMs": 11309,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "e925bf4505727cbcd4d189e8f9714f49330ec0c607bc06e3dbc6208492aa3576",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b9de1191f27708ea3bce34d57af380a7ac7f119b2b7be66c0a14fadff3e88cf4",
+      "baselineOutputSha": "9a72c61254ce52bb48ef1c6f7c43d1d8d6d5b2a9105aaa0e320b4982ece80fc0",
+      "candidateOutputSha": "b7a4ea502b4458cd02deb99bc795414754975359f4b901b101baa3f1b193fad4",
+      "facts": {
+        "delete-owner": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-modify": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "checker-shape": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scoped-check": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the Files block now reads `Delete: src/legacy.ts` in Task 1 alone, with no `Modify:` entry anywhere, so delete-owner and no-modify move from fails to holds, while the `---` separator, exact coverage anchors (`§ \"Design\" L4-L5`, `§ \"Acceptance criteria\" L8-L9` matching the task's Spec set), the `Test:` anchor on tests/retirement.test.mjs, the scoped `node --test` command with `baseline: abc1234 pass`, and `npm test` confined to the verification header are all retained from Before. The only incidental drift is collapsing the four coverage rows into two and dropping the `via:` line; neither moved a fact here, but if a future fixture checks per-requirement rows or the via suffix, keep Before's four-row table and `via:` line alongside the Delete wording — the Change needs only the Files kind to switch from Modify to Delete, nothing else.",
+      "wallMs": 10070,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "5540b4646b5694db2f171b223c43f61923f3a8c1"
+}

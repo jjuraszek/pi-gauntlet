@@ -1,0 +1,34 @@
+{
+  "sample": "removal-lists-delete",
+  "arm": "baseline",
+  "skillSha": "1ebe05c54d7d7f7667003d0999807376e7c6dd53a0e80114717a64fef92e68aa",
+  "inputSha": "e0575ad750cc68765fcbf85d3e69fa47f83c6b247a6403abf01762da78e982cf",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Retire unused adapter: implementation plan\n\n**Goal:** Remove the unused adapter `src/legacy.ts`. The supported public entrypoint must keep working. No other repository file changes.\n\n**Spec:** doc/specs/retire.md\n\n**Verification:** `npm test`\n\n**Baseline home: abc1234**\n\nBaseline provenance:\n- BASE is abc1234.\n- The initial `git status --porcelain --untracked-files=all` inventory is empty, so the worktree is clean and no in-flight paths were admitted.\n- `node --test tests/retirement.test.mjs` ran unchanged at abc1234.\n  - It exited 0 with 2 passing tests and 0 failures.\n  - It left no working-tree changes and did not move HEAD.\n\n---\n\n## Wave 1: Retire adapter\n\n### Task 1: Delete the unused legacy adapter\n\n**TDD scenario:** Modifying tested code. Run the existing tests first.\n\n**Spec:** doc/specs/retire.md § \"Design\" L4-L5, § \"Acceptance criteria\" L8-L9\n\n**Files:**\n- Modify: `src/legacy.ts` (deleted by this task)\n- Test: `tests/retirement.test.mjs`\n\n**Tests:**\n- `node --test tests/retirement.test.mjs`\n- baseline: abc1234 pass\n\nDecision: deleting the file needs no caller updates.\n- Source inspection shows that no file imports `src/legacy.ts`.\n- `tests/retirement.test.mjs` exercises the supported public entrypoint without importing it.\n- The test file stays unchanged, as the spec requires (\"no other repository file changes\").\n\n- [ ] **Step 1: Confirm the existing tests pass before the change**\n\n  Run: `node --test tests/retirement.test.mjs`\n  Expected: PASS (2 tests, 0 failures)\n\n- [ ] **Step 2: Confirm nothing imports the adapter**\n\n  Run: `git grep -n \"legacy\" -- src tests`\n  Expected: the only match is `src/legacy.ts` itself (`export const retired = true;`). No import sites.\n\n- [ ] **Step 3: Remove the adapter**\n\n  ```bash\n  git rm src/legacy.ts\n  ```\n\n- [ ] **Step 4: Confirm the adapter is absent**\n\n  Run: `test ! -e src/legacy.ts && echo absent`\n  Expected: `absent`\n\n- [ ] **Step 5: Confirm the supported public entrypoint still works**\n\n  Run: `node --test tests/retirement.test.mjs`\n  Expected: PASS (2 tests, 0 failures)\n\n- [ ] **Step 6: Format and lint**\n\n  Skipped. The task deletes its only changed file, so nothing is left to format or lint.\n\n- [ ] **Step 7: Commit**\n\n  ```bash\n  git commit -m \"Remove unused legacy adapter\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L4-L5 | remove `src/legacy.ts`; no other file changes; entrypoint keeps working | Task 1 |\n| § \"Acceptance criteria\" L8-L9 | adapter absent; supported public entrypoint still works | Task 1 |\n",
+      "words": 320,
+      "wallMs": 16852,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "# Retire unused adapter — Implementation Plan\n\n**Spec:** doc/specs/retire.md  \n**Verification:** `npm test`\n\nRemove the unused adapter without changing any other repository file. Preserve the supported public entrypoint.\n\nBaseline provenance: supplied observations identify clean HEAD `abc1234`, with no admitted dirty paths. At that revision, `node --test tests/retirement.test.mjs` exited 0 with 2 passing tests and 0 failures; working-tree status and HEAD remained unchanged.\n\n---\n\n## Wave 1 — Remove the unused adapter\n\n### Task 1: Remove the unused adapter and verify the public entrypoint\n\n**TDD scenario:** Modifying tested code — run existing tests first. This deletion requires no new or modified tests.\n\n**Spec:** doc/specs/retire.md § \"Design\" L4-L5, § \"Acceptance criteria\" L8-L9\n\n**Files:**\n- Modify: `src/legacy.ts` (delete the entire file)\n- Test: `tests/retirement.test.mjs`\n\n**Tests:**\n- `node --test tests/retirement.test.mjs`\n- baseline: abc1234 pass\n- via: supported public entrypoint exercised by `tests/retirement.test.mjs`\n\nSource inspection establishes that `src/legacy.ts:1` contains only `export const retired = true;`, and no file imports it. The existing test exercises the supported public entrypoint without importing the adapter.\n\n- [ ] **Step 1: Run the existing tests before removal**\n\n  Run: `node --test tests/retirement.test.mjs`\n\n  Expected: exit 0, 2 passing tests, 0 failures. The supplied baseline already establishes this result at `abc1234`; execution repeats it before making the change.\n\n- [ ] **Step 2: Remove the adapter**\n\n  Run:\n\n  ```bash\n  rm -- src/legacy.ts\n  ```\n\n  Expected: `src/legacy.ts` is absent. Do not edit source, tests, configuration, or documentation elsewhere.\n\n- [ ] **Step 3: Verify absence and retained behavior**\n\n  Run:\n\n  ```bash\n  test ! -e src/legacy.ts\n  node --test tests/retirement.test.mjs\n  ```\n\n  Expected: both commands exit 0; the test runner reports 2 passing tests and 0 failures.\n\n- [ ] **Step 4: Check the deletion and formatting applicability**\n\n  Run:\n\n  ```bash\n  git diff --check -- src/legacy.ts\n  git diff --name-status\n  git status --porcelain --untracked-files=all\n  ```\n\n  Expected: no whitespace errors; the implementation change is only the deletion of `src/legacy.ts`. Any existing workflow spec or plan changes are not implementation changes and must not be staged here.\n\n  No formatter or lint command applies to the deleted file: it leaves no code to format or lint. Do not introduce unrelated edits.\n\n- [ ] **Step 5: Commit the deletion**\n\n  Run:\n\n  ```bash\n  git add -- src/legacy.ts\n  git commit -m \"Remove unused legacy adapter\"\n  ```\n\n  Expected: the commit contains only the deletion of `src/legacy.ts`; the existing test remains unchanged.\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L4-L5 | Remove `src/legacy.ts`; no other repository file changes. | Task 1 |\n| § \"Design\" L4-L5 | Keep the supported public entrypoint working. | Task 1 |\n| § \"Acceptance criteria\" L8-L9 | The unused adapter is absent. | Task 1 |\n| § \"Acceptance criteria\" L8-L9 | The supported public entrypoint still works. | Task 1 |\n",
+      "words": 392,
+      "wallMs": 31167,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "5540b4646b5694db2f171b223c43f61923f3a8c1"
+}

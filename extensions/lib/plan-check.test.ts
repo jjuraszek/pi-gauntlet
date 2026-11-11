@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { checkPlan, renderManifest, sha256, type FsPort, type PlanCheckFinding } from "./plan-check.ts";
 
@@ -229,6 +230,34 @@ test("Delete glob fails", () => {
         reason: `Task 1: Delete: path "${path}" is a glob; Delete takes a literal path`,
       }]);
     }
+  }
+});
+
+test("removal-only plan declares one Delete owner and passes checkPlan", () => {
+  const spec = `# Retire unused adapter
+
+## Design
+Remove \`src/legacy.ts\`; no other repository file changes.
+Keep the supported public entrypoint working.
+
+## Acceptance criteria
+- [ ] The unused adapter is absent.
+- [ ] The supported public entrypoint still works.
+`;
+  const candidate = JSON.parse(readFileSync(new URL("../../eval/writing-plans/results/removal-lists-delete/candidate.json", import.meta.url), "utf8"));
+  const outputs = Object.entries(candidate.outputs) as [string, { status: string; text: string }][];
+  assert.equal(outputs.length, 2);
+  for (const [model, output] of outputs) {
+    assert.equal(output.status, "ok", model);
+    const start = output.text.indexOf("```markdown\n");
+    const plan = start === -1 ? output.text : output.text.slice(start + "```markdown\n".length, output.text.lastIndexOf("```"));
+    const result = checkPlan(plan, spec, alwaysTruePort());
+    assert.deepEqual(result.findings, [], model);
+    assert.deepEqual(result.parsed.tasks.flatMap(task => task.files).map(({ kind, path }) => ({ kind, path })), [
+      { kind: "delete", path: "src/legacy.ts" },
+      { kind: "test", path: "tests/retirement.test.mjs" },
+    ], model);
+    assert.deepEqual(Object.values<{ after: string }>(candidate.judge[model].facts).map(fact => fact.after), Array(4).fill("holds"), model);
   }
 });
 

@@ -13,15 +13,15 @@ A wave is a maximal set of tasks that have no ordering dependency on each other,
 
 Read the home spec's `## Legs` using [the leg contract](../../brainstorming/reference/legs.md). Write `Leg: <repo>` immediately after each task heading, before `**Files:**`; absence means home. Keep the plan and its `**Spec:**` header at home, citing the home spec. Repair a `leg-unknown` task in the plan, never by adding spec membership.
 
-Write one `Baseline <repo>: <sha>` header per member. Match each task's baseline bullets to its own leg's SHA; require equality within a leg, not across legs. Resolve `Modify:`/`Create:`/`Test:` paths and globs against the admitted leg checkout, using its recorded `home:` with shared `NAME` against its declared primary. Key file overlap and cross-task created anchors on `(leg, path)`.
+Write one `Baseline <repo>: <sha>` header per member. Match each task's baseline bullets to its own leg's SHA; require equality within a leg, not across legs. Resolve `Modify:`/`Create:`/`Test:`/`Delete:` paths and globs against the admitted leg checkout, using its recorded `home:` with shared `NAME` against its declared primary. Key file overlap and cross-task created anchors on `(leg, path)`.
 
 Split mixed waves into consecutive leg-homogeneous waves, preserving dependencies. Re-walk each task's `Files:` under its leg using the leg contract's Gather rules procedure. Append task `Rules:` for files missing from the spec list; resolve `Rules: root only - paths unresolved`. Read the combined lists before execution and review.
 
-## Files (`wave-file-disjointness`, `paths-exist`)
+## Files (`wave-file-disjointness`, `paths-exist`, `files-block`)
 
 **File-ownership contract.** The per-task `**Files:**` block *is* the ownership declaration — no new syntax. Rule: **within a wave, the union of every task's declared paths must be pairwise disjoint.** Globs are allowed for `Modify` when exact paths are unknown, but must not overlap another same-wave task's paths. A task that must touch another's file belongs in a later wave.
 
-`Test:` entries are run anchors, not ownership: `Test`/`Test` on the same path across same-wave tasks is allowed; `Test` vs another task's `Create`/`Modify` is a conflict; writer/writer stays a conflict. `Modify:` paths must exist.
+Treat `Create`, `Modify`, and `Delete` as writers and `Test:` entries as run anchors, not ownership. Allow `Test`/`Test` on the same path across same-wave tasks; reject every other same-path pair. Require `Modify:` paths to exist. Declare `Delete:` as write ownership with a literal path and no existence requirement. List a file the task removes as `Delete:` in exactly one task, never also as `Modify:`. Treat any other `- <token>:` line in the Files list as a `files-block` finding.
 
 ## Spec anchors (`anchor-resolution`)
 

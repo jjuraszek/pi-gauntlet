@@ -1,6 +1,8 @@
-for: 1ebe05c54d7d7f7667003d0999807376e7c6dd53a0e80114717a64fef92e68aa
+for: c2cc4616599afae436601f5c58a8a7af1b2b6e15221709d4afdc3e2745ec997e
 
 ## Change
+
+Declare each removed file as Delete in exactly one task, not Modify, even while the file still exists. The removal-lists-delete sample exercises fresh plan authoring; its checker half is the removal-only fixture in extensions/lib/plan-check.test.ts. Expect Delete ownership and the absence of Modify to move from fails to holds; keep the scoped test and measured baseline unchanged.
 
 Preserve existing Delete ownership through ordinary Findings maintenance and implement-phase Amend-apply. The maintenance-after-delete sample checks unchanged Files entries, absent removed paths, untouched task-owned source and successful self-checks in both modes. These are invariants, not expected fact moves; the checker half is the Delete-before/after-removal fixture in extensions/lib/plan-check.test.ts. This sample adds partial coverage without changing the maintenance instructions.
 
@@ -25,6 +27,8 @@ Keep Leg before Files and leg-specific test baselines and rule routing; preserve
 Add grant variants as two new samples, baseline-menu-under-grant and baseline-menu-aftermath, while preserving the existing parent-offers-fix-first-narrow-amend sample's failure/menu/pause as the no-grant control. Decode amend permission before taking baseline recommendations in initial planning and unchanged-command amendment aftermath. No model replay runs during implementation; verification owns the generated report.
 
 ## Expected to move
+- removal-lists-delete/delete-owner: fails -> holds - Declare the removed file as Delete in one task.
+- removal-lists-delete/no-modify: fails -> holds - Do not also declare the removed file as Modify.
 - baseline-menu-aftermath/repeated-evidence-stop: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - implement-amend-from-head/originals: fails -> holds - Read both committed originals before edits and retry.
 - implement-amend-from-head/semantic: fails -> holds - Detect an anchored spec obligation change after a partial apply.
