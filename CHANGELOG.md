@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.4.7 - 2026-11-11
 
 ### Fixed
 - Plan tasks can declare `- Delete:` entries as literal write ownership without an existence requirement; unrecognized Files lines produce `files-block` findings, and rebuild restores Delete paths from the wave base. (#140)
