@@ -1,5 +1,7 @@
 # Per-task test contract with mechanical scope check (gh-28)
 
+> **Superseded by:** [doc/specs/2026-11-11-gh-140-plan-check-delete-entries.md](./2026-11-11-gh-140-plan-check-delete-entries.md) - the `^- \w+: ` pattern of the `**Tests:**` Position sentence only
+
 **Ticket:** [jjuraszek/pi-gauntlet#28](https://github.com/jjuraszek/pi-gauntlet/issues/28)
 
 ## Problem

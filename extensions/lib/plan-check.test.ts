@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { checkPlan, renderManifest, sha256, type FsPort, type PlanCheckFinding } from "./plan-check.ts";
 
@@ -175,6 +176,102 @@ function findingsFor(findings: PlanCheckFinding[], check: string): PlanCheckFind
 test("valid fixture: checkPlan returns no findings (also covers the placeholder exemption case)", () => {
   const findings = checkPlan(VALID_PLAN, SPEC_TEXT, alwaysTruePort()).findings;
   assert.deepEqual(findings, []);
+});
+
+test("unknown Files kind fails and later Modify is still checked", () => {
+  const missing = "extensions/lib/fixture-missing.ts";
+  const malformed = [
+    "- Modfy: old.ts",
+    "- Rename: old.ts",
+    "- Mod-ify: old.ts",
+    ...["Create", "Modify", "Test", "Delete"].flatMap(kind => [`- ${kind}: `, `- ${kind}:   `]),
+  ];
+  for (const entry of malformed) {
+    const plan = VALID_PLAN.replace(
+      "- Modify: extensions/lib/fixture-shared.ts",
+      `${entry}\n\n- Modify: ${missing}`,
+    );
+    const result = checkPlan(plan, SPEC_TEXT, {
+      exists: path => path !== missing,
+      glob: () => [],
+    });
+    assert.deepEqual(findingsFor(result.findings, "files-block"), [{
+      check: "files-block",
+      line: plan.split("\n").indexOf(entry) + 1,
+      text: entry,
+      reason: `Task 1: Files line "${entry}" is not a Create, Modify, Test or Delete entry with a path`,
+    }], entry);
+    assert.deepEqual(findingsFor(result.findings, "paths-exist"), [{
+      check: "paths-exist",
+      line: lineOf(plan, `- Modify: ${missing}`),
+      text: `- Modify: ${missing}`,
+      reason: `Modify: path "${missing}" does not exist`,
+    }], entry);
+    assert.deepEqual(result.parsed.tasks[0].files.map(file => file.path), [
+      "extensions/lib/fixture-task1.ts", missing, "extensions/lib/fixture-task1.test.ts",
+    ], entry);
+    assert.deepEqual(findingsFor(result.findings, "tests-block"), [], entry);
+    assert.equal(result.findings.length, 2, entry);
+  }
+});
+
+test("Delete glob fails", () => {
+  for (const path of ["src/*.ts", "src/file?.ts", "src/{old,new}.ts", "app/[id]/page.tsx"]) {
+    for (const suffix of ["", ":1-2"]) {
+      const entry = `- Delete: \`${path}${suffix}\``;
+      const plan = VALID_PLAN.replace(
+        "- Test: extensions/lib/fixture-task1.test.ts",
+        `${entry}\n- Test: extensions/lib/fixture-task1.test.ts`,
+      );
+      assert.deepEqual(checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings, [{
+        check: "files-block",
+        line: lineOf(plan, entry),
+        text: entry,
+        reason: `Task 1: Delete: path "${path}" is a glob; Delete takes a literal path`,
+      }]);
+    }
+  }
+});
+
+test("removal-only plan declares one Delete owner and passes checkPlan", () => {
+  const spec = `# Retire unused adapter
+
+## Design
+Remove \`src/legacy.ts\`; no other repository file changes.
+Keep the supported public entrypoint working.
+
+## Acceptance criteria
+- [ ] The unused adapter is absent.
+- [ ] The supported public entrypoint still works.
+`;
+  const candidate = JSON.parse(readFileSync(new URL("../../eval/writing-plans/results/removal-lists-delete/candidate.json", import.meta.url), "utf8"));
+  const outputs = Object.entries(candidate.outputs) as [string, { status: string; text: string }][];
+  assert.equal(outputs.length, 2);
+  for (const [model, output] of outputs) {
+    assert.equal(output.status, "ok", model);
+    const start = output.text.indexOf("```markdown\n");
+    const plan = start === -1 ? output.text : output.text.slice(start + "```markdown\n".length, output.text.lastIndexOf("```"));
+    const result = checkPlan(plan, spec, alwaysTruePort());
+    assert.deepEqual(result.findings, [], model);
+    assert.deepEqual(result.parsed.tasks.flatMap(task => task.files).map(({ kind, path }) => ({ kind, path })), [
+      { kind: "delete", path: "src/legacy.ts" },
+      { kind: "test", path: "tests/retirement.test.mjs" },
+    ], model);
+    assert.deepEqual(Object.values<{ after: string }>(candidate.judge[model].facts).map(fact => fact.after), Array(4).fill("holds"), model);
+  }
+});
+
+test("Delete entry passes before and after removal", () => {
+  const path = "extensions/lib/fixture-removed.ts";
+  const plan = VALID_PLAN.replace("- Test: extensions/lib/fixture-task1.test.ts", `- Delete: ${path}\n- Test: extensions/lib/fixture-task1.test.ts`);
+  for (const exists of [true, false]) {
+    const result = checkPlan(plan, SPEC_TEXT, {
+      exists: p => p !== path || exists,
+      glob: () => [],
+    });
+    assert.deepEqual(result.findings, [], `Delete path exists: ${exists}`);
+    assert.ok(result.parsed?.tasks[0].files.some(f => f.kind === "delete" && f.path === path));
+  }
 });
 
 test("no gauntlet grammar at all: emits both an absent-wave-headers and an absent-task-headers finding", () => {
@@ -560,6 +657,37 @@ test("wave-file-disjointness: Test/Test allowed; Test vs Modify conflict; Modify
   assert.ok(WD(modifyModify).some((f) => f.reason.includes("fixture-shared.ts")));
 });
 
+test("wave-file-disjointness: Delete conflicts with every kind at every Files position before and after removal", () => {
+  const path = "extensions/lib/fixture-removed.ts";
+  const entries = [
+    "- Create: extensions/lib/fixture-task1.ts",
+    "- Modify: extensions/lib/fixture-shared.ts",
+    "- Test: extensions/lib/fixture-task1.test.ts",
+  ];
+  for (const kind of ["Create", "Modify", "Test", "Delete"]) {
+    for (let position = 0; position <= entries.length; position++) {
+      for (const exists of [true, false]) {
+        for (const suffix of ["", ":10-20"]) {
+          const files = [...entries];
+          files.splice(position, 0, `- Delete: ${path}${suffix}`);
+          const plan = VALID_PLAN.replace(entries.join("\n"), files.join("\n"))
+            .replace("- Create: extensions/lib/fixture-task2.ts", `- ${kind}: ${path}`);
+          const findings = checkPlan(plan, SPEC_TEXT, {
+            exists: p => p !== path || exists,
+            glob: () => [],
+          }).findings;
+          assert.deepEqual(findingsFor(findings, "wave-file-disjointness"), [{
+            check: "wave-file-disjointness",
+            line: lineOf(plan, "## Wave 1"),
+            text: plan.split("\n")[lineOf(plan, "## Wave 1") - 1],
+            reason: `Task 1 and Task 2 in Wave 1 both declare "${path}" / "${path}"`,
+          }], JSON.stringify({ kind, position, exists, suffix }));
+        }
+      }
+    }
+  }
+});
+
 test("Verification quote-integrity: task-owned literal check unchanged", () => {
   const mutated = VALID_PLAN.replace(
     "- via: `helperFn()`\n\nThis task implements helperFn() for parsing.",
@@ -659,21 +787,23 @@ test("check 3 fail-closed: unparseable **Spec:** anchor line", () => {
   assert.equal(ar[0].line, lineOf(mutated, "**Spec:** doc/specs/fixture-spec.md § Design without quotes"));
 });
 
-test("check 4 paths-exist: Modify: literal path does not exist", () => {
+for (const [name, prefix] of [
+  ["check 4 paths-exist: Modify: literal path does not exist", ""],
+  ["Modify after Delete is still existence-checked", "- Delete: extensions/lib/fixture-removed.ts\n"],
+]) test(name, () => {
+  const entry = "- Modify: extensions/lib/fixture-shared.ts";
+  const plan = VALID_PLAN.replace(entry, prefix + entry);
   const port: FsPort = {
     exists: (p) => p !== "extensions/lib/fixture-shared.ts",
     glob: () => [],
   };
-  const findings = checkPlan(VALID_PLAN, SPEC_TEXT, port).findings;
-  const pe = findingsFor(findings, "paths-exist");
-  assert.ok(
-    pe.some((f) => f.reason.includes("fixture-shared.ts") && f.reason.includes("does not exist")),
-    `expected a paths-exist finding, got: ${JSON.stringify(pe)}`,
-  );
-  assert.ok(
-    pe.some((f) => f.line === lineOf(VALID_PLAN, "- Modify: extensions/lib/fixture-shared.ts")),
-    `expected the paths-exist finding's line to point at the offending Modify: entry, got: ${JSON.stringify(pe)}`,
-  );
+  const findings = checkPlan(plan, SPEC_TEXT, port).findings;
+  assert.deepEqual(findingsFor(findings, "paths-exist"), [{
+    check: "paths-exist",
+    line: lineOf(plan, entry),
+    text: entry,
+    reason: 'Modify: path "extensions/lib/fixture-shared.ts" does not exist',
+  }]);
 });
 
 test("check 4 paths-exist: backtick-wrapped Modify: path is stripped before the existence check", () => {
@@ -928,6 +1058,38 @@ const T2_FILES_TEST = "- Test: extensions/lib/fixture-task2.test.ts\n";
 function tb(plan: string, spec = SPEC_TEXT, fs: FsPort = alwaysTruePort()): PlanCheckFinding[] {
   return findingsFor(checkPlan(plan, spec, fs).findings, "tests-block");
 }
+
+test("unknown kinds outside Files are not Files findings", () => {
+  const nonePlan = VALID_PLAN.replace(T2_FILES_TEST, "")
+    .replace(T2_TESTS + "- baseline: abc1234 pass\n", "**Tests:**\n- none: docs\n");
+  for (const plan of [
+    nonePlan,
+    VALID_PLAN.replace("**Files:**", "- Rename: before.ts\n\n**Files:**"),
+    VALID_PLAN.replace("This task handles naming details.", "- Rename: after.ts"),
+    ...["- [ ] **Step 1: Work**", "- `echo work`"].map(boundary =>
+      VALID_PLAN.replace(T2_FILES_TEST, `${T2_FILES_TEST}${boundary}\n- Modfy: outside.ts\n`)),
+  ]) {
+    const result = checkPlan(plan, SPEC_TEXT, alwaysTruePort());
+    assert.deepEqual(findingsFor(result.findings, "files-block"), []);
+    assert.ok(result.parsed.tasks.every(task => task.filesUnknown.length === 0));
+    if (plan === nonePlan) assert.deepEqual(result.findings, []);
+  }
+});
+
+test("unheaded line in the Files run is a files-block finding", () => {
+  const entry = "- none: docs";
+  const plan = VALID_PLAN.replace(T2_FILES_TEST, "")
+    .replace(T2_TESTS + "- baseline: abc1234 pass\n", `${entry}\n`);
+  const findings = checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings;
+  assert.deepEqual(findingsFor(findings, "files-block"), [{
+    check: "files-block",
+    line: lineOf(plan, entry),
+    text: entry,
+    reason: `Task 2: Files line "${entry}" is not a Create, Modify, Test or Delete entry with a path`,
+  }]);
+  assert.ok(tb(plan).some((f) => f.reason.includes("block missing") && f.reason.includes("Task 2")));
+  assert.equal(findings.length, 2);
+});
 
 test("tests-block: block missing when a task has no **Tests:**", () => {
   const mutated = VALID_PLAN.replace(T2_TESTS, "");
@@ -1408,6 +1570,22 @@ test("coordinated ledger rejects duplicate mapping sections", () => {
   assert.ok(checkPlan(input + input.slice(input.indexOf("## Leg mapping")), coordinatedSpec, emptyPort).findings.length);
 });
 
+
+test("manifest carries Delete and later entries", () => {
+  const entry = "- Delete: extensions/lib/fixture-removed.ts:1-2";
+  const plan = VALID_PLAN.replace("**Files:**", `**Files:**\n${entry}`);
+  const result = checkPlan(plan, SPEC_TEXT, alwaysTruePort());
+  assert.deepEqual(result.findings, []);
+  assert.ok(result.parsed);
+  const tasks = renderManifest(result.parsed, "/plan", "/spec").split("\n").slice(1).map(line => JSON.parse(line));
+  assert.equal(tasks[0].task, 1);
+  assert.deepEqual(tasks[0].files, [
+    { kind: "Delete", path: "extensions/lib/fixture-removed.ts:1-2" },
+    { kind: "Create", path: "extensions/lib/fixture-task1.ts" },
+    { kind: "Modify", path: "extensions/lib/fixture-shared.ts" },
+    { kind: "Test", path: "extensions/lib/fixture-task1.test.ts" },
+  ]);
+});
 
 test("manifest preserves ordered task data and optional coordination fields", () => {
   const plan = VALID_PLAN.replaceAll("Task 1", "Task 4").replaceAll("Task 2", "Task 9")

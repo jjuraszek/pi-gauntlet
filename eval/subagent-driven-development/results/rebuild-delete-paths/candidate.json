@@ -1,0 +1,110 @@
+{
+  "sample": "rebuild-delete-paths",
+  "arm": "candidate",
+  "skillSha": "d75dcbbda21bfc704ed01d84e09b389443278f192ca42e177ad748f11dc9c944",
+  "inputSha": "3f30f1b1c5b559f1ae51dcc0aeebea82f5ec6a39829687966612beb109c78c75",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Task 1 rebuild: path partition and commands up to integrated-tree restore\n\nObservation to print first:\n\n```text\nrebuild: task 1 - delta apply failed\n```\n\n## Attempt count\n\nThis is one failed attempt on `failed[1]`. Review 1 returned `FIX_FIRST` (+1), and the delta apply failure adds +1, so `failed[1] = 2`. The rebuild dispatch after the snapshot will therefore be the escalated round (`model: <implModel>`). That is beyond this boundary.\n\n## Path partition\n\nAll `:N[-M]` suffixes are stripped before any path reaches git.\n\n| Manifest entry | Stripped path | Bucket |\n|---|---|---|\n| Create: `tests/new.test.mjs:1-20` | `tests/new.test.mjs` | **remove** |\n| Test: `tests/new.test.mjs:21` | `tests/new.test.mjs` | excluded from restore (it is a Create path) |\n| Modify: `src/parse.mjs:5-12` | `src/parse.mjs` | restore |\n| Test: `src/parse.mjs:20` | `src/parse.mjs` | restore (duplicate of the Modify entry, deduplicated) |\n| Delete: `src/retired.mjs:1-8` | `src/retired.mjs` | restore (it exists at base) |\n| Delete: `src/never-shipped.mjs:1` | `src/never-shipped.mjs` | dropped (absent at base, nothing to restore) |\n\n**Source of the Delete split:** the supplied base-tree listing restricted to the two stripped Delete paths. Its output is exactly `src/retired.mjs`. Only paths that listing prints join the restore set. `src/never-shipped.mjs` is not printed, so it is never named to `restore`, which avoids a pathspec error on a path the base never had.\n\nThe final sets are:\n- **Remove:** `tests/new.test.mjs`\n- **Restore:** `src/parse.mjs src/retired.mjs`\n\nTask 2's `src/format.mjs` appears in neither set. Step 1 guaranteed disjoint paths, so Task 2's staged content is untouched.\n\n## Commands, in order\n\nThe first command is the Delete-split source. Its result is the supplied observation `src/retired.mjs`; it is shown here for provenance, not as a new execution.\n\n```bash\ngit -C /workspace/project ls-tree -r --name-only 1111111111111111111111111111111111111111 -- src/retired.mjs src/never-shipped.mjs\n```\n\n1. Remove the Create path from the integrated tree:\n```bash\ngit -C /workspace/project rm -q -f --ignore-unmatch -- tests/new.test.mjs\n```\n\n2. Restore the Modify/Test paths and the base-present Delete path from `WAVE_BASE_SHA`, both index and worktree:\n```bash\ngit -C /workspace/project restore --source=1111111111111111111111111111111111111111 --staged --worktree -- src/parse.mjs src/retired.mjs\n```\n\n## Stopping here\n\nNext would come the repair-base recipe on `/workspace/project` with `RP_BASE=1111111111111111111111111111111111111111`. That snapshot would hold the base plus Task 2 and nothing of Task 1. After it comes the one-step implementer carrier from `<RP_TREE>` with `worktree: true`, Task 1's original payload, and `model: <implModel>` from `gauntlet_setting({ key: \"escalationLoop\" })`.\n\nNone of those steps has been run, and no results for them are assumed.\n",
+      "words": 355,
+      "wallMs": 16414,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Strip all line annotations, deduplicate paths, and let `Create` ownership take precedence over `Test`.\n\n**Task 1 rebuild partition**\n- Remove: `tests/new.test.mjs`\n- Restore from `WAVE_BASE_SHA`: `src/parse.mjs`, `src/retired.mjs`\n- Do not restore: `src/never-shipped.mjs` — it did not exist at the base.\n- Leave untouched: Task 2’s staged `src/format.mjs`.\n\nThe Delete split comes from the **supplied base-tree listing restricted to the two Delete paths**, not their absence in the integrated tree. That listing contains only `src/retired.mjs`.\n\nNext shell commands, in order (not executed here):\n\n```bash\nprintf '%s\\n' 'rebuild: task 1 - delta apply failed'\n\ngit -C \"/workspace/project\" rm -q -f --ignore-unmatch -- \\\n  tests/new.test.mjs\n\ngit -C \"/workspace/project\" restore \\\n  --source=\"1111111111111111111111111111111111111111\" \\\n  --staged --worktree -- \\\n  src/parse.mjs \\\n  src/retired.mjs\n```\n\nThese commands scope removal and restoration to Task 1’s partition; they do not touch Task 2’s staged path. Stop here, before the repair-base snapshot or any dispatch.\n",
+      "words": 130,
+      "wallMs": 16021,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4d8be7ffbf03b7b3b98c16f5fb5c112678400611db2434524317fd4e574dfdfb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6c1d50af5f1722a9810d15e2e6f2f266b1acf9afcd988e2e81a8ca2b0650c799",
+      "baselineOutputSha": "e238399bdba6073ab12baa451d52d4882d70973df338c3857e6ba15f93819b64",
+      "candidateOutputSha": "4c9e14e5f617b48352c71419947d9a11a109c6f854dab4381b0f06693eeb7cd2",
+      "facts": {
+        "create": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "restore": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "absent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "filter": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "siblings": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and fixes the one Before missed: Before routed src/never-shipped.mjs into the git rm command as a \"no-op guard\", which violates the absent fact (the path must stay out of both the removal and restore sets), whereas After drops it entirely and names only tests/new.test.mjs to git rm. Both outputs already cite the restricted ls-tree listing as the Delete-split source, strip annotations, restore src/parse.mjs once plus src/retired.mjs with --source/--staged/--worktree, and leave Task 2's src/format.mjs untouched. One minor risk in After: printing the ls-tree command ahead of the numbered steps could be read as making removal not the first command; it is framed as provenance for the supplied observation rather than a new execution, so the create fact still holds, but wording like \"the Delete-split listing is a prior observation; the first command to execute is the removal\" would remove any ambiguity. Otherwise the After wording delivers the Change without regressing any fact.",
+      "wallMs": 13858,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4d8be7ffbf03b7b3b98c16f5fb5c112678400611db2434524317fd4e574dfdfb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6c1d50af5f1722a9810d15e2e6f2f266b1acf9afcd988e2e81a8ca2b0650c799",
+      "baselineOutputSha": "8c7fed4930a00026362044e6fbe264f052bd3fe6c911830b18151aa39e49e282",
+      "candidateOutputSha": "8ca26e8cd3f9792cb01874b6fcb0b7867654a429108b3e842923e4ae2b077f63",
+      "facts": {
+        "create": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "restore": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "absent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "filter": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "siblings": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After improves on Before without regressing any fact: Before put src/never-shipped.mjs into the git rm set (treating a base-absent Delete path as something to remove), while After correctly keeps it out of both the removal and restore sets and says why, so `absent` moves from fails to holds. Both outputs strip line annotations, remove tests/new.test.mjs first and exclude it from the restore set, restore src/parse.mjs once and src/retired.mjs via `git restore --source=<WAVE_BASE_SHA> --staged --worktree`, attribute the Delete split to the supplied restricted base-tree listing rather than filesystem absence, and leave Task 2's staged src/format.mjs untouched. One wording refinement that would make `filter` unambiguous in future runs: have the output name the command explicitly (e.g. 'the Delete split comes from `git ls-tree -r --name-only <WAVE_BASE_SHA> -- src/retired.mjs src/never-shipped.mjs`, whose supplied output is exactly src/retired.mjs') rather than only 'base-tree listing', since the fact names the ls-tree form; the extra `printf` marker line in After is harmless but unnecessary for the requested command sequence.",
+      "wallMs": 14777,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "c27af52315a658d147a4ebc6c8a2d3d45e5190f1"
+}

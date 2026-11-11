@@ -1,0 +1,34 @@
+{
+  "sample": "rebuild-delete-paths",
+  "arm": "baseline",
+  "skillSha": "a2d5918b70f1566c6d7dc111bc48cc3a0d0e09911ee99bb232ede4404451040f",
+  "inputSha": "3f30f1b1c5b559f1ae51dcc0aeebea82f5ec6a39829687966612beb109c78c75",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Task 1 rebuild: path partition and integrated-tree restore\n\n## Observations held\n\n```text\nrebuild: task 1 - delta apply failed\n```\n\nThe repair delta failure counts one attempt on `failed[1]`:\n\n- Review 1 `FIX_FIRST` added +1.\n- The failed delta apply added +1.\n- `failed[1] == 2`, so the rebuild dispatch that follows the snapshot is the escalated round (`model: <implModel>`).\n\nThat dispatch is outside this boundary. Task 2's staged changes in `src/format.mjs` are not touched by any command below. Step 1 guarantees `src/format.mjs` is disjoint from Task 1's manifest paths.\n\n## Path partition (line annotations stripped)\n\n| Manifest entries | Git path | Bucket | Reason |\n|---|---|---|---|\n| Create `tests/new.test.mjs:1-20`, Test `tests/new.test.mjs:21` | `tests/new.test.mjs` | **remove** | Create wins. It is excluded from restore even though it is also a Test path. |\n| Modify `src/parse.mjs:5-12`, Test `src/parse.mjs:20` | `src/parse.mjs` | **restore from base** | Modify/Test, deduplicated to one path. |\n| Delete `src/retired.mjs:1-8` | `src/retired.mjs` | **restore from base** | Present at `WAVE_BASE_SHA` per the base-tree listing. Task 1's deletion must be undone. |\n| Delete `src/never-shipped.mjs:1` | `src/never-shipped.mjs` | **remove (no-op guard)** | Absent at `WAVE_BASE_SHA` per the base-tree listing. `restore --source` would fail on an unmatched pathspec, so it goes only to `rm --ignore-unmatch`. |\n\n**Source of the Delete split:** the supplied base-tree listing restricted to the two Delete paths, which returned exactly `src/retired.mjs`. That is the result of `git -C /workspace/project ls-tree -r --name-only 1111111111111111111111111111111111111111 -- src/retired.mjs src/never-shipped.mjs`. I treat it as a fixed observation and do not rerun it.\n\n- A Delete path in the listing goes to restore.\n- A Delete path absent from the listing goes to the remove/no-op bucket.\n\n## Commands, in order (owning checkout `/workspace/project`)\n\n1. Remove Create paths and the base-absent Delete path. `--ignore-unmatch` makes `src/never-shipped.mjs` a no-op.\n\n```bash\ngit -C /workspace/project rm -q -f --ignore-unmatch -- tests/new.test.mjs src/never-shipped.mjs\n```\n\n2. Restore the Modify/Test paths and the base-present Delete path from the wave base, in both index and worktree:\n\n```bash\ngit -C /workspace/project restore --source=1111111111111111111111111111111111111111 --staged --worktree -- src/parse.mjs src/retired.mjs\n```\n\n3. Coordination check. This confirms Task 2's staged `src/format.mjs` survives and Task 1's paths are back at base, without loading any content:\n\n```bash\ngit -C /workspace/project status --porcelain\ngit -C /workspace/project diff --stat --cached 1111111111111111111111111111111111111111\n```\n\nExpected shape, not an observed result:\n\n- `src/format.mjs` (and any other Task 2 paths) still appear as staged.\n- None of `tests/new.test.mjs`, `src/parse.mjs`, `src/retired.mjs` or `src/never-shipped.mjs` differ from base.\n\nIf either step 1 or step 2 exits nonzero, stop and report the shell error. Do not continue to the snapshot.\n\n## Boundary\n\nI stop here, with the integrated tree restored to base plus accepted siblings and none of Task 1.\n\nNot yet run:\n\n- The `repair-base-shell` recipe (`RP_ROOT=/workspace/project`, `RP_BASE=1111111111111111111111111111111111111111`) and its `repair-base: <path> <sha>` observation.\n- `gauntlet_setting({ key: \"escalationLoop\" })`.\n- The escalated implementer dispatch from `<RP_TREE>` with `worktree: true` and Task 1's original anchored payload.\n\nNo execution results are claimed for the commands above.\n",
+      "words": 443,
+      "wallMs": 21643,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Task 1’s rebuild partition, with line annotations stripped and paths deduplicated:\n\n- **Remove:** `tests/new.test.mjs` (Create, even though also Test), `src/never-shipped.mjs` (Delete; absent at the wave base).\n- **Restore from WAVE_BASE_SHA:** `src/parse.mjs` (Modify/Test), `src/retired.mjs` (Delete; present at the wave base).\n\nThe **Delete split comes from the supplied base-tree listing restricted to the two Delete paths**, which contains only `src/retired.mjs`. Their current absence does not determine the split.\n\nRun these commands in order:\n\n```bash\ngit -C \"/workspace/project\" rm -q -f --ignore-unmatch -- \\\n  tests/new.test.mjs \\\n  src/never-shipped.mjs\n\ngit -C \"/workspace/project\" restore \\\n  --source=1111111111111111111111111111111111111111 \\\n  --staged --worktree -- \\\n  src/parse.mjs \\\n  src/retired.mjs\n```\n\nThese commands do not touch Task 2’s staged `src/format.mjs`. Stop here, before the repair-base snapshot or any dispatch. No execution results are claimed.\n",
+      "words": 111,
+      "wallMs": 14468,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "c27af52315a658d147a4ebc6c8a2d3d45e5190f1"
+}

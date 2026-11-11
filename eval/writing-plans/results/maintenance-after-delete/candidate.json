@@ -1,0 +1,120 @@
+{
+  "sample": "maintenance-after-delete",
+  "arm": "candidate",
+  "skillSha": "639814fc19399a93031910a4187eda28318b480210ba824af14ca798cbdf28a2",
+  "inputSha": "1a298867643ff83296d00c06ac100641d20c7f142378640be7959dab6c5afd26",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Plan-writer simulation: two independent maintenance dispatches against `/workspace/app/doc/plans/retire.md`\n\nBoth passes start from the same committed plan and spec at `abc1234`. Neither pass reruns a baseline command, and both leave Task 1 byte-for-byte unchanged.\n\n---\n\n## Pass A - ordinary `Findings:` re-dispatch\n\n**Inputs**\n- The five paths.\n- `Findings: anchor-resolution: Task 2: range L19-L21 is outside section \"Usage\" (L9-L11)`\n\n**Reads**\n1. `read /workspace/app/AGENTS.md`, then the first overrides file that exists (`.pi/gauntlet-overrides.md`, `gauntlet-overrides.md`, `doc/gauntlet-overrides.md`). These supply conventions and confirm the `npm test` verification header.\n2. `read /workspace/tools/skills/writing-plans/SKILL.md`, from `## File Structure` through `## Self-Review`.\n3. `read /workspace/tools/skills/writing-plans/reference/plan-contract.md`.\n4. `read /workspace/app/doc/specs/retire.md`:\n   - Removal is L5-L7.\n   - Usage is L9-L11, which confirms the finding.\n5. `read /workspace/app/doc/plans/retire.md`. This is the existing plan.\n   - Task 2's `**Spec:**` reads L19-L21.\n   - Everything else is valid, and a Findings re-dispatch keeps everything the block does not touch.\n\n**Edit (one change only)**\n- Task 2 `**Spec:**` changes from `doc/specs/retire.md § \"Usage\" L19-L21` to `doc/specs/retire.md § \"Usage\" L9-L11`.\n- Nothing else changes:\n  - Task 1 stays as it is, including its completed `[x]` step and its `Delete:` entries in original order.\n  - Wave order, coverage rows, headers and provenance are unchanged.\n- `write /workspace/app/doc/plans/retire.md` as a full replacement, with only that line different.\n\n**Baseline (ordinary Findings path)**\n\n| Step | Command | Result |\n|---|---|---|\n| Provenance | `git -C \"/workspace/app\" rev-parse --short HEAD` | `abc1234` |\n| Status | `git -C \"/workspace/app\" status --porcelain --untracked-files=all` | Shows only `doc/plans/retire.md` (my own edit), which is an admitted plan path |\n\n- There are no `In-flight:` paths, no unknown dirty paths and no source edits.\n- **Endpoint-tree proof.** There is one distinct recorded SHA, `abc1234`.\n  - Command: `git -C \"/workspace/app\" diff --quiet abc1234 abc1234 -- . ':!doc/specs/' ':!doc/plans/'` exits 0, so equivalence is proved.\n  - Task 1's command text `node --test tests/current.test.mjs` is unchanged, and its `- baseline: abc1234 pass` is valid. I retain it.\n  - The recorded SHA already equals BASE, so nothing is re-stamped and no `retained ... ->` line is appended.\n- Task 2 is `- none: docs`, so it has no baseline.\n- No command runs, so there is no contamination check to apply and no Open Questions rows.\n\n**Checker:** `plan_check({ planPath: \"/workspace/app/doc/plans/retire.md\" })` returns PASS. Judgment checks request no further edit:\n- anchors are sane;\n- Files are disjoint across waves;\n- `Delete:` paths are absent as expected (`paths-exist` applies to `Modify:`);\n- coverage is closed.\n\n**Task 1 Files block (pass A result, unchanged)**\n```markdown\n**Files:**\n- Delete: `src/legacy.ts`\n- Modify: `src/current.ts`\n- Delete: `src/legacy-map.json`\n- Test: `tests/current.test.mjs`\n\n**Tests:**\n- `node --test tests/current.test.mjs`\n- baseline: abc1234 pass\n- via: `current mode`\n```\n\n**Task 2 (pass A result)**\n```markdown\n### Task 2: Document current mode\n**Spec:** doc/specs/retire.md § \"Usage\" L9-L11\n**Files:**\n- Modify: `doc/usage.md`\n**Tests:**\n- none: docs\n\n- [ ] Document current mode in the usage guide.\n```\n\n**Pass A reply:** `PLAN WRITTEN /workspace/app/doc/plans/retire.md`\n\n---\n\n## Pass B - implement-phase `Amend-apply:`\n\n**Inputs**\n- The five paths.\n- `Amend-apply:` carrying one granted item: in Usage, replace \"Document current mode.\" with \"Document current mode and include a migration example.\"\n\nThis pass starts from the valid original plan, with Task 2 at L9-L11.\n\n**Reads**\n1. AGENTS.md, the overrides file, the skill excerpt and the contract, as in pass A.\n2. `read /workspace/app/doc/specs/retire.md` and `read /workspace/app/doc/plans/retire.md` (current state).\n3. Committed originals, read before any edit. These are the two admitted extra bash reads, using home-relative paths:\n   - `git -C \"/workspace/app\" show HEAD:doc/plans/retire.md` succeeds.\n   - `git -C \"/workspace/app\" show HEAD:doc/specs/retire.md` succeeds.\n   - Together they form the comparison inventory:\n     - Task 1 is \"Retire legacy adapters\", anchored to Removal L5-L7, Wave 1.\n     - Task 2 is \"Document current mode\", anchored to Usage L9-L11, Wave 2.\n     - The inventory also covers their bodies and Tests.\n   - There is no `previousApplyReport`, because this is not a retry.\n\n**Writes**\n1. **Spec.** `write /workspace/app/doc/specs/retire.md` as a full file.\n   - Only the Usage sentence becomes \"Document current mode and include a migration example.\"\n   - Removal and every other section are preserved.\n   - The sentence replacement stays within the section, so Usage remains L9-L11 and no anchors shift.\n2. **Plan.** `write /workspace/app/doc/plans/retire.md` as a full file with a local patch, not a regeneration:\n   - The header gains `**Baseline policy:** implement-local`.\n   - Task 2's step becomes `- [ ] Document current mode in the usage guide and include a migration example.`\n   - The Task 2 / Usage coverage row's requirement text becomes \"document current mode with a migration example\". The owner is still `Task 2`.\n   - Task 1, wave order, per-leg declaration and baseline bullets are preserved byte-for-byte. This includes Task 1's `Delete:` entries and their order.\n\n**Implement-local Baseline**\n- **Inventory.** `git -C \"/workspace/app\" status --porcelain --untracked-files=all` was empty before maintenance. After my edits it shows only the spec and plan, which are admitted.\n- **Commands.** No command changed or was added, and no evidence is missing or invalid. Therefore:\n  - nothing runs;\n  - there is no endpoint-tree proof and no rerun-all sweep;\n  - no execution tree needs identifying.\n- **Evidence retained.** Task 1's `- baseline: abc1234 pass` is retained byte-for-byte. There is no retained skipped evidence, so no `Baseline provenance: retained ...` note is needed. The existing provenance note is unchanged.\n- **Saved report.** It records zero executions.\n- **Task 2** is `none: docs`, so it has no baseline.\n\n**Checker:** `plan_check({ planPath: \"/workspace/app/doc/plans/retire.md\" })` returns PASS with no open questions. Mechanical self-check and coverage closure hold.\n\n**Task 1 Files block (pass B result, unchanged)**\n```markdown\n**Files:**\n- Delete: `src/legacy.ts`\n- Modify: `src/current.ts`\n- Delete: `src/legacy-map.json`\n- Test: `tests/current.test.mjs`\n\n**Tests:**\n- `node --test tests/current.test.mjs`\n- baseline: abc1234 pass\n- via: `current mode`\n```\n\n**Task 2 (pass B result)**\n```markdown\n### Task 2: Document current mode\n**Spec:** doc/specs/retire.md § \"Usage\" L9-L11\n**Files:**\n- Modify: `doc/usage.md`\n**Tests:**\n- none: docs\n\n- [ ] Document current mode in the usage guide and include a migration example.\n```\n\n**Deltas against the committed originals**\n- Task 2's anchored obligation changed in meaning: it now requires a migration example.\n- Task 1's obligation is unchanged.\n- No tasks were added or removed.\n\nI do no stamping or tracker work; the parent owns both.\n\n**Pass B structured result:**\n```json\n{ \"amendedSections\": [\"Usage\"], \"tasksAdded\": [], \"tasksAnchorChanged\": [2], \"tasksRemoved\": [], \"passed\": true }\n```\n\n---\n\n## Comparison\n\n| | Pass A (Findings) | Pass B (Amend-apply) |\n|---|---|---|\n| Spec written | no | yes, Usage only |\n| HEAD original reads | no | yes, plan and spec |\n| Baseline mode | ordinary; equivalence proved at abc1234 and evidence retained | implement-local; nothing run and evidence retained |\n| Policy header | absent | `implement-local` |\n| Task 1 | unchanged | unchanged |\n| Reply | one line | structured object |\n\nPLAN WRITTEN /workspace/app/doc/plans/retire.md\n",
+      "words": 967,
+      "wallMs": 40098,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Pass A — ordinary `Findings:` maintenance\n\n1. Read `/workspace/app/AGENTS.md` and the first existing gauntlet overrides file from the prescribed locations.\n2. Read `/workspace/tools/skills/writing-plans/SKILL.md` and `/workspace/tools/skills/writing-plans/reference/plan-contract.md`.\n3. Read the existing `/workspace/app/doc/plans/retire.md` and the full `/workspace/app/doc/specs/retire.md`. Recon confirms that `src/current.ts`, `tests/current.test.mjs`, and `doc/usage.md` exist. The two legacy files are absent.\n4. Resolve the supplied finding: Task 2’s Usage anchor must change from `L19-L21` to `L9-L11`. Preserve everything the finding does not touch. In particular, absent paths declared only as `Delete:` do not require a repair; retain both Delete entries.\n\n5. Inventory baseline provenance:\n   ```text\n   git -C \"/workspace/app\" rev-parse --short HEAD\n   → abc1234\n\n   git -C \"/workspace/app\" status --porcelain --untracked-files=all\n   → empty\n   ```\n   Record the clean inventory and that only the supplied spec and plan paths are admissible workflow edits.\n\n6. Prove endpoint-tree equivalence for the recorded revision:\n   ```text\n   git -C \"/workspace/app\" diff --quiet abc1234 abc1234 -- . ':!doc/specs/' ':!doc/plans/'\n   → exit 0\n   ```\n   Task 1’s unchanged command retains its valid `abc1234 pass` evidence. Append the retention provenance to the existing note. Run no test command; Task 2 remains `none: docs`.\n\n7. Full-file `write` to `/workspace/app/doc/plans/retire.md`, repairing Task 2’s anchor and updating the baseline provenance while preserving unaffected content. Do not introduce an implement-local policy header.\n\nTask 1’s resulting block is unchanged:\n\n```markdown\n**Files:**\n- Delete: `src/legacy.ts`\n- Modify: `src/current.ts`\n- Delete: `src/legacy-map.json`\n- Test: `tests/current.test.mjs`\n```\n\nIts retained Tests block is:\n\n```markdown\n**Tests:**\n- `node --test tests/current.test.mjs`\n- baseline: abc1234 pass\n- via: `current mode`\n```\n\n8. Call:\n   ```text\n   plan_check({ planPath: \"/workspace/app/doc/plans/retire.md\" })\n   → PASS\n   ```\n   Judgment checks request no further edit. There are no open questions, no source writes, and no tracker or stamping calls by the child.\n\nOrdinary final reply:\n\n```text\nPLAN WRITTEN /workspace/app/doc/plans/retire.md\n```\n\n## Pass B — implement-phase `Amend-apply:`\n\nThis pass starts independently from the valid original, with Task 2 already anchored at `L9-L11`.\n\n1. Read the project rules, overrides, skill, contract, current spec, and current plan.\n2. Before either file is edited, read both committed originals:\n   ```text\n   git -C \"/workspace/app\" show HEAD:doc/plans/retire.md\n   → succeeds\n\n   git -C \"/workspace/app\" show HEAD:doc/specs/retire.md\n   → succeeds\n   ```\n   Use these originals as the comparison inventory for task IDs, obligations, anchors, bodies, Tests, wave positions, and historical evidence.\n\n3. Inventory before maintenance:\n   ```text\n   git -C \"/workspace/app\" rev-parse --short HEAD\n   → abc1234\n\n   git -C \"/workspace/app\" status --porcelain --untracked-files=all\n   → empty\n   ```\n   The execution revision is identified, and no unknown dirty paths block maintenance.\n\n4. Full-file `write` to `/workspace/app/doc/specs/retire.md`, replacing only Usage’s granted sentence:\n   ```text\n   Document current mode and include a migration example.\n   ```\n   Preserve every other section.\n\n5. Full-file `write` to `/workspace/app/doc/plans/retire.md`:\n   - Add `**Baseline policy:** implement-local` in the header.\n   - Change Task 2’s matching instruction to include a migration example.\n   - Update its coverage requirement accordingly.\n   - Preserve task IDs, titles, wave order, checkbox state, and unaffected text.\n   - Preserve Task 1’s command and baseline bullet byte-for-byte.\n\nTask 1’s resulting block is again unchanged:\n\n```markdown\n**Files:**\n- Delete: `src/legacy.ts`\n- Modify: `src/current.ts`\n- Delete: `src/legacy-map.json`\n- Test: `tests/current.test.mjs`\n```\n\n6. Apply implement-local Baseline handling. No command changed and no evidence is missing or invalid, so run no tests and perform no endpoint-tree-equivalence sweep. Retain the valid measured evidence. The only maintenance changes are the admitted spec and plan edits; do not commit, restore, or discard anything.\n\n7. Call:\n   ```text\n   plan_check({ planPath: \"/workspace/app/doc/plans/retire.md\" })\n   → PASS\n   ```\n   Judgment checks request no further edit, and no open questions remain.\n\nTask 2 has a semantic obligation change, so report task number `2` in `tasksAnchorChanged` even though its line range remains unchanged. Task 1 has no semantic change. The parent owns stamping and tracker reconciliation.\n\nAmend-apply final result:\n\n```json\n{\n  \"amendedSections\": [\"Usage\"],\n  \"tasksAdded\": [],\n  \"tasksAnchorChanged\": [2],\n  \"tasksRemoved\": [],\n  \"passed\": true\n}\n```\n",
+      "words": 565,
+      "wallMs": 40112,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8c22c532b0f9783b1a376f455ac5a250475334e02c90245651c26933cacc3472",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "11952f405a96dd334878be965593fe198f48cad0086144f6a3bb9b32397f0083",
+      "baselineOutputSha": "615a51363a297f44b9adbe8b74a38db3141e28f12eb21f2f463835f38a241732",
+      "candidateOutputSha": "c13d6a6ab013b4ee9b154a1159eae32163692ae83cb2f4a5621b8f6d87e55a56",
+      "facts": {
+        "findings-files": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "amend-files": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "removed-stay-absent": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "source-unchanged": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "findings-complete": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "amend-complete": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs keep Task 1's four Files entries verbatim (both Delete lines, original order, backticks) in each pass, run nothing that recreates src/legacy.ts or src/legacy-map.json, write only the plan in pass A and the plan plus the Usage section in pass B, read both home-relative HEAD originals before editing in pass B, retain the abc1234 evidence without reruns, self-check with plan_check, end pass A with PLAN WRITTEN, and return the Amend-apply object with amendedSections [Usage], tasksAnchorChanged [2], empty added/removed and passed true while leaving stamping to the parent. After is actually tighter than Before: it explicitly states that paths-exist applies only to Modify so absent Delete paths are not repairs, shows the status inventory treating the writer's own plan edit as an admitted path, notes there is no previousApplyReport on a non-retry, and keeps Task 2's amended step close to the granted sentence rather than Before's invented caller-migration detail. Two small things to watch if the wording is tuned further: the final PLAN WRITTEN line after the pass B object and comparison table could be read as pass B's reply, so keeping the explicit 'Pass A reply' label (as After does) is what preserves findings-complete; and both outputs add a `**Baseline policy:** implement-local` header in pass B, which is fine for amend-files as written but should stay out of Task 1's block to keep that fact byte-for-byte.",
+      "wallMs": 16880,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8c22c532b0f9783b1a376f455ac5a250475334e02c90245651c26933cacc3472",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "11952f405a96dd334878be965593fe198f48cad0086144f6a3bb9b32397f0083",
+      "baselineOutputSha": "67bb535cb15e7e7ec02a99f7ca6794c8b700b273b926dab49875c35dc7d63f37",
+      "candidateOutputSha": "0a6debd4a5eec6940805ae24db03d09f664f4bf443845b94107462163f8a85dc",
+      "facts": {
+        "findings-files": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "amend-files": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "removed-stay-absent": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "source-unchanged": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "findings-complete": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "amend-complete": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: both outputs preserve Task 1's four Files entries verbatim (both Delete entries, original order, backticks) in each pass, neither runs any restore/checkout or edits src/current.ts, tests/current.test.mjs or doc/usage.md, both write only the plan in pass A and the plan plus the granted Usage sentence in pass B, both repair the L19-L21 anchor and end PLAN WRITTEN after plan_check PASS without treating the absent Delete paths as a blocker, and both read the two committed home-relative originals before editing in pass B, retain the unchanged abc1234 evidence, self-check, and return passed true with amendedSections [Usage], tasksAnchorChanged [2], tasksAdded [] and tasksRemoved [] while leaving stamping to the parent. The After wording is slightly tighter (explicit statement that absent Delete-only paths require no repair, explicit 'do not commit, restore, or discard anything' in pass B, and explicit rationale that tasksAnchorChanged carries the semantic change despite unchanged offsets), so the Delete-ownership invariants this sample targets are stated more directly; keep those explicit lines, and keep the pass-A note that no implement-local header is introduced, since that distinguishes the two modes cleanly without touching any existing fact.",
+      "wallMs": 12460,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "74941475da4d948867228dc72ffb2dc5db9a3de8"
+}

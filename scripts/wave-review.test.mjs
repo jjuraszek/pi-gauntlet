@@ -44,6 +44,11 @@ test('planning and wave dispatch bind task roots and Rules to admitted legs', ()
   const contract = readFileSync(new URL('../skills/writing-plans/reference/plan-contract.md', import.meta.url), 'utf8');
   for (const token of ['Leg: <repo>', 'Baseline <repo>: <sha>', '(leg, path)', 'leg-unknown', 'home:', 'NAME']) assert.ok(contract.includes(token), token);
   for (const token of ['Rules: root only - paths unresolved', 'owning checkout', 'tree-equivalence', 'per-leg']) assert.ok(writer.includes(token), token);
+  const taskTemplate = writer.split('## Task Structure')[1].split('## Spec Coverage Table')[0];
+  for (const [name, text] of [['plan contract', contract], ['task template', taskTemplate]]) {
+    for (const token of ['Delete:', 'write ownership', 'literal path', 'no existence requirement']) assert.ok(text.includes(token), `${name}: ${token}`);
+  }
+  assert.match(taskTemplate, /^- Delete: `exact\/path\/to\/removed\.py`$/m);
   for (const token of ['leg-homogeneous', 'before capturing `WAVE_BASE_SHA`', 'combined spec/task `Rules:`', 'home spec', 'every leg']) assert.ok(skill.includes(token), token);
   for (const name of ['implementer', 'wave-reviewer']) {
     const persona = readFileSync(new URL(`../agents/${name}.md`, import.meta.url), 'utf8');
@@ -261,18 +266,61 @@ test('repair snapshot commits the integrated tree and exports only repair delta'
   assert.equal(git(f.repo, 'rev-parse', 'HEAD'), f.base);
 });
 
-test('rebuild removes Create/Test paths and restores deduplicated existing paths only', () => {
-  const f = fixture();
-  writeFileSync(join(f.repo, 'sibling.txt'), 'sibling\n'); git(f.repo, 'add', '-A');
-  const paths = { Create: ['new.txt'], Modify: ['existing.txt'], Test: ['new.txt', 'existing.txt'] };
-  const create = [...new Set(paths.Create)];
-  const restore = [...new Set([...paths.Modify, ...paths.Test])].filter(p => !create.includes(p));
-  git(f.repo, 'rm', '-q', '-f', '--ignore-unmatch', '--', ...create);
-  git(f.repo, 'restore', `--source=${f.base}`, '--staged', '--worktree', '--', ...restore);
-  assert.equal(existsSync(join(f.repo, 'new.txt')), false);
-  assert.equal(readFileSync(join(f.repo, 'existing.txt'), 'utf8'), 'before\n');
-  assert.equal(readFileSync(join(f.repo, 'sibling.txt'), 'utf8'), 'sibling\n');
+test('rebuild restores base-owned Delete paths without touching siblings or passing empty path lists', () => {
+  const rebuild = skill.split('### Rebuild')[1].split('### Escalation')[0];
+  for (const token of ['trailing `:N[-M]` stripped', '`Delete` paths', 'ls-tree -r --name-only "$WAVE_BASE_SHA" -- <Delete paths>', 'Skip a command with no paths']) assert.ok(rebuild.includes(token), token);
   assert.match(wave, /deduplicated and excluding every `Create` path/);
+  assert.match(skill, /only Test\/Test may share a path/);
+  assert.ok(Buffer.byteLength(skill) < 50000);
+  const commands = Object.fromEntries(['rm', 'ls-tree', 'restore'].map(command => [command, rebuild.match(new RegExp('`(git -C <worktree> ' + command + '[^`]+)`'))[1]]));
+  const cases = [
+    { name: 'present and absent Delete with suffixes', paths: { Create: ['new.txt:1'], Modify: ['existing.txt:1-2'], Test: ['new.txt:2', 'existing.txt:3'], Delete: ['removed.txt:1-2', 'absent.txt:4'] }, restore: ['existing.txt', 'removed.txt'], calls: ['rm', 'ls-tree', 'restore'] },
+    { name: 'no Delete', paths: { Create: ['new.txt'], Modify: ['existing.txt'], Test: ['new.txt', 'existing.txt'] }, restore: ['existing.txt'], calls: ['rm', 'restore'] },
+    { name: 'absent Delete only', paths: { Delete: ['absent.txt:1'] }, restore: [], calls: ['ls-tree'] },
+    { name: 'Create wins over Delete and Test', paths: { Create: ['new.txt', 'removed.txt'], Test: ['new.txt'], Delete: ['removed.txt'] }, restore: [], calls: ['rm', 'ls-tree'] },
+  ];
+  for (const scenario of cases) {
+    const f = fixture();
+    writeFileSync(join(f.repo, 'sibling.txt'), 'accepted sibling\n');
+    git(f.repo, 'add', '-A');
+    const siblingBlob = git(f.repo, 'rev-parse', ':sibling.txt');
+    const paths = Object.fromEntries(Object.entries(scenario.paths).map(([kind, values]) => [kind, [...new Set(values.map(p => p.replace(/:\d+(?:-\d+)?$/, '')))]]));
+    const calls = [];
+    function run(command, values) {
+      if (!values.length) return '';
+      calls.push(command);
+      const script = commands[command].replaceAll('<worktree>', quote(f.repo)).replaceAll('$WAVE_BASE_SHA', f.base).replace(/<(?:Delete )?paths>/, values.map(quote).join(' '));
+      const result = spawnSync('bash', ['-e', '-c', script], { encoding: 'utf8' });
+      assert.equal(result.status, 0, `${scenario.name}: ${result.stderr}`);
+      return result.stdout.trim();
+    }
+    const create = paths.Create ?? [];
+    run('rm', create);
+    const deletedAtBase = run('ls-tree', paths.Delete ?? []).split('\n').filter(Boolean);
+    const restore = [...new Set([...(paths.Modify ?? []), ...(paths.Test ?? []), ...deletedAtBase])].filter(p => !create.includes(p));
+    assert.deepEqual(restore, scenario.restore, scenario.name);
+    run('restore', restore);
+    assert.deepEqual(calls, scenario.calls, scenario.name);
+    for (const path of restore) {
+      assert.equal(readFileSync(join(f.repo, path), 'utf8'), git(f.repo, 'show', `${f.base}:${path}`) + '\n', scenario.name);
+      assert.equal(git(f.repo, 'rev-parse', `:${path}`), git(f.repo, 'rev-parse', `${f.base}:${path}`), scenario.name);
+    }
+    for (const path of create) assert.equal(existsSync(join(f.repo, path)), false, scenario.name);
+    assert.equal(existsSync(join(f.repo, 'absent.txt')), false, scenario.name);
+    assert.equal(readFileSync(join(f.repo, 'sibling.txt'), 'utf8'), 'accepted sibling\n', scenario.name);
+    assert.equal(git(f.repo, 'rev-parse', ':sibling.txt'), siblingBlob, scenario.name);
+  }
+});
+
+test('rebuild Delete sample retains passing candidate facts for both replay models', () => {
+  const record = JSON.parse(readFileSync(new URL('../eval/subagent-driven-development/results/rebuild-delete-paths/candidate.json', import.meta.url), 'utf8'));
+  assert.equal(Object.keys(record.outputs).length, 2);
+  for (const [model, output] of Object.entries(record.outputs)) {
+    assert.equal(output.status, 'ok', model);
+    const facts = record.judge[model].facts;
+    assert.deepEqual(Object.keys(facts).sort(), ['absent', 'create', 'filter', 'restore', 'siblings']);
+    for (const fact of Object.values(facts)) assert.equal(fact.after, 'holds', model);
+  }
 });
 
 test('CI rejects retired dispatches only on instruction surfaces and validates supersession', () => {

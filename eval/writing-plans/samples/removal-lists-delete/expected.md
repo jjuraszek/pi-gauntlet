@@ -1,0 +1,4 @@
+- delete-owner: judged: The authored plan lists src/legacy.ts as a Delete Files entry in exactly one task, with no second task claiming its deletion.
+- no-modify: judged: No task lists src/legacy.ts as Modify, including alongside a Delete entry; the path's presence at plan time does not change its removal ownership kind.
+- checker-shape: judged: The plan places a --- separator between the header and first wave, and each coverage row uses the exact heading and line range present in its owning task's Spec anchor set.
+- scoped-check: judged: The removal task anchors tests/retirement.test.mjs as Test and runs node --test tests/retirement.test.mjs with the measured abc1234 pass baseline; npm test stays in the verification header, not task Tests.
