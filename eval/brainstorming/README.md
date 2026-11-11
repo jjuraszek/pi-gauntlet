@@ -13,6 +13,7 @@ Tests questionary and approaches messages (checklist steps 3-5) and same-turn co
 | Sample | Must-hold behavior |
 |---|---|
 | `opening-message-shape` | First message only: three titles, everyday role names, no source locator, a 220-word span, then holds-statement and one question. |
+| `opening-message-ticket-not-fetched` | Keep ticket content unknown after a denied fetch; state the reason and design wait on a `Not checked:` line, then the holds-statement and one question on how to obtain the content. |
 | `explicit-unit-normalization` | Correct the premise and preserve the shared representation contract. |
 | `latest-run-indicator` | Keep per-surface provenance and persisted run metadata. |
 | `review-and-apply-containment` | Use everyday role names in the titled opening without source locators; keep the producer out of scope and reuse field candidates, retaining source-backed approaches. |

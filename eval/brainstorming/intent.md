@@ -1,4 +1,4 @@
-for: c86147495d9f05d9ef7ead587a1c06970996948cfb8b7db1340d3a38d414e333
+for: e2a3b9979119c276cf8c249aa8d8189c8c2111894814e3a4f36df5f70baa6ac0
 
 ## Change
 Render question one's message as Today, The change, and What I checked, with everyday words and sources in the draft. The opening-message reference owns wording, a 220-word span cap, and holds/concern examples; SKILL.md keeps flow and records every checked claim before sending. Selected coverage is opening-message-shape, opening-message-ticket-not-fetched, gate-line-first, implicit-template-not-found, missing-db-extension, review-and-apply-containment, and workflow-stage-ticket-row, run individually within the approved 280-call budget. Preserve prior records and accepted variance; report only completed selected samples, not a target-wide pass. The not-fetched sample supplies only a ticket reference, a denied fetch, and unrelated repo recon; require the Not checked: reason and design wait without inventing the ticket's request. Concern coverage is synthetic gate-line-first only; latest-run-indicator/framing and explicit-unit-normalization/framing are not run. Tool-free replays cannot prove draft writes or live overflow handling. The three dependency and containment samples add register facts for the titled opening, everyday role names, and locator-free chat while retaining the necessary missing-asset and extension literals; preserve every original fact and source-backed approaches.
@@ -248,9 +248,9 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 - wrong-row-cut-question/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
 - wrong-row-cut-question/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
 - wrong-row-cut-question/f3: holds -> holds - Preserve existing behavior under the expanded assembly.
-- implicit-template-not-found/register: fails -> holds - Keep the required missing-asset name while using everyday roles and locator-free opening sections.
-- missing-db-extension/register: fails -> holds - Keep the required missing-extension name while using everyday roles and locator-free opening sections.
-- review-and-apply-containment/register: fails -> holds - Use everyday roles and locator-free opening sections; retain source-backed approaches.
+- implicit-template-not-found/opening-shape: fails -> holds - Render the three opening titles without file-and-line locators before message one's Recommendation: line.
+- missing-db-extension/opening-shape: fails -> holds - Render the three opening titles without file-and-line locators before message one's Recommendation: line.
+- review-and-apply-containment/opening-shape: fails -> holds - Render the three opening titles without file-and-line locators before message one's Recommendation: line.
 - implicit-template-not-found/premise: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
 - implicit-template-not-found/approaches: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
 - implicit-template-not-found/problem: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.

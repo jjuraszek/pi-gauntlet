@@ -32,17 +32,12 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "8c6fcfe318f8f3f3f2204fd2afc953494fa26af1c0ee033ad0b277b92c8ca4ea",
+      "factsSha": "a87f14ee997939908370c9cd579287c31cda68d5d65a51fb25ae7cbf3ee53a71",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "87e7a0dea7d3294bae9d4fbc27cc0d90059abb10fd09a0e63d2838ca28cd07b5",
+      "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
       "baselineOutputSha": "25449d3de8306a61d6c4bf693b73d148386085ab4ab1e7827fd4725b47901b94",
       "candidateOutputSha": "afa4f66bc8f27a1e3bd7b89c2a5b7297407e9e75504977f093b1c6753ec41c56",
       "facts": {
-        "register": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
         "premise": {
           "before": "holds",
           "after": "holds",
@@ -67,24 +62,26 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "opening-shape": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "After moved only register, from fails to holds: the first message now carries the Today / The change / What I checked titles, names parts by role (the generator, a summary step, the existing slide layouts, a README and a chart template), keeps the literal templates/deck.pptx and templates/, and drops the `generate`/`append_summary` identifiers and slides/generator.py:13-style locators that Before put in chat. Every other fact held in both outputs: both state deck.pptx as absent from the supplied templates/ listing in the opening, restate it with the listing named before the approaches, record it in ## Problem, continue on an assumption rather than asking where the file is, and never claim a live filesystem call. Two phrasings in After sit close to the replay boundary without crossing it: the approaches message says \"I checked the supplied templates/ directory listing\" and the ## Problem excerpt tags held claims with \"read the source\"; to keep replay robust under other models, prefer \"per the supplied templates/ listing\" and \"per the supplied source excerpt\" so the wording cannot be read as a tool invocation. Otherwise the After wording delivers the Change while preserving everything Before kept.",
-      "wallMs": 18906,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept while delivering the Today / The change / What I checked shape. The first message's Corrected: line still names `templates/deck.pptx` from the generator's loader and says it is absent from the supplied `templates/` directory listing (README and chart only), the approaches message restates the missing file and the supplied listing as the lookup before presenting A/B, the spec excerpt records the lookup and result, and the brainstorm continues on the recorded assumption without asking where the file is. Two wording risks worth guarding: the approaches message's 'I checked the supplied templates/ directory listing' and the spec's '(read the source)' parentheticals lean toward first-person action claims; keeping the word 'supplied' attached to every lookup mention (as After does) and phrasing source reads as 'per the supplied source at slides/generator.py:12-18' would keep the replay fact unambiguous under a stricter reader. Also note the first message now drops the file-and-line locators, which is intended by the Change, but the Corrected: line should keep saying the listing is the repository guide's named lookup, as Before did, so the lookup provenance survives into message one rather than only into the approaches and spec.",
+      "wallMs": 18630,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "8c6fcfe318f8f3f3f2204fd2afc953494fa26af1c0ee033ad0b277b92c8ca4ea",
+      "factsSha": "a87f14ee997939908370c9cd579287c31cda68d5d65a51fb25ae7cbf3ee53a71",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "87e7a0dea7d3294bae9d4fbc27cc0d90059abb10fd09a0e63d2838ca28cd07b5",
+      "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
       "baselineOutputSha": "456ff7475acd4e55fb8bcab4ef1b58d836d23aea5f0568bb7dd0bcd6d04ad601",
       "candidateOutputSha": "3ec549f9b4e81fe3b8ce045a3fbc55a57f3e3d23d7816246181cc630e8664f4a",
       "facts": {
-        "register": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
         "premise": {
           "before": "holds",
           "after": "holds",
@@ -109,12 +106,243 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "opening-shape": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "After delivers the Change cleanly: the first message now opens with Today, The change, and What I checked, names parts by role (generator, summary helper, layout API), keeps `templates/deck.pptx` as the literal missing asset, and drops the `slides/generator.py:12–18` / `append_summary(deck, rows)` / `slides/summary.py:3–5` locators and identifiers that made Before fail register, while the approaches message and the ## Problem excerpt still carry the file:line sources, the `templates/` listing lookup, and the not-found result. Nothing Before held was lost: the premise is still stated as an explicit absence from the supplied listing rather than a vague possibility, the output continues to approaches without asking where the template is, and every lookup is attributed to the supplied observations rather than a live filesystem call. One fragility worth tightening: the first message says the asset is 'absent from the supplied complete listing' and 'the supplied complete template listing' without ever writing the literal `templates/` lookup path that the register fact explicitly permits and the premise fact keys on; a reader could ask which listing. Rewriting the Corrected line as 'the generator requires `templates/deck.pptx`, which is not in the supplied complete `templates/` directory listing' keeps the everyday register and locator-free shape while making the premise unambiguous.",
-      "wallMs": 24226,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept while delivering the Today / The change / What I checked shape in everyday words with locators confined to the draft: the first message still names `templates/deck.pptx` as the retained generator's loaded asset and says it is absent from the supplied complete listing, the approaches message restates the missing file and the guide's `templates/` listing lookup before any approach, the ## Problem excerpt carries both, nothing stops or asks where the template is, and every lookup is attributed to the supplied observation. Two things are worth tightening so the premise fact does not depend on a lenient read: the Today paragraph says \"supplied complete template listing\" and the Corrected line says \"the supplied complete listing\" — write \"the supplied `templates/` directory listing\" once in the Corrected line so the lookup source is named in message one exactly as it is in approaches and the spec. Also note that After's option B (new layout) and approach B (switch the loader to `chart.pptx`) drift from Before's B variants and from the recorded answer's scope; that did not move a fact here, but keeping approach B as 'accept an explicitly selected template' would stay closer to the recorded answer while the opening-shape change is isolated to the first message.",
+      "wallMs": 16735,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
     }
   },
-  "repoSha": "8ed400d3ee32870c544e0b585c8e81716d91f83f"
+  "repoSha": "39e066262f0bb51c0949dcd635ad8cf160d6ee4f",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "implicit-template-not-found",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "a4055b11ed055f86b84dbed9dd62d5c2325f3cdd5670e76a39d24f7e3abad9ba",
+      "candidateSkillSha": "4e8482304ab64706afb6a339ab745b0e9a9045c69b5aff535c9c0cde3e81e2b2",
+      "inputSha": "f4d2d992a4b32ce0790cb2c93c1ff36b6b3652259cb92b81b4f5a72bb6952d84",
+      "factsSha": "a87f14ee997939908370c9cd579287c31cda68d5d65a51fb25ae7cbf3ee53a71",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "25449d3de8306a61d6c4bf693b73d148386085ab4ab1e7827fd4725b47901b94",
+            "payloadSha": "7b52e033e8144c08ea6dc0e06fc72302eaca2c1872a0449eb1113d3ebd4e7567"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "456ff7475acd4e55fb8bcab4ef1b58d836d23aea5f0568bb7dd0bcd6d04ad601",
+            "payloadSha": "dc1f1f04c78f65cd49efa99858e07587864ed60ccd3f45c4c2d266e85fec9bf0"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "afa4f66bc8f27a1e3bd7b89c2a5b7297407e9e75504977f093b1c6753ec41c56",
+            "payloadSha": "2cc25dff122957185ae63824575b94a61d48efcf419e687f97cbfe53a0dca297"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "3ec549f9b4e81fe3b8ce045a3fbc55a57f3e3d23d7816246181cc630e8664f4a",
+            "payloadSha": "2c80e2ed6b6bff438f43ce26f3409b96eaf2c8def3f95ca61a7cb99986de8e9d"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "8c6fcfe318f8f3f3f2204fd2afc953494fa26af1c0ee033ad0b277b92c8ca4ea",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "87e7a0dea7d3294bae9d4fbc27cc0d90059abb10fd09a0e63d2838ca28cd07b5",
+        "baselineOutputSha": "25449d3de8306a61d6c4bf693b73d148386085ab4ab1e7827fd4725b47901b94",
+        "candidateOutputSha": "afa4f66bc8f27a1e3bd7b89c2a5b7297407e9e75504977f093b1c6753ec41c56",
+        "facts": {
+          "register": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "premise": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "approaches": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "problem": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continues": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "replay": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After moved only register, from fails to holds: the first message now carries the Today / The change / What I checked titles, names parts by role (the generator, a summary step, the existing slide layouts, a README and a chart template), keeps the literal templates/deck.pptx and templates/, and drops the `generate`/`append_summary` identifiers and slides/generator.py:13-style locators that Before put in chat. Every other fact held in both outputs: both state deck.pptx as absent from the supplied templates/ listing in the opening, restate it with the listing named before the approaches, record it in ## Problem, continue on an assumption rather than asking where the file is, and never claim a live filesystem call. Two phrasings in After sit close to the replay boundary without crossing it: the approaches message says \"I checked the supplied templates/ directory listing\" and the ## Problem excerpt tags held claims with \"read the source\"; to keep replay robust under other models, prefer \"per the supplied templates/ listing\" and \"per the supplied source excerpt\" so the wording cannot be read as a tool invocation. Otherwise the After wording delivers the Change while preserving everything Before kept.",
+        "wallMs": 18906,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "8c6fcfe318f8f3f3f2204fd2afc953494fa26af1c0ee033ad0b277b92c8ca4ea",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "87e7a0dea7d3294bae9d4fbc27cc0d90059abb10fd09a0e63d2838ca28cd07b5",
+        "baselineOutputSha": "456ff7475acd4e55fb8bcab4ef1b58d836d23aea5f0568bb7dd0bcd6d04ad601",
+        "candidateOutputSha": "3ec549f9b4e81fe3b8ce045a3fbc55a57f3e3d23d7816246181cc630e8664f4a",
+        "facts": {
+          "register": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "premise": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "approaches": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "problem": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continues": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "replay": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After delivers the Change cleanly: the first message now opens with Today, The change, and What I checked, names parts by role (generator, summary helper, layout API), keeps `templates/deck.pptx` as the literal missing asset, and drops the `slides/generator.py:12–18` / `append_summary(deck, rows)` / `slides/summary.py:3–5` locators and identifiers that made Before fail register, while the approaches message and the ## Problem excerpt still carry the file:line sources, the `templates/` listing lookup, and the not-found result. Nothing Before held was lost: the premise is still stated as an explicit absence from the supplied listing rather than a vague possibility, the output continues to approaches without asking where the template is, and every lookup is attributed to the supplied observations rather than a live filesystem call. One fragility worth tightening: the first message says the asset is 'absent from the supplied complete listing' and 'the supplied complete template listing' without ever writing the literal `templates/` lookup path that the register fact explicitly permits and the premise fact keys on; a reader could ask which listing. Rewriting the Corrected line as 'the generator requires `templates/deck.pptx`, which is not in the supplied complete `templates/` directory listing' keeps the everyday register and locator-free shape while making the premise unambiguous.",
+        "wallMs": 24226,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "a87f14ee997939908370c9cd579287c31cda68d5d65a51fb25ae7cbf3ee53a71",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
+        "baselineOutputSha": "25449d3de8306a61d6c4bf693b73d148386085ab4ab1e7827fd4725b47901b94",
+        "candidateOutputSha": "afa4f66bc8f27a1e3bd7b89c2a5b7297407e9e75504977f093b1c6753ec41c56",
+        "facts": {
+          "premise": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "approaches": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "problem": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continues": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "replay": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "opening-shape": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After keeps every fact Before kept while delivering the Today / The change / What I checked shape. The first message's Corrected: line still names `templates/deck.pptx` from the generator's loader and says it is absent from the supplied `templates/` directory listing (README and chart only), the approaches message restates the missing file and the supplied listing as the lookup before presenting A/B, the spec excerpt records the lookup and result, and the brainstorm continues on the recorded assumption without asking where the file is. Two wording risks worth guarding: the approaches message's 'I checked the supplied templates/ directory listing' and the spec's '(read the source)' parentheticals lean toward first-person action claims; keeping the word 'supplied' attached to every lookup mention (as After does) and phrasing source reads as 'per the supplied source at slides/generator.py:12-18' would keep the replay fact unambiguous under a stricter reader. Also note the first message now drops the file-and-line locators, which is intended by the Change, but the Corrected: line should keep saying the listing is the repository guide's named lookup, as Before did, so the lookup provenance survives into message one rather than only into the approaches and spec.",
+        "wallMs": 18630,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "a87f14ee997939908370c9cd579287c31cda68d5d65a51fb25ae7cbf3ee53a71",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
+        "baselineOutputSha": "456ff7475acd4e55fb8bcab4ef1b58d836d23aea5f0568bb7dd0bcd6d04ad601",
+        "candidateOutputSha": "3ec549f9b4e81fe3b8ce045a3fbc55a57f3e3d23d7816246181cc630e8664f4a",
+        "facts": {
+          "premise": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "approaches": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "problem": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continues": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "replay": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "opening-shape": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After keeps every fact Before kept while delivering the Today / The change / What I checked shape in everyday words with locators confined to the draft: the first message still names `templates/deck.pptx` as the retained generator's loaded asset and says it is absent from the supplied complete listing, the approaches message restates the missing file and the guide's `templates/` listing lookup before any approach, the ## Problem excerpt carries both, nothing stops or asks where the template is, and every lookup is attributed to the supplied observation. Two things are worth tightening so the premise fact does not depend on a lenient read: the Today paragraph says \"supplied complete template listing\" and the Corrected line says \"the supplied complete listing\" — write \"the supplied `templates/` directory listing\" once in the Corrected line so the lookup source is named in message one exactly as it is in approaches and the spec. Also note that After's option B (new layout) and approach B (switch the loader to `chart.pptx`) drift from Before's B variants and from the recorded answer's scope; that did not move a fact here, but keeping approach B as 'accept an explicitly selected template' would stay closer to the recorded answer while the opening-shape change is isolated to the first message.",
+        "wallMs": 16735,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  }
 }

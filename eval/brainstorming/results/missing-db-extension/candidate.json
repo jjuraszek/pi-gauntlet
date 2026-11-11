@@ -32,17 +32,12 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "5a054741360127bf511a04d371f2add0566c0b52f570d755fe80cc0fdac3f341",
+      "factsSha": "794a860b6d594149047647a8ea49c78a504089ef2e74f13ab3330178c97302d8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "87e7a0dea7d3294bae9d4fbc27cc0d90059abb10fd09a0e63d2838ca28cd07b5",
+      "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
       "baselineOutputSha": "7b2b57c23bfe93fa49eb084e961f3765d465dabcbeec1589d41ae25adfa5bb11",
       "candidateOutputSha": "eda9d359e641cbbb2199fa4630e64edfcb84ba3264344bd2729d9cd1a1a2f8e6",
       "facts": {
-        "register": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
         "premise": {
           "before": "holds",
           "after": "holds",
@@ -67,24 +62,26 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "opening-shape": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "After delivers the Change cleanly: the first message now carries the Today / The change / What I checked titles in order, names parts by role (fixture dump, benchmark query, query boundary, installed-extension listing), keeps the literal demo_vector, and drops every file:line locator and backticked path that Before had in its opening, which is what flipped register from fails to holds. Nothing else moved: the premise note still traces the dump restore to demo_vector and the listing result, the approaches message restates the missing extension and the listing lookup before its options, the ## Problem excerpt retains both with full sources, approaches are supplied without asking the user to verify the extension, and the installed-vs-available distinction is preserved explicitly in all three parts. One borderline item to watch in the opening: the bare mention of plpgsql as the listing's content is defensible as the lookup result rather than an incidental identifier, but if the register rule is read strictly, phrasing it as 'the installed-extension listing shows no vector extension, only the default procedural language' would remove the only non-demo_vector code token from the first message while keeping the same meaning. Also note After's approaches message now declares reuse-only not viable and offers two index approaches where Before offered a rewrite; that is not judged by these facts, but the sourced Removes/Adds/Pattern blocks and the installed-only caveat on index methods keep replay and continues intact, so no wording change is needed there.",
-      "wallMs": 19367,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept. The Today / The change / What I checked rendering carries the dependency trace through the Corrected: line (fixture dump creates demo_vector; listing shows only plpgsql) and the Not checked: line correctly separates 'not installed' from 'not installable', so premise and replay both hold without the file-and-line locators the Change removes from the opening. The approaches message restates the missing extension with the lookup and result before any approach, and the spec Problem excerpt keeps the same lookup with sources, so approaches and problem hold; both outputs continue to approaches without asking the user to verify the extension. Two wording notes for the author, neither moving a fact here: the approaches message's second bullet says 'Lookup: the same listing' for the installable question, which reads as if a lookup was performed and came back empty - 'No lookup available: the listing covers installed extensions only' would state the not-checkable status more plainly; and the opening's 'so the design must provision it before any latency is measured' pre-empts the recorded answer slightly, so phrasing it as 'the restore fails until demo_vector is installed' and leaving provisioning to the question keeps the premise note observational while still delivering the three-title shape.",
+      "wallMs": 15648,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "5a054741360127bf511a04d371f2add0566c0b52f570d755fe80cc0fdac3f341",
+      "factsSha": "794a860b6d594149047647a8ea49c78a504089ef2e74f13ab3330178c97302d8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "87e7a0dea7d3294bae9d4fbc27cc0d90059abb10fd09a0e63d2838ca28cd07b5",
+      "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
       "baselineOutputSha": "78c8308a0690363677df68430799a0ab261863932b51d18d69188235026b65d5",
       "candidateOutputSha": "bc01089cf1e6976e1f8f0de337add3dbb6236d82cb76ac4846fc35438b5cab07",
       "facts": {
-        "register": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
         "premise": {
           "before": "holds",
           "after": "holds",
@@ -109,12 +106,243 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "opening-shape": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "After moved register from fails to holds: the first message now opens with Today, The change, and What I checked, names parts by role (the search dump, the benchmark, the query boundary, the installed-extension listing), keeps `demo_vector` as the only required literal, and drops every file:line locator that Before carried (`fixtures/search.sql:1–3`, `bench/query.sql:1`, `query/service.sql:10`, the `<->` operator). All five other facts held in both outputs because the premise note, the Dependency status paragraph before approaches, and the ## Problem excerpt each still trace the dump to `demo_vector`, name the installed-extension listing lookup, keep the not-installed/unavailable distinction, and offer approaches without asking the user to verify the extension first; the approaches and spec correctly keep their source locators. One residual risk in the opening message: `plpgsql` appears as a backticked code identifier in Today, and a stricter reader could count it as an incidental identifier rather than the required missing-extension literal — phrasing it as 'the supplied installed-extension listing does not include it' (or 'lists only the default procedural language') would keep the finding while removing the last non-essential code token from the opening span.",
-      "wallMs": 20422,
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept. The Today/The change/What I checked rendering still traces the dump to `demo_vector` and names the installed-extension listing (`plpgsql` only) before the cut question; the Approaches message restates the missing extension and the installed-extension lookup in its Dependency status paragraph before approach 1; the ## Problem excerpt retains both the missing extension and the lookup; approaches are supplied without asking the user to locate or verify the extension; and both the Not checked line and the Problem excerpt explicitly distinguish 'absent from the observed installation' from 'unavailable to install' while attributing findings to supplied observations rather than live tools. One register note: the opening span still contains backticked identifiers (`demo_vector`, `plpgsql`), which satisfy these facts but should stay the only non-everyday tokens in the titled sections; the file-and-line locators (`fixtures/search.sql`, `query/service.sql:10`) are correctly confined to the approaches and draft, so no wording change is needed to preserve this sample's facts while delivering the Change.",
+      "wallMs": 12618,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
     }
   },
-  "repoSha": "8ed400d3ee32870c544e0b585c8e81716d91f83f"
+  "repoSha": "39e066262f0bb51c0949dcd635ad8cf160d6ee4f",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "missing-db-extension",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "a4055b11ed055f86b84dbed9dd62d5c2325f3cdd5670e76a39d24f7e3abad9ba",
+      "candidateSkillSha": "4e8482304ab64706afb6a339ab745b0e9a9045c69b5aff535c9c0cde3e81e2b2",
+      "inputSha": "4fb921cf349fd5dc1ff6d23e2fcffd409f329e3fc904fe898caed0cf9d048128",
+      "factsSha": "794a860b6d594149047647a8ea49c78a504089ef2e74f13ab3330178c97302d8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "7b2b57c23bfe93fa49eb084e961f3765d465dabcbeec1589d41ae25adfa5bb11",
+            "payloadSha": "03221fbd1e4c479dbeecd98d8c0034620ce56f15e25b54ef7d60b7851af68202"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "78c8308a0690363677df68430799a0ab261863932b51d18d69188235026b65d5",
+            "payloadSha": "d9c3d0bc4ce07fb2dd00a3b4ec9b47bdf64e64ec37bd1956ce002e54fe61f22c"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "eda9d359e641cbbb2199fa4630e64edfcb84ba3264344bd2729d9cd1a1a2f8e6",
+            "payloadSha": "e01ccfb2fab4a1c99d844a93900b3c076056aed75bf1caa4825871c73c3e5cae"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "bc01089cf1e6976e1f8f0de337add3dbb6236d82cb76ac4846fc35438b5cab07",
+            "payloadSha": "289e4e0332ffa35421788c3d71bd598280d309f94144d031d7a6b35a1bd338ba"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "5a054741360127bf511a04d371f2add0566c0b52f570d755fe80cc0fdac3f341",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "87e7a0dea7d3294bae9d4fbc27cc0d90059abb10fd09a0e63d2838ca28cd07b5",
+        "baselineOutputSha": "7b2b57c23bfe93fa49eb084e961f3765d465dabcbeec1589d41ae25adfa5bb11",
+        "candidateOutputSha": "eda9d359e641cbbb2199fa4630e64edfcb84ba3264344bd2729d9cd1a1a2f8e6",
+        "facts": {
+          "register": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "premise": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "approaches": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "problem": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continues": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "replay": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After delivers the Change cleanly: the first message now carries the Today / The change / What I checked titles in order, names parts by role (fixture dump, benchmark query, query boundary, installed-extension listing), keeps the literal demo_vector, and drops every file:line locator and backticked path that Before had in its opening, which is what flipped register from fails to holds. Nothing else moved: the premise note still traces the dump restore to demo_vector and the listing result, the approaches message restates the missing extension and the listing lookup before its options, the ## Problem excerpt retains both with full sources, approaches are supplied without asking the user to verify the extension, and the installed-vs-available distinction is preserved explicitly in all three parts. One borderline item to watch in the opening: the bare mention of plpgsql as the listing's content is defensible as the lookup result rather than an incidental identifier, but if the register rule is read strictly, phrasing it as 'the installed-extension listing shows no vector extension, only the default procedural language' would remove the only non-demo_vector code token from the first message while keeping the same meaning. Also note After's approaches message now declares reuse-only not viable and offers two index approaches where Before offered a rewrite; that is not judged by these facts, but the sourced Removes/Adds/Pattern blocks and the installed-only caveat on index methods keep replay and continues intact, so no wording change is needed there.",
+        "wallMs": 19367,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "5a054741360127bf511a04d371f2add0566c0b52f570d755fe80cc0fdac3f341",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "87e7a0dea7d3294bae9d4fbc27cc0d90059abb10fd09a0e63d2838ca28cd07b5",
+        "baselineOutputSha": "78c8308a0690363677df68430799a0ab261863932b51d18d69188235026b65d5",
+        "candidateOutputSha": "bc01089cf1e6976e1f8f0de337add3dbb6236d82cb76ac4846fc35438b5cab07",
+        "facts": {
+          "register": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "premise": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "approaches": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "problem": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continues": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "replay": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After moved register from fails to holds: the first message now opens with Today, The change, and What I checked, names parts by role (the search dump, the benchmark, the query boundary, the installed-extension listing), keeps `demo_vector` as the only required literal, and drops every file:line locator that Before carried (`fixtures/search.sql:1–3`, `bench/query.sql:1`, `query/service.sql:10`, the `<->` operator). All five other facts held in both outputs because the premise note, the Dependency status paragraph before approaches, and the ## Problem excerpt each still trace the dump to `demo_vector`, name the installed-extension listing lookup, keep the not-installed/unavailable distinction, and offer approaches without asking the user to verify the extension first; the approaches and spec correctly keep their source locators. One residual risk in the opening message: `plpgsql` appears as a backticked code identifier in Today, and a stricter reader could count it as an incidental identifier rather than the required missing-extension literal — phrasing it as 'the supplied installed-extension listing does not include it' (or 'lists only the default procedural language') would keep the finding while removing the last non-essential code token from the opening span.",
+        "wallMs": 20422,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "794a860b6d594149047647a8ea49c78a504089ef2e74f13ab3330178c97302d8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
+        "baselineOutputSha": "7b2b57c23bfe93fa49eb084e961f3765d465dabcbeec1589d41ae25adfa5bb11",
+        "candidateOutputSha": "eda9d359e641cbbb2199fa4630e64edfcb84ba3264344bd2729d9cd1a1a2f8e6",
+        "facts": {
+          "premise": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "approaches": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "problem": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continues": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "replay": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "opening-shape": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After keeps every fact Before kept. The Today / The change / What I checked rendering carries the dependency trace through the Corrected: line (fixture dump creates demo_vector; listing shows only plpgsql) and the Not checked: line correctly separates 'not installed' from 'not installable', so premise and replay both hold without the file-and-line locators the Change removes from the opening. The approaches message restates the missing extension with the lookup and result before any approach, and the spec Problem excerpt keeps the same lookup with sources, so approaches and problem hold; both outputs continue to approaches without asking the user to verify the extension. Two wording notes for the author, neither moving a fact here: the approaches message's second bullet says 'Lookup: the same listing' for the installable question, which reads as if a lookup was performed and came back empty - 'No lookup available: the listing covers installed extensions only' would state the not-checkable status more plainly; and the opening's 'so the design must provision it before any latency is measured' pre-empts the recorded answer slightly, so phrasing it as 'the restore fails until demo_vector is installed' and leaving provisioning to the question keeps the premise note observational while still delivering the three-title shape.",
+        "wallMs": 15648,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "794a860b6d594149047647a8ea49c78a504089ef2e74f13ab3330178c97302d8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "fd6297b789186d8cc545d340c0a48c6a29a44d00f2d7f4d81adca7f74b1a754e",
+        "baselineOutputSha": "78c8308a0690363677df68430799a0ab261863932b51d18d69188235026b65d5",
+        "candidateOutputSha": "bc01089cf1e6976e1f8f0de337add3dbb6236d82cb76ac4846fc35438b5cab07",
+        "facts": {
+          "premise": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "approaches": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "problem": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continues": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "replay": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "opening-shape": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After keeps every fact Before kept. The Today/The change/What I checked rendering still traces the dump to `demo_vector` and names the installed-extension listing (`plpgsql` only) before the cut question; the Approaches message restates the missing extension and the installed-extension lookup in its Dependency status paragraph before approach 1; the ## Problem excerpt retains both the missing extension and the lookup; approaches are supplied without asking the user to locate or verify the extension; and both the Not checked line and the Problem excerpt explicitly distinguish 'absent from the observed installation' from 'unavailable to install' while attributing findings to supplied observations rather than live tools. One register note: the opening span still contains backticked identifiers (`demo_vector`, `plpgsql`), which satisfy these facts but should stay the only non-everyday tokens in the titled sections; the file-and-line locators (`fixtures/search.sql`, `query/service.sql:10`) are correctly confined to the approaches and draft, so no wording change is needed to preserve this sample's facts while delivering the Change.",
+        "wallMs": 12618,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  }
 }

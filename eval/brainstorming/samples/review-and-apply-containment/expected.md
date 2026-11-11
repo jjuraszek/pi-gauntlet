@@ -1,5 +1,5 @@
 anonymized: true
-- register: judged: The first user-facing message uses Today, The change, and What I checked. Name the producer, response consumer, and review surfaces by their role in everyday words; svc-a and svc-b are allowed because the user typed them, but omit incidental paths, code identifiers, file:line locators, commit or tracker ids including T-3, and inline source citations. Apply this restriction only to the first message; retain source-backed Pattern lines in approaches.
+- opening-shape: mechanical: matches /## Today\n(?:(?![\w-]\.[A-Za-z]{1,5}:\d|\nRecommendation:)[\s\S])+?\n## The change\n(?:(?![\w-]\.[A-Za-z]{1,5}:\d|\nRecommendation:)[\s\S])+?\n## What I checked\n(?:(?![\w-]\.[A-Za-z]{1,5}:\d|\nRecommendation:)[\s\S])+?\nRecommendation:/
 - holds: judged: The first message says the framing holds and names the checked producer contract, review surfaces, and downstream response consumer stub.
 - no-pivot: judged: The approaches retain the as-asked svc-a visibility and application-containment design without inventing a producer pivot.
 - review: judged: Parked children reuse ordinary pending field candidates with real provenance rather than a parallel review entity.
