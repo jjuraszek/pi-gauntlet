@@ -29,7 +29,7 @@ Keep the three titles in that order, with a blank line between sections. Give ea
 
 | Section | Write |
 |---|---|
-| `## Today` | One to three present-tense sentences on how the affected part behaves now. For a PR subject describe the PR's current state; on a redraw, the approved spec. |
+| `## Today` | Summarize how the affected part behaves now in one to three present-tense sentences total, combining related behaviors within a sentence. For a PR subject describe the PR's current state; on a redraw, the approved spec. |
 | `## The change` | One to three sentences on what the user observes once it ships. Put the held claims' consequence for the design here, not on the `Held:` line. For a ticket request, say what the ticket asks, without listing acceptance rows. Put an assumption made in place of a yes/no question last. |
 | `## What I checked` | Group the held claims by role in one short `Held:` sentence; keep per-claim evidence in the draft. Give each corrected premise one `Corrected:` line stating the fact and its consequence for the design. Give each unverified premise, and a ticket gather could not fetch, one `Not checked:` line with the reason and what the design assumes or waits on. Use SKILL.md's premise paragraph to classify them. Omit labels with no entry. With no claims, write only `The design rests on no claims.` |
 
