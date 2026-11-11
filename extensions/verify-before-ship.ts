@@ -209,9 +209,9 @@ export default function (pi: ExtensionAPI) {
     }
     return legs.slice(1).some(leg => {
       const branch = /^branch:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
-      const home = /^(?:contract:\s*)?(?:-\s*)?home:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
-      return leg.repo === repo && !!branch && !!home && home.split("<name>").length === 2 &&
-        target === checkout(resolve(primary, home.replace("<name>", branch.replaceAll("/", "-"))));
+      if (leg.repo !== repo || !branch) return false;
+      const current = gitSync(["branch", "--show-current"], target);
+      return current.code === 0 && current.stdout.trim() === branch;
     });
   };
   const pendingTests = new Map<string, Set<string>>();
