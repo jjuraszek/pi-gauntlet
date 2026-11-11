@@ -6,7 +6,7 @@ wall: 354s
 
 ## Change
 
-Save missing unrun reply and coverage bodies at teardown before reporting paths or deleting drafts, including stops before Post steps. The stop-draft-files sample covers final and merge-queued stops with two in-memory replies. P4 authorizes one replay each of per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused, bypass-merge-pick-revoked and gatekeep-pr-merge-state's bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after teardown changed. The partial reports record these eight samples' outcomes; other saved results remain earlier evidence. The stop-draft-files replay belongs to a separate repair and is not run here.
+Save missing unrun reply and coverage bodies at teardown before reporting paths or deleting drafts, including stops before Post steps. The stop-draft-files sample covers final and merge-queued stops with two in-memory replies. P4 authorizes one replay each of per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused, bypass-merge-pick-revoked and gatekeep-pr-merge-state's bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after teardown changed. The partial reports record these eight samples' outcomes; other saved results remain earlier evidence. P4 did not replay stop-draft-files; the separate P5 result appears below.
 
 Render three unlabeled report parts: a two-sentence behavior-based change/scope opening, standing and concrete problems, then a separate recommendation above Pick one. Keep raw evidence and repair/sync usage behind show evidence; D2 obstacle consequences may name additional attempts. Align the replay wrapper with that report rather than requesting sync and verdict labels.
 
@@ -50,4 +50,17 @@ exit: 0
 
 ## P4 script-bound check
 
-The eight authorized sample invocations each exited 0, but the local bound check reports 79 passed and 2 failed assertions for the same saved cell: bypass-merge-pick-revoked / github-copilot/gpt-6.1-sol / route remains `fails` in the structured judgment. Its feedback says After should be read as holds; the record is preserved without correcting the label. The two failures come from selecting the bypass file directly and importing it through the reconcile file. A further replay or paid judgment refresh needs new authorization. The other seven selected samples' bound checks pass; stop-draft-files and all other samples were not replayed. Coverage is partial, not a target-wide pass.
+The eight authorized sample invocations each exited 0, but the local bound check reports 79 passed and 2 failed assertions for the same saved cell: bypass-merge-pick-revoked / github-copilot/gpt-6.1-sol / route remains `fails` in the structured judgment. Its feedback says After should be read as holds; the record is preserved without correcting the label. The two failures come from selecting the bypass file directly and importing it through the reconcile file. A further replay or paid judgment refresh needs new authorization. The other seven selected samples' bound checks pass; stop-draft-files and all other samples were not replayed during P4. Coverage is partial, not a target-wide pass.
+
+## P5 stop-draft-files (partial run)
+
+for: 7d4df4559b7be03efbd989c26a94570d3e7963b230088fe76fb068200bb9eea5
+
+The authorized baseline seed exited 0 (two replays, 29s). The first candidate invocation exited 0 (two replays, two judgments, 52s); all three candidate facts hold on both models, so no further invocation ran. This sample covers final-menu and merge-queued-menu stops with two replies that initially have no files. The [baseline](results/stop-draft-files/baseline.json) and [candidate](results/stop-draft-files/candidate.json) retain the runner's unedited records and full feedback. The outcome note in intent.md was added after judgment; the assembly, input and expected facts remain those judged.
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| stop-draft-files | anthropic/claude-opus-5-5 | improved | 13277 | saved: fails -> holds (unplanned improvement); retained: fails -> holds (unplanned improvement); outcome: holds -> holds (held) |
+| stop-draft-files | github-copilot/gpt-6.1-sol | improved | 13567 | saved: fails -> holds (unplanned improvement); retained: fails -> holds (unplanned improvement); outcome: holds -> holds (held) |
+
+The local candidate assertion confirms both models, six holding facts and the current assembly SHA. The three-target eval lint passes. `node --test scripts/gatekeep-comment-reconcile.test.mjs scripts/gatekeep-post-selection.test.mjs` reports 79 passed and 1 failed: the imported bypass-merge-pick-revoked check still reads github-copilot/gpt-6.1-sol/route as fails. That is the existing P4 failure above, not a stop-draft-files failure; its sample and records remain untouched. No skill wording changed. Coverage remains sample-scoped, not a target-wide pass.
