@@ -262,7 +262,7 @@ Example (initial, another author's PR):
 
 ```
 gauntlet: gate=gatekeep-pr/initial recommended=1
-This PR lets the reports page export CSV on demand. It adds the export button, the column picker and the download link the ticket asks for; the spec moves scheduled exports to acme/widgets#46, and the speed target can only be checked after merge. You are a requested reviewer, along with robin.
+This PR, which you and robin are asked to review, lets the reports page export CSV on demand. It adds the export button, the column picker and the download link the ticket asks for; the spec moves scheduled exports to acme/widgets#46, and the speed target can only be checked after merge.
 
 One problem stands between this PR and merging. The description says exports run nightly, but the code now runs them on demand, so a reader would wait for a job that no longer exists; the corrected sentence is drafted. One smaller point does not block merging: the export repeats paging code that a shared helper already provides.
 
