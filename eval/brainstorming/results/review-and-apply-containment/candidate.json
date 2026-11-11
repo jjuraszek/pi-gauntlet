@@ -1,7 +1,7 @@
 {
   "sample": "review-and-apply-containment",
   "arm": "candidate",
-  "skillSha": "47753dce0099db82922a2ab9df966accf54b1dbb313f7968b17cc1835a4858a4",
+  "skillSha": "bed5a597919b65969ee65c3c85cf22b069aea792dd8d34193f38f60468197a72",
   "inputSha": "340110684bf52933b3180ea054cbdd302e08acb5d3ba02ea304249aa39cd2ef7",
   "kind": "text",
   "assembly": "headed",
@@ -17,20 +17,20 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**(1) First message**\n\n```text\ngauntlet: question\n\n## Today\nThe producer already marks weak-confidence points as parked. The consumer saves nested children directly without pending field candidates, and the item form shows parked and live rows the same. One malformed child aborts the whole run, and the raw response is kept only when the run completes.\n\n## The change\nReviewers see parked rows marked apart from live ones. Each wrapped value waits as a reviewable candidate, and reviewers confirm or remove the row. A malformed child no longer sinks the response: the valid children apply, and the failure stays reviewable. The producer and the validation rules stay as they are.\n\n## What I checked\n- Held: The producer's parked flag and value provenance, the consumer's direct save and abort, the shared field-review path, the form's identical rows, and the confirm and remove actions all work as the draft says.\n- Not checked: the ticket's acceptance rows - the draft carries no verbatim copy, so the spec drafts rows from the design until you paste them.\n\nThe framing holds: checked the producer contract, the consumer's nested-record route, the shared field-review path, the item form, and the point validation rules.\nHow should a parked child wait for review?\nA) as ordinary pending field candidates on the saved row, through the shared review path\nB) as a new record-level review entity that holds the whole child\nRecommendation: A - weak and grounded points differ in confidence, not kind, and the shared path already carries candidates with provenance.\n```\n\n**(2) Approaches message**\n\n```text\ngauntlet: question\nOne dependency is still unverified. The ticket's acceptance rows are missing because the gather draft has no verbatim block. The spec will draft rows from this design, and you can paste the ticket's rows at the review gate.\n\nYour answers settle these points. Parked children use ordinary per-field candidates. An invalid child has its invalid attributes blanked and its row parked, and its original wrapped values stay as pending candidates with their real provenance. There is no backfill; old rows without candidates get processing rerun instead. Valid children apply, the raw failure detail is kept, and the run fails only when no child applies. The producer and the two-endpoint validation stay unchanged.\n\nThe approaches differ on where a nested child becomes a parked row with candidates: in the consumer's nested-record route, or in a save-time fallback that catches validation failure.\n\nI recommend Approach 1: change the nested-record route itself. The route currently saves children directly. Instead, it saves each child as a row, parked when the producer flags it or when validation fails. It writes every wrapped value as an ordinary pending field candidate with the producer's provenance, and it contains each child's failure on its own, the same way candidate acceptance already rescues each winner.\n\nOn an invalid far endpoint, the route blanks both far value and far delay. If either one stayed, the validation rules would derive a linear shape and then reject it for missing the other.\n\nThe run keeps the raw response and per-child failure detail on partial success too. It fails only when no child applies. The item form gains a parked marker, and the existing confirm and remove actions do the rest.\nRemoves: the direct no-candidate save branch in the nested-record route; storing the raw response only on completion\nAdds: a nested-child branch on the route that creates the parked row and pending candidates; per-child rescue in the consumer; failure detail kept on the raw response; joint blanking of the far endpoints; a parked marker on the item form; consumer, form, and validation-edge tests\nPattern: reuse-only - the shared field-review path is reused, not copied, and a branch on the existing route stands in for a new path (svc-a/field-review.md, svc-a/response-consumer.md).\n\nApproach 2 leaves the route saving directly and adds a fallback where the row is saved. When validation raises, the fallback blanks, parks, and writes candidates. The route stays small, but the fallback cannot tell a weak point the producer parked from a malformed one, so producer-parked valid children still get no candidates unless the route changes too. It also adds a second candidate-creation path beside the review path that owns candidates.\nRemoves: none\nAdds: a save-time validation fallback; candidate writes inside persistence; a parked marker on the item form; per-child rescue; tests for each\nPattern: a second candidate-creation path beside svc-a/field-review.md, and a layer bypassed so one caller's failures can be caught.\n\nNot viable:\n- Changing the producer or loosening validation: your answer keeps both contracts.\n- A separate record-level review entity: your answer chose ordinary per-field candidates.\n\nApproach 2 would win only if other callers that save nested children directly needed the same containment and could not be routed through the consumer.\n\nWhich approach should the design use?\nA) Approach 1 - candidates and parking in the nested-record route\nB) Approach 2 - save-time validation fallback\nRecommendation: A - it reuses the owning review path and handles producer-parked and malformed children in one place.\n```\n",
-      "words": 818,
-      "wallMs": 39378,
+      "text": "## (1) First message\n\n```text\ngauntlet: question\n\n## Today\nsvc-a saves nested children directly, with no field candidates. One malformed child therefore raises and aborts the run, and the raw response is kept only when the run completes. The item form shows parked rows the same way as live rows.\n\n## The change\nReviewers can tell parked points apart and confirm or remove them. A single malformed child no longer sinks the whole response: valid children still apply, and the failure detail stays available for review. The producer and the two-endpoint validation stay unchanged, because svc-b already marks weak points as parked and wrapped values already carry their source.\n\n## What I checked\n- Held: The producer contract, the consumer's nested-record save, the shared field-review path, the item form, and the endpoint validation all behave as the draft says.\n- Not checked: how the real response consumer behaves - only a stub description was supplied, so the design assumes its three listed behaviors match the real route.\n\nThe framing holds: checked the producer's parked marking, the consumer's nested-record save, the shared field-review path, the item form, and the far-endpoint validation.\nHow should parked children reach a reviewer?\nA) as ordinary pending field candidates on the persisted row\nB) through a new record-level review entity\nRecommendation: A - the shared review path already handles pending candidates with their source, and weak points differ from grounded ones only in confidence.\n```\n\n## (2) Approaches message\n\n```text\ngauntlet: question\nTwo dependencies remain unconfirmed before we choose an approach:\n- The response consumer: I only had the stub (svc-a/response-consumer.md). It says nested children are saved directly, an invalid child raises and aborts the run, and the raw response is stored only on completion. I could not read the real route, so the design assumes it behaves the same way.\n- Re-running processing for old rows that have no candidates: you chose a re-run over a migration, but none of the supplied files shows a re-run entry point. Not checked - the design assumes the existing processing can run again over old responses.\n\nI recommend the first approach. The two approaches differ on one question: do nested children keep their own direct-save route, or do they all go through the shared candidate path?\n\n**1. Branch the existing nested-record route (recommended).**\nThe consumer keeps its direct save but handles each child separately:\n- A valid grounded child saves as it does today.\n- A parked child, or one with invalid attributes, is saved first as a row with the invalid attributes blanked and the row parked. Then each original wrapped value becomes an ordinary pending field candidate, keeping its real source. The review path needs that persisted row and that source.\n- If either far endpoint is invalid, both are blanked together. Validation derives a linear shape from either endpoint being present, so blanking only one would leave the row invalid.\n- A malformed child is caught, and its raw failure detail is stored with the response for review. The run fails only when no child applied.\n- The item form marks parked rows. Its existing confirm and remove actions do the rest.\n\nThis is the reuse-only option: no new entity, just a branch on the route and a flag on the form. The blast radius is every nested-record response, but grounded children keep today's behavior.\nRemoves: the save-raises-and-aborts behavior; storing the raw response only on completion\nAdds: a per-child branch in the consumer's nested-record route; paired far-endpoint blanking; pending-candidate creation from wrapped values; storage of raw failure detail on partial success; a parked marker in the item form; consumer tests for parked, malformed, all-failed, and mixed batches; form tests for the parked marker\nPattern: follows the ordinary pending-field review path in svc-a/field-review.md and leaves the two-endpoint contract in svc-a/point-validation.md intact.\n\n**2. Drop the direct-save special case.**\nThis approach drops the ask's assumption that nested children need a route of their own. Every child would be persisted as a row and fed through the ordinary candidate path:\n- Grounded children are accepted through the existing acceptance loop, which already rescues each winner, so isolation comes from that loop.\n- Parked children stay pending.\n\nThis removes a parallel path, but it changes when grounded points apply on every nested record. It also relies on running the acceptance loop unattended, which none of the supplied files shows. The draft notes that this loop is not where today's failure happens.\nRemoves: the nested-record direct-save route\nAdds: row persistence before candidate creation for every child; automatic acceptance of grounded candidates; paired far-endpoint blanking; the parked marker in the item form; storage of raw failure detail; tests for the same four batch shapes\nPattern: brings nested children onto the shared path in svc-a/field-review.md and removes the special case in svc-a/response-consumer.md. Its risk is that it depends on acceptance behavior that has not been verified.\n\nA new record-level review entity is not a candidate: you ruled it out, and svc-a/field-review.md already covers per-field review. Changing the producer or relaxing validation is also excluded by your answer.\n\nWhat would flip the recommendation: if the acceptance loop can run unattended for grounded children and nothing depends on direct saves happening immediately, approach 2 becomes the better choice because it removes a route.\n\nWhich approach should the design use?\nA) branch the existing nested-record route\nB) drop the direct-save special case\nRecommendation: A - it meets every recorded answer using only paths the supplied files confirm.\n```\n",
+      "words": 890,
+      "wallMs": 50022,
       "mechanical": {
-        "opening-shape": "fails"
+        "opening-shape": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\n\n## Today\nThe nested-record route saves children without field candidates, aborts on an invalid child, and stores the raw response only on completion. Parked and live rows look identical, although confirm and remove already operate on parked rows.\n\n## The change\nParked points become distinguishable and reviewable through ordinary field candidates. Valid children survive malformed siblings, and failure detail remains available. Producer changes remain out of scope.\n\n## What I checked\n- Held: The supplied fixtures support producer parking and provenance, ordinary field review, and existing confirm/remove actions.\n- Corrected: Blanking invalid attributes does not necessarily make a child valid; retaining either far endpoint still requires both, so sanitation must respect that coupled constraint before saving the candidate’s target row.\n- Corrected: Candidate acceptance isolates failures, but nested-response application bypasses it; containment must address that application path.\n- Not checked: The full ticket and primary implementation were not supplied, so ticket acceptance rows and concrete code bindings remain unverified.\n\nThe framing holds: checked the supplied producer contract, nested application path, field-review prerequisites, form behavior, and endpoint validation.\nWhich review model should parked points use?\nA) Ordinary per-field candidates on persisted rows; confidence does not create a different record kind.\nB) A new record-level review entity with its own lifecycle.\nC) other - name it\nRecommendation: A - it reuses the existing review contract without parallel state.\n\n---\n\n## Approaches\n\n**I recommend reuse-only, with containment in nested-response application.** Your recorded answers retain ordinary field candidates, strict validation, partial success, original provenance, and no migration.\n\nThe supplied observations expose three prerequisites:\n\n- **Persisted candidate target:** `svc-a/field-review.md` requires a persisted row. `svc-a/point-validation.md` shows that blanking only one far endpoint cannot produce a valid linear row. Sanitation must clear the coupled endpoints when necessary, retaining their original wrapped values as candidates.\n- **Provenance:** `svc-b/point-contract.md` supplies provenance in wrapped values; `svc-a/field-review.md` forbids inventing it from bare values. Preserve those wrappers through sanitation.\n- **Failure retention:** `svc-a/response-consumer.md` stores raw responses only on completion. Capture must move outside the success-only path so a failed application does not lose its evidence.\n\nThe separating axis is **where normalization and containment live**: directly in existing application, or in a separate preparation stage.\n\n### 1. Reuse the existing application and review paths\n\nExtend nested-child application to normalize each child against unchanged validation, persist a valid parked target, and create ordinary pending candidates from original wrapped values. Contain each child’s failure independently, apply valid children, and fail the overall application only when none apply. Retain raw response and child failure detail regardless of that outcome.\n\nDistinguish parked rows in the existing form while retaining confirm and remove. Old candidate-less rows require reprocessing, not migration.\n\nThis minimizes new structure, but the application path must clearly separate sanitation, persistence, candidate creation, and failure accounting. Changes to shared review behavior must preserve its other callers.\n\nRemoves: Nested children’s unconditional direct-save bypass, run-wide abort on one malformed child, success-only raw-response capture, and identical parked/live presentation.\nAdds: Nested-application branches for validation-preserving sanitation, ordinary candidate creation, per-child containment, failure-detail retention, and parked presentation; corresponding regression tests.\nPattern: Reuses the persisted-row candidate contract in `svc-a/field-review.md` and preserves endpoint invariants in `svc-a/point-validation.md`; containment belongs in the bypassing path identified by `svc-a/response-consumer.md`.\n\n### 2. Separate preparation from application\n\nIntroduce a preparation helper that produces sanitized child payloads, original candidate wrappers, and diagnostic detail. The existing application path then persists each prepared child and its ordinary candidates under per-child containment.\n\nThis makes normalization independently testable and keeps persistence code simpler, but introduces an intermediate representation and another boundary where provenance must remain intact. Preparation cannot replace containment around actual saves.\n\nRemoves: The same direct-save bypass, fail-fast behavior, success-only capture, and indistinguishable presentation.\nAdds: A preparation helper and intermediate child representation, its application integration, ordinary candidate creation, per-child containment, parked presentation, and preparation/application tests.\nPattern: Preserves `svc-a/field-review.md`’s owning review contract, but adds a normalization boundary before the application path described in `svc-a/response-consumer.md`.\n\n**Assumption-dropping candidate:** Moving normalization to the producer is not viable under your recorded scope decision; weakening endpoint validation is likewise excluded. Neither is counted as an approach.\n\nI would switch to approach 2 if implementation inspection shows normalization is sufficiently complex—or already shared by multiple application callers—to justify a separately owned preparation boundary.\n",
-      "words": 688,
-      "wallMs": 61525,
+      "text": "## 1. First message\n\ngauntlet: question\n\n## Today\nsvc-b already marks weak-confidence points as parked and supplies provenance-bearing wrapped values. svc-a saves nested children without field candidates, renders parked rows like live rows, and aborts response application on an invalid child before retaining the raw response.\n\n## The change\nReviewers will recognize parked points and review their fields through pending candidates. Response application will contain malformed children without discarding valid siblings; producer changes remain out of scope.\n\n## What I checked\n- Held: The supplied fixtures confirm producer parking, provenance-bearing values, persisted-row candidate targets, missing parked-row presentation, and the downstream application failure.\n- Held: Candidate acceptance already isolates failures, but nested response application bypasses that path; linear validation requires both endpoints whenever either derives the shape.\n- Not checked: Runtime implementation and tests were not supplied, so these conclusions rely on the fixture observations.\n\nThe framing holds: checked the producer contract, nested application path, candidate ownership and provenance, review controls, and endpoint validation.\nWhat should own parked-point review?\nA) Ordinary per-field candidates on persisted rows; confidence does not create a different record kind.\nB) A new record-level review entity with its own lifecycle.\nRecommendation: A - the existing field-review path supplies the needed review contract without parallel state.\n\n## 2. Approaches message\n\nI recommend **reusing ordinary field candidates and repairing the nested application path**. Your recorded answers keep confidence separate from record kind, require valid siblings to survive, and preserve producer and validation contracts.\n\nNo implicit dependency was shown missing by the supplied fixtures. Runtime behavior remains unverified: no implementation or tests were supplied, so both approaches assume the documented contracts hold.\n\nThe distinguishing axis is **where malformed-child preparation lives**.\n\n### A) Repair the existing nested application path — recommended, reuse-only\n\nChange the nested-child branch to persist a reviewable row and create ordinary pending candidates. For invalid children, blank invalid persisted attributes, park the row, and retain their original wrapped values as candidates with real source provenance. Do not fabricate provenance from bare values.\n\nPreserve endpoint validation: because either far endpoint derives linear shape, removing only one endpoint may leave the row invalid. Preparation must produce a valid persisted shape without weakening the two-endpoint contract.\n\nContain failures per child in response application—not merely in the already-protected candidate acceptance loop. Apply valid siblings, retain the raw response and failure detail even when application fails, and fail the response only when no child applies. Distinguish parked rows in the existing form while retaining confirm and remove behavior.\n\nThis has the smallest conceptual footprint, but it changes a shared application branch. Regression coverage must protect ordinary nested children and existing candidate acceptance. No migration is added; old candidate-less rows recover through rerunning processing.\n\nRemoves: Nested-child bypass of field candidates; run-wide abort on one invalid child; success-only raw-response retention; identical parked/live presentation.\nAdds: Preparation and candidate creation within the existing nested application branch; per-child failure containment and aggregate outcome handling; parked-row presentation; regression tests for those behaviors.\nPattern: Reuses persisted-row candidates from `svc-a/field-review.md` and fixes the owning failure path in `svc-a/response-consumer.md`, without extending its direct-save bypass.\n\n### B) Extract a child-preparation boundary\n\nUse the same candidates, presentation, retention, and failure semantics, but introduce a helper that converts each wrapped child into validated persisted attributes, provenance-bearing candidate inputs, and preparation diagnostics. The consumer owns persistence, per-child containment, and aggregate success.\n\nThis makes malformed-input preparation independently testable, at the cost of another internal contract and additional wiring. It must not become a parallel review entity or duplicate validation rules.\n\nRemoves: The same bypass, abort, retention, and presentation behaviors as A.\nAdds: Child-preparation helper and result contract; consumer integration; ordinary candidate creation; per-child containment and aggregate handling; parked-row presentation; helper and integration tests.\nPattern: Keeps review ownership in `svc-a/field-review.md` and validation authority in `svc-a/point-validation.md`, while extracting preparation from `svc-a/response-consumer.md`.\n\nAn assumption-dropping option that changes svc-b output or relaxes endpoint validation is not viable: your recorded answers explicitly retain both contracts.\n\nI would switch to B if implementation inspection shows that preparation cannot remain clear and independently testable inside the existing application branch.\n",
+      "words": 663,
+      "wallMs": 41779,
       "mechanical": {
-        "opening-shape": "holds"
+        "opening-shape": "fails"
       }
     }
   },
@@ -38,56 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9ff0c3e95786cc851687eb74e14159c0171cf746433296e38c0111455a4441a3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "56cbf89d77d090d110bae69bd3d91a51937d2d425aae3ab4e3bbaa1438d15384",
+      "intentSha": "ad90ef01101a9683affba0c8acbaced6d459e9e7e6895c0538743f44b1d1470a",
       "baselineOutputSha": "58aee7d97316237524301db6e1f1b5114c14a0c5a401e2703038ad3600c94839",
-      "candidateOutputSha": "bfafd2a6e0d72df7e39d7dd5747d3b3026979557b90a27a6d84dc0d45fa5b7c8",
-      "facts": {
-        "holds": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "no-pivot": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "review": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "containment": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "constraints": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "pattern": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "opening-shape": {
-          "before": "fails",
-          "after": "fails",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Nothing moved on this case: After keeps every fact Before kept while delivering the Change. The first message now opens with Today, The change, and What I checked in everyday words, carries exactly one Held: sentence, and still closes with 'The framing holds: checked the producer contract, the consumer's nested-record route, the shared field-review path, the item form, and the point validation rules', which satisfies holds. The approaches message retains the recorded answers verbatim in substance (ordinary per-field candidates with real provenance, valid children apply with raw failure detail kept and failure only when none apply, no backfill but reruns, producer and two-endpoint validation unchanged), offers two svc-a-only approaches with Removes/Adds before a Pattern line citing svc-a/field-review.md and svc-a/response-consumer.md, and explicitly lists producer change and a record-level entity as not viable. The one thing to watch, given the accepted-variance note on constraints for this sample, is that the 'no backfill; rerun processing' sentence lives only in the settled-answers paragraph and not in the recommended approach's Adds or Pattern line; anchoring it there too (e.g. 'Adds: ... a rerun of processing for old candidate-less rows, no migration') would make that fact robust against a shorter rendering dropping the recap paragraph.",
-      "wallMs": 18076,
-      "verdict": "unchanged"
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "9ff0c3e95786cc851687eb74e14159c0171cf746433296e38c0111455a4441a3",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "56cbf89d77d090d110bae69bd3d91a51937d2d425aae3ab4e3bbaa1438d15384",
-      "baselineOutputSha": "c15ce7521b36ef0dbe990e52195ca3e0709711c57519af560f5a845bb4a7c645",
-      "candidateOutputSha": "66e47835ba2d9b87808c115e56b6590119fdbfda5814acebc9f0db0e5a5141c9",
+      "candidateOutputSha": "33369675d01f2e430abff4a9151a8ccfc3ebab85cc13a0981ab4501d2c726dc0",
       "facts": {
         "holds": {
           "before": "holds",
@@ -125,9 +78,56 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves nothing: every fact Before kept still holds in the After text. The opening now renders Today / The change / What I checked with a single one-sentence Held: line, then the plain 'The framing holds: checked the supplied producer contract, nested application path, field-review prerequisites, form behavior, and endpoint validation' sentence, which still names the producer contract, the review surfaces (field review and form) and the downstream consumer stub by role, so `holds` survives the locator-free register. The approaches keep ordinary per-field candidates with real provenance, per-child containment with raw failure detail retained and failure only when none apply, unchanged two-endpoint validation, and 'reprocessing, not migration' for old candidate-less rows, so `constraints` is still present in this run despite the accepted-variance note; if you want to make that robust against larger assemblies, pin the no-migration/rerun sentence into the recommendation paragraph ('Your recorded answers retain ... no migration; old rows are reprocessed') rather than leaving it only inside approach 1. Pattern lines in both approaches still cite fixture files, and the producer pivot is explicitly excluded as an approach, so the wording as written delivers the Change without regressing any of the six facts.",
-      "wallMs": 19261,
+      "feedback": "After keeps every fact Before kept while delivering the Today / The change / What I checked opening, but the rerun constraint is the weakest hold: in Before the recorded 'no migration; rerun processing for old candidate-less rows' answer sits inside the design summary, whereas After only carries it as an unconfirmed dependency ('the design assumes the existing processing can run again') and omits it from approach 1's Removes/Adds, so a stricter reader could read the design as silent on reruns. To make that hold unambiguous, have the owning The change sentence or the recommended approach's Adds line state the rerun outcome directly (e.g. 'old candidate-less rows are repaired by rerunning processing, not by a migration') rather than leaving it only in the open-dependency note; the opening's framing line already names the producer contract, consumer save, field-review path, item form, and validation, and both Pattern lines cite fixture files, so no other wording needs to change.",
+      "wallMs": 23223,
       "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9ff0c3e95786cc851687eb74e14159c0171cf746433296e38c0111455a4441a3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ad90ef01101a9683affba0c8acbaced6d459e9e7e6895c0538743f44b1d1470a",
+      "baselineOutputSha": "c15ce7521b36ef0dbe990e52195ca3e0709711c57519af560f5a845bb4a7c645",
+      "candidateOutputSha": "0a742d4a258b2e7076aee7ae81e6721a99c8d590b57bbccecb1f9a91feab232e",
+      "facts": {
+        "holds": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-pivot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "review": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "containment": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "constraints": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "pattern": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "opening-shape": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved in this pair: After keeps every fact Before kept, including constraints, which the Expected to move list anticipated as accepted variance — the After approaches section still says \"No migration is added; old candidate-less rows recover through rerunning processing\" and explicitly preserves the two-endpoint contract, so report it as holding here. The Today / The change / What I checked rendering delivers the intended shape, and the framing line still says the framing holds and names the producer contract, candidate ownership/review controls, and the nested application path. One fragility worth tightening: the After first message replaces Before's explicit fixture citations (svc-b/point-contract.md, svc-a/field-review.md, svc-a/point-form.md, svc-a/response-consumer.md) with role descriptions only; a stricter reader of the holds fact could want the consumer stub and review surfaces named more concretely. Keeping everyday-word register while still naming each checked source once (e.g. in the Held: lines, \"the svc-b point contract\", \"the svc-a field-review and point-form surfaces\", \"the svc-a response-consumer stub\") would guard that fact without adding file-and-line locators or breaking the 220-word opening bound.",
+      "wallMs": 16964,
+      "verdict": "unchanged"
     }
   },
   "refresh": {
@@ -374,5 +374,5 @@
       }
     }
   },
-  "repoSha": "3ab9d32ec7848754568a1e78939e3c089bc0a202"
+  "repoSha": "fc4df799e0623da66a1b94f4dd7c7eef7a99a108"
 }
