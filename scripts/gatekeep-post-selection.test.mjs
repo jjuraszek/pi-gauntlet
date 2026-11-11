@@ -22,6 +22,23 @@ test('post picks expand and deduplicate only after validating the whole reply', 
   assert.match(loop, /Run the picked steps in.*step order, not reply order/);
 });
 
+test('terminal stop saves missing draft bodies before reporting paths or deleting drafts', () => {
+  const loop = read('../skills/gatekeep-pr/reference/post-selection-loop.md');
+  const teardown = loop.split('### Teardown\n')[1];
+  assert.ok(teardown, 'stop must not depend on entering Post steps');
+  const save = teardown.indexOf('Save every unrun or failed drafted reply and coverage body');
+  assert.ok(save >= 0, 'teardown must write bodies that have no file yet');
+  const preparation = teardown.slice(save, teardown.indexOf('\n\n', save));
+  assert.match(preparation, /reuse existing body files/);
+  assert.match(preparation, /before printing their paths or deleting drafts/);
+  for (const state of ['final', 'merge-queued', 'post']) {
+    assert.ok(preparation.includes(`\`${state}\``), `${state} stop preserves bodies`);
+  }
+  assert.ok(save < teardown.indexOf('After the terminal marker and settlement row'));
+  assert.ok(save < teardown.indexOf('Delete both finding artifacts'));
+  assert.match(teardown, /except retained post payload files/);
+});
+
 test('saved post selections cover sets, inspection, reply ids and invalid picks', () => {
   const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
   const expected = read(`${root}/samples/${sample}/expected.md`);

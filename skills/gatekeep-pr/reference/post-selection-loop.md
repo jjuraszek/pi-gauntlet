@@ -219,6 +219,8 @@ For set mode, retain each row before deleting its PR record; print it only in th
 
 ### Teardown
 
+Save every unrun or failed drafted reply and coverage body without a file under `${TMPDIR:-/tmp}`; reuse existing body files. Do this on `final`, `merge-queued` and `post` stops too, before printing their paths or deleting drafts.
+
 Start the message with `gauntlet: done approved` for post completion or stop on approved. Start the message with `gauntlet: done merged` for post completion or stop on own-merge. Start the message with `gauntlet: done closed-pr` for post completion or stop on closed-pr. Start the message with `gauntlet: done final` for stop on final. Start the message with `gauntlet: done merge-queued` for stop on merge-queued. Print the row from `### Settlement rows`, then the checkout path and local branch. Render reports through `report.md`; a report above a menu is not a terminal. Start the message with `gauntlet: stuck` followed by the actual error on any hard assertion failure, including a delegated fix-wave restore/assert failure; print the PR row with `stuck - <actual error>` below it and end with the actual error, without a continuation menu. In set mode use `batch.md`'s per-PR retirement marker until every PR retires.
 
 Delegate non-final stop (initial, assess terminal, obstacle, contract exception) to `cleanup.md` `## Non-final stop`. Keep terminal cleanup behind a selected post step; terminal stop leaves the checkout as found and reports its path and local branch. Render cleanup only on terminal templates; never run cleanup steps 2-4 for a non-final stop.
