@@ -48,7 +48,19 @@ test("saved plain-report candidates prove D5 without labels, numbered requiremen
   for (const [model, output] of Object.entries(candidate.outputs)) {
     assert.equal(output.status, "ok", model);
     for (const id of facts) assert.equal(candidate.judge[model].facts[id]?.after, "holds", `${model}: ${id}`);
-    assert.doesNotMatch(output.text, /binding pending check|merge_state_status|assessed head|durable run record|PR-named action|coverage post|withhold|terminal pick|post set|\bdisposition\b|course=/i, model);
-    assert.doesNotMatch(output.text, /\bexit_code\b/i, model);
+    const inspection = output.text.match(/\n---\n\n(gauntlet: gate=gatekeep-pr\/initial recommended=1\n\n)([\s\S]*?)(?=^This PR )/m);
+    assert.ok(inspection, `${model}: show-evidence checkpoint must precede the repeated report`);
+    const evidence = inspection[2];
+    assert.match(evidence, /^(?:show evidence:|state:)/, `${model}: show-evidence record`);
+    const reports = output.text.replace(inspection[0], `\n---\n\n${inspection[1]}`);
+    assert.match(evidence, /\b7001\b/, `${model}: CI run id`);
+    assert.match(evidence, /build[^\n]*success/, `${model}: build check`);
+    assert.match(evidence, /unit[^\n]*(?:pending|required, running)/, `${model}: required unit check`);
+    assert.match(evidence, /\b9c1e4f2\b/, `${model}: head commit id`);
+    assert.match(evidence, /\b8a0b1c2\b/, `${model}: prior-review commit id`);
+    assert.match(evidence, /repair rounds 1 of 4|repair\.rounds_used: 1\nrepair\.rounds_cap: 4/, `${model}: repair usage`);
+    assert.match(evidence, /syncs 1 of 4|repair\.syncs_used: 1\nrepair\.syncs_cap: 4/, `${model}: sync usage`);
+    assert.doesNotMatch(reports, /binding pending check|merge_state_status|assessed head|durable run record|PR-named action|coverage post|withhold|terminal pick|post set|\bdisposition\b|course=/i, model);
+    assert.doesNotMatch(reports, /\bexit_code\b/i, model);
   }
 });
