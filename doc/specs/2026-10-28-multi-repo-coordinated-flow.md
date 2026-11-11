@@ -1,5 +1,7 @@
 # Multi-repo coordinated flow: legs across N repositories
 
+> **Superseded by:** [doc/specs/2026-11-11-leg-trees-located-not-recorded.md](./2026-11-11-leg-trees-located-not-recorded.md) - locating a leg's tree from recorded `home:` plus shared NAME in "Writing-plans and plan_check", "Handoff and resume" and "Finishing" only
+
 **Goal:** Let one gauntlet run span N repositories as ordered legs - one shared worktree name, one worktree per repo created and torn down under that repo's own overrides and settings, one home spec with a per-leg split and a leg file in every companion, per-leg rule reading (root and nested `AGENTS.md`/`CLAUDE.md`), one brief that resumes every leg from the home, and one ship choice fanned out to every repo - so a two-repo change is handed off, resumed, and shipped as one run instead of N hand-coordinated ones.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves

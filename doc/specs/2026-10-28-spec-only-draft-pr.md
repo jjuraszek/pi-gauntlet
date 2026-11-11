@@ -1,5 +1,7 @@
 # Spec gate option 6: hand off an approved spec as a draft PR and re-enter it with `brainstorming #N`
 
+> **Superseded by:** [doc/specs/2026-11-11-leg-trees-located-not-recorded.md](./2026-11-11-leg-trees-located-not-recorded.md) - the kept local branch in "Option 6 at the User Review Gate" cleanup only
+
 **Goal:** Let the user approve a spec's content and publish it as a spec-only draft PR instead of chaining into planning in the same session, and let a later `brainstorming #N` on that PR recognize it mechanically (spec-only diff plus the `**Engine:** deferred` header line) and re-present only the implementation choices of the User Review Gate, while every other PR keeps today's rework path.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves
