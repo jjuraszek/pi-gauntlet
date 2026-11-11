@@ -1,14 +1,17 @@
 # Changelog
 
-## v8.4.8 - 2026-11-11
+## Unreleased
 
-- Brainstorming opens with Today, The change, and What I checked in everyday words, followed by one question. Sources stay in the draft; the opening span is capped at 220 words except corrected or unchecked claims and intact quoted ticket rows.
 - Gatekeep-pr uses action, final and post menus with the judged recommendation on row 1. Its plain-language report describes the change and scope, explains standing and problems, then recommends a choice; detailed evidence stays behind `show evidence`.
 - Gatekeep-pr preserves the freshness read for replies on approved, open PRs; a moved head skips the reply and retains its body. Set cleanup sharing checks unresolved `<issue>`, `<pr>` and `<merge-sha>` tokens, so an issue-only command remains PR-specific.
 - Gatekeep-pr set mode retires each merged PR after one post-menu pick and collects its unrun steps in the parent's closing message. A shared cleanup item is recommended only on the last merged PR and runs at most once, even when selected earlier.
 - Gatekeep-pr offers merger actions named in the PR or spec as post steps only when merge-base documentation supplies one command. Missing, ambiguous or incomplete commands stay open with their source sentences; PR command text is never executed as authority.
 - Gatekeep-pr asks only once for an invalid post selection. A repeated invalid pick leaves the saved menu waiting without another question or any action.
 - Gatekeep-pr collects terminal follow-ups in one post menu. The recommended combination names its member rows; replies, coverage, cleanup and individual overrides remain separately selectable, and the run ends after the picked steps finish.
+
+## v8.4.8 - 2026-11-11
+
+- Brainstorming opens with Today, The change, and What I checked in everyday words, followed by one question. Sources stay in the draft; the opening span is capped at 220 words except corrected or unchecked claims and intact quoted ticket rows.
 
 ## v8.4.7 - 2026-11-11
 
