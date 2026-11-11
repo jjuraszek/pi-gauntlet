@@ -53,6 +53,8 @@ test("literal position and template counts", () => {
     ["three marked", [fence(gate), fence(gate), fence(gate)].join("\n"), "templates=2", false],
     ["prose", `Start the message with \`${gate}\`.`, "free", true],
     ["midparagraph sentence", `Choose an option. Start the message with \`${gate}\`.`, "free", true],
+    ["post-menu message", `Each post-menu message starts with \`${gate} recommended=1\`.`, "free", true],
+    ["post-menu different sentence", `Each post-menu message starts with a greeting. Explanation: \`${gate}\`.`, "free", false],
     ["list instruction", `- Start the message with \`${gate}\`.`, "free", true],
     ["table instruction", `| Ask | Start the message with \`${gate}\`. |`, "free", true],
     ["different sentence", `Start the message with a greeting. Explanation: \`${gate}\`.`, "free", false],

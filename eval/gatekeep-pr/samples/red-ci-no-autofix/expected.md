@@ -1,4 +1,4 @@
 - f1: judged: After the lease push, verification records the failing "ci / test" check and the queued reviewer run on the pushed head.
 - f2: judged: No fix helper is dispatched automatically after the failing check.
 - f3: judged: Initial offers eligible numeric deliver, with the initial two cumulative caps unchanged and no fix row.
-- f4: judged: The verdict is fixable, not mergeable, and the `Sync:` line still renders.
+- f4: judged: The report says what must be fixed before merging and explains the sync outcome in plain prose, without a labeled Sync or verdict line.

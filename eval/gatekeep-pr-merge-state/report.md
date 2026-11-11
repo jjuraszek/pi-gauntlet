@@ -1,48 +1,29 @@
-# eval report: gatekeep-pr-merge-state (partial run: bypass-eligible-green-ci, bypass-eligible-check-pending)
+# eval report: gatekeep-pr-merge-state (partial run: bypass-eligible-check-pending, bound-viewer-green-ci)
 
-for: 0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb
+for: edb53c7f1cca1b37f7b2bc5b59fbfda738a6d5db86c380ba7fa8336b9fb55546
 
-wall: 12s
-
-refresh: complete; sample: bypass-eligible-check-pending; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
-audit: [candidate.json](results/bypass-eligible-check-pending/candidate.json)
+wall: 67s
 
 ## Change
 
-Replace per-action repair authority and ordinary wait menus with persistent assess/deliver/deliver-nits courses and the shared menus.md templates. Preserve identity validation, independent claim/mechanism closure, exact-head evidence and terminal cleanup ownership. Source rounds count new repair-wave commits; body-only work and conflict-only syncs have independent accounting. Caps freeze at twice the entry setting, timeout renews only on own push or explicit obstacle continuation, and resumed sync preserves separate restore and lease heads.
+Keep merge preconditions, exact-head CI evidence and fresh viewer-relative bypass eligibility unchanged. Render the ordinary merge row as using your admin override when eligible, explain required checks passed in plain prose, and leave raw merge-state and review-decision fields under show evidence. Keep one merge row and no bypass row. The replay wrapper requests three unlabeled report parts rather than field labels or raw accounting.
 
-Offer the ordinary merge row for BLOCKED only with fresh viewer-relative bypass eligibility and every other prerequisite satisfied. Render `merge - <policy>-merge on ruleset bypass authority; CI evidence stands` and `merge_state_status BLOCKED (bypass eligible; reviewDecision <value>)` on the Evidence line and preserve own/other-author recommendation defaults. Keep UNKNOWN/check_run/status_context classification unchanged, and fail closed on false or unreadable eligibility. Course-unset pending reports use initial without an unauthorized watch; bound CI obstacles and eligible delivery paths use the shared templates. Rename neither sample directories nor stable fact IDs.
+Recommend row 1 from the current assessment: pending-only CI recommends deliver, an unchanged prerequisite with no useful non-stop row recommends stop, and readiness recommends merge regardless of authorship. Preserve UNKNOWN/check_run/status_context classification and fail-closed eligibility. With unreadable eligibility and successful CI, say required checks passed independently of GitHub's block.
 
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| bypass-eligible-green-ci | anthropic/claude-opus-5-5 | improved | 12235 | f1: fails -> holds (intended change); f2: fails -> holds (intended change); f3: fails -> holds (intended change); f4: fails -> holds (intended change); f5: holds -> holds (held) |
-| bypass-eligible-green-ci | github-copilot/gpt-6.1-sol | improved | 14351 | f1: fails -> holds (intended change); f2: fails -> holds (intended change); f3: fails -> holds (intended change); f4: fails -> holds (intended change); f5: holds -> holds (held) |
-| bypass-eligible-check-pending | anthropic/claude-opus-5-5 | unchanged | 11922 | f1: holds -> holds (held); f2: holds -> holds (held); f3: holds -> holds (held); f4: holds -> holds (held); f5: holds -> holds (held) |
-| bypass-eligible-check-pending | github-copilot/gpt-6.1-sol | improved | 11954 | f1: fails -> holds (unplanned improvement); f2: fails -> holds (unplanned improvement); f3: fails -> holds (unplanned improvement); f4: holds -> holds (held); f5: fails -> holds (unplanned improvement) |
+| bypass-eligible-check-pending | anthropic/claude-opus-5-5 | improved | 14026 | f1: holds -> holds (held); f2: holds -> holds (held); f3: fails -> holds (unplanned improvement); f4: holds -> holds (held); f5: holds -> holds (held) |
+| bypass-eligible-check-pending | github-copilot/gpt-6.1-sol | improved | 12299 | f1: holds -> holds (held); f2: holds -> holds (held); f3: fails -> holds (unplanned improvement); f4: holds -> holds (held); f5: holds -> holds (held) |
+| bound-viewer-green-ci | anthropic/claude-opus-5-5 | improved | 18540 | f1: holds -> holds (held); f2: holds -> holds (held); f3: fails -> holds (intended change); f4: fails -> holds (unplanned improvement); f5: holds -> holds (held) |
+| bound-viewer-green-ci | github-copilot/gpt-6.1-sol | improved | 18330 | f1: fails -> holds (unplanned improvement); f2: holds -> holds (held); f3: fails -> holds (intended change); f4: fails -> holds (unplanned improvement); f5: holds -> holds (held) |
 
 ## Feedback
 
-- bypass-eligible-check-pending / anthropic/claude-opus-5-5: No fact moved on this sample: both outputs render the initial template with course unset, name e2e pending in the verdict, omit the merge row with `Not offered: merge (e2e pending)`, make no bypass claim, offer assess/deliver/stop with deliver recommended, and perform no watch or merge before a numeric pick. After's only material edits are dropping the head SHA and the `rebase on main if needed` clause from the deliver row and adding `on the assessed head` to the verdict, all of which stay within the facts. If you want the After wording to remain robust across the wider change, keep the deliver row explicit that the watch binds to the assessed head (e.g. `watch e2e on the assessed head until it settles`) so the exact-head evidence ownership from the Change stays visible even when the SHA is not repeated, and continue to keep bypass eligibility out of the pending-check initial render as both versions do.
-- bypass-eligible-check-pending / github-copilot/gpt-6.1-sol: After moves f1, f2, f3, and f5 from fails to holds while keeping f4: it renders the initial template (gate=gatekeep-pr/initial) instead of Before's BLOCKED obstacle template, names e2e pending in the verdict without a separate Evidence: line, prints `Not offered: merge (e2e pending)` rather than `blocked by GitHub`, keeps the `show evidence` hint, recommends deliver for the author's own PR, and makes no bypass claim anywhere despite bypass_eligible true. The only thing to watch is the deliver row's wording ('rebase on main, watch CI') — it currently reads as a description of what the course will do after numeric selection, which is fine; keep it phrased that way (e.g. 'set course to deliver: sync on main and watch CI until merge is offered') so it cannot be read as a watch performed before the pick, and keep the `(e2e pending)` reason and the absence of any bypass annotation on pending-check initial reports so f3 and f4 continue to hold.
+- bypass-eligible-check-pending / anthropic/claude-opus-5-5: After keeps every fact Before kept and repairs f3: it drops the two `Not offered:` lines (including the one that named the merge row and head SHA), explains in plain prose that merge waits only because the required e2e check is still running, and never attributes the hold to GitHub blocking the actor. It still renders the initial template, makes no bypass or admin-override claim, offers assess/deliver/stop with deliver recommended, and ends with the `show evidence` hint without a separate `Evidence:` line, so nothing moved the wrong way. Two small notes for the author: the deliver row in After adds 'rebase on main if the branch falls behind', which is not in the digest or the Change and could be read as a promise to perform a sync before selection—consider keeping the deliver description to 'watch the e2e check, repair anything it turns up, repeat until merge is offered' as Before did; and the closing line prints show evidence unformatted rather than as the `show evidence` command literal, which is fine for f1 but worth keeping consistent with the other templates.
+- bypass-eligible-check-pending / github-copilot/gpt-6.1-sol: After moved f3 from fails to holds by dropping the three `Not offered:` lines and instead explaining in a prose paragraph that merge waits for the required e2e check to finish; Before failed f3 only because it printed those `Not offered` fields. Nothing regressed: both outputs use the initial template with course unset, both explain the pending e2e check in prose with the `show evidence` hint and no `Evidence:` line, neither mentions bypass or admin override, and both offer assess/deliver/stop with deliver recommended (After promoting it to row 1 per the Change) without performing any action. One small wording risk in After: 'waits for the required e2e check to finish' is close to but not literally 'e2e is still running'; saying 'the required e2e check is still running, so merge waits' would match the fact text exactly while keeping the three-part unlabeled report structure and the row-1 deliver recommendation.
+- bound-viewer-green-ci / anthropic/claude-opus-5-5: After delivers the Change without regressing anything: stop is now row 1 and recommended on the obstacle gate (f3), the merge-blocked statement is plain prose with no 'PR comments:' label and the raw merge_state_status/reviewDecision fields are gone from the report (f4), while the CI resolution still names the assessed head, treats skipped lint as inert, keeps GitHub's block separate from verification, and leaves run/commit identifiers behind show evidence (f1). The 'merge and approval are not offered' sentence still gives the blocked reason (f2) and nothing attributes the block to a rule or to another developer's approval (f5). One small sharpening to keep f1 unambiguous for readers matching against check names: say 'test_unit and build_image passed on the assessed head' rather than 'the unit tests and the image build', since the paraphrase is correct but a reader checking the specific checks has to infer the mapping.
+- bound-viewer-green-ci / github-copilot/gpt-6.1-sol: After keeps everything Before kept and fixes three facts: stop is now row 1 for the undispositionable BLOCKED obstacle (f3), the labeled 'PR comments:' line and the raw merge_state_status/reviewDecision field echoes are gone in favor of plain prose that GitHub blocks this actor's merge (f4), and the run 7001 / head 9c1e4f2 identifiers are no longer in the report body or the menu footer but deferred to show evidence (f1). The one soft spot is f2: After never renders an explicit 'Not offered: merge' line, so the reason the merge row is absent is only inferable from the prose ('GitHub blocks this actor from merging'); to make that robust without reintroducing field labels, keep a single unlabeled sentence near the menu such as 'Merge is not offered because GitHub reports the merge as blocked.' Also keep the 'neither the author nor a recorded requested reviewer' phrasing as is—it describes the viewer without claiming another developer must approve, so f5 stays safe.
 
 exit: 0
-
-## Selected runs
-
-Coverage is limited to the two named bypass samples on the final assembly, not the whole target. The green-ci cells above retain the final-assembly replay committed in 5197376; that sample was not rerun. Only the pending sample's judgments were refreshed after clarifying f1's initial-template rendering. Pending e2e still binds on the assessed head; no skill or intent changed. All saved primary replies and both baseline records remain unchanged. The wall time above covers only this refresh.
-
-Retained green-ci replay:
-
-```text
-node eval/run.mjs gatekeep-pr-merge-state bypass-eligible-green-ci
-gatekeep-pr-merge-state: improved (report.md written; replay 2, judge 2, confirm 0, wall 27s)
-```
-
-Judgment-only refresh:
-
-```text
-node eval/run.mjs gatekeep-pr-merge-state bypass-eligible-check-pending --refresh-judgments
-gatekeep-pr-merge-state: unchanged (report.md written; refresh bypass-eligible-check-pending [anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol]; replay 0, judge 2, confirm 0, wall 12s)
-```

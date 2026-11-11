@@ -1,0 +1,120 @@
+{
+  "sample": "post-menu-combined",
+  "arm": "candidate",
+  "skillSha": "ec38bfbfdeadd2d7136371362517d2fb3b0d099366cadb9396ede1e608f364ec",
+  "inputSha": "1ed74d4de0526dc85b41bd401b9fa6228b2f2877160bce0734836e42b640fcf7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/own-merge recommended=1\nYour PR 642 is merged. The comment saying the health endpoint now responds with the build version is ready for the ticket and the PR. Robin's question about caching still has an unposted answer. The worktree and its branch can be removed.\n\nI recommend every step except the PR copy of the checklist, because the ticket comment already carries it.\n\nPick one, or several separated by commas:\n1. post the reply, post coverage to ticket, cleanup, notify - rows 2, 3, 5 and 6. [recommended]\n2. post the reply - answer robin's question about caching in its PR thread: \"The build version is read once at startup and reused for each request.\" Runs `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`.\n3. post coverage to ticket - comment the acceptance checklist on sample/forge-kit#91 with `gh issue comment 91 -R sample/forge-kit --body-file /tmp/gate-coverage.md`.\n4. post coverage to PR - comment the same checklist on the PR with `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`.\n5. cleanup - from /work/forge-kit, run `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, which also deletes any untracked files in it, then `git -C /work/forge-kit worktree prune`, then `git -C /work/forge-kit branch -D health-version`. Pulling main is skipped because the primary checkout is on maintenance, and cleanup will not switch it.\n6. notify - from /work/forge-kit, run `gh issue comment 91 -R sample/forge-kit --body \"Health version merged.\"`.\n7. stop - run nothing; list each unpicked step with its command.\n\nNot offered: release (`/skill:release patch`) needs the merged change on a local main. The primary checkout is on maintenance, so main cannot be pulled.\n\nType a number; show evidence prints the full record.\n\n---\n\nHuman: 1\n\n---\n\nRow 1 expands to rows 2, 3, 5 and 6. Those steps are saved as picked and run in menu order. Before each post, the saved body is reread for jargon. Both read clean, so they post unchanged. The PR is merged, so the posts need no head freshness check.\n\n1. I post the reply with `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`. It succeeds, and the new reply id is recorded so a later refetch does not count it as a new comment.\n2. I post coverage to the ticket with `gh issue comment 91 -R sample/forge-kit --body-file /tmp/gate-coverage.md`. It succeeds, and the step is marked done so it cannot be picked again.\n3. Cleanup checks its guards first. The worktree is not the primary, has no tracked changes, has no commits outside the reviewed head, and matches the configured home. No custom destroy command is recorded.\n   - I run `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, then `git -C /work/forge-kit worktree prune`.\n   - `git -C /work/forge-kit worktree list --porcelain` shows no worktree on health-version, so I run `git -C /work/forge-kit branch -D health-version`.\n   - The base pull is skipped because the primary is on maintenance. I do not run fetch or pull.\n4. Notify passes the merged-change guard and needs no substitution. I run `gh issue comment 91 -R sample/forge-kit --body \"Health version merged.\"` from /work/forge-kit, bounded by the 15-minute timeout.\n\npost the reply: done\npost coverage to ticket: done\nworktree: done\nbranch: done\nbase: skipped - primary on maintenance\nnotify: done\n\n---\n\ngauntlet: done merged\n#642@9c1e4f2: merged\n\nThe gate's checkout at /work/forge-kit/.worktrees/health-version is removed, and its local branch health-version is deleted. The primary checkout at /work/forge-kit stays on maintenance, unchanged.\n\npost the reply: done\npost coverage to ticket: done\nworktree: done\nbranch: done\nbase: skipped - primary on maintenance\nnotify: done\n\nSteps that did not run:\n\n- Post coverage to PR was not picked, because the ticket comment carries the same checklist. Its body stays at /tmp/gate-coverage.md, and you can post it with `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`.\n- Pulling main in the primary was skipped because the primary checkout is on maintenance. Cleanup never switches its branch.\n- Release (`/skill:release patch`) was skipped because it needs the merged change on a local main, and main could not be pulled.\n\nThe saved progress file, helper outputs and their logs are deleted. The coverage body at /tmp/gate-coverage.md is kept for the unposted PR copy.\n",
+      "words": 673,
+      "wallMs": 35565,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/own-merge recommended=1\n\nThe PR is merged. The saved reply answers robin's question about startup caching, and the coverage comment records that the health endpoint responds with the build version.\n\nI recommend posting the reply and ticket coverage, cleaning up the PR checkout, and sending the notification; the duplicate PR coverage comment is unnecessary.\n\nPick one, or several separated by commas:\n1. post the reply, post coverage to ticket, cleanup, notify - rows 2, 3, 5 and 6. [recommended]\n2. post the reply - answer robin's question in its PR thread using `gh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md`.\n3. post coverage to ticket - post `/tmp/gate-coverage.md` to sample/forge-kit#91 using `gh issue comment 91 -R sample/forge-kit --body-file /tmp/gate-coverage.md`.\n4. post coverage to PR - post the same checklist using `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`.\n5. cleanup - from `/work/forge-kit`, run `git -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version`, deleting any untracked files there; then run `git -C /work/forge-kit worktree prune` and `git -C /work/forge-kit branch -D health-version`. Pulling main is skipped because the primary checkout is on maintenance.\n6. notify - from `/work/forge-kit`, run `gh issue comment 91 -R sample/forge-kit --body \"Health version merged.\"`.\n7. stop - run no post steps and leave the checkout as it is.\n\nRelease is skipped: `/skill:release patch` requires a synced local base, and the primary checkout is on maintenance. Cleanup will not switch its branch.\n\nType a number; show evidence prints the full record.\n\nHuman reply: 1\n\nI expand row 1 to rows 2, 3, 5 and 6, remove duplicate selections, and save the picked steps before execution. I use the supplied completed reads for the guards and validate saved progress before writes. No helper is dispatched.\n\nFirst, I check the saved reply against the communication rules. Its body remains: “The build version is read once at startup and reused for each request.” From `/work/forge-kit`, I run:\n\ngh api --method POST repos/sample/forge-kit/pulls/642/comments/81/replies -F body=@/tmp/gate-reply-1.md\n\nThe reply succeeds, and I save its result without repeating it. Because the PR is merged, this reply does not require an open-PR head comparison.\n\nSecond, I check the saved coverage payload against the coverage format and communication rules, preserving its text. From `/work/forge-kit`, I run:\n\ngh issue comment 91 -R sample/forge-kit --body-file /tmp/gate-coverage.md\n\nThe ticket comment succeeds, and I save its result. I do not post the duplicate PR comment.\n\nThird, I execute cleanup. The supplied observations establish that the created worktree is not the primary checkout, is tracked-clean, matches the configured home, and contains no commits outside the reviewed history. There is no custom destroy command. I run:\n\ngit -C /work/forge-kit worktree remove --force /work/forge-kit/.worktrees/health-version\n\nRemoval succeeds, including deletion of any untracked files. I touch nothing under that path afterward. I then run:\n\ngit -C /work/forge-kit worktree prune\n\nPruning succeeds. The local branch now has no worktree holding it, so I run:\n\ngit -C /work/forge-kit branch -D health-version\n\nBranch deletion succeeds. I save each cleanup result. I run no base fetch or pull because `/work/forge-kit` is on maintenance, and I do not switch its branch.\n\nFourth, I execute the notification. Its guards pass, and it requires no local merged change. After checking its wording, I run from `/work/forge-kit`, non-interactively with the default 15-minute bound:\n\ngh issue comment 91 -R sample/forge-kit --body \"Health version merged.\"\n\nThe notification succeeds, and I save its result. I do not invoke `/skill:release patch`, which was skipped before numbering.\n\nThe selected steps are finished. Teardown removes the run's temporary progress and helper artifacts at their saved locations, while retaining `/tmp/gate-coverage.md` for the unposted PR copy. No further menu is rendered.\n\ngauntlet: done merged\n#642@9c1e4f2: merged\n\npost the reply: done\npost coverage to ticket: done\nworktree: done\nbranch: done\nbase: skipped - primary on maintenance\nnotify: done\n\nThe PR checkout at `/work/forge-kit/.worktrees/health-version` and local branch health-version were removed; the primary checkout remains at `/work/forge-kit` on maintenance.\n\nPost coverage to PR was not picked; it can still run using `gh pr comment 642 -R sample/forge-kit --body-file /tmp/gate-coverage.md`, and its payload remains at `/tmp/gate-coverage.md`.\n\nThe base pull was skipped because the primary checkout is on maintenance; no `git fetch origin` or `git pull --ff-only` ran.\n\nRelease was skipped because the local base was not synced; `/skill:release patch` was not invoked.\n",
+      "words": 697,
+      "wallMs": 37309,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ad43a47611e26e1f521afc6e99e2fd5311cdbc83cdcb09531479bf0d10177d8c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "18a73433e7df4e9f33593e4779a2096cbeda1a52fa4c7a20f57ec927f2752291",
+      "baselineOutputSha": "6c35f04510d0d441516ae4cce729e9587ea3058ac366ff84424d406c335c663d",
+      "candidateOutputSha": "9f18976c66f3502a27f7c007d7c1fa7268d726cfbd414ce11f1f16cbb5ee00e8",
+      "facts": {
+        "single-menu": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "combination": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "runnable-rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "guards": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "draft": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "execution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After satisfies every fact that Before missed: the menu now uses the \"Pick one, or several separated by commas\" prompt, row 1 is a single recommended combination that names the drafted reply, ticket coverage, cleanup and notify by label and row number (2, 3, 5, 6) with the PR-copy duplication reason stated above the prompt, every runnable step has its own numbered row with its exact command or post destination (notify shows the resolved gh command), release is unnumbered and explained under the rows, cleanup is one row that covers worktree/branch removal and the skipped base pull without switching the primary, and reply 1 executes the four steps in menu order, skips the PR copy, prints per-step results, and closes with gauntlet: done merged plus a settlement row that names the skipped release and unpicked PR coverage with reasons and the command/payload path. Before failed all six because it bundled notify and release into a single cleanup row, left the drafted reply as a hint instead of a row, used the old \"Pick one:\" prompt, and ran only cleanup on reply 1. Nothing in After regressed a fact; the only polish worth considering is that the settlement row is printed twice (once after execution, once after the terminal marker) and the opening runs four sentences rather than the two the Change asks for, so trimming the duplicate result list and condensing the opener would tighten the output without touching any fact.",
+      "wallMs": 19972,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ad43a47611e26e1f521afc6e99e2fd5311cdbc83cdcb09531479bf0d10177d8c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "18a73433e7df4e9f33593e4779a2096cbeda1a52fa4c7a20f57ec927f2752291",
+      "baselineOutputSha": "2598ab6e72e9e0384295454d08604f4543a3719fd5be465ca1a58698e4af2274",
+      "candidateOutputSha": "0919fb25ebd6e45f646de4e7a3cd7fa61e12f1d2cf98a9d0633e4aa32a150301",
+      "facts": {
+        "single-menu": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "combination": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "runnable-rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "guards": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "draft": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "execution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moved every fact from fails to holds and lost nothing Before kept: the menu now uses the multi-pick prompt, row 1 is a true combination naming labels and rows 2, 3, 5 and 6 with the duplicate-PR-coverage reason stated above the prompt, every runnable step (drafted reply, ticket coverage, PR coverage, cleanup, notify) has its own numbered row with its exact command or post destination, release is unnumbered and explained under the rows as skipped for the unsynced base, and reply 1 executes the four steps in order, skips the PR copy, and closes with the merged marker, settlement row, and the retained payload path plus command for the unpicked PR coverage. Before had collapsed cleanup, notify and release into a single row, dropped the drafted reply entirely, and used the single-pick prompt, which is why it failed across the board. Keep After's structure; the only caution is to avoid letting the execution narration drift into internal bookkeeping phrasing (\"save its result\", \"validate saved progress\") that the Change's plain-prose goal discourages, since those details are not needed for any fact and could later be read as leaked record fields.",
+      "wallMs": 15272,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
+}

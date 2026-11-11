@@ -14,7 +14,7 @@ bundle-: skills/gatekeep-pr/reference/fix-wave.md
 
 ## Entry
 
-The merged terminal menu rendered and the human picked numeric `1` (cleanup from the terminal menu). Narrate the cleanup steps through the re-rendered menu.
+The single merged post menu rendered and the human selected only the numbered cleanup step, not the combination row. Narrate its steps, then settle with gauntlet: done merged and a closing message listing failed and unpicked commands; render no further menu.
 
 ## Arguments
 

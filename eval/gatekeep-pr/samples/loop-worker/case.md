@@ -1,4 +1,3 @@
-bundle-: skills/gatekeep-pr/reference/decision-menu.md
 bundle-: skills/gatekeep-pr/reference/menus.md
 bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/report.md

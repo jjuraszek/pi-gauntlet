@@ -1,23 +1,27 @@
-for: a2e574a74ed1740dc66675ef47c7d34c052265465baebaf75719d252f0149e68
+for: 20cd1d0080708800c0e4226847f35f8f0a4c12a8884a5d30dc08dd8964896289
 
 ## Change
 
-The shared bypass-menu edit is tested only by gatekeep-pr-merge-state/bypass-eligible-green-ci; this assembly hash is refreshed for structural checks, not a new replay claim for this target.
+Describe scope in a two-sentence plain-language opening using behavior names, not row numbers or labeled fields. Preserve covered mechanisms, deferred references, deliberate deviations and their approved reasons, external repositories and post-merge observations; retain detailed mapping under show evidence and in posted coverage.
 
-Replace per-action repair authority and ordinary wait menus with persistent assess/deliver/deliver-nits courses and the shared menus.md templates. Preserve identity validation, independent claim/mechanism closure, exact-head evidence and terminal cleanup ownership. Source rounds count new repair-wave commits; body-only work and conflict-only syncs have independent accounting. Caps freeze at twice the entry setting, timeout renews only on own push or explicit obstacle continuation, and resumed sync preserves separate restore and lease heads.
-
-Keep every scope verdict and terminal cleanup side effect unchanged. Migrate menu rows and numeric terminal picks only; show evidence moves to the hint and post-merge cleanup remains the sole path to branch deletion, base pull and ordered overrides.
-
-## Comparison scope
-
-These are predictions against the extracted-menu baseline 40d6c9e4, not observed model outcomes. Rewritten facts encode the new contract; other existing facts must hold unchanged.
+Render the single post menu after approve or merge, execute the validated selection once in step order, and settle with the not-run list. Pause only for a selected nested skill. The replay wrapper requests no post-pick menu re-render except inspection or invalid-input handling. Preserve cleanup guards and selected-only authority.
 
 ## Expected to move
 
-- cleanup-merged-at-step-1/f4: fails -> holds - The first menu is closed PR cleanup/stop, with no own-merge coverage rows; explicit numeric cleanup may run landed guards.
-- cleanup-null-issue/f5: fails -> holds - After cleanup no cleanup row remains; show evidence remains a hint, never a numeric row.
-- post-merge-menu/f1: fails -> holds - Own-merge menu offers cleanup=1 recommended, post coverage to ticket=2, post coverage to PR=3, stop=4 last; show evidence appears only in the hint.
+- post-merge-menu/f1: fails -> holds - Row 1 combines ticket coverage and cleanup with individual steps below.
+- post-merge-menu/f6: fails -> holds - The PR coverage pick settles once without another menu or cleanup.
+- mixed-coverage/f1: fails -> holds - Two-sentence grounded opening preserves deliberate deviation reasons without inventing one.
+- mixed-coverage/f3: fails -> holds - Describe behaviors without row numbers or labeled fields.
+- cleanup-after-approve/f1: fails -> holds - Cleanup is row 1; release and close ticket stay unselected, with their landed-change prerequisite in the not-run list, not execution result lines.
+
+## Closing-command coverage
+
+The cleanup owner requires each unrun cleanup sub-step's command in the closing message. Its shared assembly identity is current; no scope sample is rerun for that instruction, so saved scope cells retain their earlier identities. Selected command and remapping evidence lives in gatekeep-pr's sample-scoped report.
+
+## Conformance repair coverage
+
+cleanup-merged-at-step-1 and cleanup-no-section are edited only in case.md to start from the one post menu and select actual numbered member rows. Their expected.md files are unchanged. Both samples are edited, not rerun, under D8 and Tests; their saved results and report remain earlier evidence, not validation of these corrected premises. No scope sample runs in this round. Coverage remains sample-scoped, not a target-wide pass.
 
 ## Validation boundary
 
-Deterministic structural tests and lint do not establish model behavior. Retain previous reports/results until the scoped baseline/candidate replays and judges run after header verification; do not treat their older assembly hashes as candidate evidence.
+Select cleanup-null-issue, deferred-with-ref, deviates, elsewhere-settled, mixed-coverage, no-spec-quality and post-merge-menu for scope reporting; select cleanup-after-approve for its saved failure and corrected selected-only expectation. Keep report writes isolated. This is sample-scoped coverage, not a target-wide pass. No bundle lines change. D8 assembles the frozen baseline with menu slices migrated to menus.md and without the deleted decision-menu.md; that baseline cannot prove the original 11-template flow. Preserve identity validation, claim/mechanism closure, exact-head evidence, repair/sync accounting and cleanup ownership.

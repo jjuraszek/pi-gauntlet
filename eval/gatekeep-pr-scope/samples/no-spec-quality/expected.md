@@ -1,4 +1,4 @@
-- f1: judged: The Delivers line states the PR's own intent and names no ticket acceptance-criteria rows, because no spec is at the head.
+- f1: judged: The two-sentence opening states the PR's own intent in plain prose with no labeled Delivers line or ticket acceptance-criteria rows, because no spec is at the head.
 - f2: judged: The review policy's blocking concern still makes the missing authorization check a blocker.
 - f3: judged: No ticket acceptance-criterion row is judged.
 - f4: judged: The reviewer finding keeps its blocker regardless of scope.

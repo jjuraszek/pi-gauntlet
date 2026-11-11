@@ -1,8 +1,8 @@
 {
   "sample": "cleanup-after-approve",
   "arm": "candidate",
-  "skillSha": "fede4cdab5a4626c3b62f900205437a83fc4ce7f85be774067411cccb8ffa602",
-  "inputSha": "b785df6d9969d7998a11e445f505d8b29e644e7ae52116d6adf84da5bd200b84",
+  "skillSha": "1c5817f14a6cda876abbf9f16359759b71d586267873b398acb6608eb7aa8b63",
+  "inputSha": "42e14a11d655a769c8ca34c66a16c5ea4cc7adc3323fbea750e1ad9d7e728710",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,36 +17,36 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/final recommended=2\n\nEvidence: CI (source: ci), head <assessed headRefOid>, check test success, 0 binding pending, merge_state_status CLEAN\n\nDelivers: the reports page exports the report table as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (the export completes under 5s on production data) is checked after merge, not here.\nRole: none\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge PR 210 at the assessed head.\n2. approve - approve alex's PR at the assessed head. [recommended]\n3. fix nits - run one repair iteration on the 1 nit, then return here.\n4. stop - leave the PR and the worktree as they are.\n\nType a number; show evidence prints the full record (CI: test success on the assessed head, 0 binding pending, merge_state_status CLEAN).\n\n---\n\n**Pick: 2 (approve)**\n\nPre-write compare-and-swap and target check:\n\n```bash\ngh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n```\n\nThe re-fetch matched the record:\n- `headRefOid` equals the assessed head.\n- `state` is OPEN, `mergeable` is MERGEABLE, and `mergeStateStatus` is CLEAN.\n- `body` is unchanged.\n- `baseRefName` is main, which equals `consent.target.baseRefName`.\n\nThe approval carries no body, so the output done-check has nothing to check.\n\n```bash\ngh pr review 210 -R acme/widgets --approve\n```\n\nThe command exited 0. I persisted `approved_head = <assessed headRefOid>` to the run record.\n\ngauntlet: gate=gatekeep-pr/approved recommended=1\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted) and branch csv-export (skipped - PR not merged), pull main (skipped - PR not merged), then close ticket (skipped - needs a landed change), release (skipped - needs a landed change). [recommended]\n2. stop - leave the checkout at .worktrees/pr-210 on branch csv-export.\n\nType a number; show evidence prints the full record.\n\n---\n\n**Reply: 1 (cleanup)**\n\nStep 1, worktree:\n- The path is not the primary.\n- The tree is tracked-clean; the untracked node_modules/ does not block removal.\n- There is no keyed `## using-git-worktrees` contract.\n- `worktree.created` is true and `worktree.destroy` is null.\n\n```bash\ngit -C <primary> worktree remove --force .worktrees/pr-210\ngit -C <primary> worktree prune\n```\n\nStep 2, branch: the PR is not landed, so no branch deletion runs.\n\nStep 3, base: the PR is not landed, so no fetch or pull runs.\n\nStep 4, overrides:\n- `close ticket` contains `<merge-sha>`, and the PR is not landed, so the landed-change guard skips it before substitution.\n- `release` is `/skill:release`, and the PR is not landed, so the guard skips it as well.\n\nResults:\n```\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\nclose ticket: skipped - needs a landed change\nrelease: skipped - needs a landed change\n```\n\n`cleanup_done` is now true.\n\ngauntlet: gate=gatekeep-pr/approved recommended=1\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. stop - end the run; the local branch csv-export stays in the primary repository. [recommended]\n\nType a number; show evidence prints the full record.\n",
-      "words": 505,
-      "wallMs": 31315,
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR by alex adds an on-demand CSV export to the reports page: an Export CSV button that downloads the report table, including every column, through a handler that pages in bounded chunks so a large report cannot hold the request open. The spec defers emailing exports and recording export events in the audit log to acme/widgets#46, and the paging and deadline that support the five-second speed target are covered here, while the speed on production data can only be checked after merge; you are not the author and no pending review request names you.\n\nNothing blocks merging. The test check passed in CI on the commit being reviewed, and the description's statement that it adds tests for the CSV handler matches the new test file. One smaller point does not block merging: the export handler pages with its own loop instead of reusing the shared paging helper in lib/page.ts (src/api/export.ts:31). The fix nits row can take it.\n\nI recommend merge because nothing blocks it and you have write access to the repository.\n\nPick one:\n1. merge - squash-merge the PR into main at the commit being reviewed. [recommended]\n2. approve - approve the PR as maria and leave the merge to someone else.\n3. fix nits - replace the handler's own paging loop with the shared helper, review the change, push it, watch the checks, and come back here.\n4. stop - leave the PR and the worktree as they are.\n\nType a number; show evidence prints the full record.\n\n---\n\n**Pick: 2 (approve)**\n\nFreshness check before the write, against acme/widgets#210 on base main:\n\n`gh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`\n\n`gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }' -f o=acme -f r=widgets -F n=210`\n\nThe head, body, and base match the commit being reviewed, so the approval runs:\n\n`gh pr review 210 -R acme/widgets --approve`\n\nThe command exited 0. The commit being reviewed is now saved as the approved commit.\n\n---\n\ngauntlet: gate=gatekeep-pr/approved recommended=1\n\nYou approved the PR. Only cleanup has work to do now. The remaining steps need the merge, which has not happened yet.\n\nPick one, or several separated by commas:\n1. cleanup - from the primary checkout, run `git worktree remove --force .worktrees/pr-210`, which also deletes the untracked node_modules/ directory, then run `git worktree prune`. [recommended]\n2. stop - run nothing; list the unpicked steps with their commands.\n\nSkipped, not numbered:\n- Inside cleanup, deleting branch csv-export and pulling main are skipped because the PR is not merged.\n- close ticket is skipped because it needs the merge commit: `gh issue close 45 --comment \"Delivered in https://github.com/acme/widgets/pull/210, merged <merge-sha>.\"`\n- release is skipped because `/skill:release` needs a landed change and a synced main.\n- The coverage comments for the ticket and the PR wait for the merge.\n\nType a number; show evidence prints the full record.\n\n---\n\n**Reply: 1 (cleanup)**\n\n`git -C <scratch> worktree remove --force .worktrees/pr-210`\n`git -C <scratch> worktree prune`\n\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\n\n---\n\ngauntlet: done approved\n\n#210@<assessed headRefOid>: approved\n\nThe checkout at .worktrees/pr-210 has been removed. The local branch csv-export remains in the primary checkout, which is still on main.\n\ncleanup: done\n\nThe following steps did not run:\n- Deleting branch csv-export was skipped because the PR is not merged. It can be deleted with `git branch -D csv-export` after the merge.\n- Pulling main was skipped because the PR is not merged.\n- close ticket waits for the merge. Its command is `gh issue close 45 --comment \"Delivered in https://github.com/acme/widgets/pull/210, merged <merge-sha>.\"`, with the merge commit filled in.\n- release waits for the merge and a synced main. It runs `/skill:release`.\n- The coverage comments for acme/widgets#45 and the PR were not offered because the PR is approved but not merged.\n- The merge itself was not run. Someone with write access can merge the approved PR.\n- The drafted change for the paging-loop nit was dropped, since fix nits was not picked.\n\nThe saved progress, the helper outputs, and their logs have been deleted.\n",
+      "words": 661,
+      "wallMs": 42292,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/final recommended=2\n\nEvidence: CI (source: ci), test success on the assessed head; 0 binding pending checks; merge_state_status CLEAN.\n\nDelivers: The reports page downloads CSV with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\nRole: none\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so paging fixes may need to be applied twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it.\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head into main.\n2. approve - approve the assessed head without merging. [recommended]\n3. fix nits - repair the nit in one delivery iteration.\n4. stop - leave the checkout and local branch in place.\n\nType a number; show evidence prints the full record (CI, test success on the assessed head; 0 binding pending checks; merge_state_status CLEAN).\n\nThe supplied pick selects 2. The fixture records that this command already exited 0 on the assessed head; it is not run again:\n\n```sh\ngh pr review 210 -R acme/widgets --approve\n```\n\nNo review-body payload is supplied.\n\ngauntlet: gate=gatekeep-pr/approved recommended=1\n\nPick one:\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted) and branch csv-export, pull main, then close ticket (skipped - needs a landed change), release (skipped - needs a landed change).\n2. stop - leave the checkout and local branch in place.\n\nType a number; show evidence prints the full record.\n\nThe supplied reply selects 1. Cleanup runs from the primary checkout:\n\n```sh\ngit worktree remove --force .worktrees/pr-210\ngit worktree prune\n```\n\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\nclose ticket: skipped - needs a landed change\nrelease: skipped - needs a landed change\n\nThe untracked node_modules/ directory is deleted with the worktree. The local csv-export branch remains; no ticket-close command or release invocation runs.\n\ngauntlet: gate=gatekeep-pr/approved recommended=1\n\nPick one:\n1. stop - end the gate with the PR approved and the local csv-export branch retained. [recommended]\n\nType a number; show evidence prints the full record.\n",
-      "words": 348,
-      "wallMs": 16127,
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds on-demand CSV downloads from the reports page; you are neither its author nor a requested reviewer. The button, every table column, CSV formatting, unknown-report handling, and bounded paging are covered; email delivery and audit events are deferred to acme/widgets#46, and export speed on production data needs checking after merge.\n\nNothing blocks merging, and verification passed in CI. One smaller point does not block merging: the export uses its own paging loop instead of the shared helper at src/api/export.ts:31; fix nits can address it.\n\nI recommend merge because the promised behavior is covered and no blockers remain.\n\nPick one:\n1. merge - squash-merge this PR. [recommended]\n2. approve - approve this PR without merging it.\n3. fix nits - replace the separate paging loop, review the change, push it, and verify it.\n4. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n\nThe selected row is approve. Before approval, I would run these freshness and comment reads against the fixture:\n\ngh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\ngh api repos/acme/widgets/pulls/210/comments --paginate\ngh api repos/acme/widgets/issues/210/comments --paginate\n\nThe fixture supplies no changed head, body, base, or comments. The approval command has no body payload:\n\ngh pr review 210 -R acme/widgets --approve\n\nThe supplied result confirms that approval succeeded on the commit being reviewed.\n\ngauntlet: gate=gatekeep-pr/approved recommended=1\n\nYour approval is recorded; the PR remains open. Cleanup can remove the worktree, including its untracked node_modules directory, but cannot delete the branch or update main because the PR has not merged.\n\nI recommend cleanup because this run created the worktree and it has no tracked changes or unpushed commits.\n\nPick one, or several separated by commas:\n1. cleanup - run git worktree remove --force .worktrees/pr-210 and git worktree prune from the primary checkout, deleting untracked files too; leave csv-export and main unchanged because the PR is not merged. [recommended]\n2. stop - run no post steps and leave the checkout in place.\n\nClose ticket is skipped because its comment requires a merge commit. Release is skipped because it requires a landed change.\n\nType a number; show evidence prints the full record.\n\nThe reply `1` selects cleanup only. From the primary checkout, I would run:\n\ngit worktree remove --force .worktrees/pr-210\ngit worktree prune\n\nNo GitHub or tracker write is part of this selection.\n\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\ncleanup: done\n\ngauntlet: done approved\n#210@<headRefOid>: approved\n\nThe worktree .worktrees/pr-210 was removed, including node_modules. The local branch csv-export remains.\n\nBranch deletion and the base pull were not run because the PR has not merged.\nClose ticket was not run because no merge commit exists; its configured command is gh issue close <issue> --comment \"Delivered in <pr>, merged <merge-sha>.\"\nRelease was not invoked because the PR has not merged; its configured invocation is /skill:release.\n\nThe fixture does not provide the head's SHA, so `<headRefOid>` above stands for the approved head rather than an invented commit ID.\n",
+      "words": 494,
+      "wallMs": 44657,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "7a8444339df89e031d2180f24a078ade150a4c0959e5aba9c11a88efa6da5b6f",
+      "factsSha": "7b8d8f33607a3210488aa4d8c4d118f269a75dd6e785ee2a33f182c13841ced7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
-      "baselineOutputSha": "f34e06dc3db2143f4337934404b79dd46223e0082eb7be0904a77dc086052883",
-      "candidateOutputSha": "cfbb3b4f4fddfc823a538fbc964f83735aa9b8ba8642573d4796710d5450cbb8",
+      "intentSha": "46859b15de0620b59f376c13a897f36485f6dfe696162f9d037918c2423e741c",
+      "baselineOutputSha": "fff6533d8a7903113af4c9170a965faadb959f714620c332b2e7158369f1c448",
+      "candidateOutputSha": "30075d4f3e2de5bf6a09062ce359822b2fd7d38c0db09b71b2c0785ffaae91a8",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "held"
+          "label": "intended but unchanged"
         },
         "f2": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "f3": {
           "before": "holds",
@@ -54,26 +54,26 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still offers cleanup as row 1 [recommended] right after the approve exits 0, prints 'close ticket: skipped - needs a landed change' and 'release: skipped - needs a landed change' in the results block, and prints 'branch: skipped - PR not merged' while explicitly stating no branch deletion runs. Two drifts are worth tightening so later facts don't move: (1) the post-approve and post-cleanup menus in After keep the Verdict line as 'mergeable - CI green on the assessed head' instead of Before's 'approved - review posted on the assessed head', so the gate name says approved while the verdict text does not; have the approved template substitute the approval verdict. (2) The cleanup row text 'remove .worktrees/pr-210 ... and branch csv-export (skipped - PR not merged)' reads as if the branch removal is part of the action before the parenthetical corrects it; Before's 'branch csv-export (skipped - PR not merged)' as a separate semicolon-delimited item is clearer, so keep the menus.md cleanup row listing each target as its own item with its own skipped reason rather than joining worktree and branch with 'and'.",
-      "wallMs": 9905,
-      "verdict": "unchanged"
+      "feedback": "After keeps every fact Before kept and moves f2 to holds: the post-approve menu's \"Skipped, not numbered\" block states that close ticket needs the merge commit and release needs a landed change, the closing not-run list repeats those reasons with the commands, and the cleanup execution prints only worktree/branch/base lines instead of folding close ticket and release into cleanup's result lines as Before did (Before's not-run list also merely named `gh issue close` and `/skill:release` without the prerequisite). Two wording risks to tighten: the post-approve menu says \"Pick one, or several separated by commas\" while the Change asks for a single validated selection executed once, so prefer \"Pick one\"; and the cleanup commands run with `git -C <scratch>` while the menu promised \"from the primary checkout\", so use the primary path consistently to preserve the cleanup guard story.",
+      "wallMs": 15742,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "7a8444339df89e031d2180f24a078ade150a4c0959e5aba9c11a88efa6da5b6f",
+      "factsSha": "7b8d8f33607a3210488aa4d8c4d118f269a75dd6e785ee2a33f182c13841ced7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
-      "baselineOutputSha": "bb6e0c743c9cafb9b752e84b0f6b0461b31a1139f860c219a6788af509fc5e75",
-      "candidateOutputSha": "5deb044f06451e2253d233dd689314736af7a1091d31ba42427e40de88c52344",
+      "intentSha": "46859b15de0620b59f376c13a897f36485f6dfe696162f9d037918c2423e741c",
+      "baselineOutputSha": "aef1e42c7f9351c97ec07ce3adbca2859333bc71efe6351f8bf7c4f6ef043dbc",
+      "candidateOutputSha": "89a4908a3ba493ecb7803768469fc424c1387d0ec56e584010c93fab184e5c73",
       "facts": {
         "f1": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         },
         "f2": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "f3": {
           "before": "holds",
@@ -81,36 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After's post-approve menu drops the explicit [recommended] marker from the cleanup row (only the gauntlet header carries recommended=1), while every other menu in After still tags its recommended row, so a reader of the menu itself can no longer see cleanup as the recommended pick; the shared menus.md cleanup template should keep the row-level '[recommended]' tag whenever recommended=1. Separately, After's cleanup row text now promises 'and branch csv-export, pull main' even though the PR is unmerged and the subsequent steps print 'branch: skipped - PR not merged' and 'base: skipped - PR not merged' - Before's wording ('retain the unmerged branch and unsynced base') was consistent with the result; the template should condition the branch/base clauses on merged state rather than stating them unconditionally. After also dropped the primary-checkout tracked-clean status guards and -C <primary> prefixes from the cleanup commands; keep those from Before to preserve terminal cleanup ownership while still migrating to the shared menus.",
-      "wallMs": 18371,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "gauntlet: gate=gatekeep-pr/final recommended=2\n\nEvidence: CI (source: ci), test success on <assessed-sha>; binding-pending count 0; merge_state_status CLEAN.\n\nDelivers: The reports page downloads CSV with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\nRole: none\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so paging fixes would need to be maintained in two places. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it.\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head using the resolved merge policy.\n2. approve - approve the assessed head without merging it. [recommended]\n3. fix nits - run one delivery iteration to address the paging-helper nit.\n4. stop - leave the checkout and local branch as found.\n\nType a number; show evidence prints the full record (CI, source: ci; test success on <assessed-sha>; binding-pending count 0; merge_state_status CLEAN).\n\n### Selected: 2\n\nThe fixture records that approval already succeeded. The external command for that selection was:\n\n```bash\ngh pr review 210 -R acme/widgets --approve\n```\n\nThere is no review-body payload. Record `approved_head` as the assessed head; do not repeat the successful approval.\n\ngauntlet: gate=gatekeep-pr/approved recommended=1\n\nPick one:\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted); skip branch deletion and base sync because the PR is not merged, close ticket (skipped - needs a landed change), and release (skipped - needs a landed change). [recommended]\n2. stop - leave the checkout and local branch as found.\n\nType a number; show evidence prints the full record.\n\n### Selected: 1\n\nThe following commands describe the cleanup execution against the fixture, not commands for the human to paste. `<primary>` denotes the primary checkout identified in the fixture.\n\nBefore the cleanup write, refresh the target:\n\n```bash\ngh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n```\n\nThe fixture retains the assessed head, original body, base `main`, and state `OPEN`.\n\nCheck cleanup eligibility:\n\n```bash\ngit -C .worktrees/pr-210 rev-parse --git-common-dir\ngit -C .worktrees/pr-210 status --porcelain --untracked-files=no\n```\n\nThe fixture identifies a non-primary, created, tracked-clean worktree. No keyed worktree ownership contract is configured. Remove it and prune its registration:\n\n```bash\ngit -C <primary> worktree remove --force .worktrees/pr-210\ngit -C <primary> worktree prune\n```\n\nThe removal deletes the untracked `node_modules/` directory. No issue-close command or release invocation runs: both cleanup overrides require a landed change.\n\n```text\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\nclose ticket: skipped - needs a landed change\nrelease: skipped - needs a landed change\n```\n\nRecord `cleanup_done: true`. Keep the continuation record and helper evidence available until stop.\n\ngauntlet: gate=gatekeep-pr/approved recommended=1\n\nPick one:\n1. stop - end the gate, leaving the PR approved and the local csv-export branch intact. [recommended]\n\nType a number; show evidence prints the full record.\n",
-        "words": 465,
-        "wallMs": 23243,
-        "mechanical": {},
-        "judgeWallMs": 8409,
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Nothing moved: After still offers cleanup as row 1 [recommended] immediately after the recorded approval, prints both override steps as 'skipped - needs a landed change', and prints 'branch: skipped - PR not merged' with no git branch -D anywhere in the command list. The migration to the shared menus.md rows is visible (cleanup row text now spells out the skipped branch/base reasons inline, show evidence stays in the hint, stop is last) without altering the terminal cleanup side effects. Two small wording differences worth watching, though they do not touch these facts: After adds a pre-cleanup `gh pr view` refresh and drops the primary-checkout `status --porcelain` check that Before ran before `worktree remove`; if the Change intends cleanup ownership to be preserved exactly, keep the primary tracked-clean check alongside the refresh so the eligibility evidence set stays identical to Before."
-      }
+      "feedback": "After keeps every fact Before kept and repairs f2: Before listed close ticket and release as cleanup result lines ('close ticket: skipped - needs a landed change') and its closing 'Not run:' list merely named ticket closure and release without a reason, which reads as if those overrides were cleanup sub-steps that happened to be skipped. After moves the landed-change/merge-commit prerequisite into the menu text and into the closing not-run list, prints only worktree/branch/base/cleanup as result lines, quotes each override's configured command without invoking it, and still prints 'branch: skipped - PR not merged' with no git branch -D. The two-sentence opening uses behavior names rather than row numbers or AC labels while preserving the deferred reference and the post-merge speed observation. One wording nit that does not affect the facts: the menu says 'Pick one, or several separated by commas' while the handled reply is a single numeric selection; keeping 'Pick one' would match the single-selection execution model more precisely.",
+      "wallMs": 15012,
+      "verdict": "improved"
     }
   },
-  "repoSha": "6f61a4a98fe7f07574808e8fb84a0cb48a6d96e3"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

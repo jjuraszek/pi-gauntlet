@@ -1,6 +1,6 @@
-- f1: judged: PR12 becomes failed - helper timeout after 600s despite no closing line, PR15 retains its distinct head-not-pushable failure, and PR18's successful report remains independent and reaches its unchanged ordinary menu.
+- f1: judged: PR12 becomes failed - helper timeout after 600s despite no closing line, PR15 retains its distinct head-not-pushable failure, and PR18's successful report remains independent and reaches its ordinary final menu with merge recommended at row 1.
 - f2: judged: Failures retain unknown evidence/blockers and safe retry/stop rows with show evidence hint-only, not conflict choices; PR15 runs no Verify.
 - f3: judged: After all numeric picks the mixed batch contains report-mode retry12 and execute reply18 with original paths/cwd, no child for stopped15.
 - f4: judged: Retried assessment validates and preserves the supplied record rather than minting a replacement or resetting course, caps, counters or ledger; no sibling authority is borrowed.
-- f5: judged: Dirty and mid-rebase probe states omit retry and name Not offered: retry (worktree dirty or mid-rebase: <observed state>), rather than automatically cleaning or retrying.
+- f5: judged: Dirty and mid-rebase probe states omit retry and explain in plain prose that the worktree is dirty or mid-rebase, naming the observed state, rather than automatically cleaning or retrying.
 - f6: judged: The provisioning failure dispatches no child, does not abort siblings, and retry re-provisions only after the obstacle clears, verifying expected branch, clean tree and gathered HEAD before assess with the same PR21 paths.

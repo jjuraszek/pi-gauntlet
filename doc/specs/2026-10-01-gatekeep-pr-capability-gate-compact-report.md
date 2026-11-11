@@ -1,6 +1,7 @@
 # gatekeep-pr: mechanism-only AC gate, compact bottom-up report, explicit fixes
 
 > **Superseded by:** [doc/specs/2026-10-06-gh-59-spec-disposition-coverage.md](./2026-10-06-gh-59-spec-disposition-coverage.md) - D2 ticket-AC scope and impossible-AC lifecycle, D3 scope creep source, D4/D6 `Delivers` and menu rows derived from them
+> **Superseded by:** [doc/specs/2026-11-10-gatekeep-three-menus.md](./2026-11-10-gatekeep-three-menus.md) - "D4. Report", "D5. Wording rules" and "D6. Menu" sections
 
 **Goal:** gatekeep-pr judges whether a PR delivers the mechanism each acceptance criterion needs (code, unit tests, docs) and renders a short, terminal-friendly report whose last lines are a two-state verdict and a verb menu; post-merge observation stays with `/skill:check-delivery`, which takes no input from the gate.
 

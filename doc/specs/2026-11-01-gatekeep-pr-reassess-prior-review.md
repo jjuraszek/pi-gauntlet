@@ -1,5 +1,7 @@
 # gatekeep-pr: re-review against the viewer's prior review
 
+> **Superseded by:** [doc/specs/2026-11-10-gatekeep-three-menus.md](./2026-11-10-gatekeep-three-menus.md) - the `Prior review:` line forms and placement in the Design "Report" paragraph only
+
 **Goal:** a gatekeep-pr run on a PR the viewer already reviewed judges the closure of the items that review posted and reviews only the code that changed since it, instead of reviewing the whole PR diff again and minting new findings on unchanged code.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop

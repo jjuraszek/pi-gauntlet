@@ -1,5 +1,5 @@
 anonymized: true
-- f1: judged: Only the initial numeric 2 starts deliver; P1 and CI-minted P2 are repaired with fresh helpers and closure review without an intermediate menu before readiness.
+- f1: judged: Only the initial numeric row labeled deliver starts deliver; P1 and CI-minted P2 are repaired with fresh helpers and closure review without an intermediate menu before readiness.
 - f2: judged: Own pushes renew the 15-minute watch window from 12:02 to 12:17, 12:10 to 12:25 and the actual 12:12 sync push to 12:27; observing main move at 12:11 alone does not renew it.
 - f3: judged: BEHIND triggers sync without a separate decision; final offers merge but executes neither merge nor approval without a new numeric selection.
 - f4: judged: B exits on repeated red without source change; base-only SHA movement cannot satisfy the repair-wave source-change rule.

@@ -1,8 +1,8 @@
 {
   "sample": "no-spec-quality",
   "arm": "candidate",
-  "skillSha": "fede4cdab5a4626c3b62f900205437a83fc4ce7f85be774067411cccb8ffa602",
-  "inputSha": "49976f9478850b83f20728e77923d928e43a8041bf8d3aaf5c70d4bcec582922",
+  "skillSha": "0e411245426f501730115c41f813b08afe6a8b759a7a0e3b24ec0a68008bb233",
+  "inputSha": "7add901807756fc83d0d7489eb369f171dad6783fa17dde81851ed17587e11f4",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,31 +17,31 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/initial recommended=2\n\nDelivers: the reports page gets an on-demand CSV export button backed by a new handler that returns the table columns and a 404 for unknown reports.\nRole: author\n\nBlockers:\n1. The export handler returns any existing report to any caller without checking ownership, so one user can download another user's report data. The repo's review rules block any new HTTP handler without an authorization check, and no test covers a cross-user request. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 141,
-      "wallMs": 11840,
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds an on-demand CSV export for reports: a server handler that returns the report's table columns as CSV and answers \"not found\" for unknown reports, plus an Export CSV button on the reports page and a docs section. There is no spec in the PR, so it is judged against its own description, and the code, tests and docs cover what the description promises; you are the author.\n\nOne problem blocks merging: the new export handler never checks whether the person asking owns the report, so anyone who knows another user's report id can download that user's data as CSV (src/api/export.ts, line 14). This repository's review rules make any new HTTP handler without an authorization check a blocker, and the tests check the header row, the data rows and the not-found answer but never a request from a different user. The repair adds the ownership check and a test showing a second user is refused. The checks ran in CI and passed on the commit being reviewed, and the description's claim about tests for the handler matches the diff.\n\nI recommend deliver because this is your PR and the missing ownership check is a contained repair that does not change what the PR promises.\n\nPick one:\n1. deliver - add the ownership check and a cross-user test, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the missing authorization check to the PR as a review comment and make no repairs.\n3. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 272,
+      "wallMs": 13984,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/initial recommended=2\n\nDelivers: on-demand CSV downloads from the reports page, including table columns and a 404 response for unknown reports.\nRole: author\n\nBlockers:\n1. The export handler allows callers to download another user's report without an authorization check, exposing report data across users. (src/api/export.ts:14)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 102,
-      "wallMs": 5734,
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds an on-demand CSV download handler and an Export CSV button, including table columns and returning 404 for unknown reports. You are the author; with no spec at the commit being reviewed, this gate judges the PR's stated intent rather than the ticket's additional requirements.\n\nOne problem blocks merging: the handler does not check whether the caller owns the report, so one user can export another user's report by supplying its ID (`src/api/export.ts:14`). The repository requires authorization for new HTTP handlers; add the ownership check and a cross-user authorization test in `test/api/export.test.ts`. The existing CI success does not resolve this defect. You cannot approve your own PR.\n\nI recommend deliver because the authorization fix preserves the promised export behavior and the branch is pushable.\n\nPick one:\n1. deliver - repair the authorization gap, rebase on the base branch if needed, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the authorization problem to the PR as a review and make no repairs.\n3. stop - remove the eligible worktree and leave the PR unchanged.\n\nType a number; show evidence prints the full record.\n",
+      "words": 189,
+      "wallMs": 16116,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "f2097ee1a9a5bf0812d207eb8d710314757324a2bee695a1551c3134b451a1aa",
+      "factsSha": "72caa6cb1f06ddc7eae7fc56cfbd249ead31ff54d11748115ddda676848873fe",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
-      "baselineOutputSha": "15f6eb382a91e5f9c54a96da43200df67116a21f437ca152320d9c27de4adc02",
-      "candidateOutputSha": "3e87beb85742678b24880ac8dbbdb15dc6cf06031f0c57c6ae5d85b58ac8d7dd",
+      "intentSha": "cae666b12c9df02700dcd47d550054a7e44ca545b62a6854b0162315563884e5",
+      "baselineOutputSha": "3adcad8f086df788caafa27f0af157a68b246857f99a79a05ae0155f7357bfc3",
+      "candidateOutputSha": "74625ec4ee01a46a2f61fff7b8f7fdf2b0d345fc17af4b432eb1ae921dc658bf",
       "facts": {
         "f1": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "f2": {
           "before": "holds",
@@ -64,21 +64,21 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs keep the Delivers line to the PR's own intent without naming any ticket acceptance-criteria rows, both keep the missing authorization check as the single blocker tied to the reviewer finding, neither judges an AC row, and neither posts to the tracker or PR before a pick. After actually strengthens f2 by explicitly citing the REVIEW.md rule ('The repo's review rules block any new HTTP handler without an authorization check'), which Before only implied; keep that sentence. The menu wording (assess/deliver/stop with deliver recommended, show evidence in the hint, stop last) is identical across both and matches the Change, so no wording adjustment is needed here—just preserve the explicit policy citation in the blocker and the 'Not offered: deliver with nits (no nits)' line as After has them.",
-      "wallMs": 11141,
-      "verdict": "unchanged"
+      "feedback": "After moves f1 from fails to holds: Before opened with a labeled \"Delivers:\" line (and a \"Role:\" field), whereas After opens with two plain-prose sentences naming the behaviors (CSV handler, not-found answer, Export CSV button, docs section), stating that the PR is judged on its own description because no spec is at the head, and folding the author role into the prose. Every other fact that Before kept is preserved: the authorization gap is still called a blocker and is now explicitly tied to the repository's review rule (f2, f4), no ticket acceptance-criteria rows are judged (f3), and nothing is posted before a pick (f5). Two small wording risks to watch: the \"gauntlet: gate=…\" status line sits above the opening, so a strict reader could argue the report does not literally begin with the two sentences - placing that line after the opening or alongside the menu would remove the ambiguity - and the second opening sentence packs three clauses behind semicolons; splitting the \"you are the author\" note into the closing recommendation sentence (which already says \"this is your PR\") would keep the opening cleaner while still delivering the Change.",
+      "wallMs": 13817,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "f2097ee1a9a5bf0812d207eb8d710314757324a2bee695a1551c3134b451a1aa",
+      "factsSha": "72caa6cb1f06ddc7eae7fc56cfbd249ead31ff54d11748115ddda676848873fe",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
-      "baselineOutputSha": "dafcc399ed95293ebe1476c27db70004ee046bdc002556becf6f737616c48047",
-      "candidateOutputSha": "667bfd73a959e991d72750627ccdddbc09d256175d4e8920d806d61d8eaa7d12",
+      "intentSha": "cae666b12c9df02700dcd47d550054a7e44ca545b62a6854b0162315563884e5",
+      "baselineOutputSha": "d4f812fb367b448d08897fb2b304af36fd10100c6841a276d446175a67ad1b59",
+      "candidateOutputSha": "c0ebc4fc38fc3faa2034cbccc6ae9d61f9fb0f27891501116b3f45078f0a40b8",
       "facts": {
         "f1": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "f2": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs keep the Delivers line to the PR's own intent with no AC rows named, keep the missing-authorization finding as the sole blocker, judge no ticket criterion, and post nothing before a pick, with the assess/deliver/stop courses and the `show evidence` hint rendered identically in structure. The After wording changes are cosmetic and safe here — the blocker sentence is reordered, the assess row adds 'then approve or stop, no repairs', deliver says 'rebase on main' instead of 'on the base branch', and stop drops 'eligible gate'. If you want to keep the Before guarantees fully explicit, retain 'base branch' (so the row is correct when the base is not main) and keep 'eligible gate worktree' in the stop row so terminal cleanup ownership remains visibly scoped; otherwise the After wording already delivers the Change without disturbing any fact.",
-      "wallMs": 9931,
-      "verdict": "unchanged"
+      "feedback": "After moves f1 from fails to holds: Before led with a labeled \"Delivers:\" line and a \"Role:\" field, while After opens with exactly two plain-prose sentences that restate the PR's own intent (CSV handler, Export CSV button, table columns, 404 for unknown reports) and explicitly notes that, with no spec at the head, the gate judges the PR's stated intent rather than the ticket's additional requirements. Nothing regressed: the authorization gap stays a blocker grounded in the repository's review policy (f2, f4), no ticket acceptance-criterion rows are judged (f3), and no comment is posted since the pick is none (f5). To keep this behavior stable, retain the pattern of a two-sentence intent-plus-basis opening with no labeled fields, keep the policy citation inside the blocker paragraph rather than a separate row, and continue deferring any detailed mapping to `show evidence`; the one optional tightening would be to drop the aside \"You cannot approve your own PR\" from the blocker paragraph, since it is role commentary rather than scope or blocker content and could tempt future wording toward reintroducing a labeled Role line.",
+      "wallMs": 12453,
+      "verdict": "improved"
     }
   },
-  "repoSha": "6f61a4a98fe7f07574808e8fb84a0cb48a6d96e3"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

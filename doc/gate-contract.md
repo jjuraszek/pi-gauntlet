@@ -4,6 +4,14 @@ A driver reads the first line of the last user-facing assistant message at settl
 
 A proper reply can advance a `gate` or `question`; `done` and `stuck` are true endings with no advancing reply. Questions retain inventory IDs below but emit only the bare `gauntlet: question` line, not their IDs. Row bodies define input: there is no `picks=` field or per-gate token list in the marker.
 
+## Gatekeep menus
+
+Gatekeep has three menu archetypes: action (initial, obstacle and contract-exception), final (ready or assess-terminal), and post (own-merge, approved and closed-pr, with merge-queued as a wait/stop variant). State IDs identify variants, not fixed row positions. Row 1 is the sole judged recommendation. Contract proposals favor preserve contract, and no available action that can change the outcome favors stop. Otherwise, your own PR defaults to deliver, author-decision blockers favor assess on someone else's PR, ready repairs or pending-only checks favor deliver, and readiness favors merge regardless of author. An unchanged assess result favors stop. The [recommendation owner](../skills/gatekeep-pr/reference/menus.md#recommendation) defines precedence and exceptions.
+
+The report uses plain-language change/scope, standing/problems and recommendation parts, with evidence behind `show evidence`. A post menu renders once, accepts a set reply and ends after the picked steps settle; its closing message lists every unpicked, skipped or failed command or payload. Row 1 combines runnable steps except duplicate PR coverage when ticket coverage is included. Each step retains an individual row; nested skills retain their own gates. Set replies expand combinations and collapse duplicates before execution in step order. Shared overrides execute at most once in set mode.
+
+PR-named steps come from merger actions in the PR body or head spec, but their executable commands come only from the merge-base overrides, `AGENTS.md` or its one-hop linked documents. Exactly one distinct documented command makes a step runnable; unresolved or ambiguous actions stay visible with their source sentences. See the [post execution owner](../skills/gatekeep-pr/reference/post-selection-loop.md#post-steps) and [PR-named steps](../skills/gatekeep-pr/reference/findings.md#pr-named-steps).
+
 ## Gates
 
 Sites are real ATX heading prefixes, excluding headings inside fenced examples. Repeated IDs identify the same gate at distinct rendering sites, not additional gates.
@@ -32,15 +40,16 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | finishing-a-development-branch/option-5 | question | skills/finishing-a-development-branch/SKILL.md | #### Option 5: Discard | free |
 | using-git-worktrees/step-3 | question | skills/using-git-worktrees/SKILL.md | ## Step 3 | free |
 | using-git-worktrees/detached-head | question | skills/using-git-worktrees/SKILL.md | ## Detached HEAD | free |
-| gatekeep-pr/initial | gate | skills/gatekeep-pr/reference/menus.md | ## initial | N. rows |
-| gatekeep-pr/final | gate | skills/gatekeep-pr/reference/menus.md | ## final | N. rows |
-| gatekeep-pr/assess-terminal | gate | skills/gatekeep-pr/reference/menus.md | ## assess terminal | N. rows |
-| gatekeep-pr/obstacle | gate | skills/gatekeep-pr/reference/menus.md | ## obstacle | N. rows |
-| gatekeep-pr/contract-exception | gate | skills/gatekeep-pr/reference/menus.md | ## contract exception | N. rows |
-| gatekeep-pr/own-merge | gate | skills/gatekeep-pr/reference/menus.md | ## own merge | N. rows |
-| gatekeep-pr/merge-queued | gate | skills/gatekeep-pr/reference/menus.md | ## merge queued | N. rows |
-| gatekeep-pr/approved | gate | skills/gatekeep-pr/reference/menus.md | ## approved | N. rows |
-| gatekeep-pr/closed-pr | gate | skills/gatekeep-pr/reference/menus.md | ## closed PR | N. rows |
+| gatekeep-pr/initial | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/final | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/assess-terminal | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/obstacle | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/contract-exception | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/own-merge | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/own-merge | gate | skills/gatekeep-pr/reference/batch.md | ## Summary and menu round | N. rows |
+| gatekeep-pr/merge-queued | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/approved | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
+| gatekeep-pr/closed-pr | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
 | gatekeep-pr/batch-summary | gate | skills/gatekeep-pr/reference/menus.md | ## batch summary | N. rows |
 | gatekeep-pr/sync-preconditions | gate | skills/gatekeep-pr/reference/sync.md | ## Preconditions | N. rows |
 | gatekeep-pr/other-author-confirmation | question | skills/gatekeep-pr/reference/sync.md | ## Other-author confirmation | free |
@@ -77,9 +86,9 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 | finishing-a-development-branch | Option 5: authorized discard completed | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: done discarded |
 | finishing-a-development-branch | PR-subject push and body edit; close-member gate answered or no qualifying members | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: done pushed |
 | finishing-a-development-branch | Executed option fails after the gate | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: stuck |
-| gatekeep-pr | stop on approved | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done approved |
-| gatekeep-pr | stop on own-merge | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done merged |
-| gatekeep-pr | stop on closed-pr | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done closed-pr |
+| gatekeep-pr | post pick or stop on approved | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done approved |
+| gatekeep-pr | post pick or stop on own-merge | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done merged |
+| gatekeep-pr | post pick or stop on closed-pr | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done closed-pr |
 | gatekeep-pr | stop on final | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done final |
 | gatekeep-pr | stop on merge-queued | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done merge-queued |
 | gatekeep-pr | stop on initial, assess-terminal, obstacle, or contract-exception; failed cleanup assertion | skills/gatekeep-pr/reference/cleanup.md § ## Non-final stop | gauntlet: stuck |
@@ -124,7 +133,7 @@ Gatekeep's multi-PR parent starts a per-PR retirement message with `gauntlet: re
 
 | Layout | Reply |
 |---|---|
-| N. rows | Send the displayed row number. Apply the shared grammar's numeric remap-and-echo rule before acting, not a guessed stable row index. Gatekeep also accepts `show evidence`, `check <name> flaky`, `check <name> real`, and `check <name> ci-broken`; another string is a change request. Finishing Step 4 also accepts `fix minors` or selected IDs such as `fix minors F3, F9`. |
+| N. rows | Send the displayed row number. Apply the shared grammar's numeric remap-and-echo rule before acting, not a guessed stable row index. Gatekeep's own-merge, approved and closed-pr post menus accept a comma-separated set of displayed numbers; row 1 expands its combination and duplicate steps run once in step order. Other menus take one number. Gatekeep recognizes `show evidence`, `reply <n>` for a drafted reply, `check <name> flaky`, `check <name> real`, and `check <name> ci-broken` before numeric parsing on their eligible states; another string is a change request. Finishing Step 4 also accepts `fix minors` or selected IDs such as `fix minors F3, F9`. |
 | 1 - rows | Send the leading number. The spec approval gate accepts `; allowance N` (or `, allowance N`) on 4/5 for this run's per-row ledger allowance, or `; fund N fix rounds` on 1/2 for waves funding. N must be a positive safe integer. Allowance on 1/2, funding on 4/5 and malformed tokens re-present the gate quoting the token without writes; a second invalid reply leaves it waiting. The close-absorbed-members gate uses its displayed approval/revision rows. |
 | X) options | Send the letter or free text, preserving the question's recommendation format. |
 | item-letter | Send `<item>. <letter>` per the [carried-open response grammar](../skills/finishing-a-development-branch/reference/disposition-protocol.md#response-grammar); use the displayed choices for each item. |

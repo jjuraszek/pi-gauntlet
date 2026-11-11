@@ -1,6 +1,6 @@
-- f1: judged: The Delivers line names rows 3 and 5 as deferred per spec to acme/widgets#46.
+- f1: judged: The two-sentence opening describes email delivery and audit events as deferred by the spec to acme/widgets#46, without row numbers or a Delivers label.
 - f2: judged: The gate lists zero blockers.
 - f3: judged: The menu offers merge.
-- f4: judged: The Delivers line names rows 1, 2, and 4 as covered.
+- f4: judged: The opening describes the export button, table columns and bounded paging as covered, with the production speed observation after merge; it uses behavior names rather than row numbers.
 - f5: judged: The paging nit stays a nit and does not block.
 - f6: judged: No tracker or PR comment is posted without a pick.

@@ -1,5 +1,7 @@
 # gatekeep-pr: `cleanup` row on terminal menus, extended by a `## cleanup` overrides section
 
+> **Superseded by:** [doc/specs/2026-11-10-gatekeep-three-menus.md](./2026-11-10-gatekeep-three-menus.md) - "Menu" section and the re-render and `cleanup_done` clauses of "`cleanup.md` (new reference)" only
+
 **Goal:** Every terminal gatekeep-pr menu (own merge, merge queued once merged, approved, merged or closed at step 1) offers `cleanup` as row 1 `[recommended]`; the pick tears down the gate's git state and then runs the repo's ordered `## cleanup` steps from the overrides file, so a repo whose overrides list `release` and `close ticket` gets both from one pick and gridstrong gets its wrapper destroy.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Date:** 2026-10-16

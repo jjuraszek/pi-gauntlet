@@ -1,8 +1,8 @@
 {
   "sample": "bound-viewer-green-ci",
   "arm": "candidate",
-  "skillSha": "0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb",
-  "inputSha": "acd693b214914ed176be8b27a3e1c7c7fb645b8a3e6591850c7a1b5cbe98e12c",
+  "skillSha": "edb53c7f1cca1b37f7b2bc5b59fbfda738a6d5db86c380ba7fa8336b9fb55546",
+  "inputSha": "c4ab53444eba5fed79c35fbe0cf9648f5e79cd54e2b8ff989304b1be6f1f507c",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=3\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\nRole: none\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\nVerdict: not ready - GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - set course to deliver; retries only after GitHub's merge block changes, no round charged; add 10 to each cap (+2 x maxFixRounds: rounds 0 of 10 -> 0 of 20, syncs 0 of 10 -> 0 of 20).\n2. assess - set course to assess; with zero blockers nothing is posted, then approve or stop, no repairs.\n3. stop - end the run and leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\nType a number; show evidence prints the full record (CI: run 7001, test_unit and build_image green on 9c1e4f2).\n",
-      "words": 148,
-      "wallMs": 25221,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis PR by tlindqvist adds one bounded retry when the tide-feed fetch receives a 503; you are neither its author nor a requested reviewer. No spec or ticket was found, so the PR's own description is the contract, and its retry-on-503 behavior is covered by the code and by a test that exercises it.\n\nNothing in the change blocks merging, but GitHub blocks this actor from merging and no local repair applies. The unit tests and the image build both passed on the assessed head. The optional lint check was skipped, which neither helps nor hurts. The description's claim that tests cover the retry path holds: the new test drives a 503 and checks the retry. GitHub's merge block is separate from this verification, and the gate cannot clear it, so merge and approval are not offered here. There are no PR comments to answer and no smaller points to tidy.\n\nI recommend stop because none of the offered actions can change GitHub's block from here.\n\nPick one:\n1. stop - end the run and leave the PR and its existing checkout as they are. [recommended]\n2. deliver - start the delivery course, which only retries once GitHub's block changes; this adds 10 repair and 10 sync attempts to the course's allowance.\n3. assess - post nothing, because there are no problems to report, and end with this assessment.\n\nType a number; show evidence prints the full record.\n",
+      "words": 238,
+      "wallMs": 20882,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=3\n\nDelivers: the PR adds one bounded retry to the tide-feed client for 503 responses.\nRole: none\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - set course to deliver; retry readiness after GitHub's merge block changes, no round charged; add 10 to each cap (rounds 0/10 to 0/20; syncs 0/10 to 0/20).\n2. assess - switch course to assess; zero blockers, so post nothing, then render assess terminal.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\n\nType a number; show evidence prints the full record (CI: run 7001, test_unit and build_image green on 9c1e4f2).\n",
-      "words": 134,
-      "wallMs": 14664,
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis PR adds one bounded retry when the tide-feed client receives a 503 response. The retry path is covered by tests, and you are neither the author nor a recorded requested reviewer.\n\nGitHub blocks this actor from merging, and no local repair applies. Verification is independently sufficient: test_unit and build_image passed on the assessed head; optional skipped lint is inert, so no local verification command runs. The reviewer found no blockers or nits, and the claim that tests cover the retry path is matched.\n\nI recommend stop because verification is satisfied, but GitHub’s merge block must change before delivery can proceed.\n\nPick one:\n1. stop - leave the PR unchanged and end this assessment. [recommended]\n2. deliver - start delivery by retrying after GitHub’s blocking prerequisite changes; add 10 repair attempts and 10 sync attempts, without repeating work against the unchanged prerequisite.\n3. assess - post nothing because there are no open blockers, make no repairs, and finish the assessment.\n\nType a number; show evidence prints the full record.\n",
+      "words": 169,
+      "wallMs": 13001,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "b9e39ae64789f206f4deb2d600abfe2d1a56436894b8c683df500fa38a1ab0f2",
+      "factsSha": "536bc6f912c2d8d177036d026934e305b0e854765b42c6bfb7e12e0b16e020e0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
-      "baselineOutputSha": "da905934cdc7214e48da92efa0accce085feb7594d05d09444d78f47d8f03c59",
-      "candidateOutputSha": "6b3d092449dadc6692cfd68bfe20feea011f3e87f74c50a9e88752525605fc57",
+      "intentSha": "d16b94bcd3d6d41a65bf9e6e6b7f30786f92b4fb60eed3a419702b30144f5724",
+      "baselineOutputSha": "3b8ac67c9b8a27e91196382eeb0a41f7f3b56f10a9feeda8724e9eb0e376570f",
+      "candidateOutputSha": "5fc05a5b753db71e97ce312cdfb38d8fa8ce8bc0d27d5a718dd8485d6e564c99",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,14 +49,14 @@
           "label": "held"
         },
         "f3": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f4": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "f5": {
           "before": "holds",
@@ -64,21 +64,21 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this sample: both outputs render the obstacle gate with assess/deliver/stop, stop last and recommended, no wait row, no automatic sync, no approve row, the merge row withheld as 'blocked by GitHub', the single PR-comments line with the reviewDecision locator, and CI evidence on 9c1e4f2. The Change expected bound-viewer-green-ci/f3 to go fails -> holds, but Before already satisfied it as written, so the After wording is a lateral rewrite here rather than a fix; the only substantive deltas are the explicit cap arithmetic ('+2 x maxFixRounds: 0 of 10 -> 0 of 20'), 'set course to assess' instead of 'switch course', and 'end the run' instead of 'remove the worktree' in the stop row. One caution: After's assess row says 'with zero blockers nothing is posted, then approve or stop' - that phrasing comes close to promising an approve step on another author's REVIEW_REQUIRED PR and could tempt a future variant into fabricating an approve row or a 'needs approval' sentence (f3/f5 risk). Safer wording that still delivers the shared-template intent: 'assess - set course to assess; post the review to the PR (nothing to post when there are no findings), no repairs', leaving approve/stop to the later final menu.",
-      "wallMs": 18910,
-      "verdict": "unchanged"
+      "feedback": "After delivers the Change without regressing anything: stop is now row 1 and recommended on the obstacle gate (f3), the merge-blocked statement is plain prose with no 'PR comments:' label and the raw merge_state_status/reviewDecision fields are gone from the report (f4), while the CI resolution still names the assessed head, treats skipped lint as inert, keeps GitHub's block separate from verification, and leaves run/commit identifiers behind show evidence (f1). The 'merge and approval are not offered' sentence still gives the blocked reason (f2) and nothing attributes the block to a rule or to another developer's approval (f5). One small sharpening to keep f1 unambiguous for readers matching against check names: say 'test_unit and build_image passed on the assessed head' rather than 'the unit tests and the image build', since the paraphrase is correct but a reader checking the specific checks has to infer the mapping.",
+      "wallMs": 18540,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "b9e39ae64789f206f4deb2d600abfe2d1a56436894b8c683df500fa38a1ab0f2",
+      "factsSha": "536bc6f912c2d8d177036d026934e305b0e854765b42c6bfb7e12e0b16e020e0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "91eeb01f214f682a5878e1bbc4b18a9a4528edd8f59d1ed94c6fdd03b616d3e8",
-      "baselineOutputSha": "70ea3efaf0d51bfb94a93d32c02ea257e46c68bdcfbe7d5529e0a4e45bd0fda9",
-      "candidateOutputSha": "acc3c5cdd9fda10383e14e70f2f13da9756a3eb2d660c5bc5e26b533a0d3984c",
+      "intentSha": "d16b94bcd3d6d41a65bf9e6e6b7f30786f92b4fb60eed3a419702b30144f5724",
+      "baselineOutputSha": "1e46f4148f163de1732eadd7894973a2952a1608fd1e326b7fc899724d5bffd5",
+      "candidateOutputSha": "7d22403136ee1d324e38c83f61ad968b88bc481ba40c68989c912ab9ef2689ab",
       "facts": {
         "f1": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "f2": {
           "before": "holds",
@@ -86,14 +86,14 @@
           "label": "held"
         },
         "f3": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f4": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "f5": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this sample: both outputs render gate=gatekeep-pr/obstacle with deliver/assess/stop, stop recommended last, no wait row, no automatic sync, no fabricated approve row, the merge row withheld with a 'blocked by GitHub' reason, one PR-comments line citing merge_state_status BLOCKED with reviewDecision REVIEW_REQUIRED as the locator, and no sentence naming a rule or demanding another developer's approval, so f3 already held in Before and the expected fails->holds does not show up in the text. The After wording is fine for every fact but it thinned the Evidence line (dropping 'source: ci', the lint skipped note, the '0 binding pending checks' count and the 'merge_state_status BLOCKED' marker) and moved 'Not offered' below the menu; if the Change intends the shared menus.md template to carry the Evidence line, keep the fuller Before form (source, skipped non-required checks, binding pending count, merge_state_status) so exact-head evidence stays complete, and keep the deliver row phrased as a course switch that waits for the GitHub block to change rather than letting it read as an ordinary wait row.",
-      "wallMs": 16632,
-      "verdict": "unchanged"
+      "feedback": "After keeps everything Before kept and fixes three facts: stop is now row 1 for the undispositionable BLOCKED obstacle (f3), the labeled 'PR comments:' line and the raw merge_state_status/reviewDecision field echoes are gone in favor of plain prose that GitHub blocks this actor's merge (f4), and the run 7001 / head 9c1e4f2 identifiers are no longer in the report body or the menu footer but deferred to show evidence (f1). The one soft spot is f2: After never renders an explicit 'Not offered: merge' line, so the reason the merge row is absent is only inferable from the prose ('GitHub blocks this actor from merging'); to make that robust without reintroducing field labels, keep a single unlabeled sentence near the menu such as 'Merge is not offered because GitHub reports the merge as blocked.' Also keep the 'neither the author nor a recorded requested reviewer' phrasing as is—it describes the viewer without claiming another developer must approve, so f5 stays safe.",
+      "wallMs": 18330,
+      "verdict": "improved"
     }
   },
-  "repoSha": "a356e807449ba62bb88ff91bb2e66bfc4472eec0"
+  "repoSha": "2ab622211ddf19cbca08f5914f770e9fe78ac0d9"
 }

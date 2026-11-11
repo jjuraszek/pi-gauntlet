@@ -17,6 +17,10 @@ bundle-: skills/gatekeep-pr/reference/fix-wave.md
 
 - the user answers the confirmation question with: no
 
+## Entry
+
+Narrate the other-author confirmation by printing its concrete explanation, not referring to it as a fixed block: new commit SHAs, retained authorship, the local committer identity, and the effects on comments and approvals. Follow the declined sync through verification and render report.md's unlabeled report and menus.md's row-1 recommendation; keep any internal record fields in the narration only.
+
 ## Arguments
 
 `412 --rebase`

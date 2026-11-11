@@ -1,29 +1,23 @@
-for: 0429b58b0a5861a1e310dfa2de3d5107f0db1d782031fb1e46256da021c1aceb
+for: edb53c7f1cca1b37f7b2bc5b59fbfda738a6d5db86c380ba7fa8336b9fb55546
 
 ## Change
 
-Replace per-action repair authority and ordinary wait menus with persistent assess/deliver/deliver-nits courses and the shared menus.md templates. Preserve identity validation, independent claim/mechanism closure, exact-head evidence and terminal cleanup ownership. Source rounds count new repair-wave commits; body-only work and conflict-only syncs have independent accounting. Caps freeze at twice the entry setting, timeout renews only on own push or explicit obstacle continuation, and resumed sync preserves separate restore and lease heads.
+Keep merge preconditions, exact-head CI evidence and fresh viewer-relative bypass eligibility unchanged. Render the ordinary merge row as using your admin override when eligible, explain required checks passed in plain prose, and leave raw merge-state and review-decision fields under show evidence. Keep one merge row and no bypass row. The replay wrapper requests three unlabeled report parts rather than field labels or raw accounting.
 
-Offer the ordinary merge row for BLOCKED only with fresh viewer-relative bypass eligibility and every other prerequisite satisfied. Render `merge - <policy>-merge on ruleset bypass authority; CI evidence stands` and `merge_state_status BLOCKED (bypass eligible; reviewDecision <value>)` on the Evidence line and preserve own/other-author recommendation defaults. Keep UNKNOWN/check_run/status_context classification unchanged, and fail closed on false or unreadable eligibility. Course-unset pending reports use initial without an unauthorized watch; bound CI obstacles and eligible delivery paths use the shared templates. Rename neither sample directories nor stable fact IDs.
-
-## Comparison scope
-
-Select bypass-eligible-green-ci and bypass-eligible-check-pending individually against b9dd8f39286fdf8d13eb84a612885b2b835e617c for the bypass-menu contract and binding-pending withhold. The pending sample keeps all CI safeguards binding and makes no rendered bypass claim. Keep bypass-eligible-blocked's unauthorized results as historical evidence only; never rerun that sample. Preserve prior reports and results as historical evidence, not current coverage. The remaining predictions concern the extracted-menu baseline 40d6c9e4; unselected samples are not rerun.
+Recommend row 1 from the current assessment: pending-only CI recommends deliver, an unchanged prerequisite with no useful non-stop row recommends stop, and readiness recommends merge regardless of authorship. Preserve UNKNOWN/check_run/status_context classification and fail-closed eligibility. With unreadable eligibility and successful CI, say required checks passed independently of GitHub's block.
 
 ## Expected to move
 
-- bypass-eligible-green-ci/f1: fails -> holds - Eligible BLOCKED gets the exact ordinary merge consequence with CI evidence still binding.
-- bypass-eligible-green-ci/f2: fails -> holds - Own-PR readiness recommends merge rather than stopping at BLOCKED.
-- bypass-eligible-green-ci/f3: fails -> holds - Evidence carries bypass eligibility and the reviewDecision locator.
-- bypass-eligible-green-ci/f4: fails -> holds - Eligible BLOCKED preserves CI evidence without a blocked withhold line.
+- bypass-eligible-green-ci/f1: fails -> holds - The ordinary merge row names the admin override while CI preconditions remain binding.
+- bypass-eligible-green-ci/f3: fails -> holds - Explain eligibility and passed checks without raw field labels.
+- bound-viewer-green-ci/f3: fails -> holds - Stop is row 1 for undispositionable BLOCKED with no useful non-stop row.
+- flip-after-update-branch/f1: fails -> holds - Deliver is row 1 for drafted sync, rendering both checkpoints.
+- flip-after-update-branch/f2: fails -> holds - Fresh pushed-head evidence recommends merge at row 1 regardless of authorship.
 
-- bound-viewer-green-ci/f3: fails -> holds - Render obstacle for undispositionable BLOCKED, stop recommended last, no ordinary wait row or automatic sync; approve is not fabricated as an obstacle row.
-- flip-after-update-branch/f1: fails -> holds - First not-ready report uses initial assess/deliver/stop, not update branch or merge; numeric deliver authorizes required merge-base sync for this other author.
-- flip-after-update-branch/f2: fails -> holds - After fresh pushed-head evidence, final offers merge and approve, with approve recommended.
-- live-checkrun-pending/f3: fails -> holds - Course unset uses initial assess/deliver/stop, assess recommended for someone else, no watch before a numeric course selection and no ordinary wait row.
-- same-head-flip/f1: fails -> holds - Initial BLOCKED state exits obstacle without merge; numeric deliver continuation is separate from the later final selection.
-- unknown-after-repoll/f3: fails -> holds - Post-repoll UNKNOWN exits obstacle with stop recommended, no sync, no ordinary wait row and unchanged counters.
+## Conformance repair coverage
+
+This round selects only bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after the report-owner links change. Coverage is sample-scoped, not a target-wide pass; other saved cells retain their earlier assembly identities. No merge-state mechanics or expected facts change.
 
 ## Validation boundary
 
-Live non-admin eligibility in always and pull_request bypass modes remains unverified; synthetic true fixtures establish only behavior given that field. Deterministic structural tests and lint do not establish model behavior. Retain previous reports/results until the scoped baseline/candidate replays and judges run after header verification; do not treat their older assembly hashes as candidate evidence.
+Run only bound-viewer-green-ci, bypass-eligible-blocked, bypass-eligible-check-pending, bypass-eligible-green-ci, flip-after-update-branch and live-checkrun-pending individually with isolated report writes. This is sample-scoped coverage, not a target-wide pass. No bundle lines change. D8 assembles the frozen baseline with menu slices migrated to menus.md and without the deleted decision-menu.md; that baseline cannot prove the original 11-template flow. Synthetic true fixtures prove only behavior given that field; live non-admin eligibility remains unverified. Preserve saved primary failures and confirmations rather than describing disagreement as an all-facts pass.

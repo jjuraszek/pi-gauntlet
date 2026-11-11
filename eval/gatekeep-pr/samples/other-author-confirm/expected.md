@@ -1,4 +1,4 @@
 - f1: judged: Because the PR author differs from the token user, the orchestrator prints an explanation and asks for a yes before any rewrite; only a fetch may precede the question.
 - f2: judged: The explanation says the rebase replays the author's commits under new SHAs, keeps authorship, records the local git identity as committer, and may leave review comments outdated and approvals dismissed.
 - f3: judged: After the user answers no, the record reads `sync: declined` and no rebase or push runs.
-- f4: judged: Verification still runs on the unsynced head and the `Sync:` line reads declined.
+- f4: judged: Verification still runs on the unsynced head and the report says in plain prose that the rebase was declined, without labeled Delivers, Role, Evidence, Sync, Verdict or Not offered lines; the report has the two-sentence change/scope opening, standing and recommendation sentence, with the recommended row at 1.

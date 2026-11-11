@@ -1,4 +1,4 @@
-- f1: judged: The Delivers line names row 2 as deviating per spec because the export includes the 12 visible-by-default columns rather than all 40 table columns.
+- f1: judged: The two-sentence opening explains the spec's deliberate choice to export the 12 visible-by-default columns rather than all 40 table columns, without row numbers or a Delivers label.
 - f2: judged: The gate lists zero blockers.
 - f3: judged: The menu offers merge.
 - f4: judged: No blocker is minted for row 2, which the spec deviates.

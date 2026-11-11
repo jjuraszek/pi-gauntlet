@@ -1,0 +1,110 @@
+{
+  "sample": "final-row-one",
+  "arm": "candidate",
+  "skillSha": "cbfd2d6b35c4b3e800b06b5ca28fb3e3a2b0537604feec1a762122eed2aa17a0",
+  "inputSha": "a001ed1b7a0f5cd63e95d181f8d029ef2c17d6b3b3988bd575f62770a811a62d",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Case A: own PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version. You wrote it, and it fully covers what ticket APP-91 asks for: the health endpoint reports the build version, and the README describes that behavior.\n\nNothing blocks merging. The required unit tests and image build both passed in CI on the commit being reviewed, the review found no problems, and the branch is current with main. You cannot approve your own PR, so there is no approve option.\n\nI recommend merge because every requirement is met and GitHub allows the merge.\n\nPick one:\n1. merge - squash-merge the PR into main. [recommended]\n2. stop - end here and leave the PR and the checkout as they are.\n\nType a number; show evidence prints the full record.\n\n---\n\nCase B: another author's PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR by robin makes the health endpoint respond with the build version. You are not the author or a requested reviewer, and the PR fully covers what ticket APP-91 asks for: the health endpoint reports the build version, and the README describes that behavior.\n\nNothing blocks merging. The required unit tests and image build both passed in CI on the commit being reviewed, the review found no problems, and the branch is current with main.\n\nI recommend merge because every requirement is met and GitHub allows the merge.\n\nPick one:\n1. merge - squash-merge the PR into main. [recommended]\n2. approve - submit an approving review on the PR.\n3. stop - end here and leave the PR and the checkout as they are.\n\nType a number; show evidence prints the full record.\n\n---\n\nCase C: another author's PR with admin override\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR by robin makes the health endpoint respond with the build version. You are not the author or a requested reviewer, and the PR fully covers what ticket APP-91 asks for: the health endpoint reports the build version, and the README describes that behavior.\n\nNothing in the code blocks merging. The required unit tests and image build both passed in CI on the commit being reviewed, the review found no problems, and the branch is current with main. GitHub still requires an admin override before this can merge, and your admin rights let you use that override.\n\nI recommend merge because every requirement is met and the required checks passed, so your admin override can complete the merge.\n\nPick one:\n1. merge - squash-merge using your admin override. [recommended]\n2. approve - submit an approving review on the PR.\n3. stop - end here and leave the PR and the checkout as they are.\n\nType a number; show evidence prints the full record.\n\n---\n\nCase D: another author's PR without merge permission\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR by robin makes the health endpoint respond with the build version. You are not the author or a requested reviewer, and the PR fully covers what ticket APP-91 asks for: the health endpoint reports the build version, and the README describes that behavior.\n\nNothing blocks merging. The required unit tests and image build both passed in CI on the commit being reviewed, the review found no problems, and the branch is current with main. You cannot merge this PR because merging needs write access to the repository, and you do not have it.\n\nI recommend approve because the PR is ready, and merging is not available to you.\n\nPick one:\n1. approve - submit an approving review on the PR. [recommended]\n2. stop - end here and leave the PR and the checkout as they are.\n\nType a number; show evidence prints the full record.\n",
+      "words": 605,
+      "wallMs": 22975,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Case A: own PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version, and you are its author. That behavior meets APP-91's requirement and agrees with the README.\n\nNothing blocks merging, and the checks passed in CI. You cannot approve your own PR.\n\nI recommend merge because the change is ready and you have permission to merge it.\n\nPick one:\n1. merge - squash-merge the reviewed change. [recommended]\n2. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n\n### Case B: another author's PR with ordinary merge\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version, and you are neither its author nor a requested reviewer. That behavior meets APP-91's requirement and agrees with the README.\n\nNothing blocks merging, and the checks passed in CI.\n\nI recommend merge because the change is ready and you have permission to merge it.\n\nPick one:\n1. merge - squash-merge the reviewed change. [recommended]\n2. approve - submit an approving review without merging.\n3. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n\n### Case C: another author's PR with admin override\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version, and you are neither its author nor a requested reviewer. That behavior meets APP-91's requirement and agrees with the README.\n\nNothing blocks merging through your available admin override, and the required checks passed in CI. GitHub requires that override to merge this PR.\n\nI recommend merge because the change is ready and you can merge it using your admin override.\n\nPick one:\n1. merge - squash-merge using your admin override. [recommended]\n2. approve - submit an approving review without merging.\n3. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n\n### Case D: another author's PR without merge permission\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the health endpoint respond with the build version, and you are neither its author nor a requested reviewer. That behavior meets APP-91's requirement and agrees with the README.\n\nNothing in the change blocks merging, and the checks passed in CI. Merging needs write access to the repository, which you do not have.\n\nI recommend approve because the change is ready and you can submit an approving review, but you cannot merge it.\n\nPick one:\n1. approve - submit an approving review without merging. [recommended]\n2. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n",
+      "words": 431,
+      "wallMs": 28836,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "eb49a99dbe7cde7fb79261acc86c21d929a1e1356000848ef18db549b1b0e71d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9db9d85e6e8c96357d65500ea01fb04c68abc055827bcd63242bee37930dd7bf",
+      "baselineOutputSha": "2d86a272d3e0809fc0d84fe8e708c725ed3e8d01cfe085532f198bfa37ce2743",
+      "candidateOutputSha": "6aed55589ec41f4f267d2f70787de393e89a2c5009e28429c99d012126b6eb6f",
+      "facts": {
+        "own": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "other": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "bypass": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "approve": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "authority": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and moves authority to holds: each report opens with the gate line, carries exactly one [recommended] tag on row 1, keeps stop last, confines raw evidence (run ids, check names, counters) to the show-evidence hint, and places a prose recommendation reason directly above Pick one instead of Before's inline Evidence line and labeled Verdict. Two wording points are worth tightening so neighboring facts don't slip: in Case C, 'your admin rights let you use that override' edges toward the admin-identity phrasing the bypass-merge-pick-revoked fact rejects - prefer 'you are eligible to use GitHub's admin override for this ruleset' - and the Case A/B recommendation sentences are identical ('every requirement is met and GitHub allows the merge'), so consider naming the case's state there too (e.g. 'because this is your own ready PR' / 'because robin's PR is ready and you have merge access') to make 'naming the case's state' unambiguous rather than relying on the paragraph above.",
+      "wallMs": 19732,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "eb49a99dbe7cde7fb79261acc86c21d929a1e1356000848ef18db549b1b0e71d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9db9d85e6e8c96357d65500ea01fb04c68abc055827bcd63242bee37930dd7bf",
+      "baselineOutputSha": "6ef2161252ebb319755b87417326460f88c01bab435c5c15996514105e661ad7",
+      "candidateOutputSha": "4b1a6d423c5e831270813d1618f31c258ae81debcd08059437863fab2b13e403",
+      "facts": {
+        "own": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "other": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "bypass": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "approve": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "authority": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moved every fact in the intended direction and lost none: Cases B and C now carry recommended=1 with the single [recommended] tag on the merge row, Case C's merge consequence names the admin override without inventing a separate bypass action or implying CI is bypassed, Case D still explains the missing write access, and all four reports open with the gauntlet gate line, keep stop last, keep evidence hint-only, and place a prose 'I recommend ... because ...' sentence naming the case's state directly above Pick one. Before failed other/bypass/authority because its final-menu rule preferred approve for another author's PR (recommended=2) and printed raw evidence inline rather than behind show evidence. Keep the After wording as is; the only thing worth guarding is that the 'you are neither its author nor a requested reviewer' opening and the 'required checks passed in CI' phrasing in Case C stay, since they are what let the override case read as a merge recommendation on ordinary row 1 while still distinguishing the ruleset bypass from any CI bypass.",
+      "wallMs": 14455,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
+}

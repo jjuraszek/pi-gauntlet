@@ -35,7 +35,7 @@ claims: [ { claim: "Tests cover the retry path", disposition: matched, evidence:
 
 ## After numeric delivery selection
 
-Initial rows assess=1 recommended, deliver=2, stop=3; human picked numeric `2`, persisted course deliver, and a fresh helper merged main into this other author branch with clean review and push; the pre-menu refresh ran on the new head `b7d0a91`. Render the second menu from this digest (every field not listed is unchanged from the digest above, with `headRefOid` now `b7d0a91` and the run ids 7101 in place of 7001):
+Initial rows deliver=1 recommended, assess=2, stop=3; the required branch sync is drafted and needs no author decision. The human picked numeric `1`, persisted course deliver, and a fresh helper merged main into this other author branch with clean review and push; the pre-menu refresh ran on the new head `b7d0a91`. Render the second menu from this digest (every field not listed is unchanged from the digest above, with `headRefOid` now `b7d0a91` and the run ids 7101 in place of 7001):
 
 ```text
 - permissions: { merge_state_status: UNSTABLE }
@@ -49,4 +49,4 @@ Initial rows assess=1 recommended, deliver=2, stop=3; human picked numeric `2`, 
   - { databaseId: 7101, status: completed, conclusion: success, workflowName: "tidewatch CI", url: https://github.com/harborline/tidewatch/actions/runs/7101 }
 ```
 
-Replay contract: render only compact run-record updates, evidence lines, and menus for these hypothetical snapshots. Do not narrate each iteration or restate the inputs; use no tools. Keep the entire reply under 600 words. Initial course is null, repair rounds_used 0/rounds_cap 10, syncs_used 0/syncs_cap 10 (no-tool maxFixRounds 5); helpers available, head pushable, merge policy allowed.
+Replay contract: render both checkpoints as separate turns with one menu in each, before and after the numeric delivery selection. Keep raw record updates and exact-head evidence under show evidence, and write the reports in plain prose. Do not narrate each iteration or restate the inputs; use no tools. Keep the entire reply under 600 words. Initial course is null, repair rounds_used 0/rounds_cap 10, syncs_used 0/syncs_cap 10 (no-tool maxFixRounds 5); helpers available, head pushable, merge policy allowed.

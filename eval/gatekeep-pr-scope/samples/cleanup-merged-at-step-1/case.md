@@ -62,6 +62,6 @@ pr.url https://github.com/acme/widgets/pull/212; pr.state MERGED.
 - release: /skill:release
 
 ## Pick
-none at first: the PR was merged before the run, so render the closed PR cleanup/stop menu, then handle the reply numeric `1` (cleanup).
+none at first: the PR was merged before the run, so render its one post menu. Then take the numeric set selecting only the cleanup and close ticket rows at their rendered numbers; run them in step order and close without another menu.
 
 Menu checkpoint: show evidence is a hint command only; stop is last, exactly one available recommendation. Course is unset at a first ready report; no numeric course selection is implied by scope evidence.

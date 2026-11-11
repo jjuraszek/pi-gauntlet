@@ -1,5 +1,7 @@
 # gatekeep-pr: one course per run
 
+> **Superseded by:** [doc/specs/2026-11-10-gatekeep-three-menus.md](./2026-11-10-gatekeep-three-menus.md) - "D5 Menus" section only
+
 **Goal:** A gatekeep-pr run asks the human one question before the terminal menu - `assess` or `deliver` - and under `deliver` repairs, syncs, pushes, and watches CI with no menu until the PR is mergeable, stuck, or out of rounds.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves

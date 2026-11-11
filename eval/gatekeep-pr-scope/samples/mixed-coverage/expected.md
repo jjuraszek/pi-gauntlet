@@ -1,4 +1,4 @@
-- f1: judged: The Delivers line names rows 1 and 4 as covered, row 2 as deviating per spec, and rows 3 and 5 as deferred per spec to acme/widgets#46.
+- f1: judged: The two-sentence opening describes the export button and bounded paging as covered, the spec's deliberate column choice, and email delivery and audit events deferred to acme/widgets#46, without row numbers or a Delivers label.
 - f2: judged: The gate lists zero blockers.
 - f3: judged: The menu offers merge.
 - f4: judged: No blocker is minted for a row the spec defers or deviates.

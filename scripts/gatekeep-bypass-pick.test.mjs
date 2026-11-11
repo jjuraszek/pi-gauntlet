@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { inputSha, parseCase } from '../eval/lib/replay.mjs';
+import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -16,12 +16,12 @@ test('merge execution confines the flag to bypass and consumes refusals before s
   assert.match(merge, /nonzero exit, print gh's error verbatim, consume the selection without retry/);
   assert.match(merge, /no second attempt with or without `--admin`/);
   assert.match(merge, /re-run `### Pre-menu refresh`/);
-  assert.match(merge, /final while all merge preconditions hold; obstacle with `Not offered: merge \(blocked by GitHub\)`/);
+  assert.match(merge, /final while all merge preconditions hold; obstacle explaining that GitHub still blocks this actor from merging/);
   assert.ok(merge.indexOf('nonzero exit') < merge.indexOf('state: MERGED'));
   assert.match(merge, /On a zero exit/);
   assert.match(merge, /skips the merge queue/);
   assert.match(merge, /parent reads `permissions.bypass_eligible` from the retained child record/);
-  assert.match(read('skills/gatekeep-pr/reference/decision-menu.md'), /`merge`[^\n]*`--admin` only on the bypass path/);
+  assert.match(read('skills/gatekeep-pr/reference/menus.md'), /`merge`[^\n]*`--admin` only on the bypass path/);
 });
 
 test('eligibility changes invalidate the selected merge even without a merge-state change', () => {
@@ -32,17 +32,19 @@ test('eligibility changes invalidate the selected merge even without a merge-sta
   assert.match(cas, /run no `gh pr merge` and re-enter Pre-menu refresh for a fresh selection/);
 });
 
-for (const name of ['bypass-merge-pick-refused', 'bypass-merge-pick-revoked']) {
+for (const [name, repoSha] of [
+  ['bypass-merge-pick-refused', '2ab622211ddf19cbca08f5914f770e9fe78ac0d9'],
+  ['bypass-merge-pick-revoked', '49110877b66be79285ac5c2d43fcaf714543817f'],
+]) {
   test(`${name} saved replay holds every post-pick fact`, () => {
     const root = 'eval/gatekeep-pr';
     const parsed = parseCase(read(`${root}/samples/${name}/case.md`));
     const expected = read(`${root}/samples/${name}/expected.md`);
     const saved = JSON.parse(read(`${root}/results/${name}/candidate.json`));
-    // These post-pick replays pin historical evidence, not the current report assembly.
-    assert.deepEqual({ repoSha: saved.repoSha, skillSha: saved.skillSha }, {
-      repoSha: 'e3e160477bacb41f98d7fd604e7873db622af289',
-      skillSha: '8a91f323adfcf7037bfa33896191540b51e507fefeac1cc0655f19f6f68dd061',
-    });
+    const target = JSON.parse(read(`${root}/target.json`));
+    const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
+    assert.equal(saved.repoSha, repoSha);
+    assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, read, parsed.bundle)));
     assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
     assert.equal(Object.keys(saved.outputs).length, 2);
     for (const [model, output] of Object.entries(saved.outputs)) {

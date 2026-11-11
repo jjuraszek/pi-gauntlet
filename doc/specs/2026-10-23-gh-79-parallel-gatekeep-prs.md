@@ -1,5 +1,7 @@
 # gatekeep-pr multi-PR mode: one dispatching child per PR, menus in turn, picks executed in parallel
 
+> **Superseded by:** [doc/specs/2026-11-10-gatekeep-three-menus.md](./2026-11-10-gatekeep-three-menus.md) - the summary line form in "Summary" and the terminal pick list in "Pick round" only
+
 **Goal:** `/skill:gatekeep-pr 12 15 18 [--rebase [base]]` gates a set of PRs through today's single-PR pipeline, each PR in its own worktree inside its own fresh child context, then shows the human one summary and each PR's unchanged decision menu in turn, queues the picks, and executes them in parallel.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Ticket:** jjuraszek/pi-gauntlet#79

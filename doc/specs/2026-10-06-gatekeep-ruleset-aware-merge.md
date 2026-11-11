@@ -1,5 +1,7 @@
 # gatekeep-pr: viewer-relative pending checks from `mergeStateStatus`
 
+> **Superseded by:** [doc/specs/2026-11-10-gatekeep-three-menus.md](./2026-11-10-gatekeep-three-menus.md) - the `PR comments` and `Not offered:` line forms in "D2" only
+
 **Goal:** Stop `/skill:gatekeep-pr` from withholding `merge` and recommending `wait` on a pending check or review requirement that does not bind the gating actor, by reading GitHub's own viewer-relative `mergeStateStatus` - re-read before every menu - instead of modeling rulesets, bypass actors, or team membership; zero consumer configuration.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 

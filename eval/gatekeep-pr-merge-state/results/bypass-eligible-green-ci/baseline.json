@@ -1,8 +1,8 @@
 {
   "sample": "bypass-eligible-green-ci",
   "arm": "baseline",
-  "skillSha": "741f76d2140eb55b042610ff0c71d424cbfa5aa826f951180ec487691872493d",
-  "inputSha": "1d6e17fa3c85db5c736c041b75272e3f5e6389d47de145a6247767d2de9073bc",
+  "skillSha": "30f9bba369f1ace5b6111f0bc7e92995e9885381823448698bf115c02ccd19d3",
+  "inputSha": "257565773e72905c92a60b954bd625946f20853d61cd1d5b196a3ca4a43f6285",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=3\nDelivers: the feed fetch retries once on failure, with tests.\nRole: author\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 701, test green on abc1234)\n\nVerdict: not ready - GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - set course to deliver; retries only after GitHub's BLOCKED state changes, with no sync promised, no round charged; add 2 x maxFixRounds to each cap (rounds 0 of 10, syncs 0 of 10).\n2. assess - switch course to assess; with zero blockers nothing posts and no repairs run.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\n\nType a number; show evidence prints the full record (CI (run 701, test green on abc1234))\n",
-      "words": 134,
-      "wallMs": 21876,
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nEvidence: CI (source: ci; head abc1234; run 701 CI: test success; 0 binding pending; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED))\n\nDelivers: the feed fetch retries once on failure, bounded, with tests covering the retry. CI on the assessed head confirms it, and the PR's stated claims match the code.\n\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge on ruleset bypass authority; CI evidence stands. [recommended]\n2. stop - leave the PR as is; checkout stays as found.\n\nNot offered: approve (own PR)\n\nType a number; show evidence prints the full record (CI source: ci; head abc1234; run 701 CI: test success; 0 binding pending; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED)).\n",
+      "words": 120,
+      "wallMs": 12807,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=3\n\nDelivers: adds a bounded retry for feed fetching with tests.\nRole: author\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (source: ci; run 701, test success on abc1234; 0 binding pending checks; merge_state_status BLOCKED)\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nNot offered: merge (blocked by GitHub)\n\nPick one:\n1. deliver - set course to deliver; retry after GitHub's blocked merge state changes, no round charged; add 2 x maxFixRounds to each cap (rounds 0/10, syncs 0/10; maxFixRounds not supplied).\n2. assess - post nothing because no blockers remain; then render the assess terminal menu, no repairs or sync.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nType a number; show evidence prints the full record (CI (source: ci; run 701, test success on abc1234; 0 binding pending checks; merge_state_status BLOCKED)).\n",
-      "words": 146,
-      "wallMs": 12115,
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nEvidence: CI (source: ci), head abc1234; run 701, test completed/success; 0 binding pending checks; merge_state_status BLOCKED (bypass eligible; reviewDecision REVIEW_REQUIRED).\n\nDelivers: retries a failed feed fetch once, keeping retries bounded. Tests cover the retry behavior.\nRole: author\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge on ruleset bypass authority; CI evidence stands. [recommended]\n2. stop - leave the checkout as found.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record (CI, source: ci; head abc1234; run 701, test completed/success; 0 binding pending checks; merge_state_status BLOCKED, bypass eligible; reviewDecision REVIEW_REQUIRED).\n",
+      "words": 102,
+      "wallMs": 12322,
       "mechanical": {}
     }
   },
-  "repoSha": "7ec39bc8ab0ece4185d9cb183e88760bd90d352e"
+  "repoSha": "064b62030be28326fda979af0ce9af54c18a0a0d"
 }

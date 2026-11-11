@@ -29,7 +29,7 @@ B: The selected review commit 1111111111111111111111111111111111111111 is absent
 
 C: Review 702 has `commit_id: null` instead. All other REST fields and excluded rows are unchanged. Git has no review commit to check. The whole-diff reviewer is clean.
 
-State the review boundary on both pi and Claude Code; use pi for these narrations' helper calls. Render one reason-bearing prior-review line in each report, with the supplied failure reason, and preserve the ordinary blocker severity in A and B. Stop at each first menu.
+State the review boundary on both pi and Claude Code; use pi for these narrations' helper calls. Render one prior-review sentence in each report translating the failure reason into plain prose; keep verbatim stderr only in the delta record for show evidence, and preserve the ordinary blocker severity in A and B. Stop at each first menu.
 
 ## Arguments
 
