@@ -208,7 +208,7 @@ The shape checks use the existing `expected.md` grammar (`matches /<regex>/<flag
 
 `word-bound` counts `Today` as word one and allows 219 more before the first line starting `A) `; `opening-shape` requires the three titles in order and no `name.ext:<digit>` locator between `## Today` and message one's `Recommendation:` line.
 
-`review-and-apply-containment`'s `opening-shape` and `workflow-stage-ticket-row`'s `opening-titles` carry a tighter pattern than the ones above: each also requires at most three sentences in `## Today`, at most three in `## The change`, and at most one `Held:` line, holding one sentence, in `## What I checked`. A sentence ends at `.`, `!`, or `?` followed by whitespace or the end of the section body. The fact names and each sample's fact count are unchanged.
+No fact checks the per-section sentence counts or the one-`Held:`-line rule of Design 3. They are instructions in `reference/opening-message.md`, and a replay reply that exceeds one of them is an accepted limitation, not a conformance gap: the mechanical checks are the titles and their order, the absence of a locator, and the 220-word span, and those bound the message's length and shape. `review-and-apply-containment`'s `opening-shape` and `workflow-stage-ticket-row`'s `opening-titles` use the patterns above with no sentence or `Held:` bound.
 
 Paid and external actions for the whole flow (seed, rows, repairs, finish):
 
@@ -273,4 +273,5 @@ Applied per `reference/documentation-impact.md`.
 ## Open questions
 
 - Whether a fixed shape holds on the replay models is settled by the selected eval runs; a sample that still fails after three wording rounds is reported, not papered over.
+- Replay replies do not always meet Design 3's sentence counts and one-`Held:`-line rule: across five runs of `review-and-apply-containment`, each wording fix brought one count inside its bound while another reply exceeded a different one (four-sentence `## Today`, four- to six-sentence `## The change`, two `Held:` lines). The user chose to keep these as wording rules without a mechanical check; whether a shorter rule sentence holds them better is untested.
 - Heading rendering is checked for pi only. No other harness renders this message today: brainstorming is not in the Claude Code marketplace allowlist.
