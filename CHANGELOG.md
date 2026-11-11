@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Brainstorming opens with Today, The change, and What I checked in everyday words, followed by one question. Sources stay in the draft; the opening span is capped at 220 words except corrected or unchecked claims and intact quoted ticket rows.
+
 ## v8.4.7 - 2026-11-11
 
 ### Fixed

@@ -1,0 +1,130 @@
+{
+  "sample": "opening-message-shape",
+  "arm": "candidate",
+  "skillSha": "1feafa625da8cfac2dbc6dcfba4695b0afa38ffe8ad0becab967d2b9fbcf8989",
+  "inputSha": "c3ac0a8754432294cb8f9d296b1deccdac76f21dc5a31d7e3d708046382272e2",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\n\n## Today\nEvery download uses your saved column order.\n\n## The change\nYou can pick a different column order for one download, and your saved order stays the same. The download already accepts a one-time order, so the change only connects the form's choice to it, with no second export path and nothing saved.\n\n## What I checked\n- Held: The download reads the saved order and accepts a one-time order, the download form already supports a one-download choice, and preferences save only when you explicitly save them.\n\nThe framing holds: checked the download, the download form, the preference saving, and every caller of the download.\nWhere should users choose the column order?\nA) in the download form\nB) in a separate preview\nRecommendation: A - it keeps the choice next to the download.\n",
+      "words": 131,
+      "wallMs": 4781,
+      "mechanical": {
+        "first-line": "holds",
+        "titles": "holds",
+        "no-locator": "holds",
+        "word-bound": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\n\n## Today\nDownloads use your saved column order. The download form already supports a one-download choice, but that choice is not connected to the download.\n\n## The change\nYour choice will apply to a single download without changing your saved order, using the existing download path.\n\n## What I checked\n- Held: The download accepts a one-download order, the form supports that choice, and preferences change only through an explicit save action.\n\nThe framing holds: checked the download option, the form, preference saving, and all callers and dependencies.\nWhere should users choose the column order?\nA) In the download form.\nB) In a separate preview.\nRecommendation: A - it keeps the choice beside the download.\n",
+      "words": 112,
+      "wallMs": 5445,
+      "mechanical": {
+        "first-line": "holds",
+        "titles": "holds",
+        "no-locator": "holds",
+        "word-bound": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "fd74567821ef4dced4c9a47f6141310c8b4a14c5e75a5b33960c00ea295bcef5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80ed50cdaf0796e3b378232ee7832186c85522e30704102e60e96e0f0a337bbc",
+      "baselineOutputSha": "64d29b089167c98d9641ba2c8ed165df39ce2c50ffc8162061e4b836c5893138",
+      "candidateOutputSha": "efad3f64f35abb5325308979762b69100143b062284dc83f4047dca2f3cf0a94",
+      "facts": {
+        "register": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "holds-question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "titles": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-locator": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "word-bound": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves both facts from fails to holds and drops nothing Before kept: the Today / The change / What I checked titles land in order, every part is named by its role (the download, the download form, the preference saving, every caller of the download) with no exports/download.ts:24-style locators or per-claim sources in chat, the holds-statement follows the checked-claims bullet, exactly one question is asked, A and B sit on their own lines, and the message ends with a Recommendation: A favoring the form and stops without approaches or a draft excerpt. Before failed both facts for the same reason - the holds-statement, the premise bullets, and the recommendation all cited file paths and line numbers rather than roles. The only cosmetic thing After loses relative to Before is the explicit note that the scout raised no objection and that nothing was corrected or unverified; neither fact requires it, so no wording change is needed, but if you want to retain that reassurance add it as a second What I checked bullet in everyday words (e.g. 'Nothing disproved or left unverified; the reviewer raised no objection') without reintroducing locators.",
+      "wallMs": 11667,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "fd74567821ef4dced4c9a47f6141310c8b4a14c5e75a5b33960c00ea295bcef5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80ed50cdaf0796e3b378232ee7832186c85522e30704102e60e96e0f0a337bbc",
+      "baselineOutputSha": "20a153e6aa4c95675c25facebcbeb43514ac32a7d294bc60d51c5096ed7119eb",
+      "candidateOutputSha": "e01c7b4b0e2e9a2e3ca14ffba81d33780dfc33037abd077f56d110724e03a1cd",
+      "facts": {
+        "register": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "holds-question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "titles": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-locator": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "word-bound": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the Today / The change / What I checked titles appear in order, every part is named by its role (the download option, the form, preference saving, callers and dependencies) with no paths or line numbers, and the holds-statement follows the checked-claims summary before the single column-order question with A and B on their own lines and a final Recommendation: A. Before failed both facts only because its holds-statement leaned on `exports/download.ts:24`-style locators instead of role names; nothing that Before kept was lost in After. The one wording difference worth a glance is that After dropped Before's `C) other - name it` escape line - neither fact requires it, but if other samples expect an open option, restore it as its own line between B and Recommendation: without changing anything else.",
+      "wallMs": 12475,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e64762229908da6e7bb7942c8a46fcd5dd244ac5"
+}

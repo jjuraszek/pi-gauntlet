@@ -1,0 +1,6 @@
+- first-line: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
+- titles: mechanical: matches /^gauntlet: question\r?\n\s*## Today\n[\s\S]+?\n## The change\n[\s\S]+?\n## What I checked\n/
+- no-locator: mechanical: matches /^(?![\s\S]*[\w-]\.[A-Za-z]{1,5}:\d)/
+- word-bound: mechanical: matches /## Today\s+(?:[^\s\p{L}\p{N}]+\s+)*(?:[^\s\p{L}\p{N}]*[\p{L}\p{N}]\S*\s+(?:[^\s\p{L}\p{N}]+\s+)*){0,219}(?<=\n)A\) /u
+- register: judged: Name the parts by what they do, in everyday words, rather than code identifiers, paths, line numbers or trace counts. Keep per-claim sources out of chat.
+- holds-question: judged: After the checked-claims summary, give The framing holds: checked with things named by their role, then ask only where to choose the column order. Put each lettered option on its own line and end with Recommendation: favoring the download form. Wait for the reply without approaches.

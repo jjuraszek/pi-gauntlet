@@ -8,12 +8,17 @@ Tests questionary and approaches messages (checklist steps 3-5) and same-turn co
 | `skills/brainstorming/SKILL.md` | `### 3` through before `### 6` |
 | `skills/brainstorming/SKILL.md` | `### 6` through before `## Ticket Handling` |
 | `skills/brainstorming/reference/ticket-acceptance.md` | Whole file |
+| `skills/brainstorming/reference/opening-message.md` | Whole file; new in the candidate assembly |
 
 | Sample | Must-hold behavior |
 |---|---|
+| `opening-message-shape` | First message only: three titles, everyday role names, no source locator, a 220-word span, then holds-statement and one question. |
+| `opening-message-ticket-not-fetched` | Keep ticket content unknown after a denied fetch; state the reason and design wait on a `Not checked:` line, then the holds-statement and one question on how to obtain the content. |
 | `explicit-unit-normalization` | Correct the premise and preserve the shared representation contract. |
 | `latest-run-indicator` | Keep per-surface provenance and persisted run metadata. |
-| `review-and-apply-containment` | Keep the producer out of scope and reuse field candidates. |
+| `review-and-apply-containment` | Message one has Today, The change, and What I checked in order with no file-and-line locator through Recommendation:, and says the framing holds with the checked producer contract, review surfaces, and consumer stub; approaches retain svc-a visibility and application containment without a producer pivot, reuse pending field candidates with provenance, apply valid children despite malformed siblings, retain raw failure detail, fail only when none apply, preserve two-endpoint validation and reruns without backfill, and cite a fixture in a Pattern line. |
+| `implicit-template-not-found` | Message one has Today, The change, and What I checked in order with no file-and-line locator through Recommendation:; identify templates/deck.pptx from the retained loader as not found in the supplied templates/ directory listing, restate the missing asset and lookup before approaches and in the Problem excerpt, continue without asking where the template is, and use supplied evidence without claiming a live lookup. |
+| `missing-db-extension` | Message one has Today, The change, and What I checked in order with no file-and-line locator through Recommendation:; trace the dump restore to required demo_vector missing from the supplied installed-extension listing, restate the missing capability and lookup before approaches and in the Problem excerpt, continue despite degraded recon without asking for verification first, and use supplied evidence without claiming a live lookup or confusing not installed with unavailable for installation. |
 | `cut-without-human-words` | Hard rows stay in-scope without author-proposed cuts; other repo rows are settled attribution. |
 | `other-repo-group` | Assign mailer rows elsewhere without asking and keep the spec AC section flat. |
 | `unmatched-group-asked` | Ask the three-way attribution question instead of assigning an unknown group silently. |
