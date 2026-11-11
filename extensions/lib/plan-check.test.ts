@@ -573,6 +573,37 @@ test("wave-file-disjointness: Test/Test allowed; Test vs Modify conflict; Modify
   assert.ok(WD(modifyModify).some((f) => f.reason.includes("fixture-shared.ts")));
 });
 
+test("wave-file-disjointness: Delete conflicts with every kind at every Files position before and after removal", () => {
+  const path = "extensions/lib/fixture-removed.ts";
+  const entries = [
+    "- Create: extensions/lib/fixture-task1.ts",
+    "- Modify: extensions/lib/fixture-shared.ts",
+    "- Test: extensions/lib/fixture-task1.test.ts",
+  ];
+  for (const kind of ["Create", "Modify", "Test", "Delete"]) {
+    for (let position = 0; position <= entries.length; position++) {
+      for (const exists of [true, false]) {
+        for (const suffix of ["", ":10-20"]) {
+          const files = [...entries];
+          files.splice(position, 0, `- Delete: ${path}${suffix}`);
+          const plan = VALID_PLAN.replace(entries.join("\n"), files.join("\n"))
+            .replace("- Create: extensions/lib/fixture-task2.ts", `- ${kind}: ${path}`);
+          const findings = checkPlan(plan, SPEC_TEXT, {
+            exists: p => p !== path || exists,
+            glob: () => [],
+          }).findings;
+          assert.deepEqual(findingsFor(findings, "wave-file-disjointness"), [{
+            check: "wave-file-disjointness",
+            line: lineOf(plan, "## Wave 1"),
+            text: plan.split("\n")[lineOf(plan, "## Wave 1") - 1],
+            reason: `Task 1 and Task 2 in Wave 1 both declare "${path}" / "${path}"`,
+          }], JSON.stringify({ kind, position, exists, suffix }));
+        }
+      }
+    }
+  }
+});
+
 test("Verification quote-integrity: task-owned literal check unchanged", () => {
   const mutated = VALID_PLAN.replace(
     "- via: `helperFn()`\n\nThis task implements helperFn() for parsing.",

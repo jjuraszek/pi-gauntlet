@@ -3,7 +3,7 @@
 base: 196d5abb0ac05f8336839944fed72c5ae2e928bb
 verification: npm test
 checks: commands
-iterations: 2
+iterations: 3
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -12,7 +12,7 @@ allowance: 10
 | 2 | done | 0 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 207 passed, 0 failed; Manifest preserves Delete kind, suffix and later entries |
 | 3 | done | 0 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 207 passed, 0 failed; Missing Modify after Delete reports its exact paths-exist finding |
 | 4 | done | 0 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 207 passed, 0 failed; Missing Modify alone retains its paths-exist finding |
-| 5 | open | 0 | |
+| 5 | done | 1 | timeout -k 30 120 node --test --test-reporter=tap extensions/lib/plan-check.test.ts; 208 passed, 0 failed; 64 cases cover all conflict kinds and Delete positions with absent paths and line suffixes |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
 | 8 | open | 0 | |
@@ -27,3 +27,4 @@ row 1 done | Parsed Delete entries without requiring their paths to exist, with 
 row 2 done | Added the Delete manifest label and verified ordered later entries and the retained line suffix. | Reuse renderManifest in extensions/lib/plan-check.ts to emit Delete ownership.
 row 3 done | Confirmed the seeded missing-Modify-after-Delete regression now passes. | nothing new to build on
 row 4 done | Confirmed missing Modify paths still fail with the existing paths-exist finding. | nothing new to build on
+row 5 done | Verified Delete ownership conflicts in 64 cases across all kinds, Files positions, existence states and line suffixes. | Reuse the parameterized Delete conflict test in extensions/lib/plan-check.test.ts for ownership regressions.
