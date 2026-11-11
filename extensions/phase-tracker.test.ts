@@ -2833,6 +2833,49 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
   assert.ok(missing.details.findings.some(f => f.check === "input"));
 });
 
+for (const state of ["unlinked", "primary", "detached", "not a checkout", "duplicate"] as const) {
+  test(`plan_check rejects companion branch lookup: ${state}`, async () => {
+    const primary = gitPrimary().primary;
+    const companion = gitPrimary().primary;
+    const name = companion.split("/").at(-1)!;
+    const repo = `team/${name}`;
+    const branch = "user/slug";
+    const companionRoot = join(companion, ".worktrees", "slug");
+    const git = (...args: string[]) => execFileSync("git", ["-C", companion, ...args], { stdio: "pipe" });
+    git("config", "remote.origin.url", `https://example.test/${repo}.git`);
+    git("branch", branch);
+    if (state === "primary") git("checkout", branch);
+    if (state === "detached") git("worktree", "add", "--detach", companionRoot, branch);
+    if (state === "not a checkout" || state === "duplicate") {
+      git("worktree", "add", companionRoot, branch);
+      if (state === "duplicate") git("worktree", "add", "--force", `${companionRoot}-other`, branch);
+      else {
+        rmSync(companionRoot, { recursive: true });
+        mkdirSync(companionRoot);
+      }
+    }
+    mkdirSync(join(primary, ".pi"), { recursive: true });
+    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: git@example.test:${repo}.git\n`);
+    const { planPath } = writePlanFixture(primary, {
+      mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\nbranch: ${branch}\ncontract:\n`,
+      mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),
+    });
+    const h = harness({ cwd: primary });
+    await h.emit("session_start");
+    const tool = h.tools.find(t => t.name === "plan_check")!;
+    const result = await tool.execute(state, { planPath }, undefined, undefined, h.ctx) as {
+      details: { status: string; findings: { check: string; reason: string }[] };
+    };
+    const reason = state === "duplicate" ? `2 worktrees hold ${branch}`
+      : state === "not a checkout" ? `${companionRoot} is not a checkout`
+      : `no worktree holds ${branch}`;
+    assert.equal(result.details.status, "fail");
+    assert.deepEqual(result.details.findings.map(({ check, reason }) => ({ check, reason })), [
+      { check: "input", reason: `cannot resolve worktree for ${repo.toLowerCase()}: ${reason}` },
+    ]);
+  });
+}
+
 for (const length of [32767, 32768, 32769]) {
   test(`plan_check complete manifest JS length ${length} bounds stamping`, async () => {
     const dir = gitPrimary().primary;
