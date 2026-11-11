@@ -1026,13 +1026,20 @@ export default function (pi: ExtensionAPI) {
             }
             if (candidates.length !== 1) return inputFailure(`cannot resolve selected sibling ${leg.repo}`);
             const branch = /^branch:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
-            const home = /^(?:contract:\s*)?(?:-\s*)?home:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
-            if (!branch || !home || home.split("<name>").length !== 2 || /<[^>]+>/.test(home.replace("<name>", ""))) return inputFailure(`invalid recorded branch or home pattern for ${leg.repo}`);
-            const legRoot = resolve(candidates[0], home.replace("<name>", branch.replaceAll("/", "-")));
+            if (!branch) return inputFailure(`invalid recorded branch for ${leg.repo}`);
+            const unresolved = (reason: string) => inputFailure(`cannot resolve worktree for ${leg.repo}: ${reason}`);
+            const listing = gitSync(["worktree", "list", "--porcelain", "-z"], candidates[0]);
+            if (listing.code !== 0) return unresolved(`worktree lookup failed for ${branch}`);
+            const matches = listing.stdout.split("\0\0").slice(1)
+              .map(block => block.split("\0"))
+              .filter(fields => fields.includes(`branch refs/heads/${branch}`));
+            if (!matches.length) return unresolved(`no worktree holds ${branch}`);
+            if (matches.length !== 1) return unresolved(`${matches.length} worktrees hold ${branch}`);
+            const legRoot = matches[0].find(field => field.startsWith("worktree "))!.slice("worktree ".length);
             const checkout = existsSync(legRoot) ? await checkoutOf(legRoot, gitSync) : undefined;
             const expected = gitSync(["rev-parse", "--path-format=absolute", "--git-common-dir"], candidates[0]);
             const actual = checkout ? gitSync(["rev-parse", "--path-format=absolute", "--git-common-dir"], legRoot) : undefined;
-            if (!checkout || checkout.toplevel !== legRoot || expected.code !== 0 || actual?.code !== 0 || actual.stdout.trim() !== expected.stdout.trim()) return inputFailure(`cannot resolve worktree for ${leg.repo}`);
+            if (!checkout || checkout.isPrimary || checkout.toplevel !== realpathSync(legRoot) || expected.code !== 0 || actual?.code !== 0 || realpathSync(actual.stdout.trim()) !== realpathSync(expected.stdout.trim())) return unresolved(`${legRoot} is not a checkout`);
             roots.set(leg.repo, legRoot);
           }
         }

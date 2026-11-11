@@ -2718,8 +2718,8 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
   const repo = `team/${name}`;
   const cloneUrl = `git@example.test:${repo}.git`;
   execFileSync("git", ["config", "remote.origin.url", `https://example.test/${repo}.git`], { cwd: companion });
-  const branch = "feature/legs";
-  const companionRoot = join(companion, pattern.replace("<name>", "feature-legs"));
+  const branch = "user/slug";
+  let companionRoot = join(companion, pattern.replace("<name>", "user-slug"));
   execFileSync("git", ["worktree", "add", "-b", branch, companionRoot], { cwd: companion, stdio: "pipe" });
   if (pattern.startsWith("..")) tempDirs.push(companionRoot);
   mkdirSync(join(primary, ".pi"), { recursive: true });
@@ -2801,6 +2801,22 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
     for (const spy of spies) spy.mock.restore();
     syncBuiltinESMExports();
   }
+  const specPath = join(primary, "doc/specs/spec.md");
+  const originalSpec = readFileSync(specPath, "utf8");
+  const scriptHome = join(companion, "..", `${name}-worktrees`);
+  tempDirs.push(scriptHome);
+  mkdirSync(scriptHome);
+  const scriptRoot = join(scriptHome, "slug");
+  execFileSync("git", ["worktree", "move", companionRoot, scriptRoot], { cwd: companion, stdio: "pipe" });
+  companionRoot = scriptRoot;
+  for (const home of [undefined, `../${name}-worktrees/slug`, ".worktrees/<name>"]) {
+    await t.test(`script-placed companion with home ${home ?? "absent"}`, async () => {
+      writeFileSync(specPath, originalSpec.replace(`contract: home: ${pattern}`, home ? `contract:\n- home: ${home}` : "contract:"));
+      const result = await tool.execute("script-placed", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
+      assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
+    });
+  }
+  writeFileSync(specPath, originalSpec);
   const originalPlan = readFileSync(planPath, "utf8");
   const foreignSpec = join(companionRoot, "foreign-spec.md");
   writeFileSync(foreignSpec, readFileSync(join(primary, "doc/specs/spec.md")));

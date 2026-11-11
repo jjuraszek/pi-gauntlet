@@ -3,12 +3,12 @@
 base: 4dcd1f4c71da8f2ee56a8491727e40233ca4733f
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | done | 1 | timeout -k 30 180 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 230 passed, 0 failed; no paid or external action launched; paid eval hold retained: bare 5 did not approve the fourteen-call bound |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -23,3 +23,4 @@ allowance: 10
 ## Decisions
 
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1
+row 1 done | plan_check now locates script-placed companions by branch regardless of recorded home, verified by 230 tests. | Reuse the moved-worktree matrix in extensions/phase-tracker.test.ts to extend branch-lookup coverage.
