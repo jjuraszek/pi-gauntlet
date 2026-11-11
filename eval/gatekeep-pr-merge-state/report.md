@@ -1,8 +1,8 @@
-# eval report: gatekeep-pr-merge-state (partial run: bypass-eligible-blocked)
+# eval report: gatekeep-pr-merge-state (partial run: bound-viewer-green-ci)
 
-for: be9907dbc46b886ce97f0dd9bc35b98dd39c7584796403712a9e24c9dbc3f5cd
+for: ff15330a8f6fa8871004885209e64434a402c5a782de29c18ccad108f680b8fc
 
-wall: 18s
+wall: 46s
 
 ## Change
 
@@ -10,26 +10,16 @@ Keep merge preconditions, exact-head CI evidence and fresh viewer-relative bypas
 
 Recommend row 1 from the current assessment: pending-only CI recommends deliver, an unchanged prerequisite with no useful non-stop row recommends stop, and readiness recommends merge regardless of authorship. Preserve UNKNOWN/check_run/status_context classification and fail-closed eligibility. With unreadable eligibility and successful CI, say required checks passed independently of GitHub's block.
 
-## Coverage and authority
-
-Coverage is sample-scoped, not a target-wide pass. These four samples run at the final skill text: bound-viewer-green-ci, bypass-eligible-blocked, bypass-eligible-check-pending and bypass-eligible-green-ci. Every current must-hold cell in those four samples holds on both models. bound-viewer-green-ci and the eligible green/pending cases are assembly-bound; the blocked case exercises edited override wording and receives a D5 expectation correction that keeps raw head/run/check identifiers behind show evidence.
-
-Preserved earlier-revision results: exempt-viewer-status-pending, flip-after-update-branch, live-checkrun-pending, same-head-flip and unknown-after-repoll. Their recorded skillSha identifies the revision that produced each result; they do not establish final-text coverage.
-
-The caller excludes the two base-existing unchanged-mechanics failures in gatekeep-pr without a spec amendment. This target keeps its saved results; none of its current must-hold cells requires another run.
-
-D8 baseline limitation: the frozen baseline uses the working-tree skillFiles list, with menus.md and without decision-menu.md. It does not establish the original 11-template flow. Judge candidate facts absolutely, not from improved or unchanged comparison direction. Mechanical preservation rests on the migrated deterministic assertions and selected candidate facts. Live non-admin override eligibility remains unverified; no live PR or target-wide sweep runs.
-
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| bypass-eligible-blocked | anthropic/claude-opus-5-5 | improved | 18049 | f1: fails -> holds (unplanned improvement); f2: holds -> holds (held); f3: fails -> holds (unplanned improvement); f4: fails -> holds (unplanned improvement); f5: holds -> holds (held) |
-| bypass-eligible-blocked | github-copilot/gpt-6.1-sol | improved | 15133 | f1: fails -> holds (unplanned improvement); f2: holds -> holds (held); f3: fails -> holds (unplanned improvement); f4: fails -> holds (unplanned improvement); f5: holds -> holds (held) |
+| bound-viewer-green-ci | anthropic/claude-opus-5-5 | improved | 18228 | f1: holds -> holds (held); f2: holds -> holds (held); f3: fails -> holds (intended change); f4: fails -> holds (unplanned improvement); f5: holds -> holds (held) |
+| bound-viewer-green-ci | github-copilot/gpt-6.1-sol | improved | 18640 | f1: fails -> holds (unplanned improvement); f2: holds -> holds (held); f3: fails -> holds (intended change); f4: fails -> holds (unplanned improvement); f5: holds -> holds (held) |
 
 ## Feedback
 
-- bypass-eligible-blocked / anthropic/claude-opus-5-5: After keeps every fact Before kept and fixes the three Before failed: the merge row now reads "squash-merge using your admin override" with no separate bypass row (f1); Snapshot B recommends merge on row 1 while retaining approve and leaving stop last (f3); and the CI result is stated in plain prose ("the required test check passed on this exact head") with run 701, abc1234, and the raw merge_state_status/reviewDecision fields pushed behind show evidence instead of the inline Evidence line (f4). No merge is performed, no extra approval is demanded, and "GitHub requires an admin override" plus "your account is eligible" avoids naming a rule or claiming live non-admin proof (f5). Two small consistency points worth tightening: the gauntlet header is rendered as a plain line before "Snapshot A" but as backticked code after "Snapshot B", so the wrapper should fix one placement and formatting for both parts; and "required test check" edges toward naming the check identifier inline, so consider "the required checks passed in CI on this exact head" to match the fact wording literally while keeping the identifier behind show evidence.
-- bypass-eligible-blocked / github-copilot/gpt-6.1-sol: After moves f1, f3 and f4 from fails to holds without breaking f2 or f5: both merge rows now read "squash-merge using your admin override" with no separate bypass/admin row, Snapshot B now recommends merge at row 1 while keeping approve and a trailing stop, and the reports say "required checks passed in CI" in prose while pushing head/run/check identifiers and merge_state_status/reviewDecision behind show evidence. Before failed f1 by phrasing the row as "ruleset bypass authority", f3 by recommending approve for the non-author, and f4 by inlining abc1234, run 701, BLOCKED and REVIEW_REQUIRED. One wording caution for After: "eligible to use it with your write access" / "maintainer access" ties the override to the permission level rather than to the fresh viewer-relative bypass field; a safer phrasing that keeps every fact is "you are eligible to use that override on this PR" (dropping the permission tie), which avoids implying a repository-level rule or non-admin proof while still delivering the Change.
+- bound-viewer-green-ci / anthropic/claude-opus-5-5: After moves f3 and f4 to holds without losing anything Before kept: stop is now row 1 with recommended=1 under the obstacle gate, the labeled 'PR comments:' line and the raw '(merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)' parenthetical are gone, and the block is stated in plain prose ('GitHub blocks you from merging this PR and no local repair applies') while identifiers stay behind show evidence. CI resolution is still explicit (test_unit and build_image passed on the current head, lint skipped and inert, no local run, verification independent of the block), merge remains not offered with the GitHub-blocked reason, and no sentence names a rule or says another developer must approve. One small tightening: the prose says the block twice ('Nothing in the code blocks merging, but GitHub blocks you...' and later 'Merge is not offered because GitHub blocks this actor...'); keeping just the second as the merge-row reason and letting the first stand as the obstacle statement would read cleaner, but neither repetition moves a fact.
+- bound-viewer-green-ci / github-copilot/gpt-6.1-sol: After improves on Before without regressing anything: it moves stop to row 1 as recommended (f3), drops the labeled 'PR comments:' line and the raw merge_state_status/reviewDecision fields from prose (f4), and keeps run 7001 / head 9c1e4f2 out of the report body and out of the 'show evidence' prompt line (f1), while still stating in plain prose that GitHub blocks this actor's merge and that merge is not offered for that reason (f2), and never attributing the block to a specific rule or to a missing approval (f5). The only wording worth tightening is the volunteered aside 'your requested-reviewer status cannot be determined from the supplied snapshot', which is not part of the digest and edges toward speculating about the block's cause; replacing it with the simpler 'you are not the author' keeps f5 safely intact. Otherwise the After template is the one to keep: three unlabeled prose parts, override eligibility stated as unreadable, required checks described as passed independently of the block, and identifiers reserved for show evidence.
 
 exit: 0

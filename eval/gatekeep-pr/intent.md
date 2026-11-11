@@ -1,4 +1,4 @@
-for: c563ecce762825fbd5e573a380564effe8eff785c0f2aa35f548ce43b662ad86
+for: 23d82208c949dcbae39a71a7295d28a60e851816107dc956fc20a45453656b25
 
 ## Change
 
@@ -9,6 +9,9 @@ Cover all seven action-row-one scenarios: pending progress, ruleset block, uncha
 Require an executable command for every unrun cleanup sub-step in the closing message; a retained path substitutes for a command only for post text. Validate post-menu-set-reply/closing-commands and restore menu-after-numbered-findings' adjoining-list numeric remapping and pre-action echo. This review round runs post-menu-set-reply twice, menu-after-numbered-findings once, per-ref-settlement once, and refreshes bypass-merge-pick-refused, bypass-merge-pick-revoked and gate-line-first once each. Gate 2 uses ledger row 2's first evidence segment, not the obsolete assertion extracted by the earlier worker. Preserve loop-worker's earlier replay disclosure and the existing wave-closure-retry and course-deliver-no-mid-menu f2 failures; those results are not rerun here.
 
 ## Expected to move
+
+- batch-post-menu/standing: holds -> holds - Require one line per PR with the unchanged child standing sentence.
+- batch-post-menu/retirement: holds -> holds - Retirement carries no terminal marker or settlement row; settlement rows belong only to the parent's closing message.
 
 - post-menu-set-reply/closing-commands: fails -> holds - Unpicked, skipped and failed cleanup sub-steps carry commands, including skipped base sync after all selected rows ran.
 - menu-after-numbered-findings/mapping-echo: fails -> holds - Echo Taking 6 as option 3 - assess before acting on the remapped out-of-range reply. Preserve layout and mapped-pick, and hold restored approved-reply in an independent third checkpoint: freshness passes, C1 posts once and the approved run settles with no further menu.
@@ -27,6 +30,12 @@ Require an executable command for every unrun cleanup sub-step in the closing me
 - conflict-free-sync/f5: fails -> holds - Explain sync and standing in prose, never a Verdict or Sync label.
 - course-ready-at-first-report/f2: fails -> holds - Review the supplied post-push comment delta narrowly without a whole-wave re-review.
 - course-ready-at-first-report/f3: fails -> holds - Discover N2 from that source-backed delta and leave it outside the selected N1 iteration.
+
+## Conformance repair coverage
+
+This round selects batch-post-menu and plain-report for strengthened facts, and per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused and bypass-merge-pick-revoked only for script-bound assembly freshness. Coverage is sample-scoped, not a target-wide pass. Other saved results retain their recorded identities. The plain-report/scope fact requires a supplied show evidence continuation with ids, usage counters and the detailed row mapping; its other facts exempt that explicit inspection from the plain-prose register.
+
+Loop-worker's saved replay history includes a seventh fresh run after deleting its saved candidate and an eighth assembly-bound conformance run under D8. That eighth run failed anthropic/claude-opus-5-5/w10: the successful retry's final narration omitted clearing pending. The continuation authorizes one ninth fresh replay after preserving that candidate outside the checkout; the repair changed no retry, pending or round-accounting sentence. This continuation selects batch-post-menu for the shared-item execution rule, per-ref-settlement for its batch.md-bound assembly, and loop-worker for the authorized fresh replay. Batch-post-menu's preceding anthropic/claude-opus-5-5/shared failure omitted publish from #15's menu while #12's pick was only queued; omit shared items only after recorded execution. Keep the strengthened facts unchanged. Both strengthened batch-post-menu facts and all plain-report facts held on both models in the preceding run. The base-commit failures in wave-closure-retry and one model's course-deliver-no-mid-menu/f2 remain disclosed and are not rerun in this continuation. The runner's target report covers only its latest named sample; other candidate files retain sample-scoped evidence at their recorded identities, not a final-text pass for every sample. Preserve the continuation's outcomes in the report after regeneration. The runner-generated Change excerpt contains prior-review coverage prose; this conformance section names the continuation's samples and replay history.
 
 ## Validation boundary
 

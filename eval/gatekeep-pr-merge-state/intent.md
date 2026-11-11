@@ -1,4 +1,4 @@
-for: be9907dbc46b886ce97f0dd9bc35b98dd39c7584796403712a9e24c9dbc3f5cd
+for: ff15330a8f6fa8871004885209e64434a402c5a782de29c18ccad108f680b8fc
 
 ## Change
 
@@ -13,6 +13,10 @@ Recommend row 1 from the current assessment: pending-only CI recommends deliver,
 - bound-viewer-green-ci/f3: fails -> holds - Stop is row 1 for undispositionable BLOCKED with no useful non-stop row.
 - flip-after-update-branch/f1: fails -> holds - Deliver is row 1 for drafted sync, rendering both checkpoints.
 - flip-after-update-branch/f2: fails -> holds - Fresh pushed-head evidence recommends merge at row 1 regardless of authorship.
+
+## Conformance repair coverage
+
+This round selects only bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after the report-owner links change. Coverage is sample-scoped, not a target-wide pass; other saved cells retain their earlier assembly identities. No merge-state mechanics or expected facts change.
 
 ## Validation boundary
 

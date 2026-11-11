@@ -1,4 +1,5 @@
 import './gatekeep-bypass-pick.test.mjs';
+import './gatekeep-post-selection.test.mjs';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
@@ -89,7 +90,7 @@ const batch = readOrEmpty('../skills/gatekeep-pr/reference/batch.md');
 test('UNKNOWN exit precedes pending CI and other-author explanation stays verbatim', () => {
   assert.match(loop, /UNKNOWN\/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check/);
   assert.match(loop, /merging cannot proceed until GitHub's merge status is readable/);
-  assert.match(loop, /let merge state own the withhold reason and the PR comments line/);
+  assert.match(loop, /let merge state own the withhold reason; render the wait through `report\.md`/);
   assert.match(sync, /print this fixed block verbatim, one line per point/);
   assert.match(sync, /^Authorship stays, but the committer becomes this checkout's local git identity\.$/m);
 });
@@ -409,6 +410,14 @@ test('report.md renders three unlabeled parts and delegates the recommendation',
   assert.match(report, /Count a covered mechanism as covered even when its observation waits/);
   assert.match(report, /Explain replyable PR comments and the drafted reply's meaning/);
   assert.doesNotMatch(report, /```|captured tail|^Verdict:|^Delivers:|^Evidence:/m);
+  assert.match(findings, /Compose a posted review body at post time from the blockers being addressed through `report\.md`'s review-body rule/);
+  assert.match(brief, /Render a `pending` row through `reference\/report\.md`'s waits rule/);
+  assert.match(brief, /Render a run with `status != completed` through `reference\/report\.md`'s waits rule;\nwithhold pre-composed merge exactly like a `pending` row/);
+  assert.match(loop, /render the queued-merge wait through `report\.md`/);
+  assert.match(loop, /Render reports through `report\.md`; a report above a menu is not a terminal/);
+  for (const owner of [findings, brief, loop]) {
+    assert.doesNotMatch(owner, /`Delivers`|`PR comments`|report Verdict|then the numbered items/);
+  }
 });
 
 test('post-selection-loop.md delegates the wave to fix-wave.md and re-enters step 4 after its own push', () => {
@@ -579,7 +588,7 @@ test('bypass eligibility preserves pending CI and every independent merge withho
   const parsed = parseCase(input);
   const target = JSON.parse(read(`${root}/target.json`));
   const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-  assert.equal(saved.repoSha, '064b62030be28326fda979af0ce9af54c18a0a0d');
+  assert.equal(saved.repoSha, '24038667b1645b736e9c03512632cda643eb1034');
   assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
@@ -627,7 +636,7 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
   const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
   const target = JSON.parse(read(`${root}/target.json`));
   const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-  assert.equal(saved.repoSha, '064b62030be28326fda979af0ce9af54c18a0a0d');
+  assert.equal(saved.repoSha, '24038667b1645b736e9c03512632cda643eb1034');
   assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);

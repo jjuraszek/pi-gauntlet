@@ -1,4 +1,4 @@
-for: 4a57c580438cd5abf874d90370466f7c67b737bb3f0d4037d2a6ff246e49f77e
+for: 384a5a659355acfac1b36aabdeb7dda5812c882bb05a38ed62b6bcef3834faf8
 
 ## Change
 
@@ -17,6 +17,10 @@ Render the single post menu after approve or merge, execute the validated select
 ## Closing-command coverage
 
 The cleanup owner requires each unrun cleanup sub-step's command in the closing message. Its shared assembly identity is current; no scope sample is rerun for that instruction, so saved scope cells retain their earlier identities. Selected command and remapping evidence lives in gatekeep-pr's sample-scoped report.
+
+## Conformance repair coverage
+
+cleanup-merged-at-step-1 and cleanup-no-section are edited only in case.md to start from the one post menu and select actual numbered member rows. Their expected.md files are unchanged. Both samples are edited, not rerun, under D8 and Tests; their saved results and report remain earlier evidence, not validation of these corrected premises. No scope sample runs in this round. Coverage remains sample-scoped, not a target-wide pass.
 
 ## Validation boundary
 

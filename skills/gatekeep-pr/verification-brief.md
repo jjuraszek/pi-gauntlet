@@ -316,7 +316,7 @@ its `[View job run](<url>)` link; the result decides the row's state:
 | Bot-authored body whose first line starts with `**Claude encountered an error` (the producer's failure header) | `reviewer failed (error)` | no |
 | run completed `success` while the prefix persists | `pending` until the body changes or one bounded delivery watch deadline expires, then `reviewer failed (stale placeholder)` | yes, then no |
 
-A `pending` row renders as one `PR comments` line in `reference/report.md`'s form (`The reviewer run is still in progress, so merge waits. (<run url>)`); `reviewer failed` rows carry no reply and no label and print under `show evidence` only. A failed reviewer is information,
+Render a `pending` row through `reference/report.md`'s waits rule; keep `reviewer failed` rows replyless and unlabeled under `show evidence` only. A failed reviewer is information,
 never a withhold.
 
 **Reviewer run on the new head.** The placeholder is written from inside the
@@ -330,8 +330,8 @@ finished or error body), record that run's `workflowName` (from
 `gh run view`) as the reviewer workflow for this run of the gate;
 after every head move,
 `gh run list -w <workflowName> -c <headRefOid>` names the reviewer run on the
-new head. A run with `status != completed` renders the same `PR comments` line and
-withholds pre-composed merge exactly like a `pending` row (delivery step 4 watches it).
+new head. Render a run with `status != completed` through `reference/report.md`'s waits rule;
+withhold pre-composed merge exactly like a `pending` row (delivery step 4 watches it).
 No such comment -> no reviewer workflow known -> no window check;
 `show evidence` says `reviewer workflow: unknown`.
 
