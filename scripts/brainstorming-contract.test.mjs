@@ -451,6 +451,7 @@ test('section 3 asks the framing question once, with a named alternative, after 
   const left = section.indexOf('Before approaches, state in chat');
   const right = section.indexOf('verify the draft\'s `Framing:` line');
   assert.ok(left > -1 && right > -1 && left < right, 'framing paragraph follows the premise note');
+  assert.ok(section.includes('every checked claim'), 'evidence write includes held claims as well as corrections');
   for (const marker of ['A) as framed', 'B) pivot:', 'C) smaller or none:', 'The framing holds: checked', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
   assert.match(section, /^Bad: `The ask adds another settings path - should we\? Recommendation: no`$/m);
   const good = [...section.matchAll(/^Good:\n```text\n([\s\S]*?)\n```$/gm)].map((match) => match[1]);
