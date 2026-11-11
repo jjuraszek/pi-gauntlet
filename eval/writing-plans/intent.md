@@ -1,8 +1,8 @@
-for: c2cc4616599afae436601f5c58a8a7af1b2b6e15221709d4afdc3e2745ec997e
+for: 88741d62aafef5ee340579cc1419bf371115e7e4eeaab2d2063fcee7314a8a20
 
 ## Change
 
-Declare each removed file as Delete in exactly one task, not Modify, even while the file still exists. The removal-lists-delete sample exercises fresh plan authoring; its checker half is the removal-only fixture in extensions/lib/plan-check.test.ts. Expect Delete ownership and the absence of Modify to move from fails to holds; keep the scoped test and measured baseline unchanged.
+Declare each removed file as Delete in exactly one task, not Modify, even while the file still exists. Show Delete in the task template as literal-path write ownership without an existence requirement. The removal-lists-delete sample exercises fresh plan authoring; its checker half is the removal-only fixture in extensions/lib/plan-check.test.ts. Expect Delete ownership and the absence of Modify to move from fails to holds; keep the scoped test and measured baseline unchanged.
 
 Preserve existing Delete ownership through ordinary Findings maintenance and implement-phase Amend-apply. The maintenance-after-delete sample checks unchanged Files entries, absent removed paths, untouched task-owned source and successful self-checks in both modes. These are invariants, not expected fact moves; the checker half is the Delete-before/after-removal fixture in extensions/lib/plan-check.test.ts. This sample adds partial coverage without changing the maintenance instructions.
 

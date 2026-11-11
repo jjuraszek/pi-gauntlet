@@ -3,7 +3,7 @@
 base: 196d5abb0ac05f8336839944fed72c5ae2e928bb
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -18,7 +18,7 @@ allowance: 10
 | 8 | done | 0 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 211 passed, 0 failed; Delete rejects four glob forms with and without line suffixes |
 | 9 | done | 1 | timeout -k 30 30 node -e 'require("node:assert/strict").deepEqual(Object.values(require("./eval/writing-plans/results/maintenance-after-delete/candidate.json").judge).map(cell => Object.values(cell.facts).map(fact => fact.after)), Array(2).fill(Array(6).fill("holds")))'; 12 candidate facts hold across both maintenance modes; bound spent: maintenance-after-delete (1 of 4); ran maintenance-after-delete (1 of 4) |
 | 10 | done | 1 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 212 passed, 8 candidate facts hold, 2 authored plans pass checkPlan, bound spent: removal-lists-delete (1 of 4), ran removal-lists-delete (1 of 4); bound spent: removal-lists-delete (2 of 4), ran removal-lists-delete (2 of 4); bound spent: removal-lists-delete (3 of 4), ran removal-lists-delete (3 of 4) |
-| 11 | open | 0 | |
+| 11 | done | 1 | timeout -k 30 120 node --test scripts/wave-review.test.mjs; 15 passed, 0 failed, 8 candidate facts hold; bound spent: removal-lists-delete (4 of 4); ran removal-lists-delete (4 of 4) |
 | 12 | open | 0 | |
 
 ## Decisions
@@ -33,3 +33,4 @@ row 7 done | Verified that none tests and kind-like bullets outside Files produc
 row 8 done | Rejected Delete globs with entry-specific findings after stripping line suffixes. | Reuse the Delete glob cases in extensions/lib/plan-check.test.ts for literal-path validation.
 row 9 done | Verified both maintenance modes; bound spent: maintenance-after-delete (1 of 4); ran maintenance-after-delete (1 of 4). | Reuse eval/writing-plans/samples/maintenance-after-delete and its result records to check Delete ownership without restoring source.
 row 10 done | Required Delete ownership; ran removal-lists-delete (1 of 4); ran removal-lists-delete (2 of 4); bound spent: removal-lists-delete (3 of 4); ran removal-lists-delete (3 of 4). | Reuse the removal-only test in extensions/lib/plan-check.test.ts to replay both authored plans and their eval facts without model calls.
+row 11 done | Added Delete template and contract assertions; bound spent: removal-lists-delete (4 of 4); ran removal-lists-delete (4 of 4). | Reuse scripts/wave-review.test.mjs to check Delete ownership wording in the task template and plan contract.

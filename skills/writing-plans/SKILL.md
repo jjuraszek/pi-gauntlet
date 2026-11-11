@@ -213,6 +213,7 @@ For both rebase forms, consume every `pending` member in listed order, run `git 
 **Files:**
 - Create: `exact/path/to/file.py`
 - Modify: `exact/path/to/existing.py:123-145`
+- Delete: `exact/path/to/removed.py`
 - Test: `tests/exact/path/to/test.py`
 
 **Tests:**
@@ -263,6 +264,8 @@ For both rebase forms, consume every `pending` member in listed order, run `git 
 Every code task carries this step (red -> green -> fmt/lint -> commit). Doc-only tasks omit it unless the project formats Markdown.
 
 Use bare `git` in task commit steps: the orchestrator commits each wave after code review accepts; a task's own commit step runs inside its nested worktree and is captured as its patch.
+
+Declare `Delete:` as write ownership with a literal path and no existence requirement; follow [the Files contract](reference/plan-contract.md#files-wave-file-disjointness-paths-exist-files-block).
 
 **Anchor rules.** See [reference/plan-contract.md § Spec anchors](reference/plan-contract.md). A task with no anchorable requirement omits the `**Spec:**` line and carries a mechanical-task row in `## Spec coverage` — silence is never valid.
 

@@ -44,6 +44,11 @@ test('planning and wave dispatch bind task roots and Rules to admitted legs', ()
   const contract = readFileSync(new URL('../skills/writing-plans/reference/plan-contract.md', import.meta.url), 'utf8');
   for (const token of ['Leg: <repo>', 'Baseline <repo>: <sha>', '(leg, path)', 'leg-unknown', 'home:', 'NAME']) assert.ok(contract.includes(token), token);
   for (const token of ['Rules: root only - paths unresolved', 'owning checkout', 'tree-equivalence', 'per-leg']) assert.ok(writer.includes(token), token);
+  const taskTemplate = writer.split('## Task Structure')[1].split('## Spec Coverage Table')[0];
+  for (const [name, text] of [['plan contract', contract], ['task template', taskTemplate]]) {
+    for (const token of ['Delete:', 'write ownership', 'literal path', 'no existence requirement']) assert.ok(text.includes(token), `${name}: ${token}`);
+  }
+  assert.match(taskTemplate, /^- Delete: `exact\/path\/to\/removed\.py`$/m);
   for (const token of ['leg-homogeneous', 'before capturing `WAVE_BASE_SHA`', 'combined spec/task `Rules:`', 'home spec', 'every leg']) assert.ok(skill.includes(token), token);
   for (const name of ['implementer', 'wave-reviewer']) {
     const persona = readFileSync(new URL(`../agents/${name}.md`, import.meta.url), 'utf8');
