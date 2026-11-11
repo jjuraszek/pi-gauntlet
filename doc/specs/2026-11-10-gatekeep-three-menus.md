@@ -248,7 +248,7 @@ Add:
   | pending reviewer placeholder | an automated review is still running |
 
 - `reference/report.md`, rewritten: three unlabeled parts - two descriptive parts, then the recommendation sentence as part three - followed by the menu.
-  1. What the PR does, two sentences at most; the second says in everyday words which promised behavior is covered and which is deferred, deliberately different, assigned elsewhere or visible only after merge, naming the behavior and never a row number. Row numbers stay under `show evidence` and in the `AC coverage` checklist. The viewer's role follows as a sentence.
+  1. What the PR does, one paragraph of two sentences with the viewer's role folded into either; the second says in everyday words which promised behavior is covered and which is deferred, deliberately different, assigned elsewhere or visible only after merge, naming the behavior and never a row number. Row numbers stay under `show evidence` and in the `AC coverage` checklist.
   2. What stands between the PR and merging. Its first sentence is the standing: nothing, a count of problems to fix, or the one thing it waits on. In a set the child supplies this sentence with its result for the parent's summary (D6). Then one or two sentences per problem with one concrete example (a description fix quotes the sentence as it is and as it will read); a numbered list when two or more problems block. Then what the run is waiting on, the sync result when `--rebase` was passed, the prior-review count ("Two of the three points from the last review are addressed."), each step named for after the merge, and the smaller points.
   3. The recommendation sentence (D2).
 
