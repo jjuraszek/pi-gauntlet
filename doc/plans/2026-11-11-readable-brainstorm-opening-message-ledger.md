@@ -3,7 +3,7 @@
 base: 19adc247477472360ead7877c939e838ab8a5491
 verification: npm test
 checks: commands
-iterations: 3
+iterations: 4
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -11,7 +11,7 @@ allowance: 10
 | 1 | done | 1 | timeout -k 30 60 node -e 'require("node:assert/strict").deepEqual(Object.values(require("./eval/brainstorming/results/opening-message-shape/candidate.json").judge).map(j => Object.values(j.facts).map(f => f.after)), Array(2).fill(Array(6).fill("holds")))'; 2 replay models hold all 6 facts; bound spent: Model eval run (14 of 280), ran Model eval run (6 of 280); bound spent: Model eval run (28 of 280), ran Model eval run (10 of 280) |
 | 2 | done | 0 | timeout -k 30 60 node -e 'require("node:assert/strict").deepEqual(Object.values(require("./eval/brainstorming/results/opening-message-shape/candidate.json").outputs).map(o => o.mechanical["word-bound"]), ["holds", "holds"])'; both replay models satisfy the 220-word span; cap and over-cap anchors pass the contract test |
 | 3 | done | 1 | timeout -k 30 60 node -e 'require("node:assert/strict").deepEqual(Object.values(require("./eval/brainstorming/results/gate-line-first/candidate.json").judge).map(j => Object.values(j.facts).map(f => f.after)), Array(2).fill(Array(3).fill("holds")))'; 2 replay models hold all 3 facts with one locator-free Corrected line each; bound spent: Model eval run (42 of 280); ran Model eval run (34 of 280) |
-| 4 | open | 0 | |
+| 4 | done | 1 | timeout -k 30 60 node -e 'Object.entries({"implicit-template-not-found":6,"missing-db-extension":6,"review-and-apply-containment":7}).forEach(([s,n]) => require("node:assert/strict").deepEqual(Object.values(require("./eval/brainstorming/results/"+s+"/candidate.json").judge).map(j => Object.values(j.facts).map(f => f.after)), Array(2).fill(Array(n).fill("holds")), s))'; 38 candidate fact cells hold across 3 samples and 2 models, including all 32 original cells; bound spent: Model eval run (84 of 280); ran Model eval run (60 of 280) |
 | 5 | open | 0 | |
 | 6 | open | 0 | |
 | 7 | done | 0 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 58 passed, 0 failed; every checked claim is recorded before the opening message with both draft destinations |
@@ -22,3 +22,4 @@ row 1 done | Added opening sections; bound spent: Model eval run (14 of 280); ra
 row 2 done | Checked both saved opening-message-shape replies against the 220-word fact and pinned the overflow rules. | nothing new to build on
 row 7 done | Verified the evidence-write rule records held claims and names both draft destinations before sending. | nothing new to build on
 row 3 done | Verified locator-free corrections; bound spent: Model eval run (42 of 280); ran Model eval run (34 of 280). | Reuse eval/brainstorming/results/gate-line-first/candidate.json for local correction and framing checks without model calls.
+row 4 done | Verified three dependency replays; bound spent: Model eval run (84 of 280); ran Model eval run (60 of 280). | Reuse eval/brainstorming/results/{implicit-template-not-found,missing-db-extension,review-and-apply-containment}/candidate.json for register and dependency checks.

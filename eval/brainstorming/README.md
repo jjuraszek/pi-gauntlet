@@ -15,7 +15,9 @@ Tests questionary and approaches messages (checklist steps 3-5) and same-turn co
 | `opening-message-shape` | First message only: three titles, everyday role names, no source locator, a 220-word span, then holds-statement and one question. |
 | `explicit-unit-normalization` | Correct the premise and preserve the shared representation contract. |
 | `latest-run-indicator` | Keep per-surface provenance and persisted run metadata. |
-| `review-and-apply-containment` | Keep the producer out of scope and reuse field candidates. |
+| `review-and-apply-containment` | Use everyday role names in the titled opening without source locators; keep the producer out of scope and reuse field candidates, retaining source-backed approaches. |
+| `implicit-template-not-found` | Keep the missing asset and lookup names in the titled opening without incidental code identifiers or locators; retain the dependency in approaches and the draft excerpt. |
+| `missing-db-extension` | Keep the missing extension name in the titled opening without incidental code identifiers or locators; retain the installed-extension distinction in approaches and the draft excerpt. |
 | `cut-without-human-words` | Hard rows stay in-scope without author-proposed cuts; other repo rows are settled attribution. |
 | `other-repo-group` | Assign mailer rows elsewhere without asking and keep the spec AC section flat. |
 | `unmatched-group-asked` | Ask the three-way attribution question instead of assigning an unknown group silently. |

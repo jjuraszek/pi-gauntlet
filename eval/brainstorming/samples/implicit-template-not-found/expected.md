@@ -1,4 +1,5 @@
 anonymized: true
+- register: judged: The first user-facing message uses Today, The change, and What I checked. Name parts by their role in everyday words; retain templates/deck.pptx as the literal missing asset and templates/ as the lookup, but omit incidental code identifiers, file:line locators, commit or tracker ids, and inline source citations. Apply this restriction only to the first message, not approaches or the draft Problem excerpt.
 - premise: judged: The first message identifies templates/deck.pptx from the retained generator's loader and explicitly says it was not found in the supplied templates/ directory listing, rather than merely saying a template might be needed.
 - approaches: judged: In the separate approaches message, before presenting approaches, the output restates templates/deck.pptx as not found and names the supplied templates/ directory listing as the lookup.
 - problem: judged: The spec ## Problem excerpt records templates/deck.pptx as not found and names the templates/ directory listing lookup.

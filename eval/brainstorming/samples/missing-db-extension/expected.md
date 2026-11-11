@@ -1,4 +1,5 @@
 anonymized: true
+- register: judged: The first user-facing message uses Today, The change, and What I checked. Name parts by their role in everyday words; retain demo_vector as the literal missing extension but omit incidental code identifiers, file:line locators, commit or tracker ids, and inline source citations. Apply this restriction only to the first message, not approaches or the draft Problem excerpt.
 - premise: judged: Before the approaches message, the premise note traces the dump restore to demo_vector and states that this required extension is missing from the supplied installed-extension listing.
 - approaches: judged: Before presenting approaches in the separate approaches message, the output restates demo_vector as missing and names the installed-extension listing lookup.
 - problem: judged: The spec ## Problem excerpt retains the missing demo_vector capability and its installed-extension listing lookup.
