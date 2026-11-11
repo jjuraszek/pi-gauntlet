@@ -1,6 +1,7 @@
 # gh-32: Premise verdict, per-question recommendation, and lookup-before-asking in brainstorming
 
 > **Superseded by:** [doc/specs/2026-10-01-questionary-options-format.md](./2026-10-01-questionary-options-format.md) - Design: the accept-or-override premise question and the ask-even-when-ticket-recorded clause
+> **Superseded by:** [doc/specs/2026-11-11-readable-brainstorm-opening-message.md](./2026-11-11-readable-brainstorm-opening-message.md) - Design "2. Premise verdict paragraph": the plain-prose, no-template form and sources in chat
 
 **Ticket:** jjuraszek/pi-gauntlet#32
 **Date:** 2026-09-17
