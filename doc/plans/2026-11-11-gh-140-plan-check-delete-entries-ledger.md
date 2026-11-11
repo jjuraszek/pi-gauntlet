@@ -3,15 +3,15 @@
 base: 196d5abb0ac05f8336839944fed72c5ae2e928bb
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
-| 2 | open | 0 | |
-| 3 | open | 0 | timeout -k 30 120 node --test extensions/lib/plan-check.test.ts; 204 passed, 1 failed; Modify after Delete is still existence-checked: expected a paths-exist finding for fixture-shared.ts, got none |
-| 4 | open | 0 | |
+| 1 | done | 1 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 206 passed, 0 failed; Delete passes before and after removal |
+| 2 | done | 0 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 207 passed, 0 failed; Manifest preserves Delete kind, suffix and later entries |
+| 3 | done | 0 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 207 passed, 0 failed; Missing Modify after Delete reports its exact paths-exist finding |
+| 4 | done | 0 | timeout -k 30 120 node --test --test-reporter=dot extensions/lib/plan-check.test.ts; 207 passed, 0 failed; Missing Modify alone retains its paths-exist finding |
 | 5 | open | 0 | |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
@@ -23,3 +23,7 @@ allowance: 10
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 3: reuse the parameterized missing-Modify test to keep scanning after Delete
+row 1 done | Parsed Delete entries without requiring their paths to exist, with passing before/after removal checks. | Reuse the Delete fixture in extensions/lib/plan-check.test.ts for parser regressions.
+row 2 done | Added the Delete manifest label and verified ordered later entries and the retained line suffix. | Reuse renderManifest in extensions/lib/plan-check.ts to emit Delete ownership.
+row 3 done | Confirmed the seeded missing-Modify-after-Delete regression now passes. | nothing new to build on
+row 4 done | Confirmed missing Modify paths still fail with the existing paths-exist finding. | nothing new to build on

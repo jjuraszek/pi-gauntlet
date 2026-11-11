@@ -30,7 +30,7 @@ interface Anchor {
 }
 
 interface FileEntry {
-  kind: "create" | "modify" | "test";
+  kind: "create" | "modify" | "test" | "delete";
   line: number;
   text: string;
   path: string;
@@ -232,7 +232,7 @@ function parsePlan(planText: string): ParsedPlan {
             p++;
             continue;
           }
-          const fm = /^- (Create|Modify|Test): (.+)$/.exec(l);
+          const fm = /^- (Create|Modify|Test|Delete): (.+)$/.exec(l);
           if (!fm) break;
           files.push({
             kind: fm[1].toLowerCase() as FileEntry["kind"],
@@ -1374,7 +1374,7 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): { fin
 }
 
 export function renderManifest(parsed: ParsedPlan, planAbs: string, specAbs: string): string {
-  const kinds = { create: "Create", modify: "Modify", test: "Test" };
+  const kinds = { create: "Create", modify: "Modify", test: "Test", delete: "Delete" };
   return [
     `manifest: ${planAbs} | spec: ${specAbs} | tasks: ${parsed.tasks.length} | waves: ${parsed.waves.length}`,
     ...parsed.tasks.map(task => JSON.stringify({

@@ -177,6 +177,19 @@ test("valid fixture: checkPlan returns no findings (also covers the placeholder 
   assert.deepEqual(findings, []);
 });
 
+test("Delete entry passes before and after removal", () => {
+  const path = "extensions/lib/fixture-removed.ts";
+  const plan = VALID_PLAN.replace("- Test: extensions/lib/fixture-task1.test.ts", `- Delete: ${path}\n- Test: extensions/lib/fixture-task1.test.ts`);
+  for (const exists of [true, false]) {
+    const result = checkPlan(plan, SPEC_TEXT, {
+      exists: p => p !== path || exists,
+      glob: () => [],
+    });
+    assert.deepEqual(result.findings, [], `Delete path exists: ${exists}`);
+    assert.ok(result.parsed?.tasks[0].files.some(f => f.kind === "delete" && f.path === path));
+  }
+});
+
 test("no gauntlet grammar at all: emits both an absent-wave-headers and an absent-task-headers finding", () => {
   const plan = "# Just a plan\n\nSome prose with no wave or task headers at all.\n";
   const findings = checkPlan(plan, SPEC_TEXT, alwaysTruePort()).findings;
@@ -1410,6 +1423,22 @@ test("coordinated ledger rejects duplicate mapping sections", () => {
   assert.ok(checkPlan(input + input.slice(input.indexOf("## Leg mapping")), coordinatedSpec, emptyPort).findings.length);
 });
 
+
+test("manifest carries Delete and later entries", () => {
+  const entry = "- Delete: extensions/lib/fixture-removed.ts:1-2";
+  const plan = VALID_PLAN.replace("**Files:**", `**Files:**\n${entry}`);
+  const result = checkPlan(plan, SPEC_TEXT, alwaysTruePort());
+  assert.deepEqual(result.findings, []);
+  assert.ok(result.parsed);
+  const tasks = renderManifest(result.parsed, "/plan", "/spec").split("\n").slice(1).map(line => JSON.parse(line));
+  assert.equal(tasks[0].task, 1);
+  assert.deepEqual(tasks[0].files, [
+    { kind: "Delete", path: "extensions/lib/fixture-removed.ts:1-2" },
+    { kind: "Create", path: "extensions/lib/fixture-task1.ts" },
+    { kind: "Modify", path: "extensions/lib/fixture-shared.ts" },
+    { kind: "Test", path: "extensions/lib/fixture-task1.test.ts" },
+  ]);
+});
 
 test("manifest preserves ordered task data and optional coordination fields", () => {
   const plan = VALID_PLAN.replaceAll("Task 1", "Task 4").replaceAll("Task 2", "Task 9")
