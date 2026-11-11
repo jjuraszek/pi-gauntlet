@@ -1,6 +1,7 @@
-for: a2d5918b70f1566c6d7dc111bc48cc3a0d0e09911ee99bb232ede4404451040f
+for: d75dcbbda21bfc704ed01d84e09b389443278f192ca42e177ad748f11dc9c944
 
 ## Change
+Rebuild Delete ownership from the wave base: strip path line annotations, remove Create paths first, and restore deduplicated Modify/Test plus Delete paths printed by the restricted base-tree listing, excluding Create paths. Skip empty commands and preserve siblings. The rebuild-delete-paths sample covers this behavior change; its report is partial coverage.
 Recover suppressed apply JSON from exactly one bounded success capture satisfying unchanged APPLY_SCHEMA. Stop without retry only on the exact baseline-read marker, quoting command/stderr; preserve the ordinary one-retry gate. Establish committed plan/spec originals through path-scoped entry commits before dispatch. The missing-baseline and uncommitted-entry samples cover these changes; delegated-amendment and local-amend-revalidation now use committed originals while retaining failure history and parent gates. Model evidence remains verification-owned.
 Recover every missing task result from bounded identity-matched success captures before diagnosis, including accepted siblings hidden by chain failure. Use a named read-only delegate only for absent/rejected captures, stop on duplicate identity, and count missing/empty initial patches without integration. Preserve report bounds, source delegation, in-place gate/review and nonempty initial apply-failure stops.
 The bounded-read overflow check names the `Parallel-safe:` line as the report footer (`TRAJECTORY:` on a re-review), not the first-line `Verdict:`.
@@ -8,6 +9,8 @@ Localize implement amendments to affected entries and historical evidence, prese
 Replace per-task spec and per-wave code review with one post-gate integrated wave review. Read unresolved child reports directly once at limit 300 with one compact retry; retain delegated source/spec/plan reads. Repair on the current integrated tree, using committed clean snapshots and delta-only apply for isolated waves, direct edits in-place. Rebuild only after repair delta apply failure; preserve siblings and original wave base. Fold escalation, convergence, funding and transcript-only recovery into one transition table. These are behavior-changing instructions; parent verification owns model results.
 
 ## Expected to move
+- rebuild-delete-paths/restore: fails -> holds - Restore removed base-owned Delete paths before the next attempt.
+- rebuild-delete-paths/filter: fails -> holds - Use the restricted wave-base tree listing to choose Delete paths.
 - gate-repair-before-review/protocol: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - chain-stop-blocked/protocol: fails -> holds - Retain siblings and dispatch one sequential delegate diagnosis step only after bounded capture recovery finds no identity-matched success; preserve ladder routing and no recursive diagnosis, initial-chain repeat or per-task reviews.
 - amend-baseline-missing-stop/recovery: fails -> holds - Recover schema-valid JSON despite guard suppression.

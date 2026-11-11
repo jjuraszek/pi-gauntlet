@@ -280,6 +280,62 @@ test('rebuild removes Create/Test paths and restores deduplicated existing paths
   assert.match(wave, /deduplicated and excluding every `Create` path/);
 });
 
+test('rebuild restores base-owned Delete paths without touching siblings or passing empty path lists', () => {
+  const rebuild = skill.split('### Rebuild')[1].split('### Escalation')[0];
+  for (const token of ['trailing `:N[-M]` stripped', '`Delete` paths', 'ls-tree -r --name-only "$WAVE_BASE_SHA" -- <Delete paths>', 'Skip a command with no paths']) assert.ok(rebuild.includes(token), token);
+  assert.match(skill, /only Test\/Test may share a path/);
+  assert.ok(Buffer.byteLength(skill) < 50000);
+  const commands = Object.fromEntries(['rm', 'ls-tree', 'restore'].map(command => [command, rebuild.match(new RegExp('`(git -C <worktree> ' + command + '[^`]+)`'))[1]]));
+  const cases = [
+    { name: 'present and absent Delete with suffixes', paths: { Create: ['new.txt:1'], Modify: ['existing.txt:1-2'], Test: ['new.txt:2', 'existing.txt:3'], Delete: ['removed.txt:1-2', 'absent.txt:4'] }, restore: ['existing.txt', 'removed.txt'], calls: ['rm', 'ls-tree', 'restore'] },
+    { name: 'no Delete', paths: { Create: ['new.txt'], Modify: ['existing.txt'], Test: ['new.txt', 'existing.txt'] }, restore: ['existing.txt'], calls: ['rm', 'restore'] },
+    { name: 'absent Delete only', paths: { Delete: ['absent.txt:1'] }, restore: [], calls: ['ls-tree'] },
+    { name: 'Create wins over Delete and Test', paths: { Create: ['new.txt', 'removed.txt'], Test: ['new.txt'], Delete: ['removed.txt'] }, restore: [], calls: ['rm', 'ls-tree'] },
+  ];
+  for (const scenario of cases) {
+    const f = fixture();
+    writeFileSync(join(f.repo, 'sibling.txt'), 'accepted sibling\n');
+    git(f.repo, 'add', '-A');
+    const siblingBlob = git(f.repo, 'rev-parse', ':sibling.txt');
+    const paths = Object.fromEntries(Object.entries(scenario.paths).map(([kind, values]) => [kind, [...new Set(values.map(p => p.replace(/:\d+(?:-\d+)?$/, '')))]]));
+    const calls = [];
+    function run(command, values) {
+      if (!values.length) return '';
+      calls.push(command);
+      const script = commands[command].replaceAll('<worktree>', quote(f.repo)).replaceAll('$WAVE_BASE_SHA', f.base).replace(/<(?:Delete )?paths>/, values.map(quote).join(' '));
+      const result = spawnSync('bash', ['-e', '-c', script], { encoding: 'utf8' });
+      assert.equal(result.status, 0, `${scenario.name}: ${result.stderr}`);
+      return result.stdout.trim();
+    }
+    const create = paths.Create ?? [];
+    run('rm', create);
+    const deletedAtBase = run('ls-tree', paths.Delete ?? []).split('\n').filter(Boolean);
+    const restore = [...new Set([...(paths.Modify ?? []), ...(paths.Test ?? []), ...deletedAtBase])].filter(p => !create.includes(p));
+    assert.deepEqual(restore, scenario.restore, scenario.name);
+    run('restore', restore);
+    assert.deepEqual(calls, scenario.calls, scenario.name);
+    for (const path of restore) {
+      assert.equal(readFileSync(join(f.repo, path), 'utf8'), git(f.repo, 'show', `${f.base}:${path}`) + '\n', scenario.name);
+      assert.equal(git(f.repo, 'rev-parse', `:${path}`), git(f.repo, 'rev-parse', `${f.base}:${path}`), scenario.name);
+    }
+    for (const path of create) assert.equal(existsSync(join(f.repo, path)), false, scenario.name);
+    assert.equal(existsSync(join(f.repo, 'absent.txt')), false, scenario.name);
+    assert.equal(readFileSync(join(f.repo, 'sibling.txt'), 'utf8'), 'accepted sibling\n', scenario.name);
+    assert.equal(git(f.repo, 'rev-parse', ':sibling.txt'), siblingBlob, scenario.name);
+  }
+});
+
+test('rebuild Delete sample retains passing candidate facts for both replay models', () => {
+  const record = JSON.parse(readFileSync(new URL('../eval/subagent-driven-development/results/rebuild-delete-paths/candidate.json', import.meta.url), 'utf8'));
+  assert.equal(Object.keys(record.outputs).length, 2);
+  for (const [model, output] of Object.entries(record.outputs)) {
+    assert.equal(output.status, 'ok', model);
+    const facts = record.judge[model].facts;
+    assert.deepEqual(Object.keys(facts).sort(), ['absent', 'create', 'filter', 'restore', 'siblings']);
+    for (const fact of Object.values(facts)) assert.equal(fact.after, 'holds', model);
+  }
+});
+
 test('CI rejects retired dispatches only on instruction surfaces and validates supersession', () => {
   const ci = readFileSync(new URL('./ci.mjs', import.meta.url), 'utf8');
   const code = ci.match(/\/\/ wave-contract-checks:begin\n([\s\S]*?)\/\/ wave-contract-checks:end/)[1];

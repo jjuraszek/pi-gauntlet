@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Plan tasks can declare `- Delete:` entries as literal write ownership without an existence requirement; unrecognized Files lines produce `files-block` findings, and rebuild restores Delete paths from the wave base. (#140)
+
 ## v8.4.6 - 2026-11-08
 
 - Require pi-cohort >=7.7.0 for model-only `subagent` registrations; remove the now-unreachable scripted-dispatch guard and nested-result exclusion. The codemode guide documents direct-only dispatch under both `on` and `only` and clarifies that skill examples illustrate direct tool calls, not scripts to execute. (#135)

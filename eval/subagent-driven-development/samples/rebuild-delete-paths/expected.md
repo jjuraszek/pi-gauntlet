@@ -1,0 +1,5 @@
+- create: judged: Remove tests/new.test.mjs first with git rm -q -f --ignore-unmatch, and exclude it from the restore set despite its Test entry; strip line annotations from all git path arguments.
+- restore: judged: Restore src/parse.mjs exactly once and src/retired.mjs from WAVE_BASE_SHA into both index and worktree with git restore --source, --staged and --worktree.
+- absent: judged: Keep src/never-shipped.mjs out of both the removal and restore sets because it is absent at the wave base.
+- filter: judged: Use git ls-tree -r --name-only at WAVE_BASE_SHA restricted to the two Delete paths as the source of the Delete split; consume the supplied output rather than filesystem absence or a guessed blanket restore.
+- siblings: judged: Leave Task 2's staged src/format.mjs unchanged; no whole-tree reset, restore or unfiltered ls-tree includes sibling paths.
