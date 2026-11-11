@@ -2,7 +2,7 @@ for: 7d4df4559b7be03efbd989c26a94570d3e7963b230088fe76fb068200bb9eea5
 
 ## Change
 
-Save missing unrun reply and coverage bodies at teardown before reporting paths or deleting drafts, including stops before Post steps. The stop-draft-files sample covers final and merge-queued stops with two in-memory replies. This repair runs only the local post-selection assertion; no model replay is authorized by the derived findings spec, and existing saved results are not final-text evidence for this repair.
+Save missing unrun reply and coverage bodies at teardown before reporting paths or deleting drafts, including stops before Post steps. The stop-draft-files sample covers final and merge-queued stops with two in-memory replies. P4 authorizes one replay each of per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused, bypass-merge-pick-revoked and gatekeep-pr-merge-state's bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after teardown changed. The partial reports record these eight samples' outcomes; other saved results remain earlier evidence. The stop-draft-files replay belongs to a separate repair and is not run here.
 
 Render three unlabeled report parts: a two-sentence behavior-based change/scope opening, standing and concrete problems, then a separate recommendation above Pick one. Keep raw evidence and repair/sync usage behind show evidence; D2 obstacle consequences may name additional attempts. Align the replay wrapper with that report rather than requesting sync and verdict labels.
 

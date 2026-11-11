@@ -588,7 +588,7 @@ test('bypass eligibility preserves pending CI and every independent merge withho
   const parsed = parseCase(input);
   const target = JSON.parse(read(`${root}/target.json`));
   const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-  assert.equal(saved.repoSha, '00e797cbe3695c9f0d306e281e62e7a29c66b049');
+  assert.equal(saved.repoSha, '2ab622211ddf19cbca08f5914f770e9fe78ac0d9');
   assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
@@ -636,7 +636,7 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
   const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
   const target = JSON.parse(read(`${root}/target.json`));
   const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-  assert.equal(saved.repoSha, '00e797cbe3695c9f0d306e281e62e7a29c66b049');
+  assert.equal(saved.repoSha, '2ab622211ddf19cbca08f5914f770e9fe78ac0d9');
   assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);

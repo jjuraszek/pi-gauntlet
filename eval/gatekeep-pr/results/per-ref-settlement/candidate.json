@@ -1,7 +1,7 @@
 {
   "sample": "per-ref-settlement",
   "arm": "candidate",
-  "skillSha": "56e7d52e203f3a1e3703d8f13b1d80c0a747cfa321d4ebf49cdd71bf0850fbf0",
+  "skillSha": "a926da0967c57511a5a5e2bb0fba3cff604f3f5f9baa9569b605e299bd2f1927",
   "inputSha": "1d0edab204de0c88f8d4e551874fab29e1d3573891bb6191def5a23a3e206835",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n\nworktree: done\nbranch: done\nbase: synced\n\nThe cleanup you picked for #31 finished. Its separate checkout and local branch are removed, and your main checkout is updated with the merged change.\n\n#32 stopped because a required check was still running after 15 minutes. Your main checkout stayed as it was. No other steps were drafted or left waiting for either PR.\n",
-      "words": 74,
-      "wallMs": 9748,
+      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n\n#31 cleanup results:\nworktree: done\nbranch: done\nbase: synced\n\n#31 was merged and its cleanup finished. Its working copy and local branch are gone, and the main checkout now includes the merged change.\n\n#32 cleanup results:\nworktree: kept - primary checkout\n\n#32 stopped because a required check was still running after the 15-minute wait. Its working copy is the main checkout, so it was left as it was. The local branch was not deleted and the base branch was not pulled, because neither step runs when a review stops before a final decision.\n",
+      "words": 105,
+      "wallMs": 9368,
       "mechanical": {
         "terminal": "holds",
         "merged": "holds",
@@ -28,9 +28,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n\n#31 cleanup: worktree removed, branch removed, base synced.\n#32: primary checkout kept.\n",
-      "words": 25,
-      "wallMs": 2998,
+      "text": "gauntlet: stuck retired\n#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)\n#32@def123456789abcdef0123456789abcdef01234567: stuck - CI pending past 15 minutes\n",
+      "words": 13,
+      "wallMs": 2684,
       "mechanical": {
         "terminal": "holds",
         "merged": "holds",
@@ -42,9 +42,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c45ecc49ebfe1c8977866a116d08a98b262038cf051222a950334504ca625f05",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15467daf0ca2cbf8f38d5c077aa9ea3523aa03b24caf7bc4487cb8b0d735c982",
+      "intentSha": "690aa9bcc9292529920b3e186c647f22a007b48ec04611b6d6b230f8f81b586a",
       "baselineOutputSha": "d80e10ee4cdb26088c38ba2a7c67d1ef6ea35322c90b076e019831b7395dccc5",
-      "candidateOutputSha": "0df0f3a5fefb2d682a6d9fade90b9e4dbac62123bc378072737db99490ccacea",
+      "candidateOutputSha": "fdd0014d10e8f1c59f8cefa4f54139fa70048c4fa22e591701e9d4f55f194ebe",
       "facts": {
         "settled": {
           "before": "holds",
@@ -67,16 +67,16 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves the settlement fact: the message still opens with the single 'gauntlet: stuck retired' settlement, both rows appear in roster order with full assessed heads, only #31 carries '(#12)', and nothing after it opens a menu or new action. The one wording risk After introduces is the unlabeled 'worktree: done / branch: done / base: synced' block directly under the settlement: it drops Before's per-PR attribution ('#31 cleanup: ...', '#32 stop: ...') and could read as a second status table or as applying to both PRs, which a stricter reader might take as muddying the 'exactly one settlement' shape. To keep every fact Before kept while still delivering the plain-prose closing, either keep those three lines attributed to #31 (e.g. '#31 cleanup: worktree removed; branch removed; base synced') or fold them entirely into the prose paragraph that already states the same outcomes, and keep the #32 'kept - primary checkout' retention stated in the same place so the closing reads as settlement rows plus narrative, not two stacked tables.",
-      "wallMs": 12726,
+      "feedback": "Both outputs open with a single `gauntlet: stuck retired` settlement block listing #31 and #32 in roster order with their full assessed heads, a ticket annotation only on #31, and nothing after it that opens a menu or a new action, so the settled fact holds in Before and After alike. The After wording adds per-PR cleanup result lists and plain-prose explanations beneath the settlement; these read as narration of finished cleanup rather than a second settlement, so they do not disturb the fact. One caution for the Change you are delivering: the #32 section states that the local branch was not deleted and the base was not pulled but gives no executable command for those unrun sub-steps, which is what post-menu-set-reply/closing-commands asks for — if you want this output to serve that expectation too, add the `git branch -D <branch>` / `git pull` (or equivalent) lines under `#32 cleanup results` while leaving the opening settlement block exactly as it is.",
+      "wallMs": 10244,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c45ecc49ebfe1c8977866a116d08a98b262038cf051222a950334504ca625f05",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15467daf0ca2cbf8f38d5c077aa9ea3523aa03b24caf7bc4487cb8b0d735c982",
+      "intentSha": "690aa9bcc9292529920b3e186c647f22a007b48ec04611b6d6b230f8f81b586a",
       "baselineOutputSha": "8da89e4fef0e3aa76c78a59ca67297ae57d160f3164db78a8d1f4358923b341d",
-      "candidateOutputSha": "4c4cb2a55cfba7b9084acd27d3c7b28c99e5965cb125044225501f3156cc909c",
+      "candidateOutputSha": "6a0287d3b2212a9b01fa22352a3c3fb5e896e711f72834c82c922ed325938776",
       "facts": {
         "settled": {
           "before": "holds",
@@ -99,10 +99,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs open with the single terminal settlement line, list #31 then #32 with their full assessed heads, annotate only #31 with (#12), and end without any menu or new action, so the settled fact holds in each. The only difference is that After shortens '#32 cleanup: primary checkout kept.' to '#32: primary checkout kept.', which drops the 'cleanup' label and makes that trailing line read like a second, unlabeled #32 row rather than a cleanup note; a careful reader can still tell it is not a settlement row, but the wording invites confusion with the roster rows above. To keep every fact Before kept while still delivering the Change (plain prose, no raw labels like Sync/Verdict, executable commands or retained paths for cleanup sub-steps), keep the explicit '#32 cleanup:' prefix so the retained-path line is unambiguously a cleanup consequence, and otherwise leave the settlement block exactly as in Before.",
-      "wallMs": 8678,
+      "feedback": "Both outputs open with the single terminal settlement line, list #31 then #32 with full assessed heads, annotate only #31 with (#12), and open no menu or action, so the fact holds in both. The only difference is that After drops the two cleanup consequence lines (#31 worktree/branch/base synced, #32 primary checkout kept). That omission does not break this fact, but it sits uneasily with the Change's closing-commands requirement, which expects every cleanup sub-step to be accounted for in the closing message (a command for unrun steps, a retained path or completed-state note otherwise). To keep this fact and still deliver the Change, retain Before's trailing cleanup lines after the settlement block rather than cutting them: keep the settlement as the first block, then one line per PR stating completed sub-steps or, for #32's kept checkout, the retained path, and never add a menu, verdict label, or new action after them.",
+      "wallMs": 10295,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "a0106f810442bd831317bdca6d5b363cd356798b"
+  "repoSha": "2ab622211ddf19cbca08f5914f770e9fe78ac0d9"
 }

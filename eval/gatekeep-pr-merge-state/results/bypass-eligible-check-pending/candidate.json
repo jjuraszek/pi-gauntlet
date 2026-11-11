@@ -1,7 +1,7 @@
 {
   "sample": "bypass-eligible-check-pending",
   "arm": "candidate",
-  "skillSha": "445bc24e0d55242b158b86fe9b77085896bb8aebb08191be86d7594f02a2b208",
+  "skillSha": "edb53c7f1cca1b37f7b2bc5b59fbfda738a6d5db86c380ba7fa8336b9fb55546",
   "inputSha": "3c9d5591bbc40ae108c7fb8fce63259847dd40c8122140a9f74aa36bf10ed499",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR makes the feed fetch retry once before giving up, and adds tests for that retry. With no spec, the gate judged the PR against its own description, and the bounded retry and its tests match what it promises; you are the author, and no other reviewers are requested.\n\nMerging waits on one thing: the required e2e check is still running on the latest commit. The unit tests have already passed and nothing else blocks merging, but merge is not offered until e2e finishes, and the gate watches it only under deliver.\n\nI recommend deliver because the running e2e check is the only thing left, and deliver watches it through to a merge offer.\n\nPick one:\n1. deliver - watch the e2e check, rebase on main if the branch falls behind, and continue until merge is offered. [recommended]\n2. assess - post nothing, since no problems block merging, and end without watching the check.\n3. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record.\n",
-      "words": 177,
-      "wallMs": 14909,
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds one bounded retry when the feed fetch fails, along with tests for it. You are the author, and the retry and its tests do what the description promises.\n\nMerging is waiting on one thing: the required e2e check is still running on this head. The test check has already passed. Merge is not offered yet because e2e has not finished. Delivery watches it, and merge becomes available once it passes. No problems or smaller points remain.\n\nI recommend deliver because the running e2e check is the only thing holding back merge, and delivery waits for it to finish.\n\nPick one:\n1. deliver - watch the e2e check, rebase on main if the branch falls behind, and continue until merge is offered. [recommended]\n2. assess - post nothing, because there are no problems, and end without repairs or watching.\n3. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 163,
+      "wallMs": 10379,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds one bounded retry when fetching the feed, and you are its author. The reviewed changes cover the retry behavior and its tests.\n\nMerging waits for the required e2e check, which is still running. Verification evidence is pending: the completed test check alone is not sufficient, and no local verification run is selected.\n\nI recommend deliver to watch the required e2e check and continue until merge is offered.\n\nPick one:\n1. deliver - watch CI, rebase on main if needed, and continue until merge is offered. [recommended]\n2. assess - finish the assessment without posting a review, since no blockers remain, and make no repairs.\n3. stop - remove the provisioned worktree and leave the PR unchanged.\n\nType a number; show evidence prints the full record.\n",
-      "words": 128,
-      "wallMs": 10480,
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds a bounded retry for feed fetching, and you are its author. The retry behavior and its test coverage match the PR’s stated intent.\n\nMerging waits for the required e2e check to finish. Verification evidence remains pending despite the completed test check, so no local command runs and merge is not available yet.\n\nI recommend deliver because it can watch e2e and continue until merge is offered.\n\nPick one:\n1. deliver - repair any blockers, rebase on main if needed, watch CI, and repeat until merge is offered. [recommended]\n2. assess - finish the assessment without repairs; with no blockers, post no review.\n3. stop - end this run and leave the PR unchanged.\n\nType a number; show evidence prints the full record.\n",
+      "words": 125,
+      "wallMs": 14765,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d16b94bcd3d6d41a65bf9e6e6b7f30786f92b4fb60eed3a419702b30144f5724",
       "baselineOutputSha": "bc40c92f0025e134a64afe4e87d7b59feb8639cfe7c649f68efafc7d74f5043d",
-      "candidateOutputSha": "82d683d726faab99033f45843af37cc7f5bc53866343248907ca00f3ca4d4154",
+      "candidateOutputSha": "a5bccc5b23e6141fb29537ca2d05ffd5bd5084737458e94198d7c47dd8abf4b2",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,8 +64,8 @@
           "label": "held"
         }
       },
-      "feedback": "After kept every fact Before kept and fixed f3: Before printed two Not offered fields (including a merge row explained as unavailable), while After drops them, omits the merge row entirely, and explains in plain prose that the required e2e check is still running on the latest commit, with the show evidence hint and no Evidence: line, no bypass or admin language, and deliver recommended at row 1 with assess and stop also offered. The three unlabeled prose parts (what the PR delivers, what merging waits on, why deliver is recommended) are an improvement over Before's Role, PR comments, and Verdict labels. One caution for the new wording: the sentence that the unit tests have already passed and nothing else blocks merging is accurate here, but on bypass-eligible or admin-override snapshots it should not drift into a merge row or an eligibility remark when a required check is still pending; keep the admin-override phrasing only on the ordinary merge row when CI is green, and keep raw merge-state and review-decision fields under show evidence as After already does.",
-      "wallMs": 27946,
+      "feedback": "After keeps every fact Before kept and repairs f3: it drops the two `Not offered:` lines (including the one that named the merge row and head SHA), explains in plain prose that merge waits only because the required e2e check is still running, and never attributes the hold to GitHub blocking the actor. It still renders the initial template, makes no bypass or admin-override claim, offers assess/deliver/stop with deliver recommended, and ends with the `show evidence` hint without a separate `Evidence:` line, so nothing moved the wrong way. Two small notes for the author: the deliver row in After adds 'rebase on main if the branch falls behind', which is not in the digest or the Change and could be read as a promise to perform a sync before selection—consider keeping the deliver description to 'watch the e2e check, repair anything it turns up, repeat until merge is offered' as Before did; and the closing line prints show evidence unformatted rather than as the `show evidence` command literal, which is fine for f1 but worth keeping consistent with the other templates.",
+      "wallMs": 14026,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -73,7 +73,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d16b94bcd3d6d41a65bf9e6e6b7f30786f92b4fb60eed3a419702b30144f5724",
       "baselineOutputSha": "8f0e80f433698c72b79a1869dec0bc38609acc8532e134404126313f5d7d2c6f",
-      "candidateOutputSha": "8de4b9051e0c644a6c590979c67f4fab642c3a6fa43541b87f1865794f396966",
+      "candidateOutputSha": "38776e3dbb81d5d27aa29c802489b62e5913d07bcf5735214c4d4cee3696e0c5",
       "facts": {
         "f1": {
           "before": "holds",
@@ -101,8 +101,8 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept and additionally fixes f3: Before printed three `Not offered:` lines (including the merge one), while After omits the merge row entirely and explains the withheld merge only in prose tied to the still-running e2e check, with no GitHub-blocks-this-actor framing and no bypass language anywhere. The three unlabeled parts, the single `show evidence` hint, no `Evidence:` line, initial gate with course unset, and assess/deliver/stop with deliver recommended at row 1 are all intact. Two things to watch so the wording does not drift elsewhere: the assess row text changed from 'post the review to the PR' to 'finish the assessment without posting a review', which inverts what assess does and could break samples whose facts check assess semantics; and 'no local verification run is selected' is fine here but should stay descriptive rather than imply a verification run is pending user choice on this menu. Keep the prose explanation of the pending required check and the omitted merge row exactly as After has them.",
-      "wallMs": 13888,
+      "feedback": "After moved f3 from fails to holds by dropping the three `Not offered:` lines and instead explaining in a prose paragraph that merge waits for the required e2e check to finish; Before failed f3 only because it printed those `Not offered` fields. Nothing regressed: both outputs use the initial template with course unset, both explain the pending e2e check in prose with the `show evidence` hint and no `Evidence:` line, neither mentions bypass or admin override, and both offer assess/deliver/stop with deliver recommended (After promoting it to row 1 per the Change) without performing any action. One small wording risk in After: 'waits for the required e2e check to finish' is close to but not literally 'e2e is still running'; saying 'the required e2e check is still running, so merge waits' would match the fact text exactly while keeping the three-part unlabeled report structure and the row-1 deliver recommendation.",
+      "wallMs": 12299,
       "verdict": "improved"
     }
   },
@@ -346,5 +346,5 @@
       }
     }
   },
-  "repoSha": "00e797cbe3695c9f0d306e281e62e7a29c66b049"
+  "repoSha": "2ab622211ddf19cbca08f5914f770e9fe78ac0d9"
 }
