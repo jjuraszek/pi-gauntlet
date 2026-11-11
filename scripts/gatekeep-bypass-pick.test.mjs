@@ -32,7 +32,10 @@ test('eligibility changes invalidate the selected merge even without a merge-sta
   assert.match(cas, /run no `gh pr merge` and re-enter Pre-menu refresh for a fresh selection/);
 });
 
-for (const name of ['bypass-merge-pick-refused', 'bypass-merge-pick-revoked']) {
+for (const [name, repoSha] of [
+  ['bypass-merge-pick-refused', '2ab622211ddf19cbca08f5914f770e9fe78ac0d9'],
+  ['bypass-merge-pick-revoked', '49110877b66be79285ac5c2d43fcaf714543817f'],
+]) {
   test(`${name} saved replay holds every post-pick fact`, () => {
     const root = 'eval/gatekeep-pr';
     const parsed = parseCase(read(`${root}/samples/${name}/case.md`));
@@ -40,7 +43,7 @@ for (const name of ['bypass-merge-pick-refused', 'bypass-merge-pick-revoked']) {
     const saved = JSON.parse(read(`${root}/results/${name}/candidate.json`));
     const target = JSON.parse(read(`${root}/target.json`));
     const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-    assert.equal(saved.repoSha, '2ab622211ddf19cbca08f5914f770e9fe78ac0d9');
+    assert.equal(saved.repoSha, repoSha);
     assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, read, parsed.bundle)));
     assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
     assert.equal(Object.keys(saved.outputs).length, 2);

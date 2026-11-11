@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "695a732fa130487edf714f6c898c3c0a0f5e3a6252bcb02a6e8cab7f2587fffa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "690aa9bcc9292529920b3e186c647f22a007b48ec04611b6d6b230f8f81b586a",
+      "intentSha": "53c005591002e5d956834f712b7e858f17817d02820f71e3a0a5959026d62486",
       "baselineOutputSha": "408af33ae1ebf46c67325ee4970f46879466dd2a9b1f3712f8cbe6a98876969f",
       "candidateOutputSha": "c900ecc2c7ef00f74cb0021510c010da8c1b3337e5b4204f1b920cb3f475f8e7",
       "facts": {
@@ -64,14 +64,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "After keeps every fact Before kept and fixes the two Before failed: it drops the `Not offered: merge (blocked by GitHub)` line and the `so merge waits` sentence, replacing them with a plain sentence that GitHub reports the merge as blocked for this actor, and it removes the parenthetical `(merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)` so field names now appear only in the narration as the eligibility mechanism (viewerCanMergeAsAdmin). Two spots are worth tightening so the vocabulary fact stays safe under a stricter reader: the report's closing clause `such as an approving review or the override being restored` comes close to naming required review as the cause of BLOCKED - cut it to `It needs a change on GitHub's side.` - and narration step 6 lists `reviewDecision, status_checks, actions_runs` as replaced fields, which a strict reader could count as field names outside the eligibility mechanism; say `merge state, eligibility, review decision, checks and runs` in prose instead. Otherwise the three-part report, row-1 recommendation and absence of merge/wait rows deliver the Change as intended.",
-      "wallMs": 20703,
-      "verdict": "improved"
+      "feedback": "Both outputs re-read viewerCanMergeAsAdmin at compare-and-swap, invalidate the selected merge on the true-to-false flip with head and BLOCKED unchanged, run no gh pr merge, and re-enter the pre-menu refresh before rendering the obstacle template, so the mechanics are stable across the change. Before fails route because its report keeps a `Not offered: merge (blocked by GitHub)` line and the 'so merge waits' phrasing, and fails vocabulary because the PR-comments line cites `merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED` as the explanation of the block rather than restricting field names to the eligibility mechanism. After fixes both: the three-part prose report says GitHub reports the merge blocked for this actor and that the admin override 'is no longer offered to your account', with no Not offered row, no merge or wait row, no invented admin identity, and field names confined to the narration's eligibility read. Two cautions for the After wording: the phrase 'such as an approving review' edges toward naming a cause for BLOCKED, so prefer 'a change on GitHub's side that this gate cannot make' without examples; and keep the step-6 narration's list of replaced fields (reviewDecision, status_checks) phrased as record bookkeeping, not as reasons, so the vocabulary fact stays safely held.",
+      "wallMs": 23219,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "695a732fa130487edf714f6c898c3c0a0f5e3a6252bcb02a6e8cab7f2587fffa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "690aa9bcc9292529920b3e186c647f22a007b48ec04611b6d6b230f8f81b586a",
+      "intentSha": "53c005591002e5d956834f712b7e858f17817d02820f71e3a0a5959026d62486",
       "baselineOutputSha": "6da4d9ebd99553126d4628ac61597255a66db635f53f5aca0c406753d76ee757",
       "candidateOutputSha": "d89e00e273a39d5d907665c8fdb1a09e24851aadc61057ad20cbbb8d654c6f3c",
       "facts": {
@@ -92,8 +94,8 @@
         },
         "route": {
           "before": "fails",
-          "after": "fails",
-          "label": "pre-existing"
+          "after": "holds",
+          "label": "unplanned improvement"
         },
         "vocabulary": {
           "before": "fails",
@@ -101,10 +103,216 @@
           "label": "intended change"
         }
       },
-      "feedback": "Correction to the route row: After should be read as holds — it drops the `Not offered:` lines and the `merge waits` field, states \"GitHub blocks you from merging\" in plain prose, and offers no merge or wait row; Before failed route because it kept those template fields and the \"merge waits\" sentence. Vocabulary also moved to holds in After: Before named a \"ruleset bypass\" as what the permission authorized and surfaced `merge_state_status`/`reviewDecision` as report evidence rather than as the eligibility mechanism, whereas After confines field names to the GraphQL query and describes the loss as override eligibility. The one soft spot in After is \"Your admin override,\" which a reader could take as asserting the viewer is an admin; phrasing it as \"GitHub's admin override is no longer available to you\" keeps the eligibility-not-identity translation the Change asks for without risking an invented identity. The extra repository-policy read in step 2 is harmless but not required by the entry and could be dropped to keep the narration tighter.",
-      "wallMs": 19624,
-      "verdict": "improved"
+      "feedback": "After moved both report facts in the right direction: it dropped Before's `Not offered:` rows, the `Verdict:` label, the \"so merge waits\" sentence and the parenthetical `merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED` field dump, replacing them with the plain sentence \"GitHub blocks you from merging\" and a three-row menu with no merge or wait row, which satisfies route. It also removed Before's \"ruleset bypass\" wording, which named a rule as the cause of BLOCKED, so vocabulary now holds; the narration confines field names to the GraphQL query text and the report translates the flip as override eligibility rather than a role. The compare-and-swap, invalidation, no-merge and refresh behavior is intact in both outputs. One phrasing to watch in After: \"Your admin override is no longer available\" is close to attributing an admin identity; the safer wording from the Change is \"your permission to use GitHub's admin override is no longer available,\" which keeps the eligibility framing explicit. Everything else in the After wording can stay as is.",
+      "wallMs": 17933,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
     }
   },
-  "repoSha": "2ab622211ddf19cbca08f5914f770e9fe78ac0d9"
+  "repoSha": "49110877b66be79285ac5c2d43fcaf714543817f",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "bypass-merge-pick-revoked",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "8f23a06e75fd23b4983087f49f2d072f1b6bb2d96dfc7cb1879f7c2482c8eb23",
+      "candidateSkillSha": "608d47e38b3eb1a15f350dfa05649e181c39c05e1608df04fb91eb3eace45551",
+      "inputSha": "7b3c5673d88c0bdec156584208210fd01375ccf4b3ce78ebcf32a3406b967c1d",
+      "factsSha": "695a732fa130487edf714f6c898c3c0a0f5e3a6252bcb02a6e8cab7f2587fffa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "53c005591002e5d956834f712b7e858f17817d02820f71e3a0a5959026d62486",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "408af33ae1ebf46c67325ee4970f46879466dd2a9b1f3712f8cbe6a98876969f",
+            "payloadSha": "c2dc8ec357147787b39e0d4f14f3271be85d7921ae690ac10fbc1d55a2dccc0c"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "6da4d9ebd99553126d4628ac61597255a66db635f53f5aca0c406753d76ee757",
+            "payloadSha": "6be3f6a220299f24a80000655224d70047ae1159463a9b17fde03e2f37c50334"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "c900ecc2c7ef00f74cb0021510c010da8c1b3337e5b4204f1b920cb3f475f8e7",
+            "payloadSha": "fff21a1080b77f73d475b3d6969dccd292bb245f1cde6c375358a329f08d039f"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "d89e00e273a39d5d907665c8fdb1a09e24851aadc61057ad20cbbb8d654c6f3c",
+            "payloadSha": "09f50257557192bc61193be2790d0c39e4d18e5979089beef8367e51dc835d4c"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "695a732fa130487edf714f6c898c3c0a0f5e3a6252bcb02a6e8cab7f2587fffa",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "690aa9bcc9292529920b3e186c647f22a007b48ec04611b6d6b230f8f81b586a",
+        "baselineOutputSha": "408af33ae1ebf46c67325ee4970f46879466dd2a9b1f3712f8cbe6a98876969f",
+        "candidateOutputSha": "c900ecc2c7ef00f74cb0021510c010da8c1b3337e5b4204f1b920cb3f475f8e7",
+        "facts": {
+          "invalidate": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-merge": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "refresh": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "route": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "vocabulary": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After keeps every fact Before kept and fixes the two Before failed: it drops the `Not offered: merge (blocked by GitHub)` line and the `so merge waits` sentence, replacing them with a plain sentence that GitHub reports the merge as blocked for this actor, and it removes the parenthetical `(merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)` so field names now appear only in the narration as the eligibility mechanism (viewerCanMergeAsAdmin). Two spots are worth tightening so the vocabulary fact stays safe under a stricter reader: the report's closing clause `such as an approving review or the override being restored` comes close to naming required review as the cause of BLOCKED - cut it to `It needs a change on GitHub's side.` - and narration step 6 lists `reviewDecision, status_checks, actions_runs` as replaced fields, which a strict reader could count as field names outside the eligibility mechanism; say `merge state, eligibility, review decision, checks and runs` in prose instead. Otherwise the three-part report, row-1 recommendation and absence of merge/wait rows deliver the Change as intended.",
+        "wallMs": 20703,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "695a732fa130487edf714f6c898c3c0a0f5e3a6252bcb02a6e8cab7f2587fffa",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "690aa9bcc9292529920b3e186c647f22a007b48ec04611b6d6b230f8f81b586a",
+        "baselineOutputSha": "6da4d9ebd99553126d4628ac61597255a66db635f53f5aca0c406753d76ee757",
+        "candidateOutputSha": "d89e00e273a39d5d907665c8fdb1a09e24851aadc61057ad20cbbb8d654c6f3c",
+        "facts": {
+          "invalidate": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-merge": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "refresh": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "route": {
+            "before": "fails",
+            "after": "fails",
+            "label": "pre-existing"
+          },
+          "vocabulary": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "Correction to the route row: After should be read as holds — it drops the `Not offered:` lines and the `merge waits` field, states \"GitHub blocks you from merging\" in plain prose, and offers no merge or wait row; Before failed route because it kept those template fields and the \"merge waits\" sentence. Vocabulary also moved to holds in After: Before named a \"ruleset bypass\" as what the permission authorized and surfaced `merge_state_status`/`reviewDecision` as report evidence rather than as the eligibility mechanism, whereas After confines field names to the GraphQL query and describes the loss as override eligibility. The one soft spot in After is \"Your admin override,\" which a reader could take as asserting the viewer is an admin; phrasing it as \"GitHub's admin override is no longer available to you\" keeps the eligibility-not-identity translation the Change asks for without risking an invented identity. The extra repository-policy read in step 2 is harmless but not required by the entry and could be dropped to keep the narration tighter.",
+        "wallMs": 19624,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "695a732fa130487edf714f6c898c3c0a0f5e3a6252bcb02a6e8cab7f2587fffa",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "53c005591002e5d956834f712b7e858f17817d02820f71e3a0a5959026d62486",
+        "baselineOutputSha": "408af33ae1ebf46c67325ee4970f46879466dd2a9b1f3712f8cbe6a98876969f",
+        "candidateOutputSha": "c900ecc2c7ef00f74cb0021510c010da8c1b3337e5b4204f1b920cb3f475f8e7",
+        "facts": {
+          "invalidate": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-merge": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "refresh": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "route": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "vocabulary": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "Both outputs re-read viewerCanMergeAsAdmin at compare-and-swap, invalidate the selected merge on the true-to-false flip with head and BLOCKED unchanged, run no gh pr merge, and re-enter the pre-menu refresh before rendering the obstacle template, so the mechanics are stable across the change. Before fails route because its report keeps a `Not offered: merge (blocked by GitHub)` line and the 'so merge waits' phrasing, and fails vocabulary because the PR-comments line cites `merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED` as the explanation of the block rather than restricting field names to the eligibility mechanism. After fixes both: the three-part prose report says GitHub reports the merge blocked for this actor and that the admin override 'is no longer offered to your account', with no Not offered row, no merge or wait row, no invented admin identity, and field names confined to the narration's eligibility read. Two cautions for the After wording: the phrase 'such as an approving review' edges toward naming a cause for BLOCKED, so prefer 'a change on GitHub's side that this gate cannot make' without examples; and keep the step-6 narration's list of replaced fields (reviewDecision, status_checks) phrased as record bookkeeping, not as reasons, so the vocabulary fact stays safely held.",
+        "wallMs": 23219,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "695a732fa130487edf714f6c898c3c0a0f5e3a6252bcb02a6e8cab7f2587fffa",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "53c005591002e5d956834f712b7e858f17817d02820f71e3a0a5959026d62486",
+        "baselineOutputSha": "6da4d9ebd99553126d4628ac61597255a66db635f53f5aca0c406753d76ee757",
+        "candidateOutputSha": "d89e00e273a39d5d907665c8fdb1a09e24851aadc61057ad20cbbb8d654c6f3c",
+        "facts": {
+          "invalidate": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-merge": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "refresh": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "route": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "vocabulary": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moved both report facts in the right direction: it dropped Before's `Not offered:` rows, the `Verdict:` label, the \"so merge waits\" sentence and the parenthetical `merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED` field dump, replacing them with the plain sentence \"GitHub blocks you from merging\" and a three-row menu with no merge or wait row, which satisfies route. It also removed Before's \"ruleset bypass\" wording, which named a rule as the cause of BLOCKED, so vocabulary now holds; the narration confines field names to the GraphQL query text and the report translates the flip as override eligibility rather than a role. The compare-and-swap, invalidation, no-merge and refresh behavior is intact in both outputs. One phrasing to watch in After: \"Your admin override is no longer available\" is close to attributing an admin identity; the safer wording from the Change is \"your permission to use GitHub's admin override is no longer available,\" which keeps the eligibility framing explicit. Everything else in the After wording can stay as is.",
+        "wallMs": 17933,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  }
 }
