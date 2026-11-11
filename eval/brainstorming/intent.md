@@ -76,6 +76,7 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
 
 ## Expected to move
+- gate-line-first/correction: fails -> holds - State the corrected resolver behavior on one Corrected: line in everyday words, without a path or line number.
 - opening-message-shape/titles: fails -> holds - Render the three opening titles in order.
 - opening-message-shape/no-locator: fails -> holds - Keep file-and-line sources in the draft.
 - opening-message-shape/word-bound: fails -> holds - Keep the defined opening span within 220 words.

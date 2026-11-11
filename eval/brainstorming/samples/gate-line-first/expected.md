@@ -1,3 +1,3 @@
 - first-line: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
-- correction: judged: After the marker, correct the claim using settings/resolver.ts:11 and its existing timeout override support before asking the framing question.
+- correction: judged: Before the framing question, use one Corrected: line in everyday words to explain that the existing resolver already accepts a timeout override and the caller can pass it without another settings file; include no path or line number.
 - framing: judged: Offer A) as framed, B) pivot to passing the override through the existing resolver, and C) smaller or none, on separate lines, ending with a Recommendation line and awaiting the reply.

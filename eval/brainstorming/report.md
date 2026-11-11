@@ -1,19 +1,21 @@
-# eval report: brainstorming (partial run: opening-message-shape)
+# eval report: brainstorming (partial runs: opening-message-shape, gate-line-first)
 
 for: c86147495d9f05d9ef7ead587a1c06970996948cfb8b7db1340d3a38d414e333
 
-wall: 19s
+wall: 17s (gate-line-first); 19s (opening-message-shape final run)
 
 ## Selected coverage and accounting
 
-Completed only `opening-message-shape` on both replay models; all six candidate facts hold. The initial comparison used replay 4, judge 2, confirm 0; a flow-preservation wording repair reused the baseline and used replay 2, judge 2, confirm 0. Total actual calls: 10. Worst-case reservations remain spent at a conservative high-water mark of 28/280; use saved outputs for local checks.
+Completed `opening-message-shape` and `gate-line-first` on both replay models; all six opening facts and all three concern facts hold. The concern replies each carry one `Corrected:` line in everyday words and no source locator. No skill wording round was needed for gate-line-first. The earlier opening comparison and wording repair used 10 calls; gate-line-first used replay 4, judge 2, confirm 0. Total actual calls: 16. Worst-case reservations remain spent at a conservative high-water mark of 42/280; reuse saved outputs for local checks. The new ran ordinal starts after the previously reserved 28, rather than resetting to actual calls.
 
 - bound spent: Model eval run (14 of 280)
 - ran Model eval run (6 of 280)
 - bound spent: Model eval run (28 of 280)
 - ran Model eval run (10 of 280)
+- bound spent: Model eval run (42 of 280)
+- ran Model eval run (34 of 280)
 
-Remaining selected samples: `opening-message-ticket-not-fetched`, `gate-line-first`, `implicit-template-not-found`, `missing-db-extension`, `review-and-apply-containment`, and `workflow-stage-ticket-row`. Concern coverage is limited to the planned synthetic `gate-line-first`; `latest-run-indicator/framing` and `explicit-unit-normalization/framing` are not run. This is not a target-wide pass. Draft writes and live overflow past 220 words are not observable in this tool-free replay.
+Remaining selected samples: `opening-message-ticket-not-fetched`, `implicit-template-not-found`, `missing-db-extension`, `review-and-apply-containment`, and `workflow-stage-ticket-row`. Concern coverage is limited to the planned synthetic `gate-line-first`; `latest-run-indicator/framing` and `explicit-unit-normalization/framing` are not run. This is not a target-wide pass. Draft writes and live overflow past 220 words are not observable in this tool-free replay.
 
 ## Change
 
@@ -97,10 +99,15 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 |---|---|---|---|---|
 | opening-message-shape | anthropic/claude-opus-5-5 | improved | 11667 | register: fails -> holds (intended change); holds-question: fails -> holds (unplanned improvement); first-line: holds -> holds (held); titles: fails -> holds (intended change); no-locator: fails -> holds (intended change); word-bound: fails -> holds (intended change) |
 | opening-message-shape | github-copilot/gpt-6.1-sol | improved | 12475 | register: fails -> holds (intended change); holds-question: fails -> holds (unplanned improvement); first-line: holds -> holds (held); titles: fails -> holds (intended change); no-locator: fails -> holds (intended change); word-bound: fails -> holds (intended change) |
+| gate-line-first | anthropic/claude-opus-5-5 | improved | 8220 | correction: fails -> holds (intended change); framing: holds -> holds (held); first-line: holds -> holds (intended but unchanged) |
+| gate-line-first | github-copilot/gpt-6.1-sol | improved | 9959 | correction: fails -> holds (intended change); framing: holds -> holds (held); first-line: holds -> holds (intended but unchanged) |
 
 ## Feedback
 
 - opening-message-shape / anthropic/claude-opus-5-5: After moves both facts from fails to holds and drops nothing Before kept: the Today / The change / What I checked titles land in order, every part is named by its role (the download, the download form, the preference saving, every caller of the download) with no exports/download.ts:24-style locators or per-claim sources in chat, the holds-statement follows the checked-claims bullet, exactly one question is asked, A and B sit on their own lines, and the message ends with a Recommendation: A favoring the form and stops without approaches or a draft excerpt. Before failed both facts for the same reason - the holds-statement, the premise bullets, and the recommendation all cited file paths and line numbers rather than roles. The only cosmetic thing After loses relative to Before is the explicit note that the scout raised no objection and that nothing was corrected or unverified; neither fact requires it, so no wording change is needed, but if you want to retain that reassurance add it as a second What I checked bullet in everyday words (e.g. 'Nothing disproved or left unverified; the reviewer raised no objection') without reintroducing locators.
 - opening-message-shape / github-copilot/gpt-6.1-sol: After delivers the Change cleanly: the Today / The change / What I checked titles appear in order, every part is named by its role (the download option, the form, preference saving, callers and dependencies) with no paths or line numbers, and the holds-statement follows the checked-claims summary before the single column-order question with A and B on their own lines and a final Recommendation: A. Before failed both facts only because its holds-statement leaned on `exports/download.ts:24`-style locators instead of role names; nothing that Before kept was lost in After. The one wording difference worth a glance is that After dropped Before's `C) other - name it` escape line - neither fact requires it, but if other samples expect an open option, restore it as its own line between B and Recommendation: without changing anything else.
+
+- gate-line-first / anthropic/claude-opus-5-5: After moved correction from fails to holds: the What I checked block carries a single Corrected: line in plain words that says the resolver already accepts a timeout override and the caller can pass it through without a second settings file, with no file path or line number anywhere in the message (Before embedded settings/resolver.ts:11 twice and had no Corrected: line). Framing held in both: A) as framed, B) pivot, C) smaller or none each sit on their own line, the message ends on a Recommendation line, and no approaches follow. Nothing in After lost a fact; keep the Today / The change / What I checked shape, keep the Corrected: line locator-free, and keep the three labeled options followed by the Recommendation line as the final line to preserve both facts while delivering the Change.
+- gate-line-first / github-copilot/gpt-6.1-sol: After moved correction to holds by rendering the premise fix as a single `Corrected:` line under What I checked in everyday words (resolver already accepts a timeout override; the caller can pass it without another settings file) and by dropping the `settings/resolver.ts:11` locator that Before leaked into the user-facing message; the Today / The change / What I checked titles appear in order and the span stays well under 220 words. Framing is preserved: A), B), C) each sit on their own line, a Recommendation line closes the message, and no approaches follow, so the output waits for the user's choice. To keep both facts while delivering the Change, retain exactly this structure — one Held: and one Corrected: bullet, no file-and-line sources (those belong in the draft), then a one-sentence lead-in and the three labeled options ending with Recommendation: — and avoid adding a second Corrected: bullet or reintroducing paths when more checked claims are recorded.
 
 exit: 0
