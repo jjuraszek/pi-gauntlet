@@ -659,21 +659,23 @@ test("check 3 fail-closed: unparseable **Spec:** anchor line", () => {
   assert.equal(ar[0].line, lineOf(mutated, "**Spec:** doc/specs/fixture-spec.md § Design without quotes"));
 });
 
-test("check 4 paths-exist: Modify: literal path does not exist", () => {
+for (const [name, prefix] of [
+  ["check 4 paths-exist: Modify: literal path does not exist", ""],
+  ["Modify after Delete is still existence-checked", "- Delete: extensions/lib/fixture-removed.ts\n"],
+]) test(name, () => {
+  const entry = "- Modify: extensions/lib/fixture-shared.ts";
+  const plan = VALID_PLAN.replace(entry, prefix + entry);
   const port: FsPort = {
     exists: (p) => p !== "extensions/lib/fixture-shared.ts",
     glob: () => [],
   };
-  const findings = checkPlan(VALID_PLAN, SPEC_TEXT, port).findings;
-  const pe = findingsFor(findings, "paths-exist");
-  assert.ok(
-    pe.some((f) => f.reason.includes("fixture-shared.ts") && f.reason.includes("does not exist")),
-    `expected a paths-exist finding, got: ${JSON.stringify(pe)}`,
-  );
-  assert.ok(
-    pe.some((f) => f.line === lineOf(VALID_PLAN, "- Modify: extensions/lib/fixture-shared.ts")),
-    `expected the paths-exist finding's line to point at the offending Modify: entry, got: ${JSON.stringify(pe)}`,
-  );
+  const findings = checkPlan(plan, SPEC_TEXT, port).findings;
+  assert.deepEqual(findingsFor(findings, "paths-exist"), [{
+    check: "paths-exist",
+    line: lineOf(plan, entry),
+    text: entry,
+    reason: 'Modify: path "extensions/lib/fixture-shared.ts" does not exist',
+  }]);
 });
 
 test("check 4 paths-exist: backtick-wrapped Modify: path is stripped before the existence check", () => {
