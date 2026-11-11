@@ -1,11 +1,12 @@
 # Changelog
 
-## v8.4.7 - 2026-11-11
+## Unreleased
 
 - Brainstorming opens with Today, The change, and What I checked in everyday words, followed by one question. Sources stay in the draft; the opening span is capped at 220 words except corrected or unchecked claims and intact quoted ticket rows.
 
-### Fixed
+## v8.4.7 - 2026-11-11
 
+### Fixed
 - Plan tasks can declare `- Delete:` entries as literal write ownership without an existence requirement; unrecognized Files lines produce `files-block` findings, and rebuild restores Delete paths from the wave base. (#140)
 
 ## v8.4.6 - 2026-11-08
