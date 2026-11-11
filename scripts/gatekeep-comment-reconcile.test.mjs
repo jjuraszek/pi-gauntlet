@@ -410,7 +410,7 @@ test('report.md renders three unlabeled parts and delegates the recommendation',
   assert.match(report, /Count a covered mechanism as covered even when its observation waits/);
   assert.match(report, /Explain replyable PR comments and the drafted reply's meaning/);
   assert.doesNotMatch(report, /```|captured tail|^Verdict:|^Delivers:|^Evidence:/m);
-  assert.match(findings, /Compose a posted review body at post time from the blockers being addressed through `report\.md`'s review-body rule/);
+  assert.match(findings, /Compose a posted review body at post time from the blockers being addressed through SKILL\.md `## Wording rules`/);
   assert.match(brief, /Render a `pending` row through `reference\/report\.md`'s waits rule/);
   assert.match(brief, /Render a run with `status != completed` through `reference\/report\.md`'s waits rule;\nwithhold pre-composed merge exactly like a `pending` row/);
   assert.match(loop, /render the queued-merge wait through `report\.md`/);
@@ -588,7 +588,7 @@ test('bypass eligibility preserves pending CI and every independent merge withho
   const parsed = parseCase(input);
   const target = JSON.parse(read(`${root}/target.json`));
   const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-  assert.equal(saved.repoSha, '24038667b1645b736e9c03512632cda643eb1034');
+  assert.equal(saved.repoSha, '00e797cbe3695c9f0d306e281e62e7a29c66b049');
   assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);
@@ -636,7 +636,7 @@ test('false or unreadable bypass eligibility keeps BLOCKED fail-closed', () => {
   const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
   const target = JSON.parse(read(`${root}/target.json`));
   const skillFiles = target.skillFiles.filter(({ path }) => !parsed.drop.includes(path));
-  assert.equal(saved.repoSha, '24038667b1645b736e9c03512632cda643eb1034');
+  assert.equal(saved.repoSha, '00e797cbe3695c9f0d306e281e62e7a29c66b049');
   assert.equal(saved.skillSha, sha256(assemble({ ...target, skillFiles }, (path) => read(`../${path}`), parsed.bundle)));
   assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
   assert.equal(Object.keys(saved.outputs).length, 2);

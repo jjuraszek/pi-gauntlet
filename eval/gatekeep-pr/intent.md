@@ -1,4 +1,4 @@
-for: 23d82208c949dcbae39a71a7295d28a60e851816107dc956fc20a45453656b25
+for: a33126fbace00e5eeea6ceb47297c57843afd30afcdcfbbb11b6e9005702b0e0
 
 ## Change
 
@@ -36,6 +36,12 @@ Require an executable command for every unrun cleanup sub-step in the closing me
 This round selects batch-post-menu and plain-report for strengthened facts, and per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused and bypass-merge-pick-revoked only for script-bound assembly freshness. Coverage is sample-scoped, not a target-wide pass. Other saved results retain their recorded identities. The plain-report/scope fact requires a supplied show evidence continuation with ids, usage counters and the detailed row mapping; its other facts exempt that explicit inspection from the plain-prose register.
 
 Loop-worker's saved replay history includes a seventh fresh run after deleting its saved candidate and an eighth assembly-bound conformance run under D8. That eighth run failed anthropic/claude-opus-5-5/w10: the successful retry's final narration omitted clearing pending. The continuation authorizes one ninth fresh replay after preserving that candidate outside the checkout; the repair changed no retry, pending or round-accounting sentence. This continuation selects batch-post-menu for the shared-item execution rule, per-ref-settlement for its batch.md-bound assembly, and loop-worker for the authorized fresh replay. Batch-post-menu's preceding anthropic/claude-opus-5-5/shared failure omitted publish from #15's menu while #12's pick was only queued; omit shared items only after recorded execution. Keep the strengthened facts unchanged. Both strengthened batch-post-menu facts and all plain-report facts held on both models in the preceding run. The base-commit failures in wave-closure-retry and one model's course-deliver-no-mid-menu/f2 remain disclosed and are not rerun in this continuation. The runner's target report covers only its latest named sample; other candidate files retain sample-scoped evidence at their recorded identities, not a final-text pass for every sample. Preserve the continuation's outcomes in the report after regeneration. The runner-generated Change excerpt contains prior-review coverage prose; this conformance section names the continuation's samples and replay history.
+
+## Posted-review owner pointer repair
+
+This repair selects only bypass-merge-pick-refused, bypass-merge-pick-revoked, reviewer-row-reopen, loop-worker and nit-batch-row for script-bound assembly freshness. It also selects gatekeep-pr-merge-state/bypass-eligible-check-pending and bound-viewer-green-ci. Coverage is sample-scoped, not a target-wide pass. No gatekeep-pr-scope sample is stale under the script assertions; its report retains earlier-revision evidence.
+
+Loop-worker's earlier replays failed one single-model fact; fresh replays held. Its eighth replay failed anthropic/claude-opus-5-5/w10 because the successful-retry narration omitted clearing pending; both models held w10 in the ninth fresh replay. The saved candidate keeps only the newest reply, not that history. The base-existing gatekeep-pr/wave-closure-retry/anthropic/claude-opus-5-5/w2 failure and gatekeep-pr/course-deliver-no-mid-menu/github-copilot/gpt-6.1-sol/f2 failure remain outside this repair's coverage. The earlier off-list replay of course-deliver-no-mid-menu is disclosed here; it does not establish a target-wide pass.
 
 ## Validation boundary
 
