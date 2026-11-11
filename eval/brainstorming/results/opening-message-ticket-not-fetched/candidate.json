@@ -1,0 +1,150 @@
+{
+  "sample": "opening-message-ticket-not-fetched",
+  "arm": "candidate",
+  "skillSha": "1feafa625da8cfac2dbc6dcfba4695b0afa38ffe8ad0becab967d2b9fbcf8989",
+  "inputSha": "03379a605425582f9a38501d8407c000766de1f540ac662bba43521c1a73ab31",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\n\n## Today\nWhat the ticket concerns today is not known until its content is supplied.\n\n## The change\nWhat the ticket asks for is not known until its content is supplied.\n\n## What I checked\n- Not checked: the ticket - the tracker denied access, so no title, description, acceptance rows, or comments came back, and the design waits on its content.\n\nThe framing holds: checked the ticket lookup, which returned nothing to check against, so I found no alternative to raise.\nHow should we get the ticket's content?\nA) you paste the ticket's text here now\nB) we wait until tracker access is restored and fetch it again\nRecommendation: A - the design needs the request before it can go further, and pasting unblocks it right away.\n",
+      "words": 124,
+      "wallMs": 8000,
+      "mechanical": {
+        "first-line": "holds",
+        "titles": "holds",
+        "no-locator": "holds",
+        "word-bound": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\n\n## Today\nThe affected part and its current behavior are not known until the ticket’s content is supplied.\n\n## The change\nThe requested change is not known until the ticket’s content is supplied.\n\n## What I checked\n- Not checked: The ticket’s content—the tracker denied access and returned no title, body, acceptance rows, or comments, so the design waits on the request itself.\n\nThe repo findings do not establish what the ticket concerns, so I cannot assess its framing yet. How should we obtain the ticket’s content?\nA) Paste the ticket’s text here now.\nB) Wait until tracker access is restored.\nRecommendation: A - the design needs the request before it can proceed.\n",
+      "words": 110,
+      "wallMs": 10725,
+      "mechanical": {
+        "first-line": "holds",
+        "titles": "holds",
+        "no-locator": "holds",
+        "word-bound": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4062180f46272cc64b5a4610194e357ce4c898730a44c14813a5575eee623ca0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1a924a3a517634f55dd278c4664701ebc09ebfa9462fb48f06d975b8f52b37fb",
+      "baselineOutputSha": "fa95265a44e1ea8d168473d2b6b9d8a81f52b1e15bd88e06008adb5a456777a6",
+      "candidateOutputSha": "107be13291a190f5ea9349dde8e1c87c08a6036aa676256a8957da08775ffe82",
+      "facts": {
+        "not-checked": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unknown-content": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "register": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "titles": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-locator": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "word-bound": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change on every fact: it renders Today, The change, and What I checked in order, carries the denied-fetch reason and the design-wait on a Not checked: line, keeps both unknown-content sentences non-inferential (no mention of the download form or column-order setting), drops the tracker id, backticked paths and line numbers that Before leaked into the opening, and closes with the paste/wait options and a Recommendation: A. Nothing moved from holds to fails. One small wording wobble worth tightening: the holds-line 'checked the ticket lookup, which returned nothing to check against' reads as if a check succeeded; 'the ticket could not be read, so there was nothing to check the framing against' would keep it consistent with the Not checked: line above it without reintroducing any source detail.",
+      "wallMs": 14088,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4062180f46272cc64b5a4610194e357ce4c898730a44c14813a5575eee623ca0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1a924a3a517634f55dd278c4664701ebc09ebfa9462fb48f06d975b8f52b37fb",
+      "baselineOutputSha": "a94cbaef2f08fc363cfce3345f9a1f18d28ebf3fc7862e12e0c7d7cff47cf849",
+      "candidateOutputSha": "2c68e43c85a8d1dde09702d699f0e0d80045ff441e3409e15f683703e8c106b8",
+      "facts": {
+        "not-checked": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unknown-content": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "register": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "titles": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-locator": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "word-bound": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: it renders Today, The change, and What I checked in order, each of the first two is a single sentence declaring the affected behavior and requested change unknown until the ticket's content arrives, the Not checked: line names the denied tracker access and the design's wait on the request, and the opening drops the tracker id and the exports/form.ts and settings/preferences.ts locators that Before leaked into chat. The question block then asks only how to obtain the content with A and B on separate lines and ends on Recommendation: A, with no approaches, cut question, or approval gate. Nothing that Before kept was lost. One wording note: the lead-in sentence 'The repo findings do not establish what the ticket concerns, so I cannot assess its framing yet' is harmless but slightly re-explains what the three sections already said; you could shorten it to 'I cannot assess the framing until the ticket is read' to stay tighter under the 220-word span, and consider replacing the em dash in the Not checked: line with a plain 'because' to match the everyday-words register.",
+      "wallMs": 16688,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "762ca983241ad19aaa672400d6846ef0983011d2"
+}

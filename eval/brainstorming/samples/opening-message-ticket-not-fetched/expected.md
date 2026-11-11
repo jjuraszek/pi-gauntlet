@@ -1,0 +1,8 @@
+- first-line: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
+- titles: mechanical: matches /^gauntlet: question\r?\n\s*## Today\n[\s\S]+?\n## The change\n[\s\S]+?\n## What I checked\n/
+- no-locator: mechanical: matches /^(?![\s\S]*[\w-]\.[A-Za-z]{1,5}:\d)/
+- word-bound: mechanical: matches /## Today\s+(?:[^\s\p{L}\p{N}]+\s+)*(?:[^\s\p{L}\p{N}]*[\p{L}\p{N}]\S*\s+(?:[^\s\p{L}\p{N}]+\s+)*){0,219}(?<=\n)A\) /u
+- not-checked: judged: Under What I checked, put a Not checked: line saying the ticket could not be fetched because tracker access was denied, and that the design waits for the ticket's content. Do not claim that its content or acceptance rows were checked.
+- unknown-content: judged: Today and The change each use one sentence saying the affected current behavior and requested change are unknown until the ticket's content is supplied. Do not infer the request from the reference or unrelated repo recon, or invent ticket requirements.
+- register: judged: Use everyday words and say the ticket, without its tracker id, code identifiers, paths, line numbers or trace counts. Keep source details in the draft, not this opening message.
+- question: judged: After the three sections ask only how to obtain the ticket's content, with separate lettered options for pasting the text or waiting for restored access. End with Recommendation: favoring pasted text and wait without approaches, a cut question or an approval gate.
