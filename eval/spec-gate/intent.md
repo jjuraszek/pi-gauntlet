@@ -2,9 +2,9 @@ for: 7bc1fb009a2943f8d94e71f12dc0000dcf8a89df0c067e31675422a95580e7ed
 
 ## Change
 
-Render resolved per-row allowances on both loop options and limit funding to waves approvals. Retain all gate rendering, audit, persistence and handoff facts. Preserve recovered model records without treating them as current verification. Defer selected spec-gate model checks to the parent; never run full targets, including at completion.
+Render resolved per-row allowances on both loop options and limit funding to waves approvals. Retain gate rendering, audit and persistence facts; update handoff cleanup to the approved remote-pinned deletion contract. Preserve recovered model records without treating them as current verification. Run only the explicitly selected option-6-handoff sample for the cleanup change; never run full targets.
 
-Keep option-6-handoff an explicit one-recorded-Leg regression control while coordinated publication instructions expand: exactly one home push/PR/cleanup and no companion pushed: lines. Preserve all prior menu, persistence, retry and cleanup facts, including the published-home create-only retry with no amend or push. Structural lint proves fixture shape, not behavior; parent verification owns model evidence for this target and brainstorming. No target configuration or accepted-failure change.
+Keep option-6-handoff an explicit one-recorded-Leg regression control while coordinated publication instructions expand: exactly one home push/PR/cleanup and no companion pushed: lines. Preserve menu, persistence and retry facts, including published-home create-only retry with no amend or push. Replace branch preservation with live-remote equality gating, read-back, guarded wrapper admission and pinned conditional deletion. Structural lint proves fixture shape, not behavior; the selected replay proves narrated ordering rather than live GitHub cleanup. No target configuration or accepted-failure change.
 Render every drafted acceptance row and disposition verbatim under Drafted acceptance criteria (approval ratifies): after Scope cuts: and before Council:, with five options. Ticket-row gates omit this block. The paired sample preserves verbatim briefing and audit counts and narrates reply-1 continuation; text replay proves supplied-observation rendering, not live gate execution.
 
 The Wave 1 edit to skills/brainstorming/reference/spec-finalization.md adds a Scope cuts line between the committed-to line and the Council line. Build it from deferred, deviates, and venue acceptance-criteria rows, excluding in-scope and elsewhere rows; render none when no cuts exist.
@@ -14,6 +14,10 @@ Add option-6-handoff narrated publication coverage using sample-local spec-pr an
 Preserve the approval gate and recorded design state when finalization materializes coordinated members.
 
 ## Expected to move
+- option-6-handoff/completion: fails -> holds - Delete the local branch only after remote equality and confirmed tree removal, using pinned update-ref.
+- option-6-handoff/cleanup: fails -> holds - Permit guarded wrapper deletion and report actual state; refuse unguarded deletion.
+- option-6-handoff/remote-gate: fails -> holds - Keep tree and branch when the live remote differs or is missing.
+- option-6-handoff/moved-ref: fails -> holds - Keep a branch that advances after the cleanup gate.
 - scope-cuts-listed/f1: fails -> holds - The gate includes the new Scope cuts line.
 - scope-cuts-listed/f2: fails -> holds - Only deferred and venue rows appear as cuts.
 - scope-cuts-listed/f3: fails -> holds - Scope cuts appears before Council and after the commit line.

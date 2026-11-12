@@ -40,7 +40,28 @@ EOF
 | Retry 6 after published handoff | Refresh origin's branch head; require `origin/<branch>` == HEAD. On mismatch print both full SHAs and stop. On equality rerun create only, no push, no amend. |
 | Create succeeds | Print URL before completing brainstorm; then perform ownership-based cleanup below. |
 
-After URL output call `phase_tracker({ action: "complete", phase: "brainstorm" })`. Read finishing's [Step 6](../../finishing-a-development-branch/SKILL.md#step-6-cleanup-workspace), using only its ownership test and wrapper selection: resolve home/destroy, legacy native script, or native remove/prune. Disable every branch-deletion step, including within a destroy wrapper: verify the wrapper preserves the branch before running it; stop cleanup and report when it cannot. Never delete the local branch. Report host-owned or failed removal with checkout path and command output; explain that later `brainstorming #N` hits pr-head's checked-out-at-another-path stop until that checkout is gone. Start no plan or loop, produce no handoff brief, and leave telemetry unchanged.
+After URL output call `phase_tracker({ action: "complete", phase: "brainstorm" })`, then run [Draft-PR cleanup](#draft-pr-cleanup) once for home. Start no plan or loop, produce no handoff brief, and leave telemetry unchanged.
+
+### Draft-PR cleanup
+
+Bind `<repo>` and `<branch>` from the recorded block, `<primary>` to that repo's primary, and `<tree>` to the session's home worktree. For a legacy spec without `## Legs`, use the repo and branch just pushed and the recipe's worktree. For companions, locate `<tree>` by [Locate a leg tree](legs.md#locate-a-leg-tree), not the carried Worktree First path; on lookup failure run no destroy or branch deletion, report `<repo>: kept <branch> - <lookup reason>`, and continue.
+
+1. Require `git -C <tree> branch --show-current` to print `<branch>`. Read `git -C <tree> ls-remote --exit-code --heads origin refs/heads/<branch>`, `git -C <tree> rev-parse HEAD`, and `git -C <primary> rev-parse refs/heads/<branch>`. Pin the SHA only on exit 0 with all three SHAs equal. Otherwise keep tree and branch and report the reason below.
+2. Select ownership and destruction through finishing's [Step 6](../../finishing-a-development-branch/SKILL.md#step-6-cleanup-workspace), using the recorded contract for a spec with Legs and the overrides reread only for a legacy spec. A recorded block with `home:` keeps its pattern ownership test. Without `home:`, run its recorded `destroy:` from the primary on the located tree, with `<name>` set to the folder basename and `<branch>` to the recorded branch; resolve other tokens before execution. Neither `home:` nor `destroy:` means host-owned: keep both. Never fall back to native removal after a refused or failed wrapper. Before running a branch-deleting wrapper, require its source to delete only after the tree is gone and only at the pinned commit or behind a check refusing a tip the remote does not hold; refuse unguarded deletion.
+3. After destruction, whatever its exit, read `git -C <primary> worktree list --porcelain`, the folder's on-disk presence, and `git -C <primary> rev-parse -q --verify refs/heads/<branch>`. Count the tree removed only when neither listed nor on disk; otherwise keep any remaining branch. Decide from read-back, never the destroy exit alone.
+4. With the tree removed and the ref still present, compare its tip to the pinned SHA. Keep a moved ref; otherwise run `git -C <primary> update-ref -d refs/heads/<branch> <pinned SHA>`, never `git branch -D`. Read back the ref after deletion to report its actual state. A guarded wrapper that already deleted it needs no second deletion.
+5. Report from the observed tree and branch state:
+
+| State | Report |
+|---|---|
+| Tree removed, branch deleted | `<repo>: removed <path>, deleted <branch>` |
+| Both remain | `<repo>: kept <path> and <branch> - <reason>` |
+| Tree removed, branch remains | `<repo>: removed <path>, branch <branch> kept - <reason>` |
+| Tree remains, branch gone | `<repo>: kept <path>, branch <branch> deleted - <output>` |
+
+Use the observed reason: `tree is on <current branch or detached>, not <branch>`, `origin/<branch> is at <sha>, tree is at <sha>`, `<branch> is at <sha>, tree is at <sha>`, `origin/<branch> is missing` (ls-remote exit 2), `remote lookup failed: <output>` (other nonzero exit), `host-owned`, `destroy deletes <branch> unguarded`, or `removal failed: <output>`. For a removed tree with a retained branch, report `<branch> moved to <sha>` or the update-ref output. A nonzero destroy exit with the tree removed still proceeds to step 4; append ` - destroy exited <code>: <output>` to the report.
+
+Attempt every leg regardless of another cleanup outcome, companions in declared order then home. For a retained tree outside a recorded `home:`'s resolved path, explain that later `brainstorming #N` stops on a branch checked out at another path; a no-`home:` tree is reused by continuation. Run no cleanup when PR creation fails.
 
 ### Coordinated publication passes
 
@@ -61,7 +82,7 @@ Publish companions in declared order from the preflight observations:
 
 Then run home's existing push/create recipe. Home push/create failures keep its failure rows and also list published companions; never roll back. After home create failure freeze the published handoff commit: the create-only retry above does not amend or push any member or rerun publication passes. On success print `pushed: <repo> origin/<branch>` for each companion before the single home URL, then complete brainstorm.
 
-Clean companions in declared order, then home. Apply finishing Step 6's ownership test and wrapper selection to each recorded contract (legacy without Legs keeps its reread). Verify every wrapper preserves its branch before execution; refuse unsafe wrappers without native fallback. Report each host-owned/refused/failed removal with repo, path and command output, leave its branch intact, and attempt all remaining cleanups even after refusal. Keep branches everywhere, including after owned built-in remove/prune. Write no receipt, companion PR, telemetry or brief.
+Run [Draft-PR cleanup](#draft-pr-cleanup) for companions in declared order, then home, retaining each leg's report even after another leg's refusal. Write no receipt, companion PR, telemetry or brief.
 
 ### Coordinated marked settlement
 
