@@ -1,11 +1,8 @@
-# eval report: housekeeping (partial run: base-rule-wins)
+# eval report: housekeeping (partial run: pr-card-no-ticket)
 
 for: 0ad959b6322f51ecf51c67c55ca310846cb00ced5efd954b867cb7a92bddfe27
 
-wall: 12s
-
-refresh: complete; sample: base-rule-wins; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
-audit: [candidate.json](results/base-rule-wins/candidate.json)
+wall: 29s
 
 ## Change
 
@@ -15,12 +12,12 @@ Introduce a human-only housekeeping walk whose run record fixes selection and de
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| base-rule-wins | anthropic/claude-opus-5-5 | improved | 11514 | base-applied: fails -> holds (unplanned improvement); override-disclosed: fails -> holds (unplanned improvement); no-execution: holds -> holds (held); repo-source: holds -> holds (held); marker: holds -> holds (held) |
-| base-rule-wins | github-copilot/gpt-6.1-sol | unchanged | 8044 | base-applied: holds -> holds (held); override-disclosed: holds -> holds (held); no-execution: holds -> holds (held); repo-source: holds -> holds (held); marker: holds -> holds (held) |
+| pr-card-no-ticket | anthropic/claude-opus-5-5 | improved | 16035 | two-picks: holds -> holds (held); same-pr-commit: holds -> holds (held); fix-available: holds -> holds (held); selected-only: holds -> holds (held); no-execution: holds -> holds (held); card-prose: fails -> holds (unplanned improvement); marker: holds -> holds (held) |
+| pr-card-no-ticket | github-copilot/gpt-6.1-sol | improved | 22046 | two-picks: holds -> holds (held); same-pr-commit: fails -> holds (unplanned improvement); fix-available: holds -> holds (held); selected-only: holds -> holds (held); no-execution: holds -> holds (held); card-prose: fails -> holds (unplanned improvement); marker: fails -> holds (unplanned improvement) |
 
 ## Feedback
 
-- base-rule-wins / anthropic/claude-opus-5-5: Before inverted the compiled override: its Rule conflict section said "the repository's own guidance takes precedence over the base rule" and recommended Ignore, so it retained the console.debug under the README permission and misstated which rule wins, failing base-applied and override-disclosed. After fixes both: it names the base rule with its source file, quotes the README `## Diagnostics` guidance, states plainly that "the fixed rule takes precedence over that README guidance," proposes deletion, and marks Fix as recommended. Both outputs keep no-execution; After's empty `[ ]` boxes with the recommendation marked only by label are exactly what the Change asked for and do not imply a recorded pick. Nothing regressed. One small note for the author: the compiled check lists `overrides: README.md, `## Diagnostics``, and the Change asks that an overrides-sourced rule cite both its file and the heading, which After does; keep that "X takes precedence over Y" sentence as a fixed template so future wording tweaks cannot drift back to merely citing both sources without naming the winner.
-- base-rule-wins / github-copilot/gpt-6.1-sol: Nothing moved. After still treats the console.debug line as a finding under the base-rules removal rule and proposes removing it, states plainly that the base rule "takes precedence over" the README.md `## Diagnostics` permission, and presents an unanswered card with empty boxes and only a [recommended] label, describing the PR purely as a consequence of accepting rather than as something already created. Two small things worth preserving from Before that After dropped without affecting any fact: the compiled check id (`code-debug`) and the verbatim quoted line, both of which make the finding easier to verify from the card alone; adding them back under "What was found" would keep the new structure while retaining that precision.
+- pr-card-no-ticket / anthropic/claude-opus-5-5: Nothing regressed: After keeps every fact Before kept, and it additionally satisfies card-prose, which Before failed because its title was the bare check id ("Card 1 of 1: code-unused") and it used labeled fields (Rule, Findings, Verification, Delivery) instead of the three plain-prose sections. After's title carries count, noun, place and predicate, the Fix row now states the one-commit-to-existing-PR-branch promise directly rather than leaving it to a separate Delivery line, the checkboxes are empty with the recommendation carried only by the [recommended] label, and no Ticket pick appears on this PR card. One small tightening to consider: the Fix row and Ignore row use different capitalization styles ("Make one commit..." vs "leave them as they are"); align them, and keep the explicit branch name in the "What happens if you accept" section as you have, since that is what anchors same-pr-commit when the delivery is commit-push rather than a per-class PR.
+- pr-card-no-ticket / github-copilot/gpt-6.1-sol: Nothing moved from holds to fails; After keeps every fact Before kept and additionally satisfies same-pr-commit and card-prose, which Before failed because its Fix row only said "Remove both imports" with delivery buried in a separate line that never named the existing PR branch or a single commit, and its title ("Card 1 — Unused imports") lacked a count/place/predicate and the three prose sections. After's Fix row ("Make one commit for this class and push it to the existing PR branch"), the empty `[ ]` boxes with a `[recommended]` label on exactly one pick, and the titled sections deliver the Change cleanly. One wording nit that does not move a fact: "no command that repeats a failing action is attached" is an awkward gloss on "regression command"; plainer would be "this is a read-only check, so no test command is run afterward" — that keeps the everyday-prose requirement without inventing a definition the reader has to decode.
 
 exit: 0
