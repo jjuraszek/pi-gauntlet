@@ -187,9 +187,9 @@ for (const [name, pattern] of [
   ["squash retry validation", /reachable from the primary's default branch[\s\S]*rerun verification, not squash/],
   ["complete home seal", /complete companion results[\s\S]*strip[\s\S]*--leg[\s\S]*Never seal partial/],
   ["stripped-plan retry", /stripped plan[\s\S]*every companion has a receipt/],
-  ["one discard confirmation", /branch, commit count, and worktree[\s\S]*one typed `discard`/],
-  ["recorded cleanup", /recorded `## cleanup`[\s\S]*`destroy:`[\s\S]*teardown hook[\s\S]*owned built-in/],
-  ["cleanup refusal", /`failed`[\s\S]*leave the tree intact[\s\S]*remaining report lines/],
+  ["one discard confirmation", /branch, commit count, and located worktree path[\s\S]*one typed `discard`/],
+  ["recorded cleanup", /recorded cleanup worktree command in preference to `destroy:`[\s\S]*configured teardown hook[\s\S]*owned built-in/],
+  ["cleanup refusal", /`failed`[\s\S]*preserve anything remaining, and continue the remaining cleanup attempts and report lines/],
   ["failure reporting", /Shipped: <repo> <sha\|pr>[\s\S]*Not shipped: <repo>/],
 ]) {
   test(`coordinated finish: ${name}`, () => assert.match(legs(), pattern));
