@@ -3,7 +3,7 @@
 base: 9dc95a5b124c06eb70dac4a7b4ec4c758970fa85
 verification: npm test
 checks: commands
-iterations: 10
+iterations: 11
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -20,7 +20,7 @@ allowance: 10
 | 10 | done | 1 | timeout -k 30 60 node --test scripts/loop-unreachable-cut.test.mjs; 3 passed; 0 failed; model replay deferred to row 13 |
 | 11 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 59 passed; 0 failed; model replay deferred to row 13 |
 | 12 | done | 1 | timeout -k 30 10 python3 -c 'assert all(all(token in text for token in ("one failed attempt", "unconditional", "whole flow", "runner and inputs", "Option 4", "Option 5", "Run cannot start", "async handle", "Dirty tree with no dispatch pending", "missing-history", "seed repairs reach allowance", "Verification repairs", "Conformance fix-round cap", "redraw", "reopened")) and not any(token in text for token in ("recovery incomplete", "ownership-fenced", "unproven recovery", "flow-wide count", "bound spent:", "ran " + chr(60) + "action", "spent named-action bounds", "runner, inputs and count")) for text in (__import__("pathlib").Path(path).read_text() for path in ("README.md", "doc/gate-contract.md", "doc/configuration.md", "doc/implement-engines.md"))) and all(token in __import__("pathlib").Path("CHANGELOG.md").read_text().split("## Unreleased\n", 1)[1].split("\n## ", 1)[0] for token in ("one failed attempt", "whole flow")), "loop docs retain legacy recovery or action rules, or omit current stops"'; 4 loop documentation surfaces and Unreleased notes passed; legacy recovery and action-spend rules absent |
-| 13 | open | 0 | |
+| 13 | failed | 1 | timeout -k 30 20 node -e 'import("./eval/lib/models.mjs").then(({MODELS}) => require("node:assert/strict").ok(require("node:child_process").execFileSync("pi", ["--list-models"], {encoding:"utf8"}).split("\n").some(line => line.trim().split(/\s+/).slice(0,2).join("/") === MODELS.judge), MODELS.judge + " is unavailable"))'; unreachable: configured judge anthropic-fable/claude-fable-5-1 is absent - a host with that frozen model registered; local model assertion exited 1; no paid calls started and existing sample records preserved |
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1
@@ -36,3 +36,4 @@ row 9 done | Removed worker action accounting and authorized every needed named 
 row 10 done | Removed spent-bound stops and action-record requirements; three selective checks pass, with model replay deferred to row 13. | Reuse scripts/loop-unreachable-cut.test.mjs and the migrated unreachable-cut fixture for routing checks and selected model replay.
 row 11 done | Made round-two action naming authorize the whole flow without count bounds; 59 contract tests pass, with model replay deferred to row 13. | Reuse scripts/brainstorming-contract.test.mjs and design-names-paid-actions with its refreshed intent for selected model replay.
 row 12 done | Updated four documentation surfaces and Unreleased notes for unconditional recovery, named-action approval and option-specific stops; doc assertions pass. | Reuse doc/configuration.md#loop-stop-boundaries to check selected eval samples against option 4/5 behavior.
+row 13 failed | Selected model replays could not start because the configured judge anthropic-fable/claude-fable-5-1 is absent. | Run on a host registering the frozen judge model; preserve existing records and migrate remaining fixtures before selected baseline/candidate runs.
