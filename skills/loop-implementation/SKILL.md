@@ -56,8 +56,6 @@ Never read the spec, source files, test output or logs inside the implement loop
 
 When the held membership has more than one leg, read `reference/coordinated-legs.md` IN FULL now with read at its absolute path; stop on an unreadable reference naming its path, never reconstruct it. Apply its `## Resume`, `## Targeting and dispatch`, `## Companion return validation`, `### Companion commit admission` and `## Amendments` sections together with this driver; never apply `## Entry` here.
 
-Read [action-spend durability](reference/action-spend.md) in full now; carry retained repair accounting into this dispatch, including seed and companions.
-
 Read the ledger and require its `checks:` line per ## Gate set.
 
 Read the ledger and require `allowance:` and no `cap:` before the ordered table, including for seed and completed ledgers; otherwise stop with `ledger has no allowance: line - resume through /skill:gauntlet-resume`. Keep `iterations:` as a dispatch counter only; it bounds nothing. Count each row's empty child commits and validation misses only after the latest of `loop: retry row <n>` for that row, `loop: amend`, or any `loop: cut row <n>`; an admitted amendment starts new windows for every row because it changed what rows are measured against. Raising allowance resets neither window. Recover both windows from branch history on resume. Preserve every row's attempts and spent escalation. Before the ordered table, route each admitted failed target through ## Unreachable returns once at admission (including companions), or on resume when admitted but not yet routed; follow that reference's answered-stop rule after human decisions. Apply this ordered table, starting here after each return or human decision:
@@ -98,8 +96,6 @@ For `target: seed`, explicitly instruct the child to apply its seed contract eve
 Omit the model override except on an escalated round (`model: <implModel>`); let the persona override or parent inheritance resolve it. Carry effects only: one file-reference return, one ledger read, git boundary checks. Never read a child transcript or carry reasoning history. Route a dispatch error or non-DONE return, including a silence kill, through ## Interrupted recovery. An async handle still stops; never poll or join it. Redispatch only through the ordered table after completed recovery.
 
 ## Validate the return
-
-Read [action-spend durability](reference/action-spend.md) in full now; preserve action records through admission and every validation-miss repair below.
 
 For home returns, apply the following boundary and table. Never project terminal child results before clean/exactly-one-commit admission.
 1. Require a DONE return, empty `git -C "<worktree>" status --porcelain` and exactly 1 from `git -C "<worktree>" rev-list HEAD_BEFORE..HEAD --count`. Route dispatch errors, non-DONE, killed, dirty and zero/multiple-commit returns through ## Interrupted recovery, not result admission. Read the ledger from HEAD only after this boundary passes.
