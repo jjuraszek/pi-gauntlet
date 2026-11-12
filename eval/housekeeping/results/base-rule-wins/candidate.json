@@ -1,0 +1,324 @@
+{
+  "sample": "base-rule-wins",
+  "arm": "candidate",
+  "skillSha": "6d84da24dff1b53ffd9abfefc00a7df3f60d5f3cb5a70c71c4ca02b1326c9c1b",
+  "inputSha": "391b89c081903b096f45a6f57eef0dfd322c3513b7e78814d4d2bb3399c43791",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 1 leftover debugging line in the widget drawing code should be removed\n\n### What was found\nOne line in `src/widgets/render.ts` at line 12 prints a temporary trace message while widgets are drawn: `console.debug(\"temporary widget trace\", widget.id);`. It is leftover debugging output, not product logging. No other card touches this file.\n\n### Why it matters\nHousekeeping's fixed rules say to remove leftover debugging output, [base rules](skills/housekeeping/reference/base-rules.md). The project's README, under `## Diagnostics`, says to keep these lines in widget code for future debugging. The fixed rule takes precedence over that README guidance. Removing the line does not change how widgets are drawn.\n\n### What happens if you accept\nThat one line is deleted in a separate copy of the repository. You receive one pushed pull request against the default branch. Your current checkout stays as it is.\n\nPick one:\n1. [ ] Fix - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged. [recommended]\n2. [ ] Ticket - file one ticket listing them and change nothing now\n3. [ ] Ignore - leave them as they are\n",
+      "words": 184,
+      "wallMs": 9391,
+      "mechanical": {
+        "repo-source": "fails",
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. One leftover debug statement in the widget renderer\n\n### What was found\n`src/widgets/render.ts:12` prints temporary widget details with `console.debug`. No other issue class shares this file.\n\n### Why it matters\nThe housekeeping rule in `skills/housekeeping/reference/base-rules.md` requires removing leftover debug statements. It takes precedence over the conflicting instruction in `README.md`, `## Diagnostics`, which says to keep them for future debugging.\n\n### What happens if you accept\nRemove that one statement without changing rendering behavior. You receive a separate pushed pull request against the default branch; the primary checkout’s tracked files stay unchanged. The change meets the safety requirements. No test command is attached to this read-only check.\n\nPick one:\n1. [ ] Fix [recommended] - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged.\n2. [ ] Ticket - file one ticket listing it and change nothing now\n3. [ ] Ignore - leave it as it is\n",
+      "words": 154,
+      "wallMs": 6607,
+      "mechanical": {
+        "repo-source": "holds",
+        "marker": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4bf8c9e116511746e83c5cc175fa14db7bbf897ee6eb77bb57f6a05e732dee1a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "586bdfb5a329c6eed01a4b0c12c365dae3e35652dd29856627d22e83d4042196",
+      "baselineOutputSha": "2b680eb074d1c480ac513c486748ca9e2bc8585d1a382f886fb29553216fcdce",
+      "candidateOutputSha": "464011b731ffed9c91abc2995be5d24a631f2ad41fcc643d02252d09d01dabc9",
+      "facts": {
+        "base-applied": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "override-disclosed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "repo-source": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before inverted the compiled override: its Rule conflict section said \"the repository's own guidance takes precedence over the base rule\" and recommended Ignore, so it retained the console.debug under the README permission and misstated which rule wins, failing base-applied and override-disclosed. After fixes both: it names the base rule with its source file, quotes the README `## Diagnostics` guidance, states plainly that \"the fixed rule takes precedence over that README guidance,\" proposes deletion, and marks Fix as recommended. Both outputs keep no-execution; After's empty `[ ]` boxes with the recommendation marked only by label are exactly what the Change asked for and do not imply a recorded pick. Nothing regressed. One small note for the author: the compiled check lists `overrides: README.md, `## Diagnostics``, and the Change asks that an overrides-sourced rule cite both its file and the heading, which After does; keep that \"X takes precedence over Y\" sentence as a fixed template so future wording tweaks cannot drift back to merely citing both sources without naming the winner.",
+      "wallMs": 11514,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4bf8c9e116511746e83c5cc175fa14db7bbf897ee6eb77bb57f6a05e732dee1a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "586bdfb5a329c6eed01a4b0c12c365dae3e35652dd29856627d22e83d4042196",
+      "baselineOutputSha": "6c56bdbfec3e1e404a93ad8b4cf7e46a962aafed9dda41c7d3fb2235a7e529cb",
+      "candidateOutputSha": "a413f18ff2dc3efa6492b036224ac3297d02f4def1448c08ab13cab97aff83c7",
+      "facts": {
+        "base-applied": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "override-disclosed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "repo-source": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved. After still treats the console.debug line as a finding under the base-rules removal rule and proposes removing it, states plainly that the base rule \"takes precedence over\" the README.md `## Diagnostics` permission, and presents an unanswered card with empty boxes and only a [recommended] label, describing the PR purely as a consequence of accepting rather than as something already created. Two small things worth preserving from Before that After dropped without affecting any fact: the compiled check id (`code-debug`) and the verbatim quoted line, both of which make the finding easier to verify from the card alone; adding them back under \"What was found\" would keep the new structure while retaining that precision.",
+      "wallMs": 8044,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
+    }
+  },
+  "repoSha": "27cf9a647cf84e7de4e155a14a66a251c55dc087",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "base-rule-wins",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "0bd147eea60342ca0aa31c35658861bfc2aae6a6225bbb1d19d4e2793e2436b0",
+      "candidateSkillSha": "6d84da24dff1b53ffd9abfefc00a7df3f60d5f3cb5a70c71c4ca02b1326c9c1b",
+      "inputSha": "391b89c081903b096f45a6f57eef0dfd322c3513b7e78814d4d2bb3399c43791",
+      "factsSha": "4bf8c9e116511746e83c5cc175fa14db7bbf897ee6eb77bb57f6a05e732dee1a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "586bdfb5a329c6eed01a4b0c12c365dae3e35652dd29856627d22e83d4042196",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "2b680eb074d1c480ac513c486748ca9e2bc8585d1a382f886fb29553216fcdce",
+            "payloadSha": "b9a18116d37eafa72476c45443837b9cc822381863556c653ded4266b809d3fd"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "6c56bdbfec3e1e404a93ad8b4cf7e46a962aafed9dda41c7d3fb2235a7e529cb",
+            "payloadSha": "8f01284b9b353c938240e0afe5f13402c1063e0ee2c0130f0670eca47cd84fb3"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "464011b731ffed9c91abc2995be5d24a631f2ad41fcc643d02252d09d01dabc9",
+            "payloadSha": "faf8e1cb729e2dfeb2acc515b7c3c82af06c24e09bc33d25862205226831ad31"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "a413f18ff2dc3efa6492b036224ac3297d02f4def1448c08ab13cab97aff83c7",
+            "payloadSha": "7330c93f3da64f9200cf6ed01072ef69ccd23ba12a637407deb4542f66e9e936"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "b5a0353139a4b50b86ab520c63a84e27e374d0a6c8da1956c3538c259329193d",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "586bdfb5a329c6eed01a4b0c12c365dae3e35652dd29856627d22e83d4042196",
+        "baselineOutputSha": "2b680eb074d1c480ac513c486748ca9e2bc8585d1a382f886fb29553216fcdce",
+        "candidateOutputSha": "464011b731ffed9c91abc2995be5d24a631f2ad41fcc643d02252d09d01dabc9",
+        "facts": {
+          "base-applied": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "override-disclosed": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "no-execution": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "repo-source": {
+            "before": "fails",
+            "after": "fails",
+            "label": "pre-existing"
+          },
+          "marker": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After moved no fact in the wrong direction; it actually repaired two that Before failed. Before inverted the precedence (\"the repository's own guidance takes precedence over the base rule\") and recommended Ignore, so it neither applied the base rule nor disclosed the override correctly. After states \"The fixed rule takes precedence over that README guidance\", proposes removal, and marks Fix as recommended, which satisfies base-applied and override-disclosed; the empty checkboxes, the [recommended] label only, and the conditional \"What happens if you accept\" keep no-execution intact. Two small wording points to preserve this: the header line \"recommended=1\" sits outside the card and could be read as a recorded pick if a reader skims, so keep the explicit \"Pick one\" with empty boxes as you have; and the Ticket/Ignore options use plural \"them\" for a single finding, which is a minor consistency slip worth fixing without touching the precedence sentence.",
+        "wallMs": 9728,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "b5a0353139a4b50b86ab520c63a84e27e374d0a6c8da1956c3538c259329193d",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "586bdfb5a329c6eed01a4b0c12c365dae3e35652dd29856627d22e83d4042196",
+        "baselineOutputSha": "6c56bdbfec3e1e404a93ad8b4cf7e46a962aafed9dda41c7d3fb2235a7e529cb",
+        "candidateOutputSha": "a413f18ff2dc3efa6492b036224ac3297d02f4def1448c08ab13cab97aff83c7",
+        "facts": {
+          "base-applied": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "override-disclosed": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-execution": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "repo-source": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "marker": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved. After keeps the base rule as the governing one and proposes removal (base-applied), states plainly that the base-rules.md rule \"takes precedence over the conflicting instruction in README.md, ## Diagnostics\" (override-disclosed), and phrases the PR as a future consequence of accepting while leaving every option box empty and marking the recommendation only by label (no-execution). Two minor things worth preserving from Before if you revise further: After drops the verbatim quoted line `console.debug(\"temporary widget trace\", widget.id);`, which made the validated finding concrete and let a reader confirm it is debugging output rather than product logging; and the 'Why it matters' sentence could name the base-rule id (code-debug) so the card is traceable to the compiled check. Neither omission breaks a fact, but restoring the quoted line under 'What was found' would keep the card as verifiable as Before while retaining the new structure.",
+        "wallMs": 10405,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "4bf8c9e116511746e83c5cc175fa14db7bbf897ee6eb77bb57f6a05e732dee1a",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "586bdfb5a329c6eed01a4b0c12c365dae3e35652dd29856627d22e83d4042196",
+        "baselineOutputSha": "2b680eb074d1c480ac513c486748ca9e2bc8585d1a382f886fb29553216fcdce",
+        "candidateOutputSha": "464011b731ffed9c91abc2995be5d24a631f2ad41fcc643d02252d09d01dabc9",
+        "facts": {
+          "base-applied": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "override-disclosed": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "no-execution": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "repo-source": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "marker": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Before inverted the compiled override: its Rule conflict section said \"the repository's own guidance takes precedence over the base rule\" and recommended Ignore, so it retained the console.debug under the README permission and misstated which rule wins, failing base-applied and override-disclosed. After fixes both: it names the base rule with its source file, quotes the README `## Diagnostics` guidance, states plainly that \"the fixed rule takes precedence over that README guidance,\" proposes deletion, and marks Fix as recommended. Both outputs keep no-execution; After's empty `[ ]` boxes with the recommendation marked only by label are exactly what the Change asked for and do not imply a recorded pick. Nothing regressed. One small note for the author: the compiled check lists `overrides: README.md, `## Diagnostics``, and the Change asks that an overrides-sourced rule cite both its file and the heading, which After does; keep that \"X takes precedence over Y\" sentence as a fixed template so future wording tweaks cannot drift back to merely citing both sources without naming the winner.",
+        "wallMs": 11514,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "4bf8c9e116511746e83c5cc175fa14db7bbf897ee6eb77bb57f6a05e732dee1a",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "586bdfb5a329c6eed01a4b0c12c365dae3e35652dd29856627d22e83d4042196",
+        "baselineOutputSha": "6c56bdbfec3e1e404a93ad8b4cf7e46a962aafed9dda41c7d3fb2235a7e529cb",
+        "candidateOutputSha": "a413f18ff2dc3efa6492b036224ac3297d02f4def1448c08ab13cab97aff83c7",
+        "facts": {
+          "base-applied": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "override-disclosed": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-execution": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "repo-source": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "marker": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Nothing moved. After still treats the console.debug line as a finding under the base-rules removal rule and proposes removing it, states plainly that the base rule \"takes precedence over\" the README.md `## Diagnostics` permission, and presents an unanswered card with empty boxes and only a [recommended] label, describing the PR purely as a consequence of accepting rather than as something already created. Two small things worth preserving from Before that After dropped without affecting any fact: the compiled check id (`code-debug`) and the verbatim quoted line, both of which make the finding easier to verify from the card alone; adding them back under \"What was found\" would keep the new structure while retaining that precision.",
+        "wallMs": 8044,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "sample": "base-rule-wins",
+  "arm": "baseline",
+  "skillSha": "0bd147eea60342ca0aa31c35658861bfc2aae6a6225bbb1d19d4e2793e2436b0",
+  "inputSha": "391b89c081903b096f45a6f57eef0dfd322c3513b7e78814d4d2bb3399c43791",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=3\n\n**Card 1 of 1 · code-debug · src/widgets/render.ts:12**\n\n```ts\nconsole.debug(\"temporary widget trace\", widget.id);\n```\n\n**What was found**\nLine 12 of the widget renderer prints a temporary debugging message with the widget's id. It is leftover debugging output, not product logging. Removing it would not change how widgets render.\n\n**Rule conflict**\nThe housekeeping base rule says to remove leftover debug statements. This repository's README, under `## Diagnostics`, says to keep leftover `console.debug` statements in widget renderers for future debugging. This line is exactly that case, and the repository's own guidance takes precedence over the base rule.\n\n**If fixed**\nThe change deletes this one line. It touches no stored data, public contract, dependencies or configuration shape. Reverting one commit would undo it. Because this is a read-only check, no test command accompanies the fix.\n\nPick one:\n1. Fix: remove the line in this class's pull request.\n2. Ticket: open an issue to decide whether the README guidance should still apply here.\n3. Ignore: keep the line as the README directs. [recommended]\n",
+      "words": 168,
+      "wallMs": 11200,
+      "mechanical": {
+        "repo-source": "fails",
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### code-debug — leftover debugging output\n\n**Finding:** `src/widgets/render.ts:12`\n```ts\nconsole.debug(\"temporary widget trace\", widget.id);\n```\n\n**Rule:** Remove leftover debug statements.  \n**Source:** `skills/housekeeping/reference/base-rules.md`  \n**Overrides:** `README.md`, `## Diagnostics`, which says to keep leftover `console.debug` statements in widget renderers.\n\n**Proposed fix:** Remove this one statement. It is debugging output, not product logging; removing it changes no rendering behavior.\n\n**Verification:** Read check; the quoted line was validated. No regression command is attached.\n\n**Safety:** No stored data, public contract, dependencies, or configuration shape changes. Reverting one commit undoes the fix. No other class shares this file.\n\nRecommendation: Fix, because this is a validated leftover debug statement covered by the compiled removal rule.\n\nPick one:\n1. **fix** — remove the statement and deliver a PR for this class. **[recommended]**\n2. **ticket** — record the finding for later.\n3. **ignore** — leave the statement unchanged.\n",
+      "words": 133,
+      "wallMs": 13070,
+      "mechanical": {
+        "repo-source": "holds",
+        "marker": "holds"
+      }
+    }
+  },
+  "repoSha": "27cf9a647cf84e7de4e155a14a66a251c55dc087"
+}

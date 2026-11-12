@@ -1,8 +1,11 @@
-# eval report: housekeeping (partial run: overrides-rule-cited)
+# eval report: housekeeping (partial run: base-rule-wins)
 
 for: 0ad959b6322f51ecf51c67c55ca310846cb00ced5efd954b867cb7a92bddfe27
 
-wall: 23s
+wall: 12s
+
+refresh: complete; sample: base-rule-wins; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
+audit: [candidate.json](results/base-rule-wins/candidate.json)
 
 ## Change
 
@@ -12,12 +15,12 @@ Introduce a human-only housekeeping walk whose run record fixes selection and de
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| overrides-rule-cited | anthropic/claude-opus-5-5 | unchanged | 11325 | override-finding: holds -> holds (held); section-cited: holds -> holds (held); no-execution: holds -> holds (held); source-file: holds -> holds (held); marker: holds -> holds (held) |
-| overrides-rule-cited | github-copilot/gpt-6.1-sol | unchanged | 8843 | override-finding: holds -> holds (held); section-cited: holds -> holds (held); no-execution: holds -> holds (held); source-file: holds -> holds (held); marker: holds -> holds (held) |
+| base-rule-wins | anthropic/claude-opus-5-5 | improved | 11514 | base-applied: fails -> holds (unplanned improvement); override-disclosed: fails -> holds (unplanned improvement); no-execution: holds -> holds (held); repo-source: holds -> holds (held); marker: holds -> holds (held) |
+| base-rule-wins | github-copilot/gpt-6.1-sol | unchanged | 8044 | base-applied: holds -> holds (held); override-disclosed: holds -> holds (held); no-execution: holds -> holds (held); repo-source: holds -> holds (held); marker: holds -> holds (held) |
 
 ## Feedback
 
-- overrides-rule-cited / anthropic/claude-opus-5-5: No fact moved. After still identifies the trailing period on docs/setup.md:1 as the finding, explains the no-period heading rule as the project's own rule, cites both .pi/gauntlet-overrides.md and the `## housekeeping` section, and keeps all three option boxes empty with the recommendation marked only by its label and the fix described conditionally under 'What happens if you accept'. Two minor wording wobbles worth tightening so they don't drift in other cases: the Ticket and Ignore lines say 'them' and 'they' although this card has exactly one finding (use 'this finding' / 'it', or key the plural on the actual count), and the Fix line mixes the plain-language register of the rest of the card with internal jargon ('Build this class in its own worktree and open its own pushed PR') that the preceding section already explained more simply; one phrasing, e.g. 'Fix - remove the period in a separate pull request against the default branch; your checkout stays unchanged', would say the same thing without the shift in tone. After also drops Before's explicit note that the overrides rule 'adds a new check and does not conflict with any base rule'; not required by the facts, but restoring one sentence would keep that context without hurting the Change.
-- overrides-rule-cited / github-copilot/gpt-6.1-sol: No fact moved. After still names the trailing period on docs/setup.md:1 as the finding, cites both `.pi/gauntlet-overrides.md` and `## housekeeping` as the rule's source, keeps all three option boxes empty with only the `[recommended]` label on Fix, and frames the PR and edit purely under "What happens if you accept", so no reader would take the heading as already changed. Two small wording tweaks would tighten it without risking any fact: say "it"/"this heading" instead of "them" in the Ticket and Ignore lines (the card covers one finding, and the plural reads as boilerplate), and consider keeping Before's one-line note that the overrides rule adds a check and conflicts with no base rule, which makes the override-sourced origin even harder to mistake for a base rule.
+- base-rule-wins / anthropic/claude-opus-5-5: Before inverted the compiled override: its Rule conflict section said "the repository's own guidance takes precedence over the base rule" and recommended Ignore, so it retained the console.debug under the README permission and misstated which rule wins, failing base-applied and override-disclosed. After fixes both: it names the base rule with its source file, quotes the README `## Diagnostics` guidance, states plainly that "the fixed rule takes precedence over that README guidance," proposes deletion, and marks Fix as recommended. Both outputs keep no-execution; After's empty `[ ]` boxes with the recommendation marked only by label are exactly what the Change asked for and do not imply a recorded pick. Nothing regressed. One small note for the author: the compiled check lists `overrides: README.md, `## Diagnostics``, and the Change asks that an overrides-sourced rule cite both its file and the heading, which After does; keep that "X takes precedence over Y" sentence as a fixed template so future wording tweaks cannot drift back to merely citing both sources without naming the winner.
+- base-rule-wins / github-copilot/gpt-6.1-sol: Nothing moved. After still treats the console.debug line as a finding under the base-rules removal rule and proposes removing it, states plainly that the base rule "takes precedence over" the README.md `## Diagnostics` permission, and presents an unanswered card with empty boxes and only a [recommended] label, describing the PR purely as a consequence of accepting rather than as something already created. Two small things worth preserving from Before that After dropped without affecting any fact: the compiled check id (`code-debug`) and the verbatim quoted line, both of which make the finding easier to verify from the card alone; adding them back under "What was found" would keep the new structure while retaining that precision.
 
 exit: 0
