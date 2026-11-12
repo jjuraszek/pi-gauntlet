@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.4.11 - 2026-11-12
 
 - Loop interrupted returns recover unconditionally as one failed attempt under either approval option: job identity checks fence signals, not reset or repair. Pending companion and resumed returns share the same recovery; only a dirty tree with no pending dispatch asks for discard. Git recovery failures consume the existing allowance rather than opening a new stop.
 - Spec approval authorizes every named paid or external action for the whole flow without count-based stops or spend accounting. Workers reuse action output for local rechecks; missing prerequisites and unnamed actions still report `unreachable:`. Option 5 also continues rows reopened during verify within their remaining allowance, without a second authorization; option 4 keeps its authorize-or-stop ask.
