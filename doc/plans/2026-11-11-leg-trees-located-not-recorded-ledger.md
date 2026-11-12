@@ -3,7 +3,7 @@
 base: 4dcd1f4c71da8f2ee56a8491727e40233ca4733f
 verification: npm test
 checks: commands
-iterations: 7
+iterations: 8
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -12,7 +12,7 @@ allowance: 10
 | 2 | done | 1 | timeout -k 30 180 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 235 passed, 0 failed; no paid or external action launched; paid eval hold retained: bare 5 did not approve the fourteen-call bound |
 | 3 | done | 1 | timeout -k 30 180 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts; 32 passed, 0 failed; no paid or external action launched; paid eval hold retained: bare 5 did not approve the fourteen-call bound |
 | 4 | done | 2 | timeout -k 30 10 python3 -c 'assert len((r:=__import__("json").loads(__import__("pathlib").Path("eval/brainstorming/results/multi-repo-script-placed-leg/candidate.json").read_text()))["judge"]) == len(r["outputs"]) == 2 and all(c["status"] == "ok" for c in r["outputs"].values()) and all(len(c["facts"]) == 6 and all(f["after"] == "holds" for f in c["facts"].values()) for c in r["judge"].values())'; 12 candidate facts hold, replay 4 judge 2 confirm 0, exit 0; bound spent: brainstorming/multi-repo-script-placed-leg (1 of 3); ran brainstorming/multi-repo-script-placed-leg (1 of 3) |
-| 5 | failed | 1 | timeout -k 30 10 python3 -c 'assert len((r:=__import__("json").loads(__import__("pathlib").Path("eval/spec-gate/results/option-6-handoff/candidate.json").read_text()))["judge"]) == len(r["outputs"]) == 2 and all(c["status"] == "ok" for c in r["outputs"].values()) and all(len(c["facts"]) == 13 and all(f["after"] == "holds" for f in c["facts"].values()) for c in r["judge"].values()), "publication fact fails: one candidate omitted the literal quoted heredoc"'; exit 1: publication omitted literal quoted heredoc, cleanup facts hold, selected eval inconclusive; bound spent: spec-gate/option-6-handoff (1 of 3); ran spec-gate/option-6-handoff (1 of 3) |
+| 5 | done | 2 | timeout -k 30 10 python3 -c 'assert len((r:=__import__("json").loads(__import__("pathlib").Path("eval/spec-gate/results/option-6-handoff/candidate.json").read_text()))["judge"]) == len(r["outputs"]) == 2 and all(c["status"] == "ok" for c in r["outputs"].values()) and all(len(c["facts"]) == 13 and all(f["after"] == "holds" for f in c["facts"].values()) for c in r["judge"].values()), "publication fact fails: one candidate omitted the literal quoted heredoc"'; 26 candidate facts hold, replay 4 judge 2 confirm 0, exit 0; bound spent: spec-gate/option-6-handoff (1 of 3), bound spent: spec-gate/option-6-handoff (2 of 3); ran spec-gate/option-6-handoff (1 of 3), ran spec-gate/option-6-handoff (2 of 3) |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
 | 8 | open | 0 | |
@@ -29,3 +29,4 @@ row 3 done | Ship verification now selects companion primary settings by repo an
 row 4 failed | Recorded the missing fourteen-call approval blocking the required selected behavior eval; no paid or external action launched. | Retry only after explicit fourteen-call approval for brainstorming/multi-repo-script-placed-leg; do not treat bare 5 or the amendment grant as spending authority.
 row 4 done | Recorded creator-specific contracts; bound spent: brainstorming/multi-repo-script-placed-leg (1 of 3); ran brainstorming/multi-repo-script-placed-leg (1 of 3). | Reuse skills/brainstorming/reference/legs.md for branch lookup and portable templates, and the selected sample's saved eval results for local checks.
 row 5 failed | Implemented gated cleanup; bound spent: spec-gate/option-6-handoff (1 of 3); ran spec-gate/option-6-handoff (1 of 3). | Keep cleanup and saved eval records; fix missing quoted-heredoc narration in option-6-handoff before another selected run.
+row 5 done | Fixed narration; bound spent: spec-gate/option-6-handoff (1 of 3); ran spec-gate/option-6-handoff (1 of 3); bound spent: spec-gate/option-6-handoff (2 of 3); ran spec-gate/option-6-handoff (2 of 3). | Reuse spec-pr.md cleanup and eval/spec-gate/results/option-6-handoff/candidate.json for local replay checks; all 26 facts hold.
