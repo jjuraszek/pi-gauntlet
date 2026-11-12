@@ -1,0 +1,38 @@
+{
+  "sample": "pr-card-no-ticket",
+  "arm": "baseline",
+  "skillSha": "80d49adbb420b3994da9ddef2e6242bc8d5a9d2479a6a45bd02fc96880e1bfd9",
+  "inputSha": "9f51fe9862ae89a7f7a7196543339d54c733364427f605dd3e58c8b51453f625",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n**Card 1 of 1: code-unused**\n\nRule: remove unused imports, variables and modules with no caller. The source is the housekeeping base rules (Code section), with no overrides. The rules come from the merge-base commit.\n\nFindings: two unused imports, both inside lines this PR changed:\n- `src/widgets/render.ts:2` imports a name that the file never uses.\n- `src/widgets/format.ts:3` imports a name that the file never uses.\n\nProposed fix: delete those two import lines and leave the rest of each file unchanged.\n\nVerification: the check reads the code only, and no regression command is attached. Each quoted import line exists, and neither imported name appears elsewhere in its file.\n\nDelivery: one commit in the worktree on `feature/widget-colors`, pushed to the PR's branch. The worktree is clean, matches the remote head, and the push dry-run passed.\n\nPick one:\n1. fix [recommended]\n2. ignore\n",
+      "words": 140,
+      "wallMs": 9128,
+      "mechanical": {
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card\n### Card 1 — Unused imports\n\nTwo unused imports occur in PR-changed lines:\n- `src/widgets/render.ts:2`\n- `src/widgets/format.ts:3`\n\nBoth import lines exist, and neither imported name is used in its file.\n\n**Rule:** Remove unused imports, variables and modules with no caller.\n**Source:** Housekeeping base rules, Code; no overrides.\n**Check:** `code-unused` — read verification; no regression command attached.\n\n**Proposed fix:** Remove both unused imports. Delivery is commit-and-push. Nothing has been changed yet.\n\nPick one:\nA) **fix** — Remove both imports.\nB) **ignore** — Leave both imports unchanged.\n\nRecommendation: A — both imports are confirmed unused.\n",
+      "words": 87,
+      "wallMs": 11494,
+      "mechanical": {
+        "marker": "fails"
+      }
+    }
+  },
+  "repoSha": "cf819a7356936a77ad3e04da13f59757a0d7dd7c"
+}

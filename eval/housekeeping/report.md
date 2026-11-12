@@ -1,8 +1,8 @@
-# eval report: housekeeping (partial run: feature-branch-stop)
+# eval report: housekeeping (partial run: pr-card-no-ticket)
 
 for: 6b0dd2600ab5f0adf5c13bede90d78051579d935fc9eb3bcf9abd3095516a068
 
-wall: 28s
+wall: 57s
 
 ## Change
 
@@ -12,12 +12,12 @@ Introduce a human-only housekeeping walk whose run record fixes selection and de
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| feature-branch-stop | anthropic/claude-opus-5-5 | improved | 11190 | stop-before-check: fails -> holds (unplanned improvement); branch-reason: fails -> holds (unplanned improvement); pr-input: fails -> holds (unplanned improvement); run-folder: holds -> holds (held); marker: fails -> holds (unplanned improvement) |
-| feature-branch-stop | github-copilot/gpt-6.1-sol | improved | 16252 | stop-before-check: holds -> holds (held); branch-reason: holds -> holds (held); pr-input: fails -> holds (unplanned improvement); run-folder: fails -> holds (unplanned improvement); marker: fails -> holds (unplanned improvement) |
+| pr-card-no-ticket | anthropic/claude-opus-5-5 | regressed | 19145 | two-picks: holds -> holds (held); same-pr-commit: holds -> holds (held); fix-available: holds -> holds (held); selected-only: holds -> holds (held); no-execution: holds -> fails (regression); marker: holds -> holds (held) |
+| pr-card-no-ticket | github-copilot/gpt-6.1-sol | improved | 17153 | two-picks: holds -> holds (held); same-pr-commit: fails -> holds (unplanned improvement); fix-available: holds -> holds (held); selected-only: holds -> holds (held); no-execution: holds -> holds (held); marker: fails -> holds (unplanned improvement) |
 
 ## Feedback
 
-- feature-branch-stop / anthropic/claude-opus-5-5: Nothing regressed: After keeps the only fact Before held (the retained run folder) and picks up the three Before lost — Before offered option 2 to run on feature/widget-colors as-is (so it did not stop the directory run), never stated that the directory run requires the default branch in the primary, and never mentioned the PR input, whereas After states the admission rule, refuses to continue, and points to `/skill:housekeeping <PR>`. The one wording wart in After is the leading `gauntlet: stuck` label, which reads like leaked internal state rather than a user-facing stop; something like 'Housekeeping stopped before admission: the directory run requires `main` in the primary checkout, but `feature/widget-colors` is checked out' would carry the same facts more cleanly while still delivering the Change's fixed-selection, no-card-before-validation behaviour.
-- feature-branch-stop / github-copilot/gpt-6.1-sol: After keeps everything Before kept and additionally satisfies pr-input (it names `/skill:housekeeping <PR>` instead of asking to switch branches) and run-folder (it names /tmp/housekeeping.admission); nothing moved from holds to fails. Two soft spots in After worth tightening without losing any fact: the opener `gauntlet: stuck` is opaque jargon that does not state the actual admission rule — spell it out as something like 'Directory housekeeping runs only from the default branch in the primary checkout; this checkout is on feature/widget-colors, not main, so the run stops here', so branch-reason holds on the text rather than by inference — and the PR hint should say what the PR input is for ('to housekeep the feature-branch work, open a PR and run `/skill:housekeeping <PR>`') so a reader sees it as the alternative path rather than a bare command. Keep the final line as is; it cleanly delivers stop-before-check and run-folder.
+- pr-card-no-ticket / anthropic/claude-opus-5-5: After keeps the two-choice list, the one-commit-to-the-existing-PR-branch promise, the recommended Fix without a regression command, and findings limited to the two selected imports, but it pre-checks the Fix option (`1. [x] Fix`) while the run state says no pick has been recorded; a careful reader sees a checkbox list with one box ticked and concludes the card has already been answered, which breaks the 'unanswered card' requirement even though no execution is claimed. Use plain numbered rows with the `[recommended]` tag only (as Before did), or use empty boxes for both options, so the recommendation is a label rather than a recorded answer. Two smaller drifts worth tightening: 'This pull request adds 2 imports' overstates the run state (the lines are in changed ranges, not necessarily added by the PR), so say 'two imports in lines this pull request changed'; and 'Those two import lines are deleted' under 'What happens if you accept' is fine as a conditional but reads safer as 'would be deleted' to keep the card clearly pre-execution.
+- pr-card-no-ticket / github-copilot/gpt-6.1-sol: After keeps every fact Before kept and additionally repairs same-pr-commit: Before's Fix row only said "Remove both imports" with a detached "Delivery is commit-and-push" note that never named the target branch or promised a single commit, whereas After's Fix row states "Make one commit for this class and push it to the existing PR branch" and the acceptance section repeats it. Two cautions in After: the pre-ticked "[x] Fix" marker could be read by some readers as a recorded pick, so a plain "(recommended)" tag without a checked box would make the unanswered state unambiguous; and Before's lettered A)/B) options only loosely satisfy "numbered", so After's switch to 1./2. is a genuine improvement worth keeping. Also consider restating "Nothing has been changed yet" explicitly, as Before did, to lock in no-execution.
 
-exit: 0
+exit: 1
