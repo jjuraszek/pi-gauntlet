@@ -60,6 +60,6 @@ Keep `<run>/decisions.md` outside the repo. Record the class, pick, excluded ite
 | `list` | Show the full numbered item list; keep this card open. |
 | `go` | End the walk; execute only recorded picks; carry unanswered classes as not decided. |
 | `stop` | End per Report with nothing executed; keep the decisions file and name the run folder. |
-| An unavailable row, unknown item or unrecognized reply | Explain the invalid selection and ask again on the same card. |
+| An unavailable row, unknown item or unrecognized reply | Repeat the full card with one line naming the valid replies; keep this card open without recording a pick or advancing the walk. |
 
 After the last answer or `go`, pass the decisions to Fix. Preserve each ticket's separate `/skill:shape-ticket` exact-text approval; a card pick never supplies that approval.
