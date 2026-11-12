@@ -84,6 +84,8 @@ Continue marked script-created legs without a recorded home: compare create with
 
 For spec-pr-regate-legs, replace unconditional missing-remote push advice with primary-local file-scoped recovery: offer push only when the branch log holds the leg-file commit, otherwise restore the remote elsewhere and regenerate nothing. Check both an absent local branch and an unrelated branch without leg-file history. Preserve other facts and run only this sample; its saved results provide sample-scoped narrated evidence, not live recovery.
 
+Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
+
 ## Expected to move
 - spec-pr-regate-legs/missing-remote: fails -> holds - Select push or remote restoration only after the local file-scoped branch log.
 - spec-pr-regate-legs/script-reuse: fails -> holds - Match discovered templates and reuse the branch-located tree without home drift or another-path refusal.
