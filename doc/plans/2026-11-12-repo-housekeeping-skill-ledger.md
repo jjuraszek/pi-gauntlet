@@ -5,7 +5,6 @@ verification: npm test
 checks: commands
 iterations: 14
 allowance: 10
-pending: verify | home | d93ce3cd1d2d8e0f2171a2f8ac634de1217d44ce
 
 | row | status | attempts | evidence |
 |---|---|---|---|
