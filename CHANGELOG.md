@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.4.10 - 2026-11-12
 
 - Draft-PR handoff cleanup checks live remote equality before removing owned trees and conditionally deleting local branches at the pinned commit. Guarded wrappers can delete branches; host-owned, mismatched and failed cleanups report the state read back.
 - Coordinated brainstorms record portable script/native creation and destruction commands without inventing a `home:` path. Keyed and built-in creators retain `home:`, pre-existing host-owned trees retain ownership, and companion lookup uses the recorded branch with checkout identity validation.
