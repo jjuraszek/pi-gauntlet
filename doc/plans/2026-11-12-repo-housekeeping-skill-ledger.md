@@ -3,14 +3,14 @@
 base: 92eb7a087670521a6117c5e39c06066de0a5bbc7
 verification: npm test
 checks: commands
-iterations: 2
+iterations: 3
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | timeout -k 30 10 node --test eval/housekeeping/directory.test.mjs; 1 passed, 2 replay models satisfy all directory card facts; bound spent: eval directory-three-picks (1 of 3), ran eval directory-three-picks (1 of 3); selection conformance read only, no live Git or delivery actions |
-| 2 | open | 0 | |
-| 3 | open | 0 | |
+| 2 | done | 1 | timeout -k 30 10 python3 -c 'assert all(s in __import__("pathlib").Path("skills/housekeeping/reference/fix.md").read_text() for s in ("only after the last card is answered or `go`", "one new worktree per Fix-picked class", "housekeeping/\u003crun id\u003e-\u003cn\u003e", "recorded `commit`", "one at a time before the first batch", "Leave the primary checkout\u0027s tracked files unchanged", "push the branch without force", "gh pr create", "against the default branch", "card\u0027s title", "git worktree remove", "git worktree prune", "keep the branch", "compare URL", "rejected push keeps the commits in the worktree"))'; 15 directory-delivery clauses pass after missing-file RED; documentation conformance only, no live Git or delivery action; no paid or external action launched, no jobs file created |
+| 3 | done | 0 | timeout -k 30 10 python3 -c 'assert all(all(s in __import__("pathlib").Path(p).read_text() for s in ss) for p,ss in [("skills/housekeeping/reference/select.md", ("None", "uncommitted", "Primary checkout, default branch checked out.", "Modified, staged and untracked files.", "git check-ignore --no-index", "fix, ignore", "`in-place`")), ("skills/housekeeping/reference/card.md", ("Show only the run record\u0027s picks", "Edit the selected files in place, with no commit or push.")), ("skills/housekeeping/reference/fix.md", ("for `in-place`, edit only selected files", "For `in-place`, never commit or run a command that changes the index.", "Keep the edits, with no commit and no push.", "Run `commit-push` and `in-place` classes one after another"))])'; no-argument selection, two-pick cards and index-preserving in-place delivery clauses pass; documentation conformance only, no live in-place fix |
 | 4 | open | 0 | |
 | 5 | open | 0 | |
 | 6 | done | 0 | timeout -k 30 10 python3 -c 'assert all(all(s in __import__("pathlib").Path(p).read_text() for s in ss) for p,ss in [("skills/housekeeping/reference/check.md", ("REVIEW.md", "AGENTS.md", "CLAUDE.md", "every directory on the path to each selected file", "ARCHITECTURE.md", "README.md", "Follow these references one hop only", "Record sources read.", "With no repo sources, run base rules alone.")), ("skills/housekeeping/reference/card.md", ("the rule in everyday words and its source file",)), ("skills/housekeeping/SKILL.md", ("rule sources read",))])'; source discovery, optional defaults, card citations and source inventory present; documentation conformance only, no live checks |
@@ -19,8 +19,8 @@ allowance: 10
 | 9 | open | 0 | |
 | 10 | open | 0 | |
 | 11 | open | 0 | |
-| 12 | open | 0 | |
-| 13 | open | 0 | |
+| 12 | done | 0 | timeout -k 30 10 python3 -c 'assert all(s in __import__("pathlib").Path("skills/housekeeping/reference/fix.md").read_text() for s in ("After all fix jobs", "/skill:shape-ticket", "create mode, one class at a time", "card text and item list", "approval of that ticket\u0027s exact text", "cancelled ticket as not filed"))'; six ticket handoff and cancellation clauses pass after assertion RED; documentation conformance only, no live ticket or tracker write |
+| 13 | done | 0 | timeout -k 30 10 python3 -c 'assert all(s in __import__("pathlib").Path("skills/housekeeping/reference/fix.md").read_text() for s in ("On `FIX_FIRST` or a first failing search or command", "Allow one repair only", "amend the class commit, keeping one commit for this class", "a second non-`SHIP`", "a failing search or command after repair", "Remove its unpushed worktree and branch", "Reset its worktree to the pre-class commit", "Restore the class\u0027s changed files from the pre-class expected copies and delete files the class created", "report an index change with its paths, do not repair the index", "Keep one failed job from stopping other jobs", "left open with its reason"))'; one-repair cap, delivery-specific undo and independent-job continuation clauses pass; documentation conformance only, no live repair or undo |
 | 14 | done | 0 | timeout -k 30 10 python3 -c 'assert all(s in __import__("pathlib").Path("skills/housekeeping/SKILL.md").read_text().split("## 5. Report",1)[1].split("## Red Flags",1)[0] for s in ("Shared files:", "every path changed by two or more", "commits pushed", "files edited in place", "tickets filed and not filed", "ignored and not-decided classes", "open classes with reasons", "files not checked or not reviewed with reasons", "checks not run with reasons", "rule sources read", "prs,commits,edited,tickets,not-filed,ignored,not-decided,open", "Schedule no merge order."))'; all report lists and counter order present; documentation conformance only, no live report replay |
 | 15 | open | 0 | timeout -k 30 10 python3 -c 'assert "disable-model-invocation: true" in __import__("pathlib").Path("skills/housekeeping/SKILL.md").read_text().split("---", 2)[1].splitlines() and "./skills/housekeeping" in __import__("json").loads(__import__("pathlib").Path(".claude-plugin/marketplace.json").read_text())["plugins"][0]["skills"]'; exit 1: skills/housekeeping/SKILL.md is missing; static registration check only, runtime loading untested; no paid or external action launched, no jobs file created |
 
@@ -29,3 +29,7 @@ row 0 done | seeded 1 rows, closed 0 on baseline | row 1
 row 1 done | Added directory selection and three-pick cards; bound spent: eval directory-three-picks (1 of 3); ran eval directory-three-picks (1 of 3); no live delivery ran. | Reuse eval/housekeeping/directory.test.mjs locally; exited-job spend records remain in ${TMPDIR:-/tmp}/loop-92eb7a087670521a6117c5e39c06066de0a5bbc7-1.jobs.
 row 6 done | Confirmed source discovery, card citations and the closing source inventory by a scoped documentation assertion. | nothing new to build on
 row 14 done | Confirmed report inventories, shared-file disclosure and counter order by a scoped documentation assertion. | nothing new to build on
+row 2 done | Added per-class worktrees, one-commit fixes and pushed PR delivery; no paid eval, PR, push or ticket action launched. | Reuse skills/housekeeping/reference/fix.md for shared fix, review and delivery duties; no jobs file was created.
+row 3 done | Confirmed no-argument selection, Fix/Ignore cards and in-place fixes without index changes, commits or pushes by documentation assertion. | nothing new to build on
+row 13 done | Confirmed one-repair rejection handling, delivery-specific undo and continuation of independent jobs by documentation assertion. | nothing new to build on
+row 12 done | Added serial shape-ticket handoffs with exact-text approval and cancelled-ticket reporting; no tracker action launched. | Reuse the ticket handoff in skills/housekeeping/reference/fix.md after fix jobs; results retain ticket links and not-filed reasons.
