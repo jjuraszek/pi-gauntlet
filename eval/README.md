@@ -158,7 +158,7 @@ Changed labels or verdicts update the candidate record and regenerate `report.md
   "skillSha": "<sha256 of the assembled skill text>",
   "inputSha": "<sha256 of replay.md + case.md + bundle+ paths + sorted fixture tree>",
   "repoSha": "<git HEAD>",
-  "models": { "replay": ["anthropic/claude-opus-5-5", "github-copilot/gpt-6.1-sol"], "judge": "anthropic-fable/claude-fable-5-1", "thinking": "medium" },
+  "models": { "replay": ["anthropic/claude-opus-5-5", "github-copilot/gpt-6.1-sol"], "judge": "anthropic-fable/claude-fable-5-2", "thinking": "medium" },
   "outputs": {
     "<replay model>": { "status": "ok" | "error", "error": "<reason or absent>", "text": "...", "tree": { "<path>": { "lines": 0, "content": "..." } }, "words": 0, "wallMs": 0, "mechanical": { "<fact id>": "holds" | "fails" } }
   },

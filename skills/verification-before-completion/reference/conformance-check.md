@@ -126,7 +126,7 @@ partition from an earlier round.
 
 ### Ledger subjects
 
-Treat a `# Ledger - loop engine` subject as the loop path, never the ad-hoc no-plan path. Read `/skill:loop-implementation`'s `## Gate set` at its absolute skill path and apply it at every test site below, including its missing-`checks:` stop, checkout ownership, fail-fast execution and `LOG_DIR` redirection. Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site. Keep the plan and ad-hoc rules below unchanged for non-ledger subjects.
+Treat a `# Ledger - loop engine` subject as the loop path, never the ad-hoc no-plan path. Read `/skill:loop-implementation`'s `## Gate set` at its absolute skill path and apply it at every test site below, including its missing-`checks:` stop, owning-checkout routing, fail-fast execution and `LOG_DIR` redirection. Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site. Keep the plan and ad-hoc rules below unchanged for non-ledger subjects.
 
 For a ledger repair or Convergence task, pass the failing command, its checkout, exit code and log path, never pasted output. The child reads the log to derive the files to touch, including Convergence (c)'s files named by failing output; the driver does not read it. Feed that single gate failure into the existing fix-round machinery.
 

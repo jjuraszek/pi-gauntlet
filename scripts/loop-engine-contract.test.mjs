@@ -177,8 +177,8 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
   const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
   for (const token of [
     'including spent escalation', 'attempts = saved attempts +1',
-    'Commit `loop: repair row <n>` with retained action records in its body, refresh and return to the ordered table',
-    'rule 2 stops a repaired row at allowance', 'consume no attempt and make no repair commit',
+    'Commit `loop: repair row <n>`, refresh and return to the ordered table in the same turn',
+    'rule 2 stops a repaired row at allowance', 'Recovery itself is unconditional',
   ]) assert.ok(recovery.includes(token), token);
   assert.doesNotMatch(driver, /Boundary rejection never increments attempts/);
 });
@@ -194,9 +194,10 @@ test('automatic exit verification repair is once per flow under both options', (
     'Problem: escalationLoop.implModel unavailable', 'without a bump or marker',
     'bump iterations once', 'Save the home ledger and home/failing-leg HEADs',
     'preserving attempts, mapping, allowance and prior decisions',
-    'On killed, error, non-DONE, dirty, zero/multiple-commit or invalid repair returns',
-    'after owned jobs exit and the boundary is clean', 'empty `loop: repair verification` marker (no repair code)',
-    'retain state at the recovery-incomplete stop; the pending reservation remains consumed',
+    'On killed, error, non-DONE, dirty, zero/multiple-commit, wrong-attribution or invalid repair returns',
+    'apply ## Interrupted recovery steps 1-2 to the failing checkout at its saved HEAD',
+    'empty `loop: repair verification` marker in home (no repair code)',
+    'A non-empty `status --porcelain` after reset blocks neither the marker nor the rerun',
     'an already admitted matching marker needs no second marker',
     'A new failure in any leg returns to the repair-count check', 'Never spend verify-phase credits',
   ]) assert.ok(gate.includes(token), token);
@@ -319,22 +320,43 @@ test('ledger refresh owns entry, dispatch and implement completion', () => {
   assert.ok(driver.trimEnd().split('\n').length < 500);
 });
 
-test('terminal home results refresh only after admission and retain pending on boundary stops', () => {
+test('terminal home results admit clean returns and repair interrupted returns without a human turn', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   const validation = driver.split('\n## Validate the return\n')[1].split('\n## Human stop\n')[0]
     + readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
-  assert.match(validation, /Route dispatch errors, non-DONE, killed, dirty and zero\/multiple-commit returns through ## Interrupted recovery/);
-  for (const token of ['exclusive checkout provenance', 'every changed path and commit', 'all changes preserved',
-    'OS-observed start identity captured at launch', 'matching start identity and command',
-    'Recheck all three immediately before signaling', 'a replacement group leader is not owned',
-    'wait at most 10 s', 'after another identity recheck', 'then require `kill -0 <pid>` to fail',
-    'Print `terminated <k> child jobs`', 'consume no attempt and make no repair commit',
-    'Project saved pre-dispatch row cells at this stop without overwriting unadmitted work']) {
-    assert.ok(validation.includes(token), token);
+  const boundary = driver.split('\n## Validate the return\n')[1].split('\n2. ')[0];
+  const resultValidation = driver.split('\n## Validate the return\n')[1].split('\n2. ')[1].split('\n## Unreachable returns\n')[0];
+  assert.match(boundary, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1.*row and seed alike/);
+  assert.match(boundary, /Route dispatch errors, non-DONE, killed, dirty, zero\/multiple-commit and wrong-attribution returns through ## Interrupted recovery/);
+  assert.doesNotMatch(resultValidation, /attribution|commit body's first two lines/);
+  const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
+  for (const reason of ['dispatch error', 'non-DONE', 'silence kill', 'dirty tree', 'zero/multiple commits', 'wrong attribution']) {
+    assert.ok(recovery.split('\n1. ')[0].includes(reason), reason);
   }
-  assert.ok(validation.indexOf('Establish exclusive checkout provenance') < validation.indexOf('reset --hard HEAD_BEFORE'));
-  assert.ok(validation.indexOf('After exclusive provenance and job exit are both established') < validation.indexOf('reset --hard HEAD_BEFORE'));
+  for (const token of ['approval options 4 and 5 alike', 'Recovery itself is unconditional',
+    'matching start identity and command', 'PGID equal to the pid', 'wait at most 10 s',
+    'recheck identity, command and group leader before each signal',
+    'skip that job and continue recovery', 'absent or empty jobs file means no jobs to terminate',
+    'Print `terminated <k> child jobs`', 'delete the jobs file',
+    'git -C "<worktree>" reset --hard HEAD_BEFORE', 'git -C "<worktree>" clean -fd',
+    '`iterations:` = saved +1', 'no `pending:`', 'attempts = saved attempts +1',
+    'evidence `iteration <i>: interrupted - <reason>`',
+    'Commit `loop: repair row <n>`, refresh and return to the ordered table in the same turn']) {
+    assert.ok(recovery.includes(token), token);
+  }
+  assert.match(recovery.split('3. Write')[1], /`wrong attribution`.*as the concrete reason/);
+  assert.match(recovery, /still alive after KILL.*do not block recovery/);
+  assert.match(recovery, /files remain after reset.*next return is validated as usual/);
+  assert.doesNotMatch(recovery, /recovery incomplete|provenance|action-spend|bound spent:|only below|discard authorization/);
+  assert.ok(recovery.indexOf('1. ') < recovery.indexOf('reset --hard HEAD_BEFORE'));
+  assert.ok(recovery.indexOf('reset --hard HEAD_BEFORE') < recovery.indexOf('3. Write'));
+  const dispatch = driver.split('\n## Dispatch\n')[1].split('\n## Validate the return\n')[0];
+  assert.doesNotMatch(dispatch, /provenance|exclusive ownership/);
+  const human = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
+  assert.doesNotMatch(human, /recovery.incomplete|interrupted-dispatch.*stops|discard.*interrupted/);
+  assert.match(human, /Never invent a stop, a menu, an option or an approval the spec's gate did not ask for/);
+  assert.match(human, /never write a ruling on what the spec authorizes into a task's `hint:` field/);
   assert.match(validation, /Never project terminal child results before clean\/exactly-one-commit admission/);
   assert.match(validation, /`iterations` \+1 and removal of the dispatched `pending:` line.*reject every other header change/);
   assert.match(validation, /Seed or ordinary.*committed tuple.*validation miss for the dispatched target after boundary admission, not a boundary rejection/);
@@ -354,24 +376,23 @@ test('terminal home results refresh only after admission and retain pending on b
   assert.match(validation, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1/);
 });
 
-test('reconstruction fences interrupted recovery before mutation or task projection', () => {
+test('reconstruction routes interrupted recovery unconditionally before mutation or task projection', () => {
   const recovery = readFileSync(new URL('skills/gauntlet-resume/reference/reconstruction.md', root), 'utf8');
   const interrupted = recovery.split('| Confirmed interrupted |')[1].split('\n')[0];
   const home = recovery.split('| Home leg or single-member `home` |')[1].split('\n')[0];
-  for (const instruction of [interrupted, home]) {
-    assert.match(instruction, /## Interrupted recovery/);
-    assert.match(instruction, /provenance/);
-    assert.match(instruction, /preserv/i);
-    assert.match(instruction, /consumed/);
-  }
-  assert.doesNotMatch(recovery, /restore the target row and the tuple|restore row <n> to its pre-dispatch/);
+  assert.match(interrupted, /unconditional interrupted recovery/);
+  assert.match(interrupted, /consumed/);
+  assert.match(home, /## Interrupted recovery/);
+  assert.match(home, /without a provenance or process-exit gate/);
+  assert.match(home, /already-consumed iteration/);
+  assert.doesNotMatch(recovery, /restore the target row and the tuple|restore row <n> to its pre-dispatch|ownership-fenced/);
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const resume = reference.split('\n## Resume\n')[1].split('\n## Targeting and dispatch\n')[0];
   const companion = recovery.split('| Actual multi-member companion |')[1].split('\n')[0];
   for (const instruction of [resume, companion]) {
-    assert.match(instruction, /ownership-fenced interrupted recovery|ownership-fenced recovery/);
+    assert.match(instruction, /common interrupted recovery|unconditional interrupted recovery/);
     assert.match(instruction, /post-boundary result-validation misses.*`loop: repair row <n>`.*`loop: repair seed`.*clear `pending:`.*preserve the consumed iteration/);
-    assert.doesNotMatch(instruction, /attribution\/result mismatch|missing evidence take/);
+    assert.doesNotMatch(instruction, /attribution\/result mismatch|missing evidence take|ownership-fenced/);
   }
 });
 
@@ -389,7 +410,10 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   const intent = readFileSync(new URL('eval/loop-implementation/intent.md', root), 'utf8');
   assert.match(intent, /cap-and-exit-verification\/contract: fails -> holds - .*verify step 1/);
   assert.match(after, /Gn tasks.*same tracker/);
-  assert.match(after, /Stopped: row <n> reopened by amendment during verify/);
+  assert.match(after, /Without amend permission, refresh and stop with `Stopped: row <n> reopened by amendment during verify`/);
+  assert.match(after, /Under amend permission, continue without a second authorization/);
+  assert.match(after.split('\n3. ')[1].split('\n4. ')[0], /During verify, dispatch the reopened row as a one-task `tasks` call.*same `## Dispatch` fields.*no `worktree:`.*closure guard counts it as one fix round against the conformance cap/);
+  assert.match(after, /including exhausted-row rule 2/);
   assert.match(after, /authorize the row's return to ledger implementation or stop/);
   assert.match(after, /Dispatch.*Validate the return.*refresh.*verify still active.*no phase reset/);
   assert.match(after, /close on disk.*rerun step 1/);
@@ -424,7 +448,7 @@ test('gate set owns membership, fail-fast logs and every loop verification site'
   assert.match(after, /2\. .*Rerun the complete gate set after every fix round/);
   assert.match(after, /3\. .*gate set replacing plan Verification/);
   assert.doesNotMatch(after, /Run the ledger's `verification:` command|rerun the full command|Rerun full verification|`contract:` `- verification:`/);
-  for (const token of ['### Ledger subjects', 'never the ad-hoc no-plan path', '## Gate set', 'LOG_DIR', 'exit code and log path', 'child reads the log']) assert.ok(conformance.includes(token), token);
+  for (const token of ['### Ledger subjects', 'never the ad-hoc no-plan path', '## Gate set', 'owning-checkout routing', 'LOG_DIR', 'exit code and log path', 'child reads the log']) assert.ok(conformance.includes(token), token);
   assert.match(conformance, /SCOPED_TEST_COMMANDS`\s+to the gap block: for a ledger, the complete gate set/);
   assert.ok(conformance.includes("retain leg identity, remap the child's repaired leg to its actual isolated worktree and run that leg's pairs with `LOG_DIR` from its own `mktemp -d`; preserve the parent's checkout set and session `LOG_DIR` for post-integration runs"));
   assert.match(conformance, /4\. \*\*Scoped tests\*\*.*ledger.*gate set/);
@@ -656,7 +680,7 @@ test('row budget replies preserve counters and reject malformed grants without w
     'preserve allowance, decisions, iterations and all attempts',
   ]) assert.ok(raise.includes(token), token);
   assert.match(stop, /Offer retry and `rows \+N` only at row stops \(allowance or missing-model\) or seed exhaustion, alongside Amend and Stop/);
-  assert.match(stop, /The recovery-incomplete stop keeps discard authorization only/);
+  assert.match(stop, /The dirty-tree stop with no dispatch pending keeps discard authorization only/);
   assert.match(stop, /verification-failure stop keeps amend\/stop only/);
   assert.match(stop, /Raising allowance resets neither window/);
   assert.match(stop, /Use Before each dispatch's window rule for retry and admitted amendments/);
@@ -670,15 +694,15 @@ test('human stop counts cover every boundary without widening its menu', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const stop = driver.split('\n## Human stop\n')[1].split('\n## After the loop\n')[0];
   for (const token of [
-    'At every human stop, including allowance, missing-model, dirty-tree, commit-boundary, interrupted-dispatch and exit-verification stops',
+    'At every human stop, including allowance, missing-model, dirty-tree and exit-verification stops',
     'list every `open` or `failed` row after the header as `row <n>: <attempts> of <effective allowance>`',
     "then print `Preserve every row's attempts.`",
     'Compute each denominator from the ledger using Before each dispatch',
     'keep retry increments in `## Decisions`, never a new table column',
-    'Use restored pre-dispatch row cells at rejected-return stops, not unadmitted child results',
+    'Render repaired row cells after recovery, never unadmitted child results',
     'With no open or failed rows, omit row lines but retain the preservation sentence',
     'Offer retry and `rows +N` only at row stops (allowance or missing-model)',
-    'The recovery-incomplete stop keeps discard authorization only, never budget offers',
+    'The dirty-tree stop with no dispatch pending keeps discard authorization only, never budget offers',
     'verification-failure stop keeps amend/stop only',
   ]) assert.ok(stop.includes(token), token);
   assert.match(stop, /Start the message with `gauntlet: question` at every human stop/);
@@ -705,7 +729,7 @@ test('retired loop budgets yield to durable shared allowance and keep waves deco
   const stop = driver.split('\n## Human stop\n')[1].split('\n## After the loop\n')[0];
   for (const fact of ['rows +50 |', '[1-9][0-9]*', 'rows +50x', 'rows +0', 'rows +x', 'rows -1', 'Raise the shared header allowance by N for every row and leg', 'leaving iterations and all attempts unchanged', 'Raising allowance resets neither window', "Use Before each dispatch's window rule for retry and admitted amendments"]) assert.ok(stop.includes(fact), fact);
   assert.match(stop, /every human stop.*then print `Preserve every row's attempts\.`/);
-  assert.match(stop, /The recovery-incomplete stop keeps discard authorization only/);
+  assert.match(stop, /The dirty-tree stop with no dispatch pending keeps discard authorization only/);
   assert.match(amendment, /Apply the budget to the waves engine only; loop ignores the budget token and keeps only the decoded amendment permission \(none for a budget-only value\)/);
   assert.match(amendment, /stop for human authorization before redraw resets or deletions/);
   assert.match(amendment, /Match exactly one `fund N fix rounds` or `N more fix rounds` anywhere on the line/);
@@ -727,7 +751,7 @@ test('configuration-allowance: binding documentation describes the single allowa
       'retry <n> | <hint>', 'rows +N', 'loop: raise allowance', 'loop: migrate allowance',
       'effective allowance is the header allowance plus one per',
       'Preserve every row\'s attempts.', 'both or neither requires human repair',
-      'Old funding supplies no attempts', 'discard authorization only',
+      'Old funding supplies no attempts', 'Stopped: dirty tree with no dispatch pending', 'typed `discard`',
     ],
     'doc/implement-engines.md': [
       'no total iteration cap', 'Neither needs amend permission', 'rows +N',

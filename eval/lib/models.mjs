@@ -1,7 +1,7 @@
 // eval/ is outside model-literal-lint scope on purpose: the eval freezes these ids.
 export const MODELS = Object.freeze({
   replay: Object.freeze(["anthropic/claude-opus-5-5", "github-copilot/gpt-6.1-sol"]),
-  judge: "anthropic-fable/claude-fable-5-1",
+  judge: "anthropic-fable/claude-fable-5-2",
   thinking: "medium",
 });
 export function replayArg(model) {

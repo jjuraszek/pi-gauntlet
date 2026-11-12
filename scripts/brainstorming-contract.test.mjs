@@ -499,6 +499,34 @@ test('section 4 demands distinct, pattern-judged approaches and section 5 refuse
   assert.ok(five.includes('including supplied presentation details in the design recap'), 'presentation detail preservation');
 });
 
+test('round-two design names actions without proposing a flow-wide count', () => {
+  const text = main();
+  const roundTwo = text.slice(text.indexOf('### 6. Present the design in two rounds'), text.indexOf('## Ticket Handling'));
+  for (const clause of [
+    'name every paid or external action', 'with its runner and inputs',
+    'Propose no flow-wide count for a named action',
+    'approving the spec authorizes every named action for the whole flow',
+    'across seed, rows, repairs and finish', 'without per-step permission prompts',
+    'treat any stated count as advisory', 'action the spec does not name as unreachable',
+    'require separate explicit authorization to add it to Design',
+    'Never block a named action for a missing or exhausted count',
+    'never write a hold that makes a named action wait for a later approval',
+  ]) assert.ok(roundTwo.includes(clause), clause);
+  assert.doesNotMatch(roundTwo, /inputs and count|within those bounds|runner\/input\/count/);
+  const sample = 'eval/brainstorming/samples/design-names-paid-actions/';
+  const fixture = read(`${sample}case.md`);
+  const expected = read(`${sample}expected.md`);
+  assert.match(fixture, /No flow-wide execution count is supplied/);
+  assert.doesNotMatch(fixture, /Propose the smallest flow-wide execution count|proposed count covering|pending round-two action bounds/);
+  assert.match(fixture, /Propose no flow-wide count/);
+  assert.match(expected, /^- flow-bound: judged:.*round two.*runner and inputs.*proposes no flow-wide count.*approval authorizes each named action for the whole flow/m);
+  assert.match(read('eval/brainstorming/intent.md'), /^- design-names-paid-actions\/flow-bound:.*Propose no flow-wide count/m);
+  assert.match(read('eval/brainstorming/README.md'), /^\| `design-names-paid-actions` \|.*propose no flow-wide count/m);
+  assert.match(expected, /^- named-runs: judged:.*count is absent.*advisory/m);
+  assert.match(expected, /^- unnamed-unreachable: judged:.*action the spec does not name/m);
+  assert.match(expected, /^- no-deferral: judged:/m);
+});
+
 test('red flags stop approaches that skip the framing question or the holds-statement', () => {
   const text = main();
   assert.match(text, /^- Approaches before the framing question or the holds-statement .*; a holds-statement that names nothing checked \(\[owner\]\(#3-understand-the-idea\)\)\.$/m);

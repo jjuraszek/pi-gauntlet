@@ -1,45 +1,18 @@
-for: f45fc3245f9d46d8570f551cfb961dc9f68b9cb9c67b899258f8ac15efc535ac
+for: 6beadd5178e9012905b26970c72bd17c821204da294a3ef739b017bebc0ac8ef
 
 ## Change
-Carry every action record from replaced row evidence into the replacing child's decision before any new spend, including successful seed records with no repair commit. Reject dropped accounting as a validation miss even when the local check passes. Select only seed-evidence-carry, isolating K and carried-record for narrated successful-seed handoff; this does not prove live admission. Restore the successful A-J silence-bound-and-unreachable records rather than resend its refused expanded prompt.
-
-Preserve action-spend reservations in the existing jobs file before execution and confirmations afterward. Account by highest ordinal across decisions, evidence and repair commit bodies, so a captured fixture lost to interrupted seed/row reset never replenishes its flow-wide bound. Extend only silence-bound-and-unreachable with I-J recovery snapshots and reservation assertions; this is narrated, sample-scoped coverage, not live interruption recovery or a target-wide pass.
-Bound foreground calls, including git bookkeeping, polls and waits below the silence deadline. Keep controllers alive beyond the short launcher deadline and use actual bounded preflight evidence for launch-facility failures. Launch longer checks through a preflighted scratch Python session controller with a 3600-second timeout, retained launch identity and jobs records keyed by the task's pre-bump iteration. Reap owned jobs before ordinary completion, report timeout as failed evidence and preserve ambiguous ownership for parent recovery. Select silence-bound-and-unreachable only, extending its existing action cases with long-check timeout, missing Python and replacement-process snapshots. Keep the deterministic process test beside scripts/loop-* siblings; it runs the controlled sleep-30 probe with a two-second deadline in scratch, not a live recovery of an interrupted controller.
-
-Run paid or external actions only within an approved runner, inputs and flow-wide count; count earlier action entries across rows without borrowing their retry guidance. Record unreachable prerequisites and spent bounds distinctly, keep local replay as the evidence command, and carry action accounting inside the existing bounded decision sentence. Run only silence-bound-and-unreachable for this edit; its first five synthetic snapshots cover action authorization, and F-H cover narrated process timing and cleanup.
-
-Read the target row's complete ordered Decisions history before choosing an approach. Preserve failed-guidance polarity, isolate other rows and treat an escalation marker as spent history rather than current model identity. Run only row-history-guidance here; its synthetic trace covers narrated child choices, not live parsing or commits, and retains existing sample records.
-
-Complete multi-row conformance with the existing row-and-evidence sample: A closes the target and a shared-label extra, B preserves seed baseline behavior, C keeps a failed target single-row, and D attempts a small same-file extra whose externally supplied suffix fixture is discovered missing after implementation, then rolls back that unfinished extra before the target-only commit. Retain the partial-seed and empty-evidence samples and their stored results. This iteration reruns only row-and-evidence against the current persona; coverage is synthetic and sample-scoped, not a live implementation run.
-
-Treat empty evidence on an unreached row as normal after partial seeding, not as a seed failure. Create the first check before implementing that row and close or fail it with command-first evidence through the ordinary row procedure. Add empty-evidence-row to exercise a later target with no seeded check and a teammate's suggestion to repeat seeding.
+Run every paid or external action named by an acceptance row or Design on each attempt that needs it, under the spec's approval for the whole flow. A count or later-approval note beside the action does not withhold authorization. Remove action accounting from decisions, evidence, jobs files and commit bodies. Keep unnamed actions and missing credentials unreachable, reuse available fixtures for local checks, and preserve the worker's own process launch and cleanup protocol. Select silence-bound-and-unreachable (A-K), seed-evidence-carry and seed-recovery for this change; these are tool-free traces, not live action or interruption tests.
 
 ## Expected to move
-- seed-evidence-carry/carried-record: fails -> holds - Keep successful seed accounting in the replacing child's decision and reject lost records.
-- silence-bound-and-unreachable/interrupted-spend: fails -> holds - Recover capture accounting from seed/row repair history after reset; treat uncertain execution safely.
-- silence-bound-and-unreachable/durable-reservation: fails -> holds - Reserve each spend before launch in the jobs file and retain accounting through cleanup and seed evidence.
-- silence-bound-and-unreachable/blocking-bound: fails -> holds - Bound foreground commands and separate polls to at most 600 seconds.
-- silence-bound-and-unreachable/owned-session: fails -> holds - Preflight Python and timeout, register observed identity and isolate longer work in a session.
-- silence-bound-and-unreachable/timeout-cleanup: fails -> holds - Reap and confirm leader/group/controller exit, empty the jobs line and record timed out after 3600 s.
-- silence-bound-and-unreachable/safe-stop: fails -> holds - Stop before spawning without Python and preserve mismatched process identity without signaling.
-- silence-bound-and-unreachable/named-action: fails -> holds - Run the approved bounded action without asking and record its spend.
-- silence-bound-and-unreachable/unreachable: fails -> holds - Stop the attempt on an unnamed action or missing credential with first-result unreachable evidence.
-- silence-bound-and-unreachable/spent-bound: fails -> holds - Count earlier other-row usage and distinguish exhaustion from unreachability.
-- silence-bound-and-unreachable/flow-count: fails -> holds - Use the remaining flow-wide action count across rows.
-- silence-bound-and-unreachable/local-evidence: fails -> holds - Replay the captured fixture locally without rerunning a paid action at gates.
-- row-history-guidance/ruled-out: fails -> holds - Honor an older ruled-out approach even when the latest line omits it.
-- row-history-guidance/ordered-history: fails -> holds - Read all target decisions oldest first, including retry and escalation.
-- row-and-evidence/target-and-extra: fails -> holds - Close the proved shared-label extra after the target, preserving its attempts.
-- row-and-evidence/multirow-output: fails -> holds - Emit target-first decisions for both changed rows in one target-named commit.
-- row-and-evidence/done-handoff: fails -> holds - Name reusable artifacts for the target and explicitly report none for the baseline extra.
-
-- empty-evidence-row/normal-state: fails -> holds - Proceed with the ordinary row rather than repair valid partial seeding.
+- silence-bound-and-unreachable/named-action: fails -> holds - Run the named capture without an authorization question or action record.
+- silence-bound-and-unreachable/rerun: fails -> holds - D, E, I and J rerun the capture when needed despite prior execution, interruption or a count in Design.
+- silence-bound-and-unreachable/named-runs: fails -> holds - K runs the named action despite its later-approval note and count.
+- silence-bound-and-unreachable/local-evidence: fails -> holds - Keep local replay first and reuse captured data without action accounting.
+- silence-bound-and-unreachable/bounded-contract: fails -> holds - Preserve the bounded three-slot decision and attributed commit without an accounting clause.
+- seed-evidence-carry/carried-record: fails -> holds - Close on the existing fixture and local replay without repeating an action record.
 
 ## Preserve
-- row-and-evidence/unfinished-extra-rollback: retain the worker's revert-before-commit rule for an attempted unfinished extra, preserving the completed target and the extra's original open cells.
-- empty-evidence-row/first-check: retain spec-first reads and RED before production edits, then GREEN with the same selective file command.
-- empty-evidence-row/bounded-result: retain target attempt arithmetic, bounded command-first evidence, unrelated rows and the full-verification boundary.
-- empty-evidence-row/ordinary-commit: retain one target-named commit, pending attribution, consumed iteration, clean status and a reusable-artifact decision.
+Keep silence-bound-and-unreachable/unreachable for absent credentials and unnamed actions. Retain blocking-bound, owned-session, timeout-cleanup and safe-stop: the worker's own unresolved process cleanup still stops for parent recovery. Keep every seed-recovery fact: interrupted seeding retains the consumed iteration, selected rows and the fixed seed decision without requiring human discard authorization.
 
 ## Coverage
-Current run: seed-evidence-carry only, synthetic successful-seed handoff K. Preserve the successful silence-bound-and-unreachable A-J sample and records from 7e0ce54 without rerunning it; these cover action snapshots A-E, process snapshots F-H and interrupted-spend snapshots I-J against the earlier persona. The scratch process test separately proves the Python session, two-second timeout and empty jobs cleanup. Neither proves crash-atomic registration or interrupted-controller recovery. Preserve every earlier sample's stored results. Previous conformance run: row-and-evidence only, including synthetic snapshot D's attempted-extra rollback after a missing external fixture blocks its selective check. Earlier row-specific run: empty-evidence-row. This is partial synthetic coverage of an ordinary home success after partial seeding, not live execution or companion serialization; D covers the synthetic unfinished-extra failure path only. Preserve stored results for every other sample without rerunning them.
+Deterministic contract and fixture checks select scripts/loop-implementer-actions.test.mjs. Selected model replay of silence-bound-and-unreachable, seed-evidence-carry and seed-recovery remains for the sample-replay iteration; existing stored reports describe earlier inputs, not this edit. Preserve unrelated sample records. The selected fixtures do not prove live paid actions, process cleanup or git recovery.

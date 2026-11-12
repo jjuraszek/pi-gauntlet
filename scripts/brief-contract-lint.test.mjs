@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { CONTRACT_FILE, CITING_SKILLS, lintBriefGrammar, readSkillFiles } from "./brief-contract-lint.mjs";
+
+const recoveryText = readFileSync(new URL('../skills/gauntlet-resume/reference/reconstruction.md', import.meta.url), 'utf8');
+const disclosure = recoveryText.split('Without either, history alone')[1].split('| Confirmed admission state |')[0];
+assert.match(disclosure, /List the commits in `<pre-dispatch HEAD>\.\.HEAD` and every dirty path/);
+assert.match(disclosure, /answering `interrupted` discards those commits and dirty files through `reset --hard <pre-dispatch HEAD>` and `clean -fd`/);
+assert.doesNotMatch(recoveryText, /not discard permission/);
 
 const contract = [
   "# Handoff brief contract",
@@ -86,7 +94,7 @@ const reconstruction = realFiles.find(f => f.rel === "skills/gauntlet-resume/ref
 const ledgerRestore = reconstruction.split("## Spec with ledger")[1].split("## Spec with plan")[0];
 for (const token of ["Shared allowance boundary", "Skip Entry step 1's allowance seeding", "ledger has no allowance: line - resume through /skill:gauntlet-resume", "After the loop", "latest operational"]) assert.ok(ledgerRestore.includes(token), token);
 const boundary = ledgerRestore.split('4. **Shared allowance boundary')[1].split('5. Continue')[0];
-const ordered = ['Apply pending recovery below against the unmigrated ledger', 'Migrate only an admitted, clean, tuple-free ledger', 'Require `allowance:` and no `cap:`', 'Call `plan_tracker({ action: "refresh"'];
+const ordered = ['Apply pending recovery below against the unmigrated ledger', 'Migrate only a clean, tuple-free ledger after admission or completed interrupted recovery', 'Require `allowance:` and no `cap:`', 'Call `plan_tracker({ action: "refresh"'];
 for (let i = 1; i < ordered.length; i++) assert.ok(boundary.indexOf(ordered[i - 1]) >= 0 && boundary.indexOf(ordered[i - 1]) < boundary.indexOf(ordered[i]), ordered[i]);
 for (const token of [
   'both or neither is `ledger header malformed: <observed header lines>`',
@@ -99,7 +107,7 @@ for (const token of [
   'preserve iterations, every attempts cell and all decisions',
   'cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)',
   'With an existing allowance, use it without allowance resolution or a migration commit',
-  'Defer migration through any retained recovery stop or dirty tree',
+  'Defer migration through a missing-history stop or the dirty-tree stop',
   'project the unmigrated ledger solely to report the stop',
   'header plus one per matching retry decision', "ignore the retry's audit ceiling",
   'Keep `cap +N` history as inert text and restore no funded rounds',
@@ -140,10 +148,22 @@ for (const [name, text, pattern] of [
 ]) assert.match(text, pattern, `${name}: phase and ledger task restoration order`);
 assert.match(ledgerRestore, /pending recovery.*before.*refresh/i);
 assert.match(ledgerRestore, /refresh[^\n]*before[^\n]*dirty-tree stop/);
-for (const token of ["exactly one new home commit", "zero new commits", "multiple commits", "pre-dispatch", "## Validate the return", "## Interrupted recovery", "exclusive checkout provenance", "Preserve every change at recovery incomplete"]) assert.ok(ledgerRestore.includes(token), token);
+for (const token of ["exactly one new home commit", "zero new commits", "multiple commits", "pre-dispatch", "## Validate the return", "## Interrupted recovery", "without a human turn", "already-consumed iteration"]) assert.ok(ledgerRestore.includes(token), token);
+assert.doesNotMatch(ledgerRestore, /exclusive checkout|ownership-fenced|recovery incomplete|recovery-incomplete|owned-job exit|verified process identity\/exit|discard-authorization/);
+assert.match(ledgerRestore, /unconditional interrupted recovery before migration/);
+assert.match(ledgerRestore, /clean, tuple-free tree.*migrate before the next dispatch/);
+for (const sample of ["interrupted-ownership", "migration-recovery", "ledger-tracker-recovery"]) {
+  const sampleDir = join(root, "eval/gauntlet-resume/samples", sample);
+  const input = readFileSync(join(sampleDir, "case.md"), "utf8");
+  const expected = readFileSync(join(sampleDir, "expected.md"), "utf8");
+  assert.match(input, /bundle\+: skills\/loop-implementation\/reference\/interrupted-recovery\.md/, sample);
+  assert.match(expected, /loop: repair row [12]/, sample);
+  assert.match(expected, /without (?:another|a second).*bump/, sample);
+  assert.doesNotMatch(expected, /recovery incomplete|provenance.*before.*reset|stops for discard\/reset authorization/, sample);
+}
 const recovery = ledgerRestore.split("### Pending recovery")[1];
-assert.match(ledgerRestore, /row <n> in_progress \(pending tuple restored\)/);
-assert.match(recovery, /Confirmed interrupted[^\n]*entire `<pre-dispatch HEAD>\.\.HEAD` range[^\n]*before-image without another bump[^\n]*proves no ownership of later writes[^\n]*exclusive checkout\/write provenance[^\n]*Missing evidence preserves child and unrelated changes/);
+assert.match(ledgerRestore, /Only at a missing-history stop, render a row whose `pending:` tuple stays on disk as `row <n> in_progress \(pending tuple restored\)`/);
+assert.match(recovery, /Confirmed interrupted[^\n]*entire `<pre-dispatch HEAD>\.\.HEAD` range[^\n]*before-image without another bump[^\n]*unconditional interrupted recovery[^\n]*failed attempt[^\n]*ordered table/);
 assert.match(routes, /verify with `Ledger:`[^\n]*fresh home conformance review/);
 assert.match(recovery, /no `pending:`.*home commit history.*before.*refresh/i);
 assert.match(recovery, /latest home child row\/seed commit.*unrelated commits follow it/);
@@ -161,7 +181,12 @@ for (const [name, pattern] of [
   ["settled continuation", /Confirmed settled.*preserve the current ledger.*normal restore/i],
 ]) assert.match(recovery, pattern, name);
 assert.match(recovery, /read-only admission-evidence check.*before phase\/task restoration/);
-assert.match(ledgerRestore, /unrecoverable attribution or before-image.*stop before refresh/i);
+assert.match(ledgerRestore, /Stop before refresh only when the tuple or before-image is unrecoverable/);
+assert.match(ledgerRestore, /wrong attribution, unexpected home dirt and home movement as interrupted boundaries/);
+const homeRecoveryRow = recovery.split('\n').find(line => line.startsWith('| Home leg or single-member `home` |'));
+assert.match(homeRecoveryRow, /recoverable tuple and before-image.*wrong attribution.*driver's `## Interrupted recovery`/);
+assert.match(homeRecoveryRow, /Stop only for an unrecoverable tuple or before-image/);
+assert.doesNotMatch(homeRecoveryRow, /Attribution mismatch.*stops/);
 assert.match(actualContract, /legacy ledger brief without task rows[^\n]*omits init[^\n]*ordered recovery\/migration boundary/i);
 assert.match(actualContract, /Never send a ledger task list through task-plan repair/);
 assert.match(actualContract, /For every ledger brief apply the shared allowance boundary[^\n]+before dispatch or verification/);

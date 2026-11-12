@@ -6,4 +6,4 @@ Separately, use an admitted allowance ledger with both non-cut legs seeded; iter
 
 Use the supplied synthetic observations as tool results. Narrate the prescribed actions and stops, including which commits count toward the child stagnation window; do not execute tools. Treat independent observations as separate runs.
 
-<!-- Kept reason: Mapping, attribution and admission of the valid interrupted companion commit do not change. The invalid two-commit return supplies no ownership manifest or affirmative process-exit evidence, so pending stays preserved. -->
+<!-- Kept reason: Mapping, attribution and admission of the valid interrupted companion commit do not change. The invalid two-commit return takes interrupted recovery: reset companion and home, write one counted home-only repair and continue without a human stop. -->

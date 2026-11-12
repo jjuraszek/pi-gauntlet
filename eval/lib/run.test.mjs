@@ -31,7 +31,7 @@ function candidate() {
 }
 const judgeReply = (before, after) => "```json\n" + JSON.stringify({ facts: { f1: { before, after } }, feedback: "fb" }) + "\n```";
 const modelOf = (args) => args[args.indexOf("--model") + 1];
-const isJudge = (args) => args.includes("anthropic-fable/claude-fable-5-1");
+const isJudge = (args) => args.includes("anthropic-fable/claude-fable-5-2");
 const hiFor = (args) => `hi ${modelOf(args)}`;
 const modelIn = (input) => /hi (\S+)/.exec(input)[1];
 const record = (root, arm) => JSON.parse(readFileSync(join(root, `eval/t/results/s1/${arm}.json`), "utf8"));
@@ -57,7 +57,7 @@ for (const words of [50, 51]) test(`text replay enforces wordCap at ${words} wor
   const output = Array(words).fill("hi").join(" ");
   let judges = 0;
   const spawn = (args) => {
-    if (args.includes("anthropic-fable/claude-fable-5-1")) {
+    if (args.includes("anthropic-fable/claude-fable-5-2")) {
       judges++;
       return { status: "ok", stdout: judgeReply("holds", "holds"), wallMs: 1 };
     }
@@ -90,7 +90,7 @@ test("replay scrubs its scratch cwd before storing output", async () => {
 
 test("candidate run judges pairs, derives labels, writes report, exits on regression", async () => {
   const { root } = candidate();
-  const spawn = (args) => ({ status: "ok", stdout: args.includes("anthropic-fable/claude-fable-5-1") ? judgeReply("holds", "fails") : "hi", wallMs: 1 });
+  const spawn = (args) => ({ status: "ok", stdout: args.includes("anthropic-fable/claude-fable-5-2") ? judgeReply("holds", "fails") : "hi", wallMs: 1 });
   const result = await run(root, spawn);
   assert.equal(result.exit, 1);
   assert.match(result.message, /^t: regressed \(report.md written; replay 4, judge 4, confirm 2, wall \d+s\)$/);
@@ -141,7 +141,7 @@ test("regression that does not reproduce is inconclusive", async () => {
 
 test("replay error marks the cell and continues; hygiene hit redacts", async () => {
   const { root } = candidate(); const userPath = ["/Us", "ers/alice"].join("");
-  const spawn = (args) => args.includes("github-copilot/gpt-6.1-sol") ? { status: "error", stderr: "boom", wallMs: 1 } : { status: "ok", stdout: args.includes("anthropic-fable/claude-fable-5-1") ? judgeReply("holds", "holds") : `hi ${userPath}`, wallMs: 1 };
+  const spawn = (args) => args.includes("github-copilot/gpt-6.1-sol") ? { status: "error", stderr: "boom", wallMs: 1 } : { status: "ok", stdout: args.includes("anthropic-fable/claude-fable-5-2") ? judgeReply("holds", "holds") : `hi ${userPath}`, wallMs: 1 };
   assert.equal((await run(root, spawn)).exit, 1);
   const outputs = record(root, "candidate").outputs;
   assert.equal(outputs["github-copilot/gpt-6.1-sol"].status, "error"); assert.equal(outputs["github-copilot/gpt-6.1-sol"].error, "boom");
@@ -150,7 +150,7 @@ test("replay error marks the cell and continues; hygiene hit redacts", async () 
 
 test("changed facts rejudge without replay; partial run is titled", async () => {
   const { root, put } = candidate(); let replays = 0;
-  const spawn = (args) => args.includes("anthropic-fable/claude-fable-5-1") ? { status: "ok", stdout: judgeReply("holds", "holds"), wallMs: 1 } : (replays++, { status: "ok", stdout: "hi", wallMs: 1 });
+  const spawn = (args) => args.includes("anthropic-fable/claude-fable-5-2") ? { status: "ok", stdout: judgeReply("holds", "holds"), wallMs: 1 } : (replays++, { status: "ok", stdout: "hi", wallMs: 1 });
   assert.equal((await run(root, spawn)).exit, 0); assert.equal(replays, 4);
   put("eval/t/samples/s2/case.md", "OTHER");
   put("eval/t/samples/s2/expected.md", "- f1: judged: other\n");
@@ -164,7 +164,7 @@ test("changed facts rejudge without replay; partial run is titled", async () => 
 test("rejudge refreshes mechanical facts and stamps every changed record with HEAD", async () => {
   const { root, put } = candidate(); let replays = 0;
   const spawn = (args) => {
-    if (!args.includes("anthropic-fable/claude-fable-5-1")) replays++;
+    if (!args.includes("anthropic-fable/claude-fable-5-2")) replays++;
     return okSpawn(args);
   };
   assert.equal((await run(root, spawn)).exit, 0);
@@ -259,7 +259,7 @@ test("a throwing spawn marks its cell error, keeps siblings, and cleans scratch"
   for (const dir of dirs) assert.equal(existsSync(dir), false);
 });
 
-const okSpawn = (args) => ({ status: "ok", stdout: args.includes("anthropic-fable/claude-fable-5-1") ? judgeReply("holds", "holds") : "hi", wallMs: 1 });
+const okSpawn = (args) => ({ status: "ok", stdout: args.includes("anthropic-fable/claude-fable-5-2") ? judgeReply("holds", "holds") : "hi", wallMs: 1 });
 test("bundle-free intent permits mixed bundle samples", async () => {
   const { root, put } = candidate();
   put("skills/x/extra.md", "EXTRA\n");
@@ -304,7 +304,7 @@ for (const recovers of [true, false]) test(`malformed judge reply ${recovers ? "
   put("eval/t/results/s1/candidate.json", JSON.stringify(saved, null, 2) + "\n");
   let judges = 0;
   const spawn = (args, { input }) => {
-    assert.ok(args.includes("anthropic-fable/claude-fable-5-1"), "stored outputs must not replay");
+    assert.ok(args.includes("anthropic-fable/claude-fable-5-2"), "stored outputs must not replay");
     judges++;
     if (judges === 2) assert.match(input, /Your previous reply was rejected:.*found 0/);
     return { status: "ok", stdout: recovers && judges === 2 ? judgeReply("holds", "holds") : "no JSON block", wallMs: 1 };
@@ -321,7 +321,7 @@ for (const recovers of [true, false]) test(`malformed judge reply ${recovers ? "
     assert.deepEqual(entry, { verdict: "error", error: "judge reply must contain exactly one fenced JSON block (found 0)" });
     let retryCalls = 0;
     assert.equal((await run(root, (args) => {
-      assert.ok(args.includes("anthropic-fable/claude-fable-5-1"), "next run must only rejudge the failed pair");
+      assert.ok(args.includes("anthropic-fable/claude-fable-5-2"), "next run must only rejudge the failed pair");
       retryCalls++;
       return okSpawn(args);
     })).exit, 0);
@@ -332,10 +332,10 @@ for (const recovers of [true, false]) test(`malformed judge reply ${recovers ? "
 
 test("judge failures are retried on the next run", async () => {
   const { root } = candidate();
-  assert.equal((await run(root, (args) => args.includes("anthropic-fable/claude-fable-5-1") ? { status: "error", stderr: "unavailable" } : okSpawn(args))).exit, 1);
+  assert.equal((await run(root, (args) => args.includes("anthropic-fable/claude-fable-5-2") ? { status: "error", stderr: "unavailable" } : okSpawn(args))).exit, 1);
   assert.equal(record(root, "candidate").judge["anthropic/claude-opus-5-5"].factsSha, undefined);
   let calls = 0;
-  assert.equal((await run(root, (args) => { if (args.includes("anthropic-fable/claude-fable-5-1")) calls++; else assert.fail("unexpected replay"); return okSpawn(args); })).exit, 0);
+  assert.equal((await run(root, (args) => { if (args.includes("anthropic-fable/claude-fable-5-2")) calls++; else assert.fail("unexpected replay"); return okSpawn(args); })).exit, 0);
   assert.equal(calls, 2);
 });
 for (const baselineOnly of [true, false]) test(`candidate promotion without replay: baselineOnly=${baselineOnly}`, async () => {
@@ -353,7 +353,7 @@ for (const baselineOnly of [true, false]) test(`candidate promotion without repl
 for (const failure of ["replay", "judge"]) test(`confirmation ${failure} failure stays retryable`, async () => {
   const { root } = candidate(); const replays = {}, judges = {};
   const result = (await run(root, (args, { input }) => {
-    if (args.includes("anthropic-fable/claude-fable-5-1")) {
+    if (args.includes("anthropic-fable/claude-fable-5-2")) {
       const model = modelIn(input);
       judges[model] = (judges[model] ?? 0) + 1;
       if (failure === "judge" && judges[model] > 1) return { status: "error", stderr: "down" };

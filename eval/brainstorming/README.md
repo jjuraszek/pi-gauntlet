@@ -28,6 +28,7 @@ Tests questionary and approaches messages (checklist steps 3-5) and same-turn co
 | `side-question-return` | Answer the side question, retain the selected resolver, and ask the unresolved reset-behavior question in the same response. |
 | `ticket-repair-return` | Use the supplied repaired criterion and resume the unresolved reset-behavior question without another repair approval. |
 | `design-approval-return` | Present substantive round two after round-one approval and stop at round two's approval request. |
+| `design-names-paid-actions` | Name paid/external runners and inputs in round two and propose no flow-wide count (`flow-bound`); spec approval authorizes every needed run across the flow, with any already-stated count advisory, while unnamed actions remain unreachable and execution waits for approval. |
 | `clarification-keeps-gate` | Answer the settings-file clarification while leaving round-one approval pending. |
 | `explicit-pause` | Honor the explicit pause without advancing the questionary or design. |
 | `shared-helper-option` | In a tool-free next response, name the shared helper and its gap, order each approach's `Removes:` before `Adds:`, and recommend reuse without a caller-side copy; this is not evidence of actual spec writes. |
@@ -39,7 +40,7 @@ Matched baseline/candidate comparisons use identical case inputs and slice defin
 
 The full report has 27 unchanged cells and one inconclusive cell: a confirmation misses explicit framing and puts the version behind hover rather than beside the date. The user accepts this specific recorded result for landing, not as an eval pass or a blanket waiver; see the spec's [accepted evaluation limitation](../../doc/specs/2026-10-11-brainstorm-same-turn-continuation.md#accepted-evaluation-limitation).
 
-Tool-free response comparison cannot prove actual spec-file writes, tool execution, multi-turn liveness, or perfect compliance across models and sessions. These cases do not cover round-two approval starting the required spec-file write; a prose spec response is not write evidence.
+Tool-free response comparison cannot prove actual spec-file writes, tool execution, multi-turn liveness, or perfect compliance across models and sessions. These cases do not cover round-two approval starting the required spec-file write; a prose spec response is not write evidence. Selected sample evidence for paid-action naming covers `design-names-paid-actions`; partial coverage applies to unrun samples in this target.
 
 Process, commands, and record schema: `eval/README.md`. The live-tool harness in `replay/` is separate and not a target.
 

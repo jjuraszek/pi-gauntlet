@@ -26,11 +26,28 @@ test('verification repairs reserve and consume the shared allowance across legs 
   assert.doesNotMatch(gate, /once per flow|one repair below|Never repair again for another leg|spent identity/);
 });
 
-test('interrupted verification repairs reuse ownership-fenced cleanup and preserve row cells', () => {
+test('interrupted verification repairs clean both boundaries and consume only the reserved repair', () => {
   for (const token of [
-    '## Interrupted recovery steps 1-3', 'all ledger rows unchanged',
+    '## Interrupted recovery steps 1-2', 'all ledger rows unchanged',
     'empty `loop: repair verification` marker', 'already-consumed iteration',
-    'recovery-incomplete stop', 'Rerun the failing checkout\'s gate pairs once',
+    "loop-<failing leg's base SHA>-<pre-bump iteration>.jobs",
+    'reset home to the saved home HEAD', 'no second bump',
+    'non-empty `status --porcelain` after reset blocks neither the marker nor the rerun',
+    "Rerun the failing checkout's gate pairs once",
     'still-unexecuted pairs from other checkouts', 'Never spend verify-phase credits',
+    'failure pass with the verification repair count',
   ]) assert.ok(gate.includes(token), token);
+  assert.doesNotMatch(gate, /provenance|ownership|no-launch|recovery-incomplete|action-spend|accounting|after owned jobs exit and the boundary is clean/);
+});
+
+test('verification reset or marker failure repeats within the same allowance before any dispatch', () => {
+  const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
+  for (const token of [
+    'rev-parse HEAD', 'step 3 commit is not written', 'dispatch nothing',
+    'run steps 2-3 again from the saved copy', 'verification repair count',
+    'held with the saved copy while no commit can land',
+    'ledger-only repair commit lands on `HEAD_BEFORE`',
+    'existing row, seed or verification exhaustion stop',
+    "never use any other HEAD as the next dispatch's `HEAD_BEFORE`",
+  ]) assert.ok(recovery.includes(token), token);
 });

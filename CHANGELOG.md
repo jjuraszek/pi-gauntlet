@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Loop interrupted returns recover unconditionally as one failed attempt under either approval option: job identity checks fence signals, not reset or repair. Pending companion and resumed returns share the same recovery; only a dirty tree with no pending dispatch asks for discard. Git recovery failures consume the existing allowance rather than opening a new stop.
+- Spec approval authorizes every named paid or external action for the whole flow without count-based stops or spend accounting. Workers reuse action output for local rechecks; missing prerequisites and unnamed actions still report `unreachable:`. Option 5 also continues rows reopened during verify within their remaining allowance, without a second authorization; option 4 keeps its authorize-or-stop ask.
+
 ## v8.4.10 - 2026-11-12
 
 - Draft-PR handoff cleanup checks live remote equality before removing owned trees and conditionally deleting local branches at the pinned commit. Guarded wrappers can delete branches; host-owned, mismatched and failed cleanups report the state read back.
@@ -58,7 +63,7 @@
 
 ## v8.3.0 - 2026-11-06
 
-- Loop execution uses the ledger allowance for interrupted child and seed recovery, exit-verification repairs and grant-funded conformance rounds. Recovery requires checkout ownership and confirmed job exit; stagnation supplies a row-local hint rather than stopping early. Unreachable target failures become audited scope cuts under amend permission, while exhausted named-action bounds still stop. Loop workers bound blocking calls and track longer jobs in isolated POSIX sessions; design approval authorizes named paid or external actions only within their flow-wide bounds.
+- Loop execution uses the ledger allowance for interrupted child and seed recovery, exit-verification repairs and grant-funded conformance rounds. Recovery requires checkout ownership and confirmed job exit; stagnation supplies a row-local hint rather than stopping early. Unreachable target failures become audited scope cuts under amend permission, while exhausted named-action bounds still stop. Loop workers bound blocking calls and track longer jobs in isolated POSIX sessions; design approval authorizes named paid or external actions only within their flow-wide bounds. The Unreleased changes remove this recovery proof and these named-action bounds.
 
 ## v8.2.1 - 2026-11-06
 

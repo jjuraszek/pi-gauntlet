@@ -553,6 +553,8 @@ try {
     R("scripts/loop-engine-contract.test.mjs"),
     R("scripts/loop-boundary-integration.test.mjs"),
     R("scripts/loop-conformance-grant.test.mjs"),
+    R("scripts/loop-companion-recovery.test.mjs"),
+    R("scripts/loop-dirty-tree-stop.test.mjs"),
     R("scripts/loop-implementer-actions.test.mjs"),
     R("scripts/loop-implementer-process.test.mjs"),
     R("scripts/loop-unreachable-cut.test.mjs"),
