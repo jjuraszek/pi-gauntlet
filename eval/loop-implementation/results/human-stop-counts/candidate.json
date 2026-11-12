@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "4f770e521e009a2b26273d5f8195ed5b0413275d857e94c3a61e2e598ff547a4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15c0148826f779d8d88c0f7844b1c403b66579e8db1ff9f5a7ed3ce01739f484",
+      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
       "baselineOutputSha": "0175f93b5fdf7b0f704a86278af123a398b2e19f2af4c7483c09240d92c38a81",
       "candidateOutputSha": "4f7030cf66ebe9c5f4bb3b80acd20c4a6a40845fc6dac57f66891ff40630cb7a",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved two facts and lost none. Boundary-stops moved because D now renders the exact header `Stopped: dirty tree with no dispatch pending`, lists src/parser.ts under dirty paths, and offers only a typed `discard` or Stop; Before used `Stopped: dirty tree before dispatch - unattributed edit…` and framed the stop around missing provenance. Pending-recovery moved because E and F no longer demand write or launch provenance or render a recovery-incomplete stop: an absent jobs file is treated as no jobs, the driver runs `reset --hard aaaaaaa` and `clean -fd`, writes one `loop: repair row 2` with row 2 failed at attempts 6 and interruption evidence, keeps iterations 91, clears pending, and redispatches row 2 with no model override at task iteration 91 and a bump to 92, never admitting the child's done claim. Row-stops, exit-stop and durable-counts held in both. To keep them robust, have the wording require E/F to say outright that the header allowance 7 and row 3 attempts 2 are unchanged by the repair, rather than leaving that to `6 of 9` and `rows 1, 3 and 4 stay as they were`. Have D say that iterations stay at 90 instead of only `before any bump`. Keep A's retry option from showing a prospective denominator (`effective allowance 10`), which could be read as a displayed count that is not header plus retry decisions. In G, drop the unfilled `gate <i> exit <code> <log path>` placeholders or mark them as not supplied, so the quoted verification failure stays unambiguous.",
-      "wallMs": 16968,
+      "feedback": "After moved two facts and lost none. For boundary-stops, D now renders the exact header `Stopped: dirty tree with no dispatch pending`, lists src/parser.ts under dirty paths, and offers only a typed `discard` or Stop; Before used `Stopped: dirty tree before dispatch - unattributed edit…`, which is not the required header. For pending-recovery, E and F now recover with no human turn: the absent jobs file is treated as no jobs, `reset --hard aaaaaaa` and `clean -fd` run, one `loop: repair row 2` commit sets row 2 to failed with attempts 6 and interruption evidence, iterations stay 91, pending is cleared, and row 2 is redispatched with task iteration 91, a bump to 92 and no model override. Before raised a provenance-based 'recovery incomplete' discard stop in both cases. The row-stop, exit-stop and durable-count facts held in both outputs, so the new wording cost nothing there (exit-stop was expected to move but Before already satisfied it as written). To keep this, retain the wording that ties the dirty-tree stop to the absence of a pending tuple and the wording that makes pending recovery unconditional. Three small tightenings would help: in G, have the driver say the gate index, exit code and log path are not supplied rather than leaving `<i>`/`<code>` placeholders; in A, drop the unprompted remark about the escalation marker, since the stop should not comment on escalation state at an allowance stop; and in E/F, state explicitly that the header allowance 7 and row 3 attempts 2 are unchanged by the repair, so the preserved-state claim does not rest on inference from '6 of 9'.",
+      "wallMs": 18686,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "4f770e521e009a2b26273d5f8195ed5b0413275d857e94c3a61e2e598ff547a4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15c0148826f779d8d88c0f7844b1c403b66579e8db1ff9f5a7ed3ce01739f484",
+      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
       "baselineOutputSha": "16f515f8f5635aabd0d308056641c4446ab84c42d07a734f1d8f6d37089b0333",
       "candidateOutputSha": "16430758c09fd8ea5ec1bb34efbaf1e0f60e3fd98db672a0cf5b7deeb8881057",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved two facts and lost none. pending-recovery moved because E and F now recover automatically: the absent jobs file is treated as no jobs, `reset --hard aaaaaaa` and `clean -fd` run, one `loop: repair row 2` commit restores the saved cells with row 2 failed at attempts 6 and interruption evidence, iterations 91 is kept, pending is cleared, and row 2 is redispatched at 6 of 9 with no model override, task iteration 91 and a bump to 92. Before instead rendered ownership-unproven human stops for both. boundary-stops moved because D now carries the exact header `Stopped: dirty tree with no dispatch pending` with a typed `discard` or Stop menu; Before's header was `Stopped: dirty implementation worktree`, which I read as failing the literal header even though its counts, menu and no-write behaviour were right. Row stops, the exit stop and the allowance arithmetic (7 plus one per retry decision, giving 9 and 8) held in both. To keep this stable, keep the D header literal fixed, keep the wording that the post-discard reset and clean happen only after typed `discard`, and keep the pending-versus-no-pending distinction explicit so F is never routed to the discard ask. In G, the symbolic `gate <i> exit <code> <log path>` line and the extra `Last decision: row 2 failed` line are harmless here, but they could be read as invented content or an open row; consider telling the model to omit unsupplied gate fields and row decisions at an all-closed verification stop.",
-      "wallMs": 16975,
+      "feedback": "After moved two facts and lost none. For pending-recovery, Before turned E and F into 'checkout ownership unproven' human stops that demanded provenance and discard authorization; After treats the absent jobs file as no jobs, runs reset --hard aaaaaaa and clean -fd, writes one loop: repair row 2 (failed, attempts 6, interruption evidence), keeps iterations 91, clears pending, and redispatches row 2 at 6 of 9 with no model override, task iteration 91 and a bump to 92. For boundary-stops, Before used the header 'Stopped: dirty implementation worktree' and an untyped 'explicitly authorize discarding' option; After renders the exact 'Stopped: dirty tree with no dispatch pending' header, a 'Dirty path: src/parser.ts' line and a typed discard-or-Stop menu with no writes. The A and C row stops, B's hinted dispatch, G's closed-row stop and the 7+2 / 7+1 denominators are intact in both. Two things in After are fragile and worth tightening. First, the G stop prints a placeholder 'Problem: gate <i> exit <code> <log path>' line and a 'Last decision: row 2 failed' line even though every row is closed; say that when gate identifiers are not supplied the Problem quotes only the supplied failure, and that row decisions are omitted from an all-closed stop. Second, D narrates the post-discard reset and clean commands before the stop; the 'only after typed discard' framing keeps the fact, but stating that post-authorization commands are named only after the reply would remove the risk of it reading as a performed reset. Keep the explicit wording that pending-tuple dirt recovers automatically while no-pending dirt asks for discard, since that distinction is what delivered both movements.",
+      "wallMs": 18747,
       "verdict": "improved"
     }
   },
-  "repoSha": "b4165ba162b9fd8957ee0fa46b61990a3a7d5185"
+  "repoSha": "a6840392b28dc2bc61506cad147e66ddaa58a798"
 }

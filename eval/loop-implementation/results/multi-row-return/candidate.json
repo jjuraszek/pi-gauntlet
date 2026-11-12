@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7d5afcb70a72cac598dea91fe756158feedc6260a70e26a6012a455d9045b2c4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15c0148826f779d8d88c0f7844b1c403b66579e8db1ff9f5a7ed3ce01739f484",
+      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
       "baselineOutputSha": "659213ccc1f811deaca6775c04b6ca72b7b6226191b4925876627d41cf8671f1",
       "candidateOutputSha": "cfa637e7590a11960624b17b7ae2a8e35298b0bdf94e8c576bb20343f71bc2c9",
       "facts": {
@@ -69,14 +69,14 @@
           "label": "held"
         }
       },
-      "feedback": "The only fact that moved is boundary, and it moved in the intended direction. Before treated the missing manifest, jobs file and exit evidence as blocking, so it took a recovery-incomplete human stop with a discard menu, wrote no repair and charged no attempt. After treats the absent jobs file as no jobs, signals nothing, resets and cleans to HEAD_BEFORE, and rewrites from the saved copy with row 2 back to open/0/empty. It marks only row 1 failed at attempts 1 with interrupted evidence, keeps iterations 7, clears pending, commits loop: repair row 1, refreshes and targets row 1 in the same turn with no proof demand. The other five facts hold in both outputs: admission of snapshot 1 and the target-only variant with row 5 next, the failed target carrying its own decision, all nine snapshot 3 misses with the common parent repair and previous decision none, and a post-return trace that runs no checks, with regressions surfacing at the verify step 1 gate set. To keep this, hold the unconditional wording that an absent jobs file or unknown launch history never blocks reset and repair, and that unidentified jobs stay unsignaled. Keep the statement that unadmitted extras are restored from the saved copy while only the target is charged. Two small risks to tighten: After's 'admitted row 1 done (extra: row 2 done)' report line should stay clearly a narration, not a new declaration channel, and the regression point is better stated as 'verify step 1' than 'step 0–1'. It would also help to state allowance 4 explicitly in the snapshot 4 ledger rewrite, where it is currently implied by the saved copy.",
-      "wallMs": 15341,
+      "feedback": "The only fact that moved is boundary, and it moved in the intended direction. Before treated the dirty or two-commit return as a recovery-incomplete human stop: it refused reset, repair and the failed attempt until provenance and job exit were proven, and showed the automatic path only as a hypothetical. After's proof-free wording makes the absent jobs file mean no jobs, leaves unidentified processes unsignaled, resets and cleans, and rewrites from the saved copy with row 2 back to open/0/empty and only row 1 failed at attempts 1. It keeps iterations 7, writes no pending, commits `loop: repair row 1`, refreshes and targets row 1 with no stop header. The other five facts held in both outputs, so nothing regressed. To keep them robust, three places in the wording are worth tightening. First, keep the explicit statement that the child's `loop: row 1 done` commit stands with no parent commit, and make clear that the `admitted row 1 done (extra: row 2 done)` line is a driver report, so it is not read as a second declaration channel for extras. Second, state `allowance: 4` as retained in the snapshot 4 ledger rewrite, rather than leaving it implied by \"attempts 1 of 4\". Third, keep the read-only wording crisp: say \"verify step 1's gate set\" rather than \"step 0–1\", and say outright that there is no row-close run and no `loop: regress` commit. Removing the action-spend reference read from the post-return trace also helps that fact, since the trace is now only boundary git calls, the ledger read, admission or repair, and refresh.",
+      "wallMs": 16492,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7d5afcb70a72cac598dea91fe756158feedc6260a70e26a6012a455d9045b2c4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15c0148826f779d8d88c0f7844b1c403b66579e8db1ff9f5a7ed3ce01739f484",
+      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
       "baselineOutputSha": "2a0ae5b06d892736f459ef2cc3ae27c5e04821df69d961a78af03f5d01c27446",
       "candidateOutputSha": "b36f3d8aaf5817c27850223b48ba6bf43bfc82bd2dc5d350b5299639afa147f8",
       "facts": {
@@ -111,10 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "The only fact that moved is boundary, and it moved in the intended direction. Before treated missing ownership, jobs-file and process-exit evidence as a hard stop: it rendered a gauntlet: question, ran no cleanup, wrote no repair and left row 1 at attempts 0. After applies the unconditional interrupted-recovery rule instead: it treats the absent jobs file as no jobs to signal, leaves unidentified jobs unsignaled, resets and cleans to HEAD_BEFORE, restores row 2 to open/0/empty, charges only row 1 a failed attempt with interrupted evidence, keeps iterations 7 and allowance 4, clears pending, commits loop: repair row 1, refreshes and targets row 1 with no proof demand or human turn. The other five facts held in both outputs; After kept admission of extras with unchanged attempts, the target's line as previous decision, the validation-miss repair that does not reset the child commit, and the no-checks trace with regression surfacing at verify step 1. Two things are thin in After and worth pinning in the wording. First, it never restates that the child subject stays loop: row 1 done and that extras are declared only through ledger cells and decisions; a sentence saying so would make the admission fact explicit rather than inferred. Second, it does not say outright that admission makes no row-close run and no loop: regress commit; stating that would harden read-only. Keep the reference reads (interrupted-recovery, unreachable-returns, jobs file) clearly framed as reads, never as check execution. Removing the action-spend read from the trace matches the Change and cost no fact.",
-      "wallMs": 16588,
+      "feedback": "Only the boundary fact moved, and it moved in the intended direction. Before treated missing ownership, jobs-file and process-exit evidence as a hard stop: it rendered a gauntlet: question, ran no cleanup, made no repair and charged no attempt. After follows the proof-free interrupted-recovery wording: it treats the absent jobs file as no jobs, sends no signals and leaves unidentified jobs alone, resets to HEAD_BEFORE and cleans, writes one ledger-only loop: repair row 1 commit, restores row 2 to open/0/empty, fails only row 1 with attempts 1 and interrupted evidence, keeps iterations 7 and allowance 4, clears pending, refreshes and targets row 1 with no human turn. The other five facts hold in both outputs, so nothing regressed. To keep it that way, keep three distinctions explicit in the wording: a clean exactly-one-commit validation miss is repaired by the parent without resetting the checkout, whereas a dirty or multi-commit return gets the reset path; admission and recovery run no row, gate or verification command, and earlier-done regressions first surface at verify step 1's gate set; extras are carried only by ledger cells and target-first decisions. Removing the action-spend hooks also dropped Before's extra action-accounting read and commit-body records, which keeps the post-return trace closer to return/ledger/git reads only. After still reads the unreachable-returns and interrupted-recovery references in the trace; if you want the read-only fact to be unambiguous, say those are skill-resource reads and not checks.",
+      "wallMs": 16409,
       "verdict": "improved"
     }
   },
-  "repoSha": "b4165ba162b9fd8957ee0fa46b61990a3a7d5185"
+  "repoSha": "a6840392b28dc2bc61506cad147e66ddaa58a798"
 }

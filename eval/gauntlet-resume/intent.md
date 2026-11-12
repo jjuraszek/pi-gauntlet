@@ -1,11 +1,11 @@
-for: 5f6a032e9f524051d433bb5146618036179c6911ea79815b703e170c57993fa0
+for: 1682a1f309c5e3567336ed7ee30a4d9e41e30c62b81d31a04829a47a647c24bd
 
 ## Change
 Resolve a brief's missing companion location through the declared primary's branch-location rule, not a recorded home pattern. Use a found tree for all remaining admission checks; retain explicit brief paths and live receipt admission. The legs-missing sample replaces its recorded-home stop fact and adds found-tree, Home-tuple mismatch and explicit-path variants. Only legs-missing is selected for this change; narrated supplied observations do not prove live restoration, and unrelated saved results remain partial historical evidence.
 
 
-Recover companion attribution and home-boundary failures from a recoverable tuple by resetting companion and home, then repairing only home. Before accepting an ambiguous no-tuple return as interrupted, disclose every affected commit and dirty path and that the answer authorizes their discard. Selected row-13 samples exercise these paths; other saved records remain partial historical coverage.
-Route confirmed interrupted home and companion returns through the loop driver's unconditional recovery before allowance checks or migration. Recover even with unrelated writes, missing checkout provenance or absent launch history; keep attribution ambiguity and unrecoverable before-images as separate stops. Migrate interrupted-ownership, migration-recovery B/D and ledger-tracker-recovery B/C/D to reset/clean at the tuple SHA, a single failed-attempt repair with the consumed iteration, then refresh and the ordered table. Clean tuple-free legacy ledgers migrate after recovery. Add the common interrupted-recovery procedure to each selected sample's bundle. Deterministic brief-contract assertions cover these narrated contracts; selected model replay remains for row 13, and retained model records do not prove the changed facts.
+Recover wrong home commit attribution from a recoverable on-disk tuple and before-image through common interrupted recovery without a human turn. Reset home to the tuple HEAD, write one counted home repair, then migrate the clean tuple-free legacy ledger. Add migration-recovery G for this boundary; keep the no-tuple admission question unchanged. Recover companion attribution and home-boundary failures from a recoverable tuple by resetting companion and home, then repairing only home. Before accepting an ambiguous no-tuple return as interrupted, disclose every affected commit and dirty path and that the answer authorizes their discard. Selected row-13 samples exercise these paths; other saved records remain partial historical coverage.
+Route confirmed interrupted home and companion returns through the loop driver's unconditional recovery before allowance checks or migration. Recover even with unrelated writes, missing checkout provenance or absent launch history; keep the no-tuple attribution admission question and unrecoverable before-images as separate stops. Migrate interrupted-ownership, migration-recovery B/D and ledger-tracker-recovery B/C/D to reset/clean at the tuple SHA, a single failed-attempt repair with the consumed iteration, then refresh and the ordered table. Clean tuple-free legacy ledgers migrate after recovery. Add the common interrupted-recovery procedure to each selected sample's bundle. Deterministic brief-contract assertions cover these narrated contracts; selected model replay remains for row 13, and retained model records do not prove the changed facts.
 
 telemetry-branch-seed for: 976cc8cc5f2a17edf3f607fd299e935bd1cc9e08c6bcc5575f012b262ff2695c
 
@@ -61,7 +61,7 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 ## Expected to move
 - interrupted-ownership/home: fails -> holds - Recover a home interruption without checkout or launch proof, repair once with the consumed iteration and continue below allowance without a discard prompt.
 - interrupted-ownership/ownership: fails -> holds - Recover unconditionally despite unrelated writes, clear pending in the failed-attempt repair and continue below allowance without a human turn.
-- interrupted-ownership/companion: fails -> holds - Reset only the companion without provenance proof and record a home-only repair, preserving foreign state and consumed counts.
+- interrupted-ownership/companion: fails -> holds - Reset the companion to its tuple HEAD and home to the saved home HEAD without provenance proof and record a home-only repair, preserving foreign state and consumed counts.
 - telemetry-branch-seed/metadata: fails -> holds - Resolve the Git common directory relative to the primary, or use jj metadata after Git resolution fails; use a present local record without a branch fetch.
 - telemetry-branch-seed/branch: fails -> holds - Fetch the configured telemetry remote when the local record is absent and reject the branch-only shipped record with its timestamp.
 - telemetry-branch-seed/cached: fails -> holds - Reject the cached abandoned record after fetch failure; admit past Step 3 when neither a local record nor a fetched ref is available.
@@ -80,7 +80,8 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 - migration-recovery/home: fails -> holds - Admit a tuple-free home return against its unmigrated one-commit range before migration.
 - migration-recovery/dirty: fails -> holds - Repair the dirty home interruption unconditionally, then migrate the clean tuple-free ledger before refresh and continuation.
 - migration-recovery/companion: fails -> holds - Validate unchanged home HEAD and expected dirt, record companion result, then migrate.
-- migration-recovery/interrupted: fails -> holds - Reset the interrupted companion only, repair in home at the consumed iteration, then migrate and continue below allowance.
+- migration-recovery/interrupted: fails -> holds - Reset the interrupted companion to its tuple HEAD and home to the saved home HEAD, repair in home at the consumed iteration, then migrate and continue below allowance.
+- migration-recovery/attribution: fails -> holds - Recover wrong home attribution from the on-disk tuple without a human turn, then migrate and continue without another bump.
 - migration-recovery/ambiguity: fails -> holds - Ask before mutation when home admission remains unknown.
 - migration-recovery/exhausted: fails -> holds - A migrated row already at effective allowance stops without another attempt.
 - ledger-tracker-verify/labels: fails -> holds - Restore canonical ledger names from description-suffix and legacy forms, retain Gn identities, and recompute criterion descriptions and attempts after refresh.

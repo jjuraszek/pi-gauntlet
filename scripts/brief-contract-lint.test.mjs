@@ -183,6 +183,10 @@ for (const [name, pattern] of [
 assert.match(recovery, /read-only admission-evidence check.*before phase\/task restoration/);
 assert.match(ledgerRestore, /Stop before refresh only when the tuple or before-image is unrecoverable/);
 assert.match(ledgerRestore, /wrong attribution, unexpected home dirt and home movement as interrupted boundaries/);
+const homeRecoveryRow = recovery.split('\n').find(line => line.startsWith('| Home leg or single-member `home` |'));
+assert.match(homeRecoveryRow, /recoverable tuple and before-image.*wrong attribution.*driver's `## Interrupted recovery`/);
+assert.match(homeRecoveryRow, /Stop only for an unrecoverable tuple or before-image/);
+assert.doesNotMatch(homeRecoveryRow, /Attribution mismatch.*stops/);
 assert.match(actualContract, /legacy ledger brief without task rows[^\n]*omits init[^\n]*ordered recovery\/migration boundary/i);
 assert.match(actualContract, /Never send a ledger task list through task-plan repair/);
 assert.match(actualContract, /For every ledger brief apply the shared allowance boundary[^\n]+before dispatch or verification/);

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6a036a55ccda7f11f8a18a19e2cc80a271c8179eee47d830a6658fba16d88221",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15c0148826f779d8d88c0f7844b1c403b66579e8db1ff9f5a7ed3ce01739f484",
+      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
       "baselineOutputSha": "0892a3c54cd2c42da60e512270fc340d44c838be8d536511fe9b65fe7450345c",
       "candidateOutputSha": "4e520587cbe356284aeb6c49cc348f10af80f77acb632758ed6a4d052d46f905",
       "facts": {
@@ -69,14 +69,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "Only `boundary` moved. Before recovered the dirty, zero-commit and two-commit seed returns automatically only when provenance was complete; with missing provenance or unknown launch history it kept pending, made no repair commit and rendered a `gauntlet: question` discard-authorization stop, which fails the fact. After applies one unconditional recovery to all three shapes: an absent jobs file means no jobs, only matching process groups are signaled, the checkout is reset and cleaned, the ledger is rewritten from the saved copy with iterations 1 and no pending, `loop: repair seed` is committed with the `seed interrupted:` reason, and seed is redispatched at 1 of 4 with no proof demand or human turn. The other five facts held in both outputs: A's repair and automatic retry (task iteration 1, consumed 2, previous decision none), B's third seed dispatch at 2 of 4, C's window reset and history-derived hint with no durable field, and D's home-only repair with repo-b left unseeded. To keep them, the wording should continue to say explicitly that consumed iterations are retained, that rows are restored from the saved copy, that the hint is the seed-contract instruction plus the concrete miss, and that the seed count is taken from home repair markers. One thing to tighten: After shows that unidentified jobs go unsignaled only by implication (\"matching process group only\", \"absent means no jobs\"). A sentence stating outright that unidentified or mismatched jobs are left unsignaled and never block the repair would make that part of `boundary` robust across replays.",
-      "wallMs": 15772,
+      "feedback": "Only `boundary` moved, and it moved in the intended direction. Before ran automatic recovery only when provenance and no-launch evidence were present; otherwise it kept pending, made no repair commit and raised a `gauntlet: question` discard-authorization stop. After treats dirty, zero-commit and two-commit seed returns as unconditionally recoverable: an absent jobs file means no jobs to stop, only matching process groups are signalled, the checkout is reset and cleaned to the tuple SHA, saved cells are restored with iterations 1 and no pending, `loop: repair seed` is committed with the `seed interrupted: <reason>` body, and seed is redispatched at 1 of 4 with no proof demand or human turn. The other five facts held in both outputs: A's repair and retry, B's third seed dispatch at 2 of 4 with task iteration 2 and consumed 3, C's window reset and history-recovered hint with no durable field, and D's home-only repair. To keep them, preserve the wording that the seed repair restores every non-cut row and the decisions from the saved copy while retaining the consumed iteration, that the hint is the seed-contract instruction followed by the concrete `seed miss:` or `seed interrupted:` reason read from the repair commit body, and that the companion repair is written only in home. One fragility: in B and D both outputs abbreviate the hint as `seed miss: …`, so the wording could require the full concrete miss text to be restated at every redispatch. It would also help to state outright that unidentified or mismatched jobs are left unsignalled, rather than leaving it implied by \"matching process group only\".",
+      "wallMs": 14257,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6a036a55ccda7f11f8a18a19e2cc80a271c8179eee47d830a6658fba16d88221",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15c0148826f779d8d88c0f7844b1c403b66579e8db1ff9f5a7ed3ce01739f484",
+      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
       "baselineOutputSha": "345c4f0cf5adadc5d08f11f077589eb2f942f1880ad41885e5d05d78a106ba5b",
       "candidateOutputSha": "f0e136fe4c39b496982183136529f7a3f4c98bf0ee8816380874a9f9cf12491b",
       "facts": {
@@ -111,10 +111,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Only `boundary` moved, and it moved in the intended direction. Before's E stopped on missing provenance or unknown launch history with a `gauntlet: question` discard authorization, no reset, no repair marker and pending retained. After's E treats recovery as unconditional: it reads the jobs path, treats an absent file as no recorded jobs, leaves unrecorded processes unsignaled, resets and cleans, restores the saved cells with attempts 0 and iterations 1, clears pending, commits `loop: repair seed` with the `seed interrupted:` reason and redispatches seed at 1 of 4 without a proof demand or human turn. The other five facts held in both outputs: A/B repair and retry (task iteration versus consumed iteration, `previous decision: none`, seed-contract instruction plus concrete `seed miss:` hint, 2 of 4 permitting a third seed), C's window reset and history-recovered hint with no durable hint field, and D's home-only repair with seeded flags, counters and mapping preserved. To keep these stable, keep the wording explicit that post-boundary validation misses are repaired without a reset while interrupted returns are reset unconditionally, that the hint is always the seed-contract instruction followed by the concrete repair-body reason, and that an absent jobs file or unknown launch history never produces a stop. After also dropped Before's action-spend reference reads, consistent with the Change; no listed fact depends on them.",
-      "wallMs": 13269,
+      "feedback": "The only fact that moved is boundary, and it moved in the intended direction. Before, missing provenance or unknown launch history in E halted at a 'checkout ownership unproven' / 'background launch history unavailable' human stop with no reset, no repair marker and no redispatch. After treats recovery as unconditional: it reads the jobs file, treats an absent file as no recorded jobs, leaves unrecorded processes unsignaled, then resets, cleans, restores the saved cells, commits loop: repair seed with the seed interrupted reason and redispatches seed at 1 of 4 with no proof demand or human turn. The other five facts held in both outputs. After kept them because the new wording still restores all changed rows and the empty Decisions section, retains the consumed iteration, clears pending, and counts home repair-seed commits against allowance 4. It also still builds the hint as the seed-contract instruction followed by the concrete seed miss recovered from the repair body, and still distinguishes a post-boundary validation miss (no reset of the clean child or companion commit) from interrupted recovery (reset). To keep this stable, keep the explicit sentences that seed repairs do not feed the ordinary-row two-miss window, that a validated seed resets the window to zero, and that no durable hint field is written. Keep the companion repair body naming the concrete miss rather than a placeholder. Keep the failure-pass caveat ('never dispatch from an unrestored HEAD') clearly subordinate, so it is not read as a new stop condition for the absent-provenance case.",
+      "wallMs": 17115,
       "verdict": "improved"
     }
   },
-  "repoSha": "b4165ba162b9fd8957ee0fa46b61990a3a7d5185"
+  "repoSha": "a6840392b28dc2bc61506cad147e66ddaa58a798"
 }

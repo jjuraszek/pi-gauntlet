@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1db81b321fa129585b4220a135544055a62c3699a91bc073982ff0d5734120a2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15c0148826f779d8d88c0f7844b1c403b66579e8db1ff9f5a7ed3ce01739f484",
+      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
       "baselineOutputSha": "c271ddd8a7dd9e3de6c06431e2c8247aed0006c8b36d9bbe06d1d3eaa2a10c98",
       "candidateOutputSha": "2dbc082133eb0a6da1eb60a8374df22c79153410b74ed7bbb61a9935d5d9b6eb",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "Only `ownership` moved. Before treated the absent jobs file plus unknown launch history as unproven ownership: it attempted no cleanup, wrote no repair, kept pending and stopped for discard authorization. After treats the absent jobs file as no jobs, signals nothing, runs reset/clean, writes one `loop: repair seed` with the interruption reason, keeps iterations 3 and count 3 of 4, and redispatches seed without a proof demand or human turn. The other four facts (`count`, `exhaustion`, `one`, `resume`) already held in Before, because the case supplied complete ownership and no-launch evidence there, so on this output the Change shows no movement for them. To keep every fact, the wording should continue to state explicitly that recovery restores rows and decisions from the saved copy with attempts unchanged, retains the consumed iteration, clears pending, and puts the concrete `seed interrupted: …` reason in the repair body. It should also keep saying that the seed count is read from `loop: repair seed` history, so a numbered retry or `rows +N` never resets it, and that a validated partial seed ends seed selection and resets the validation-miss window. Two spots in After are looser than Before and worth tightening: in D, say outright that all row attempts stay 0 and pending is cleared rather than relying on \"same as A\"; and in C4, name the next target definitely instead of \"row 1 if it is still open, otherwise row 2\".",
-      "wallMs": 12922,
+      "feedback": "Only `ownership` moved. In Before, D treated the absent jobs file plus unknown launch history as unproven ownership, so it attempted no reset or clean, kept `pending:`, wrote no repair, left the seed count at 2 and parked at a discard-authorization stop. In After, D treats the absent jobs file as no jobs, signals nothing, runs reset/clean, writes one `loop: repair seed` with the interruption reason, keeps iterations 3 with rows unchanged, reaches 3 of 4 and redispatches seed with no human turn. The other four facts (`count`, `exhaustion`, `one`, `resume`) already held in Before on its own text, because A, B and C there had complete ownership and no-launch evidence and recovered automatically; After keeps all of them, so the expected fails-to-holds movement for those four is not visible in this pair. To keep this stable, keep the explicit statement that missing launch history or an absent jobs file never blocks recovery or creates a stop, and keep stating the unchanged row cells and decisions, retained consumed iterations, cleared pending, the seed count out of allowance, and the pre-bump versus consumed iteration in every snapshot. In C4, name the next target concretely and say the validation-miss window is reset rather than hedging (\"row 1 if it is still open, otherwise row 2\"), and in D spell out the hint and attempts-0 cells rather than leaning on \"same as A\", so a reader judging D alone sees every element.",
+      "wallMs": 14134,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1db81b321fa129585b4220a135544055a62c3699a91bc073982ff0d5734120a2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "15c0148826f779d8d88c0f7844b1c403b66579e8db1ff9f5a7ed3ce01739f484",
+      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
       "baselineOutputSha": "8680ab9c6efa0e48481b02b06418d4f08e3e717093e875389aa2010ee46adf33",
       "candidateOutputSha": "932d1393f1927d8071b1993525ac364f45fe9b65f7cf98e389e9c0b7a9eda12f",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Only ownership moved. Before treated D's absent jobs file and unknown launch history as incomplete provenance, so it attempted no reset, wrote no repair marker, kept pending and the count at 2, and stopped on a discard-authorization question. After reads the absent jobs file, signals nothing, attempts reset/clean, clears pending, writes one loop: repair seed with the interruption reason, keeps iterations 3 and attempts 0, and redispatches seed at 3 of 4 with no proof demand or human turn. The other four facts (count, exhaustion, one, resume) already held in Before's text, despite being expected to move from fails, and still hold in After, so the unconditional-recovery wording cost nothing. Two things would make After more robust. First, it writes the reason as \"seed interrupted: killed after silence\" although the case only says the return was killed; Before deliberately avoided asserting silence. Wording that tells the driver to record the observed interruption reason, and not to supply a stock phrase the observations do not show, would keep the \"concrete interruption reason\" facts safe. Second, the rule that an absent jobs file or unknown launch history means \"signal nothing, still reset, repair once, then run the ordinary allowance check\" should stay stated explicitly, as should the line that a numbered retry never erases the seed count and that rows +N raises the allowance without resetting any counter.",
-      "wallMs": 13586,
+      "feedback": "Only ownership moved. Before's D treated the absent jobs file and unknown launch history as incomplete provenance, so it attempted no reset, wrote no repair, kept pending, left the count at 2 and stopped for discard authorization. After's D leaves unidentified jobs unsignaled, attempts reset/clean, clears pending, writes one loop: repair seed, reaches 3 of 4 and redispatches seed with no proof demand or human turn, which is the proof-free recovery the Change asks for. The other four facts already held in Before as written, because A to C supplied full ownership and no-launch evidence, so Before recovered, counted 3 of 4, stopped at 4 of 4 and 1 of 1, and resumed correctly; After keeps all of them. Two wording risks remain in After. First, it writes the repair body and hint as \"seed interrupted: killed after silence\" although the case only says the seed returned killed; silence was never observed, so have the wording use the reason actually observed (for example the killed/non-DONE return or the tool's exact error) and not default to the silence phrasing. Second, the exhaustion stop renders the choices as one sentence; keeping an explicit retry <n> | <hint> / rows +N / Amend / Stop menu and the statement that a numbered retry neither erases the seed count nor buys a seed dispatch will keep exhaustion stable. Dropping Before's \"with exclusive provenance established\" precondition and action-spend records from the recovery path is consistent with the Change and cost no fact.",
+      "wallMs": 14704,
       "verdict": "improved"
     }
   },
-  "repoSha": "b4165ba162b9fd8957ee0fa46b61990a3a7d5185"
+  "repoSha": "a6840392b28dc2bc61506cad147e66ddaa58a798"
 }
