@@ -1,7 +1,7 @@
 {
   "sample": "withheld-fix-ticket",
   "arm": "candidate",
-  "skillSha": "d5433a6e95d53cf84753af09d7e6941926c545097ce1f38a63d1bc064788040c",
+  "skillSha": "4ee3db96d997b52cf869ebb25125800cc4ece69cf419f3eada910170f7ad9747",
   "inputSha": "60cbaa420608740796adc3ff2420c11f8dbf050a6c1fa0d5172698558c9d0f09",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=2\n\n### 1 of 1. 1 field name in src/api/profile.ts breaks the naming rule\n\n### What was found\nThe service sends data back to outside apps. One field name in that data is written `displayName` instead of `display_name`. It is at line 18 of src/api/profile.ts: `return { displayName: profile.name };`. No other card touches this file.\n\n### Why it matters\nThe project rule says field names in data sent back to outside apps use lowercase words joined by underscores. The rule is in AGENTS.md, API naming.\n\n### What happens if you accept\nThe fix would rename `displayName` to `display_name`. Apps that read `displayName` today would stop finding it. That breaks what the service promises to those apps, so this run cannot make the fix. Picking Ticket changes nothing now. You approve the ticket's exact wording before it is filed, and it records the rename as a planned change.\n\nPick one:\n1. [ ] Fix - unavailable: the rename would break apps that read the current name\n2. [ ] Ticket - file one ticket listing them and change nothing now [recommended]\n3. [ ] Ignore - leave them as they are\n",
-      "words": 178,
-      "wallMs": 12260,
+      "text": "gauntlet: gate=housekeeping/card recommended=2\n\n### 1 of 1. 1 name in the profile reply in src/api/profile.ts breaks the naming rule\n\n### What was found\nThe profile reply sends a value to outside programs under a name written as `displayName` at src/api/profile.ts line 18: `return { displayName: profile.name };`. No other card covers this file.\n\n### Why it matters\nThe project's rule is that names in the data the service sends to outside programs use lowercase words joined by underscores, so this one should be `display_name`. The rule comes from AGENTS.md, in its API naming section.\n\n### What happens if you accept\nA fix would rename `displayName` to `display_name` in that reply. Programs that already read `displayName` would stop finding it, so this cleanup cannot make that change. A ticket would record the item for a planned change and leave the code as it is now. You approve the ticket's exact text separately before it is filed.\n\nPick one:\n1. [ ] Fix - unavailable: renaming it would break existing programs that read `displayName`\n2. [ ] Ticket - file one ticket listing them and change nothing now [recommended]\n3. [ ] Ignore - leave them as they are\n",
+      "words": 182,
+      "wallMs": 10266,
       "mechanical": {
         "marker": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=2\n\n### 1 of 1. One public response field in src/api/profile.ts uses the wrong name\n\n### What was found\nAt `src/api/profile.ts:18`, the response uses `displayName` instead of `display_name`. No other card shares this file.\n\n### Why it matters\nThe API naming rule in `AGENTS.md` requires public JSON response fields to use lowercase words separated by underscores. Existing clients consume `displayName`, so renaming it would change the public contract.\n\n### What happens if you accept\nFix is unavailable because the proposed rename changes a public contract. Choosing Ticket would request one ticket describing the mismatch and leave the code unchanged; filing still requires separate exact-text approval.\n\nPick one:\n1. [ ] Fix - unavailable: renaming the field changes the public contract used by existing clients\n2. [ ] Ticket [recommended] - file one ticket listing the mismatch and change nothing now\n3. [ ] Ignore - leave it as it is\n",
-      "words": 139,
-      "wallMs": 8799,
+      "text": "gauntlet: gate=housekeeping/card recommended=2\n### 1 of 1. One public response field in src/api/profile.ts uses the wrong name\n\n### What was found\nAt `src/api/profile.ts:18`, `return { displayName: profile.name };` uses `displayName` instead of `display_name`. No other class shares this file.\n\n### Why it matters\nThe API naming rule in `AGENTS.md` requires public JSON response fields to use lowercase words separated by underscores. Existing clients consume `displayName`, so renaming it would change the public contract. Fix is unavailable under this run’s safety limits.\n\n### What happens if you accept\nThe proposed change replaces `displayName` with `display_name`. Choosing Ticket prepares one ticket describing the mismatch and compatibility concern, leaving the code unchanged. Filing requires separate approval of the ticket’s exact text.\n\nPick one:\n1. [ ] Fix - unavailable: renaming this field changes the public API contract.\n2. [ ] Ticket [recommended] - file one ticket listing the finding and change nothing now.\n3. [ ] Ignore - leave it as it is.\n",
+      "words": 145,
+      "wallMs": 10652,
       "mechanical": {
         "marker": "holds"
       }
@@ -40,7 +40,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
       "baselineOutputSha": "a85a880117475b8c28a763b02e36e6015eb93a40a4735db6fd3b8ac914ffd5e0",
-      "candidateOutputSha": "260776f8a635a95dd51d5ed3324f49e86f17364b6603db2c3ad1cca8083bbd27",
+      "candidateOutputSha": "819ddcf694a1b065eab59b7fdd4770456ca864e5cf5eebf8a410ee59a6d38f46",
       "facts": {
         "fix-unavailable": {
           "before": "fails",
@@ -68,8 +68,8 @@
           "label": "held"
         }
       },
-      "feedback": "After improves on Before: the Fix row now explicitly says unavailable with an everyday reason (apps reading displayName would stop finding it), the three numbered choices keep empty boxes with Ticket marked only by its [recommended] label, the contract reason cites AGENTS.md without leaning on the missing regression command, and the Ticket text states that picking it changes nothing now and the wording is approved before filing. Nothing regressed. Two small wording nits worth tidying: the Ticket and Ignore rows say 'them' although there is a single field, so use 'file one ticket for this rename' and 'leave the field as it is'; and the 'What happens if you accept' heading reads oddly when the first sentence immediately says the fix cannot be made, so a heading like 'What each pick does' would match the body better while keeping every fact intact.",
-      "wallMs": 14303,
+      "feedback": "After keeps every fact Before kept and additionally fixes fix-unavailable: the numbered Fix row now says \"unavailable\" with an everyday reason (programs that read `displayName` would stop finding it) instead of offering the rename as a live option, and the body no longer leans on the missing regression command as the thing that blocks Fix. The empty `[ ]` boxes with `[recommended]` as a bare label keep the card unanswered, and \"You approve the ticket's exact text separately before it is filed\" makes clear nothing has been filed. Two wording nits worth tightening so the card reads as describing this run rather than a template: the Ticket and Ignore rows say \"listing them\" and \"leave them as they are\" although there is exactly one finding, and the heading \"1 name in the profile reply\" reads awkwardly - something like \"Ticket - file one ticket for this rename and change nothing now\" / \"Ignore - leave the field as it is\" would match the singular finding without changing any fact.",
+      "wallMs": 16139,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -77,7 +77,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
       "baselineOutputSha": "8b7b2ab12851f3cb9e9bae3368067d01c3bea4d8541d963b30ab468d85cec844",
-      "candidateOutputSha": "4d9a3112cdf998ed631179fda5122efeea27e5bde77fd663f2fb1e4b28d50356",
+      "candidateOutputSha": "d88b11e34852b56d852d7e4c1e763b7e4884213659977d841fb8a382ffa03b24",
       "facts": {
         "fix-unavailable": {
           "before": "fails",
@@ -105,10 +105,10 @@
           "label": "held"
         }
       },
-      "feedback": "After improves on Before by marking Fix unavailable with an everyday reason tied to the public contract, keeping all three boxes empty with Ticket flagged only by its label, and citing AGENTS.md without leaning on the missing regression command. The one thing After weakened is the explicit no-execution statement: Before had a plain 'No changes have been made.' line, whereas After only implies it through 'leave the code unchanged' and 'filing still requires separate exact-text approval'. To keep no-execution unambiguous while delivering the Change, restore a single explicit sentence near the top or bottom of the card such as 'Nothing has been edited, committed, pushed, filed or opened; picks are recorded and executed only after the walk finishes', and keep the rest of After's wording as is.",
-      "wallMs": 13575,
+      "feedback": "After improves on Before: the numbered Fix row now says unavailable with the everyday reason (changing the public API contract that existing clients rely on) rather than offering the rename as a live option, while still citing AGENTS.md, keeping all three boxes empty, marking Ticket only by its label, and not leaning on the missing regression command as the reason Fix is withheld. Nothing Before kept was lost. One thing to tighten: Before carried an explicit 'No changes have been made.' line, whereas After only implies it through 'leaving the code unchanged' and 'change nothing now'; adding a short explicit sentence such as 'Nothing has been edited, committed, pushed or filed; the walk is still open' would make no-execution unambiguous and also sets up the post-pick acknowledgement the Change asks for.",
+      "wallMs": 14748,
       "verdict": "improved"
     }
   },
-  "repoSha": "dd9776b3238d31c8cf241473e8f1d009437df2ae"
+  "repoSha": "d93ce3cd1d2d8e0f2171a2f8ac634de1217d44ce"
 }

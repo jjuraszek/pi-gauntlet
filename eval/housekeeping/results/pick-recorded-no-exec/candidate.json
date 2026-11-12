@@ -1,7 +1,7 @@
 {
   "sample": "pick-recorded-no-exec",
   "arm": "candidate",
-  "skillSha": "d5433a6e95d53cf84753af09d7e6941926c545097ce1f38a63d1bc064788040c",
+  "skillSha": "4ee3db96d997b52cf869ebb25125800cc4ece69cf419f3eada910170f7ad9747",
   "inputSha": "b372a0b01f453a930ba407ba7315338ffdaddcb95864c548465b87e3ffa4257c",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=1\n\nRecorded card 1 (unused code) as Fix in /tmp/housekeeping.fixture-pick/decisions.md. Nothing has run yet: no file is edited and no PR is opened until the walk ends. The walk is still open.\n\n### 2 of 2. 1 leftover tracing line in src/widgets/format.ts should be removed\n\n### What was found\nOne leftover line that prints tracing text while the program runs: `console.log(\"format trace\", value)` at src/widgets/format.ts:18. No other card touches this file.\n\n### Why it matters\nLines added only to trace a problem while debugging should not stay in the code. They add noise to the program's output and can expose values that were never meant to be shown. This rule comes from the housekeeping skill's base rules for code.\n\n### What happens if you accept\nThat one line is deleted and nothing else in the file changes. The work happens in a separate copy of the project, and you get one pull request against the default branch. Your main checkout's files stay as they are.\n\nPick one:\n1. [ ] Fix - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged. [recommended]\n2. [ ] Ticket - file one ticket listing them and change nothing now\n3. [ ] Ignore - leave them as they are\n",
-      "words": 209,
-      "wallMs": 8306,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\nRecorded card 1 (one unused import) as Fix in /tmp/housekeeping.fixture-pick/decisions.md. Nothing has run yet, and the walk is still open.\n\n### 2 of 2. 1 leftover debug message in src/widgets/format.ts should be removed\n\n### What was found\nOne line at src/widgets/format.ts:18 prints a trace message while the code runs: `console.log(\"format trace\", value)`. No other card touches this file.\n\n### Why it matters\nThe housekeeping skill's built-in code rules say to remove leftover debug messages. They add noise to the program's output and were meant only for temporary troubleshooting.\n\n### What happens if you accept\nLine 18 is deleted and nothing else changes. The change is made in a separate copy of the code. You receive its own pull request against the default branch. The main checkout's files stay unchanged. No automatic test covers this rule; the removal is confirmed by reading the file. Reverting that single commit undoes it.\n\nPick one:\n1. [ ] Fix - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged. [recommended]\n2. [ ] Ticket - file one ticket listing them and change nothing now\n3. [ ] Ignore - leave them as they are\n",
+      "words": 194,
+      "wallMs": 9296,
       "mechanical": {
         "marker": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=1\n\nRecorded **Fix** for card 1 in `/tmp/housekeeping.fixture-pick/decisions.md`. Nothing has executed; the walk is still open.\n\n### 2 of 2. One leftover debug statement in src/widgets/format.ts prints a trace\n\n### What was found\n`src/widgets/format.ts:18` contains `console.log(\"format trace\", value)`. No other card shares this file.\n\n### Why it matters\nThe housekeeping base rules, Code, require removing leftover debug statements. This trace prints values during normal use.\n\n### What happens if you accept\nRemove only that statement and deliver a separate pushed PR. The change meets the safety checks. This read-only check has no attached command to test the fix.\n\nPick one:\n1. [ ] Fix [recommended] - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged.\n2. [ ] Ticket - file one ticket listing it and change nothing now\n3. [ ] Ignore - leave it as it is\n",
-      "words": 142,
-      "wallMs": 6395,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\nRecorded **Fix** for card 1 (`code-unused`) in `/tmp/housekeeping.fixture-pick/decisions.md`. Nothing has executed; the card walk is still open.\n\n### 2 of 2. One leftover debug statement in src/widgets/format.ts prints a trace\n\n### What was found\n`src/widgets/format.ts:18` contains `console.log(\"format trace\", value)`. No other card shares this file.\n\n### Why it matters\nThe housekeeping base rules, Code, require removing leftover debug statements so temporary tracing does not remain in the code. No override applies.\n\n### What happens if you accept\nRemove only that statement. You receive a separate pushed PR against the default branch; the primary checkout’s tracked files stay unchanged. The change meets the safety limits. Verification is by reading the change; no command that tests it is attached to this check.\n\nPick one:\n1. [ ] Fix [recommended] - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged.\n2. [ ] Ticket - file one ticket listing it and change nothing now\n3. [ ] Ignore - leave it as it is\n",
+      "words": 165,
+      "wallMs": 6743,
       "mechanical": {
         "marker": "holds"
       }
@@ -40,7 +40,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
       "baselineOutputSha": "383307c4311891dfe056faaadbbb66c5964f7ed0b3eb573eac87604d76c50cb9",
-      "candidateOutputSha": "0529b3074cb97caa75f49017b8ce97ffb16bbb1bd40f00491b4ade0568be0f9c",
+      "candidateOutputSha": "c0b1e1d3c0a8dee9a669d92d41ebb473bbd7b564429f7c743e3ab74f51e41a3d",
       "facts": {
         "recorded-pick": {
           "before": "fails",
@@ -68,8 +68,8 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers both intended moves: the opening line names the class, the Fix pick and the full /tmp/housekeeping.fixture-pick/decisions.md path, and 'Nothing has run yet… The walk is still open' separates recording from execution, where Before only said 'Nothing has been edited yet' with no decisions path. Nothing that Before kept regressed: card 2 of 2 is shown once, with empty boxes for Fix, Ticket and Ignore in that order and a single [recommended] label. Two small tightenings would make the acknowledgement more robust: name the finding as well as the class ('code-unused: the unused import in src/widgets/render.ts') so a reader can tie it to card 1, and enumerate the no-execution claim explicitly ('no tracked edit, commit, push, PR, ticket or fix job has run') rather than relying on 'Nothing has run yet' plus only edit and PR as examples.",
-      "wallMs": 11685,
+      "feedback": "After delivers the Change without losing anything Before kept: the opening line names the class, the pick and the full decisions path under /tmp/housekeeping.fixture-pick, and the blanket 'Nothing has run yet, and the walk is still open' covers edits, commits, pushes, PRs, tickets and fix jobs in a way Before's narrower 'Nothing has been edited yet' did not. Card 2 of 2 is still the only card shown, the three picks remain Fix/Ticket/Ignore in order with empty boxes and a single [recommended] label, and the prior Fix is not pre-applied. Two small polish points that do not move any fact: the Ticket and Ignore rows say 'them'/'they' for a single finding (use 'it'), and the 'What happens if you accept' paragraph slightly duplicates the Fix row's worktree/PR description, so one of them could be shortened.",
+      "wallMs": 11004,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -77,7 +77,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
       "baselineOutputSha": "5fc1f2969e14e991a5e30b3b5078d4a3008f8f0e9e8310622779a17fd4966e82",
-      "candidateOutputSha": "6993e69680800380e33ae80d275d7758ccd1a7c159d6d157ac28482525128dca",
+      "candidateOutputSha": "36ca4c54909b5c3dc440f54c4b582d3b042f33ee644686d611a25938792604f3",
       "facts": {
         "recorded-pick": {
           "before": "fails",
@@ -105,10 +105,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After delivers the Change: the lead-in records the pick and the decisions path in the supplied run folder, states nothing has executed and the walk is open, then shows only card 2 of 2 with Fix/Ticket/Ignore in order, empty boxes and a single label-only recommendation. Nothing regressed relative to Before (Before already failed recorded-pick and no-execution by omission, and failed next-picks by offering no recommendation at all). Two tightenings would make the held facts less dependent on reader inference: name the class in the acknowledgment (\"Recorded Fix for card 1, code-unused (unused import in src/widgets/render.ts:2), in /tmp/.../decisions.md\") rather than just \"card 1\", and spell out the no-execution claim as \"no tracked edit, commit, push, PR, ticket or fix job has run\" so the enumeration in the fact is matched literally instead of by the blanket \"Nothing has executed\".",
-      "wallMs": 12628,
+      "feedback": "After delivers the Change cleanly: the opening line names the class (code-unused), the pick (Fix), and the decisions path under the temporary run folder, and explicitly states that nothing has executed and the walk is still open, which moves both recorded-pick and no-execution from fails to holds. Both outputs show only card 2 of 2 and never re-ask card 1, so next-card holds throughout. Note that next-picks fails in Before on its own text rather than as a regression: Before lists Fix/Ticket/Ignore in order but marks no recommendation at all, so a careful reader cannot say it offers 'one recommendation'; After fixes this with `recommended=1` in the gate line and a `[recommended]` label on Fix while leaving every box empty and not carrying the earlier Fix over. One wording tweak would make After's execution promise airtight: the Fix option's 'Build this class in its own worktree and open its own pushed PR' reads as immediate action, so append 'after the walk finishes' (or 'once all cards are answered') to that row and to the 'What happens if you accept' paragraph, keeping the recorded-pick line and the empty checkboxes exactly as they are.",
+      "wallMs": 15569,
       "verdict": "improved"
     }
   },
-  "repoSha": "52bc6495f08e94fbcdae6bc6ea1d67db6db9825e"
+  "repoSha": "d93ce3cd1d2d8e0f2171a2f8ac634de1217d44ce"
 }

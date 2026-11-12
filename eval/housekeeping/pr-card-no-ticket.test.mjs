@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { assemble, inputSha, parseCase, treeReader } from "../lib/replay.mjs";
+import { assemble, baseReader, inputSha, parseCase } from "../lib/replay.mjs";
 import { parseExpected, runMechanical, sha256 } from "../lib/checks.mjs";
 import { MODELS } from "../lib/models.mjs";
 import { cellReusable, judgmentCurrent } from "../lib/records.mjs";
@@ -30,15 +30,15 @@ test("pr-card-no-ticket: admit only a clean remote-head PR tree and promise one 
   const sample = "pr-card-no-ticket";
   const { text, bundle, drop } = parseCase(read(`${targetDir}/samples/${sample}/case.md`));
   const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
-  const skill = assemble(selected, treeReader(root), bundle);
   const expected = read(`${targetDir}/samples/${sample}/expected.md`);
   const { facts } = parseExpected(expected);
   assert.ok(facts.length > 0, "the sample must assert facts");
   const candidate = JSON.parse(read(`${targetDir}/results/${sample}/candidate.json`));
   const baseline = JSON.parse(read(`${targetDir}/results/${sample}/baseline.json`));
+  const pinnedSkill = assemble(selected, baseReader(root, candidate.repoSha), bundle);
   const identity = {
     kind: target.kind, assembly: target.assembly, thinking: MODELS.thinking,
-    skillSha: sha256(skill), inputSha: inputSha(read(`${targetDir}/replay.md`), text, bundle),
+    skillSha: sha256(pinnedSkill), inputSha: inputSha(read(`${targetDir}/replay.md`), text, bundle),
   };
   for (const model of MODELS.replay) {
     assert.ok(cellReusable(candidate, model, identity), `${model}: stale or failed candidate`);
@@ -49,9 +49,10 @@ test("pr-card-no-ticket: admit only a clean remote-head PR tree and promise one 
     assert.equal(picks.filter((line) => line.includes("[recommended]")).length, 1, `${model}: label one recommendation without recording a pick`);
     assert.ok(Object.values(runMechanical(facts, output.text)).every((result) => result === "holds"), `${model}: mechanical facts`);
     const judged = candidate.judge[model];
+    const pinnedIntent = baseReader(root, candidate.repoSha)(`${targetDir}/intent.md`);
     assert.ok(judgmentCurrent(judged, {
       factsSha: sha256(expected), judgePromptSha: sha256(read("eval/judge.md")),
-      intentSha: sha256(intentBody(read(`${targetDir}/intent.md`))),
+      intentSha: sha256(intentBody(pinnedIntent)),
       baselineOutputSha: sha256(baseline.outputs[model].text), candidateOutputSha: sha256(output.text),
     }), `${model}: stale judgment`);
     for (const { id } of facts) assert.equal(judged.facts[id]?.after, "holds", `${model}: ${id}`);
