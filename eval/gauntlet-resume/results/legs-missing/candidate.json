@@ -1,8 +1,8 @@
 {
   "sample": "legs-missing",
   "arm": "candidate",
-  "skillSha": "0c6e9f16a75b6b41568ac8bb6ad86d7b8e5b1a868217f5d638f969a3bb30dba1",
-  "inputSha": "6f5021067388e82d7d7495d0696add577fb4cbab6002fddf0c46672a96933d83",
+  "skillSha": "ed63a05918cc132cfe81182d3099027961d84c63883410535420714bcb6af4a1",
+  "inputSha": "8e739e0c68623e05f149a1c884e7a034f6a84a67599d79f1e4a1fabb1461a86a",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,54 +17,84 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Coordinated admission (entry check 3b), before any tracker write\n\nEntry check 3's home binding is already satisfied. These are the admission steps, in order, using the supplied observations.\n\n1. **Resolve the home spec.** The spec is `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`, resolved through the Candidates rules.\n   - Approval comes from the spec's approved state, not from the artifact being present.\n\n2. **Compare ordered membership.**\n   - The brief's `legs:` block lists `repo-a`, `repo-b`.\n   - The home spec's `### Leg:` blocks list `repo-a`, `repo-b`.\n   - Both lists match in order.\n\n3. **Validate the repo-a (home) leg.**\n   - The worktree is `/work/repo-a/.worktrees/feature-shared-change`.\n   - Its live branch `feature/shared-change` equals the shared branch.\n\n4. **Resolve the repo-b declared primary.**\n   - The home overrides declare the sibling clone URL `git@github.com:acme/repo-b.git`.\n   - Shape-ticket's shared parser gives `NAME` = `repo-b` and IDENTITY `acme/repo-b`.\n   - The declared primary is `<home PRIMARY parent>/<NAME>`, which is `/work/repo-b`.\n   - Its canonical git common directory is `/work/repo-b/.git`. This matches.\n\n5. **Locate the repo-b tree.**\n   - The brief records `worktree: missing`.\n   - The location comes from the leg's recorded `home:` contract, `.worktrees/<name>`.\n   - The shared NAME is `feature-shared-change`: the shared branch `feature/shared-change` with `/` replaced by `-`.\n   - The expected path is `/work/repo-b/.worktrees/feature-shared-change`.\n   - The observed result is that no tree exists at that path.\n\n6. **Check for a missing-tree receipt.**\n   - A missing companion tree is admitted only after live receipt validation under `finishing-a-development-branch/reference/legs.md`.\n   - The brief's repo-b entry has no `receipt:` field, so no delivery can be validated.\n   - Admission stops here. There are no `phase_tracker` or `plan_tracker` calls, no `plan_check`, and no worktree creation.\n\n# Printed output\n\n```\ngauntlet: stuck coordinated admission: leg repo-b worktree missing with no receipt - expected /work/repo-b/.worktrees/feature-shared-change, observed: missing\nLeg repo-b: the brief records `worktree: missing` and carries no `receipt:` field, so no delivery can be validated live; a missing companion tree is admitted only after live receipt validation.\nLocation derivation: recorded `home:` pattern `.worktrees/<name>` with shared NAME `feature-shared-change` (from shared branch `feature/shared-change`, `/` -> `-`) under declared primary /work/repo-b resolves to /work/repo-b/.worktrees/feature-shared-change.\nThat pattern only locates the tree; it does not authorize recreating it, synthesizing a receipt, or inferring approval.\nNo tracker state was changed. Restore the repo-b worktree on feature/shared-change at that path, or supply a valid delivery receipt, then re-run /skill:gauntlet-resume.\n```\n",
-      "words": 346,
-      "wallMs": 14045,
+      "text": "# Coordinated admission (entry check 3b): four independent runs\n\nThe setup is the same in every run. Entry check 3 bound the run home `/work/repo-a/.worktrees/feature-shared-change` to home primary `/work/repo-a`. The approved home spec `doc/specs/shared.md` was resolved through Candidates. Its `### Leg:` order is `repo-a, repo-b`, which matches the brief's ordered membership. The home overrides declare sibling `git@github.com:acme/repo-b.git`, so the declared primary is `/work/repo-b`.\n\nNo run makes a `phase_tracker` or `plan_tracker` call.\n\n---\n\n## Variant A: empty lookup despite a recorded `home:`\n\n1. Canonicalize the declared primary's common directory:\n   `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-b/.git`\n2. The brief records `worktree: missing` for repo-b, so apply Locate a leg tree by recorded branch:\n   `git -C /work/repo-b worktree list --porcelain` → only the primary block: `worktree /work/repo-b`, `branch refs/heads/main`.\n3. Exclude the first (primary) block. Zero linked blocks carry `branch refs/heads/feature/shared-change`.\n   - I do not expand the recorded `home: .worktrees/<name>` into `/work/repo-b/.worktrees/feature-shared-change`.\n   - I do not probe that path as a substitute.\n4. No delivery receipt exists, so receipt admission cannot admit a missing delivered tree. Resume does not provision trees on this route.\n\nPrinted:\n\n```\ngauntlet: stuck cannot resolve worktree for repo-b: no worktree holds feature/shared-change\n```\n\n- An empty lookup authorizes no recreation, no receipt and no approval.\n- A missing delivered tree would be admitted only through live validation of a delivery receipt, and none exists for repo-b.\n- No tracker state was written.\n\n---\n\n## Variant B: a found script-placed tree\n\n1. Canonicalize the declared primary's common directory:\n   `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-b/.git`\n2. The brief records `worktree: missing` for repo-b, so look up the tree by recorded branch:\n   `git -C /work/repo-b worktree list --porcelain` → primary block, then a linked block `worktree /work/repo-b-trees/river-shared` with `branch refs/heads/feature/shared-change`.\n3. After excluding the primary block, exactly one linked block matches. Its location identity checks all pass:\n   - `test -e /work/repo-b-trees/river-shared` → exists.\n   - `git -C /work/repo-b-trees/river-shared rev-parse --show-toplevel` → `/work/repo-b-trees/river-shared`, which equals its realpath.\n   - The checkout differs from `/work/repo-b`.\n   - `realpath \"$(git -C /work/repo-b-trees/river-shared rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-b/.git`, which equals the primary's.\n4. `/work/repo-b-trees/river-shared` becomes repo-b's worktree for the remaining admission checks.\n5. Common directory: `/work/repo-b/.git` equals the declared primary's `/work/repo-b/.git`. Pass.\n6. Live branch: `git -C /work/repo-b-trees/river-shared branch --show-current` → `feature/shared-change`, which equals the shared branch. Pass.\n7. Home tuple: Read `/work/repo-b-trees/river-shared/doc/specs/shared.md` → `**Home:** repo-a feature/shared-change doc/specs/shared.md`. This equals the run home tuple. Pass.\n\nCoordinated admission passes. Handoff to entry check 4 (drift notice, per leg):\n\n- repo-b (`/work/repo-b-trees/river-shared`):\n  - `git -C … rev-parse HEAD` → `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`, which matches the brief's last recorded HEAD.\n  - `git -C … status --porcelain` → empty (`clean`).\n  - No drift for repo-b.\n\nEntry checks 5 and 6 follow. No tracker state is written yet. When task `Leg:` work dispatches for repo-b, it runs in `/work/repo-b-trees/river-shared`, not in the home checkout.\n\n---\n\n## Variant C: a found tree does not bypass the remaining admission checks\n\nSteps 1–6 are the same as Variant B:\n\n- The primary's common directory is `/work/repo-b/.git`.\n- The lookup selects `/work/repo-b-trees/river-shared`, and every identity check passes.\n- Its common directory matches and its live branch is `feature/shared-change`.\n\n7. Home tuple: Read `/work/repo-b-trees/river-shared/doc/specs/shared.md` → `**Home:** repo-a feature/shared-change doc/specs/other.md`. This mismatches the run home tuple.\n\nPrinted:\n\n```\ngauntlet: stuck repo-b: **Home:** tuple mismatch at /work/repo-b-trees/river-shared/doc/specs/shared.md - expected repo-a feature/shared-change doc/specs/shared.md, observed repo-a feature/shared-change doc/specs/other.md\n```\n\n- A tuple mismatch in a live tree is a stop, not informational drift.\n- No tracker state was written.\n\n---\n\n## Variant D: an explicit path stays authoritative\n\n1. Canonicalize the declared primary's common directory:\n   `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-b/.git`\n2. The brief records the explicit `worktree: /work/repo-b-trees/recorded` for repo-b. I keep that path as recorded and validate it.\n   - I run no `worktree list` lookup.\n   - I do not substitute `/work/repo-b-trees/river-shared`.\n3. Common directory:\n   `realpath \"$(git -C /work/repo-b-trees/recorded rev-parse --path-format=absolute --git-common-dir)\"` → `/work/impostor/.git`. This does not equal `/work/repo-b/.git`.\n\nPrinted:\n\n```\ngauntlet: stuck repo-b: /work/repo-b-trees/recorded git common dir is /work/impostor/.git, expected declared primary /work/repo-b common dir /work/repo-b/.git\n```\n\n- The branch (`feature/shared-change`) and the `**Home:**` tuple would match, but they cannot rescue a foreign common directory.\n- No other checkout is admitted in its place.\n- No tracker state was written.\n",
+      "words": 651,
+      "wallMs": 27415,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: stuck repo-b: missing unlanded worktree /work/repo-b/.worktrees/feature-shared-change; no delivery receipt exists to validate admission.\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\nRecorded `home: .worktrees/<name>` resolves under primary `/work/repo-b` with shared NAME `feature-shared-change` to `/work/repo-b/.worktrees/feature-shared-change`. The pattern locates the tree without authorizing its recreation, a synthesized receipt or inferred approval.\n\nNo tool calls. Stop at coordinated admission before any tracker write; do not reach `plan_check`.\n",
-      "words": 67,
-      "wallMs": 8827,
+      "text": "## Run A\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nBash({ command: \"git -C /work/repo-b worktree list --porcelain\" })\n```\n\nOnly the primary block is returned. No linked block holds the recorded branch. Do not expand `.worktrees/<name>` or probe a substitute path.\n\nPrint:\n```text\ngauntlet: stuck cannot resolve worktree for repo-b: no worktree holds feature/shared-change\nAn empty lookup authorizes no recreation, receipt or approval.\nNo delivery receipt exists; the missing companion worktree cannot be admitted.\n```\n\nStop. No tracker calls or worktree creation.\n\n## Run B\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nBash({ command: \"git -C /work/repo-b worktree list --porcelain\" })\n```\n\nSelect the unique linked block holding `refs/heads/feature/shared-change`: `/work/repo-b-trees/river-shared`.\n\nCall:\n```text\nBash({ command: \"test -d /work/repo-b-trees/river-shared && realpath /work/repo-b-trees/river-shared && git -C /work/repo-b-trees/river-shared rev-parse --show-toplevel\" })\n```\n\nThe path exists, its checkout toplevel equals its realpath, and it differs from `/work/repo-b`.\n\nCall:\n```text\nBash({ command: \"realpath \\\"$(git -C /work/repo-b-trees/river-shared rev-parse --path-format=absolute --git-common-dir)\\\"\" })\n```\n\nThe canonical common directory is `/work/repo-b/.git`, matching the declared primary.\n\nCall:\n```text\nBash({ command: \"git -C /work/repo-b-trees/river-shared branch --show-current\" })\n```\n\nThe live branch matches `feature/shared-change`.\n\nCall:\n```text\nRead({ path: \"/work/repo-b-trees/river-shared/doc/specs/shared.md\" })\n```\n\nThe full `**Home:**` tuple matches `repo-a feature/shared-change doc/specs/shared.md`.\n\nCall:\n```text\nBash({ command: \"git -C /work/repo-b-trees/river-shared rev-parse HEAD && git -C /work/repo-b-trees/river-shared status --porcelain\" })\n```\n\nHEAD matches the brief’s last recorded SHA, and the checkout is clean. There is no drift to announce.\n\nCoordinated admission succeeds. Carry `/work/repo-b-trees/river-shared` forward as the companion worktree and hand off to the remaining entry checks. No tracker calls.\n\n## Run C\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```text\nBash({ command: \"git -C /work/repo-b worktree list --porcelain\" })\n```\n\nSelect `/work/repo-b-trees/river-shared`, the unique linked block holding the recorded branch.\n\nCall:\n```text\nBash({ command: \"test -d /work/repo-b-trees/river-shared && realpath /work/repo-b-trees/river-shared && git -C /work/repo-b-trees/river-shared rev-parse --show-toplevel\" })\n```\n\nLocation identity passes.\n\nCall:\n```text\nBash({ command: \"realpath \\\"$(git -C /work/repo-b-trees/river-shared rev-parse --path-format=absolute --git-common-dir)\\\"\" })\n```\n\nThe canonical common directory matches `/work/repo-b/.git`.\n\nCall:\n```text\nBash({ command: \"git -C /work/repo-b-trees/river-shared branch --show-current\" })\n```\n\nThe live branch matches `feature/shared-change`.\n\nCall:\n```text\nRead({ path: \"/work/repo-b-trees/river-shared/doc/specs/shared.md\" })\n```\n\nPrint:\n```text\ngauntlet: stuck repo-b: Home tuple mismatch in /work/repo-b-trees/river-shared/doc/specs/shared.md; expected repo-a feature/shared-change doc/specs/shared.md; observed repo-a feature/shared-change doc/specs/other.md\n```\n\nStop. The found tree does not bypass tuple admission. No tracker calls.\n\n## Run D\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nKeep the explicit brief path `/work/repo-b-trees/recorded`. Do not query for or substitute another linked checkout.\n\nCall:\n```text\nBash({ command: \"realpath \\\"$(git -C /work/repo-b-trees/recorded rev-parse --path-format=absolute --git-common-dir)\\\"\" })\n```\n\nPrint:\n```text\ngauntlet: stuck repo-b: /work/repo-b-trees/recorded has canonical git common directory /work/impostor/.git; expected /work/repo-b/.git from declared primary /work/repo-b\n```\n\nStop. No alternate-tree lookup and no tracker calls.\n",
+      "words": 430,
+      "wallMs": 31334,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "5e8a86ca28188ac230c45b444795bc1b81c2d6425bc586c10b641a1bb8697af2",
+      "factsSha": "03a7919bfa6a56f94a95a780a003eb013998679a3e7a052dee67e2c0c95480b7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
-      "baselineOutputSha": "8affa7b577fb41e0385b94112ba6b5dd7600da0ea3fa1c2c205b2553f78b374b",
-      "candidateOutputSha": "8de7f995e90d8a730f450b7f5e43f23017ea2b6de124fcddb06fa70295f63fbe",
+      "intentSha": "9f5d5e0b9dd10b97266d0003dc269a204581a8aa01f6ab8665c2f85026e96b09",
+      "baselineOutputSha": "fc6d0b0092e0deecf572ab0a2a3179f0743b7e7ad83bbe1cbba8c082ace0467f",
+      "candidateOutputSha": "f2c9b6dd2f01aeb2aff155d4f9d712fd6426f39e8ae3607e6ca838acbd7a0ac1",
       "facts": {
         "stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "found": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
+        },
+        "mismatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "explicit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         }
       },
-      "feedback": "Both outputs keep the stop fact intact: each derives the expected path /work/repo-b/.worktrees/feature-shared-change from the recorded `home: .worktrees/<name>` contract plus the shared NAME `feature-shared-change`, stops at coordinated admission naming leg repo-b before any phase_tracker/plan_tracker call, and explicitly refuses to recreate the tree, synthesize a receipt or infer approval/delivery. After moved nothing; its reordering (home-leg validation, declared-primary resolution, then path derivation) and the compressed stop banner are equivalent in substance. One small point to watch: After's first line says the spec is 'resolved through the Candidates rules' rather than showing a Read of the spec file, and it drops Before's explicit 'no receipt was synthesized' sentence from the narration (it survives only in the printed message); keeping an explicit 'no worktree created, no receipt synthesized' line in the narrated steps as well as the message would make the no-invention half of the fact robust against future trimming while still delivering the Change.",
-      "wallMs": 7301,
-      "verdict": "unchanged"
+      "feedback": "After moves only the intended fact: Variant A now stops with the exact wording `cannot resolve worktree for repo-b: no worktree holds feature/shared-change`, explicitly states that the empty lookup authorizes no recreation, receipt or approval, and refuses to expand `home: .worktrees/<name>` into a path, whereas Before both used a different stop message and printed a `Derivation:` line that expanded the recorded home pattern into `/work/repo-b/.worktrees/feature-shared-change` (even while claiming not to probe it), which a careful reader counts as expanding the recorded home into a fallback path. The found, mismatch and explicit facts hold in both outputs: After keeps the lookup-selected `/work/repo-b-trees/river-shared` for the common-dir, live-branch and Home-tuple checks, stops C with both expected and observed tuples and calls it a stop rather than drift, and stops D naming `/work/repo-b/.git` versus `/work/impostor/.git` without substituting the other checkout. Nothing regressed; keep the current After wording, in particular the explicit 'I do not expand' / 'I do not probe' lines and the verbatim stop header in A, since any reintroduction of a derived-path line (even annotated as non-authoritative) would flip `stop` back to fails.",
+      "wallMs": 15940,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "5e8a86ca28188ac230c45b444795bc1b81c2d6425bc586c10b641a1bb8697af2",
+      "factsSha": "03a7919bfa6a56f94a95a780a003eb013998679a3e7a052dee67e2c0c95480b7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
-      "baselineOutputSha": "74f12ea3e28f2c8295a66bea81f38f4a7ac7a0347f5c44638d1ed85db98ca635",
-      "candidateOutputSha": "113615431c30281b4e3bb04dbf85423a13391aec7a36cdc0e4c49c3a14a4e94f",
+      "intentSha": "9f5d5e0b9dd10b97266d0003dc269a204581a8aa01f6ab8665c2f85026e96b09",
+      "baselineOutputSha": "33854c66f795c4c2cb2a356c2271cf655f26ea78a316d5c0ac789e6b337e8d24",
+      "candidateOutputSha": "261e9d7db8176504efde8c50fbe883f7f8ac27039b6a3c3819cad6957dc0dac0",
       "facts": {
         "stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "found": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
+        },
+        "mismatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "explicit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs resolve the missing path from the recorded `home: .worktrees/<name>` pattern plus the shared NAME under /work/repo-b, name repo-b in the stop, stop before any tracker write or plan_check, and explicitly decline to recreate the tree, synthesize a receipt or infer approval. The After wording is slightly less tidy — the 'I'm using the gauntlet-resume skill to continue an interrupted flow' line lands after the stop header, which reads as if the skill announcement follows the stop rather than precedes it; moving that line to the top (before the `gauntlet: stuck` line) would keep the narration order coherent while retaining the explicit 'No tool calls' and 'do not reach plan_check' statements, which are a welcome sharpening over Before.",
-      "wallMs": 8026,
-      "verdict": "unchanged"
+      "feedback": "After moved only the stop fact, and in the intended direction: Before's Run A read the worktree list but then expanded the recorded home pattern into a concrete fallback path (/work/repo-b/.worktrees/feature-shared-change) inside its stop message and used a different stop phrasing, so a careful reader would not say it stopped with 'cannot resolve worktree for repo-b: no worktree holds feature/shared-change' without deriving a home path. After prints that exact stop, explicitly states the empty lookup authorizes no recreation, receipt or approval, and refuses to expand .worktrees/<name>. Runs B, C and D are unchanged in substance between the two outputs — branch-location lookup in the declared primary, full common-dir/branch/Home checks on the found tree, a tuple-mismatch stop naming repo-b with both expected and observed tuples, and an explicit-path common-dir stop naming /work/repo-b/.git versus /work/impostor/.git without substituting river-shared — so no fact regressed. To keep this, retain After's A wording verbatim (lookup then the bare 'cannot resolve worktree' stop, no recorded-home mention beyond the refusal to expand it) and keep B/C/D's check chains and stop messages as they are.",
+      "wallMs": 15312,
+      "verdict": "improved"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "f402e0a9491ed66ca2a10efadd05f6e756f4271b"
 }
