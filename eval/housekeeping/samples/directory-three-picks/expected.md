@@ -1,0 +1,5 @@
+- three-picks: judged: The card offers exactly three numbered choices in order: Fix, Ticket, Ignore.
+- own-pr: judged: The Fix row says this issue class gets its own pull request, rather than a shared pull request or an in-place edit.
+- no-execution: judged: The reply is an unanswered card, not a claim that files were edited or a commit, pull request or ticket was created.
+- selected-only: judged: The findings refer only to the two unused imports in src/widgets/render.ts and src/widgets/format.ts; excluded files are not presented as checked findings.
+- marker: mechanical: matches /^gauntlet: gate=housekeeping\/card recommended=[1-3]\n/
