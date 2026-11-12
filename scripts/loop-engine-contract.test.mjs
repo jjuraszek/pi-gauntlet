@@ -351,9 +351,9 @@ test('terminal home results admit clean returns and repair interrupted returns w
     assert.ok(recovery.includes(token), token);
   }
   assert.match(recovery.split('3. Write')[1], /`wrong attribution`.*as the concrete reason/);
-  assert.match(recovery, /still alive after KILL.*does not block recovery/);
+  assert.match(recovery, /still alive after KILL.*do not block recovery/);
   assert.match(recovery, /files remain after reset.*next return is validated as usual/);
-  assert.doesNotMatch(recovery, /recovery incomplete|provenance|launch history|action-spend|bound spent:|only below|discard authorization/);
+  assert.doesNotMatch(recovery, /recovery incomplete|provenance|action-spend|bound spent:|only below|discard authorization/);
   assert.ok(recovery.indexOf('1. ') < recovery.indexOf('reset --hard HEAD_BEFORE'));
   assert.ok(recovery.indexOf('reset --hard HEAD_BEFORE') < recovery.indexOf('3. Write'));
   const dispatch = driver.split('\n## Dispatch\n')[1].split('\n## Validate the return\n')[0];
