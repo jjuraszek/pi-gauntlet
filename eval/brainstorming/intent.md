@@ -80,7 +80,12 @@ The aftermath routing in amendment-surface.md now ends a third human-facing outc
 
 Extend only spec-pr-publish-legs success and cleanup coverage for remote-gated local branch deletion in companion-first/home-last order. Replace its old branch-retention expectations and add H2-H7 supplied observations for unequal remotes, host ownership, nonzero destroy read-back, guarded no-home scripts and missing branch lookup. Reuse spec-pr.md's Draft-PR cleanup procedure; keep unrelated facts, target settings and historical evidence unchanged. The sample's narration budget becomes 2100 words within the existing 2200 target cap to cover seven cleanup checkpoints. Run this sample only against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f within its approved three-run/fourteen-call bound; saved records support local checks, not live forge execution or target-wide coverage.
 
+Continue marked script-created legs without a recorded home: compare create with the discovered portable template, skip absent home comparison, and use pr-head's branch-located reuse or existing-branch script creation. Keep explicit homes on their existing path rules and diagnose recorded home versus current absence as drift requiring a paired user-approved amendment. Extend only spec-pr-regate-legs checkpoint G, keeping its prior facts and raising its narration allowance to 1900 words within the 2200 target cap. Run only that selected sample against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f within its approved three-run/fourteen-call bound; saved results prove narrated continuation, not live provisioning or target-wide coverage.
+
 ## Expected to move
+- spec-pr-regate-legs/script-reuse: fails -> holds - Match discovered templates and reuse the branch-located tree without home drift or another-path refusal.
+- spec-pr-regate-legs/script-create: fails -> holds - Use existing-branch script creation or stop unsupported scripts before any write.
+- spec-pr-regate-legs/absent-home-drift: fails -> holds - Surface resolved absent for a recorded home and require paired user-approved amendment.
 - spec-pr-publish-legs/success: fails -> holds - Delete local branches only after equal live remote/tree/local SHAs and tree removal; keep remotes.
 - spec-pr-publish-legs/cleanup: fails -> holds - Refuse unguarded deletion but continue all remaining leg cleanups and delete safe local refs.
 - spec-pr-publish-legs/cleanup-remote: fails -> holds - Preserve unequal-remote and host-owned trees and branches without blocking other legs.

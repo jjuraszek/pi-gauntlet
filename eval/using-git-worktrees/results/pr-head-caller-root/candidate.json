@@ -1,8 +1,8 @@
 {
   "sample": "pr-head-caller-root",
   "arm": "candidate",
-  "skillSha": "354d2c6dd046f7444272e55519d0c1f4140bf3dccdd6853b7ee36a87de1bcac6",
-  "inputSha": "bc64e33d9ad60d5174df9d65d06a528f56f074f997bd4842578d2f39a3fe3225",
+  "skillSha": "a3ed9e2d01d12ffeb7bc75a0e019f56bae74157189587a7d41ed0ba0576730ca",
+  "inputSha": "1426406dbe2c937b29a6023c91aed44dbb531d9bd1ffb639384302a8e59f99ad",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# using-git-worktrees: companion `acme/helper`, existing branch `spec-export`\n\nI'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Shared legends\n\n**Mode and authority.** The caller supplied `ROOT=/work/helper`, `BRANCH=spec-export` and `REMOTE_BRANCH=existing`. This selects companion mode from `reference/pr-head.md`, which replaces Steps 0, 1 and 1a.\n- I use `ROOT` exactly as supplied. I ignore the session tree `/work/widget/.worktrees/other` and the widget common directory.\n- No PR fields are used: no headRefOid, MEMBER_HEADS, PR refs or threads.\n- The home tree `/work/widget/.worktrees/spec-export` is never touched.\n\n**Aliases.**\n- O = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n- B = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n- A = cccccccccccccccccccccccccccccccccccccccc\n- X = eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n- R is unused in every run.\n- WT = /work/helper/.worktrees/spec-export\n\n**Commands.** Unless stated, cwd is the process cwd and every command targets a path with `-C`.\n\n| Code | Command → result |\n|---|---|\n| S1 | `git -C /work/helper rev-parse --show-superproject-working-tree` → empty (not a submodule) |\n| S2 | `git -C /work/helper fetch origin` → exit 0 |\n| S3 | `git -C /work/helper ls-remote --exit-code --heads origin refs/heads/spec-export` → exit 0 |\n| S4 | `git -C /work/helper rev-parse origin/spec-export` → O, so ORIGINAL_HEAD=O |\n| S5 | `gh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name` → `trunk` |\n| S6 | `git -C /work/helper rev-parse origin/trunk` → BASE_SHA=B |\n| S7 | Read `/work/helper/.pi/settings.json` by file (defaults) and helper's overrides (`home: .worktrees/<name>`). NAME=`spec-export`, WORKTREE=WT. |\n| S8 | `git -C /work/helper worktree list --porcelain` → spec-export not checked out elsewhere |\n| S9 | `git -C /work/helper status --porcelain` → empty (source is clean) |\n| C | `git -C /work/helper worktree add /work/helper/.worktrees/spec-export spec-export`. This is existing-branch DWIM tracking `origin/spec-export`, never `-b`/`-B`. |\n| H | `git -C WT rev-parse HEAD` → O |\n| M | `git -C WT merge --no-ff --no-edit origin/trunk` → `merge: no-op - head contains origin/trunk` |\n| P | `git -C WT merge-base --is-ancestor O HEAD` → exit 0 |\n| RB | `git -C /work/helper worktree list --porcelain` prints `worktree WT`, and `git -C WT branch --show-current` prints exactly `spec-export` |\n\nNo provenance note is emitted, because this checks out an existing branch rather than a fresh base.\n\n**Ready report (RDY):**\n```\nWorktree ready at /work/helper/.worktrees/spec-export\nBranch: spec-export\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/trunk\n```\n\n**Preserved inventory (PL):** `Preserved created legs:` followed by `acme/widget spec-export /work/widget/.worktrees/spec-export`.\n\n## Runs\n\n| Run | Narration |\n|---|---|\n| absent | S1–S9 pass. There is no local branch or tree, so recovery does not apply. Row \"no worktree, no local branch\" → C. Then H, M, P, RB → **RDY**. |\n| ancestor | S1–S9 pass. Local branch is at A. `git -C /work/helper merge-base --is-ancestor O refs/heads/spec-export` → 1, so the tip has nothing beyond O and recovery does not apply. `git -C /work/helper merge-base --is-ancestor refs/heads/spec-export origin/spec-export` → 0. Row \"no worktree, local branch exists\": `git -C /work/helper update-ref refs/heads/spec-export origin/spec-export`, then C. Then H, M, P, RB → **RDY**. |\n| reuse | S1–S8 pass. Rebase guard: `git -C WT rev-parse --path-format=absolute --git-path rebase-merge` and `… --git-path rebase-apply` → neither is a directory. Tip A is not beyond O, so no recovery. The ancestry check exits 0. Row \"selected home on branch\": `git -C WT status --porcelain` → clean, then `git -C WT merge --ff-only origin/spec-export` → HEAD=O. Then M, P, RB → **RDY**. |\n| wrapper | S1–S9 pass. The `create: helper create -b <branch> <name>` template contains `-b`, so the wrapper is skipped. C runs instead. Then H, M, P, RB → **RDY**, plus the line `create: override skipped (contains -b)`. |\n| race | S1–S9 pass, then C succeeds. `git -C WT rev-parse HEAD` → X, not O. **STOP** for acme/helper, spec-export: tree WT left intact; expected O, actual X. No ready line is emitted. PL plus `acme/helper branch unverified /work/helper/.worktrees/spec-export`. |\n| elsewhere | S1–S7 pass. S8 shows spec-export at `/work/helper/.worktrees/foreign`. **STOP before any write**: \"acme/helper: branch spec-export is checked out at /work/helper/.worktrees/foreign; finish or remove that worktree first.\" PL only. |\n| missing | S1 and S2 pass. S3 exits 2. I stop even though the stale `origin/spec-export` still resolves, and I do not run S4. **STOP**: \"origin/spec-export is missing in acme/helper; on the machine that ran option 6, push spec-export from that companion's checkout, then rerun brainstorming #N.\" On that machine, first verify `git log -1 --format=%H refs/heads/spec-export -- <spec-dir>/<home spec filename>` shows the leg-file commit, without checking out or modifying the primary. Then run `git push -u origin spec-export`. If that commit exists on no machine, continuation stops and nothing is regenerated. PL only. |\n| lookup-error | S1 and S2 pass. S3 exits 128. **STOP**: acme/helper spec-export lookup failed: \"fatal: unable to access origin\". I make no absence diagnosis and run no S4. PL only. |\n| unresolved | S1–S9, C and H pass. M conflicts. Conflict handling: <br>• Snapshot with `git -C WT status --porcelain`. <br>• `git -C WT diff --name-only --diff-filter=U` → `lib/a.ts`. <br>• Read overrides from the base: `git -C /work/helper show B:<overrides path>`. This gives SCOPED_TEST_COMMANDS=`node --test lib/a.test.mjs` (credential-free). <br>• Dispatch a fresh foreground implementer: cwd WT, `async: false`, file list `lib/a.ts`, base `origin/trunk`, that runner. Commits and aborts are forbidden to it. <br>• The helper fails, so `git -C WT merge --abort` → exit 0, HEAD=O, clean. P → exit 0. <br>Record `merge: unresolved - lib/a.ts`. **Returned to the coordinated caller** for its by-hand stop; no ready line. PL plus `acme/helper spec-export /work/helper/.worktrees/spec-export`. |\n\n## Closing records\n\n- **Ready:** absent, ancestor, reuse and wrapper reach RDY only after RB matches.\n- **Stopped:**\n  - race and unresolved stop after a write; the helper tree is kept.\n  - elsewhere, missing and lookup-error stop before any write.\n  - Every stop names acme/helper and spec-export and prints PL.\n- **Never removed or touched:** the home tree `/work/widget/.worktrees/spec-export` and the session tree `/work/widget/.worktrees/other`.\n- **Never created:** `-b` branches, resets or update-refs on the recovery path, `refs/gauntlet/*`, PR fields, `Pre-rework head:`, or thread fetches.\n",
-      "words": 861,
-      "wallMs": 52931,
+      "text": "# Companion mode: acme/helper, ROOT=/work/helper, BRANCH=spec-export\n\n## Legend\n\n**Aliases.** O=aaaa…(40×a) is origin/spec-export. B=bbbb…(40×b) is origin/trunk. A=cccc…(40×c), R=dddd…(40×d), X=eeee…(40×e). `WT` is the selected tree. `H`=/work/helper/.worktrees/spec-export.\n\n**Mode and authority.** The caller supplied `$ROOT`, `$BRANCH` and `REMOTE_BRANCH=existing`, so this run uses companion mode from pr-head.md. It replaces Steps 0, 1 and 1a and the fresh-branch collision check.\n- ROOT is /work/helper as supplied. The session's common dir (/work/widget, linked at …/other) is never used.\n- NAME=spec-export.\n- No `headRefOid`, MEMBER_HEADS, PR fields, pre-rework refs or thread fetching occur on this path.\n\n**Shared prelude (P).** All commands run with cwd /work/widget/.worktrees/other, and the process cwd never changes.\n1. `git -C /work/helper rev-parse --show-superproject-working-tree` returns empty, so this is not a submodule.\n2. `git -C /work/helper fetch origin`\n3. `git -C /work/helper ls-remote --exit-code --heads origin refs/heads/spec-export` exits 0.\n4. `git -C /work/helper rev-parse origin/spec-export` sets ORIGINAL_HEAD=O.\n5. `gh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name` returns `trunk` (positional repo).\n6. `git -C /work/helper rev-parse origin/trunk` sets BASE_SHA=B.\n7. Contract: overrides by file and default .pi/settings.json give home `.worktrees/<name>`, so HOME=H.\n8. `git -C /work/helper status --porcelain` is empty, so the source is clean.\n9. `git -C /work/helper worktree list --porcelain` shows no other-path holder.\n10. `git -C /work/helper rev-parse --verify -q refs/heads/spec-export` reads the actual tip for the coordinated recovery check. Recovery applies only to a tip descending from O.\n\n**Tail (T).**\n1. `git -C WT merge --no-ff --no-edit origin/trunk` records `merge: no-op - head contains origin/trunk`.\n2. `git -C WT merge-base --is-ancestor O HEAD` exits 0.\n3. `git -C /work/helper worktree list --porcelain` prints `worktree WT`.\n4. `git -C WT branch --show-current` prints `spec-export`.\n\n**Ready report (RR).**\n```\nWorktree ready at WT\nBranch: spec-export\nBase: origin/spec-export @ aaaaaaa (clean)\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/trunk\n```\n\n**Preserved list (PL).** `Preserved created legs:` lists `acme/widget spec-export /work/widget/.worktrees/spec-export`, plus any companion tree named in the row. Nothing is ever removed.\n\n## Runs\n\n| Run | Narration |\n|---|---|\n| absent | P: no local branch, no recovery. Row: no tree, no branch, so `git -C /work/helper worktree add H spec-export` (DWIM `--track`, no `-b`). `git -C H rev-parse HEAD` = O. T, then RR with WT=H. |\n| ancestor | P: tip A, which does not descend from O, so no recovery. `git -C /work/helper merge-base --is-ancestor refs/heads/spec-export origin/spec-export` exits 0. `git -C /work/helper update-ref refs/heads/spec-export origin/spec-export`, then `git -C /work/helper worktree add H spec-export`. HEAD = O. T, then RR. |\n| reuse | P: WT=H already on the branch, with no rebase in progress. `git -C H rev-parse --path-format=absolute --git-path rebase-merge` and `…rebase-apply` show no directory. Tip A, so no recovery; ancestry exits 0. `git -C H status --porcelain` is clean. `git -C H merge --ff-only origin/spec-export` gives HEAD = O. T, then RR. |\n| wrapper | P runs as usual. The `create:` template contains `-b`, so it is skipped. Run `git -C /work/helper worktree add H spec-export`. HEAD = O. T, then RR plus the line `create: override skipped (contains -b)`. |\n| race | Same as absent through the add. `git -C H rev-parse HEAD` = X, not O. **STOP** (acme/helper, spec-export): the tree at H is preserved; expected O, got X. There is no merge and no `Worktree ready` line. PL adds `acme/helper branch unverified H`. |\n| elsewhere | P step 9 shows spec-export at /work/helper/.worktrees/foreign. **STOP before writes** (acme/helper): `branch spec-export is checked out at /work/helper/.worktrees/foreign; finish or remove that worktree first.` PL lists home only. |\n| missing | P step 3 exits 2, so the stale origin/spec-export=O is ignored. **STOP before writes:** `origin/spec-export is missing in acme/helper; on the machine that ran option 6, push spec-export from that companion's checkout, then rerun brainstorming #N`. On that machine, check `git log -1 --format=%H refs/heads/spec-export -- <spec-dir>/<home spec filename>`, then run `git push -u origin spec-export`. If that commit exists nowhere, do not regenerate it. PL lists home only. |\n| lookup-error | P step 3 exits 128. **STOP** naming acme/helper with `fatal: unable to access origin`. There is no absence diagnosis and O is not used. PL lists home only. |\n| script-reuse | No-home contract, so the Locate rule applies. P step 9 selects the linked block on refs/heads/spec-export: /work/helper-trees/export. Validation: the path exists, `git -C /work/helper-trees/export rev-parse --show-toplevel` equals its realpath and differs from the primary, and its `--git-common-dir` equals /work/helper/.git. WT=/work/helper-trees/export, and the another-path stop is bypassed. Rebase guard passes; tip A, no recovery; ancestry exits 0. Status is clean, and `git -C WT merge --ff-only origin/spec-export` gives HEAD = O. NAME stays spec-export, not `export`. T, then RR. |\n| script-create | Locate returns `no worktree holds spec-export`, so creation proceeds. The script source is read before any write, and the existing-branch form is supported. The source is clean. There is no local branch, so no update-ref. From ROOT: `(cd /work/helper && script/worktree create 'spec-export' --branch 'spec-export')`, with no `-b`. Re-locate finds /work/helper-trees/export and validates it. HEAD = O. T, then RR. |\n| script-unsupported | Locate finds no tree. Reading the script source shows only `-b` creation. **STOP before any write** (no update-ref, no built-in fallback): `cannot provision acme/helper: script/worktree cannot check out existing branch spec-export`. The local branch stays at A. PL lists home only. |\n| unresolved | Same as absent through creation; WT=H, HEAD = O. `git -C H merge --no-ff --no-edit origin/trunk` conflicts. Snapshot `git -C H status --porcelain`; `git -C H diff --name-only --diff-filter=U` returns `lib/a.ts`. `git -C /work/helper show B:<first-found overrides path>` gives SCOPED_TEST_COMMANDS=`node --test lib/a.test.mjs`. Dispatch a foreground implementer with cwd=H and async:false. The helper fails. `git -C H merge --abort` exits 0; HEAD = O and the tree is clean. Record `merge: unresolved - lib/a.ts`. |\n| unresolved (cont.) | After the abort, `merge-base --is-ancestor O HEAD` exits 0 and the read-back passes. Report `Worktree ready at H`, `Base SHA: bbbbbbb`, `merge: unresolved - lib/a.ts`. The unresolved result goes back to the coordinated caller for its by-hand stop; there is no home Task 1 continuation. |\n\n## Closing records\n\n- **Home tree:** /work/widget/.worktrees/spec-export is preserved in every run.\n- **Fresh-branch flags:** no companion command ever used `-b` or `-B`.\n- **Companion output:** no companion run emitted `PR:`, `Pre-rework head:`, `refs/gauntlet/*` or thread queries.\n- **Write boundaries:**\n  - The only writes are update-ref (ancestor), the adds (absent, ancestor, wrapper, race, unresolved), the ff-only (reuse, script-reuse), the script create (script-create), and the merge and abort (unresolved).\n  - The stops (elsewhere, missing, lookup-error, script-unsupported) all come before any write.\n  - The race stop comes after its add but before any merge.\n",
+      "words": 1023,
+      "wallMs": 56241,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n### Shared command/record legend\n\nAliases expand literally, including inside arguments:\n\n```text\nO=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nB=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nA=cccccccccccccccccccccccccccccccccccccccc\nR=dddddddddddddddddddddddddddddddddddddddd\nX=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\nH=/work/helper/.worktrees/spec-export\nG=git -C /work/helper\nW=git -C /work/helper/.worktrees/spec-export\n```\n\nEvery command’s cwd is `<scratch>`; cwd never changes. Sequences below execute left-to-right. Reads and filesystem inspections are read-only.\n\n**I — identity, live remote:**  \n`G rev-parse --path-format=absolute --git-dir --git-common-dir` → both `/work/helper/.git`; `G rev-parse --show-superproject-working-tree` → empty; `G fetch origin`; `G ls-remote --exit-code --heads origin refs/heads/spec-export`. Caller ROOT wins; session isolation is irrelevant.\n\n**D — resolution:**  \n`G rev-parse origin/spec-export` → O; `gh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name` → trunk; `G rev-parse origin/trunk` → B. Read companion overrides and `.pi/settings.json` by file, not session settings: defaults, keyed home `.worktrees/<name>`. NAME=`spec-export`; WORKTREE=H. `G worktree list --porcelain`; inspect H’s existence.\n\n**L — existing-local checks:**  \n`G rev-parse refs/heads/spec-export` → A; `G merge-base --is-ancestor O refs/heads/spec-export` fails: no recovery; `G merge-base --is-ancestor refs/heads/spec-export origin/spec-export` succeeds.\n\n**F — fresh provisioning:**  \n`G status --porcelain` → clean; `G check-ignore -q .worktrees` succeeds; `G worktree add H spec-export`; `G worktree list --porcelain` confirms H; `W rev-parse HEAD` → O. No `-b`, reset, or deletion.\n\n**S — sync/read-back:**  \n`W merge --no-ff --no-edit origin/trunk` → contained/no-op; `W merge-base --is-ancestor O HEAD` succeeds; `G worktree list --porcelain` confirms H; `W branch --show-current` → `spec-export`.\n\nNo PR reads, pre-rework refs, thread fetching, tests outside conflict handling, or pushes occur. R is unused.\n\n### Independent runs\n\n| Run | Ordered execution and boundary |\n|---|---|\n| absent | I → D: no branch/tree. Announce H on `spec-export`. F uses Git’s unique-remote DWIM to create the tracking branch and tree. S → ready report below. |\n| ancestor | I → D → L. Announce H. `G status --porcelain`; `G check-ignore -q .worktrees`; **first write:** `G update-ref refs/heads/spec-export origin/spec-export`; `G worktree add H spec-export`; `G worktree list --porcelain`; `W rev-parse HEAD` → O. S → ready. |\n| reuse | I → D finds selected H on `spec-export`. Resolve rebase paths using `W rev-parse --path-format=absolute --git-path rebase-merge` and corresponding `rebase-apply`: neither directory exists. `W status --porcelain` clean; L. **First write:** `W merge --ff-only origin/spec-export` → O; `W rev-parse HEAD` verifies O. S → ready; no creation. |\n| wrapper | I → D reads `create: helper create -b <branch> <name>`. Record `create: override skipped (contains -b)`; never execute it. Announce H; F uses existing-branch DWIM, not generic fresh-branch creation. S → ready, with skip record. |\n| race | I → D → F through successful add/path verification; `W rev-parse HEAD` instead returns X. **Stop:** acme/helper `spec-export`, H has X, expected O. No merge or ready report. Preserve home and newly created H; inventory below. |\n| elsewhere | I → D finds `spec-export` at `/work/helper/.worktrees/foreign`. **Stop before checkout writes:** branch `spec-export` is checked out there; finish or remove that worktree first. Name acme/helper; no ready report. Preserve home and foreign tree. |\n| missing | I stops at live lookup exit 2. Stale tracking O is not authority. **No checkout writes:** `origin/spec-export is missing in acme/helper; on the machine that ran option 6, push spec-export from that companion's checkout, then rerun brainstorming #N`. Preserve home; inventory below. |\n| lookup-error | I stops at live lookup exit 128: `fatal: unable to access origin`. Report acme/helper, `spec-export`, and failing lookup command/output. Do not diagnose branch absence or resolve stale O. No checkout writes or ready report; preserve home. |\n| unresolved | I → D → F. Base merge conflicts; execute conflict sequence below. Abort restores O clean; original-head ancestry succeeds. Record `merge: unresolved - lib/a.ts`; return unresolved for coordinated by-hand stop. No ready report, review, or push. Preserve home and H. |\n\n### Conflict sequence and final records\n\nFor unresolved, run in order:\n\n```text\nW merge --no-ff --no-edit origin/trunk\nW status --porcelain\nW diff --name-only --diff-filter=U\nG show B:.pi/gauntlet-overrides.md\n```\n\nDispatch foreground `implementer`, cwd H, `async: false`: only `lib/a.ts`; preserve both intents; stage that file; run exactly `node --test lib/a.test.mjs`; no commits/aborts/outside edits. Helper fails. Run:\n\n```text\nW merge --abort\nW rev-parse HEAD\nW branch --show-current\nW status --porcelain --untracked-files=all\nW merge-base --is-ancestor O HEAD\n```\n\nResults: success, O, `spec-export`, clean, success.\n\n**Ready report** for absent, ancestor, reuse, wrapper:\n\n```text\nWorktree ready at /work/helper/.worktrees/spec-export\nBranch: spec-export\nBase: spec-export @ aaaaaaa\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/trunk\nReady to implement companion work\n```\n\n**Failure inventory:**\n\n```text\nPreserved created legs:\nacme/widget spec-export /work/widget/.worktrees/spec-export\n```\n\nRace/unresolved additionally list:\n\n```text\nacme/helper spec-export /work/helper/.worktrees/spec-export\n```\n",
-      "words": 671,
-      "wallMs": 37459,
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\n### Shared command/record legend\n\nAll commands below have cwd **S=/work/widget/.worktrees/other**; cwd never changes. Templates expand literally; `g(args)` means `git -C /work/helper args`, and `t(args)` means `git -C \"$T\" args`.\n\n```text\nH=/work/helper\nT=/work/helper/.worktrees/spec-export\nJ=/work/helper-trees/export\nBRANCH=spec-export\nNAME=spec-export\n\nO=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nB=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nA=cccccccccccccccccccccccccccccccccccccccc\nR=dddddddddddddddddddddddddddddddddddddddd\nX=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n```\n\nOrdered command groups:\n\n```text\nD: g(rev-parse --path-format=absolute --git-dir --git-common-dir)\n   g(rev-parse --show-superproject-working-tree)\nF: g(fetch origin)\n   g(ls-remote --exit-code --heads origin refs/heads/spec-export)\nN: g(rev-parse origin/spec-export)\n   gh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name\n   g(rev-parse origin/trunk)\nC: cat /work/helper/.pi/gauntlet-overrides.md\n   cat /work/helper/.pi/settings.json\nL: g(worktree list --porcelain)\nK: g(show-ref --verify --quiet refs/heads/spec-export)\nV: g(rev-parse refs/heads/spec-export)\nY: g(merge-base --is-ancestor O refs/heads/spec-export)\nP: g(merge-base --is-ancestor refs/heads/spec-export origin/spec-export)\nQ: g(status --porcelain)\nW: t(status --porcelain)\nU: g(update-ref refs/heads/spec-export origin/spec-export)\nADD: g(worktree add \"$T\" spec-export)\nFF: t(merge --ff-only origin/spec-export)\nE: t(rev-parse HEAD)\nM: t(merge --no-ff --no-edit origin/trunk)\nI: t(merge-base --is-ancestor O HEAD)\nRB: g(worktree list --porcelain)\n    t(branch --show-current)\nSRC: cat /work/helper/script/worktree\nID: test -d \"$T\"\n    realpath \"$T\"\n    t(rev-parse --show-toplevel)\n    t(rev-parse --path-format=absolute --git-common-dir)\n    g(rev-parse --path-format=absolute --git-common-dir)\n```\n\nEvery row starts **D,F**. D confirms caller-primary isolation, not session isolation. Successful F continues **N,C,L,K**: resolve `ORIGINAL_HEAD=O`, default `trunk`, `BASE_SHA=B`, own default settings, and recorded contract. Keyed home resolves to T; no-home scripts locate by branch, never derive a home.\n\n`OK` means affirmative RB, then the ready report below. `STOP` preserves trees. No fresh-branch `-b` checkout is used.\n\n### Independent runs\n\n| Run | Ordered continuation and write boundary |\n|---|---|\n| **absent** | After shared prefix, K finds no branch; L finds no tree. Announce T on spec-export. **Q; ADD; E→O; M→contained; I; RB; OK.** ADD is existing-branch DWIM, creating its tracking branch from unique origin/spec-export. No update-ref. |\n| **ancestor** | K finds branch; **V→A; Y→exit 1; P→0**. Coordinated recovery does not apply; local ancestor proof passes. Announce T. **Q; U; ADD; E→O; M→contained; I; RB; OK.** First write is U, after clean-source and ancestry checks. |\n| **reuse** | L selects T; K finds branch. **V→A; Y→1; P→0; W→clean; FF; E→O; M→contained; I; RB; OK.** FF is the first write. No source-checkout modification, new tree, reset, or update-ref. |\n| **wrapper** | C supplies `create: helper create -b <branch> <name>`. Record **`create: override skipped (contains -b)`**; never execute it. No branch/tree. Announce T. **Q; ADD; E→O; M→contained; I; RB; OK.** Built-in existing-branch checkout is permitted for this keyed home. |\n| **race** | No branch/tree. Announce T. **Q; ADD; E→X. STOP:** `acme/helper spec-export: /work/helper/.worktrees/spec-export HEAD=X; expected O`. No merge, ancestry assertion, or ready line. Preserve home and newly created companion. |\n| **elsewhere** | After shared prefix, L lists spec-export at `/work/helper/.worktrees/foreign`. **STOP before K or writes:** `acme/helper: branch spec-export is checked out at /work/helper/.worktrees/foreign; finish or remove that worktree first.` Preserve home; leave foreign tree untouched. |\n| **missing** | **D,F**, with live lookup exit 2. **STOP before N,C or writes:** `origin/spec-export is missing in acme/helper; on the machine that ran option 6, push spec-export from that companion's checkout, then rerun brainstorming #N`. Stale tracking O is not evidence of publication. No push here; preserve home. |\n| **lookup-error** | **D,F**, with live lookup exit 128. **STOP:** `acme/helper spec-export: git -C /work/helper ls-remote --exit-code --heads origin refs/heads/spec-export failed: fatal: unable to access origin`. Do not diagnose absence or resolve stale tracking O. No writes; preserve home. |\n| **script-reuse** | After prefix, set **T=J** from linked branch block; **ID** confirms rooted checkout and matching common directory. **V→A; Y→1; P→0; W→clean; FF; E→O; M→contained; I; RB; OK.** Bypass keyed-home “elsewhere” stop. Do not execute creator or manufacture `.worktrees/spec-export`. |\n| **script-create** | No branch/tree. **SRC** confirms existing-branch support. Announce script-owned provisioning. **Q;** run `script/worktree create spec-export --branch spec-export` with cwd **H**; **L** locates J; set **T=J; ID; E→O; M→contained; I; RB; OK.** Script execution is first write; no built-in fallback. |\n| **script-unsupported** | No linked tree; local A. **SRC** shows only fresh-branch `-b` creation. **STOP before Q, ancestry proof, update-ref, or creator:** `cannot provision acme/helper: script/worktree cannot check out existing branch spec-export`. No invented home or built-in tree. Preserve home. |\n| **unresolved** | Prefix; **Q; ADD; E→O; M→conflict**. Execute conflict sequence below. Abort restores O clean; **I** passes. **STOP**, return `merge: unresolved - lib/a.ts` to coordinated caller for by-hand recovery. No ready line. Preserve home and companion; do not continue brainstorming. |\n\n### Conflict sequence\n\nWith cwd S and T at the keyed home:\n\n```text\nt(status --porcelain)\nt(diff --name-only --diff-filter=U)\ng(show B:.pi/gauntlet-overrides.md)\n```\n\nResolve exact conflict list `lib/a.ts` and credential-free scoped command `node --test lib/a.test.mjs`. Dispatch fresh foreground **implementer**, cwd T, `async:false`, BASE_SHA=B, that list and command only. Require staging; forbid commits, aborts, and outside-list edits. Helper fails; do not complete/commit.\n\n```text\nt(merge --abort)\nt(rev-parse HEAD)\nt(branch --show-current)\nt(status --porcelain --untracked-files=all)\n```\n\nObserved: abort succeeds, HEAD=O, branch=spec-export, clean.\n\n### Closing records\n\nEach **OK** emits, substituting its resolved T:\n\n```text\nWorktree ready at <T>\nBranch: spec-export\nBase: spec-export @ aaaaaaa\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/trunk\nReady to implement spec-export\n```\n\nWrapper additionally records its skip.\n\nEvery failure prints `Preserved created legs:` containing:\n\n```text\nacme/widget spec-export /work/widget/.worktrees/spec-export\n```\n\nRace and unresolved additionally list:\n\n```text\nacme/helper spec-export /work/helper/.worktrees/spec-export\n```\n\nNo PR fields, pre-rework refs, thread fetching, pushes, cleanup, or full-suite tests occur.\n",
+      "words": 811,
+      "wallMs": 68924,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "ad9bac356d1e1a23c738592ed5ccc58b4b0b4cd0a10a49ae7f31b0cd69e5b5e5",
+      "factsSha": "78d609a7543c2529f47ea422b2246fa38e7319db19776e71bf61430b329e3428",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
-      "baselineOutputSha": "a26b155376cf29a2db7366f9ddd2ced91549f5977d95e2bea8701516dbb41ffc",
-      "candidateOutputSha": "1077b955e6f4d2e252676a855cd96a7018af22d3944cafdf2e282f129023753a",
+      "intentSha": "9700a9221787132b65c43fb0aeb7874f8fdbd4e35f974aa59ba1b6500e95068f",
+      "baselineOutputSha": "4f379b9e79e7b397e7752a74ab78fd2f836b92c11b3db10784466e67f637764b",
+      "candidateOutputSha": "fcfed475ab5b8077228a6ac6b57ac1b7c882a67ea213703b4900fdb9ef9ca78f",
       "facts": {
         "root": {
           "before": "holds",
@@ -60,13 +60,13 @@
         },
         "race": {
           "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "after": "fails",
+          "label": "regression"
         },
         "merge": {
-          "before": "fails",
-          "after": "holds",
-          "label": "unplanned improvement"
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
         },
         "readback": {
           "before": "holds",
@@ -74,9 +74,19 @@
           "label": "held"
         },
         "missing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "script-reuse": {
           "before": "fails",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "intended change"
+        },
+        "script-create": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         },
         "lookup-error": {
           "before": "holds",
@@ -84,67 +94,143 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept and repairs two. In Before the unresolved run reported `Worktree ready` and carried a generic Task 1 \"merge origin/trunk and resolve lib/a.ts\" home, which contradicts the required stop-for-caller without ready line; After's \"Returned to the coordinated caller for its by-hand stop; no ready line\" with the tree listed under `Preserved created legs:` fixes that. Before's missing-remote stop said \"recreate or rerun without this leg\" rather than the required option-6-machine push recovery; After names acme/helper, tells the user to push spec-export from that companion checkout and rerun brainstorming #N, and skips S4 so the stale O is never trusted. Minor things to watch so nothing regresses next time: After's ancestor row adds an odd `is-ancestor O refs/heads/spec-export → 1` check before the real A-ancestry proof (harmless but noisy), the race preserved-leg entry is labelled `branch unverified` instead of the plain `acme/helper spec-export <path>` form used elsewhere, and the unresolved row should state the orchestrator's staging/unmerged-index/contained-delta checks explicitly (even as \"not reached because the helper failed\") so the merge fact stays visibly satisfied.",
-      "wallMs": 26861,
-      "verdict": "improved"
+      "feedback": "After delivers the intended moves (script-reuse now adopts /work/helper-trees/export via the Locate rule, script-create runs the existing-branch script form and the unsupported script stops with the exact message before update-ref), but it regresses two facts Before kept. First, the `unresolved (cont.)` row reports `Worktree ready at H` after the abort; the merge fact requires the failed-helper path to stop for the caller without a ready line, so keep Before's '**No Ready line.**' phrasing and report only `merge: unresolved - lib/a.ts` plus the PL entry, and state the helper's `lib/a.ts` scope and the runner explicitly in the dispatch sentence. Second, the race fact needs the full X and O printed; the Legend abbreviates aliases as `aaaa…(40×a)`, so restore Before's one-time full 40-character alias definitions (which also satisfies the case's 'define full SHA aliases once' instruction). Minor: the prelude says all commands run with cwd /work/widget/.worktrees/other right after saying the session dir is never used—say the process cwd is unchanged but every command is rooted at /work/helper via -C, as Before did, to avoid reading as if the session tree is touched.",
+      "wallMs": 33088,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "# Companion mode: acme/helper, branch spec-export\n\n`ROOT`, `BRANCH` and `REMOTE_BRANCH=existing` are all present, so I follow pr-head.md companion mode. Steps 0, 1 and 1a, the fresh-branch collision check and the `-b` creator are all bypassed.\n\nNo PR fields are read in any run: no `headRefOid`, no MEMBER_HEADS, no `PRE_REWORK_HEAD`, no `refs/gauntlet/*` refs and no threads. The home tree `/work/widget/.worktrees/spec-export` is never touched.\n\n## Aliases\n\n- **O** = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (origin/spec-export)\n- **B** = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb (origin/trunk)\n- **A** = cccccccccccccccccccccccccccccccccccccccc (local ancestor)\n- **R** = dddddddddddddddddddddddddddddddddddddddd (recovered tip; not observed in any run)\n- **X** = eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee (race tip)\n- **W** = `/work/helper/.worktrees/spec-export`\n- **S** = `/work/helper-trees/export`\n\n## Shared command legend (cwd stays the session cwd; every command targets a path)\n\n| Id | Command → resolved value |\n|---|---|\n| C0 | Authority: ROOT=`/work/helper` used unchanged, never the session common dir `/work/widget/.git`. `git -C /work/helper rev-parse --show-superproject-working-tree` → empty, so not a submodule. |\n| C1 | `git -C /work/helper fetch origin` → exit 0 |\n| C2 | `git -C /work/helper ls-remote --exit-code --heads origin refs/heads/spec-export` → exit 0 |\n| C3 | `git -C /work/helper rev-parse origin/spec-export` → O, so ORIGINAL_HEAD=O |\n| C4 | `gh repo view acme/helper --json defaultBranchRef -q .defaultBranchRef.name` (positional repo) → `trunk` |\n| C5 | `git -C /work/helper rev-parse origin/trunk` → BASE_SHA=B |\n| C6 | Read the companion's own first-found overrides and `/work/helper/.pi/settings.json` by file (defaults). NAME=`spec-export`, HOME=W. This is a built-in creator unless the row says otherwise. |\n| C7 | `git -C /work/helper worktree list --porcelain` (checks for the branch checked out elsewhere) |\n| C8 | Recovery: `git -C /work/helper rev-parse refs/heads/spec-export`. Any local tip is A. O is not an ancestor of A, so the tip carries nothing beyond O and recovery does not apply. |\n| C9 | Ancestry: `git -C /work/helper merge-base --is-ancestor refs/heads/spec-export origin/spec-export` → exit 0 |\n| C10 | Source clean check: `git -C /work/helper status --porcelain` → empty. Gitignore check: `git -C /work/helper check-ignore -q .worktrees` → exit 0, already ignored. |\n| C11 | `git -C /work/helper worktree add /work/helper/.worktrees/spec-export spec-export` (existing-branch / unique-remote DWIM; never `-b`) |\n| C12 | `git -C <T> rev-parse HEAD` → must equal O |\n| C13 | `git -C <T> merge --no-ff --no-edit origin/trunk` → `merge: no-op - head contains origin/trunk` |\n| C14 | `git -C <T> merge-base --is-ancestor O HEAD` → exit 0 |\n| C15 | Read-back: `git -C /work/helper worktree list --porcelain` prints `worktree <T>`, and `git -C <T> branch --show-current` prints `spec-export` |\n| C16 | Active-rebase guard: `git -C <T> rev-parse --path-format=absolute --git-path rebase-merge` and the same for `rebase-apply`; neither path is a directory. Dirty-tree check: `git -C <T> status --porcelain` → clean. Fast-forward: `git -C <T> merge --ff-only origin/spec-export` |\n| C17 | Locate a leg tree from C7: select the linked `refs/heads/spec-export` block (primary block excluded). Validate it with `git -C <path> rev-parse --show-toplevel` and `git -C <path> rev-parse --path-format=absolute --git-common-dir`, which must equal `/work/helper/.git`. |\n\n**REPORT(T, extra)** is emitted only after C15 matches:\n\n```\nWorktree ready at <T>\nBranch: spec-export\nBase: spec-export @ aaaaaaa (clean)\nBase SHA: bbbbbbb\nmerge: no-op - head contains origin/trunk\n<extra>\n```\n\n**PRESERVED(list):**\n\n```\nPreserved created legs:\nacme/widget spec-export /work/widget/.worktrees/spec-export\n<list>\n```\n\nNo removals happen in any run.\n\n## Runs\n\n| Run | Narration |\n|---|---|\n| absent | C0–C8 (no local branch, so C9 is skipped) → C10 → C11 → C12(W)=O → C13 → C14 → C15 → **REPORT(W)** |\n| ancestor | C0–C9 → C10 → write `git -C /work/helper update-ref refs/heads/spec-export origin/spec-export` → C11 → C12(W)=O → C13–C15 → **REPORT(W)** |\n| reuse | C0–C7 (W is the selected home, not elsewhere) → C8 → C9 → C16(W), which reaches O → C12(W)=O → C13–C15 → **REPORT(W)**. No add and no update-ref. |\n| wrapper | C0–C8 → `create:` contains `-b`, so it is not an existing-branch wrapper and is not run → C10 → C11 → C12–C15 → **REPORT(W, `create: override skipped (contains -b)`)** |\n| race | C0–C8 → C10 → C11 → C12(W)=X≠O. **Stop**, tree preserved: `acme/helper spec-export: HEAD mismatch at /work/helper/.worktrees/spec-export: expected O, got X` (full SHAs printed). **PRESERVED(`acme/helper branch unverified /work/helper/.worktrees/spec-export`)**. No merge and no ready line. |\n| elsewhere | C0–C7 → **Stop before writes**: `acme/helper: branch spec-export is checked out at /work/helper/.worktrees/foreign; finish or remove that worktree first.` **PRESERVED()** |\n| missing | C0, C1 → C2 exits 2. **Stop**, ignoring the stale origin/spec-export (C3 is never run): `origin/spec-export is missing in acme/helper; on the machine that ran option 6, push spec-export from that companion's checkout, then rerun brainstorming #N`. On that machine, verify the leg-file commit with `git log -1 --format=%H refs/heads/spec-export -- <spec-dir>/<home spec filename>`, then run `git push -u origin spec-export`. Do not regenerate the commit. **PRESERVED()** |\n| lookup-error | C0, C1 → C2 exits 128. **Stop**: `acme/helper spec-export: ls-remote failed: fatal: unable to access origin`. Absence is not diagnosed, and the stale ref is not used. **PRESERVED()** |\n| script-reuse | C0–C5 → C6 with no `home:` → C7 → C17 returns S, a valid single match, so WORKTREE=S and the another-path stop is bypassed. Then C8 → C9 → C16(S) reaches O → C12(S)=O → C13(S) → C14(S) → C15(S) → **REPORT(S)**. The script is not run. |\n| script-create | C0–C7 → C17 finds no worktree holding spec-export, so continuation may create. Read `/work/helper/script/worktree` source; it supports the existing-branch form. No local branch, so no update-ref. C10 (status only). Run `(cd /work/helper && script/worktree create 'spec-export' --branch 'spec-export')`. C17 then locates S, which validates. C12(S)=O → C13–C15(S) → **REPORT(S)** |\n| script-unsupported | C0–C7 → C17 finds no tree → C8 → C9. Read the script source: it is `-b`-only. **Stop before any write, including update-ref**: `cannot provision acme/helper: script/worktree cannot check out existing branch spec-export`. **PRESERVED()** |\n| unresolved | Same as **absent** through C12. C13 conflicts. Helper boundary steps: (1) snapshot with `git -C W status --porcelain`. (2) `git -C W diff --name-only --diff-filter=U` → `lib/a.ts`. (3) `git -C /work/helper show B:<first-found overrides path>` → SCOPED_TEST_COMMANDS=`node --test lib/a.test.mjs`. (4) Dispatch a fresh foreground implementer with `cwd: W`, `async: false`, file list `[lib/a.ts]`, base trunk; helper commits and aborts are forbidden. (5) Helper fails → `git -C W merge --abort` returns HEAD=O, clean. Then C14 passes and C15 matches. **REPORT(W)** with `merge: unresolved - lib/a.ts` replacing the no-op line. This result goes back to the coordinated caller for its by-hand stop; there is no home Task 1 continuation. |\n\n## Closing records\n\n- **Ready trees:**\n  - W in absent, ancestor, reuse, wrapper and unresolved.\n  - S in script-reuse and script-create.\n- **Stops:** race, elsewhere, missing, lookup-error and script-unsupported. Each names acme/helper and spec-export. Each preserves the home tree, and race also preserves W.\n- **Write boundaries:**\n  - update-ref only in ancestor.\n  - Tree creation only via C11 or the script's existing-branch form.\n  - No write before the C2/C9 proofs.\n  - Nothing is pushed or removed.\n- **Not emitted:** no `PR:`, `Pre-rework head:` or `Rework base:` lines, no refs/gauntlet refs, and no thread fetches.\n",
+        "words": 980,
+        "wallMs": 62523,
+        "mechanical": {},
+        "judgeWallMs": 26932,
+        "facts": {
+          "root": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "identity": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "rows": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "ownership": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "race": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "merge": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "readback": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "missing": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "script-reuse": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "script-create": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "lookup-error": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After correctly delivers the Change for script-reuse and script-create (C17 branch-located selection with toplevel/common-dir validation, existing-branch script form, unsupported stop before update-ref), but it regressed the merge fact in the unresolved row: it ends with **REPORT(W)** — whose template begins `Worktree ready at <T>` — and the closing records list unresolved under 'Ready trees', so the run now emits a ready line after a failed helper instead of stopping for the caller. Before explicitly said 'No Ready line' and listed the created tree under Preserved created legs. Also, After's dispatch step (4) names cwd, file list and base but drops the supplied runner `node --test lib/a.test.mjs` that step (3) resolved, and neither version states the orchestrator's staging/unmerged-index check. Keep Before's wording for unresolved — 'No Ready line. PRESERVED(`acme/helper spec-export W`)', record `merge: unresolved - lib/a.ts` as a stop record rather than a REPORT substitution, move unresolved from 'Ready trees' to 'Stops' in the closing records — and add 'runner: SCOPED_TEST_COMMANDS' to the dispatch plus an orchestrator check of `git -C W diff --cached --name-only` / `diff-filter=U` before completion, while retaining the new C17/script rows unchanged."
+      }
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "ad9bac356d1e1a23c738592ed5ccc58b4b0b4cd0a10a49ae7f31b0cd69e5b5e5",
+      "factsSha": "78d609a7543c2529f47ea422b2246fa38e7319db19776e71bf61430b329e3428",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f0c52f3d817ff96dea3beb5669b556a40b5d34f0ef0726a9e4f473416e3e7718",
-      "baselineOutputSha": "f1cd5ed97503d1b627295f87e72c1d86e6a73339dfc2ff6d1e858f5a1a01bfb0",
-      "candidateOutputSha": "5ca2dff1f07c0e84efbc92b0ddef3c000f8df11284179fc5ba9fe3f9a0fb3da1",
+      "intentSha": "9700a9221787132b65c43fb0aeb7874f8fdbd4e35f974aa59ba1b6500e95068f",
+      "baselineOutputSha": "1e12bdc7113aa0ed777a36ffee41e3a08220db854fea5de1445dd51a49679328",
+      "candidateOutputSha": "3e1f519c607bc09d55900686bb75255d34dbd7e54f760875aeaaa2de8703454d",
       "facts": {
         "root": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "identity": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "rows": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "ownership": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "race": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "merge": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "readback": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "missing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "script-reuse": {
           "before": "fails",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "intended change"
+        },
+        "script-create": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         },
         "lookup-error": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         }
       },
-      "feedback": "Before refused companion mode entirely (declared the caller-root procedure 'generic', ran no fetch, gh repo view, ls-remote, ancestry, or merge, executed the -b wrapper, and used worktree add -b from HEAD), so every fact failed there; After's wording routes ROOT/BRANCH/REMOTE_BRANCH=existing to companion mode with the live ls-remote check, positional gh repo view, origin/trunk base, DWIM existing-branch add, ancestor/reuse/race/elsewhere boundaries, scoped helper with abort and 'merge: unresolved - lib/a.ts', and the full read-back before the ready line, so all nine facts now hold and nothing regressed. Two small hardening points for the After wording: the ready report prints 'Base SHA: bbbbbbb' (7 chars) rather than the full B alias the instructions ask for, and the merge row shows staging/unmerged-index checks only before dispatch—adding an explicit post-helper 'W diff --cached --name-only' / unmerged check on the success path would make the orchestrator-owned completion unambiguous even when the helper fails.",
-      "wallMs": 19993,
+      "feedback": "After moved exactly the two intended facts without regressing anything else: script-reuse now locates the single linked refs/heads/spec-export block at /work/helper-trees/export, validates its rooted checkout and common-directory identity (ID), and runs the dirt check, ff-only to O, exact-head/base sync and read-back there instead of Before's 'checked out elsewhere' stop; script-create now runs the recorded script's existing-branch form from /work/helper, locates the produced tree by branch, verifies O/spec-export before ready with no built-in fallback, and script-unsupported stops with the exact 'cannot provision acme/helper: script/worktree cannot check out existing branch spec-export' message before update-ref, where Before fell back to the built-in checkout after recording a misleading '(contains -b)' skip. All shared facts (root/ROOT authority, O identity with no PR fields, absent/ancestor/reuse ordering, wrapper skip record, elsewhere stop, race STOP with both full SHAs and preserved legs, scoped helper with abort and 'merge: unresolved - lib/a.ts', affirmative read-back with no-op record, ls-remote-based missing and lookup-error stops) remain intact. Minor polish only: the race/unresolved/merge rows could state the orchestrator's post-helper staging/unmerged-index check explicitly, and the ready line 'Ready to implement spec-export' could keep Before's coordinated-work phrasing to avoid implying a generic Task 1 continuation; neither affects the listed facts.",
+      "wallMs": 32649,
       "verdict": "improved"
     }
   },
-  "repoSha": "fb3171a83ae08e2a2c0eb307cfdc57008ce48e78"
+  "repoSha": "435f5cf4553b504ad8f8ed6e1e09dfcbd1d927f9"
 }

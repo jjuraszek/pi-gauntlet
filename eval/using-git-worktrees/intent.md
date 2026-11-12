@@ -5,7 +5,11 @@ Default PR-subject provisioning linearizes the home branch with --no-rebase-merg
 
 Honor explicit primary ROOT and shared BRANCH for keyed leg provisioning; preserve all existing single-member provisioning facts.
 
+For recorded no-home companion and marked-home legs, locate the branch's single linked checkout and validate its identity. Reuse it without another-path refusal; when absent run the recorded script's existing-branch form, or stop unsupported scripts before local ref writes. Preserve keyed/built-in and unmarked PR provisioning. Extend only pr-head-caller-root with three no-home rows and a bundled legs reference; retain the 1200-word target cap. Run that sample only against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f within its three-run/fourteen-call bound. Saved results support local checks; coverage is synthetic and sample-scoped, not live provisioning or a target-wide pass.
+
 ## Expected to move
+- pr-head-caller-root/script-reuse: fails -> holds - Select the branch-located script folder without a default-home stop.
+- pr-head-caller-root/script-create: fails -> holds - Use existing-branch script creation and refuse an unsupported form before any write.
 - pr-list-member-conflict-unresolved/residual: fails -> holds - Residual edits require a complete actual-state manual-recovery stop, including both conflict paths and the already-replayed member; compact reports may explicitly reference a complete shared legend but may not omit required fields.
 - pr-head-base-rebase/linear: fails -> holds - Default sync explicitly flattens merge-containing heads despite rebase.rebaseMerges configuration.
 - pr-list-member-replay/order: fails -> holds - Default sync rebases home before replaying each member rather than creating member merges.
