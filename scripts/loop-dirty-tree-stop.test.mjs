@@ -38,7 +38,7 @@ test('only typed discard resets dirt and resumes the suspended entry or restore 
 });
 
 for (const [sample, inputPattern, facts] of [
-  ['gate-line-first', /no `pending:` tuple/, ['question-first', 'authorization', 'preserved']],
+  ['gate-line-first', /no `pending:` tuple/, ['question-first', 'authorization', 'preserved', 'fresh-entry', 'discard-continuation']],
   ['human-stop-counts', /E\. Interrupted two-commit return/, ['boundary-stops', 'pending-recovery', 'durable-counts']],
   ['row-budget-actions', /Independently type `discard`/, ['boundaries', 'discard-continuation']],
 ]) {
@@ -47,6 +47,14 @@ for (const [sample, inputPattern, facts] of [
     const expected = read(`eval/loop-implementation/samples/${sample}/expected.md`);
     assert.match(input, inputPattern);
     assert.match(input, /src\/parser\.ts/);
+    if (sample === 'gate-line-first') {
+      assert.match(input, /Variant A: restored ledger/);
+      assert.match(input, /Variant B: independent fresh entry before any ledger exists/);
+      assert.match(input, /human then types `discard`/);
+      assert.match(expected, /reset --hard HEAD.*clean -fd/);
+      assert.match(expected, /Entry step 4's ledger write and step 5/);
+      assert.match(expected, /never jumps to the ordered table/);
+    }
     assert.match(expected, /Stopped: dirty tree with no dispatch pending/);
     for (const fact of facts) assert.ok(expected.includes(`- ${fact}: `), fact);
     assert.doesNotMatch(input + expected, /recovery.incomplete|awaits discard authorization after a dirty or multiple-commit return|E,? and F each render/);

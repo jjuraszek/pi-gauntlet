@@ -243,6 +243,8 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - gate-line-first/preserved: fails -> holds - Preserve admitted rows, counters and unrelated dirty work without pending until typed discard.
 - gate-line-first/question-first: fails -> holds - The no-pending dirty-tree stop starts with the question marker.
 - gate-line-first/authorization: fails -> holds - Name the dirty paths and offer discard or Stop only without budget choices.
+- gate-line-first/fresh-entry: fails -> holds - Stop before a fresh-entry ledger exists and offer discard or Stop without unauthorized writes.
+- gate-line-first/discard-continuation: fails -> holds - Typed discard resets and cleans before Entry step 4's ledger write and step 5, never skipping to the ordered table.
 - scaled-cap-grant/entry: fails -> holds - Seed one reply- or settings-derived allowance, including all-cut ledgers, without a cap.
 - cap-and-exit-verification/contract: fails -> holds - Run the closed-row gate set at verify step 1 with at most 20 failure log lines, verify active and implement complete, with amend/stop only after repair is spent.
 - commit-boundary/seed-recovery: fails -> holds - Recover seeds without a proof demand or human turn; one repair at allowance1 stops without charging row attempts.

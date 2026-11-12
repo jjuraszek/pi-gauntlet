@@ -6,7 +6,7 @@ Exercise main-session driver decisions and the actual loop-implementer dispatch 
 
 | Sample | Must hold |
 |---|---|
-| `gate-line-first` | No pending tuple: question marker, dirty paths, preserved counts and discard-or-Stop only; no unauthorized reset. |
+| `gate-line-first` | Restored-ledger stop preserves counts and starts with the question marker; independent pre-ledger fresh entry offers discard-or-Stop only, then typed discard resets and cleans before Entry step 4's ledger write and step 5, never the ordered table. |
 | `human-stop-counts` | Unrelated dirt stops without writes; pending two-commit and empty returns recover and continue below allowance. |
 | `row-budget-actions` | Budget replies cannot authorize discard; typed discard resumes fresh seed admission or the implement/verify restore sequence. |
 

@@ -1,8 +1,8 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "cf14357c7075d89f0fa994e643c69d235b6e67fbe58b7079ad8838e645b6971e",
-  "inputSha": "7c66ca0c764fbfc63a237eba570f40fd46971f251414fe6892cef4e915c45577",
+  "skillSha": "3378db07f79ff502b0403f62e901b4a3fb5bf0cf24d70da16ac142cd8282691c",
+  "inputSha": "975c0000b13d836e17f4e4791a1687bb98ea0bc0500d08b9314e35b308d41604",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: dirty tree with no dispatch pending\n\nDirty paths:\n- `src/parser.ts` (modified, uncommitted)\n\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: the restore found uncommitted changes with no `pending:` tuple, so they do not belong to any interrupted child. Ledger snapshot: iterations 2, allowance 4, implement active. Row 1 evidence: `check parser: expected colon, got comma`. Last decision: `row 1 failed | delimiter still wrong | retry`.\n\nOptions:\n1. `discard` deletes the uncommitted edit to `src/parser.ts` by running `git reset --hard HEAD` and `git clean -fd` in the implementation worktree. The restore then finishes its allowance validation and refresh and continues dispatching.\n2. Stop keeps the tree and the ledger exactly as they are. Implement stays active, and nothing is written, reset or dispatched.\n\nRecommendation: none - the edit to `src/parser.ts` is not from any dispatch, so only you know whether it should be kept or thrown away.\n",
-      "words": 148,
-      "wallMs": 8563,
+      "text": "# Variant A: restored ledger, dirty tree, no pending tuple\n\nOn restore, the driver finds an admitted ledger, no `pending:` tuple and no interrupted child. The tree is dirty, so the driver takes the dirty-tree human stop before the refresh and before any dispatch. In this variant it writes nothing, resets nothing, cleans nothing and dispatches nothing. The turn ends with this stop:\n\n```\ngauntlet: question\nStopped: dirty tree with no dispatch pending\n\nDirty paths:\n- src/parser.ts (modified, uncommitted)\n\nLedger: iterations: 2, allowance: 4. Phase implement stays active.\n\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: row 1 evidence \"check parser: expected colon, got comma\"; last decision \"row 1 failed | delimiter still wrong | retry\". The uncommitted edit to src/parser.ts is not part of any dispatch, so the loop cannot continue on this tree.\n\nOptions:\n1. discard - type `discard` to run `git reset --hard HEAD` and `git clean -fd` in the worktree, then finish the restore (refresh) and continue at Before each dispatch.\n2. Stop - keep the tree and the ledger exactly as they are.\n\nRecommendation: none - src/parser.ts may hold your own work, and only you can decide whether to throw it away.\n```\n\n- Row 1's denominator is the ledger's `allowance: 4`, because no `row 1 retry` decisions are given.\n- The menu has no retry or `rows +N` option, since budget offers are not allowed at a dirty-tree stop.\n- Any reply other than `discard` keeps this stop open and leaves the tree untouched.\n\n---\n\n# Variant B: fresh entry with no ledger, dirty tree, then `discard`\n\n## Initial response, before the human's reply\n\nThese are the Entry steps the driver would perform. None of them has run.\n\n1. **Overrides and settings**\n   - Read the first overrides file found, in this order: `.pi/gauntlet-overrides.md`, `<repo>/gauntlet-overrides.md`, `<repo>/doc/gauntlet-overrides.md`.\n   - Call `gauntlet_setting({ key: \"loopEngine\" })` and retain `maxIterationsPerRow` (default 4).\n   - Hold `escalateAfter` (default 3) in memory only.\n2. **Verification and spec**\n   - Resolve the verification command from the overrides table and print `verification command: <command> (<source>)`.\n   - Read the spec in full.\n   - Decode `**Amend-grant:**` and capture the row dispositions, the leg membership and the Rules. A single home leg is assumed here; with more than one leg, the driver would read `reference/coordinated-legs.md` in full first.\n3. **Phase**\n   - Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`.\n4. **Clean-tree check**\n   - `git -C \"<worktree>\" status --porcelain` shows ` M src/parser.ts`, and there is no `pending:` tuple.\n   - The driver takes the human stop before writing any ledger, so no allowance is printed and nothing is committed yet.\n\nThe turn ends with:\n\n```\ngauntlet: question\nStopped: dirty tree with no dispatch pending\n\nDirty paths:\n- src/parser.ts (modified, uncommitted)\n\nNo ledger has been seeded yet.\nPreserve every row's attempts.\n\nOptions:\n1. discard - type `discard` to run `git reset --hard HEAD` and `git clean -fd` in the worktree, then seed the ledger and start implement.\n2. Stop - keep the tree as it is; nothing is seeded.\n\nRecommendation: none - src/parser.ts may hold your own work, and only you can decide whether to throw it away.\n```\n\nThis stop has no row lines because no rows exist yet. The preservation sentence is still printed.\n\n## After the human types `discard`\n\nThese are the exact calls in order. None of them has run.\n\n1. **Discard the dirty edit**\n   ```\n   git -C \"<worktree>\" reset --hard HEAD\n   git -C \"<worktree>\" clean -fd\n   ```\n\n2. **Resume Entry step 4 (seed the ledger)**\n   - Read the `run allowance: <n>` carrier from the approval turn and print either `allowance: <n> (reply)` or `allowance: <n> (setting)`. With no carrier, the value is `maxIterationsPerRow`, so `allowance: 4 (setting)`.\n   - Read the base SHA with `git -C \"<worktree>\" rev-parse HEAD`.\n   - Write `<plan dir>/<spec stem>-ledger.md` with these headers:\n     - `**Spec:** \\`<repo-relative spec path>\\``\n     - `base: <sha>`\n     - `verification: <command>`\n     - `checks: commands`\n     - `iterations: 0`\n     - `allowance: <n>`\n   - Add one table row per spec AC:\n     - In-scope and `venue:` rows start as `open | 0 |` with empty evidence.\n     - `deviates:`, `deferred:` and `elsewhere:` rows start as `cut | 0 | <disposition>`.\n   - Add an empty `## Decisions` section.\n\n3. **Entry step 5 (check and commit the skeleton)**\n   - Call `plan_check({ planPath: <ledger path> })`. Any finding means a configuration error and a stop.\n   - Commit the stamped skeleton as `loop: seed ledger`.\n   - Call `phase_tracker({ action: \"start\", phase: \"implement\" })`.\n   - Call `plan_tracker({ action: \"refresh\", path: <absolute ledger path> })`.\n\n4. **Before each dispatch**\n   - Confirm the `checks:` line and the `allowance:` line are present, and that there is no `cap:` line.\n   - Walk the ordered table:\n     - Rule 1 does not apply, because open rows exist. If every row were cut, the driver would exit here to After the loop.\n     - Rule 2 does not apply, because every attempt count is 0.\n     - Rule 3 does not apply.\n     - Rule 4 applies: dispatch is allowed.\n   - The next target is `seed`, because no validated `loop: seed evidence` commit exists yet.\n   - The escalation check is skipped, because it applies only to numbered targets.\n   - The seed repair count is 0, which is below the allowance.\n\n5. **Dispatch**\n   - Save the ledger and record `HEAD_BEFORE`.\n   - Write `iterations: 1` and `pending: seed | home | <HEAD sha>` to the ledger, then call `plan_tracker({ action: \"refresh\", path: <ledger> })`. Nothing extra is committed.\n   - Create an output path with `mktemp`, outside the repository.\n   - Make the dispatch call:\n     ```\n     subagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n       cwd: <worktree>, output: <tmp path>, outputMode: \"file-only\",\n       acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n       task: \"iteration: 0\\nspec: <abs spec>\\nledger: <abs ledger>\\nbase: <base sha>\\ntarget: seed\\nprevious decision: none\\nhint: apply the seed contract\" })\n     ```\n   - There is no `model` override.\n   - The task line sends the pre-bump count (`iteration: 0`). The child's commit body must carry the consumed count (`iteration: 1`) and the exact `pending: seed | home | <sha>` tuple. These two counts are not compared with each other.\n\n6. **Next step**\n   - When the child returns, the driver validates it under the seed row of Validate the return.\n",
+      "words": 941,
+      "wallMs": 35245,
       "mechanical": {
-        "question-first": "holds"
+        "question-first": "fails"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: dirty tree with no dispatch pending\n\nDirty path: src/parser.ts (` M src/parser.ts`)\niterations: 2\nallowance: 4\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nNo changes or dispatch have been made.\n\n- discard — authorize discarding uncommitted changes, then resume.\n- Stop — preserve the tree and keep implement active.\n\nRecommendation: Stop - preserve the unrelated edit unless you explicitly authorize discard.\n",
-      "words": 76,
-      "wallMs": 7868,
+      "text": "gauntlet: question\nStopped: dirty tree with no dispatch pending\nDirty path: src/parser.ts\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nLedger snapshot: iterations: 2; allowance: 4.\nProblem: evidence `check parser: expected colon, got comma`; last decision `row 1 failed | delimiter still wrong | retry`.\n\nChoose:\n- `discard` — discard uncommitted tracked edits and remove untracked files.\n- Stop — preserve the tree and leave implement active.\n\nRecommendation: Stop - preserve the unrelated edit unless you authorize discarding it.\n\n---\n\n## Variant B — independent fresh entry\n\n### Initial human-facing response\n\ngauntlet: question\nStopped: dirty tree with no dispatch pending\nDirty path: src/parser.ts\nPreserve every row's attempts.\n\nNo ledger exists; no child has been dispatched.\n\nChoose:\n- `discard` — discard uncommitted tracked edits and remove untracked files.\n- Stop — preserve the tree.\n\nRecommendation: Stop - preserve the unrelated edit unless you authorize discarding it.\n\n### After the human types `discard`\n\nThe following describes calls and changes **to be made**, not calls that have run. Actual spec and plan paths, HEADs, configuration values, and AC contents were not supplied, so those arguments must be resolved rather than invented.\n\nLet `W` be the absolute implementation worktree:\n`<scratch>`.\n\nLet `S` be the approved absolute spec path, and `L` the absolute resolved ledger path.\n\n**1. Apply the authorized discard using the driver's shell:**\n\n```text\ngit -C \"<W>\" reset --hard HEAD\ngit -C \"<W>\" clean -fd\n```\n\nThis discards tracked uncommitted edits—including `src/parser.ts`—and removes untracked files, leaving ignored files alone. No child recovery or repair marker is appropriate.\n\n**2. Resume fresh Entry step 4—not the dispatch table.**\n\nFresh-entry prerequisites still apply: overrides, verification resolution, settings resolution, full spec decoding, and named-branch validation must have succeeded before ledger creation. In particular, the settings call is:\n\n```text\ngauntlet_setting({ key: \"loopEngine\" })\n```\n\nIf that tool is actually unavailable, entry stops; it cannot fabricate settings or dispatch. The sequence below describes the available-tool execution.\n\nRead the implementation base:\n\n```text\ngit -C \"<W>\" rev-parse HEAD\n```\n\nChoose allowance `N` from the invoking approval turn's literal `run allowance: <n>` carrier, if present; otherwise use the resolved `maxIterationsPerRow`, defaulting to 4 as specified. No carrier value was supplied here.\n\nWrite `L` with:\n- The actual repo-relative spec path in `**Spec:**`.\n- The pre-skeleton HEAD as `base:`.\n- The resolved verification command.\n- `checks: commands`.\n- `iterations: 0`, immediately followed by `allowance: N`.\n- Every AC indexed in order: in-scope/absent disposition and `venue:` rows `open`; only `deviates:`, `deferred:`, and `elsewhere:` rows `cut`.\n- Every attempts cell 0; cut evidence contains its disposition.\n- An empty `## Decisions` section.\n\nIf the decoded spec has multiple legs, apply the fully read coordinated-entry reference instead of the home-only skeleton.\n\nHuman-facing configuration lines include:\n\n```text\nverification command: <resolved command> (<resolved source>)\nallowance: <N> (reply)\n```\n\nor `allowance: <N> (setting)`, according to the seed source.\n\n**3. Admit the skeleton before dispatching:**\n\n```text\nplan_check({ planPath: <L> })\n```\n\nOn findings, stop as a configuration error without committing or dispatching. Otherwise, explicitly stage the stamped ledger and commit:\n\n```text\ngit -C \"<W>\" add -- \"<repo-relative ledger path>\"\ngit -C \"<W>\" commit -m \"loop: seed ledger\"\nphase_tracker({ action: \"start\", phase: \"implement\" })\nplan_tracker({ action: \"refresh\", path: <L> })\n```\n\nThe durable state is now an admitted ledger with iterations 0, allowance `N`, and no pending tuple.\n\n**4. Next target: `seed`, if any row is unresolved.**\n\nRequire the ledger's `checks:` and `allowance:` lines and absence of `cap:`. With no surviving validated seed-evidence commit, target `seed`, not row 1.\n\nFor a home dispatch, save the ledger before-image and record the current HEAD. Write, without an additional commit:\n\n```text\niterations: 1\npending: seed | home | <dispatch HEAD>\n```\n\nThen call:\n\n```text\nplan_tracker({ action: \"refresh\", path: <L> })\n```\n\nCreate a unique absolute output file using `mktemp` outside the repository, then dispatch exactly one foreground child:\n\n```text\nsubagent({\n  agent: \"loop-implementer\",\n  context: \"fresh\",\n  async: false,\n  cwd: <W>,\n  output: <unique absolute temporary output path>,\n  outputMode: \"file-only\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent validates the ledger and the commit\"\n  },\n  task: \"iteration: 0\\nspec: <S>\\nledger: <L>\\nbase: <ledger base SHA>\\ntarget: seed\\nprevious decision: none\\nhint: Apply the target: seed contract even when iteration is greater than 0.\"\n})\n```\n\nNo model override is supplied for seed.\n\nHuman-facing dispatch output:\n\n```text\nDispatching target: seed.\nTask iteration: 0 is the pre-bump count by design.\nConsumed iteration: 1; the commit-body iteration and ITERATION use 1.\n```\n\nDo not report seed success until the child's return passes boundary and ledger validation.\n\n**All-cut exception:** If there are no open or failed rows, dispatch nothing. Refresh, require implement complete, read the required continuation references in full, and proceed to verify. The allowance remains `N`.\n",
+      "words": 724,
+      "wallMs": 45443,
       "mechanical": {
         "question-first": "holds"
       }
@@ -36,11 +36,11 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "db6a069d39f4744f437a3c3914f4d311f9f806540c5b1746b19bd6fe287f66f8",
+      "factsSha": "db66fc2796bc6bfcdbd9037ad772550307f981967996a38d3298f43cda907b5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b84eb162b485b4958b4c0a61a9f2cfda936282b7b7055969f12c1e932664f05",
-      "baselineOutputSha": "b0996cf7419d6537ef0b08e9e92ed787b609ebd21080a1a69903ad2fcab91cac",
-      "candidateOutputSha": "14d5527e1835d23b2bd1664f85f23d625d052742f5b1bc8d356cf8c968e64ec6",
+      "intentSha": "2e43720b3c0c45f4837343e3382e9a4a2c6eb1621a244c21153a22d294c292c2",
+      "baselineOutputSha": "6553bb5ba5eb6c8ea405e534b4bf4f6ea8168a943901e289b561a8636276069b",
+      "candidateOutputSha": "f3a199c77ee9ba496c0410b41c7d4ea2dae296e5b3053723637c2732d0c75914",
       "facts": {
         "authorization": {
           "before": "fails",
@@ -52,22 +52,32 @@
           "after": "holds",
           "label": "intended but unchanged"
         },
-        "question-first": {
-          "before": "holds",
+        "fresh-entry": {
+          "before": "fails",
           "after": "holds",
+          "label": "intended change"
+        },
+        "discard-continuation": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "question-first": {
+          "before": "fails",
+          "after": "fails",
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved `authorization` to holds by using the exact header `Stopped: dirty tree with no dispatch pending`, listing `src/parser.ts` under Dirty paths, and narrowing the menu to typed `discard` or Stop. Before failed that fact because its header read `dirty tree at restore`, it added a third 'Keep it: commit or stash, then resume' option, and it recommended that option. `preserved` holds in both: each shows `row 1: 1 of 4`, `Preserve every row's attempts.`, iterations 2, allowance 4, row 1's evidence and decision, implement active, and no write, reset, clean, dispatch or done/stuck marker. One thing weakened slightly: Before said outright 'I will not reset, clean, write the ledger or dispatch until you answer', while After only implies the wait through the typed `discard` option and the Stop description. To keep both facts robust while delivering the Change, keep After's header, dirty-path list and two-option menu, and add one explicit sentence outside the options such as 'Nothing is reset, cleaned, written or dispatched until you type `discard`', and keep the continuation wording in option 1 clearly conditional on that authorization.",
-      "wallMs": 5712,
+      "feedback": "After moved three facts by rendering the literal header `Stopped: dirty tree with no dispatch pending` in both variants (Before used ad hoc headers such as 'restored ledger has an uncommitted change outside the loop' and 'implementation worktree is not clean at loop entry'), by listing src/parser.ts under Dirty paths with a discard-or-Stop menu and an explicit note that retry and rows +N are not offered, and by replacing Before's path-scoped `git restore --source=HEAD --staged --worktree -- src/parser.ts` with `git reset --hard HEAD` followed by `git clean -fd`, then explicitly resuming Entry step 4's ledger write and step 5 (plan_check, `loop: seed ledger`, implement start, refresh) before walking the ordered table. The preserved fact held in both: each shows `row 1: 1 of 4`, the preservation sentence, iterations 2 / allowance 4, implement active, and no writes or terminal markers. To keep this, hold the wording that fixes the stop header verbatim, mandates the two reset/clean commands in that order only after a typed `discard`, and names the suspended Entry step 4/5 sequence as the resume point; also keep the numeric ledger snapshot and row count line in the restore stop. One small risk to watch: the fresh-entry stop prints 'Preserve every row's attempts.' when no rows exist, which is harmless here but could read as an invented claim, so consider wording that makes the sentence explicitly conditional on a ledger or clarifies it is printed unconditionally, as After's trailing note does.",
+      "wallMs": 6790,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "db6a069d39f4744f437a3c3914f4d311f9f806540c5b1746b19bd6fe287f66f8",
+      "factsSha": "db66fc2796bc6bfcdbd9037ad772550307f981967996a38d3298f43cda907b5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6b84eb162b485b4958b4c0a61a9f2cfda936282b7b7055969f12c1e932664f05",
-      "baselineOutputSha": "49cbfa2bcd8852f602f727129110e981e7561b438f1dd6112b2a2c8d714ebdb3",
-      "candidateOutputSha": "49f43a88d791ef951e710ce81982078b671cfab62a6ff4b3494456ed83c8de97",
+      "intentSha": "2e43720b3c0c45f4837343e3382e9a4a2c6eb1621a244c21153a22d294c292c2",
+      "baselineOutputSha": "bab75d6bd3c012d46e93d8591534f9f95707c501e7b2a0492c0078ad09903360",
+      "candidateOutputSha": "bdaa13d1493fd0b586c74eb722a8712b6451661f5e2bf8b60ee335a5eff4ccf9",
       "facts": {
         "authorization": {
           "before": "fails",
@@ -79,16 +89,26 @@
           "after": "holds",
           "label": "intended but unchanged"
         },
+        "fresh-entry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "discard-continuation": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
         "question-first": {
           "before": "holds",
           "after": "holds",
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved `authorization` from fails to holds. It renders the exact header `Stopped: dirty tree with no dispatch pending`, names `src/parser.ts` on its own line, and offers only a typed `discard` or `Stop` with no retry, rows +N, cap or funding choice. Before failed it because its header was `dirty implementation worktree` with no statement that no dispatch was pending, and its menu was numbered options rather than a typed discard. `preserved` holds in both: each shows `row 1: 1 of 4`, the `Preserve every row's attempts.` sentence, iterations 2, allowance 4, implement active, no write, reset or dispatch, and no done or stuck marker. After's hold on `preserved` is thinner in three places, so tighten the wording there. First, require a standalone `Implement remains active` line, because After states it only inside the Stop option. Second, require the row's evidence under an `Evidence:` label, because After puts the evidence string under `Problem:` and blurs the admitted row cell with the dirty-tree problem. Third, require an explicit no-write sentence naming tree, ledger, reset, clean and dispatch, because After's `No changes or dispatch have been made` is vaguer than Before's. Also consider `Recommendation: none`, so the stop does not appear to rule on the authorization. Keep the fixed header, the dirty-path line and the typed discard/Stop menu exactly as After has them.",
-      "wallMs": 11733,
+      "feedback": "The After wording moved three facts by making the no-pending dirty-tree stop a distinct authorization stop rather than a failed interrupted-recovery case. Both variants now render the literal `Stopped: dirty tree with no dispatch pending` header, name `src/parser.ts`, and offer only typed `discard` or Stop with no budget actions. In variant B the typed `discard` now runs `reset --hard HEAD` then `clean -fd` and resumes Entry step 4 (ledger write, `plan_check`, `loop: seed ledger`, implement start, refresh) before any ordered-table dispatch. Before told the human to resolve the edit themselves and refused `discard` as 'not an interrupted-child recovery action'. The `preserved` fact held in both, but After keeps 'implement active' only inside the Stop option's description, where Before stated it as a standalone line; require an explicit 'Implement remains active; no ledger or tree write' line in the stop body so it does not depend on menu phrasing. Two further tightenings would protect the facts that moved: tell the fresh-entry stop to omit or qualify 'Preserve every row's attempts' when no ledger exists, and say that after discard the suspended sequence resumes from the point of suspension. After currently re-narrates settings-unavailability caveats and continues well past refresh into seed dispatch, which could blur the 'ledger seeded and admitted first' ordering in other samples.",
+      "wallMs": 12200,
       "verdict": "improved"
     }
   },
-  "repoSha": "ba780eb1bb3d640fe828b9d1af27d873e4b8f62d"
+  "repoSha": "c5fabdd0fbede7ed7925bc7ce56fddc2ed17c22d"
 }
