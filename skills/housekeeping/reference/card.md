@@ -15,7 +15,7 @@ Start the message with `gauntlet: gate=housekeeping/card recommended=<n>`, where
 <count and up to three example paths; for a change, whether items are in its changed line ranges; for pr-per-class, other cards sharing these files>
 
 ### Why it matters
-<the rule in everyday words and its source file; name the overridden repo rule and file when the check row's overrides cell is not none>
+<the rule in everyday words and its source file; cite the `## housekeeping` section for an overrides rule; name the overridden repo rule and file when the check row's overrides cell is not none>
 
 ### What happens if you accept
 <the literal change and what the human receives>

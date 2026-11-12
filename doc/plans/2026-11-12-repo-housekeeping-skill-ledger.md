@@ -3,7 +3,7 @@
 base: 92eb7a087670521a6117c5e39c06066de0a5bbc7
 verification: npm test
 checks: commands
-iterations: 7
+iterations: 8
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -14,7 +14,7 @@ allowance: 10
 | 4 | done | 1 | timeout -k 30 10 node --test eval/housekeeping/feature-branch-stop.test.mjs; 1 passed, 2 replay models satisfy all five stop facts and directory/no-argument admission clauses pass; bound spent: eval feature-branch-stop (1 of 3), ran eval feature-branch-stop (1 of 3); no live PR, push or ticket action, eval exited 0 and both process groups absent |
 | 5 | done | 3 | timeout -k 30 30 node --test eval/housekeeping/pr-card-no-ticket.test.mjs; 1 passed, 2 models satisfy all PR-card facts; bound spent: eval pr-card-no-ticket (2 of 3), ran eval pr-card-no-ticket (2 of 3); eval exited 0, job and controller reaped, no PR/push/ticket launched |
 | 6 | done | 0 | timeout -k 30 10 python3 -c 'assert all(all(s in __import__("pathlib").Path(p).read_text() for s in ss) for p,ss in [("skills/housekeeping/reference/check.md", ("REVIEW.md", "AGENTS.md", "CLAUDE.md", "every directory on the path to each selected file", "ARCHITECTURE.md", "README.md", "Follow these references one hop only", "Record sources read.", "With no repo sources, run base rules alone.")), ("skills/housekeeping/reference/card.md", ("the rule in everyday words and its source file",)), ("skills/housekeeping/SKILL.md", ("rule sources read",))])'; source discovery, optional defaults, card citations and source inventory present; documentation conformance only, no live checks |
-| 7 | open | 0 | |
+| 7 | done | 1 | timeout -k 30 30 node --test eval/housekeeping/overrides-rule-cited.test.mjs; 1 passed, both replay models cite the overrides file and housekeeping section; bound spent: eval overrides-rule-cited (1 of 3), ran eval overrides-rule-cited (1 of 3); eval exited 0, job and controller reaped, no PR/push/ticket launched |
 | 8 | open | 0 | |
 | 9 | open | 0 | |
 | 10 | open | 0 | |
@@ -37,3 +37,4 @@ row 4 done | Verified feature-branch stops; bound spent: eval feature-branch-sto
 row 5 failed | Added PR replay fixtures; spend probe timed out after 10 s; no eval, PR, push, ticket or job launched. | Keep eval/housekeeping/pr-card-no-ticket.test.mjs; avoid TMPDIR scans, read exact prior jobs paths, then capture pr-card-no-ticket.
 row 5 failed | Captured PR cards; no-execution fails; bound spent: eval pr-card-no-ticket (1 of 3); ran eval pr-card-no-ticket (1 of 3); no PR, push or ticket launched. | Keep PR results; align the checked recommendation with the spec card before recapturing; jobs: ${TMPDIR:-/tmp}/loop-92eb7a087670521a6117c5e39c06066de0a5bbc7-5.jobs.
 row 5 done | Empty-box PR cards pass; bound spent: eval pr-card-no-ticket (1 of 3); ran eval pr-card-no-ticket (1 of 3); ran eval pr-card-no-ticket (2 of 3); no PR, push or ticket launched. | Replay eval/housekeeping/pr-card-no-ticket.test.mjs locally; directory/stop evidence is stale; jobs: ${TMPDIR:-/tmp}/loop-92eb7a087670521a6117c5e39c06066de0a5bbc7-6.jobs.
+row 7 done | Required section citations; bound spent: eval overrides-rule-cited (1 of 3); ran eval overrides-rule-cited (1 of 3); no PR/push/ticket launched. | Replay eval/housekeeping/overrides-rule-cited.test.mjs locally; prior cards stale; jobs: ${TMPDIR:-/tmp}/loop-92eb7a087670521a6117c5e39c06066de0a5bbc7-7.jobs.
