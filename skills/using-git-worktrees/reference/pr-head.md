@@ -6,7 +6,7 @@ For `$ROOT`, `$BRANCH`, `REMOTE_BRANCH=existing`, follow companion mode below be
 
 ### Companion identity and provisioning
 
-Use caller `$ROOT` unchanged, not the session's git common directory; apply Step 0's submodule guard against that root. Use `$BRANCH` as the branch and the companion's repo identity in every stop, never a PR number. Run `git -C "$ROOT" fetch origin`, then repeat the live check `git -C "$ROOT" ls-remote --exit-code --heads origin refs/heads/<branch>` before any companion writes. On any fetch failure or lookup exit other than 0 or 2 stop naming repo and command output, never diagnose absence. On exit 0 require `origin/<branch>`. On exit 2 stop even when a stale tracking ref still resolves: `origin/<branch> is missing in <repo>; on the machine that ran option 6, push <branch> from that companion's checkout, then rerun brainstorming #N`. On that machine, verify `git log -1 --format=%H refs/heads/<branch> -- <spec-dir>/<home spec filename>` shows the leg-file commit without checking out or modifying the primary, then run `git push -u origin <branch>`. Stop continuation when that commit exists on no machine; do not regenerate it.
+Use caller `$ROOT` unchanged, not the session's git common directory; apply Step 0's submodule guard against that root. Use `$BRANCH` as the branch and the companion's repo identity in every stop, never a PR number. Run `git -C "$ROOT" fetch origin`, then repeat the live check `git -C "$ROOT" ls-remote --exit-code --heads origin refs/heads/<branch>` before any companion writes. On any fetch failure or lookup exit other than 0 or 2 stop naming repo and command output, never diagnose absence. On exit 0 require `origin/<branch>`. On exit 2 stop even when a stale tracking ref still resolves; use [Missing remote recovery](#missing-remote-recovery) before selecting the stop's recovery ending.
 
 Set `ORIGINAL_HEAD=$(git -C "$ROOT" rev-parse origin/<branch>)`. Obtain nonempty `baseRefName` with `gh repo view <owner/name> --json defaultBranchRef -q .defaultBranchRef.name` (positional repo, never `-R`), then `BASE_SHA=$(git -C "$ROOT" rev-parse origin/<baseRefName>)`; retain full SHAs. Use this repo's own overrides and `.pi/settings.json` read by file with existing preset rules, already compared with the recorded contract in caller preflight. For a recorded `home:`, resolve home/create through Step 1a; without `home:`, select and provision through [Recorded no-home provisioning](#recorded-no-home-provisioning). Derive NAME from BRANCH with `/` replaced by `-`.
 
@@ -17,6 +17,17 @@ Apply the "Provision the exact head" rows and wrapper/token/home safety rules wi
 Run only "Merge the fetched base", with companion WORKTREE and its own BASE_SHA overrides for SCOPED_TEST_COMMANDS. Keep helper scope, staging, contained-delta and orchestrator completion checks. On failure abort and record `merge: unresolved - <files>`; end with the preserved-leg inventory and the caller's by-hand stop, even after a clean abort. Emit no `Worktree ready` or home Task 1 continuation on this path. Require `git -C "$WORKTREE" merge-base --is-ancestor <ORIGINAL_HEAD> HEAD` after merge. Report Base SHA and merge outcome, not `PR:` or `Pre-rework head:`. Require Step 4's coordinated read-back (`worktree list --porcelain` path and `branch --show-current` exactly BRANCH) before `Worktree ready at <path>`.
 
 On every companion provisioning failure name repo and branch and print `Preserved created legs:` using Step 4's inventory, including the stopped member's tree after a successful creator. Remove nothing.
+
+### Missing remote recovery
+
+Print `origin/<branch> is missing in <repo>`. Run `git -C <primary> log -1 --format=%H refs/heads/<branch> -- <spec-dir>/<home spec filename>` on this machine without checking out or modifying the primary. Select the recovery ending from that file-scoped result, not the branch tip or a stale tracking ref:
+
+| Observation | Recovery ending |
+|---|---|
+| The file-scoped log prints a commit | Offer `git push -u origin <branch>` from that primary, then rerun `brainstorming #N`. |
+| No local branch, or a local branch without the leg-file commit; the log prints nothing | State `no local branch on this machine holds the leg file; restore origin/<branch> from a clone that still has it and rerun brainstorming #N; nothing is regenerated`. Offer no push from this machine. |
+
+Preserve all provisioned trees. Run no creation, local ref update or merge on this stop.
 
 ### Recorded no-home provisioning
 

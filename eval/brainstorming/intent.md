@@ -82,7 +82,10 @@ Extend only spec-pr-publish-legs success and cleanup coverage for remote-gated l
 
 Continue marked script-created legs without a recorded home: compare create with the discovered portable template, skip absent home comparison, and use pr-head's branch-located reuse or existing-branch script creation. Keep explicit homes on their existing path rules and diagnose recorded home versus current absence as drift requiring a paired user-approved amendment. Extend only spec-pr-regate-legs checkpoint G, keeping its prior facts and raising its narration allowance to 1900 words within the 2200 target cap. Run only that selected sample against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f within its approved three-run/fourteen-call bound; saved results prove narrated continuation, not live provisioning or target-wide coverage.
 
+For spec-pr-regate-legs, replace unconditional missing-remote push advice with primary-local file-scoped recovery: offer push only when the branch log holds the leg-file commit, otherwise restore the remote elsewhere and regenerate nothing. Check both an absent local branch and an unrelated branch without leg-file history. Preserve other facts and run only this sample; its saved results provide sample-scoped narrated evidence, not live recovery.
+
 ## Expected to move
+- spec-pr-regate-legs/missing-remote: fails -> holds - Select push or remote restoration only after the local file-scoped branch log.
 - spec-pr-regate-legs/script-reuse: fails -> holds - Match discovered templates and reuse the branch-located tree without home drift or another-path refusal.
 - spec-pr-regate-legs/script-create: fails -> holds - Use existing-branch script creation or stop unsupported scripts before any write.
 - spec-pr-regate-legs/absent-home-drift: fails -> holds - Surface resolved absent for a recorded home and require paired user-approved amendment.
