@@ -445,12 +445,12 @@ Coverage is partial. The seven samples judge rendered cards and stops. Selection
 
 - A directory-run card offers three picks - `eval/housekeeping` sample `directory-three-picks`
 - One pushed PR per fix-picked class, main checkout unchanged - conformance read, not exercised live: the job and delivery tables of `skills/housekeeping/reference/fix.md` give `pr-per-class` one worktree from the recorded commit, one commit, one push and one `gh pr create` per class, and the worktree sequence of `reference/select.md` has no command that commits on or edits the primary checkout
-- The no-argument run selects uncommitted files, offers fix and ignore, edits in place - conformance read: the uncommitted column of `reference/select.md`'s input table, its one ignore filter (a modified tracked file that matches an ignore rule is not selected), and the `in-place` rows of `reference/fix.md` (no commit, no index change, restore from the expected state); a replay sample for the card is requested in Open questions
+- The no-argument run selects uncommitted files, offers fix and ignore, edits in place - conformance read: the uncommitted column of `reference/select.md`'s input table, its one ignore filter (a modified tracked file that matches an ignore rule is not selected), and the `in-place` rows of `reference/fix.md` (no commit, no index change, restore from the expected state); a replay sample for the card was not authorized (Open questions)
 - A PR-run card offers no ticket row - `eval/housekeeping` sample `pr-card-no-ticket`
 - One commit per class pushed to the PR - conformance read, not exercised live: the `commit-push` rows of `reference/fix.md` (one commit per class, a repair amends it, one push without force) and the PR column of `reference/select.md` (the same ignore filter over the PR's files)
 - A run off the default branch stops and names the PR input - `eval/housekeeping` sample `feature-branch-stop`
 - A PR worktree with local changes stops - conformance read, not exercised live: the PR precondition cell of `reference/select.md` and its stop lines (local changes, divergence, branch checked out in the primary, failed push dry-run, session inside the worktree)
-- Rule sources read with no configuration, named on cards and in the report - conformance read: the source list of `reference/check.md` and the Report step's rule-sources list in `SKILL.md`; `overrides-rule-cited` and `base-rule-wins` exercise the source line of a card; a replay sample for the full list is requested in Open questions
+- Rule sources read with no configuration, named on cards and in the report - conformance read: the source list of `reference/check.md` and the Report step's rule-sources list in `SKILL.md`; `overrides-rule-cited` and `base-rule-wins` exercise the source line of a card; a replay sample for the full list was not authorized (Open questions)
 - An overrides rule produces a card citing the section - `eval/housekeeping` sample `overrides-rule-cited`
 - A base rule wins over a repo rule - `eval/housekeeping` sample `base-rule-wins`
 - Card shape, one recommendation, 180 words - `eval/housekeeping` sample `pr-card-no-ticket`
@@ -458,7 +458,7 @@ Coverage is partial. The seven samples judge rendered cards and stops. Selection
 - A withheld fix recommends ticket - `eval/housekeeping` sample `withheld-fix-ticket`
 - Ticket picks pass shape-ticket's approval - none: shape-ticket owns and tests its gate
 - A rejected fix is undone and other jobs complete - conformance read, not exercised live: `reference/fix.md` lists every left-open trigger, and its undo paragraph restores only the failed class
-- The closing report's lists - conformance read: the Report step of `SKILL.md` carries the terminal-line table, the counter order and each list; a replay sample is requested in Open questions
+- The closing report's lists - conformance read: the Report step of `SKILL.md` carries the terminal-line table, the counter order and each list; a replay sample was not authorized (Open questions)
 - Listed for Claude Code - `scripts/claude-plugin-smoke.test.mjs`
 - Not model-invocable; frontmatter valid; size under the limit; links resolve - `scripts/ci.mjs` (skill lint, instruction-size lint, marketplace assertions including the bundle-reference check)
 - The card gate and terminal lines are inventoried - `scripts/gate-contract-lint.mjs`
@@ -486,6 +486,6 @@ Per `reference/documentation-impact.md`:
 
 ## Open questions
 
-- Gate decision, base rules: the rule families in Design 3 were drafted at spec-writing from the three cited sources, and the base is not negotiable once shipped. The user accepts the table or cuts rules from it at the approval gate. `reference/base-rules.md` is written from the accepted table only; this entry is removed once the answer is recorded here.
-- Gate decision, paid bound: three behaviors have conformance-read proof only and could be judged by replay if the bound is widened from seven samples and 21 invocations to ten and 30: the no-argument card (fix and ignore only), the rule-source list on a card and in the report, and the closing report's lists. Without that explicit authorization the seven-sample bound stands and no sample is added.
+- Base rules, answered at the approval gate: the user accepted the Design 3 table with no rule cut. `reference/base-rules.md` is written from that table only.
+- Paid bound, answered at the approval gate: the user approved without widening it, so the seven-sample, 21-invocation bound stands and no sample is added. The no-argument card (fix and ignore only), the rule-source list on a card and in the report, and the closing report's lists keep conformance-read proof only. The declined widening was to ten samples and 30 invocations.
 - Parallel fix jobs on Claude Code were not checked; the design runs them one at a time there.
