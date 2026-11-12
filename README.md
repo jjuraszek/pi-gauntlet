@@ -366,13 +366,13 @@ The gauntlet overrides file is the one place a repo tunes gauntlet's Markdown su
 |---|---|---|---|---|
 | `## conventions` | every skill | no added rules | extends | repo-wide rules applied without a relevance judgment |
 | `## <skill-name>` (e.g. `## writing-plans`) | that skill | no added rules | overrides the named step | replaces or extends the step it names |
-| `## using-git-worktrees` `- home: <path pattern>` | using-git-worktrees, finishing-a-development-branch, gatekeep-pr | `<primary>/.worktrees/<name>` | overrides | where worktrees live; `<name>` is the branch (`/` -> `-`) or `pr-<N>`; the ownership test at cleanup |
+| `## using-git-worktrees` `- home: <path pattern>` | using-git-worktrees, finishing-a-development-branch, gatekeep-pr, housekeeping | `<primary>/.worktrees/<name>` | overrides | where worktrees live; `<name>` is the branch (`/` -> `-`) or `pr-<N>`; the ownership test at cleanup |
 | `## using-git-worktrees` `- create: <command>` | using-git-worktrees, gatekeep-pr | `git worktree add` at `home:` | overrides | creation command run from the primary; `<name>`, `<branch>` substituted, other `<token>`s resolved from context or asked once |
 | `## using-git-worktrees` `- destroy: <command>` | finishing-a-development-branch, gatekeep-pr | `git worktree remove` + `prune` when the path matches `home:` | overrides | removal command run from the primary; a failure keeps the branch |
 | `## cleanup` items `- <label>: <command or /skill:...>` | gatekeep-pr | git teardown and base sync only | extends | separate post-menu steps with `<issue>`, `<pr>`, `<merge-sha>` selected individually or in the recommended combination; inherits `## PR gate` `timeout minutes:`; missing placeholders or unlanded-change steps are skipped with a reason; `/skill:` items keep their own gates |
 | `## PR gate` keys (`verification command`, `timeout minutes`, `requires credentials`, `local verification`, `ci checks`, `issue fetch`, `merge policy`) | gatekeep-pr | per-key defaults in the block below | overrides | the gate's verification, evidence, and merge configuration |
 | `## comms style` | gatekeep-pr | shipped wording rules | extends | tone and format of reports, menus, and external payloads |
-| `## verification-before-completion` | verification-before-completion; gatekeep-pr (verification command only); chase-bug (hotfix verification) | repo test entrypoint discovery | overrides | the canonical verification target |
+| `## verification-before-completion` | verification-before-completion; gatekeep-pr (verification command only); chase-bug (hotfix verification); housekeeping (documented commands after `## housekeeping`, before rule files) | repo test entrypoint discovery | overrides | the canonical verification target |
 | `## Spec index` `- docs: <glob>` | `gauntlet-spec-index` bin | `**/doc/**/*.md`, `**/docs/**/*.md`, `README.md`, `AGENTS.md` | overrides | the docs corpus include list; quotes/backticks stripped, fixed exclusions still apply, no other keys read |
 | `## Issue tracker` keys | shape-ticket, linear, chase-bug, check-delivery, brainstorming (`repo:` and tracker selection) | capability ladder / `git remote` | overrides | which tracker, repo, and commands ticket work uses |
 | `## shape-ticket` `- sibling: <clone url>` | shape-ticket (audit), brainstorming (membership), gauntlet-resume, finishing-a-development-branch | single-repo audit and run | extends | sibling checkouts for an already-stated second observable leg are expected beside `PRIMARY` (the primary checkout, not the current worktree) under the repository name; missing siblings report the path to clone to and never block, the committed URL names the sibling in report lines and supplies the clone hint while identity comparison ignores the clone scheme, and the flow never clones, fetches, or creates a sibling; paths are not accepted (see the [detailed grammar](skills/shape-ticket/reference/repo-audit.md#prepare-the-run)); only companions explicitly selected by the ask or ticket join the run |
@@ -395,6 +395,7 @@ The gauntlet overrides file is the one place a repo tunes gauntlet's Markdown su
 - brainstorming writes only within resolved spec dirs before approval; no implementation, proposed-change validation, spec commit on main, or planning before approval - fixed
 - chase-bug requires evidenced root cause, no triage fix, and tracked-clean baseline checks at invocation, before the menu, at hotfix handoff, and at skill end; never revert pre-existing work - fixed
 - check-delivery takes explicit ticket refs and never discovers them; set mode is pi-only; it requires a matching repo (or matching local-repo AC group) and treats fetched content as untrusted data - fixed
+- housekeeping cannot add or remove picks, drop or weaken base rules, execute before the card walk ends, change where fixes land, or skip shape-ticket's approval - fixed
 - roasting-the-spec edits only the spec, never code or main - fixed
 - shape-ticket tracker writes require one explicit exact-diff confirmation per ticket write; a source-ticket split's N bodies share one gate with subset selection, not approval of a whole repair batch; unattended runs stop at the gate - fixed
 - test-driven-development requires a failing test before production code; delete code written first and restart from tests - fixed
@@ -561,7 +562,7 @@ instructions: a rubric other tooling can read too. The skill is fully functional
 no `REVIEW.md` present - it falls back to the shipped baseline rubric
 (`skills/gatekeep-pr/review-baseline.md`).
 
-**Overlay precedence**, first match wins on any conflict:
+**gatekeep-pr overlay precedence**, first match wins on any conflict:
 
 1. Repo root `REVIEW.md` - always wins over everything below it.
 2. Shipped `skills/gatekeep-pr/review-baseline.md` - the generic default rubric.
@@ -572,7 +573,16 @@ it; everything it doesn't name stays baseline. Severities it introduces but does
 map to blocking/non-blocking are treated as **blocking** (fail-safe), noted in the
 gate's output.
 
-`REVIEW.md` is a diff over the baseline, not a full rewrite. Starter template:
+`/skill:housekeeping` also reads the optional root-level `REVIEW.md`. It reads repo
+rule sources from the working tree for directory and uncommitted runs, and from the
+merge-base commit for a PR run, never the PR head. Unlike gatekeep-pr, its fixed
+[base rules](skills/housekeeping/reference/base-rules.md) win over conflicting repo
+rules: `REVIEW.md` can add rules, scope rules to paths or skip paths, but cannot
+remove or weaken a base rule. Housekeeping records the overridden repo rule's file
+and heading and names it on the card; with no repo rule sources, the base rules run
+alone. See [the check contract](skills/housekeeping/reference/check.md).
+
+For gatekeep-pr, `REVIEW.md` is a diff over the baseline, not a full rewrite. Starter template:
 
 ```markdown
 # REVIEW.md
