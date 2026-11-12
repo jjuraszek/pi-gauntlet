@@ -164,7 +164,7 @@ These are the stops this recovery and authorization contract keeps or touches, n
 | Verification repairs reach allowance; escalation model unavailable for a verification repair | Amend, stop | Same |
 | Conformance fix-round cap | Stops at cap | Funds up to allowance, then stops |
 | Spec amendment, including an `unreachable:` cut | Reviewer applies evidence-backed factual corrections; other amendments stop for review | Applies with no human turn |
-| Row reopened by an applied amendment during verify | Authorize the row's return, or stop | Runs within remaining row allowance, with verify active, then reruns step 1 |
+| Row reopened by an applied amendment during verify | Authorize the row's one-task `tasks` return per driver step 3, or stop | Runs the same one-task `tasks` continuation within remaining row allowance, with verify active, then reruns step 1 |
 | A redraw | Stops | Stops |
 | Run cannot start: missing `checks:`, neither `allowance:` nor legacy `cap:`, unavailable settings tool, or seed `plan_check` findings | Stops | Stops |
 | Dirty tree with no dispatch pending; on resume, admission question or missing-history stops (unrecoverable pre-dispatch ledger/tuple, or unreadable child attribution with no tuple) | Stops | Stops |

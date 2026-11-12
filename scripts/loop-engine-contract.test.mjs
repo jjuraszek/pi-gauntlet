@@ -417,6 +417,7 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   assert.match(after, /Gn tasks.*same tracker/);
   assert.match(after, /Without amend permission, refresh and stop with `Stopped: row <n> reopened by amendment during verify`/);
   assert.match(after, /Under amend permission, continue without a second authorization/);
+  assert.match(after.split('\n3. ')[1].split('\n4. ')[0], /During verify, dispatch the reopened row as a one-task `tasks` call.*same `## Dispatch` fields.*no `worktree:`.*closure guard counts it as one fix round against the conformance cap/);
   assert.match(after, /including exhausted-row rule 2/);
   assert.match(after, /authorize the row's return to ledger implementation or stop/);
   assert.match(after, /Dispatch.*Validate the return.*refresh.*verify still active.*no phase reset/);
