@@ -2,6 +2,8 @@ for: 4def0aceb60c24ff468abfeeeb535de6b1158933cbae004c1938a48a141f595c
 
 ## Change
 
+Apply the common interrupted-recovery rule to companion returns before clean-result admission. Reset only the selected companion and write the repair only in home, preserving foreign entries and consumed counters. Migrate companion-interrupted-recovery A-D for proof-free cleanup and add E-F for unchanged clean-result guards and companion seed recovery. The selective deterministic check lives beside its siblings in scripts/loop-companion-recovery.test.mjs. Model replay of companion-interrupted-recovery awaits reconstruction migration; existing results do not attest these changed facts.
+
 Recover interrupted verification repairs through the same jobs/reset rule, using the failing leg's job identity and resetting home for companions. Migrate `verify-repair-count` snapshots 2-3 for absent history, mismatched jobs, leftover dirt and extra home changes; add snapshot 5 for allowance-bounded reset/marker failures. Preserve row cells and the consumed iteration in one home marker, then rerun without a human pause. The selective deterministic check is `scripts/loop-verification-repair.test.mjs`; model replay of `verify-repair-count` awaits companion/resume migration, and existing result records do not prove the changed facts.
 
 Recover interrupted numbered-row returns unconditionally under options 4 and 5, then check allowance after one repair attempt. Migrate interrupted-child-redispatch A-D and add H for Request aborted, an empty return and no jobs file at allowance 10. Skip mismatched jobs without signaling and continue after lingering jobs or files. The selected deterministic check is scripts/loop-engine-contract.test.mjs beside its siblings; no model replay runs in this iteration. The parent must run interrupted-child-redispatch after its companion/resume facts migrate; existing result records are not evidence for these changed facts.
@@ -90,11 +92,13 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - seed-interrupted-count/one: fails -> holds - An interrupted seed consumes the sole repair at allowance 1.
 - seed-interrupted-count/resume: fails -> holds - Recover seed count and reason from history without re-seeding a validated partial seed.
 - seed-interrupted-count/ownership: fails -> holds - Preserve state and budget on unresolved provenance or background history.
-- companion-interrupted-recovery/owned: fails -> holds - Confirm process identity and exclusive companion ownership before cleanup.
+- companion-interrupted-recovery/owned: fails -> holds - Signal matching listed jobs and reset only the companion without checkout-ownership proof.
 - companion-interrupted-recovery/repair: fails -> holds - Repair only home row cells and redispatch with spent escalation preserved.
 - companion-interrupted-recovery/resume: fails -> holds - Recover the companion tuple once before the dirty-tree stop.
-- companion-interrupted-recovery/unsafe: fails -> holds - Preserve both checkouts on ambiguous provenance, identity or home dirt.
-- companion-interrupted-recovery/allowance: fails -> holds - Completed companion cleanup consumes an attempt and stops at allowance.
+- companion-interrupted-recovery/unsafe: fails -> holds - Skip mismatched jobs and recover despite absent provenance, launch history or lingering jobs and files.
+- companion-interrupted-recovery/allowance: fails -> holds - Recover even on the final attempt and stop at allowance after the home repair.
+- companion-interrupted-recovery/admission: fails -> holds - Preserve clean-result attribution and home-boundary stops and ordinary foreign-result repair.
+- companion-interrupted-recovery/seed: fails -> holds - Repair a companion seed only in home without changing row cells or foreign seed flags.
 - seed-retry/stop: fails -> holds - A second seed repair below allowance permits a third dispatch.
 - seed-retry/companion: fails -> holds - Count home companion seed markers against the same allowance.
 - seed-retry/boundary: fails -> holds - Automatic owned recovery and unsafe provenance stops remain distinct.
