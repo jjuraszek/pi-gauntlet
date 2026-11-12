@@ -1,0 +1,130 @@
+{
+  "sample": "legs-script-placed-cleanup",
+  "arm": "candidate",
+  "skillSha": "67dcdf198d4367b4f967afa3fe8f6280351b1c945de1fc8031aa662f0c3f0936",
+  "inputSha": "eb6ab5cb967258a8e0087f7e22705fa073e65ac2b03d5cb7182aac60f8f55fb8",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Coordinated cleanup\n\nShared `BRANCH` is `feature/shared-change`. The flattened shared `NAME` is `feature-shared-change`. In every case the authority is the recorded `contract:` lines in the home spec's `## Legs`. The new overrides that suggest built-in removal for repo-b are not read.\n\n## A. Coordinated squash: cleanup after all post-squash verification passed\n\n**Locate repo-b by branch.** The stale brief path `/work/repo-b/.worktrees/feature-shared-change` is never expanded or probed.\n```\ngit -C /work/repo-b worktree list --porcelain\n```\n- Skip the first (primary, `main`) block.\n- The single block carrying `branch refs/heads/feature/shared-change` is `/work/repo-b/trees/placed-fix-x`.\n- Identity checks pass: the path exists, its toplevel equals its realpath, it differs from the primary, and its common dir equals the primary's.\n\nrepo-c is located the same way from `/work/repo-c`, giving `/work/repo-c-slot-fix-x`.\n\n**repo-b** (no `home:`, has `destroy:`). The wrapper runs from the primary. `<name>` is the located folder basename, not the shared NAME.\n```\ncd /work/repo-b && script/tree destroy 'placed-fix-x' --branch 'feature/shared-change'\n```\nExit 0. Read-back:\n```\ngit -C /work/repo-b worktree list --porcelain            # no block for placed-fix-x\ntest -e /work/repo-b/trees/placed-fix-x                  # absent\ngit -C /work/repo-b rev-parse -q --verify refs/heads/feature/shared-change   # present\n```\nThe tree is confirmed removed. The remaining branch is deleted:\n```\ngit -C /work/repo-b branch -D 'feature/shared-change'\n```\nNo built-in `worktree remove` or `prune` runs after a wrapper.\n\n**repo-c** (has `home:`). This follows Step 6's keyed path:\n- `../repo-c-slot-<name>` resolves against `/work/repo-c` to `/work/repo-c-slot-<name>`.\n- The realpath of `/work/repo-c-slot-fix-x` matches with prefix `repo-c-slot-`, so the recovered NAME is `fix-x`.\n- `fix-x` differs from repo-b's `placed-fix-x`, which is a folder basename with no home pattern. It also differs from the shared flattened `feature-shared-change`.\n\n```\ncd /work/repo-c && script/tree destroy 'fix-x' --branch 'feature/shared-change'\n```\nExit 0. The read-back (same three probes) shows the tree neither listed nor on disk and the ref present. No extra remove or prune runs.\n```\ngit -C /work/repo-c branch -D 'feature/shared-change'\n```\n\n**repo-a (home, last).**\n- `.worktrees/<name>` resolves to `/work/repo-a/.worktrees/<name>`.\n- `/work/repo-a/.worktrees/feature-shared-change` matches, so NAME is `feature-shared-change`.\n- `<home>` resolves from context to the located tree.\n\n```\ncd /work/repo-a && git worktree remove '/work/repo-a/.worktrees/feature-shared-change' && git worktree prune\n```\nExit 0. The read-back shows the tree absent and the ref present.\n```\ngit -C /work/repo-a branch -D 'feature/shared-change'\n```\n\n**Receipts.** Home delivery and all required cleanup succeeded:\n```\nrm -rf /work/repo-a/.git/gauntlet/receipts/shared.md\n```\nHome delivery and required cleanup succeeded; receipts removed.\n\n**Outcome:**\n- repo-b: removed (`/work/repo-b/trees/placed-fix-x`), branch deleted.\n- repo-c: removed (`/work/repo-c-slot-fix-x`), branch deleted.\n- repo-a: removed (`/work/repo-a/.worktrees/feature-shared-change`), branch deleted.\n\n## B. One-member finish, repo-b home, after squash\n\nThis run has no companion loop, receipts, or `--leg`. The block has no `home:` and has `destroy:`, so recorded cleanup ownership applies. The command runs regardless of its exit, and the read-back decides the outcome:\n```\ncd /work/repo-b && script/tree destroy 'placed-fix-x' --branch 'feature/shared-change'\n```\nRead-back probes, run in both outcomes:\n1. `git -C /work/repo-b worktree list --porcelain`\n2. `test -e /work/repo-b/trees/placed-fix-x`\n3. `git -C /work/repo-b rev-parse -q --verify refs/heads/feature/shared-change`\n\n**B1.** The command exits 1 and prints `error: final hook failed`.\n- The read-back shows the tree not listed and not on disk, with the ref present.\n- That counts as confirmed removal, so the branch is deleted: `git -C /work/repo-b branch -D 'feature/shared-change'`.\n- Report: `repo-b: destroy command failed (exit 1: error: final hook failed); tree /work/repo-b/trees/placed-fix-x observed removed; branch feature/shared-change deleted.`\n- No fallback remove or prune runs.\n\n**B2.** The command exits 0 and prints `done`.\n- The read-back shows the tree still listed and still on disk, with the ref present.\n- That is not a removal, so the branch is kept.\n- Report: `repo-b: destroy exited 0 but tree /work/repo-b/trees/placed-fix-x still listed and on disk; branch feature/shared-change preserved; cleanup failed.`\n- No `git worktree remove`, no prune, and no branch deletion run.\n\n## C. One-member, block with neither `home:` nor `destroy:`\n\nThe worktree is host-owned. The destroy command offered by the new overrides is not used, because the recorded contract is authoritative and has not been amended. No command runs and no branch deletion runs.\n\nReport: `host-owned worktree /work/repo-b/trees/placed-fix-x still holds feature/shared-change`.\n\nA legacy spec without `## Legs` instead rereads the overrides at finish time:\n- It takes the first file found of `.pi/gauntlet-overrides.md`, `gauntlet-overrides.md`, or `doc/gauntlet-overrides.md`.\n- It uses that file's `## using-git-worktrees` section as the cleanup contract.\n- With no file or no keys, it falls back to the legacy path.\n\n## D. Coordinated Discard\n\n**Before confirmation**, every worktree is located by branch as in A and listed with its resolved path:\n- repo-a: `feature/shared-change`, 2 commits, `/work/repo-a/.worktrees/feature-shared-change`\n- repo-b: `feature/shared-change`, 3 commits, `/work/repo-b/trees/placed-fix-x`\n- repo-c: `feature/shared-change`, 1 commit, `/work/repo-c-slot-fix-x`\n\nThe prompt is: Type `discard` to remove all three worktrees and branches. Nothing runs until the user types it.\n\n**After the user types exactly `discard`**, members are cleaned in order repo-b, repo-c, then home. Each runs through its recorded contract regardless of other members' refusals.\n\n**repo-b.** The configured teardown hook refuses with `exit 1 tree busy`, so the wrapper is not run. The read-back (three probes as in B) shows the tree listed and on disk, with the branch present. No branch deletion runs and there is no `git worktree remove` fallback.\n\nReport: `repo-b: failed - teardown hook refused (exit 1 tree busy); tree /work/repo-b/trees/placed-fix-x and branch feature/shared-change preserved.` Cleanup continues to the next member.\n\n**repo-c.**\n```\ncd /work/repo-c && script/tree destroy 'fix-x' --branch 'feature/shared-change'\n```\nThe tree is absent and the ref present.\n```\ngit -C /work/repo-c branch -D 'feature/shared-change'\n```\nReport: `repo-c: removed; branch deleted.`\n\n**repo-a.** This is Discard, not squash, so home is still cleaned despite repo-b's refusal.\n```\ncd /work/repo-a && git worktree remove '/work/repo-a/.worktrees/feature-shared-change' && git worktree prune\n```\nThe tree is absent and the ref present.\n```\ngit -C /work/repo-a branch -D 'feature/shared-change'\n```\nReport: `repo-a: removed; branch deleted.`\n\n**Receipts.** Required cleanup failed, so `/work/repo-a/.git/gauntlet/receipts/shared.md/` stays in place. Report: `receipts retained - required cleanup failed`.\n\n**What does not happen:**\n- No plan strip.\n- No telemetry seal.\n- No fallback removal.\n- No marking ship complete, because Discard is never marked shipped.\n\n**Final state:**\n- repo-b: preserved (failed).\n- repo-c: removed, branch deleted.\n- repo-a: removed, branch deleted.\n",
+      "words": 934,
+      "wallMs": 44194,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## A. Coordinated squash: successful cleanup\n\nUse the **recorded contracts**, not the new overrides or stale brief path. Cleanup order is repo-b, repo-c, then repo-a.\n\n**1. Locate and clean repo-b**\n\nRead:\n\n```sh\ngit -C '/work/repo-b' worktree list --porcelain\n```\n\nSelect the linked block holding `refs/heads/feature/shared-change`: `/work/repo-b/trees/placed-fix-x`. Identity checks pass. Do not use the absent brief path.\n\nBecause the recorded block has no `home:` but has `destroy:`, use the located folder basename, `placed-fix-x`:\n\n```sh\n(cd '/work/repo-b' && script/tree destroy 'placed-fix-x' --branch 'feature/shared-change')\n```\n\nThe command succeeds. Read back:\n\n```sh\ngit -C '/work/repo-b' worktree list --porcelain\ntest -e '/work/repo-b/trees/placed-fix-x'\ngit -C '/work/repo-b' rev-parse -q --verify 'refs/heads/feature/shared-change'\n```\n\nThe tree is neither listed nor on disk; the ref remains. Delete it:\n\n```sh\ngit -C '/work/repo-b' branch -D 'feature/shared-change'\n```\n\nRun no fallback removal or prune.\n\n**2. Clean repo-c**\n\nLocate `/work/repo-c-slot-fix-x` by its linked branch block. Canonical matching against `/work/repo-c/../repo-c-slot-<name>` recovers **`fix-x`**.\n\nThis differs from repo-b’s basename **`placed-fix-x`** and the shared flattened branch name **`feature-shared-change`**.\n\n```sh\n(cd '/work/repo-c' && script/tree destroy 'fix-x' --branch 'feature/shared-change')\n```\n\nThe command succeeds. Read back:\n\n```sh\ngit -C '/work/repo-c' worktree list --porcelain\ntest -e '/work/repo-c-slot-fix-x'\ngit -C '/work/repo-c' rev-parse -q --verify 'refs/heads/feature/shared-change'\n```\n\nThe tree is absent and unlisted; the ref remains:\n\n```sh\ngit -C '/work/repo-c' branch -D 'feature/shared-change'\n```\n\nRun no additional removal or prune.\n\n**3. Clean repo-a**\n\nIts located path matches `.worktrees/<name>`, recovering `feature-shared-change`. Resolve `<home>` to the located tree:\n\n```sh\n(cd '/work/repo-a' && git worktree remove '/work/repo-a/.worktrees/feature-shared-change' && git worktree prune)\n```\n\nThe recorded command succeeds. Read-back shows the tree absent and unlisted, with the feature ref present. Then:\n\n```sh\ngit -C '/work/repo-a' branch -D 'feature/shared-change'\n```\n\nAll delivery verification and required cleanup succeeded. Remove the home-owned receipt directory `/work/repo-a/.git/gauntlet/receipts/shared.md/` and its contents.\n\n**Home delivery and required cleanup succeeded; receipts removed**\n\nFinal outcomes, in member order:\n\n- **repo-a:** shipped; worktree removed; feature branch deleted.\n- **repo-b:** shipped; worktree removed; feature branch deleted.\n- **repo-c:** shipped; worktree removed; feature branch deleted.\n\nThe coordinated squash is complete.\n\n## B. One-member finish: observed state governs cleanup\n\nNo companion loop or receipt applies. No teardown hook runs before:\n\n```sh\n(cd '/work/repo-b' && script/tree destroy 'placed-fix-x' --branch 'feature/shared-change')\n```\n\nIn **both outcomes**, perform these three probes regardless of command exit:\n\n```sh\ngit -C '/work/repo-b' worktree list --porcelain\ntest -e '/work/repo-b/trees/placed-fix-x'\ngit -C '/work/repo-b' rev-parse -q --verify 'refs/heads/feature/shared-change'\n```\n\n### B1. Exit 1, but removal confirmed\n\nReport the command failure:\n\n```text\nexit 1\nerror: final hook failed\n```\n\nRead-back finds no linked entry, no folder, and an existing feature ref. Removal is confirmed despite the command failure, so run:\n\n```sh\ngit -C '/work/repo-b' branch -D 'feature/shared-change'\n```\n\n**Actual outcome:** worktree removed; feature branch deleted. Report the destroy command’s failure explicitly rather than calling it successful. Run no fallback removal or prune.\n\n### B2. Exit 0, but tree remains\n\nReport:\n\n```text\nexit 0\ndone\n```\n\nRead-back finds the tree still listed and on disk, with its feature ref present.\n\n**Actual outcome:** cleanup failed to remove the worktree; tree and feature branch preserved. Do not delete the branch, and do not infer cleanup success from exit 0. Run no fallback removal or prune.\n\n## C. Recorded host ownership versus legacy lookup\n\nFor the one-member recorded block with **neither `home:` nor `destroy:`**, the workspace is **host-owned**.\n\n- Preserve `/work/repo-b/trees/placed-fix-x`.\n- Preserve `feature/shared-change`.\n- Run no cleanup command or branch deletion.\n- Do not adopt the new overrides’ destroy command. Recorded authority must be amended before a later stage can use a changed contract.\n\n**Legacy spec without `## Legs`:** read the first-found gauntlet overrides file at finish time, using this ladder:\n\n1. `.pi/gauntlet-overrides.md`\n2. `gauntlet-overrides.md`\n3. `doc/gauntlet-overrides.md`\n\nUse its `## using-git-worktrees` section as the cleanup contract. An absent file, absent section, or keyless section takes the legacy cleanup path.\n\n## D. Coordinated discard\n\n### Before confirmation\n\nPresent all members and the scope of the destructive action:\n\n| Repo | Branch | Commits to discard | Located worktree |\n|---|---|---:|---|\n| repo-a | `feature/shared-change` | 2 | `/work/repo-a/.worktrees/feature-shared-change` |\n| repo-b | `feature/shared-change` | 3 | `/work/repo-b/trees/placed-fix-x` |\n| repo-c | `feature/shared-change` | 1 | `/work/repo-c-slot-fix-x` |\n\nRequest one exact typed confirmation: **`discard`**. Run no cleanup before it.\n\n### After the user types exactly `discard`\n\nAttempt cleanup in order: repo-b, repo-c, repo-a.\n\n**repo-b:** its configured teardown hook refuses:\n\n```text\nexit 1 tree busy\n```\n\nThe wrapper is **not run**. Read back the worktree list, folder existence, and feature ref using the three repo-b probes shown in B. Both tree and branch remain. Report failure; do not delete the branch or bypass the hook.\n\n**repo-c:** continue despite repo-b’s refusal:\n\n```sh\n(cd '/work/repo-c' && script/tree destroy 'fix-x' --branch 'feature/shared-change')\n```\n\nRead-back confirms the tree absent and unlisted, with the feature ref present. Run:\n\n```sh\ngit -C '/work/repo-c' branch -D 'feature/shared-change'\n```\n\n**repo-a:** discard continues through every member even after another member refuses:\n\n```sh\n(cd '/work/repo-a' && git worktree remove '/work/repo-a/.worktrees/feature-shared-change' && git worktree prune)\n```\n\nRemoval succeeds; read-back confirms the tree absent and feature ref present. Run:\n\n```sh\ngit -C '/work/repo-a' branch -D 'feature/shared-change'\n```\n\nFinal outcomes:\n\n- **repo-a:** removed — worktree removed; branch deleted.\n- **repo-b:** failed — hook refused; worktree listed and on disk; branch preserved.\n- **repo-c:** removed — worktree removed; branch deleted.\n\n**receipts retained - required cleanup failed**\n\nAny existing receipts remain in the home primary’s Git directory. Do not strip the plan, seal telemetry, run fallback removal, or mark ship complete. Discard is not shipping, and this discard remains incomplete because repo-b was preserved.\n",
+      "words": 838,
+      "wallMs": 32310,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c9481683a863369812150ce753d30bea995cf85d2f25193cf7a44ccc83ded353",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ff2c66060285d2824ccd4f4522f2505c5a872319a6490c7804db49782b5dea05",
+      "baselineOutputSha": "693daae7b3ecdfb00fabc3bc1a85e53335e4cd7e2910a88392558ef871cf786c",
+      "candidateOutputSha": "61724d57c25d91916695f7f3b9a4b88ff50fabbab156b7f696fbfb5b9a435b96",
+      "facts": {
+        "locate": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "names": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "squash": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "readback": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "authority": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "discard-confirmation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "discard-refusal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: it locates repo-b purely by branch from `worktree list --porcelain`, treats the no-home `destroy:` contract as recorded ownership with the located basename `placed-fix-x`, runs the three read-back probes after every destroy exit and lets the read-back (not the exit code) decide branch deletion, and keeps C host-owned while distinguishing the legacy no-Legs overrides reread. Before failed locate/names/squash/readback/authority because it synthesized a `.worktrees/<name>` home expansion for a leg with no `home:`, used that as an ownership gate, and so declared repo-b host-owned, never ran its recorded destroy, and in B1 kept the branch despite the tree being observed removed. Nothing regressed: D's pre-confirmation listing and single typed `discard`, the repo-b hook-refusal handling, continuation to repo-c/home, receipt retention, and the no-strip/no-seal/no-ship statements all survive in After. One minor polish for the author: After's repo-c and home read-backs in A and D say 'same three probes' or 'tree absent' without naming the probes per leg; spelling out the list/test/rev-parse trio for each leg would make the readback and squash facts more robustly self-evident without changing any outcome.",
+      "wallMs": 20145,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c9481683a863369812150ce753d30bea995cf85d2f25193cf7a44ccc83ded353",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ff2c66060285d2824ccd4f4522f2505c5a872319a6490c7804db49782b5dea05",
+      "baselineOutputSha": "58d036c67e274bc490f15a8ba290550aa21342eeeaa48eea8e062bffb7993ec1",
+      "candidateOutputSha": "610694a58b536db0a13689235a4db98b8ea7076c59e2b2ff351b2325287ab34b",
+      "facts": {
+        "locate": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "names": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "squash": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "readback": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "authority": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "discard-confirmation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "discard-refusal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves the four intended facts without losing either discard fact. In A it locates repo-b through `git -C '/work/repo-b' worktree list --porcelain` and the shared-branch block, treats the missing `home:` as 'use the located basename' rather than expanding a default `.worktrees/<name>` pattern as ownership authority (which is what made Before refuse the repo-b destroy, skip home cleanup, and retain receipts), runs `script/tree destroy 'placed-fix-x'` and `'fix-x'` from their primaries, deletes each branch only after read-back, prunes only after home's builtin removal, and removes receipts last. In B1 it now reads back tree/folder/ref regardless of exit and deletes the ref once removal is confirmed while still reporting `final hook failed`; B2 keeps tree and branch with no fallback. B explicitly uses the single recorded contract with no loop or receipt, and C keeps host ownership, declines the new override destroy, and separates the legacy no-Legs overrides reread. D is unchanged in substance: one typed `discard`, repo-b preserved on `tree busy`, repo-c then home cleaned with post-removal branch deletion, receipts retained, no strip/seal/ship. One minor consistency note: After's read-back uses `rev-parse -q --verify` where Before used `show-ref --verify`; either satisfies the fact, but stating the exit-code semantics of the folder/ref probes (as Before did) would make the read-back interpretation unambiguous.",
+      "wallMs": 23995,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "46168da7374df37289b18db42347640fdb6d3698"
+}

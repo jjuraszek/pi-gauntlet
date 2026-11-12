@@ -1,6 +1,8 @@
-for: 98ec097cacb508be853cb26759e9005180946f23e30925976fa2a10076440c59
+for: cd2cf59834bb750531e8f55185b391eb2f67b117a4aea3abde4e3c96f577ea8d
 
 ## Change
+Locate companions by recorded branch and apply recorded cleanup ownership before the keyed path. A script contract without home uses the located folder basename and reads back the tree and ref after any destroy exit; absent home and destroy retains host ownership. Preserve keyed name recovery, legacy overrides, confirmations and receipt failure handling. Add legs-script-placed-cleanup for selective narrated coverage only; leave all other sample evidence unchanged. Every new candidate fact must hold.
+
 Publish telemetry on its orphan branch rather than committing a product deliverable. Use full-tree verification skip proofs, and continue landing after an exit-0 publication warning. Add telemetry-branch-seal, update ledger-step-1's skip facts and spell out its retained per-command post-squash exit lines. Selected coverage: telemetry-branch-seal and ledger-step-1 only; existing sample evidence remains intact.
 
 Add ledger-step-1 for the deduplicated selective set, clean-commit skip proof and untracked-file rejection, mandatory primary post-squash commands, finish-session logs and the scoped PR Summary bullet. Reuse loop-ledger and ledger-post-strip for stripping and recovery. Require an explicit read of the pending-recovery owner before pre-strip recovery or verification. Add ledger-pending-return with the actual reconstruction and companion-admission owners bundled, covering once-only parent recording, refresh and counters, settled repeat restore and rejected commit boundaries. Preserve all existing cases and facts; run only ledger-step-1, loop-ledger, loop-ledger-legacy, ledger-post-strip and ledger-pending-return against 2a946c1c with cached-cell reuse. Keep the independently observed legs-pr and nonledger legs-rerun failures separate from these focused checks.
@@ -28,6 +30,10 @@ Add spec-pr-menu and deferred-spec-stop using sample-local full finishing and he
 Compose the header-linked N>1 finish with checkout-local coordinated verification and companion-first delivery. Reconcile live receipt draft status with ready/draft selection, seal home once with every companion URL, push/readify the existing home handle last and keep its body byte-for-byte. Extend spec-pr-menu with one-member and legacy controls and pr-subject-push with header/rework precedence. Keep target-wide assembly, word cap and historical accepted variance unchanged. New spec-pr-menu-legs facts must all hold; narrated fixtures and deterministic lint are not behavioral model evidence. Full-target verification belongs to the parent.
 
 ## Expected to move
+- legs-script-placed-cleanup/locate: fails -> holds - Use the branch-selected tree, not a stale brief or recorded home.
+- legs-script-placed-cleanup/names: fails -> holds - A no-home script receives its located folder basename while keyed cleanup retains pattern recovery.
+- legs-script-placed-cleanup/readback: fails -> holds - Observe tree and ref after every destroy exit before deciding branch deletion.
+- legs-script-placed-cleanup/authority: fails -> holds - Missing home does not default recorded contracts to builtin ownership or current overrides.
 - telemetry-branch-seal/skip: fails -> holds - Common-dir state needs no checkout exclusion.
 - telemetry-branch-seal/warning: fails -> holds - Publication failure is an exit-0 warning, not a landing gate.
 - telemetry-branch-seal/artifacts: fails -> holds - Records belong to the orphan branch, not the product squash.
