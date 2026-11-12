@@ -499,11 +499,12 @@ test('section 4 demands distinct, pattern-judged approaches and section 5 refuse
   assert.ok(five.includes('including supplied presentation details in the design recap'), 'presentation detail preservation');
 });
 
-test('round-two design names actions without requiring a flow-wide count', () => {
+test('round-two design names actions without proposing a flow-wide count', () => {
   const text = main();
   const roundTwo = text.slice(text.indexOf('### 6. Present the design in two rounds'), text.indexOf('## Ticket Handling'));
   for (const clause of [
     'name every paid or external action', 'with its runner and inputs',
+    'Propose no flow-wide count for a named action',
     'approving the spec authorizes every named action for the whole flow',
     'across seed, rows, repairs and finish', 'without per-step permission prompts',
     'treat any stated count as advisory', 'action the spec does not name as unreachable',
@@ -517,7 +518,10 @@ test('round-two design names actions without requiring a flow-wide count', () =>
   const expected = read(`${sample}expected.md`);
   assert.match(fixture, /No flow-wide execution count is supplied/);
   assert.doesNotMatch(fixture, /Propose the smallest flow-wide execution count|proposed count covering|pending round-two action bounds/);
-  assert.doesNotMatch(expected, /^- flow-bound:/m);
+  assert.match(fixture, /Propose no flow-wide count/);
+  assert.match(expected, /^- flow-bound: judged:.*round two.*runner and inputs.*proposes no flow-wide count.*approval authorizes each named action for the whole flow/m);
+  assert.match(read('eval/brainstorming/intent.md'), /^- design-names-paid-actions\/flow-bound:.*Propose no flow-wide count/m);
+  assert.match(read('eval/brainstorming/README.md'), /^\| `design-names-paid-actions` \|.*propose no flow-wide count/m);
   assert.match(expected, /^- named-runs: judged:.*count is absent.*advisory/m);
   assert.match(expected, /^- unnamed-unreachable: judged:.*action the spec does not name/m);
   assert.match(expected, /^- no-deferral: judged:/m);
