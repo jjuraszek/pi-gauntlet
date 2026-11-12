@@ -1,8 +1,8 @@
 {
   "sample": "gate-line-first",
   "arm": "baseline",
-  "skillSha": "6dee958af2bac154f84fd4b7a1d10119eeab4e5fb37b187c849d346544bf1fdc",
-  "inputSha": "586b2732e6f61e251d1c0379140dd5f658ce7a59165866842929cc513f1a3911",
+  "skillSha": "18982a2460ff57a17fef1377f1ecd03ab163b5768cfaafb3245087b6e1704772",
+  "inputSha": "7c66ca0c764fbfc63a237eba570f40fd46971f251414fe6892cef4e915c45577",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -11,28 +11,28 @@
       "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: iteration 2 left the tree dirty\n\nThe loop child for row 1 returned one commit but left uncommitted changes in the implementation worktree. The return was not admitted. The rows below are the saved pre-dispatch cells, not the child's results.\n\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: row 1 evidence reads `check parser: expected colon, got comma`. The last decision reads `row 1 failed | delimiter still wrong | retry`.\n\nOptions:\n1. **Authorize discard/reset.** This discards the uncommitted changes and resets to the last valid commit. Row 1's attempts stay at 1, because a boundary rejection consumes no attempt. Iteration 2 stays consumed. Before the next dispatch, `iterations:` is set to the restored HEAD's value +1. Row 1 is then the next target, subject to the normal dispatch boundaries.\n2. **Stop.** Phase implement stays active. Branch and worktree state are preserved as they are, including the uncommitted changes.\n\nRecommendation: none - there is no ownership manifest and no evidence that the child process has exited. Confirm the uncommitted changes are safe to discard before authorizing option 1.\n",
-      "words": 180,
-      "wallMs": 13747,
+      "text": "gauntlet: question\nStopped: dirty tree at restore - ` M src/parser.ts` is uncommitted\n\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nLedger: iterations 2, allowance 4; implement stays active. No `pending:` tuple and no interrupted child are on record, so this edit is not attributed to any dispatch. I will not reset, clean, write the ledger or dispatch until you answer.\n\nProblem: `src/parser.ts` has an uncommitted change that no admitted iteration produced. Row 1's evidence reads `check parser: expected colon, got comma`, and the last decision is `row 1 failed | delimiter still wrong | retry`. The next dispatch would retry row 1 on this file, so it needs a clean tree first.\n\n1. Discard it: authorize `git reset --hard` plus `git clean -fd` in this worktree, which permanently drops the `src/parser.ts` edit. The ledger and row 1's attempts stay unchanged, and the loop then resumes at row 1.\n2. Keep it: commit or stash the edit yourself outside the loop, then tell me to resume. Nothing changes on my side.\n3. Stop: keep phase implement and leave the branch and the edit exactly as they are.\n\nRecommendation: 2 - the edit's ownership is unproven, so keeping it loses no work, and the loop resumes on row 1 once the tree is clean.\n",
+      "words": 209,
+      "wallMs": 10605,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\n\nStopped: child returned one commit with a dirty working tree.\n\nSaved row cells:\nrow 1: open\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nLedger snapshot: iterations: 2; allowance: 4.\n\nProblem:\nEvidence: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nAuthorize discarding uncommitted changes and resetting to the last valid commit? The child’s commit remains unadmitted. No cleanup or ledger changes have been performed.\n\nRecommendation: authorize discard/reset - recover the valid boundary while preserving saved row cells and the consumed dispatch count.\n",
-      "words": 91,
-      "wallMs": 10270,
+      "text": "gauntlet: question\nStopped: dirty implementation worktree — unrelated uncommitted edit in src/parser.ts\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nLedger: iterations: 2; allowance: 4. Implement remains active.\nProblem: ` M src/parser.ts` has no discard authorization.\nEvidence: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\n1. Authorize discarding the unrelated edit in src/parser.ts.\n2. Stop and preserve all state.\n\nNo calls, writes, reset or dispatch have run.\n\nRecommendation: none - the unrelated edit must remain untouched without explicit discard authorization.\n",
+      "words": 85,
+      "wallMs": 9994,
       "mechanical": {
         "question-first": "holds"
       }
     }
   },
-  "repoSha": "5afae0b595961c8e57a9401ab34e1046b8ab1e41"
+  "repoSha": "fd2857e0d03bf2b010086f02fe880e4a950b9690"
 }

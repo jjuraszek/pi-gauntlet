@@ -1,4 +1,4 @@
-for: 4cead4b4c001b3aa59dcfefb52e6a6051a26c618e51bc1496b3a410311f3cc9f
+for: 6963fc45e9490eabf4038350e811869ebdab247db0854feaf25db5d90bf44481
 
 ## Change
 Resolve a brief's missing companion location through the declared primary's branch-location rule, not a recorded home pattern. Use a found tree for all remaining admission checks; retain explicit brief paths and live receipt admission. The legs-missing sample replaces its recorded-home stop fact and adds found-tree, Home-tuple mismatch and explicit-path variants. Only legs-missing is selected for this change; narrated supplied observations do not prove live restoration, and unrelated saved results remain partial historical evidence.

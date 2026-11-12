@@ -40,7 +40,7 @@ Matched baseline/candidate comparisons use identical case inputs and slice defin
 
 The full report has 27 unchanged cells and one inconclusive cell: a confirmation misses explicit framing and puts the version behind hover rather than beside the date. The user accepts this specific recorded result for landing, not as an eval pass or a blanket waiver; see the spec's [accepted evaluation limitation](../../doc/specs/2026-10-11-brainstorm-same-turn-continuation.md#accepted-evaluation-limitation).
 
-Tool-free response comparison cannot prove actual spec-file writes, tool execution, multi-turn liveness, or perfect compliance across models and sessions. These cases do not cover round-two approval starting the required spec-file write; a prose spec response is not write evidence.
+Tool-free response comparison cannot prove actual spec-file writes, tool execution, multi-turn liveness, or perfect compliance across models and sessions. These cases do not cover round-two approval starting the required spec-file write; a prose spec response is not write evidence. Selected sample evidence for paid-action naming covers `design-names-paid-actions`; partial coverage applies to unrun samples in this target.
 
 Process, commands, and record schema: `eval/README.md`. The live-tool harness in `replay/` is separate and not a target.
 

@@ -93,7 +93,7 @@ subagent({ agent: "loop-implementer", context: "fresh", async: false,
 
 For `target: seed`, explicitly instruct the child to apply its seed contract even when iteration is greater than 0; carry that instruction in the existing `hint` field. Keep the actual consumed pre-bump count in `iteration`.
 
-Omit the model override except on an escalated round (`model: <implModel>`); let the persona override or parent inheritance resolve it. Carry effects only: one file-reference return, one ledger read, git boundary checks. Never read a child transcript or carry reasoning history. Route a dispatch error or non-DONE return, including a silence kill, through ## Interrupted recovery. An async handle still stops; never poll or join it. Redispatch only through the ordered table after completed recovery.
+Omit the model override except on an escalated round (`model: <implModel>`); let the persona override or parent inheritance resolve it. Carry effects only: one file-reference return, one ledger read, git boundary checks. Never read a child transcript or carry reasoning history. Route a dispatch error (including `Request aborted` or any tool-reported `error: <text>`, even with an empty return file) or non-DONE return, including a silence kill, through ## Interrupted recovery. An async handle still stops; never poll or join it. Redispatch only through the ordered table after completed recovery.
 
 ## Validate the return
 

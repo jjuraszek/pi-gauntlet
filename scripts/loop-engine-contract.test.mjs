@@ -195,8 +195,9 @@ test('automatic exit verification repair is once per flow under both options', (
     'bump iterations once', 'Save the home ledger and home/failing-leg HEADs',
     'preserving attempts, mapping, allowance and prior decisions',
     'On killed, error, non-DONE, dirty, zero/multiple-commit or invalid repair returns',
-    'after owned jobs exit and the boundary is clean', 'empty `loop: repair verification` marker (no repair code)',
-    'retain state at the recovery-incomplete stop; the pending reservation remains consumed',
+    'apply ## Interrupted recovery steps 1-2 to the failing checkout at its saved HEAD',
+    'empty `loop: repair verification` marker in home (no repair code)',
+    'A non-empty `status --porcelain` after reset blocks neither the marker nor the rerun',
     'an already admitted matching marker needs no second marker',
     'A new failure in any leg returns to the repair-count check', 'Never spend verify-phase credits',
   ]) assert.ok(gate.includes(token), token);
@@ -368,24 +369,23 @@ test('terminal home results admit clean returns and repair interrupted returns w
   assert.match(validation, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1/);
 });
 
-test('reconstruction fences interrupted recovery before mutation or task projection', () => {
+test('reconstruction routes interrupted recovery unconditionally before mutation or task projection', () => {
   const recovery = readFileSync(new URL('skills/gauntlet-resume/reference/reconstruction.md', root), 'utf8');
   const interrupted = recovery.split('| Confirmed interrupted |')[1].split('\n')[0];
   const home = recovery.split('| Home leg or single-member `home` |')[1].split('\n')[0];
-  for (const instruction of [interrupted, home]) {
-    assert.match(instruction, /## Interrupted recovery/);
-    assert.match(instruction, /provenance/);
-    assert.match(instruction, /preserv/i);
-    assert.match(instruction, /consumed/);
-  }
-  assert.doesNotMatch(recovery, /restore the target row and the tuple|restore row <n> to its pre-dispatch/);
+  assert.match(interrupted, /unconditional interrupted recovery/);
+  assert.match(interrupted, /consumed/);
+  assert.match(home, /## Interrupted recovery/);
+  assert.match(home, /without a provenance or process-exit gate/);
+  assert.match(home, /already-consumed iteration/);
+  assert.doesNotMatch(recovery, /restore the target row and the tuple|restore row <n> to its pre-dispatch|ownership-fenced/);
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const resume = reference.split('\n## Resume\n')[1].split('\n## Targeting and dispatch\n')[0];
   const companion = recovery.split('| Actual multi-member companion |')[1].split('\n')[0];
   for (const instruction of [resume, companion]) {
-    assert.match(instruction, /ownership-fenced interrupted recovery|ownership-fenced recovery/);
+    assert.match(instruction, /common interrupted recovery|unconditional interrupted recovery/);
     assert.match(instruction, /post-boundary result-validation misses.*`loop: repair row <n>`.*`loop: repair seed`.*clear `pending:`.*preserve the consumed iteration/);
-    assert.doesNotMatch(instruction, /attribution\/result mismatch|missing evidence take/);
+    assert.doesNotMatch(instruction, /attribution\/result mismatch|missing evidence take|ownership-fenced/);
   }
 });
 
@@ -741,7 +741,7 @@ test('configuration-allowance: binding documentation describes the single allowa
       'retry <n> | <hint>', 'rows +N', 'loop: raise allowance', 'loop: migrate allowance',
       'effective allowance is the header allowance plus one per',
       'Preserve every row\'s attempts.', 'both or neither requires human repair',
-      'Old funding supplies no attempts', 'discard authorization only',
+      'Old funding supplies no attempts', 'Stopped: dirty tree with no dispatch pending', 'typed `discard`',
     ],
     'doc/implement-engines.md': [
       'no total iteration cap', 'Neither needs amend permission', 'rows +N',

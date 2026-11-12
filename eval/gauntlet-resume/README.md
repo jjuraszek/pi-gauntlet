@@ -8,7 +8,7 @@ This target tests what resume does when `plan_check` fails during a restore: cit
 | `skills/gauntlet-resume/reference/brief-contract.md` | `## Process-state restore` |
 | `skills/gauntlet-resume/reference/reconstruction.md` | `## Candidates` onward |
 
-Loop samples add the full resume, brief contract, and driver with `bundle+`; the brief sample also adds the handoff producer. Ledger checks stop on failure rather than entering task-plan repair.
+Loop samples add the full resume, brief contract, and driver with `bundle+`; the brief sample also adds the handoff producer. Ledger checks stop on failure rather than entering task-plan repair. Selected sample evidence covers `interrupted-ownership`, `migration-recovery`, and `ledger-tracker-recovery`; partial coverage applies to unrun samples in this target.
 
 | Sample | Must hold |
 |---|---|

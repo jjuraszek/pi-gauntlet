@@ -1,4 +1,4 @@
-for: 3700aa68c6f26f762776dcbb06b19e557e5ce4423ce720fc5191e35551f68f73
+for: 6303dbad31876ef347491ae88cc6eaea170bc1bc1695043af8930ae97e318182
 
 ## Change
 
@@ -140,7 +140,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - interrupted-child-redispatch/interruptions: fails -> holds - Recover every interrupted return shape and continue despite residual files.
 - interrupted-child-redispatch/aborted: fails -> holds - Repair G's Request aborted with its actual error reason and redispatch below allowance without a question.
 - interrupted-child-redispatch/git-failure: fails -> holds - Repeat failed reset and repair under the same allowance without dispatching from an unrestored HEAD or claiming an unlanded repair.
-- interrupted-child-redispatch/companion-resume: fails -> holds - Reset companion and home to their saved boundaries and write the home repair once without a provenance gate.
+- interrupted-child-redispatch/companion-resume: fails -> holds - Reset only the companion to its tuple HEAD and write the home repair once without a provenance gate.
 - interrupted-child-redispatch/seed: fails -> holds - Seed repairs spend the shared allowance without changing row attempts.
 - row-history-guidance/ruled-out: fails -> holds - Reject approach X using the older failed line even when latest guidance omits it.
 - row-history-guidance/ordered-history: fails -> holds - Read all target history oldest first before choosing an approach.
@@ -244,7 +244,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - scaled-cap-grant/entry: fails -> holds - Seed one reply- or settings-derived allowance, including all-cut ledgers, without a cap.
 - cap-and-exit-verification/contract: fails -> holds - Run the closed-row gate set at verify step 1 with at most 20 failure log lines, verify active and implement complete, with amend/stop only after repair is spent.
 - commit-boundary/seed-recovery: fails -> holds - Recover seeds without a proof demand or human turn; one repair at allowance1 stops without charging row attempts.
-- commit-boundary/contract: fails -> holds - Treat missing provenance and async handles as interrupted returns and write one repair without polling or joining.
+- commit-boundary/contract: fails -> holds - Recover dirty/zero/multi/error returns without provenance or launch proof, write one repair and stop on async handles without polling or joining.
 
 - leg-iteration/seed: fails -> holds - Enforce the new coordinated-flow must-hold fact: Expands shared ACs into original-AC/membership ordered rows, preserves cut disposition, records one base/seed flag per leg and Leg mapping; allowance4 without cap, seeds repo-a then repo-b only, never seeds wholly cut repo-c.
 - leg-iteration/dispatch: fails -> holds - Enforce the new coordinated-flow must-hold fact: Bumps iterations once to 3 and durably writes pending: 2 | repo-b | bbbbbbb before dispatch; passes repo-b cwd, own base, mapped AC, Leg/Rules, iteration/pending and absolute home spec/ledger.

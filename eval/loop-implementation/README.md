@@ -10,7 +10,7 @@ Exercise main-session driver decisions and the actual loop-implementer dispatch 
 | `human-stop-counts` | Unrelated dirt stops without writes; pending two-commit and empty returns recover and continue below allowance. |
 | `row-budget-actions` | Budget replies cannot authorize discard; typed discard resumes fresh seed admission or the implement/verify restore sequence. |
 
-These fixtures describe driver actions, not live reset or dispatch execution. Replay of these three migrated samples belongs to ledger row 13; existing model results do not attest their changed facts.
+These fixtures describe driver actions, not live reset or dispatch execution. Selected sample evidence covers the 17 rewritten and migrated samples (`interrupted-child-redispatch`, `seed-interrupted-count`, `companion-interrupted-recovery`, `verify-repair-count`, `unreachable-cut`, `allowance-10-escalate-after`, `commit-boundary`, `exit-repair-capability`, `exit-verification-escalates`, `human-stop-counts`, `multi-row-return`, `row-budget-actions`, `seed-retry`, `spent-row-escalation`, `tracker-boundary`, `legacy-cap`, `gate-line-first`); partial coverage applies to unrun samples in this target.
 
 ## Coordinated-flow coverage
 

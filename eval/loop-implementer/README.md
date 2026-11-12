@@ -11,4 +11,4 @@ Load the body of `agents/loop-implementer.md` followed by the diagnostic simulat
 | seed-evidence-carry | Close on the seeded fixture and passing local replay without repeating action records. |
 | seed-recovery | Repeat seeding after interrupted recovery while retaining the consumed iteration and fixed seed decision. |
 
-The row-and-evidence sample has two independent snapshots: a regular failed iteration and a seed iteration. Neither depends on another sample. These fixtures test decisions and emitted commands, not real filesystem or git effects. The runner writes records under `results/` and the target-wide summary to `report.md`; `records.jsonl` indexes the committed run outcome.
+The row-and-evidence sample has two independent snapshots: a regular failed iteration and a seed iteration. Neither depends on another sample. These fixtures test decisions and emitted commands, not real filesystem or git effects. Selected sample evidence covers `silence-bound-and-unreachable`, `seed-recovery`, and `seed-evidence-carry`; partial coverage applies to unrun samples in this target. The runner writes records under `results/` and the sample-scoped summary to `report.md`.
