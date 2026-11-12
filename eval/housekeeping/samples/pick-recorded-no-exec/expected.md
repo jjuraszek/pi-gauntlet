@@ -1,0 +1,5 @@
+- recorded-pick: judged: The reply acknowledges that Fix for the first class (the unused import) is recorded, not executed, and refers to the decisions file outside the repository or the supplied temporary run folder.
+- next-card: judged: The reply shows only the next unanswered card, 2 of 2, about the debug statement in src/widgets/format.ts, rather than asking the human to choose card 1 again.
+- next-picks: judged: The next card offers Fix, Ticket and Ignore in that order, with one recommendation and no choice already checked; the prior Fix pick is not applied to this class.
+- no-execution: judged: The reply claims no tracked edit, commit, push, PR, ticket or fix job has executed, and waits for the remaining card answer rather than starting the recorded fix or declaring the run done.
+- marker: mechanical: matches /^gauntlet: gate=housekeeping\/card recommended=[1-3]\n/

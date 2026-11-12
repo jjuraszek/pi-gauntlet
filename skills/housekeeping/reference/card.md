@@ -50,7 +50,7 @@ Recommend by the first matching row:
 
 ## Replies
 
-Keep `<run>/decisions.md` outside the repo. Record the class, pick, excluded items and any verbatim fix instruction. Never edit tracked files, commit, push, create a PR or file a ticket during the walk.
+Keep `<run>/decisions.md` outside the repo. Record the class, pick, excluded items and any verbatim fix instruction. After a successful decision write with cards still unanswered, acknowledge the class, pick and decisions path between the marker and the next card's title; state that nothing has executed and the walk is still open. Never edit tracked files, commit, push, create a PR or file a ticket during the walk.
 
 | Reply | Action |
 |---|---|
