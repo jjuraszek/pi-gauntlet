@@ -351,9 +351,9 @@ test('terminal home results admit clean returns and repair interrupted returns w
     assert.ok(recovery.includes(token), token);
   }
   assert.match(recovery.split('3. Write')[1], /`wrong attribution`.*as the concrete reason/);
-  assert.match(recovery, /still alive after KILL.*do not block recovery/);
+  assert.match(recovery, /still alive after KILL.*does not block recovery/);
   assert.match(recovery, /files remain after reset.*next return is validated as usual/);
-  assert.doesNotMatch(recovery, /recovery incomplete|provenance|action-spend|bound spent:|only below|discard authorization/);
+  assert.doesNotMatch(recovery, /recovery incomplete|provenance|launch history|action-spend|bound spent:|only below|discard authorization/);
   assert.ok(recovery.indexOf('1. ') < recovery.indexOf('reset --hard HEAD_BEFORE'));
   assert.ok(recovery.indexOf('reset --hard HEAD_BEFORE') < recovery.indexOf('3. Write'));
   const dispatch = driver.split('\n## Dispatch\n')[1].split('\n## Validate the return\n')[0];
@@ -452,7 +452,7 @@ test('gate set owns membership, fail-fast logs and every loop verification site'
   assert.match(after, /2\. .*Rerun the complete gate set after every fix round/);
   assert.match(after, /3\. .*gate set replacing plan Verification/);
   assert.doesNotMatch(after, /Run the ledger's `verification:` command|rerun the full command|Rerun full verification|`contract:` `- verification:`/);
-  for (const token of ['### Ledger subjects', 'never the ad-hoc no-plan path', '## Gate set', 'LOG_DIR', 'exit code and log path', 'child reads the log']) assert.ok(conformance.includes(token), token);
+  for (const token of ['### Ledger subjects', 'never the ad-hoc no-plan path', '## Gate set', 'owning-checkout routing', 'LOG_DIR', 'exit code and log path', 'child reads the log']) assert.ok(conformance.includes(token), token);
   assert.match(conformance, /SCOPED_TEST_COMMANDS`\s+to the gap block: for a ledger, the complete gate set/);
   assert.ok(conformance.includes("retain leg identity, remap the child's repaired leg to its actual isolated worktree and run that leg's pairs with `LOG_DIR` from its own `mktemp -d`; preserve the parent's checkout set and session `LOG_DIR` for post-integration runs"));
   assert.match(conformance, /4\. \*\*Scoped tests\*\*.*ledger.*gate set/);

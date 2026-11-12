@@ -107,7 +107,7 @@ for (const token of [
   'preserve iterations, every attempts cell and all decisions',
   'cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)',
   'With an existing allowance, use it without allowance resolution or a migration commit',
-  'Defer migration through an attribution stop, exhausted recovery or dirty tree',
+  'Defer migration through a missing-history stop or the dirty-tree stop',
   'project the unmigrated ledger solely to report the stop',
   'header plus one per matching retry decision', "ignore the retry's audit ceiling",
   'Keep `cap +N` history as inert text and restore no funded rounds',
@@ -162,7 +162,7 @@ for (const sample of ["interrupted-ownership", "migration-recovery", "ledger-tra
   assert.doesNotMatch(expected, /recovery incomplete|provenance.*before.*reset|stops for discard\/reset authorization/, sample);
 }
 const recovery = ledgerRestore.split("### Pending recovery")[1];
-assert.match(ledgerRestore, /row <n> in_progress \(pending tuple restored\)/);
+assert.match(ledgerRestore, /Only at a missing-history stop, render a row whose `pending:` tuple stays on disk as `row <n> in_progress \(pending tuple restored\)`/);
 assert.match(recovery, /Confirmed interrupted[^\n]*entire `<pre-dispatch HEAD>\.\.HEAD` range[^\n]*before-image without another bump[^\n]*unconditional interrupted recovery[^\n]*failed attempt[^\n]*ordered table/);
 assert.match(routes, /verify with `Ledger:`[^\n]*fresh home conformance review/);
 assert.match(recovery, /no `pending:`.*home commit history.*before.*refresh/i);
