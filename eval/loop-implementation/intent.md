@@ -2,6 +2,8 @@ for: 4def0aceb60c24ff468abfeeeb535de6b1158933cbae004c1938a48a141f595c
 
 ## Change
 
+Keep unrelated dirty work behind a typed discard with no pending dispatch. Render the dirty paths and preserved row counts, and resume the suspended fresh-entry or restore sequence only after authorization. Migrate gate-line-first, human-stop-counts and row-budget-actions; pending two-commit and empty returns recover automatically instead of asking for discard. Extend row-budget-actions for authorized discard at fresh entry and implement/verify restore. The selective deterministic check is scripts/loop-dirty-tree-stop.test.mjs beside its siblings. Model replay of these three samples is deferred to ledger row 13; existing records do not attest the changed facts.
+
 Apply the common interrupted-recovery rule to companion returns before clean-result admission. Reset only the selected companion and write the repair only in home, preserving foreign entries and consumed counters. Migrate companion-interrupted-recovery A-D for proof-free cleanup and add E-F for unchanged clean-result guards and companion seed recovery. The selective deterministic check lives beside its siblings in scripts/loop-companion-recovery.test.mjs. Model replay of companion-interrupted-recovery awaits reconstruction migration; existing results do not attest these changed facts.
 
 Recover interrupted verification repairs through the same jobs/reset rule, using the failing leg's job identity and resetting home for companions. Migrate `verify-repair-count` snapshots 2-3 for absent history, mismatched jobs, leftover dirt and extra home changes; add snapshot 5 for allowance-bounded reset/marker failures. Preserve row cells and the consumed iteration in one home marker, then rerun without a human pause. The selective deterministic check is `scripts/loop-verification-repair.test.mjs`; model replay of `verify-repair-count` awaits companion/resume migration, and existing result records do not prove the changed facts.
@@ -200,7 +202,8 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - allowance-entry-carrier/resume: holds -> holds - Existing ledger headers remain authoritative without reseeding or settings lookup.
 - allowance-entry-carrier/persistence: holds -> holds - Persist only the seeded ledger value, not a spec/settings transport.
 - human-stop-counts/row-stops: fails -> holds - Every row stop prints all unresolved counts using current effective allowances.
-- human-stop-counts/boundary-stops: fails -> holds - Dirty, rejected and interrupted stops show preserved counts without widening recovery authorization.
+- human-stop-counts/boundary-stops: fails -> holds - Unrelated dirt without pending shows preserved counts and a discard-or-Stop menu without writes.
+- human-stop-counts/pending-recovery: fails -> holds - Recover pending two-commit and empty returns without a human turn, charging one attempt before continuing below allowance.
 - human-stop-counts/exit-stop: fails -> holds - A closed-row verification stop retains the preservation sentence and restricted menu without invented counts.
 - human-stop-counts/durable-counts: fails -> holds - Decisions own retry increments and rendering never mutates counters or the table.
 - tracker-boundary/stops: fails -> holds - Stop at allowance and continue below it with the fixed stagnation hint and a durable dispatch reservation.
@@ -211,7 +214,8 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - row-budget-actions/raise: fails -> holds - Anchored rows grants serialize optional words and raise the shared header across legs in one commit.
 - row-budget-actions/invalid: fails -> holds - Both the first and later malformed replies leave ledger bytes and the stop unchanged.
 - row-budget-actions/windows: fails -> holds - Raising the header retains the stagnation hint and permits below-allowance dispatch; retry restarts its row's windows.
-- row-budget-actions/boundaries: fails -> holds - Budget actions are limited to row stops, never dirty/commit or verify stops.
+- row-budget-actions/boundaries: fails -> holds - Budget actions never bypass a no-pending dirty-tree or exhausted verification stop.
+- row-budget-actions/discard-continuation: fails -> holds - Typed discard resumes seed admission at fresh entry or migration, validation and refresh before the restore continuation.
 - row-budget-actions/missing: fails -> holds - A shared raise preserves attempts and unspent escalation; the next threshold dispatch stops again until a model resolves.
 - retired-budgets/counter-only: fails -> holds - Dispatch count and legacy funding no longer gate or buy loop attempts.
 - retired-budgets/exhaustion: fails -> holds - Exhaustion offers only retry and a shared allowance raise as budget actions.
@@ -231,8 +235,9 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - fresh-allowance-seed/all-cut: fails -> holds - Keep allowance4 and exit without dispatch after skeleton/refresh.
 - fresh-allowance-seed/durable: fails -> holds - Store the override in the ledger only and preserve it except on redraw.
 - escalated-row-attempt/ledger-prepare-local: fails -> holds - replaced wording: Never invokes plan_check; the next refresh projects the amended statuses.
-- gate-line-first/preserved: fails -> holds - Project saved target cells without overwriting the unadmitted ledger; missing provenance keeps discard/reset behind authorization.
-- gate-line-first/question-first: fails -> holds - Dirty returns await explicit authorization under a question marker.
+- gate-line-first/preserved: fails -> holds - Preserve admitted rows, counters and unrelated dirty work without pending until typed discard.
+- gate-line-first/question-first: fails -> holds - The no-pending dirty-tree stop starts with the question marker.
+- gate-line-first/authorization: fails -> holds - Name the dirty paths and offer discard or Stop only without budget choices.
 - scaled-cap-grant/entry: fails -> holds - Seed one reply- or settings-derived allowance, including all-cut ledgers, without a cap.
 - cap-and-exit-verification/contract: fails -> holds - Run the closed-row gate set at verify step 1 with at most 20 failure log lines, verify active and implement complete, with amend/stop only after repair is spent.
 - commit-boundary/seed-recovery: fails -> holds - Preserve owned seed recovery and consumed iterations; one repair at allowance 1 stops without charging row attempts.

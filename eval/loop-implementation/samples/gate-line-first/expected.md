@@ -1,3 +1,3 @@
 - question-first: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
-- authorization: judged: Asks explicitly for human authorization before discarding uncommitted changes or resetting to the last valid commit; offers no retry, rows +N, cap grant or funding.
-- preserved: judged: Preserves attempts and consumed iterations/allowance, leaves implement active; projects saved target cells without overwriting the unadmitted working ledger, makes no tree write, discard or reset, and emits no done or stuck terminal marker.
+- authorization: judged: Renders Stopped: dirty tree with no dispatch pending and names src/parser.ts. Offers typed discard or Stop only, with no retry, rows +N, cap grant or funding; waits for explicit discard authorization before reset or clean.
+- preserved: judged: Displays row 1: 1 of 4 and Preserve every row's attempts. Preserves iterations2, allowance4 and the admitted row cells, keeps implement active, makes no tree or ledger write, reset, clean or dispatch, and emits no done or stuck terminal marker.

@@ -3,7 +3,7 @@
 base: 9dc95a5b124c06eb70dac4a7b4ec4c758970fa85
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -15,7 +15,7 @@ allowance: 10
 | 5 | done | 1 | timeout -k 30 30 node --test scripts/loop-verification-repair.test.mjs; 3 passed; 0 failed; interrupted verification preserves rows and the reserved repair |
 | 6 | done | 1 | timeout -k 30 30 node --test scripts/loop-companion-recovery.test.mjs; 3 passed; 0 failed; companion-only cleanup preserves home repair and clean-result admission |
 | 7 | done | 1 | timeout -k 30 30 node scripts/brief-contract-lint.test.mjs; brief-contract lint fixtures pass; attribution stops preserved and confirmed interruptions repair before migration; selected model replay remains for row 13 |
-| 8 | open | 0 | |
+| 8 | done | 1 | timeout -k 30 30 node --test scripts/loop-dirty-tree-stop.test.mjs; 5 passed; 0 failed; selected model replay remains for row 13 |
 | 9 | open | 0 | |
 | 10 | open | 0 | |
 | 11 | open | 0 | |
@@ -31,3 +31,4 @@ row 4 done | Checked that interrupted seeds use the same recovery, preserve ever
 row 5 done | Migrated verification repair cleanup and fixtures; 3 contract tests pass, model replay awaits companion/resume migration. | Reuse interrupted-recovery.md's failure pass and verify-repair-count snapshots 2-5 for coordinated and resume recovery.
 row 6 done | Migrated companion recovery and fixtures; 3 contract tests pass, model replay awaits reconstruction migration. | Reuse coordinated-legs.md and companion-interrupted-recovery A-F for resume; scripts/loop-companion-recovery.test.mjs checks cleanup and admission separately.
 row 7 done | Migrated resume recovery and three fixtures; brief-contract assertions pass, with model replay deferred to row 13. | Reuse reconstruction.md and interrupted-ownership, migration-recovery and ledger-tracker-recovery fixtures for selected model replay.
+row 8 done | Added the no-pending dirty-tree stop and typed-discard continuation; five contract checks pass, with model replay deferred to row 13. | Reuse scripts/loop-dirty-tree-stop.test.mjs and the gate-line-first, human-stop-counts and row-budget-actions fixtures for selective checks and replay.
