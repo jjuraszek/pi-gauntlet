@@ -77,7 +77,7 @@ A squash with failed post-verification belongs under Not shipped with its create
 
 ## Discard and recorded cleanup - Steps 5 and 6
 
-List every member's branch, commit count, and located worktree path as a resolved absolute path (e.g. `/work/repo-b/trees/fix-x`; never a pattern or placeholder) before one typed `discard` confirmation. Obtain exact confirmation once for the run, then clean every member, home included, through its recorded contract regardless of other members' refusals. Do not strip or seal for discard.
+List every member's branch, commit count, and located worktree path as a resolved absolute path (e.g. `/work/repo-b/trees/fix-x`; never a pattern or placeholder), or the lookup failure reason in place of a path, before one typed `discard` confirmation. Obtain exact confirmation once for the run, then clean every member, home included, through its recorded contract regardless of other members' refusals. Do not strip or seal for discard.
 
 For cleanup, apply [Recorded cleanup ownership](#recorded-cleanup-ownership) from each leg's primary. Retain its read-back rule even after a wrapper failure; a hook refusal leaves the wrapper unrun. Never bypass a wrapper or hook with `git worktree remove`.
 

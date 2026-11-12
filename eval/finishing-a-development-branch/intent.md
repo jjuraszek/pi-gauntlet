@@ -1,7 +1,7 @@
 for: cd2cf59834bb750531e8f55185b391eb2f67b117a4aea3abde4e3c96f577ea8d
 
 ## Change
-Locate companions by recorded branch and apply recorded cleanup ownership before the keyed path. A script contract without home uses the located folder basename and reads back the tree and ref after any destroy exit; absent home and destroy retains host ownership. Preserve keyed name recovery, legacy overrides, confirmations and receipt failure handling. Add legs-script-placed-cleanup for selective narrated coverage only; leave all other sample evidence unchanged. Every new candidate fact must hold.
+Locate companions by recorded branch and apply recorded cleanup ownership before the keyed path. A script contract without home uses the located folder basename and reads back the tree and ref after any destroy exit; absent home and destroy retains host ownership. Preserve keyed name recovery, legacy overrides, confirmations and receipt failure handling. Add legs-script-placed-cleanup for selective narrated coverage only; leave all other sample evidence unchanged. Every new candidate fact must hold. Extend legs-script-placed-cleanup with a receipt-admitted missing companion at discard: print its lookup reason instead of a path, preserve its branch without destruction, and continue the other members' cleanup. Retain the sample's existing facts.
 
 Publish telemetry on its orphan branch rather than committing a product deliverable. Use full-tree verification skip proofs, and continue landing after an exit-0 publication warning. Add telemetry-branch-seal, update ledger-step-1's skip facts and spell out its retained per-command post-squash exit lines. Selected coverage: telemetry-branch-seal and ledger-step-1 only; existing sample evidence remains intact.
 
